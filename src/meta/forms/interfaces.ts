@@ -1,7 +1,8 @@
 import {
-  FormAttributeable as IFormAttributeable,
+  IFormAttributeable,
   FormNameable as IFormNameable,
   FormItemable as IFormItemable,
+  IFormAttributeableProperties,
 } from "./mixins/interfaces"
 import * as SystemEnumeration from "@/meta/systemEnumerations"
 
@@ -17,14 +18,21 @@ export interface IInputFieldElement
     IFormAttributeable,
     IFormNameable,
     IFormHorizontalAlignableStretchable {
+  properties: IInputFieldElementProperties
+}
+
+export interface IInputFieldElementProperties extends IFormElementProperties, IFormAttributeableProperties {
   title: string
   height: number
   multiLine: boolean
   choiceButton: boolean
-
-  value: string | boolean | number | Date
 }
-export interface IFormElement {}
+
+export interface IFormElement {
+  properties: IFormElementProperties
+}
+
+export interface IFormElementProperties {}
 
 export interface IFormAttribute {
   name: string

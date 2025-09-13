@@ -247,7 +247,7 @@ export class Visitor extends BaseVisitor {
 
     let content = this.joinTokens(ctx.InputValue)
     if (content) {
-      result.value = content
+      result.dataPathName = content
     }
 
     let height: number = ctx.inputFieldMultiline?.length ?? 0
