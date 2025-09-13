@@ -6,27 +6,31 @@ type Constructor = new (...args: any[]) => {}
 
 @injectable()
 export class DataPathNameStrategy implements IDataPathNameStrategy {
-  private _dataPathName: string = ""
-  private _autoValue: string | undefined
+  private _value: string | undefined
+  private _autoValue: string
   private _autoValueIndex: number = 0
   // private _attibute: IFormAttribute = { name: "" }
 
   set value(value: string) {
-    this._dataPathName = value
+    this._value = value
   }
   get value(): string {
-    return this._dataPathName
+    if (this._value != undefined) return this._value
+
+    const index = this._autoValueIndex == 0 ? "" : this._autoValueIndex
+    return `${this._autoValue}${index}`
   }
-  get autoValue(): string | undefined {
+  get autoValue(): string {
     return this._autoValue
   }
-  set autoValue(value: string | undefined) {
+  set autoValue(value: string) {
     this._autoValue = value
   }
-  get autoDataPathNameIndex(): number {
+
+  get autoValueIndex(): number {
     return this._autoValueIndex
   }
-  set autoDataPathNameIndex(value: number) {
+  set autoValueIndex(value: number) {
     this._autoValueIndex = value
   }
   get attibute(): IFormAttribute {
@@ -52,10 +56,10 @@ export function FormAttributeableMixin<TBase extends Constructor>(Base: TBase) {
       this.dataPathNameStrategy.autoValue = value
     }
     get autoDataPathIndex(): number {
-      return this.dataPathNameStrategy.autoDataPathNameIndex
+      return this.dataPathNameStrategy.autoValueIndex
     }
     set autoDataPathIndex(value: number) {
-      this.dataPathNameStrategy.autoDataPathNameIndex = value
+      this.dataPathNameStrategy.autoValueIndex = value
     }
   }
 }

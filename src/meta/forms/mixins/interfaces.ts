@@ -14,14 +14,14 @@ export interface FormNameable {
 }
 
 export interface IDataPathNameStrategy {
-  get value(): string
-  set value(value: string)
+  get value(): string | undefined
+  set value(value: string | undefined)
 
-  get autoValue(): string | undefined
-  set autoValue(value: string | undefined)
+  get autoValue(): string
+  set autoValue(value: string)
 
-  get autoDataPathNameIndex(): number
-  set autoDataPathNameIndex(value: number)
+  get autoValueIndex(): number
+  set autoValueIndex(value: number)
 
   get attibute(): IFormAttribute
 }

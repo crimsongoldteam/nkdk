@@ -1,25 +1,26 @@
-import { BaseFormElement } from "@/meta/base/baseFormElement"
-import { ExplicitUndefined, IInputFieldElement } from "@/meta/forms/interfaces"
-import { FormAttributeableMixin } from "@/meta/forms/mixins/formAttributeableMixin"
-import { FormNameableMixin } from "@/meta/forms/mixins/formNameableMixin"
-import * as SystemEnumeration from "@/meta/systemEnumerations"
-import { injectable } from "tsyringe"
+// import { BaseFormElement } from "@/meta/base/baseFormElement"
+// import { ExplicitUndefined, IInputFieldElement } from "@/meta/forms/interfaces"
+// import { FormAttributeableMixin } from "@/meta/forms/mixins/formAttributeableMixin"
+// import { FormNameableMixin } from "@/meta/forms/mixins/formNameableMixin"
+// import * as SystemEnumeration from "@/meta/systemEnumerations"
+// import { injectable } from "tsyringe"
 
-const InputFieldElementBase = FormAttributeableMixin(FormNameableMixin(BaseFormElement))
+// const InputFieldElementBase = FormAttributeableMixin(FormNameableMixin(BaseFormElement))
 
-@injectable()
-export class InputFormElement extends InputFieldElementBase implements IInputFieldElement {
-  public title: string = ""
-  public height: number = 0
-  public multiLine: boolean = false
-  public choiceButton: boolean = false
-  public horizontalAlignInGroup: SystemEnumeration.HorizontalAlign = SystemEnumeration.HorizontalAlign.Auto
-  public horizontalStretch: ExplicitUndefined<boolean> = undefined
+// @injectable()
+// export class InputFormElement extends InputFieldElementBase implements IInputFieldElement {
+//   public title: string = ""
+//   public height: number = 0
+//   public multiLine: boolean = false
+//   public choiceButton: boolean = false
+//   public dataPathName: string = ""
+//   public horizontalAlignInGroup: SystemEnumeration.HorizontalAlign = SystemEnumeration.HorizontalAlign.Auto
+//   public horizontalStretch: ExplicitUndefined<boolean> = undefined
 
-  public isMultiline(): boolean {
-    return this.multiLine && this.height > 1
-  }
-}
+//   public isMultiline(): boolean {
+//     return this.multiLine && this.height > 1
+//   }
+// }
 
 // import { Expose, Type } from "class-transformer"
 // import { TypeDescription, BaseElementWithAttributes } from "./index"

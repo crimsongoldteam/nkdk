@@ -39,6 +39,6 @@ export interface IFormAttribute {
 }
 
 export interface IFormHorizontalAlignableStretchable {
-  horizontalAlignInGroup: SystemEnumeration.HorizontalAlign
-  horizontalStretch: ExplicitUndefined<boolean>
+  // horizontalAlignInGroup: SystemEnumeration.HorizontalAlign
+  // horizontalStretch: ExplicitUndefined<boolean>
 }
