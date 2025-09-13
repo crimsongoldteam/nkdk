@@ -7,7 +7,7 @@ export { BaseElementWithAttributes } from "./baseElementWithAttributes "
 export { BaseElementWithoutAttributes } from "./baseElementWithoutAttributes"
 
 export { FormElement } from "./formElement"
-export { InputElement } from "./inputElement"
+export { InputFormElement as InputElement } from "./inputElement"
 export { LabelElement } from "./labelElement"
 export { CheckboxElement } from "./checkboxElement"
 export { RadioButtonElement } from "./radioButtonElement"

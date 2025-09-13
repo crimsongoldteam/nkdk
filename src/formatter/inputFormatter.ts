@@ -1,4 +1,4 @@
-import { InputElement } from "../elements/inputElement"
+import { InputFormElement } from "../elements/inputElement"
 import * as t from "../parser/lexer"
 import { IFormatterParams } from "./interfaces"
 import { FormatterFactory } from "./formatterFactory"
@@ -7,46 +7,25 @@ import { BaseElementMatcherStrategy } from "./matcher/baseElementMatcherStrategy
 import { ConditionWrapInGroupStrategy } from "./indentation/conditionWrapInGroupStrategy"
 import { BaseFormatter } from "./baseFormatter"
 import { PropertiesFormatter } from "./propertiesFormatter"
+import { IInputFieldElement } from "@/meta/forms/interfaces"
 
-export class InputFormatter extends BaseFormatter<InputElement> {
-  public format(element: InputElement, _params: IFormatterParams): string[] {
+export class InputFormatter extends BaseFormatter<IInputFieldElement> {
+  public format(element: IInputFieldElement, _params: IFormatterParams): string[] {
     const underline = t.Underscore.LABEL as string
 
     let header: string = FormatterUtils.getAlignmentAtLeft(element)
 
-    header += element.properties.get("Заголовок") ?? ""
+    header += element.title
     header += t.Colon.LABEL + " "
 
-    let value = ""
-    if (element.value) {
-      value = element.value
-    }
+    let value = element.value ? element.value.toString() : ""
 
     const modificators = this.getModificators(element)
     if (modificators.length > 0) {
       value += underline.repeat(2) + modificators
     }
 
-    let excludeProperties = [
-      "КнопкаВыпадающегоСписка",
-      "КнопкаВыбора",
-      "КнопкаОчистки",
-      "КнопкаРегулирования",
-      "КнопкаОткрытия",
-      "ГоризонтальноеПоложениеВГруппе",
-      "Заголовок",
-    ]
-
-    FormatterUtils.excludeStretchProperties(excludeProperties, element)
-
-    if (this.isMultiline(element)) {
-      excludeProperties.push("Высота")
-      excludeProperties.push("МногострочныйРежим")
-    }
-
-    const properties = PropertiesFormatter.render(element, {
-      excludeProperties: excludeProperties,
-    })
+    const properties = PropertiesFormatter.render(element)
 
     let result = [header + value + properties.join("") + FormatterUtils.getAlignmentAtRight(element)]
 
@@ -55,17 +34,17 @@ export class InputFormatter extends BaseFormatter<InputElement> {
     return result
   }
 
-  private isMultiline(element: InputElement): boolean {
-    return element.isMultiline()
+  private isMultiline(element: IInputFieldElement): boolean {
+    return element.multiLine && element.height > 1
   }
 
-  private getMultilineString(element: InputElement, headerLength: number, valueLength: number): string[] {
+  private getMultilineString(element: IInputFieldElement, headerLength: number, valueLength: number): string[] {
     if (!this.isMultiline(element)) {
       return []
     }
 
     const underline = t.Underscore.LABEL as string
-    const height = element.getProperty("Высота") as number
+    const height = element.height
 
     let multilineStringTemplate = " ".repeat(headerLength) + underline.repeat(valueLength)
 
@@ -78,7 +57,7 @@ export class InputFormatter extends BaseFormatter<InputElement> {
     return result
   }
 
-  private getModificators(element: InputElement): string {
+  private getModificators(element: IInputFieldElement): string {
     const propertyMap: { [key: string]: string } = {
       КнопкаВыбора: "В",
       КнопкаВыпадающегоСписка: "С",
@@ -95,5 +74,5 @@ export class InputFormatter extends BaseFormatter<InputElement> {
 }
 
 FormatterFactory.register(
-  new InputFormatter(new BaseElementMatcherStrategy(InputElement), new ConditionWrapInGroupStrategy())
+  new InputFormatter(new BaseElementMatcherStrategy(InputFormElement), new ConditionWrapInGroupStrategy())
 )

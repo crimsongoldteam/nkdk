@@ -1,7 +1,7 @@
 {
   "name": "nakidka-core",
   "version": "1.0.0",
-  "description": "A TypeScript library for form management with FormGroup class",
+  "description": "Management forms and metadata for 1C:Enterprise-like systems",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -9,7 +9,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && vite build",
     "prepublishOnly": "npm run clean && npm run build",
     "dev": "ts-node src/index.ts",
     "watch": "tsc --watch",
@@ -27,25 +27,52 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-username/nakidka-core.git"
+    "url": "git+https://github.com/crimsongoldteam/nakidka-core.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/nakidka-core/issues"
+    "url": "https://github.com/crimsongoldteam/nakidka-core/issues"
   },
-  "homepage": "https://github.com/your-username/nakidka-core#readme",
+  "homepage": "https://github.com/crimsongoldteam/nakidka-core",
+  "packageManager": "yarn@1.22.22",
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@vitest/coverage-v8": "3.2.4",
-    "@vitest/ui": "^3.2.4",
-    "rimraf": "^5.0.0",
-    "ts-node": "^10.9.0",
-    "typescript": "^5.0.0",
+    "@types/node": "^22.15.21",
+    "@vitest/coverage-v8": "^3.2.4",
+    "jsdom": "^26.1.0",
+    "path": "^0.12.7",
+    "pointer-events-polyfill": "^0.4.4-pre",
+    "resize-observer-polyfill": "^1.5.1",
+    "terser": "^5.37.0",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-monaco-editor": "^1.1.0",
+    "vite-plugin-singlefile": "^2.1.0",
+    "vite-plugin-zip-pack": "^1.2.4",
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@orama/orama": "^3.1.11",
+    "@orama/plugin-embeddings": "^3.1.11",
+    "@orama/plugin-pt15": "^3.1.11",
+    "@orama/plugin-qps": "^3.1.11",
+    "@orama/stemmers": "^3.1.11",
+    "@ungap/global-this": "^0.4.4",
+    "@ungap/trim-end": "^0.2.0",
+    "@ungap/trim-start": "^0.2.0",
+    "@ungap/weakrefs": "^0.2.0",
+    "big-integer": "^1.6.52",
+    "chevrotain": "^11.0.3",
     "class-transformer": "^0.5.1",
+    "date-fns": "^4.1.0",
     "fast-xml-parser": "^5.2.5",
+    "monaco-editor-core": "0.43.0",
+    "performance-polyfill": "^0.0.3",
+    "reflect-metadata": "^0.2.2",
+    "rollup": "^4.41.1",
+    "seedrandom": "^3.0.5",
+    "split.js": "^1.6.5",
     "tsyringe": "^4.10.0",
-    "zod": "^4.1.5"
+    "uuid": "^11.1.0",
+    "whatwg-fetch": "^3.6.20",
+    "yarn": "^1.22.22"
   }
 }

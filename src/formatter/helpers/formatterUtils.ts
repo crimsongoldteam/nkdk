@@ -2,7 +2,9 @@ import { BaseElement } from "../../elements/baseElement"
 import * as t from "../../parser/lexer"
 import { TypeDescription } from "@/elements/typeDescription"
 import { DateFractions } from "@/elements/types"
+import { IFormHorizontalAlignableStretchable } from "@/meta/forms/interfaces"
 import { format as fnsFormat } from "date-fns"
+import * as SystemEnumeration from "@/meta/systemEnumerations"
 
 export class FormatterUtils {
   public static formatValue(value: string | boolean | number | Date, typeDescription: TypeDescription): string {
@@ -33,23 +35,19 @@ export class FormatterUtils {
     return fnsFormat(value, "dd.MM.yyyy HH:mm:ss")
   }
 
-  public static getAlignmentAtLeft(element: BaseElement): string {
+  public static getAlignmentAtLeft(element: IFormHorizontalAlignableStretchable): string {
     if (
-      element.properties.get("ГоризонтальноеПоложениеВГруппе") === "Центр" ||
-      element.properties.get("ГоризонтальноеПоложениеВГруппе") === "Право"
+      element.horizontalAlignInGroup == SystemEnumeration.HorizontalAlign.Center ||
+      element.horizontalAlignInGroup == SystemEnumeration.HorizontalAlign.Right
     ) {
       return t.RArrow.LABEL + " "
-    }
-
-    if (element.properties.get("ГоризонтальноеПоложениеВГруппе") === "Центр") {
-      return t.LArrow.LABEL + " "
     }
 
     return ""
   }
 
-  public static getAlignmentAtRight(element: BaseElement): string {
-    if (element.properties.get("ГоризонтальноеПоложениеВГруппе") === "Центр") {
+  public static getAlignmentAtRight(element: IFormHorizontalAlignableStretchable): string {
+    if (element.horizontalAlignInGroup === SystemEnumeration.HorizontalAlign.Center) {
       return " " + t.LArrow.LABEL
     }
 
@@ -60,14 +58,17 @@ export class FormatterUtils {
     return ""
   }
 
-  public static excludeStretchProperties(excludeProperties: string[], element: BaseElement): void {
-    if (!this.isStretch(element)) return
+  public static excludeStretchProperties(
+    excludeProperties: string[],
+    element: IFormHorizontalAlignableStretchable
+  ): void {
+    if (!element.horizontalStretch) return
 
     excludeProperties.push("РастягиватьПоГоризонтали")
   }
 
-  private static isStretch(element: BaseElement): boolean {
-    return element.getProperty("РастягиватьПоГоризонтали") === true
+  private static isStretch(element: IFormHorizontalAlignableStretchable): boolean {
+    return element.horizontalStretch === true
   }
 
   public static getCheckboxString(
