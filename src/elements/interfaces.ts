@@ -1,0 +1,60 @@
+import { IdGeneratorQueueInboxItem, IdGeneratorRequest } from "@/parser/visitorTools/idGenerator"
+import { CstPath } from "./cstPathHelper"
+import { DateFractions, ElementListType } from "./types"
+
+export interface IBaseElement {
+  updateParents(): unknown
+  parent: IBaseElement | undefined
+  parentList: ElementListType | undefined
+  elementId: string
+  type: string
+
+  getCstPath(): CstPath
+
+  getList(listType: ElementListType): Array<IBaseElement> | undefined
+
+  getElementByElementId(id: string): IBaseElement | undefined
+  getAllElements(): IBaseElement[]
+
+  getIdTemplate(request: IdGeneratorRequest): string
+  getIdGeneratorQueue(): IdGeneratorQueueInboxItem[]
+
+  getAttributes(): IAttribute[]
+
+  get isContainer(): boolean
+
+  canBeInOneLine(): boolean
+}
+
+export type BaseElementCtor = new (...args: any[]) => IBaseElement
+
+export interface IGroupElement extends IBaseElement {
+  isOneLineGroup(): boolean
+  get group(): string | undefined
+  set group(value: string | undefined)
+
+  canShrink(): boolean
+}
+
+export interface IAttribute {
+  name: string
+  isTable: boolean
+  isNew: boolean
+  singleTypeDescription: string
+  items?: IAttribute[]
+}
+
+export interface ITypeDescription {
+  types: string[]
+  digits: number
+  fractionDigits: number
+  length: number
+  dateFractions: DateFractions
+  auto: boolean
+
+  isNew: boolean
+
+  isEmpty(): boolean
+  isEqual(other: ITypeDescription): boolean
+  isTable(): boolean
+}
