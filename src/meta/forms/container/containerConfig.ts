@@ -1,18 +1,34 @@
 import "reflect-metadata"
-import { container } from "tsyringe"
+import { container, Lifecycle } from "tsyringe"
 import { DataPathNameStrategy } from "../mixins/formAttributeableMixin"
-import { InputFieldElement } from "../elements/inputFieldElement"
+import { InputFieldElement, InputFieldElementProperties } from "../elements/inputFieldElement"
 import { IDataPathNameStrategy } from "../mixins/interfaces"
-import { IInputFieldElement } from "../interfaces"
+import { IInputFieldElement, IInputFieldElementProperties } from "../interfaces"
+
+// Symbol токены для DI контейнера
+export const IDataPathNameStrategyToken = Symbol()
+export const IInputFieldElementPropertiesToken = Symbol()
+export const IInputFieldElementToken = Symbol()
 
 /**
  * Настройка DI контейнера для форм
  */
 export function configureFormContainer(): void {
-  container.register<IDataPathNameStrategy>("IDataPathNameStrategy", {
-    useClass: DataPathNameStrategy,
-  })
-  container.register<IInputFieldElement>("IInputFieldElement", {
+  container.register<IDataPathNameStrategy>(
+    IDataPathNameStrategyToken,
+    {
+      useClass: DataPathNameStrategy,
+    },
+    {
+      lifecycle: Lifecycle.ResolutionScoped,
+    }
+  )
+
+  container.register<IInputFieldElement>(IInputFieldElementToken, {
     useClass: InputFieldElement,
+  })
+
+  container.register<IInputFieldElementProperties>(IInputFieldElementPropertiesToken, {
+    useClass: InputFieldElementProperties,
   })
 }

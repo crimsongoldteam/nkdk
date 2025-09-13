@@ -1,10 +1,9 @@
 import { inject, injectable } from "tsyringe"
 import { IInputFieldElement, ExplicitUndefined, IInputFieldElementProperties, IFormAttribute } from "../interfaces"
 import { BaseFormElement, BaseFormElementProperties } from "@/meta/base/baseFormElement"
-import { FormAttributeableMixin, FormAttributeablePropertiesMixin } from "../mixins/formAttributeableMixin"
-import { FormNameableMixin } from "../mixins/formNameableMixin"
 import * as SystemEnumeration from "@/meta/systemEnumerations"
 import type { IDataPathNameStrategy } from "../mixins/interfaces"
+import { IDataPathNameStrategyToken, IInputFieldElementPropertiesToken } from "../container/containerConfig"
 
 // const InputFieldElementBase = FormAttributeableMixin(FormNameableMixin(BaseFormElement))
 // const InputFieldElementPropertiesBase = FormAttributeablePropertiesMixin(BaseFormElementProperties)
@@ -19,7 +18,7 @@ export class InputFieldElementProperties extends BaseFormElementProperties imple
   public horizontalAlignInGroup: SystemEnumeration.HorizontalAlign = SystemEnumeration.HorizontalAlign.Auto
   public horizontalStretch: ExplicitUndefined<boolean> = undefined
 
-  constructor(@inject("IDataPathNameStrategy") public readonly dataPathNameStrategy: IDataPathNameStrategy) {
+  constructor(@inject(IDataPathNameStrategyToken) public readonly dataPathNameStrategy: IDataPathNameStrategy) {
     super()
   }
 
@@ -34,27 +33,27 @@ export class InputFieldElementProperties extends BaseFormElementProperties imple
 @injectable()
 export class InputFieldElement extends BaseFormElement implements IInputFieldElement {
   constructor(
-    @inject("IDataPathNameStrategy") public readonly dataPathNameStrategy: IDataPathNameStrategy,
-    public properties: InputFieldElementProperties
+    @inject(IDataPathNameStrategyToken) public readonly dataPathNameStrategy: IDataPathNameStrategy,
+    @inject(IInputFieldElementPropertiesToken) public readonly properties: InputFieldElementProperties
   ) {
     super()
   }
   get name(): string {
     throw new Error("Method not implemented.")
   }
-  set name(value: string) {
+  set name(_value: string) {
     throw new Error("Method not implemented.")
   }
   get autoName(): string | undefined {
     throw new Error("Method not implemented.")
   }
-  set autoName(value: string | undefined) {
+  set autoName(_value: string | undefined) {
     throw new Error("Method not implemented.")
   }
   get autoNameIndex(): number {
     throw new Error("Method not implemented.")
   }
-  set autoNameIndex(value: number) {
+  set autoNameIndex(_value: number) {
     throw new Error("Method not implemented.")
   }
   get isAutoName(): boolean {

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest"
 import "reflect-metadata"
 import { container } from "tsyringe"
-import { configureFormContainer } from "../../src/meta/forms/container/containerConfig"
+import { configureFormContainer, IDataPathNameStrategyToken } from "../../src/meta/forms/container/containerConfig"
 import { IDataPathNameStrategy } from "@/meta/forms/mixins/interfaces"
 
 describe("DataPathNameStrategy", () => {
@@ -9,11 +9,11 @@ describe("DataPathNameStrategy", () => {
 
   beforeEach(() => {
     // Clear container before each test
-    container.clearInstances()
+    container.reset()
     configureFormContainer()
 
     // Create new instance of strategy
-    strategy = container.resolve<IDataPathNameStrategy>("IDataPathNameStrategy")
+    strategy = container.resolve<IDataPathNameStrategy>(IDataPathNameStrategyToken)
   })
 
   it("should set and get value", () => {

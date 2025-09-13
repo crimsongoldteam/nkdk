@@ -14,7 +14,7 @@ export interface FormNameable {
 }
 
 export interface IDataPathNameStrategy {
-  get value(): string | undefined
+  get value(): string
   set value(value: string | undefined)
 
   get autoValue(): string
@@ -34,11 +34,15 @@ export interface IFormAttributeable {
   set autoDataPathIndex(value: number)
 
   get attibute(): IFormAttribute
+
+  readonly dataPathNameStrategy: IDataPathNameStrategy
 }
 
 export interface IFormAttributeableProperties {
   get dataPathName(): string
   set dataPathName(value: string)
+
+  readonly dataPathNameStrategy: IDataPathNameStrategy
 }
 
 export interface FormItemable {

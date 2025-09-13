@@ -7,7 +7,7 @@ type Constructor = new (...args: any[]) => {}
 @injectable()
 export class DataPathNameStrategy implements IDataPathNameStrategy {
   private _value: string | undefined
-  private _autoValue: string
+  private _autoValue: string = ""
   private _autoValueIndex: number = 0
   // private _attibute: IFormAttribute = { name: "" }
 
@@ -40,19 +40,20 @@ export class DataPathNameStrategy implements IDataPathNameStrategy {
 
 export function FormAttributeableMixin<TBase extends Constructor>(Base: TBase) {
   return class extends Base implements IFormAttributeable {
+    public readonly dataPathNameStrategy: IDataPathNameStrategy
+
     constructor(...args: any[]) {
       super(...args)
       this.dataPathNameStrategy = args[0]
     }
-    private readonly dataPathNameStrategy: IDataPathNameStrategy
 
     get attibute(): IFormAttribute {
       return this.dataPathNameStrategy.attibute
     }
-    get autoDataPathName(): string | undefined {
+    get autoDataPathName(): string {
       return this.dataPathNameStrategy.autoValue
     }
-    set autoDataPathName(value: string | undefined) {
+    set autoDataPathName(value: string) {
       this.dataPathNameStrategy.autoValue = value
     }
     get autoDataPathIndex(): number {
@@ -66,7 +67,8 @@ export function FormAttributeableMixin<TBase extends Constructor>(Base: TBase) {
 
 export function FormAttributeablePropertiesMixin<TBase extends Constructor>(Base: TBase) {
   return class extends Base implements IFormAttributeableProperties {
-    private readonly dataPathNameStrategy: IDataPathNameStrategy
+    public readonly dataPathNameStrategy: IDataPathNameStrategy
+
     constructor(...args: any[]) {
       super(...args)
       this.dataPathNameStrategy = args[0]
