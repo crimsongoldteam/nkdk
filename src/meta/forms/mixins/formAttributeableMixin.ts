@@ -1,10 +1,17 @@
+import { IDataPathNameStrategyToken } from "../container/containerConfig"
 import { IFormAttribute } from "../interfaces"
 import { IFormAttributeable, IDataPathNameStrategy, IFormAttributeableProperties } from "./interfaces"
-import { injectable } from "tsyringe"
+import { injectable, Lifecycle, registry, scoped } from "tsyringe"
 
 type Constructor = new (...args: any[]) => {}
 
-@injectable()
+@registry([
+  {
+    token: IDataPathNameStrategyToken,
+    useClass: DataPathNameStrategy,
+    options: { lifecycle: Lifecycle.ResolutionScoped },
+  },
+])
 export class DataPathNameStrategy implements IDataPathNameStrategy {
   private _value: string | undefined
   private _autoValue: string = ""
@@ -38,47 +45,53 @@ export class DataPathNameStrategy implements IDataPathNameStrategy {
   }
 }
 
-export function FormAttributeableMixin<TBase extends Constructor>(Base: TBase) {
-  return class extends Base implements IFormAttributeable {
-    public readonly dataPathNameStrategy: IDataPathNameStrategy
+// export function FormAttributeableMixin<TBase extends Constructor>(Base: TBase) {
+//   return class extends Base implements IFormAttributeable {
+//     public readonly dataPathNameStrategy: IDataPathNameStrategy
 
-    constructor(...args: any[]) {
-      super(...args)
-      this.dataPathNameStrategy = args[0]
-    }
+//     constructor(...args: any[]) {
+//       super(...args)
+//       this.dataPathNameStrategy = args[0]
+//     }
 
-    get attibute(): IFormAttribute {
-      return this.dataPathNameStrategy.attibute
-    }
-    get autoDataPathName(): string {
-      return this.dataPathNameStrategy.autoValue
-    }
-    set autoDataPathName(value: string) {
-      this.dataPathNameStrategy.autoValue = value
-    }
-    get autoDataPathIndex(): number {
-      return this.dataPathNameStrategy.autoValueIndex
-    }
-    set autoDataPathIndex(value: number) {
-      this.dataPathNameStrategy.autoValueIndex = value
-    }
-  }
-}
+//     get attibute(): IFormAttribute {
+//       return this.dataPathNameStrategy.attibute
+//     }
+//     get autoDataPathName(): string {
+//       return this.dataPathNameStrategy.autoValue
+//     }
+//     set autoDataPathName(value: string) {
+//       this.dataPathNameStrategy.autoValue = value
+//     }
+//     get autoDataPathIndex(): number {
+//       return this.dataPathNameStrategy.autoValueIndex
+//     }
+//     set autoDataPathIndex(value: number) {
+//       this.dataPathNameStrategy.autoValueIndex = value
+//     }
+//   }
+// }
 
-export function FormAttributeablePropertiesMixin<TBase extends Constructor>(Base: TBase) {
-  return class extends Base implements IFormAttributeableProperties {
-    public readonly dataPathNameStrategy: IDataPathNameStrategy
+// export function FormAttributeablePropertiesMixin<TBase extends Constructor>(Base: TBase) {
+//   return class extends Base implements IFormAttributeableProperties {
+//     public readonly dataPathNameStrategy: IDataPathNameStrategy
 
-    constructor(...args: any[]) {
-      super(...args)
-      this.dataPathNameStrategy = args[0]
-    }
+//     constructor(...args: any[]) {
+//       super(...args)
+//       this.dataPathNameStrategy = args[0]
+//     }
 
-    get dataPathName(): string {
-      return this.dataPathNameStrategy.value
-    }
-    set dataPathName(value: string) {
-      this.dataPathNameStrategy.value = value
-    }
-  }
-}
+//     get dataPathName(): string {
+//       return this.dataPathNameStrategy.value
+//     }
+//     set dataPathName(value: string) {
+//       this.dataPathNameStrategy.value = value
+//     }
+//   }
+// }
+
+// export class UselessClass {
+//   constructor() {
+//     console.log("UselessClass constructor")
+//   }
+// }

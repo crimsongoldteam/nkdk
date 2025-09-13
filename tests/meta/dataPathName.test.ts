@@ -1,22 +1,21 @@
 import { describe, it, expect, beforeEach } from "vitest"
 import "reflect-metadata"
 import { container } from "tsyringe"
-import { configureFormContainer, IDataPathNameStrategyToken } from "../../src/meta/forms/container/containerConfig"
+import { IDataPathNameStrategyToken } from "../../src/meta/forms/container/containerConfig"
 import { IDataPathNameStrategy } from "@/meta/forms/mixins/interfaces"
+import "../../src/meta/"
 
 describe("DataPathNameStrategy", () => {
   let strategy: IDataPathNameStrategy
 
   beforeEach(() => {
-    // Clear container before each test
-    container.reset()
-    configureFormContainer()
+    container.clearInstances()
 
-    // Create new instance of strategy
-    strategy = container.resolve<IDataPathNameStrategy>(IDataPathNameStrategyToken)
+    strategy = container.resolveAll<IDataPathNameStrategy>(IDataPathNameStrategyToken)[0]
   })
 
   it("should set and get value", () => {
+    expect(container.isRegistered(IDataPathNameStrategyToken)).toBe(true)
     const testValue = "testDataPath"
     strategy.value = testValue
     expect(strategy.value).toBe(testValue)

@@ -1,14 +1,18 @@
-import { inject, injectable } from "tsyringe"
+import { inject, injectable, Lifecycle, scoped } from "tsyringe"
 import { IInputFieldElement, ExplicitUndefined, IInputFieldElementProperties, IFormAttribute } from "../interfaces"
 import { BaseFormElement, BaseFormElementProperties } from "@/meta/base/baseFormElement"
 import * as SystemEnumeration from "@/meta/systemEnumerations"
 import type { IDataPathNameStrategy } from "../mixins/interfaces"
-import { IDataPathNameStrategyToken, IInputFieldElementPropertiesToken } from "../container/containerConfig"
+import {
+  IDataPathNameStrategyToken,
+  IInputFieldElementPropertiesToken,
+  IInputFieldElementToken,
+} from "../container/containerConfig"
 
 // const InputFieldElementBase = FormAttributeableMixin(FormNameableMixin(BaseFormElement))
 // const InputFieldElementPropertiesBase = FormAttributeablePropertiesMixin(BaseFormElementProperties)
 
-@injectable()
+@injectable({ token: IInputFieldElementPropertiesToken })
 export class InputFieldElementProperties extends BaseFormElementProperties implements IInputFieldElementProperties {
   public title: string = ""
   public height: number = 0
@@ -18,7 +22,7 @@ export class InputFieldElementProperties extends BaseFormElementProperties imple
   public horizontalAlignInGroup: SystemEnumeration.HorizontalAlign = SystemEnumeration.HorizontalAlign.Auto
   public horizontalStretch: ExplicitUndefined<boolean> = undefined
 
-  constructor(@inject(IDataPathNameStrategyToken) public readonly dataPathNameStrategy: IDataPathNameStrategy) {
+  constructor(@inject(IDataPathNameStrategyToken) public dataPathNameStrategy: IDataPathNameStrategy) {
     super()
   }
 
@@ -30,11 +34,11 @@ export class InputFieldElementProperties extends BaseFormElementProperties imple
   }
 }
 
-@injectable()
+@injectable({ token: IInputFieldElementToken })
 export class InputFieldElement extends BaseFormElement implements IInputFieldElement {
   constructor(
-    @inject(IDataPathNameStrategyToken) public readonly dataPathNameStrategy: IDataPathNameStrategy,
-    @inject(IInputFieldElementPropertiesToken) public readonly properties: InputFieldElementProperties
+    @inject(IInputFieldElementPropertiesToken) public properties: InputFieldElementProperties,
+    @inject(IDataPathNameStrategyToken) public dataPathNameStrategy: IDataPathNameStrategy
   ) {
     super()
   }

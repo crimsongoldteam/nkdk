@@ -1,16 +1,15 @@
 import "reflect-metadata"
 import { container } from "tsyringe"
 import { describe, it, expect, beforeEach } from "vitest"
-import { configureFormContainer, IInputFieldElementToken } from "@/meta/forms/container/containerConfig"
+import { IInputFieldElementToken } from "@/meta/forms/container/containerConfig"
 import { IInputFieldElement } from "@/meta/forms/interfaces"
+import "../../src/meta/"
 
 describe("InputFieldElement autoDataPathName integration", () => {
   let element: IInputFieldElement
 
   beforeEach(() => {
-    container.reset()
-    configureFormContainer()
-
+    container.clearInstances()
     element = container.resolve<IInputFieldElement>(IInputFieldElementToken)
   })
 
@@ -40,14 +39,13 @@ describe("InputFieldElement autoDataPathName integration", () => {
   })
 
   it("should create different strategies for different elements", () => {
-    const element1 = container.resolve<IInputFieldElement>(IInputFieldElementToken)
     const element2 = container.resolve<IInputFieldElement>(IInputFieldElementToken)
 
-    // Каждый элемент должен иметь свою стратегию
-    expect(element1.dataPathNameStrategy).not.toBe(element2.dataPathNameStrategy)
-
     // Но внутри одного элемента стратегии должны совпадать
-    expect(element1.dataPathNameStrategy).toBe(element1.properties.dataPathNameStrategy)
+    expect(element.dataPathNameStrategy).toBe(element.properties.dataPathNameStrategy)
     expect(element2.dataPathNameStrategy).toBe(element2.properties.dataPathNameStrategy)
+
+    // Каждый элемент должен иметь свою стратегию
+    expect(element.dataPathNameStrategy).not.toBe(element2.dataPathNameStrategy)
   })
 })
