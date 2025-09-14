@@ -14,7 +14,7 @@ export class CheckboxFormatter extends BaseFormatter<CheckboxElement> {
 
     const properties = PropertiesFormatter.render(element, { excludeProperties })
 
-    let header = element.getProperty("Заголовок") as string
+    let header = element.properties.title
 
     let result = FormatterUtils.getAlignmentAtLeft(element)
 

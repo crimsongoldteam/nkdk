@@ -1,83 +1,55 @@
-import { inject, injectable, Lifecycle, scoped } from "tsyringe"
-import { IInputFieldElement, ExplicitUndefined, IInputFieldElementProperties, IFormAttribute } from "../interfaces"
+import { inject, injectable } from "tsyringe"
+import { IInputFieldElement, ExplicitUndefined, IInputFieldElementProperties } from "../interfaces"
 import { BaseFormElement, BaseFormElementProperties } from "@/meta/base/baseFormElement"
 import * as SystemEnumeration from "@/meta/systemEnumerations"
-import type { IDataPathNameStrategy } from "../mixins/interfaces"
+import type { IDataPathNameStrategy, INameStrategy } from "../mixins/interfaces"
 import {
   IDataPathNameStrategyToken,
   IInputFieldElementPropertiesToken,
   IInputFieldElementToken,
+  INameStrategyToken,
 } from "../container/containerConfig"
+import { FormAttributeableMixin, FormAttributeablePropertiesMixin } from "../mixins/formAttributeableMixin"
+import { FormNameableMixin, FormNameablePropertiesMixin } from "../mixins/formNameableMixin"
 
-// const InputFieldElementBase = FormAttributeableMixin(FormNameableMixin(BaseFormElement))
-// const InputFieldElementPropertiesBase = FormAttributeablePropertiesMixin(BaseFormElementProperties)
+const InputFieldElementBase = FormAttributeableMixin(FormNameableMixin(BaseFormElement))
+const InputFieldElementPropertiesBase = FormAttributeablePropertiesMixin(
+  FormNameablePropertiesMixin(BaseFormElementProperties)
+)
 
 @injectable({ token: IInputFieldElementPropertiesToken })
-export class InputFieldElementProperties extends BaseFormElementProperties implements IInputFieldElementProperties {
+export class InputFieldElementProperties
+  extends InputFieldElementPropertiesBase
+  implements IInputFieldElementProperties
+{
   public title: string = ""
   public height: number = 0
   public multiLine: boolean = false
-  public choiceButton: boolean = false
+
+  public choiceButton: boolean | undefined = undefined
+  public dropListButton: boolean | undefined = undefined
+  public сlearButton: boolean | undefined = undefined
+  public openButton: boolean | undefined = undefined
+  public spinButton: boolean | undefined = undefined
 
   public horizontalAlignInGroup: SystemEnumeration.HorizontalAlign = SystemEnumeration.HorizontalAlign.Auto
   public horizontalStretch: ExplicitUndefined<boolean> = undefined
 
-  constructor(@inject(IDataPathNameStrategyToken) public dataPathNameStrategy: IDataPathNameStrategy) {
+  constructor(
+    @inject(IDataPathNameStrategyToken) private readonly dataPathNameStrategy: IDataPathNameStrategy,
+    @inject(INameStrategyToken) private readonly nameStrategy: INameStrategy
+  ) {
     super()
-  }
-
-  get dataPathName(): string {
-    return this.dataPathNameStrategy.value
-  }
-  set dataPathName(value: string) {
-    this.dataPathNameStrategy.value = value
   }
 }
 
 @injectable({ token: IInputFieldElementToken })
-export class InputFieldElement extends BaseFormElement implements IInputFieldElement {
+export class InputFieldElement extends InputFieldElementBase implements IInputFieldElement {
   constructor(
-    @inject(IInputFieldElementPropertiesToken) public properties: InputFieldElementProperties,
-    @inject(IDataPathNameStrategyToken) public dataPathNameStrategy: IDataPathNameStrategy
+    @inject(IInputFieldElementPropertiesToken) public readonly properties: InputFieldElementProperties,
+    @inject(IDataPathNameStrategyToken) private readonly dataPathNameStrategy: IDataPathNameStrategy,
+    @inject(INameStrategyToken) private readonly nameStrategy: INameStrategy
   ) {
     super()
-  }
-  get name(): string {
-    throw new Error("Method not implemented.")
-  }
-  set name(_value: string) {
-    throw new Error("Method not implemented.")
-  }
-  get autoName(): string | undefined {
-    throw new Error("Method not implemented.")
-  }
-  set autoName(_value: string | undefined) {
-    throw new Error("Method not implemented.")
-  }
-  get autoNameIndex(): number {
-    throw new Error("Method not implemented.")
-  }
-  set autoNameIndex(_value: number) {
-    throw new Error("Method not implemented.")
-  }
-  get isAutoName(): boolean {
-    throw new Error("Method not implemented.")
-  }
-
-  get attibute(): IFormAttribute {
-    return this.dataPathNameStrategy.attibute
-  }
-
-  get autoDataPathName(): string {
-    return this.dataPathNameStrategy.autoValue
-  }
-  set autoDataPathName(value: string) {
-    this.dataPathNameStrategy.autoValue = value
-  }
-  get autoDataPathIndex(): number {
-    return this.dataPathNameStrategy.autoValueIndex
-  }
-  set autoDataPathIndex(value: number) {
-    this.dataPathNameStrategy.autoValueIndex = value
   }
 }

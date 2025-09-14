@@ -15,4 +15,4 @@ export { InputFieldElement as InputFieldElementImpl } from "./meta/forms/element
 
 // Экспорт фабрики и конфигурации
 // export * from "./factories/formElementFactory"
-export * from "./container/containerConfig"
+// export * from "./container/containerConfig"

@@ -7,7 +7,7 @@ import { BaseElementMatcherStrategy } from "./matcher/baseElementMatcherStrategy
 import { ConditionWrapInGroupStrategy } from "./indentation/conditionWrapInGroupStrategy"
 import { BaseFormatter } from "./baseFormatter"
 import { PropertiesFormatter } from "./propertiesFormatter"
-import { IInputFieldElement } from "@/meta/forms/interfaces"
+import { IInputFieldElement, IInputFieldElementProperties } from "@/meta/forms/interfaces"
 
 export class InputFormatter extends BaseFormatter<IInputFieldElement> {
   public format(element: IInputFieldElement, _params: IFormatterParams): string[] {
@@ -15,17 +15,17 @@ export class InputFormatter extends BaseFormatter<IInputFieldElement> {
 
     let header: string = FormatterUtils.getAlignmentAtLeft(element)
 
-    header += element.title
+    header += element.properties.title
     header += t.Colon.LABEL + " "
 
-    let value = element.dataPathName ? element.dataPathName.toString() : ""
+    let value = element.properties.dataPathName ? element.properties.dataPathName.toString() : ""
 
     const modificators = this.getModificators(element)
     if (modificators.length > 0) {
       value += underline.repeat(2) + modificators
     }
 
-    const properties = PropertiesFormatter.render(element)
+    const properties = PropertiesFormatter.render(element.properties)
 
     let result = [header + value + properties.join("") + FormatterUtils.getAlignmentAtRight(element)]
 
@@ -35,7 +35,7 @@ export class InputFormatter extends BaseFormatter<IInputFieldElement> {
   }
 
   private isMultiline(element: IInputFieldElement): boolean {
-    return element.multiLine && element.height > 1
+    return element.properties.multiLine && element.properties.height > 1
   }
 
   private getMultilineString(element: IInputFieldElement, headerLength: number, valueLength: number): string[] {
@@ -44,7 +44,7 @@ export class InputFormatter extends BaseFormatter<IInputFieldElement> {
     }
 
     const underline = t.Underscore.LABEL as string
-    const height = element.height
+    const height = element.properties.height
 
     let multilineStringTemplate = " ".repeat(headerLength) + underline.repeat(valueLength)
 
@@ -58,21 +58,21 @@ export class InputFormatter extends BaseFormatter<IInputFieldElement> {
   }
 
   private getModificators(element: IInputFieldElement): string {
-    const propertyMap: { [key: string]: string } = {
-      КнопкаВыбора: "В",
-      КнопкаВыпадающегоСписка: "С",
-      КнопкаОчистки: "Х",
-      КнопкаОткрытия: "О",
-      КнопкаРегулирования: "Д",
+    const propertyMap = {
+      choiceButton: "В",
+      dropListButton: "С",
+      сlearButton: "Х",
+      openButton: "О",
+      spinButton: "Д",
     }
 
-    return Object.keys(propertyMap)
-      .filter((key) => element.properties.get(key) !== undefined)
-      .map((key) => propertyMap[key])
-      .join("")
+    return Object.entries(propertyMap)
+      .filter(([key, _]) => element.properties[key as keyof IInputFieldElementProperties] !== undefined)
+      .map(([_, value]) => value)
+      .join(""
   }
 }
 
 FormatterFactory.register(
-  new InputFormatter(new BaseElementMatcherStrategy(InputFormElement), new ConditionWrapInGroupStrategy())
+  new InputFormatter(new BaseElementMatcherStrategy(InputFieldElement), new ConditionWrapInGroupStrategy())
 )

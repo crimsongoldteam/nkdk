@@ -2,6 +2,7 @@ import { BaseElement } from "../elements/baseElement"
 import { TypeDescription } from "../elements/typeDescription"
 import { DateFractions } from "@/elements/types"
 import { ITypeDescription } from "@/elements/interfaces"
+import { IFormElementProperties } from "@/meta/forms/interfaces"
 
 export class PropertiesFormatter {
   public static renderInineProperties(element: BaseElement, params?: { excludeProperties: string[] }): string[] {
@@ -9,8 +10,8 @@ export class PropertiesFormatter {
     return result ? [result] : []
   }
 
-  public static render(element: BaseElement, params?: { excludeProperties: string[] }): string[] {
-    const result = this.formatProperties(element, params)
+  public static render(properties: IFormElementProperties, params?: { excludeProperties: string[] }): string[] {
+    const result = this.formatProperties(properties, params)
     return result ? [" " + result] : []
   }
 
@@ -48,7 +49,10 @@ export class PropertiesFormatter {
 
     return [...result].sort((a: string, b: string) => a.localeCompare(b)).join(", ")
   }
-  private static formatProperties(element: BaseElement, params?: { excludeProperties: string[] }): string | undefined {
+  private static formatProperties(
+    properties: IFormElementProperties,
+    params?: { excludeProperties: string[] }
+  ): string | undefined {
     const lowerExcludeProperties: string[] = params?.excludeProperties.map((prop) => prop.toLowerCase()) ?? []
 
     const template = "%1 = %2"

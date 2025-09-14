@@ -1,42 +1,41 @@
-import { FormNameable } from "./interfaces"
+import { IFormNameable, IFormNameableProperties, INameStrategy } from "./interfaces"
 
 type Constructor = new (...args: any[]) => {}
 
 export function FormNameableMixin<TBase extends Constructor>(Base: TBase) {
-  return class extends Base implements FormNameable {
-    public _name: string | undefined = undefined
-    public _autoName: string = ""
-    public _autoNameIndex: number = 0
-
-    get name(): string {
-      if (this._name !== undefined) return this._name
-
-      const index = this._autoNameIndex == 0 ? "" : this._autoNameIndex
-      return `${this._autoName}${index}`
-    }
-
-    set name(value: string | undefined) {
-      this._name = value
+  return class extends Base implements IFormNameable {
+    private getNameStrategy(): INameStrategy {
+      return (this as any).nameStrategy
     }
 
     get autoName(): string {
-      return this._autoName
+      return this.getNameStrategy().autoValue
     }
-
     set autoName(value: string) {
-      this._autoName = value ?? ""
+      this.getNameStrategy().autoValue = value
     }
 
     get autoNameIndex(): number {
-      return this._autoNameIndex
+      return this.getNameStrategy().autoValueIndex
     }
 
     set autoNameIndex(value: number) {
-      this._autoNameIndex = value
+      this.getNameStrategy().autoValueIndex = value
+    }
+  }
+}
+
+export function FormNameablePropertiesMixin<TBase extends Constructor>(Base: TBase) {
+  return class FormNameablePropertiesMixin extends Base implements IFormNameableProperties {
+    private getNameStrategy(): INameStrategy {
+      return (this as any).nameStrategy
     }
 
-    get isAutoName(): boolean {
-      return this._name === undefined
+    get name(): string {
+      return this.getNameStrategy().value
+    }
+    set name(value: string) {
+      this.getNameStrategy().value = value
     }
   }
 }

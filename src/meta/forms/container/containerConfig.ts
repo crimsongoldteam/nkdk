@@ -7,8 +7,11 @@
 
 // // Symbol токены для DI контейнера
 export const IDataPathNameStrategyToken = Symbol()
+export const INameStrategyToken = Symbol()
 export const IInputFieldElementPropertiesToken = Symbol()
 export const IInputFieldElementToken = Symbol()
+export const ICheckBoxFieldElementPropertiesToken = Symbol()
+export const ICheckBoxFieldElementToken = Symbol()
 
 // /**
 //  * Настройка DI контейнера для форм

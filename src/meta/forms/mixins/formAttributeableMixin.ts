@@ -1,97 +1,43 @@
-import { IDataPathNameStrategyToken } from "../container/containerConfig"
 import { IFormAttribute } from "../interfaces"
 import { IFormAttributeable, IDataPathNameStrategy, IFormAttributeableProperties } from "./interfaces"
-import { injectable, Lifecycle, registry, scoped } from "tsyringe"
 
 type Constructor = new (...args: any[]) => {}
 
-@registry([
-  {
-    token: IDataPathNameStrategyToken,
-    useClass: DataPathNameStrategy,
-    options: { lifecycle: Lifecycle.ResolutionScoped },
-  },
-])
-export class DataPathNameStrategy implements IDataPathNameStrategy {
-  private _value: string | undefined
-  private _autoValue: string = ""
-  private _autoValueIndex: number = 0
-  // private _attibute: IFormAttribute = { name: "" }
+export function FormAttributeableMixin<TBase extends Constructor>(Base: TBase) {
+  return class extends Base implements IFormAttributeable {
+    private getDataPathNameStrategy(): IDataPathNameStrategy {
+      return (this as any).dataPathNameStrategy
+    }
 
-  set value(value: string) {
-    this._value = value
-  }
-  get value(): string {
-    if (this._value != undefined) return this._value
-
-    const index = this._autoValueIndex == 0 ? "" : this._autoValueIndex
-    return `${this._autoValue}${index}`
-  }
-  get autoValue(): string {
-    return this._autoValue
-  }
-  set autoValue(value: string) {
-    this._autoValue = value
-  }
-
-  get autoValueIndex(): number {
-    return this._autoValueIndex
-  }
-  set autoValueIndex(value: number) {
-    this._autoValueIndex = value
-  }
-  get attibute(): IFormAttribute {
-    throw new Error("Method not implemented.")
+    get attibute(): IFormAttribute {
+      return this.getDataPathNameStrategy().attibute
+    }
+    get autoDataPathName(): string {
+      return this.getDataPathNameStrategy().autoValue
+    }
+    set autoDataPathName(value: string) {
+      this.getDataPathNameStrategy().autoValue = value
+    }
+    get autoDataPathIndex(): number {
+      return this.getDataPathNameStrategy().autoValueIndex
+    }
+    set autoDataPathIndex(value: number) {
+      this.getDataPathNameStrategy().autoValueIndex = value
+    }
   }
 }
 
-// export function FormAttributeableMixin<TBase extends Constructor>(Base: TBase) {
-//   return class extends Base implements IFormAttributeable {
-//     public readonly dataPathNameStrategy: IDataPathNameStrategy
+export function FormAttributeablePropertiesMixin<TBase extends Constructor>(Base: TBase) {
+  return class FormAttributeablePropertiesMixin extends Base implements IFormAttributeableProperties {
+    private getDataPathNameStrategy(): IDataPathNameStrategy {
+      return (this as any).dataPathNameStrategy
+    }
 
-//     constructor(...args: any[]) {
-//       super(...args)
-//       this.dataPathNameStrategy = args[0]
-//     }
-
-//     get attibute(): IFormAttribute {
-//       return this.dataPathNameStrategy.attibute
-//     }
-//     get autoDataPathName(): string {
-//       return this.dataPathNameStrategy.autoValue
-//     }
-//     set autoDataPathName(value: string) {
-//       this.dataPathNameStrategy.autoValue = value
-//     }
-//     get autoDataPathIndex(): number {
-//       return this.dataPathNameStrategy.autoValueIndex
-//     }
-//     set autoDataPathIndex(value: number) {
-//       this.dataPathNameStrategy.autoValueIndex = value
-//     }
-//   }
-// }
-
-// export function FormAttributeablePropertiesMixin<TBase extends Constructor>(Base: TBase) {
-//   return class extends Base implements IFormAttributeableProperties {
-//     public readonly dataPathNameStrategy: IDataPathNameStrategy
-
-//     constructor(...args: any[]) {
-//       super(...args)
-//       this.dataPathNameStrategy = args[0]
-//     }
-
-//     get dataPathName(): string {
-//       return this.dataPathNameStrategy.value
-//     }
-//     set dataPathName(value: string) {
-//       this.dataPathNameStrategy.value = value
-//     }
-//   }
-// }
-
-// export class UselessClass {
-//   constructor() {
-//     console.log("UselessClass constructor")
-//   }
-// }
+    get dataPathName(): string {
+      return this.getDataPathNameStrategy().value
+    }
+    set dataPathName(value: string) {
+      this.getDataPathNameStrategy().value = value
+    }
+  }
+}
