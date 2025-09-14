@@ -5,13 +5,13 @@ export * from "./meta/interfaces"
 export * from "./meta/base/baseFormElement"
 
 // Экспорт миксинов
-export * from "./meta/forms/mixins/formNameableMixin"
-export * from "./meta/forms/mixins/formAttributeableMixin"
-export * from "./meta/forms/mixins/formItemableMixin"
+export * from "./meta/forms/helpers/mixins/formNameableMixin"
+export * from "./meta/forms/helpers/mixins/formAttributeableMixin"
+export * from "./meta/forms/helpers/mixins/formItemableMixin"
 
 // Экспорт реализаций
 export { ManagedFormElement as ManagedFormElementImpl } from "./meta/forms/elements/managedFormElement"
-export { InputFieldElement as InputFieldElementImpl } from "./meta/forms/elements/inputFieldElement"
+export { InputFieldElement as InputFieldElementImpl } from "./meta/forms/elements/inputFieldElement/inputFieldElement"
 
 // Экспорт фабрики и конфигурации
 // export * from "./factories/formElementFactory"

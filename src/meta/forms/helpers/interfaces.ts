@@ -1,4 +1,4 @@
-import { IFormAttribute, IFormElement } from "../interfaces"
+import { IFormAttribute, IFormElement, IFormElementProperties } from "../interfaces"
 
 export interface IFormNameable {
   get autoName(): string | undefined
@@ -38,8 +38,8 @@ export interface INameStrategy {
 }
 
 export interface IFormAttributeable {
-  get autoDataPathName(): string | undefined
-  set autoDataPathName(value: string | undefined)
+  get autoDataPath(): string | undefined
+  set autoDataPath(value: string | undefined)
 
   get autoDataPathIndex(): number
   set autoDataPathIndex(value: number)
@@ -50,12 +50,20 @@ export interface IFormAttributeable {
 }
 
 export interface IFormAttributeableProperties {
-  get dataPathName(): string
-  set dataPathName(value: string)
+  get dataPath(): string
+  set dataPath(value: string)
 }
 
 export interface IFormItemable {
   items: IFormElement[]
   addItem(item: IFormElement): void
   removeItem(item: IFormElement): void
+}
+
+export interface IDefaultsProvider {
+  render(element: IFormElement): Partial<IFormElementProperties>
+}
+
+export interface IDefaultsRule<IElement extends IFormElement, IProperties extends IFormElementProperties> {
+  render(input: Partial<IProperties>, element: IElement): Partial<IProperties>
 }

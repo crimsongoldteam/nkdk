@@ -4,7 +4,7 @@ import { InputFormatter } from "@/formatter/inputFormatter"
 import { IInputFieldElement } from "@/meta/forms/interfaces"
 import { IFormatterParams, WrapInGroupStrategy } from "@/formatter/interfaces"
 import { container } from "tsyringe"
-import { IInputFieldElementToken } from "@/meta/forms/container/containerConfig"
+import { IInputFieldElementToken } from "@/meta/forms/container/symbols"
 import "../../src/meta"
 
 const mockParams: IFormatterParams = {

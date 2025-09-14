@@ -1,5 +1,5 @@
-import { IFormAttribute } from "../interfaces"
-import { IFormAttributeable, IDataPathNameStrategy, IFormAttributeableProperties } from "./interfaces"
+import { IFormAttribute } from "../../interfaces"
+import { IFormAttributeable, IDataPathNameStrategy, IFormAttributeableProperties } from "../interfaces"
 
 type Constructor = new (...args: any[]) => {}
 
@@ -12,10 +12,10 @@ export function FormAttributeableMixin<TBase extends Constructor>(Base: TBase) {
     get attibute(): IFormAttribute {
       return this.getDataPathNameStrategy().attibute
     }
-    get autoDataPathName(): string {
+    get autoDataPath(): string {
       return this.getDataPathNameStrategy().autoValue
     }
-    set autoDataPathName(value: string) {
+    set autoDataPath(value: string) {
       this.getDataPathNameStrategy().autoValue = value
     }
     get autoDataPathIndex(): number {
@@ -33,10 +33,10 @@ export function FormAttributeablePropertiesMixin<TBase extends Constructor>(Base
       return (this as any).dataPathNameStrategy
     }
 
-    get dataPathName(): string {
+    get dataPath(): string {
       return this.getDataPathNameStrategy().value
     }
-    set dataPathName(value: string) {
+    set dataPath(value: string) {
       this.getDataPathNameStrategy().value = value
     }
   }

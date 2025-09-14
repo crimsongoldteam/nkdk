@@ -1,4 +1,4 @@
-import { IFormAttributeable, IFormNameable, IFormItemable, IFormAttributeableProperties } from "./mixins/interfaces"
+import { IFormAttributeable, IFormNameable, IFormItemable, IFormAttributeableProperties } from "./helpers/interfaces"
 import * as SystemEnumeration from "@/meta/systemEnumerations"
 import { ITypeDescription } from "@/elements/interfaces"
 

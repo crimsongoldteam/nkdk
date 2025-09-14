@@ -1,4 +1,4 @@
-import { IFormNameable, IFormNameableProperties, INameStrategy } from "./interfaces"
+import { IFormNameable, IFormNameableProperties, INameStrategy } from "../interfaces"
 
 type Constructor = new (...args: any[]) => {}
 

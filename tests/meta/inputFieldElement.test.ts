@@ -1,7 +1,7 @@
 import "reflect-metadata"
 import { container } from "tsyringe"
 import { describe, it, expect, beforeEach } from "vitest"
-import { IInputFieldElementToken } from "@/meta/forms/container/containerConfig"
+import { IInputFieldElementToken } from "@/meta/forms/container/symbols"
 import { IInputFieldElement } from "@/meta/forms/interfaces"
 import "../../src/meta/"
 
@@ -15,9 +15,9 @@ describe("InputFieldElement autoDataPathName integration", () => {
 
   it("should get and set autoDataPathName", () => {
     const testValue = "testAutoPath"
-    element.autoDataPathName = testValue
+    element.autoDataPath = testValue
 
-    expect(element.autoDataPathName).toBe(testValue)
+    expect(element.autoDataPath).toBe(testValue)
   })
 
   it("should get and set autoDataPathIndex", () => {
@@ -29,9 +29,9 @@ describe("InputFieldElement autoDataPathName integration", () => {
 
   it("should access dataPathName through properties", () => {
     const testValue = "testDataPath"
-    element.properties.dataPathName = testValue
+    element.properties.dataPath = testValue
 
-    expect(element.properties.dataPathName).toBe(testValue)
+    expect(element.properties.dataPath).toBe(testValue)
   })
 
   it("should same strategy for element and properties", () => {

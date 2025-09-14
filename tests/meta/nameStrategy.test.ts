@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from "vitest"
 import "reflect-metadata"
 import { container } from "tsyringe"
-import { INameStrategyToken } from "../../src/meta/forms/container/containerConfig"
-import { INameStrategy } from "@/meta/forms/mixins/interfaces"
+import { INameStrategyToken } from "../../src/meta/forms/container/symbols"
+import { INameStrategy } from "@/meta/forms/helpers/interfaces"
 import "../../src/meta"
 
 describe("NameStrategy", () => {

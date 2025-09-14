@@ -17,7 +17,7 @@ export class InputFormatter extends BaseFormatter<IInputFieldElement> {
     header += element.properties.title
     header += t.Colon.LABEL + " "
 
-    let value = element.properties.dataPathName ? element.properties.dataPathName.toString() : ""
+    let value = element.properties.dataPath ? element.properties.dataPath.toString() : ""
 
     const modificators = this.getModificators(element)
     if (modificators.length > 0) {

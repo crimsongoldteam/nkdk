@@ -1,7 +1,7 @@
 import { Lifecycle, registry } from "tsyringe"
-import { IDataPathNameStrategyToken } from "../container/containerConfig"
-import { IFormAttribute } from "../interfaces"
-import { IDataPathNameStrategy } from "./interfaces"
+import { IDataPathNameStrategyToken } from "../../container/symbols"
+import { IFormAttribute } from "../../interfaces"
+import { IDataPathNameStrategy } from "../interfaces"
 
 @registry([
   {

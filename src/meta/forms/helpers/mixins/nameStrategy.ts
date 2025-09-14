@@ -1,6 +1,6 @@
 import { Lifecycle, registry } from "tsyringe"
-import { INameStrategyToken } from "../container/containerConfig"
-import { INameStrategy } from "./interfaces"
+import { INameStrategyToken } from "../../container/symbols"
+import { INameStrategy } from "../interfaces"
 
 @registry([
   {

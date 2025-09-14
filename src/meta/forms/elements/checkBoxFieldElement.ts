@@ -7,10 +7,10 @@ import {
   ICheckBoxFieldElementPropertiesToken,
   INameStrategyToken,
   ICheckBoxFieldElementToken,
-} from "../container/containerConfig"
-import type { IDataPathNameStrategy, INameStrategy } from "../mixins/interfaces"
-import { FormAttributeableMixin, FormAttributeablePropertiesMixin } from "../mixins/formAttributeableMixin"
-import { FormNameableMixin, FormNameablePropertiesMixin } from "../mixins/formNameableMixin"
+} from "../container/symbols"
+import type { IDataPathNameStrategy, INameStrategy } from "../helpers/interfaces"
+import { FormAttributeableMixin, FormAttributeablePropertiesMixin } from "../helpers/mixins/formAttributeableMixin"
+import { FormNameableMixin, FormNameablePropertiesMixin } from "../helpers/mixins/formNameableMixin"
 
 @injectable({ token: ICheckBoxFieldElementPropertiesToken })
 export class CheckBoxFieldElementProperties
