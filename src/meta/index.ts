@@ -1,15 +1,15 @@
-import { InputFieldElement } from "./forms/elements/inputFieldElement/inputFieldElement"
-import { DataPathNameStrategy } from "./forms/helpers/mixins/dataPathNameStrategy"
+import { InputField } from "./forms/elements/inputField/inputField"
+import { DataPathStrategy } from "./forms/helpers/mixins/dataPathStrategy"
 import { NameStrategy } from "./forms/helpers/mixins/nameStrategy"
 import { DefaultsProvider } from "./forms/helpers/defaults/defaultsProvider"
 import { InputFieldElementProperties } from "./forms/elements"
-import { InputFieldElementFormattingDefaultsRule } from "./forms/elements/inputFieldElement/InputFieldElementFormattingDefaultsRule"
+import { InputFieldElementFormatterDefaultsRule } from "./forms/elements/inputField/inputFieldFormatterDefaultsRule"
 
 export {
-  InputFieldElement,
+  InputField as InputFieldElement,
   InputFieldElementProperties,
-  DataPathNameStrategy,
+  DataPathStrategy as DataPathNameStrategy,
   NameStrategy,
   DefaultsProvider,
-  InputFieldElementFormattingDefaultsRule,
+  InputFieldElementFormatterDefaultsRule as InputFieldElementFormattingDefaultsRule,
 }

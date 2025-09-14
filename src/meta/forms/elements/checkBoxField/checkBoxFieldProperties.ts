@@ -1,16 +1,16 @@
 import { inject, injectable } from "tsyringe"
 import { BaseFormElementProperties } from "@/meta/base/baseFormElement"
 import * as SystemEnumeration from "@/meta/systemEnumerations"
-import { ExplicitUndefined, ICheckBoxFieldElementProperties } from "../../interfaces"
+import { ExplicitUndefined, ICheckBoxFieldProperties } from "../../interfaces"
 import { TYPES } from "../../container/symbols"
-import type { IDataPathNameStrategy, INameStrategy } from "../../helpers/interfaces"
+import type { IDataPathStrategy, INameStrategy } from "../../helpers/interfaces"
 import { FormAttributeablePropertiesMixin } from "../../helpers/mixins/formAttributeableMixin"
 import { FormNameablePropertiesMixin } from "../../helpers/mixins/formNameableMixin"
 
-@injectable({ token: TYPES.ICheckBoxFieldElementProperties })
-export class CheckBoxFieldElementProperties
+@injectable({ token: TYPES.ICheckBoxFieldProperties })
+export class CheckBoxFieldProperties
   extends FormAttributeablePropertiesMixin(FormNameablePropertiesMixin(BaseFormElementProperties))
-  implements ICheckBoxFieldElementProperties
+  implements ICheckBoxFieldProperties
 {
   public title: string = ""
   public height: number = 0
@@ -22,7 +22,7 @@ export class CheckBoxFieldElementProperties
   public titleLocation: SystemEnumeration.FormItemTitleLocation = SystemEnumeration.FormItemTitleLocation.Auto
 
   constructor(
-    @inject(TYPES.IDataPathNameStrategy) private readonly dataPathNameStrategy: IDataPathNameStrategy,
+    @inject(TYPES.IDataPathStrategy) private readonly dataPathStrategy: IDataPathStrategy,
     @inject(TYPES.INameStrategy) private readonly nameStrategy: INameStrategy
   ) {
     super()

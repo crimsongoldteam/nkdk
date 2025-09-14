@@ -1,18 +1,18 @@
-import * as t from "../parser/lexer"
-import { IFormatterParams } from "./interfaces"
-import { FormatterFactory } from "./formatterFactory"
-import { FormatterUtils } from "./helpers/formatterUtils"
-import { BaseElementMatcherStrategy } from "./matcher/baseElementMatcherStrategy"
-import { ConditionWrapInGroupStrategy } from "./indentation/conditionWrapInGroupStrategy"
-import { BaseFormatter } from "./baseFormatter"
-import { PropertiesFormatter } from "./propertiesFormatter"
-import { IInputFieldElement, IInputFieldElementProperties } from "@/meta/forms/interfaces"
+import * as t from "../../../../parser/lexer"
+import { IFormatterParams } from "../../../../formatter/interfaces"
+import { FormatterFactory } from "../../../../formatter/formatterFactory"
+import { FormatterUtils } from "../../../../formatter/helpers/formatterUtils"
+import { BaseElementMatcherStrategy } from "../../../../formatter/matcher/baseElementMatcherStrategy"
+import { ConditionWrapInGroupStrategy } from "../../../../formatter/indentation/conditionWrapInGroupStrategy"
+import { BaseFormatter } from "../../../../formatter/baseFormatter"
+import { PropertiesFormatter } from "../../../../formatter/propertiesFormatter"
+import { IInputField, IInputFieldProperties } from "@/meta/forms/interfaces"
 import { TYPES } from "@/meta/forms/container/symbols"
 import { container } from "tsyringe"
 import { IDefaultsProvider } from "@/meta/forms/helpers/interfaces"
 
-export class InputFormatter extends BaseFormatter<IInputFieldElement> {
-  public format(element: IInputFieldElement, _params: IFormatterParams): string[] {
+export class InputFieldFormatter extends BaseFormatter<IInputField> {
+  public format(element: IInputField, _params: IFormatterParams): string[] {
     const underline = t.Underscore.LABEL as string
 
     let header: string = FormatterUtils.getAlignmentAtLeft(element.properties)
@@ -37,11 +37,11 @@ export class InputFormatter extends BaseFormatter<IInputFieldElement> {
     return result
   }
 
-  private isMultiline(element: IInputFieldElement): boolean {
+  private isMultiline(element: IInputField): boolean {
     return element.properties.multiLine && element.properties.height > 1
   }
 
-  private getMultilineString(element: IInputFieldElement, headerLength: number, valueLength: number): string[] {
+  private getMultilineString(element: IInputField, headerLength: number, valueLength: number): string[] {
     if (!this.isMultiline(element)) {
       return []
     }
@@ -60,7 +60,7 @@ export class InputFormatter extends BaseFormatter<IInputFieldElement> {
     return result
   }
 
-  private getModificators(element: IInputFieldElement): string {
+  private getModificators(element: IInputField): string {
     const propertyMap = {
       choiceButton: "В",
       dropListButton: "С",
@@ -70,7 +70,7 @@ export class InputFormatter extends BaseFormatter<IInputFieldElement> {
     }
 
     return Object.entries(propertyMap)
-      .filter(([key, _]) => element.properties[key as keyof IInputFieldElementProperties] !== undefined)
+      .filter(([key, _]) => element.properties[key as keyof IInputFieldProperties] !== undefined)
       .map(([_, value]) => value)
       .join("")
   }

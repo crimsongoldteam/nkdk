@@ -13,7 +13,7 @@ export interface IFormNameableProperties {
   set name(value: string)
 }
 
-export interface IDataPathNameStrategy {
+export interface IDataPathStrategy {
   get value(): string
   set value(value: string | undefined)
 

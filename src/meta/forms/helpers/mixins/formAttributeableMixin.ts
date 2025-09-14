@@ -1,43 +1,43 @@
 import { IFormAttribute } from "../../interfaces"
-import { IFormAttributeable, IDataPathNameStrategy, IFormAttributeableProperties } from "../interfaces"
+import { IFormAttributeable, IDataPathStrategy, IFormAttributeableProperties } from "../interfaces"
 
 type Constructor = new (...args: any[]) => {}
 
 export function FormAttributeableMixin<TBase extends Constructor>(Base: TBase) {
   return class extends Base implements IFormAttributeable {
-    private getDataPathNameStrategy(): IDataPathNameStrategy {
-      return (this as any).dataPathNameStrategy
+    private getDataPathStrategy(): IDataPathStrategy {
+      return (this as any).dataPathStrategy
     }
 
     get attibute(): IFormAttribute {
-      return this.getDataPathNameStrategy().attibute
+      return this.getDataPathStrategy().attibute
     }
     get autoDataPath(): string {
-      return this.getDataPathNameStrategy().autoValue
+      return this.getDataPathStrategy().autoValue
     }
     set autoDataPath(value: string) {
-      this.getDataPathNameStrategy().autoValue = value
+      this.getDataPathStrategy().autoValue = value
     }
     get autoDataPathIndex(): number {
-      return this.getDataPathNameStrategy().autoValueIndex
+      return this.getDataPathStrategy().autoValueIndex
     }
     set autoDataPathIndex(value: number) {
-      this.getDataPathNameStrategy().autoValueIndex = value
+      this.getDataPathStrategy().autoValueIndex = value
     }
   }
 }
 
 export function FormAttributeablePropertiesMixin<TBase extends Constructor>(Base: TBase) {
   return class FormAttributeablePropertiesMixin extends Base implements IFormAttributeableProperties {
-    private getDataPathNameStrategy(): IDataPathNameStrategy {
-      return (this as any).dataPathNameStrategy
+    private getDataPathStrategy(): IDataPathStrategy {
+      return (this as any).dataPathStrategy
     }
 
     get dataPath(): string {
-      return this.getDataPathNameStrategy().value
+      return this.getDataPathStrategy().value
     }
     set dataPath(value: string) {
-      this.getDataPathNameStrategy().value = value
+      this.getDataPathStrategy().value = value
     }
   }
 }

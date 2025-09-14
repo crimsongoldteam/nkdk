@@ -1,10 +1,5 @@
 import { container, instanceCachingFactory } from "tsyringe"
-import {
-  ICheckBoxFieldElement,
-  ICheckBoxFieldElementProperties,
-  IInputFieldElement,
-  IInputFieldElementProperties,
-} from "../interfaces"
+import { ICheckBoxField, ICheckBoxFieldProperties, IInputField, IInputFieldProperties } from "../interfaces"
 import { TYPES } from "./symbols"
 import { IDefaultsProvider, IDefaultsRule } from "../helpers/interfaces"
 import { DefaultsProvider } from "../helpers/defaults/defaultsProvider"
@@ -13,9 +8,9 @@ export class ContainerFactory {
   public static create(): void {
     container.register(TYPES.IInputFieldDefaultsProvider, {
       useFactory: instanceCachingFactory<IDefaultsProvider>((c) => {
-        const element = c.resolve<IInputFieldElement>(TYPES.IInputFieldElement)
-        const rule = c.resolve<IDefaultsRule<IInputFieldElement, IInputFieldElementProperties>>(
-          TYPES.IInputFieldDefaultsRule
+        const element = c.resolve<IInputField>(TYPES.IInputField)
+        const rule = c.resolve<IDefaultsRule<IInputField, IInputFieldProperties>>(
+          TYPES.IInputFieldFormatterDefaultsRule
         )
         return new DefaultsProvider(rule, element)
       }),
@@ -23,9 +18,9 @@ export class ContainerFactory {
 
     container.register(TYPES.ICheckBoxFieldDefaultsProvider, {
       useFactory: instanceCachingFactory<IDefaultsProvider>((c) => {
-        const element = c.resolve<ICheckBoxFieldElement>(TYPES.ICheckBoxFieldElement)
-        const rule = c.resolve<IDefaultsRule<ICheckBoxFieldElement, ICheckBoxFieldElementProperties>>(
-          TYPES.ICheckBoxFieldDefaultsRule
+        const element = c.resolve<ICheckBoxField>(TYPES.ICheckBoxField)
+        const rule = c.resolve<IDefaultsRule<ICheckBoxField, ICheckBoxFieldProperties>>(
+          TYPES.ICheckBoxFieldFormatterDefaultsRule
         )
         return new DefaultsProvider(rule, element)
       }),

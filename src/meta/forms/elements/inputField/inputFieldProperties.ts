@@ -1,15 +1,15 @@
 import { inject, injectable } from "tsyringe"
-import type { IInputFieldElementProperties, ExplicitUndefined } from "../../interfaces"
+import type { IInputFieldProperties, ExplicitUndefined } from "../../interfaces"
 import { BaseFormElementProperties } from "@/meta/base/baseFormElement"
 import * as SystemEnumeration from "@/meta/systemEnumerations"
-import type { IDataPathNameStrategy, INameStrategy } from "../../helpers/interfaces"
+import type { IDataPathStrategy, INameStrategy } from "../../helpers/interfaces"
 import { TYPES } from "../../container/symbols"
 import { FormAttributeablePropertiesMixin, FormNameablePropertiesMixin } from "../../helpers/mixins"
 
 @injectable({ token: TYPES.IInputFieldElementProperties })
-export class InputFieldElementProperties
+export class InputFieldProperties
   extends FormNameablePropertiesMixin(FormAttributeablePropertiesMixin(BaseFormElementProperties))
-  implements IInputFieldElementProperties
+  implements IInputFieldProperties
 {
   public title: string = ""
   public height: number = 0
@@ -25,7 +25,7 @@ export class InputFieldElementProperties
   public horizontalStretch: ExplicitUndefined<boolean> = undefined
 
   constructor(
-    @inject(TYPES.IDataPathNameStrategy) private readonly dataPathNameStrategy: IDataPathNameStrategy,
+    @inject(TYPES.IDataPathStrategy) private readonly dataPathStrategy: IDataPathStrategy,
     @inject(TYPES.INameStrategy) private readonly nameStrategy: INameStrategy
   ) {
     super()

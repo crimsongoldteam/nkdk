@@ -1,13 +1,13 @@
-import { FormatterFactory } from "./formatterFactory"
-import { FormatterUtils } from "./helpers/formatterUtils"
-import { BaseFormatter } from "./baseFormatter"
-import { BaseElementMatcherStrategy } from "./matcher/baseElementMatcherStrategy"
-import { ConditionWrapInGroupStrategy } from "./indentation/conditionWrapInGroupStrategy"
-import { PropertiesFormatter } from "./propertiesFormatter"
-import { ICheckBoxFieldElement } from "@/meta/forms/interfaces"
+import { FormatterFactory } from "../../../../formatter/formatterFactory"
+import { FormatterUtils } from "../../../../formatter/helpers/formatterUtils"
+import { BaseFormatter } from "../../../../formatter/baseFormatter"
+import { BaseElementMatcherStrategy } from "../../../../formatter/matcher/baseElementMatcherStrategy"
+import { ConditionWrapInGroupStrategy } from "../../../../formatter/indentation/conditionWrapInGroupStrategy"
+import { PropertiesFormatter } from "../../../../formatter/propertiesFormatter"
+import { ICheckBoxField } from "@/meta/forms/interfaces"
 
-export class CheckboxFormatter extends BaseFormatter<ICheckBoxFieldElement> {
-  public format(element: ICheckBoxFieldElement): string[] {
+export class CheckboxFormatter extends BaseFormatter<ICheckBoxField> {
+  public format(element: ICheckBoxField): string[] {
     // let excludeProperties = ["Заголовок", "ГоризонтальноеПоложениеВГруппе", "ПоложениеЗаголовка", "ВидФлажка"]
 
     // FormatterUtils.excludeStretchProperties(excludeProperties, element)

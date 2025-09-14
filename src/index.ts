@@ -11,7 +11,7 @@ export * from "./meta/forms/helpers/mixins/formItemableMixin"
 
 // Экспорт реализаций
 export { ManagedFormElement as ManagedFormElementImpl } from "./meta/forms/elements/managedFormElement"
-export { InputFieldElement as InputFieldElementImpl } from "./meta/forms/elements/inputFieldElement/inputFieldElement"
+export { InputField as InputFieldElementImpl } from "./meta/forms/elements/inputField/inputField"
 
 // Экспорт фабрики и конфигурации
 // export * from "./factories/formElementFactory"

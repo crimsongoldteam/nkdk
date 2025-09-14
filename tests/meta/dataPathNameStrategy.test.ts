@@ -2,20 +2,20 @@ import { describe, it, expect, beforeEach } from "vitest"
 import "reflect-metadata"
 import { container } from "tsyringe"
 import { TYPES } from "../../src/meta/forms/container/symbols"
-import { IDataPathNameStrategy } from "@/meta/forms/helpers/interfaces"
+import { IDataPathStrategy } from "@/meta/forms/helpers/interfaces"
 import "../../src/meta"
 
 describe("DataPathNameStrategy", () => {
-  let strategy: IDataPathNameStrategy
+  let strategy: IDataPathStrategy
 
   beforeEach(() => {
     container.clearInstances()
 
-    strategy = container.resolve<IDataPathNameStrategy>(TYPES.IDataPathNameStrategy)
+    strategy = container.resolve<IDataPathStrategy>(TYPES.IDataPathStrategy)
   })
 
   it("should set and get value", () => {
-    expect(container.isRegistered(TYPES.IDataPathNameStrategy)).toBe(true)
+    expect(container.isRegistered(TYPES.IDataPathStrategy)).toBe(true)
     const testValue = "testDataPath"
     strategy.value = testValue
     expect(strategy.value).toBe(testValue)

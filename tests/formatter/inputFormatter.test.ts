@@ -1,7 +1,7 @@
 import "reflect-metadata"
 import { expect, describe, beforeEach, it } from "vitest"
-import { InputFormatter } from "@/formatter/inputFormatter"
-import { IInputFieldElement } from "@/meta/forms/interfaces"
+import { InputFieldFormatter } from "@/meta/forms/elements/inputField/inputFieldFormatter"
+import { IInputField } from "@/meta/forms/interfaces"
 import { IFormatterParams, WrapInGroupStrategy } from "@/formatter/interfaces"
 import { container } from "tsyringe"
 import { IInputFieldElementToken } from "@/meta/forms/container/symbols"
@@ -15,16 +15,19 @@ const mockParams: IFormatterParams = {
 }
 
 describe("InputFormatter", () => {
-  let formatter: InputFormatter
-  let element: IInputFieldElement
+  let formatter: InputFieldFormatter
+  let element: IInputField
 
   beforeEach(() => {
     container.clearInstances()
     ContainerFactory.create()
 
-    element = container.resolve<IInputFieldElement>(IInputFieldElementToken)
+    element = container.resolve<IInputField>(IInputFieldElementToken)
 
-    formatter = new InputFormatter({ canFormat: () => true } as any, { format: (result: string[]) => result } as any)
+    formatter = new InputFieldFormatter(
+      { canFormat: () => true } as any,
+      { format: (result: string[]) => result } as any
+    )
   })
 
   it("should format simple input field", () => {

@@ -1,7 +1,7 @@
 export { FormFormatter } from "./formFormatter"
-export { InputFormatter } from "./inputFormatter"
+export { InputFieldFormatter as InputFormatter } from "../meta/forms/elements/inputField/inputFieldFormatter"
 export { LabelFormatter } from "./labelFormatter"
-export { CheckboxFormatter } from "./checkboxFormatter"
+export { CheckboxFormatter } from "../meta/forms/elements/checkBoxField/checkBoxFieldFormatter"
 export { RadioButtonFormatter } from "./radioButtonFormatter"
 
 export { PageFormatter } from "./pages/pageFormatter"

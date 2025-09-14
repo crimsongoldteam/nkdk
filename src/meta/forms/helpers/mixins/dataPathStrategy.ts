@@ -1,16 +1,16 @@
 import { Lifecycle, registry } from "tsyringe"
 import { TYPES } from "../../container/symbols"
 import { IFormAttribute } from "../../interfaces"
-import { IDataPathNameStrategy } from "../interfaces"
+import { IDataPathStrategy } from "../interfaces"
 
 @registry([
   {
-    token: TYPES.IDataPathNameStrategy,
-    useClass: DataPathNameStrategy,
+    token: TYPES.IDataPathStrategy,
+    useClass: DataPathStrategy,
     options: { lifecycle: Lifecycle.ResolutionScoped },
   },
 ])
-export class DataPathNameStrategy implements IDataPathNameStrategy {
+export class DataPathStrategy implements IDataPathStrategy {
   private _value: string | undefined
   private _autoValue: string = ""
   private _autoValueIndex: number = 0

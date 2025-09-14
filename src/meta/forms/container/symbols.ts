@@ -1,17 +1,17 @@
 export const TYPES = {
-  IDataPathNameStrategy: Symbol("IDataPathNameStrategy"),
+  IDataPathStrategy: Symbol("IDataPathNameStrategy"),
   INameStrategy: Symbol("INameStrategy"),
 
   IDefaultsProviderToken: Symbol("IDefaultsProviderToken"),
   IDefaultsRuleToken: Symbol("IDefaultsRuleToken"),
 
-  IInputFieldElement: Symbol("IInputFieldElement"),
+  IInputField: Symbol("IInputFieldElement"),
   IInputFieldElementProperties: Symbol("IInputFieldElementProperties"),
   IInputFieldDefaultsProvider: Symbol("IInputFieldDefaultsProvider"),
-  IInputFieldDefaultsRule: Symbol("IInputFieldDefaultsRule"),
+  IInputFieldFormatterDefaultsRule: Symbol("IInputFieldDefaultsRule"),
 
-  ICheckBoxFieldElement: Symbol("ICheckBoxFieldElement"),
-  ICheckBoxFieldElementProperties: Symbol("ICheckBoxFieldElementProperties"),
+  ICheckBoxField: Symbol("ICheckBoxFieldElement"),
+  ICheckBoxFieldProperties: Symbol("ICheckBoxFieldElementProperties"),
   ICheckBoxFieldDefaultsProvider: Symbol("ICheckBoxFieldDefaultsProvider"),
-  ICheckBoxFieldDefaultsRule: Symbol("ICheckBoxFieldDefaultsRule"),
+  ICheckBoxFieldFormatterDefaultsRule: Symbol("ICheckBoxFieldDefaultsRule"),
 }

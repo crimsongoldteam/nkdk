@@ -8,13 +8,13 @@ export interface IManagedFormElement extends IFormElement, IFormItemable, IFormN
   title: string
 }
 
-export interface IInputFieldElement extends IFormElement, IFormAttributeable {
-  properties: IInputFieldElementProperties
+export interface IInputField extends IFormElement, IFormAttributeable {
+  properties: IInputFieldProperties
 
   value: string | boolean | number | Date
 }
 
-export interface IInputFieldElementProperties
+export interface IInputFieldProperties
   extends IFormElementProperties,
     IFormAttributeableProperties,
     IFormHorizontalAlignableProperties,
@@ -30,7 +30,7 @@ export interface IInputFieldElementProperties
   spinButton: boolean | undefined
 }
 
-export interface ICheckBoxFieldElementProperties
+export interface ICheckBoxFieldProperties
   extends IFormElementProperties,
     IFormAttributeableProperties,
     IFormHorizontalAlignableProperties {
@@ -40,8 +40,8 @@ export interface ICheckBoxFieldElementProperties
   titleLocation: SystemEnumeration.FormItemTitleLocation
 }
 
-export interface ICheckBoxFieldElement extends IFormElement, IFormAttributeable, IFormNameable {
-  properties: ICheckBoxFieldElementProperties
+export interface ICheckBoxField extends IFormElement, IFormAttributeable, IFormNameable {
+  properties: ICheckBoxFieldProperties
 
   value: boolean
 }

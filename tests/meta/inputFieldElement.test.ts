@@ -2,15 +2,15 @@ import "reflect-metadata"
 import { container } from "tsyringe"
 import { describe, it, expect, beforeEach } from "vitest"
 import { TYPES } from "@/meta/forms/container/symbols"
-import { IInputFieldElement } from "@/meta/forms/interfaces"
+import { IInputField } from "@/meta/forms/interfaces"
 import "../../src/meta/"
 
 describe("InputFieldElement autoDataPathName integration", () => {
-  let element: IInputFieldElement
+  let element: IInputField
 
   beforeEach(() => {
     container.clearInstances()
-    element = container.resolve<IInputFieldElement>(TYPES.IInputFieldElement)
+    element = container.resolve<IInputField>(TYPES.IInputField)
   })
 
   it("should get and set autoDataPathName", () => {

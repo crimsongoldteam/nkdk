@@ -1,21 +1,21 @@
 import { inject, injectable } from "tsyringe"
 import { BaseFormElement } from "@/meta/base/baseFormElement"
-import type { ICheckBoxFieldElement, ICheckBoxFieldElementProperties } from "../../interfaces"
+import type { ICheckBoxField, ICheckBoxFieldProperties } from "../../interfaces"
 import { TYPES } from "../../container/symbols"
-import type { IDataPathNameStrategy, INameStrategy } from "../../helpers/interfaces"
+import type { IDataPathStrategy, INameStrategy } from "../../helpers/interfaces"
 import { FormAttributeableMixin } from "../../helpers/mixins/formAttributeableMixin"
 import { FormNameableMixin } from "../../helpers/mixins/formNameableMixin"
 
-@injectable({ token: TYPES.ICheckBoxFieldElement })
-export class CheckBoxFieldElement
+@injectable({ token: TYPES.ICheckBoxField })
+export class CheckBoxField
   extends FormAttributeableMixin(FormNameableMixin(BaseFormElement))
-  implements ICheckBoxFieldElement
+  implements ICheckBoxField
 {
   public value: boolean = false
 
   constructor(
-    @inject(TYPES.ICheckBoxFieldElementProperties) public readonly properties: ICheckBoxFieldElementProperties,
-    @inject(TYPES.IDataPathNameStrategy) private readonly dataPathNameStrategy: IDataPathNameStrategy,
+    @inject(TYPES.ICheckBoxFieldProperties) public readonly properties: ICheckBoxFieldProperties,
+    @inject(TYPES.IDataPathStrategy) private readonly dataPathStrategy: IDataPathStrategy,
     @inject(TYPES.INameStrategy) private readonly nameStrategy: INameStrategy
   ) {
     super()
