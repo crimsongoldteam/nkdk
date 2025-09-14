@@ -3,14 +3,10 @@ import type { IInputFieldElementProperties, ExplicitUndefined } from "../../inte
 import { BaseFormElementProperties } from "@/meta/base/baseFormElement"
 import * as SystemEnumeration from "@/meta/systemEnumerations"
 import type { IDataPathNameStrategy, INameStrategy } from "../../helpers/interfaces"
-import {
-  IDataPathNameStrategyToken,
-  IInputFieldElementPropertiesToken,
-  INameStrategyToken,
-} from "../../container/symbols"
+import { TYPES } from "../../container/symbols"
 import { FormAttributeablePropertiesMixin, FormNameablePropertiesMixin } from "../../helpers/mixins"
 
-@injectable({ token: IInputFieldElementPropertiesToken })
+@injectable({ token: TYPES.IInputFieldElementProperties })
 export class InputFieldElementProperties
   extends FormNameablePropertiesMixin(FormAttributeablePropertiesMixin(BaseFormElementProperties))
   implements IInputFieldElementProperties
@@ -29,8 +25,8 @@ export class InputFieldElementProperties
   public horizontalStretch: ExplicitUndefined<boolean> = undefined
 
   constructor(
-    @inject(IDataPathNameStrategyToken) private readonly dataPathNameStrategy: IDataPathNameStrategy,
-    @inject(INameStrategyToken) private readonly nameStrategy: INameStrategy
+    @inject(TYPES.IDataPathNameStrategy) private readonly dataPathNameStrategy: IDataPathNameStrategy,
+    @inject(TYPES.INameStrategy) private readonly nameStrategy: INameStrategy
   ) {
     super()
   }

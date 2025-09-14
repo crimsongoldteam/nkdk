@@ -1,7 +1,7 @@
 import { it, expect, beforeEach } from "vitest"
 import "reflect-metadata"
 import { container } from "tsyringe"
-import { IInputFieldDefaultsProviderToken, IInputFieldElementToken } from "../../src/meta/forms/container/symbols"
+import { TYPES } from "../../src/meta/forms/container/symbols"
 import { IInputFieldElement } from "@/meta/forms/interfaces"
 import { IDefaultsProvider } from "@/meta/forms/helpers/interfaces"
 import "../../src/meta"
@@ -13,11 +13,11 @@ beforeEach(() => {
   container.clearInstances()
   ContainerFactory.create()
 
-  provider = container.resolve<IDefaultsProvider>(IInputFieldDefaultsProviderToken)
+  provider = container.resolve<IDefaultsProvider>(TYPES.IInputFieldDefaultsProvider)
 })
 
 it("should render element", () => {
-  const element = container.resolve<IInputFieldElement>(IInputFieldElementToken)
+  const element = container.resolve<IInputFieldElement>(TYPES.IInputFieldElement)
   element.properties.title = "Test"
   const result = provider.render(element)
   expect(result).toEqual({ title: "Test" })

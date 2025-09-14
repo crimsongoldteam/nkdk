@@ -1,11 +1,11 @@
 import { Lifecycle, registry } from "tsyringe"
-import { IDataPathNameStrategyToken } from "../../container/symbols"
+import { TYPES } from "../../container/symbols"
 import { IFormAttribute } from "../../interfaces"
 import { IDataPathNameStrategy } from "../interfaces"
 
 @registry([
   {
-    token: IDataPathNameStrategyToken,
+    token: TYPES.IDataPathNameStrategy,
     useClass: DataPathNameStrategy,
     options: { lifecycle: Lifecycle.ResolutionScoped },
   },

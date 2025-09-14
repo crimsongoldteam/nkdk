@@ -17,7 +17,8 @@ export interface IInputFieldElement extends IFormElement, IFormAttributeable {
 export interface IInputFieldElementProperties
   extends IFormElementProperties,
     IFormAttributeableProperties,
-    IFormHorizontalAlignableStretchableProperties {
+    IFormHorizontalAlignableProperties,
+    IFormHorizontalStretchableProperties {
   title: string
   height: number
   multiLine: boolean
@@ -29,7 +30,10 @@ export interface IInputFieldElementProperties
   spinButton: boolean | undefined
 }
 
-export interface ICheckBoxFieldElementProperties extends IFormElementProperties, IFormAttributeableProperties {
+export interface ICheckBoxFieldElementProperties
+  extends IFormElementProperties,
+    IFormAttributeableProperties,
+    IFormHorizontalAlignableProperties {
   title: string
   height: number
   checkBoxType: SystemEnumeration.CheckBoxType
@@ -56,7 +60,10 @@ export interface IFormAttribute {
   valueType: ITypeDescription
 }
 
-export interface IFormHorizontalAlignableStretchableProperties {
+export interface IFormHorizontalAlignableProperties {
   horizontalAlignInGroup: SystemEnumeration.HorizontalAlign
+}
+
+export interface IFormHorizontalStretchableProperties {
   horizontalStretch: ExplicitUndefined<boolean>
 }

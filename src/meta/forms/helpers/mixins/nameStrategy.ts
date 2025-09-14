@@ -1,10 +1,10 @@
 import { Lifecycle, registry } from "tsyringe"
-import { INameStrategyToken } from "../../container/symbols"
+import { TYPES } from "../../container/symbols"
 import { INameStrategy } from "../interfaces"
 
 @registry([
   {
-    token: INameStrategyToken,
+    token: TYPES.INameStrategy,
     useClass: NameStrategy,
     options: { lifecycle: Lifecycle.ResolutionScoped },
   },

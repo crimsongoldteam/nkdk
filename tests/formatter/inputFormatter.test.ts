@@ -5,6 +5,7 @@ import { IInputFieldElement } from "@/meta/forms/interfaces"
 import { IFormatterParams, WrapInGroupStrategy } from "@/formatter/interfaces"
 import { container } from "tsyringe"
 import { IInputFieldElementToken } from "@/meta/forms/container/symbols"
+import { ContainerFactory } from "@/meta/forms/container/containerFactory"
 import "../../src/meta"
 
 const mockParams: IFormatterParams = {
@@ -19,6 +20,8 @@ describe("InputFormatter", () => {
 
   beforeEach(() => {
     container.clearInstances()
+    ContainerFactory.create()
+
     element = container.resolve<IInputFieldElement>(IInputFieldElementToken)
 
     formatter = new InputFormatter({ canFormat: () => true } as any, { format: (result: string[]) => result } as any)

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest"
 import "reflect-metadata"
 import { container } from "tsyringe"
-import { INameStrategyToken } from "../../src/meta/forms/container/symbols"
+import { TYPES } from "../../src/meta/forms/container/symbols"
 import { INameStrategy } from "@/meta/forms/helpers/interfaces"
 import "../../src/meta"
 
@@ -11,11 +11,11 @@ describe("NameStrategy", () => {
   beforeEach(() => {
     container.clearInstances()
 
-    strategy = container.resolve<INameStrategy>(INameStrategyToken)
+    strategy = container.resolve<INameStrategy>(TYPES.INameStrategy)
   })
 
   it("should set and get value", () => {
-    expect(container.isRegistered(INameStrategyToken)).toBe(true)
+    expect(container.isRegistered(TYPES.INameStrategy)).toBe(true)
     const testValue = "testName"
     strategy.value = testValue
     expect(strategy.value).toBe(testValue)

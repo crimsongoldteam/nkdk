@@ -7,6 +7,9 @@ import { ConditionWrapInGroupStrategy } from "./indentation/conditionWrapInGroup
 import { BaseFormatter } from "./baseFormatter"
 import { PropertiesFormatter } from "./propertiesFormatter"
 import { IInputFieldElement, IInputFieldElementProperties } from "@/meta/forms/interfaces"
+import { TYPES } from "@/meta/forms/container/symbols"
+import { container } from "tsyringe"
+import { IDefaultsProvider } from "@/meta/forms/helpers/interfaces"
 
 export class InputFormatter extends BaseFormatter<IInputFieldElement> {
   public format(element: IInputFieldElement, _params: IFormatterParams): string[] {
@@ -17,16 +20,17 @@ export class InputFormatter extends BaseFormatter<IInputFieldElement> {
     header += element.properties.title
     header += t.Colon.LABEL + " "
 
-    let value = element.properties.dataPath ? element.properties.dataPath.toString() : ""
+    let value = element.value.toString()
 
     const modificators = this.getModificators(element)
     if (modificators.length > 0) {
       value += underline.repeat(2) + modificators
     }
 
-    const properties = PropertiesFormatter.render(element.properties)
+    const changedProperties = container.resolve<IDefaultsProvider>(TYPES.IInputFieldDefaultsProvider).render(element)
+    const renderedProperties = PropertiesFormatter.render(changedProperties)
 
-    let result = [header + value + properties.join("") + FormatterUtils.getAlignmentAtRight(element.properties)]
+    let result = [header + value + renderedProperties.join("") + FormatterUtils.getAlignmentAtRight(element.properties)]
 
     result.push(...this.getMultilineString(element, header.length, value.length))
 

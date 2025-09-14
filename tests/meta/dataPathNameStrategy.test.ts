@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest"
 import "reflect-metadata"
 import { container } from "tsyringe"
-import { IDataPathNameStrategyToken } from "../../src/meta/forms/container/symbols"
+import { TYPES } from "../../src/meta/forms/container/symbols"
 import { IDataPathNameStrategy } from "@/meta/forms/helpers/interfaces"
 import "../../src/meta"
 
@@ -11,11 +11,11 @@ describe("DataPathNameStrategy", () => {
   beforeEach(() => {
     container.clearInstances()
 
-    strategy = container.resolve<IDataPathNameStrategy>(IDataPathNameStrategyToken)
+    strategy = container.resolve<IDataPathNameStrategy>(TYPES.IDataPathNameStrategy)
   })
 
   it("should set and get value", () => {
-    expect(container.isRegistered(IDataPathNameStrategyToken)).toBe(true)
+    expect(container.isRegistered(TYPES.IDataPathNameStrategy)).toBe(true)
     const testValue = "testDataPath"
     strategy.value = testValue
     expect(strategy.value).toBe(testValue)

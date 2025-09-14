@@ -1,11 +1,11 @@
 import { inject } from "tsyringe"
-import { IDefaultsRuleToken } from "../../container/symbols"
+import { TYPES } from "../../container/symbols"
 import type { IFormElement, IFormElementProperties } from "../../interfaces"
 import type { IDefaultsProvider, IDefaultsRule } from "../interfaces"
 
 export class DefaultsProvider implements IDefaultsProvider {
   constructor(
-    @inject(IDefaultsRuleToken) public readonly rule: IDefaultsRule<IFormElement, IFormElementProperties>,
+    @inject(TYPES.IDefaultsRuleToken) public readonly rule: IDefaultsRule<IFormElement, IFormElementProperties>,
     public readonly defaultElement: IFormElement
   ) {}
 

@@ -10,9 +10,9 @@ export class CheckboxFormatter extends BaseFormatter<ICheckBoxFieldElement> {
   public format(element: ICheckBoxFieldElement): string[] {
     // let excludeProperties = ["Заголовок", "ГоризонтальноеПоложениеВГруппе", "ПоложениеЗаголовка", "ВидФлажка"]
 
-    FormatterUtils.excludeStretchProperties(excludeProperties, element)
+    // FormatterUtils.excludeStretchProperties(excludeProperties, element)
 
-    const properties = PropertiesFormatter.render(element, { excludeProperties })
+    const properties = PropertiesFormatter.render(element)
 
     let header = element.properties.title
 
@@ -33,6 +33,6 @@ export class CheckboxFormatter extends BaseFormatter<ICheckBoxFieldElement> {
   }
 }
 
-FormatterFactory.register(
-  new CheckboxFormatter(new BaseElementMatcherStrategy(CheckboxElement), new ConditionWrapInGroupStrategy())
-)
+// FormatterFactory.register(
+//   new CheckboxFormatter(new BaseElementMatcherStrategy(CheckboxElement), new ConditionWrapInGroupStrategy())
+// )

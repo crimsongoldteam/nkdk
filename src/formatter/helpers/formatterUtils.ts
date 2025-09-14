@@ -1,7 +1,10 @@
 import * as t from "../../parser/lexer"
 import { TypeDescription } from "@/elements/typeDescription"
 import { DateFractions } from "@/elements/types"
-import { IFormHorizontalAlignableStretchableProperties } from "@/meta/forms/interfaces"
+import {
+  IFormHorizontalAlignableProperties,
+  IFormHorizontalAlignableStretchableProperties,
+} from "@/meta/forms/interfaces"
 import { format as fnsFormat } from "date-fns"
 import * as SystemEnumeration from "@/meta/systemEnumerations"
 
@@ -34,7 +37,7 @@ export class FormatterUtils {
     return fnsFormat(value, "dd.MM.yyyy HH:mm:ss")
   }
 
-  public static getAlignmentAtLeft(properties: IFormHorizontalAlignableStretchableProperties): string {
+  public static getAlignmentAtLeft(properties: IFormHorizontalAlignableProperties): string {
     if (
       properties.horizontalAlignInGroup == SystemEnumeration.HorizontalAlign.Center ||
       properties.horizontalAlignInGroup == SystemEnumeration.HorizontalAlign.Right
@@ -45,7 +48,7 @@ export class FormatterUtils {
     return ""
   }
 
-  public static getAlignmentAtRight(properties: IFormHorizontalAlignableStretchableProperties): string {
+  public static getAlignmentAtRight(properties: IFormHorizontalAlignableProperties): string {
     if (properties.horizontalAlignInGroup == SystemEnumeration.HorizontalAlign.Center) {
       return " " + t.LArrow.LABEL
     }
@@ -57,14 +60,14 @@ export class FormatterUtils {
     return ""
   }
 
-  public static excludeStretchProperties(
-    excludeProperties: string[],
-    element: IFormHorizontalAlignableStretchableProperties
-  ): void {
-    if (!element.horizontalStretch) return
+  // public static excludeStretchProperties(
+  //   excludeProperties: string[],
+  //   element: IFormHorizontalAlignableStretchableProperties
+  // ): void {
+  //   if (!element.horizontalStretch) return
 
-    excludeProperties.push("РастягиватьПоГоризонтали")
-  }
+  //   excludeProperties.push("РастягиватьПоГоризонтали")
+  // }
 
   public static getCheckboxString(
     text: string,

@@ -1,12 +1,17 @@
-export const IDataPathNameStrategyToken = Symbol()
-export const INameStrategyToken = Symbol()
+export const TYPES = {
+  IDataPathNameStrategy: Symbol("IDataPathNameStrategy"),
+  INameStrategy: Symbol("INameStrategy"),
 
-export const IInputFieldElementPropertiesToken = Symbol()
-export const IInputFieldElementToken = Symbol()
-export const IInputFieldDefaultsProviderToken = Symbol()
-export const IInputFieldDefaultsRuleToken = Symbol()
+  IDefaultsProviderToken: Symbol("IDefaultsProviderToken"),
+  IDefaultsRuleToken: Symbol("IDefaultsRuleToken"),
 
-export const ICheckBoxFieldElementPropertiesToken = Symbol()
-export const ICheckBoxFieldElementToken = Symbol()
-export const IDefaultsProviderToken = Symbol()
-export const IDefaultsRuleToken = Symbol()
+  IInputFieldElement: Symbol("IInputFieldElement"),
+  IInputFieldElementProperties: Symbol("IInputFieldElementProperties"),
+  IInputFieldDefaultsProvider: Symbol("IInputFieldDefaultsProvider"),
+  IInputFieldDefaultsRule: Symbol("IInputFieldDefaultsRule"),
+
+  ICheckBoxFieldElement: Symbol("ICheckBoxFieldElement"),
+  ICheckBoxFieldElementProperties: Symbol("ICheckBoxFieldElementProperties"),
+  ICheckBoxFieldDefaultsProvider: Symbol("ICheckBoxFieldDefaultsProvider"),
+  ICheckBoxFieldDefaultsRule: Symbol("ICheckBoxFieldDefaultsRule"),
+}
