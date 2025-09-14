@@ -1,4 +1,5 @@
 import { IBaseElement } from "@/elements/interfaces"
+import { IFormElement } from "@/meta/forms/interfaces"
 
 export interface IFormatter<T extends IBaseElement> {
   canRender(element: IBaseElement, params: IFormatterParams): boolean
@@ -7,7 +8,7 @@ export interface IFormatter<T extends IBaseElement> {
 }
 
 export interface IElementMatcherStrategy {
-  canFormat(element: IBaseElement, params: IFormatterParams): boolean
+  canFormat(element: IFormElement, params: IFormatterParams): boolean
 }
 
 export interface IWrapInGroupStrategy {

@@ -1,13 +1,7 @@
-import {
-  IFormAttributeable,
-  IFormNameable as IFormNameable,
-  FormItemable as IFormItemable,
-  IFormAttributeableProperties,
-} from "./mixins/interfaces"
+import { IFormAttributeable, IFormNameable, IFormItemable, IFormAttributeableProperties } from "./mixins/interfaces"
 import * as SystemEnumeration from "@/meta/systemEnumerations"
 import { ITypeDescription } from "@/elements/interfaces"
 
-// Тип для явного обозначения undefined значений
 export type ExplicitUndefined<T> = T | undefined
 
 export interface IManagedFormElement extends IFormElement, IFormItemable, IFormNameable {
@@ -16,6 +10,8 @@ export interface IManagedFormElement extends IFormElement, IFormItemable, IFormN
 
 export interface IInputFieldElement extends IFormElement, IFormAttributeable {
   properties: IInputFieldElementProperties
+
+  value: string | boolean | number | Date
 }
 
 export interface IInputFieldElementProperties
@@ -33,20 +29,17 @@ export interface IInputFieldElementProperties
   spinButton: boolean | undefined
 }
 
-export interface ICheckBoxFieldElementProperties
-  extends IFormElementProperties,
-    IFormAttributeableProperties,
-    IFormHorizontalAlignableStretchableProperties {
+export interface ICheckBoxFieldElementProperties extends IFormElementProperties, IFormAttributeableProperties {
   title: string
   height: number
+  checkBoxType: SystemEnumeration.CheckBoxType
+  titleLocation: SystemEnumeration.FormItemTitleLocation
 }
 
-export interface ICheckBoxFieldElement
-  extends IFormElement,
-    IFormAttributeable,
-    IFormNameable,
-    IFormHorizontalAlignableStretchableProperties {
+export interface ICheckBoxFieldElement extends IFormElement, IFormAttributeable, IFormNameable {
   properties: ICheckBoxFieldElementProperties
+
+  value: boolean
 }
 
 export interface IFormElement {

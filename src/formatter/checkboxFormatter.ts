@@ -1,14 +1,14 @@
-import { CheckboxElement } from "../elements/checkboxElement"
 import { FormatterFactory } from "./formatterFactory"
 import { FormatterUtils } from "./helpers/formatterUtils"
 import { BaseFormatter } from "./baseFormatter"
 import { BaseElementMatcherStrategy } from "./matcher/baseElementMatcherStrategy"
 import { ConditionWrapInGroupStrategy } from "./indentation/conditionWrapInGroupStrategy"
 import { PropertiesFormatter } from "./propertiesFormatter"
+import { ICheckBoxFieldElement } from "@/meta/forms/interfaces"
 
-export class CheckboxFormatter extends BaseFormatter<CheckboxElement> {
-  public format(element: CheckboxElement): string[] {
-    let excludeProperties = ["Заголовок", "ГоризонтальноеПоложениеВГруппе", "ПоложениеЗаголовка", "ВидФлажка"]
+export class CheckboxFormatter extends BaseFormatter<ICheckBoxFieldElement> {
+  public format(element: ICheckBoxFieldElement): string[] {
+    // let excludeProperties = ["Заголовок", "ГоризонтальноеПоложениеВГруппе", "ПоложениеЗаголовка", "ВидФлажка"]
 
     FormatterUtils.excludeStretchProperties(excludeProperties, element)
 
@@ -21,9 +21,9 @@ export class CheckboxFormatter extends BaseFormatter<CheckboxElement> {
     result += FormatterUtils.getCheckboxString(
       header,
       true,
-      element.getProperty("ВидФлажка") as string,
+      element.properties.checkBoxType,
       element.value,
-      element.getProperty("ПоложениеЗаголовка") as string
+      element.properties.titleLocation
     )
 
     result += properties.join("")

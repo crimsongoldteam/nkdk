@@ -1,4 +1,3 @@
-import { InputFormElement } from "../elements/inputElement"
 import * as t from "../parser/lexer"
 import { IFormatterParams } from "./interfaces"
 import { FormatterFactory } from "./formatterFactory"
@@ -13,7 +12,7 @@ export class InputFormatter extends BaseFormatter<IInputFieldElement> {
   public format(element: IInputFieldElement, _params: IFormatterParams): string[] {
     const underline = t.Underscore.LABEL as string
 
-    let header: string = FormatterUtils.getAlignmentAtLeft(element)
+    let header: string = FormatterUtils.getAlignmentAtLeft(element.properties)
 
     header += element.properties.title
     header += t.Colon.LABEL + " "
@@ -27,7 +26,7 @@ export class InputFormatter extends BaseFormatter<IInputFieldElement> {
 
     const properties = PropertiesFormatter.render(element.properties)
 
-    let result = [header + value + properties.join("") + FormatterUtils.getAlignmentAtRight(element)]
+    let result = [header + value + properties.join("") + FormatterUtils.getAlignmentAtRight(element.properties)]
 
     result.push(...this.getMultilineString(element, header.length, value.length))
 
@@ -69,10 +68,10 @@ export class InputFormatter extends BaseFormatter<IInputFieldElement> {
     return Object.entries(propertyMap)
       .filter(([key, _]) => element.properties[key as keyof IInputFieldElementProperties] !== undefined)
       .map(([_, value]) => value)
-      .join(""
+      .join("")
   }
 }
 
-FormatterFactory.register(
-  new InputFormatter(new BaseElementMatcherStrategy(InputFieldElement), new ConditionWrapInGroupStrategy())
-)
+// FormatterFactory.register(
+//   new InputFormatter(new BaseElementMatcherStrategy(InputFieldElement), new ConditionWrapInGroupStrategy())
+// )

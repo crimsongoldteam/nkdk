@@ -58,18 +58,22 @@ export class PropertiesFormatter {
     const template = "%1 = %2"
     const resultArray: string[] = []
 
-    const typeDescription = (element as any).typeDescription
-    if (typeDescription) {
-      const typeDescStr = this.formatTypeDescription(typeDescription)
-      if (typeDescStr) {
-        resultArray.push(template.replace("%1", "Тип").replace("%2", typeDescStr))
-      }
-    }
+    // const typeDescription = (element as any).typeDescription
+    // if (typeDescription) {
+    //   const typeDescStr = this.formatTypeDescription(typeDescription)
+    //   if (typeDescStr) {
+    //     resultArray.push(template.replace("%1", "Тип").replace("%2", typeDescStr))
+    //   }
+    // }
 
-    for (const [key, value] of element.properties.entries()) {
-      if (lowerExcludeProperties.includes(key.toLowerCase())) {
-        continue
-      }
+    for (const key in properties) {
+      // if (!Object.prototype.hasOwnProperty.call(properties, key)) {
+      //   continue
+      // }
+      // if (lowerExcludeProperties.includes(key.toLowerCase())) {
+      //   continue
+      // }
+      const value = properties[key as keyof IFormElementProperties]
       let formattedValue = ""
       if (Array.isArray(value)) {
         formattedValue = value.join(", ")

@@ -54,7 +54,7 @@ export interface IFormAttributeableProperties {
   set dataPathName(value: string)
 }
 
-export interface FormItemable {
+export interface IFormItemable {
   items: IFormElement[]
   addItem(item: IFormElement): void
   removeItem(item: IFormElement): void

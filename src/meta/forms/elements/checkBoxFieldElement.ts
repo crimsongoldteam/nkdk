@@ -8,13 +8,13 @@ import {
   INameStrategyToken,
   ICheckBoxFieldElementToken,
 } from "../container/containerConfig"
-import { IDataPathNameStrategy, INameStrategy } from "../mixins/interfaces"
-import { FormAttributeableMixin } from "../mixins/formAttributeableMixin"
-import { FormNameableMixin } from "../mixins/formNameableMixin"
+import type { IDataPathNameStrategy, INameStrategy } from "../mixins/interfaces"
+import { FormAttributeableMixin, FormAttributeablePropertiesMixin } from "../mixins/formAttributeableMixin"
+import { FormNameableMixin, FormNameablePropertiesMixin } from "../mixins/formNameableMixin"
 
 @injectable({ token: ICheckBoxFieldElementPropertiesToken })
 export class CheckBoxFieldElementProperties
-  extends BaseFormElementProperties
+  extends FormAttributeablePropertiesMixin(FormNameablePropertiesMixin(BaseFormElementProperties))
   implements ICheckBoxFieldElementProperties
 {
   public title: string = ""
@@ -23,11 +23,9 @@ export class CheckBoxFieldElementProperties
   public horizontalAlignInGroup: SystemEnumeration.HorizontalAlign = SystemEnumeration.HorizontalAlign.Auto
   public horizontalStretch: ExplicitUndefined<boolean> = undefined
 
-  /**
-   * Конструктор класса CheckBoxFieldElementProperties.
-   * @param dataPathNameStrategy - стратегия для генерации имени пути данных.
-   * @param nameStrategy - стратегия для генерации имени элемента.
-   */
+  public checkBoxType: SystemEnumeration.CheckBoxType = SystemEnumeration.CheckBoxType.Auto
+  public titleLocation: SystemEnumeration.FormItemTitleLocation = SystemEnumeration.FormItemTitleLocation.Auto
+
   constructor(
     @inject(IDataPathNameStrategyToken) private readonly dataPathNameStrategy: IDataPathNameStrategy,
     @inject(INameStrategyToken) private readonly nameStrategy: INameStrategy
@@ -41,6 +39,8 @@ export class CheckBoxFieldElement
   extends FormAttributeableMixin(FormNameableMixin(BaseFormElement))
   implements ICheckBoxFieldElement
 {
+  public value: boolean = false
+
   constructor(
     @inject(ICheckBoxFieldElementPropertiesToken) public readonly properties: CheckBoxFieldElementProperties,
     @inject(IDataPathNameStrategyToken) private readonly dataPathNameStrategy: IDataPathNameStrategy,

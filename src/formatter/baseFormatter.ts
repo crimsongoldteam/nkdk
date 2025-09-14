@@ -1,7 +1,7 @@
+import { IFormElement } from "@/meta/forms/interfaces"
 import { IElementMatcherStrategy, IFormatter, IFormatterParams, IWrapInGroupStrategy } from "./interfaces"
-import { IBaseElement } from "@/elements/interfaces"
 
-export abstract class BaseFormatter<T extends IBaseElement> implements IFormatter<T> {
+export abstract class BaseFormatter<T extends IFormElement> implements IFormatter<T> {
   private readonly matcherStrategy: IElementMatcherStrategy
   private readonly indentationStrategy: IWrapInGroupStrategy
 
@@ -12,7 +12,7 @@ export abstract class BaseFormatter<T extends IBaseElement> implements IFormatte
 
   public abstract format(element: T, params: IFormatterParams): string[]
 
-  public canRender(element: IBaseElement, params: IFormatterParams): boolean {
+  public canRender(element: IFormElement, params: IFormatterParams): boolean {
     return this.matcherStrategy.canFormat(element, params)
   }
 
