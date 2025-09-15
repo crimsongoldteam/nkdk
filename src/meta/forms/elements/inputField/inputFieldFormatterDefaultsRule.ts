@@ -1,5 +1,5 @@
 import { injectable } from "tsyringe"
-import { IInputField, IInputFieldProperties } from "../../interfaces"
+import { IInputField, IInputFieldProperties } from "./interfaces"
 import type { IDefaultsRule } from "../../helpers/interfaces"
 import { TYPES } from "../../container/symbols"
 

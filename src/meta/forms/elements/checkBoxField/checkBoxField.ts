@@ -1,6 +1,6 @@
 import { inject, injectable } from "tsyringe"
 import { BaseFormElement } from "@/meta/base/baseFormElement"
-import type { ICheckBoxField, ICheckBoxFieldProperties } from "../../interfaces"
+import type { ICheckBoxField, ICheckBoxFieldProperties } from "./interfaces"
 import { TYPES } from "../../container/symbols"
 import type { IDataPathStrategy, INameStrategy } from "../../helpers/interfaces"
 import { FormAttributeableMixin } from "../../helpers/mixins/formAttributeableMixin"

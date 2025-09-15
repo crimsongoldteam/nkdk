@@ -1,6 +1,7 @@
 import { IdGeneratorQueueInboxItem, IdGeneratorRequest } from "@/parser/visitorTools/idGenerator"
 import { CstPath } from "./cstPathHelper"
 import { DateFractions, ElementListType } from "./types"
+import { IFormElementProperties } from "@/meta/forms/interfaces"
 
 export interface IBaseElement {
   updateParents(): unknown
@@ -57,4 +58,7 @@ export interface ITypeDescription {
   isEmpty(): boolean
   isEqual(other: ITypeDescription): boolean
   isTable(): boolean
+}
+export interface IFormElement {
+  properties: IFormElementProperties
 }

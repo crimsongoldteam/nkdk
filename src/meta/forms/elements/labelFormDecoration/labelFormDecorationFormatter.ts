@@ -1,4 +1,3 @@
-import { LabelElement } from "../elements/labelElement"
 import { PropertiesFormatter } from "./propertiesFormatter"
 import { FormatterUtils } from "./helpers/formatterUtils"
 import { BaseFormatter } from "./baseFormatter"
@@ -6,8 +5,8 @@ import { BaseElementMatcherStrategy } from "./matcher/baseElementMatcherStrategy
 import { ConditionWrapInGroupStrategy } from "./indentation/conditionWrapInGroupStrategy"
 import { FormatterFactory } from "./formatterFactory"
 
-export class LabelFormatter extends BaseFormatter<LabelElement> {
-  public format(element: LabelElement): string[] {
+export class LabelFormDecorationFormatter extends BaseFormatter<ILabelFormDecoration> {
+  public format(element: ILabelFormDecoration): string[] {
     let excludeProperties = ["ГоризонтальноеПоложениеВГруппе", "Заголовок"]
 
     FormatterUtils.excludeStretchProperties(excludeProperties, element)
@@ -23,5 +22,5 @@ export class LabelFormatter extends BaseFormatter<LabelElement> {
 }
 
 FormatterFactory.register(
-  new LabelFormatter(new BaseElementMatcherStrategy(LabelElement), new ConditionWrapInGroupStrategy())
+  new LabelFormDecorationFormatter(new BaseElementMatcherStrategy(LabelElement), new ConditionWrapInGroupStrategy())
 )

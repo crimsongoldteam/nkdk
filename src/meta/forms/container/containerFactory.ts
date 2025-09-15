@@ -1,5 +1,6 @@
 import { container, instanceCachingFactory } from "tsyringe"
-import { ICheckBoxField, ICheckBoxFieldProperties, IInputField, IInputFieldProperties } from "../interfaces"
+import { IInputField, IInputFieldProperties } from "../elements/inputField/interfaces"
+import { ICheckBoxField, ICheckBoxFieldProperties } from "../elements/checkBoxField/interfaces"
 import { TYPES } from "./symbols"
 import { IDefaultsProvider, IDefaultsRule } from "../helpers/interfaces"
 import { DefaultsProvider } from "../helpers/defaults/defaultsProvider"

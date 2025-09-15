@@ -3975,6 +3975,7 @@ export enum UsualGroupRepresentation {
 }
 
 export enum VerticalAlign {
+  Auto = "Авто",
   Top = "Верх",
   Bottom = "Низ",
   Center = "Центр",

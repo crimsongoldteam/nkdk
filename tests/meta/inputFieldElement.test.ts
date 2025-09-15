@@ -2,7 +2,7 @@ import "reflect-metadata"
 import { container } from "tsyringe"
 import { describe, it, expect, beforeEach } from "vitest"
 import { TYPES } from "@/meta/forms/container/symbols"
-import { IInputField } from "@/meta/forms/interfaces"
+import { IInputField } from "@/meta/forms/elements/inputField/interfaces"
 import "../../src/meta/"
 
 describe("InputFieldElement autoDataPathName integration", () => {

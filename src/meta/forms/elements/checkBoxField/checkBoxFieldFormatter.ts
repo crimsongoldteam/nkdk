@@ -4,7 +4,7 @@ import { BaseFormatter } from "../../../../formatter/baseFormatter"
 import { BaseElementMatcherStrategy } from "../../../../formatter/matcher/baseElementMatcherStrategy"
 import { ConditionWrapInGroupStrategy } from "../../../../formatter/indentation/conditionWrapInGroupStrategy"
 import { PropertiesFormatter } from "../../../../formatter/propertiesFormatter"
-import { ICheckBoxField } from "@/meta/forms/interfaces"
+import { ICheckBoxField } from "./interfaces"
 
 export class CheckboxFormatter extends BaseFormatter<ICheckBoxField> {
   public format(element: ICheckBoxField): string[] {

@@ -1,5 +1,5 @@
 import { IFormItemable } from "../interfaces"
-import { IFormElement } from "../../interfaces"
+import { IFormElement } from "@/elements/interfaces"
 
 type Constructor = new (...args: any[]) => {}
 

@@ -14,4 +14,9 @@ export const TYPES = {
   ICheckBoxFieldProperties: Symbol("ICheckBoxFieldElementProperties"),
   ICheckBoxFieldDefaultsProvider: Symbol("ICheckBoxFieldDefaultsProvider"),
   ICheckBoxFieldFormatterDefaultsRule: Symbol("ICheckBoxFieldDefaultsRule"),
+
+  ILabelFormDecoration: Symbol("ILabelFormDecorationElement"),
+  ILabelFormDecorationProperties: Symbol("ILabelFormDecorationElementProperties"),
+  ILabelFormDecorationDefaultsProvider: Symbol("ILabelFormDecorationDefaultsProvider"),
+  ILabelFormDecorationFormatterDefaultsRule: Symbol("ILabelFormDecorationDefaultsRule"),
 }

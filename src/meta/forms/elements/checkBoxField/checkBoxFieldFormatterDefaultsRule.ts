@@ -1,5 +1,5 @@
 import { injectable } from "tsyringe"
-import { ICheckBoxFieldProperties, ICheckBoxField } from "../../interfaces"
+import { ICheckBoxFieldProperties, ICheckBoxField } from "./interfaces"
 import type { IDefaultsRule } from "../../helpers/interfaces"
 import { TYPES } from "../../container/symbols"
 

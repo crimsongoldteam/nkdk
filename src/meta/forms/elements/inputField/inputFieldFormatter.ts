@@ -6,7 +6,7 @@ import { BaseElementMatcherStrategy } from "../../../../formatter/matcher/baseEl
 import { ConditionWrapInGroupStrategy } from "../../../../formatter/indentation/conditionWrapInGroupStrategy"
 import { BaseFormatter } from "../../../../formatter/baseFormatter"
 import { PropertiesFormatter } from "../../../../formatter/propertiesFormatter"
-import { IInputField, IInputFieldProperties } from "@/meta/forms/interfaces"
+import { IInputField, IInputFieldProperties } from "./interfaces"
 import { TYPES } from "@/meta/forms/container/symbols"
 import { container } from "tsyringe"
 import { IDefaultsProvider } from "@/meta/forms/helpers/interfaces"

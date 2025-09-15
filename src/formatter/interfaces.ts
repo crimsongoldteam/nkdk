@@ -1,5 +1,5 @@
 import { IBaseElement } from "@/elements/interfaces"
-import { IFormElement } from "@/meta/forms/interfaces"
+import { IFormElement } from "@/elements/interfaces"
 
 export interface IFormatter<T extends IBaseElement> {
   canRender(element: IBaseElement, params: IFormatterParams): boolean

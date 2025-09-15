@@ -1,18 +1,21 @@
 import { inject, injectable } from "tsyringe"
 import type { ExplicitUndefined, IColor, IFont, IPicture, IShortcut } from "../../interfaces"
-import type { IInputFieldProperties } from "./interfaces"
-import { BaseFormElementProperties } from "@/meta/base/baseFormElement"
 import * as SystemEnumeration from "@/meta/systemEnumerations"
 import type { IDataPathStrategy, INameStrategy } from "../../helpers/interfaces"
 import { TYPES } from "../../container/symbols"
 import { FormAttributeablePropertiesMixin, FormNameablePropertiesMixin } from "../../helpers/mixins"
 import { ITypeDescription } from "@/elements/interfaces"
+import { IFormFieldProperties } from "./interfaces"
 
-@injectable({ token: TYPES.IInputFieldElementProperties })
-export class InputFieldProperties
-  extends FormNameablePropertiesMixin(FormAttributeablePropertiesMixin(BaseFormElementProperties))
-  implements IInputFieldProperties
-{
+export abstract class FormFieldProperties implements IFormFieldProperties {
+  name: string = ""
+  get dataPath(): string {
+    throw new Error("Method not implemented.")
+  }
+  set dataPath(value: string) {
+    throw new Error("Method not implemented.")
+  }
+  horizontalStretch: ExplicitUndefined<boolean>
   public autoCellHeight: boolean = false
   public defaultItem: boolean = false
   public displayImportance: SystemEnumeration.DisplayImportance = SystemEnumeration.DisplayImportance.Auto
@@ -60,24 +63,4 @@ export class InputFieldProperties
   public FooterBackColor: IColor | undefined = undefined
   public TitleFont: IFont | undefined = undefined
   public FooterFont: IFont | undefined = undefined
-
-  // public title: string = ""
-  public height: number = 0
-  public multiLine: boolean = false
-
-  public choiceButton: boolean | undefined = undefined
-  public dropListButton: boolean | undefined = undefined
-  public сlearButton: boolean | undefined = undefined
-  public openButton: boolean | undefined = undefined
-  public spinButton: boolean | undefined = undefined
-
-  // public horizontalAlignInGroup: SystemEnumeration.HorizontalAlign = SystemEnumeration.HorizontalAlign.Auto
-  public horizontalStretch: ExplicitUndefined<boolean> = undefined
-
-  constructor(
-    @inject(TYPES.IDataPathStrategy) private readonly dataPathStrategy: IDataPathStrategy,
-    @inject(TYPES.INameStrategy) private readonly nameStrategy: INameStrategy
-  ) {
-    super()
-  }
 }

@@ -1,4 +1,5 @@
-import { IFormElement, IFormElementProperties } from "../forms/interfaces"
+import { IFormElementProperties } from "../forms/interfaces"
+import { IFormElement } from "@/elements/interfaces"
 
 export class BaseFormElementProperties implements IFormElementProperties {}
 

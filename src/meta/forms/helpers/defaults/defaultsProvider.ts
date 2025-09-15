@@ -1,6 +1,7 @@
 import { inject } from "tsyringe"
 import { TYPES } from "../../container/symbols"
-import type { IFormElement, IFormElementProperties } from "../../interfaces"
+import type { IFormElementProperties } from "../../interfaces"
+import type { IFormElement } from "@/elements/interfaces"
 import type { IDefaultsProvider, IDefaultsRule } from "../interfaces"
 
 export class DefaultsProvider implements IDefaultsProvider {

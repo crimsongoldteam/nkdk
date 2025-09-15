@@ -1,4 +1,5 @@
-import { IFormAttribute, IFormElement, IFormElementProperties } from "../interfaces"
+import { IFormAttribute, IFormElementProperties } from "../interfaces"
+import { IFormElement } from "@/elements/interfaces"
 
 export interface IFormNameable {
   get autoName(): string | undefined

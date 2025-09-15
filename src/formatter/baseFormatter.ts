@@ -1,4 +1,4 @@
-import { IFormElement } from "@/meta/forms/interfaces"
+import { IFormElement } from "@/elements/interfaces"
 import { IElementMatcherStrategy, IFormatter, IFormatterParams, IWrapInGroupStrategy } from "./interfaces"
 
 export abstract class BaseFormatter<T extends IFormElement> implements IFormatter<T> {
