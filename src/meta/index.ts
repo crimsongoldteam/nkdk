@@ -6,6 +6,7 @@ import { InputFieldElementProperties } from "./forms/elements"
 import { InputFieldElementFormatterDefaultsRule as InputFieldFormatterRule } from "./forms/elements/inputField/inputFieldFormatterDefaultsRule"
 import { BasicDefaultsRule } from "./forms/elements/inputField/basicDefaultsRule"
 import { InputFieldEnterpriseTransform } from "./forms/elements/inputField/enterpriseTransformer"
+import { InputFieldXMLTransform } from "./forms/elements/inputField/XMLTransformer"
 
 export {
   InputField as InputFieldElement,
@@ -16,4 +17,5 @@ export {
   InputFieldFormatterRule,
   BasicDefaultsRule,
   InputFieldEnterpriseTransform,
+  InputFieldXMLTransform,
 }

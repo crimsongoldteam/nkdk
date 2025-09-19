@@ -18,6 +18,8 @@ export const TYPES = {
   InputFieldPropertiesEnterpriseTransform: Symbol("InputFieldPropertiesEnterpriseTransform"),
   InputFieldEnterpriseTransform: Symbol("InputFieldEnterpriseTransform"),
 
+  InputFieldXMLTransform: Symbol("InputFieldXMLTransform"),
+
   ICheckBoxField: Symbol("ICheckBoxFieldElement"),
   ICheckBoxFieldProperties: Symbol("ICheckBoxFieldElementProperties"),
   ICheckBoxFieldDefaultsProvider: Symbol("ICheckBoxFieldDefaultsProvider"),

@@ -48,3 +48,7 @@ export interface IPropertiesEnterpriseTransform {
 
   fillProperties(properties: IFormElementProperties): void
 }
+
+export interface IXMLTransform {
+  fillTransform(element: IFormElement): void
+}

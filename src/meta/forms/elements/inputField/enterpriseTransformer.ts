@@ -58,6 +58,8 @@ export class InputFieldEnterpriseTransform implements IEnterpriseTransform {
 
   public fillElement(element: IInputField) {
     this._properties.fillProperties(element.properties)
-    element.value = this.value
+    if (this.value !== undefined) {
+      element.value = this.value
+    }
   }
 }
