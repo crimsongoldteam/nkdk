@@ -11,10 +11,17 @@ export class InputFieldXMLTransform implements IXMLTransform {
   @Expose({ name: "Title" })
   public title?: string
 
+  @Expose({ name: "@_name" })
+  public name?: string
+
   constructor(@inject(TYPES.IInputFieldEnterpriseDefaultsProvider) private readonly _provider: IDefaultsProvider) {}
 
   fillTransform(element: IFormElement): void {
     const changedProperties = this._provider.render(element)
     Object.assign(this, changedProperties)
+  }
+
+  fillElement(element: IInputField): void {
+    Object.assign(element.properties, this)
   }
 }

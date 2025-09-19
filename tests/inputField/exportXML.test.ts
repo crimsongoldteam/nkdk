@@ -17,6 +17,7 @@ beforeEach(() => {
 it("should export to XML", () => {
   const input = container.resolve<IInputField>(TYPES.IInputField)
   input.properties.title = "Поле"
+  input.properties.name = "ИмяПоля"
   input.value = "Значение"
 
   const transform = container.resolve<IXMLTransform>(TYPES.InputFieldXMLTransform)
@@ -29,10 +30,10 @@ it("should export to XML", () => {
     }),
   }
 
-  const builder = new XMLBuilder({ format: true })
+  const builder = new XMLBuilder({ format: true, ignoreAttributes: false })
   const xmlContent = builder.build(result)
 
-  const xml = `<InputField>
+  const xml = `<InputField name="ИмяПоля">
   <Title>Поле</Title>
 </InputField>`
 
