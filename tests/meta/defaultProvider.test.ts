@@ -18,7 +18,7 @@ beforeEach(() => {
 
 it("should render element", () => {
   const element = container.resolve<IInputField>(TYPES.IInputField)
-  element.properties.title = "Test"
+  element.properties.mask = "Test"
   const result = provider.render(element)
-  expect(result).toEqual({ title: "Test" })
+  expect(result).toEqual({ mask: "Test" })
 })

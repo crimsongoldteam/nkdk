@@ -7,6 +7,14 @@ import { DefaultsProvider } from "../helpers/defaults/defaultsProvider"
 
 export class ContainerFactory {
   public static create(): void {
+    container.register(TYPES.IInputFieldEnterpriseDefaultsProvider, {
+      useFactory: instanceCachingFactory<IDefaultsProvider>((c) => {
+        const element = c.resolve<IInputField>(TYPES.IInputField)
+        const rule = c.resolve<IDefaultsRule<IInputField, IInputFieldProperties>>(TYPES.IBasicDefaultsRuleToken)
+        return new DefaultsProvider(rule, element)
+      }),
+    })
+
     container.register(TYPES.IInputFieldDefaultsProvider, {
       useFactory: instanceCachingFactory<IDefaultsProvider>((c) => {
         const element = c.resolve<IInputField>(TYPES.IInputField)

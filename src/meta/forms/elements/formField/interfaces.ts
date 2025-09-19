@@ -3,12 +3,12 @@ import {
   IFormElementProperties,
   IFormHorizontalAlignableProperties,
   IFormHorizontalStretchableProperties,
+  IPicture,
+  IColor,
+  IFont,
+  IShortcut,
 } from "../../interfaces"
 import * as SystemEnumeration from "@/meta/systemEnumerations"
-import { IPicture } from "../../interfaces"
-import { IColor } from "../../interfaces"
-import { IFont } from "../../interfaces"
-import { IShortcut } from "../../interfaces"
 import { ITypeDescription } from "@/elements/interfaces"
 
 export interface IFormFieldProperties
@@ -56,9 +56,9 @@ export interface IFormFieldProperties
   readOnly: boolean
   fixingInTable: boolean
   titleTextColor: IColor | undefined
-  FooterTextColor: IColor | undefined
-  TitleBackColor: IColor | undefined
-  FooterBackColor: IColor | undefined
-  TitleFont: IFont | undefined
-  FooterFont: IFont | undefined
+  footerTextColor: IColor | undefined
+  titleBackColor: IColor | undefined
+  footerBackColor: IColor | undefined
+  titleFont: IFont | undefined
+  footerFont: IFont | undefined
 }

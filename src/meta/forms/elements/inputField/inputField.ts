@@ -11,8 +11,8 @@ export class InputField extends FormAttributeableMixin(FormNameableMixin(BaseFor
 
   constructor(
     @inject(TYPES.IInputFieldElementProperties) public readonly properties: IInputFieldProperties,
-    @inject(TYPES.IDataPathStrategy) private readonly dataPathStrategy: IDataPathStrategy,
-    @inject(TYPES.INameStrategy) private readonly nameStrategy: INameStrategy
+    @inject(TYPES.IDataPathStrategy) private readonly _dataPathStrategy: IDataPathStrategy,
+    @inject(TYPES.INameStrategy) private readonly _nameStrategy: INameStrategy
   ) {
     super()
   }

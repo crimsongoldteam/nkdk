@@ -32,6 +32,9 @@ import {
 } from "../elements/index"
 import { IBaseElement, IGroupElement, ITypeDescription } from "@/elements/interfaces"
 import { TypeProcessor } from "./typeProcessor"
+import { TYPES } from "@/meta/forms/container/symbols"
+import { IInputField } from "@/meta/forms/elements/inputField/interfaces"
+import { container } from "tsyringe"
 
 const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
@@ -237,38 +240,34 @@ export class Visitor extends BaseVisitor {
 
   // #region inputField
 
-  inputField(ctx: CstChildrenDictionary): InputElement {
-    const result = new InputElement()
+  inputField(ctx: CstChildrenDictionary): IInputField {
+    const result = container.resolve<IInputField>(TYPES.IInputField)
 
-    this.setAligment(ctx, result)
+    // this.setAligment(ctx, result)
 
     let header = this.joinTokens(ctx.InputHeader)
-    this.setProperty(result, "Заголовок", header)
+    result.properties.title = header ?? ""
 
-    let content = this.joinTokens(ctx.InputValue)
-    if (content) {
-      result.dataPathName = content
-    }
+    result.value = this.joinTokens(ctx.InputValue) ?? ""
 
     let height: number = ctx.inputFieldMultiline?.length ?? 0
-
     if (height > 0) {
-      this.setProperty(result, "МногострочныйРежим", true)
-      this.setProperty(result, "Высота", height + 1)
+      result.properties.multiLine = true
+      result.properties.height = height + 1
     }
 
-    result.typeDescription = this.getTypeByContent(content)
+    // result.typeDescription = this.getTypeByContent(content)
 
-    let modifiers = this.joinTokens(ctx.InputModifiers)
-    this.addInputModifiers(modifiers, result)
+    // let modifiers = this.joinTokens(ctx.InputModifiers)
+    // this.addInputModifiers(modifiers, result)
 
-    this.visit(ctx.properties as CstNode[], { element: result })
+    // this.visit(ctx.properties as CstNode[], { element: result })
 
-    this.semanticTokensManager.add(SemanticTokensTypes.InputHeader, ctx.InputHeader as CstNode[], result)
-    let inputValueTokens = [...(ctx.InputValue ?? []), ...(ctx.InputModifiers ?? [])]
-    this.semanticTokensManager.add(SemanticTokensTypes.InputValue, inputValueTokens, result)
-    this.semanticTokensManager.add(SemanticTokensTypes.InputMultiline, ctx.inputFieldMultiline, result)
-    this.semanticTokensManager.add(SemanticTokensTypes.Properties, ctx.properties as CstNode[], result)
+    // this.semanticTokensManager.add(SemanticTokensTypes.InputHeader, ctx.InputHeader as CstNode[], result)
+    // let inputValueTokens = [...(ctx.InputValue ?? []), ...(ctx.InputModifiers ?? [])]
+    // this.semanticTokensManager.add(SemanticTokensTypes.InputValue, inputValueTokens, result)
+    // this.semanticTokensManager.add(SemanticTokensTypes.InputMultiline, ctx.inputFieldMultiline, result)
+    // this.semanticTokensManager.add(SemanticTokensTypes.Properties, ctx.properties as CstNode[], result)
 
     return result
   }

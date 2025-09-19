@@ -1,13 +1,10 @@
-import { inject, injectable } from "tsyringe"
 import type { ExplicitUndefined, IColor, IFont, IPicture, IShortcut } from "../../interfaces"
 import * as SystemEnumeration from "@/meta/systemEnumerations"
-import type { IDataPathStrategy, INameStrategy } from "../../helpers/interfaces"
-import { TYPES } from "../../container/symbols"
-import { FormAttributeablePropertiesMixin, FormNameablePropertiesMixin } from "../../helpers/mixins"
 import { ITypeDescription } from "@/elements/interfaces"
 import { IFormFieldProperties } from "./interfaces"
+import { Expose } from "class-transformer"
 
-export abstract class FormFieldProperties implements IFormFieldProperties {
+export class FormFieldProperties implements IFormFieldProperties {
   name: string = ""
   get dataPath(): string {
     throw new Error("Method not implemented.")

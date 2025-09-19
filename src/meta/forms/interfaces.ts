@@ -9,7 +9,9 @@ export interface IManagedFormElement extends IFormElement, IFormItemable, IFormN
   title: string
 }
 
-export interface IFormElementProperties {}
+export interface IFormElementProperties {
+  type?: SystemEnumeration.FormFieldType
+}
 
 export interface IFormAttribute {
   title: string
@@ -24,7 +26,7 @@ export interface IFormHorizontalAlignableProperties {
 }
 
 export interface IFormHorizontalStretchableProperties {
-  horizontalStretch: ExplicitUndefined<boolean>
+  horizontalStretch: boolean | undefined
 }
 
 export interface IPicture {}
@@ -34,3 +36,15 @@ export interface IShortcut {}
 export interface IColor {}
 
 export interface IFont {}
+
+export interface IEnterpriseTransform {
+  fillTransform(element: IFormElement): void
+
+  fillElement(element: IFormElement): void
+}
+
+export interface IPropertiesEnterpriseTransform {
+  fillTransform(properties: IFormElementProperties): void
+
+  fillProperties(properties: IFormElementProperties): void
+}
