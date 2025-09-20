@@ -35,3 +35,12 @@ ___`
   expect(result.properties.multiLine).toBeTruthy()
   expect(result.properties.height).toEqual(3)
 })
+
+it("should parse input field with properties", () => {
+  const text = "Поле:Значение {ПодсказкаВвода = ТекстПодсказки}"
+
+  const buildResult = CSTGenerator.build(text, "parseForm")
+  const result = buildResult.element.items[0] as IInputField
+
+  expect(result.properties.inputHint).toEqual("ТекстПодсказки")
+})

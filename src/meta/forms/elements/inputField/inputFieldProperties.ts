@@ -104,6 +104,6 @@ export class InputFieldProperties extends FormFieldProperties implements IInputF
   backColor: IColor = {}
   multipleValuesBackColor: IColor = {}
   dropListWidth: number = 0
-  font: IFont = {}
-  multipleValuesFont: IFont = {}
+  font: IFont | undefined = undefined
+  multipleValuesFont: IFont | undefined = undefined
 }

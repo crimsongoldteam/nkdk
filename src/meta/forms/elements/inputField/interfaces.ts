@@ -95,8 +95,8 @@ export interface IInputFieldProperties
   backColor: IColor
   multipleValuesBackColor: IColor
   dropListWidth: number
-  font: IFont
-  multipleValuesFont: IFont
+  font: IFont | undefined
+  multipleValuesFont: IFont | undefined
 }
 
 export interface IInputFieldPropertiesPartial extends Partial<IInputFieldProperties> {}

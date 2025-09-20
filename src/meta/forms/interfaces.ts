@@ -35,7 +35,19 @@ export interface IShortcut {}
 
 export interface IColor {}
 
-export interface IFont {}
+// {Тип = ЭлементСтиля, }
+
+export interface IFont {
+  type: SystemEnumeration.FontType
+  strikeout: boolean | undefined
+  faceName: string
+  ref: string
+  scale: number
+  italic: boolean | undefined
+  underline: boolean | undefined
+  bold: boolean | undefined
+  size: number
+}
 
 export interface IEnterpriseTransform {
   fillTransform(element: IFormElement): void
