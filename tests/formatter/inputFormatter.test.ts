@@ -1,6 +1,6 @@
 import "reflect-metadata"
 import { expect, describe, beforeEach, it } from "vitest"
-import { InputFieldFormatter } from "@/meta/forms/elements/inputField/inputFieldFormatter"
+import { InputFieldFormatter } from "@/meta/forms/elements/inputField/formatter"
 import { IInputField } from "@/meta/forms/elements/inputField/interfaces"
 import { IFormatterParams, WrapInGroupStrategy } from "@/formatter/interfaces"
 import { container } from "tsyringe"

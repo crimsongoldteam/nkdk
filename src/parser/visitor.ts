@@ -1,3 +1,5 @@
+import "reflect-metadata"
+import "../../src/meta"
 import { CstChildrenDictionary, CstElement, CstNode } from "chevrotain"
 import { Parser } from "./parser"
 import { CommandBarManager } from "./visitorTools/commandBarManager"
@@ -35,6 +37,8 @@ import { TypeProcessor } from "./typeProcessor"
 import { TYPES } from "@/meta/forms/container/symbols"
 import { IInputField } from "@/meta/forms/elements/inputField/interfaces"
 import { container } from "tsyringe"
+import { plainToInstance } from "class-transformer"
+import { InputFieldPropertiesEnterpriseTransform } from "@/meta/forms/elements/inputField/enterpriseTransform"
 
 const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
@@ -245,12 +249,12 @@ export class Visitor extends BaseVisitor {
 
     // this.setAligment(ctx, result)
 
-    let header = this.joinTokens(ctx.InputHeader)
+    const header = this.joinTokens(ctx.InputHeader)
     result.properties.title = header ?? ""
 
     result.value = this.joinTokens(ctx.InputValue) ?? ""
 
-    let height: number = ctx.inputFieldMultiline?.length ?? 0
+    const height = ctx.inputFieldMultiline?.length ?? 0
     if (height > 0) {
       result.properties.multiLine = true
       result.properties.height = height + 1
@@ -261,7 +265,7 @@ export class Visitor extends BaseVisitor {
     // let modifiers = this.joinTokens(ctx.InputModifiers)
     // this.addInputModifiers(modifiers, result)
 
-    // this.visit(ctx.properties as CstNode[], { element: result })
+    this.visit(ctx.properties as CstNode[], { element: result })
 
     // this.semanticTokensManager.add(SemanticTokensTypes.InputHeader, ctx.InputHeader as CstNode[], result)
     // let inputValueTokens = [...(ctx.InputValue ?? []), ...(ctx.InputModifiers ?? [])]
@@ -272,7 +276,7 @@ export class Visitor extends BaseVisitor {
     return result
   }
 
-  addInputModifiers(modifiers: string | undefined, elementData: InputElement): void {
+  addInputModifiers(modifiers: string, elementData: InputElement): void {
     if (modifiers === undefined) {
       return
     }
@@ -630,30 +634,49 @@ export class Visitor extends BaseVisitor {
     this.visit(ctx.properties as CstNode[])
   }
 
-  properties(ctx: CstChildrenDictionary, params: { element: FormElement }): void {
-    const properties = this.visitAll(ctx.property as CstNode[])
+  properties(ctx: CstChildrenDictionary, params: { element: IInputField }): void {
+    const propertiesData = this.visitAll(ctx.property as CstNode[])
 
-    for (const property of properties as { key: string; value: { value: string; options: any }[] }[]) {
-      if (params.element instanceof InputElement && property.key.toLowerCase() == "тип") {
-        ;(params.element as InputElement).typeDescription = this.getTypeDescription(property.value) as TypeDescription
-        continue
-      }
+    const properties = propertiesData.reduce(
+      (acc: { [key: string]: string }, property: { key: string; value: string }) => {
+        if (Array.isArray(property.value) && property.value.length === 1) {
+          acc[property.key] = property.value[0].value
+        } else {
+          acc[property.key] = property.value
+        }
+        return acc
+      },
+      {}
+    )
 
-      if (params.element instanceof TableColumnElement && property.key.toLowerCase() == "тип") {
-        ;(params.element as TableColumnElement).typeDescription = this.getTypeDescription(
-          property.value
-        ) as TypeDescription
-        continue
-      }
+    const transform = plainToInstance(InputFieldPropertiesEnterpriseTransform, properties, {
+      strategy: "excludeAll",
+      exposeUnsetFields: false,
+    })
 
-      let value = property.value.map((info: any) => info.value)
+    transform.export(params.element.properties)
 
-      if (Array.isArray(value) && value.length == 1) {
-        value = value[0]
-      }
+    // for (const property of properties as { key: string; value: { value: string; options: any }[] }[]) {
+    //   if (params.element instanceof InputElement && property.key.toLowerCase() == "тип") {
+    //     ;(params.element as InputElement).typeDescription = this.getTypeDescription(property.value) as TypeDescription
+    //     continue
+    //   }
 
-      this.setProperty(params.element, property.key, value)
-    }
+    //   if (params.element instanceof TableColumnElement && property.key.toLowerCase() == "тип") {
+    //     ;(params.element as TableColumnElement).typeDescription = this.getTypeDescription(
+    //       property.value
+    //     ) as TypeDescription
+    //     continue
+    //   }
+
+    //   let value = property.value.map((info: any) => info.value)
+
+    //   if (Array.isArray(value) && value.length == 1) {
+    //     value = value[0]
+    //   }
+
+    //   this.setProperty(params.element, property.key, value)
+    // }
   }
 
   property(ctx: CstChildrenDictionary): { key: string; value: string } {
@@ -678,7 +701,7 @@ export class Visitor extends BaseVisitor {
     return this.joinTokens(ctx.PropertiesValueOptionText)
   }
 
-  private setProperty(element: BaseElement, key: string, value: PropertyValue | undefined) {
+  private setProperty(element: BaseElement, key: string, value: PropertyValue) {
     const properties = element.properties
 
     const cleanedKey = StringUtils.clean(key)
@@ -734,7 +757,7 @@ export class Visitor extends BaseVisitor {
     }
   }
 
-  private getTypeByContent(content: string | undefined): TypeDescription {
+  private getTypeByContent(content: string): TypeDescription {
     return TypesUtils.getTypeByContent(content)
   }
 
@@ -742,7 +765,7 @@ export class Visitor extends BaseVisitor {
     return VisitorUtils.visitAll(this, ctx, param)
   }
 
-  private joinTokens(tokens: CstElement[]): string | undefined {
+  private joinTokens(tokens: CstElement[]): string {
     return VisitorUtils.joinTokens(tokens)
   }
 

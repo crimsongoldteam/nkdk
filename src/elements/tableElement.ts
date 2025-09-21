@@ -49,7 +49,7 @@ export class TableElement extends BaseElementWithAttributes {
     return columns
   }
 
-  public getColumnByAttributeId(attributeId: string): TableColumnElement | undefined {
+  public getColumnByAttributeId(attributeId: string): TableColumnElement {
     const columns = this.getAllColumns()
     return columns.find((column) => column.attributeId === attributeId)
   }

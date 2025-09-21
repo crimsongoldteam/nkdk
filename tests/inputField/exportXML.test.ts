@@ -21,7 +21,7 @@ it("should export to XML", () => {
   input.value = "Значение"
 
   const transform = container.resolve<IXMLTransform>(TYPES.InputFieldXMLTransform)
-  transform.fillTransform(input)
+  transform.import(input)
 
   const result = {
     InputField: instanceToPlain(transform, {

@@ -28,7 +28,7 @@ it("should import from XML", () => {
   })
 
   const input = container.resolve<IInputField>(TYPES.IInputField)
-  transform.fillElement(input)
+  transform.import(input)
 
   expect(input.properties.title).toEqual("Поле")
   expect(input.properties.type).toEqual("ПолеВвода")

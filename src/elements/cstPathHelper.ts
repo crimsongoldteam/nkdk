@@ -90,7 +90,7 @@ export type CstPath = Array<CstPathItem>
 export class CstPathHelper {
   public static getCstPath(element: IBaseElement): CstPath {
     const result: CstPath = []
-    let currentElement: IBaseElement | undefined = element
+    let currentElement: IBaseElement = element
     while (currentElement) {
       if (!currentElement.parent) break
 
@@ -113,11 +113,7 @@ export class CstPathHelper {
     return result.reverse()
   }
 
-  public static getElementPosition(
-    root: IBaseElement,
-    element: IBaseElement,
-    path: CstPath
-  ): CstElementPosition | undefined {
+  public static getElementPosition(root: IBaseElement, element: IBaseElement, path: CstPath): CstElementPosition {
     const current = this.findElementByCstPath(root, path)
     if (!current) return undefined
 
@@ -155,17 +151,17 @@ export class CstPathHelper {
       return [new CstPathWithElementItem(root.constructor as typeof BaseElement, 0, ElementListType.Items, root)]
 
     const result: CstPathWithElements = []
-    let currentElement: IBaseElement | undefined = root
+    let currentElement: IBaseElement = root
     for (let index = 0; index < path.length; index++) {
       const item = path[index]
       if (!currentElement) return []
 
-      const list: Array<IBaseElement> | undefined = currentElement.getList(item.parentList)
+      const list: Array<IBaseElement> = currentElement.getList(item.parentList)
       if (!list) return []
 
       const isNewElementPosition = forNew && index == path.length - 1
 
-      let element: IBaseElement | undefined
+      let element: IBaseElement
       if (!isNewElementPosition) {
         element = list[item.parentListIndex]
         if (!element) return []
@@ -182,7 +178,7 @@ export class CstPathHelper {
     return result
   }
 
-  public static findElementByCstPath(root: IBaseElement, path: CstPath): IBaseElement | undefined {
+  public static findElementByCstPath(root: IBaseElement, path: CstPath): IBaseElement {
     const pathWithElements = this.getCstPathWithElements(root, path)
     if (pathWithElements.length === 0) return undefined
     return pathWithElements[pathWithElements.length - 1].element

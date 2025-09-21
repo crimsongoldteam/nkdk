@@ -28,7 +28,7 @@ it("should export to Enterprise", () => {
   input.value = "Значение"
 
   const transform = container.resolve<IEnterpriseTransform>(TYPES.InputFieldEnterpriseTransform)
-  transform.fillTransform(input)
+  transform.import(input)
 
   const result = instanceToPlain(transform, {
     strategy: "excludeAll",

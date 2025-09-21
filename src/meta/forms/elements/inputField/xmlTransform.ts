@@ -16,12 +16,12 @@ export class InputFieldXMLTransform implements IXMLTransform {
 
   constructor(@inject(TYPES.IInputFieldEnterpriseDefaultsProvider) private readonly _provider: IDefaultsProvider) {}
 
-  fillTransform(element: IFormElement): void {
+  import(element: IFormElement): void {
     const changedProperties = this._provider.render(element)
     Object.assign(this, changedProperties)
   }
 
-  fillElement(element: IInputField): void {
+  export(element: IInputField): void {
     Object.assign(element.properties, this)
   }
 }

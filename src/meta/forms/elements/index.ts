@@ -1,2 +1,2 @@
-export { InputField as InputFieldElement } from "./inputField/inputField"
-export { InputFieldProperties as InputFieldElementProperties } from "./inputField/inputFieldProperties"
+export { InputField as InputFieldElement } from "./inputField/element"
+export { InputFieldProperties as InputFieldElementProperties } from "./inputField/properties"

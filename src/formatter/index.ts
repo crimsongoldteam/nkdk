@@ -1,5 +1,5 @@
 export { FormFormatter } from "./formFormatter"
-export { InputFieldFormatter as InputFormatter } from "../meta/forms/elements/inputField/inputFieldFormatter"
+export { InputFieldFormatter as InputFormatter } from "../meta/forms/elements/inputField/formatter"
 export { LabelFormatter } from "./labelFormatter"
 export { CheckboxFormatter } from "../meta/forms/elements/checkBoxField/checkBoxFieldFormatter"
 export { RadioButtonFormatter } from "./radioButtonFormatter"

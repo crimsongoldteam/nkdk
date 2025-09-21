@@ -8,7 +8,7 @@ export const TYPES = {
   IBasicDefaultsRuleToken: Symbol("IBasicDefaultsRuleToken"),
 
   IInputField: Symbol("IInputFieldElement"),
-  IInputFieldElementProperties: Symbol("IInputFieldElementProperties"),
+  IInputFieldProperties: Symbol("IInputFieldElementProperties"),
 
   IInputFieldDefaultsProvider: Symbol("IInputFieldDefaultsProvider"),
   IInputFieldFormatterDefaultsRule: Symbol("IInputFieldDefaultsRule"),
@@ -29,4 +29,15 @@ export const TYPES = {
   ILabelFormDecorationProperties: Symbol("ILabelFormDecorationElementProperties"),
   ILabelFormDecorationDefaultsProvider: Symbol("ILabelFormDecorationDefaultsProvider"),
   ILabelFormDecorationFormatterDefaultsRule: Symbol("ILabelFormDecorationDefaultsRule"),
+
+  IClientApplicationForm: Symbol("IClientApplicationFormElement"),
+  IClientApplicationFormFormatter: Symbol("IClientApplicationFormFormatter"),
+
+  clientApplicationForm: {
+    form: Symbol("ClientApplicationFormElement"),
+    formatter: Symbol("ClientApplicationFormFormatter"),
+    propertiesEnterpriseTransform: Symbol("PropertiesEnterpriseTransform"),
+  },
+
+  FormatterFactory: Symbol("FormatterFactory"),
 }

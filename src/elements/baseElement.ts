@@ -34,15 +34,15 @@ export abstract class BaseElement implements IBaseElement {
 
   public abstract get isContainer(): boolean
 
-  public parent: IBaseElement | undefined = undefined
+  public parent: IBaseElement = undefined
 
-  public parentList: ElementListType | undefined
+  public parentList: ElementListType
 
   public static readonly childrenFields: ElementListType[] = []
 
   public abstract canBeInOneLine(): boolean
 
-  public getList(listType: ElementListType): Array<IBaseElement> | undefined {
+  public getList(listType: ElementListType): Array<IBaseElement> {
     if (!this.getChildrenFields().includes(listType)) return undefined
 
     const itemsArray = this[listType as unknown as keyof BaseElement] as Array<IBaseElement>
@@ -68,7 +68,7 @@ export abstract class BaseElement implements IBaseElement {
     return CstPathHelper.getCstPath(this)
   }
 
-  public getElementByElementId(id: string): IBaseElement | undefined {
+  public getElementByElementId(id: string): IBaseElement {
     if (this.elementId === id) return this
 
     for (let listType of this.getChildrenFields()) {
@@ -111,7 +111,7 @@ export abstract class BaseElement implements IBaseElement {
     return result
   }
 
-  public findElementByCstPath(path: CstPath): IBaseElement | undefined {
+  public findElementByCstPath(path: CstPath): IBaseElement {
     return CstPathHelper.findElementByCstPath(this, path)
   }
 
@@ -119,7 +119,7 @@ export abstract class BaseElement implements IBaseElement {
     return CstPathHelper.getContainerForNewElement(this, path)
   }
 
-  public getElementPosition(element: IBaseElement, path: CstPath): CstElementPosition | undefined {
+  public getElementPosition(element: IBaseElement, path: CstPath): CstElementPosition {
     return CstPathHelper.getElementPosition(this, element, path)
   }
 
@@ -136,12 +136,12 @@ export abstract class BaseElement implements IBaseElement {
     }
   }
 
-  public getProperty(key: string): PropertyValue | undefined {
+  public getProperty(key: string): PropertyValue {
     const existingKey = this.getNormalizedKey(key)
     return existingKey ? this.properties.get(existingKey) : undefined
   }
 
-  public setProperty(key: string, value: PropertyValue | undefined) {
+  public setProperty(key: string, value: PropertyValue) {
     const properties = this.properties
     const existingKey = this.getNormalizedKey(key)
     if (existingKey) {
@@ -153,7 +153,7 @@ export abstract class BaseElement implements IBaseElement {
     properties.set(key, value)
   }
 
-  private getNormalizedKey(key: string): string | undefined {
+  private getNormalizedKey(key: string): string {
     return Array.from(this.properties.keys()).find((existingKey) => existingKey.toLowerCase() === key.toLowerCase())
   }
 

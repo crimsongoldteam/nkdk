@@ -77,7 +77,7 @@ export class TableColumnElement extends BaseElement {
   public items: (TableColumnElement | TableColumnGroupElement)[] = []
 
   @Exclude()
-  public table: TableElement | undefined = undefined
+  public table: TableElement = undefined
 
   public static readonly childrenFields = [ElementListType.Items]
 

@@ -28,11 +28,11 @@ export class TableRowElement extends BaseElement {
 
   public static readonly childrenFields = [ElementListType.Rows]
 
-  public getByColumn(column: TableColumnElement): TableCellElement | undefined {
+  public getByColumn(column: TableColumnElement): TableCellElement {
     return this.items.get(column)
   }
 
-  public getByCheckboxColumn(column: TableColumnElement): TableCellElement | undefined {
+  public getByCheckboxColumn(column: TableColumnElement): TableCellElement {
     return this.items.get(column)
   }
 

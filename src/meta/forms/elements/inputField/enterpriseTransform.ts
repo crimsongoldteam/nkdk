@@ -17,11 +17,14 @@ export class InputFieldPropertiesEnterpriseTransform implements IPropertiesEnter
   @Expose({ name: "Вид" })
   public type?: SystemEnumeration.FormFieldType
 
-  public fillTransform(properties: IInputFieldPropertiesPartial) {
+  @Expose({ name: "ПодсказкаВвода" })
+  public inputHint?: string
+
+  public import(properties: IInputFieldPropertiesPartial) {
     Object.assign(this, properties)
   }
 
-  public fillProperties(properties: IFormElementProperties): void {
+  public export(properties: IFormElementProperties): void {
     Object.assign(properties, this)
   }
 }
@@ -50,14 +53,14 @@ export class InputFieldEnterpriseTransform implements IEnterpriseTransform {
     @inject(TYPES.InputFieldPropertiesEnterpriseTransform) private _properties: IPropertiesEnterpriseTransform
   ) {}
 
-  public fillTransform(element: IInputField) {
+  public import(element: IInputField) {
     const changedProperties = this._provider.render(element)
-    this._properties.fillTransform(changedProperties)
+    this._properties.import(changedProperties)
     this.value = element.value
   }
 
-  public fillElement(element: IInputField) {
-    this._properties.fillProperties(element.properties)
+  public export(element: IInputField) {
+    this._properties.export(element.properties)
     if (this.value !== undefined) {
       element.value = this.value
     }

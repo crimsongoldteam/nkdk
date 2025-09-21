@@ -48,7 +48,7 @@ export abstract class TreeNode {
   indent: number
   children: TreeNode[] = []
 
-  constructor(indent: number = 0, parent: TreeNode | undefined = undefined) {
+  constructor(indent: number = 0, parent: TreeNode = undefined) {
     this.indent = indent
     this.parent = parent ?? this
     parent?.children.push(this)
@@ -60,7 +60,7 @@ export class FormNode extends TreeNode {
     children: { formHeader: [] as CstNode[], Items: [], Properties: [] },
   }
 
-  constructor(formHeader: CstNode[] | undefined) {
+  constructor(formHeader: CstNode[]) {
     super()
     if (formHeader) {
       this.item.children.formHeader = formHeader

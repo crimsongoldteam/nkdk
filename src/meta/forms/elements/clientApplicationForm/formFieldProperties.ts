@@ -29,10 +29,10 @@ export class FormFieldProperties implements IFormFieldProperties {
   public enabled: boolean = false
   public title: string = ""
   // public name: string = ""
-  public footerPicture: IPicture | undefined = undefined
-  public headerPicture: IPicture | undefined = undefined
+  public footerPicture: IPicture = undefined
+  public headerPicture: IPicture = undefined
   // public contextMenu: boolean = false
-  public typeRestriction: ITypeDescription | undefined = undefined
+  public typeRestriction: ITypeDescription = undefined
   public showInFooter: boolean = false
   public showInHeader: boolean = false
   public toolTipRepresentation: SystemEnumeration.ToolTipRepresentation = SystemEnumeration.ToolTipRepresentation.Auto
@@ -49,15 +49,15 @@ export class FormFieldProperties implements IFormFieldProperties {
   // public extendedTooltip: boolean = false
   public editMode: SystemEnumeration.ColumnEditMode = SystemEnumeration.ColumnEditMode.Enter
   // public parent: boolean = false
-  public shortcut: IShortcut | undefined = undefined
+  public shortcut: IShortcut = undefined
   // public table: boolean = false
   public footerText: string = ""
   public readOnly: boolean = false
   public fixingInTable: boolean = false
-  public titleTextColor: IColor | undefined = undefined
-  public FooterTextColor: IColor | undefined = undefined
-  public TitleBackColor: IColor | undefined = undefined
-  public FooterBackColor: IColor | undefined = undefined
-  public TitleFont: IFont | undefined = undefined
-  public FooterFont: IFont | undefined = undefined
+  public titleTextColor: IColor = undefined
+  public FooterTextColor: IColor = undefined
+  public TitleBackColor: IColor = undefined
+  public FooterBackColor: IColor = undefined
+  public TitleFont: IFont = undefined
+  public FooterFont: IFont = undefined
 }

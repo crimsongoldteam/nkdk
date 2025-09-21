@@ -18,11 +18,11 @@ export class GroupElement extends BaseElementWithoutAttributes implements IGroup
   @Transform(PlainToClassTransformer.transform, { toClassOnly: true })
   public items: BaseElement[] = []
 
-  public get group(): string | undefined {
-    return this.getProperty("Группировка") as string | undefined
+  public get group(): string {
+    return this.getProperty("Группировка") as string
   }
 
-  public set group(value: string | undefined) {
+  public set group(value: string) {
     this.setProperty("Группировка", value)
   }
 
