@@ -1,5 +1,0 @@
-export * from "./formAttributeableMixin"
-export * from "./formNameableMixin"
-export * from "./formItemableMixin"
-export * from "./dataPathStrategy"
-export * from "./nameStrategy"

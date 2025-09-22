@@ -1,12 +1,10 @@
-import { it, expect, beforeEach } from "vitest"
 import "reflect-metadata"
-import "../../src/meta"
-import { ContainerFactory } from "@/meta/forms/container/containerFactory"
 import { container } from "tsyringe"
-import { TYPES } from "@/meta/forms/container/symbols"
-import { IEnterpriseTransform } from "@/meta/forms/interfaces"
-import { instanceToPlain } from "class-transformer"
-import { IInputField } from "@/meta/forms/elements/inputField/interfaces"
+import { ContainerFactory } from "@/metadata/forms/elements"
+import { beforeEach, expect, it } from "vitest"
+import { EnterpriseExporter } from "@/enterprise/exporter"
+import { DITokens } from "@/symbols"
+import { IInputField } from "@/metadata/forms/elements/inputField/interfaces"
 
 const mockInput = {
   Тип: "ПолеФормы",
@@ -18,22 +16,15 @@ const mockInput = {
 }
 
 beforeEach(() => {
-  container.clearInstances()
-  ContainerFactory.create()
+  new ContainerFactory().register()
 })
 
 it("should export to Enterprise", () => {
-  const input = container.resolve<IInputField>(TYPES.IInputField)
+  const input = container.resolve<IInputField>(DITokens.InputField.Element)
   input.properties.title = "Поле"
   input.value = "Значение"
 
-  const transform = container.resolve<IEnterpriseTransform>(TYPES.InputFieldEnterpriseTransform)
-  transform.import(input)
-
-  const result = instanceToPlain(transform, {
-    strategy: "excludeAll",
-    exposeUnsetFields: false,
-  })
+  const result = container.resolve(EnterpriseExporter).export(input)
 
   expect(result).toEqual(mockInput)
 })

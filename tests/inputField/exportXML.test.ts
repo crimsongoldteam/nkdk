@@ -1,41 +1,30 @@
-import { it, expect, beforeEach } from "vitest"
 import "reflect-metadata"
-import "../../src/meta"
-import { ContainerFactory } from "@/meta/forms/container/containerFactory"
+import { it, expect, beforeEach } from "vitest"
+import { ContainerFactory } from "@/metadata/forms/elements"
+import { IInputField } from "@/metadata/forms/elements/inputField/interfaces"
 import { container } from "tsyringe"
-import { TYPES } from "@/meta/forms/container/symbols"
-import { IXMLTransform } from "@/meta/forms/interfaces"
-import { instanceToPlain } from "class-transformer"
-import { IInputField } from "@/meta/forms/elements/inputField/interfaces"
-import { XMLBuilder } from "fast-xml-parser"
+import { DITokens } from "@/symbols"
+import { XMLExporter } from "@/xml/exporter"
 
 beforeEach(() => {
-  container.clearInstances()
-  ContainerFactory.create()
+  new ContainerFactory().register()
 })
 
 it("should export to XML", () => {
-  const input = container.resolve<IInputField>(TYPES.IInputField)
-  input.properties.title = "Поле"
+  const input = container.resolve<IInputField>(DITokens.InputField.Element)
+  input.properties.title = { ru: "Поле" }
   input.properties.name = "ИмяПоля"
-  input.value = "Значение"
 
-  const transform = container.resolve<IXMLTransform>(TYPES.InputFieldXMLTransform)
-  transform.import(input)
-
-  const result = {
-    InputField: instanceToPlain(transform, {
-      strategy: "excludeAll",
-      exposeUnsetFields: false,
-    }),
-  }
-
-  const builder = new XMLBuilder({ format: true, ignoreAttributes: false })
-  const xmlContent = builder.build(result)
+  const result = container.resolve(XMLExporter).export(input)
 
   const xml = `<InputField name="ИмяПоля">
-  <Title>Поле</Title>
+  <Title>
+    <v8:item>
+      <v8:lang>ru</v8:lang>
+      <v8:content>Поле</v8:content>
+    </v8:item>
+  </Title>
 </InputField>`
 
-  expect(xmlContent.trim()).toEqual(xml.trim())
+  expect(result.trim()).toEqual(xml.trim())
 })
