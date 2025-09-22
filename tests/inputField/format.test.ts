@@ -1,10 +1,10 @@
-import "reflect-metadata"
 import { expect, describe, beforeEach, it } from "vitest"
 import { container } from "tsyringe"
 import { IFormatter, IFormatterParams, WrapInGroupStrategy } from "@/metadata/forms/interfaces"
 import { ContainerFactory } from "@/metadata/forms/elements"
 import { IInputField } from "@/metadata/forms/elements/inputField/interfaces"
 import { DITokens } from "@/symbols"
+import { I8nText } from "@/metadata/i8n/i8nText"
 
 const mockParams: IFormatterParams = {
   wrapInGroup: WrapInGroupStrategy.None,
@@ -26,7 +26,7 @@ describe("InputFormatter", () => {
   })
 
   it("should format input field with title", () => {
-    element.properties.title = "Поле"
+    element.properties.title = { ru: "Поле" } as I8nText
     element.value = "Значение"
 
     const result = formatter.render(element, mockParams)
@@ -43,7 +43,7 @@ describe("InputFormatter", () => {
   })
 
   it("should format multiline input field", () => {
-    element.properties.title = "Поле"
+    element.properties.title = { ru: "Поле" } as I8nText
     element.value = "Значение"
     element.properties.height = 2
     element.properties.multiLine = true
@@ -54,7 +54,7 @@ describe("InputFormatter", () => {
   })
 
   it("should format input field with modificators", () => {
-    element.properties.title = "Поле"
+    element.properties.title = { ru: "Поле" } as I8nText
     element.value = "Значение"
     element.properties.choiceButton = true
     element.properties.dropListButton = true

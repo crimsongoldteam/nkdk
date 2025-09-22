@@ -5,6 +5,7 @@ import { beforeEach, expect, it } from "vitest"
 import { EnterpriseExporter } from "@/enterprise/exporter"
 import { DITokens } from "@/symbols"
 import { IInputField } from "@/metadata/forms/elements/inputField/interfaces"
+import { I8nText } from "@/metadata/i8n/i8nText"
 
 const mockInput = {
   Тип: "ПолеФормы",
@@ -21,7 +22,7 @@ beforeEach(() => {
 
 it("should export to Enterprise", () => {
   const input = container.resolve<IInputField>(DITokens.InputField.Element)
-  input.properties.title = "Поле"
+  input.properties.title = { ru: "Поле" } as I8nText
   input.value = "Значение"
 
   const result = container.resolve(EnterpriseExporter).export(input)

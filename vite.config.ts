@@ -8,6 +8,7 @@ export default defineConfig((api) => {
       isolate: false,
       globals: true,
       environment: "node",
+      setupFiles: ["./tests/setup.ts"],
       coverage: {
         enabled: true,
         provider: "v8",

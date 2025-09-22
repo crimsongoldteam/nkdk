@@ -11,7 +11,7 @@ export class InputFieldFormatter implements IFormatter {
   private readonly COLON = t.Colon.LABEL as string
 
   public render(element: IInputField, _params: IFormatterParams): string[] {
-    let header: string = element.properties.title ?? ""
+    let header: string = element.properties.title?.ru ?? ""
     header += this.COLON + " "
 
     let value = element.value.toString()
@@ -45,31 +45,6 @@ export class InputFieldFormatter implements IFormatter {
 
     return result
   }
-
-  //   public format(element: IInputField, _params: IFormatterParams): string[] {
-  //     const underline = t.Underscore.LABEL as string
-
-  //     let header: string = FormatterUtils.getAlignmentAtLeft(element.properties)
-
-  //     header += element.properties.title
-  //     header += t.Colon.LABEL + " "
-
-  //     let value = element.value.toString()
-
-  //     const modificators = this.getModificators(element)
-  //     if (modificators.length > 0) {
-  //       value += underline.repeat(2) + modificators
-  //     }
-
-  //     const changedProperties = container.resolve<IDefaultsProvider>(TYPES.IInputFieldDefaultsProvider).render(element)
-  //     const renderedProperties = PropertiesFormatter.render(changedProperties)
-
-  //     let result = [header + value + renderedProperties.join("") + FormatterUtils.getAlignmentAtRight(element.properties)]
-
-  //     result.push(...this.getMultilineString(element, header.length, value.length))
-
-  //     return result
-  //   }
 
   private getModificators(element: IInputField): string {
     const propertyMap = {

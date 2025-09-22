@@ -1,7 +1,7 @@
 import { container, singleton } from "tsyringe"
 import { IFormElement, IXMLTransform } from "@/metadata/forms/interfaces"
-import { instanceToPlain } from "class-transformer"
 import { XMLBuilder } from "fast-xml-parser"
+import { instanceToPlain } from "class-transformer"
 
 @singleton()
 export class XMLExporter {

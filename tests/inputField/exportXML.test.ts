@@ -1,3 +1,4 @@
+import "@/xml/classTransformerFix"
 import "reflect-metadata"
 import { it, expect, beforeEach } from "vitest"
 import { ContainerFactory } from "@/metadata/forms/elements"
