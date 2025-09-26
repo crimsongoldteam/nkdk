@@ -1,10 +1,11 @@
 import { DITokens } from "@/symbols"
 import { container, injectable } from "tsyringe"
-import { IXMLImportRules } from "../../interfaces"
+import { IFormElement, IXMLImportRules } from "../../interfaces"
 import { IClientApplicationForm } from "./interfaces"
+import { XMLImporter } from "@/xml/importer"
 
 @injectable({ token: DITokens.ClientApplicationForm.XMLImportRules })
-export class InputFieldXMLTransform implements IXMLImportRules<IClientApplicationForm> {
+export class ClientApplicationFormXMLImportRules implements IXMLImportRules<IClientApplicationForm> {
   import(xmlData: any): IClientApplicationForm {
     const element = container.resolve<IClientApplicationForm>(DITokens.ClientApplicationForm.Element)
 
@@ -14,6 +15,16 @@ export class InputFieldXMLTransform implements IXMLImportRules<IClientApplicatio
       element.title = formNode.Title
     }
 
+    if (formNode.ChildItems && Array.isArray(formNode.ChildItems)) {
+      element.items = formNode.ChildItems.map((item: any) => {
+        return this.importChildItem(item)
+      })
+    }
+
     return element
+  }
+
+  private importChildItem(data: any): IFormElement {
+    return container.resolve<IXMLImportRules<IFormElement>>(DITokens.InputField.XMLImportRules).import(data)
   }
 }

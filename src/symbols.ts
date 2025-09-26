@@ -11,5 +11,6 @@ export const DITokens = {
     Properties: Symbol.for("InputFieldProperties"),
     Formatter: Symbol.for("InputFieldFormatter"),
     XMLExporter: Symbol.for("InputFieldXMLExporter"),
+    XMLImportRules: Symbol.for("InputFieldXMLImportRules"),
   },
 }

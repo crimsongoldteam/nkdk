@@ -1,34 +1,27 @@
 import { inject, injectable } from "tsyringe"
-import type { IInputField, IInputFieldProperties } from "./interfaces"
-import { Expose, Type } from "class-transformer"
-import { InputFieldProperties } from "./properties"
+import type { IInputField } from "./interfaces"
 import { DITokens } from "@/symbols"
+import { I8nText } from "../../interfaces"
 
 @injectable({ token: DITokens.InputField.Element })
 export class InputField implements IInputField {
-  @Expose({ name: "Тип" })
-  public readonly type: string = "ПолеФормы"
+  title?: I8nText
 
-  @Expose({ name: "Значение" })
   public value: string | boolean | number | Date = ""
 
-  @Expose({ name: "НаборСвойств" })
-  @Type(() => InputFieldProperties)
-  public get properties(): IInputFieldProperties {
-    return this._properties
-  }
-
-  public get XMLTransformToken(): symbol {
-    return DITokens.InputField.XMLTransform
+  public get XMLImportRulesToken(): symbol {
+    return DITokens.InputField.XMLImportRules
   }
 
   public get formatterToken(): symbol {
     return DITokens.InputField.Formatter
   }
 
-  constructor(@inject(DITokens.InputField.Properties) public _properties: InputFieldProperties) {}
-
-  public isMultiline(): boolean {
-    return (this._properties.multiLine ?? false) && (this._properties.height ?? 0) > 1
+  public get XMLExporterToken(): symbol {
+    return DITokens.InputField.XMLExporter
   }
+
+  // public isMultiline(): boolean {
+  //   return (this._properties.multiLine ?? false) && (this._properties.height ?? 0) > 1
+  // }
 }
