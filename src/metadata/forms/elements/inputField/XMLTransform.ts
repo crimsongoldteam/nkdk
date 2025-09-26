@@ -1,6 +1,6 @@
 import { DITokens } from "@/symbols"
 import { injectable } from "tsyringe"
-import { IXMLTransform, IFormElement } from "../../interfaces"
+import { IXMLTransform } from "../../interfaces"
 import { i8nTransform } from "@/xml/i8nTransform"
 import { IInputField } from "./interfaces"
 import { Expose } from "class-transformer"

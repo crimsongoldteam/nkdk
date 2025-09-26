@@ -5,7 +5,10 @@ import "./inputField/formatter"
 import "./inputField/properties"
 import "./inputField/XMLTransform"
 
-export { InputField }
+import { ClientApplicationForm } from "./сlientApplicationForm/element"
+import "./сlientApplicationForm/XMLImportRules"
+
+export { InputField, ClientApplicationForm }
 
 export class ContainerFactory {
   public register() {

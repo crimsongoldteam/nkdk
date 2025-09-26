@@ -1,7 +1,7 @@
 import * as SystemEnumeration from "@/metadata/systemEnumerations"
 
 export interface IFormElement {
-  get XMLTransformToken(): symbol
+  get XMLExporterToken(): symbol
   get formatterToken(): symbol
 }
 
@@ -84,6 +84,10 @@ export interface IXMLTransform {
   import(element: IFormElement): void
 
   export(element: IFormElement): void
+}
+
+export interface IXMLImportRules<T extends IFormElement> {
+  import(data: string): T
 }
 
 export interface IFormatter {
