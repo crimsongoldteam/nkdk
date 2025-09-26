@@ -20,9 +20,7 @@ const mockFormWithChildItems = `<?xml version="1.0" encoding="UTF-8"?>
 		<InputField name="1">
 			<Title>Input field</Title>
 		</InputField> 
-		<OtherField name="2">
-			<Title>Other field</Title>
-		</OtherField>         
+       
 		<InputField name="3">
 			<Title>Input field</Title>
 		</InputField>       

@@ -68,10 +68,11 @@ export class XMLImporter {
 
   private compress(arr: any[], options: any, jPath: string): any {
     let text: any
+    let compressedObj: any
     if (options.preserveOrder) {
-      const compressedObj: any[] = []
+      compressedObj = []
     } else {
-      const compressedObj: any = {}
+      compressedObj = {}
     }
     for (const element of arr) {
       const tagObj = element
@@ -108,8 +109,8 @@ export class XMLImporter {
           else val = ""
         }
 
-        if (options.preserveOrder && Array.isArray(compressedObj)) {
-          compressedObj.push(val)
+        if (options.preserveOrder) {
+          compressedObj.push({ [property]: val })
           continue
         }
 
@@ -119,11 +120,11 @@ export class XMLImporter {
           }
           compressedObj[property].push(val)
         } else {
-          if (options.isArray(property, newJpath, isLeaf)) {
-            compressedObj[property] = [val]
-          } else {
-            compressedObj[property] = val
-          }
+          // if (options.isArray(property, newJpath, isLeaf)) {
+          //   compressedObj[property] = val
+          // } else {
+          compressedObj[property] = val
+          // }
         }
       }
     }
