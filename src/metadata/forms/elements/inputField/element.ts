@@ -6,6 +6,9 @@ import { I8nText } from "../../interfaces"
 @injectable({ token: DITokens.InputField.Element })
 export class InputField implements IInputField {
   title?: I8nText
+  name?: string
+  height?: number
+  multiLine?: boolean
 
   public value: string | boolean | number | Date = ""
 
@@ -21,7 +24,7 @@ export class InputField implements IInputField {
     return DITokens.InputField.XMLExporter
   }
 
-  // public isMultiline(): boolean {
-  //   return (this._properties.multiLine ?? false) && (this._properties.height ?? 0) > 1
-  // }
+  public isMultiline(): boolean {
+    return (this.multiLine ?? false) && (this.height ?? 0) > 1
+  }
 }

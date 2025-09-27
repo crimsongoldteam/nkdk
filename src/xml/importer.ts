@@ -10,12 +10,14 @@ export class XMLImporter {
   public import<T extends IFormElement>(data: string, token: symbol): T {
     const parser = new XMLParser({
       preserveOrder: true,
+      ignoreAttributes: false,
+      attributeNamePrefix: "_",
     })
     const parsedData = parser.parse(data)
 
     let options = { ...this.defaultOptions }
     options.isArray = (name: string, _jPath: string, _isLeaf: boolean) => {
-      return name === "ChildItems"
+      return name === "ChildItems" || name === "Title"
     }
 
     const compressedData = this.compress(parsedData, options, "")

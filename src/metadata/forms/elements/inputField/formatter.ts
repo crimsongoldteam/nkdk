@@ -1,7 +1,7 @@
 import * as t from "@/metadata/forms/parser/lexer"
 import { injectable, singleton } from "tsyringe"
 import { IFormatter, IFormatterParams } from "../../interfaces"
-import { IInputField, IInputFieldProperties } from "./interfaces"
+import { IInputField } from "./interfaces"
 import { DITokens } from "@/symbols"
 
 @singleton()
@@ -11,7 +11,7 @@ export class InputFieldFormatter implements IFormatter {
   private readonly COLON = t.Colon.LABEL as string
 
   public render(element: IInputField, _params: IFormatterParams): string[] {
-    let header: string = element.properties.title?.ru ?? ""
+    let header: string = element.title?.ru ?? ""
     header += this.COLON + " "
 
     let value = element.value.toString()
@@ -33,7 +33,7 @@ export class InputFieldFormatter implements IFormatter {
       return []
     }
 
-    const height = element.properties.height!
+    const height = element.height!
 
     let multilineStringTemplate = " ".repeat(headerLength) + this.UNDERLINE.repeat(valueLength)
 
@@ -56,7 +56,7 @@ export class InputFieldFormatter implements IFormatter {
     }
 
     return Object.entries(propertyMap)
-      .filter(([key, _]) => element.properties[key as keyof IInputFieldProperties] !== undefined)
+      .filter(([key, _]) => element[key as keyof IInputField] !== undefined)
       .map(([_, value]) => value)
       .join("")
   }

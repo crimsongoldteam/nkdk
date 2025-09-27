@@ -1,36 +1,28 @@
-// import { it, expect, beforeEach } from "vitest"
-// import "reflect-metadata"
-// import "../../src/metadata"
-// import { ContainerFactory } from "@/metadata/forms/container/containerFactory"
-// import { container } from "tsyringe"
-// import { plainToInstance } from "class-transformer"
-// import { XMLParser } from "fast-xml-parser"
-// import { InputFieldXMLTransform } from "../../src/metadata"
-// import { TYPES } from "@/metadata/forms/container/symbols"
-// import { IInputField } from "@/metadata/forms/elements/inputField/interfaces"
+import "reflect-metadata"
 
-// const mockInput = `<InputField name="ИмяПоля">
-//   <Title>Поле</Title>
-// </InputField>`
+import { ContainerFactory } from "@/metadata/forms/elements"
+import { IInputField } from "@/metadata/forms/elements/inputField/interfaces"
+import { DITokens } from "@/symbols"
+import { XMLImporter } from "@/xml/importer"
+import { container } from "tsyringe"
+import { beforeEach, expect, it } from "vitest"
 
-// beforeEach(() => {
-//   container.clearInstances()
-//   ContainerFactory.create()
-// })
+const mockInput = `<InputField name="ИмяПоля">
+    <Title>
+        <v8:item>
+            <v8:lang>ru</v8:lang>
+            <v8:content>Поле</v8:content>
+        </v8:item>
+    </Title>
+</InputField>`
 
-// it("should import from XML", () => {
-//   const parser = new XMLParser({ ignoreAttributes: false })
-//   const xmlData = parser.parse(mockInput)
+beforeEach(() => {
+  new ContainerFactory().register()
+})
 
-//   const transform = plainToInstance(InputFieldXMLTransform, xmlData.InputField, {
-//     strategy: "excludeAll",
-//     exposeUnsetFields: false,
-//   })
+it("should import from XML", () => {
+  const input = container.resolve(XMLImporter).import<IInputField>(mockInput, DITokens.InputField.XMLImportRules)
 
-//   const input = container.resolve<IInputField>(TYPES.IInputField)
-//   transform.import(input)
-
-//   expect(input.properties.title).toEqual("Поле")
-//   expect(input.properties.type).toEqual("ПолеВвода")
-//   expect(input.properties.name).toEqual("ИмяПоля")
-// })
+  expect(input.title).toEqual({ ru: "Поле" })
+  expect(input.name).toEqual("ИмяПоля")
+})

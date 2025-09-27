@@ -22,7 +22,7 @@ beforeEach(() => {
 
 it("should export to Enterprise", () => {
   const input = container.resolve<IInputField>(DITokens.InputField.Element)
-  input.properties.title = { ru: "Поле" } as I8nText
+  input.title = { ru: "Поле" } as I8nText
   input.value = "Значение"
 
   const result = container.resolve(EnterpriseExporter).export(input)
