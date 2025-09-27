@@ -14,7 +14,11 @@
     "dev": "ts-node src/index.ts",
     "watch": "tsc --watch",
     "clean": "rimraf dist",
-    "test": "vitest"
+    "test": "vitest",
+    "next:dev": "next dev",
+    "next:build": "next build",
+    "next:start": "next start",
+    "next:export": "next export"
   },
   "keywords": [
     "typescript",
@@ -38,7 +42,7 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.0",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^22.15.21",
+    "@types/node": "^24.5.2",
     "@types/react": "^19.1.14",
     "@types/react-dom": "^19.1.9",
     "@vitest/coverage-v8": "^3.2.4",
@@ -73,6 +77,7 @@
     "fast-xml-parser": "^5.2.5",
     "js-yaml": "^4.1.0",
     "monaco-editor-core": "0.43.0",
+    "next": "^15.5.4",
     "performance-polyfill": "^0.0.3",
     "react": "^19.1.1",
     "react-bootstrap": "^2.10.10",
