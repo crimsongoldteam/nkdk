@@ -7,6 +7,7 @@ import { useEffect, useState } from "react"
 import { IHTMLExportRules } from "../../src/metadata/forms/interfaces"
 import { IInputField } from "../../src/metadata/forms/elements/inputField/interfaces"
 import { Container } from "react-bootstrap"
+import "bootstrap/dist/css/bootstrap.min.css"
 
 export default function App() {
   const [reactNode, setReactNode] = useState<React.ReactNode>(<div>Loading...</div>)
