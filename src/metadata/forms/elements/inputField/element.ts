@@ -1,4 +1,4 @@
-import { inject, injectable } from "tsyringe"
+import { injectable } from "tsyringe"
 import type { IInputField } from "./interfaces"
 import { DITokens } from "@/symbols"
 import { I8nText } from "../../interfaces"

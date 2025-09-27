@@ -5,6 +5,7 @@ import "./inputField/formatter"
 import "./inputField/XMLImportRules"
 
 import { ClientApplicationForm } from "./сlientApplicationForm/element"
+import "./сlientApplicationForm/formatter"
 import "./сlientApplicationForm/XMLImportRules"
 
 export { InputField, ClientApplicationForm }

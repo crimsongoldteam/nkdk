@@ -2,7 +2,6 @@ import { DITokens } from "@/symbols"
 import { container, injectable } from "tsyringe"
 import { IFormElement, IXMLImportRules } from "../../interfaces"
 import { IClientApplicationForm } from "./interfaces"
-import { XMLImporter } from "@/xml/importer"
 
 @injectable({ token: DITokens.ClientApplicationForm.XMLImportRules })
 export class ClientApplicationFormXMLImportRules implements IXMLImportRules<IClientApplicationForm> {

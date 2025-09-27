@@ -1,8 +1,7 @@
-import { IFormElement } from "../../interfaces"
+import { IFormElement, I8nText } from "../../interfaces"
 
 export interface IClientApplicationForm extends IFormElement {
-  // readonly properties: IClientApplicationFormProperties
-  title?: string
+  title?: I8nText
 
   items: IFormElement[]
 }
