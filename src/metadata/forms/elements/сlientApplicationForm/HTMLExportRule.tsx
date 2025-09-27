@@ -1,9 +1,9 @@
 import { DITokens } from "@/symbols"
-import { injectable } from "tsyringe"
-import { IHTMLExportRules } from "../../interfaces"
+import { injectable, container } from "tsyringe"
+import { IFormElement, IHTMLExportRules } from "../../interfaces"
 import { IClientApplicationForm } from "./interfaces"
 import React from "react"
-import { Button, Modal } from "react-bootstrap"
+import { Card, Form } from "react-bootstrap"
 
 @injectable({ token: DITokens.ClientApplicationForm.HTMLExportRules })
 export class ClientApplicationFormHTMLExportRule implements IHTMLExportRules<IClientApplicationForm> {
@@ -11,13 +11,15 @@ export class ClientApplicationFormHTMLExportRule implements IHTMLExportRules<ICl
     const title = element.title?.ru ?? ""
 
     return (
-      <Modal>
-        <Modal.Header closeButton>
-          <Modal.Title>{title}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body></Modal.Body>
-        <Modal.Footer></Modal.Footer>
-      </Modal>
+      <Form>
+        <Form.Text>{title}</Form.Text>
+        {element.items.map((item, index) => {
+          const itemFormatted = container
+            .resolve<IHTMLExportRules<IFormElement>>(item.HTMLExportRulesToken)
+            .export(item)
+          return <React.Fragment key={index}>{itemFormatted}</React.Fragment>
+        })}
+      </Form>
     )
   }
 }

@@ -3,6 +3,7 @@ import { container } from "tsyringe"
 import { InputField } from "./inputField/element"
 import "./inputField/formatter"
 import "./inputField/XMLImportRule"
+import "./inputField/HTMLExportRule"
 
 import { ClientApplicationForm } from "./сlientApplicationForm/element"
 import "./сlientApplicationForm/formatter"
