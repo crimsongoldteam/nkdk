@@ -8,8 +8,8 @@ import { container, singleton } from "tsyringe"
 
 @singleton()
 export class HTMLExporter {
-  public export(element: IFormElement) {
-    const transform = container.resolve<IHTMLExportRules>(element.HTMLExportRulesToken)
+  public export(element: IFormElement): React.ReactNode {
+    const transform = container.resolve<IHTMLExportRules<IFormElement>>(element.HTMLExportRulesToken)
     return transform.export(element)
   }
 }

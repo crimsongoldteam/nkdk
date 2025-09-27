@@ -24,6 +24,10 @@ export class InputField implements IInputField {
     return DITokens.InputField.XMLExporter
   }
 
+  get HTMLExportRulesToken(): symbol {
+    return DITokens.InputField.HTMLExportRules
+  }
+
   public isMultiline(): boolean {
     return (this.multiLine ?? false) && (this.height ?? 0) > 1
   }
