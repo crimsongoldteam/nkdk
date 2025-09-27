@@ -15,4 +15,8 @@ export class ClientApplicationForm implements IClientApplicationForm {
   public get formatterToken(): symbol {
     return DITokens.ClientApplicationForm.Formatter
   }
+
+  public get HTMLExportRulesToken(): symbol {
+    return DITokens.ClientApplicationForm.HTMLExportRules
+  }
 }

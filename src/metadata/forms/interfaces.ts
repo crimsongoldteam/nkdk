@@ -1,8 +1,10 @@
 import * as SystemEnumeration from "@/metadata/systemEnumerations"
+import React from "react"
 
 export interface IFormElement {
   get XMLExporterToken(): symbol
   get formatterToken(): symbol
+  get HTMLExportRulesToken(): symbol
 }
 
 export interface IFormElementProperties {
@@ -95,7 +97,7 @@ export interface IFormatter {
 }
 
 export interface IHTMLExportRules<T extends IFormElement> {
-  export(element: T): string
+  export(element: T): React.ReactNode
 }
 
 export interface IMultilanguageString {

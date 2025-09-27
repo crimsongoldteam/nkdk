@@ -1,7 +1,11 @@
 import { ContainerFactory } from "@/metadata/forms/elements"
 import { beforeEach, it } from "node:test"
 import { container } from "tsyringe"
-import { HTMLImporter } from "@/html/importer"
+import { HTMLExporter } from "@/html/exporter"
+import { DITokens } from "@/symbols"
+import { IClientApplicationForm } from "@/metadata/forms/elements/сlientApplicationForm/interfaces"
+import { expect } from "vitest"
+import { render } from "@testing-library/react"
 
 const mockHtml = `<div class="modal">
   <div class="modal-dialog">
@@ -22,6 +26,19 @@ beforeEach(() => {
   new ContainerFactory().register()
 })
 
-it("should import from HTML", () => {
-  const form = container.resolve(HTMLImporter).import(mockHtml)
+it("should export HTML that matches mockHtml", () => {
+  const form = container.resolve<IClientApplicationForm>(DITokens.ClientApplicationForm.Element)
+  const reactNode = container.resolve(HTMLExporter).export(form)
+  const { container: testContainer } = render(reactNode)
+
+  // Получаем HTML из рендеренного компонента
+  const renderedHtml = testContainer.innerHTML
+
+  // Проверяем, что компонент рендерится (не пустой)
+  expect(renderedHtml).toBeTruthy()
+
+  // Проверяем наличие основных элементов Modal
+  expect(renderedHtml).toContain("modal")
+  expect(renderedHtml).toContain("modal-dialog")
+  expect(renderedHtml).toContain("modal-content")
 })

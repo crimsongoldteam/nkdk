@@ -7,7 +7,7 @@ export default defineConfig((api) => {
     test: {
       isolate: false,
       globals: true,
-      environment: "node",
+      environment: "jsdom",
       setupFiles: ["./tests/setup.ts"],
       coverage: {
         enabled: true,

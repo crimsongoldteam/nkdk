@@ -2,11 +2,12 @@ import { container } from "tsyringe"
 
 import { InputField } from "./inputField/element"
 import "./inputField/formatter"
-import "./inputField/XMLImportRules"
+import "./inputField/XMLImportRule"
 
 import { ClientApplicationForm } from "./сlientApplicationForm/element"
 import "./сlientApplicationForm/formatter"
 import "./сlientApplicationForm/XMLImportRules"
+import "./сlientApplicationForm/HTMLExportRule"
 
 export { InputField, ClientApplicationForm }
 
