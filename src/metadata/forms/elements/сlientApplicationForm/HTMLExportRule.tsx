@@ -3,7 +3,8 @@ import { injectable, container } from "tsyringe"
 import { IFormElement, IHTMLExportRules } from "../../interfaces"
 import { IClientApplicationForm } from "./interfaces"
 import React from "react"
-import { Card, Form } from "react-bootstrap"
+import { Divider, Form } from "antd"
+import Title from "antd/es/typography/Title"
 
 @injectable({ token: DITokens.ClientApplicationForm.HTMLExportRules })
 export class ClientApplicationFormHTMLExportRule implements IHTMLExportRules<IClientApplicationForm> {
@@ -12,13 +13,16 @@ export class ClientApplicationFormHTMLExportRule implements IHTMLExportRules<ICl
 
     return (
       <Form>
-        <Form.Text>{title}</Form.Text>
-        {element.items.map((item, index) => {
-          const itemFormatted = container
-            .resolve<IHTMLExportRules<IFormElement>>(item.HTMLExportRulesToken)
-            .export(item)
-          return <React.Fragment key={index}>{itemFormatted}</React.Fragment>
-        })}
+        <Form.Item>
+          <Title>{title}</Title>
+          <Divider />
+          {element.items.map((item) => {
+            const itemFormatted = container
+              .resolve<IHTMLExportRules<IFormElement>>(item.HTMLExportRulesToken)
+              .export(item)
+            return <React.Fragment key={item.constructor.name}>{itemFormatted}</React.Fragment>
+          })}
+        </Form.Item>
       </Form>
     )
   }

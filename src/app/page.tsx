@@ -1,7 +1,10 @@
+"use client"
+
+import App from "./App"
 export default function Home() {
   return (
     <main>
-      <h1>Добро пожаловать в Nakidka Core</h1>
+      <App />
     </main>
   )
 }

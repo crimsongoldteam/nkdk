@@ -3,7 +3,7 @@ import { injectable } from "tsyringe"
 import { IHTMLExportRules } from "../../interfaces"
 import { IInputField } from "./interfaces"
 import React from "react"
-import { Form } from "react-bootstrap"
+import { Form, Input } from "antd"
 
 @injectable({ token: DITokens.InputField.HTMLExportRules })
 export class InputFieldHTMLExportRule implements IHTMLExportRules<IInputField> {
@@ -11,10 +11,9 @@ export class InputFieldHTMLExportRule implements IHTMLExportRules<IInputField> {
     const title = element.title?.ru ?? ""
 
     return (
-      <Form.Group>
-        <Form.Label>{title}</Form.Label>
-        <Form.Control />
-      </Form.Group>
+      <Form.Item label={title}>
+        <Input />
+      </Form.Item>
     )
   }
 }
