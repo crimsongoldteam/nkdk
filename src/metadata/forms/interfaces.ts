@@ -94,6 +94,10 @@ export interface IFormatter {
   render(element: IFormElement, params: IFormatterParams): string[]
 }
 
+export interface IHTMLExportRules<T extends IFormElement> {
+  export(element: T): string
+}
+
 export interface IMultilanguageString {
   [key: string]: string
 }

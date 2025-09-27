@@ -5,6 +5,7 @@ export const DITokens = {
     Formatter: Symbol.for("ClientApplicationFormFormatter"),
     XMLExporter: Symbol.for("ClientApplicationFormXMLExporter"),
     XMLImportRules: Symbol.for("ClientApplicationFormXMLImportRules"),
+    HTMLExportRules: Symbol.for("ClientApplicationFormHTMLExportRules"),
   },
   InputField: {
     Element: Symbol.for("InputFieldElement"),

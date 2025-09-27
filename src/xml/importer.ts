@@ -44,15 +44,15 @@ export class XMLImporter {
       leadingZeros: true,
       eNotation: true,
     },
-    tagValueProcessor: function (tagName: string, val: any) {
+    tagValueProcessor: (_tagName: string, val: any) => {
       return val
     },
-    attributeValueProcessor: function (attrName: string, val: any) {
+    attributeValueProcessor: (_attrName: string, val: any) => {
       return val
     },
     stopNodes: [], //nested tags will not be parsed even for errors
     alwaysCreateTextNode: false,
-    isArray: (name: string, _jPath: string, _isLeaf: boolean) => false,
+    isArray: (_name: string, _jPath: string, _isLeaf: boolean) => false,
     commentPropName: false,
     unpairedTags: [],
     processEntities: true,
@@ -61,7 +61,7 @@ export class XMLImporter {
     ignorePiTags: false,
     transformTagName: false,
     transformAttributeName: false,
-    updateTag: function (tagName: string, jPath: string, attrs: any) {
+    updateTag: (tagName: string, _jPath: string, _attrs: any) => {
       return tagName
     },
     // skipEmptyListItem: false
@@ -93,7 +93,7 @@ export class XMLImporter {
         let newOptions = { ...options }
         newOptions.preserveOrder = isArray
         let val = this.compress(tagObj[property], newOptions, newJpath)
-        const isLeaf = this.isLeafTag(val, options)
+        // const isLeaf = this.isLeafTag(val, options)
         if (tagObj[METADATA_SYMBOL] !== undefined) {
           val[METADATA_SYMBOL] = tagObj[METADATA_SYMBOL] // copy over metadata
         }
@@ -122,11 +122,7 @@ export class XMLImporter {
           }
           compressedObj[property].push(val)
         } else {
-          // if (options.isArray(property, newJpath, isLeaf)) {
-          //   compressedObj[property] = val
-          // } else {
           compressedObj[property] = val
-          // }
         }
       }
     }
@@ -160,18 +156,18 @@ export class XMLImporter {
     }
   }
 
-  private isLeafTag(obj: any, options: any): boolean {
-    const { textNodeName } = options
-    const propCount = Object.keys(obj).length
+  // private isLeafTag(obj: any, options: any): boolean {
+  //   const { textNodeName } = options
+  //   const propCount = Object.keys(obj).length
 
-    if (propCount === 0) {
-      return true
-    }
+  //   if (propCount === 0) {
+  //     return true
+  //   }
 
-    if (propCount === 1 && (obj[textNodeName] || typeof obj[textNodeName] === "boolean" || obj[textNodeName] === 0)) {
-      return true
-    }
+  //   if (propCount === 1 && (obj[textNodeName] || typeof obj[textNodeName] === "boolean" || obj[textNodeName] === 0)) {
+  //     return true
+  //   }
 
-    return false
-  }
+  //   return false
+  // }
 }
