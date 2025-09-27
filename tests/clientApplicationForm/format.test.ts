@@ -5,6 +5,7 @@ import { ContainerFactory } from "@/metadata/forms/elements"
 import { DITokens } from "@/symbols"
 import { I8nText } from "@/metadata/i8n/i8nText"
 import { IClientApplicationForm } from "@/metadata/forms/elements/сlientApplicationForm/interfaces"
+import { IInputField } from "@/metadata/forms/elements/inputField/interfaces"
 
 const mockParams: IFormatterParams = {
   wrapInGroup: WrapInGroupStrategy.None,
@@ -30,4 +31,15 @@ it("should format form header", () => {
   const result = formatter.render(form, mockParams)
 
   expect(result).toEqual(["--- Форма ---"])
+})
+
+it("should format form items", () => {
+  const input = container.resolve<IInputField>(DITokens.InputField.Element)
+  input.title = { ru: "Поле" } as I8nText
+
+  form.items = [input]
+
+  const result = formatter.render(form, mockParams)
+
+  expect(result).toEqual(["Поле: "])
 })

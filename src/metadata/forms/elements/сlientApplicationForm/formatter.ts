@@ -1,5 +1,5 @@
 import * as t from "@/metadata/forms/parser/lexer"
-import { injectable, singleton } from "tsyringe"
+import { container, injectable, singleton } from "tsyringe"
 import { IFormatter, IFormatterParams } from "../../interfaces"
 import { DITokens } from "@/symbols"
 import { IClientApplicationForm } from "./interfaces"
@@ -19,11 +19,10 @@ export class ClientApplicationFormFormatter implements IFormatter {
       result.push(header)
     }
 
-    // result.push(...FormatterFactory.renderItems(element.items))
-
-    // result.forEach((item, index) => {
-    //   result[index] = trimEnd.call(item, "")
-    // })
+    for (const item of element.items) {
+      const itemFormatted = container.resolve<IFormatter>(item.formatterToken).render(item, _params)
+      result.push(...itemFormatted)
+    }
 
     return result
   }
