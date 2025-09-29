@@ -3,7 +3,6 @@ import { IFormatterParams } from "~/lib/formatter/types"
 import { I8nText, WrapInGroupStrategy } from "~/lib/metadata/forms/interfaces"
 import { TClientApplicationForm } from "./types"
 import { formatClientApplicationForm } from "./format"
-import { container } from "tsyringe"
 import { TInputField } from "../inputField/types"
 
 const mockParams: IFormatterParams = {

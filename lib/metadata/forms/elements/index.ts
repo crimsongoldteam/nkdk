@@ -1,5 +1,3 @@
-// import { container } from "tsyringe"
-
 // import { InputField } from "./inputField/types"
 // import "./inputField/formatter"
 // import "./inputField/XMLImportRule"

@@ -1,4 +1,8 @@
-import { WrapInGroupStrategy } from "../metadata/forms/interfaces"
+export enum WrapInGroupStrategy {
+  None,
+  Always,
+  Auto,
+}
 
 export interface IFormatterParams {
   wrapInGroup?: WrapInGroupStrategy
