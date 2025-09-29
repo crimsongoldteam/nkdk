@@ -1,6 +1,5 @@
 import { expect, it } from "vitest"
-import { IFormatterParams } from "~/lib/formatter/types"
-import { I8nText, WrapInGroupStrategy } from "~/lib/metadata/forms/interfaces"
+import { IFormatterParams, WrapInGroupStrategy } from "~/lib/formatter/types"
 import { TClientApplicationForm } from "./types"
 import { formatClientApplicationForm } from "./format"
 import { TInputField } from "../inputField/types"
@@ -11,10 +10,8 @@ const mockParams: IFormatterParams = {
   isFirst: true,
 }
 
-let form: TClientApplicationForm
-
 it("should format form header", () => {
-  const form: TClientApplicationForm = { title: { ru: "Форма" } as I8nText, items: [] }
+  const form: TClientApplicationForm = { title: { ru: "Форма" }, items: [] }
 
   const result = formatClientApplicationForm(form, mockParams)
 
@@ -22,7 +19,7 @@ it("should format form header", () => {
 })
 
 it("should format form items", () => {
-  const input: TInputField = { title: { ru: "Поле" } as I8nText }
+  const input: TInputField = { title: { ru: "Поле" } }
 
   const form: TClientApplicationForm = { items: [input] }
 

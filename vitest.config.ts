@@ -7,7 +7,7 @@ export default defineConfig({
     // Exclude examples from test discovery (does not affect tsconfig scanning)
     exclude: ["examples/**/*", "**/node_modules/**"],
     environment: "jsdom",
-    setupFiles: ["./tests/setup.ts"],
+    setupFiles: ["./vitestSetup.ts"],
   },
   // Restrict tsconfig-paths to only use this app's tsconfig
   plugins: [

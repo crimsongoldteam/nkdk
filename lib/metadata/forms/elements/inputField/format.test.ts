@@ -1,6 +1,5 @@
 import { expect, it } from "vitest"
-import { IFormatterParams } from "~/lib/formatter/types"
-import { WrapInGroupStrategy } from "~/lib/metadata/forms/interfaces"
+import { IFormatterParams, WrapInGroupStrategy } from "~/lib/formatter/types"
 import { TInputField } from "./types"
 import { formatInputField } from "./format"
 

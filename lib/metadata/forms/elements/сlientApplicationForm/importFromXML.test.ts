@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
-import importInputFieldFromXML from "./importFromXML"
 import { ZClientApplicationFormXML } from "./types"
+import importClientApplicationFormFromXML from "./importFromXML"
 
 it("should import title from XML", () => {
   const mockXml = ZClientApplicationFormXML.parse({
@@ -9,7 +9,7 @@ it("should import title from XML", () => {
     },
   })
 
-  const input = importInputFieldFromXML(mockXml)
+  const input = importClientApplicationFormFromXML(mockXml)
 
   expect(input.title).toEqual({ ru: "Поле" })
 })

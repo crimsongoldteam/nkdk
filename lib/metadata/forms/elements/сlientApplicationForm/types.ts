@@ -13,3 +13,4 @@ export const ZClientApplicationForm = z.object({
 })
 
 export type TClientApplicationForm = z.infer<typeof ZClientApplicationForm>
+export type TClientApplicationFormXML = z.infer<typeof ZClientApplicationFormXML>

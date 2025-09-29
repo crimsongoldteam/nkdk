@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   description: "Management forms and metadata for 1C:Enterprise-like systems",
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru">
       <body>{children}</body>
