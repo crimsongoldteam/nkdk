@@ -16,7 +16,7 @@
     "clean": "rimraf dist",
     "test": "vitest",
     "next:dev": "next dev",
-    "dev:playground": "yarn next:dev",
+    "dev:playground": "pnpm next:dev",
     "next:build": "next build",
     "next:start": "next start",
     "next:export": "next export"
@@ -38,7 +38,7 @@
     "url": "https://github.com/crimsongoldteam/nakidka-core/issues"
   },
   "homepage": "https://github.com/crimsongoldteam/nakidka-core",
-  "packageManager": "yarn@1.22.22",
+  "packageManager": "pnpm@9.0.0",
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.0",
@@ -87,6 +87,6 @@
     "tsyringe": "^4.10.0",
     "uuid": "^11.1.0",
     "whatwg-fetch": "^3.6.20",
-    "yarn": "^1.22.22"
+    "zod": "^4.1.11"
   }
 }

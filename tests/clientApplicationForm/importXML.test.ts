@@ -1,7 +1,7 @@
 import { it, expect, beforeEach } from "vitest"
 import "reflect-metadata"
 import { ContainerFactory } from "@/metadata/forms/elements"
-import { XMLImporter } from "@/xml/importer"
+import { XMLImporter } from "@/xmlImport/importer"
 import { IClientApplicationForm } from "@/metadata/forms/elements/сlientApplicationForm/interfaces"
 import { container } from "tsyringe"
 import { DITokens } from "@/symbols"

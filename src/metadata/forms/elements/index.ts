@@ -1,19 +1,19 @@
-import { container } from "tsyringe"
+// import { container } from "tsyringe"
 
-import { InputField } from "./inputField/element"
-import "./inputField/formatter"
-import "./inputField/XMLImportRule"
-import "./inputField/HTMLExportRule"
+// import { InputField } from "./inputField/types"
+// import "./inputField/formatter"
+// import "./inputField/XMLImportRule"
+// import "./inputField/HTMLExportRule"
 
-import { ClientApplicationForm } from "./сlientApplicationForm/element"
-import "./сlientApplicationForm/formatter"
-import "./сlientApplicationForm/XMLImportRules"
-import "./сlientApplicationForm/HTMLExportRule"
+// import { ClientApplicationForm } from "./сlientApplicationForm/element"
+// import "./сlientApplicationForm/formatter"
+// import "./сlientApplicationForm/XMLImportRules"
+// import "./сlientApplicationForm/HTMLExportRule"
 
-export { InputField, ClientApplicationForm }
+// export { InputField, ClientApplicationForm }
 
-export class ContainerFactory {
-  public register() {
-    container.clearInstances()
-  }
-}
+// export class ContainerFactory {
+//   public register() {
+//     container.clearInstances()
+//   }
+// }

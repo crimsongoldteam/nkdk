@@ -1,5 +1,5 @@
 {
-  "npm.packageManager": "yarn",
+  "npm.packageManager": "pnpm",
   "typescript.preferences.includePackageJsonAutoImports": "on",
   "typescript.suggest.autoImports": true,
   "typescript.updateImportsOnFileMove.enabled": "always",
