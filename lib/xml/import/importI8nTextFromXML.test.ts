@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import importI8nTextFromXML from "./importI8nTextFromXML"
-import { ZI8nTextXML } from "../types"
+import { ZI8nTextXML } from "~/lib/xml/types"
 
 it("should import I8nText from XML", () => {
   const mockXml = {

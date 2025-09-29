@@ -1,6 +1,7 @@
 import * as t from "@/metadata/forms/parser/lexer"
 import { container, injectable, singleton } from "tsyringe"
-import { IFormatter, IFormatterParams } from "../../interfaces"
+import { IFormatter } from "../../interfaces"
+import { IFormatterParams } from "../../../../formatter/types"
 import { DITokens } from "@/symbols"
 import { IClientApplicationForm } from "./interfaces"
 

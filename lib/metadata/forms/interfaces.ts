@@ -1,5 +1,6 @@
 import * as SystemEnumeration from "@/metadata/systemEnumerations"
 import React from "react"
+import { IFormatterParams } from "../../formatter/types"
 
 export interface IFormElement {
   get XMLExporterToken(): symbol
@@ -108,12 +109,6 @@ export enum WrapInGroupStrategy {
   None,
   Always,
   Auto,
-}
-
-export interface IFormatterParams {
-  wrapInGroup?: WrapInGroupStrategy
-  level?: number
-  isFirst?: boolean
 }
 
 export interface I8nText {

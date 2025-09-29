@@ -2,12 +2,12 @@
 
 import "reflect-metadata"
 import { container } from "tsyringe"
-import { DITokens } from "../symbols"
-import { IClientApplicationForm } from "../metadata/forms/elements/сlientApplicationForm/interfaces"
-import { I8nText } from "../metadata/i8n/i8nText"
-import { ContainerFactory } from "../metadata/forms/elements"
+import { DITokens } from "../lib/symbols"
+import { IClientApplicationForm } from "../lib/metadata/forms/elements/сlientApplicationForm/interfaces"
+import { I8nText } from "../lib/metadata/i8n/i8nText"
+import { ContainerFactory } from "../lib/metadata/forms/elements"
 import { useEffect, useState } from "react"
-import { IHTMLExportRules } from "../metadata/forms/interfaces"
+import { IHTMLExportRules } from "../lib/metadata/forms/interfaces"
 import { IInputField } from "../metadata/forms/elements/inputField/interfaces"
 import { Flex, Button, Input } from "antd"
 

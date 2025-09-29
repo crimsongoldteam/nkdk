@@ -3,7 +3,7 @@ import "reflect-metadata"
 import { ContainerFactory } from "@/metadata/forms/elements"
 import { IInputField } from "@/metadata/forms/elements/inputField/interfaces"
 import { DITokens } from "@/symbols"
-import { XMLImporter } from "@/xmlImport/importer"
+import { XMLImporter } from "@/xml/import/importer"
 import { container } from "tsyringe"
 import { beforeEach, expect, it } from "vitest"
 

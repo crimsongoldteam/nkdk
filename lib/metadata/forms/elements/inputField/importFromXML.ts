@@ -1,6 +1,6 @@
 import { z } from "zod"
 import { ZInputField, ZInputFieldXML } from "./types"
-import importI8nXmlText from "@/xmlImport/importI8nTextFromXML"
+import importI8nXmlText from "~/lib/xml/import/importI8nTextFromXML"
 
 type TInputField = z.infer<typeof ZInputField>
 type TInputFieldXML = z.infer<typeof ZInputFieldXML>

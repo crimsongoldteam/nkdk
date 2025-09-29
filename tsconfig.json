@@ -27,10 +27,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@assets/*": ["./assets/*"]
+      "~/*": ["./*"]
     }
   },
-  "include": ["./dist/types/**/*.ts", "./next-env.d.ts", "src", "tests", ".next/types/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }
