@@ -4,7 +4,7 @@ import { ZI8nTextXML } from "~/lib/xml/types"
 
 export const ZInputFieldXML = z.object({
   _name: z.string(),
-  Title: ZI8nTextXML,
+  Title: ZI8nTextXML.optional(),
 })
 
 export const ZInputField = z.object({

@@ -60,6 +60,7 @@
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
     "@babel/standalone": "^7.28.4",
+    "@monaco-editor/react": "^4.7.0",
     "@orama/orama": "^3.1.11",
     "@orama/plugin-embeddings": "^3.1.11",
     "@orama/plugin-pt15": "^3.1.11",
