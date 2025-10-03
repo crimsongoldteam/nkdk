@@ -1,8 +1,8 @@
 "use client"
 
-import "@ant-design/v5-patch-for-react-19"
 import { useState } from "react"
-import { Button, Flex, Card, Space } from "antd"
+import { Button } from "primereact/button"
+import { Card } from "primereact/card"
 import { ClientFormApplication } from "~/components/clientFormApplication/clientFormApplication"
 import { MonacoEditor } from "~/components/monacoEditor/monacoEditor"
 
@@ -15,19 +15,17 @@ export default function App() {
   }
 
   return (
-    <Flex vertical gap={16} style={{ padding: "20px" }}>
+    <div className="flex flex-column gap-4 p-4">
       <Card title="Форма с полями">
         <ClientFormApplication title="Форма" items={formItems} />
-        <Button type="primary" onClick={addNewItem} style={{ marginTop: "16px" }}>
-          Добавить поле
-        </Button>
+        <Button label="Добавить поле" onClick={addNewItem} className="mt-4" />
       </Card>
 
       <Card title="Monaco Editor">
-        <Space direction="vertical" style={{ width: "100%" }}>
+        <div className="flex flex-column w-full">
           <MonacoEditor />
-        </Space>
+        </div>
       </Card>
-    </Flex>
+    </div>
   )
 }

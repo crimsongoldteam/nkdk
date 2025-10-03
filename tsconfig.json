@@ -28,11 +28,24 @@
     "baseUrl": ".",
     "paths": {
       "~/*": ["./*"]
-    }
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
   "ts-node": {
     "files": true
   },
   "exclude": ["node_modules", "dist"],
-  "include": ["src/**/*.ts", "components/**/*.ts", "components/**/*.tsx", "lib/**/*.ts"]
+  "include": [
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "components/**/*.ts",
+    "components/**/*.tsx",
+    "lib/**/*.ts",
+    "src/**/*.ts",
+    ".next/types/**/*.ts"
+  ]
 }
