@@ -8,7 +8,7 @@ export const ZInputFieldXML = z.object({
 })
 
 export const ZInputField = z.object({
-  name: z.string().optional(),
+  name: z.string(),
   title: ZI8nText.optional(),
 
   isMultiline: z.boolean().optional(),

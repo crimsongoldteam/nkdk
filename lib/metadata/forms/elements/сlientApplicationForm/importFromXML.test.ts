@@ -19,7 +19,9 @@ it("should import items from XML", () => {
   const mockXml = ZClientApplicationFormXML.parse({
     ChildItems: [
       {
-        _name: "ПолеВвода",
+        InputField: {
+          _name: "ПолеВвода",
+        },
       },
     ],
   })

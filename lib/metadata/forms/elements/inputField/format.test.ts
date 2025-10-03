@@ -11,36 +11,29 @@ const mockParams: IFormatterParams = {
 
 it("should format input field with title", () => {
   const element: TInputField = {
+    name: "ИмяПоля",
     title: { ru: "Поле" },
     value: "Значение",
   }
 
   const result = formatInputField(element, mockParams)
 
-  expect(result).toEqual(["Поле: Значение"])
+  expect(result).toEqual(["Поле: Значение {ИмяПоля}"])
 })
 
 it("should format input field with value", () => {
   const element: TInputField = {
+    name: "ИмяПоля",
     title: { ru: "Поле" },
     value: "Значение",
   }
   const result = formatInputField(element, mockParams)
-  expect(result).toEqual(["Поле: Значение"])
-})
-
-it("should format input field without title", () => {
-  const element: TInputField = {
-    value: "Значение",
-  }
-
-  const result = formatInputField(element, mockParams)
-
-  expect(result).toEqual([": Значение"])
+  expect(result).toEqual(["Поле: Значение {ИмяПоля}"])
 })
 
 it("should format multiline input field", () => {
   const element: TInputField = {
+    name: "ИмяПоля",
     title: { ru: "Поле" },
     value: "Значение",
     height: 2,
@@ -49,11 +42,12 @@ it("should format multiline input field", () => {
 
   const result = formatInputField(element, mockParams)
 
-  expect(result).toEqual(["Поле: Значение", "      ________"])
+  expect(result).toEqual(["Поле: Значение {ИмяПоля}", "      ________"])
 })
 
 it("should format input field with modificators", () => {
   const element: TInputField = {
+    name: "ИмяПоля",
     title: { ru: "Поле" },
     value: "Значение",
     choiceButton: true,
@@ -65,5 +59,15 @@ it("should format input field with modificators", () => {
 
   const result = formatInputField(element, mockParams)
 
-  expect(result).toEqual(["Поле: Значение__ВСХОД"])
+  expect(result).toEqual(["Поле: Значение__ВСХОД {ИмяПоля}"])
+})
+
+it("should format input field with name if title is not present", () => {
+  const element: TInputField = {
+    name: "ИмяПоля",
+  }
+
+  const result = formatInputField(element, mockParams)
+
+  expect(result).toEqual(["ИмяПоля: {ИмяПоля}"])
 })

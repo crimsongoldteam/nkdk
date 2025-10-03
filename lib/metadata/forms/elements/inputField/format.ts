@@ -7,17 +7,21 @@ const UNDERLINE = t.Underscore.LABEL as string
 const COLON = t.Colon.LABEL as string
 
 export function formatInputField(element: TInputField, _params: IFormatterParams): string[] {
-  let header: string = element.title?.ru ?? ""
-  header += COLON + " "
+  let header: string = element.title?.ru ?? element.name
+  header += COLON
 
   let value = element.value ?? ""
+
+  header += value ? " " : ""
 
   const modificators = getModificators(element)
   if (modificators.length > 0) {
     value += UNDERLINE.repeat(2) + modificators
   }
 
-  let result = [header + value]
+  const name = " {" + element.name + "}"
+
+  let result = [header + value + name]
 
   result.push(...getMultilineString(element, header.length, value.length))
 

@@ -5,7 +5,11 @@ import { ZInputField, ZInputFieldXML } from "../inputField/types"
 
 export const ZClientApplicationFormXML = z.object({
   Title: ZI8nTextXML.optional(),
-  ChildItems: z.array(ZInputFieldXML),
+  ChildItems: z.array(
+    z.object({
+      InputField: ZInputFieldXML,
+    })
+  ),
 })
 
 export const ZClientApplicationForm = z.object({

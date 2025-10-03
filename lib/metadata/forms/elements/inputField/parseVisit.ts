@@ -4,7 +4,9 @@ import { Visitor } from "~/lib/parser/visitor"
 import { joinTokens } from "~/lib/parser/visitorUtils"
 
 export default function inputFieldVisit(_visitor: Visitor, ctx: CstChildrenDictionary): TInputField {
-  const result: TInputField = {}
+  const result: TInputField = {
+    name: "ПолеВвода",
+  }
 
   const header = joinTokens(ctx.InputHeader)
   if (header) {

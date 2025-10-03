@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "vscode:prepublish": "pnpm run compile",
-    "compile": "tsc -p tsconfig.extension.json && tsc-alias -p tsconfig.extension.json",
+    "compile": "tsc -p tsconfig.extension.json && tsc-alias -p tsconfig.extension.json && node -e \"const fs=require('fs'); const path=require('path'); if(!fs.existsSync('out/lib/chevrotian/index.js')){fs.copyFileSync('lib/chevrotian/index.js', 'out/lib/chevrotian/index.js'); console.log('Copied chevrotian index.js');}\"",
     "build": "tsc && tsc-alias",
     "prepublishOnly": "pnpm run clean && pnpm run build",
     "dev": "ts-node src/index.ts",

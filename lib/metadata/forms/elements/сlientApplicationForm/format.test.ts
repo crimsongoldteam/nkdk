@@ -19,11 +19,11 @@ it("should format form header", () => {
 })
 
 it("should format form items", () => {
-  const input: TInputField = { title: { ru: "Поле" } }
+  const input: TInputField = { name: "ИмяПоля", title: { ru: "Поле" } }
 
   const form: TClientApplicationForm = { items: [input] }
 
   const result = formatClientApplicationForm(form, mockParams)
 
-  expect(result).toEqual(["Поле: "])
+  expect(result).toEqual(["Поле: {ИмяПоля}"])
 })
