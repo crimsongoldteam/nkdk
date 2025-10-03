@@ -1,4 +1,4 @@
-import { CstChildrenDictionary, CstNode, IToken } from "chevrotain"
+import { CstChildrenDictionary, CstNode, IToken } from "~/lib/chevrotian"
 
 interface IPropertiesCstNode extends CstNode {
   readonly children: IPropertiesCstChildrenDictionary

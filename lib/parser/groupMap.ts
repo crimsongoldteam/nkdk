@@ -1,4 +1,4 @@
-import { CstNode, IToken } from "chevrotain"
+import { CstNode, IToken } from "~/lib/chevrotian"
 import { Detector } from "./detector"
 import { Parser } from "./parser"
 import {

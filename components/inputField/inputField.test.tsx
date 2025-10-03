@@ -1,7 +1,7 @@
-import React from "react"
+import * as React from "react"
 import { render, screen, cleanup } from "@testing-library/react"
 import { expect, it, describe, afterEach } from "vitest"
-import { InputField } from "~/components/inputField/inputField"
+import { InputField } from "./inputField"
 
 describe("InputField", () => {
   afterEach(() => {

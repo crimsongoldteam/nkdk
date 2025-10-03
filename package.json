@@ -2,15 +2,17 @@
   "name": "nakidka-core",
   "version": "1.0.0",
   "description": "Management forms and metadata for 1C:Enterprise-like systems",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "out/src/extension.js",
+  "types": "out/src/extension.d.ts",
   "files": [
-    "dist/**/*",
+    "out/**/*",
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
-    "prepublishOnly": "npm run clean && npm run build",
+    "vscode:prepublish": "pnpm run compile",
+    "compile": "tsc -p tsconfig.extension.json && tsc-alias -p tsconfig.extension.json",
+    "build": "tsc && tsc-alias",
+    "prepublishOnly": "pnpm run clean && pnpm run build",
     "dev": "ts-node src/index.ts",
     "watch": "tsc --watch",
     "clean": "rimraf dist",
@@ -46,6 +48,7 @@
     "@types/node": "^24.5.2",
     "@types/react": "^19.1.14",
     "@types/react-dom": "^19.1.9",
+    "@types/vscode": "^1.100.0",
     "@vitest/coverage-v8": "^3.2.4",
     "concurrently": "^9.2.1",
     "jsdom": "^27.0.0",
@@ -53,9 +56,13 @@
     "pointer-events-polyfill": "^0.4.4-pre",
     "resize-observer-polyfill": "^1.5.1",
     "terser": "^5.37.0",
+    "ts-loader": "^9.5.1",
+    "tsc-alias": "^1.8.16",
     "typescript": "~5.8.3",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
@@ -72,7 +79,6 @@
     "@ungap/weakrefs": "^0.2.0",
     "antd": "^5.27.4",
     "big-integer": "^1.6.52",
-    "chevrotain": "^11.0.3",
     "date-fns": "^4.1.0",
     "fast-xml-parser": "^5.2.5",
     "js-yaml": "^4.1.0",
@@ -87,5 +93,51 @@
     "uuid": "^11.1.0",
     "whatwg-fetch": "^3.6.20",
     "zod": "^4.1.11"
+  },
+  "engines": {
+    "vscode": "^1.99.0",
+    "node": ">=18.0.0"
+  },
+  "type": "commonjs",
+  "bundledDependencies": [],
+  "exports": {
+    ".": {
+      "import": "./out/src/extension.js",
+      "require": "./out/src/extension.js",
+      "types": "./out/src/extension.d.ts"
+    }
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "catCustoms.catScratch",
+        "displayName": "Cat Scratch",
+        "selector": [
+          {
+            "filenamePattern": "*.xml"
+          }
+        ]
+      },
+      {
+        "viewType": "catCustoms.pawDraw",
+        "displayName": "Paw Draw",
+        "selector": [
+          {
+            "filenamePattern": "*.pawdraw"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "catCustoms.pawDraw.new",
+        "title": "Create new Paw Draw Document",
+        "category": "Paw Draw"
+      }
+    ]
   }
 }

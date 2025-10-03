@@ -1,0 +1,44 @@
+/* VS Code theme variables */
+:root {
+  --vscode-editor-background: #ffffff;
+  --vscode-editor-foreground: #000000;
+  --vscode-button-background: #007acc;
+  --vscode-button-foreground: #ffffff;
+  --vscode-button-hover-background: #005a9e;
+  --vscode-input-background: #ffffff;
+  --vscode-input-foreground: #000000;
+  --vscode-input-border: #cccccc;
+  --vscode-focus-border: #007acc;
+}
+
+body {
+  background-color: var(--vscode-editor-background);
+  color: var(--vscode-editor-foreground);
+}
+
+button {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button:hover {
+  background-color: var(--vscode-button-hover-background);
+}
+
+input {
+  background-color: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border);
+  padding: 4px 8px;
+  border-radius: 3px;
+}
+
+input:focus {
+  outline: 1px solid var(--vscode-focus-border);
+  outline-offset: -1px;
+}

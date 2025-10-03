@@ -1,4 +1,4 @@
-import { CstChildrenDictionary } from "chevrotain"
+import { CstChildrenDictionary } from "../../../../chevrotian"
 import { TInputField, ZInputField } from "./types"
 import { Visitor } from "~/lib/parser/visitor"
 import { joinTokens } from "~/lib/parser/visitorUtils"

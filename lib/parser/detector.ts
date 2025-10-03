@@ -1,5 +1,6 @@
-import { createTokenInstance, IToken, TokenType } from "chevrotain"
-import * as t from "./lexer.ts"
+import { IToken, TokenType } from "~/lib/chevrotian"
+import Chevrotain from "~/lib/chevrotian"
+import * as t from "./lexer"
 
 export class Detector {
   private readonly checkboxTokens = [t.CheckboxChecked, t.CheckboxUnchecked, t.SwitchChecked, t.SwitchUnchecked]
@@ -7,7 +8,7 @@ export class Detector {
 
   public getTypeToken(tokens: Array<IToken>): IToken {
     const tokenType = this.detect(tokens)
-    return createTokenInstance(tokenType, tokenType.name, -1, -1, -1, -1, -1, -1)
+    return Chevrotain.createTokenInstance(tokenType, tokenType.name, -1, -1, -1, -1, -1, -1)
   }
 
   private detect(tokens: Array<IToken>): TokenType {

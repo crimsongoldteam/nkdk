@@ -1,9 +1,9 @@
-import { CstChildrenDictionary, CstElement, CstNode, IToken } from "chevrotain"
+import { CstChildrenDictionary, CstElement, CstNode, IToken } from "../chevrotian"
 import { Parser } from "./parser"
 import { GroupMap } from "./groupMap"
 import { EditorContainerNode, FormNode } from "./groupMapNodes"
 
-const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
+const BaseVisitor: new () => any = new Parser().getBaseCstVisitorConstructor()
 
 export class GroupVisitor extends BaseVisitor {
   private groupMap: GroupMap

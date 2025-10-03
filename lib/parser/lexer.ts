@@ -1,4 +1,4 @@
-﻿import { createToken, IMultiModeLexerDefinition, Lexer, TokenType } from "chevrotain"
+﻿import { createToken, IMultiModeLexerDefinition, Lexer, TokenType } from "~/lib/chevrotian"
 
 // #region combineTokens
 

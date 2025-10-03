@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from "vitest"
-import { CstChildrenDictionary, createTokenInstance } from "chevrotain"
+import { describe, it, expect } from "vitest"
 import inputFieldVisit from "./parseVisit"
 import { Visitor } from "~/lib/parser/visitor"
+import { CstChildrenDictionary, createTokenInstance } from "~/lib/chevrotian"
 
 const visitor = new Visitor()
 

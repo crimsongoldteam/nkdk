@@ -1,7 +1,10 @@
-import { CstNode, CstParser, EMPTY_ALT, EOF, IToken } from "chevrotain"
-import * as t from "./lexer.ts"
+import { CstNode, EMPTY_ALT, EOF, IToken, CstParser } from "~/lib/chevrotian"
+import * as t from "./lexer"
 
 export class Parser extends CstParser {
+  // Динамические методы парсера
+  [key: string]: any
+
   constructor() {
     super(t.allTokens)
     this.performSelfAnalysis()
@@ -628,7 +631,7 @@ export class Parser extends CstParser {
   }
 
   // https://github.com/bia-technologies/yaxunit-editor
-  private choice(idx = 1, ...tokens: (() => any)[]) {
+  public choice(idx = 1, ...tokens: (() => any)[]) {
     const items = tokens.map((t) => {
       return { ALT: t }
     })

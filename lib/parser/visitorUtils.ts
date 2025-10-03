@@ -1,4 +1,4 @@
-import { CstElement, CstNode, IToken } from "chevrotain"
+import { CstElement, IToken } from "../chevrotian"
 
 export function joinTokens(tokens: CstElement[]): string | undefined {
   if (tokens === undefined) {

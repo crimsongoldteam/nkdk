@@ -1,4 +1,4 @@
-import { CstChildrenDictionary, CstNode, IToken } from "chevrotain"
+import { CstChildrenDictionary, CstNode, IToken } from "~/lib/chevrotian"
 
 export interface PagesNode extends CstNode {
   children: PagesDictionary

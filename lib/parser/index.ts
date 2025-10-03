@@ -1,4 +1,4 @@
-import { IToken, Lexer, CstNode } from "chevrotain"
+import { IToken, Lexer, CstNode } from "../chevrotian"
 import { Parser } from "./parser"
 import { multiModeLexerDefinition } from "./lexer"
 
