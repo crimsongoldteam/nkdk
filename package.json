@@ -10,18 +10,22 @@
   ],
   "scripts": {
     "vscode:prepublish": "pnpm run compile",
-    "compile": "tsc -p tsconfig.extension.json && tsc-alias -p tsconfig.extension.json && node -e \"const fs=require('fs'); const path=require('path'); if(!fs.existsSync('out/lib/chevrotian/index.js')){fs.copyFileSync('lib/chevrotian/index.js', 'out/lib/chevrotian/index.js'); console.log('Copied chevrotian index.js');}\"",
+    "compile": "tsc -p tsconfig.extension.json && tsc-alias -p tsconfig.extension.json && node scripts/copy-lib.js",
     "build": "tsc && tsc-alias",
     "prepublishOnly": "pnpm run clean && pnpm run build",
     "dev": "ts-node src/index.ts",
     "watch": "tsc --watch",
     "clean": "rimraf dist",
     "test": "vitest",
-    "next:dev": "next dev",
-    "dev:playground": "pnpm next:dev",
-    "next:build": "next build",
-    "next:start": "next start",
-    "next:export": "next export"
+    "web:build": "cd web && pnpm build",
+    "web:build:lib": "cd web && pnpm build:lib",
+    "web:build:watch": "cd web && pnpm build:watch",
+    "web:build:lib:watch": "cd web && pnpm build:lib:watch",
+    "web:watch": "cd web && pnpm watch",
+    "web:dev": "cd web && pnpm dev",
+    "build:all": "pnpm web:build:lib && pnpm compile",
+    "build:all:watch": "concurrently \"pnpm watch\" \"pnpm web:build:lib:watch\"",
+    "copy:lib": "node scripts/copy-lib.js"
   },
   "keywords": [
     "typescript",
@@ -42,57 +46,15 @@
   "homepage": "https://github.com/crimsongoldteam/nakidka-core",
   "packageManager": "pnpm@9.0.0",
   "devDependencies": {
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/react": "^16.3.0",
-    "@types/js-yaml": "^4.0.9",
-    "@types/node": "^24.5.2",
-    "@types/react": "^19.1.14",
-    "@types/react-dom": "^19.1.9",
-    "@types/vscode": "^1.100.0",
-    "@vitest/coverage-v8": "^3.2.4",
     "concurrently": "^9.2.1",
     "jsdom": "^27.0.0",
     "path": "^0.12.7",
-    "pointer-events-polyfill": "^0.4.4-pre",
-    "resize-observer-polyfill": "^1.5.1",
-    "terser": "^5.37.0",
-    "ts-loader": "^9.5.1",
-    "tsc-alias": "^1.8.16",
     "typescript": "~5.8.3",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.4",
-    "webpack": "^5.97.1",
-    "webpack-cli": "^5.1.4"
+    "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@babel/standalone": "^7.28.4",
-    "@monaco-editor/react": "^4.7.0",
-    "@orama/orama": "^3.1.11",
-    "@orama/plugin-embeddings": "^3.1.11",
-    "@orama/plugin-pt15": "^3.1.11",
-    "@orama/plugin-qps": "^3.1.11",
-    "@orama/stemmers": "^3.1.11",
-    "@ungap/global-this": "^0.4.4",
-    "@ungap/trim-end": "^0.2.0",
-    "@ungap/trim-start": "^0.2.0",
-    "@ungap/weakrefs": "^0.2.0",
-    "big-integer": "^1.6.52",
-    "date-fns": "^4.1.0",
-    "fast-xml-parser": "^5.2.5",
-    "js-yaml": "^4.1.0",
-    "monaco-editor-core": "0.43.0",
-    "next": "^15.5.4",
-    "performance-polyfill": "^0.0.3",
-    "primeicons": "^7.0.0",
-    "primereact": "^10.9.7",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "rollup": "^4.41.1",
-    "seedrandom": "^3.0.5",
-    "split.js": "^1.6.5",
-    "uuid": "^11.1.0",
-    "whatwg-fetch": "^3.6.20",
-    "zod": "^4.1.11"
+    "@babel/standalone": "^7.28.4"
   },
   "engines": {
     "vscode": "^1.99.0",
@@ -121,22 +83,6 @@
             "filenamePattern": "*.xml"
           }
         ]
-      },
-      {
-        "viewType": "catCustoms.pawDraw",
-        "displayName": "Paw Draw",
-        "selector": [
-          {
-            "filenamePattern": "*.pawdraw"
-          }
-        ]
-      }
-    ],
-    "commands": [
-      {
-        "command": "catCustoms.pawDraw.new",
-        "title": "Create new Paw Draw Document",
-        "category": "Paw Draw"
       }
     ]
   }

@@ -1,8 +1,10 @@
 import * as vscode from "vscode"
-import xmlImport from "../lib/xml/import/importer"
-import importClientApplicationFormFromXML from "../lib/metadata/forms/elements/сlientApplicationForm/importFromXML"
-import { ZClientApplicationFormXML } from "../lib/metadata/forms/elements/сlientApplicationForm/types"
-import { formatClientApplicationForm } from "../lib/metadata/forms/elements/сlientApplicationForm/format"
+import {
+  xmlImport,
+  importClientApplicationFormFromXML,
+  ZClientApplicationFormXML,
+  formatClientApplicationForm,
+} from "../dist/nakidka-core.cjs.js"
 
 /**
  * Provider for cat scratch editors.
@@ -12,8 +14,8 @@ import { formatClientApplicationForm } from "../lib/metadata/forms/elements/сli
  * with all '{' characters replaced with '['.
  */
 export class CatScratchEditorProvider implements vscode.CustomTextEditorProvider {
-  public static register(): vscode.Disposable {
-    const provider = new CatScratchEditorProvider()
+  public static register(context: vscode.ExtensionContext): vscode.Disposable {
+    const provider = new CatScratchEditorProvider(context)
     const providerRegistration = vscode.window.registerCustomEditorProvider(
       CatScratchEditorProvider.viewType,
       provider,
@@ -26,7 +28,56 @@ export class CatScratchEditorProvider implements vscode.CustomTextEditorProvider
 
   private static readonly viewType = "catCustoms.catScratch"
 
-  constructor() {}
+  constructor(private context: vscode.ExtensionContext) {}
+
+  /**
+   * Открывает дополнительное окно с React App из библиотеки dist
+   */
+  private async openPageTsxWindow(): Promise<void> {
+    try {
+      const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri
+
+      if (!workspaceRoot) {
+        vscode.window.showErrorMessage("Не удалось найти корневую папку рабочего пространства")
+        return
+      }
+
+      // Создаем webview панель для отображения React App
+      const panel = vscode.window.createWebviewPanel("pageTsxViewer", "React App Preview", vscode.ViewColumn.Two, {
+        enableScripts: true,
+        retainContextWhenHidden: true,
+      })
+
+      // Используем скрипт из расширения, а не из каталога проекта
+      const scriptUri = panel.webview.asWebviewUri(
+        vscode.Uri.joinPath(this.context.extensionUri, "out", "build", "nakidka-core.cjs.js")
+      )
+
+      // HTML содержимое с React App из библиотеки dist
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Просмотр формы</title>
+    <script type="module" src="${scriptUri}"></script>
+</head>
+<body>
+    <div id="root"></div>
+</body>
+</html>`
+
+      panel.webview.html = htmlContent
+
+      // Показываем информационное сообщение
+      vscode.window.showInformationMessage("Открыто дополнительное окно с React App из библиотеки nakidka-core")
+
+      panel.webview.postMessage({ command: "refactor" })
+    } catch (error) {
+      vscode.window.showErrorMessage(`Ошибка при открытии дополнительного окна: ${error}`)
+    }
+  }
 
   /**
    * Called when our custom editor is opened.
@@ -58,6 +109,9 @@ export class CatScratchEditorProvider implements vscode.CustomTextEditorProvider
       viewColumn: webviewPanel.viewColumn,
       preserveFocus: false,
     })
+
+    // Открываем дополнительное окно с содержимым page.tsx
+    await this.openPageTsxWindow()
 
     // Обработчик изменений во временном документе
     // const changeListener = vscode.workspace.onDidChangeTextDocument(async (e) => {

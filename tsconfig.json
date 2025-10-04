@@ -44,7 +44,7 @@
     "app/**/*.tsx",
     "components/**/*.ts",
     "components/**/*.tsx",
-    "lib/**/*.ts",
+    "web/lib/**/*.ts",
     "src/**/*.ts",
     ".next/types/**/*.ts"
   ]
