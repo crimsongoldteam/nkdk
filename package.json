@@ -44,7 +44,7 @@
     "big-integer": "^1.6.52",
     "chevrotain": "^11.0.3",
     "date-fns": "^4.1.0",
-    "fast-xml-parser": "^5.2.5",
+    "fast-xml-parser": "^5.3.0",
     "js-yaml": "^4.1.0",
     "monaco-editor-core": "0.43.0",
     "performance-polyfill": "^0.0.3",

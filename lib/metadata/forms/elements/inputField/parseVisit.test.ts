@@ -13,7 +13,7 @@ describe("inputFieldVisit", () => {
 
     const result = inputFieldVisit(visitor, ctx)
 
-    expect(result).toEqual({})
+    expect(result).toEqual({ name: "ПолеВвода" })
   })
 
   it("should handle only InputHeader tokens", () => {

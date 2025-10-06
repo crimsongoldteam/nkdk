@@ -1,32 +1,44 @@
 import { expect, it } from "vitest"
-import { ZClientApplicationFormXML } from "./types"
+import { TClientApplicationForm, TClientApplicationFormXML } from "./types"
 import importClientApplicationFormFromXML from "./importFromXML"
 
 it("should import title from XML", () => {
-  const mockXml = ZClientApplicationFormXML.parse({
-    Title: {
-      item: [{ lang: "ru", content: "Поле" }],
+  const mockXml: TClientApplicationFormXML = {
+    Form: {
+      Title: [{ "v8:item": { "v8:lang": "ru", "v8:content": "Поле" } }],
+      ChildItems: [],
     },
-    ChildItems: [],
-  })
+  }
 
-  const input = importClientApplicationFormFromXML(mockXml)
+  const mockElement: TClientApplicationForm = {
+    title: { ru: "Поле" },
+    items: [],
+  }
 
-  expect(input.title).toEqual({ ru: "Поле" })
+  const element = importClientApplicationFormFromXML(mockXml)
+
+  expect(element).toEqual(mockElement)
 })
 
 it("should import items from XML", () => {
-  const mockXml = ZClientApplicationFormXML.parse({
-    ChildItems: [
-      {
-        InputField: {
-          _name: "ПолеВвода",
+  const mockXml: TClientApplicationFormXML = {
+    Form: {
+      ChildItems: [
+        {
+          InputField: {
+            _name: "ПолеВвода",
+            _id: "1",
+          },
         },
-      },
-    ],
-  })
+      ],
+    },
+  }
+
+  const mockElement: TClientApplicationForm = {
+    items: [{ name: "ПолеВвода", id: "1" }],
+  }
 
   const form = importClientApplicationFormFromXML(mockXml)
 
-  expect(form.items).toEqual([{ name: "ПолеВвода" }])
+  expect(form).toEqual(mockElement)
 })

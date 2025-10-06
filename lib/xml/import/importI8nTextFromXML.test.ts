@@ -1,34 +1,32 @@
 import { expect, it } from "vitest"
 import importI8nTextFromXML from "./importI8nTextFromXML"
-import { ZI8nTextXML } from "~/lib/xml/types"
+import { TI8nTextXML } from "~/lib/xml/types"
+import { TI8nText } from "~/lib/metadata/types"
 
 it("should import I8nText from XML", () => {
-  const mockXml = {
-    item: [{ lang: "ru", content: "Поле" }],
-  }
+  const mockXml: TI8nTextXML = [{ "v8:item": { "v8:lang": "ru", "v8:content": "Поле" } }]
 
-  const i8nXMLText = ZI8nTextXML.parse(mockXml)
+  const mockResult: TI8nText = { ru: "Поле" }
 
-  const result = importI8nTextFromXML(i8nXMLText)
+  const result = importI8nTextFromXML(mockXml)
 
-  expect(result).toEqual({ ru: "Поле" })
+  expect(result).toEqual(mockResult)
 })
 
 it("should import I8nText from XML with multiple languages", () => {
-  const mockXml = {
-    item: [
-      { lang: "ru", content: "Поле" },
-      { lang: "en", content: "Field" },
-    ],
-  }
-  const i8nXMLText = ZI8nTextXML.parse(mockXml)
+  const mockXml: TI8nTextXML = [
+    { "v8:item": { "v8:lang": "ru", "v8:content": "Поле" } },
+    { "v8:item": { "v8:lang": "en", "v8:content": "Field" } },
+  ]
 
-  const result = importI8nTextFromXML(i8nXMLText)
-
-  expect(result).toEqual({
+  const mockResult: TI8nText = {
     ru: "Поле",
     en: "Field",
-  })
+  }
+
+  const result = importI8nTextFromXML(mockXml)
+
+  expect(result).toEqual(mockResult)
 })
 
 it("should return undefined for undefined input", () => {
