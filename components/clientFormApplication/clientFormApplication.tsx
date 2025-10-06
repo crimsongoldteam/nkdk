@@ -22,7 +22,7 @@ export function ClientFormApplication(props: Readonly<IClientFormApplicationHTML
       <Divider />
       <Form labelCol={{ span: 4 }}>
         {items.map((item) => {
-          return <InputField key={item.name} title={item.title || item.name} value={item.value} />
+          return <InputField key={item.name} title={item.title || item.name} value={item.value} name={item.name} />
         })}
       </Form>
     </div>
