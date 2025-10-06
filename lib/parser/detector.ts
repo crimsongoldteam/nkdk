@@ -8,7 +8,7 @@ export class Detector {
 
   public getTypeToken(tokens: Array<IToken>): IToken {
     const tokenType = this.detect(tokens)
-    return createTokenInstance({ name: tokenType.name }, tokenType.name, -1, -1, -1, -1, -1, -1)
+    return createTokenInstance(tokenType, tokenType.name, -1, -1, -1, -1, -1, -1)
   }
 
   private detect(tokens: Array<IToken>): TokenType {

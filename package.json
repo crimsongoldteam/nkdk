@@ -6,10 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:lib": "vite build --config vite.lib.config.ts",
-    "build:watch": "vite build --watch",
-    "build:lib:watch": "vite build --config vite.lib.config.ts --watch",
-    "watch": "node start-watch.js",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
     "test": "vitest",
@@ -18,6 +14,7 @@
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^24.5.2",
@@ -43,6 +40,7 @@
   "dependencies": {
     "@babel/standalone": "^7.28.4",
     "@monaco-editor/react": "^4.7.0",
+    "antd": "^5.27.4",
     "big-integer": "^1.6.52",
     "chevrotain": "^11.0.3",
     "date-fns": "^4.1.0",
@@ -50,8 +48,6 @@
     "js-yaml": "^4.1.0",
     "monaco-editor-core": "0.43.0",
     "performance-polyfill": "^0.0.3",
-    "primeicons": "^7.0.0",
-    "primereact": "^10.9.7",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "rollup": "^4.41.1",

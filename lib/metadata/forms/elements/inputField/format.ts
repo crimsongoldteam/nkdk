@@ -1,4 +1,4 @@
-import * as t from "~/lib/metadata/forms/parser/lexer"
+import * as t from "~/lib/parser/lexer"
 import { type TInputField } from "./types"
 import { IFormatterParams } from "~/lib/formatter/types"
 import { isMultiline } from "./helpers"

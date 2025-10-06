@@ -1,5 +1,5 @@
 import { type TClientApplicationForm } from "./types"
-import * as t from "~/lib/metadata/forms/parser/lexer"
+import * as t from "~/lib/parser/lexer"
 import { formatInputField } from "../inputField/format"
 import { IFormatterParams } from "~/lib/formatter/types"
 

@@ -1,6 +1,5 @@
 import React, { useState } from "react"
-import { InputText } from "primereact/inputtext"
-import { FloatLabel } from "primereact/floatlabel"
+import { Input, Form } from "antd"
 
 interface IInputFieldHTMLProps {
   title?: string
@@ -12,11 +11,8 @@ export function InputField(props: Readonly<IInputFieldHTMLProps>): React.ReactNo
   const [title] = useState(props.title)
 
   return (
-    <div className="field">
-      <FloatLabel>
-        <InputText id="input" value={value} className="w-full" />
-        <label htmlFor="input">{title}</label>
-      </FloatLabel>
-    </div>
+    <Form.Item label={title} labelAlign="left">
+      <Input id="input" defaultValue={value} />
+    </Form.Item>
   )
 }

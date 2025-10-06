@@ -2,15 +2,16 @@ import { CstNode, EMPTY_ALT, EOF, IToken, CstParser } from "chevrotain"
 import * as t from "./lexer"
 
 export class Parser extends CstParser {
-  // Динамические методы парсера
-  [key: string]: any
-
   constructor() {
     super(t.allTokens)
     this.performSelfAnalysis()
   }
 
-  public parseForm(): CstNode {
+  public parseForm(tokens: IToken[]): CstNode | undefined {
+    if (!tokens.length) {
+      return undefined
+    }
+    this.input = tokens
     return this.form()
   }
 
@@ -565,23 +566,24 @@ export class Parser extends CstParser {
   private readonly properties = this.RULE("properties", () => {
     this.CONSUME(t.LCurly)
 
-    this.binaryExpression(this.property, t.Semicolon)
-
+    this.MANY1(() => {
+      this.CONSUME(t.PropertiesNameText)
+    })
     this.OPTION2(() => {
       this.CONSUME(t.RCurly)
     })
   })
 
-  private readonly property = this.RULE("property", () => {
-    this.MANY1(() => {
-      this.CONSUME(t.PropertiesNameText)
-    })
-    this.OPTION2(() => {
-      this.CONSUME(t.Equals)
-    })
+  // private readonly property = this.RULE("property", () => {
+  //   this.MANY1(() => {
+  //     this.CONSUME(t.PropertiesNameText)
+  //   })
+  //   this.OPTION2(() => {
+  //     this.CONSUME(t.Equals)
+  //   })
 
-    this.SUBRULE(this.propertyValues)
-  })
+  //   this.SUBRULE(this.propertyValues)
+  // })
 
   private readonly propertyValues = this.RULE("propertyValues", () => {
     this.binaryExpression(this.propertyValue, t.Comma)

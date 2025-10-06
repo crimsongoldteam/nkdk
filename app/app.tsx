@@ -1,0 +1,67 @@
+import { useState, useEffect } from "react"
+import { ClientFormApplication } from "~/components/clientFormApplication/clientFormApplication"
+import { importClientApplicationFormFromXML, TClientApplicationForm, xmlImport, ZClientApplicationFormXML } from "~/lib"
+import { formatClientApplicationForm } from "~/lib/metadata/forms/elements/сlientApplicationForm/format"
+import { ConfigProvider } from "antd"
+import { parseText } from "~/lib/parser"
+
+export function App() {
+  const [form, setForm] = useState<TClientApplicationForm | null>(null)
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === "parse-xml-form") {
+        const xmlData = xmlImport(event.data.payload.xml)
+        const xmlForm = ZClientApplicationFormXML.parse((xmlData as any).Form)
+        const form = importClientApplicationFormFromXML(xmlForm)
+
+        const formattedContent = formatClientApplicationForm(form, {})
+
+        window.parent.postMessage({ type: "parse-xml-form-response", payload: { content: formattedContent } }, "*")
+        setForm(form)
+      }
+
+      if (event.data && event.data.type === "change-text") {
+        const text = event.data.payload.text
+        const form = parseText(text)
+        setForm(form)
+      }
+    }
+
+    window.addEventListener("message", handleMessage)
+
+    if (window.parent !== window) {
+      window.parent.postMessage({ ready: true }, "*")
+    }
+
+    return () => {
+      window.removeEventListener("message", handleMessage)
+    }
+  }, [])
+
+  return (
+    <ConfigProvider
+      theme={{
+        token: {
+          // Seed Token
+          colorPrimary: "#F2BD27",
+          borderRadius: 6,
+        },
+      }}
+    >
+      <main className="app-main">
+        <ClientFormApplication
+          title={typeof form?.title === "string" ? form.title : form?.title?.ru || ""}
+          items={
+            form?.items?.map((item) => ({
+              ...item,
+              title: typeof item.title === "string" ? item.title : item.title?.ru || "",
+            })) || []
+          }
+        />
+      </main>
+    </ConfigProvider>
+  )
+}
+
+export default App

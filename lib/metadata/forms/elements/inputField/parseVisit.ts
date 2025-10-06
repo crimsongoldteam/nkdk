@@ -13,6 +13,13 @@ export default function inputFieldVisit(_visitor: Visitor, ctx: CstChildrenDicti
     result.title = { ru: header }
   }
 
+  const name = joinTokens(ctx.properties)
+  if (name) {
+    result.name = name
+  } else if (header) {
+    result.name = header
+  }
+
   const content = joinTokens(ctx.InputValue)
   if (content) {
     result.value = content

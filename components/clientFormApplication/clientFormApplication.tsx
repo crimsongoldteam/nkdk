@@ -1,10 +1,11 @@
 import React from "react"
-import { Divider } from "primereact/divider"
+import { Divider, Form } from "antd"
 import { InputField } from "../inputField/inputField"
 
 interface IInputFieldHTMLProps {
   title?: string
   value?: string
+  name: string
 }
 
 interface IClientFormApplicationHTMLProps {
@@ -19,11 +20,11 @@ export function ClientFormApplication(props: Readonly<IClientFormApplicationHTML
     <div className="form">
       <h2 className="text-2xl font-bold mb-4">{title}</h2>
       <Divider />
-      <div className="flex flex-column gap-3">
-        {items.map((item, index) => {
-          return <InputField key={item.title || index} {...item} />
+      <Form labelCol={{ span: 4 }}>
+        {items.map((item) => {
+          return <InputField key={item.name} title={item.title || item.name} value={item.value} />
         })}
-      </div>
+      </Form>
     </div>
   )
 }

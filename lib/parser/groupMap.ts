@@ -292,7 +292,8 @@ export class GroupMap {
     return result
   }
 
-  private processProperties(items: CstNode[], propertiesCache: CstNode[]): void {
+  private processProperties(items: CstNode[] | undefined, propertiesCache: CstNode[]): void {
+    if (!items) return
     const processedItems: CstNode[] = []
 
     for (const item of items) {
