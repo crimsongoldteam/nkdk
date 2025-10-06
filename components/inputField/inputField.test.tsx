@@ -8,33 +8,33 @@ describe("InputField", () => {
   })
 
   it("should render with title and value", () => {
-    render(<InputField title="Test Title" value="Test Value" />)
+    render(<InputField title="Test Title" value="Test Value" name="Test Name" />)
 
     expect(screen.getByText("Test Title")).toBeDefined()
     expect(screen.getByDisplayValue("Test Value")).toBeDefined()
   })
 
   it("should render with only title", () => {
-    render(<InputField title="Test Title" />)
+    render(<InputField title="Test Title" name="Test Name" />)
 
     expect(screen.getByText("Test Title")).toBeDefined()
     expect(screen.getByRole("textbox")).toBeDefined()
   })
 
   it("should render with only value", () => {
-    render(<InputField value="Test Value" />)
+    render(<InputField value="Test Value" name="Test Name" />)
 
     expect(screen.getByDisplayValue("Test Value")).toBeDefined()
   })
 
   it("should render without props", () => {
-    render(<InputField />)
+    render(<InputField name="Test Name" />)
 
     expect(screen.getByRole("textbox")).toBeDefined()
   })
 
   it("should render with undefined title and value", () => {
-    render(<InputField title={undefined} value={undefined} />)
+    render(<InputField title={undefined} value={undefined} name="Test Name" />)
 
     expect(screen.getByRole("textbox")).toBeDefined()
   })

@@ -3,9 +3,11 @@ import { ZI8nText } from "~/lib/metadata/types"
 import { ZI8nTextXML } from "~/lib/xml/types"
 
 export const ZInputFieldXML = z.object({
-  _id: z.string(),
-  _name: z.string(),
-  Title: ZI8nTextXML.optional(),
+  InputField: z.object({
+    _id: z.string(),
+    _name: z.string(),
+    Title: ZI8nTextXML.optional(),
+  }),
 })
 
 export const ZInputField = z.object({
@@ -26,3 +28,4 @@ export const ZInputField = z.object({
 })
 
 export type TInputField = z.infer<typeof ZInputField>
+export type TInputFieldXML = z.infer<typeof ZInputFieldXML>

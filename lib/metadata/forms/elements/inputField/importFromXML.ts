@@ -7,9 +7,9 @@ type TInputFieldXML = z.infer<typeof ZInputFieldXML>
 
 export default function importInputFieldFromXML(xml: TInputFieldXML): TInputField {
   const result: TInputField = {
-    name: xml._name,
-    id: xml._id,
-    title: importI8nXmlText(xml.Title),
+    name: xml.InputField._name,
+    id: xml.InputField._id,
+    title: importI8nXmlText(xml.InputField.Title),
   }
   return result
 }

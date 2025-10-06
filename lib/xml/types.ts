@@ -1,9 +1,9 @@
 import { z } from "zod"
 
 const ZV8ItemXML = z.object({
-  item: z.object({
-    lang: z.string(),
-    content: z.string(),
+  "v8:item": z.object({
+    "v8:lang": z.string(),
+    "v8:content": z.string(),
   }),
 })
 
