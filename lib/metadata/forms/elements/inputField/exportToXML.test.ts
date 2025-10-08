@@ -33,7 +33,7 @@ it("should export to XML-structure", () => {
 })
 
 it("should export to XML-string", () => {
-  const xml = xmlExport<TInputFieldXML>(mockXml)
+  const xml = xmlExport<TInputFieldXML>(mockXml, false)
 
   expect(xml).toEqual(mockXmlString)
 })

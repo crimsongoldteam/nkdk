@@ -1,9 +1,9 @@
 import { XMLBuilder } from "fast-xml-parser"
 
-export default function xmlExport<T>(data: T): string {
+export default function xmlExport<T>(data: T, addDeclaration: boolean = true): string {
   const builder = new XMLBuilder({ attributeNamePrefix: "_", ignoreAttributes: false, format: true })
   const xml = builder.build(data)
-  const declaration = '<?xml version="1.0" encoding="UTF-8"?>'
-  const result = declaration + "\n" + xml
+  const declaration = addDeclaration ? '<?xml version="1.0" encoding="UTF-8"?>\n' : ""
+  const result = declaration + xml
   return result.trim()
 }

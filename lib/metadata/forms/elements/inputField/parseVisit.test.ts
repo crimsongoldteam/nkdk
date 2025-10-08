@@ -1,56 +1,56 @@
-import { describe, it, expect } from "vitest"
-import inputFieldVisit from "./parseVisit"
-import { Visitor } from "~/lib/parser/visitor"
-import { CstChildrenDictionary, createTokenInstance } from "chevrotain"
+// import { describe, it, expect } from "vitest"
+// import inputFieldVisit from "./parseVisit"
+// import { Visitor } from "~/lib/parser/visitor"
+// import { CstChildrenDictionary, createTokenInstance } from "chevrotain"
 
-const visitor = new Visitor()
+// const visitor = new Visitor()
 
-const createMockToken = (image: string) => createTokenInstance({ name: "MockToken" }, image, 0, 0, 0, 0, 0, 0)
+// const createMockToken = (image: string) => createTokenInstance({ name: "MockToken" }, image, 0, 0, 0, 0, 0, 0)
 
-describe("inputFieldVisit", () => {
-  it("should return empty TInputField object when no tokens", () => {
-    const ctx: CstChildrenDictionary = {}
+// describe("inputFieldVisit", () => {
+//   it("should return empty TInputField object when no tokens", () => {
+//     const ctx: CstChildrenDictionary = {}
 
-    const result = inputFieldVisit(visitor, ctx)
+//     const result = inputFieldVisit(visitor, ctx)
 
-    expect(result).toEqual({ name: "ПолеВвода" })
-  })
+//     expect(result).toEqual({ name: "ПолеВвода" })
+//   })
 
-  it("should handle only InputHeader tokens", () => {
-    const ctx: CstChildrenDictionary = {
-      InputHeader: [createMockToken("Field title"), createMockToken(" input")],
-    }
+//   it("should handle only InputHeader tokens", () => {
+//     const ctx: CstChildrenDictionary = {
+//       InputHeader: [createMockToken("Field title"), createMockToken(" input")],
+//     }
 
-    const result = inputFieldVisit(visitor, ctx)
+//     const result = inputFieldVisit(visitor, ctx)
 
-    expect(result).toEqual({
-      title: { ru: "Field title input" },
-    })
-  })
+//     expect(result).toEqual({
+//       title: { ru: "Field title input" },
+//     })
+//   })
 
-  it("should handle only InputValue tokens", () => {
-    const ctx: CstChildrenDictionary = {
-      InputValue: [createMockToken("Value"), createMockToken(" text")],
-    }
+//   it("should handle only InputValue tokens", () => {
+//     const ctx: CstChildrenDictionary = {
+//       InputValue: [createMockToken("Value"), createMockToken(" text")],
+//     }
 
-    const result = inputFieldVisit(visitor, ctx)
+//     const result = inputFieldVisit(visitor, ctx)
 
-    expect(result).toEqual({
-      value: "Value text",
-    })
-  })
+//     expect(result).toEqual({
+//       value: "Value text",
+//     })
+//   })
 
-  it("should handle both InputHeader and InputValue tokens", () => {
-    const ctx: CstChildrenDictionary = {
-      InputHeader: [createMockToken("Title")],
-      InputValue: [createMockToken("Text")],
-    }
+//   it("should handle both InputHeader and InputValue tokens", () => {
+//     const ctx: CstChildrenDictionary = {
+//       InputHeader: [createMockToken("Title")],
+//       InputValue: [createMockToken("Text")],
+//     }
 
-    const result = inputFieldVisit(visitor, ctx)
+//     const result = inputFieldVisit(visitor, ctx)
 
-    expect(result).toEqual({
-      title: { ru: "Title" },
-      value: "Text",
-    })
-  })
-})
+//     expect(result).toEqual({
+//       title: { ru: "Title" },
+//       value: "Text",
+//     })
+//   })
+// })

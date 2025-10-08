@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import xmlImport from "./importer"
 import importClientApplicationFormFromXML from "~/lib/metadata/forms/elements/сlientApplicationForm/importFromXML"
-import { ZClientApplicationFormXML } from "~/lib/metadata/forms/elements/сlientApplicationForm/types"
+import { TClientApplicationFormXML } from "~/lib/metadata/forms/elements/сlientApplicationForm/types"
 import { formatClientApplicationForm } from "~/lib/metadata/forms/elements/сlientApplicationForm/format"
 
 const mockContent = `<?xml version="1.0" encoding="UTF-8"?>
@@ -45,18 +45,14 @@ const mockContent = `<?xml version="1.0" encoding="UTF-8"?>
 // })
 
 it("should import form with child items", () => {
-  const xmlData = xmlImport(mockContent)
-  const xmlFormData = (xmlData as any).Form
-  const xmlForm = ZClientApplicationFormXML.parse(xmlFormData)
-  const form = importClientApplicationFormFromXML(xmlForm)
+  const xmlData = xmlImport<TClientApplicationFormXML>(mockContent)
+  const form = importClientApplicationFormFromXML(xmlData)
   const formattedContent = formatClientApplicationForm(form, {})
-  expect(formattedContent).toEqual(["Наименование: "])
+  expect(formattedContent).toEqual(["Наименование: {ПолноеНаименование}"])
 })
 
 it("should import id", () => {
-  const xmlData = xmlImport(mockContent)
-  const xmlFormData = (xmlData as any).Form
-  const xmlForm = ZClientApplicationFormXML.parse(xmlFormData)
-  const form = importClientApplicationFormFromXML(xmlForm)
-  expect(form.items[0].id).toEqual(16)
+  const xmlData = xmlImport<TClientApplicationFormXML>(mockContent)
+  const form = importClientApplicationFormFromXML(xmlData)
+  expect(form.items[0].id).toEqual("16")
 })

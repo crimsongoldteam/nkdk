@@ -1,19 +1,32 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { ClientFormApplication } from "~/components/clientFormApplication/clientFormApplication"
-import { importClientApplicationFormFromXML, TClientApplicationForm, xmlImport, ZClientApplicationFormXML } from "~/lib"
+import {
+  exportClientApplicationFormToXML,
+  importClientApplicationFormFromXML,
+  TClientApplicationForm,
+  TClientApplicationFormXML,
+  xmlImport,
+  xmlExport,
+} from "~/lib"
 import { formatClientApplicationForm } from "~/lib/metadata/forms/elements/сlientApplicationForm/format"
 import { ConfigProvider } from "antd"
 import { parseText } from "~/lib/parser"
 
-export function App() {
+export default function App() {
   const [form, setForm] = useState<TClientApplicationForm | null>(null)
+  const formRef = useRef<TClientApplicationForm | null>(null)
+
+  // Обновляем ref при изменении form
+  useEffect(() => {
+    formRef.current = form
+  }, [form])
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      console.log("event", event)
       if (event.data && event.data.type === "parse-xml-form") {
-        const xmlData = xmlImport(event.data.payload.xml)
-        const xmlForm = ZClientApplicationFormXML.parse((xmlData as any).Form)
-        const form = importClientApplicationFormFromXML(xmlForm)
+        const xmlData = xmlImport<TClientApplicationFormXML>(event.data.payload.xml)
+        const form = importClientApplicationFormFromXML(xmlData)
 
         const formattedContent = formatClientApplicationForm(form, {})
 
@@ -25,6 +38,17 @@ export function App() {
         const text = event.data.payload.text
         const form = parseText(text)
         setForm(form)
+      }
+
+      if (event.data && event.data.type === "request-xml-form") {
+        console.log("request-xml-form received, form:", formRef.current)
+        if (!formRef.current) {
+          console.log("Form is null, cannot export")
+          return
+        }
+        const formXml = exportClientApplicationFormToXML(formRef.current)
+        const text = xmlExport(formXml)
+        window.parent.postMessage({ type: "request-xml-form-response", payload: { content: text } }, "*")
       }
     }
 
@@ -63,5 +87,3 @@ export function App() {
     </ConfigProvider>
   )
 }
-
-export default App

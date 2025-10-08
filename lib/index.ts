@@ -3,9 +3,11 @@
 
 // XML импорт
 export { default as xmlImport } from "./xml/import/importer"
+export { default as xmlExport } from "./xml/export/exporter"
 
 // ClientApplicationForm
 export { default as importClientApplicationFormFromXML } from "./metadata/forms/elements/сlientApplicationForm/importFromXML"
+export { default as exportClientApplicationFormToXML } from "./metadata/forms/elements/сlientApplicationForm/exportToXML"
 export { ZClientApplicationFormXML } from "./metadata/forms/elements/сlientApplicationForm/types"
 export { formatClientApplicationForm } from "./metadata/forms/elements/сlientApplicationForm/format"
 

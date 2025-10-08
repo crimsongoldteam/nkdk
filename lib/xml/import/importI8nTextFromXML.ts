@@ -7,7 +7,8 @@ export default function importI8nXmlTextFromXML(xml: TI8nTextXML | undefined): T
   const result: TI8nText = {}
 
   xml.forEach((langItem) => {
-    result[langItem["v8:item"]["v8:lang"]] = langItem["v8:item"]["v8:content"]
+    const item = langItem["v8:item"]
+    result[item["v8:lang"]] = item["v8:content"]
   })
 
   return result

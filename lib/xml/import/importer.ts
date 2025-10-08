@@ -7,7 +7,7 @@ export default function xmlImport<T>(data: string): T {
     preserveOrder: true,
     ignoreAttributes: false,
     attributeNamePrefix: "_",
-    removeNSPrefix: true,
+    // removeNSPrefix: true,
   })
   const parsedData = parser.parse(data)
 
