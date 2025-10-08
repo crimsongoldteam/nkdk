@@ -22,7 +22,10 @@ export default function exportClientApplicationFormToXML(element: TClientApplica
       "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
       "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
       _version: "2.20",
-
+      AutoCommandBar: {
+        _name: "ФормаКоманднаяПанель",
+        _id: "-1",
+      },
       ChildItems: element.items.map((item) => exportInputFieldToXML(item)),
     },
   }

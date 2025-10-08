@@ -6,6 +6,7 @@ export const ZInputFieldXML = z.object({
   InputField: z.object({
     _id: z.string(),
     _name: z.string(),
+    DataPath: z.string().optional(),
     Title: ZI8nTextXML.optional(),
   }),
 })

@@ -18,14 +18,21 @@ export function updateNameIdMapping(nameIdMapping: TNameIdMapping, form: TClient
       return
     }
 
+    const id = Array.from(nameIdMapping.entries()).find(([_, value]) => value === item.name)?.[0]
+    if (id) {
+      item.id = id
+      return
+    }
+
     item.id = getNextFreeId(nameIdMapping)
     nameIdMapping.set(item.id, item.name)
   })
 }
 
 function getNextFreeId(nameIdMapping: TNameIdMapping): string {
+  const keys = Array.from(nameIdMapping.keys())
   let id = 1
-  while (nameIdMapping.has(id.toString())) {
+  while (keys.includes(id.toString())) {
     id++
   }
   return id.toString()
