@@ -11,15 +11,19 @@ import {
 import { formatClientApplicationForm } from "~/lib/metadata/forms/elements/сlientApplicationForm/format"
 import { ConfigProvider } from "antd"
 import { parseText } from "~/lib/parser"
+import { createNameIdMapping, updateNameIdMapping, type TNameIdMapping } from "~/lib/xml/import/nameIdMapping"
 
 export default function App() {
   const [form, setForm] = useState<TClientApplicationForm | null>(null)
+  const [nameMapping, setNameMapping] = useState<TNameIdMapping | null>(null)
   const formRef = useRef<TClientApplicationForm | null>(null)
+  const nameMappingRef = useRef<TNameIdMapping | null>(null)
 
   // Обновляем ref при изменении form
   useEffect(() => {
     formRef.current = form
-  }, [form])
+    nameMappingRef.current = nameMapping
+  }, [form, nameMapping])
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -27,6 +31,7 @@ export default function App() {
       if (event.data && event.data.type === "parse-xml-form") {
         const xmlData = xmlImport<TClientApplicationFormXML>(event.data.payload.xml)
         const form = importClientApplicationFormFromXML(xmlData)
+        setNameMapping(createNameIdMapping(form))
 
         const formattedContent = formatClientApplicationForm(form, {})
 
@@ -46,6 +51,13 @@ export default function App() {
           console.log("Form is null, cannot export")
           return
         }
+
+        if (!nameMappingRef.current) {
+          console.log("Name mapping is null, cannot update")
+          return
+        }
+
+        updateNameIdMapping(nameMappingRef.current, formRef.current)
         const formXml = exportClientApplicationFormToXML(formRef.current)
         const text = xmlExport(formXml)
         window.parent.postMessage({ type: "request-xml-form-response", payload: { content: text } }, "*")

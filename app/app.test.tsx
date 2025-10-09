@@ -1,4 +1,4 @@
-import { expect, it, vi } from "vitest"
+import { expect, it } from "vitest"
 import xmlImport from "~/lib/xml/import/importer"
 import { TClientApplicationFormXML } from "~/lib/metadata/forms/elements/сlientApplicationForm/types"
 import { formatClientApplicationForm } from "~/lib/metadata/forms/elements/сlientApplicationForm/format"
@@ -17,6 +17,44 @@ const originalContent = `<?xml version="1.0" encoding="UTF-8"?>
 			<DataPath>Имя</DataPath>
 		</InputField>
 	</ChildItems>
+	<Attributes>
+		<Attribute name="Объект" id="1">
+			<Type>
+				<v8:Type>cfg:DataProcessorObject.ТестоваяОбработка</v8:Type>
+			</Type>
+			<MainAttribute>true</MainAttribute>
+		</Attribute>
+		<Attribute name="Фамилия" id="2">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Фамилия</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+		<Attribute name="Имя" id="3">
+			<Title>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Имя</v8:content>
+				</v8:item>
+			</Title>
+			<Type>
+				<v8:Type>xs:string</v8:Type>
+				<v8:StringQualifiers>
+					<v8:Length>0</v8:Length>
+					<v8:AllowedLength>Variable</v8:AllowedLength>
+				</v8:StringQualifiers>
+			</Type>
+		</Attribute>
+	</Attributes>
 </Form>`
 
 it("should took xml and return itself", async () => {

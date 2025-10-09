@@ -1,6 +1,6 @@
 import { TClientApplicationForm } from "~/lib/metadata/forms/elements/сlientApplicationForm/types"
 
-type TNameIdMapping = Map<string, string>
+export type TNameIdMapping = Map<string, string>
 
 export function createNameIdMapping(form: TClientApplicationForm): TNameIdMapping {
   const result: TNameIdMapping = new Map()

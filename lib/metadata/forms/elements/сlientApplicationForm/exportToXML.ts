@@ -1,7 +1,47 @@
 import exportInputFieldToXML from "../inputField/exportToXML"
-import { TClientApplicationForm, TClientApplicationFormXML } from "./types"
+import { TAttributeXML, TClientApplicationForm, TClientApplicationFormXML } from "./types"
 
 export default function exportClientApplicationFormToXML(element: TClientApplicationForm): TClientApplicationFormXML {
+  let attributes: TAttributeXML[] = [
+    {
+      Attribute: {
+        _name: "Объект",
+        _id: "1",
+        Type: {
+          "v8:Type": "cfg:DataProcessorObject.ТестоваяОбработка",
+        },
+        MainAttribute: true,
+      },
+    },
+  ]
+  let index = 2
+  element.items.forEach((item) => {
+    if (item.id) {
+      attributes.push({
+        Attribute: {
+          _name: item.name,
+          _id: index.toString(),
+          Title: [
+            {
+              "v8:item": {
+                "v8:lang": "ru",
+                "v8:content": item.name,
+              },
+            },
+          ],
+          Type: {
+            "v8:Type": "xs:string",
+            "v8:StringQualifiers": {
+              "v8:Length": 0,
+              "v8:AllowedLength": "Variable",
+            },
+          },
+        },
+      })
+      index++
+    }
+  })
+
   const result: TClientApplicationFormXML = {
     Form: {
       _xmlns: "http://v8.1c.ru/8.3/xcf/logform",
@@ -27,6 +67,8 @@ export default function exportClientApplicationFormToXML(element: TClientApplica
         _id: "-1",
       },
       ChildItems: element.items.map((item) => exportInputFieldToXML(item)),
+
+      Attributes: attributes,
     },
   }
   return result

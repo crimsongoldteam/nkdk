@@ -19,11 +19,13 @@ export const ZTypeXML = z.object({
 })
 
 export const ZAttributeXML = z.object({
-  _name: z.string(),
-  _id: z.string(),
-  Title: ZI8nTextXML.optional(),
-  Type: ZTypeXML.optional(),
-  MainAttribute: z.boolean().optional(),
+  Attribute: z.object({
+    _name: z.string(),
+    _id: z.string(),
+    Title: ZI8nTextXML.optional(),
+    Type: ZTypeXML.optional(),
+    MainAttribute: z.boolean().optional(),
+  }),
 })
 
 export const ZClientApplicationFormXML = z.object({
@@ -49,7 +51,7 @@ export const ZClientApplicationFormXML = z.object({
     AutoCommandBar: ZAutoCommandBarXML.optional(),
     Title: ZI8nTextXML.optional(),
     ChildItems: z.array(ZInputFieldXML),
-    // Attributes: z.array(ZAttributeXML),
+    Attributes: z.array(ZAttributeXML).optional(),
   }),
 })
 
@@ -85,3 +87,4 @@ export const ZClientApplicationForm = z.object({
 
 export type TClientApplicationForm = z.infer<typeof ZClientApplicationForm>
 export type TClientApplicationFormXML = z.infer<typeof ZClientApplicationFormXML>
+export type TAttributeXML = z.infer<typeof ZAttributeXML>
