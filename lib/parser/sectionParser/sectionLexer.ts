@@ -8,7 +8,7 @@ export const Dashes = createToken({
 
 export const Text = createToken({
   name: "Text",
-  pattern: /[a-zA-Zа-яА-ЯёЁ№!%0-9][a-zA-Zа-яА-ЯёЁ№!%0-9\t ]*/,
+  pattern: /[a-zA-Zа-яА-ЯёЁ№!%0-9.][a-zA-Zа-яА-ЯёЁ№!%0-9.\t ]*/,
 })
 
 export const NewLine = createToken({
@@ -17,7 +17,7 @@ export const NewLine = createToken({
   // line_breaks: true,
 })
 
-export const allTokens = [Dashes, Text, NewLine]
+export const allTokens = [NewLine, Dashes, Text]
 
 export const lexerDefinition: IMultiModeLexerDefinition = {
   modes: {

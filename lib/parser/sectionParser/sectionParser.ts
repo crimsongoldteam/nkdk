@@ -1,46 +1,16 @@
 import { CstElement, CstParser, EOF, Lexer } from "chevrotain"
 import * as t from "./sectionLexer"
-import z from "zod"
+import { ICSTSections } from "./types"
 
-const ZToken = z.object({
-  image: z.string(),
-})
-
-const ZSectionHeader = z.object({
-  name: z.literal("sectionHeader"),
-  children: z.object({
-    Dashes: z.array(ZToken),
-    Text: z.array(ZToken),
-  }),
-})
-
-const ZText = z.object({
-  name: z.literal("text"),
-  children: z.object({
-    Text: z.array(ZToken).optional(),
-  }),
-})
-
-const ZLine = z.object({
-  name: z.literal("line"),
-  children: z.object({ sectionHeader: z.array(ZSectionHeader).optional(), text: z.array(ZText).optional() }),
-})
-
-export const ZSections = z.array(ZLine)
-
-export type ISections = z.infer<typeof ZSections>
-
-export type ISectionHeader = z.infer<typeof ZSectionHeader>
-
-export function parseSections(text: string): ISections {
+export function parseSections(text: string): ICSTSections {
   const lexingResult = lexer.tokenize(text)
   const tokens = lexingResult.tokens
   parser.input = tokens
   const cst = parser.parse()
-  return cst as ISections
+  return cst as ICSTSections
 }
 
-class SectionParser extends CstParser {
+export class SectionParser extends CstParser {
   constructor() {
     super(t.allTokens)
     this.performSelfAnalysis()

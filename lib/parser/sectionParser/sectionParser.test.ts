@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { parseSections } from "./sectionParser"
 import { ZodError } from "zod"
-import { ZSections } from "./sectionParser"
+import { ZCSTSections } from "./types"
 
 it("should parse text with sections", () => {
   const mock = `--- Раздел 1 ---
@@ -11,7 +11,7 @@ it("should parse text with sections", () => {
 
   const cst = parseSections(mock)
 
-  expect(() => ZSections.parse(cst)).not.toThrow(ZodError)
+  expect(() => ZCSTSections.parse(cst)).not.toThrow(ZodError)
   expect(cst[0].children.sectionHeader?.[0].children.Text?.[0].image).to.equal("Раздел 1 ")
   expect(cst[1].children.text?.[0].children.Text?.[0].image).to.equal("Содержимое раздела 1")
   expect(cst[2].children.sectionHeader?.[0].children.Text?.[0].image).to.equal("Раздел 2 ")
@@ -25,7 +25,7 @@ it("should parse text without first section", () => {
 
   const cst = parseSections(mock)
 
-  expect(() => ZSections.parse(cst)).not.toThrow(ZodError)
+  expect(() => ZCSTSections.parse(cst)).not.toThrow(ZodError)
   expect(cst[0].children.text?.[0].children.Text?.[0].image).to.equal("Содержимое раздела 1")
   expect(cst[1].children.sectionHeader?.[0].children.Text?.[0].image).to.equal("Раздел 2 ")
   expect(cst[2].children.text?.[0].children.Text?.[0].image).to.equal("Содержимое раздела 2")

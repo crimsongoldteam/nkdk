@@ -1,7 +1,6 @@
 import { CstElement, CstNode, IToken } from "chevrotain"
-import { Visitor } from "./visitor"
 
-export function joinTokens(tokens: CstElement[]): string | undefined {
+export function joinTokens(tokens: { image: string }[]): string | undefined {
   if (tokens === undefined) {
     return undefined
   }
@@ -11,9 +10,9 @@ export function joinTokens(tokens: CstElement[]): string | undefined {
     .trim()
 }
 
-export function visitAll(visitor: Visitor, ctx: CstElement[], param?: any): CstNode[] {
+export function visitAll(visitor: any, ctx: CstElement[], param?: any): CstNode[] {
   if (!ctx) {
     return []
   }
-  return (ctx as CstNode[]).map((item) => visitor.visit(item, param))
+  return ctx.map((item) => visitor.visit(item, param))
 }
