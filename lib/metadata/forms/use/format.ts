@@ -1,15 +1,21 @@
-import { type TUse } from "./types"
+import { type TUse, type TUseEnterprise } from "./types"
 import { formatBool } from "~/lib/formatter/formatBool"
 
-export function formatUse(use: TUse): string {
-  const header = use.common ? "РазрешитьИспользование:" : "ЗапретитьИспользование:"
+export function formatUse(use: TUse | undefined): TUseEnterprise | undefined {
+  if (!use) return undefined
 
-  const formattedValues = use.values
-    .map((item) => {
-      const value = formatBool(item.value)
-      return `  - ${item.name}: ${value}`
-    })
-    .join("\n")
+  const values: Record<string, "Истина" | "Ложь"> = {}
+  use.values.forEach((item) => {
+    values[item.name] = formatBool(item.value)!
+  })
 
-  return `${header}\n${formattedValues}`
+  if (use.common) {
+    return {
+      РазрешитьИспользование: values,
+    }
+  } else {
+    return {
+      ЗапретитьИспользование: values,
+    }
+  }
 }

@@ -11,9 +11,12 @@ it("should format allow `use`", () => {
     ],
   }
 
-  const expectedResult = `РазрешитьИспользование:
-  - Администратор: Истина
-  - Пользователь: Ложь`
+  const expectedResult = {
+    РазрешитьИспользование: {
+      Администратор: true,
+      Пользователь: false,
+    },
+  }
 
   const result = formatUse(use)
 
@@ -29,9 +32,12 @@ it("should format disable `use`", () => {
     ],
   }
 
-  const expectedResult = `ЗапретитьИспользование:
-  - Администратор: Истина
-  - Пользователь: Ложь`
+  const expectedResult = {
+    ЗапретитьИспользование: {
+      Администратор: true,
+      Пользователь: false,
+    },
+  }
 
   const result = formatUse(use)
 

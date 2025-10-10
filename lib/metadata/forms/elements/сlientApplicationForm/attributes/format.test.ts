@@ -75,3 +75,32 @@ it("should format compact if title is undefined and mainAttribute is false and s
 
   expect(result).toEqual([expectedResult])
 })
+
+it("should format `use`", () => {
+  const orignalContent: TAttribute[] = [
+    {
+      name: "ИмяАтрибута",
+      id: "1",
+      title: { ru: "Атрибут" },
+      type: { type: ["string"] },
+      use: {
+        common: true,
+        values: [
+          { name: "Администратор", value: true },
+          { name: "Пользователь", value: false },
+        ],
+      },
+    },
+  ]
+
+  const expectedResult = `ИмяАтрибута:
+  Заголовок: Атрибут
+  Тип: Строка
+  РазрешитьИспользование:
+    Администратор: Истина
+    Пользователь: Ложь`
+
+  const result = formatFormAttributes(orignalContent)
+
+  expect(result).toEqual([expectedResult])
+})

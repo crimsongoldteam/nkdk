@@ -1,8 +1,9 @@
-import * as z from "zod"
+import * as z from "zod/v4"
 import { ZI8nText } from "~/lib/metadata/i8nText/types"
 import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/typeDescription/types"
 import { ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 import { ZInputField, ZInputFieldXML } from "../inputField/types"
+import { ZUse, ZUseEnterprise, ZUseXML } from "~/lib/metadata/forms/use/types"
 
 export const ZBoolEnterprise = z.enum(["Истина", "Ложь"])
 
@@ -19,6 +20,7 @@ export const ZAttributeXML = z.object({
     Type: ZTypeDescriptionXML,
     MainAttribute: z.boolean().optional(),
     StoredData: z.boolean().optional(),
+    Use: ZUseXML.optional(),
   }),
 })
 
@@ -61,6 +63,7 @@ export const ZAttribute = z.object({
   type: ZTypeDescription,
   mainAttribute: z.boolean().optional(),
   storedData: z.boolean().optional(),
+  use: ZUse.optional(),
 })
 
 export const ZClientApplicationForm = z.object({
@@ -70,12 +73,15 @@ export const ZClientApplicationForm = z.object({
   items: z.array(ZInputField),
 })
 
-export const ZAttributeEnterprise = z.object({
-  Заголовок: z.string().optional(),
-  Тип: z.string().optional(),
-  ОсновнойАтрибут: ZBoolEnterprise.optional(),
-  СохраняемыеДанные: ZBoolEnterprise.optional(),
-})
+export const ZAttributeEnterprise = z.union([
+  z.object({
+    Заголовок: z.string().optional(),
+    Тип: z.string().optional(),
+    ОсновнойАтрибут: ZBoolEnterprise.optional(),
+    СохраняемыеДанные: ZBoolEnterprise.optional(),
+  }),
+  ZUseEnterprise,
+])
 
 export const ZAttributesEnterpriseXML = z.record(z.string(), ZAttributeEnterprise)
 
