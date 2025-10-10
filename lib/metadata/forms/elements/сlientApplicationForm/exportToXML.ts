@@ -8,7 +8,7 @@ export default function exportClientApplicationFormToXML(element: TClientApplica
         _name: "Объект",
         _id: "1",
         Type: {
-          "v8:Type": "cfg:DataProcessorObject.ТестоваяОбработка",
+          "v8:Type": ["cfg:DataProcessorObject.ТестоваяОбработка"],
         },
         MainAttribute: true,
       },
@@ -30,7 +30,7 @@ export default function exportClientApplicationFormToXML(element: TClientApplica
             },
           ],
           Type: {
-            "v8:Type": "xs:string",
+            "v8:Type": ["xs:string"],
             "v8:StringQualifiers": {
               "v8:Length": 0,
               "v8:AllowedLength": "Variable",
