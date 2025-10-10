@@ -17,7 +17,7 @@ it("should format default language text", () => {
   expect(result).toEqual(expectedResult)
 })
 
-it("should format not default language text", () => {
+it("should format non-default language text", () => {
   const mockI8nText: TI8nText = { en: "Поле" }
   const expectedResult = { en: "Поле" }
 
