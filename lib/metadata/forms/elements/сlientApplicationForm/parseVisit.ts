@@ -1,4 +1,4 @@
-import { CstChildrenDictionary, CstNode } from "chevrotain"
+import { CstChildrenDictionary, CstElement, CstNode } from "chevrotain"
 import { Visitor } from "~/lib/parser/visitor"
 import { TClientApplicationForm } from "./types"
 import { joinTokens, visitAll } from "~/lib/parser/visitorUtils"
@@ -32,7 +32,7 @@ export function сlientApplicationFormHeaderVisit(
   ctx: CstChildrenDictionary
 ): IСlientApplicationFormHeaderVisit {
   return {
-    title: joinTokens(ctx.HeaderText),
+    title: joinTokens(ctx.HeaderText as CstElement[]),
   }
 }
 

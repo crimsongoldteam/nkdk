@@ -1,10 +1,11 @@
 import { type TUse, type TUseEnterprise } from "./types"
 import { formatBool } from "~/lib/formatter/formatBool"
+import { TBoolEnterprise } from "~/lib/formatter/types"
 
 export function formatUse(use: TUse | undefined): TUseEnterprise | undefined {
   if (!use) return undefined
 
-  const values: Record<string, "Истина" | "Ложь"> = {}
+  const values: Record<string, TBoolEnterprise> = {}
   use.values.forEach((item) => {
     values[item.name] = formatBool(item.value)!
   })

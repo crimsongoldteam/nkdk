@@ -13,7 +13,7 @@ export default function formatFormAttributes(attributes: TAttribute[]): string[]
   for (const [name, data] of Object.entries(transformedAttributes)) {
     const keys = Object.keys(data)
 
-    if (keys.length === 1 && keys[0] === "Тип") {
+    if (keys.length === 1 && keys[0] === "Тип" && "Тип" in data) {
       result.push(`${name}: ${data.Тип}`)
     } else {
       const yamlString = yaml

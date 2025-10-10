@@ -1,4 +1,6 @@
-export const formatBool = (value: boolean | undefined): "Истина" | "Ложь" | undefined => {
+import { TBoolEnterprise } from "./types"
+
+export const formatBool = (value: boolean | undefined): TBoolEnterprise | undefined => {
   if (value === undefined) return undefined
   return value ? "Истина" : "Ложь"
 }
