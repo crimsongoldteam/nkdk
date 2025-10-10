@@ -60,3 +60,18 @@ it("should format stored data", () => {
 
   expect(result).toEqual([expectedResult])
 })
+
+it("should format compact if title is undefined and mainAttribute is false and storedData is false", () => {
+  const expectedResult = `ИмяАтрибута: Строка(10)`
+  const orignalContent: TAttribute[] = [
+    {
+      name: "ИмяАтрибута",
+      id: "1",
+      type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
+    },
+  ]
+
+  const result = formatFormAttributes(orignalContent)
+
+  expect(result).toEqual([expectedResult])
+})
