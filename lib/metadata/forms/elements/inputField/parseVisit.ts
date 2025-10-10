@@ -8,19 +8,19 @@ export default function inputFieldVisit(_visitor: Visitor, ctx: CstChildrenDicti
     name: "ПолеВвода",
   }
 
-  const header = joinTokens(ctx.InputHeader)
+  const header = joinTokens(ctx.InputHeader as { image: string }[])
   if (header) {
     result.title = { ru: header }
   }
 
-  const name = joinTokens(ctx.properties)
+  const name = joinTokens(ctx.properties as { image: string }[])
   if (name) {
     result.name = name
   } else if (header) {
     result.name = header
   }
 
-  const content = joinTokens(ctx.InputValue)
+  const content = joinTokens(ctx.InputValue as { image: string }[])
   if (content) {
     result.value = content
   }

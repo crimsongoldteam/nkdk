@@ -1,21 +1,14 @@
 import * as z from "zod"
-import { ZI8nText } from "~/lib/metadata/types"
-import { ZI8nTextXML } from "~/lib/xml/types"
+import { ZI8nText } from "~/lib/metadata/i8nText/types"
+import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/typeDescription/types"
+import { ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 import { ZInputField, ZInputFieldXML } from "../inputField/types"
+
+export const ZBoolEnterprise = z.enum(["Истина", "Ложь"])
 
 export const ZAutoCommandBarXML = z.object({
   _name: z.string(),
   _id: z.string(),
-})
-
-export const ZTypeXML = z.object({
-  "v8:Type": z.string(),
-  "v8:StringQualifiers": z
-    .object({
-      "v8:Length": z.number(),
-      "v8:AllowedLength": z.enum(["Variable", "Fixed"]),
-    })
-    .optional(),
 })
 
 export const ZAttributeXML = z.object({
@@ -23,8 +16,9 @@ export const ZAttributeXML = z.object({
     _name: z.string(),
     _id: z.string(),
     Title: ZI8nTextXML.optional(),
-    Type: ZTypeXML.optional(),
+    Type: ZTypeDescriptionXML,
     MainAttribute: z.boolean().optional(),
+    StoredData: z.boolean().optional(),
   }),
 })
 
@@ -60,31 +54,35 @@ export const ZAutoCommandBar = z.object({
   id: z.string(),
 })
 
-export const ZType = z.object({
-  type: z.string(),
-  stringQualifiers: z
-    .object({
-      length: z.number(),
-      allowedLength: z.enum(["Variable", "Fixed"]),
-    })
-    .optional(),
-})
-
 export const ZAttribute = z.object({
   name: z.string(),
   id: z.string(),
   title: ZI8nText.optional(),
-  type: ZType.optional(),
+  type: ZTypeDescription,
   mainAttribute: z.boolean().optional(),
+  storedData: z.boolean().optional(),
 })
 
 export const ZClientApplicationForm = z.object({
   autoCommandBar: ZAutoCommandBar.optional(),
   title: ZI8nText.optional(),
-  // attributes: z.array(ZAttribute),
+  attributes: z.array(ZAttribute).optional(),
   items: z.array(ZInputField),
 })
+
+export const ZAttributeEnterprise = z.object({
+  Заголовок: z.string().optional(),
+  Тип: z.string().optional(),
+  ОсновнойАтрибут: ZBoolEnterprise.optional(),
+  СохраняемыеДанные: ZBoolEnterprise.optional(),
+})
+
+export const ZAttributesEnterpriseXML = z.record(z.string(), ZAttributeEnterprise)
 
 export type TClientApplicationForm = z.infer<typeof ZClientApplicationForm>
 export type TClientApplicationFormXML = z.infer<typeof ZClientApplicationFormXML>
 export type TAttributeXML = z.infer<typeof ZAttributeXML>
+export type TAttribute = z.infer<typeof ZAttribute>
+
+export type TAttributeEnterprise = z.infer<typeof ZAttributeEnterprise>
+export type TAttributesEnterpriseXML = z.infer<typeof ZAttributesEnterpriseXML>

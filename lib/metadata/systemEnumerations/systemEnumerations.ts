@@ -1,3 +1,9 @@
+import { z } from "zod"
+
+export const ZButtonRepresentation = z.enum(["Auto", "Picture", "PictureAndText", "Text"])
+export const ZButtonRepresentationEnterprise = z.enum(["Авто", "Картинка", "КартинкаИТекст", "Текст"])
+export const ZCurrentRowUse = z.enum(["Use", "DontUse"])
+
 export enum XDTOFacetType {
   Length = "Длина",
   MaxInclusive = "МаксВключающее",

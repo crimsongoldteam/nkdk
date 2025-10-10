@@ -1,7 +1,6 @@
 import { expect, it } from "vitest"
 import exportI8nXmlTextToXML from "./exportI8nTextToXML"
-import { TI8nText } from "~/lib"
-import { TI8nTextXML } from "../types"
+import { TI8nText, TI8nTextXML } from "./types"
 
 it("should export I8nText to XML", () => {
   const mockI8nText: TI8nText = {

@@ -13,7 +13,7 @@ export default function xmlImport<T>(data: string): T {
 
   let options = { ...defaultOptions }
   options.isArray = (name: string, _jPath: string, _isLeaf: boolean) => {
-    return name === "ChildItems" || name === "Title"
+    return name === "ChildItems" || name === "Title" || name === "Attributes"
   }
 
   const result = compress(parsedData, options, "")

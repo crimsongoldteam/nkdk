@@ -1,6 +1,6 @@
-import { TI8nTextXML } from "~/lib/xml/types"
+import { TI8nTextXML } from "~/lib/metadata/i8nText/types"
 import { TInputField, TInputFieldXML } from "./types"
-import exportI8nXmlTextToXML from "~/lib/xml/export/exportI8nTextToXML"
+import exportI8nXmlTextToXML from "~/lib/metadata/i8nText/exportI8nTextToXML"
 
 export default function exportInputFieldToXML(element: TInputField): TInputFieldXML {
   let title: TI8nTextXML | undefined

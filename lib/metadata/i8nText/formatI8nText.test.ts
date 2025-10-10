@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import { formatI8nText } from "./formatI8nText"
-import { TI8nText } from "~/lib/metadata/types"
+import { TI8nText } from "./types"
 
 it("should format empty text as undefined", () => {
   const result = formatI8nText(undefined, "ru")

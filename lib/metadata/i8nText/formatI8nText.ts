@@ -1,4 +1,4 @@
-import { TI8nText } from "~/lib/metadata/types"
+import { TI8nText } from "./types"
 import { TI8nTextEnterprise } from "./types"
 
 export const formatI8nText = (

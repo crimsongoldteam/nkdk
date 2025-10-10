@@ -7,7 +7,7 @@ export default function xmlExport<T>(data: T, addDeclaration: boolean = true): s
     format: true,
     suppressEmptyNode: true,
     indentBy: "\t",
-    oneListGroup: true,
+    // oneListGroup: true,
     attributeValueProcessor: (_attrName: string, attrValue: unknown) => {
       return attrValue
     },

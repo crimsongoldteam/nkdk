@@ -1,6 +1,6 @@
 import * as z from "zod"
-import { ZI8nText } from "~/lib/metadata/types"
-import { ZI8nTextXML } from "~/lib/xml/types"
+import { ZI8nText } from "~/lib/metadata/i8nText/types"
+import { ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 
 export const ZInputFieldXML = z.object({
   InputField: z.object({

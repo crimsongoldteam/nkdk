@@ -2,7 +2,7 @@ import { expect, it } from "vitest"
 import { IFormatterParams, WrapInGroupStrategy } from "~/lib/formatter/types"
 import { TClientApplicationForm } from "./types"
 import { formatClientApplicationForm } from "./format"
-import { TInputField } from "../inputField/types"
+import { TInputField } from "~/lib"
 
 const mockParams: IFormatterParams = {
   wrapInGroup: WrapInGroupStrategy.None,
@@ -26,4 +26,27 @@ it("should format form items", () => {
   const result = formatClientApplicationForm(form, mockParams)
 
   expect(result).toEqual(["Поле: {ИмяПоля}"])
+})
+
+it("should format form attributes", () => {
+  const expectedResult = `--- Реквизиты ---
+ИмяАтрибута:
+  Заголовок: Атрибут
+  Тип: Строка(10)`
+
+  const form: TClientApplicationForm = {
+    items: [],
+    attributes: [
+      {
+        name: "ИмяАтрибута",
+        id: "1",
+        title: { ru: "Атрибут" },
+        type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
+      },
+    ],
+  }
+
+  const result = formatClientApplicationForm(form, mockParams)
+
+  expect(result.join("\n").trim()).toEqual(expectedResult)
 })

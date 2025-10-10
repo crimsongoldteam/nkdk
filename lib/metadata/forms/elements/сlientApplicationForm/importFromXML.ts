@@ -1,6 +1,7 @@
 import { TClientApplicationForm, TClientApplicationFormXML } from "./types"
-import importI8nXmlText from "~/lib/xml/import/importI8nTextFromXML"
+import importI8nXmlText from "~/lib/metadata/i8nText/importI8nTextFromXML"
 import importInputFieldFromXML from "../inputField/importFromXML"
+import importAttributeFromXML from "./attributes/importAttributeFromXML"
 
 export default function importClientApplicationFormFromXML(xml: TClientApplicationFormXML): TClientApplicationForm {
   const result: TClientApplicationForm = {
@@ -11,7 +12,8 @@ export default function importClientApplicationFormFromXML(xml: TClientApplicati
         }
       : undefined,
     title: importI8nXmlText(xml.Form.Title),
-    items: xml.Form.ChildItems.map((item) => importInputFieldFromXML(item)),
+    items: xml.Form.ChildItems ? xml.Form.ChildItems.map((item) => importInputFieldFromXML(item)) : [],
+    attributes: xml.Form.Attributes?.map((attribute) => importAttributeFromXML(attribute)) ?? [],
   }
   return result
 }
