@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import importAttributeFromXML from "./importAttributeFromXML"
+import importAttributeFromXML from "./importFromXML"
 import { TAttribute, TAttributeXML } from "../types"
 import { xmlImport } from "~/lib"
 

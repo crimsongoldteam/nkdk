@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import xmlExport from "~/lib/xml/export/exporter"
 import { TTypeDescription } from "./types"
-import exportTypeDescriptionToXML from "./exportTypeDescriptionToXML"
+import exportTypeDescriptionToXML from "./exportToXML"
 
 it("should export string type to XML", () => {
   const mockTypeDescription: TTypeDescription = {

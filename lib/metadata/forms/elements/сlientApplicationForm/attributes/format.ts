@@ -1,7 +1,8 @@
 import * as yaml from "js-yaml"
-import { formatTypeDescription } from "~/lib/metadata/typeDescription/formatTypeDescription"
+import { formatTypeDescription } from "~/lib/metadata/typeDescription/format"
 import { TAttribute, TAttributesEnterpriseXML } from "../types"
 import { formatI8nText } from "~/lib/metadata/i8nText/formatI8nText"
+import { formatBool } from "./formatBool"
 
 export default function formatFormAttributes(attributes: TAttribute[]): string[] {
   const transformedAttributes = transformAttributes(attributes)
@@ -57,9 +58,4 @@ const transformAttributes = (attributes: TAttribute[]): TAttributesEnterpriseXML
       [attribute.name]: attributeData,
     }
   }, {})
-}
-
-const formatBool = (value: boolean | undefined): string | undefined => {
-  if (value === undefined) return undefined
-  return value ? "Истина" : "Ложь"
 }

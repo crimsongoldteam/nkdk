@@ -1,6 +1,6 @@
 import { it, expect } from "vitest"
 import { TAttribute } from "../types"
-import formatFormAttributes from "./formatFormAttributes"
+import formatFormAttributes from "./format"
 
 it("should format form attributes", () => {
   const expectedResult = `ИмяАтрибута:

@@ -1,7 +1,7 @@
 import { TClientApplicationForm, TClientApplicationFormXML } from "./types"
 import importI8nXmlText from "~/lib/metadata/i8nText/importI8nTextFromXML"
 import importInputFieldFromXML from "../inputField/importFromXML"
-import importAttributeFromXML from "./attributes/importAttributeFromXML"
+import importAttributeFromXML from "./attributes/importFromXML"
 
 export default function importClientApplicationFormFromXML(xml: TClientApplicationFormXML): TClientApplicationForm {
   const result: TClientApplicationForm = {

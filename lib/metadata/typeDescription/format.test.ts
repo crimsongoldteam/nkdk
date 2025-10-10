@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { TTypeDescription } from "./types"
-import { formatTypeDescription } from "./formatTypeDescription"
+import { formatTypeDescription } from "./format"
 
 it("should format undefined type description", () => {
   const result = formatTypeDescription(undefined)

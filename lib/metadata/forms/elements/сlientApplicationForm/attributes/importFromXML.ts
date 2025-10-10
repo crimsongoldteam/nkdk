@@ -1,4 +1,4 @@
-import importTypeDescriptionFromXML from "~/lib/metadata/typeDescription/importTypeDescriptionFromXML"
+import importTypeDescriptionFromXML from "~/lib/metadata/typeDescription/importFromXML"
 import { TAttribute, TAttributeXML } from "../types"
 import importI8nXmlTextFromXML from "~/lib/metadata/i8nText/importI8nTextFromXML"
 
