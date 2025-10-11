@@ -4,6 +4,14 @@ export const ZButtonRepresentation = z.enum(["Auto", "Picture", "PictureAndText"
 export const ZButtonRepresentationEnterprise = z.enum(["Авто", "Картинка", "КартинкаИТекст", "Текст"])
 export const ZCurrentRowUse = z.enum(["Use", "DontUse"])
 
+export const ZCurrentRowUseEnterprise = z.enum(["Использовать", "НеИспользовать"])
+
+export const ZStandardPicture = z.enum(["BusinessProcess", "Print"])
+export type TStandardPicture = z.infer<typeof ZStandardPicture>
+
+export const ZStandardPictureEnterprise = z.enum(["БизнесПроцесс", "Печать"])
+export type TStandardPictureEnterprise = z.infer<typeof ZStandardPictureEnterprise>
+
 export enum XDTOFacetType {
   Length = "Длина",
   MaxInclusive = "МаксВключающее",

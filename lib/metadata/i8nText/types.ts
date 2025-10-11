@@ -2,7 +2,7 @@ import { z } from "zod"
 
 export const ZI8nText = z.record(z.string(), z.string())
 
-const ZI8nTextEnterprise = z.union([z.string(), z.record(z.string(), z.string())])
+export const ZI8nTextEnterprise = z.union([z.string(), z.record(z.string(), z.string())])
 
 export const ZV8ItemXML = z.object({
   "v8:item": z.object({

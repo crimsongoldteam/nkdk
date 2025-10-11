@@ -6,7 +6,10 @@ export default function importI8nXmlTextFromXML(xml: TI8nTextXML | undefined): T
 
   const result: TI8nText = {}
 
-  xml.forEach((langItem) => {
+  // Handle both array and single object cases
+  const items = Array.isArray(xml) ? xml : [xml]
+
+  items.forEach((langItem) => {
     const item = langItem["v8:item"]
     result[item["v8:lang"]] = item["v8:content"]
   })
