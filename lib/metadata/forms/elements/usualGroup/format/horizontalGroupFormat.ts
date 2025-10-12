@@ -1,14 +1,14 @@
-import { TUsualGroup } from "./types"
+import { TUsualGroup } from "../types"
 import * as t from "~/lib/parser/lexer"
 import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
 import { formatElement } from "~/lib/format/formatFactory"
+import { formatElementName } from "~/lib/format/helpers"
 
 const FIRST_LINE_SEPARATOR = " " + (t.Hash.LABEL as string)
 const SEPARATOR = " " + (t.Plus.LABEL as string)
 
 export const formatHorizontalGroup = (element: TUsualGroup, _params: IFormatterParams): string[] => {
-  let result: string[] = []
-  // result.push(...properties)
+  let result: string[] = [formatElementName(element)]
 
   let verticalGroups: string[][] = getVerticalItems(element)
   let rows = mergeHorizontally(FIRST_LINE_SEPARATOR, SEPARATOR, ...verticalGroups)

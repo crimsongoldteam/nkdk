@@ -1,8 +1,9 @@
-import { TUsualGroup } from "./types"
 import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
 import { formatElements } from "~/lib/format/formatFactory"
 import { ZUsualGroupBehavior, ZUsualGroupRepresentation } from "~/lib/metadata/systemEnumerations/types"
 import * as t from "~/lib/parser/lexer"
+import { formatElementName } from "~/lib/format/helpers"
+import { TUsualGroup } from "../types"
 
 export const formatVerticalGroup = (element: TUsualGroup, params: IFormatterParams): string[] => {
   let result: string[] = []
@@ -31,8 +32,7 @@ const getHeader = (element: TUsualGroup): string => {
 
   result += element.title?.ru ?? ""
 
-  // const properties = PropertiesFormatter.render(element, { excludeProperties })
-  // result += properties
+  result += " " + formatElementName(element)
 
   return result
 }

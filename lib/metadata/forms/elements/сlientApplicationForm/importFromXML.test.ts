@@ -2,6 +2,7 @@ import { expect, it } from "vitest"
 import { TClientApplicationForm, TClientApplicationFormXML } from "./types"
 import importClientApplicationFormFromXML from "./importFromXML"
 import { xmlImport } from "~/lib"
+import { ElementType } from "~/lib/metadata/systemEnumerations/types"
 
 it("should import title from XML", () => {
   const mockXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -17,6 +18,7 @@ it("should import title from XML", () => {
 </Form>`
 
   const mockElement: TClientApplicationForm = {
+    type: ElementType.Form,
     autoCommandBar: {
       id: "-1",
       name: "ФормаКоманднаяПанель",
@@ -46,7 +48,8 @@ it("should import items from XML", () => {
       id: "-1",
       name: "ФормаКоманднаяПанель",
     },
-    items: [{ name: "ПолеВвода", id: "1" }],
+    type: ElementType.Form,
+    items: [{ name: "ПолеВвода", id: "1", type: ElementType.InputField }],
     attributes: [],
   }
 
@@ -76,6 +79,7 @@ it("should import attributes from XML", () => {
       id: "-1",
       name: "ФормаКоманднаяПанель",
     },
+    type: ElementType.Form,
     items: [],
     attributes: [
       {

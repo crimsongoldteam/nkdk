@@ -1,11 +1,13 @@
 import { describe, it, expect } from "vitest"
 import { createNameIdMapping, updateNameIdMapping } from "./nameIdMapping"
 import { TClientApplicationForm } from "~/lib/metadata/forms/elements/сlientApplicationForm/types"
+import { ElementType } from "~/lib/metadata/systemEnumerations/types"
 
 describe("nameMapping", () => {
   describe("createNameIdMapping", () => {
     it("should create empty mapping for empty form", () => {
       const form: TClientApplicationForm = {
+        type: ElementType.Form,
         items: [],
       }
 
@@ -16,9 +18,10 @@ describe("nameMapping", () => {
 
     it("should create mapping for elements with id", () => {
       const form: TClientApplicationForm = {
+        type: ElementType.Form,
         items: [
-          { name: "field1", id: "1" },
-          { name: "field2", id: "2" },
+          { name: "field1", id: "1", type: ElementType.InputField },
+          { name: "field2", id: "2", type: ElementType.InputField },
         ],
       }
 
@@ -38,7 +41,11 @@ describe("nameMapping", () => {
       ])
 
       const form: TClientApplicationForm = {
-        items: [{ name: "field2" }, { name: "field1" }],
+        type: ElementType.Form,
+        items: [
+          { name: "field2", id: "2", type: ElementType.InputField },
+          { name: "field1", id: "1", type: ElementType.InputField },
+        ],
       }
 
       updateNameIdMapping(mapping, form)
@@ -50,7 +57,11 @@ describe("nameMapping", () => {
     it("should assign next available id", () => {
       const mapping = new Map([["1", "field1"]])
       const form: TClientApplicationForm = {
-        items: [{ name: "field1", id: "1" }, { name: "field2" }],
+        type: ElementType.Form,
+        items: [
+          { name: "field1", id: "1", type: ElementType.InputField },
+          { name: "field2", id: "2", type: ElementType.InputField },
+        ],
       }
 
       updateNameIdMapping(mapping, form)

@@ -2,9 +2,11 @@ import { TClientApplicationForm, TClientApplicationFormXML } from "./types"
 import importI8nXmlText from "~/lib/metadata/i8nText/importI8nTextFromXML"
 import importInputFieldFromXML from "../inputField/importFromXML"
 import importAttributeFromXML from "./attributes/importFromXML"
+import { ElementType } from "~/lib/metadata/systemEnumerations/types"
 
 export default function importClientApplicationFormFromXML(xml: TClientApplicationFormXML): TClientApplicationForm {
   const result: TClientApplicationForm = {
+    type: ElementType.Form,
     autoCommandBar: xml.Form.AutoCommandBar
       ? {
           name: xml.Form.AutoCommandBar._name,

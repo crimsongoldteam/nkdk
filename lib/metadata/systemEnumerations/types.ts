@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 export enum ElementType {
-  ClientApplicationForm = "ClientApplicationForm",
+  Form = "Form",
   InputField = "InputField",
   UsualGroup = "UsualGroup",
 }

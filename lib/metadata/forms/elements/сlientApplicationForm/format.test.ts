@@ -13,9 +13,7 @@ const mockParams: IFormatterParams = {
 
 it("should format form header", () => {
   const form: TClientApplicationForm = {
-    name: "Форма",
-    id: "1",
-    type: ElementType.ClientApplicationForm,
+    type: ElementType.Form,
     title: { ru: "Форма" },
     items: [],
   }
@@ -26,9 +24,12 @@ it("should format form header", () => {
 })
 
 it("should format form items", () => {
-  const input: TInputField = { name: "ИмяПоля", title: { ru: "Поле" } }
+  const input: TInputField = { name: "ИмяПоля", id: "1", type: ElementType.InputField, title: { ru: "Поле" } }
 
-  const form: TClientApplicationForm = { items: [input] }
+  const form: TClientApplicationForm = {
+    type: ElementType.Form,
+    items: [input],
+  }
 
   const result = formatClientApplicationForm(form, mockParams)
 
@@ -42,6 +43,7 @@ it("should format form attributes", () => {
   Тип: Строка(10)`
 
   const form: TClientApplicationForm = {
+    type: ElementType.Form,
     items: [],
     attributes: [
       {

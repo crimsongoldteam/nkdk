@@ -2,6 +2,7 @@ import { CstChildrenDictionary, CstElement, CstNode } from "chevrotain"
 import { Visitor } from "~/lib/parser/visitor"
 import { TClientApplicationForm } from "./types"
 import { joinTokens, visitAll } from "~/lib/parser/visitorUtils"
+import { ElementType } from "~/lib/metadata/systemEnumerations/types"
 
 export interface IСlientApplicationFormHeaderVisit {
   title: string | undefined
@@ -12,6 +13,7 @@ export default function сlientApplicationFormVisit(
   ctx: CstChildrenDictionary
 ): TClientApplicationForm {
   const result: TClientApplicationForm = {
+    type: ElementType.Form,
     items: [],
   }
 

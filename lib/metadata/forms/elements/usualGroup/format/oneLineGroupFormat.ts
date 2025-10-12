@@ -1,13 +1,14 @@
-import { TUsualGroup } from "./types"
+import { TUsualGroup } from "../types"
 import * as t from "~/lib/parser/lexer"
 import { formatElement } from "~/lib/format/formatFactory"
 import { WrapInGroupStrategy } from "~/lib/format/types"
+import { formatElementName } from "~/lib/format/helpers"
 
 export const formatOneLineGroup = (element: TUsualGroup): string[] => {
   const separatorSymbol = t.Ampersand.LABEL as string
   const separator = " " + separatorSymbol + " "
 
-  let result: string[] = []
+  let result: string[] = [formatElementName(element)]
 
   if (element.childItems.length === 0) {
     result.push(separatorSymbol)
