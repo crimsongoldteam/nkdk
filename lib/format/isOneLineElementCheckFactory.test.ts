@@ -14,8 +14,6 @@ describe("isOneLineElementCheckFactory", () => {
 
   it("should register and use check function for element type", () => {
     const element: TElement = {
-      name: "testElement",
-      id: "test-id",
       type: ElementType.InputField,
     }
 
@@ -27,8 +25,6 @@ describe("isOneLineElementCheckFactory", () => {
 
   it("should return false for unregistered element type", () => {
     const element: TElement = {
-      name: "testName",
-      id: "test-id",
       type: ElementType.UsualGroup,
     }
 
@@ -37,8 +33,6 @@ describe("isOneLineElementCheckFactory", () => {
 
   it("should clear registry correctly", () => {
     const element: TElement = {
-      name: "testName",
-      id: "test-id",
       type: ElementType.InputField,
     }
 
@@ -52,14 +46,10 @@ describe("isOneLineElementCheckFactory", () => {
 
   it("should work with multiple element types", () => {
     const inputField: TElement = {
-      name: "input",
-      id: "input-id",
       type: ElementType.InputField,
     }
 
     const group: TElement = {
-      name: "group",
-      id: "group-id",
       type: ElementType.UsualGroup,
     }
 

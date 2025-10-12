@@ -2,9 +2,10 @@ import * as z from "zod/v4"
 import { ZI8nText } from "~/lib/metadata/i8nText/types"
 import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/typeDescription/types"
 import { ZI8nTextXML } from "~/lib/metadata/i8nText/types"
-import { ZInputField, ZInputFieldXML } from "../inputField/types"
+import { ZInputFieldXML } from "../inputField/types"
 import { ZUse, ZUseEnterprise, ZUseXML } from "~/lib/metadata/forms/use/types"
 import { ZElementType } from "~/lib/metadata/systemEnumerations/types"
+import { ZNamedElement } from "../element/types"
 
 export const ZBoolEnterprise = z.enum(["Истина", "Ложь"])
 
@@ -72,7 +73,7 @@ export const ZClientApplicationForm = z.object({
   autoCommandBar: ZAutoCommandBar.optional(),
   title: ZI8nText.optional(),
   attributes: z.array(ZAttribute).optional(),
-  items: z.array(ZInputField),
+  items: z.array(ZNamedElement),
 })
 
 export const ZAttributeEnterprise = z.union([

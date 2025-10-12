@@ -13,8 +13,6 @@ it("should register a format function", () => {
 
   const mockData: TElement = {
     type: ElementType.InputField,
-    id: "1",
-    name: "test",
   }
 
   registerFormat(mockFormat, mockCheck)

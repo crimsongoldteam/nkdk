@@ -85,7 +85,7 @@ export default function App() {
         },
       }}
     >
-      <main className="app-main">
+      {/* <main className="app-main">
         <ClientFormApplication
           title={typeof form?.title === "string" ? form.title : form?.title?.ru || ""}
           items={
@@ -95,7 +95,7 @@ export default function App() {
             })) || []
           }
         />
-      </main>
+      </main> */}
     </ConfigProvider>
   )
 }

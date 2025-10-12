@@ -1,7 +1,7 @@
 import * as z from "zod"
 import { ZI8nText } from "~/lib/metadata/i8nText/types"
 import { ZI8nTextXML } from "~/lib/metadata/i8nText/types"
-import { ZElement } from "../element/types"
+import { ZNamedElement } from "../element/types"
 import {
   ZChildFormItemsGroup,
   ZUsualGroupBehavior,
@@ -18,12 +18,12 @@ export const ZUsualGroupXML = z.object({
   }),
 })
 
-export const ZUsualGroup = ZElement.extend({
+export const ZUsualGroup = ZNamedElement.extend({
   title: ZI8nText.optional(),
   group: ZChildFormItemsGroup.optional(),
   representation: ZUsualGroupRepresentation.optional(),
   behavior: ZUsualGroupBehavior.optional(),
-  childItems: z.array(ZElement),
+  childItems: z.array(ZNamedElement),
 })
 
 export type TUsualGroup = z.infer<typeof ZUsualGroup>

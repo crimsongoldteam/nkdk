@@ -3,6 +3,10 @@ import { formatInputField } from "./format"
 import { registerIsOneLineElementCheck } from "~/lib/format/isOneLineElementCheckFactory"
 import { registerFormat } from "~/lib/format/formatFactory"
 import { isMultiline } from "./helpers"
+import importInputFieldFromXML from "./importFromXML"
+import { registerImport } from "~/lib/xml/import/importerFactory"
+import { TInputField } from "./types"
 
-registerFormat(formatInputField, (element) => element.type === ElementType.InputField)
-registerIsOneLineElementCheck(ElementType.InputField, (element) => !isMultiline(element))
+registerFormat<TInputField>(formatInputField, (element: TInputField) => element.type === ElementType.InputField)
+registerIsOneLineElementCheck<TInputField>(ElementType.InputField, (element: TInputField) => !isMultiline(element))
+registerImport<TInputField>(ElementType.InputField, importInputFieldFromXML)

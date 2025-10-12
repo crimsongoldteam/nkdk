@@ -34,8 +34,8 @@ it("should format vertical group", () => {
     type: ElementType.UsualGroup,
     id: "1",
     childItems: [
-      { name: "Элемент1", id: "1", type: ElementType.InputField },
-      { name: "Элемент2", id: "2", type: ElementType.InputField },
+      { name: "Элемент1", id: "1", type: ElementType.InputField } as TInputField,
+      { name: "Элемент2", id: "2", type: ElementType.InputField } as TInputField,
     ],
   }
 

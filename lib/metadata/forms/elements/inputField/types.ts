@@ -1,7 +1,7 @@
 import * as z from "zod"
 import { ZI8nText } from "~/lib/metadata/i8nText/types"
 import { ZI8nTextXML } from "~/lib/metadata/i8nText/types"
-import { ZElement } from "../element/types"
+import { ZNamedElement } from "../element/types"
 
 export const ZInputFieldXML = z.object({
   InputField: z.object({
@@ -12,7 +12,7 @@ export const ZInputFieldXML = z.object({
   }),
 })
 
-export const ZInputField = ZElement.extend({
+export const ZInputField = ZNamedElement.extend({
   title: ZI8nText.optional(),
 
   isMultiline: z.boolean().optional(),

@@ -1,5 +1,5 @@
-import { TElement } from "~/lib/metadata/forms/elements/element/types"
+import { TNamedElement } from "../metadata/forms/elements/element/types"
 
-export const formatElementName = (element: TElement) => {
+export const formatElementName = (element: TNamedElement) => {
   return "{" + element.name + "}"
 }
