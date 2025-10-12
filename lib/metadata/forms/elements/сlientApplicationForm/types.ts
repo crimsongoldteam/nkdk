@@ -4,6 +4,7 @@ import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/typeDescri
 import { ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 import { ZInputField, ZInputFieldXML } from "../inputField/types"
 import { ZUse, ZUseEnterprise, ZUseXML } from "~/lib/metadata/forms/use/types"
+import { ZElement } from "../element/types"
 
 export const ZBoolEnterprise = z.enum(["Истина", "Ложь"])
 
@@ -66,7 +67,7 @@ export const ZAttribute = z.object({
   use: ZUse.optional(),
 })
 
-export const ZClientApplicationForm = z.object({
+export const ZClientApplicationForm = ZElement.extend({
   autoCommandBar: ZAutoCommandBar.optional(),
   title: ZI8nText.optional(),
   attributes: z.array(ZAttribute).optional(),

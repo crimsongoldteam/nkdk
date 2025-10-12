@@ -1,12 +1,16 @@
 import * as t from "~/lib/parser/lexer"
 import { type TInputField } from "./types"
-import { IFormatterParams } from "~/lib/formatter/types"
+import { IFormatterParams, FormatFunction } from "~/lib/format/types"
 import { isMultiline } from "./helpers"
+import { formatElementName } from "~/lib/format/helpers"
 
 const UNDERLINE = t.Underscore.LABEL as string
 const COLON = t.Colon.LABEL as string
 
-export function formatInputField(element: TInputField, _params: IFormatterParams): string[] {
+export const formatInputField: FormatFunction<TInputField> = (
+  element: TInputField,
+  _params: IFormatterParams
+): string[] => {
   let header: string = element.title?.ru ?? element.name
   header += COLON
 
@@ -19,7 +23,7 @@ export function formatInputField(element: TInputField, _params: IFormatterParams
     value += UNDERLINE.repeat(2) + modificators
   }
 
-  const name = " {" + element.name + "}"
+  const name = " " + formatElementName(element)
 
   let result = [header + value + name]
 

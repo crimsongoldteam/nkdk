@@ -1,6 +1,7 @@
 import { expect, it } from "vitest"
 import importInputFieldFromXML from "./importFromXML"
 import { TInputField, TInputFieldXML } from "./types"
+import { ElementType } from "~/lib/metadata/systemEnumerations/types"
 
 it("should import name from XML", () => {
   const mockXml: TInputFieldXML = {
@@ -13,6 +14,7 @@ it("should import name from XML", () => {
 
   const mockResult: TInputField = {
     name: "ИмяПоля",
+    type: ElementType.InputField,
     title: { ru: "Поле" },
     id: "16",
   }

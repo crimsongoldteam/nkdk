@@ -1,6 +1,6 @@
 import { type TUse, type TUseEnterprise } from "./types"
-import { formatBool } from "~/lib/formatter/formatBool"
-import { TBoolEnterprise } from "~/lib/formatter/types"
+import { formatBool } from "~/lib/format/formatBool"
+import { TBoolEnterprise } from "~/lib/format/types"
 
 export function formatUse(use: TUse | undefined): TUseEnterprise | undefined {
   if (!use) return undefined

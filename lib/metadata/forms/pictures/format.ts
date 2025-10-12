@@ -1,5 +1,5 @@
 import { type TPicture } from "./types"
-import { ZStandardPicture, ZStandardPictureEnterprise } from "../../systemEnumerations/systemEnumerations"
+import { ZStandardPicture, ZStandardPictureEnterprise } from "../../systemEnumerations/types"
 
 export function formatPicture(picture: TPicture): string {
   if (picture.type === "StandardPicture") {

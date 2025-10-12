@@ -22,7 +22,7 @@ function formatCommand(command: TCommand): TCommandEnterprise {
     ИспользованиеТекущейСтроки: command.currentRowUse
       ? command.currentRowUse === "Use"
         ? "Использовать"
-        : "НеИспользовать"
+        : "НеИспользует"
       : undefined,
     ИзменяемыеДанные: command.modifiesSavedData,
   }

@@ -1,11 +1,7 @@
 import { z } from "zod"
 import { ZI8nTextXML, ZI8nText, ZI8nTextEnterprise } from "../../i8nText/types"
 import { ZPicture, ZPictureEnterprise, ZPictureXML } from "../pictures/types"
-import {
-  ZButtonRepresentation,
-  ZCurrentRowUse,
-  ZCurrentRowUseEnterprise,
-} from "../../systemEnumerations/systemEnumerations"
+import { ZButtonRepresentation, ZCurrentRowUse, ZCurrentRowUseEnterprise } from "../../systemEnumerations/types"
 import { ZUseEnterprise, ZUseXML } from "../use/types"
 import { ZUse } from "../use/types"
 

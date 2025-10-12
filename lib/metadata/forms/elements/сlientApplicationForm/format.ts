@@ -1,7 +1,7 @@
 import { type TClientApplicationForm } from "./types"
 import * as t from "~/lib/parser/lexer"
 import { formatInputField } from "../inputField/format"
-import { IFormatterParams } from "~/lib/formatter/types"
+import { IFormatterParams } from "~/lib/format/types"
 import formatFormAttributes from "./attributes/format"
 
 const DASHES = (t.Dashes.LABEL as string).repeat(3)

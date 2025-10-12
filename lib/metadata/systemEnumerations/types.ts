@@ -1,16 +1,97 @@
 import { z } from "zod"
 
+export enum ElementType {
+  ClientApplicationForm = "ClientApplicationForm",
+  InputField = "InputField",
+  UsualGroup = "UsualGroup",
+}
+
+export const ZElementType = z.enum(Object.keys(ElementType) as [ElementType, ...ElementType[]])
+export type TElementType = z.infer<typeof ZElementType>
+
+export enum UsualGroupRepresentation {
+  None = "Нет",
+  NormalSeparation = "ОбычноеВыделение",
+  StrongSeparation = "СильноеВыделение",
+  WeakSeparation = "СлабоеВыделение",
+}
+
+export const ZUsualGroupRepresentation = z.enum(
+  Object.keys(UsualGroupRepresentation) as [TUsualGroupRepresentation, ...TUsualGroupRepresentation[]]
+)
+export const ZUsualGroupRepresentationEnterprise = z.enum(
+  Object.values(UsualGroupRepresentation) as [
+    TUsualGroupRepresentationEnterprise,
+    ...TUsualGroupRepresentationEnterprise[]
+  ]
+)
+
+export type TUsualGroupRepresentation = keyof typeof UsualGroupRepresentation
+export type TUsualGroupRepresentationEnterprise = `${UsualGroupRepresentation}`
+
+export enum UsualGroupBehavior {
+  Auto = "Авто",
+  PopUp = "Всплывающая",
+  Usual = "Обычное",
+  Collapsible = "Свертываемая",
+}
+
+export const ZUsualGroupBehavior = z.enum(
+  Object.keys(UsualGroupBehavior) as [TUsualGroupBehavior, ...TUsualGroupBehavior[]]
+)
+export const ZUsualGroupBehaviorEnterprise = z.enum(
+  Object.values(UsualGroupBehavior) as [TUsualGroupBehaviorEnterprise, ...TUsualGroupBehaviorEnterprise[]]
+)
+
+export type TUsualGroupBehavior = keyof typeof UsualGroupBehavior
+export type TUsualGroupBehaviorEnterprise = `${UsualGroupBehavior}`
+
 export const ZButtonRepresentation = z.enum(["Auto", "Picture", "PictureAndText", "Text"])
 export const ZButtonRepresentationEnterprise = z.enum(["Авто", "Картинка", "КартинкаИТекст", "Текст"])
 export const ZCurrentRowUse = z.enum(["Use", "DontUse"])
 
-export const ZCurrentRowUseEnterprise = z.enum(["Использовать", "НеИспользовать"])
+export const ZCurrentRowUseEnterprise = z.enum(["Использовать", "НеИспользует"])
 
 export const ZStandardPicture = z.enum(["BusinessProcess", "Print"])
 export type TStandardPicture = z.infer<typeof ZStandardPicture>
 
 export const ZStandardPictureEnterprise = z.enum(["БизнесПроцесс", "Печать"])
 export type TStandardPictureEnterprise = z.infer<typeof ZStandardPictureEnterprise>
+
+const encodeEnum =
+  <T extends Record<string, string>>(enumObject: T) =>
+  (value: string) => {
+    const key = Object.keys(enumObject).find((k) => enumObject[k as keyof T] === value)
+    return key as keyof T
+  }
+
+const decodeEnum =
+  <T extends Record<string, string>>(enumObject: T) =>
+  (value: keyof T) => {
+    return enumObject[value]
+  }
+
+enum ChildFormItemsGroup {
+  Vertical = "Вертикальная",
+  Horizontal = "Горизонтальная",
+  AlwaysHorizontal = "ГоризонтальнаяВсегда",
+  HorizontalIfPossible = "ГоризонтальнаяЕслиВозможно",
+}
+
+export const ZChildFormItemsGroup = z.enum(
+  Object.keys(ChildFormItemsGroup) as [TChildFormItemsGroup, ...TChildFormItemsGroup[]]
+)
+export const ZChildFormItemsGroupEnterprise = z.enum(
+  Object.values(ChildFormItemsGroup) as [TChildFormItemsGroupEnterprise, ...TChildFormItemsGroupEnterprise[]]
+)
+
+export type TChildFormItemsGroup = keyof typeof ChildFormItemsGroup
+export type TChildFormItemsGroupEnterprise = `${ChildFormItemsGroup}`
+
+export const ZChildFormItemsGroupCodec = z.codec(ZChildFormItemsGroup, ZChildFormItemsGroupEnterprise, {
+  encode: encodeEnum(ChildFormItemsGroup),
+  decode: decodeEnum(ChildFormItemsGroup),
+})
 
 export enum XDTOFacetType {
   Length = "Длина",
@@ -3079,12 +3160,12 @@ export enum CheckBoxType {
   CheckBox = "Флажок",
 }
 
-export enum ChildFormItemsGroup {
-  Vertical = "Вертикальная",
-  Horizontal = "Горизонтальная",
-  AlwaysHorizontal = "ГоризонтальнаяВсегда",
-  HorizontalIfPossible = "ГоризонтальнаяЕслиВозможно",
-}
+// export enum ChildFormItemsGroup {
+//   Vertical = "Вертикальная",
+//   Horizontal = "Горизонтальная",
+//   AlwaysHorizontal = "ГоризонтальнаяВсегда",
+//   HorizontalIfPossible = "ГоризонтальнаяЕслиВозможно",
+// }
 
 export enum ChildFormItemsWidth {
   Auto = "Авто",
@@ -3969,23 +4050,9 @@ export enum UserNotificationStatus {
   Information = "Информация",
 }
 
-export enum UsualGroupBehavior {
-  Auto = "Авто",
-  PopUp = "Всплывающая",
-  Usual = "Обычное",
-  Collapsible = "Свертываемая",
-}
-
 export enum UsualGroupControlRepresentation {
   TitleHyperlink = "ГиперссылкаЗаголовка",
   Picture = "Картинка",
-}
-
-export enum UsualGroupRepresentation {
-  None = "Нет",
-  NormalSeparation = "ОбычноеВыделение",
-  StrongSeparation = "СильноеВыделение",
-  WeakSeparation = "СлабоеВыделение",
 }
 
 export enum VerticalAlign {
@@ -5557,3 +5624,8 @@ export enum DynamicListSearchStringViewMode {
 //   metaObjects.ZIPSubDirProcessingMode = "РежимОбработкиПодкаталоговZIP";
 //   metaObjects.DynamicListSearchStringViewMode = "РежимОтображенияСтрокиПоискаДинамическогоСписка";
 // }
+
+export enum SystemEnumeration {
+  Use = "Использовать",
+  DontUse = "НеИспользовать",
+}

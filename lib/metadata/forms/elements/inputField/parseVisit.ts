@@ -2,10 +2,13 @@ import { CstChildrenDictionary } from "chevrotain"
 import { TInputField, ZInputField } from "./types"
 import { Visitor } from "~/lib/parser/visitor"
 import { joinTokens } from "~/lib/parser/visitorUtils"
+import { ElementType } from "~/lib/metadata/systemEnumerations/types"
 
 export default function inputFieldVisit(_visitor: Visitor, ctx: CstChildrenDictionary): TInputField {
   const result: TInputField = {
     name: "ПолеВвода",
+    id: "1",
+    type: ElementType.InputField,
   }
 
   const header = joinTokens(ctx.InputHeader as { image: string }[])

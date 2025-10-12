@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { ZStandardPicture, ZStandardPictureEnterprise } from "../../systemEnumerations/systemEnumerations"
+import { ZStandardPicture, ZStandardPictureEnterprise } from "../../systemEnumerations/types"
 
 export const ZPictureXML = z.object({
   Ref: z.string(),

@@ -1,8 +1,9 @@
 import { expect, it } from "vitest"
-import { IFormatterParams, WrapInGroupStrategy } from "~/lib/formatter/types"
+import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
 import { TClientApplicationForm } from "./types"
 import { formatClientApplicationForm } from "./format"
 import { TInputField } from "~/lib"
+import { ElementType } from "~/lib/metadata/systemEnumerations/types"
 
 const mockParams: IFormatterParams = {
   wrapInGroup: WrapInGroupStrategy.None,
@@ -11,7 +12,13 @@ const mockParams: IFormatterParams = {
 }
 
 it("should format form header", () => {
-  const form: TClientApplicationForm = { title: { ru: "Форма" }, items: [] }
+  const form: TClientApplicationForm = {
+    name: "Форма",
+    id: "1",
+    type: ElementType.ClientApplicationForm,
+    title: { ru: "Форма" },
+    items: [],
+  }
 
   const result = formatClientApplicationForm(form, mockParams)
 
