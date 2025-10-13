@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "vitest run --no-deprecation",
     "test:ui": "vitest --ui",
     "test:run": "vitest run"
   },
@@ -55,6 +55,6 @@
     "split.js": "^1.6.5",
     "uuid": "^11.1.0",
     "whatwg-fetch": "^3.6.20",
-    "zod": "^4.1.11"
+    "zod": "^4.1.12"
   }
 }

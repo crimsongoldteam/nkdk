@@ -1,12 +1,32 @@
 import { TTypeDescription, TTypeDescriptionXML } from "./types"
 
-export default function importTypeDescriptionFromXML(xml: TTypeDescriptionXML): TTypeDescription {
+export default function importTypeDescriptionFromXML(
+  xml: TTypeDescriptionXML | undefined
+): TTypeDescription | undefined {
+  if (!xml) return undefined
+
   const typeArray = Array.isArray(xml["v8:Type"]) ? xml["v8:Type"] : [xml["v8:Type"]]
+
   const types = typeArray.map((type) => {
-    if (type.startsWith("xs:")) {
+    // Handle XML objects with #text property
+    if (typeof type === "object" && type !== null && "#text" in type) {
+      const textValue = type["#text"] as string
+      if (textValue.startsWith("xs:")) {
+        return textValue.substring(3)
+      }
+      if (textValue.startsWith("cfg:")) {
+        return textValue.substring(4)
+      }
+      if (textValue.startsWith("mxl:")) {
+        return textValue.substring(4)
+      }
+      return textValue
+    }
+
+    if (typeof type === "string" && type.startsWith("xs:")) {
       return type.substring(3)
     }
-    if (type.startsWith("cfg:")) {
+    if (typeof type === "string" && type.startsWith("cfg:")) {
       return type.substring(4)
     }
     return type

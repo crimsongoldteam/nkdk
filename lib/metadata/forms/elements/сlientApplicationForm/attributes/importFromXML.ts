@@ -2,7 +2,11 @@ import importTypeDescriptionFromXML from "~/lib/metadata/typeDescription/importF
 import { TAttribute, TAttributeXML } from "../types"
 import importI8nXmlTextFromXML from "~/lib/metadata/i8nText/importI8nTextFromXML"
 
-export default function importAttributeFromXML(xml: TAttributeXML): TAttribute {
+export default function importAttributeFromXML(xml: TAttributeXML): TAttribute | undefined {
+  if (!xml.Attribute) {
+    return undefined
+  }
+
   return {
     name: xml.Attribute._name,
     id: xml.Attribute._id,

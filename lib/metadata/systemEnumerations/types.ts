@@ -4,6 +4,11 @@ export enum ElementType {
   Form = "Form",
   InputField = "InputField",
   UsualGroup = "UsualGroup",
+  Page = "Page",
+  Pages = "Pages",
+  PictureDecoration = "PictureDecoration",
+  LabelDecoration = "LabelDecoration",
+  Button = "Button",
 }
 
 export const ZElementType = z.enum(Object.keys(ElementType) as [ElementType, ...ElementType[]])

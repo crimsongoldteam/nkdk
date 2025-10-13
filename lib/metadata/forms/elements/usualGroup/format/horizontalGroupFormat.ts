@@ -3,18 +3,21 @@ import * as t from "~/lib/parser/lexer"
 import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
 import { formatElement } from "~/lib/format/formatFactory"
 import { formatElementName } from "~/lib/format/helpers"
+import { formatGroupWrapping } from "~/lib/format/wrap/formatGroupWrapping"
 
 const FIRST_LINE_SEPARATOR = " " + (t.Hash.LABEL as string)
-const SEPARATOR = " " + (t.Plus.LABEL as string)
+const SEPARATOR = " " + "|"
 
-export const formatHorizontalGroup = (element: TUsualGroup, _params: IFormatterParams): string[] => {
+export const formatHorizontalGroup = (element: TUsualGroup, params: IFormatterParams): string[] => {
   let result: string[] = [formatElementName(element)]
 
   let verticalGroups: string[][] = getVerticalItems(element)
   let rows = mergeHorizontally(FIRST_LINE_SEPARATOR, SEPARATOR, ...verticalGroups)
   result.push(...rows)
 
-  return result
+  const trimmedResult = result.map((line) => line.trim())
+
+  return formatGroupWrapping(trimmedResult, params)
 }
 
 const getVerticalItems = (element: TUsualGroup): string[][] => {

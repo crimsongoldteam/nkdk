@@ -40,8 +40,8 @@ it("should format vertical group", () => {
   }
 
   const expectedResult = `#Заголовок группы {Группа}
-Элемент1: {Элемент1}
-Элемент2: {Элемент2}`
+  Элемент1: {Элемент1}
+  Элемент2: {Элемент2}`
 
   const result = formatUsualGroup(mockElement, {})
 

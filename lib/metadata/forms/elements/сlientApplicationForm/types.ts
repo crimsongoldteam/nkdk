@@ -62,7 +62,7 @@ export const ZAttribute = z.object({
   name: z.string(),
   id: z.string(),
   title: ZI8nText.optional(),
-  type: ZTypeDescription,
+  type: ZTypeDescription.optional(),
   mainAttribute: z.boolean().optional(),
   storedData: z.boolean().optional(),
   use: ZUse.optional(),

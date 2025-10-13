@@ -3,13 +3,14 @@ import { type TInputField } from "./types"
 import { IFormatterParams, FormatFunction } from "~/lib/format/types"
 import { isMultiline } from "./helpers"
 import { formatElementName } from "~/lib/format/helpers"
+import { formatGroupWrapping } from "~/lib/format/wrap/formatGroupWrapping"
 
 const UNDERLINE = t.Underscore.LABEL as string
 const COLON = t.Colon.LABEL as string
 
 export const formatInputField: FormatFunction<TInputField> = (
   element: TInputField,
-  _params: IFormatterParams
+  params: IFormatterParams
 ): string[] => {
   let header: string = element.title?.ru ?? element.name
   header += COLON
@@ -29,7 +30,7 @@ export const formatInputField: FormatFunction<TInputField> = (
 
   result.push(...getMultilineString(element, header.length, value.length))
 
-  return result
+  return formatGroupWrapping(result, params)
 }
 
 function getMultilineString(element: TInputField, headerLength: number, valueLength: number): string[] {

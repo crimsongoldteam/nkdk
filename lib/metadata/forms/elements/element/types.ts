@@ -12,3 +12,13 @@ export const ZNamedElement = ZElement.extend({
 
 export type TElement = z.infer<typeof ZElement>
 export type TNamedElement = z.infer<typeof ZNamedElement>
+
+export const ZNamedElementXML = z.record(
+  z.string(),
+  z.object({
+    _id: z.string(),
+    _name: z.string(),
+  })
+)
+
+export type TNamedElementXML = z.infer<typeof ZNamedElementXML>

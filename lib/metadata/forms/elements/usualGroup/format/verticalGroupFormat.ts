@@ -4,6 +4,7 @@ import { ZUsualGroupBehavior, ZUsualGroupRepresentation } from "~/lib/metadata/s
 import * as t from "~/lib/parser/lexer"
 import { formatElementName } from "~/lib/format/helpers"
 import { TUsualGroup } from "../types"
+import { formatCommonWrapping } from "~/lib/format/wrap/formatCommonWrapping"
 
 export const formatVerticalGroup = (element: TUsualGroup, params: IFormatterParams): string[] => {
   let result: string[] = []
@@ -15,7 +16,9 @@ export const formatVerticalGroup = (element: TUsualGroup, params: IFormatterPara
 
   result.push(...formatElements(element.childItems))
 
-  return result
+  const trimmedResult = result.map((line) => line.trim())
+
+  return formatCommonWrapping(trimmedResult, params)
 }
 
 const getHeader = (element: TUsualGroup): string => {

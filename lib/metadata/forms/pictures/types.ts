@@ -2,8 +2,8 @@ import { z } from "zod"
 import { ZStandardPicture, ZStandardPictureEnterprise } from "../../systemEnumerations/types"
 
 export const ZPictureXML = z.object({
-  Ref: z.string(),
-  LoadTransparent: z.boolean(),
+  "xr:Ref": z.string(),
+  "xr:LoadTransparent": z.boolean(),
 })
 
 export const ZPicture = z.object({

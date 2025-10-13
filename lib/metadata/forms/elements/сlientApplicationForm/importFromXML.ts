@@ -1,8 +1,8 @@
-import { TClientApplicationForm, TClientApplicationFormXML } from "./types"
+import { TClientApplicationForm, TClientApplicationFormXML, TAttribute } from "./types"
 import importI8nXmlText from "~/lib/metadata/i8nText/importI8nTextFromXML"
-import importInputFieldFromXML from "../inputField/importFromXML"
 import importAttributeFromXML from "./attributes/importFromXML"
 import { ElementType } from "~/lib/metadata/systemEnumerations/types"
+import { importElementFromXML } from "~/lib/xml/import/importerFactory"
 
 export default function importClientApplicationFormFromXML(xml: TClientApplicationFormXML): TClientApplicationForm {
   const result: TClientApplicationForm = {
@@ -14,8 +14,11 @@ export default function importClientApplicationFormFromXML(xml: TClientApplicati
         }
       : undefined,
     title: importI8nXmlText(xml.Form.Title),
-    items: xml.Form.ChildItems ? xml.Form.ChildItems.map((item) => importInputFieldFromXML(item)) : [],
-    attributes: xml.Form.Attributes?.map((attribute) => importAttributeFromXML(attribute)) ?? [],
+    items: xml.Form.ChildItems ? xml.Form.ChildItems.map((item) => importElementFromXML(item)) : [],
+    attributes:
+      xml.Form.Attributes?.map((attribute) => importAttributeFromXML(attribute)).filter(
+        (attr): attr is TAttribute => attr !== undefined
+      ) ?? [],
   }
   return result
 }

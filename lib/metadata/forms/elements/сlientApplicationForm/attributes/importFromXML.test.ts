@@ -57,3 +57,13 @@ it("should import stored and main attribute from XML", () => {
 
   expect(result).toEqual(mockResult)
 })
+
+it("should ignore ConditionalAppearance from XML", () => {
+  const mockXml = `<ConditionalAppearance></ConditionalAppearance>`
+
+  const xmlData = xmlImport<TAttributeXML>(mockXml)
+
+  const result = importAttributeFromXML(xmlData)
+
+  expect(result).toBeUndefined()
+})

@@ -1,10 +1,11 @@
 import { TUsualGroup } from "../types"
 import * as t from "~/lib/parser/lexer"
 import { formatElement } from "~/lib/format/formatFactory"
-import { WrapInGroupStrategy } from "~/lib/format/types"
+import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
 import { formatElementName } from "~/lib/format/helpers"
+import { formatGroupWrapping } from "~/lib/format/wrap/formatGroupWrapping"
 
-export const formatOneLineGroup = (element: TUsualGroup): string[] => {
+export const formatOneLineGroup = (element: TUsualGroup, params: IFormatterParams): string[] => {
   const separatorSymbol = t.Ampersand.LABEL as string
   const separator = " " + separatorSymbol + " "
 
@@ -23,14 +24,17 @@ export const formatOneLineGroup = (element: TUsualGroup): string[] => {
     isFirst = false
   }
 
-  let resultLine = groupItems.join(separator)
+  // let resultLine = groupItems.join(separator)
+
+  const indent = "  "
+  let resultLine = groupItems.map((item, index) => indent.repeat(index) + (index === 0 ? "" : separator) + item)
 
   if (element.childItems.length === 1) {
     //Element &
-    resultLine += " " + separatorSymbol
+    resultLine.push(separatorSymbol)
   }
 
-  result.push(resultLine)
+  result.push(...resultLine)
 
-  return result
+  return formatGroupWrapping(result, params)
 }

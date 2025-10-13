@@ -1,8 +1,8 @@
 import { type TClientApplicationForm } from "./types"
 import * as t from "~/lib/parser/lexer"
-import { formatInputField } from "../inputField/format"
 import { IFormatterParams } from "~/lib/format/types"
 import formatFormAttributes from "./attributes/format"
+import { formatElement } from "~/lib/format/formatFactory"
 
 const DASHES = (t.Dashes.LABEL as string).repeat(3)
 
@@ -14,7 +14,7 @@ export function formatClientApplicationForm(element: TClientApplicationForm, _pa
   result.push(...formatSectionHeader(header))
 
   for (const item of element.items) {
-    const itemFormatted = formatInputField(item, _params)
+    const itemFormatted = formatElement(item, _params)
     result.push(...itemFormatted)
   }
 

@@ -71,3 +71,33 @@ it("should import complex type from XML", () => {
 
   expect(result).toEqual(mockResult)
 })
+
+it("should import three types from XML", () => {
+  const mockXml = `<v8:Type>cfg:CatalogRef.Сотрудники</v8:Type>
+				<v8:Type>cfg:CatalogRef.Контрагенты</v8:Type>
+				<v8:Type>cfg:CatalogRef.Пользователи</v8:Type>`
+
+  const mockResult: TTypeDescription = {
+    type: ["CatalogRef.Сотрудники", "CatalogRef.Контрагенты", "CatalogRef.Пользователи"],
+  }
+
+  const xmlData = xmlImport<TTypeDescriptionXML>(mockXml)
+
+  const result = importTypeDescriptionFromXML(xmlData)
+
+  expect(result).toEqual(mockResult)
+})
+
+it("should import SpreadsheetDocument from XML", () => {
+  const mockXml = `<v8:Type xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet">mxl:SpreadsheetDocument</v8:Type>`
+
+  const mockResult: TTypeDescription = {
+    type: ["SpreadsheetDocument"],
+  }
+
+  const xmlData = xmlImport<TTypeDescriptionXML>(mockXml)
+
+  const result = importTypeDescriptionFromXML(xmlData)
+
+  expect(result).toEqual(mockResult)
+})

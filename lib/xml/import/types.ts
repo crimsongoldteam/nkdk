@@ -1,3 +1,3 @@
 import { TElement } from "~/lib/metadata/forms/elements/element/types"
 
-export type ImportFunction = (value: any) => TElement
+export type ImportFunction<T extends TElement> = (value: any) => T

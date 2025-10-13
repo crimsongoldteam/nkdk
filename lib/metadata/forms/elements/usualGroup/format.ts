@@ -10,8 +10,8 @@ export const formatUsualGroup: FormatFunction<TUsualGroup> = (
   params: IFormatterParams
 ): string[] => {
   //indentationStrategy: SimpleIndentationStrategy
-  if (isVerticalGroup(element)) return formatVerticalGroup(element, {})
-  if (isOneLineGroup(element)) return formatOneLineGroup(element)
+  if (isVerticalGroup(element)) return formatVerticalGroup(element, params)
+  if (isOneLineGroup(element)) return formatOneLineGroup(element, params)
 
   return formatHorizontalGroup(element, params)
 }
