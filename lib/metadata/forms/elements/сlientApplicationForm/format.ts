@@ -1,26 +1,34 @@
 import { type TClientApplicationForm } from "./types"
 import * as t from "~/lib/parser/lexer"
-import { IFormatterParams } from "~/lib/format/types"
+import { IFormatElementResult, IFormatterParams } from "~/lib/format/types"
 import formatFormAttributes from "./attributes/format"
-import { formatElement } from "~/lib/format/formatFactory"
+import { formatElements } from "~/lib/format/formatFactory"
 
 const DASHES = (t.Dashes.LABEL as string).repeat(3)
 
-export function formatClientApplicationForm(element: TClientApplicationForm, _params: IFormatterParams): string[] {
-  const result: string[] = []
+export function formatClientApplicationForm(
+  element: TClientApplicationForm,
+  _params: IFormatterParams
+): IFormatElementResult {
+  const result: IFormatElementResult = { strings: [], haveSimpleHorizontalGroup: false }
 
   let header = element.title?.ru ?? ""
 
-  result.push(...formatSectionHeader(header))
+  result.strings.push(...formatSectionHeader(header))
 
-  for (const item of element.items) {
-    const itemFormatted = formatElement(item, _params)
-    result.push(...itemFormatted)
-  }
+  // for (const item of element.items) {
+  //   const itemFormatted = formatElement(item, _params)
+  //   result.strings.push(...itemFormatted.strings)
+  //   result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || itemFormatted.haveSimpleHorizontalGroup
+  // }
+
+  const itemsResult = formatElements(element.items)
+  result.strings.push(...itemsResult.strings)
+  result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || itemsResult.haveSimpleHorizontalGroup
 
   if (element.attributes) {
-    result.push(...formatSectionHeader("Реквизиты"))
-    result.push(...formatFormAttributes(element.attributes))
+    result.strings.push(...formatSectionHeader("Реквизиты"))
+    result.strings.push(...formatFormAttributes(element.attributes))
   }
   return result
 }
@@ -28,5 +36,5 @@ export function formatClientApplicationForm(element: TClientApplicationForm, _pa
 const formatSectionHeader = (header: string | undefined): string[] => {
   if (!header) return []
 
-  return [DASHES + " " + header + " " + DASHES]
+  return ["======" + " [ " + header + " ] " + "======"]
 }

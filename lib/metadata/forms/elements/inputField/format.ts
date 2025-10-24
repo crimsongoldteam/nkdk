@@ -1,9 +1,10 @@
 import * as t from "~/lib/parser/lexer"
 import { type TInputField } from "./types"
-import { IFormatterParams, FormatFunction } from "~/lib/format/types"
+import { IFormatterParams, FormatFunction, IFormatElementResult } from "~/lib/format/types"
 import { isMultiline } from "./helpers"
-import { formatElementName } from "~/lib/format/helpers"
+import { formatElementName, formatElementTitleAndName } from "~/lib/format/helpers"
 import { formatGroupWrapping } from "~/lib/format/wrap/formatGroupWrapping"
+import { pascalCase } from "change-case"
 
 const UNDERLINE = t.Underscore.LABEL as string
 const COLON = t.Colon.LABEL as string
@@ -11,8 +12,17 @@ const COLON = t.Colon.LABEL as string
 export const formatInputField: FormatFunction<TInputField> = (
   element: TInputField,
   params: IFormatterParams
-): string[] => {
-  let header: string = element.title?.ru ?? element.name
+): IFormatElementResult => {
+  let header: string = ""
+
+  const hasTitle = element.title?.ru !== undefined
+
+  if (hasTitle) {
+    header += element.title?.ru
+  } else {
+    header += formatElementName(element)
+  }
+
   header += COLON
 
   let value = element.value ?? ""
@@ -24,13 +34,15 @@ export const formatInputField: FormatFunction<TInputField> = (
     value += UNDERLINE.repeat(2) + modificators
   }
 
-  const name = " " + formatElementName(element)
+  if (hasTitle && pascalCase(element.title!.ru).toLowerCase() !== element.name.toLowerCase()) {
+    header += " " + formatElementName(element)
+  }
 
-  let result = [header + value + name]
+  let result: IFormatElementResult = { strings: [header + value + name], haveSimpleHorizontalGroup: false }
 
-  result.push(...getMultilineString(element, header.length, value.length))
+  result.strings.push(...getMultilineString(element, header.length, value.length))
 
-  return formatGroupWrapping(result, params)
+  return result
 }
 
 function getMultilineString(element: TInputField, headerLength: number, valueLength: number): string[] {

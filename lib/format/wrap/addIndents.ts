@@ -11,6 +11,10 @@ export const addIndents = (lines: string[], params: IFormatterParams): string[] 
   return addSpaces(result)
 }
 
+export const addSimpleIndent = (lines: string[]): string[] => {
+  return lines.map((line) => "  " + line)
+}
+
 const formatFirstLine = (line: string, params: IFormatterParams): string => {
   if (params.isFirst) {
     return line

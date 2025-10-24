@@ -62,7 +62,7 @@ const transformAttributes = (attributes: TAttribute[]): TAttributesEnterprise =>
 
     return {
       ...acc,
-      [attribute.name]: attributeData,
+      [attribute.name]: type || "",
     }
   }, {})
 }

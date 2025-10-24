@@ -1,7 +1,14 @@
 import { TElement } from "../metadata/forms/elements/element/types"
-import { CheckFormatFunction, FormatFunction, IFormatterParams, WrapInGroupStrategy } from "./types"
+import {
+  CheckFormatFunction,
+  FormatFunction,
+  IFormatElementResult,
+  IFormatterParams,
+  WrapInGroupStrategy,
+} from "./types"
 import { formatOtherElement } from "../metadata/forms/elements/element/format"
 import { TNamedElement } from "../metadata/forms/elements/element/types"
+import { ElementType } from "../metadata/systemEnumerations/types"
 
 type FormatRegistry = {
   format: FormatFunction<TElement>
@@ -15,7 +22,10 @@ export const registerFormat = <T extends TElement>(format: FormatFunction<T>, ch
   registry.push({ format: format as FormatFunction<TElement>, check: check as CheckFormatFunction<TElement> })
 }
 
-export const formatElement = <T extends TElement>(element: T, params: IFormatterParams = defaultParams): string[] => {
+export const formatElement = <T extends TElement>(
+  element: T,
+  params: IFormatterParams = defaultParams
+): IFormatElementResult => {
   params = { ...defaultParams, ...params }
 
   const formatter = registry.find((f) => f.check(element)) as FormatRegistry[number]
@@ -25,12 +35,22 @@ export const formatElement = <T extends TElement>(element: T, params: IFormatter
   return result
 }
 
-export const formatElements = (items: TElement[]): string[] => {
-  const result: string[] = []
+export const formatElements = (items: TElement[]): IFormatElementResult => {
+  let result: IFormatElementResult = { strings: [], haveSimpleHorizontalGroup: false }
 
+  const separatedItems = [ElementType.Pages, ElementType.UsualGroup]
+
+  let prevItem: TElement | null = null
   for (const item of items) {
+    if (prevItem && (separatedItems.includes(item.type) || separatedItems.includes(prevItem.type))) {
+      result.strings.push("")
+    }
+
+    prevItem = item
+
     const text = formatElement(item, defaultParams)
-    result.push(...text)
+    result.strings.push(...text.strings)
+    result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
   }
   return result
 }

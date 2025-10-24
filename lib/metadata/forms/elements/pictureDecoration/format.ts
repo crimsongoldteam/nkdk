@@ -1,13 +1,16 @@
 import { formatGroupWrapping } from "~/lib/format/wrap/formatGroupWrapping"
 import { TPictureDecoration } from "./types"
-import { IFormatterParams, FormatFunction } from "~/lib/format/types"
+import { IFormatterParams, FormatFunction, IFormatElementResult } from "~/lib/format/types"
 import { formatElementName } from "~/lib/format/helpers"
 
 export const formatPictureDecoration: FormatFunction<TPictureDecoration> = (
   element: TPictureDecoration,
   params: IFormatterParams
-): string[] => {
-  const result = ["@" + element.picture?.ref + " " + formatElementName(element)]
+): IFormatElementResult => {
+  const result: IFormatElementResult = {
+    strings: ["@" + element.picture?.ref + " " + formatElementName(element)],
+    haveSimpleHorizontalGroup: false,
+  }
 
-  return formatGroupWrapping(result, params)
+  return result
 }

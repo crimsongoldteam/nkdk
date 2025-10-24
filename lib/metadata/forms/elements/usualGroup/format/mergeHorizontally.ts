@@ -6,52 +6,46 @@ const SEPARATOR = " " + "+"
 export const mergeHorizontally = (...arrays: string[][]): string[] => {
   const isNeedWrapArray = isNeedWrap(arrays)
 
-  const result: string[] = []
+  let result: string[] = []
   for (let colIndex = 0; colIndex < arrays.length; colIndex++) {
     const column = arrays[colIndex]
-    const firstColumnLength = column[0].length
+
     if (isNeedWrapArray[colIndex]) {
-      const rows = result.length
-
-      const emptyCell = " ".repeat(firstColumnLength)
-
-      result.push("-".repeat(firstColumnLength))
-      for (const cell of column) {
-        result.push(normalizeCell(cell, firstColumnLength))
-      }
-
-      addSeparator(result, [
-        { from: 0, separator: FIRST_LINE_SEPARATOR + column[0] },
-        { from: 1, separator: SEPARATOR + emptyCell },
-        { from: rows + 1, separator: emptyCell },
-      ])
-      continue
-    }
-
-    if (colIndex > 0) {
-      addSeparator(result, [
-        { from: 0, separator: FIRST_LINE_SEPARATOR },
-        { from: 1, separator: SEPARATOR },
-      ])
-    }
-
-    const maxLength = Math.max(...column.map((cell) => cell.length))
-
-    for (const cell of column) {
-      result.push(normalizeCell(cell, maxLength))
+      result = addWrapColumn(result, column)
+    } else {
+      result = addColumn(result, column)
     }
   }
   return result
 }
 
-const addSeparator = (result: string[], rules: { from: number; separator: string }[]) => {
-  let ruleIndex = 0
+const addColumn = (current: string[], add: string[]): string[] => {
+  let result: string[] = []
 
-  for (let i = 0; i < result.length; i++) {
-    if (i >= rules[ruleIndex + 1]?.from) ruleIndex++
-    const separator = rules[ruleIndex].separator
-    result[i] += separator
+  const maxRows = Math.max(current.length, add.length)
+  for (let rowIndex = 0; rowIndex < maxRows; rowIndex++) {
+    currentRow = current[rowIndex] ? current[rowIndex] : " ".repeat(current[0].length)
+    result.push(current[rowIndex] + SEPARATOR)
   }
+  result.push(...add)
+  return result
+}
+
+const addWrapColumn = (current: string[], add: string[]): string[] => {
+  let result: string[] = []
+
+  for (let rowIndex = 0; rowIndex < current.length; rowIndex++) {
+    if (rowIndex == 0) {
+      result.push(current[rowIndex] + FIRST_LINE_SEPARATOR + add[0])
+    } else {
+      result.push(current[rowIndex] + SEPARATOR)
+    }
+  }
+
+  result.push("-".repeat(current[0].length))
+  result.push(...add.slice(1))
+
+  return normalizeColumn(result)
 }
 
 const isNeedWrap = (cells: string[][]): boolean[] => {
@@ -80,4 +74,9 @@ const isNeedWrap = (cells: string[][]): boolean[] => {
 
 const normalizeCell = (cell: string, normalizedLength: number): string => {
   return cell + " ".repeat(normalizedLength - cell.length)
+}
+
+const normalizeColumn = (column: string[]): string[] => {
+  const maxLength = Math.max(...column.map((cell) => cell.length))
+  return column.map((cell) => normalizeCell(cell, maxLength))
 }

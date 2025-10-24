@@ -19,7 +19,7 @@ it("should test", () => {
   const importedXml = xmlImport<TClientApplicationFormXML>(originalContent)
   const form = importClientApplicationFormFromXML(importedXml)
 
-  const text = formatClientApplicationForm(form, {}).join("\n")
+  const text = formatClientApplicationForm(form, {}).strings.join("\n")
 
   console.log(text)
 

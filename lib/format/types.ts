@@ -16,7 +16,12 @@ export interface IFormatterParams {
 export const ZBoolEnterprise = z.enum(["Истина", "Ложь"])
 export type TBoolEnterprise = z.infer<typeof ZBoolEnterprise>
 
-export type FormatFunction<T = TElement> = (element: T, params: IFormatterParams) => string[]
+export interface IFormatElementResult {
+  strings: string[]
+  haveSimpleHorizontalGroup: boolean
+}
+
+export type FormatFunction<T = TElement> = (element: T, params: IFormatterParams) => IFormatElementResult
 export type CheckFormatFunction<T = TElement> = (element: T) => boolean
 
 export type CheckIsOneLineElementFunction<T = TElement> = (element: T) => boolean

@@ -1,24 +1,32 @@
-import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
+import { IFormatterParams, IFormatElementResult } from "~/lib/format/types"
 import { formatElements } from "~/lib/format/formatFactory"
 import { ZUsualGroupBehavior, ZUsualGroupRepresentation } from "~/lib/metadata/systemEnumerations/types"
 import * as t from "~/lib/parser/lexer"
-import { formatElementName } from "~/lib/format/helpers"
+import { formatElementName, formatElementTitleAndName } from "~/lib/format/helpers"
 import { TUsualGroup } from "../types"
-import { formatCommonWrapping } from "~/lib/format/wrap/formatCommonWrapping"
 
-export const formatVerticalGroup = (element: TUsualGroup, params: IFormatterParams): string[] => {
-  let result: string[] = []
+export const formatVerticalGroup = (element: TUsualGroup, params: IFormatterParams): IFormatElementResult => {
+  let result: IFormatElementResult = { strings: [], haveSimpleHorizontalGroup: false }
 
-  if (params.wrapInGroup != WrapInGroupStrategy.None) {
-    const header = getHeader(element)
-    result.push(header)
+  // if (params.wrapInGroup != WrapInGroupStrategy.None) {
+  const header = getHeader(element)
+  result.strings.push(header)
+  // }
+
+  const lines = formatElements(element.childItems)
+
+  for (const line of lines.strings) {
+    result.strings.push("  " + line)
+    result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || lines.haveSimpleHorizontalGroup
   }
 
-  result.push(...formatElements(element.childItems))
+  // result.push(...formatElements(element.childItems))
 
-  const trimmedResult = result.map((line) => line.trim())
+  // const trimmedResult = result.map((line) => line.trim())
 
-  return formatCommonWrapping(trimmedResult, params)
+  // return formatCommonWrapping(trimmedResult, params)
+
+  return result
 }
 
 const getHeader = (element: TUsualGroup): string => {
@@ -33,9 +41,7 @@ const getHeader = (element: TUsualGroup): string => {
 
   let result = (t.Hash.LABEL as string).repeat(level)
 
-  result += element.title?.ru ?? ""
-
-  result += " " + formatElementName(element)
+  result += formatElementTitleAndName(element)
 
   return result
 }

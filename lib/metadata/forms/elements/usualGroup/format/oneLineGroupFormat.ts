@@ -1,18 +1,16 @@
 import { TUsualGroup } from "../types"
-import * as t from "~/lib/parser/lexer"
 import { formatElement } from "~/lib/format/formatFactory"
-import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
-import { formatElementName } from "~/lib/format/helpers"
-import { formatGroupWrapping } from "~/lib/format/wrap/formatGroupWrapping"
+import { IFormatElementResult, IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
+import { formatElementTitleAndName } from "~/lib/format/helpers"
 
-export const formatOneLineGroup = (element: TUsualGroup, params: IFormatterParams): string[] => {
-  const separatorSymbol = t.Ampersand.LABEL as string
-  const separator = " " + separatorSymbol + " "
+export const formatOneLineGroup = (element: TUsualGroup, params: IFormatterParams): IFormatElementResult => {
+  const separatorSymbol = ";"
+  const separator = separatorSymbol + " "
 
-  let result: string[] = [formatElementName(element)]
+  let result: IFormatElementResult = { strings: [], haveSimpleHorizontalGroup: false }
 
   if (element.childItems.length === 0) {
-    result.push(separatorSymbol)
+    result.strings.push(separatorSymbol)
     return result
   }
 
@@ -20,21 +18,22 @@ export const formatOneLineGroup = (element: TUsualGroup, params: IFormatterParam
 
   let isFirst = true
   for (const item of element.childItems) {
-    groupItems.push(formatElement(item, { isFirst: isFirst, wrapInGroup: WrapInGroupStrategy.Auto, level: 0 }))
+    const itemResult = formatElement(item, { isFirst: isFirst, wrapInGroup: WrapInGroupStrategy.Auto, level: 0 })
+    groupItems.push(itemResult.strings)
     isFirst = false
   }
 
-  // let resultLine = groupItems.join(separator)
+  let resultLine = "-" + formatElementTitleAndName(element) + "; " + groupItems.join(separator)
 
-  const indent = "  "
-  let resultLine = groupItems.map((item, index) => indent.repeat(index) + (index === 0 ? "" : separator) + item)
+  // const indent = "  "
+  // let resultLine = groupItems.map((item, index) => indent.repeat(index) + (index === 0 ? "" : separator) + item)
 
-  if (element.childItems.length === 1) {
-    //Element &
-    resultLine.push(separatorSymbol)
-  }
+  // if (element.childItems.length === 1) {
+  //Element &
+  // resultLine.push(separatorSymbol)
+  // }
 
-  result.push(...resultLine)
+  result.strings.push(resultLine)
 
-  return formatGroupWrapping(result, params)
+  return result
 }

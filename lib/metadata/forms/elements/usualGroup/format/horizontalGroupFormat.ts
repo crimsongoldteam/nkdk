@@ -1,23 +1,39 @@
 import { TUsualGroup } from "../types"
 import * as t from "~/lib/parser/lexer"
-import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
+import { IFormatElementResult, IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
 import { formatElement } from "~/lib/format/formatFactory"
 import { formatElementName } from "~/lib/format/helpers"
-import { formatGroupWrapping } from "~/lib/format/wrap/formatGroupWrapping"
+import { addSimpleIndent } from "~/lib/format/wrap/addIndents"
 
 const FIRST_LINE_SEPARATOR = " " + (t.Hash.LABEL as string)
 const SEPARATOR = " " + "|"
 
-export const formatHorizontalGroup = (element: TUsualGroup, params: IFormatterParams): string[] => {
-  let result: string[] = [formatElementName(element)]
+export const formatHorizontalGroup = (element: TUsualGroup, params: IFormatterParams): IFormatElementResult => {
+  let result: IFormatElementResult = { strings: ["-" + formatElementName(element)], haveSimpleHorizontalGroup: false }
 
   let verticalGroups: string[][] = getVerticalItems(element)
+  // let rows = mergeHorizontally(FIRST_LINE_SEPARATOR, SEPARATOR, ...verticalGroups)
+
+  let haveSimpleHorizontalGroup = false
+
+  for (const group of verticalGroups) {
+    // result.strings.push(...group)
+    haveSimpleHorizontalGroup = haveSimpleHorizontalGroup || group.some((item) => item.includes("|"))
+  }
+
+  result.haveSimpleHorizontalGroup = haveSimpleHorizontalGroup
+
+  if (haveSimpleHorizontalGroup) {
+    result.strings.push(...verticalGroups.flat())
+    return result
+  }
+
   let rows = mergeHorizontally(FIRST_LINE_SEPARATOR, SEPARATOR, ...verticalGroups)
-  result.push(...rows)
+  result.strings.push(...rows)
 
-  const trimmedResult = result.map((line) => line.trim())
+  result.haveSimpleHorizontalGroup = true
 
-  return formatGroupWrapping(trimmedResult, params)
+  return result
 }
 
 const getVerticalItems = (element: TUsualGroup): string[][] => {
@@ -29,7 +45,7 @@ const getVerticalItems = (element: TUsualGroup): string[][] => {
       level: 0,
       wrapInGroup: WrapInGroupStrategy.Always,
     })
-    result.push(formattedItem)
+    result.push(addSimpleIndent(formattedItem.strings))
     isFirst = false
   }
   return result
