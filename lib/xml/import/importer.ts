@@ -2,6 +2,24 @@ import { XMLParser } from "fast-xml-parser"
 
 const METADATA_SYMBOL = Symbol.for("metadata")
 
+// export default function xmlImportKey<T>(data: string):T {
+//   const parser = new XMLParser({
+//     preserveOrder: true,
+//     ignoreAttributes: false,
+//     attributeNamePrefix: "_",
+//     // removeNSPrefix: true,
+//   })
+//   const parsedData = parser.parse(data)
+
+//   let options = { ...defaultOptions }
+//   options.isArray = (name: string, _jPath: string, _isLeaf: boolean) => {
+//     return name === "ChildItems" || name === "Title" || name === "Attributes" //|| name === "v8:Type"
+//   }
+
+//   const result = compress(parsedData, options, "")
+//   return result
+// }
+
 export default function xmlImport<T>(data: string): T {
   const parser = new XMLParser({
     preserveOrder: true,

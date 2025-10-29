@@ -3,12 +3,12 @@ import { z } from "zod/v4"
 export const ZFontXML = z.object({
   _ref: z.string().optional(),
   _faceName: z.string().optional(),
-  _scale: z.number().optional(),
-  _height: z.number().optional(),
-  _bold: z.boolean().optional(),
-  _italic: z.boolean().optional(),
-  _underline: z.boolean().optional(),
-  _strikeout: z.boolean().optional(),
+  _scale: z.coerce.number().optional(),
+  _height: z.coerce.number().optional(),
+  _bold: z.coerce.boolean().optional(),
+  _italic: z.coerce.boolean().optional(),
+  _underline: z.coerce.boolean().optional(),
+  _strikeout: z.coerce.boolean().optional(),
   _kind: z.string(),
 })
 
