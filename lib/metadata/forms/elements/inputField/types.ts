@@ -1,19 +1,18 @@
 import * as z from "zod"
 import { ZI8nText } from "~/lib/metadata/i8nText/types"
 import { ZI8nTextXML } from "~/lib/metadata/i8nText/types"
-import { ZNamedElement } from "../element/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 
-export const ZInputFieldXML = z.object({
-  InputField: z.object({
-    _id: z.string(),
-    _name: z.string(),
-    DataPath: z.string().optional(),
-    Title: ZI8nTextXML.optional(),
-  }),
+export const ZInputFieldXML = ZBaseElementXML.extend({
+  DataPath: z.string().optional(),
+  Title: ZI8nTextXML.optional(),
 })
 
-export const ZInputField = ZNamedElement.extend({
+export const ZInputField = ZBaseElement.extend({
   title: ZI8nText.optional(),
+
+  autoCapitalizationOnTextInput: SE.ZAutoCapitalizationOnTextInput.optional(),
 
   isMultiline: z.boolean().optional(),
   height: z.number().min(0).optional(),

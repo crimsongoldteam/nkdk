@@ -1,4 +1,4 @@
-import { TElement } from "../metadata/forms/elements/element/types"
+import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
 import {
   CheckFormatFunction,
   FormatFunction,
@@ -6,23 +6,26 @@ import {
   IFormatterParams,
   WrapInGroupStrategy,
 } from "./types"
-import { formatOtherElement } from "../metadata/forms/elements/element/format"
-import { TNamedElement } from "../metadata/forms/elements/element/types"
+import { formatOtherElement } from "../metadata/forms/elements/baseElement/format"
+import { TNamedElement } from "../metadata/forms/elements/baseElement/types"
 import { ElementType } from "../metadata/systemEnumerations/types"
 
 type FormatRegistry = {
-  format: FormatFunction<TElement>
-  check: CheckFormatFunction<TElement>
+  format: FormatFunction<TBaseElement>
+  check: CheckFormatFunction<TBaseElement>
 }[]
 
 const registry: FormatRegistry = []
 const defaultParams = { wrapInGroup: WrapInGroupStrategy.Auto, level: 0, isFirst: true }
 
-export const registerFormat = <T extends TElement>(format: FormatFunction<T>, check: CheckFormatFunction<T>): void => {
-  registry.push({ format: format as FormatFunction<TElement>, check: check as CheckFormatFunction<TElement> })
+export const registerFormat = <T extends TBaseElement>(
+  format: FormatFunction<T>,
+  check: CheckFormatFunction<T>
+): void => {
+  registry.push({ format: format as FormatFunction<TBaseElement>, check: check as CheckFormatFunction<TBaseElement> })
 }
 
-export const formatElement = <T extends TElement>(
+export const formatElement = <T extends TBaseElement>(
   element: T,
   params: IFormatterParams = defaultParams
 ): IFormatElementResult => {
@@ -35,12 +38,12 @@ export const formatElement = <T extends TElement>(
   return result
 }
 
-export const formatElements = (items: TElement[]): IFormatElementResult => {
+export const formatElements = (items: TBaseElement[]): IFormatElementResult => {
   let result: IFormatElementResult = { strings: [], haveSimpleHorizontalGroup: false }
 
   const separatedItems = [ElementType.Pages, ElementType.UsualGroup]
 
-  let prevItem: TElement | null = null
+  let prevItem: TBaseElement | null = null
   for (const item of items) {
     if (prevItem && (separatedItems.includes(item.type) || separatedItems.includes(prevItem.type))) {
       result.strings.push("")

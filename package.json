@@ -38,6 +38,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
+    "@ant-design/icons": "~5.6.1",
     "@babel/standalone": "^7.28.4",
     "@monaco-editor/react": "^4.7.0",
     "antd": "^5.27.4",

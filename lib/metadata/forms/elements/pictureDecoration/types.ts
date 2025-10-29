@@ -1,5 +1,5 @@
 import * as z from "zod"
-import { ZNamedElement } from "../element/types"
+import { ZNamedElement } from "../baseElement/types"
 import { ZPicture, ZPictureXML } from "../../pictures/types"
 
 export const ZPictureDecorationXML = z.object({

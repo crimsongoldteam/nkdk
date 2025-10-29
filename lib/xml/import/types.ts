@@ -1,3 +1,3 @@
-import { TElement } from "~/lib/metadata/forms/elements/element/types"
+import { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
 
-export type ImportFunction<T extends TElement> = (value: any) => T
+export type ImportFunction<T extends TBaseElement> = (value: any) => T

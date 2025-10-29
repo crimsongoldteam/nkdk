@@ -1,12 +1,12 @@
 import { TClientApplicationForm, TClientApplicationFormXML, TAttribute } from "./types"
 import importI8nXmlText from "~/lib/metadata/i8nText/importI8nTextFromXML"
 import importAttributeFromXML from "./attributes/importFromXML"
-import { ElementType } from "~/lib/metadata/systemEnumerations/types"
+import { ZElementType } from "~/lib/metadata/systemEnumerations/types"
 import { importElementFromXML } from "~/lib/xml/import/importerFactory"
 
 export default function importClientApplicationFormFromXML(xml: TClientApplicationFormXML): TClientApplicationForm {
   const result: TClientApplicationForm = {
-    type: ElementType.Form,
+    type: ZElementType.enum.Form,
     autoCommandBar: xml.Form.AutoCommandBar
       ? {
           name: xml.Form.AutoCommandBar._name,

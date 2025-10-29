@@ -3,7 +3,7 @@ import { TUsualGroupXML } from "./types"
 import { TUsualGroup } from "./types"
 import { ElementType } from "~/lib/metadata/systemEnumerations/types"
 import { importElementFromXML } from "~/lib/xml/import/importerFactory"
-import { TNamedElement } from "../element/types"
+import { TNamedElement } from "../baseElement/types"
 import { ImportFunction } from "~/lib/xml/import/types"
 
 export const importUsualGroupFromXML: ImportFunction<TUsualGroup> = (xml: TUsualGroupXML): TUsualGroup => {
@@ -12,6 +12,7 @@ export const importUsualGroupFromXML: ImportFunction<TUsualGroup> = (xml: TUsual
     name: xml.UsualGroup._name,
     id: xml.UsualGroup._id,
     title: importI8nXmlText(xml.UsualGroup.Title),
+    visible: xml.UsualGroup.Visible ?? true,
     group: xml.UsualGroup.Group,
     childItems:
       xml.UsualGroup.ChildItems && xml.UsualGroup.ChildItems !== ""

@@ -5,9 +5,8 @@ import { ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 import { ZInputFieldXML } from "../inputField/types"
 import { ZUse, ZUseEnterprise, ZUseXML } from "~/lib/metadata/forms/use/types"
 import { ZElementType } from "~/lib/metadata/systemEnumerations/types"
-import { ZNamedElement } from "../element/types"
-
-export const ZBoolEnterprise = z.enum(["Истина", "Ложь"])
+import { ZNamedElement } from "../baseElement/types"
+import { ZBoolEnterprise } from "../../../types"
 
 export const ZAutoCommandBarXML = z.object({
   _name: z.string(),

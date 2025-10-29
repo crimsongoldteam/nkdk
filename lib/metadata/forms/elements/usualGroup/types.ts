@@ -1,7 +1,7 @@
 import * as z from "zod"
 import { ZI8nText } from "~/lib/metadata/i8nText/types"
 import { ZI8nTextXML } from "~/lib/metadata/i8nText/types"
-import { ZNamedElement } from "../element/types"
+import { ZNamedElement } from "../baseElement/types"
 import {
   ZChildFormItemsGroup,
   ZUsualGroupBehavior,
@@ -13,6 +13,7 @@ export const ZUsualGroupXML = z.object({
     _name: z.string(),
     _id: z.string(),
     Title: ZI8nTextXML.optional(),
+    Visible: z.boolean().optional(),
     Group: ZChildFormItemsGroup.optional(),
     ChildItems: z.any().optional(),
   }),
@@ -20,6 +21,7 @@ export const ZUsualGroupXML = z.object({
 
 export const ZUsualGroup = ZNamedElement.extend({
   title: ZI8nText.optional(),
+  visible: z.boolean().optional(),
   group: ZChildFormItemsGroup.optional(),
   representation: ZUsualGroupRepresentation.optional(),
   behavior: ZUsualGroupBehavior.optional(),

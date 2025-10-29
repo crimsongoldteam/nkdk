@@ -1,5 +1,5 @@
 import * as z from "zod"
-import { ZNamedElement } from "../element/types"
+import { ZNamedElement } from "../baseElement/types"
 import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 
 export const ZLabelDecorationXML = z.object({

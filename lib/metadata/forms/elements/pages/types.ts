@@ -1,7 +1,7 @@
 import * as z from "zod"
 import { ZI8nText } from "~/lib/metadata/i8nText/types"
 import { ZI8nTextXML } from "~/lib/metadata/i8nText/types"
-import { ZNamedElement } from "../element/types"
+import { ZNamedElement } from "../baseElement/types"
 import { ZPage } from "../page/types"
 
 export const ZPagesXML = z.object({

@@ -1,16 +1,13 @@
 import React from "react"
-import { Divider, Form } from "antd"
+import { Divider, Form, Space } from "antd"
 import { InputField } from "../inputField/inputField"
-
-interface IInputFieldHTMLProps {
-  title?: string
-  value?: string
-  name: string
-}
+import { ElementType } from "~/lib/metadata/systemEnumerations/types"
+import { TNamedElement } from "~/lib/metadata/forms/elements/baseElement/types"
+import { components } from "../components"
 
 interface IClientFormApplicationHTMLProps {
   title?: string
-  items: IInputFieldHTMLProps[]
+  items: TNamedElement[]
 }
 
 export function ClientFormApplication(props: Readonly<IClientFormApplicationHTMLProps>): React.ReactNode {
@@ -20,11 +17,15 @@ export function ClientFormApplication(props: Readonly<IClientFormApplicationHTML
     <div className="form">
       <h2 className="text-2xl font-bold mb-4">{title}</h2>
       <Divider />
-      <Form labelCol={{ span: 4 }}>
+      <Space direction="vertical" size="middle">
         {items.map((item) => {
-          return <InputField key={item.name} title={item.title || item.name} value={item.value} name={item.name} />
+          const Component = components[item.type as keyof typeof components]
+          if (!Component) {
+            return <div key={item.name}>Компонент {item.type} не найден</div>
+          }
+          return <Component key={item.name} {...item} />
         })}
-      </Form>
+      </Space>
     </div>
   )
 }

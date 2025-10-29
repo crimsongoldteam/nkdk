@@ -1,4 +1,4 @@
-import { TElement } from "../metadata/forms/elements/element/types"
+import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
 import { z } from "zod"
 
 export enum WrapInGroupStrategy {
@@ -21,7 +21,7 @@ export interface IFormatElementResult {
   haveSimpleHorizontalGroup: boolean
 }
 
-export type FormatFunction<T = TElement> = (element: T, params: IFormatterParams) => IFormatElementResult
-export type CheckFormatFunction<T = TElement> = (element: T) => boolean
+export type FormatFunction<T = TBaseElement> = (element: T, params: IFormatterParams) => IFormatElementResult
+export type CheckFormatFunction<T = TBaseElement> = (element: T) => boolean
 
-export type CheckIsOneLineElementFunction<T = TElement> = (element: T) => boolean
+export type CheckIsOneLineElementFunction<T = TBaseElement> = (element: T) => boolean

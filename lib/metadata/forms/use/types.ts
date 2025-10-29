@@ -1,5 +1,5 @@
 import { z } from "zod/v4"
-import { ZBoolEnterprise } from "../elements/сlientApplicationForm/types"
+import { ZBoolEnterprise } from "../../types"
 
 export const ZUseXML = z.object({
   Common: z.boolean(),

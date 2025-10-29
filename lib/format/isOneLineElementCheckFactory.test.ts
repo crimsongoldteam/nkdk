@@ -4,7 +4,7 @@ import {
   isOneLineElement,
   clearIsOneLineElementCheckRegistry,
 } from "./isOneLineElementCheckFactory"
-import { TElement } from "../metadata/forms/elements/element/types"
+import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
 import { ElementType } from "../metadata/systemEnumerations/types"
 
 describe("isOneLineElementCheckFactory", () => {
@@ -13,18 +13,18 @@ describe("isOneLineElementCheckFactory", () => {
   })
 
   it("should register and use check function for element type", () => {
-    const element: TElement = {
+    const element: TBaseElement = {
       type: ElementType.InputField,
     }
 
-    const checkFunction = (_element: TElement) => true
+    const checkFunction = (_element: TBaseElement) => true
     registerIsOneLineElementCheck(ElementType.InputField, checkFunction)
 
     expect(isOneLineElement(element)).toBe(true)
   })
 
   it("should return false for unregistered element type", () => {
-    const element: TElement = {
+    const element: TBaseElement = {
       type: ElementType.UsualGroup,
     }
 
@@ -32,7 +32,7 @@ describe("isOneLineElementCheckFactory", () => {
   })
 
   it("should clear registry correctly", () => {
-    const element: TElement = {
+    const element: TBaseElement = {
       type: ElementType.InputField,
     }
 
@@ -45,11 +45,11 @@ describe("isOneLineElementCheckFactory", () => {
   })
 
   it("should work with multiple element types", () => {
-    const inputField: TElement = {
+    const inputField: TBaseElement = {
       type: ElementType.InputField,
     }
 
-    const group: TElement = {
+    const group: TBaseElement = {
       type: ElementType.UsualGroup,
     }
 
