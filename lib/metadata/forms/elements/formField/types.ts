@@ -4,8 +4,7 @@ import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/typeDescription/types"
 import { ZPicture, ZPictureXML } from "../../pictures/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
+import { ZFont } from "~/lib/metadata/font/types"
 
 export const ZFormField = ZBaseElement.extend({
   autoCellHeight: z.boolean().optional(),
@@ -23,7 +22,6 @@ export const ZFormField = ZBaseElement.extend({
   headerHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
   enabled: z.boolean().optional(),
   title: ZI8nText.optional(),
-  name: z.string().optional(),
   footerPicture: ZPicture.optional(),
   headerPicture: ZPicture.optional(),
   contextMenu: ZFormGroup.optional(),
@@ -40,7 +38,7 @@ export const ZFormField = ZBaseElement.extend({
   footerDataPath: z.string().optional(),
   extendedTooltip: ZFormDecoration.optional(),
   editMode: SE.ZColumnEditMode.optional(),
-  shortcut: ZShortcut.optional(),
+  shortcut: z.string().optional(),
   table: ZFormTable.optional(),
   footerText: ZI8nText.optional(),
   readOnly: z.boolean().optional(),
@@ -70,7 +68,6 @@ export const ZFormFieldXML = ZBaseElementXML.extend({
   HeaderHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
   Enabled: z.boolean().optional(),
   Title: ZI8nTextXML.optional(),
-  Name: z.string().optional(),
   FooterPicture: ZPictureXML.optional(),
   HeaderPicture: ZPictureXML.optional(),
   ContextMenu: ZFormGroupXML.optional(),
@@ -87,7 +84,7 @@ export const ZFormFieldXML = ZBaseElementXML.extend({
   FooterDataPath: z.string().optional(),
   ExtendedTooltip: ZFormDecorationXML.optional(),
   EditMode: SE.ZColumnEditMode.optional(),
-  Shortcut: ZShortcutXML.optional(),
+  Shortcut: z.string().optional(),
   Table: ZFormTableXML.optional(),
   FooterText: ZI8nTextXML.optional(),
   ReadOnly: z.boolean().optional(),
@@ -99,3 +96,6 @@ export const ZFormFieldXML = ZBaseElementXML.extend({
   TitleFont: ZFontXML.optional(),
   FooterFont: ZFontXML.optional(),
 })
+
+export type TFormField = z.infer<typeof ZFormField>
+export type TFormFieldXML = z.infer<typeof ZFormFieldXML>

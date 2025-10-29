@@ -1,5 +1,15 @@
-export const formFieldDecodeXML = (xml: TFormField): TFormFieldXML => {
+import * as z from "zod"
+import importFontFromXML from "~/lib/metadata/font/importFromXML"
+import importI8nTextFromXML from "~/lib/metadata/i8nText/importI8nTextFromXML"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import importTypeDescriptionFromXML from "~/lib/metadata/typeDescription/importFromXML"
+import importPictureFromXML from "../../pictures/importFromXML"
+import { TFormField, TFormFieldXML } from "./types"
+
+export const importFormFieldFromXML = (xml: TFormField): TFormFieldXML => {
   return {
+    _id: xml._id,
+    _name: xml._name,
     autoCellHeight: xml.AutoCellHeight,
     defaultItem: xml.DefaultItem,
     displayImportance: xml.DisplayImportance,
@@ -14,12 +24,11 @@ export const formFieldDecodeXML = (xml: TFormField): TFormFieldXML => {
     footerHorizontalAlign: xml.FooterHorizontalAlign,
     headerHorizontalAlign: xml.HeaderHorizontalAlign,
     enabled: xml.Enabled,
-    title: i8nTextXMLCodec.decode(xml.Title),
-    name: xml.Name,
-    footerPicture: pictureXMLCodec.decode(xml.FooterPicture),
-    headerPicture: pictureXMLCodec.decode(xml.HeaderPicture),
+    title: importI8nTextFromXML(xml.Title),
+    footerPicture: importPictureFromXML(xml.FooterPicture),
+    headerPicture: importPictureFromXML(xml.HeaderPicture),
     contextMenu: xml.ContextMenu,
-    typeRestriction: typeDescriptionXMLCodec.decode(xml.TypeRestriction),
+    typeRestriction: importTypeDescriptionFromXML(xml.TypeRestriction),
     showInFooter: xml.ShowInFooter,
     showInHeader: xml.ShowInHeader,
     toolTipRepresentation: xml.ToolTipRepresentation,
@@ -37,11 +46,11 @@ export const formFieldDecodeXML = (xml: TFormField): TFormFieldXML => {
     footerText: xml.FooterText,
     readOnly: xml.ReadOnly,
     fixingInTable: xml.FixingInTable,
-    titleTextColor: colorXMLCodec.decode(xml.TitleTextColor),
-    footerTextColor: colorXMLCodec.decode(xml.FooterTextColor),
-    titleBackColor: colorXMLCodec.decode(xml.TitleBackColor),
-    footerBackColor: colorXMLCodec.decode(xml.FooterBackColor),
-    titleFont: fontXMLCodec.decode(xml.TitleFont),
-    footerFont: fontXMLCodec.decode(xml.FooterFont),
+    // titleTextColor: importColorFromXML(xml.TitleTextColor),
+    // footerTextColor: importColorFromXML(xml.FooterTextColor),
+    // titleBackColor: importColorFromXML(xml.TitleBackColor),
+    // footerBackColor: importColorFromXML(xml.FooterBackColor),
+    titleFont: importFontFromXML(xml.TitleFont),
+    footerFont: importFontFromXML(xml.FooterFont),
   }
 }
