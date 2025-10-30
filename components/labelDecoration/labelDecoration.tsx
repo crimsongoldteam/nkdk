@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Input, Space, Typography } from "antd"
+import { Typography } from "antd"
 import { TI8nText } from "~/lib/metadata/i8nText/types"
 
 interface ILabelDecorationHTMLProps {

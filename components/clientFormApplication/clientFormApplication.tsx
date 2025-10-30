@@ -1,7 +1,5 @@
 import React from "react"
-import { Divider, Form, Space } from "antd"
-import { InputField } from "../inputField/inputField"
-import { ElementType } from "~/lib/metadata/systemEnumerations/types"
+import { Divider, Space } from "antd"
 import { TNamedElement } from "~/lib/metadata/forms/elements/baseElement/types"
 import { components } from "../components"
 

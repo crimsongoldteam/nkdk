@@ -1,4 +1,4 @@
-import React, { ElementType, useState } from "react"
+import React, { useState } from "react"
 import { Tabs } from "antd"
 import { TI8nText } from "~/lib/metadata/i8nText/types"
 import { PageComponent } from "./page"

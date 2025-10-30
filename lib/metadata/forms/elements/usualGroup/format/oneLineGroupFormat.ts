@@ -3,7 +3,7 @@ import { formatElement } from "~/lib/format/formatFactory"
 import { IFormatElementResult, IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
 import { formatElementTitleAndName } from "~/lib/format/helpers"
 
-export const formatOneLineGroup = (element: TUsualGroup, params: IFormatterParams): IFormatElementResult => {
+export const formatOneLineGroup = (element: TUsualGroup): IFormatElementResult => {
   const separatorSymbol = ";"
   const separator = separatorSymbol + " "
 

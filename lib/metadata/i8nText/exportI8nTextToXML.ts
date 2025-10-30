@@ -1,7 +1,5 @@
-import { TI8nText, ZI8nText, ZI8nTextXML } from "~/lib/metadata/i8nText/types"
+import { TI8nText } from "~/lib/metadata/i8nText/types"
 import { TI8nTextXML } from "./types"
-import z from "zod"
-import importI8nXmlTextFromXML from "./importI8nTextFromXML"
 
 export default function exportI8nXmlTextToXML(xml: TI8nText | undefined): TI8nTextXML | undefined {
   if (!xml) return undefined

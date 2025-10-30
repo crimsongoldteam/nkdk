@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { TBaseElement, TBaseElementXML } from "./types"
 import { ZElementType } from "~/lib/metadata/systemEnumerations/types"
-import { baseElementXMLDecode } from "./decodeXML"
+import { importBaseElementFromXML } from "./importBaseElementFromXML"
 import { xmlImport } from "~/lib"
 
 it("should decode element from XML", () => {
@@ -9,13 +9,13 @@ it("should decode element from XML", () => {
 
   const mockResult: TBaseElement = {
     name: "ИмяПоля",
-    type: ZElementType.enum.InputField,
+    elementType: ZElementType.enum.InputField,
     id: "16",
   }
 
   const xml = xmlImport<TBaseElementXML>(mockXml)
 
-  const input = baseElementXMLDecode(xml)
+  const input = importBaseElementFromXML(xml)
 
   expect(input).toEqual(mockResult)
 })

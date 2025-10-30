@@ -3,7 +3,7 @@ import { ZElementType } from "~/lib/metadata/systemEnumerations/types"
 import { ZI8nText } from "~/lib/metadata/i8nText/types"
 
 export const ZBaseElement = z.object({
-  type: ZElementType,
+  elementType: ZElementType,
   name: z.string(),
   id: z.string(),
 })

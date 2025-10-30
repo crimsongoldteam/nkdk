@@ -1,10 +1,11 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/i8nText/types"
+import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
 import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/typeDescription/types"
 import { ZPicture, ZPictureXML } from "../../pictures/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
-import { ZFont } from "~/lib/metadata/font/types"
 
 export const ZFormField = ZBaseElement.extend({
   autoCellHeight: z.boolean().optional(),
@@ -98,4 +99,5 @@ export const ZFormFieldXML = ZBaseElementXML.extend({
 })
 
 export type TFormField = z.infer<typeof ZFormField>
+
 export type TFormFieldXML = z.infer<typeof ZFormFieldXML>
