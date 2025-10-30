@@ -1,11 +1,10 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
 import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/typeDescription/types"
 import { ZPicture, ZPictureXML } from "../../pictures/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
-import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
+import { ZFormField, ZFormFieldXML } from "../formField/types"
 
 export const ZInputField = ZFormField.extend({
   autoChoiceIncomplete: z.boolean().optional(),

@@ -1,17 +1,27 @@
-import { TPage, TPageXML } from "./types"
-import { ElementType } from "~/lib/metadata/systemEnumerations/types"
-import { importElementFromXML } from "~/lib/xml/import/importerFactory"
-import { TNamedElement } from "../baseElement/types"
-import { ImportFunction } from "~/lib/xml/import/types"
-import importI8nTextFromXML from "~/lib/metadata/i8nText/importI8nTextFromXML"
+import importColorFromXML from "~/lib/metadata/color/importFromXML"
+import importPictureFromXML from "../../pictures/importFromXML"
+import { importBaseElementFromXML } from "../baseElement/importBaseElementFromXML"
+import { TPageXML, TPage } from "./types"
 
-export const importPageFromXML: ImportFunction<TPage> = (xml: TPageXML): TPage => {
-  const result: TPage = {
-    type: ElementType.Page,
-    name: xml.Page._name,
-    title: xml.Page.Title ? importI8nTextFromXML(xml.Page.Title) : undefined,
-    id: xml.Page._id,
-    childItems: xml.Page.ChildItems?.map((item: TNamedElement) => importElementFromXML(item)) ?? [],
+
+export const importPageFromXML = (xml: TPageXML | undefined): TPage | undefined => {
+   if (!xml) return undefined
+   return {
+    ...importBaseElementFromXML(xml),
+     displayImportance: xml.DisplayImportance,
+     verticalScrollOnReduceSize: xml.VerticalScrollOnReduceSize,
+     verticalAlign: xml.VerticalAlign,
+     childItemsVerticalAlign: xml.ChildItemsVerticalAlign,
+     verticalSpacing: xml.VerticalSpacing,
+     itemsAndTitlesAlign: xml.ItemsAndTitlesAlign,
+     childItemsHorizontalAlign: xml.ChildItemsHorizontalAlign,
+     horizontalSpacing: xml.HorizontalSpacing,
+     group: xml.Group,
+     picture: importPictureFromXML(xml.Picture),
+     showTitle: xml.ShowTitle,
+     titleDataPath: xml.TitleDataPath,
+     format: xml.Format,
+     backColor: importColorFromXML(xml.BackColor),
+     slaveItemsWidth: xml.SlaveItemsWidth,
   }
-  return result
 }

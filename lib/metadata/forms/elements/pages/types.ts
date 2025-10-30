@@ -1,22 +1,23 @@
 import * as z from "zod"
-import { ZI8nText } from "~/lib/metadata/i8nText/types"
-import { ZI8nTextXML } from "~/lib/metadata/i8nText/types"
-import { ZNamedElement } from "../baseElement/types"
-import { ZPage } from "../page/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 
-export const ZPagesXML = z.object({
-  Pages: z.object({
-    _name: z.string(),
-    _id: z.string(),
-    Title: ZI8nTextXML.optional(),
-    ChildItems: z.array(ZPage).optional(),
-  }),
+export const ZPages = ZFormGroup.extend({
+  currentRowUse: SE.ZCurrentRowUse.optional(),
+  associatedTable: ZFormTable.optional(),
+  pagesRepresentation: SE.ZFormPagesRepresentation.optional(),
+  currentPage: ZFormGroup.optional(),
+  currentPagesState: SE.ZFormPagesState.optional(),
 })
 
-export const ZPages = ZNamedElement.extend({
-  title: ZI8nText.optional(),
-  childItems: z.array(ZPage),
+export const ZPagesXML = ZFormGroupXML.extend({
+  CurrentRowUse: SE.ZCurrentRowUse.optional(),
+  AssociatedTable: ZFormTableXML.optional(),
+  PagesRepresentation: SE.ZFormPagesRepresentation.optional(),
+  CurrentPage: ZFormGroupXML.optional(),
+  CurrentPagesState: SE.ZFormPagesState.optional(),
 })
 
 export type TPages = z.infer<typeof ZPages>
+
 export type TPagesXML = z.infer<typeof ZPagesXML>

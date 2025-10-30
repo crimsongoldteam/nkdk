@@ -1,6 +1,7 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
+import { ZBorder, ZBorderXML } from "~/lib/metadata/forms/border/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 
 export const ZLabelDecoration = ZFormDecoration.extend({
@@ -8,10 +9,9 @@ export const ZLabelDecoration = ZFormDecoration.extend({
   titleHeight: z.number().optional(),
   hyperlink: z.boolean().optional(),
   horizontalAlign: SE.ZItemHorizontalLocation.optional(),
-  border: ZРамка.optional(),
+  border: ZBorder.optional(),
   borderColor: ZColor.optional(),
   backColor: ZColor.optional(),
-  value: z.string().optional(),
 })
 
 export const ZLabelDecorationXML = ZFormDecorationXML.extend({
@@ -19,7 +19,7 @@ export const ZLabelDecorationXML = ZFormDecorationXML.extend({
   TitleHeight: z.number().optional(),
   Hyperlink: z.boolean().optional(),
   HorizontalAlign: SE.ZItemHorizontalLocation.optional(),
-  Border: ZРамкаXML.optional(),
+  Border: ZBorderXML.optional(),
   BorderColor: ZColorXML.optional(),
   BackColor: ZColorXML.optional(),
 })

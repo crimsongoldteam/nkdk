@@ -2,8 +2,6 @@ import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/typeDescription/types"
-import { ZPicture, ZPictureXML } from "../../pictures/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 
@@ -17,7 +15,7 @@ export const ZFormGroup = ZBaseElement.extend({
   title: ZI8nText.optional(),
   toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   toolTip: ZI8nText.optional(),
-  childItems: ZЭлементыФормы.optional(),
+  childItems: z.array(ZBaseElement),
   enableContentChange: z.boolean().optional(),
   verticalStretch: z.boolean().optional(),
   horizontalStretch: z.boolean().optional(),
@@ -27,7 +25,6 @@ export const ZFormGroup = ZBaseElement.extend({
   titleTextColor: ZColor.optional(),
   width: z.number().optional(),
   titleFont: ZFont.optional(),
-  value: z.string().optional(),
 })
 
 export const ZFormGroupXML = ZBaseElementXML.extend({
@@ -40,7 +37,7 @@ export const ZFormGroupXML = ZBaseElementXML.extend({
   Title: ZI8nTextXML.optional(),
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   ToolTip: ZI8nTextXML.optional(),
-  ChildItems: ZЭлементыФормыXML.optional(),
+  ChildItems: z.array(ZBaseElementXML),
   EnableContentChange: z.boolean().optional(),
   VerticalStretch: z.boolean().optional(),
   HorizontalStretch: z.boolean().optional(),

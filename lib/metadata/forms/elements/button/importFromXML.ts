@@ -1,23 +1,51 @@
-import { TButton, TButtonXML } from "./types"
-import { ElementType } from "~/lib/metadata/systemEnumerations/types"
+import importColorFromXML from "~/lib/metadata/color/importFromXML"
+import importFontFromXML from "~/lib/metadata/font/importFromXML"
 import importI8nTextFromXML from "~/lib/metadata/i8nText/importI8nTextFromXML"
 import importPictureFromXML from "../../pictures/importFromXML"
-import importUseFromXML from "../../use/importFromXML"
+import { importBaseElementFromXML } from "../baseElement/importBaseElementFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { TButtonXML, TButton } from "./types"
 
-export default function importButtonFromXML(xml: TButtonXML): TButton {
-  const result: TButton = {
-    name: xml.Button._name,
-    id: xml.Button._id,
-    title: importI8nTextFromXML(xml.Button.Title),
-    toolTip: importI8nTextFromXML(xml.Button.ToolTip),
-    use: importUseFromXML(xml.Button.Use),
-    shortcut: xml.Button.Shortcut,
-    picture: importPictureFromXML(xml.Button.Picture),
-    action: xml.Button.Action,
-    representation: xml.Button.Representation,
-    currentRowUse: xml.Button.CurrentRowUse,
-    modifiesSavedData: xml.Button.ModifiesSavedData,
-    type: ElementType.Button,
+
+export const importButtonFromXML = (xml: TButtonXML | undefined): TButton | undefined => {
+   if (!xml) return undefined
+   return {
+    ...importBaseElementFromXML(xml),
+     autoMaxHeight: xml.AutoMaxHeight,
+     autoMaxWidth: xml.AutoMaxWidth,
+     defaultItem: xml.DefaultItem,
+     displayImportance: xml.DisplayImportance,
+     verticalAlignInGroup: xml.VerticalAlignInGroup,
+     type: xml.Type,
+     visible: xml.Visible,
+     height: xml.Height,
+     titleHeight: xml.TitleHeight,
+     horizontalAlignInGroup: xml.HorizontalAlignInGroup,
+     enabled: xml.Enabled,
+     title: importI8nTextFromXML(xml.Title),
+     commandName: xml.CommandName,
+     picture: importPictureFromXML(xml.Picture),
+     defaultButton: xml.DefaultButton,
+     maxHeight: xml.MaxHeight,
+     maxWidth: xml.MaxWidth,
+     representation: xml.Representation,
+     toolTipRepresentation: xml.ToolTipRepresentation,
+     shapeRepresentation: xml.ShapeRepresentation,
+     locationInCommandBar: xml.LocationInCommandBar,
+     pictureLocation: xml.PictureLocation,
+     check: xml.Check,
+     skipOnInput: xml.SkipOnInput,
+     verticalStretch: xml.VerticalStretch,
+     horizontalStretch: xml.HorizontalStretch,
+     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),
+     shortcut: xml.Shortcut,
+     onlyInAllActions: xml.OnlyInAllActions,
+     commandUniqueness: xml.CommandUniqueness,
+     shape: xml.Shape,
+     borderColor: importColorFromXML(xml.BorderColor),
+     textColor: importColorFromXML(xml.TextColor),
+     backColor: importColorFromXML(xml.BackColor),
+     width: xml.Width,
+     font: importFontFromXML(xml.Font),
   }
-  return result
 }

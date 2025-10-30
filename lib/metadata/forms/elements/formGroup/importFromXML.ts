@@ -1,10 +1,9 @@
 import importColorFromXML from "~/lib/metadata/color/importFromXML"
 import importFontFromXML from "~/lib/metadata/font/importFromXML"
 import importI8nTextFromXML from "~/lib/metadata/i8nText/importI8nTextFromXML"
-import importTypeDescriptionFromXML from "~/lib/metadata/typeDescription/importFromXML"
-import importPictureFromXML from "../../pictures/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importBaseElementFromXML"
-import { TFormFieldXML, TFormField } from "./types"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { TFormGroupXML, TFormGroup } from "./types"
 
 
 export const importFormGroupFromXML = (xml: TFormGroupXML | undefined): TFormGroup | undefined => {

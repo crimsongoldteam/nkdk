@@ -1,15 +1,15 @@
-import { ZElementType } from "~/lib/metadata/systemEnumerations/types"
-import { ImportFunction } from "~/lib/xml/import/types"
-import { TPages, TPagesXML } from "./types"
-import { importPageFromXML } from "../page/importFromXML"
-import { TPage } from "../page/types"
+import { importBaseElementFromXML } from "../baseElement/importBaseElementFromXML"
+import { TPagesXML, TPages } from "./types"
 
-export const importPagesFromXML: ImportFunction<TPages> = (xml: TPagesXML): TPages => {
-  const result: TPages = {
-    type: ZElementType.enum.Pages,
-    name: xml.Pages._name,
-    id: xml.Pages._id,
-    childItems: xml.Pages.ChildItems?.map((item: TPage) => importPageFromXML(item)) ?? [],
+
+export const importPagesFromXML = (xml: TPagesXML | undefined): TPages | undefined => {
+   if (!xml) return undefined
+   return {
+    ...importBaseElementFromXML(xml),
+     currentRowUse: xml.CurrentRowUse,
+     associatedTable: xml.AssociatedTable,
+     pagesRepresentation: xml.PagesRepresentation,
+     currentPage: xml.CurrentPage,
+     currentPagesState: xml.CurrentPagesState,
   }
-  return result
 }

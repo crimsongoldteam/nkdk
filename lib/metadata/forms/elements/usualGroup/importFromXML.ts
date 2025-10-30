@@ -1,23 +1,34 @@
-import importI8nXmlText from "~/lib/metadata/i8nText/importI8nTextFromXML"
-import { TUsualGroupXML } from "./types"
-import { TUsualGroup } from "./types"
-import { ElementType } from "~/lib/metadata/systemEnumerations/types"
-import { importElementFromXML } from "~/lib/xml/import/importerFactory"
-import { TNamedElement } from "../baseElement/types"
-import { ImportFunction } from "~/lib/xml/import/types"
+import importColorFromXML from "~/lib/metadata/color/importFromXML"
+import { importBaseElementFromXML } from "../baseElement/importBaseElementFromXML"
+import { TUsualGroupXML, TUsualGroup } from "./types"
 
-export const importUsualGroupFromXML: ImportFunction<TUsualGroup> = (xml: TUsualGroupXML): TUsualGroup => {
-  const result: TUsualGroup = {
-    type: ElementType.UsualGroup,
-    name: xml.UsualGroup._name,
-    id: xml.UsualGroup._id,
-    title: importI8nXmlText(xml.UsualGroup.Title),
-    visible: xml.UsualGroup.Visible ?? true,
-    group: xml.UsualGroup.Group,
-    childItems:
-      xml.UsualGroup.ChildItems && xml.UsualGroup.ChildItems !== ""
-        ? xml.UsualGroup.ChildItems.map((item: any) => importElementFromXML(item) as unknown as TNamedElement)
-        : [],
+
+export const importUsualGroupFromXML = (xml: TUsualGroupXML | undefined): TUsualGroup | undefined => {
+   if (!xml) return undefined
+   return {
+    ...importBaseElementFromXML(xml),
+     displayImportance: xml.DisplayImportance,
+     verticalAlign: xml.VerticalAlign,
+     childItemsVerticalAlign: xml.ChildItemsVerticalAlign,
+     verticalSpacing: xml.VerticalSpacing,
+     itemsAndTitlesAlign: xml.ItemsAndTitlesAlign,
+     childItemsHorizontalAlign: xml.ChildItemsHorizontalAlign,
+     horizontalSpacing: xml.HorizontalSpacing,
+     group: xml.Group,
+     collapsedRepresentationTitle: xml.CollapsedRepresentationTitle,
+     currentRowUse: xml.CurrentRowUse,
+     associatedTable: xml.AssociatedTable,
+     united: xml.United,
+     showTitle: xml.ShowTitle,
+     showLeftMargin: xml.ShowLeftMargin,
+     representation: xml.Representation,
+     controlRepresentation: xml.ControlRepresentation,
+     behavior: xml.Behavior,
+     titleDataPath: xml.TitleDataPath,
+     throughAlign: xml.ThroughAlign,
+     format: xml.Format,
+     backColor: importColorFromXML(xml.BackColor),
+     hiddenRepresentationTitleBackColor: importColorFromXML(xml.HiddenRepresentationTitleBackColor),
+     slaveItemsWidth: xml.SlaveItemsWidth,
   }
-  return result
 }

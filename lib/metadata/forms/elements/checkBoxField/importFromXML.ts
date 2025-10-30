@@ -1,0 +1,23 @@
+import importColorFromXML from "~/lib/metadata/color/importFromXML"
+import importFontFromXML from "~/lib/metadata/font/importFromXML"
+import { importBaseElementFromXML } from "../baseElement/importBaseElementFromXML"
+import { TCheckBoxFieldXML, TCheckBoxField } from "./types"
+
+
+export const importCheckBoxFieldFromXML = (xml: TCheckBoxFieldXML | undefined): TCheckBoxField | undefined => {
+   if (!xml) return undefined
+   return {
+    ...importBaseElementFromXML(xml),
+     checkBoxType: xml.CheckBoxType,
+     itemTitleHeight: xml.ItemTitleHeight,
+     itemHeight: xml.ItemHeight,
+     equalItemsWidth: xml.EqualItemsWidth,
+     threeState: xml.ThreeState,
+     editFormat: xml.EditFormat,
+     borderColor: importColorFromXML(xml.BorderColor),
+     textColor: importColorFromXML(xml.TextColor),
+     backColor: importColorFromXML(xml.BackColor),
+     itemWidth: xml.ItemWidth,
+     font: importFontFromXML(xml.Font),
+  }
+}

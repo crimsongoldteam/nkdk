@@ -4,6 +4,7 @@ import importI8nTextFromXML from "~/lib/metadata/i8nText/importI8nTextFromXML"
 import importTypeDescriptionFromXML from "~/lib/metadata/typeDescription/importFromXML"
 import importPictureFromXML from "../../pictures/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importBaseElementFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { TFormFieldXML, TFormField } from "./types"
 
 

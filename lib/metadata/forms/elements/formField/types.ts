@@ -50,7 +50,6 @@ export const ZFormField = ZBaseElement.extend({
   footerBackColor: ZColor.optional(),
   titleFont: ZFont.optional(),
   footerFont: ZFont.optional(),
-  value: z.string().optional(),
 })
 
 export const ZFormFieldXML = ZBaseElementXML.extend({

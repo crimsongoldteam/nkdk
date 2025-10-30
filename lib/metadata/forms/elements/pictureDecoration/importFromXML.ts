@@ -1,10 +1,8 @@
 import importColorFromXML from "~/lib/metadata/color/importFromXML"
-import importFontFromXML from "~/lib/metadata/font/importFromXML"
-import importI8nTextFromXML from "~/lib/metadata/i8nText/importI8nTextFromXML"
-import importTypeDescriptionFromXML from "~/lib/metadata/typeDescription/importFromXML"
 import importPictureFromXML from "../../pictures/importFromXML"
+import importBorderFromXML from "~/lib/metadata/forms/border/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importBaseElementFromXML"
-import { TFormFieldXML, TFormField } from "./types"
+import { TPictureDecorationXML, TPictureDecoration } from "./types"
 
 
 export const importPictureDecorationFromXML = (xml: TPictureDecorationXML | undefined): TPictureDecoration | undefined => {
@@ -18,7 +16,7 @@ export const importPictureDecorationFromXML = (xml: TPictureDecorationXML | unde
      pictureSize: xml.PictureSize,
      enableStartDrag: xml.EnableStartDrag,
      enableDrag: xml.EnableDrag,
-     border: xml.Border,
+     border: importBorderFromXML(xml.Border),
      fileDragMode: xml.FileDragMode,
      nonselectedPictureText: xml.NonselectedPictureText,
      borderColor: importColorFromXML(xml.BorderColor),
