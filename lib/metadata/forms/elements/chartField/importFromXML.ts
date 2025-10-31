@@ -1,14 +1,16 @@
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TChartFieldXML, TChartField } from "./types"
+import { ZElementType } from "../types"
 
 export const importChartFieldFromXML = (xml: TChartFieldXML | undefined): TChartField | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importFormFieldFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.ChartField,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     height: xml.Height,

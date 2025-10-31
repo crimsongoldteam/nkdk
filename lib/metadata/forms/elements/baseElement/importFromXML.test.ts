@@ -13,9 +13,10 @@ it("should decode element from XML", () => {
     id: "16",
   }
 
-  const xml = xmlImport<TBaseElementXML>(mockXml)
+  const xml = xmlImport<{ [key: string]: TBaseElementXML }>(mockXml)
+  const value = xml[Object.keys(xml)[0]]!
 
-  const input = importBaseElementFromXML(xml)
+  const input = importBaseElementFromXML(value)
 
   expect(input).toEqual(mockResult)
 })

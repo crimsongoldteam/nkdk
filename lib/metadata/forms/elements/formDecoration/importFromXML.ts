@@ -4,15 +4,17 @@ import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/impor
 import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { TFormDecorationXML, TFormDecoration } from "./types"
+import { ZElementType } from "../types"
 
 export const importFormDecorationFromXML = (xml: TFormDecorationXML | undefined): TFormDecoration | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importBaseElementFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.FormDecoration,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     displayImportance: xml.DisplayImportance,

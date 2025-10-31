@@ -5,20 +5,14 @@ import { ZI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
 export const ZBaseElement = z.object({
   elementType: ZElementType,
   name: z.string(),
-  id: z.string(),
+  id: z.string().optional(),
 })
-
-// export const ZNamedElement = ZElement.extend({
-//   name: z.string(),
-//   id: z.string(),
-// })
 
 export const ZNamedElementWithTitle = ZBaseElement.extend({
   title: ZI8nText.optional(),
 })
 
 export type TBaseElement = z.infer<typeof ZBaseElement>
-// export type TNamedElement = z.infer<typeof ZNamedElement>
 export type TNamedElementWithTitle = z.infer<typeof ZNamedElementWithTitle>
 
 export const ZBaseElementXML = z.object({

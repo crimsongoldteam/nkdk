@@ -7,15 +7,17 @@ import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { TFormTableXML, TFormTable } from "./types"
+import { ZElementType } from "../types"
 
 export const importFormTableFromXML = (xml: TFormTableXML | undefined): TFormTable | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importBaseElementFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.FormTable,
     autoAddIncomplete: xml.AutoAddIncomplete,
     autoInsertNewRow: xml.AutoInsertNewRow,
     autoMaxHeight: xml.AutoMaxHeight,

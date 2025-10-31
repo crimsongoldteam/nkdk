@@ -1,15 +1,17 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TGraphicalSchemaFieldXML, TGraphicalSchemaField } from "./types"
+import { ZElementType } from "../types"
 
 export const importGraphicalSchemaFieldFromXML = (xml: TGraphicalSchemaFieldXML | undefined): TGraphicalSchemaField | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importFormFieldFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.GraphicalSchemaField,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     output: xml.Output,

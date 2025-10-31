@@ -2,15 +2,17 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TTextDocumentFieldXML, TTextDocumentField } from "./types"
+import { ZElementType } from "../types"
 
 export const importTextDocumentFieldFromXML = (xml: TTextDocumentFieldXML | undefined): TTextDocumentField | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importFormFieldFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.TextDocumentField,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     output: xml.Output,

@@ -7,15 +7,17 @@ import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/imp
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TInputFieldXML, TInputField } from "./types"
+import { ZElementType } from "../types"
 
 export const importInputFieldFromXML = (xml: TInputFieldXML | undefined): TInputField | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importFormFieldFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.InputField,
     autoChoiceIncomplete: xml.AutoChoiceIncomplete,
     autoCapitalizationOnTextInput: xml.AutoCapitalizationOnTextInput,
     autoCorrectionOnTextInput: xml.AutoCorrectionOnTextInput,

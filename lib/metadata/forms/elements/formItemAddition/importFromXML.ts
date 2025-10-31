@@ -4,15 +4,17 @@ import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { TFormItemAdditionXML, TFormItemAddition } from "./types"
+import { ZElementType } from "../types"
 
 export const importFormItemAdditionFromXML = (xml: TFormItemAdditionXML | undefined): TFormItemAddition | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importBaseElementFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.FormItemAddition,
     displayImportance: xml.DisplayImportance,
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     type: xml.Type,

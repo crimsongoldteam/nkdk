@@ -2,15 +2,17 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { TSearchControlAdditionXML, TSearchControlAddition } from "./types"
+import { ZElementType } from "../types"
 
 export const importSearchControlAdditionFromXML = (xml: TSearchControlAdditionXML | undefined): TSearchControlAddition | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importFormItemAdditionFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.SearchControlAddition,
     autoMaxWidth: xml.AutoMaxWidth,
     maxWidth: xml.MaxWidth,
     horizontalStretch: xml.HorizontalStretch,

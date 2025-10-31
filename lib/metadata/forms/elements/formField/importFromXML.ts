@@ -8,15 +8,17 @@ import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { TFormFieldXML, TFormField } from "./types"
+import { ZElementType } from "../types"
 
 export const importFormFieldFromXML = (xml: TFormFieldXML | undefined): TFormField | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importBaseElementFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.FormField,
     autoCellHeight: xml.AutoCellHeight,
     defaultItem: xml.DefaultItem,
     displayImportance: xml.DisplayImportance,

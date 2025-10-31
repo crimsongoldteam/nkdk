@@ -5,15 +5,17 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { TButtonXML, TButton } from "./types"
+import { ZElementType } from "../types"
 
 export const importButtonFromXML = (xml: TButtonXML | undefined): TButton | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importBaseElementFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.Button,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     defaultItem: xml.DefaultItem,

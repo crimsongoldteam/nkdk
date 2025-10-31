@@ -3,15 +3,17 @@ import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromX
 import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TPeriodFieldXML, TPeriodField } from "./types"
+import { ZElementType } from "../types"
 
 export const importPeriodFieldFromXML = (xml: TPeriodFieldXML | undefined): TPeriodField | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importFormFieldFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.PeriodField,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     height: xml.Height,

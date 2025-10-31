@@ -3,15 +3,17 @@ import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromX
 import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { TViewStatusAdditionXML, TViewStatusAddition } from "./types"
+import { ZElementType } from "../types"
 
 export const importViewStatusAdditionFromXML = (xml: TViewStatusAdditionXML | undefined): TViewStatusAddition | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importFormItemAdditionFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.ViewStatusAddition,
     autoMaxWidth: xml.AutoMaxWidth,
     horizontalAlign: xml.HorizontalAlign,
     maxWidth: xml.MaxWidth,

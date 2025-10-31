@@ -3,15 +3,17 @@ import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromX
 import { importChoiceListFromXML } from "~/lib/metadata/commonObjects/choiceList/importFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TRadioButtonFieldXML, TRadioButtonField } from "./types"
+import { ZElementType } from "../types"
 
 export const importRadioButtonFieldFromXML = (xml: TRadioButtonFieldXML | undefined): TRadioButtonField | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importFormFieldFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.RadioButtonField,
     radioButtonType: xml.RadioButtonType,
     itemTitleHeight: xml.ItemTitleHeight,
     itemHeight: xml.ItemHeight,

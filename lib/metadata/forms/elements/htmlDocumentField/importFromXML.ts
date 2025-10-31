@@ -1,15 +1,17 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { THtmlDocumentFieldXML, THtmlDocumentField } from "./types"
+import { ZElementType } from "../types"
 
 export const importHtmlDocumentFieldFromXML = (xml: THtmlDocumentFieldXML | undefined): THtmlDocumentField | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importFormFieldFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.HtmlDocumentField,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     output: xml.Output,

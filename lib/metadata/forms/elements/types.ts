@@ -1,6 +1,7 @@
 import { z } from "zod"
 
 enum ElementType {
+  BaseElement = "БазовыйЭлемент",
   Form = "УправляемаяФорма",
   Button = "Кнопка",
   ButtonGroup = "ГруппаКнопок",
@@ -37,6 +38,9 @@ enum ElementType {
   UsualGroup = "Группа",
   ViewStatusAddition = "ДобавлениеПросмотраСостояния",
   ClientApplicationForm = "УправляемаяФорма",
+  FormDecoration = "ДекорацияФормы",
+  FormField = "ПолеФормы",
+  FormItemAddition = "ДополнениеЭлементаФормы",
 }
 
 export const ZElementType = z.enum(Object.keys(ElementType) as [TElementType, ...TElementType[]])

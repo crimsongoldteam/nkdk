@@ -2,15 +2,17 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFormTableFromXML } from "../formTable/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { TUsualGroupXML, TUsualGroup } from "./types"
+import { ZElementType } from "../types"
 
 export const importUsualGroupFromXML = (xml: TUsualGroupXML | undefined): TUsualGroup | undefined => {
-  if (!xml) return undefined 
+  if (!xml) return undefined
 
   const base = importFormGroupFromXML(xml)
   if (!base) return undefined
    
   return {
     ...base,
+    elementType: ZElementType.enum.UsualGroup,
     displayImportance: xml.DisplayImportance,
     verticalAlign: xml.VerticalAlign,
     childItemsVerticalAlign: xml.ChildItemsVerticalAlign,

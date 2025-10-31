@@ -1,14 +1,11 @@
-import { TElementType } from "~/lib/metadata/forms/elements/types"
 import { TBaseElement, TBaseElementXML } from "./types"
-import { ImportFunction } from "~/lib/xml/import/types"
+import { ZElementType } from "../types"
 
-export const importBaseElementFromXML: ImportFunction<TBaseElement> = (xml: TBaseElementXML): TBaseElement => {
-  const key = Object.keys(xml)[0]
-  const element = xml[key]
-  const result: TBaseElement = {
-    name: element._name,
-    id: element._id,
-    elementType: key as TElementType,
+export const importBaseElementFromXML = (xml: TBaseElementXML | undefined): TBaseElement | undefined => {
+  if (!xml) return undefined
+  return {
+    name: xml._name,
+    id: xml._id,
+    elementType: ZElementType.enum.BaseElement,
   }
-  return result
 }
