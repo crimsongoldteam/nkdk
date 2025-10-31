@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from "fs"
+import { readFileSync } from "fs"
 import { join } from "path"
 import { TClientApplicationFormXML } from "../metadata/forms/elements/сlientApplicationForm/types"
 import { it } from "vitest"
@@ -15,7 +15,7 @@ it("should test", () => {
 
   //   const text = formatClientApplicationForm(form, {}).strings.join("\n")
 
-  //   console.log(text)
+  console.log(form)
 
   // Сохраняем результат в файл out.txt
   //   writeFileSync(join(__dirname, "out.txt"), text, "utf-8")

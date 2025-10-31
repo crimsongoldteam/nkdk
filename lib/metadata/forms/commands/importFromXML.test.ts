@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest"
-import { TCommand, TCommandXML } from "./types"
+import { TCommand, TCommandXML, ZCommandXML } from "./types"
 import { xmlImport } from "~/lib"
 import importCommandFromXML from "./importFromXML"
+import z from "zod"
 
 describe("importCommandFromXML", () => {
   it("should return undefined for undefined input", () => {
@@ -37,7 +38,7 @@ describe("importCommandFromXML", () => {
       currentRowUse: "DontUse",
     }
 
-    const xmlData = xmlImport<{ Command: TCommandXML }>(mockXml)
+    const xmlData = xmlImport<{ Command: TCommandXML }>(mockXml, z.object({ Command: ZCommandXML }))
 
     const result = importCommandFromXML(xmlData.Command)
 

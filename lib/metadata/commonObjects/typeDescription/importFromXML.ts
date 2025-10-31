@@ -52,7 +52,8 @@ export const importTypeDescriptionFromXML = (xml: TTypeDescriptionXML | undefine
   return result
 }
 
-function processStringQualifiers(xml: TTypeDescriptionXML) {
+function processStringQualifiers(xml?: TTypeDescriptionXML) {
+  if (!xml) return undefined
   if (!xml["v8:StringQualifiers"]) return undefined
 
   return {
@@ -61,7 +62,8 @@ function processStringQualifiers(xml: TTypeDescriptionXML) {
   }
 }
 
-function processNumberQualifiers(xml: TTypeDescriptionXML) {
+function processNumberQualifiers(xml?: TTypeDescriptionXML) {
+  if (!xml) return undefined
   if (!xml["v8:NumberQualifiers"]) return undefined
 
   return {
@@ -71,7 +73,8 @@ function processNumberQualifiers(xml: TTypeDescriptionXML) {
   }
 }
 
-function processDateQualifiers(xml: TTypeDescriptionXML) {
+function processDateQualifiers(xml?: TTypeDescriptionXML) {
+  if (!xml) return undefined
   if (!xml["v8:DateQualifiers"]) return undefined
 
   return {

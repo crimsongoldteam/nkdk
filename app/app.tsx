@@ -14,6 +14,7 @@ import {
   xmlImport,
 } from "~/lib"
 import { ConfigProvider } from "antd"
+import { ZClientApplicationFormXML } from "~/lib/metadata/forms/elements/сlientApplicationForm/types"
 
 export default function App() {
   const [form, setForm] = useState<TClientApplicationForm | null>(null)
@@ -24,7 +25,7 @@ export default function App() {
     fetch("/lib/tempTest/Form.xml")
       .then((response) => response.text())
       .then((originalContent) => {
-        const importedXml = xmlImport<TClientApplicationFormXML>(originalContent)
+        const importedXml = xmlImport<TClientApplicationFormXML>(originalContent, ZClientApplicationFormXML)
         const importedForm = importClientApplicationFormFromXML(importedXml)
         setForm(importedForm)
       })

@@ -38,3 +38,5 @@ export const importFormGroupFromXML = (xml: TFormGroupXML | undefined): TFormGro
     titleFont: importFontFromXML(xml.TitleFont),
   }
 }
+
+registerImport(ZElementType.enum.FormGroup, importFormGroupFromXML)

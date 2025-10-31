@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest"
 import { importTypeLinkFromXML } from "./importFromXML"
 import { TTypeLink, TTypeLinkXML, ZTypeLinkXML } from "./types"
 import { xmlImport } from "~/lib"
+import z from "zod"
 
 describe("importTypeLinkFromXML", () => {
   it("should return undefined for undefined input", () => {
@@ -21,11 +22,9 @@ describe("importTypeLinkFromXML", () => {
       linkItem: 1,
     }
 
-    const xml = xmlImport<{ TypeLink: TTypeLinkXML }>(xmlData)
+    const xml = xmlImport<{ TypeLink: TTypeLinkXML }>(xmlData, z.object({ TypeLink: ZTypeLinkXML }))
 
-    const parsedXml = ZTypeLinkXML.parse(xml.TypeLink)
-
-    const result = importTypeLinkFromXML(parsedXml)
+    const result = importTypeLinkFromXML(xml.TypeLink)
 
     expect(result).toEqual(expectedResult)
   })

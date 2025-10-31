@@ -3,6 +3,8 @@ import { importButtonFromXML } from "./importFromXML"
 import { ZElementType } from "../types"
 import { TButton, TButtonXML } from "./types"
 import { xmlImport } from "~/lib"
+import z from "zod"
+import { ZButtonXML } from "./types"
 
 it("should import button from XML", () => {
   const mockXml = `<Button name="КнопкаОК" id="1">
@@ -20,9 +22,9 @@ it("should import button from XML", () => {
     id: "1",
   }
 
-  const xml = xmlImport<TButtonXML>(mockXml)
+  const xml = xmlImport<{ Button: TButtonXML }>(mockXml, z.object({ Button: ZButtonXML }))
 
-  const input = importButtonFromXML(xml)
+  const result = importButtonFromXML(xml.Button)
 
-  expect(input).toEqual(expectedResult)
+  expect(result).toEqual(expectedResult)
 })

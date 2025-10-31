@@ -5,7 +5,7 @@ import { ZButtonRepresentation, ZCurrentRowUse, ZCurrentRowUseEnterprise } from 
 import { ZUseEnterprise, ZUseXML } from "../../commonObjects/use/types"
 import { ZUse } from "../../commonObjects/use/types"
 
-const ZCommandXML = z.object({
+export const ZCommandXML = z.object({
   _name: z.string(),
   _id: z.string(),
   Title: ZI8nTextXML.optional(),

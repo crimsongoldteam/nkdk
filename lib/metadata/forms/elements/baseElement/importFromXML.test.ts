@@ -1,8 +1,9 @@
 import { expect, it } from "vitest"
-import { TBaseElement, TBaseElementXML } from "./types"
+import { TBaseElement, TBaseElementXML, ZBaseElementXML } from "./types"
 import { ZElementType } from "../types"
 import { importBaseElementFromXML } from "./importFromXML"
 import { xmlImport } from "~/lib"
+import z from "zod"
 
 it("should decode element from XML", () => {
   const mockXml = `<BaseElement name="ИмяПоля" id="16">`
@@ -13,10 +14,10 @@ it("should decode element from XML", () => {
     id: "16",
   }
 
-  const xml = xmlImport<{ [key: string]: TBaseElementXML }>(mockXml)
-  const value = xml[Object.keys(xml)[0]]!
+  const xml = xmlImport<{ BaseElement: TBaseElementXML }>(mockXml, z.object({ BaseElement: ZBaseElementXML }))
+  const value = xml.BaseElement
 
-  const input = importBaseElementFromXML(value)
+  const result = importBaseElementFromXML(value)
 
-  expect(input).toEqual(mockResult)
+  expect(result).toEqual(mockResult)
 })

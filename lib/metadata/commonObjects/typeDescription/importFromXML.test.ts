@@ -3,6 +3,7 @@ import xmlImport from "~/lib/xml/import/importer"
 import { TTypeDescription, TTypeDescriptionXML } from "./types"
 import { importTypeDescriptionFromXML } from "./importFromXML"
 import { ZTypeDescriptionXML } from "./types"
+import z from "zod"
 
 it("should import string type from XML", () => {
   const mockXml = `<v8:Type>xs:string</v8:Type>
@@ -101,4 +102,15 @@ it("should import SpreadsheetDocument from XML", () => {
   const result = importTypeDescriptionFromXML(xmlData)
 
   expect(result).toEqual(mockResult)
+})
+
+it("should import empty type from XML", () => {
+  const mockXml = `<Type>
+  </Type>`
+
+  const xmlData = xmlImport<{ Type?: TTypeDescriptionXML }>(mockXml, z.object({ Type: ZTypeDescriptionXML }))
+
+  const result = importTypeDescriptionFromXML(xmlData.Type)
+
+  expect(result).toBeUndefined()
 })

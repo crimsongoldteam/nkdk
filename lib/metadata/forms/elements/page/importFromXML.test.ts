@@ -1,8 +1,9 @@
 import { it, expect } from "vitest"
 import xmlImport from "~/lib/xml/import/importer"
-import { TPage, TPageXML } from "./types"
+import { TPage, TPageXML, ZPageXML } from "./types"
 import { ZElementType } from "../types"
 import { importPageFromXML } from "./importFromXML"
+import z from "zod"
 
 it("should import Page from XML", () => {
   const mockXml = `	<Page name="Страница" id="1">
@@ -22,7 +23,7 @@ it("should import Page from XML", () => {
     elementType: ZElementType.enum.Page,
   }
 
-  const xmlData = xmlImport<{ Page: TPageXML }>(mockXml)
+  const xmlData = xmlImport<{ Page: TPageXML }>(mockXml, z.object({ Page: ZPageXML }))
 
   const input = importPageFromXML(xmlData.Page)
 

@@ -17,7 +17,6 @@ export const importHTMLDocumentFieldFromXML = (xml: THTMLDocumentFieldXML | unde
     autoMaxWidth: xml.AutoMaxWidth,
     output: xml.Output,
     height: xml.Height,
-    document: xml.Document,
     userAgentInformation: xml.UserAgentInformation,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,

@@ -3,6 +3,8 @@ import { importLabelDecorationFromXML } from "./importFromXML"
 import { ZElementType } from "../types"
 import { TLabelDecoration, TLabelDecorationXML } from "./types"
 import { xmlImport } from "~/lib"
+import z from "zod"
+import { ZLabelDecorationXML } from "./types"
 
 it("should import name from XML", () => {
   const mockXml = `<LabelDecoration name="Заголовок" id="1">
@@ -23,7 +25,10 @@ it("should import name from XML", () => {
     id: "1",
   }
 
-  const xml = xmlImport<{ LabelDecoration: TLabelDecorationXML }>(mockXml)
+  const xml = xmlImport<{ LabelDecoration: TLabelDecorationXML }>(
+    mockXml,
+    z.object({ LabelDecoration: ZLabelDecorationXML })
+  )
 
   const input = importLabelDecorationFromXML(xml.LabelDecoration)
 

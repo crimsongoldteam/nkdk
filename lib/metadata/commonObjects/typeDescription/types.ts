@@ -29,27 +29,29 @@ const ZTypeDescriptionXMLSpreadsheetDocument = z.object({
 
 const ZType = z.union([z.string(), ZTypeDescriptionXMLSpreadsheetDocument])
 
-export const ZTypeDescriptionXML = z.object({
-  "v8:Type": z.union([ZType, z.array(ZType)]),
-  "v8:StringQualifiers": z
-    .object({
-      "v8:Length": z.number(),
-      "v8:AllowedLength": z.enum(["Variable", "Fixed"]),
-    })
-    .optional(),
-  "v8:NumberQualifiers": z
-    .object({
-      "v8:Digits": z.number(),
-      "v8:FractionDigits": z.number(),
-      "v8:AllowedSign": z.enum(["Any", "Nonnegative"]).optional(),
-    })
-    .optional(),
-  "v8:DateQualifiers": z
-    .object({
-      "v8:DateFractions": z.enum(["Date", "Time", "DateTime"]).optional(),
-    })
-    .optional(),
-})
+export const ZTypeDescriptionXML = z
+  .object({
+    "v8:Type": z.union([ZType, z.array(ZType)]),
+    "v8:StringQualifiers": z
+      .object({
+        "v8:Length": z.number(),
+        "v8:AllowedLength": z.enum(["Variable", "Fixed"]),
+      })
+      .optional(),
+    "v8:NumberQualifiers": z
+      .object({
+        "v8:Digits": z.number(),
+        "v8:FractionDigits": z.number(),
+        "v8:AllowedSign": z.enum(["Any", "Nonnegative"]).optional(),
+      })
+      .optional(),
+    "v8:DateQualifiers": z
+      .object({
+        "v8:DateFractions": z.enum(["Date", "Time", "DateTime"]).optional(),
+      })
+      .optional(),
+  })
+  .optional()
 
 export type TTypeDescription = z.infer<typeof ZTypeDescription>
 export type TTypeDescriptionXML = z.infer<typeof ZTypeDescriptionXML>

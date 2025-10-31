@@ -1,7 +1,8 @@
 import { expect, it } from "vitest"
 import { importFontFromXML } from "./importFromXML"
-import { TFont, ZFontXML } from "./types"
 import { xmlImport } from "~/lib"
+import z from "zod"
+import { TFont, TFontXML, ZFontXML } from "./types"
 
 it("should import font from XML with all properties", () => {
   const mockXml = `<Font ref="sys:ANSIVariableFont" height="12" bold="true" italic="true" underline="true" strikeout="true" kind="WindowsFont"/>`
@@ -16,12 +17,10 @@ it("should import font from XML with all properties", () => {
     kind: "WindowsFont",
   }
 
-  const xml = xmlImport<any>(mockXml)
-  const value = xml[Object.keys(xml)[0]]
+  const xml = xmlImport<{ Font: TFontXML }>(mockXml, z.object({ Font: ZFontXML }))
+  const value = xml.Font
 
-  const valueParsed = ZFontXML.parse(value)
-
-  const result = importFontFromXML(valueParsed)
+  const result = importFontFromXML(value)
 
   expect(result).toEqual(mockResult)
 })

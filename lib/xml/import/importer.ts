@@ -8,16 +8,15 @@ export default function xmlImport<T>(data: string, z: z.ZodType<T>): T {
     preserveOrder: true,
     ignoreAttributes: false,
     attributeNamePrefix: "_",
-    // removeNSPrefix: true,
   })
   const parsedData = parser.parse(data)
 
   let options = { ...defaultOptions }
   options.isArray = (name: string, _jPath: string, _isLeaf: boolean) => {
-    return name === "ChildItems" || name === "Title" || name === "Attributes"
+    return name === "ChildItems" || name === "Title" || name === "Attributes" || name === "ToolTip"
   }
 
-  const result = compress(parsedData, options, "")
+  let result = compress(parsedData, options, "")
 
   const parsed = z.parse(result, { reportInput: true })
   return parsed
@@ -105,7 +104,7 @@ function compress(arr: any[], options: any, jPath: string): any {
         val = val[options.textNodeName]
       } else if (Object.keys(val).length === 0) {
         if (options.alwaysCreateTextNode) val[options.textNodeName] = ""
-        else val = ""
+        else val = undefined
       }
 
       if (options.preserveOrder) {

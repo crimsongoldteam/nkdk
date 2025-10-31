@@ -3,6 +3,8 @@ import { importPictureDecorationFromXML } from "./importFromXML"
 import { ZElementType } from "../types"
 import { TPictureDecoration, TPictureDecorationXML } from "./types"
 import { xmlImport } from "~/lib"
+import z from "zod"
+import { ZPictureDecorationXML } from "./types"
 
 it("should import name from XML", () => {
   const mockXml = `<PictureDecoration name="ПереданВАрхивИлиУничтоженКартинка" id="1">
@@ -23,10 +25,12 @@ it("should import name from XML", () => {
     id: "1",
   }
 
-  const xml = xmlImport<{ PictureDecoration: TPictureDecorationXML }>(mockXml)
-  const value = xml.PictureDecoration
+  const xml = xmlImport<{ PictureDecoration: TPictureDecorationXML }>(
+    mockXml,
+    z.object({ PictureDecoration: ZPictureDecorationXML })
+  )
 
-  const input = importPictureDecorationFromXML(value)
+  const input = importPictureDecorationFromXML(xml.PictureDecoration)
 
   expect(input).toEqual(expectedResult)
 })

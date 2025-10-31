@@ -4,6 +4,8 @@ import { importClientApplicationFormFromXML } from "./importFromXML"
 import { xmlImport } from "~/lib"
 import { ZElementType } from "../types"
 import "../inputField/registration"
+import z from "zod"
+import { ZClientApplicationFormXML } from "./types"
 
 it("should import title from XML", () => {
   const mockXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -29,8 +31,8 @@ it("should import title from XML", () => {
     attributes: [],
   }
 
-  const xmlData = xmlImport<TClientApplicationFormXML>(mockXml)
-  const element = importClientApplicationFormFromXML(xmlData)
+  const xmlData = xmlImport<{ Form: TClientApplicationFormXML }>(mockXml, z.object({ Form: ZClientApplicationFormXML }))
+  const element = importClientApplicationFormFromXML(xmlData.Form)
 
   expect(element).toEqual(mockElement)
 })
@@ -54,8 +56,8 @@ it("should import items from XML", () => {
     attributes: [],
   }
 
-  const xmlData = xmlImport<TClientApplicationFormXML>(mockXml)
-  const form = importClientApplicationFormFromXML(xmlData)
+  const xmlData = xmlImport<{ Form: TClientApplicationFormXML }>(mockXml, z.object({ Form: ZClientApplicationFormXML }))
+  const form = importClientApplicationFormFromXML(xmlData.Form)
 
   expect(form).toEqual(mockElement)
 })
@@ -92,9 +94,9 @@ it("should import attributes from XML", () => {
     ],
   }
 
-  const xmlData = xmlImport<TClientApplicationFormXML>(mockXml)
+  const xmlData = xmlImport<{ Form: TClientApplicationFormXML }>(mockXml, z.object({ Form: ZClientApplicationFormXML }))
 
-  const form = importClientApplicationFormFromXML(xmlData)
+  const form = importClientApplicationFormFromXML(xmlData.Form)
 
   expect(form).toEqual(mockElement)
 })

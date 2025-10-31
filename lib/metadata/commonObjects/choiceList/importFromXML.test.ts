@@ -1,7 +1,8 @@
 import { expect, it } from "vitest"
 import { importChoiceListFromXML } from "./importFromXML"
 import { xmlImport } from "~/lib"
-import { TChoiceListXML } from "./types"
+import { TChoiceListXML, ZChoiceListXML } from "./types"
+import z from "zod"
 
 it("should import choice list from XML", () => {
   const mockXml = `
@@ -34,7 +35,7 @@ it("should import choice list from XML", () => {
 			</xr:Item>
 		</ChoiceList>`
 
-  const xml = xmlImport<{ ChoiceList: TChoiceListXML }>(mockXml)
+  const xml = xmlImport<{ ChoiceList: TChoiceListXML }>(mockXml, z.object({ ChoiceList: ZChoiceListXML }))
   const input = importChoiceListFromXML(xml.ChoiceList)
 
   expect(input).toEqual({

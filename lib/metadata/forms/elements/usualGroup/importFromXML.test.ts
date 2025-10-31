@@ -4,6 +4,8 @@ import { importUsualGroupFromXML } from "./importFromXML"
 import { TUsualGroupXML } from "./types"
 import { xmlImport } from "~/lib"
 import { ZElementType } from "../types"
+import z from "zod"
+import { ZUsualGroupXML } from "./types"
 
 it("should import usual group from XML", () => {
   const mockXml = `	<UsualGroup name="Группа" id="1">
@@ -23,7 +25,7 @@ it("should import usual group from XML", () => {
     elementType: ZElementType.enum.UsualGroup,
   }
 
-  const xmlData = xmlImport<{ UsualGroup: TUsualGroupXML }>(mockXml)
+  const xmlData = xmlImport<{ UsualGroup: TUsualGroupXML }>(mockXml, z.object({ UsualGroup: ZUsualGroupXML }))
   const value = xmlData.UsualGroup
 
   const input = importUsualGroupFromXML(value)

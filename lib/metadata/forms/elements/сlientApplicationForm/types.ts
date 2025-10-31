@@ -21,7 +21,7 @@ export const ZAttributeXML = z.object({
     _name: z.string(),
     _id: z.string(),
     Title: ZI8nTextXML.optional(),
-    Type: ZTypeDescriptionXML,
+    Type: ZTypeDescriptionXML.optional(),
     MainAttribute: z.boolean().optional(),
     StoredData: z.boolean().optional(),
     Use: ZUseXML.optional(),

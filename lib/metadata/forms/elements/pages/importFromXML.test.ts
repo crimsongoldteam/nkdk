@@ -3,6 +3,8 @@ import { xmlImport } from "~/lib"
 import { ZElementType } from "../types"
 import { TPages, TPagesXML } from "./types"
 import { importPagesFromXML } from "./importFromXML"
+import z from "zod"
+import { ZPagesXML } from "./types"
 
 it("should import pages from XML", () => {
   const mockXml = `	<Pages name="Страницы" id="1">
@@ -22,9 +24,9 @@ it("should import pages from XML", () => {
     elementType: ZElementType.enum.Pages,
   }
 
-  const xmlData = xmlImport<{ Pages: TPagesXML }>(mockXml)
+  const xmlData = xmlImport<{ Pages: TPagesXML }>(mockXml, z.object({ Pages: ZPagesXML }))
 
-  const input = importPagesFromXML(xmlData.Pages)
+  const result = importPagesFromXML(xmlData.Pages)
 
-  expect(input).toEqual(mockResult)
+  expect(result).toEqual(mockResult)
 })
