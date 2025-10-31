@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-export enum XDTOFacetType {
+enum XDTOFacetType {
   Length = "Длина",
   MaxInclusive = "МаксВключающее",
   MaxLength = "МаксДлина",
@@ -21,7 +21,7 @@ export const ZXDTOFacetTypeEnterprise = z.enum(Object.values(XDTOFacetType) as [
 export type TXDTOFacetType = keyof typeof XDTOFacetType
 export type TXDTOFacetTypeEnterprise = `${XDTOFacetType}`
 
-export enum XMLForm {
+enum XMLForm {
   Attribute = "Атрибут",
   Text = "Текст",
   Element = "Элемент",
@@ -33,7 +33,7 @@ export const ZXMLFormEnterprise = z.enum(Object.values(XMLForm) as [TXMLFormEnte
 export type TXMLForm = keyof typeof XMLForm
 export type TXMLFormEnterprise = `${XMLForm}`
 
-export enum WSParameterDirection {
+enum WSParameterDirection {
   In = "Входной",
   InOut = "ВходнойВыходной",
   Out = "Выходной",
@@ -45,7 +45,7 @@ export const ZWSParameterDirectionEnterprise = z.enum(Object.values(WSParameterD
 export type TWSParameterDirection = keyof typeof WSParameterDirection
 export type TWSParameterDirectionEnterprise = `${WSParameterDirection}`
 
-export enum DOMBuilderAction {
+enum DOMBuilderAction {
   InsertBefore = "ВставитьПеред",
   InsertAfter = "ВставитьПосле",
   AppendAsChildren = "ДобавитьКакДочерние",
@@ -59,7 +59,7 @@ export const ZDOMBuilderActionEnterprise = z.enum(Object.values(DOMBuilderAction
 export type TDOMBuilderAction = keyof typeof DOMBuilderAction
 export type TDOMBuilderActionEnterprise = `${DOMBuilderAction}`
 
-export enum DOMDocumentPosition {
+enum DOMDocumentPosition {
   ImplementationSpecific = "ЗависитОтРеализации",
   Disconnected = "Отсоединен",
   Preceding = "Предшествует",
@@ -74,7 +74,7 @@ export const ZDOMDocumentPositionEnterprise = z.enum(Object.values(DOMDocumentPo
 export type TDOMDocumentPosition = keyof typeof DOMDocumentPosition
 export type TDOMDocumentPositionEnterprise = `${DOMDocumentPosition}`
 
-export enum DOMNodeFilterParameters {
+enum DOMNodeFilterParameters {
   ShowAttribute = "ОтображатьАтрибут",
   ShowAll = "ОтображатьВсе",
   ShowDocument = "ОтображатьДокумент",
@@ -96,7 +96,7 @@ export const ZDOMNodeFilterParametersEnterprise = z.enum(Object.values(DOMNodeFi
 export type TDOMNodeFilterParameters = keyof typeof DOMNodeFilterParameters
 export type TDOMNodeFilterParametersEnterprise = `${DOMNodeFilterParameters}`
 
-export enum DOMNodeType {
+enum DOMNodeType {
   Attribute = "Атрибут",
   Document = "Документ",
   ProcessingInstruction = "ИнструкцияОбработки",
@@ -118,7 +118,7 @@ export const ZDOMNodeTypeEnterprise = z.enum(Object.values(DOMNodeType) as [TDOM
 export type TDOMNodeType = keyof typeof DOMNodeType
 export type TDOMNodeTypeEnterprise = `${DOMNodeType}`
 
-export enum DOMXPathResultType {
+enum DOMXPathResultType {
   Boolean = "Булево",
   Any = "Любой",
   AnyUnorderedNode = "ЛюбойНеупорядоченныйУзел",
@@ -137,7 +137,7 @@ export const ZDOMXPathResultTypeEnterprise = z.enum(Object.values(DOMXPathResult
 export type TDOMXPathResultType = keyof typeof DOMXPathResultType
 export type TDOMXPathResultTypeEnterprise = `${DOMXPathResultType}`
 
-export enum HTMLContentCategory {
+enum HTMLContentCategory {
   AppletTags = "AppletТеги",
   AreaTags = "AreaТеги",
   EmbedTags = "EmbedТеги",
@@ -161,7 +161,7 @@ export const ZHTMLContentCategoryEnterprise = z.enum(Object.values(HTMLContentCa
 export type THTMLContentCategory = keyof typeof HTMLContentCategory
 export type THTMLContentCategoryEnterprise = `${HTMLContentCategory}`
 
-export enum DataCompositionAccountingBalanceType {
+enum DataCompositionAccountingBalanceType {
   Debit = "Дебет",
   Credit = "Кредит",
   None = "Нет",
@@ -173,7 +173,7 @@ export const ZDataCompositionAccountingBalanceTypeEnterprise = z.enum(Object.val
 export type TDataCompositionAccountingBalanceType = keyof typeof DataCompositionAccountingBalanceType
 export type TDataCompositionAccountingBalanceTypeEnterprise = `${DataCompositionAccountingBalanceType}`
 
-export enum DataCompositionAreaTemplateType {
+enum DataCompositionAreaTemplateType {
   Header = "Заголовок",
   HierarchicalHeader = "ЗаголовокИерархии",
   OverallHeader = "ОбщийИтогЗаголовок",
@@ -188,7 +188,7 @@ export const ZDataCompositionAreaTemplateTypeEnterprise = z.enum(Object.values(D
 export type TDataCompositionAreaTemplateType = keyof typeof DataCompositionAreaTemplateType
 export type TDataCompositionAreaTemplateTypeEnterprise = `${DataCompositionAreaTemplateType}`
 
-export enum DataCompositionAttributesPlacement {
+enum DataCompositionAttributesPlacement {
   Together = "Вместе",
   WithOwnerField = "ВместеСВладельцем",
   SpecialPosition = "ВСпециальнойПозиции",
@@ -201,7 +201,7 @@ export const ZDataCompositionAttributesPlacementEnterprise = z.enum(Object.value
 export type TDataCompositionAttributesPlacement = keyof typeof DataCompositionAttributesPlacement
 export type TDataCompositionAttributesPlacementEnterprise = `${DataCompositionAttributesPlacement}`
 
-export enum DataCompositionBalanceType {
+enum DataCompositionBalanceType {
   ClosingBalance = "КонечныйОстаток",
   OpeningBalance = "НачальныйОстаток",
   None = "Нет",
@@ -213,7 +213,7 @@ export const ZDataCompositionBalanceTypeEnterprise = z.enum(Object.values(DataCo
 export type TDataCompositionBalanceType = keyof typeof DataCompositionBalanceType
 export type TDataCompositionBalanceTypeEnterprise = `${DataCompositionBalanceType}`
 
-export enum DataCompositionChartLegendPlacement {
+enum DataCompositionChartLegendPlacement {
   Top = "Верх",
   Left = "Лево",
   None = "Нет",
@@ -227,7 +227,7 @@ export const ZDataCompositionChartLegendPlacementEnterprise = z.enum(Object.valu
 export type TDataCompositionChartLegendPlacement = keyof typeof DataCompositionChartLegendPlacement
 export type TDataCompositionChartLegendPlacementEnterprise = `${DataCompositionChartLegendPlacement}`
 
-export enum DataCompositionComparisonType {
+enum DataCompositionComparisonType {
   Greater = "Больше",
   GreaterOrEqual = "БольшеИлиРавно",
   InHierarchy = "ВИерархии",
@@ -256,7 +256,7 @@ export const ZDataCompositionComparisonTypeEnterprise = z.enum(Object.values(Dat
 export type TDataCompositionComparisonType = keyof typeof DataCompositionComparisonType
 export type TDataCompositionComparisonTypeEnterprise = `${DataCompositionComparisonType}`
 
-export enum DataCompositionConditionalAppearanceUse {
+enum DataCompositionConditionalAppearanceUse {
   Use = "Использовать",
   DontUse = "НеИспользовать",
 }
@@ -267,7 +267,7 @@ export const ZDataCompositionConditionalAppearanceUseEnterprise = z.enum(Object.
 export type TDataCompositionConditionalAppearanceUse = keyof typeof DataCompositionConditionalAppearanceUse
 export type TDataCompositionConditionalAppearanceUseEnterprise = `${DataCompositionConditionalAppearanceUse}`
 
-export enum DataCompositionDataSetsLinkType {
+enum DataCompositionDataSetsLinkType {
   Outer = "Внешняя",
   Inner = "Внутренняя",
 }
@@ -278,7 +278,7 @@ export const ZDataCompositionDataSetsLinkTypeEnterprise = z.enum(Object.values(D
 export type TDataCompositionDataSetsLinkType = keyof typeof DataCompositionDataSetsLinkType
 export type TDataCompositionDataSetsLinkTypeEnterprise = `${DataCompositionDataSetsLinkType}`
 
-export enum DataCompositionDetailsProcessingAction {
+enum DataCompositionDetailsProcessingAction {
   None = "Нет",
   OpenValue = "ОткрытьЗначение",
   Filter = "Отфильтровать",
@@ -294,7 +294,7 @@ export const ZDataCompositionDetailsProcessingActionEnterprise = z.enum(Object.v
 export type TDataCompositionDetailsProcessingAction = keyof typeof DataCompositionDetailsProcessingAction
 export type TDataCompositionDetailsProcessingActionEnterprise = `${DataCompositionDetailsProcessingAction}`
 
-export enum DataCompositionFieldPlacement {
+enum DataCompositionFieldPlacement {
   Auto = "Авто",
   Vertically = "Вертикально",
   Together = "Вместе",
@@ -308,7 +308,7 @@ export const ZDataCompositionFieldPlacementEnterprise = z.enum(Object.values(Dat
 export type TDataCompositionFieldPlacement = keyof typeof DataCompositionFieldPlacement
 export type TDataCompositionFieldPlacementEnterprise = `${DataCompositionFieldPlacement}`
 
-export enum DataCompositionFieldsTitleType {
+enum DataCompositionFieldsTitleType {
   Auto = "Авто",
   Short = "Краткий",
   Full = "Полный",
@@ -320,7 +320,7 @@ export const ZDataCompositionFieldsTitleTypeEnterprise = z.enum(Object.values(Da
 export type TDataCompositionFieldsTitleType = keyof typeof DataCompositionFieldsTitleType
 export type TDataCompositionFieldsTitleTypeEnterprise = `${DataCompositionFieldsTitleType}`
 
-export enum DataCompositionFilterApplicationType {
+enum DataCompositionFilterApplicationType {
   Hierarchy = "Иерархия",
   HierarchyOnly = "ТолькоИерархия",
   Items = "Элементы",
@@ -332,7 +332,7 @@ export const ZDataCompositionFilterApplicationTypeEnterprise = z.enum(Object.val
 export type TDataCompositionFilterApplicationType = keyof typeof DataCompositionFilterApplicationType
 export type TDataCompositionFilterApplicationTypeEnterprise = `${DataCompositionFilterApplicationType}`
 
-export enum DataCompositionFilterItemsGroupType {
+enum DataCompositionFilterItemsGroupType {
   AndGroup = "ГруппаИ",
   OrGroup = "ГруппаИли",
   NotGroup = "ГруппаНе",
@@ -344,7 +344,7 @@ export const ZDataCompositionFilterItemsGroupTypeEnterprise = z.enum(Object.valu
 export type TDataCompositionFilterItemsGroupType = keyof typeof DataCompositionFilterItemsGroupType
 export type TDataCompositionFilterItemsGroupTypeEnterprise = `${DataCompositionFilterItemsGroupType}`
 
-export enum DataCompositionFixation {
+enum DataCompositionFixation {
   Auto = "Авто",
   DontUse = "НеИспользовать",
 }
@@ -355,7 +355,7 @@ export const ZDataCompositionFixationEnterprise = z.enum(Object.values(DataCompo
 export type TDataCompositionFixation = keyof typeof DataCompositionFixation
 export type TDataCompositionFixationEnterprise = `${DataCompositionFixation}`
 
-export enum DataCompositionGroupFieldsPlacement {
+enum DataCompositionGroupFieldsPlacement {
   Together = "Вместе",
   Separately = "Отдельно",
   SeparatelyAndInTotalsOnly = "ОтдельноИТолькоВИтогах",
@@ -367,7 +367,7 @@ export const ZDataCompositionGroupFieldsPlacementEnterprise = z.enum(Object.valu
 export type TDataCompositionGroupFieldsPlacement = keyof typeof DataCompositionGroupFieldsPlacement
 export type TDataCompositionGroupFieldsPlacementEnterprise = `${DataCompositionGroupFieldsPlacement}`
 
-export enum DataCompositionGroupPlacement {
+enum DataCompositionGroupPlacement {
   End = "Конец",
   Begin = "Начало",
   BeginAndEnd = "НачалоИКонец",
@@ -380,7 +380,7 @@ export const ZDataCompositionGroupPlacementEnterprise = z.enum(Object.values(Dat
 export type TDataCompositionGroupPlacement = keyof typeof DataCompositionGroupPlacement
 export type TDataCompositionGroupPlacementEnterprise = `${DataCompositionGroupPlacement}`
 
-export enum DataCompositionGroupTemplateType {
+enum DataCompositionGroupTemplateType {
   Auto = "Авто",
   Vertical = "Вертикальный",
   Horizontal = "Горизонтальный",
@@ -392,7 +392,7 @@ export const ZDataCompositionGroupTemplateTypeEnterprise = z.enum(Object.values(
 export type TDataCompositionGroupTemplateType = keyof typeof DataCompositionGroupTemplateType
 export type TDataCompositionGroupTemplateTypeEnterprise = `${DataCompositionGroupTemplateType}`
 
-export enum DataCompositionGroupType {
+enum DataCompositionGroupType {
   Hierarchy = "Иерархия",
   HierarchyOnly = "ТолькоИерархия",
   Items = "Элементы",
@@ -404,7 +404,7 @@ export const ZDataCompositionGroupTypeEnterprise = z.enum(Object.values(DataComp
 export type TDataCompositionGroupType = keyof typeof DataCompositionGroupType
 export type TDataCompositionGroupTypeEnterprise = `${DataCompositionGroupType}`
 
-export enum DataCompositionGroupUseVariant {
+enum DataCompositionGroupUseVariant {
   Auto = "Авто",
   AdditionalInformation = "ДополнительнаяИнформация",
 }
@@ -415,7 +415,7 @@ export const ZDataCompositionGroupUseVariantEnterprise = z.enum(Object.values(Da
 export type TDataCompositionGroupUseVariant = keyof typeof DataCompositionGroupUseVariant
 export type TDataCompositionGroupUseVariantEnterprise = `${DataCompositionGroupUseVariant}`
 
-export enum DataCompositionParameterUse {
+enum DataCompositionParameterUse {
   Auto = "Авто",
   Always = "Всегда",
 }
@@ -426,7 +426,7 @@ export const ZDataCompositionParameterUseEnterprise = z.enum(Object.values(DataC
 export type TDataCompositionParameterUse = keyof typeof DataCompositionParameterUse
 export type TDataCompositionParameterUseEnterprise = `${DataCompositionParameterUse}`
 
-export enum DataCompositionPeriodAdditionType {
+enum DataCompositionPeriodAdditionType {
   None = "БезДополнения",
   Year = "Год",
   YearSinceBeginOfPeriod = "ГодОтНачалаПериода",
@@ -458,7 +458,7 @@ export const ZDataCompositionPeriodAdditionTypeEnterprise = z.enum(Object.values
 export type TDataCompositionPeriodAdditionType = keyof typeof DataCompositionPeriodAdditionType
 export type TDataCompositionPeriodAdditionTypeEnterprise = `${DataCompositionPeriodAdditionType}`
 
-export enum DataCompositionPeriodType {
+enum DataCompositionPeriodType {
   Additional = "Дополнительный",
   Main = "Основной",
 }
@@ -469,7 +469,7 @@ export const ZDataCompositionPeriodTypeEnterprise = z.enum(Object.values(DataCom
 export type TDataCompositionPeriodType = keyof typeof DataCompositionPeriodType
 export type TDataCompositionPeriodTypeEnterprise = `${DataCompositionPeriodType}`
 
-export enum DataCompositionPictureOutputType {
+enum DataCompositionPictureOutputType {
   Auto = "Авто",
   OutputByValue = "ВыводитьПоЗначению",
   OutputByRef = "ВыводитьПоСсылке",
@@ -482,7 +482,7 @@ export const ZDataCompositionPictureOutputTypeEnterprise = z.enum(Object.values(
 export type TDataCompositionPictureOutputType = keyof typeof DataCompositionPictureOutputType
 export type TDataCompositionPictureOutputTypeEnterprise = `${DataCompositionPictureOutputType}`
 
-export enum DataCompositionResourcesAutoPosition {
+enum DataCompositionResourcesAutoPosition {
   DontUse = "НеИспользовать",
   AfterAllFields = "ПослеВсехПолей",
 }
@@ -493,7 +493,7 @@ export const ZDataCompositionResourcesAutoPositionEnterprise = z.enum(Object.val
 export type TDataCompositionResourcesAutoPosition = keyof typeof DataCompositionResourcesAutoPosition
 export type TDataCompositionResourcesAutoPositionEnterprise = `${DataCompositionResourcesAutoPosition}`
 
-export enum DataCompositionResourcesPlacement {
+enum DataCompositionResourcesPlacement {
   Vertically = "Вертикально",
   Horizontally = "Горизонтально",
 }
@@ -504,7 +504,7 @@ export const ZDataCompositionResourcesPlacementEnterprise = z.enum(Object.values
 export type TDataCompositionResourcesPlacement = keyof typeof DataCompositionResourcesPlacement
 export type TDataCompositionResourcesPlacementEnterprise = `${DataCompositionResourcesPlacement}`
 
-export enum DataCompositionResourcesPlacementInChart {
+enum DataCompositionResourcesPlacementInChart {
   Auto = "Авто",
   Series = "Серии",
   Points = "Точки",
@@ -516,7 +516,7 @@ export const ZDataCompositionResourcesPlacementInChartEnterprise = z.enum(Object
 export type TDataCompositionResourcesPlacementInChart = keyof typeof DataCompositionResourcesPlacementInChart
 export type TDataCompositionResourcesPlacementInChartEnterprise = `${DataCompositionResourcesPlacementInChart}`
 
-export enum DataCompositionResultItemType {
+enum DataCompositionResultItemType {
   End = "Конец",
   Begin = "Начало",
   BeginAndEnd = "НачалоИКонец",
@@ -528,7 +528,7 @@ export const ZDataCompositionResultItemTypeEnterprise = z.enum(Object.values(Dat
 export type TDataCompositionResultItemType = keyof typeof DataCompositionResultItemType
 export type TDataCompositionResultItemTypeEnterprise = `${DataCompositionResultItemType}`
 
-export enum DataCompositionResultNestedItemsLayout {
+enum DataCompositionResultNestedItemsLayout {
   Vertically = "Вертикально",
   Horizontally = "Горизонтально",
 }
@@ -539,7 +539,7 @@ export const ZDataCompositionResultNestedItemsLayoutEnterprise = z.enum(Object.v
 export type TDataCompositionResultNestedItemsLayout = keyof typeof DataCompositionResultNestedItemsLayout
 export type TDataCompositionResultNestedItemsLayoutEnterprise = `${DataCompositionResultNestedItemsLayout}`
 
-export enum DataCompositionSettingsItemState {
+enum DataCompositionSettingsItemState {
   Enabled = "Включен",
   Disabled = "Отключен",
   DeletedByUser = "УдаленПользователем",
@@ -551,7 +551,7 @@ export const ZDataCompositionSettingsItemStateEnterprise = z.enum(Object.values(
 export type TDataCompositionSettingsItemState = keyof typeof DataCompositionSettingsItemState
 export type TDataCompositionSettingsItemStateEnterprise = `${DataCompositionSettingsItemState}`
 
-export enum DataCompositionSettingsItemViewMode {
+enum DataCompositionSettingsItemViewMode {
   Auto = "Авто",
   QuickAccess = "БыстрыйДоступ",
   Inaccessible = "Недоступный",
@@ -564,7 +564,7 @@ export const ZDataCompositionSettingsItemViewModeEnterprise = z.enum(Object.valu
 export type TDataCompositionSettingsItemViewMode = keyof typeof DataCompositionSettingsItemViewMode
 export type TDataCompositionSettingsItemViewModeEnterprise = `${DataCompositionSettingsItemViewMode}`
 
-export enum DataCompositionSettingsRefreshMethod {
+enum DataCompositionSettingsRefreshMethod {
   Full = "Полное",
   CheckAvailability = "ПроверятьДоступность",
 }
@@ -575,7 +575,7 @@ export const ZDataCompositionSettingsRefreshMethodEnterprise = z.enum(Object.val
 export type TDataCompositionSettingsRefreshMethod = keyof typeof DataCompositionSettingsRefreshMethod
 export type TDataCompositionSettingsRefreshMethodEnterprise = `${DataCompositionSettingsRefreshMethod}`
 
-export enum DataCompositionSettingsViewMode {
+enum DataCompositionSettingsViewMode {
   QuickAccess = "БыстрыйДоступ",
   All = "Все",
 }
@@ -586,7 +586,7 @@ export const ZDataCompositionSettingsViewModeEnterprise = z.enum(Object.values(D
 export type TDataCompositionSettingsViewMode = keyof typeof DataCompositionSettingsViewMode
 export type TDataCompositionSettingsViewModeEnterprise = `${DataCompositionSettingsViewMode}`
 
-export enum DataCompositionSortDirection {
+enum DataCompositionSortDirection {
   Asc = "Возр",
   Desc = "Убыв",
 }
@@ -597,7 +597,7 @@ export const ZDataCompositionSortDirectionEnterprise = z.enum(Object.values(Data
 export type TDataCompositionSortDirection = keyof typeof DataCompositionSortDirection
 export type TDataCompositionSortDirectionEnterprise = `${DataCompositionSortDirection}`
 
-export enum DataCompositionTextOutputType {
+enum DataCompositionTextOutputType {
   Auto = "Авто",
   Output = "Выводить",
   DontOutput = "НеВыводить",
@@ -609,7 +609,7 @@ export const ZDataCompositionTextOutputTypeEnterprise = z.enum(Object.values(Dat
 export type TDataCompositionTextOutputType = keyof typeof DataCompositionTextOutputType
 export type TDataCompositionTextOutputTypeEnterprise = `${DataCompositionTextOutputType}`
 
-export enum DataCompositionTextPlacementType {
+enum DataCompositionTextPlacementType {
   Overflow = "Выступать",
   Block = "Забивать",
   Cut = "Обрезать",
@@ -622,7 +622,7 @@ export const ZDataCompositionTextPlacementTypeEnterprise = z.enum(Object.values(
 export type TDataCompositionTextPlacementType = keyof typeof DataCompositionTextPlacementType
 export type TDataCompositionTextPlacementTypeEnterprise = `${DataCompositionTextPlacementType}`
 
-export enum DataCompositionTotalPlacement {
+enum DataCompositionTotalPlacement {
   Auto = "Авто",
   End = "Конец",
   Begin = "Начало",
@@ -636,7 +636,7 @@ export const ZDataCompositionTotalPlacementEnterprise = z.enum(Object.values(Dat
 export type TDataCompositionTotalPlacement = keyof typeof DataCompositionTotalPlacement
 export type TDataCompositionTotalPlacementEnterprise = `${DataCompositionTotalPlacement}`
 
-export enum OnUnavailabilityDataCompositionSettingsAction {
+enum OnUnavailabilityDataCompositionSettingsAction {
   DisableControl = "ИзменятьДоступностьПоля",
   HidePage = "СкрыватьСтраницу",
 }
@@ -647,7 +647,7 @@ export const ZOnUnavailabilityDataCompositionSettingsActionEnterprise = z.enum(O
 export type TOnUnavailabilityDataCompositionSettingsAction = keyof typeof OnUnavailabilityDataCompositionSettingsAction
 export type TOnUnavailabilityDataCompositionSettingsActionEnterprise = `${OnUnavailabilityDataCompositionSettingsAction}`
 
-export enum ResultCompositionMode {
+enum ResultCompositionMode {
   Auto = "Авто",
   Directly = "Непосредственно",
   Background = "Фоновый",
@@ -659,7 +659,7 @@ export const ZResultCompositionModeEnterprise = z.enum(Object.values(ResultCompo
 export type TResultCompositionMode = keyof typeof ResultCompositionMode
 export type TResultCompositionModeEnterprise = `${ResultCompositionMode}`
 
-export enum SaveDataCompositionAppearance {
+enum SaveDataCompositionAppearance {
   Auto = "Авто",
   ForUser = "ДляПользователя",
   ForCurrentResult = "ДляТекущегоРезультата",
@@ -673,7 +673,7 @@ export const ZSaveDataCompositionAppearanceEnterprise = z.enum(Object.values(Sav
 export type TSaveDataCompositionAppearance = keyof typeof SaveDataCompositionAppearance
 export type TSaveDataCompositionAppearanceEnterprise = `${SaveDataCompositionAppearance}`
 
-export enum XSAttributeUseCategory {
+enum XSAttributeUseCategory {
   Prohibited = "Запрещено",
   Optional = "Необязательно",
   Required = "Обязательно",
@@ -685,7 +685,7 @@ export const ZXSAttributeUseCategoryEnterprise = z.enum(Object.values(XSAttribut
 export type TXSAttributeUseCategory = keyof typeof XSAttributeUseCategory
 export type TXSAttributeUseCategoryEnterprise = `${XSAttributeUseCategory}`
 
-export enum XSComplexFinal {
+enum XSComplexFinal {
   All = "Все",
   Restriction = "Ограничение",
   Extension = "Расширение",
@@ -697,7 +697,7 @@ export const ZXSComplexFinalEnterprise = z.enum(Object.values(XSComplexFinal) as
 export type TXSComplexFinal = keyof typeof XSComplexFinal
 export type TXSComplexFinalEnterprise = `${XSComplexFinal}`
 
-export enum XSComponentType {
+enum XSComponentType {
   Annotation = "Аннотация",
   Include = "Включение",
   ModelGroup = "ГруппаМодели",
@@ -738,7 +738,7 @@ export const ZXSComponentTypeEnterprise = z.enum(Object.values(XSComponentType) 
 export type TXSComponentType = keyof typeof XSComponentType
 export type TXSComponentTypeEnterprise = `${XSComponentType}`
 
-export enum XSCompositor {
+enum XSCompositor {
   All = "Все",
   Choice = "Выбор",
   Sequence = "Последовательность",
@@ -750,7 +750,7 @@ export const ZXSCompositorEnterprise = z.enum(Object.values(XSCompositor) as [TX
 export type TXSCompositor = keyof typeof XSCompositor
 export type TXSCompositorEnterprise = `${XSCompositor}`
 
-export enum XSConstraint {
+enum XSConstraint {
   Default = "ПоУмолчанию",
   Fixed = "Фиксированное",
 }
@@ -761,7 +761,7 @@ export const ZXSConstraintEnterprise = z.enum(Object.values(XSConstraint) as [TX
 export type TXSConstraint = keyof typeof XSConstraint
 export type TXSConstraintEnterprise = `${XSConstraint}`
 
-export enum XSContentModel {
+enum XSContentModel {
   Simple = "Простая",
   Complex = "Составная",
 }
@@ -772,7 +772,7 @@ export const ZXSContentModelEnterprise = z.enum(Object.values(XSContentModel) as
 export type TXSContentModel = keyof typeof XSContentModel
 export type TXSContentModelEnterprise = `${XSContentModel}`
 
-export enum XSDerivationMethod {
+enum XSDerivationMethod {
   Restriction = "Ограничение",
   Extension = "Расширение",
 }
@@ -783,7 +783,7 @@ export const ZXSDerivationMethodEnterprise = z.enum(Object.values(XSDerivationMe
 export type TXSDerivationMethod = keyof typeof XSDerivationMethod
 export type TXSDerivationMethodEnterprise = `${XSDerivationMethod}`
 
-export enum XSDisallowedSubstitutions {
+enum XSDisallowedSubstitutions {
   All = "Все",
   Restriction = "Ограничение",
   Substitution = "Подстановка",
@@ -796,7 +796,7 @@ export const ZXSDisallowedSubstitutionsEnterprise = z.enum(Object.values(XSDisal
 export type TXSDisallowedSubstitutions = keyof typeof XSDisallowedSubstitutions
 export type TXSDisallowedSubstitutionsEnterprise = `${XSDisallowedSubstitutions}`
 
-export enum XSForm {
+enum XSForm {
   Qualified = "Квалифицированная",
   Unqualified = "Неквалифицированная",
 }
@@ -807,7 +807,7 @@ export const ZXSFormEnterprise = z.enum(Object.values(XSForm) as [TXSFormEnterpr
 export type TXSForm = keyof typeof XSForm
 export type TXSFormEnterprise = `${XSForm}`
 
-export enum XSIdentityConstraintCategory {
+enum XSIdentityConstraintCategory {
   Key = "Ключ",
   KeyRef = "СсылкаНаКлюч",
   Unique = "Уникальность",
@@ -819,7 +819,7 @@ export const ZXSIdentityConstraintCategoryEnterprise = z.enum(Object.values(XSId
 export type TXSIdentityConstraintCategory = keyof typeof XSIdentityConstraintCategory
 export type TXSIdentityConstraintCategoryEnterprise = `${XSIdentityConstraintCategory}`
 
-export enum XSNamespaceConstraintCategory {
+enum XSNamespaceConstraintCategory {
   Not = "Кроме",
   Any = "Любое",
   Set = "Набор",
@@ -831,7 +831,7 @@ export const ZXSNamespaceConstraintCategoryEnterprise = z.enum(Object.values(XSN
 export type TXSNamespaceConstraintCategory = keyof typeof XSNamespaceConstraintCategory
 export type TXSNamespaceConstraintCategoryEnterprise = `${XSNamespaceConstraintCategory}`
 
-export enum XSProcessContents {
+enum XSProcessContents {
   Skip = "Пропустить",
   Lax = "Слабая",
   Strict = "Строгая",
@@ -843,7 +843,7 @@ export const ZXSProcessContentsEnterprise = z.enum(Object.values(XSProcessConten
 export type TXSProcessContents = keyof typeof XSProcessContents
 export type TXSProcessContentsEnterprise = `${XSProcessContents}`
 
-export enum XSProhibitedSubstitutions {
+enum XSProhibitedSubstitutions {
   All = "Все",
   Restriction = "Ограничение",
   Extension = "Расширение",
@@ -855,7 +855,7 @@ export const ZXSProhibitedSubstitutionsEnterprise = z.enum(Object.values(XSProhi
 export type TXSProhibitedSubstitutions = keyof typeof XSProhibitedSubstitutions
 export type TXSProhibitedSubstitutionsEnterprise = `${XSProhibitedSubstitutions}`
 
-export enum XSSchemaFinal {
+enum XSSchemaFinal {
   All = "Все",
   Union = "Объединение",
   Restriction = "Ограничение",
@@ -869,7 +869,7 @@ export const ZXSSchemaFinalEnterprise = z.enum(Object.values(XSSchemaFinal) as [
 export type TXSSchemaFinal = keyof typeof XSSchemaFinal
 export type TXSSchemaFinalEnterprise = `${XSSchemaFinal}`
 
-export enum XSSimpleFinal {
+enum XSSimpleFinal {
   All = "Все",
   Union = "Объединение",
   Restriction = "Ограничение",
@@ -882,7 +882,7 @@ export const ZXSSimpleFinalEnterprise = z.enum(Object.values(XSSimpleFinal) as [
 export type TXSSimpleFinal = keyof typeof XSSimpleFinal
 export type TXSSimpleFinalEnterprise = `${XSSimpleFinal}`
 
-export enum XSSimpleTypeVariety {
+enum XSSimpleTypeVariety {
   Atomic = "Атомарная",
   Union = "Объединение",
   List = "Список",
@@ -894,7 +894,7 @@ export const ZXSSimpleTypeVarietyEnterprise = z.enum(Object.values(XSSimpleTypeV
 export type TXSSimpleTypeVariety = keyof typeof XSSimpleTypeVariety
 export type TXSSimpleTypeVarietyEnterprise = `${XSSimpleTypeVariety}`
 
-export enum XSSubstitutionGroupExclusions {
+enum XSSubstitutionGroupExclusions {
   All = "Все",
   Restriction = "Ограничение",
   Extension = "Расширение",
@@ -906,7 +906,7 @@ export const ZXSSubstitutionGroupExclusionsEnterprise = z.enum(Object.values(XSS
 export type TXSSubstitutionGroupExclusions = keyof typeof XSSubstitutionGroupExclusions
 export type TXSSubstitutionGroupExclusionsEnterprise = `${XSSubstitutionGroupExclusions}`
 
-export enum XSWhitespaceHandling {
+enum XSWhitespaceHandling {
   Replace = "Заменять",
   Collapse = "Сворачивать",
   Preserve = "Сохранять",
@@ -918,7 +918,7 @@ export const ZXSWhitespaceHandlingEnterprise = z.enum(Object.values(XSWhitespace
 export type TXSWhitespaceHandling = keyof typeof XSWhitespaceHandling
 export type TXSWhitespaceHandlingEnterprise = `${XSWhitespaceHandling}`
 
-export enum XSXPathVariety {
+enum XSXPathVariety {
   Field = "Поле",
   Selector = "Селектор",
 }
@@ -929,7 +929,7 @@ export const ZXSXPathVarietyEnterprise = z.enum(Object.values(XSXPathVariety) as
 export type TXSXPathVariety = keyof typeof XSXPathVariety
 export type TXSXPathVarietyEnterprise = `${XSXPathVariety}`
 
-export enum EventLogDataStorageSplitPeriod {
+enum EventLogDataStorageSplitPeriod {
   Year = "Год",
   Day = "День",
   Quarter = "Квартал",
@@ -945,7 +945,7 @@ export const ZEventLogDataStorageSplitPeriodEnterprise = z.enum(Object.values(Ev
 export type TEventLogDataStorageSplitPeriod = keyof typeof EventLogDataStorageSplitPeriod
 export type TEventLogDataStorageSplitPeriodEnterprise = `${EventLogDataStorageSplitPeriod}`
 
-export enum EventLogEntryTransactionMode {
+enum EventLogEntryTransactionMode {
   Independent = "Независимая",
   Transactional = "Транзакционная",
 }
@@ -956,7 +956,7 @@ export const ZEventLogEntryTransactionModeEnterprise = z.enum(Object.values(Even
 export type TEventLogEntryTransactionMode = keyof typeof EventLogEntryTransactionMode
 export type TEventLogEntryTransactionModeEnterprise = `${EventLogEntryTransactionMode}`
 
-export enum EventLogEntryTransactionStatus {
+enum EventLogEntryTransactionStatus {
   Committed = "Зафиксирована",
   Unfinished = "НеЗавершена",
   NotApplicable = "НетТранзакции",
@@ -969,7 +969,7 @@ export const ZEventLogEntryTransactionStatusEnterprise = z.enum(Object.values(Ev
 export type TEventLogEntryTransactionStatus = keyof typeof EventLogEntryTransactionStatus
 export type TEventLogEntryTransactionStatusEnterprise = `${EventLogEntryTransactionStatus}`
 
-export enum EventLogLevel {
+enum EventLogLevel {
   Information = "Информация",
   Error = "Ошибка",
   Warning = "Предупреждение",
@@ -982,7 +982,7 @@ export const ZEventLogLevelEnterprise = z.enum(Object.values(EventLogLevel) as [
 export type TEventLogLevel = keyof typeof EventLogLevel
 export type TEventLogLevelEnterprise = `${EventLogLevel}`
 
-export enum DataLockControlMode {
+enum DataLockControlMode {
   Automatic = "Автоматический",
   Managed = "Управляемый",
 }
@@ -993,7 +993,7 @@ export const ZDataLockControlModeEnterprise = z.enum(Object.values(DataLockContr
 export type TDataLockControlMode = keyof typeof DataLockControlMode
 export type TDataLockControlModeEnterprise = `${DataLockControlMode}`
 
-export enum DataLockMode {
+enum DataLockMode {
   Exclusive = "Исключительный",
   Shared = "Разделяемый",
 }
@@ -1004,7 +1004,7 @@ export const ZDataLockModeEnterprise = z.enum(Object.values(DataLockMode) as [TD
 export type TDataLockMode = keyof typeof DataLockMode
 export type TDataLockModeEnterprise = `${DataLockMode}`
 
-export enum AccountingRecordType {
+enum AccountingRecordType {
   Debit = "Дебет",
   Credit = "Кредит",
 }
@@ -1015,7 +1015,7 @@ export const ZAccountingRecordTypeEnterprise = z.enum(Object.values(AccountingRe
 export type TAccountingRecordType = keyof typeof AccountingRecordType
 export type TAccountingRecordTypeEnterprise = `${AccountingRecordType}`
 
-export enum AccountType {
+enum AccountType {
   ActivePassive = "АктивноПассивный",
   Active = "Активный",
   Passive = "Пассивный",
@@ -1027,7 +1027,7 @@ export const ZAccountTypeEnterprise = z.enum(Object.values(AccountType) as [TAcc
 export type TAccountType = keyof typeof AccountType
 export type TAccountTypeEnterprise = `${AccountType}`
 
-export enum AccumulationRecordType {
+enum AccumulationRecordType {
   Receipt = "Приход",
   Expense = "Расход",
 }
@@ -1038,7 +1038,7 @@ export const ZAccumulationRecordTypeEnterprise = z.enum(Object.values(Accumulati
 export type TAccumulationRecordType = keyof typeof AccumulationRecordType
 export type TAccumulationRecordTypeEnterprise = `${AccumulationRecordType}`
 
-export enum AccumulationRegisterAggregatePeriodicity {
+enum AccumulationRegisterAggregatePeriodicity {
   Auto = "Авто",
   Year = "Год",
   Day = "День",
@@ -1054,7 +1054,7 @@ export const ZAccumulationRegisterAggregatePeriodicityEnterprise = z.enum(Object
 export type TAccumulationRegisterAggregatePeriodicity = keyof typeof AccumulationRegisterAggregatePeriodicity
 export type TAccumulationRegisterAggregatePeriodicityEnterprise = `${AccumulationRegisterAggregatePeriodicity}`
 
-export enum AccumulationRegisterAggregateUse {
+enum AccumulationRegisterAggregateUse {
   Auto = "Авто",
   Always = "Всегда",
 }
@@ -1065,7 +1065,7 @@ export const ZAccumulationRegisterAggregateUseEnterprise = z.enum(Object.values(
 export type TAccumulationRegisterAggregateUse = keyof typeof AccumulationRegisterAggregateUse
 export type TAccumulationRegisterAggregateUseEnterprise = `${AccumulationRegisterAggregateUse}`
 
-export enum AutoTimeMode {
+enum AutoTimeMode {
   DontUse = "НеИспользовать",
   First = "Первым",
   Last = "Последним",
@@ -1079,7 +1079,7 @@ export const ZAutoTimeModeEnterprise = z.enum(Object.values(AutoTimeMode) as [TA
 export type TAutoTimeMode = keyof typeof AutoTimeMode
 export type TAutoTimeModeEnterprise = `${AutoTimeMode}`
 
-export enum BusinessProcessRoutePointType {
+enum BusinessProcessRoutePointType {
   SubBusinessProcess = "ВложенныйБизнесПроцесс",
   Switch = "ВыборВарианта",
   Activity = "Действие",
@@ -1097,7 +1097,7 @@ export const ZBusinessProcessRoutePointTypeEnterprise = z.enum(Object.values(Bus
 export type TBusinessProcessRoutePointType = keyof typeof BusinessProcessRoutePointType
 export type TBusinessProcessRoutePointTypeEnterprise = `${BusinessProcessRoutePointType}`
 
-export enum CalculationRegisterPeriodType {
+enum CalculationRegisterPeriodType {
   BasePeriod = "БазовыйПериод",
   ActionPeriod = "ПериодДействия",
   RegistrationPeriod = "ПериодРегистрации",
@@ -1110,7 +1110,7 @@ export const ZCalculationRegisterPeriodTypeEnterprise = z.enum(Object.values(Cal
 export type TCalculationRegisterPeriodType = keyof typeof CalculationRegisterPeriodType
 export type TCalculationRegisterPeriodTypeEnterprise = `${CalculationRegisterPeriodType}`
 
-export enum DocumentPostingMode {
+enum DocumentPostingMode {
   Regular = "Неоперативный",
   RealTime = "Оперативный",
 }
@@ -1121,7 +1121,7 @@ export const ZDocumentPostingModeEnterprise = z.enum(Object.values(DocumentPosti
 export type TDocumentPostingMode = keyof typeof DocumentPostingMode
 export type TDocumentPostingModeEnterprise = `${DocumentPostingMode}`
 
-export enum DocumentWriteMode {
+enum DocumentWriteMode {
   Write = "Запись",
   UndoPosting = "ОтменаПроведения",
   Posting = "Проведение",
@@ -1133,7 +1133,7 @@ export const ZDocumentWriteModeEnterprise = z.enum(Object.values(DocumentWriteMo
 export type TDocumentWriteMode = keyof typeof DocumentWriteMode
 export type TDocumentWriteModeEnterprise = `${DocumentWriteMode}`
 
-export enum FoldersAndItemsUse {
+enum FoldersAndItemsUse {
   Folders = "Группы",
   FoldersAndItems = "ГруппыИЭлементы",
   Items = "Элементы",
@@ -1145,7 +1145,7 @@ export const ZFoldersAndItemsUseEnterprise = z.enum(Object.values(FoldersAndItem
 export type TFoldersAndItemsUse = keyof typeof FoldersAndItemsUse
 export type TFoldersAndItemsUseEnterprise = `${FoldersAndItemsUse}`
 
-export enum PostingModeUse {
+enum PostingModeUse {
   Auto = "Авто",
   Regular = "Неоперативный",
   RealTime = "Оперативный",
@@ -1157,7 +1157,7 @@ export const ZPostingModeUseEnterprise = z.enum(Object.values(PostingModeUse) as
 export type TPostingModeUse = keyof typeof PostingModeUse
 export type TPostingModeUseEnterprise = `${PostingModeUse}`
 
-export enum SliceUse {
+enum SliceUse {
   DontUse = "НеИспользовать",
   First = "Первые",
   Last = "Последние",
@@ -1169,7 +1169,7 @@ export const ZSliceUseEnterprise = z.enum(Object.values(SliceUse) as [TSliceUseE
 export type TSliceUse = keyof typeof SliceUse
 export type TSliceUseEnterprise = `${SliceUse}`
 
-export enum BackgroundJobState {
+enum BackgroundJobState {
   Active = "Активно",
   Completed = "Завершено",
   Failed = "ЗавершеноАварийно",
@@ -1182,7 +1182,7 @@ export const ZBackgroundJobStateEnterprise = z.enum(Object.values(BackgroundJobS
 export type TBackgroundJobState = keyof typeof BackgroundJobState
 export type TBackgroundJobStateEnterprise = `${BackgroundJobState}`
 
-export enum CryptoCertificateCheckMode {
+enum CryptoCertificateCheckMode {
   IgnoreTimeValidity = "ИгнорироватьВремяДействия",
   IgnoreSignatureValidity = "ИгнорироватьДействительностьПодписи",
   IgnoreCertificateRevocationStatus = "ИгнорироватьПроверкуВСпискеОтозванныхСертификатов",
@@ -1195,7 +1195,7 @@ export const ZCryptoCertificateCheckModeEnterprise = z.enum(Object.values(Crypto
 export type TCryptoCertificateCheckMode = keyof typeof CryptoCertificateCheckMode
 export type TCryptoCertificateCheckModeEnterprise = `${CryptoCertificateCheckMode}`
 
-export enum CryptoCertificateIncludeMode {
+enum CryptoCertificateIncludeMode {
   IncludeWholeChain = "ВключатьПолнуюЦепочку",
   IncludeSubjectCertificate = "ВключатьСертификатСубъекта",
   IncludeChainWithoutRoot = "ВключатьЦепочкуБезКорневого",
@@ -1208,7 +1208,7 @@ export const ZCryptoCertificateIncludeModeEnterprise = z.enum(Object.values(Cryp
 export type TCryptoCertificateIncludeMode = keyof typeof CryptoCertificateIncludeMode
 export type TCryptoCertificateIncludeModeEnterprise = `${CryptoCertificateIncludeMode}`
 
-export enum CryptoCertificateStorePlacement {
+enum CryptoCertificateStorePlacement {
   ComputerData = "ДанныеКомпьютера",
   OSUserData = "ДанныеПользователяОС",
   ApplicationData = "ДанныеПриложения",
@@ -1220,7 +1220,7 @@ export const ZCryptoCertificateStorePlacementEnterprise = z.enum(Object.values(C
 export type TCryptoCertificateStorePlacement = keyof typeof CryptoCertificateStorePlacement
 export type TCryptoCertificateStorePlacementEnterprise = `${CryptoCertificateStorePlacement}`
 
-export enum CryptoCertificateStoreType {
+enum CryptoCertificateStoreType {
   RootCertificates = "КорневыеСертификаты",
   PersonalCertificates = "ПерсональныеСертификаты",
   RecipientCertificates = "СертификатыПолучателей",
@@ -1233,7 +1233,7 @@ export const ZCryptoCertificateStoreTypeEnterprise = z.enum(Object.values(Crypto
 export type TCryptoCertificateStoreType = keyof typeof CryptoCertificateStoreType
 export type TCryptoCertificateStoreTypeEnterprise = `${CryptoCertificateStoreType}`
 
-export enum CryptoInteractiveModeUse {
+enum CryptoInteractiveModeUse {
   Use = "Использовать",
   DontUse = "НеИспользовать",
 }
@@ -1244,7 +1244,7 @@ export const ZCryptoInteractiveModeUseEnterprise = z.enum(Object.values(CryptoIn
 export type TCryptoInteractiveModeUse = keyof typeof CryptoInteractiveModeUse
 export type TCryptoInteractiveModeUseEnterprise = `${CryptoInteractiveModeUse}`
 
-export enum FormattedDocumentFileType {
+enum FormattedDocumentFileType {
   ANSITXT = "ANSITXT",
   HTML = "HTML",
   PDF = "PDF",
@@ -1257,7 +1257,7 @@ export const ZFormattedDocumentFileTypeEnterprise = z.enum(Object.values(Formatt
 export type TFormattedDocumentFileType = keyof typeof FormattedDocumentFileType
 export type TFormattedDocumentFileTypeEnterprise = `${FormattedDocumentFileType}`
 
-export enum FormattedDocumentParagraphType {
+enum FormattedDocumentParagraphType {
   BulletedList = "МаркированныйСписок",
   NumberedList = "НумерованныйСписок",
   Usual = "Обычный",
@@ -1269,7 +1269,7 @@ export const ZFormattedDocumentParagraphTypeEnterprise = z.enum(Object.values(Fo
 export type TFormattedDocumentParagraphType = keyof typeof FormattedDocumentParagraphType
 export type TFormattedDocumentParagraphTypeEnterprise = `${FormattedDocumentParagraphType}`
 
-export enum RowGotoDirection {
+enum RowGotoDirection {
   Up = "Вверх",
   Down = "Вниз",
 }
@@ -1280,7 +1280,7 @@ export const ZRowGotoDirectionEnterprise = z.enum(Object.values(RowGotoDirection
 export type TRowGotoDirection = keyof typeof RowGotoDirection
 export type TRowGotoDirectionEnterprise = `${RowGotoDirection}`
 
-export enum InternetMailAttachmentEncodingMode {
+enum InternetMailAttachmentEncodingMode {
   MIME = "MIME",
   UUEncode = "UUEncode",
 }
@@ -1291,7 +1291,7 @@ export const ZInternetMailAttachmentEncodingModeEnterprise = z.enum(Object.value
 export type TInternetMailAttachmentEncodingMode = keyof typeof InternetMailAttachmentEncodingMode
 export type TInternetMailAttachmentEncodingModeEnterprise = `${InternetMailAttachmentEncodingMode}`
 
-export enum InternetMailMessageImportance {
+enum InternetMailMessageImportance {
   High = "Высокая",
   Highest = "Наивысшая",
   Lowest = "Наименьшая",
@@ -1305,7 +1305,7 @@ export const ZInternetMailMessageImportanceEnterprise = z.enum(Object.values(Int
 export type TInternetMailMessageImportance = keyof typeof InternetMailMessageImportance
 export type TInternetMailMessageImportanceEnterprise = `${InternetMailMessageImportance}`
 
-export enum InternetMailMessageNonASCIISymbolsEncodingMode {
+enum InternetMailMessageNonASCIISymbolsEncodingMode {
   MIME = "MIME",
   QuotedPrintable = "QuotedPrintable",
   None = "БезКодирования",
@@ -1317,7 +1317,7 @@ export const ZInternetMailMessageNonASCIISymbolsEncodingModeEnterprise = z.enum(
 export type TInternetMailMessageNonASCIISymbolsEncodingMode = keyof typeof InternetMailMessageNonASCIISymbolsEncodingMode
 export type TInternetMailMessageNonASCIISymbolsEncodingModeEnterprise = `${InternetMailMessageNonASCIISymbolsEncodingMode}`
 
-export enum InternetMailMessageParseStatus {
+enum InternetMailMessageParseStatus {
   ErrorsDetected = "ОбнаруженыОшибки",
   ErrorsNotDetected = "ОшибокНеОбнаружено",
 }
@@ -1328,7 +1328,7 @@ export const ZInternetMailMessageParseStatusEnterprise = z.enum(Object.values(In
 export type TInternetMailMessageParseStatus = keyof typeof InternetMailMessageParseStatus
 export type TInternetMailMessageParseStatusEnterprise = `${InternetMailMessageParseStatus}`
 
-export enum InternetMailProtocol {
+enum InternetMailProtocol {
   IMAP = "IMAP",
   POP3 = "POP3",
   SMTP = "SMTP",
@@ -1340,7 +1340,7 @@ export const ZInternetMailProtocolEnterprise = z.enum(Object.values(InternetMail
 export type TInternetMailProtocol = keyof typeof InternetMailProtocol
 export type TInternetMailProtocolEnterprise = `${InternetMailProtocol}`
 
-export enum InternetMailTextProcessing {
+enum InternetMailTextProcessing {
   DontProcess = "НеОбрабатывать",
   Process = "Обрабатывать",
 }
@@ -1351,7 +1351,7 @@ export const ZInternetMailTextProcessingEnterprise = z.enum(Object.values(Intern
 export type TInternetMailTextProcessing = keyof typeof InternetMailTextProcessing
 export type TInternetMailTextProcessingEnterprise = `${InternetMailTextProcessing}`
 
-export enum InternetMailTextType {
+enum InternetMailTextType {
   HTML = "HTML",
   CustomText = "ПроизвольныйТекст",
   PlainText = "ПростойТекст",
@@ -1364,7 +1364,7 @@ export const ZInternetMailTextTypeEnterprise = z.enum(Object.values(InternetMail
 export type TInternetMailTextType = keyof typeof InternetMailTextType
 export type TInternetMailTextTypeEnterprise = `${InternetMailTextType}`
 
-export enum POP3AuthenticationMode {
+enum POP3AuthenticationMode {
   APOP = "APOP",
   CramMD5 = "CramMD5",
   General = "Обычная",
@@ -1376,7 +1376,7 @@ export const ZPOP3AuthenticationModeEnterprise = z.enum(Object.values(POP3Authen
 export type TPOP3AuthenticationMode = keyof typeof POP3AuthenticationMode
 export type TPOP3AuthenticationModeEnterprise = `${POP3AuthenticationMode}`
 
-export enum SMTPAuthenticationMode {
+enum SMTPAuthenticationMode {
   CramMD5 = "CramMD5",
   Login = "Login",
   Plain = "Plain",
@@ -1390,7 +1390,7 @@ export const ZSMTPAuthenticationModeEnterprise = z.enum(Object.values(SMTPAuthen
 export type TSMTPAuthenticationMode = keyof typeof SMTPAuthenticationMode
 export type TSMTPAuthenticationModeEnterprise = `${SMTPAuthenticationMode}`
 
-export enum UseInternetMailTokenAuthentication {
+enum UseInternetMailTokenAuthentication {
   Auto = "Авто",
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -1402,7 +1402,7 @@ export const ZUseInternetMailTokenAuthenticationEnterprise = z.enum(Object.value
 export type TUseInternetMailTokenAuthentication = keyof typeof UseInternetMailTokenAuthentication
 export type TUseInternetMailTokenAuthenticationEnterprise = `${UseInternetMailTokenAuthentication}`
 
-export enum QueryBuilderDimensionType {
+enum QueryBuilderDimensionType {
   Hierarchy = "Иерархия",
   HierarchyOnly = "ТолькоИерархия",
   Items = "Элементы",
@@ -1414,7 +1414,7 @@ export const ZQueryBuilderDimensionTypeEnterprise = z.enum(Object.values(QueryBu
 export type TQueryBuilderDimensionType = keyof typeof QueryBuilderDimensionType
 export type TQueryBuilderDimensionTypeEnterprise = `${QueryBuilderDimensionType}`
 
-export enum AddInConnectionType {
+enum AddInConnectionType {
   Isolated = "Изолированно",
   NotIsolated = "НеИзолированно",
 }
@@ -1425,7 +1425,7 @@ export const ZAddInConnectionTypeEnterprise = z.enum(Object.values(AddInConnecti
 export type TAddInConnectionType = keyof typeof AddInConnectionType
 export type TAddInConnectionTypeEnterprise = `${AddInConnectionType}`
 
-export enum AddInType {
+enum AddInType {
   COM = "COM",
   Native = "Native",
 }
@@ -1436,7 +1436,7 @@ export const ZAddInTypeEnterprise = z.enum(Object.values(AddInType) as [TAddInTy
 export type TAddInType = keyof typeof AddInType
 export type TAddInTypeEnterprise = `${AddInType}`
 
-export enum AllowedLength {
+enum AllowedLength {
   Variable = "Переменная",
   Fixed = "Фиксированная",
 }
@@ -1447,7 +1447,7 @@ export const ZAllowedLengthEnterprise = z.enum(Object.values(AllowedLength) as [
 export type TAllowedLength = keyof typeof AllowedLength
 export type TAllowedLengthEnterprise = `${AllowedLength}`
 
-export enum AllowedSign {
+enum AllowedSign {
   Any = "Любой",
   Nonnegative = "Неотрицательный",
 }
@@ -1458,7 +1458,7 @@ export const ZAllowedSignEnterprise = z.enum(Object.values(AllowedSign) as [TAll
 export type TAllowedSign = keyof typeof AllowedSign
 export type TAllowedSignEnterprise = `${AllowedSign}`
 
-export enum ApplicationFormsOpenningMode {
+enum ApplicationFormsOpenningMode {
   Tabs = "Закладки",
   SingleWindows = "ОтдельныеОкна",
 }
@@ -1469,7 +1469,7 @@ export const ZApplicationFormsOpenningModeEnterprise = z.enum(Object.values(Appl
 export type TApplicationFormsOpenningMode = keyof typeof ApplicationFormsOpenningMode
 export type TApplicationFormsOpenningModeEnterprise = `${ApplicationFormsOpenningMode}`
 
-export enum BorderType {
+enum BorderType {
   Absolute = "Абсолютная",
   StyleItem = "ЭлементСтиля",
 }
@@ -1480,7 +1480,7 @@ export const ZBorderTypeEnterprise = z.enum(Object.values(BorderType) as [TBorde
 export type TBorderType = keyof typeof BorderType
 export type TBorderTypeEnterprise = `${BorderType}`
 
-export enum BoundaryType {
+enum BoundaryType {
   Including = "Включая",
   Excluding = "Исключая",
 }
@@ -1491,7 +1491,7 @@ export const ZBoundaryTypeEnterprise = z.enum(Object.values(BoundaryType) as [TB
 export type TBoundaryType = keyof typeof BoundaryType
 export type TBoundaryTypeEnterprise = `${BoundaryType}`
 
-export enum ByteOrderMarkUse {
+enum ByteOrderMarkUse {
   Auto = "Авто",
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -1503,7 +1503,7 @@ export const ZByteOrderMarkUseEnterprise = z.enum(Object.values(ByteOrderMarkUse
 export type TByteOrderMarkUse = keyof typeof ByteOrderMarkUse
 export type TByteOrderMarkUseEnterprise = `${ByteOrderMarkUse}`
 
-export enum ClientApplicationBaseFontVariant {
+enum ClientApplicationBaseFontVariant {
   Large = "Крупный",
   Normal = "Обычный",
 }
@@ -1514,7 +1514,7 @@ export const ZClientApplicationBaseFontVariantEnterprise = z.enum(Object.values(
 export type TClientApplicationBaseFontVariant = keyof typeof ClientApplicationBaseFontVariant
 export type TClientApplicationBaseFontVariantEnterprise = `${ClientApplicationBaseFontVariant}`
 
-export enum ClientApplicationFormScaleVariant {
+enum ClientApplicationFormScaleVariant {
   Auto = "Авто",
   Compact = "Компактный",
   Normal = "Обычный",
@@ -1526,7 +1526,7 @@ export const ZClientApplicationFormScaleVariantEnterprise = z.enum(Object.values
 export type TClientApplicationFormScaleVariant = keyof typeof ClientApplicationFormScaleVariant
 export type TClientApplicationFormScaleVariantEnterprise = `${ClientApplicationFormScaleVariant}`
 
-export enum ClientApplicationInterfaceVariant {
+enum ClientApplicationInterfaceVariant {
   Version8_2 = "Версия8_2",
   Taxi = "Такси",
 }
@@ -1537,7 +1537,7 @@ export const ZClientApplicationInterfaceVariantEnterprise = z.enum(Object.values
 export type TClientApplicationInterfaceVariant = keyof typeof ClientApplicationInterfaceVariant
 export type TClientApplicationInterfaceVariantEnterprise = `${ClientApplicationInterfaceVariant}`
 
-export enum ClientApplicationType {
+enum ClientApplicationType {
   WebClient = "ВебКлиент",
   ExternalConnection = "ВнешнееСоединение",
   MobileAppClient = "МобильноеПриложениеКлиент",
@@ -1552,7 +1552,7 @@ export const ZClientApplicationTypeEnterprise = z.enum(Object.values(ClientAppli
 export type TClientApplicationType = keyof typeof ClientApplicationType
 export type TClientApplicationTypeEnterprise = `${ClientApplicationType}`
 
-export enum ClientConnectionSpeed {
+enum ClientConnectionSpeed {
   Low = "Низкая",
   Normal = "Обычная",
 }
@@ -1563,7 +1563,7 @@ export const ZClientConnectionSpeedEnterprise = z.enum(Object.values(ClientConne
 export type TClientConnectionSpeed = keyof typeof ClientConnectionSpeed
 export type TClientConnectionSpeedEnterprise = `${ClientConnectionSpeed}`
 
-export enum ClientRunMode {
+enum ClientRunMode {
   Auto = "Авто",
   OrdinaryApplication = "ОбычноеПриложение",
   ManagedApplication = "УправляемоеПриложение",
@@ -1575,7 +1575,7 @@ export const ZClientRunModeEnterprise = z.enum(Object.values(ClientRunMode) as [
 export type TClientRunMode = keyof typeof ClientRunMode
 export type TClientRunModeEnterprise = `${ClientRunMode}`
 
-export enum ColorType {
+enum ColorType {
   WebColor = "WebЦвет",
   WindowsColor = "WindowsЦвет",
   Absolute = "Абсолютный",
@@ -1589,7 +1589,7 @@ export const ZColorTypeEnterprise = z.enum(Object.values(ColorType) as [TColorTy
 export type TColorType = keyof typeof ColorType
 export type TColorTypeEnterprise = `${ColorType}`
 
-export enum ComparisonType {
+enum ComparisonType {
   Greater = "Больше",
   GreaterOrEqual = "БольшеИлиРавно",
   InHierarchy = "ВИерархии",
@@ -1616,7 +1616,7 @@ export const ZComparisonTypeEnterprise = z.enum(Object.values(ComparisonType) as
 export type TComparisonType = keyof typeof ComparisonType
 export type TComparisonTypeEnterprise = `${ComparisonType}`
 
-export enum CompositeWordsSeparationMode {
+enum CompositeWordsSeparationMode {
   Auto = "Авто",
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -1628,7 +1628,7 @@ export const ZCompositeWordsSeparationModeEnterprise = z.enum(Object.values(Comp
 export type TCompositeWordsSeparationMode = keyof typeof CompositeWordsSeparationMode
 export type TCompositeWordsSeparationModeEnterprise = `${CompositeWordsSeparationMode}`
 
-export enum ConfigurationExtensionApplicationIssueSeverity {
+enum ConfigurationExtensionApplicationIssueSeverity {
   Critical = "Критичная",
   Low = "Низкая",
   Moderate = "Обычная",
@@ -1640,7 +1640,7 @@ export const ZConfigurationExtensionApplicationIssueSeverityEnterprise = z.enum(
 export type TConfigurationExtensionApplicationIssueSeverity = keyof typeof ConfigurationExtensionApplicationIssueSeverity
 export type TConfigurationExtensionApplicationIssueSeverityEnterprise = `${ConfigurationExtensionApplicationIssueSeverity}`
 
-export enum ConfigurationExtensionScope {
+enum ConfigurationExtensionScope {
   InfoBase = "ИнформационнаяБаза",
   DataSeparation = "РазделениеДанных",
 }
@@ -1651,7 +1651,7 @@ export const ZConfigurationExtensionScopeEnterprise = z.enum(Object.values(Confi
 export type TConfigurationExtensionScope = keyof typeof ConfigurationExtensionScope
 export type TConfigurationExtensionScopeEnterprise = `${ConfigurationExtensionScope}`
 
-export enum ConfigurationExtensionsSource {
+enum ConfigurationExtensionsSource {
   Database = "БазаДанных",
   SessionApplied = "СеансАктивные",
   SessionDisabled = "СеансОтключенные",
@@ -1663,7 +1663,7 @@ export const ZConfigurationExtensionsSourceEnterprise = z.enum(Object.values(Con
 export type TConfigurationExtensionsSource = keyof typeof ConfigurationExtensionsSource
 export type TConfigurationExtensionsSourceEnterprise = `${ConfigurationExtensionsSource}`
 
-export enum DataBaseConfigurationUpdateExecutionInformationItemType {
+enum DataBaseConfigurationUpdateExecutionInformationItemType {
   Information = "Информация",
   Error = "Ошибка",
   Warning = "Предупреждение",
@@ -1675,7 +1675,7 @@ export const ZDataBaseConfigurationUpdateExecutionInformationItemTypeEnterprise 
 export type TDataBaseConfigurationUpdateExecutionInformationItemType = keyof typeof DataBaseConfigurationUpdateExecutionInformationItemType
 export type TDataBaseConfigurationUpdateExecutionInformationItemTypeEnterprise = `${DataBaseConfigurationUpdateExecutionInformationItemType}`
 
-export enum DataBaseConfigurationUpdateState {
+enum DataBaseConfigurationUpdateState {
   RefreshInProgress = "ВыполняетсяАктуализация",
   ProcessingInProgress = "ВыполняетсяОбработка",
   NotActive = "Неактивно",
@@ -1687,7 +1687,7 @@ export const ZDataBaseConfigurationUpdateStateEnterprise = z.enum(Object.values(
 export type TDataBaseConfigurationUpdateState = keyof typeof DataBaseConfigurationUpdateState
 export type TDataBaseConfigurationUpdateStateEnterprise = `${DataBaseConfigurationUpdateState}`
 
-export enum DatabaseTablespacesUseMode {
+enum DatabaseTablespacesUseMode {
   Use = "Использовать",
   DontUse = "НеИспользовать",
 }
@@ -1698,7 +1698,7 @@ export const ZDatabaseTablespacesUseModeEnterprise = z.enum(Object.values(Databa
 export type TDatabaseTablespacesUseMode = keyof typeof DatabaseTablespacesUseMode
 export type TDatabaseTablespacesUseModeEnterprise = `${DatabaseTablespacesUseMode}`
 
-export enum DateFractions {
+enum DateFractions {
   Time = "Время",
   Date = "Дата",
   DateTime = "ДатаВремя",
@@ -1710,7 +1710,7 @@ export const ZDateFractionsEnterprise = z.enum(Object.values(DateFractions) as [
 export type TDateFractions = keyof typeof DateFractions
 export type TDateFractionsEnterprise = `${DateFractions}`
 
-export enum DialogReturnCode {
+enum DialogReturnCode {
   Yes = "Да",
   No = "Нет",
   OK = "ОК",
@@ -1727,7 +1727,7 @@ export const ZDialogReturnCodeEnterprise = z.enum(Object.values(DialogReturnCode
 export type TDialogReturnCode = keyof typeof DialogReturnCode
 export type TDialogReturnCodeEnterprise = `${DialogReturnCode}`
 
-export enum DynamicListKeyType {
+enum DynamicListKeyType {
   Auto = "Авто",
   FieldValue = "ЗначениеПоля",
   RowKey = "КлючСтроки",
@@ -1740,7 +1740,7 @@ export const ZDynamicListKeyTypeEnterprise = z.enum(Object.values(DynamicListKey
 export type TDynamicListKeyType = keyof typeof DynamicListKeyType
 export type TDynamicListKeyTypeEnterprise = `${DynamicListKeyType}`
 
-export enum EnterKeyBehaviorType {
+enum EnterKeyBehaviorType {
   DefaultButton = "КнопкаПоУмолчанию",
   ControlNavigation = "ПереходПоЭлементамФормы",
 }
@@ -1751,7 +1751,7 @@ export const ZEnterKeyBehaviorTypeEnterprise = z.enum(Object.values(EnterKeyBeha
 export type TEnterKeyBehaviorType = keyof typeof EnterKeyBehaviorType
 export type TEnterKeyBehaviorTypeEnterprise = `${EnterKeyBehaviorType}`
 
-export enum ExternalDataSourceState {
+enum ExternalDataSourceState {
   Disconnected = "Отключен",
   Connected = "Подключен",
 }
@@ -1762,7 +1762,7 @@ export const ZExternalDataSourceStateEnterprise = z.enum(Object.values(ExternalD
 export type TExternalDataSourceState = keyof typeof ExternalDataSourceState
 export type TExternalDataSourceStateEnterprise = `${ExternalDataSourceState}`
 
-export enum FillChecking {
+enum FillChecking {
   ShowError = "ВыдаватьОшибку",
   DontCheck = "НеПроверять",
 }
@@ -1773,7 +1773,7 @@ export const ZFillCheckingEnterprise = z.enum(Object.values(FillChecking) as [TF
 export type TFillChecking = keyof typeof FillChecking
 export type TFillCheckingEnterprise = `${FillChecking}`
 
-export enum FontType {
+enum FontType {
   WindowsFont = "WindowsШрифт",
   Absolute = "Абсолютный",
   AutoFont = "АвтоШрифт",
@@ -1786,7 +1786,7 @@ export const ZFontTypeEnterprise = z.enum(Object.values(FontType) as [TFontTypeE
 export type TFontType = keyof typeof FontType
 export type TFontTypeEnterprise = `${FontType}`
 
-export enum FullTextSearchMetadataUse {
+enum FullTextSearchMetadataUse {
   Use = "Использовать",
   DontUse = "НеИспользовать",
 }
@@ -1797,7 +1797,7 @@ export const ZFullTextSearchMetadataUseEnterprise = z.enum(Object.values(FullTex
 export type TFullTextSearchMetadataUse = keyof typeof FullTextSearchMetadataUse
 export type TFullTextSearchMetadataUseEnterprise = `${FullTextSearchMetadataUse}`
 
-export enum FullTextSearchMode {
+enum FullTextSearchMode {
   Disable = "Запретить",
   Enable = "Разрешить",
 }
@@ -1808,7 +1808,7 @@ export const ZFullTextSearchModeEnterprise = z.enum(Object.values(FullTextSearch
 export type TFullTextSearchMode = keyof typeof FullTextSearchMode
 export type TFullTextSearchModeEnterprise = `${FullTextSearchMode}`
 
-export enum FullTextSearchRepresentationType {
+enum FullTextSearchRepresentationType {
   HTMLText = "HTMLТекст",
   XML = "XML",
 }
@@ -1819,7 +1819,7 @@ export const ZFullTextSearchRepresentationTypeEnterprise = z.enum(Object.values(
 export type TFullTextSearchRepresentationType = keyof typeof FullTextSearchRepresentationType
 export type TFullTextSearchRepresentationTypeEnterprise = `${FullTextSearchRepresentationType}`
 
-export enum FullTextSearchVersion {
+enum FullTextSearchVersion {
   Version1 = "Версия1",
   Version2 = "Версия2",
 }
@@ -1830,7 +1830,7 @@ export const ZFullTextSearchVersionEnterprise = z.enum(Object.values(FullTextSea
 export type TFullTextSearchVersion = keyof typeof FullTextSearchVersion
 export type TFullTextSearchVersionEnterprise = `${FullTextSearchVersion}`
 
-export enum HashFunction {
+enum HashFunction {
   CRC32 = "CRC32",
   MD5 = "MD5",
   PBKDF2SHA256 = "PBKDF2SHA256",
@@ -1845,7 +1845,7 @@ export const ZHashFunctionEnterprise = z.enum(Object.values(HashFunction) as [TH
 export type THashFunction = keyof typeof HashFunction
 export type THashFunctionEnterprise = `${HashFunction}`
 
-export enum InterfaceCompatibilityMode {
+enum InterfaceCompatibilityMode {
   Version8_2 = "Версия8_2",
   Version8_2EnableTaxi = "Версия8_2РазрешитьТакси",
   Taxi = "Такси",
@@ -1858,7 +1858,7 @@ export const ZInterfaceCompatibilityModeEnterprise = z.enum(Object.values(Interf
 export type TInterfaceCompatibilityMode = keyof typeof InterfaceCompatibilityMode
 export type TInterfaceCompatibilityModeEnterprise = `${InterfaceCompatibilityMode}`
 
-export enum IntervalBoundVariant {
+enum IntervalBoundVariant {
   WithoutRestriction = "БезОграничения",
   Year = "Год",
   Quarter = "Квартал",
@@ -1875,13 +1875,9 @@ export const ZIntervalBoundVariantEnterprise = z.enum(Object.values(IntervalBoun
 export type TIntervalBoundVariant = keyof typeof IntervalBoundVariant
 export type TIntervalBoundVariantEnterprise = `${IntervalBoundVariant}`
 
-export enum Key {
-  _0..._9 = "_0..._9",
-  A...Z = "A...Z",
+enum Key {
   BackSpace = "BackSpace",
   Break = "Break",
-  F1...F12 = "F1...F12",
-  Num0...Num9 = "Num0...Num9",
   NumAdd = "NumAdd",
   NumDecimal = "NumDecimal",
   NumDivide = "NumDivide",
@@ -1897,7 +1893,7 @@ export const ZKeyEnterprise = z.enum(Object.values(Key) as [TKeyEnterprise, ...T
 export type TKey = keyof typeof Key
 export type TKeyEnterprise = `${Key}`
 
-export enum LocationRelativeToGeofence {
+enum LocationRelativeToGeofence {
   Inside = "Внутри",
   Outside = "Снаружи",
 }
@@ -1908,7 +1904,7 @@ export const ZLocationRelativeToGeofenceEnterprise = z.enum(Object.values(Locati
 export type TLocationRelativeToGeofence = keyof typeof LocationRelativeToGeofence
 export type TLocationRelativeToGeofenceEnterprise = `${LocationRelativeToGeofence}`
 
-export enum MessageStatus {
+enum MessageStatus {
   WithoutStatus = "БезСтатуса",
   Important = "Важное",
   Attention = "Внимание",
@@ -1923,7 +1919,7 @@ export const ZMessageStatusEnterprise = z.enum(Object.values(MessageStatus) as [
 export type TMessageStatus = keyof typeof MessageStatus
 export type TMessageStatusEnterprise = `${MessageStatus}`
 
-export enum MobileApplicationFunctionalities {
+enum MobileApplicationFunctionalities {
   BluetoothPrinters = "BluetoothПринтеры",
   NFC = "NFC",
   PushNotifications = "PushУведомления",
@@ -1970,7 +1966,7 @@ export const ZMobileApplicationFunctionalitiesEnterprise = z.enum(Object.values(
 export type TMobileApplicationFunctionalities = keyof typeof MobileApplicationFunctionalities
 export type TMobileApplicationFunctionalitiesEnterprise = `${MobileApplicationFunctionalities}`
 
-export enum NumericValueType {
+enum NumericValueType {
   Cardinal = "Количественное",
   Ordinal = "Порядковое",
 }
@@ -1981,7 +1977,7 @@ export const ZNumericValueTypeEnterprise = z.enum(Object.values(NumericValueType
 export type TNumericValueType = keyof typeof NumericValueType
 export type TNumericValueTypeEnterprise = `${NumericValueType}`
 
-export enum PasswordPolicyComplianceCheckResult {
+enum PasswordPolicyComplianceCheckResult {
   DoesNotSatisfyMinLengthRequirements = "НеСоответствуетТребованиямМинимальнойДлины",
   DoesNotSatisfyReuseLimitRequirements = "НеСоответствуетТребованиямОграниченияПовторенияСредиПоследних",
   DoesNotSatisfyCompromiseCheckRequirements = "НеСоответствуетТребованиямПроверкиРаскрытия",
@@ -1994,7 +1990,7 @@ export const ZPasswordPolicyComplianceCheckResultEnterprise = z.enum(Object.valu
 export type TPasswordPolicyComplianceCheckResult = keyof typeof PasswordPolicyComplianceCheckResult
 export type TPasswordPolicyComplianceCheckResultEnterprise = `${PasswordPolicyComplianceCheckResult}`
 
-export enum PeriodSettingsVariant {
+enum PeriodSettingsVariant {
   Interval = "Интервал",
   Period = "Период",
 }
@@ -2005,7 +2001,7 @@ export const ZPeriodSettingsVariantEnterprise = z.enum(Object.values(PeriodSetti
 export type TPeriodSettingsVariant = keyof typeof PeriodSettingsVariant
 export type TPeriodSettingsVariantEnterprise = `${PeriodSettingsVariant}`
 
-export enum PeriodVariant {
+enum PeriodVariant {
   Year = "Год",
   Day = "День",
   DayFromBegOfYear = "ДеньСНачалаГода",
@@ -2025,7 +2021,7 @@ export const ZPeriodVariantEnterprise = z.enum(Object.values(PeriodVariant) as [
 export type TPeriodVariant = keyof typeof PeriodVariant
 export type TPeriodVariantEnterprise = `${PeriodVariant}`
 
-export enum PictureType {
+enum PictureType {
   Absolute = "Абсолютная",
   FromLib = "ИзБиблиотеки",
   Empty = "Пустая",
@@ -2037,7 +2033,7 @@ export const ZPictureTypeEnterprise = z.enum(Object.values(PictureType) as [TPic
 export type TPictureType = keyof typeof PictureType
 export type TPictureTypeEnterprise = `${PictureType}`
 
-export enum PlatformType {
+enum PlatformType {
   Android_ARM = "Android_ARM",
   Android_ARM_64 = "Android_ARM_64",
   Android_x86 = "Android_x86",
@@ -2063,19 +2059,7 @@ export const ZPlatformTypeEnterprise = z.enum(Object.values(PlatformType) as [TP
 export type TPlatformType = keyof typeof PlatformType
 export type TPlatformTypeEnterprise = `${PlatformType}`
 
-export enum PredefinedDataUpdate {
-  Auto = "Авто",
-  DontAutoUpdate = "НеОбновлятьАвтоматически",
-  AutoUpdate = "ОбновлятьАвтоматически",
-}
-
-export const ZPredefinedDataUpdate = z.enum(Object.keys(PredefinedDataUpdate) as [TPredefinedDataUpdate, ...TPredefinedDataUpdate[]])
-export const ZPredefinedDataUpdateEnterprise = z.enum(Object.values(PredefinedDataUpdate) as [TPredefinedDataUpdateEnterprise, ...TPredefinedDataUpdateEnterprise[]])
-
-export type TPredefinedDataUpdate = keyof typeof PredefinedDataUpdate
-export type TPredefinedDataUpdateEnterprise = `${PredefinedDataUpdate}`
-
-export enum QuestionDialogMode {
+enum QuestionDialogMode {
   YesNo = "ДаНет",
   YesNoCancel = "ДаНетОтмена",
   OK = "ОК",
@@ -2090,7 +2074,7 @@ export const ZQuestionDialogModeEnterprise = z.enum(Object.values(QuestionDialog
 export type TQuestionDialogMode = keyof typeof QuestionDialogMode
 export type TQuestionDialogModeEnterprise = `${QuestionDialogMode}`
 
-export enum ReplacementMode {
+enum ReplacementMode {
   Append = "Добавление",
   Replace = "Замещение",
   Update = "Обновление",
@@ -2104,7 +2088,7 @@ export const ZReplacementModeEnterprise = z.enum(Object.values(ReplacementMode) 
 export type TReplacementMode = keyof typeof ReplacementMode
 export type TReplacementModeEnterprise = `${ReplacementMode}`
 
-export enum RoundMode {
+enum RoundMode {
   Round15as10 = "Окр15как10",
   Round15as20 = "Окр15как20",
 }
@@ -2115,7 +2099,7 @@ export const ZRoundModeEnterprise = z.enum(Object.values(RoundMode) as [TRoundMo
 export type TRoundMode = keyof typeof RoundMode
 export type TRoundModeEnterprise = `${RoundMode}`
 
-export enum SearchDirection {
+enum SearchDirection {
   FromEnd = "СКонца",
   FromBegin = "СНачала",
 }
@@ -2126,7 +2110,7 @@ export const ZSearchDirectionEnterprise = z.enum(Object.values(SearchDirection) 
 export type TSearchDirection = keyof typeof SearchDirection
 export type TSearchDirectionEnterprise = `${SearchDirection}`
 
-export enum SectionsPanelRepresentation {
+enum SectionsPanelRepresentation {
   Picture = "Картинка",
   PictureAndText = "КартинкаИТекст",
   PictureOnTopAndText = "КартинкаСверхуИТекст",
@@ -2140,7 +2124,7 @@ export const ZSectionsPanelRepresentationEnterprise = z.enum(Object.values(Secti
 export type TSectionsPanelRepresentation = keyof typeof SectionsPanelRepresentation
 export type TSectionsPanelRepresentationEnterprise = `${SectionsPanelRepresentation}`
 
-export enum SortDirection {
+enum SortDirection {
   Asc = "Возр",
   Desc = "Убыв",
 }
@@ -2151,7 +2135,7 @@ export const ZSortDirectionEnterprise = z.enum(Object.values(SortDirection) as [
 export type TSortDirection = keyof typeof SortDirection
 export type TSortDirectionEnterprise = `${SortDirection}`
 
-export enum StandardBeginningDateVariant {
+enum StandardBeginningDateVariant {
   BeginningOfLastYear = "НачалоПрошлогоГода",
   BeginningOfLastDay = "НачалоПрошлогоДня",
   BeginningOfLastQuarter = "НачалоПрошлогоКвартала",
@@ -2182,7 +2166,7 @@ export const ZStandardBeginningDateVariantEnterprise = z.enum(Object.values(Stan
 export type TStandardBeginningDateVariant = keyof typeof StandardBeginningDateVariant
 export type TStandardBeginningDateVariantEnterprise = `${StandardBeginningDateVariant}`
 
-export enum StandardGlobalSearchType {
+enum StandardGlobalSearchType {
   AllFunctions = "ВсеФункции",
   Expression = "Выражение",
   GlobalStandardCommands = "ГлобальныеСтандартныеКоманды",
@@ -2203,7 +2187,7 @@ export const ZStandardGlobalSearchTypeEnterprise = z.enum(Object.values(Standard
 export type TStandardGlobalSearchType = keyof typeof StandardGlobalSearchType
 export type TStandardGlobalSearchTypeEnterprise = `${StandardGlobalSearchType}`
 
-export enum StandardPeriodVariant {
+enum StandardPeriodVariant {
   Yesterday = "Вчера",
   TillEndOfThisYear = "ДоКонцаЭтогоГода",
   TillEndOfThisQuarter = "ДоКонцаЭтогоКвартала",
@@ -2261,7 +2245,7 @@ export const ZStandardPeriodVariantEnterprise = z.enum(Object.values(StandardPer
 export type TStandardPeriodVariant = keyof typeof StandardPeriodVariant
 export type TStandardPeriodVariantEnterprise = `${StandardPeriodVariant}`
 
-export enum StringEncodingMethod {
+enum StringEncodingMethod {
   URLInURLEncoding = "URLВКодировкеURL",
   URLEncoding = "КодировкаURL",
 }
@@ -2272,7 +2256,7 @@ export const ZStringEncodingMethodEnterprise = z.enum(Object.values(StringEncodi
 export type TStringEncodingMethod = keyof typeof StringEncodingMethod
 export type TStringEncodingMethodEnterprise = `${StringEncodingMethod}`
 
-export enum TextEncoding {
+enum TextEncoding {
   ANSI = "ANSI",
   OEM = "OEM",
   UTF16 = "UTF16",
@@ -2286,7 +2270,7 @@ export const ZTextEncodingEnterprise = z.enum(Object.values(TextEncoding) as [TT
 export type TTextEncoding = keyof typeof TextEncoding
 export type TTextEncodingEnterprise = `${TextEncoding}`
 
-export enum TransactionsIsolationLevel {
+enum TransactionsIsolationLevel {
   Auto = "Авто",
   RepeatableRead = "ПовторяемоеЧтение",
   Serializable = "Упорядочиваемость",
@@ -2300,7 +2284,7 @@ export const ZTransactionsIsolationLevelEnterprise = z.enum(Object.values(Transa
 export type TTransactionsIsolationLevel = keyof typeof TransactionsIsolationLevel
 export type TTransactionsIsolationLevelEnterprise = `${TransactionsIsolationLevel}`
 
-export enum UpdateOnDataChange {
+enum UpdateOnDataChange {
   Auto = "Авто",
   DontUpdate = "НеОбновлять",
 }
@@ -2311,7 +2295,7 @@ export const ZUpdateOnDataChangeEnterprise = z.enum(Object.values(UpdateOnDataCh
 export type TUpdateOnDataChange = keyof typeof UpdateOnDataChange
 export type TUpdateOnDataChangeEnterprise = `${UpdateOnDataChange}`
 
-export enum UserPasswordHashAlgorithmType {
+enum UserPasswordHashAlgorithmType {
   PBKDF2SHA256 = "PBKDF2SHA256",
   SHA1 = "SHA1",
   SHA256 = "SHA256",
@@ -2324,7 +2308,7 @@ export const ZUserPasswordHashAlgorithmTypeEnterprise = z.enum(Object.values(Use
 export type TUserPasswordHashAlgorithmType = keyof typeof UserPasswordHashAlgorithmType
 export type TUserPasswordHashAlgorithmTypeEnterprise = `${UserPasswordHashAlgorithmType}`
 
-export enum UUIDVersion {
+enum UUIDVersion {
   Version1 = "Версия1",
   Version3 = "Версия3",
   Version4 = "Версия4",
@@ -2337,7 +2321,7 @@ export const ZUUIDVersionEnterprise = z.enum(Object.values(UUIDVersion) as [TUUI
 export type TUUIDVersion = keyof typeof UUIDVersion
 export type TUUIDVersionEnterprise = `${UUIDVersion}`
 
-export enum WorkingDateMode {
+enum WorkingDateMode {
   UseCurrentDate = "ИспользоватьТекущуюДату",
   Assign = "Назначать",
 }
@@ -2348,7 +2332,7 @@ export const ZWorkingDateModeEnterprise = z.enum(Object.values(WorkingDateMode) 
 export type TWorkingDateMode = keyof typeof WorkingDateMode
 export type TWorkingDateModeEnterprise = `${WorkingDateMode}`
 
-export enum XBaseEncoding {
+enum XBaseEncoding {
   ANSI = "ANSI",
   OEM = "OEM",
 }
@@ -2359,7 +2343,7 @@ export const ZXBaseEncodingEnterprise = z.enum(Object.values(XBaseEncoding) as [
 export type TXBaseEncoding = keyof typeof XBaseEncoding
 export type TXBaseEncodingEnterprise = `${XBaseEncoding}`
 
-export enum CalendarEventRecurrence {
+enum CalendarEventRecurrence {
   Weekly = "КаждуюНеделю",
   Yearly = "КаждыйГод",
   Daily = "КаждыйДень",
@@ -2373,7 +2357,7 @@ export const ZCalendarEventRecurrenceEnterprise = z.enum(Object.values(CalendarE
 export type TCalendarEventRecurrence = keyof typeof CalendarEventRecurrence
 export type TCalendarEventRecurrenceEnterprise = `${CalendarEventRecurrence}`
 
-export enum ContactDataAddressType {
+enum ContactDataAddressType {
   Home = "Домашний",
   Other = "Другой",
   Work = "Рабочий",
@@ -2385,7 +2369,7 @@ export const ZContactDataAddressTypeEnterprise = z.enum(Object.values(ContactDat
 export type TContactDataAddressType = keyof typeof ContactDataAddressType
 export type TContactDataAddressTypeEnterprise = `${ContactDataAddressType}`
 
-export enum ContactDataEmailAddressType {
+enum ContactDataEmailAddressType {
   Home = "Домашний",
   Other = "Другой",
   Mobile = "Мобильный",
@@ -2398,7 +2382,7 @@ export const ZContactDataEmailAddressTypeEnterprise = z.enum(Object.values(Conta
 export type TContactDataEmailAddressType = keyof typeof ContactDataEmailAddressType
 export type TContactDataEmailAddressTypeEnterprise = `${ContactDataEmailAddressType}`
 
-export enum ContactDataInstantMessagingAddressType {
+enum ContactDataInstantMessagingAddressType {
   Home = "Домашний",
   Other = "Другой",
   Work = "Рабочий",
@@ -2410,7 +2394,7 @@ export const ZContactDataInstantMessagingAddressTypeEnterprise = z.enum(Object.v
 export type TContactDataInstantMessagingAddressType = keyof typeof ContactDataInstantMessagingAddressType
 export type TContactDataInstantMessagingAddressTypeEnterprise = `${ContactDataInstantMessagingAddressType}`
 
-export enum ContactDataPhoneNumberType {
+enum ContactDataPhoneNumberType {
   iPhone = "iPhone",
   Home = "Домашний",
   HomeFax = "ДомашнийФакс",
@@ -2429,7 +2413,7 @@ export const ZContactDataPhoneNumberTypeEnterprise = z.enum(Object.values(Contac
 export type TContactDataPhoneNumberType = keyof typeof ContactDataPhoneNumberType
 export type TContactDataPhoneNumberTypeEnterprise = `${ContactDataPhoneNumberType}`
 
-export enum ContactDataRelationshipType {
+enum ContactDataRelationshipType {
   Brother = "Брат",
   DomesticPartner = "ГражданскийСупруг",
   Friend = "Друг",
@@ -2452,7 +2436,7 @@ export const ZContactDataRelationshipTypeEnterprise = z.enum(Object.values(Conta
 export type TContactDataRelationshipType = keyof typeof ContactDataRelationshipType
 export type TContactDataRelationshipTypeEnterprise = `${ContactDataRelationshipType}`
 
-export enum ContactDataURLType {
+enum ContactDataURLType {
   FTP = "FTP",
   Blog = "Блог",
   Home = "Домашний",
@@ -2468,7 +2452,7 @@ export const ZContactDataURLTypeEnterprise = z.enum(Object.values(ContactDataURL
 export type TContactDataURLType = keyof typeof ContactDataURLType
 export type TContactDataURLTypeEnterprise = `${ContactDataURLType}`
 
-export enum CallLogCallType {
+enum CallLogCallType {
   Incoming = "Входящий",
   Outgoing = "Исходящий",
   Missed = "Пропущенный",
@@ -2480,7 +2464,7 @@ export const ZCallLogCallTypeEnterprise = z.enum(Object.values(CallLogCallType) 
 export type TCallLogCallType = keyof typeof CallLogCallType
 export type TCallLogCallTypeEnterprise = `${CallLogCallType}`
 
-export enum TelephonyToolsCallEventVariant {
+enum TelephonyToolsCallEventVariant {
   EndIncoming = "ЗавершениеВходящего",
   EndOutgoing = "ЗавершениеИсходящего",
   StartIncoming = "НачалоВходящего",
@@ -2494,17 +2478,7 @@ export const ZTelephonyToolsCallEventVariantEnterprise = z.enum(Object.values(Te
 export type TTelephonyToolsCallEventVariant = keyof typeof TelephonyToolsCallEventVariant
 export type TTelephonyToolsCallEventVariantEnterprise = `${TelephonyToolsCallEventVariant}`
 
-export enum TelephonyToolsCallType {
-,
-}
-
-export const ZTelephonyToolsCallType = z.enum(Object.keys(TelephonyToolsCallType) as [TTelephonyToolsCallType, ...TTelephonyToolsCallType[]])
-export const ZTelephonyToolsCallTypeEnterprise = z.enum(Object.values(TelephonyToolsCallType) as [TTelephonyToolsCallTypeEnterprise, ...TTelephonyToolsCallTypeEnterprise[]])
-
-export type TTelephonyToolsCallType = keyof typeof TelephonyToolsCallType
-export type TTelephonyToolsCallTypeEnterprise = `${TelephonyToolsCallType}`
-
-export enum TelephonyToolsSMSType {
+enum TelephonyToolsSMSType {
   Queued = "ВОчереди",
   Incoming = "Входящее",
   Outgoing = "Исходящее",
@@ -2519,7 +2493,7 @@ export const ZTelephonyToolsSMSTypeEnterprise = z.enum(Object.values(TelephonyTo
 export type TTelephonyToolsSMSType = keyof typeof TelephonyToolsSMSType
 export type TTelephonyToolsSMSTypeEnterprise = `${TelephonyToolsSMSType}`
 
-export enum AudioRecordingChannelUse {
+enum AudioRecordingChannelUse {
   Mono = "Моно",
   Stereo = "Стерео",
 }
@@ -2530,7 +2504,7 @@ export const ZAudioRecordingChannelUseEnterprise = z.enum(Object.values(AudioRec
 export type TAudioRecordingChannelUse = keyof typeof AudioRecordingChannelUse
 export type TAudioRecordingChannelUseEnterprise = `${AudioRecordingChannelUse}`
 
-export enum AudioRecordingFormat {
+enum AudioRecordingFormat {
   Mpeg4AAC = "Mpeg4AAC",
   WavPCM16bit = "WavPCM16bit",
 }
@@ -2541,7 +2515,7 @@ export const ZAudioRecordingFormatEnterprise = z.enum(Object.values(AudioRecordi
 export type TAudioRecordingFormat = keyof typeof AudioRecordingFormat
 export type TAudioRecordingFormatEnterprise = `${AudioRecordingFormat}`
 
-export enum BarcodeType {
+enum BarcodeType {
   Aztec = "Aztec",
   Codabar = "Codabar",
   Code128 = "Code128",
@@ -2569,7 +2543,7 @@ export const ZBarcodeTypeEnterprise = z.enum(Object.values(BarcodeType) as [TBar
 export type TBarcodeType = keyof typeof BarcodeType
 export type TBarcodeTypeEnterprise = `${BarcodeType}`
 
-export enum CameraLightingType {
+enum CameraLightingType {
   Auto = "Авто",
   Enable = "Включена",
   Disable = "Выключена",
@@ -2581,7 +2555,7 @@ export const ZCameraLightingTypeEnterprise = z.enum(Object.values(CameraLighting
 export type TCameraLightingType = keyof typeof CameraLightingType
 export type TCameraLightingTypeEnterprise = `${CameraLightingType}`
 
-export enum DeviceCameraType {
+enum DeviceCameraType {
   Auto = "Авто",
   Rear = "Задняя",
   Front = "Передняя",
@@ -2593,7 +2567,7 @@ export const ZDeviceCameraTypeEnterprise = z.enum(Object.values(DeviceCameraType
 export type TDeviceCameraType = keyof typeof DeviceCameraType
 export type TDeviceCameraTypeEnterprise = `${DeviceCameraType}`
 
-export enum DocumentScanningCheckingQuality {
+enum DocumentScanningCheckingQuality {
   DontCheck = "НеПроверять",
   WarnBelowHigh = "ПредупреждатьНижеВысокого",
   WarnBelowMedium = "ПредупреждатьНижеСреднего",
@@ -2607,7 +2581,7 @@ export const ZDocumentScanningCheckingQualityEnterprise = z.enum(Object.values(D
 export type TDocumentScanningCheckingQuality = keyof typeof DocumentScanningCheckingQuality
 export type TDocumentScanningCheckingQualityEnterprise = `${DocumentScanningCheckingQuality}`
 
-export enum DocumentScanningOrientationDetectionMode {
+enum DocumentScanningOrientationDetectionMode {
   Landscape = "Ландшафт",
   ByHorizontalTextLines = "ПоГоризонтальнымСтрокамТекста",
   ByFirstPageInSeries = "ПоПервойСтраницеСерии",
@@ -2621,7 +2595,7 @@ export const ZDocumentScanningOrientationDetectionModeEnterprise = z.enum(Object
 export type TDocumentScanningOrientationDetectionMode = keyof typeof DocumentScanningOrientationDetectionMode
 export type TDocumentScanningOrientationDetectionModeEnterprise = `${DocumentScanningOrientationDetectionMode}`
 
-export enum DocumentScanningProcessingFilter {
+enum DocumentScanningProcessingFilter {
   None = "Нет",
   Text = "Текст",
   TextWithPictures = "ТекстСКартинками",
@@ -2633,7 +2607,7 @@ export const ZDocumentScanningProcessingFilterEnterprise = z.enum(Object.values(
 export type TDocumentScanningProcessingFilter = keyof typeof DocumentScanningProcessingFilter
 export type TDocumentScanningProcessingFilterEnterprise = `${DocumentScanningProcessingFilter}`
 
-export enum MultimediaRecordingStopButtonPlacement {
+enum MultimediaRecordingStopButtonPlacement {
   Auto = "Авто",
   Top = "Верх",
   Left = "Лево",
@@ -2652,7 +2626,7 @@ export const ZMultimediaRecordingStopButtonPlacementEnterprise = z.enum(Object.v
 export type TMultimediaRecordingStopButtonPlacement = keyof typeof MultimediaRecordingStopButtonPlacement
 export type TMultimediaRecordingStopButtonPlacementEnterprise = `${MultimediaRecordingStopButtonPlacement}`
 
-export enum VideoQuality {
+enum VideoQuality {
   Auto = "Авто",
   High = "Высокое",
   Low = "Низкое",
@@ -2664,7 +2638,7 @@ export const ZVideoQualityEnterprise = z.enum(Object.values(VideoQuality) as [TV
 export type TVideoQuality = keyof typeof VideoQuality
 export type TVideoQualityEnterprise = `${VideoQuality}`
 
-export enum QuerySchemaAvailableTableParameterType {
+enum QuerySchemaAvailableTableParameterType {
   Variant = "Вариант",
   Value = "Значение",
   Array = "Массив",
@@ -2679,7 +2653,7 @@ export const ZQuerySchemaAvailableTableParameterTypeEnterprise = z.enum(Object.v
 export type TQuerySchemaAvailableTableParameterType = keyof typeof QuerySchemaAvailableTableParameterType
 export type TQuerySchemaAvailableTableParameterTypeEnterprise = `${QuerySchemaAvailableTableParameterType}`
 
-export enum QuerySchemaJoinType {
+enum QuerySchemaJoinType {
   Inner = "Внутреннее",
   LeftOuter = "ЛевоеВнешнее",
   FullOuter = "ПолноеВнешнее",
@@ -2692,7 +2666,7 @@ export const ZQuerySchemaJoinTypeEnterprise = z.enum(Object.values(QuerySchemaJo
 export type TQuerySchemaJoinType = keyof typeof QuerySchemaJoinType
 export type TQuerySchemaJoinTypeEnterprise = `${QuerySchemaJoinType}`
 
-export enum QuerySchemaOrderDirection {
+enum QuerySchemaOrderDirection {
   Ascending = "ПоВозрастанию",
   HierarchyAscending = "ПоВозрастаниюИерархии",
   Descending = "ПоУбыванию",
@@ -2705,7 +2679,7 @@ export const ZQuerySchemaOrderDirectionEnterprise = z.enum(Object.values(QuerySc
 export type TQuerySchemaOrderDirection = keyof typeof QuerySchemaOrderDirection
 export type TQuerySchemaOrderDirectionEnterprise = `${QuerySchemaOrderDirection}`
 
-export enum QuerySchemaPeriodAdditionType {
+enum QuerySchemaPeriodAdditionType {
   NoAddition = "БезДополнения",
   Year = "Год",
   TenDays = "Декада",
@@ -2725,7 +2699,7 @@ export const ZQuerySchemaPeriodAdditionTypeEnterprise = z.enum(Object.values(Que
 export type TQuerySchemaPeriodAdditionType = keyof typeof QuerySchemaPeriodAdditionType
 export type TQuerySchemaPeriodAdditionTypeEnterprise = `${QuerySchemaPeriodAdditionType}`
 
-export enum QuerySchemaTotalCalculationFieldType {
+enum QuerySchemaTotalCalculationFieldType {
   Hierarchy = "Иерархия",
   HierarchyOnly = "ТолькоИерархия",
   Items = "Элементы",
@@ -2737,7 +2711,7 @@ export const ZQuerySchemaTotalCalculationFieldTypeEnterprise = z.enum(Object.val
 export type TQuerySchemaTotalCalculationFieldType = keyof typeof QuerySchemaTotalCalculationFieldType
 export type TQuerySchemaTotalCalculationFieldTypeEnterprise = `${QuerySchemaTotalCalculationFieldType}`
 
-export enum QuerySchemaUnionType {
+enum QuerySchemaUnionType {
   Union = "Объединить",
   UnionAll = "ОбъединитьВсе",
 }
@@ -2748,7 +2722,7 @@ export const ZQuerySchemaUnionTypeEnterprise = z.enum(Object.values(QuerySchemaU
 export type TQuerySchemaUnionType = keyof typeof QuerySchemaUnionType
 export type TQuerySchemaUnionTypeEnterprise = `${QuerySchemaUnionType}`
 
-export enum NewPlannerItemsTextType {
+enum NewPlannerItemsTextType {
   String = "Строка",
   FormattedString = "ФорматированнаяСтрока",
 }
@@ -2759,7 +2733,7 @@ export const ZNewPlannerItemsTextTypeEnterprise = z.enum(Object.values(NewPlanne
 export type TNewPlannerItemsTextType = keyof typeof NewPlannerItemsTextType
 export type TNewPlannerItemsTextTypeEnterprise = `${NewPlannerItemsTextType}`
 
-export enum PlannerCommandSource {
+enum PlannerCommandSource {
   Action = "Действие",
   URL = "НавигационнаяСсылка",
   WrappedTimeScaleHeaderArea = "ОбластьПеренесенногоЗаголовкаШкалыВремени",
@@ -2775,7 +2749,7 @@ export const ZPlannerCommandSourceEnterprise = z.enum(Object.values(PlannerComma
 export type TPlannerCommandSource = keyof typeof PlannerCommandSource
 export type TPlannerCommandSourceEnterprise = `${PlannerCommandSource}`
 
-export enum PlannerInsideDragAction {
+enum PlannerInsideDragAction {
   Select = "Выделение",
   Copy = "Копирование",
   Edit = "Редактирование",
@@ -2788,7 +2762,7 @@ export const ZPlannerInsideDragActionEnterprise = z.enum(Object.values(PlannerIn
 export type TPlannerInsideDragAction = keyof typeof PlannerInsideDragAction
 export type TPlannerInsideDragActionEnterprise = `${PlannerInsideDragAction}`
 
-export enum PlannerInsideDragBoundaryChangeVariant {
+enum PlannerInsideDragBoundaryChangeVariant {
   End = "Конец",
   Begin = "Начало",
   BeginAndEnd = "НачалоИКонец",
@@ -2800,7 +2774,7 @@ export const ZPlannerInsideDragBoundaryChangeVariantEnterprise = z.enum(Object.v
 export type TPlannerInsideDragBoundaryChangeVariant = keyof typeof PlannerInsideDragBoundaryChangeVariant
 export type TPlannerInsideDragBoundaryChangeVariantEnterprise = `${PlannerInsideDragBoundaryChangeVariant}`
 
-export enum PlannerItemActionLocation {
+enum PlannerItemActionLocation {
   EndOfItem = "ВКонцеЭлемента",
   EndOfText = "ПослеТекста",
 }
@@ -2811,7 +2785,7 @@ export const ZPlannerItemActionLocationEnterprise = z.enum(Object.values(Planner
 export type TPlannerItemActionLocation = keyof typeof PlannerItemActionLocation
 export type TPlannerItemActionLocationEnterprise = `${PlannerItemActionLocation}`
 
-export enum PlannerItemEnableEditMode {
+enum PlannerItemEnableEditMode {
   DisableDragAndStretch = "ЗапретитьПеретаскиваниеИРастягивание",
   DisableStretch = "ЗапретитьРастягивание",
   DisableEdit = "ЗапретитьРедактирование",
@@ -2824,7 +2798,7 @@ export const ZPlannerItemEnableEditModeEnterprise = z.enum(Object.values(Planner
 export type TPlannerItemEnableEditMode = keyof typeof PlannerItemEnableEditMode
 export type TPlannerItemEnableEditModeEnterprise = `${PlannerItemEnableEditMode}`
 
-export enum PlannerItemsBehaviorOnLackOfSpace {
+enum PlannerItemsBehaviorOnLackOfSpace {
   ShowAllItems = "ОтображатьВсеЭлементы",
   CollapseItems = "СворачиватьЭлементы",
 }
@@ -2835,7 +2809,7 @@ export const ZPlannerItemsBehaviorOnLackOfSpaceEnterprise = z.enum(Object.values
 export type TPlannerItemsBehaviorOnLackOfSpace = keyof typeof PlannerItemsBehaviorOnLackOfSpace
 export type TPlannerItemsBehaviorOnLackOfSpaceEnterprise = `${PlannerItemsBehaviorOnLackOfSpace}`
 
-export enum PlannerItemsTimeRepresentation {
+enum PlannerItemsTimeRepresentation {
   BeginTime = "ВремяНачала",
   BeginAndEndTime = "ВремяНачалаИКонца",
   DontDisplay = "НеОтображать",
@@ -2847,7 +2821,7 @@ export const ZPlannerItemsTimeRepresentationEnterprise = z.enum(Object.values(Pl
 export type TPlannerItemsTimeRepresentation = keyof typeof PlannerItemsTimeRepresentation
 export type TPlannerItemsTimeRepresentationEnterprise = `${PlannerItemsTimeRepresentation}`
 
-export enum PlannerStandardCommand {
+enum PlannerStandardCommand {
   QuickEditItem = "БыстроРедактироватьЭлемент",
   SelectWrappedTimeScaleHeader = "ВыбратьПеренесенныйЗаголовокШкалыВремени",
   SelectDimensionItem = "ВыбратьЭлементИзмерения",
@@ -2866,7 +2840,7 @@ export const ZPlannerStandardCommandEnterprise = z.enum(Object.values(PlannerSta
 export type TPlannerStandardCommand = keyof typeof PlannerStandardCommand
 export type TPlannerStandardCommandEnterprise = `${PlannerStandardCommand}`
 
-export enum JSONCharactersEscapeMode {
+enum JSONCharactersEscapeMode {
   None = "Нет",
   NotASCIISymbols = "СимволыВнеASCII",
   SymbolsNotInBMP = "СимволыВнеBMP",
@@ -2878,7 +2852,7 @@ export const ZJSONCharactersEscapeModeEnterprise = z.enum(Object.values(JSONChar
 export type TJSONCharactersEscapeMode = keyof typeof JSONCharactersEscapeMode
 export type TJSONCharactersEscapeModeEnterprise = `${JSONCharactersEscapeMode}`
 
-export enum JSONDateFormat {
+enum JSONDateFormat {
   ISO = "ISO",
   JavaScript = "JavaScript",
   Microsoft = "Microsoft",
@@ -2890,7 +2864,7 @@ export const ZJSONDateFormatEnterprise = z.enum(Object.values(JSONDateFormat) as
 export type TJSONDateFormat = keyof typeof JSONDateFormat
 export type TJSONDateFormatEnterprise = `${JSONDateFormat}`
 
-export enum JSONDateWritingVariant {
+enum JSONDateWritingVariant {
   LocalDate = "ЛокальнаяДата",
   LocalDateWithOffset = "ЛокальнаяДатаСоСмещением",
   UniversalDate = "УниверсальнаяДата",
@@ -2902,7 +2876,7 @@ export const ZJSONDateWritingVariantEnterprise = z.enum(Object.values(JSONDateWr
 export type TJSONDateWritingVariant = keyof typeof JSONDateWritingVariant
 export type TJSONDateWritingVariantEnterprise = `${JSONDateWritingVariant}`
 
-export enum JSONLineBreak {
+enum JSONLineBreak {
   Unix = "Unix",
   Windows = "Windows",
   Auto = "Авто",
@@ -2915,7 +2889,7 @@ export const ZJSONLineBreakEnterprise = z.enum(Object.values(JSONLineBreak) as [
 export type TJSONLineBreak = keyof typeof JSONLineBreak
 export type TJSONLineBreakEnterprise = `${JSONLineBreak}`
 
-export enum JSONValueType {
+enum JSONValueType {
   Null = "Null",
   Boolean = "Булево",
   PropertyName = "ИмяСвойства",
@@ -2935,7 +2909,7 @@ export const ZJSONValueTypeEnterprise = z.enum(Object.values(JSONValueType) as [
 export type TJSONValueType = keyof typeof JSONValueType
 export type TJSONValueTypeEnterprise = `${JSONValueType}`
 
-export enum DeliverableNotificationSendErrorType {
+enum DeliverableNotificationSendErrorType {
   UnknownError = "НеизвестнаяОшибка",
   AuthenticationDataError = "ОшибкаДанныхАутентификации",
   SubscriberIDError = "ОшибкаИдентификатораПодписчика",
@@ -2951,7 +2925,7 @@ export const ZDeliverableNotificationSendErrorTypeEnterprise = z.enum(Object.val
 export type TDeliverableNotificationSendErrorType = keyof typeof DeliverableNotificationSendErrorType
 export type TDeliverableNotificationSendErrorTypeEnterprise = `${DeliverableNotificationSendErrorType}`
 
-export enum DeliverableNotificationSubscriberType {
+enum DeliverableNotificationSubscriberType {
   APNS = "APNS",
   FCM = "FCM",
   GCM = "GCM",
@@ -2966,7 +2940,7 @@ export const ZDeliverableNotificationSubscriberTypeEnterprise = z.enum(Object.va
 export type TDeliverableNotificationSubscriberType = keyof typeof DeliverableNotificationSubscriberType
 export type TDeliverableNotificationSubscriberTypeEnterprise = `${DeliverableNotificationSubscriberType}`
 
-export enum SoundAlert {
+enum SoundAlert {
   None = "Нет",
   Default = "ПоУмолчанию",
 }
@@ -2977,7 +2951,7 @@ export const ZSoundAlertEnterprise = z.enum(Object.values(SoundAlert) as [TSound
 export type TSoundAlert = keyof typeof SoundAlert
 export type TSoundAlertEnterprise = `${SoundAlert}`
 
-export enum InAppPurchaseService {
+enum InAppPurchaseService {
   AppleInAppPurchase = "AppleInAppPurchase",
   GooglePlayInAppBilling = "GooglePlayInAppBilling",
   HuaweiInAppPurchase = "HuaweiInAppPurchase",
@@ -2991,7 +2965,7 @@ export const ZInAppPurchaseServiceEnterprise = z.enum(Object.values(InAppPurchas
 export type TInAppPurchaseService = keyof typeof InAppPurchaseService
 export type TInAppPurchaseServiceEnterprise = `${InAppPurchaseService}`
 
-export enum InAppPurchaseType {
+enum InAppPurchaseType {
   ContentForSale = "КонтентДляПродажи",
   Subscription = "Подписка",
 }
@@ -3002,7 +2976,7 @@ export const ZInAppPurchaseTypeEnterprise = z.enum(Object.values(InAppPurchaseTy
 export type TInAppPurchaseType = keyof typeof InAppPurchaseType
 export type TInAppPurchaseTypeEnterprise = `${InAppPurchaseType}`
 
-export enum FTPSecureConnectionUsageLevel {
+enum FTPSecureConnectionUsageLevel {
   Auto = "Авто",
   UseIfPossible = "ИспользоватьЕслиВозможно",
   DontUse = "НеИспользовать",
@@ -3016,7 +2990,7 @@ export const ZFTPSecureConnectionUsageLevelEnterprise = z.enum(Object.values(FTP
 export type TFTPSecureConnectionUsageLevel = keyof typeof FTPSecureConnectionUsageLevel
 export type TFTPSecureConnectionUsageLevelEnterprise = `${FTPSecureConnectionUsageLevel}`
 
-export enum InternetConnectionType {
+enum InternetConnectionType {
   WiFi = "WiFi",
   LAN = "ЛокальнаяСеть",
   NoConnection = "НетСоединения",
@@ -3029,7 +3003,7 @@ export const ZInternetConnectionTypeEnterprise = z.enum(Object.values(InternetCo
 export type TInternetConnectionType = keyof typeof InternetConnectionType
 export type TInternetConnectionTypeEnterprise = `${InternetConnectionType}`
 
-export enum MacOSCertificateSelectMode {
+enum MacOSCertificateSelectMode {
   Auto = "Авто",
   Choose = "Выбирать",
 }
@@ -3040,7 +3014,7 @@ export const ZMacOSCertificateSelectModeEnterprise = z.enum(Object.values(MacOSC
 export type TMacOSCertificateSelectMode = keyof typeof MacOSCertificateSelectMode
 export type TMacOSCertificateSelectModeEnterprise = `${MacOSCertificateSelectMode}`
 
-export enum OSCertificateSelectMode {
+enum OSCertificateSelectMode {
   Auto = "Авто",
   Choose = "Выбирать",
 }
@@ -3051,7 +3025,7 @@ export const ZOSCertificateSelectModeEnterprise = z.enum(Object.values(OSCertifi
 export type TOSCertificateSelectMode = keyof typeof OSCertificateSelectMode
 export type TOSCertificateSelectModeEnterprise = `${OSCertificateSelectMode}`
 
-export enum RoamingUsage {
+enum RoamingUsage {
   Used = "Используется",
   Unknown = "Неизвестно",
   NotUsed = "НеИспользуется",
@@ -3063,7 +3037,7 @@ export const ZRoamingUsageEnterprise = z.enum(Object.values(RoamingUsage) as [TR
 export type TRoamingUsage = keyof typeof RoamingUsage
 export type TRoamingUsageEnterprise = `${RoamingUsage}`
 
-export enum ServerTLSCertificateRevocationCheckMode {
+enum ServerTLSCertificateRevocationCheckMode {
   Auto = "Авто",
   DontCheck = "НеПроверять",
   SoftFail = "Нестрогий",
@@ -3076,7 +3050,7 @@ export const ZServerTLSCertificateRevocationCheckModeEnterprise = z.enum(Object.
 export type TServerTLSCertificateRevocationCheckMode = keyof typeof ServerTLSCertificateRevocationCheckMode
 export type TServerTLSCertificateRevocationCheckModeEnterprise = `${ServerTLSCertificateRevocationCheckMode}`
 
-export enum WindowsCertificateSelectMode {
+enum WindowsCertificateSelectMode {
   Auto = "Авто",
   Choose = "Выбирать",
 }
@@ -3087,7 +3061,7 @@ export const ZWindowsCertificateSelectModeEnterprise = z.enum(Object.values(Wind
 export type TWindowsCertificateSelectMode = keyof typeof WindowsCertificateSelectMode
 export type TWindowsCertificateSelectModeEnterprise = `${WindowsCertificateSelectMode}`
 
-export enum ByteOrder {
+enum ByteOrder {
   BigEndian = "BigEndian",
   LittleEndian = "LittleEndian",
 }
@@ -3098,7 +3072,7 @@ export const ZByteOrderEnterprise = z.enum(Object.values(ByteOrder) as [TByteOrd
 export type TByteOrder = keyof typeof ByteOrder
 export type TByteOrderEnterprise = `${ByteOrder}`
 
-export enum PositionInStream {
+enum PositionInStream {
   End = "Конец",
   Begin = "Начало",
   Current = "Текущая",
@@ -3110,7 +3084,7 @@ export const ZPositionInStreamEnterprise = z.enum(Object.values(PositionInStream
 export type TPositionInStream = keyof typeof PositionInStream
 export type TPositionInStreamEnterprise = `${PositionInStream}`
 
-export enum AdBannerRepresentation {
+enum AdBannerRepresentation {
   Top = "Верх",
   None = "Нет",
   Bottom = "Низ",
@@ -3122,7 +3096,7 @@ export const ZAdBannerRepresentationEnterprise = z.enum(Object.values(AdBannerRe
 export type TAdBannerRepresentation = keyof typeof AdBannerRepresentation
 export type TAdBannerRepresentationEnterprise = `${AdBannerRepresentation}`
 
-export enum AdStatus {
+enum AdStatus {
   ReadyToDisplay = "ГотоваКОтображению",
   Downloading = "Загружается",
   NotDownloaded = "НеЗагружена",
@@ -3135,7 +3109,7 @@ export const ZAdStatusEnterprise = z.enum(Object.values(AdStatus) as [TAdStatusE
 export type TAdStatus = keyof typeof AdStatus
 export type TAdStatusEnterprise = `${AdStatus}`
 
-export enum DataLineChangeType {
+enum DataLineChangeType {
   Add = "Добавление",
   Update = "Изменение",
   Move = "Перемещение",
@@ -3148,7 +3122,7 @@ export const ZDataLineChangeTypeEnterprise = z.enum(Object.values(DataLineChange
 export type TDataLineChangeType = keyof typeof DataLineChangeType
 export type TDataLineChangeTypeEnterprise = `${DataLineChangeType}`
 
-export enum RepresentableDocumentBatchFileType {
+enum RepresentableDocumentBatchFileType {
   DOCX = "DOCX",
   HTML4 = "HTML4",
   HTML5 = "HTML5",
@@ -3165,7 +3139,7 @@ export const ZRepresentableDocumentBatchFileTypeEnterprise = z.enum(Object.value
 export type TRepresentableDocumentBatchFileType = keyof typeof RepresentableDocumentBatchFileType
 export type TRepresentableDocumentBatchFileTypeEnterprise = `${RepresentableDocumentBatchFileType}`
 
-export enum ClientApplicationAgentState {
+enum ClientApplicationAgentState {
   NotStarted = "НеЗапущен",
   Disconnected = "Отключен",
   Connected = "Подключен",
@@ -3177,7 +3151,7 @@ export const ZClientApplicationAgentStateEnterprise = z.enum(Object.values(Clien
 export type TClientApplicationAgentState = keyof typeof ClientApplicationAgentState
 export type TClientApplicationAgentStateEnterprise = `${ClientApplicationAgentState}`
 
-export enum DatabaseCopiesStandardReplicationVersion {
+enum DatabaseCopiesStandardReplicationVersion {
   Version1 = "Версия1",
   Version2 = "Версия2",
 }
@@ -3188,7 +3162,7 @@ export const ZDatabaseCopiesStandardReplicationVersionEnterprise = z.enum(Object
 export type TDatabaseCopiesStandardReplicationVersion = keyof typeof DatabaseCopiesStandardReplicationVersion
 export type TDatabaseCopiesStandardReplicationVersionEnterprise = `${DatabaseCopiesStandardReplicationVersion}`
 
-export enum DatabaseCopiesUse {
+enum DatabaseCopiesUse {
   Auto = "Авто",
   PreferUseCopies = "ИспользоватьПреимущественноКопии",
   UseCopiesOnly = "ИспользоватьТолькоКопии",
@@ -3201,7 +3175,7 @@ export const ZDatabaseCopiesUseEnterprise = z.enum(Object.values(DatabaseCopiesU
 export type TDatabaseCopiesUse = keyof typeof DatabaseCopiesUse
 export type TDatabaseCopiesUseEnterprise = `${DatabaseCopiesUse}`
 
-export enum DatabaseCopyContentItemFieldUse {
+enum DatabaseCopyContentItemFieldUse {
   Auto = "Авто",
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -3213,7 +3187,7 @@ export const ZDatabaseCopyContentItemFieldUseEnterprise = z.enum(Object.values(D
 export type TDatabaseCopyContentItemFieldUse = keyof typeof DatabaseCopyContentItemFieldUse
 export type TDatabaseCopyContentItemFieldUseEnterprise = `${DatabaseCopyContentItemFieldUse}`
 
-export enum DatabaseCopyDBMSType {
+enum DatabaseCopyDBMSType {
   MSSQLServer = "MSSQLServer",
   OracleDatabase = "OracleDatabase",
   PostgreSQL = "PostgreSQL",
@@ -3225,7 +3199,7 @@ export const ZDatabaseCopyDBMSTypeEnterprise = z.enum(Object.values(DatabaseCopy
 export type TDatabaseCopyDBMSType = keyof typeof DatabaseCopyDBMSType
 export type TDatabaseCopyDBMSTypeEnterprise = `${DatabaseCopyDBMSType}`
 
-export enum DatabaseCopyReplicationType {
+enum DatabaseCopyReplicationType {
   External = "Внешняя",
   Standard = "Стандартная",
 }
@@ -3236,7 +3210,7 @@ export const ZDatabaseCopyReplicationTypeEnterprise = z.enum(Object.values(Datab
 export type TDatabaseCopyReplicationType = keyof typeof DatabaseCopyReplicationType
 export type TDatabaseCopyReplicationTypeEnterprise = `${DatabaseCopyReplicationType}`
 
-export enum DatabaseCopyState {
+enum DatabaseCopyState {
   TurnedOn = "Включена",
   TemporarilyTurnedOff = "ВременноОтключена",
   TurnedOff = "Отключена",
@@ -3248,7 +3222,7 @@ export const ZDatabaseCopyStateEnterprise = z.enum(Object.values(DatabaseCopySta
 export type TDatabaseCopyState = keyof typeof DatabaseCopyState
 export type TDatabaseCopyStateEnterprise = `${DatabaseCopyState}`
 
-export enum DatabaseCopyTurnedOffReason {
+enum DatabaseCopyTurnedOffReason {
   InvalidCopyDatabaseUseVariant = "НедопустимыйВариантИспользованияБазыДанныхКопии",
   DataInconsistency = "НесоответствиеДанных",
   QueryExecutionError = "ОшибкаВыполненияЗапроса",
@@ -3261,7 +3235,7 @@ export const ZDatabaseCopyTurnedOffReasonEnterprise = z.enum(Object.values(Datab
 export type TDatabaseCopyTurnedOffReason = keyof typeof DatabaseCopyTurnedOffReason
 export type TDatabaseCopyTurnedOffReasonEnterprise = `${DatabaseCopyTurnedOffReason}`
 
-export enum DatabaseCopyUpdateState {
+enum DatabaseCopyUpdateState {
   InitialUpdateInProgress = "ВыполняетсяНачальноеОбновление",
   CurrentUpdateInProgress = "ВыполняетсяТекущееОбновление",
   PortionUpdateCompletedSuccessfully = "ЗавершеноОбновлениеПорцииУспешно",
@@ -3276,7 +3250,7 @@ export const ZDatabaseCopyUpdateStateEnterprise = z.enum(Object.values(DatabaseC
 export type TDatabaseCopyUpdateState = keyof typeof DatabaseCopyUpdateState
 export type TDatabaseCopyUpdateStateEnterprise = `${DatabaseCopyUpdateState}`
 
-export enum DataCompositionDatabaseCopyOutputType {
+enum DataCompositionDatabaseCopyOutputType {
   Auto = "Авто",
   Output = "Выводить",
   DontOutput = "НеВыводить",
@@ -3288,7 +3262,7 @@ export const ZDataCompositionDatabaseCopyOutputTypeEnterprise = z.enum(Object.va
 export type TDataCompositionDatabaseCopyOutputType = keyof typeof DataCompositionDatabaseCopyOutputType
 export type TDataCompositionDatabaseCopyOutputTypeEnterprise = `${DataCompositionDatabaseCopyOutputType}`
 
-export enum DataCompositionDataRelevanceOutputType {
+enum DataCompositionDataRelevanceOutputType {
   Auto = "Авто",
   Output = "Выводить",
   DontOutput = "НеВыводить",
@@ -3300,7 +3274,7 @@ export const ZDataCompositionDataRelevanceOutputTypeEnterprise = z.enum(Object.v
 export type TDataCompositionDataRelevanceOutputType = keyof typeof DataCompositionDataRelevanceOutputType
 export type TDataCompositionDataRelevanceOutputTypeEnterprise = `${DataCompositionDataRelevanceOutputType}`
 
-export enum RequiredDataRelevance {
+enum RequiredDataRelevance {
   Auto = "Авто",
   Relevant = "Актуальные",
   Any = "Любые",
@@ -3312,7 +3286,7 @@ export const ZRequiredDataRelevanceEnterprise = z.enum(Object.values(RequiredDat
 export type TRequiredDataRelevance = keyof typeof RequiredDataRelevance
 export type TRequiredDataRelevanceEnterprise = `${RequiredDataRelevance}`
 
-export enum CollaborationSystemCommandSource {
+enum CollaborationSystemCommandSource {
   Attachment = "Вложение",
   Action = "Действие",
   URL = "НавигационнаяСсылка",
@@ -3327,7 +3301,7 @@ export const ZCollaborationSystemCommandSourceEnterprise = z.enum(Object.values(
 export type TCollaborationSystemCommandSource = keyof typeof CollaborationSystemCommandSource
 export type TCollaborationSystemCommandSourceEnterprise = `${CollaborationSystemCommandSource}`
 
-export enum CollaborationSystemDataDumpStatus {
+enum CollaborationSystemDataDumpStatus {
   Restoring = "Восстановление",
   Done = "Готово",
   Loading = "Загрузка",
@@ -3341,7 +3315,7 @@ export const ZCollaborationSystemDataDumpStatusEnterprise = z.enum(Object.values
 export type TCollaborationSystemDataDumpStatus = keyof typeof CollaborationSystemDataDumpStatus
 export type TCollaborationSystemDataDumpStatusEnterprise = `${CollaborationSystemDataDumpStatus}`
 
-export enum CollaborationSystemFromDataDumpRestoreStatus {
+enum CollaborationSystemFromDataDumpRestoreStatus {
   Error = "Ошибка",
   Success = "Успешно",
 }
@@ -3352,7 +3326,7 @@ export const ZCollaborationSystemFromDataDumpRestoreStatusEnterprise = z.enum(Ob
 export type TCollaborationSystemFromDataDumpRestoreStatus = keyof typeof CollaborationSystemFromDataDumpRestoreStatus
 export type TCollaborationSystemFromDataDumpRestoreStatusEnterprise = `${CollaborationSystemFromDataDumpRestoreStatus}`
 
-export enum CollaborationSystemMessageButtonPanelButtonAction {
+enum CollaborationSystemMessageButtonPanelButtonAction {
   RequestLocation = "ЗапроситьМестоположение",
   RequestPhone = "ЗапроситьТелефон",
   ProcessByBot = "ОбработатьБотом",
@@ -3368,7 +3342,7 @@ export const ZCollaborationSystemMessageButtonPanelButtonActionEnterprise = z.en
 export type TCollaborationSystemMessageButtonPanelButtonAction = keyof typeof CollaborationSystemMessageButtonPanelButtonAction
 export type TCollaborationSystemMessageButtonPanelButtonActionEnterprise = `${CollaborationSystemMessageButtonPanelButtonAction}`
 
-export enum CollaborationSystemMessageButtonPanelButtonType {
+enum CollaborationSystemMessageButtonPanelButtonType {
   Hyperlink = "Гиперссылка",
   UsualButton = "ОбычнаяКнопка",
 }
@@ -3379,7 +3353,7 @@ export const ZCollaborationSystemMessageButtonPanelButtonTypeEnterprise = z.enum
 export type TCollaborationSystemMessageButtonPanelButtonType = keyof typeof CollaborationSystemMessageButtonPanelButtonType
 export type TCollaborationSystemMessageButtonPanelButtonTypeEnterprise = `${CollaborationSystemMessageButtonPanelButtonType}`
 
-export enum CollaborationSystemNotificationRepresentation {
+enum CollaborationSystemNotificationRepresentation {
   DontDisturb = "НеБеспокоить",
   Normal = "Обычное",
 }
@@ -3390,7 +3364,7 @@ export const ZCollaborationSystemNotificationRepresentationEnterprise = z.enum(O
 export type TCollaborationSystemNotificationRepresentation = keyof typeof CollaborationSystemNotificationRepresentation
 export type TCollaborationSystemNotificationRepresentationEnterprise = `${CollaborationSystemNotificationRepresentation}`
 
-export enum CollaborationSystemStandardCommand {
+enum CollaborationSystemStandardCommand {
   ExecuteAction = "ВыполнитьДействие",
   CopyAttachment = "КопироватьВложение",
   CopyURL = "КопироватьНавигационнуюСсылку",
@@ -3413,7 +3387,7 @@ export const ZCollaborationSystemStandardCommandEnterprise = z.enum(Object.value
 export type TCollaborationSystemStandardCommand = keyof typeof CollaborationSystemStandardCommand
 export type TCollaborationSystemStandardCommandEnterprise = `${CollaborationSystemStandardCommand}`
 
-export enum CollaborationSystemUsersChoicePurpose {
+enum CollaborationSystemUsersChoicePurpose {
   MessageRecipient = "ПолучательСообщения",
   VideoconferenceParticipant = "УчастникВидеоконференции",
   ConversationMember = "УчастникОбсуждения",
@@ -3425,7 +3399,7 @@ export const ZCollaborationSystemUsersChoicePurposeEnterprise = z.enum(Object.va
 export type TCollaborationSystemUsersChoicePurpose = keyof typeof CollaborationSystemUsersChoicePurpose
 export type TCollaborationSystemUsersChoicePurposeEnterprise = `${CollaborationSystemUsersChoicePurpose}`
 
-export enum AdministrationActionOnResourceConsumptionLimitExcess {
+enum AdministrationActionOnResourceConsumptionLimitExcess {
   TerminateSession = "ЗавершитьСеанс",
   None = "Нет",
   InterruptCurrentServerCall = "ПрерватьТекущийСерверныйВызов",
@@ -3438,7 +3412,7 @@ export const ZAdministrationActionOnResourceConsumptionLimitExcessEnterprise = z
 export type TAdministrationActionOnResourceConsumptionLimitExcess = keyof typeof AdministrationActionOnResourceConsumptionLimitExcess
 export type TAdministrationActionOnResourceConsumptionLimitExcessEnterprise = `${AdministrationActionOnResourceConsumptionLimitExcess}`
 
-export enum AdministrationAssignmentRuleType {
+enum AdministrationAssignmentRuleType {
   Auto = "Авто",
   Assign = "Назначать",
   DontAssign = "НеНазначать",
@@ -3450,7 +3424,7 @@ export const ZAdministrationAssignmentRuleTypeEnterprise = z.enum(Object.values(
 export type TAdministrationAssignmentRuleType = keyof typeof AdministrationAssignmentRuleType
 export type TAdministrationAssignmentRuleTypeEnterprise = `${AdministrationAssignmentRuleType}`
 
-export enum AdministrationConnectionSecurityLevel {
+enum AdministrationConnectionSecurityLevel {
   Secure = "Защищенное",
   SecureOnConnect = "ЗащищенноеПриУстановкеСоединения",
   Unsecure = "Незащищенное",
@@ -3462,7 +3436,7 @@ export const ZAdministrationConnectionSecurityLevelEnterprise = z.enum(Object.va
 export type TAdministrationConnectionSecurityLevel = keyof typeof AdministrationConnectionSecurityLevel
 export type TAdministrationConnectionSecurityLevelEnterprise = `${AdministrationConnectionSecurityLevel}`
 
-export enum AdministrationInfoBaseDeletionMode {
+enum AdministrationInfoBaseDeletionMode {
   DontPerformActionsWithDatabase = "НеВыполнятьДействийСБазойДанных",
   ClearDatabase = "ОчиститьБазуДанных",
   DeleteDatabase = "УдалитьБазуДанных",
@@ -3474,7 +3448,7 @@ export const ZAdministrationInfoBaseDeletionModeEnterprise = z.enum(Object.value
 export type TAdministrationInfoBaseDeletionMode = keyof typeof AdministrationInfoBaseDeletionMode
 export type TAdministrationInfoBaseDeletionModeEnterprise = `${AdministrationInfoBaseDeletionMode}`
 
-export enum AdministrationProcessChoicePriority {
+enum AdministrationProcessChoicePriority {
   ByMemory = "ПоПамяти",
   ByPerformance = "ПоПроизводительности",
 }
@@ -3485,7 +3459,7 @@ export const ZAdministrationProcessChoicePriorityEnterprise = z.enum(Object.valu
 export type TAdministrationProcessChoicePriority = keyof typeof AdministrationProcessChoicePriority
 export type TAdministrationProcessChoicePriorityEnterprise = `${AdministrationProcessChoicePriority}`
 
-export enum AdministrationResourceConsumptionCounterFilterType {
+enum AdministrationResourceConsumptionCounterFilterType {
   All = "Все",
   AllSelected = "ВсеВыбранные",
   AllButSelected = "ВсеКромеВыбранных",
@@ -3497,7 +3471,7 @@ export const ZAdministrationResourceConsumptionCounterFilterTypeEnterprise = z.e
 export type TAdministrationResourceConsumptionCounterFilterType = keyof typeof AdministrationResourceConsumptionCounterFilterType
 export type TAdministrationResourceConsumptionCounterFilterTypeEnterprise = `${AdministrationResourceConsumptionCounterFilterType}`
 
-export enum AdministrationResourceConsumptionCounterGroupType {
+enum AdministrationResourceConsumptionCounterGroupType {
   Users = "Пользователи",
   DataSeparation = "РазделениеДанных",
 }
@@ -3508,7 +3482,7 @@ export const ZAdministrationResourceConsumptionCounterGroupTypeEnterprise = z.en
 export type TAdministrationResourceConsumptionCounterGroupType = keyof typeof AdministrationResourceConsumptionCounterGroupType
 export type TAdministrationResourceConsumptionCounterGroupTypeEnterprise = `${AdministrationResourceConsumptionCounterGroupType}`
 
-export enum AdministrationWorkProcessStatus {
+enum AdministrationWorkProcessStatus {
   Used = "Используется",
   NotUsed = "НеИспользуется",
   Reserve = "Резервный",
@@ -3520,7 +3494,7 @@ export const ZAdministrationWorkProcessStatusEnterprise = z.enum(Object.values(A
 export type TAdministrationWorkProcessStatus = keyof typeof AdministrationWorkProcessStatus
 export type TAdministrationWorkProcessStatusEnterprise = `${AdministrationWorkProcessStatus}`
 
-export enum PivotTableColumnTotalPosition {
+enum PivotTableColumnTotalPosition {
   Left = "Лево",
   Right = "Право",
 }
@@ -3531,7 +3505,7 @@ export const ZPivotTableColumnTotalPositionEnterprise = z.enum(Object.values(Piv
 export type TPivotTableColumnTotalPosition = keyof typeof PivotTableColumnTotalPosition
 export type TPivotTableColumnTotalPositionEnterprise = `${PivotTableColumnTotalPosition}`
 
-export enum PivotTableLinesShowType {
+enum PivotTableLinesShowType {
   Auto = "Авто",
   Always = "Всегда",
 }
@@ -3542,7 +3516,7 @@ export const ZPivotTableLinesShowTypeEnterprise = z.enum(Object.values(PivotTabl
 export type TPivotTableLinesShowType = keyof typeof PivotTableLinesShowType
 export type TPivotTableLinesShowTypeEnterprise = `${PivotTableLinesShowType}`
 
-export enum PivotTableRowTotalPosition {
+enum PivotTableRowTotalPosition {
   Top = "Верх",
   Bottom = "Низ",
 }
@@ -3553,7 +3527,7 @@ export const ZPivotTableRowTotalPositionEnterprise = z.enum(Object.values(PivotT
 export type TPivotTableRowTotalPosition = keyof typeof PivotTableRowTotalPosition
 export type TPivotTableRowTotalPositionEnterprise = `${PivotTableRowTotalPosition}`
 
-export enum DuplexPrintingType {
+enum DuplexPrintingType {
   UsePrinterSettings = "ИспользоватьНастройкиПринтера",
   None = "Нет",
   FlipPagesUp = "ПереворотВверх",
@@ -3566,7 +3540,7 @@ export const ZDuplexPrintingTypeEnterprise = z.enum(Object.values(DuplexPrinting
 export type TDuplexPrintingType = keyof typeof DuplexPrintingType
 export type TDuplexPrintingTypeEnterprise = `${DuplexPrintingType}`
 
-export enum PageOrientation {
+enum PageOrientation {
   Landscape = "Ландшафт",
   Portrait = "Портрет",
 }
@@ -3577,7 +3551,7 @@ export const ZPageOrientationEnterprise = z.enum(Object.values(PageOrientation) 
 export type TPageOrientation = keyof typeof PageOrientation
 export type TPageOrientationEnterprise = `${PageOrientation}`
 
-export enum PagePlacementAlternation {
+enum PagePlacementAlternation {
   Auto = "Авто",
   MirrorOnTop = "ЗеркальноСверху",
   MirrorOnLeft = "ЗеркальноСлева",
@@ -3590,7 +3564,7 @@ export const ZPagePlacementAlternationEnterprise = z.enum(Object.values(PagePlac
 export type TPagePlacementAlternation = keyof typeof PagePlacementAlternation
 export type TPagePlacementAlternationEnterprise = `${PagePlacementAlternation}`
 
-export enum PrintAccuracy {
+enum PrintAccuracy {
   Auto = "Авто",
   Accurate = "Точная",
 }
@@ -3601,7 +3575,7 @@ export const ZPrintAccuracyEnterprise = z.enum(Object.values(PrintAccuracy) as [
 export type TPrintAccuracy = keyof typeof PrintAccuracy
 export type TPrintAccuracyEnterprise = `${PrintAccuracy}`
 
-export enum SpreadsheetDocumentAreaFillType {
+enum SpreadsheetDocumentAreaFillType {
   Parameter = "Параметр",
   Text = "Текст",
   Template = "Шаблон",
@@ -3613,7 +3587,7 @@ export const ZSpreadsheetDocumentAreaFillTypeEnterprise = z.enum(Object.values(S
 export type TSpreadsheetDocumentAreaFillType = keyof typeof SpreadsheetDocumentAreaFillType
 export type TSpreadsheetDocumentAreaFillTypeEnterprise = `${SpreadsheetDocumentAreaFillType}`
 
-export enum SpreadsheetDocumentCellAreaType {
+enum SpreadsheetDocumentCellAreaType {
   Columns = "Колонки",
   Rectangle = "Прямоугольник",
   Rows = "Строки",
@@ -3626,7 +3600,7 @@ export const ZSpreadsheetDocumentCellAreaTypeEnterprise = z.enum(Object.values(S
 export type TSpreadsheetDocumentCellAreaType = keyof typeof SpreadsheetDocumentCellAreaType
 export type TSpreadsheetDocumentCellAreaTypeEnterprise = `${SpreadsheetDocumentCellAreaType}`
 
-export enum SpreadsheetDocumentCellLineType {
+enum SpreadsheetDocumentCellLineType {
   LargeDashed = "БольшойПунктир",
   Double = "Двойная",
   None = "НетЛинии",
@@ -3642,7 +3616,7 @@ export const ZSpreadsheetDocumentCellLineTypeEnterprise = z.enum(Object.values(S
 export type TSpreadsheetDocumentCellLineType = keyof typeof SpreadsheetDocumentCellLineType
 export type TSpreadsheetDocumentCellLineTypeEnterprise = `${SpreadsheetDocumentCellLineType}`
 
-export enum SpreadsheetDocumentDetailUse {
+enum SpreadsheetDocumentDetailUse {
   WithoutProcessing = "БезОбработки",
   Row = "Строка",
   Cell = "Ячейка",
@@ -3654,7 +3628,7 @@ export const ZSpreadsheetDocumentDetailUseEnterprise = z.enum(Object.values(Spre
 export type TSpreadsheetDocumentDetailUse = keyof typeof SpreadsheetDocumentDetailUse
 export type TSpreadsheetDocumentDetailUseEnterprise = `${SpreadsheetDocumentDetailUse}`
 
-export enum SpreadsheetDocumentDrawingLineType {
+enum SpreadsheetDocumentDrawingLineType {
   None = "НетЛинии",
   Dashed = "Пунктир",
   DashDotted = "ПунктирТочка",
@@ -3669,7 +3643,7 @@ export const ZSpreadsheetDocumentDrawingLineTypeEnterprise = z.enum(Object.value
 export type TSpreadsheetDocumentDrawingLineType = keyof typeof SpreadsheetDocumentDrawingLineType
 export type TSpreadsheetDocumentDrawingLineTypeEnterprise = `${SpreadsheetDocumentDrawingLineType}`
 
-export enum SpreadsheetDocumentDrawingType {
+enum SpreadsheetDocumentDrawingType {
   GeographicalSchema = "ГеографическаяСхема",
   Group = "Группа",
   Dendrogram = "Дендрограмма",
@@ -3691,7 +3665,7 @@ export const ZSpreadsheetDocumentDrawingTypeEnterprise = z.enum(Object.values(Sp
 export type TSpreadsheetDocumentDrawingType = keyof typeof SpreadsheetDocumentDrawingType
 export type TSpreadsheetDocumentDrawingTypeEnterprise = `${SpreadsheetDocumentDrawingType}`
 
-export enum SpreadsheetDocumentFileType {
+enum SpreadsheetDocumentFileType {
   ANSITXT = "ANSITXT",
   DOCX = "DOCX",
   HTML = "HTML",
@@ -3718,7 +3692,7 @@ export const ZSpreadsheetDocumentFileTypeEnterprise = z.enum(Object.values(Sprea
 export type TSpreadsheetDocumentFileType = keyof typeof SpreadsheetDocumentFileType
 export type TSpreadsheetDocumentFileTypeEnterprise = `${SpreadsheetDocumentFileType}`
 
-export enum SpreadsheetDocumentGroupHeaderPlacement {
+enum SpreadsheetDocumentGroupHeaderPlacement {
   Auto = "Авто",
   End = "Конец",
   Begin = "Начало",
@@ -3730,7 +3704,7 @@ export const ZSpreadsheetDocumentGroupHeaderPlacementEnterprise = z.enum(Object.
 export type TSpreadsheetDocumentGroupHeaderPlacement = keyof typeof SpreadsheetDocumentGroupHeaderPlacement
 export type TSpreadsheetDocumentGroupHeaderPlacementEnterprise = `${SpreadsheetDocumentGroupHeaderPlacement}`
 
-export enum SpreadsheetDocumentPatternType {
+enum SpreadsheetDocumentPatternType {
   WithoutPattern = "БезУзора",
   Solid = "Сплошной",
   Pattern1 = "Узор1",
@@ -3758,7 +3732,7 @@ export const ZSpreadsheetDocumentPatternTypeEnterprise = z.enum(Object.values(Sp
 export type TSpreadsheetDocumentPatternType = keyof typeof SpreadsheetDocumentPatternType
 export type TSpreadsheetDocumentPatternTypeEnterprise = `${SpreadsheetDocumentPatternType}`
 
-export enum SpreadsheetDocumentPointerType {
+enum SpreadsheetDocumentPointerType {
   Regular = "Обычные",
   Special = "Специальные",
 }
@@ -3769,7 +3743,7 @@ export const ZSpreadsheetDocumentPointerTypeEnterprise = z.enum(Object.values(Sp
 export type TSpreadsheetDocumentPointerType = keyof typeof SpreadsheetDocumentPointerType
 export type TSpreadsheetDocumentPointerTypeEnterprise = `${SpreadsheetDocumentPointerType}`
 
-export enum SpreadsheetDocumentSavedPicturesDensity {
+enum SpreadsheetDocumentSavedPicturesDensity {
   High = "Высокая",
   Original = "Исходная",
   Low = "Низкая",
@@ -3782,7 +3756,7 @@ export const ZSpreadsheetDocumentSavedPicturesDensityEnterprise = z.enum(Object.
 export type TSpreadsheetDocumentSavedPicturesDensity = keyof typeof SpreadsheetDocumentSavedPicturesDensity
 export type TSpreadsheetDocumentSavedPicturesDensityEnterprise = `${SpreadsheetDocumentSavedPicturesDensity}`
 
-export enum SpreadsheetDocumentSelectionShowModeType {
+enum SpreadsheetDocumentSelectionShowModeType {
   Always = "Всегда",
   WhenActive = "ПриАктивности",
 }
@@ -3793,7 +3767,7 @@ export const ZSpreadsheetDocumentSelectionShowModeTypeEnterprise = z.enum(Object
 export type TSpreadsheetDocumentSelectionShowModeType = keyof typeof SpreadsheetDocumentSelectionShowModeType
 export type TSpreadsheetDocumentSelectionShowModeTypeEnterprise = `${SpreadsheetDocumentSelectionShowModeType}`
 
-export enum SpreadsheetDocumentShiftType {
+enum SpreadsheetDocumentShiftType {
   WithoutShift = "БезСмещения",
   Vertical = "ПоВертикали",
   Horizontal = "ПоГоризонтали",
@@ -3805,7 +3779,7 @@ export const ZSpreadsheetDocumentShiftTypeEnterprise = z.enum(Object.values(Spre
 export type TSpreadsheetDocumentShiftType = keyof typeof SpreadsheetDocumentShiftType
 export type TSpreadsheetDocumentShiftTypeEnterprise = `${SpreadsheetDocumentShiftType}`
 
-export enum SpreadsheetDocumentStepDirectionType {
+enum SpreadsheetDocumentStepDirectionType {
   WithoutMove = "БезПерехода",
   ByColumns = "ПоКолонкам",
   ByRows = "ПоСтрокам",
@@ -3817,7 +3791,7 @@ export const ZSpreadsheetDocumentStepDirectionTypeEnterprise = z.enum(Object.val
 export type TSpreadsheetDocumentStepDirectionType = keyof typeof SpreadsheetDocumentStepDirectionType
 export type TSpreadsheetDocumentStepDirectionTypeEnterprise = `${SpreadsheetDocumentStepDirectionType}`
 
-export enum SpreadsheetDocumentTextPlacementType {
+enum SpreadsheetDocumentTextPlacementType {
   Auto = "Авто",
   Block = "Забивать",
   Cut = "Обрезать",
@@ -3830,7 +3804,7 @@ export const ZSpreadsheetDocumentTextPlacementTypeEnterprise = z.enum(Object.val
 export type TSpreadsheetDocumentTextPlacementType = keyof typeof SpreadsheetDocumentTextPlacementType
 export type TSpreadsheetDocumentTextPlacementTypeEnterprise = `${SpreadsheetDocumentTextPlacementType}`
 
-export enum SpreadsheetDocumentValuesReadingMode {
+enum SpreadsheetDocumentValuesReadingMode {
   Value = "Значение",
   Text = "Текст",
 }
@@ -3841,7 +3815,7 @@ export const ZSpreadsheetDocumentValuesReadingModeEnterprise = z.enum(Object.val
 export type TSpreadsheetDocumentValuesReadingMode = keyof typeof SpreadsheetDocumentValuesReadingMode
 export type TSpreadsheetDocumentValuesReadingModeEnterprise = `${SpreadsheetDocumentValuesReadingMode}`
 
-export enum TextPositionRelativeToPicture {
+enum TextPositionRelativeToPicture {
   Auto = "Авто",
   OnTop = "Поверх",
   Top = "Сверху",
@@ -3856,7 +3830,7 @@ export const ZTextPositionRelativeToPictureEnterprise = z.enum(Object.values(Tex
 export type TTextPositionRelativeToPicture = keyof typeof TextPositionRelativeToPicture
 export type TTextPositionRelativeToPictureEnterprise = `${TextPositionRelativeToPicture}`
 
-export enum UseSpreadsheetDocumentWidthReduction {
+enum UseSpreadsheetDocumentWidthReduction {
   Auto = "Авто",
   DoNotReduceOnExcess = "ПриПревышенииНеСжимать",
   ReduceToMinimumOnExcess = "ПриПревышенииСжиматьДоМинимума",
@@ -3869,7 +3843,7 @@ export const ZUseSpreadsheetDocumentWidthReductionEnterprise = z.enum(Object.val
 export type TUseSpreadsheetDocumentWidthReduction = keyof typeof UseSpreadsheetDocumentWidthReduction
 export type TUseSpreadsheetDocumentWidthReductionEnterprise = `${UseSpreadsheetDocumentWidthReduction}`
 
-export enum QueryRecordType {
+enum QueryRecordType {
   DetailRecord = "ДетальнаяЗапись",
   GroupTotal = "ИтогПоГруппировке",
   TotalByHierarchy = "ИтогПоИерархии",
@@ -3882,7 +3856,7 @@ export const ZQueryRecordTypeEnterprise = z.enum(Object.values(QueryRecordType) 
 export type TQueryRecordType = keyof typeof QueryRecordType
 export type TQueryRecordTypeEnterprise = `${QueryRecordType}`
 
-export enum QueryResultIteration {
+enum QueryResultIteration {
   ByGroups = "ПоГруппировкам",
   ByGroupsWithHierarchy = "ПоГруппировкамСИерархией",
   Linear = "Прямой",
@@ -3894,7 +3868,7 @@ export const ZQueryResultIterationEnterprise = z.enum(Object.values(QueryResultI
 export type TQueryResultIteration = keyof typeof QueryResultIteration
 export type TQueryResultIterationEnterprise = `${QueryResultIteration}`
 
-export enum ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethod {
+enum ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethod {
   StronglyConnectedComponents = "КомпонентыСильнойСвязности",
   StronglyConnectedComponentsWithNoInnerConnectionRequired = "КомпонентыСильнойСвязностиБезТребованияСвязиВнутриКомпонент",
   WeaklyConnectedComponents = "КомпонентыСлабойСвязности",
@@ -3906,7 +3880,7 @@ export const ZConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMeth
 export type TConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethod = keyof typeof ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethod
 export type TConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodEnterprise = `${ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethod}`
 
-export enum AdditionalUserVerificationMethod {
+enum AdditionalUserVerificationMethod {
   BiometricsOrPassword = "БиометрическаяИлиВводПароля",
   BiometricsOnly = "ТолькоБиометрическая",
 }
@@ -3917,7 +3891,7 @@ export const ZAdditionalUserVerificationMethodEnterprise = z.enum(Object.values(
 export type TAdditionalUserVerificationMethod = keyof typeof AdditionalUserVerificationMethod
 export type TAdditionalUserVerificationMethodEnterprise = `${AdditionalUserVerificationMethod}`
 
-export enum BiometricVerificationMethod {
+enum BiometricVerificationMethod {
   None = "Нет",
   FaceRecognition = "РаспознаваниеЛица",
   FingerprintRecognition = "РаспознаваниеОтпечаткаПальца",
@@ -3930,7 +3904,7 @@ export const ZBiometricVerificationMethodEnterprise = z.enum(Object.values(Biome
 export type TBiometricVerificationMethod = keyof typeof BiometricVerificationMethod
 export type TBiometricVerificationMethodEnterprise = `${BiometricVerificationMethod}`
 
-export enum SecureStorageAccessProtectionMethod {
+enum SecureStorageAccessProtectionMethod {
   None = "Нет",
   AdditionalUserVerificationRequired = "ТребуетсяДополнительнаяПроверкаПользователя",
   ScreenUnlockRequired = "ТребуетсяРазблокировкаЭкрана",
@@ -3942,47 +3916,7 @@ export const ZSecureStorageAccessProtectionMethodEnterprise = z.enum(Object.valu
 export type TSecureStorageAccessProtectionMethod = keyof typeof SecureStorageAccessProtectionMethod
 export type TSecureStorageAccessProtectionMethodEnterprise = `${SecureStorageAccessProtectionMethod}`
 
-export enum ActionOnThePasswordRequirementsViolationOnAuthentication {
-,
-}
-
-export const ZActionOnThePasswordRequirementsViolationOnAuthentication = z.enum(Object.keys(ActionOnThePasswordRequirementsViolationOnAuthentication) as [TActionOnThePasswordRequirementsViolationOnAuthentication, ...TActionOnThePasswordRequirementsViolationOnAuthentication[]])
-export const ZActionOnThePasswordRequirementsViolationOnAuthenticationEnterprise = z.enum(Object.values(ActionOnThePasswordRequirementsViolationOnAuthentication) as [TActionOnThePasswordRequirementsViolationOnAuthenticationEnterprise, ...TActionOnThePasswordRequirementsViolationOnAuthenticationEnterprise[]])
-
-export type TActionOnThePasswordRequirementsViolationOnAuthentication = keyof typeof ActionOnThePasswordRequirementsViolationOnAuthentication
-export type TActionOnThePasswordRequirementsViolationOnAuthenticationEnterprise = `${ActionOnThePasswordRequirementsViolationOnAuthentication}`
-
-export enum EmailAuthenticationMethod {
-,
-}
-
-export const ZEmailAuthenticationMethod = z.enum(Object.keys(EmailAuthenticationMethod) as [TEmailAuthenticationMethod, ...TEmailAuthenticationMethod[]])
-export const ZEmailAuthenticationMethodEnterprise = z.enum(Object.values(EmailAuthenticationMethod) as [TEmailAuthenticationMethodEnterprise, ...TEmailAuthenticationMethodEnterprise[]])
-
-export type TEmailAuthenticationMethod = keyof typeof EmailAuthenticationMethod
-export type TEmailAuthenticationMethodEnterprise = `${EmailAuthenticationMethod}`
-
-export enum InfoBaseUserAuthenticationMethod {
-,
-}
-
-export const ZInfoBaseUserAuthenticationMethod = z.enum(Object.keys(InfoBaseUserAuthenticationMethod) as [TInfoBaseUserAuthenticationMethod, ...TInfoBaseUserAuthenticationMethod[]])
-export const ZInfoBaseUserAuthenticationMethodEnterprise = z.enum(Object.values(InfoBaseUserAuthenticationMethod) as [TInfoBaseUserAuthenticationMethodEnterprise, ...TInfoBaseUserAuthenticationMethodEnterprise[]])
-
-export type TInfoBaseUserAuthenticationMethod = keyof typeof InfoBaseUserAuthenticationMethod
-export type TInfoBaseUserAuthenticationMethodEnterprise = `${InfoBaseUserAuthenticationMethod}`
-
-export enum SecondAuthenticationFactorSettingsProcessingType {
-,
-}
-
-export const ZSecondAuthenticationFactorSettingsProcessingType = z.enum(Object.keys(SecondAuthenticationFactorSettingsProcessingType) as [TSecondAuthenticationFactorSettingsProcessingType, ...TSecondAuthenticationFactorSettingsProcessingType[]])
-export const ZSecondAuthenticationFactorSettingsProcessingTypeEnterprise = z.enum(Object.values(SecondAuthenticationFactorSettingsProcessingType) as [TSecondAuthenticationFactorSettingsProcessingTypeEnterprise, ...TSecondAuthenticationFactorSettingsProcessingTypeEnterprise[]])
-
-export type TSecondAuthenticationFactorSettingsProcessingType = keyof typeof SecondAuthenticationFactorSettingsProcessingType
-export type TSecondAuthenticationFactorSettingsProcessingTypeEnterprise = `${SecondAuthenticationFactorSettingsProcessingType}`
-
-export enum ErrorCategory {
+enum ErrorCategory {
   AllErrors = "ВсеОшибки",
   ExceptionRaisedFromScript = "ИсключениеВызванноеИзВстроенногоЯзыка",
   AccessViolation = "НарушениеПравДоступа",
@@ -4019,7 +3953,7 @@ export const ZErrorCategoryEnterprise = z.enum(Object.values(ErrorCategory) as [
 export type TErrorCategory = keyof typeof ErrorCategory
 export type TErrorCategoryEnterprise = `${ErrorCategory}`
 
-export enum ErrorMessageDisplayVariant {
+enum ErrorMessageDisplayVariant {
   Auto = "Авто",
   BriefErrorDescription = "КраткоеПредставлениеОшибки",
   DetailErrorDescription = "ПодробноеПредставлениеОшибки",
@@ -4032,7 +3966,7 @@ export const ZErrorMessageDisplayVariantEnterprise = z.enum(Object.values(ErrorM
 export type TErrorMessageDisplayVariant = keyof typeof ErrorMessageDisplayVariant
 export type TErrorMessageDisplayVariantEnterprise = `${ErrorMessageDisplayVariant}`
 
-export enum ErrorReportingMode {
+enum ErrorReportingMode {
   Auto = "Авто",
   DontSend = "НеОтправлять",
   Send = "Отправлять",
@@ -4045,7 +3979,7 @@ export const ZErrorReportingModeEnterprise = z.enum(Object.values(ErrorReporting
 export type TErrorReportingMode = keyof typeof ErrorReportingMode
 export type TErrorReportingModeEnterprise = `${ErrorReportingMode}`
 
-export enum MobileClientSignatureVerificationMethod {
+enum MobileClientSignatureVerificationMethod {
   DoNotVerifySignature = "НеВыполнятьПроверкуПодписи",
   CheckMobileClientUsageAbility = "ПроверятьВозможностьИспользованияМобильногоКлиента",
   CheckConfigurationSignatureForExactMatch = "ПроверятьТочноеСоответствиеПодписиКонфигурации",
@@ -4057,7 +3991,7 @@ export const ZMobileClientSignatureVerificationMethodEnterprise = z.enum(Object.
 export type TMobileClientSignatureVerificationMethod = keyof typeof MobileClientSignatureVerificationMethod
 export type TMobileClientSignatureVerificationMethodEnterprise = `${MobileClientSignatureVerificationMethod}`
 
-export enum OnMainServerUnavalableBehavior {
+enum OnMainServerUnavalableBehavior {
   Auto = "Авто",
   DontChangeBehavior = "НеИзменятьПоведение",
   MakeDisable = "ОтключитьДоступность",
@@ -4069,7 +4003,7 @@ export const ZOnMainServerUnavalableBehaviorEnterprise = z.enum(Object.values(On
 export type TOnMainServerUnavalableBehavior = keyof typeof OnMainServerUnavalableBehavior
 export type TOnMainServerUnavalableBehaviorEnterprise = `${OnMainServerUnavalableBehavior}`
 
-export enum UsedServer {
+enum UsedServer {
   Standalone = "Автономный",
   Main = "Основной",
 }
@@ -4080,7 +4014,7 @@ export const ZUsedServerEnterprise = z.enum(Object.values(UsedServer) as [TUsedS
 export type TUsedServer = keyof typeof UsedServer
 export type TUsedServerEnterprise = `${UsedServer}`
 
-export enum PDFAttachmentRelationshipType {
+enum PDFAttachmentRelationshipType {
   Alternative = "Альтернатива",
   Data = "Данные",
   Supplement = "Дополнение",
@@ -4094,7 +4028,7 @@ export const ZPDFAttachmentRelationshipTypeEnterprise = z.enum(Object.values(PDF
 export type TPDFAttachmentRelationshipType = keyof typeof PDFAttachmentRelationshipType
 export type TPDFAttachmentRelationshipTypeEnterprise = `${PDFAttachmentRelationshipType}`
 
-export enum PDFDocumentFileType {
+enum PDFDocumentFileType {
   PDF = "PDF",
   PDF_A_1 = "PDF_A_1",
   PDF_A_2 = "PDF_A_2",
@@ -4107,7 +4041,7 @@ export const ZPDFDocumentFileTypeEnterprise = z.enum(Object.values(PDFDocumentFi
 export type TPDFDocumentFileType = keyof typeof PDFDocumentFileType
 export type TPDFDocumentFileTypeEnterprise = `${PDFDocumentFileType}`
 
-export enum PDFModificationAccessPermissions {
+enum PDFModificationAccessPermissions {
   FillingSigning = "ЗаполнениеПодписание",
   FillingSigningAnnotation = "ЗаполнениеПодписаниеАннотирование",
   None = "Нет",
@@ -4119,7 +4053,7 @@ export const ZPDFModificationAccessPermissionsEnterprise = z.enum(Object.values(
 export type TPDFModificationAccessPermissions = keyof typeof PDFModificationAccessPermissions
 export type TPDFModificationAccessPermissionsEnterprise = `${PDFModificationAccessPermissions}`
 
-export enum PDFSignatureType {
+enum PDFSignatureType {
   Certifying = "Сертифицирующая",
   Approving = "Утверждающая",
 }
@@ -4130,7 +4064,7 @@ export const ZPDFSignatureTypeEnterprise = z.enum(Object.values(PDFSignatureType
 export type TPDFSignatureType = keyof typeof PDFSignatureType
 export type TPDFSignatureTypeEnterprise = `${PDFSignatureType}`
 
-export enum ProgressiveWebApplicationMode {
+enum ProgressiveWebApplicationMode {
   InBrowserWindow = "ВОкнеБраузера",
   InStandaloneWindow = "ВОтдельномОкне",
 }
@@ -4141,7 +4075,7 @@ export const ZProgressiveWebApplicationModeEnterprise = z.enum(Object.values(Pro
 export type TProgressiveWebApplicationMode = keyof typeof ProgressiveWebApplicationMode
 export type TProgressiveWebApplicationModeEnterprise = `${ProgressiveWebApplicationMode}`
 
-export enum AdditionalShowMode {
+enum AdditionalShowMode {
   Irrelevance = "Неактуальность",
   DontUse = "НеИспользовать",
 }
@@ -4152,7 +4086,7 @@ export const ZAdditionalShowModeEnterprise = z.enum(Object.values(AdditionalShow
 export type TAdditionalShowMode = keyof typeof AdditionalShowMode
 export type TAdditionalShowModeEnterprise = `${AdditionalShowMode}`
 
-export enum AppearanceAreaType {
+enum AppearanceAreaType {
   Group = "Группировка",
   Field = "Поле",
 }
@@ -4163,7 +4097,7 @@ export const ZAppearanceAreaTypeEnterprise = z.enum(Object.values(AppearanceArea
 export type TAppearanceAreaType = keyof typeof AppearanceAreaType
 export type TAppearanceAreaTypeEnterprise = `${AppearanceAreaType}`
 
-export enum ArrowStyle {
+enum ArrowStyle {
   Filled = "Заполненная",
   Blank = "Незаполненная",
   None = "Нет",
@@ -4175,7 +4109,7 @@ export const ZArrowStyleEnterprise = z.enum(Object.values(ArrowStyle) as [TArrow
 export type TArrowStyle = keyof typeof ArrowStyle
 export type TArrowStyleEnterprise = `${ArrowStyle}`
 
-export enum AutoCapitalizationOnTextInput {
+enum AutoCapitalizationOnTextInput {
   Auto = "Авто",
   AllCharacters = "ВсеСимволы",
   None = "Нет",
@@ -4189,7 +4123,7 @@ export const ZAutoCapitalizationOnTextInputEnterprise = z.enum(Object.values(Aut
 export type TAutoCapitalizationOnTextInput = keyof typeof AutoCapitalizationOnTextInput
 export type TAutoCapitalizationOnTextInputEnterprise = `${AutoCapitalizationOnTextInput}`
 
-export enum AutoCorrectionOnTextInput {
+enum AutoCorrectionOnTextInput {
   Auto = "Авто",
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -4201,7 +4135,7 @@ export const ZAutoCorrectionOnTextInputEnterprise = z.enum(Object.values(AutoCor
 export type TAutoCorrectionOnTextInput = keyof typeof AutoCorrectionOnTextInput
 export type TAutoCorrectionOnTextInputEnterprise = `${AutoCorrectionOnTextInput}`
 
-export enum AutonumerationInForm {
+enum AutonumerationInForm {
   Auto = "Авто",
   DontUse = "НеИспользовать",
 }
@@ -4212,7 +4146,7 @@ export const ZAutonumerationInFormEnterprise = z.enum(Object.values(Autonumerati
 export type TAutonumerationInForm = keyof typeof AutonumerationInForm
 export type TAutonumerationInFormEnterprise = `${AutonumerationInForm}`
 
-export enum AutoSaveFormDataInSettings {
+enum AutoSaveFormDataInSettings {
   Use = "Использовать",
   DontUse = "НеИспользовать",
 }
@@ -4223,7 +4157,7 @@ export const ZAutoSaveFormDataInSettingsEnterprise = z.enum(Object.values(AutoSa
 export type TAutoSaveFormDataInSettings = keyof typeof AutoSaveFormDataInSettings
 export type TAutoSaveFormDataInSettingsEnterprise = `${AutoSaveFormDataInSettings}`
 
-export enum AutoShowClearButtonMode {
+enum AutoShowClearButtonMode {
   Auto = "Авто",
   Always = "Всегда",
   FilledOnly = "ТолькоДляЗаполненного",
@@ -4235,7 +4169,7 @@ export const ZAutoShowClearButtonModeEnterprise = z.enum(Object.values(AutoShowC
 export type TAutoShowClearButtonMode = keyof typeof AutoShowClearButtonMode
 export type TAutoShowClearButtonModeEnterprise = `${AutoShowClearButtonMode}`
 
-export enum AutoShowOpenButtonMode {
+enum AutoShowOpenButtonMode {
   Auto = "Авто",
   Always = "Всегда",
   FilledOnly = "ТолькоДляЗаполненного",
@@ -4247,7 +4181,7 @@ export const ZAutoShowOpenButtonModeEnterprise = z.enum(Object.values(AutoShowOp
 export type TAutoShowOpenButtonMode = keyof typeof AutoShowOpenButtonMode
 export type TAutoShowOpenButtonModeEnterprise = `${AutoShowOpenButtonMode}`
 
-export enum AutoShowStateMode {
+enum AutoShowStateMode {
   Auto = "Авто",
   DontShow = "НеОтображать",
   Show = "Отображать",
@@ -4260,7 +4194,7 @@ export const ZAutoShowStateModeEnterprise = z.enum(Object.values(AutoShowStateMo
 export type TAutoShowStateMode = keyof typeof AutoShowStateMode
 export type TAutoShowStateModeEnterprise = `${AutoShowStateMode}`
 
-export enum ButtonGroupRepresentation {
+enum ButtonGroupRepresentation {
   Auto = "Авто",
   Compact = "Компактное",
   Usual = "Обычное",
@@ -4272,7 +4206,7 @@ export const ZButtonGroupRepresentationEnterprise = z.enum(Object.values(ButtonG
 export type TButtonGroupRepresentation = keyof typeof ButtonGroupRepresentation
 export type TButtonGroupRepresentationEnterprise = `${ButtonGroupRepresentation}`
 
-export enum ButtonLocationInCommandBar {
+enum ButtonLocationInCommandBar {
   Auto = "Авто",
   InAdditionalSubmenu = "ВДополнительномПодменю",
   InCommandBar = "ВКоманднойПанели",
@@ -4285,7 +4219,7 @@ export const ZButtonLocationInCommandBarEnterprise = z.enum(Object.values(Button
 export type TButtonLocationInCommandBar = keyof typeof ButtonLocationInCommandBar
 export type TButtonLocationInCommandBarEnterprise = `${ButtonLocationInCommandBar}`
 
-export enum ButtonPictureLocation {
+enum ButtonPictureLocation {
   Left = "Лево",
   Right = "Право",
 }
@@ -4296,7 +4230,7 @@ export const ZButtonPictureLocationEnterprise = z.enum(Object.values(ButtonPictu
 export type TButtonPictureLocation = keyof typeof ButtonPictureLocation
 export type TButtonPictureLocationEnterprise = `${ButtonPictureLocation}`
 
-export enum ButtonRepresentation {
+enum ButtonRepresentation {
   Auto = "Авто",
   Picture = "Картинка",
   PictureAndText = "КартинкаИТекст",
@@ -4309,7 +4243,7 @@ export const ZButtonRepresentationEnterprise = z.enum(Object.values(ButtonRepres
 export type TButtonRepresentation = keyof typeof ButtonRepresentation
 export type TButtonRepresentationEnterprise = `${ButtonRepresentation}`
 
-export enum ButtonShape {
+enum ButtonShape {
   Auto = "Авто",
   Usual = "Обычная",
   Oval = "Овал",
@@ -4321,7 +4255,7 @@ export const ZButtonShapeEnterprise = z.enum(Object.values(ButtonShape) as [TBut
 export type TButtonShape = keyof typeof ButtonShape
 export type TButtonShapeEnterprise = `${ButtonShape}`
 
-export enum ButtonShapeRepresentation {
+enum ButtonShapeRepresentation {
   Auto = "Авто",
   Always = "Всегда",
   None = "Нет",
@@ -4334,7 +4268,7 @@ export const ZButtonShapeRepresentationEnterprise = z.enum(Object.values(ButtonS
 export type TButtonShapeRepresentation = keyof typeof ButtonShapeRepresentation
 export type TButtonShapeRepresentationEnterprise = `${ButtonShapeRepresentation}`
 
-export enum AutoSeriesSeparation {
+enum AutoSeriesSeparation {
   All = "Все",
   Maximum = "Максимум",
   Minimum = "Минимум",
@@ -4347,7 +4281,7 @@ export const ZAutoSeriesSeparationEnterprise = z.enum(Object.values(AutoSeriesSe
 export type TAutoSeriesSeparation = keyof typeof AutoSeriesSeparation
 export type TAutoSeriesSeparationEnterprise = `${AutoSeriesSeparation}`
 
-export enum BarChartPointsOrder {
+enum BarChartPointsOrder {
   Auto = "Авто",
   TopToBottom = "СверхуВниз",
   BottomToTop = "СнизуВверх",
@@ -4359,7 +4293,7 @@ export const ZBarChartPointsOrderEnterprise = z.enum(Object.values(BarChartPoint
 export type TBarChartPointsOrder = keyof typeof BarChartPointsOrder
 export type TBarChartPointsOrderEnterprise = `${BarChartPointsOrder}`
 
-export enum BubbleChartNegativeValuesShowMode {
+enum BubbleChartNegativeValuesShowMode {
   InvertedBackColor = "ИнвертированныйЦветФона",
   DontShow = "НеОтображать",
   Abs = "ПоМодулю",
@@ -4372,7 +4306,7 @@ export const ZBubbleChartNegativeValuesShowModeEnterprise = z.enum(Object.values
 export type TBubbleChartNegativeValuesShowMode = keyof typeof BubbleChartNegativeValuesShowMode
 export type TBubbleChartNegativeValuesShowModeEnterprise = `${BubbleChartNegativeValuesShowMode}`
 
-export enum ChartAnimation {
+enum ChartAnimation {
   Auto = "Авто",
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -4384,7 +4318,7 @@ export const ZChartAnimationEnterprise = z.enum(Object.values(ChartAnimation) as
 export type TChartAnimation = keyof typeof ChartAnimation
 export type TChartAnimationEnterprise = `${ChartAnimation}`
 
-export enum ChartBoundaryDetectionMethod {
+enum ChartBoundaryDetectionMethod {
   AutoDetect = "АвтоОпределение",
   UseValue = "ИспользоватьЗначение",
   UseValueWithLimitations = "ИспользоватьЗначениеСОграничением",
@@ -4396,7 +4330,7 @@ export const ZChartBoundaryDetectionMethodEnterprise = z.enum(Object.values(Char
 export type TChartBoundaryDetectionMethod = keyof typeof ChartBoundaryDetectionMethod
 export type TChartBoundaryDetectionMethodEnterprise = `${ChartBoundaryDetectionMethod}`
 
-export enum ChartBubbleSizeValueSource {
+enum ChartBubbleSizeValueSource {
   None = "Нет",
   CommonSeries = "ОбщаяСерия",
   NextSeries = "СледующаяСерия",
@@ -4408,7 +4342,7 @@ export const ZChartBubbleSizeValueSourceEnterprise = z.enum(Object.values(ChartB
 export type TChartBubbleSizeValueSource = keyof typeof ChartBubbleSizeValueSource
 export type TChartBubbleSizeValueSourceEnterprise = `${ChartBubbleSizeValueSource}`
 
-export enum ChartBubbleSizing {
+enum ChartBubbleSizing {
   IncreaseDiameter = "УвеличениеДиаметра",
   IncreaseArea = "УвеличениеПлощади",
   DecreaseDiameter = "УменьшениеДиаметра",
@@ -4421,7 +4355,7 @@ export const ZChartBubbleSizingEnterprise = z.enum(Object.values(ChartBubbleSizi
 export type TChartBubbleSizing = keyof typeof ChartBubbleSizing
 export type TChartBubbleSizingEnterprise = `${ChartBubbleSizing}`
 
-export enum ChartColorPalette {
+enum ChartColorPalette {
   Auto = "Авто",
   Gradient = "Градиентная",
   Yellow = "Желтая",
@@ -4446,7 +4380,7 @@ export const ZChartColorPaletteEnterprise = z.enum(Object.values(ChartColorPalet
 export type TChartColorPalette = keyof typeof ChartColorPalette
 export type TChartColorPaletteEnterprise = `${ChartColorPalette}`
 
-export enum ChartGridLinesShowMode {
+enum ChartGridLinesShowMode {
   Auto = "Авто",
   DontShow = "НеОтображать",
   Show = "Отображать",
@@ -4458,7 +4392,7 @@ export const ZChartGridLinesShowModeEnterprise = z.enum(Object.values(ChartGridL
 export type TChartGridLinesShowMode = keyof typeof ChartGridLinesShowMode
 export type TChartGridLinesShowModeEnterprise = `${ChartGridLinesShowMode}`
 
-export enum ChartLabelLocation {
+enum ChartLabelLocation {
   Auto = "Авто",
   Edge = "Край",
   EdgeAuto = "КрайАвто",
@@ -4478,7 +4412,7 @@ export const ZChartLabelLocationEnterprise = z.enum(Object.values(ChartLabelLoca
 export type TChartLabelLocation = keyof typeof ChartLabelLocation
 export type TChartLabelLocationEnterprise = `${ChartLabelLocation}`
 
-export enum ChartLabelsOrientation {
+enum ChartLabelsOrientation {
   Auto = "Авто",
   Vertical = "Вертикально",
   Horizontal = "Горизонтально",
@@ -4491,7 +4425,7 @@ export const ZChartLabelsOrientationEnterprise = z.enum(Object.values(ChartLabel
 export type TChartLabelsOrientation = keyof typeof ChartLabelsOrientation
 export type TChartLabelsOrientationEnterprise = `${ChartLabelsOrientation}`
 
-export enum ChartLabelType {
+enum ChartLabelType {
   Value = "Значение",
   ValuePercent = "ЗначениеПроцент",
   ValueSize = "ЗначениеРазмер",
@@ -4523,7 +4457,7 @@ export const ZChartLabelTypeEnterprise = z.enum(Object.values(ChartLabelType) as
 export type TChartLabelType = keyof typeof ChartLabelType
 export type TChartLabelTypeEnterprise = `${ChartLabelType}`
 
-export enum ChartLegendPlacement {
+enum ChartLegendPlacement {
   Auto = "Авто",
   Top = "Верх",
   Left = "Лево",
@@ -4539,7 +4473,7 @@ export const ZChartLegendPlacementEnterprise = z.enum(Object.values(ChartLegendP
 export type TChartLegendPlacement = keyof typeof ChartLegendPlacement
 export type TChartLegendPlacementEnterprise = `${ChartLegendPlacement}`
 
-export enum ChartLineType {
+enum ChartLineType {
   None = "НетЛинии",
   Dashed = "Пунктир",
   DashDotted = "ПунктирТочка",
@@ -4554,7 +4488,7 @@ export const ZChartLineTypeEnterprise = z.enum(Object.values(ChartLineType) as [
 export type TChartLineType = keyof typeof ChartLineType
 export type TChartLineTypeEnterprise = `${ChartLineType}`
 
-export enum ChartMarkerType {
+enum ChartMarkerType {
   Auto = "Авто",
   Rect = "Квадрат",
   Circle = "Круг",
@@ -4569,7 +4503,7 @@ export const ZChartMarkerTypeEnterprise = z.enum(Object.values(ChartMarkerType) 
 export type TChartMarkerType = keyof typeof ChartMarkerType
 export type TChartMarkerTypeEnterprise = `${ChartMarkerType}`
 
-export enum ChartOrientation {
+enum ChartOrientation {
   SouthEast = "ЮгВосток",
   SouthWest = "ЮгЗапад",
 }
@@ -4580,7 +4514,7 @@ export const ZChartOrientationEnterprise = z.enum(Object.values(ChartOrientation
 export type TChartOrientation = keyof typeof ChartOrientation
 export type TChartOrientationEnterprise = `${ChartOrientation}`
 
-export enum ChartPlotAreaPlacement {
+enum ChartPlotAreaPlacement {
   Auto = "Авто",
   EmptySpace = "СвободноеМесто",
   UseCoordinates = "УказываетсяРасположение",
@@ -4592,7 +4526,7 @@ export const ZChartPlotAreaPlacementEnterprise = z.enum(Object.values(ChartPlotA
 export type TChartPlotAreaPlacement = keyof typeof ChartPlotAreaPlacement
 export type TChartPlotAreaPlacementEnterprise = `${ChartPlotAreaPlacement}`
 
-export enum ChartPointsAxisValuesSource {
+enum ChartPointsAxisValuesSource {
   Auto = "Авто",
   Series = "Серия",
   Points = "Точки",
@@ -4604,7 +4538,7 @@ export const ZChartPointsAxisValuesSourceEnterprise = z.enum(Object.values(Chart
 export type TChartPointsAxisValuesSource = keyof typeof ChartPointsAxisValuesSource
 export type TChartPointsAxisValuesSourceEnterprise = `${ChartPointsAxisValuesSource}`
 
-export enum ChartPointsConnectionType {
+enum ChartPointsConnectionType {
   Auto = "Авто",
   DontConnect = "НеСоединять",
   Connect = "Соединять",
@@ -4616,7 +4550,7 @@ export const ZChartPointsConnectionTypeEnterprise = z.enum(Object.values(ChartPo
 export type TChartPointsConnectionType = keyof typeof ChartPointsConnectionType
 export type TChartPointsConnectionTypeEnterprise = `${ChartPointsConnectionType}`
 
-export enum ChartReferenceBandBorderPosition {
+enum ChartReferenceBandBorderPosition {
   Auto = "Авто",
   OnValue = "ВЗначении",
   BetweenValues = "МеждуЗначениями",
@@ -4628,7 +4562,7 @@ export const ZChartReferenceBandBorderPositionEnterprise = z.enum(Object.values(
 export type TChartReferenceBandBorderPosition = keyof typeof ChartReferenceBandBorderPosition
 export type TChartReferenceBandBorderPositionEnterprise = `${ChartReferenceBandBorderPosition}`
 
-export enum ChartReferenceLinePosition {
+enum ChartReferenceLinePosition {
   Auto = "Авто",
   OnValue = "ВЗначении",
   BetweenValues = "МеждуЗначениями",
@@ -4640,7 +4574,7 @@ export const ZChartReferenceLinePositionEnterprise = z.enum(Object.values(ChartR
 export type TChartReferenceLinePosition = keyof typeof ChartReferenceLinePosition
 export type TChartReferenceLinePositionEnterprise = `${ChartReferenceLinePosition}`
 
-export enum ChartScaleLabelLocation {
+enum ChartScaleLabelLocation {
   Auto = "Авто",
   Inside = "Внутри",
   None = "Нет",
@@ -4653,7 +4587,7 @@ export const ZChartScaleLabelLocationEnterprise = z.enum(Object.values(ChartScal
 export type TChartScaleLabelLocation = keyof typeof ChartScaleLabelLocation
 export type TChartScaleLabelLocationEnterprise = `${ChartScaleLabelLocation}`
 
-export enum ChartScaleLocation {
+enum ChartScaleLocation {
   Auto = "Авто",
   BaseValue = "БазовоеЗначение",
   Edge = "Край",
@@ -4665,7 +4599,7 @@ export const ZChartScaleLocationEnterprise = z.enum(Object.values(ChartScaleLoca
 export type TChartScaleLocation = keyof typeof ChartScaleLocation
 export type TChartScaleLocationEnterprise = `${ChartScaleLocation}`
 
-export enum ChartScaleMarkLocation {
+enum ChartScaleMarkLocation {
   Auto = "Авто",
   Inside = "Внутри",
   None = "Нет",
@@ -4679,7 +4613,7 @@ export const ZChartScaleMarkLocationEnterprise = z.enum(Object.values(ChartScale
 export type TChartScaleMarkLocation = keyof typeof ChartScaleMarkLocation
 export type TChartScaleMarkLocationEnterprise = `${ChartScaleMarkLocation}`
 
-export enum ChartScaleTitlePlacement {
+enum ChartScaleTitlePlacement {
   SpecialArea = "ВВыделеннойОбласти",
   PlotArea = "ВОбластиПостроения",
   WithAxis = "РядомСОсью",
@@ -4691,7 +4625,7 @@ export const ZChartScaleTitlePlacementEnterprise = z.enum(Object.values(ChartSca
 export type TChartScaleTitlePlacement = keyof typeof ChartScaleTitlePlacement
 export type TChartScaleTitlePlacementEnterprise = `${ChartScaleTitlePlacement}`
 
-export enum ChartScaleTitleTextSource {
+enum ChartScaleTitleTextSource {
   Auto = "Авто",
   AutoText = "АвтоТекст",
   UseText = "ИспользоватьТекст",
@@ -4703,7 +4637,7 @@ export const ZChartScaleTitleTextSourceEnterprise = z.enum(Object.values(ChartSc
 export type TChartScaleTitleTextSource = keyof typeof ChartScaleTitleTextSource
 export type TChartScaleTitleTextSourceEnterprise = `${ChartScaleTitleTextSource}`
 
-export enum ChartSelectionMode {
+enum ChartSelectionMode {
   Auto = "Авто",
   ValuesSelection = "ВыделениеЗначений",
   PointsSelection = "ВыделениеТочек",
@@ -4716,7 +4650,7 @@ export const ZChartSelectionModeEnterprise = z.enum(Object.values(ChartSelection
 export type TChartSelectionMode = keyof typeof ChartSelectionMode
 export type TChartSelectionModeEnterprise = `${ChartSelectionMode}`
 
-export enum ChartSemitransparencyMode {
+enum ChartSemitransparencyMode {
   Auto = "Авто",
   AutoCalculate = "АвтоматическийРасчет",
   Use = "Использовать",
@@ -4729,7 +4663,7 @@ export const ZChartSemitransparencyModeEnterprise = z.enum(Object.values(ChartSe
 export type TChartSemitransparencyMode = keyof typeof ChartSemitransparencyMode
 export type TChartSemitransparencyModeEnterprise = `${ChartSemitransparencyMode}`
 
-export enum ChartSeriesGraphicalRepresentationType {
+enum ChartSeriesGraphicalRepresentationType {
   Auto = "Авто",
   Column = "Гистограмма",
   Column3D = "ГистограммаОбъемная",
@@ -4744,7 +4678,7 @@ export const ZChartSeriesGraphicalRepresentationTypeEnterprise = z.enum(Object.v
 export type TChartSeriesGraphicalRepresentationType = keyof typeof ChartSeriesGraphicalRepresentationType
 export type TChartSeriesGraphicalRepresentationTypeEnterprise = `${ChartSeriesGraphicalRepresentationType}`
 
-export enum ChartSeriesOrderInLegend {
+enum ChartSeriesOrderInLegend {
   Auto = "Авто",
   Reverse = "Обратный",
   Direct = "Прямой",
@@ -4756,7 +4690,7 @@ export const ZChartSeriesOrderInLegendEnterprise = z.enum(Object.values(ChartSer
 export type TChartSeriesOrderInLegend = keyof typeof ChartSeriesOrderInLegend
 export type TChartSeriesOrderInLegendEnterprise = `${ChartSeriesOrderInLegend}`
 
-export enum ChartSeriesStackType {
+enum ChartSeriesStackType {
   Auto = "Авто",
   Unstacked = "БезНакопления",
   Stacked = "СНакоплением",
@@ -4769,7 +4703,7 @@ export const ZChartSeriesStackTypeEnterprise = z.enum(Object.values(ChartSeriesS
 export type TChartSeriesStackType = keyof typeof ChartSeriesStackType
 export type TChartSeriesStackTypeEnterprise = `${ChartSeriesStackType}`
 
-export enum ChartSpaceMode {
+enum ChartSpaceMode {
   None = "Нет",
   Full = "ПолнаяШирина",
   Half = "ПоловинаШирины",
@@ -4781,7 +4715,7 @@ export const ZChartSpaceModeEnterprise = z.enum(Object.values(ChartSpaceMode) as
 export type TChartSpaceMode = keyof typeof ChartSpaceMode
 export type TChartSpaceModeEnterprise = `${ChartSpaceMode}`
 
-export enum ChartSplineMode {
+enum ChartSplineMode {
   SmoothCurve = "ГладкаяКривая",
   None = "Нет",
 }
@@ -4792,7 +4726,7 @@ export const ZChartSplineModeEnterprise = z.enum(Object.values(ChartSplineMode) 
 export type TChartSplineMode = keyof typeof ChartSplineMode
 export type TChartSplineModeEnterprise = `${ChartSplineMode}`
 
-export enum ChartTitleAreaPlacement {
+enum ChartTitleAreaPlacement {
   Auto = "Авто",
   Top = "Верх",
   LeftTop = "ЛевоВерх",
@@ -4810,7 +4744,7 @@ export const ZChartTitleAreaPlacementEnterprise = z.enum(Object.values(ChartTitl
 export type TChartTitleAreaPlacement = keyof typeof ChartTitleAreaPlacement
 export type TChartTitleAreaPlacementEnterprise = `${ChartTitleAreaPlacement}`
 
-export enum ChartTrendlineApproximationType {
+enum ChartTrendlineApproximationType {
   Linear = "Линейный",
   Logarithmic = "Логарифмический",
   Polynomial = "Полиномиальный",
@@ -4824,7 +4758,7 @@ export const ZChartTrendlineApproximationTypeEnterprise = z.enum(Object.values(C
 export type TChartTrendlineApproximationType = keyof typeof ChartTrendlineApproximationType
 export type TChartTrendlineApproximationTypeEnterprise = `${ChartTrendlineApproximationType}`
 
-export enum ChartTrendlineFactor {
+enum ChartTrendlineFactor {
   Auto = "Авто",
   PointValue = "ЗначениеТочки",
   PointNumber = "НомерТочки",
@@ -4836,7 +4770,7 @@ export const ZChartTrendlineFactorEnterprise = z.enum(Object.values(ChartTrendli
 export type TChartTrendlineFactor = keyof typeof ChartTrendlineFactor
 export type TChartTrendlineFactorEnterprise = `${ChartTrendlineFactor}`
 
-export enum ChartType {
+enum ChartType {
   Stock = "Биржевая",
   OpenHighLowClose = "БиржеваяСвеча",
   ConcaveSurface = "ВогнутаяПоверхность",
@@ -4892,7 +4826,7 @@ export const ZChartTypeEnterprise = z.enum(Object.values(ChartType) as [TChartTy
 export type TChartType = keyof typeof ChartType
 export type TChartTypeEnterprise = `${ChartType}`
 
-export enum ChartValueEditState {
+enum ChartValueEditState {
   Finished = "Завершено",
   NotFinished = "НеЗавершено",
   Canceled = "Отменено",
@@ -4904,7 +4838,7 @@ export const ZChartValueEditStateEnterprise = z.enum(Object.values(ChartValueEdi
 export type TChartValueEditState = keyof typeof ChartValueEditState
 export type TChartValueEditStateEnterprise = `${ChartValueEditState}`
 
-export enum ChartValuesBySeriesConnectionType {
+enum ChartValuesBySeriesConnectionType {
   None = "Нет",
   EdgesConnection = "СоединениеКраев",
 }
@@ -4915,7 +4849,7 @@ export const ZChartValuesBySeriesConnectionTypeEnterprise = z.enum(Object.values
 export type TChartValuesBySeriesConnectionType = keyof typeof ChartValuesBySeriesConnectionType
 export type TChartValuesBySeriesConnectionTypeEnterprise = `${ChartValuesBySeriesConnectionType}`
 
-export enum ChartValuesEditMode {
+enum ChartValuesEditMode {
   Auto = "Авто",
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -4927,7 +4861,7 @@ export const ZChartValuesEditModeEnterprise = z.enum(Object.values(ChartValuesEd
 export type TChartValuesEditMode = keyof typeof ChartValuesEditMode
 export type TChartValuesEditModeEnterprise = `${ChartValuesEditMode}`
 
-export enum ChartValuesToolTipFillType {
+enum ChartValuesToolTipFillType {
   Auto = "Авто",
   AllPointValues = "ВсеЗначенияТочки",
   SingleValue = "ОдноЗначение",
@@ -4939,7 +4873,7 @@ export const ZChartValuesToolTipFillTypeEnterprise = z.enum(Object.values(ChartV
 export type TChartValuesToolTipFillType = keyof typeof ChartValuesToolTipFillType
 export type TChartValuesToolTipFillTypeEnterprise = `${ChartValuesToolTipFillType}`
 
-export enum ChartValuesToolTipShowMode {
+enum ChartValuesToolTipShowMode {
   Auto = "Авто",
   DontShow = "НеОтображать",
   ShowForNearestValue = "ОтображатьДляБлижайшего",
@@ -4952,7 +4886,7 @@ export const ZChartValuesToolTipShowModeEnterprise = z.enum(Object.values(ChartV
 export type TChartValuesToolTipShowMode = keyof typeof ChartValuesToolTipShowMode
 export type TChartValuesToolTipShowModeEnterprise = `${ChartValuesToolTipShowMode}`
 
-export enum GaugeChartValueRepresentation {
+enum GaugeChartValueRepresentation {
   Sector = "Сектор",
   Needle = "Стрелка",
 }
@@ -4963,7 +4897,7 @@ export const ZGaugeChartValueRepresentationEnterprise = z.enum(Object.values(Gau
 export type TGaugeChartValueRepresentation = keyof typeof GaugeChartValueRepresentation
 export type TGaugeChartValueRepresentationEnterprise = `${GaugeChartValueRepresentation}`
 
-export enum GaugeChartValuesScaleLabelsLocation {
+enum GaugeChartValuesScaleLabelsLocation {
   InsideScale = "ВнутриШкалы",
   AtScale = "НаШкале",
 }
@@ -4974,7 +4908,7 @@ export const ZGaugeChartValuesScaleLabelsLocationEnterprise = z.enum(Object.valu
 export type TGaugeChartValuesScaleLabelsLocation = keyof typeof GaugeChartValuesScaleLabelsLocation
 export type TGaugeChartValuesScaleLabelsLocationEnterprise = `${GaugeChartValuesScaleLabelsLocation}`
 
-export enum MaxSeries {
+enum MaxSeries {
   NotDefined = "НеЗадано",
   Limited = "Ограничено",
   Percent = "Процент",
@@ -4986,7 +4920,7 @@ export const ZMaxSeriesEnterprise = z.enum(Object.values(MaxSeries) as [TMaxSeri
 export type TMaxSeries = keyof typeof MaxSeries
 export type TMaxSeriesEnterprise = `${MaxSeries}`
 
-export enum NonnumericChartValueUse {
+enum NonnumericChartValueUse {
   Auto = "Авто",
   AsZero = "КакНоль",
   Skip = "Пропускать",
@@ -4998,7 +4932,7 @@ export const ZNonnumericChartValueUseEnterprise = z.enum(Object.values(Nonnumeri
 export type TNonnumericChartValueUse = keyof typeof NonnumericChartValueUse
 export type TNonnumericChartValueUseEnterprise = `${NonnumericChartValueUse}`
 
-export enum PointsConnectionAcrossSkippedChartValuesType {
+enum PointsConnectionAcrossSkippedChartValuesType {
   Auto = "Авто",
   None = "Нет",
   ConnectUnskippedValues = "СоединениеНеПропущенных",
@@ -5011,7 +4945,7 @@ export const ZPointsConnectionAcrossSkippedChartValuesTypeEnterprise = z.enum(Ob
 export type TPointsConnectionAcrossSkippedChartValuesType = keyof typeof PointsConnectionAcrossSkippedChartValuesType
 export type TPointsConnectionAcrossSkippedChartValuesTypeEnterprise = `${PointsConnectionAcrossSkippedChartValuesType}`
 
-export enum RadarChartScaleType {
+enum RadarChartScaleType {
   Circle = "Окружность",
   Polygon = "Полигон",
 }
@@ -5022,7 +4956,7 @@ export const ZRadarChartScaleTypeEnterprise = z.enum(Object.values(RadarChartSca
 export type TRadarChartScaleType = keyof typeof RadarChartScaleType
 export type TRadarChartScaleTypeEnterprise = `${RadarChartScaleType}`
 
-export enum ShowChartPopupReferenceLine {
+enum ShowChartPopupReferenceLine {
   Auto = "Авто",
   DontShow = "НеОтображать",
   Show = "Отображать",
@@ -5034,7 +4968,7 @@ export const ZShowChartPopupReferenceLineEnterprise = z.enum(Object.values(ShowC
 export type TShowChartPopupReferenceLine = keyof typeof ShowChartPopupReferenceLine
 export type TShowChartPopupReferenceLineEnterprise = `${ShowChartPopupReferenceLine}`
 
-export enum ShowChartScaleTitle {
+enum ShowChartScaleTitle {
   Auto = "Авто",
   DontShow = "НеОтображать",
   Show = "Отображать",
@@ -5046,7 +4980,7 @@ export const ZShowChartScaleTitleEnterprise = z.enum(Object.values(ShowChartScal
 export type TShowChartScaleTitle = keyof typeof ShowChartScaleTitle
 export type TShowChartScaleTitleEnterprise = `${ShowChartScaleTitle}`
 
-export enum ShowInChart {
+enum ShowInChart {
   Auto = "Авто",
   DontShow = "НеОтображать",
   Show = "Отображать",
@@ -5058,7 +4992,7 @@ export const ZShowInChartEnterprise = z.enum(Object.values(ShowInChart) as [TSho
 export type TShowInChart = keyof typeof ShowInChart
 export type TShowInChartEnterprise = `${ShowInChart}`
 
-export enum ShowInChartLegend {
+enum ShowInChartLegend {
   Auto = "Авто",
   DontShow = "НеОтображать",
   Show = "Отображать",
@@ -5070,7 +5004,7 @@ export const ZShowInChartLegendEnterprise = z.enum(Object.values(ShowInChartLege
 export type TShowInChartLegend = keyof typeof ShowInChartLegend
 export type TShowInChartLegendEnterprise = `${ShowInChartLegend}`
 
-export enum StockChartUsedPointValue {
+enum StockChartUsedPointValue {
   Close = "Закрытие",
   High = "Максимальное",
   Low = "Минимальное",
@@ -5084,7 +5018,7 @@ export const ZStockChartUsedPointValueEnterprise = z.enum(Object.values(StockCha
 export type TStockChartUsedPointValue = keyof typeof StockChartUsedPointValue
 export type TStockChartUsedPointValueEnterprise = `${StockChartUsedPointValue}`
 
-export enum UsedChartValuesAxis {
+enum UsedChartValuesAxis {
   Auto = "Авто",
   Additional = "Дополнительная",
   Main = "Основная",
@@ -5096,7 +5030,7 @@ export const ZUsedChartValuesAxisEnterprise = z.enum(Object.values(UsedChartValu
 export type TUsedChartValuesAxis = keyof typeof UsedChartValuesAxis
 export type TUsedChartValuesAxisEnterprise = `${UsedChartValuesAxis}`
 
-export enum GanttChartIntervalRepresentation {
+enum GanttChartIntervalRepresentation {
   Gradient = "Градиент",
   ThreeDimensional = "Объемный",
   Flat = "Плоский",
@@ -5109,7 +5043,7 @@ export const ZGanttChartIntervalRepresentationEnterprise = z.enum(Object.values(
 export type TGanttChartIntervalRepresentation = keyof typeof GanttChartIntervalRepresentation
 export type TGanttChartIntervalRepresentationEnterprise = `${GanttChartIntervalRepresentation}`
 
-export enum GanttChartIntervalsSelectionMode {
+enum GanttChartIntervalsSelectionMode {
   Auto = "Авто",
   Multiple = "Множественный",
   None = "Нет",
@@ -5122,7 +5056,7 @@ export const ZGanttChartIntervalsSelectionModeEnterprise = z.enum(Object.values(
 export type TGanttChartIntervalsSelectionMode = keyof typeof GanttChartIntervalsSelectionMode
 export type TGanttChartIntervalsSelectionModeEnterprise = `${GanttChartIntervalsSelectionMode}`
 
-export enum GanttChartIntervalTextRepresentation {
+enum GanttChartIntervalTextRepresentation {
   Auto = "Авто",
   DontShow = "НеОтображать",
   Show = "Отображать",
@@ -5134,7 +5068,7 @@ export const ZGanttChartIntervalTextRepresentationEnterprise = z.enum(Object.val
 export type TGanttChartIntervalTextRepresentation = keyof typeof GanttChartIntervalTextRepresentation
 export type TGanttChartIntervalTextRepresentationEnterprise = `${GanttChartIntervalTextRepresentation}`
 
-export enum GanttChartLinkType {
+enum GanttChartLinkType {
   EndEnd = "КонецКонец",
   EndBegin = "КонецНачало",
   BeginEnd = "НачалоКонец",
@@ -5147,7 +5081,7 @@ export const ZGanttChartLinkTypeEnterprise = z.enum(Object.values(GanttChartLink
 export type TGanttChartLinkType = keyof typeof GanttChartLinkType
 export type TGanttChartLinkTypeEnterprise = `${GanttChartLinkType}`
 
-export enum GanttChartScaleKeeping {
+enum GanttChartScaleKeeping {
   Auto = "Авто",
   AllData = "ВсеДанные",
   Period = "Период",
@@ -5160,7 +5094,7 @@ export const ZGanttChartScaleKeepingEnterprise = z.enum(Object.values(GanttChart
 export type TGanttChartScaleKeeping = keyof typeof GanttChartScaleKeeping
 export type TGanttChartScaleKeepingEnterprise = `${GanttChartScaleKeeping}`
 
-export enum GanttChartTableLocation {
+enum GanttChartTableLocation {
   Auto = "Авто",
   Left = "Лево",
   None = "Нет",
@@ -5173,7 +5107,7 @@ export const ZGanttChartTableLocationEnterprise = z.enum(Object.values(GanttChar
 export type TGanttChartTableLocation = keyof typeof GanttChartTableLocation
 export type TGanttChartTableLocationEnterprise = `${GanttChartTableLocation}`
 
-export enum GanttChartTextPlacementType {
+enum GanttChartTextPlacementType {
   Auto = "Авто",
   Cut = "Обрезать",
   Wrap = "Переносить",
@@ -5185,7 +5119,7 @@ export const ZGanttChartTextPlacementTypeEnterprise = z.enum(Object.values(Gantt
 export type TGanttChartTextPlacementType = keyof typeof GanttChartTextPlacementType
 export type TGanttChartTextPlacementTypeEnterprise = `${GanttChartTextPlacementType}`
 
-export enum GanttChartValuesSelectionMode {
+enum GanttChartValuesSelectionMode {
   Auto = "Авто",
   Multiple = "Множественный",
   None = "Нет",
@@ -5198,7 +5132,7 @@ export const ZGanttChartValuesSelectionModeEnterprise = z.enum(Object.values(Gan
 export type TGanttChartValuesSelectionMode = keyof typeof GanttChartValuesSelectionMode
 export type TGanttChartValuesSelectionModeEnterprise = `${GanttChartValuesSelectionMode}`
 
-export enum GanttChartValueTextRepresentation {
+enum GanttChartValueTextRepresentation {
   None = "НеОтображать",
   Right = "Право",
 }
@@ -5209,7 +5143,7 @@ export const ZGanttChartValueTextRepresentationEnterprise = z.enum(Object.values
 export type TGanttChartValueTextRepresentation = keyof typeof GanttChartValueTextRepresentation
 export type TGanttChartValueTextRepresentationEnterprise = `${GanttChartValueTextRepresentation}`
 
-export enum GanttChartVerticalStretch {
+enum GanttChartVerticalStretch {
   None = "НеРастягивать",
   StretchRows = "РастягиватьСтроки",
   StretchRowsAndData = "РастягиватьСтрокиИДанные",
@@ -5221,7 +5155,7 @@ export const ZGanttChartVerticalStretchEnterprise = z.enum(Object.values(GanttCh
 export type TGanttChartVerticalStretch = keyof typeof GanttChartVerticalStretch
 export type TGanttChartVerticalStretchEnterprise = `${GanttChartVerticalStretch}`
 
-export enum ShowInGanttChart {
+enum ShowInGanttChart {
   Auto = "Авто",
   DontShow = "НеОтображать",
   Show = "Отображать",
@@ -5233,7 +5167,7 @@ export const ZShowInGanttChartEnterprise = z.enum(Object.values(ShowInGanttChart
 export type TShowInGanttChart = keyof typeof ShowInGanttChart
 export type TShowInGanttChartEnterprise = `${ShowInGanttChart}`
 
-export enum TimeScaleDayFormat {
+enum TimeScaleDayFormat {
   MonthDay = "ДеньМесяца",
   MonthDayWeekDay = "ДеньМесяцаДеньНедели",
   WeekDay = "ДеньНедели",
@@ -5246,7 +5180,7 @@ export const ZTimeScaleDayFormatEnterprise = z.enum(Object.values(TimeScaleDayFo
 export type TTimeScaleDayFormat = keyof typeof TimeScaleDayFormat
 export type TTimeScaleDayFormatEnterprise = `${TimeScaleDayFormat}`
 
-export enum TimeScaleUnitType {
+enum TimeScaleUnitType {
   Year = "Год",
   Day = "День",
   Quarter = "Квартал",
@@ -5263,7 +5197,7 @@ export const ZTimeScaleUnitTypeEnterprise = z.enum(Object.values(TimeScaleUnitTy
 export type TTimeScaleUnitType = keyof typeof TimeScaleUnitType
 export type TTimeScaleUnitTypeEnterprise = `${TimeScaleUnitType}`
 
-export enum PivotChartLabelsOrientation {
+enum PivotChartLabelsOrientation {
   TopLevelsVertical = "ВерхниеУровниВертикально",
   AllLevelsVertical = "ВсеУровниВертикально",
   AllLevelsHorizontal = "ВсеУровниГоризонтально",
@@ -5275,7 +5209,7 @@ export const ZPivotChartLabelsOrientationEnterprise = z.enum(Object.values(Pivot
 export type TPivotChartLabelsOrientation = keyof typeof PivotChartLabelsOrientation
 export type TPivotChartLabelsOrientationEnterprise = `${PivotChartLabelsOrientation}`
 
-export enum PivotChartScaleKeeping {
+enum PivotChartScaleKeeping {
   AllValues = "ВсеЗначения",
   ValuesCount = "КоличествоЗначений",
   MinimumWidth = "МинимальнаяШирина",
@@ -5287,7 +5221,7 @@ export const ZPivotChartScaleKeepingEnterprise = z.enum(Object.values(PivotChart
 export type TPivotChartScaleKeeping = keyof typeof PivotChartScaleKeeping
 export type TPivotChartScaleKeepingEnterprise = `${PivotChartScaleKeeping}`
 
-export enum PivotChartType {
+enum PivotChartType {
   Column = "Гистограмма",
   Column3D = "ГистограммаОбъемная",
 }
@@ -5298,7 +5232,7 @@ export const ZPivotChartTypeEnterprise = z.enum(Object.values(PivotChartType) as
 export type TPivotChartType = keyof typeof PivotChartType
 export type TPivotChartTypeEnterprise = `${PivotChartType}`
 
-export enum PivotChartValuesShowMode {
+enum PivotChartValuesShowMode {
   AllValues = "ВсеЗначения",
   LastLevelValues = "ЗначенияПоследнегоУровня",
 }
@@ -5309,7 +5243,7 @@ export const ZPivotChartValuesShowModeEnterprise = z.enum(Object.values(PivotCha
 export type TPivotChartValuesShowMode = keyof typeof PivotChartValuesShowMode
 export type TPivotChartValuesShowModeEnterprise = `${PivotChartValuesShowMode}`
 
-export enum DendrogramOrientation {
+enum DendrogramOrientation {
   Top = "Верх",
   Left = "Лево",
   Bottom = "Низ",
@@ -5322,7 +5256,7 @@ export const ZDendrogramOrientationEnterprise = z.enum(Object.values(DendrogramO
 export type TDendrogramOrientation = keyof typeof DendrogramOrientation
 export type TDendrogramOrientationEnterprise = `${DendrogramOrientation}`
 
-export enum DendrogramScaleKeeping {
+enum DendrogramScaleKeeping {
   AllItems = "ВсеЭлементы",
   ItemCount = "КоличествоЭлементов",
   MinimumWidth = "МинимальнаяШирина",
@@ -5334,7 +5268,7 @@ export const ZDendrogramScaleKeepingEnterprise = z.enum(Object.values(Dendrogram
 export type TDendrogramScaleKeeping = keyof typeof DendrogramScaleKeeping
 export type TDendrogramScaleKeepingEnterprise = `${DendrogramScaleKeeping}`
 
-export enum GeographicalSchemaDataSourceOrganizationType {
+enum GeographicalSchemaDataSourceOrganizationType {
   AtRow = "ВСтроке",
   AtIntersection = "НаПересечении",
 }
@@ -5345,7 +5279,7 @@ export const ZGeographicalSchemaDataSourceOrganizationTypeEnterprise = z.enum(Ob
 export type TGeographicalSchemaDataSourceOrganizationType = keyof typeof GeographicalSchemaDataSourceOrganizationType
 export type TGeographicalSchemaDataSourceOrganizationTypeEnterprise = `${GeographicalSchemaDataSourceOrganizationType}`
 
-export enum GeographicalSchemaLayerSeriesImportModeType {
+enum GeographicalSchemaLayerSeriesImportModeType {
   ImportAll = "ИмпортироватьВсе",
   DontImport = "НеИмпортировать",
 }
@@ -5356,7 +5290,7 @@ export const ZGeographicalSchemaLayerSeriesImportModeTypeEnterprise = z.enum(Obj
 export type TGeographicalSchemaLayerSeriesImportModeType = keyof typeof GeographicalSchemaLayerSeriesImportModeType
 export type TGeographicalSchemaLayerSeriesImportModeTypeEnterprise = `${GeographicalSchemaLayerSeriesImportModeType}`
 
-export enum GeographicalSchemaLayerSeriesShowMode {
+enum GeographicalSchemaLayerSeriesShowMode {
   Column = "Гистограмма",
   Picture = "Картинка",
   Pie = "Круговая",
@@ -5374,7 +5308,7 @@ export const ZGeographicalSchemaLayerSeriesShowModeEnterprise = z.enum(Object.va
 export type TGeographicalSchemaLayerSeriesShowMode = keyof typeof GeographicalSchemaLayerSeriesShowMode
 export type TGeographicalSchemaLayerSeriesShowModeEnterprise = `${GeographicalSchemaLayerSeriesShowMode}`
 
-export enum GeographicalSchemaLegendItemShowScaleType {
+enum GeographicalSchemaLegendItemShowScaleType {
   DontShow = "НеОтображать",
   ShowByValues = "ОтображатьПоЗначениям",
 }
@@ -5385,7 +5319,7 @@ export const ZGeographicalSchemaLegendItemShowScaleTypeEnterprise = z.enum(Objec
 export type TGeographicalSchemaLegendItemShowScaleType = keyof typeof GeographicalSchemaLegendItemShowScaleType
 export type TGeographicalSchemaLegendItemShowScaleTypeEnterprise = `${GeographicalSchemaLegendItemShowScaleType}`
 
-export enum GeographicalSchemaLineType {
+enum GeographicalSchemaLineType {
   None = "НетЛинии",
   Dashed = "Пунктир",
   DashDotted = "ПунктирТочка",
@@ -5400,7 +5334,7 @@ export const ZGeographicalSchemaLineTypeEnterprise = z.enum(Object.values(Geogra
 export type TGeographicalSchemaLineType = keyof typeof GeographicalSchemaLineType
 export type TGeographicalSchemaLineTypeEnterprise = `${GeographicalSchemaLineType}`
 
-export enum GeographicalSchemaMarkerType {
+enum GeographicalSchemaMarkerType {
   BigSquare = "БольшойКвадрат",
   BigCircle = "БольшойКруг",
   BigTriangle = "БольшойТреугольник",
@@ -5420,7 +5354,7 @@ export const ZGeographicalSchemaMarkerTypeEnterprise = z.enum(Object.values(Geog
 export type TGeographicalSchemaMarkerType = keyof typeof GeographicalSchemaMarkerType
 export type TGeographicalSchemaMarkerTypeEnterprise = `${GeographicalSchemaMarkerType}`
 
-export enum GeographicalSchemaObjectFindType {
+enum GeographicalSchemaObjectFindType {
   Included = "Включает",
   IncludedWholly = "ВключаетПолностью",
   Includes = "Включают",
@@ -5433,7 +5367,7 @@ export const ZGeographicalSchemaObjectFindTypeEnterprise = z.enum(Object.values(
 export type TGeographicalSchemaObjectFindType = keyof typeof GeographicalSchemaObjectFindType
 export type TGeographicalSchemaObjectFindTypeEnterprise = `${GeographicalSchemaObjectFindType}`
 
-export enum GeographicalSchemaPointObjectDrawingType {
+enum GeographicalSchemaPointObjectDrawingType {
   Picture = "Картинка",
   Marker = "Маркер",
   Char = "Символ",
@@ -5445,7 +5379,7 @@ export const ZGeographicalSchemaPointObjectDrawingTypeEnterprise = z.enum(Object
 export type TGeographicalSchemaPointObjectDrawingType = keyof typeof GeographicalSchemaPointObjectDrawingType
 export type TGeographicalSchemaPointObjectDrawingTypeEnterprise = `${GeographicalSchemaPointObjectDrawingType}`
 
-export enum GeographicalSchemaProjection {
+enum GeographicalSchemaProjection {
   AzimuthalAitoffProjection = "АзимутальнаяПроекцияАитофа",
   AzimuthalWagner7Projection = "АзимутальнаяПроекцияВагнера7",
   AzimuthalWinkelTripelProjection = "АзимутальнаяПроекцияВинкеляТрипеля",
@@ -5491,7 +5425,7 @@ export const ZGeographicalSchemaProjectionEnterprise = z.enum(Object.values(Geog
 export type TGeographicalSchemaProjection = keyof typeof GeographicalSchemaProjection
 export type TGeographicalSchemaProjectionEnterprise = `${GeographicalSchemaProjection}`
 
-export enum GeographicalSchemaShowMode {
+enum GeographicalSchemaShowMode {
   AllData = "ВсеДанные",
   ScaleDefined = "ЗадаетсяМасштабом",
   SpecifiedArea = "ЗаданнаяОбласть",
@@ -5503,7 +5437,7 @@ export const ZGeographicalSchemaShowModeEnterprise = z.enum(Object.values(Geogra
 export type TGeographicalSchemaShowMode = keyof typeof GeographicalSchemaShowMode
 export type TGeographicalSchemaShowModeEnterprise = `${GeographicalSchemaShowMode}`
 
-export enum PaintingReferencePointPosition {
+enum PaintingReferencePointPosition {
   LeftTop = "ЛевоВерх",
   LeftBottom = "ЛевоНиз",
   LeftCenter = "ЛевоЦентр",
@@ -5521,7 +5455,7 @@ export const ZPaintingReferencePointPositionEnterprise = z.enum(Object.values(Pa
 export type TPaintingReferencePointPosition = keyof typeof PaintingReferencePointPosition
 export type TPaintingReferencePointPositionEnterprise = `${PaintingReferencePointPosition}`
 
-export enum SeriesValuesDrawingMode {
+enum SeriesValuesDrawingMode {
   ShowAsPart = "ОтображатьКакДолю",
   ShowAsValue = "ОтображатьКакЗначение",
 }
@@ -5532,7 +5466,7 @@ export const ZSeriesValuesDrawingModeEnterprise = z.enum(Object.values(SeriesVal
 export type TSeriesValuesDrawingMode = keyof typeof SeriesValuesDrawingMode
 export type TSeriesValuesDrawingModeEnterprise = `${SeriesValuesDrawingMode}`
 
-export enum CheckBoxType {
+enum CheckBoxType {
   Auto = "Авто",
   Switch = "Выключатель",
   Tumbler = "Тумблер",
@@ -5545,7 +5479,7 @@ export const ZCheckBoxTypeEnterprise = z.enum(Object.values(CheckBoxType) as [TC
 export type TCheckBoxType = keyof typeof CheckBoxType
 export type TCheckBoxTypeEnterprise = `${CheckBoxType}`
 
-export enum ChildFormItemsGroup {
+enum ChildFormItemsGroup {
   Vertical = "Вертикальная",
   Horizontal = "Горизонтальная",
   AlwaysHorizontal = "ГоризонтальнаяВсегда",
@@ -5558,7 +5492,7 @@ export const ZChildFormItemsGroupEnterprise = z.enum(Object.values(ChildFormItem
 export type TChildFormItemsGroup = keyof typeof ChildFormItemsGroup
 export type TChildFormItemsGroupEnterprise = `${ChildFormItemsGroup}`
 
-export enum ChildFormItemsWidth {
+enum ChildFormItemsWidth {
   Auto = "Авто",
   LeftNarrowest = "ЛевыйОченьУзкий",
   LeftWidest = "ЛевыйОченьШирокий",
@@ -5573,7 +5507,7 @@ export const ZChildFormItemsWidthEnterprise = z.enum(Object.values(ChildFormItem
 export type TChildFormItemsWidth = keyof typeof ChildFormItemsWidth
 export type TChildFormItemsWidthEnterprise = `${ChildFormItemsWidth}`
 
-export enum ChoiceButtonRepresentation {
+enum ChoiceButtonRepresentation {
   Auto = "Авто",
   ShowInDropList = "ОтображатьВВыпадающемСписке",
   ShowInDropListAndInInputField = "ОтображатьВВыпадающемСпискеИВПолеВвода",
@@ -5586,7 +5520,7 @@ export const ZChoiceButtonRepresentationEnterprise = z.enum(Object.values(Choice
 export type TChoiceButtonRepresentation = keyof typeof ChoiceButtonRepresentation
 export type TChoiceButtonRepresentationEnterprise = `${ChoiceButtonRepresentation}`
 
-export enum ChoiceHistoryOnInput {
+enum ChoiceHistoryOnInput {
   Auto = "Авто",
   DontUse = "НеИспользовать",
 }
@@ -5597,7 +5531,7 @@ export const ZChoiceHistoryOnInputEnterprise = z.enum(Object.values(ChoiceHistor
 export type TChoiceHistoryOnInput = keyof typeof ChoiceHistoryOnInput
 export type TChoiceHistoryOnInputEnterprise = `${ChoiceHistoryOnInput}`
 
-export enum ClipboardDataStandardFormat {
+enum ClipboardDataStandardFormat {
   HTML = "HTML",
   Picture = "Картинка",
   Text = "Текст",
@@ -5609,7 +5543,7 @@ export const ZClipboardDataStandardFormatEnterprise = z.enum(Object.values(Clipb
 export type TClipboardDataStandardFormat = keyof typeof ClipboardDataStandardFormat
 export type TClipboardDataStandardFormatEnterprise = `${ClipboardDataStandardFormat}`
 
-export enum CollapseFormItemsByImportance {
+enum CollapseFormItemsByImportance {
   Auto = "Авто",
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -5621,7 +5555,7 @@ export const ZCollapseFormItemsByImportanceEnterprise = z.enum(Object.values(Col
 export type TCollapseFormItemsByImportance = keyof typeof CollapseFormItemsByImportance
 export type TCollapseFormItemsByImportanceEnterprise = `${CollapseFormItemsByImportance}`
 
-export enum ColorDepth {
+enum ColorDepth {
   BitPerPixel1 = "БитНаПиксел1",
   BitPerPixel24 = "БитНаПиксел24",
   BitPerPixel32 = "БитНаПиксел32",
@@ -5635,7 +5569,7 @@ export const ZColorDepthEnterprise = z.enum(Object.values(ColorDepth) as [TColor
 export type TColorDepth = keyof typeof ColorDepth
 export type TColorDepthEnterprise = `${ColorDepth}`
 
-export enum ColumnEditMode {
+enum ColumnEditMode {
   Enter = "Вход",
   EnterOnInput = "ВходПриВводе",
   Directly = "Непосредственно",
@@ -5647,7 +5581,7 @@ export const ZColumnEditModeEnterprise = z.enum(Object.values(ColumnEditMode) as
 export type TColumnEditMode = keyof typeof ColumnEditMode
 export type TColumnEditModeEnterprise = `${ColumnEditMode}`
 
-export enum ColumnLocation {
+enum ColumnLocation {
   SameColumn = "ВТойЖеКолонке",
   OnNextRow = "НаСледующейСтроке",
   NewColumn = "НоваяКолонка",
@@ -5659,7 +5593,7 @@ export const ZColumnLocationEnterprise = z.enum(Object.values(ColumnLocation) as
 export type TColumnLocation = keyof typeof ColumnLocation
 export type TColumnLocationEnterprise = `${ColumnLocation}`
 
-export enum ColumnsGroup {
+enum ColumnsGroup {
   Vertical = "Вертикальная",
   InCell = "ВЯчейке",
   Horizontal = "Горизонтальная",
@@ -5671,7 +5605,7 @@ export const ZColumnsGroupEnterprise = z.enum(Object.values(ColumnsGroup) as [TC
 export type TColumnsGroup = keyof typeof ColumnsGroup
 export type TColumnsGroupEnterprise = `${ColumnsGroup}`
 
-export enum ColumnSizeChange {
+enum ColumnSizeChange {
   Change = "Изменять",
   DontChange = "НеИзменять",
 }
@@ -5682,7 +5616,7 @@ export const ZColumnSizeChangeEnterprise = z.enum(Object.values(ColumnSizeChange
 export type TColumnSizeChange = keyof typeof ColumnSizeChange
 export type TColumnSizeChangeEnterprise = `${ColumnSizeChange}`
 
-export enum CommandBarButtonAlignment {
+enum CommandBarButtonAlignment {
   Left = "Лево",
   Right = "Право",
   Center = "Центр",
@@ -5694,7 +5628,7 @@ export const ZCommandBarButtonAlignmentEnterprise = z.enum(Object.values(Command
 export type TCommandBarButtonAlignment = keyof typeof CommandBarButtonAlignment
 export type TCommandBarButtonAlignmentEnterprise = `${CommandBarButtonAlignment}`
 
-export enum CommandBarButtonOrder {
+enum CommandBarButtonOrder {
   Asc = "Возр",
   DontOrder = "НеУпорядочивать",
   Desc = "Убыв",
@@ -5706,7 +5640,7 @@ export const ZCommandBarButtonOrderEnterprise = z.enum(Object.values(CommandBarB
 export type TCommandBarButtonOrder = keyof typeof CommandBarButtonOrder
 export type TCommandBarButtonOrderEnterprise = `${CommandBarButtonOrder}`
 
-export enum CommandBarButtonRepresentation {
+enum CommandBarButtonRepresentation {
   Auto = "Авто",
   Picture = "Картинка",
   Text = "Надпись",
@@ -5719,7 +5653,7 @@ export const ZCommandBarButtonRepresentationEnterprise = z.enum(Object.values(Co
 export type TCommandBarButtonRepresentation = keyof typeof CommandBarButtonRepresentation
 export type TCommandBarButtonRepresentationEnterprise = `${CommandBarButtonRepresentation}`
 
-export enum CommandBarButtonType {
+enum CommandBarButtonType {
   Action = "Действие",
   Popup = "Подменю",
   Separator = "Разделитель",
@@ -5731,7 +5665,7 @@ export const ZCommandBarButtonTypeEnterprise = z.enum(Object.values(CommandBarBu
 export type TCommandBarButtonType = keyof typeof CommandBarButtonType
 export type TCommandBarButtonTypeEnterprise = `${CommandBarButtonType}`
 
-export enum CommandGroupCategory {
+enum CommandGroupCategory {
   FormCommandBar = "КоманднаяПанельФормы",
   ActionsPanel = "ПанельДействий",
   NavigationPanel = "ПанельНавигации",
@@ -5744,7 +5678,7 @@ export const ZCommandGroupCategoryEnterprise = z.enum(Object.values(CommandGroup
 export type TCommandGroupCategory = keyof typeof CommandGroupCategory
 export type TCommandGroupCategoryEnterprise = `${CommandGroupCategory}`
 
-export enum CommandParameterUseMode {
+enum CommandParameterUseMode {
   Multiple = "Множественный",
   Single = "Одиночный",
 }
@@ -5755,7 +5689,7 @@ export const ZCommandParameterUseModeEnterprise = z.enum(Object.values(CommandPa
 export type TCommandParameterUseMode = keyof typeof CommandParameterUseMode
 export type TCommandParameterUseModeEnterprise = `${CommandParameterUseMode}`
 
-export enum ConnectorLineType {
+enum ConnectorLineType {
   None = "НетЛинии",
   Dashed = "Пунктир",
   DashDotted = "ПунктирТочка",
@@ -5770,7 +5704,7 @@ export const ZConnectorLineTypeEnterprise = z.enum(Object.values(ConnectorLineTy
 export type TConnectorLineType = keyof typeof ConnectorLineType
 export type TConnectorLineTypeEnterprise = `${ConnectorLineType}`
 
-export enum ConnectorTextLocation {
+enum ConnectorTextLocation {
   FirstSegment = "ПервыйСегмент",
   Middle = "СерединаЛинии",
 }
@@ -5781,7 +5715,7 @@ export const ZConnectorTextLocationEnterprise = z.enum(Object.values(ConnectorTe
 export type TConnectorTextLocation = keyof typeof ConnectorTextLocation
 export type TConnectorTextLocationEnterprise = `${ConnectorTextLocation}`
 
-export enum ControlBorderType {
+enum ControlBorderType {
   WithoutBorder = "БезРамки",
   Indented = "Вдавленная",
   Embossed = "Выпуклая",
@@ -5799,7 +5733,7 @@ export const ZControlBorderTypeEnterprise = z.enum(Object.values(ControlBorderTy
 export type TControlBorderType = keyof typeof ControlBorderType
 export type TControlBorderTypeEnterprise = `${ControlBorderType}`
 
-export enum ControlCollapseMode {
+enum ControlCollapseMode {
   Top = "Верх",
   Left = "Лево",
   None = "Нет",
@@ -5813,7 +5747,7 @@ export const ZControlCollapseModeEnterprise = z.enum(Object.values(ControlCollap
 export type TControlCollapseMode = keyof typeof ControlCollapseMode
 export type TControlCollapseModeEnterprise = `${ControlCollapseMode}`
 
-export enum ControlEdge {
+enum ControlEdge {
   Top = "Верх",
   Left = "Лево",
   Bottom = "Низ",
@@ -5827,7 +5761,7 @@ export const ZControlEdgeEnterprise = z.enum(Object.values(ControlEdge) as [TCon
 export type TControlEdge = keyof typeof ControlEdge
 export type TControlEdgeEnterprise = `${ControlEdge}`
 
-export enum CurrentRowUse {
+enum CurrentRowUse {
   Auto = "Авто",
   Use = "Использует",
   DontUse = "НеИспользует",
@@ -5839,7 +5773,7 @@ export const ZCurrentRowUseEnterprise = z.enum(Object.values(CurrentRowUse) as [
 export type TCurrentRowUse = keyof typeof CurrentRowUse
 export type TCurrentRowUseEnterprise = `${CurrentRowUse}`
 
-export enum DataChangeType {
+enum DataChangeType {
   Create = "Добавление",
   Update = "Изменение",
   Delete = "Удаление",
@@ -5851,7 +5785,7 @@ export const ZDataChangeTypeEnterprise = z.enum(Object.values(DataChangeType) as
 export type TDataChangeType = keyof typeof DataChangeType
 export type TDataChangeTypeEnterprise = `${DataChangeType}`
 
-export enum DateSelectionMode {
+enum DateSelectionMode {
   Interval = "Интервал",
   Multiple = "Множественный",
   Single = "Одиночный",
@@ -5863,7 +5797,7 @@ export const ZDateSelectionModeEnterprise = z.enum(Object.values(DateSelectionMo
 export type TDateSelectionMode = keyof typeof DateSelectionMode
 export type TDateSelectionModeEnterprise = `${DateSelectionMode}`
 
-export enum DimensionAttributePlacementType {
+enum DimensionAttributePlacementType {
   Together = "Вместе",
   WithDimensions = "ВместеСИзмерениями",
   Separately = "Отдельно",
@@ -5875,7 +5809,7 @@ export const ZDimensionAttributePlacementTypeEnterprise = z.enum(Object.values(D
 export type TDimensionAttributePlacementType = keyof typeof DimensionAttributePlacementType
 export type TDimensionAttributePlacementTypeEnterprise = `${DimensionAttributePlacementType}`
 
-export enum DimensionPlacementType {
+enum DimensionPlacementType {
   Together = "Вместе",
   Separately = "Отдельно",
   SeparatelyAndInTotalsOnly = "ОтдельноИТолькоВИтогах",
@@ -5887,7 +5821,7 @@ export const ZDimensionPlacementTypeEnterprise = z.enum(Object.values(DimensionP
 export type TDimensionPlacementType = keyof typeof DimensionPlacementType
 export type TDimensionPlacementTypeEnterprise = `${DimensionPlacementType}`
 
-export enum DisplayImportance {
+enum DisplayImportance {
   Auto = "Авто",
   High = "Высокая",
   Low = "Низкая",
@@ -5902,7 +5836,7 @@ export const ZDisplayImportanceEnterprise = z.enum(Object.values(DisplayImportan
 export type TDisplayImportance = keyof typeof DisplayImportance
 export type TDisplayImportanceEnterprise = `${DisplayImportance}`
 
-export enum DragAction {
+enum DragAction {
   Choice = "Выбор",
   Copy = "Копирование",
   Cancel = "Отмена",
@@ -5915,7 +5849,7 @@ export const ZDragActionEnterprise = z.enum(Object.values(DragAction) as [TDragA
 export type TDragAction = keyof typeof DragAction
 export type TDragActionEnterprise = `${DragAction}`
 
-export enum DragAllowedActions {
+enum DragAllowedActions {
   Copy = "Копирование",
   CopyAndMove = "КопированиеИПеремещение",
   DontProcess = "НеОбрабатывать",
@@ -5928,7 +5862,7 @@ export const ZDragAllowedActionsEnterprise = z.enum(Object.values(DragAllowedAct
 export type TDragAllowedActions = keyof typeof DragAllowedActions
 export type TDragAllowedActionsEnterprise = `${DragAllowedActions}`
 
-export enum DrawingSelectionShowMode {
+enum DrawingSelectionShowMode {
   Auto = "Авто",
   DontShow = "НеОтображать",
   Show = "Отображать",
@@ -5940,7 +5874,7 @@ export const ZDrawingSelectionShowModeEnterprise = z.enum(Object.values(DrawingS
 export type TDrawingSelectionShowMode = keyof typeof DrawingSelectionShowMode
 export type TDrawingSelectionShowModeEnterprise = `${DrawingSelectionShowMode}`
 
-export enum EditTextUpdate {
+enum EditTextUpdate {
   Auto = "Авто",
   Always = "Всегда",
   DontUse = "НеИспользовать",
@@ -5953,7 +5887,7 @@ export const ZEditTextUpdateEnterprise = z.enum(Object.values(EditTextUpdate) as
 export type TEditTextUpdate = keyof typeof EditTextUpdate
 export type TEditTextUpdateEnterprise = `${EditTextUpdate}`
 
-export enum FitPageMode {
+enum FitPageMode {
   Auto = "Авто",
   PageWidth = "ПоШиринеСтраницы",
   Proportionally = "Пропорционально",
@@ -5965,7 +5899,7 @@ export const ZFitPageModeEnterprise = z.enum(Object.values(FitPageMode) as [TFit
 export type TFitPageMode = keyof typeof FitPageMode
 export type TFitPageModeEnterprise = `${FitPageMode}`
 
-export enum FixingInTable {
+enum FixingInTable {
   Left = "Лево",
   None = "Нет",
   Right = "Право",
@@ -5977,7 +5911,7 @@ export const ZFixingInTableEnterprise = z.enum(Object.values(FixingInTable) as [
 export type TFixingInTable = keyof typeof FixingInTable
 export type TFixingInTableEnterprise = `${FixingInTable}`
 
-export enum FoldersAndItems {
+enum FoldersAndItems {
   Auto = "Авто",
   Folders = "Группы",
   FoldersAndItems = "ГруппыИЭлементы",
@@ -5990,7 +5924,7 @@ export const ZFoldersAndItemsEnterprise = z.enum(Object.values(FoldersAndItems) 
 export type TFoldersAndItems = keyof typeof FoldersAndItems
 export type TFoldersAndItemsEnterprise = `${FoldersAndItems}`
 
-export enum FormButtonPictureLocation {
+enum FormButtonPictureLocation {
   Auto = "Авто",
   Left = "Лево",
   Right = "Право",
@@ -6002,7 +5936,7 @@ export const ZFormButtonPictureLocationEnterprise = z.enum(Object.values(FormBut
 export type TFormButtonPictureLocation = keyof typeof FormButtonPictureLocation
 export type TFormButtonPictureLocationEnterprise = `${FormButtonPictureLocation}`
 
-export enum FormButtonType {
+enum FormButtonType {
   Hyperlink = "Гиперссылка",
   CommandBarHyperlink = "ГиперссылкаКоманднойПанели",
   CommandBarButton = "КнопкаКоманднойПанели",
@@ -6015,7 +5949,7 @@ export const ZFormButtonTypeEnterprise = z.enum(Object.values(FormButtonType) as
 export type TFormButtonType = keyof typeof FormButtonType
 export type TFormButtonTypeEnterprise = `${FormButtonType}`
 
-export enum FormCommandBarLabelLocation {
+enum FormCommandBarLabelLocation {
   Auto = "Авто",
   Top = "Верх",
   None = "Нет",
@@ -6028,7 +5962,7 @@ export const ZFormCommandBarLabelLocationEnterprise = z.enum(Object.values(FormC
 export type TFormCommandBarLabelLocation = keyof typeof FormCommandBarLabelLocation
 export type TFormCommandBarLabelLocationEnterprise = `${FormCommandBarLabelLocation}`
 
-export enum FormConversationsRepresentation {
+enum FormConversationsRepresentation {
   Auto = "Авто",
   DontShow = "НеОтображать",
   Show = "Отображать",
@@ -6040,7 +5974,7 @@ export const ZFormConversationsRepresentationEnterprise = z.enum(Object.values(F
 export type TFormConversationsRepresentation = keyof typeof FormConversationsRepresentation
 export type TFormConversationsRepresentationEnterprise = `${FormConversationsRepresentation}`
 
-export enum FormDecorationType {
+enum FormDecorationType {
   Picture = "Картинка",
   Label = "Надпись",
 }
@@ -6051,7 +5985,7 @@ export const ZFormDecorationTypeEnterprise = z.enum(Object.values(FormDecoration
 export type TFormDecorationType = keyof typeof FormDecorationType
 export type TFormDecorationTypeEnterprise = `${FormDecorationType}`
 
-export enum FormFieldType {
+enum FormFieldType {
   HTMLDocumentField = "ПолеHTMLДокумента",
   PDFDocumentField = "ПолеPDFДокумента",
   InputField = "ПолеВвода",
@@ -6080,7 +6014,7 @@ export const ZFormFieldTypeEnterprise = z.enum(Object.values(FormFieldType) as [
 export type TFormFieldType = keyof typeof FormFieldType
 export type TFormFieldTypeEnterprise = `${FormFieldType}`
 
-export enum FormGroupType {
+enum FormGroupType {
   ButtonGroup = "ГруппаКнопок",
   ColumnGroup = "ГруппаКолонок",
   CommandBar = "КоманднаяПанель",
@@ -6097,7 +6031,7 @@ export const ZFormGroupTypeEnterprise = z.enum(Object.values(FormGroupType) as [
 export type TFormGroupType = keyof typeof FormGroupType
 export type TFormGroupTypeEnterprise = `${FormGroupType}`
 
-export enum FormItemAdditionType {
+enum FormItemAdditionType {
   ViewStatusRepresentation = "ОтображениеСостоянияПросмотра",
   SearchStringRepresentation = "ОтображениеСтрокиПоиска",
   SearchControl = "УправлениеПоиском",
@@ -6109,7 +6043,7 @@ export const ZFormItemAdditionTypeEnterprise = z.enum(Object.values(FormItemAddi
 export type TFormItemAdditionType = keyof typeof FormItemAdditionType
 export type TFormItemAdditionTypeEnterprise = `${FormItemAdditionType}`
 
-export enum FormItemCommandBarLabelLocation {
+enum FormItemCommandBarLabelLocation {
   Auto = "Авто",
   Top = "Верх",
   None = "Нет",
@@ -6122,7 +6056,7 @@ export const ZFormItemCommandBarLabelLocationEnterprise = z.enum(Object.values(F
 export type TFormItemCommandBarLabelLocation = keyof typeof FormItemCommandBarLabelLocation
 export type TFormItemCommandBarLabelLocationEnterprise = `${FormItemCommandBarLabelLocation}`
 
-export enum FormItemOrientation {
+enum FormItemOrientation {
   Vertical = "Вертикально",
   Horizontal = "Горизонтально",
 }
@@ -6133,7 +6067,7 @@ export const ZFormItemOrientationEnterprise = z.enum(Object.values(FormItemOrien
 export type TFormItemOrientation = keyof typeof FormItemOrientation
 export type TFormItemOrientationEnterprise = `${FormItemOrientation}`
 
-export enum FormItemSpacing {
+enum FormItemSpacing {
   Auto = "Авто",
   Double = "Двойной",
   None = "Нет",
@@ -6148,7 +6082,7 @@ export const ZFormItemSpacingEnterprise = z.enum(Object.values(FormItemSpacing) 
 export type TFormItemSpacing = keyof typeof FormItemSpacing
 export type TFormItemSpacingEnterprise = `${FormItemSpacing}`
 
-export enum FormItemTitleLocation {
+enum FormItemTitleLocation {
   Auto = "Авто",
   Top = "Верх",
   Left = "Лево",
@@ -6163,7 +6097,7 @@ export const ZFormItemTitleLocationEnterprise = z.enum(Object.values(FormItemTit
 export type TFormItemTitleLocation = keyof typeof FormItemTitleLocation
 export type TFormItemTitleLocationEnterprise = `${FormItemTitleLocation}`
 
-export enum FormPagesRepresentation {
+enum FormPagesRepresentation {
   Auto = "Авто",
   TabsOnTop = "ЗакладкиСверху",
   TabsOnLeftHorizontal = "ЗакладкиСлеваГоризонтально",
@@ -6179,7 +6113,7 @@ export const ZFormPagesRepresentationEnterprise = z.enum(Object.values(FormPages
 export type TFormPagesRepresentation = keyof typeof FormPagesRepresentation
 export type TFormPagesRepresentationEnterprise = `${FormPagesRepresentation}`
 
-export enum FormPagesState {
+enum FormPagesState {
   Titles = "Заголовки",
   TitlesAndCurrentPage = "ЗаголовкиИТекущаяСтраница",
   CurrentPage = "ТекущаяСтраница",
@@ -6191,7 +6125,7 @@ export const ZFormPagesStateEnterprise = z.enum(Object.values(FormPagesState) as
 export type TFormPagesState = keyof typeof FormPagesState
 export type TFormPagesStateEnterprise = `${FormPagesState}`
 
-export enum FormStandardURLVariant {
+enum FormStandardURLVariant {
   ReportVariant = "ВариантОтчета",
   Record = "Запись",
   ListCurrentRowRecord = "ЗаписьТекущейСтрокиСписка",
@@ -6210,7 +6144,7 @@ export const ZFormStandardURLVariantEnterprise = z.enum(Object.values(FormStanda
 export type TFormStandardURLVariant = keyof typeof FormStandardURLVariant
 export type TFormStandardURLVariantEnterprise = `${FormStandardURLVariant}`
 
-export enum FormWindowOpeningMode {
+enum FormWindowOpeningMode {
   LockWholeInterface = "БлокироватьВесьИнтерфейс",
   LockOwnerWindow = "БлокироватьОкноВладельца",
   DontBlock = "НеБлокировать",
@@ -6222,7 +6156,7 @@ export const ZFormWindowOpeningModeEnterprise = z.enum(Object.values(FormWindowO
 export type TFormWindowOpeningMode = keyof typeof FormWindowOpeningMode
 export type TFormWindowOpeningModeEnterprise = `${FormWindowOpeningMode}`
 
-export enum GraphicalSchemaGridDrawMode {
+enum GraphicalSchemaGridDrawMode {
   Lines = "Линии",
   None = "НеРисовать",
   Dots = "Точки",
@@ -6235,7 +6169,7 @@ export const ZGraphicalSchemaGridDrawModeEnterprise = z.enum(Object.values(Graph
 export type TGraphicalSchemaGridDrawMode = keyof typeof GraphicalSchemaGridDrawMode
 export type TGraphicalSchemaGridDrawModeEnterprise = `${GraphicalSchemaGridDrawMode}`
 
-export enum GraphicalSchemaItemPictureLocation {
+enum GraphicalSchemaItemPictureLocation {
   Top = "Верх",
   Left = "Лево",
   Bottom = "Низ",
@@ -6249,7 +6183,7 @@ export const ZGraphicalSchemaItemPictureLocationEnterprise = z.enum(Object.value
 export type TGraphicalSchemaItemPictureLocation = keyof typeof GraphicalSchemaItemPictureLocation
 export type TGraphicalSchemaItemPictureLocationEnterprise = `${GraphicalSchemaItemPictureLocation}`
 
-export enum GraphicalSchemaShapes {
+enum GraphicalSchemaShapes {
   Block = "Блок",
   Document = "Документ",
   None = "Нет",
@@ -6272,7 +6206,7 @@ export const ZGraphicalSchemaShapesEnterprise = z.enum(Object.values(GraphicalSc
 export type TGraphicalSchemaShapes = keyof typeof GraphicalSchemaShapes
 export type TGraphicalSchemaShapesEnterprise = `${GraphicalSchemaShapes}`
 
-export enum GraphicalSchemeElementSideType {
+enum GraphicalSchemeElementSideType {
   Top = "Верх",
   Left = "Лево",
   Bottom = "Низ",
@@ -6286,7 +6220,7 @@ export const ZGraphicalSchemeElementSideTypeEnterprise = z.enum(Object.values(Gr
 export type TGraphicalSchemeElementSideType = keyof typeof GraphicalSchemeElementSideType
 export type TGraphicalSchemeElementSideTypeEnterprise = `${GraphicalSchemeElementSideType}`
 
-export enum HorizontalAlign {
+enum HorizontalAlign {
   Auto = "Авто",
   Left = "Лево",
   Justify = "ПоШирине",
@@ -6300,7 +6234,7 @@ export const ZHorizontalAlignEnterprise = z.enum(Object.values(HorizontalAlign) 
 export type THorizontalAlign = keyof typeof HorizontalAlign
 export type THorizontalAlignEnterprise = `${HorizontalAlign}`
 
-export enum HTMLDocumentFieldMode {
+enum HTMLDocumentFieldMode {
   Browse = "Просмотр",
   Design = "Редактирование",
 }
@@ -6311,7 +6245,7 @@ export const ZHTMLDocumentFieldModeEnterprise = z.enum(Object.values(HTMLDocumen
 export type THTMLDocumentFieldMode = keyof typeof HTMLDocumentFieldMode
 export type THTMLDocumentFieldModeEnterprise = `${HTMLDocumentFieldMode}`
 
-export enum IncompleteChoiceMode {
+enum IncompleteChoiceMode {
   OnActivate = "ПриАктивизации",
   OnEnterPressed = "ПриНажатииEnter",
 }
@@ -6322,7 +6256,7 @@ export const ZIncompleteChoiceModeEnterprise = z.enum(Object.values(IncompleteCh
 export type TIncompleteChoiceMode = keyof typeof IncompleteChoiceMode
 export type TIncompleteChoiceModeEnterprise = `${IncompleteChoiceMode}`
 
-export enum InitialListView {
+enum InitialListView {
   Auto = "Авто",
   End = "Конец",
   Beginning = "Начало",
@@ -6334,7 +6268,7 @@ export const ZInitialListViewEnterprise = z.enum(Object.values(InitialListView) 
 export type TInitialListView = keyof typeof InitialListView
 export type TInitialListViewEnterprise = `${InitialListView}`
 
-export enum InitialTreeView {
+enum InitialTreeView {
   NoExpand = "НеРаскрывать",
   ExpandTopLevel = "РаскрыватьВерхнийУровень",
   ExpandAllLevels = "РаскрыватьВсеУровни",
@@ -6346,7 +6280,7 @@ export const ZInitialTreeViewEnterprise = z.enum(Object.values(InitialTreeView) 
 export type TInitialTreeView = keyof typeof InitialTreeView
 export type TInitialTreeViewEnterprise = `${InitialTreeView}`
 
-export enum InputFieldAutofillHint {
+enum InputFieldAutofillHint {
   Email = "Email",
   City = "Город",
   GivenName = "Имя",
@@ -6374,7 +6308,7 @@ export const ZInputFieldAutofillHintEnterprise = z.enum(Object.values(InputField
 export type TInputFieldAutofillHint = keyof typeof InputFieldAutofillHint
 export type TInputFieldAutofillHintEnterprise = `${InputFieldAutofillHint}`
 
-export enum InputFieldCommandSource {
+enum InputFieldCommandSource {
   MultipleValue = "МножественноеЗначение",
   InputArea = "ОбластьВвода",
 }
@@ -6385,7 +6319,7 @@ export const ZInputFieldCommandSourceEnterprise = z.enum(Object.values(InputFiel
 export type TInputFieldCommandSource = keyof typeof InputFieldCommandSource
 export type TInputFieldCommandSourceEnterprise = `${InputFieldCommandSource}`
 
-export enum InputFieldMultipleValuePictureShape {
+enum InputFieldMultipleValuePictureShape {
   Auto = "Авто",
   Rect = "Квадрат",
   Circle = "Круг",
@@ -6397,7 +6331,7 @@ export const ZInputFieldMultipleValuePictureShapeEnterprise = z.enum(Object.valu
 export type TInputFieldMultipleValuePictureShape = keyof typeof InputFieldMultipleValuePictureShape
 export type TInputFieldMultipleValuePictureShapeEnterprise = `${InputFieldMultipleValuePictureShape}`
 
-export enum InputFieldMultipleValuePictureSize {
+enum InputFieldMultipleValuePictureSize {
   Auto = "Авто",
   Large = "Крупный",
   Small = "Маленький",
@@ -6410,7 +6344,7 @@ export const ZInputFieldMultipleValuePictureSizeEnterprise = z.enum(Object.value
 export type TInputFieldMultipleValuePictureSize = keyof typeof InputFieldMultipleValuePictureSize
 export type TInputFieldMultipleValuePictureSizeEnterprise = `${InputFieldMultipleValuePictureSize}`
 
-export enum InputFieldStandardCommand {
+enum InputFieldStandardCommand {
   Paste = "Вставить",
   Choose = "Выбрать",
   SelectAll = "ВыделитьВсе",
@@ -6430,7 +6364,7 @@ export const ZInputFieldStandardCommandEnterprise = z.enum(Object.values(InputFi
 export type TInputFieldStandardCommand = keyof typeof InputFieldStandardCommand
 export type TInputFieldStandardCommandEnterprise = `${InputFieldStandardCommand}`
 
-export enum ItemHeightControlVariant {
+enum ItemHeightControlVariant {
   Auto = "Авто",
   UseHeightInFormRows = "ВСтрокахФормы",
   UseContentHeight = "ПоСодержимому",
@@ -6442,7 +6376,7 @@ export const ZItemHeightControlVariantEnterprise = z.enum(Object.values(ItemHeig
 export type TItemHeightControlVariant = keyof typeof ItemHeightControlVariant
 export type TItemHeightControlVariantEnterprise = `${ItemHeightControlVariant}`
 
-export enum ItemHorizontalLocation {
+enum ItemHorizontalLocation {
   Auto = "Авто",
   Left = "Лево",
   Right = "Право",
@@ -6455,7 +6389,7 @@ export const ZItemHorizontalLocationEnterprise = z.enum(Object.values(ItemHorizo
 export type TItemHorizontalLocation = keyof typeof ItemHorizontalLocation
 export type TItemHorizontalLocationEnterprise = `${ItemHorizontalLocation}`
 
-export enum ItemsAndTitlesAlignVariant {
+enum ItemsAndTitlesAlignVariant {
   Auto = "Авто",
   None = "Нет",
   ItemsLeftTitlesLeft = "ЭлементыЛевоЗаголовкиЛево",
@@ -6470,7 +6404,7 @@ export const ZItemsAndTitlesAlignVariantEnterprise = z.enum(Object.values(ItemsA
 export type TItemsAndTitlesAlignVariant = keyof typeof ItemsAndTitlesAlignVariant
 export type TItemsAndTitlesAlignVariantEnterprise = `${ItemsAndTitlesAlignVariant}`
 
-export enum ItemVerticalAlign {
+enum ItemVerticalAlign {
   Auto = "Авто",
   Top = "Верх",
   Bottom = "Низ",
@@ -6483,7 +6417,7 @@ export const ZItemVerticalAlignEnterprise = z.enum(Object.values(ItemVerticalAli
 export type TItemVerticalAlign = keyof typeof ItemVerticalAlign
 export type TItemVerticalAlignEnterprise = `${ItemVerticalAlign}`
 
-export enum LabelPictureLocation {
+enum LabelPictureLocation {
   Top = "Верх",
   Left = "Лево",
   Bottom = "Низ",
@@ -6497,7 +6431,7 @@ export const ZLabelPictureLocationEnterprise = z.enum(Object.values(LabelPicture
 export type TLabelPictureLocation = keyof typeof LabelPictureLocation
 export type TLabelPictureLocationEnterprise = `${LabelPictureLocation}`
 
-export enum LinkedValueChangeMode {
+enum LinkedValueChangeMode {
   DontChange = "НеИзменять",
   Clear = "Очищать",
 }
@@ -6508,7 +6442,7 @@ export const ZLinkedValueChangeModeEnterprise = z.enum(Object.values(LinkedValue
 export type TLinkedValueChangeMode = keyof typeof LinkedValueChangeMode
 export type TLinkedValueChangeModeEnterprise = `${LinkedValueChangeMode}`
 
-export enum ListEditMode {
+enum ListEditMode {
   InDialog = "ВДиалоге",
   InList = "ВСписке",
 }
@@ -6519,7 +6453,7 @@ export const ZListEditModeEnterprise = z.enum(Object.values(ListEditMode) as [TL
 export type TListEditMode = keyof typeof ListEditMode
 export type TListEditModeEnterprise = `${ListEditMode}`
 
-export enum MainClientApplicationWindowMode {
+enum MainClientApplicationWindowMode {
   EmbeddedWorkplace = "ВстроенноеРабочееМесто",
   Kiosk = "Киоск",
   Normal = "Обычный",
@@ -6533,7 +6467,7 @@ export const ZMainClientApplicationWindowModeEnterprise = z.enum(Object.values(M
 export type TMainClientApplicationWindowMode = keyof typeof MainClientApplicationWindowMode
 export type TMainClientApplicationWindowModeEnterprise = `${MainClientApplicationWindowMode}`
 
-export enum NewRowShowCheckVariant {
+enum NewRowShowCheckVariant {
   DontCheck = "НеПроверять",
   FilterMismatchMessage = "СообщатьОНесоответствииОтбору",
 }
@@ -6544,7 +6478,7 @@ export const ZNewRowShowCheckVariantEnterprise = z.enum(Object.values(NewRowShow
 export type TNewRowShowCheckVariant = keyof typeof NewRowShowCheckVariant
 export type TNewRowShowCheckVariantEnterprise = `${NewRowShowCheckVariant}`
 
-export enum OnScreenKeyboardReturnKeyText {
+enum OnScreenKeyboardReturnKeyText {
   Auto = "Авто",
   Return = "Ввод",
   Done = "Готово",
@@ -6562,7 +6496,7 @@ export const ZOnScreenKeyboardReturnKeyTextEnterprise = z.enum(Object.values(OnS
 export type TOnScreenKeyboardReturnKeyText = keyof typeof OnScreenKeyboardReturnKeyText
 export type TOnScreenKeyboardReturnKeyTextEnterprise = `${OnScreenKeyboardReturnKeyText}`
 
-export enum Orientation {
+enum Orientation {
   Auto = "Авто",
   Vertical = "Вертикально",
   Horizontal = "Горизонтально",
@@ -6574,7 +6508,7 @@ export const ZOrientationEnterprise = z.enum(Object.values(Orientation) as [TOri
 export type TOrientation = keyof typeof Orientation
 export type TOrientationEnterprise = `${Orientation}`
 
-export enum PanelPictureLocation {
+enum PanelPictureLocation {
   Top = "Верх",
   Left = "Лево",
   Bottom = "Низ",
@@ -6588,7 +6522,7 @@ export const ZPanelPictureLocationEnterprise = z.enum(Object.values(PanelPicture
 export type TPanelPictureLocation = keyof typeof PanelPictureLocation
 export type TPanelPictureLocationEnterprise = `${PanelPictureLocation}`
 
-export enum PictureFormat {
+enum PictureFormat {
   BMP = "BMP",
   EMF = "EMF",
   GIF = "GIF",
@@ -6607,7 +6541,7 @@ export const ZPictureFormatEnterprise = z.enum(Object.values(PictureFormat) as [
 export type TPictureFormat = keyof typeof PictureFormat
 export type TPictureFormatEnterprise = `${PictureFormat}`
 
-export enum PictureSize {
+enum PictureSize {
   AutoSize = "АвтоРазмер",
   AutoSizeIgnoreScale = "АвтоРазмерБезУчетаМасштаба",
   ByFontSize = "ПоРазмеруШрифта",
@@ -6624,7 +6558,7 @@ export const ZPictureSizeEnterprise = z.enum(Object.values(PictureSize) as [TPic
 export type TPictureSize = keyof typeof PictureSize
 export type TPictureSizeEnterprise = `${PictureSize}`
 
-export enum PrintDialogUseMode {
+enum PrintDialogUseMode {
   Use = "Использовать",
   DontUse = "НеИспользовать",
 }
@@ -6635,7 +6569,7 @@ export const ZPrintDialogUseModeEnterprise = z.enum(Object.values(PrintDialogUse
 export type TPrintDialogUseMode = keyof typeof PrintDialogUseMode
 export type TPrintDialogUseModeEnterprise = `${PrintDialogUseMode}`
 
-export enum ProgressBarSmoothingMode {
+enum ProgressBarSmoothingMode {
   Smooth = "Плавный",
   Broken = "Прерывистый",
   BrokenTilt = "ПрерывистыйНаклонный",
@@ -6647,7 +6581,7 @@ export const ZProgressBarSmoothingModeEnterprise = z.enum(Object.values(Progress
 export type TProgressBarSmoothingMode = keyof typeof ProgressBarSmoothingMode
 export type TProgressBarSmoothingModeEnterprise = `${ProgressBarSmoothingMode}`
 
-export enum RadioButtonType {
+enum RadioButtonType {
   Auto = "Авто",
   RadioButton = "Переключатель",
   Tumbler = "Тумблер",
@@ -6659,7 +6593,7 @@ export const ZRadioButtonTypeEnterprise = z.enum(Object.values(RadioButtonType) 
 export type TRadioButtonType = keyof typeof RadioButtonType
 export type TRadioButtonTypeEnterprise = `${RadioButtonType}`
 
-export enum RefreshRequestMethod {
+enum RefreshRequestMethod {
   None = "Нет",
   PullFromTop = "ПотянутьСверху",
   PullFromTopOrBottom = "ПотянутьСверхуИлиСнизу",
@@ -6672,7 +6606,7 @@ export const ZRefreshRequestMethodEnterprise = z.enum(Object.values(RefreshReque
 export type TRefreshRequestMethod = keyof typeof RefreshRequestMethod
 export type TRefreshRequestMethodEnterprise = `${RefreshRequestMethod}`
 
-export enum ReportFormType {
+enum ReportFormType {
   Variant = "Вариант",
   Settings = "Настройка",
   Main = "Основная",
@@ -6684,7 +6618,7 @@ export const ZReportFormTypeEnterprise = z.enum(Object.values(ReportFormType) as
 export type TReportFormType = keyof typeof ReportFormType
 export type TReportFormTypeEnterprise = `${ReportFormType}`
 
-export enum ReportResultViewMode {
+enum ReportResultViewMode {
   Auto = "Авто",
   Compact = "Компактный",
   Default = "Обычный",
@@ -6696,7 +6630,7 @@ export const ZReportResultViewModeEnterprise = z.enum(Object.values(ReportResult
 export type TReportResultViewMode = keyof typeof ReportResultViewMode
 export type TReportResultViewModeEnterprise = `${ReportResultViewMode}`
 
-export enum SaveFormDataInSettings {
+enum SaveFormDataInSettings {
   UseList = "ИспользоватьСписок",
   DontUse = "НеИспользовать",
 }
@@ -6707,7 +6641,7 @@ export const ZSaveFormDataInSettingsEnterprise = z.enum(Object.values(SaveFormDa
 export type TSaveFormDataInSettings = keyof typeof SaveFormDataInSettings
 export type TSaveFormDataInSettingsEnterprise = `${SaveFormDataInSettings}`
 
-export enum ScrollBarUse {
+enum ScrollBarUse {
   AutoUse = "ИспользоватьАвтоматически",
   UseAlways = "ИспользоватьВсегда",
   DontUse = "НеИспользовать",
@@ -6719,7 +6653,7 @@ export const ZScrollBarUseEnterprise = z.enum(Object.values(ScrollBarUse) as [TS
 export type TScrollBarUse = keyof typeof ScrollBarUse
 export type TScrollBarUseEnterprise = `${ScrollBarUse}`
 
-export enum ScrollingTextMode {
+enum ScrollingTextMode {
   Fast = "Быстро",
   Slow = "Медленно",
   DontUse = "НеИспользовать",
@@ -6734,7 +6668,7 @@ export const ZScrollingTextModeEnterprise = z.enum(Object.values(ScrollingTextMo
 export type TScrollingTextMode = keyof typeof ScrollingTextMode
 export type TScrollingTextModeEnterprise = `${ScrollingTextMode}`
 
-export enum SearchControlLocation {
+enum SearchControlLocation {
   Auto = "Авто",
   CommandBar = "КоманднаяПанель",
   None = "Нет",
@@ -6746,7 +6680,7 @@ export const ZSearchControlLocationEnterprise = z.enum(Object.values(SearchContr
 export type TSearchControlLocation = keyof typeof SearchControlLocation
 export type TSearchControlLocationEnterprise = `${SearchControlLocation}`
 
-export enum SearchInTableOnInput {
+enum SearchInTableOnInput {
   Auto = "Авто",
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -6758,7 +6692,7 @@ export const ZSearchInTableOnInputEnterprise = z.enum(Object.values(SearchInTabl
 export type TSearchInTableOnInput = keyof typeof SearchInTableOnInput
 export type TSearchInTableOnInputEnterprise = `${SearchInTableOnInput}`
 
-export enum SearchStringLocation {
+enum SearchStringLocation {
   Auto = "Авто",
   Top = "Верх",
   FormCaption = "ЗаголовокФормы",
@@ -6773,7 +6707,7 @@ export const ZSearchStringLocationEnterprise = z.enum(Object.values(SearchString
 export type TSearchStringLocation = keyof typeof SearchStringLocation
 export type TSearchStringLocationEnterprise = `${SearchStringLocation}`
 
-export enum SelectionShowMode {
+enum SelectionShowMode {
   Always = "Всегда",
   DontShow = "НеОтображать",
   WhenActive = "ПриАктивности",
@@ -6787,7 +6721,7 @@ export const ZSelectionShowModeEnterprise = z.enum(Object.values(SelectionShowMo
 export type TSelectionShowMode = keyof typeof SelectionShowMode
 export type TSelectionShowModeEnterprise = `${SelectionShowMode}`
 
-export enum ShowTabs {
+enum ShowTabs {
   DontUse = "НеИспользовать",
   Top = "Сверху",
   TopMultiLine = "СверхуМногострочный",
@@ -6809,7 +6743,7 @@ export const ZShowTabsEnterprise = z.enum(Object.values(ShowTabs) as [TShowTabsE
 export type TShowTabs = keyof typeof ShowTabs
 export type TShowTabsEnterprise = `${ShowTabs}`
 
-export enum SizeChangeMode {
+enum SizeChangeMode {
   QuickChange = "БыстроеИзменение",
   Normal = "Обычный",
 }
@@ -6820,7 +6754,7 @@ export const ZSizeChangeModeEnterprise = z.enum(Object.values(SizeChangeMode) as
 export type TSizeChangeMode = keyof typeof SizeChangeMode
 export type TSizeChangeModeEnterprise = `${SizeChangeMode}`
 
-export enum SpecialTextInputMode {
+enum SpecialTextInputMode {
   Email = "Email",
   URL = "URL",
   Auto = "Авто",
@@ -6836,7 +6770,7 @@ export const ZSpecialTextInputModeEnterprise = z.enum(Object.values(SpecialTextI
 export type TSpecialTextInputMode = keyof typeof SpecialTextInputMode
 export type TSpecialTextInputModeEnterprise = `${SpecialTextInputMode}`
 
-export enum SpellCheckingOnTextInput {
+enum SpellCheckingOnTextInput {
   Auto = "Авто",
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -6848,7 +6782,7 @@ export const ZSpellCheckingOnTextInputEnterprise = z.enum(Object.values(SpellChe
 export type TSpellCheckingOnTextInput = keyof typeof SpellCheckingOnTextInput
 export type TSpellCheckingOnTextInputEnterprise = `${SpellCheckingOnTextInput}`
 
-export enum StandardAppearance {
+enum StandardAppearance {
   Orange = "Апельсин",
   Asphalt = "Асфальт",
   None = "БезОформления",
@@ -6879,7 +6813,7 @@ export const ZStandardAppearanceEnterprise = z.enum(Object.values(StandardAppear
 export type TStandardAppearance = keyof typeof StandardAppearance
 export type TStandardAppearanceEnterprise = `${StandardAppearance}`
 
-export enum StandardCommandsGroup {
+enum StandardCommandsGroup {
   FormCommandBarImportant = "КоманднаяПанельФормыВажное",
   FormCommandBarCreateBasedOn = "КоманднаяПанельФормыСоздатьНаОсновании",
   ActionsPanelReports = "ПанельДействийОтчеты",
@@ -6899,7 +6833,7 @@ export const ZStandardCommandsGroupEnterprise = z.enum(Object.values(StandardCom
 export type TStandardCommandsGroup = keyof typeof StandardCommandsGroup
 export type TStandardCommandsGroupEnterprise = `${StandardCommandsGroup}`
 
-export enum TableBehaviorOnHorizontalCompression {
+enum TableBehaviorOnHorizontalCompression {
   Auto = "Авто",
   MoveItemsByImportance = "ПереноситьЭлементыПоВажности",
   HideItemsByImportance = "СкрыватьЭлементыПоВажности",
@@ -6911,7 +6845,7 @@ export const ZTableBehaviorOnHorizontalCompressionEnterprise = z.enum(Object.val
 export type TTableBehaviorOnHorizontalCompression = keyof typeof TableBehaviorOnHorizontalCompression
 export type TTableBehaviorOnHorizontalCompressionEnterprise = `${TableBehaviorOnHorizontalCompression}`
 
-export enum TableBoxRowInputMode {
+enum TableBoxRowInputMode {
   EndOfWindow = "ВКонецОкна",
   EndOfList = "ВКонецСписка",
   BeforeCurrentRow = "ПередТекущейСтрокой",
@@ -6924,7 +6858,7 @@ export const ZTableBoxRowInputModeEnterprise = z.enum(Object.values(TableBoxRowI
 export type TTableBoxRowInputMode = keyof typeof TableBoxRowInputMode
 export type TTableBoxRowInputModeEnterprise = `${TableBoxRowInputMode}`
 
-export enum TableBoxRowSelectionMode {
+enum TableBoxRowSelectionMode {
   Row = "Строка",
   Cell = "Ячейка",
 }
@@ -6935,7 +6869,7 @@ export const ZTableBoxRowSelectionModeEnterprise = z.enum(Object.values(TableBox
 export type TTableBoxRowSelectionMode = keyof typeof TableBoxRowSelectionMode
 export type TTableBoxRowSelectionModeEnterprise = `${TableBoxRowSelectionMode}`
 
-export enum TableBoxSelectionMode {
+enum TableBoxSelectionMode {
   MultiLine = "Множественный",
   SingleLine = "Одиночный",
 }
@@ -6946,7 +6880,7 @@ export const ZTableBoxSelectionModeEnterprise = z.enum(Object.values(TableBoxSel
 export type TTableBoxSelectionMode = keyof typeof TableBoxSelectionMode
 export type TTableBoxSelectionModeEnterprise = `${TableBoxSelectionMode}`
 
-export enum TableCurrentRowUse {
+enum TableCurrentRowUse {
   Auto = "Авто",
   Choice = "Выбор",
   SelectionPresentation = "ОтображениеВыделения",
@@ -6959,7 +6893,7 @@ export const ZTableCurrentRowUseEnterprise = z.enum(Object.values(TableCurrentRo
 export type TTableCurrentRowUse = keyof typeof TableCurrentRowUse
 export type TTableCurrentRowUseEnterprise = `${TableCurrentRowUse}`
 
-export enum TableHeightControlVariant {
+enum TableHeightControlVariant {
   Auto = "Авто",
   UseHeightInTableRows = "ВСтрокахТаблицы",
   UseHeightInFormRows = "ВСтрокахФормы",
@@ -6972,7 +6906,7 @@ export const ZTableHeightControlVariantEnterprise = z.enum(Object.values(TableHe
 export type TTableHeightControlVariant = keyof typeof TableHeightControlVariant
 export type TTableHeightControlVariantEnterprise = `${TableHeightControlVariant}`
 
-export enum TableRepresentation {
+enum TableRepresentation {
   Tree = "Дерево",
   HierarchicalList = "ИерархическийСписок",
   List = "Список",
@@ -6984,7 +6918,7 @@ export const ZTableRepresentationEnterprise = z.enum(Object.values(TableRepresen
 export type TTableRepresentation = keyof typeof TableRepresentation
 export type TTableRepresentationEnterprise = `${TableRepresentation}`
 
-export enum TableRowInputMode {
+enum TableRowInputMode {
   EndOfWindow = "ВКонецОкна",
   EndOfList = "ВКонецСписка",
   BeforeCurrentRow = "ПередТекущейСтрокой",
@@ -6997,7 +6931,7 @@ export const ZTableRowInputModeEnterprise = z.enum(Object.values(TableRowInputMo
 export type TTableRowInputMode = keyof typeof TableRowInputMode
 export type TTableRowInputModeEnterprise = `${TableRowInputMode}`
 
-export enum TableRowSelectionMode {
+enum TableRowSelectionMode {
   Row = "Строка",
   Cell = "Ячейка",
 }
@@ -7008,7 +6942,7 @@ export const ZTableRowSelectionModeEnterprise = z.enum(Object.values(TableRowSel
 export type TTableRowSelectionMode = keyof typeof TableRowSelectionMode
 export type TTableRowSelectionModeEnterprise = `${TableRowSelectionMode}`
 
-export enum TableSelectionMode {
+enum TableSelectionMode {
   MultiRow = "Множественный",
   SingleRow = "Одиночный",
 }
@@ -7019,7 +6953,7 @@ export const ZTableSelectionModeEnterprise = z.enum(Object.values(TableSelection
 export type TTableSelectionMode = keyof typeof TableSelectionMode
 export type TTableSelectionModeEnterprise = `${TableSelectionMode}`
 
-export enum TaskListMode {
+enum TaskListMode {
   AllTasks = "ВсеЗадачи",
   ByPerformer = "ПоИсполнителю",
 }
@@ -7030,7 +6964,7 @@ export const ZTaskListModeEnterprise = z.enum(Object.values(TaskListMode) as [TT
 export type TTaskListMode = keyof typeof TaskListMode
 export type TTaskListModeEnterprise = `${TaskListMode}`
 
-export enum TextDirection {
+enum TextDirection {
   LeftToRight = "СлеваНаправо",
   RightToLeft = "СправаНалево",
 }
@@ -7041,7 +6975,7 @@ export const ZTextDirectionEnterprise = z.enum(Object.values(TextDirection) as [
 export type TTextDirection = keyof typeof TextDirection
 export type TTextDirectionEnterprise = `${TextDirection}`
 
-export enum ThroughAlign {
+enum ThroughAlign {
   Auto = "Авто",
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -7053,7 +6987,7 @@ export const ZThroughAlignEnterprise = z.enum(Object.values(ThroughAlign) as [TT
 export type TThroughAlign = keyof typeof ThroughAlign
 export type TThroughAlignEnterprise = `${ThroughAlign}`
 
-export enum TimeScalePosition {
+enum TimeScalePosition {
   Top = "Верх",
   Left = "Лево",
   Bottom = "Низ",
@@ -7066,7 +7000,7 @@ export const ZTimeScalePositionEnterprise = z.enum(Object.values(TimeScalePositi
 export type TTimeScalePosition = keyof typeof TimeScalePosition
 export type TTimeScalePositionEnterprise = `${TimeScalePosition}`
 
-export enum TitleLocation {
+enum TitleLocation {
   TitleLeft = "ЗаголовокСлева",
   TitleRight = "ЗаголовокСправа",
 }
@@ -7077,7 +7011,7 @@ export const ZTitleLocationEnterprise = z.enum(Object.values(TitleLocation) as [
 export type TTitleLocation = keyof typeof TitleLocation
 export type TTitleLocationEnterprise = `${TitleLocation}`
 
-export enum ToolTipRepresentation {
+enum ToolTipRepresentation {
   Auto = "Авто",
   Balloon = "Всплывающая",
   Button = "Кнопка",
@@ -7095,7 +7029,7 @@ export const ZToolTipRepresentationEnterprise = z.enum(Object.values(ToolTipRepr
 export type TToolTipRepresentation = keyof typeof ToolTipRepresentation
 export type TToolTipRepresentationEnterprise = `${ToolTipRepresentation}`
 
-export enum TrackBarMarkingAppearance {
+enum TrackBarMarkingAppearance {
   DontShow = "НеОтображать",
   TopLeft = "СверхуИлиСлева",
   BottomRight = "СнизуИлиСправа",
@@ -7108,7 +7042,7 @@ export const ZTrackBarMarkingAppearanceEnterprise = z.enum(Object.values(TrackBa
 export type TTrackBarMarkingAppearance = keyof typeof TrackBarMarkingAppearance
 export type TTrackBarMarkingAppearanceEnterprise = `${TrackBarMarkingAppearance}`
 
-export enum UseMenuMode {
+enum UseMenuMode {
   Use = "Использовать",
   UseExtra = "ИспользоватьДополнительно",
   DontUse = "НеИспользовать",
@@ -7120,7 +7054,7 @@ export const ZUseMenuModeEnterprise = z.enum(Object.values(UseMenuMode) as [TUse
 export type TUseMenuMode = keyof typeof UseMenuMode
 export type TUseMenuModeEnterprise = `${UseMenuMode}`
 
-export enum UseOutput {
+enum UseOutput {
   Auto = "Авто",
   Disable = "Запретить",
   Enable = "Разрешить",
@@ -7132,7 +7066,7 @@ export const ZUseOutputEnterprise = z.enum(Object.values(UseOutput) as [TUseOutp
 export type TUseOutput = keyof typeof UseOutput
 export type TUseOutputEnterprise = `${UseOutput}`
 
-export enum UserNotificationStatus {
+enum UserNotificationStatus {
   Important = "Важное",
   Information = "Информация",
 }
@@ -7143,7 +7077,7 @@ export const ZUserNotificationStatusEnterprise = z.enum(Object.values(UserNotifi
 export type TUserNotificationStatus = keyof typeof UserNotificationStatus
 export type TUserNotificationStatusEnterprise = `${UserNotificationStatus}`
 
-export enum UsualGroupBehavior {
+enum UsualGroupBehavior {
   Auto = "Авто",
   PopUp = "Всплывающая",
   Usual = "Обычное",
@@ -7156,7 +7090,7 @@ export const ZUsualGroupBehaviorEnterprise = z.enum(Object.values(UsualGroupBeha
 export type TUsualGroupBehavior = keyof typeof UsualGroupBehavior
 export type TUsualGroupBehaviorEnterprise = `${UsualGroupBehavior}`
 
-export enum UsualGroupControlRepresentation {
+enum UsualGroupControlRepresentation {
   TitleHyperlink = "ГиперссылкаЗаголовка",
   Picture = "Картинка",
 }
@@ -7167,7 +7101,7 @@ export const ZUsualGroupControlRepresentationEnterprise = z.enum(Object.values(U
 export type TUsualGroupControlRepresentation = keyof typeof UsualGroupControlRepresentation
 export type TUsualGroupControlRepresentationEnterprise = `${UsualGroupControlRepresentation}`
 
-export enum UsualGroupRepresentation {
+enum UsualGroupRepresentation {
   None = "Нет",
   NormalSeparation = "ОбычноеВыделение",
   StrongSeparation = "СильноеВыделение",
@@ -7180,7 +7114,7 @@ export const ZUsualGroupRepresentationEnterprise = z.enum(Object.values(UsualGro
 export type TUsualGroupRepresentation = keyof typeof UsualGroupRepresentation
 export type TUsualGroupRepresentationEnterprise = `${UsualGroupRepresentation}`
 
-export enum VerticalAlign {
+enum VerticalAlign {
   Top = "Верх",
   Bottom = "Низ",
   Center = "Центр",
@@ -7192,7 +7126,7 @@ export const ZVerticalAlignEnterprise = z.enum(Object.values(VerticalAlign) as [
 export type TVerticalAlign = keyof typeof VerticalAlign
 export type TVerticalAlignEnterprise = `${VerticalAlign}`
 
-export enum VerticalFormScroll {
+enum VerticalFormScroll {
   Auto = "Авто",
   Use = "Использовать",
   UseWithoutStretch = "ИспользоватьБезРастягивания",
@@ -7205,7 +7139,7 @@ export const ZVerticalFormScrollEnterprise = z.enum(Object.values(VerticalFormSc
 export type TVerticalFormScroll = keyof typeof VerticalFormScroll
 export type TVerticalFormScrollEnterprise = `${VerticalFormScroll}`
 
-export enum ViewModeApplicationOnSetReportResult {
+enum ViewModeApplicationOnSetReportResult {
   Auto = "Авто",
   DontApply = "НеПрименять",
   Apply = "Применять",
@@ -7217,7 +7151,7 @@ export const ZViewModeApplicationOnSetReportResultEnterprise = z.enum(Object.val
 export type TViewModeApplicationOnSetReportResult = keyof typeof ViewModeApplicationOnSetReportResult
 export type TViewModeApplicationOnSetReportResultEnterprise = `${ViewModeApplicationOnSetReportResult}`
 
-export enum ViewScalingMode {
+enum ViewScalingMode {
   Auto = "Авто",
   Large = "Крупный",
   Normal = "Обычный",
@@ -7229,7 +7163,7 @@ export const ZViewScalingModeEnterprise = z.enum(Object.values(ViewScalingMode) 
 export type TViewScalingMode = keyof typeof ViewScalingMode
 export type TViewScalingModeEnterprise = `${ViewScalingMode}`
 
-export enum ViewStatusLocation {
+enum ViewStatusLocation {
   Auto = "Авто",
   Top = "Верх",
   None = "Нет",
@@ -7242,7 +7176,7 @@ export const ZViewStatusLocationEnterprise = z.enum(Object.values(ViewStatusLoca
 export type TViewStatusLocation = keyof typeof ViewStatusLocation
 export type TViewStatusLocationEnterprise = `${ViewStatusLocation}`
 
-export enum WarningOnEditRepresentation {
+enum WarningOnEditRepresentation {
   Auto = "Авто",
   DontShow = "НеОтображать",
   Show = "Отображать",
@@ -7254,7 +7188,7 @@ export const ZWarningOnEditRepresentationEnterprise = z.enum(Object.values(Warni
 export type TWarningOnEditRepresentation = keyof typeof WarningOnEditRepresentation
 export type TWarningOnEditRepresentationEnterprise = `${WarningOnEditRepresentation}`
 
-export enum WindowAppearanceModeChange {
+enum WindowAppearanceModeChange {
   Auto = "Авто",
   Disable = "Запретить",
   Enable = "Разрешить",
@@ -7266,7 +7200,7 @@ export const ZWindowAppearanceModeChangeEnterprise = z.enum(Object.values(Window
 export type TWindowAppearanceModeChange = keyof typeof WindowAppearanceModeChange
 export type TWindowAppearanceModeChangeEnterprise = `${WindowAppearanceModeChange}`
 
-export enum WindowAppearanceModeVariant {
+enum WindowAppearanceModeVariant {
   Maximized = "Максимизированное",
   Minimized = "Минимизированное",
   Normal = "Нормальное",
@@ -7278,7 +7212,7 @@ export const ZWindowAppearanceModeVariantEnterprise = z.enum(Object.values(Windo
 export type TWindowAppearanceModeVariant = keyof typeof WindowAppearanceModeVariant
 export type TWindowAppearanceModeVariantEnterprise = `${WindowAppearanceModeVariant}`
 
-export enum WindowDockVariant {
+enum WindowDockVariant {
   Top = "Верх",
   Left = "Лево",
   Bottom = "Низ",
@@ -7291,7 +7225,7 @@ export const ZWindowDockVariantEnterprise = z.enum(Object.values(WindowDockVaria
 export type TWindowDockVariant = keyof typeof WindowDockVariant
 export type TWindowDockVariantEnterprise = `${WindowDockVariant}`
 
-export enum WindowLocationVariant {
+enum WindowLocationVariant {
   Auto = "Авто",
   DontOverlapOwner = "НеПерекрыватьВладельца",
   Center = "Центрировать",
@@ -7303,7 +7237,7 @@ export const ZWindowLocationVariantEnterprise = z.enum(Object.values(WindowLocat
 export type TWindowLocationVariant = keyof typeof WindowLocationVariant
 export type TWindowLocationVariantEnterprise = `${WindowLocationVariant}`
 
-export enum WindowSizeChange {
+enum WindowSizeChange {
   Change = "Изменять",
   DontChange = "НеИзменять",
 }
@@ -7314,7 +7248,7 @@ export const ZWindowSizeChangeEnterprise = z.enum(Object.values(WindowSizeChange
 export type TWindowSizeChange = keyof typeof WindowSizeChange
 export type TWindowSizeChangeEnterprise = `${WindowSizeChange}`
 
-export enum WindowStateVariant {
+enum WindowStateVariant {
   Normal = "Обычное",
   Docked = "Прикрепленное",
   Autohide = "Прячущееся",
@@ -7327,7 +7261,7 @@ export const ZWindowStateVariantEnterprise = z.enum(Object.values(WindowStateVar
 export type TWindowStateVariant = keyof typeof WindowStateVariant
 export type TWindowStateVariantEnterprise = `${WindowStateVariant}`
 
-export enum IntegrationServiceChannelState {
+enum IntegrationServiceChannelState {
   Disconnected = "Отключен",
   Connected = "Подключен",
 }
@@ -7338,17 +7272,7 @@ export const ZIntegrationServiceChannelStateEnterprise = z.enum(Object.values(In
 export type TIntegrationServiceChannelState = keyof typeof IntegrationServiceChannelState
 export type TIntegrationServiceChannelStateEnterprise = `${IntegrationServiceChannelState}`
 
-export enum AccessTokenSignAlgorithm {
-,
-}
-
-export const ZAccessTokenSignAlgorithm = z.enum(Object.keys(AccessTokenSignAlgorithm) as [TAccessTokenSignAlgorithm, ...TAccessTokenSignAlgorithm[]])
-export const ZAccessTokenSignAlgorithmEnterprise = z.enum(Object.values(AccessTokenSignAlgorithm) as [TAccessTokenSignAlgorithmEnterprise, ...TAccessTokenSignAlgorithmEnterprise[]])
-
-export type TAccessTokenSignAlgorithm = keyof typeof AccessTokenSignAlgorithm
-export type TAccessTokenSignAlgorithmEnterprise = `${AccessTokenSignAlgorithm}`
-
-export enum ArchiveFileCompressionLevel {
+enum ArchiveFileCompressionLevel {
   Maximum = "Максимальный",
   Minimum = "Минимальный",
   Optimal = "Оптимальный",
@@ -7360,7 +7284,7 @@ export const ZArchiveFileCompressionLevelEnterprise = z.enum(Object.values(Archi
 export type TArchiveFileCompressionLevel = keyof typeof ArchiveFileCompressionLevel
 export type TArchiveFileCompressionLevelEnterprise = `${ArchiveFileCompressionLevel}`
 
-export enum ArchiveFileCompressionMethod {
+enum ArchiveFileCompressionMethod {
   BZIP2 = "BZIP2",
   Copy = "Копирование",
   Deflate = "Сжатие",
@@ -7372,7 +7296,7 @@ export const ZArchiveFileCompressionMethodEnterprise = z.enum(Object.values(Arch
 export type TArchiveFileCompressionMethod = keyof typeof ArchiveFileCompressionMethod
 export type TArchiveFileCompressionMethodEnterprise = `${ArchiveFileCompressionMethod}`
 
-export enum ArchiveFileEncryptionMethod {
+enum ArchiveFileEncryptionMethod {
   AES128 = "AES128",
   AES192 = "AES192",
   AES256 = "AES256",
@@ -7385,7 +7309,7 @@ export const ZArchiveFileEncryptionMethodEnterprise = z.enum(Object.values(Archi
 export type TArchiveFileEncryptionMethod = keyof typeof ArchiveFileEncryptionMethod
 export type TArchiveFileEncryptionMethodEnterprise = `${ArchiveFileEncryptionMethod}`
 
-export enum ArchiveFileRestoreFilePathsMode {
+enum ArchiveFileRestoreFilePathsMode {
   Restore = "Восстанавливать",
   DontRestore = "НеВосстанавливать",
 }
@@ -7396,7 +7320,7 @@ export const ZArchiveFileRestoreFilePathsModeEnterprise = z.enum(Object.values(A
 export type TArchiveFileRestoreFilePathsMode = keyof typeof ArchiveFileRestoreFilePathsMode
 export type TArchiveFileRestoreFilePathsModeEnterprise = `${ArchiveFileRestoreFilePathsMode}`
 
-export enum ArchiveFileStorePathMode {
+enum ArchiveFileStorePathMode {
   DontStorePath = "НеСохранятьПути",
   StoreRelativePath = "СохранятьОтносительныеПути",
   StoreFullPath = "СохранятьПолныеПути",
@@ -7408,7 +7332,7 @@ export const ZArchiveFileStorePathModeEnterprise = z.enum(Object.values(ArchiveF
 export type TArchiveFileStorePathMode = keyof typeof ArchiveFileStorePathMode
 export type TArchiveFileStorePathModeEnterprise = `${ArchiveFileStorePathMode}`
 
-export enum ArchiveFileSubDirProcessingMode {
+enum ArchiveFileSubDirProcessingMode {
   DontProcess = "НеОбрабатывать",
   ProcessRecursively = "ОбрабатыватьРекурсивно",
 }
@@ -7419,7 +7343,7 @@ export const ZArchiveFileSubDirProcessingModeEnterprise = z.enum(Object.values(A
 export type TArchiveFileSubDirProcessingMode = keyof typeof ArchiveFileSubDirProcessingMode
 export type TArchiveFileSubDirProcessingModeEnterprise = `${ArchiveFileSubDirProcessingMode}`
 
-export enum ArchiveFileType {
+enum ArchiveFileType {
   BZIP2 = "BZIP2",
   GZIP = "GZIP",
   RAR = "RAR",
@@ -7435,7 +7359,7 @@ export const ZArchiveFileTypeEnterprise = z.enum(Object.values(ArchiveFileType) 
 export type TArchiveFileType = keyof typeof ArchiveFileType
 export type TArchiveFileTypeEnterprise = `${ArchiveFileType}`
 
-export enum FileNamesEncodingInArchiveFile {
+enum FileNamesEncodingInArchiveFile {
   UTF8 = "UTF8",
   Auto = "Авто",
   OSEncodingWithUTF8 = "КодировкаОСДополнительноUTF8",
@@ -7447,7 +7371,7 @@ export const ZFileNamesEncodingInArchiveFileEnterprise = z.enum(Object.values(Fi
 export type TFileNamesEncodingInArchiveFile = keyof typeof FileNamesEncodingInArchiveFile
 export type TFileNamesEncodingInArchiveFileEnterprise = `${FileNamesEncodingInArchiveFile}`
 
-export enum FileAccess {
+enum FileAccess {
   Write = "Запись",
   Read = "Чтение",
   ReadAndWrite = "ЧтениеИЗапись",
@@ -7459,7 +7383,7 @@ export const ZFileAccessEnterprise = z.enum(Object.values(FileAccess) as [TFileA
 export type TFileAccess = keyof typeof FileAccess
 export type TFileAccessEnterprise = `${FileAccess}`
 
-export enum FileCompareMethod {
+enum FileCompareMethod {
   Binary = "Двоичное",
   SpreadsheetDocument = "ТабличныйДокумент",
   TextDocument = "ТекстовыйДокумент",
@@ -7471,7 +7395,7 @@ export const ZFileCompareMethodEnterprise = z.enum(Object.values(FileCompareMeth
 export type TFileCompareMethod = keyof typeof FileCompareMethod
 export type TFileCompareMethodEnterprise = `${FileCompareMethod}`
 
-export enum FileDialogMode {
+enum FileDialogMode {
   ChooseDirectory = "ВыборКаталога",
   Open = "Открытие",
   Save = "Сохранение",
@@ -7483,7 +7407,7 @@ export const ZFileDialogModeEnterprise = z.enum(Object.values(FileDialogMode) as
 export type TFileDialogMode = keyof typeof FileDialogMode
 export type TFileDialogModeEnterprise = `${FileDialogMode}`
 
-export enum FileDialogSection {
+enum FileDialogSection {
   Audio = "Аудио",
   Gallery = "Галерея",
   Documents = "Документы",
@@ -7497,7 +7421,7 @@ export const ZFileDialogSectionEnterprise = z.enum(Object.values(FileDialogSecti
 export type TFileDialogSection = keyof typeof FileDialogSection
 export type TFileDialogSectionEnterprise = `${FileDialogSection}`
 
-export enum FileDragMode {
+enum FileDragMode {
   AsFileRef = "КакСсылкаНаФайл",
   AsFile = "КакФайл",
 }
@@ -7508,7 +7432,7 @@ export const ZFileDragModeEnterprise = z.enum(Object.values(FileDragMode) as [TF
 export type TFileDragMode = keyof typeof FileDragMode
 export type TFileDragModeEnterprise = `${FileDragMode}`
 
-export enum FileOpenMode {
+enum FileOpenMode {
   Append = "Дописать",
   Truncate = "Обрезать",
   Open = "Открыть",
@@ -7523,7 +7447,7 @@ export const ZFileOpenModeEnterprise = z.enum(Object.values(FileOpenMode) as [TF
 export type TFileOpenMode = keyof typeof FileOpenMode
 export type TFileOpenModeEnterprise = `${FileOpenMode}`
 
-export enum GetFilesArchiveMode {
+enum GetFilesArchiveMode {
   GetArchiveAlways = "ПолучатьАрхивВсегда",
   GetArchiveWhenRequired = "ПолучатьАрхивПриНеобходимости",
 }
@@ -7534,7 +7458,7 @@ export const ZGetFilesArchiveModeEnterprise = z.enum(Object.values(GetFilesArchi
 export type TGetFilesArchiveMode = keyof typeof GetFilesArchiveMode
 export type TGetFilesArchiveModeEnterprise = `${GetFilesArchiveMode}`
 
-export enum IncomingShareRequestStandardCommand {
+enum IncomingShareRequestStandardCommand {
   CopyToClipboard = "КопироватьВБуферОбмена",
   ShareInConversation = "ПоделитьсяВОбсуждении",
   Show = "Показать",
@@ -7547,7 +7471,7 @@ export const ZIncomingShareRequestStandardCommandEnterprise = z.enum(Object.valu
 export type TIncomingShareRequestStandardCommand = keyof typeof IncomingShareRequestStandardCommand
 export type TIncomingShareRequestStandardCommandEnterprise = `${IncomingShareRequestStandardCommand}`
 
-export enum MobileDeviceLibraryDirType {
+enum MobileDeviceLibraryDirType {
   Audio = "Аудио",
   Video = "Видео",
   Pictures = "Картинки",
@@ -7559,7 +7483,7 @@ export const ZMobileDeviceLibraryDirTypeEnterprise = z.enum(Object.values(Mobile
 export type TMobileDeviceLibraryDirType = keyof typeof MobileDeviceLibraryDirType
 export type TMobileDeviceLibraryDirTypeEnterprise = `${MobileDeviceLibraryDirType}`
 
-export enum ShareRequestDataProcessingVariant {
+enum ShareRequestDataProcessingVariant {
   View = "Просмотр",
   Edit = "Редактирование",
 }
@@ -7570,7 +7494,7 @@ export const ZShareRequestDataProcessingVariantEnterprise = z.enum(Object.values
 export type TShareRequestDataProcessingVariant = keyof typeof ShareRequestDataProcessingVariant
 export type TShareRequestDataProcessingVariantEnterprise = `${ShareRequestDataProcessingVariant}`
 
-export enum AccountMainPresentation {
+enum AccountMainPresentation {
   AsCode = "ВВидеКода",
   AsDescription = "ВВидеНаименования",
 }
@@ -7581,7 +7505,7 @@ export const ZAccountMainPresentationEnterprise = z.enum(Object.values(AccountMa
 export type TAccountMainPresentation = keyof typeof AccountMainPresentation
 export type TAccountMainPresentationEnterprise = `${AccountMainPresentation}`
 
-export enum AccumulationRegisterType {
+enum AccumulationRegisterType {
   Turnovers = "Обороты",
   Balance = "Остатки",
 }
@@ -7592,7 +7516,7 @@ export const ZAccumulationRegisterTypeEnterprise = z.enum(Object.values(Accumula
 export type TAccumulationRegisterType = keyof typeof AccumulationRegisterType
 export type TAccumulationRegisterTypeEnterprise = `${AccumulationRegisterType}`
 
-export enum AttributeUse {
+enum AttributeUse {
   ForFolder = "ДляГруппы",
   ForFolderAndItem = "ДляГруппыИЭлемента",
   ForItem = "ДляЭлемента",
@@ -7604,7 +7528,7 @@ export const ZAttributeUseEnterprise = z.enum(Object.values(AttributeUse) as [TA
 export type TAttributeUse = keyof typeof AttributeUse
 export type TAttributeUseEnterprise = `${AttributeUse}`
 
-export enum BinaryDataBlockStorageUseMode {
+enum BinaryDataBlockStorageUseMode {
   Use = "Использовать",
   DontUse = "НеИспользовать",
 }
@@ -7615,7 +7539,7 @@ export const ZBinaryDataBlockStorageUseModeEnterprise = z.enum(Object.values(Bin
 export type TBinaryDataBlockStorageUseMode = keyof typeof BinaryDataBlockStorageUseMode
 export type TBinaryDataBlockStorageUseModeEnterprise = `${BinaryDataBlockStorageUseMode}`
 
-export enum BinaryDataStorageMode {
+enum BinaryDataStorageMode {
   Use = "Использовать",
   DontUse = "НеИспользовать",
 }
@@ -7626,7 +7550,7 @@ export const ZBinaryDataStorageModeEnterprise = z.enum(Object.values(BinaryDataS
 export type TBinaryDataStorageMode = keyof typeof BinaryDataStorageMode
 export type TBinaryDataStorageModeEnterprise = `${BinaryDataStorageMode}`
 
-export enum BusinessProcessNumberPeriodicity {
+enum BusinessProcessNumberPeriodicity {
   Year = "Год",
   Day = "День",
   Quarter = "Квартал",
@@ -7640,7 +7564,7 @@ export const ZBusinessProcessNumberPeriodicityEnterprise = z.enum(Object.values(
 export type TBusinessProcessNumberPeriodicity = keyof typeof BusinessProcessNumberPeriodicity
 export type TBusinessProcessNumberPeriodicityEnterprise = `${BusinessProcessNumberPeriodicity}`
 
-export enum BusinessProcessNumberType {
+enum BusinessProcessNumberType {
   String = "Строка",
   Number = "Число",
 }
@@ -7651,7 +7575,7 @@ export const ZBusinessProcessNumberTypeEnterprise = z.enum(Object.values(Busines
 export type TBusinessProcessNumberType = keyof typeof BusinessProcessNumberType
 export type TBusinessProcessNumberTypeEnterprise = `${BusinessProcessNumberType}`
 
-export enum CalculationRegisterPeriodicity {
+enum CalculationRegisterPeriodicity {
   Year = "Год",
   Day = "День",
   Quarter = "Квартал",
@@ -7664,7 +7588,7 @@ export const ZCalculationRegisterPeriodicityEnterprise = z.enum(Object.values(Ca
 export type TCalculationRegisterPeriodicity = keyof typeof CalculationRegisterPeriodicity
 export type TCalculationRegisterPeriodicityEnterprise = `${CalculationRegisterPeriodicity}`
 
-export enum CalculationTypeMainPresentation {
+enum CalculationTypeMainPresentation {
   AsCode = "ВВидеКода",
   AsDescription = "ВВидеНаименования",
 }
@@ -7675,7 +7599,7 @@ export const ZCalculationTypeMainPresentationEnterprise = z.enum(Object.values(C
 export type TCalculationTypeMainPresentation = keyof typeof CalculationTypeMainPresentation
 export type TCalculationTypeMainPresentationEnterprise = `${CalculationTypeMainPresentation}`
 
-export enum CharacteristicKindCodesSeries {
+enum CharacteristicKindCodesSeries {
   WholeCharacteristicKind = "ВоВсемПланеВидовХарактеристик",
   WithinSubordination = "ВПределахПодчинения",
 }
@@ -7686,7 +7610,7 @@ export const ZCharacteristicKindCodesSeriesEnterprise = z.enum(Object.values(Cha
 export type TCharacteristicKindCodesSeries = keyof typeof CharacteristicKindCodesSeries
 export type TCharacteristicKindCodesSeriesEnterprise = `${CharacteristicKindCodesSeries}`
 
-export enum CharacteristicTypeMainPresentation {
+enum CharacteristicTypeMainPresentation {
   AsCode = "ВВидеКода",
   AsDescription = "ВВидеНаименования",
 }
@@ -7697,7 +7621,7 @@ export const ZCharacteristicTypeMainPresentationEnterprise = z.enum(Object.value
 export type TCharacteristicTypeMainPresentation = keyof typeof CharacteristicTypeMainPresentation
 export type TCharacteristicTypeMainPresentationEnterprise = `${CharacteristicTypeMainPresentation}`
 
-export enum CharOfAccountCodeSeries {
+enum CharOfAccountCodeSeries {
   WholeChartOfAccounts = "ВоВсемПланеСчетов",
   WithinSubordination = "ВПределахПодчинения",
 }
@@ -7708,7 +7632,7 @@ export const ZCharOfAccountCodeSeriesEnterprise = z.enum(Object.values(CharOfAcc
 export type TCharOfAccountCodeSeries = keyof typeof CharOfAccountCodeSeries
 export type TCharOfAccountCodeSeriesEnterprise = `${CharOfAccountCodeSeries}`
 
-export enum ChartOfCalculationTypesBaseUse {
+enum ChartOfCalculationTypesBaseUse {
   DontUse = "НеИспользовать",
   OnActionPeriod = "ПоПериодуДействия",
   OnRegistrationPeriod = "ПоПериодуРегистрации",
@@ -7720,7 +7644,7 @@ export const ZChartOfCalculationTypesBaseUseEnterprise = z.enum(Object.values(Ch
 export type TChartOfCalculationTypesBaseUse = keyof typeof ChartOfCalculationTypesBaseUse
 export type TChartOfCalculationTypesBaseUseEnterprise = `${ChartOfCalculationTypesBaseUse}`
 
-export enum ChartOfCalculationTypesCodeType {
+enum ChartOfCalculationTypesCodeType {
   String = "Строка",
   Number = "Число",
 }
@@ -7731,7 +7655,7 @@ export const ZChartOfCalculationTypesCodeTypeEnterprise = z.enum(Object.values(C
 export type TChartOfCalculationTypesCodeType = keyof typeof ChartOfCalculationTypesCodeType
 export type TChartOfCalculationTypesCodeTypeEnterprise = `${ChartOfCalculationTypesCodeType}`
 
-export enum ChoiceDataGetModeOnInputByString {
+enum ChoiceDataGetModeOnInputByString {
   Directly = "Непосредственно",
   Background = "Фоновый",
 }
@@ -7742,7 +7666,7 @@ export const ZChoiceDataGetModeOnInputByStringEnterprise = z.enum(Object.values(
 export type TChoiceDataGetModeOnInputByString = keyof typeof ChoiceDataGetModeOnInputByString
 export type TChoiceDataGetModeOnInputByStringEnterprise = `${ChoiceDataGetModeOnInputByString}`
 
-export enum ChoiceMode {
+enum ChoiceMode {
   QuickChoice = "БыстрыйВыбор",
   FromForm = "ИзФормы",
   BothWays = "ОбоимиСпособами",
@@ -7754,7 +7678,7 @@ export const ZChoiceModeEnterprise = z.enum(Object.values(ChoiceMode) as [TChoic
 export type TChoiceMode = keyof typeof ChoiceMode
 export type TChoiceModeEnterprise = `${ChoiceMode}`
 
-export enum CommonAttributeAuthenticationSeparation {
+enum CommonAttributeAuthenticationSeparation {
   DontUse = "НеИспользовать",
   Separate = "Разделять",
 }
@@ -7765,7 +7689,7 @@ export const ZCommonAttributeAuthenticationSeparationEnterprise = z.enum(Object.
 export type TCommonAttributeAuthenticationSeparation = keyof typeof CommonAttributeAuthenticationSeparation
 export type TCommonAttributeAuthenticationSeparationEnterprise = `${CommonAttributeAuthenticationSeparation}`
 
-export enum CommonAttributeAutoUse {
+enum CommonAttributeAutoUse {
   Use = "Использовать",
   DontUse = "НеИспользовать",
 }
@@ -7776,7 +7700,7 @@ export const ZCommonAttributeAutoUseEnterprise = z.enum(Object.values(CommonAttr
 export type TCommonAttributeAutoUse = keyof typeof CommonAttributeAutoUse
 export type TCommonAttributeAutoUseEnterprise = `${CommonAttributeAutoUse}`
 
-export enum CommonAttributeConfigurationExtensionsSeparation {
+enum CommonAttributeConfigurationExtensionsSeparation {
   DontUse = "НеИспользовать",
   Separate = "Разделять",
 }
@@ -7787,7 +7711,7 @@ export const ZCommonAttributeConfigurationExtensionsSeparationEnterprise = z.enu
 export type TCommonAttributeConfigurationExtensionsSeparation = keyof typeof CommonAttributeConfigurationExtensionsSeparation
 export type TCommonAttributeConfigurationExtensionsSeparationEnterprise = `${CommonAttributeConfigurationExtensionsSeparation}`
 
-export enum CommonAttributeDataSeparation {
+enum CommonAttributeDataSeparation {
   DontUse = "НеИспользовать",
   Separate = "Разделять",
 }
@@ -7798,7 +7722,7 @@ export const ZCommonAttributeDataSeparationEnterprise = z.enum(Object.values(Com
 export type TCommonAttributeDataSeparation = keyof typeof CommonAttributeDataSeparation
 export type TCommonAttributeDataSeparationEnterprise = `${CommonAttributeDataSeparation}`
 
-export enum CommonAttributeSeparatedDataUse {
+enum CommonAttributeSeparatedDataUse {
   Independently = "Независимо",
   IndependentlyAndSimultaneously = "НезависимоИСовместно",
 }
@@ -7809,7 +7733,7 @@ export const ZCommonAttributeSeparatedDataUseEnterprise = z.enum(Object.values(C
 export type TCommonAttributeSeparatedDataUse = keyof typeof CommonAttributeSeparatedDataUse
 export type TCommonAttributeSeparatedDataUseEnterprise = `${CommonAttributeSeparatedDataUse}`
 
-export enum CommonAttributeUse {
+enum CommonAttributeUse {
   Auto = "Авто",
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -7821,7 +7745,7 @@ export const ZCommonAttributeUseEnterprise = z.enum(Object.values(CommonAttribut
 export type TCommonAttributeUse = keyof typeof CommonAttributeUse
 export type TCommonAttributeUseEnterprise = `${CommonAttributeUse}`
 
-export enum CommonAttributeUsersSeparation {
+enum CommonAttributeUsersSeparation {
   DontUse = "НеИспользовать",
   Separate = "Разделять",
 }
@@ -7832,7 +7756,7 @@ export const ZCommonAttributeUsersSeparationEnterprise = z.enum(Object.values(Co
 export type TCommonAttributeUsersSeparation = keyof typeof CommonAttributeUsersSeparation
 export type TCommonAttributeUsersSeparationEnterprise = `${CommonAttributeUsersSeparation}`
 
-export enum CompatibilityMode {
+enum CompatibilityMode {
   Version8_1 = "Версия8_1",
   Version8_2_13 = "Версия8_2_13",
   Version8_2_16 = "Версия8_2_16",
@@ -7871,7 +7795,7 @@ export const ZCompatibilityModeEnterprise = z.enum(Object.values(CompatibilityMo
 export type TCompatibilityMode = keyof typeof CompatibilityMode
 export type TCompatibilityModeEnterprise = `${CompatibilityMode}`
 
-export enum ConfigurationExtensionPurpose {
+enum ConfigurationExtensionPurpose {
   Customization = "Адаптация",
   AddOn = "Дополнение",
   Patch = "Исправление",
@@ -7883,7 +7807,7 @@ export const ZConfigurationExtensionPurposeEnterprise = z.enum(Object.values(Con
 export type TConfigurationExtensionPurpose = keyof typeof ConfigurationExtensionPurpose
 export type TConfigurationExtensionPurposeEnterprise = `${ConfigurationExtensionPurpose}`
 
-export enum CreateOnInput {
+enum CreateOnInput {
   Auto = "Авто",
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -7895,7 +7819,7 @@ export const ZCreateOnInputEnterprise = z.enum(Object.values(CreateOnInput) as [
 export type TCreateOnInput = keyof typeof CreateOnInput
 export type TCreateOnInputEnterprise = `${CreateOnInput}`
 
-export enum DataExchangeMainPresentation {
+enum DataExchangeMainPresentation {
   AsCode = "ВВидеКода",
   AsDescription = "ВВидеНаименования",
 }
@@ -7906,7 +7830,7 @@ export const ZDataExchangeMainPresentationEnterprise = z.enum(Object.values(Data
 export type TDataExchangeMainPresentation = keyof typeof DataExchangeMainPresentation
 export type TDataExchangeMainPresentationEnterprise = `${DataExchangeMainPresentation}`
 
-export enum DataHistoryUse {
+enum DataHistoryUse {
   Use = "Использовать",
   DontUse = "НеИспользовать",
 }
@@ -7917,7 +7841,7 @@ export const ZDataHistoryUseEnterprise = z.enum(Object.values(DataHistoryUse) as
 export type TDataHistoryUse = keyof typeof DataHistoryUse
 export type TDataHistoryUseEnterprise = `${DataHistoryUse}`
 
-export enum DefaultDataLockControlMode {
+enum DefaultDataLockControlMode {
   Automatic = "Автоматический",
   AutomaticAndManaged = "АвтоматическийИУправляемый",
   Managed = "Управляемый",
@@ -7929,7 +7853,7 @@ export const ZDefaultDataLockControlModeEnterprise = z.enum(Object.values(Defaul
 export type TDefaultDataLockControlMode = keyof typeof DefaultDataLockControlMode
 export type TDefaultDataLockControlModeEnterprise = `${DefaultDataLockControlMode}`
 
-export enum DocumentNumberPeriodicity {
+enum DocumentNumberPeriodicity {
   Year = "Год",
   Day = "День",
   Quarter = "Квартал",
@@ -7943,7 +7867,7 @@ export const ZDocumentNumberPeriodicityEnterprise = z.enum(Object.values(Documen
 export type TDocumentNumberPeriodicity = keyof typeof DocumentNumberPeriodicity
 export type TDocumentNumberPeriodicityEnterprise = `${DocumentNumberPeriodicity}`
 
-export enum DocumentNumberType {
+enum DocumentNumberType {
   String = "Строка",
   Number = "Число",
 }
@@ -7954,7 +7878,7 @@ export const ZDocumentNumberTypeEnterprise = z.enum(Object.values(DocumentNumber
 export type TDocumentNumberType = keyof typeof DocumentNumberType
 export type TDocumentNumberTypeEnterprise = `${DocumentNumberType}`
 
-export enum EditType {
+enum EditType {
   InDialog = "ВДиалоге",
   InList = "ВСписке",
   BothWays = "ОбоимиСпособами",
@@ -7966,7 +7890,7 @@ export const ZEditTypeEnterprise = z.enum(Object.values(EditType) as [TEditTypeE
 export type TEditType = keyof typeof EditType
 export type TEditTypeEnterprise = `${EditType}`
 
-export enum ExternalDataSourceTableDataType {
+enum ExternalDataSourceTableDataType {
   NonobjectData = "НеобъектныеДанные",
   ObjectData = "ОбъектныеДанные",
 }
@@ -7977,7 +7901,7 @@ export const ZExternalDataSourceTableDataTypeEnterprise = z.enum(Object.values(E
 export type TExternalDataSourceTableDataType = keyof typeof ExternalDataSourceTableDataType
 export type TExternalDataSourceTableDataTypeEnterprise = `${ExternalDataSourceTableDataType}`
 
-export enum ExternalDataSourceTableType {
+enum ExternalDataSourceTableType {
   Expression = "Выражение",
   Table = "Таблица",
 }
@@ -7988,7 +7912,7 @@ export const ZExternalDataSourceTableTypeEnterprise = z.enum(Object.values(Exter
 export type TExternalDataSourceTableType = keyof typeof ExternalDataSourceTableType
 export type TExternalDataSourceTableTypeEnterprise = `${ExternalDataSourceTableType}`
 
-export enum FormType {
+enum FormType {
   Ordinary = "Обычная",
   Managed = "Управляемая",
 }
@@ -7999,7 +7923,7 @@ export const ZFormTypeEnterprise = z.enum(Object.values(FormType) as [TFormTypeE
 export type TFormType = keyof typeof FormType
 export type TFormTypeEnterprise = `${FormType}`
 
-export enum FullTextSearchOnInputByString {
+enum FullTextSearchOnInputByString {
   Use = "Использовать",
   DontUse = "НеИспользовать",
 }
@@ -8010,7 +7934,7 @@ export const ZFullTextSearchOnInputByStringEnterprise = z.enum(Object.values(Ful
 export type TFullTextSearchOnInputByString = keyof typeof FullTextSearchOnInputByString
 export type TFullTextSearchOnInputByStringEnterprise = `${FullTextSearchOnInputByString}`
 
-export enum HierarchyType {
+enum HierarchyType {
   HierarchyFoldersAndItems = "ИерархияГруппИЭлементов",
   HierarchyOfItems = "ИерархияЭлементов",
 }
@@ -8021,7 +7945,7 @@ export const ZHierarchyTypeEnterprise = z.enum(Object.values(HierarchyType) as [
 export type THierarchyType = keyof typeof HierarchyType
 export type THierarchyTypeEnterprise = `${HierarchyType}`
 
-export enum HTTPMethod {
+enum HTTPMethod {
   CONNECT = "CONNECT",
   COPY = "COPY",
   DELETE = "DELETE",
@@ -8048,7 +7972,7 @@ export const ZHTTPMethodEnterprise = z.enum(Object.values(HTTPMethod) as [THTTPM
 export type THTTPMethod = keyof typeof HTTPMethod
 export type THTTPMethodEnterprise = `${HTTPMethod}`
 
-export enum Indexing {
+enum Indexing {
   Index = "Индексировать",
   IndexWithAdditionalOrder = "ИндексироватьСДопУпорядочиванием",
   DontIndex = "НеИндексировать",
@@ -8060,7 +7984,7 @@ export const ZIndexingEnterprise = z.enum(Object.values(Indexing) as [TIndexingE
 export type TIndexing = keyof typeof Indexing
 export type TIndexingEnterprise = `${Indexing}`
 
-export enum InformationRegisterPeriodicity {
+enum InformationRegisterPeriodicity {
   Year = "Год",
   Day = "День",
   Quarter = "Квартал",
@@ -8076,7 +8000,7 @@ export const ZInformationRegisterPeriodicityEnterprise = z.enum(Object.values(In
 export type TInformationRegisterPeriodicity = keyof typeof InformationRegisterPeriodicity
 export type TInformationRegisterPeriodicityEnterprise = `${InformationRegisterPeriodicity}`
 
-export enum IntegrationServiceChannelMessageDirection {
+enum IntegrationServiceChannelMessageDirection {
   Send = "Отправка",
   Receive = "Получение",
 }
@@ -8087,7 +8011,7 @@ export const ZIntegrationServiceChannelMessageDirectionEnterprise = z.enum(Objec
 export type TIntegrationServiceChannelMessageDirection = keyof typeof IntegrationServiceChannelMessageDirection
 export type TIntegrationServiceChannelMessageDirectionEnterprise = `${IntegrationServiceChannelMessageDirection}`
 
-export enum ModalityUseMode {
+enum ModalityUseMode {
   Use = "Использовать",
   UseWithWarnings = "ИспользоватьСПредупреждениями",
   DontUse = "НеИспользовать",
@@ -8099,7 +8023,7 @@ export const ZModalityUseModeEnterprise = z.enum(Object.values(ModalityUseMode) 
 export type TModalityUseMode = keyof typeof ModalityUseMode
 export type TModalityUseModeEnterprise = `${ModalityUseMode}`
 
-export enum MoveBoundaryOnPosting {
+enum MoveBoundaryOnPosting {
   DontMove = "НеПеремещать",
   Move = "Перемещать",
 }
@@ -8110,7 +8034,7 @@ export const ZMoveBoundaryOnPostingEnterprise = z.enum(Object.values(MoveBoundar
 export type TMoveBoundaryOnPosting = keyof typeof MoveBoundaryOnPosting
 export type TMoveBoundaryOnPostingEnterprise = `${MoveBoundaryOnPosting}`
 
-export enum ObjectAutonumerationMode {
+enum ObjectAutonumerationMode {
   NotAutoFree = "НеОсвобождатьАвтоматически",
   AutoFree = "ОсвобождатьАвтоматически",
 }
@@ -8121,7 +8045,7 @@ export const ZObjectAutonumerationModeEnterprise = z.enum(Object.values(ObjectAu
 export type TObjectAutonumerationMode = keyof typeof ObjectAutonumerationMode
 export type TObjectAutonumerationModeEnterprise = `${ObjectAutonumerationMode}`
 
-export enum ObjectBelonging {
+enum ObjectBelonging {
   Adopted = "Заимствованный",
   Native = "Собственный",
 }
@@ -8132,7 +8056,7 @@ export const ZObjectBelongingEnterprise = z.enum(Object.values(ObjectBelonging) 
 export type TObjectBelonging = keyof typeof ObjectBelonging
 export type TObjectBelongingEnterprise = `${ObjectBelonging}`
 
-export enum Posting {
+enum Posting {
   Deny = "Запретить",
   Allow = "Разрешить",
 }
@@ -8143,19 +8067,7 @@ export const ZPostingEnterprise = z.enum(Object.values(Posting) as [TPostingEnte
 export type TPosting = keyof typeof Posting
 export type TPostingEnterprise = `${Posting}`
 
-export enum PredefinedDataUpdate {
-  Auto = "Авто",
-  DontAutoUpdate = "НеОбновлятьАвтоматически",
-  AutoUpdate = "ОбновлятьАвтоматически",
-}
-
-export const ZPredefinedDataUpdate = z.enum(Object.keys(PredefinedDataUpdate) as [TPredefinedDataUpdate, ...TPredefinedDataUpdate[]])
-export const ZPredefinedDataUpdateEnterprise = z.enum(Object.values(PredefinedDataUpdate) as [TPredefinedDataUpdateEnterprise, ...TPredefinedDataUpdateEnterprise[]])
-
-export type TPredefinedDataUpdate = keyof typeof PredefinedDataUpdate
-export type TPredefinedDataUpdateEnterprise = `${PredefinedDataUpdate}`
-
-export enum RealTimePosting {
+enum RealTimePosting {
   Deny = "Запретить",
   Allow = "Разрешить",
 }
@@ -8166,7 +8078,7 @@ export const ZRealTimePostingEnterprise = z.enum(Object.values(RealTimePosting) 
 export type TRealTimePosting = keyof typeof RealTimePosting
 export type TRealTimePostingEnterprise = `${RealTimePosting}`
 
-export enum RegisterRecordsDeletion {
+enum RegisterRecordsDeletion {
   AutoDeleteOff = "НеУдалятьАвтоматически",
   AutoDelete = "УдалятьАвтоматически",
   AutoDeleteOnUnpost = "УдалятьАвтоматическиПриОтменеПроведения",
@@ -8178,7 +8090,7 @@ export const ZRegisterRecordsDeletionEnterprise = z.enum(Object.values(RegisterR
 export type TRegisterRecordsDeletion = keyof typeof RegisterRecordsDeletion
 export type TRegisterRecordsDeletionEnterprise = `${RegisterRecordsDeletion}`
 
-export enum RegisterRecordsWritingOnPost {
+enum RegisterRecordsWritingOnPost {
   WriteSelected = "ЗаписыватьВыбранные",
   WriteModified = "ЗаписыватьМодифицированные",
 }
@@ -8189,7 +8101,7 @@ export const ZRegisterRecordsWritingOnPostEnterprise = z.enum(Object.values(Regi
 export type TRegisterRecordsWritingOnPost = keyof typeof RegisterRecordsWritingOnPost
 export type TRegisterRecordsWritingOnPostEnterprise = `${RegisterRecordsWritingOnPost}`
 
-export enum RegisterWriteMode {
+enum RegisterWriteMode {
   Independent = "Независимый",
   RecorderSubordinate = "ПодчинениеРегистратору",
 }
@@ -8200,7 +8112,7 @@ export const ZRegisterWriteModeEnterprise = z.enum(Object.values(RegisterWriteMo
 export type TRegisterWriteMode = keyof typeof RegisterWriteMode
 export type TRegisterWriteModeEnterprise = `${RegisterWriteMode}`
 
-export enum ReturnValuesReuse {
+enum ReturnValuesReuse {
   DuringRequest = "НаВремяВызова",
   DuringSession = "НаВремяСеанса",
   DontUse = "НеИспользовать",
@@ -8212,7 +8124,7 @@ export const ZReturnValuesReuseEnterprise = z.enum(Object.values(ReturnValuesReu
 export type TReturnValuesReuse = keyof typeof ReturnValuesReuse
 export type TReturnValuesReuseEnterprise = `${ReturnValuesReuse}`
 
-export enum ScriptVariant {
+enum ScriptVariant {
   English = "Английский",
   Russian = "Русский",
 }
@@ -8223,7 +8135,7 @@ export const ZScriptVariantEnterprise = z.enum(Object.values(ScriptVariant) as [
 export type TScriptVariant = keyof typeof ScriptVariant
 export type TScriptVariantEnterprise = `${ScriptVariant}`
 
-export enum SearchStringModeOnInputByString {
+enum SearchStringModeOnInputByString {
   AnyPart = "ЛюбаяЧасть",
   Begin = "Начало",
 }
@@ -8234,7 +8146,7 @@ export const ZSearchStringModeOnInputByStringEnterprise = z.enum(Object.values(S
 export type TSearchStringModeOnInputByString = keyof typeof SearchStringModeOnInputByString
 export type TSearchStringModeOnInputByStringEnterprise = `${SearchStringModeOnInputByString}`
 
-export enum SequenceFilling {
+enum SequenceFilling {
   AutoFill = "ЗаполнятьАвтоматически",
   AutoFillOff = "НеЗаполнятьАвтоматически",
 }
@@ -8245,7 +8157,7 @@ export const ZSequenceFillingEnterprise = z.enum(Object.values(SequenceFilling) 
 export type TSequenceFilling = keyof typeof SequenceFilling
 export type TSequenceFillingEnterprise = `${SequenceFilling}`
 
-export enum SessionReuseMode {
+enum SessionReuseMode {
   Use = "Использовать",
   AutoUse = "ИспользоватьАвтоматически",
   DontUse = "НеИспользовать",
@@ -8257,7 +8169,7 @@ export const ZSessionReuseModeEnterprise = z.enum(Object.values(SessionReuseMode
 export type TSessionReuseMode = keyof typeof SessionReuseMode
 export type TSessionReuseModeEnterprise = `${SessionReuseMode}`
 
-export enum StyleElementType {
+enum StyleElementType {
   Border = "Рамка",
   Color = "Цвет",
   Font = "Шрифт",
@@ -8269,7 +8181,7 @@ export const ZStyleElementTypeEnterprise = z.enum(Object.values(StyleElementType
 export type TStyleElementType = keyof typeof StyleElementType
 export type TStyleElementTypeEnterprise = `${StyleElementType}`
 
-export enum SubordinationUse {
+enum SubordinationUse {
   ToFolders = "Группам",
   ToFoldersAndItems = "ГруппамИЭлементам",
   ToItems = "Элементам",
@@ -8281,7 +8193,7 @@ export const ZSubordinationUseEnterprise = z.enum(Object.values(SubordinationUse
 export type TSubordinationUse = keyof typeof SubordinationUse
 export type TSubordinationUseEnterprise = `${SubordinationUse}`
 
-export enum SynchronousExtensionAndAddInCallUseMode {
+enum SynchronousExtensionAndAddInCallUseMode {
   Use = "Использовать",
   UseWithWarnings = "ИспользоватьСПредупреждениями",
   DontUse = "НеИспользовать",
@@ -8293,7 +8205,7 @@ export const ZSynchronousExtensionAndAddInCallUseModeEnterprise = z.enum(Object.
 export type TSynchronousExtensionAndAddInCallUseMode = keyof typeof SynchronousExtensionAndAddInCallUseMode
 export type TSynchronousExtensionAndAddInCallUseModeEnterprise = `${SynchronousExtensionAndAddInCallUseMode}`
 
-export enum SynchronousPlatformExtensionAndAddInCallUseMode {
+enum SynchronousPlatformExtensionAndAddInCallUseMode {
   Use = "Использовать",
   UseWithWarnings = "ИспользоватьСПредупреждениями",
   DontUse = "НеИспользовать",
@@ -8305,7 +8217,7 @@ export const ZSynchronousPlatformExtensionAndAddInCallUseModeEnterprise = z.enum
 export type TSynchronousPlatformExtensionAndAddInCallUseMode = keyof typeof SynchronousPlatformExtensionAndAddInCallUseMode
 export type TSynchronousPlatformExtensionAndAddInCallUseModeEnterprise = `${SynchronousPlatformExtensionAndAddInCallUseMode}`
 
-export enum TaskMainPresentation {
+enum TaskMainPresentation {
   AsDescription = "ВВидеНаименования",
   AsNumber = "ВВидеНомера",
 }
@@ -8316,7 +8228,7 @@ export const ZTaskMainPresentationEnterprise = z.enum(Object.values(TaskMainPres
 export type TTaskMainPresentation = keyof typeof TaskMainPresentation
 export type TTaskMainPresentationEnterprise = `${TaskMainPresentation}`
 
-export enum TaskNumberAutoPrefix {
+enum TaskNumberAutoPrefix {
   DontUse = "НеИспользовать",
   BusinessProcessNumber = "НомерБизнесПроцесса",
 }
@@ -8327,7 +8239,7 @@ export const ZTaskNumberAutoPrefixEnterprise = z.enum(Object.values(TaskNumberAu
 export type TTaskNumberAutoPrefix = keyof typeof TaskNumberAutoPrefix
 export type TTaskNumberAutoPrefixEnterprise = `${TaskNumberAutoPrefix}`
 
-export enum TaskNumberType {
+enum TaskNumberType {
   String = "Строка",
   Number = "Число",
 }
@@ -8338,7 +8250,7 @@ export const ZTaskNumberTypeEnterprise = z.enum(Object.values(TaskNumberType) as
 export type TTaskNumberType = keyof typeof TaskNumberType
 export type TTaskNumberTypeEnterprise = `${TaskNumberType}`
 
-export enum TemplateType {
+enum TemplateType {
   ActiveDocument = "ActiveDocument",
   HTMLDocument = "HTMLДокумент",
   AddIn = "ВнешняяКомпонента",
@@ -8357,7 +8269,7 @@ export const ZTemplateTypeEnterprise = z.enum(Object.values(TemplateType) as [TT
 export type TTemplateType = keyof typeof TemplateType
 export type TTemplateTypeEnterprise = `${TemplateType}`
 
-export enum TransferDirection {
+enum TransferDirection {
   In = "Входной",
   InOut = "ВходнойВыходной",
   Out = "Выходной",
@@ -8369,7 +8281,7 @@ export const ZTransferDirectionEnterprise = z.enum(Object.values(TransferDirecti
 export type TTransferDirection = keyof typeof TransferDirection
 export type TTransferDirectionEnterprise = `${TransferDirection}`
 
-export enum TypeReductionMode {
+enum TypeReductionMode {
   Deny = "Запрещать",
   TransformValues = "ПреобразовыватьЗначения",
   DeleteData = "УдалятьДанные",
@@ -8381,7 +8293,7 @@ export const ZTypeReductionModeEnterprise = z.enum(Object.values(TypeReductionMo
 export type TTypeReductionMode = keyof typeof TypeReductionMode
 export type TTypeReductionModeEnterprise = `${TypeReductionMode}`
 
-export enum UseFullTextSearch {
+enum UseFullTextSearch {
   Use = "Использовать",
   DontUse = "НеИспользовать",
 }
@@ -8392,7 +8304,7 @@ export const ZUseFullTextSearchEnterprise = z.enum(Object.values(UseFullTextSear
 export type TUseFullTextSearch = keyof typeof UseFullTextSearch
 export type TUseFullTextSearchEnterprise = `${UseFullTextSearch}`
 
-export enum UseQuickChoice {
+enum UseQuickChoice {
   Auto = "Авто",
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -8404,7 +8316,7 @@ export const ZUseQuickChoiceEnterprise = z.enum(Object.values(UseQuickChoice) as
 export type TUseQuickChoice = keyof typeof UseQuickChoice
 export type TUseQuickChoiceEnterprise = `${UseQuickChoice}`
 
-export enum PresentationAdditionType {
+enum PresentationAdditionType {
   Add = "Добавлять",
   DontAdd = "НеДобавлять",
 }
@@ -8415,7 +8327,7 @@ export const ZPresentationAdditionTypeEnterprise = z.enum(Object.values(Presenta
 export type TPresentationAdditionType = keyof typeof PresentationAdditionType
 export type TPresentationAdditionTypeEnterprise = `${PresentationAdditionType}`
 
-export enum ReportBuilderDetailsFillType {
+enum ReportBuilderDetailsFillType {
   GroupValues = "ЗначенияГруппировок",
   DontFill = "НеЗаполнять",
   Details = "Расшифровка",
@@ -8427,7 +8339,7 @@ export const ZReportBuilderDetailsFillTypeEnterprise = z.enum(Object.values(Repo
 export type TReportBuilderDetailsFillType = keyof typeof ReportBuilderDetailsFillType
 export type TReportBuilderDetailsFillTypeEnterprise = `${ReportBuilderDetailsFillType}`
 
-export enum ReportBuilderDimensionType {
+enum ReportBuilderDimensionType {
   Hierarchy = "Иерархия",
   HierarchyOnly = "ТолькоИерархия",
   Items = "Элементы",
@@ -8439,7 +8351,7 @@ export const ZReportBuilderDimensionTypeEnterprise = z.enum(Object.values(Report
 export type TReportBuilderDimensionType = keyof typeof ReportBuilderDimensionType
 export type TReportBuilderDimensionTypeEnterprise = `${ReportBuilderDimensionType}`
 
-export enum TotalPlacementType {
+enum TotalPlacementType {
   Header = "Заголовок",
   HeaderAndFooter = "ЗаголовокИПодвал",
   Footer = "Подвал",
@@ -8452,7 +8364,7 @@ export const ZTotalPlacementTypeEnterprise = z.enum(Object.values(TotalPlacement
 export type TTotalPlacementType = keyof typeof TotalPlacementType
 export type TTotalPlacementTypeEnterprise = `${TotalPlacementType}`
 
-export enum XMLAttributeType {
+enum XMLAttributeType {
   CDATA = "CDATA",
   ENTITIES = "ENTITIES",
   ENTITY = "ENTITY",
@@ -8471,7 +8383,7 @@ export const ZXMLAttributeTypeEnterprise = z.enum(Object.values(XMLAttributeType
 export type TXMLAttributeType = keyof typeof XMLAttributeType
 export type TXMLAttributeTypeEnterprise = `${XMLAttributeType}`
 
-export enum XMLCanonicalizationType {
+enum XMLCanonicalizationType {
   XMLExclusiveCanonicalization = "ИсключающийКаноническийXML",
   XMLExclusiveCanonicalizationWithComments = "ИсключающийКаноническийXMLСКомментариями",
   XMLCanonicalization = "КаноническийXML",
@@ -8486,7 +8398,7 @@ export const ZXMLCanonicalizationTypeEnterprise = z.enum(Object.values(XMLCanoni
 export type TXMLCanonicalizationType = keyof typeof XMLCanonicalizationType
 export type TXMLCanonicalizationTypeEnterprise = `${XMLCanonicalizationType}`
 
-export enum XMLNodeType {
+enum XMLNodeType {
   Attribute = "Атрибут",
   ProcessingInstruction = "ИнструкцияОбработки",
   Comment = "Комментарий",
@@ -8510,7 +8422,7 @@ export const ZXMLNodeTypeEnterprise = z.enum(Object.values(XMLNodeType) as [TXML
 export type TXMLNodeType = keyof typeof XMLNodeType
 export type TXMLNodeTypeEnterprise = `${XMLNodeType}`
 
-export enum XMLSpace {
+enum XMLSpace {
   Default = "ПоУмолчанию",
   Preserve = "Сохранять",
 }
@@ -8521,7 +8433,7 @@ export const ZXMLSpaceEnterprise = z.enum(Object.values(XMLSpace) as [TXMLSpaceE
 export type TXMLSpace = keyof typeof XMLSpace
 export type TXMLSpaceEnterprise = `${XMLSpace}`
 
-export enum XMLTypeAssignment {
+enum XMLTypeAssignment {
   Implicit = "Неявное",
   Explicit = "Явное",
 }
@@ -8532,7 +8444,7 @@ export const ZXMLTypeAssignmentEnterprise = z.enum(Object.values(XMLTypeAssignme
 export type TXMLTypeAssignment = keyof typeof XMLTypeAssignment
 export type TXMLTypeAssignmentEnterprise = `${XMLTypeAssignment}`
 
-export enum XMLValidationType {
+enum XMLValidationType {
   NoValidate = "НетПроверки",
   DocumentTypeDefinition = "ОпределениеТипаДокумента",
   XMLSchema = "СхемаXML",
@@ -8544,7 +8456,7 @@ export const ZXMLValidationTypeEnterprise = z.enum(Object.values(XMLValidationTy
 export type TXMLValidationType = keyof typeof XMLValidationType
 export type TXMLValidationTypeEnterprise = `${XMLValidationType}`
 
-export enum AllowedMessageNo {
+enum AllowedMessageNo {
   Greater = "Больший",
   Any = "Любой",
   Next = "Очередной",
@@ -8556,7 +8468,7 @@ export const ZAllowedMessageNoEnterprise = z.enum(Object.values(AllowedMessageNo
 export type TAllowedMessageNo = keyof typeof AllowedMessageNo
 export type TAllowedMessageNoEnterprise = `${AllowedMessageNo}`
 
-export enum AutoChangeRecord {
+enum AutoChangeRecord {
   Deny = "Запретить",
   Allow = "Разрешить",
 }
@@ -8567,7 +8479,7 @@ export const ZAutoChangeRecordEnterprise = z.enum(Object.values(AutoChangeRecord
 export type TAutoChangeRecord = keyof typeof AutoChangeRecord
 export type TAutoChangeRecordEnterprise = `${AutoChangeRecord}`
 
-export enum DataItemReceive {
+enum DataItemReceive {
   Auto = "Авто",
   Ignore = "Игнорировать",
   Accept = "Принять",
@@ -8579,7 +8491,7 @@ export const ZDataItemReceiveEnterprise = z.enum(Object.values(DataItemReceive) 
 export type TDataItemReceive = keyof typeof DataItemReceive
 export type TDataItemReceiveEnterprise = `${DataItemReceive}`
 
-export enum DataItemSend {
+enum DataItemSend {
   Auto = "Авто",
   Ignore = "Игнорировать",
   Delete = "Удалить",
@@ -8591,7 +8503,7 @@ export const ZDataItemSendEnterprise = z.enum(Object.values(DataItemSend) as [TD
 export type TDataItemSend = keyof typeof DataItemSend
 export type TDataItemSendEnterprise = `${DataItemSend}`
 
-export enum AnalysisDataType {
+enum AnalysisDataType {
   Discrete = "Дискретные",
   Contiguous = "Непрерывные",
 }
@@ -8602,7 +8514,7 @@ export const ZAnalysisDataTypeEnterprise = z.enum(Object.values(AnalysisDataType
 export type TAnalysisDataType = keyof typeof AnalysisDataType
 export type TAnalysisDataTypeEnterprise = `${AnalysisDataType}`
 
-export enum AssociationRulesDataSourceType {
+enum AssociationRulesDataSourceType {
   Object = "Объектный",
   Event = "Событийный",
 }
@@ -8613,7 +8525,7 @@ export const ZAssociationRulesDataSourceTypeEnterprise = z.enum(Object.values(As
 export type TAssociationRulesDataSourceType = keyof typeof AssociationRulesDataSourceType
 export type TAssociationRulesDataSourceTypeEnterprise = `${AssociationRulesDataSourceType}`
 
-export enum AssociationRulesPruneType {
+enum AssociationRulesPruneType {
   Redundant = "Избыточные",
   Covered = "Покрытые",
 }
@@ -8624,7 +8536,7 @@ export const ZAssociationRulesPruneTypeEnterprise = z.enum(Object.values(Associa
 export type TAssociationRulesPruneType = keyof typeof AssociationRulesPruneType
 export type TAssociationRulesPruneTypeEnterprise = `${AssociationRulesPruneType}`
 
-export enum ClusterizationMethod {
+enum ClusterizationMethod {
   NearestNeighbor = "БлижняяСвязь",
   FurthestNeighbor = "ДальняяСвязь",
   KMeans = "КСредних",
@@ -8637,7 +8549,7 @@ export const ZClusterizationMethodEnterprise = z.enum(Object.values(Clusterizati
 export type TClusterizationMethod = keyof typeof ClusterizationMethod
 export type TClusterizationMethodEnterprise = `${ClusterizationMethod}`
 
-export enum DataAnalysisAssociationRulesOrderType {
+enum DataAnalysisAssociationRulesOrderType {
   ByConfidence = "ПоДостоверности",
   ByImportance = "ПоЗначимости",
   BySupport = "ПоКоличествуСлучаев",
@@ -8649,7 +8561,7 @@ export const ZDataAnalysisAssociationRulesOrderTypeEnterprise = z.enum(Object.va
 export type TDataAnalysisAssociationRulesOrderType = keyof typeof DataAnalysisAssociationRulesOrderType
 export type TDataAnalysisAssociationRulesOrderTypeEnterprise = `${DataAnalysisAssociationRulesOrderType}`
 
-export enum DataAnalysisColumnTypeAssociationRules {
+enum DataAnalysisColumnTypeAssociationRules {
   NotUsed = "НеИспользуемая",
   Object = "Объект",
   Item = "Элемент",
@@ -8661,7 +8573,7 @@ export const ZDataAnalysisColumnTypeAssociationRulesEnterprise = z.enum(Object.v
 export type TDataAnalysisColumnTypeAssociationRules = keyof typeof DataAnalysisColumnTypeAssociationRules
 export type TDataAnalysisColumnTypeAssociationRulesEnterprise = `${DataAnalysisColumnTypeAssociationRules}`
 
-export enum DataAnalysisColumnTypeClusterization {
+enum DataAnalysisColumnTypeClusterization {
   Input = "Входная",
   InputAndPredictable = "ВходнаяИПрогнозируемая",
   Key = "Ключ",
@@ -8675,7 +8587,7 @@ export const ZDataAnalysisColumnTypeClusterizationEnterprise = z.enum(Object.val
 export type TDataAnalysisColumnTypeClusterization = keyof typeof DataAnalysisColumnTypeClusterization
 export type TDataAnalysisColumnTypeClusterizationEnterprise = `${DataAnalysisColumnTypeClusterization}`
 
-export enum DataAnalysisColumnTypeDecisionTree {
+enum DataAnalysisColumnTypeDecisionTree {
   Input = "Входная",
   NotUsed = "НеИспользуемая",
   Predictable = "Прогнозируемая",
@@ -8687,7 +8599,7 @@ export const ZDataAnalysisColumnTypeDecisionTreeEnterprise = z.enum(Object.value
 export type TDataAnalysisColumnTypeDecisionTree = keyof typeof DataAnalysisColumnTypeDecisionTree
 export type TDataAnalysisColumnTypeDecisionTreeEnterprise = `${DataAnalysisColumnTypeDecisionTree}`
 
-export enum DataAnalysisColumnTypeSequentialPatterns {
+enum DataAnalysisColumnTypeSequentialPatterns {
   Time = "Время",
   NotUsed = "НеИспользуемая",
   Sequence = "Последовательность",
@@ -8700,7 +8612,7 @@ export const ZDataAnalysisColumnTypeSequentialPatternsEnterprise = z.enum(Object
 export type TDataAnalysisColumnTypeSequentialPatterns = keyof typeof DataAnalysisColumnTypeSequentialPatterns
 export type TDataAnalysisColumnTypeSequentialPatternsEnterprise = `${DataAnalysisColumnTypeSequentialPatterns}`
 
-export enum DataAnalysisColumnTypeSummaryStatistics {
+enum DataAnalysisColumnTypeSummaryStatistics {
   Input = "Входная",
   NotUsed = "НеИспользуемая",
 }
@@ -8711,7 +8623,7 @@ export const ZDataAnalysisColumnTypeSummaryStatisticsEnterprise = z.enum(Object.
 export type TDataAnalysisColumnTypeSummaryStatistics = keyof typeof DataAnalysisColumnTypeSummaryStatistics
 export type TDataAnalysisColumnTypeSummaryStatisticsEnterprise = `${DataAnalysisColumnTypeSummaryStatistics}`
 
-export enum DataAnalysisDistanceMetricType {
+enum DataAnalysisDistanceMetricType {
   Euclidean = "ЕвклидоваМетрика",
   SquaredEuclidean = "ЕвклидоваМетрикаВКвадрате",
   CityBlock = "МетрикаГорода",
@@ -8724,7 +8636,7 @@ export const ZDataAnalysisDistanceMetricTypeEnterprise = z.enum(Object.values(Da
 export type TDataAnalysisDistanceMetricType = keyof typeof DataAnalysisDistanceMetricType
 export type TDataAnalysisDistanceMetricTypeEnterprise = `${DataAnalysisDistanceMetricType}`
 
-export enum DataAnalysisFieldType {
+enum DataAnalysisFieldType {
   DataAnalysisObject = "ОбъектАнализаДанных",
   Field = "Поле",
 }
@@ -8735,7 +8647,7 @@ export const ZDataAnalysisFieldTypeEnterprise = z.enum(Object.values(DataAnalysi
 export type TDataAnalysisFieldType = keyof typeof DataAnalysisFieldType
 export type TDataAnalysisFieldTypeEnterprise = `${DataAnalysisFieldType}`
 
-export enum DataAnalysisNumericValueUseType {
+enum DataAnalysisNumericValueUseType {
   AsBoolean = "КакБулево",
   AsNumeric = "КакЧисло",
 }
@@ -8746,7 +8658,7 @@ export const ZDataAnalysisNumericValueUseTypeEnterprise = z.enum(Object.values(D
 export type TDataAnalysisNumericValueUseType = keyof typeof DataAnalysisNumericValueUseType
 export type TDataAnalysisNumericValueUseTypeEnterprise = `${DataAnalysisNumericValueUseType}`
 
-export enum DataAnalysisResultTableFillType {
+enum DataAnalysisResultTableFillType {
   AllFields = "ВсеПоля",
   UsedFields = "ИспользуемыеПоля",
   KeyFields = "КлючевыеПоля",
@@ -8759,7 +8671,7 @@ export const ZDataAnalysisResultTableFillTypeEnterprise = z.enum(Object.values(D
 export type TDataAnalysisResultTableFillType = keyof typeof DataAnalysisResultTableFillType
 export type TDataAnalysisResultTableFillTypeEnterprise = `${DataAnalysisResultTableFillType}`
 
-export enum DataAnalysisSequentialPatternsOrderType {
+enum DataAnalysisSequentialPatternsOrderType {
   ByLength = "ПоДлине",
   BySupport = "ПоКоличествуСлучаев",
 }
@@ -8770,7 +8682,7 @@ export const ZDataAnalysisSequentialPatternsOrderTypeEnterprise = z.enum(Object.
 export type TDataAnalysisSequentialPatternsOrderType = keyof typeof DataAnalysisSequentialPatternsOrderType
 export type TDataAnalysisSequentialPatternsOrderTypeEnterprise = `${DataAnalysisSequentialPatternsOrderType}`
 
-export enum DataAnalysisStandardizationType {
+enum DataAnalysisStandardizationType {
   DontStandardize = "НеСтандартизировать",
   Standardize = "Стандартизировать",
 }
@@ -8781,7 +8693,7 @@ export const ZDataAnalysisStandardizationTypeEnterprise = z.enum(Object.values(D
 export type TDataAnalysisStandardizationType = keyof typeof DataAnalysisStandardizationType
 export type TDataAnalysisStandardizationTypeEnterprise = `${DataAnalysisStandardizationType}`
 
-export enum DataAnalysisTimeIntervalUnitType {
+enum DataAnalysisTimeIntervalUnitType {
   Year = "Год",
   TenDays = "Декада",
   Day = "День",
@@ -8809,7 +8721,7 @@ export const ZDataAnalysisTimeIntervalUnitTypeEnterprise = z.enum(Object.values(
 export type TDataAnalysisTimeIntervalUnitType = keyof typeof DataAnalysisTimeIntervalUnitType
 export type TDataAnalysisTimeIntervalUnitTypeEnterprise = `${DataAnalysisTimeIntervalUnitType}`
 
-export enum DecisionTreeSimplificationType {
+enum DecisionTreeSimplificationType {
   DontSimplify = "НеУпрощать",
   Simplify = "Упрощать",
 }
@@ -8820,7 +8732,7 @@ export const ZDecisionTreeSimplificationTypeEnterprise = z.enum(Object.values(De
 export type TDecisionTreeSimplificationType = keyof typeof DecisionTreeSimplificationType
 export type TDecisionTreeSimplificationTypeEnterprise = `${DecisionTreeSimplificationType}`
 
-export enum PredictionModelColumnType {
+enum PredictionModelColumnType {
   Input = "Входная",
   DataSourceColumn = "КолонкаИсточникаДанных",
   Predictable = "Прогнозируемая",
@@ -8832,7 +8744,7 @@ export const ZPredictionModelColumnTypeEnterprise = z.enum(Object.values(Predict
 export type TPredictionModelColumnType = keyof typeof PredictionModelColumnType
 export type TPredictionModelColumnTypeEnterprise = `${PredictionModelColumnType}`
 
-export enum FileNamesEncodingInZipFile {
+enum FileNamesEncodingInZipFile {
   UTF8 = "UTF8",
   Auto = "Авто",
   OSEncodingWithUTF8 = "КодировкаОСДополнительноUTF8",
@@ -8844,7 +8756,7 @@ export const ZFileNamesEncodingInZipFileEnterprise = z.enum(Object.values(FileNa
 export type TFileNamesEncodingInZipFile = keyof typeof FileNamesEncodingInZipFile
 export type TFileNamesEncodingInZipFileEnterprise = `${FileNamesEncodingInZipFile}`
 
-export enum ZIPCompressionLevel {
+enum ZIPCompressionLevel {
   Maximum = "Максимальный",
   Minimum = "Минимальный",
   Optimal = "Оптимальный",
@@ -8856,7 +8768,7 @@ export const ZZIPCompressionLevelEnterprise = z.enum(Object.values(ZIPCompressio
 export type TZIPCompressionLevel = keyof typeof ZIPCompressionLevel
 export type TZIPCompressionLevelEnterprise = `${ZIPCompressionLevel}`
 
-export enum ZIPCompressionMethod {
+enum ZIPCompressionMethod {
   BZIP2 = "BZIP2",
   Copy = "Копирование",
   Deflate = "Сжатие",
@@ -8868,7 +8780,7 @@ export const ZZIPCompressionMethodEnterprise = z.enum(Object.values(ZIPCompressi
 export type TZIPCompressionMethod = keyof typeof ZIPCompressionMethod
 export type TZIPCompressionMethodEnterprise = `${ZIPCompressionMethod}`
 
-export enum ZIPEncryptionMethod {
+enum ZIPEncryptionMethod {
   AES128 = "AES128",
   AES192 = "AES192",
   AES256 = "AES256",
@@ -8881,7 +8793,7 @@ export const ZZIPEncryptionMethodEnterprise = z.enum(Object.values(ZIPEncryption
 export type TZIPEncryptionMethod = keyof typeof ZIPEncryptionMethod
 export type TZIPEncryptionMethodEnterprise = `${ZIPEncryptionMethod}`
 
-export enum ZIPRestoreFilePathsMode {
+enum ZIPRestoreFilePathsMode {
   Restore = "Восстанавливать",
   DontRestore = "НеВосстанавливать",
 }
@@ -8892,7 +8804,7 @@ export const ZZIPRestoreFilePathsModeEnterprise = z.enum(Object.values(ZIPRestor
 export type TZIPRestoreFilePathsMode = keyof typeof ZIPRestoreFilePathsMode
 export type TZIPRestoreFilePathsModeEnterprise = `${ZIPRestoreFilePathsMode}`
 
-export enum ZIPStorePathMode {
+enum ZIPStorePathMode {
   DontStorePath = "НеСохранятьПути",
   StoreRelativePath = "СохранятьОтносительныеПути",
   StoreFullPath = "СохранятьПолныеПути",
@@ -8904,7 +8816,7 @@ export const ZZIPStorePathModeEnterprise = z.enum(Object.values(ZIPStorePathMode
 export type TZIPStorePathMode = keyof typeof ZIPStorePathMode
 export type TZIPStorePathModeEnterprise = `${ZIPStorePathMode}`
 
-export enum ZIPSubDirProcessingMode {
+enum ZIPSubDirProcessingMode {
   DontProcess = "НеОбрабатывать",
   ProcessRecursively = "ОбрабатыватьРекурсивно",
 }
@@ -8915,7 +8827,7 @@ export const ZZIPSubDirProcessingModeEnterprise = z.enum(Object.values(ZIPSubDir
 export type TZIPSubDirProcessingMode = keyof typeof ZIPSubDirProcessingMode
 export type TZIPSubDirProcessingModeEnterprise = `${ZIPSubDirProcessingMode}`
 
-export enum DynamicListSearchStringViewMode {
+enum DynamicListSearchStringViewMode {
   Auto = "Авто",
   DontShow = "НеОтображать",
   Show = "Отображать",
@@ -8927,3 +8839,16 @@ export const ZDynamicListSearchStringViewModeEnterprise = z.enum(Object.values(D
 
 export type TDynamicListSearchStringViewMode = keyof typeof DynamicListSearchStringViewMode
 export type TDynamicListSearchStringViewModeEnterprise = `${DynamicListSearchStringViewMode}`
+
+enum StatePresentation {
+  Visible = "Видимость",
+  AdditionalShowMode = "ДополнительныйРежимОтображения",
+  Picture = "Картинка",
+  Text = "Текст",
+}
+
+export const ZStatePresentation = z.enum(Object.keys(StatePresentation) as [TStatePresentation, ...TStatePresentation[]])
+export const ZStatePresentationEnterprise = z.enum(Object.values(StatePresentation) as [TStatePresentationEnterprise, ...TStatePresentationEnterprise[]])
+
+export type TStatePresentation = keyof typeof StatePresentation
+export type TStatePresentationEnterprise = `${StatePresentation}`

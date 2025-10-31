@@ -1,14 +1,15 @@
+import { TPictureLib } from "~/lib/metadata/systemSets/types"
 import { type TPicture } from "./types"
-import * as SF from "~/lib/metadata/systemEnumerations/types"
+import * as SystemSets from "~/lib/metadata/systemSets/types"
 
 export function formatPicture(picture: TPicture): string {
   if (picture.type === "StandardPicture") {
     // Получаем индексы массивов значений из enum'ов
-    const standardValues = SF.ZStandardPicture.options
-    const enterpriseValues = SF.ZStandardPictureEnterprise.options
+    const standardValues = SystemSets.ZPictureLib.options
+    const enterpriseValues = SystemSets.ZPictureLibEnterprise.options
 
     // Находим индекс стандартной картинки
-    const index = standardValues.indexOf(picture.ref as any)
+    const index = standardValues.indexOf(picture.ref as TPictureLib)
 
     // Если индекс найден, возвращаем соответствующую enterprise-версию
     if (index !== -1) {

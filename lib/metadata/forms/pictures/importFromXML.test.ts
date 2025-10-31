@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest"
-import importPictureFromXML from "./importFromXML"
+import { importPictureFromXML } from "./importFromXML"
+import { TPictureXML } from "./types"
 
 describe("importPictureFromXML", () => {
   it("should return undefined for undefined input", () => {
@@ -9,9 +10,9 @@ describe("importPictureFromXML", () => {
   })
 
   it("should import standard picture", () => {
-    const xmlData = {
-      Ref: "StdPicture.BusinessProcess",
-      LoadTransparent: true,
+    const xmlData: TPictureXML = {
+      "xr:Ref": "StdPicture.BusinessProcess",
+      "xr:LoadTransparent": true,
     }
 
     const expectedResult = {
@@ -26,9 +27,9 @@ describe("importPictureFromXML", () => {
   })
 
   it("should import common picture", () => {
-    const xmlData = {
-      Ref: "CommonPicture.ОбщаяКартинка1",
-      LoadTransparent: true,
+    const xmlData: TPictureXML = {
+      "xr:Ref": "CommonPicture.ОбщаяКартинка1",
+      "xr:LoadTransparent": true,
     }
 
     const expectedResult = {

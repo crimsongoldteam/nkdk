@@ -1,8 +1,6 @@
 import { TTypeDescription, TTypeDescriptionXML } from "./types"
 
-export const importTypeDescriptionFromXML = (
-  xml: TTypeDescriptionXML | undefined
-): TTypeDescription | undefined {
+export const importTypeDescriptionFromXML = (xml: TTypeDescriptionXML | undefined): TTypeDescription | undefined => {
   if (!xml) return undefined
 
   const typeArray = Array.isArray(xml["v8:Type"]) ? xml["v8:Type"] : [xml["v8:Type"]]

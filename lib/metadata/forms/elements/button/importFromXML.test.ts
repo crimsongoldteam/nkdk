@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import importButtonFromXML from "./importFromXML"
+import { importButtonFromXML } from "./importFromXML"
 import { ZElementType } from "../types"
 import { TButton, TButtonXML } from "./types"
 import { xmlImport } from "~/lib"

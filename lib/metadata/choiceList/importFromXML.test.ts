@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import importChoiceListFromXML from "./importFromXML"
+import { importChoiceListFromXML } from "./importFromXML"
 import { xmlImport } from "~/lib"
 
 it("should import choice list from XML", () => {

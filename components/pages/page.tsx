@@ -10,7 +10,6 @@ interface IPageHTMLProps {
 }
 
 export function PageComponent(props: Readonly<IPageHTMLProps>): React.ReactNode {
-  const [name] = useState(props.name)
   const [childItems] = useState(props.childItems)
 
   return (

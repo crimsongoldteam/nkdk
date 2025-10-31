@@ -6,7 +6,7 @@ import { TClientApplicationForm } from "~/lib/metadata/forms/elements/сlientApp
 import clientApplicationFormVisit, {
   сlientApplicationFormHeaderVisit,
   IСlientApplicationFormHeaderVisit,
-} from "~/lib/metadata/forms/elements/сlientApplicationForm/parseVisit"
+} from "~/lib/metadata/forms/elements/clientApplicationForm/parseVisit"
 
 const BaseVisitor: new () => any = new Parser().getBaseCstVisitorConstructor()
 
