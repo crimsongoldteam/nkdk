@@ -2,7 +2,7 @@ import { z } from "zod"
 
 export const ZTypeLinkXML = z.object({
   "xr:DataPath": z.string(),
-  "xr:LinkItem": z.union([z.string(), z.number()]),
+  "xr:LinkItem": z.number(),
 })
 
 export const ZTypeLink = z.object({

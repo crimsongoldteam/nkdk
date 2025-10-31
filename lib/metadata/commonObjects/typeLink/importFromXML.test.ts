@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { importTypeLinkFromXML } from "./importFromXML"
-import { TTypeLinkXML } from "./types"
+import { TTypeLink, TTypeLinkXML, ZTypeLinkXML } from "./types"
 import { xmlImport } from "~/lib"
 
 describe("importTypeLinkFromXML", () => {
@@ -11,18 +11,21 @@ describe("importTypeLinkFromXML", () => {
   })
 
   it("should import TypeLink with numeric LinkItem", () => {
-    const xmlData = `<TypeLinkXML>
+    const xmlData = `<TypeLink>
     <xr:DataPath>Реквизит1</xr:DataPath>
     <xr:LinkItem>1</xr:LinkItem>
 </TypeLink>`
 
-    const expectedResult = {
+    const expectedResult: TTypeLink = {
       dataPath: "Реквизит1",
       linkItem: 1,
     }
 
     const xml = xmlImport<{ TypeLink: TTypeLinkXML }>(xmlData)
-    const result = importTypeLinkFromXML(xml.TypeLink)
+
+    const parsedXml = ZTypeLinkXML.parse(xml.TypeLink)
+
+    const result = importTypeLinkFromXML(parsedXml)
 
     expect(result).toEqual(expectedResult)
   })
