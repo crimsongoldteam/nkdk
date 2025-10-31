@@ -3,6 +3,7 @@ import { TClientApplicationForm, TClientApplicationFormXML } from "./types"
 import { importClientApplicationFormFromXML } from "./importFromXML"
 import { xmlImport } from "~/lib"
 import { ZElementType } from "../types"
+import "../inputField/registration"
 
 it("should import title from XML", () => {
   const mockXml = `<?xml version="1.0" encoding="UTF-8"?>

@@ -2,11 +2,10 @@ import * as z from "zod/v4"
 import { ZI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
 import { ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZInputFieldXML } from "../inputField/types"
 import { ZUse, ZUseEnterprise, ZUseXML } from "~/lib/metadata/commonObjects/use/types"
 import { ZElementType } from "../types"
-import { ZBaseElement } from "../baseElement/types"
 import { ZBoolEnterprise } from "../../../types"
+import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 
 export const ZAutoCommandBarXML = z.object({
   _name: z.string(),
@@ -47,7 +46,7 @@ export const ZClientApplicationFormXML = z.object({
     _version: z.string().optional(),
     AutoCommandBar: ZAutoCommandBarXML.optional(),
     Title: ZI8nTextXML.optional(),
-    ChildItems: z.array(ZInputFieldXML),
+    ChildItems: ZChildItemsXML,
     Attributes: z.array(ZAttributeXML).optional(),
   }),
 })
@@ -72,7 +71,7 @@ export const ZClientApplicationForm = z.object({
   autoCommandBar: ZAutoCommandBar.optional(),
   title: ZI8nText.optional(),
   attributes: z.array(ZAttribute).optional(),
-  items: z.array(ZBaseElement),
+  items: ZChildItems,
 })
 
 export const ZAttributeEnterprise = z.union([

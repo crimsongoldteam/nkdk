@@ -5,11 +5,11 @@ import { importBaseElementFromXML } from "./importFromXML"
 import { xmlImport } from "~/lib"
 
 it("should decode element from XML", () => {
-  const mockXml = `<InputField name="ИмяПоля" id="16">`
+  const mockXml = `<BaseElement name="ИмяПоля" id="16">`
 
   const mockResult: TBaseElement = {
     name: "ИмяПоля",
-    elementType: ZElementType.enum.InputField,
+    elementType: ZElementType.enum.BaseElement,
     id: "16",
   }
 

@@ -1,8 +1,8 @@
 import { TClientApplicationForm, TClientApplicationFormXML, TAttribute } from "./types"
 import importAttributeFromXML from "./attributes/importFromXML"
-import { importElementFromXML } from "~/lib/xml/import/importerFactory"
 import { ZElementType } from "../types"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
+import { importChildItemsFromXML } from "../childItems/importFromXML"
 
 export const importClientApplicationFormFromXML = (xml: TClientApplicationFormXML): TClientApplicationForm => {
   const result: TClientApplicationForm = {
@@ -14,7 +14,7 @@ export const importClientApplicationFormFromXML = (xml: TClientApplicationFormXM
         }
       : undefined,
     title: importI8nTextFromXML(xml.Form.Title),
-    items: xml.Form.ChildItems ? xml.Form.ChildItems.map((item) => importElementFromXML(item)) : [],
+    items: importChildItemsFromXML(xml.Form.ChildItems),
     attributes:
       xml.Form.Attributes?.map((attribute) => importAttributeFromXML(attribute)).filter(
         (attr): attr is TAttribute => attr !== undefined

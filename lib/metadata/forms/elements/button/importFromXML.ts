@@ -12,7 +12,7 @@ export const importButtonFromXML = (xml: TButtonXML | undefined): TButton | unde
 
   const base = importBaseElementFromXML(xml)
   if (!base) return undefined
-   
+
   return {
     ...base,
     elementType: ZElementType.enum.Button,

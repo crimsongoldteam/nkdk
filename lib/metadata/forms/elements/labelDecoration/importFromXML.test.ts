@@ -7,7 +7,10 @@ import { xmlImport } from "~/lib"
 it("should import name from XML", () => {
   const mockXml = `<LabelDecoration name="Заголовок" id="1">
 					<Title>
-						<ru>Заголовок формы</ru>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Заголовок формы</v8:content>
+						</v8:item>
 					</Title>
 				</LabelDecoration>`
 
@@ -20,9 +23,9 @@ it("should import name from XML", () => {
     id: "1",
   }
 
-  const xml = xmlImport<TLabelDecorationXML>(mockXml)
+  const xml = xmlImport<{ LabelDecoration: TLabelDecorationXML }>(mockXml)
 
-  const input = importLabelDecorationFromXML(xml)
+  const input = importLabelDecorationFromXML(xml.LabelDecoration)
 
   expect(input).toEqual(expectedResult)
 })

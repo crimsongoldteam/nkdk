@@ -23,9 +23,10 @@ it("should import name from XML", () => {
     id: "1",
   }
 
-  const xml = xmlImport<TPictureDecorationXML>(mockXml)
+  const xml = xmlImport<{ PictureDecoration: TPictureDecorationXML }>(mockXml)
+  const value = xml.PictureDecoration
 
-  const input = importPictureDecorationFromXML(xml)
+  const input = importPictureDecorationFromXML(value)
 
   expect(input).toEqual(expectedResult)
 })

@@ -1,6 +1,7 @@
 import { expect, it } from "vitest"
 import { importChoiceListFromXML } from "./importFromXML"
 import { xmlImport } from "~/lib"
+import { TChoiceListXML } from "./types"
 
 it("should import choice list from XML", () => {
   const mockXml = `
@@ -33,13 +34,13 @@ it("should import choice list from XML", () => {
 			</xr:Item>
 		</ChoiceList>`
 
-  const xml = xmlImport<any>(mockXml)
+  const xml = xmlImport<{ ChoiceList: TChoiceListXML }>(mockXml)
   const input = importChoiceListFromXML(xml.ChoiceList)
 
   expect(input).toEqual({
     items: [
-      { presentation: "Представление 1", checkState: 0, value: "Значение 1" },
-      { presentation: "Представление 2", checkState: 1, value: "Значение 2" },
+      { presentation: { ru: "Представление 1" }, checkState: 0, value: "Значение 1" },
+      { presentation: { ru: "Представление 2" }, checkState: 1, value: "Значение 2" },
     ],
   })
 })

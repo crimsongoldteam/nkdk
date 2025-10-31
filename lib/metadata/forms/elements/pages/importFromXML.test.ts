@@ -1,31 +1,30 @@
 import { expect, it } from "vitest"
-import { TUsualGroup } from "../usualGroup/types"
-import { importUsualGroupFromXML } from "../usualGroup/importFromXML"
-import { TUsualGroupXML } from "../usualGroup/types"
 import { xmlImport } from "~/lib"
 import { ZElementType } from "../types"
+import { TPages, TPagesXML } from "./types"
+import { importPagesFromXML } from "./importFromXML"
 
-it("should import usual group from XML", () => {
-  const mockXml = `	<UsualGroup name="Группа" id="1">
+it("should import pages from XML", () => {
+  const mockXml = `	<Pages name="Страницы" id="1">
     <Title>
       <v8:item>
         <v8:lang>ru</v8:lang>
-        <v8:content>Заголовок группы</v8:content>
+        <v8:content>Заголовок страниц</v8:content>
       </v8:item>
     </Title>
-  </UsualGroup>`
+  </Pages>`
 
-  const mockResult: TUsualGroup = {
-    name: "Группа",
-    title: { ru: "Заголовок группы" },
+  const mockResult: TPages = {
+    name: "Страницы",
+    title: { ru: "Заголовок страниц" },
     id: "1",
     childItems: [],
-    elementType: ZElementType.enum.UsualGroup,
+    elementType: ZElementType.enum.Pages,
   }
 
-  const xmlData = xmlImport<TUsualGroupXML>(mockXml)
+  const xmlData = xmlImport<{ Pages: TPagesXML }>(mockXml)
 
-  const input = importUsualGroupFromXML(xmlData)
+  const input = importPagesFromXML(xmlData.Pages)
 
   expect(input).toEqual(mockResult)
 })

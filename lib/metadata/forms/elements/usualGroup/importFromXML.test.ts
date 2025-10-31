@@ -23,9 +23,10 @@ it("should import usual group from XML", () => {
     elementType: ZElementType.enum.UsualGroup,
   }
 
-  const xmlData = xmlImport<TUsualGroupXML>(mockXml)
+  const xmlData = xmlImport<{ UsualGroup: TUsualGroupXML }>(mockXml)
+  const value = xmlData.UsualGroup
 
-  const input = importUsualGroupFromXML(xmlData)
+  const input = importUsualGroupFromXML(value)
 
   expect(input).toEqual(mockResult)
 })
