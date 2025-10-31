@@ -13,7 +13,6 @@ export const ZGraphicalSchemaField = ZFormField.extend({
   verticalStretch: z.boolean().optional(),
   horizontalStretch: z.boolean().optional(),
   edit: z.boolean().optional(),
-  currentItem: ZЭлементГрафическойСхемыСоединительнаяЛиния.optional(),
   borderColor: ZColor.optional(),
   width: z.number().optional(),
 })
@@ -28,7 +27,6 @@ export const ZGraphicalSchemaFieldXML = ZFormFieldXML.extend({
   VerticalStretch: z.boolean().optional(),
   HorizontalStretch: z.boolean().optional(),
   Edit: z.boolean().optional(),
-  CurrentItem: ZЭлементГрафическойСхемыСоединительнаяЛинияXML.optional(),
   BorderColor: ZColorXML.optional(),
   Width: z.number().optional(),
 })

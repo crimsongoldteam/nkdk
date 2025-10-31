@@ -1,6 +1,6 @@
 import { TFont, TFontXML } from "./types"
 
-export default function importFontFromXML(xml: TFontXML | undefined): TFont | undefined {
+export const importFontFromXML = (xml: TFontXML | undefined): TFont | undefined => {
   if (!xml) return undefined
   const result: TFont = {
     ref: xml._ref,

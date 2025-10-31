@@ -5,6 +5,7 @@ import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/typeDescri
 import { ZPicture, ZPictureXML } from "../../pictures/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
+import { ZChoiceList, ZChoiceListXML } from "~/lib/metadata/choiceList/types"
 
 export const ZInputField = ZFormField.extend({
   autoChoiceIncomplete: z.boolean().optional(),

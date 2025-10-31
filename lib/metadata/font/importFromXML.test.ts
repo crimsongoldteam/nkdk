@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import importFontFromXML from "./importFromXML"
+import { importFontFromXML } from "./importFromXML"
 import { TFont, ZFontXML } from "./types"
 import { xmlImport } from "~/lib"
 

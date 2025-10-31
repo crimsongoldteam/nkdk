@@ -1,9 +1,8 @@
-import { expect, it } from "vitest"
-import { TUsualGroup } from "./types"
-import { importUsualGroupFromXML } from "./importFromXML"
-import { TUsualGroupXML } from "./types"
-import { xmlImport } from "~/lib"
-import { ElementType } from "~/lib/metadata/systemEnumerations/types"
+import { it, expect } from "vitest"
+import xmlImport from "~/lib/xml/import/importer"
+import { importUsualGroupFromXML } from "../usualGroup/importFromXML"
+import { TUsualGroup, TUsualGroupXML } from "../usualGroup/types"
+import { ZElementType } from "../types"
 
 it("should import usual group from XML", () => {
   const mockXml = `	<UsualGroup name="Группа" id="1">
@@ -20,7 +19,7 @@ it("should import usual group from XML", () => {
     title: { ru: "Заголовок группы" },
     id: "1",
     childItems: [],
-    type: ElementType.UsualGroup,
+    type: ZElementType.enum.UsualGroup,
   }
 
   const xmlData = xmlImport<TUsualGroupXML>(mockXml)

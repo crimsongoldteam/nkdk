@@ -1,21 +1,24 @@
-import importColorFromXML from "~/lib/metadata/color/importFromXML"
-import importPictureFromXML from "../../pictures/importFromXML"
-import { importBaseElementFromXML } from "../baseElement/importBaseElementFromXML"
+import { importColorFromXML } from "~/lib/metadata/color/importFromXML"
+import { importPictureFromXML } from "../../pictures/importFromXML"
+import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { TColumnsGroupXML, TColumnsGroup } from "./types"
 
-
 export const importColumnsGroupFromXML = (xml: TColumnsGroupXML | undefined): TColumnsGroup | undefined => {
-   if (!xml) return undefined
-   return {
-    ...importBaseElementFromXML(xml),
-     headerHorizontalAlign: xml.HeaderHorizontalAlign,
-     group: xml.Group,
-     headerPicture: importPictureFromXML(xml.HeaderPicture),
-     showInHeader: xml.ShowInHeader,
-     showTitle: xml.ShowTitle,
-     headerDataPath: xml.HeaderDataPath,
-     fixingInTable: xml.FixingInTable,
-     headerFormat: xml.HeaderFormat,
-     titleBackColor: importColorFromXML(xml.TitleBackColor),
+  if (!xml) return undefined 
+
+  const base = importFormGroupFromXML(xml)
+  if (!base) return undefined
+   
+  return {
+    ...base,
+    headerHorizontalAlign: xml.HeaderHorizontalAlign,
+    group: xml.Group,
+    headerPicture: importPictureFromXML(xml.HeaderPicture),
+    showInHeader: xml.ShowInHeader,
+    showTitle: xml.ShowTitle,
+    headerDataPath: xml.HeaderDataPath,
+    fixingInTable: xml.FixingInTable,
+    headerFormat: xml.HeaderFormat,
+    titleBackColor: importColorFromXML(xml.TitleBackColor),
   }
 }

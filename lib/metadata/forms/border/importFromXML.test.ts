@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import xmlImport from "~/lib/xml/import/importer"
-import importBorderFromXML from "./importFromXML"
+import { importBorderFromXML } from "./importFromXML"
 import type { TBorder, TBorderXML } from "./types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 

@@ -7,8 +7,7 @@ import {
   WrapInGroupStrategy,
 } from "./types"
 import { formatOtherElement } from "../metadata/forms/elements/baseElement/format"
-import { TNamedElement } from "../metadata/forms/elements/baseElement/types"
-import { ElementType } from "../metadata/systemEnumerations/types"
+import { ZElementType } from "../metadata/forms/elements/types"
 
 type FormatRegistry = {
   format: FormatFunction<TBaseElement>
@@ -32,7 +31,7 @@ export const formatElement = <T extends TBaseElement>(
   params = { ...defaultParams, ...params }
 
   const formatter = registry.find((f) => f.check(element)) as FormatRegistry[number]
-  if (!formatter) return formatOtherElement(element as unknown as TNamedElement, params)
+  if (!formatter) return formatOtherElement(element as unknown as TBaseElement, params)
 
   const result = formatter.format(element, params)
   return result
@@ -41,7 +40,7 @@ export const formatElement = <T extends TBaseElement>(
 export const formatElements = (items: TBaseElement[]): IFormatElementResult => {
   let result: IFormatElementResult = { strings: [], haveSimpleHorizontalGroup: false }
 
-  const separatedItems = [ElementType.Pages, ElementType.UsualGroup]
+  const separatedItems = [ZElementType.enum.Pages, ZElementType.enum.UsualGroup]
 
   let prevItem: TBaseElement | null = null
   for (const item of items) {

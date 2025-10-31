@@ -4,6 +4,7 @@ import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
+import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 
 export const ZFormDecoration = ZBaseElement.extend({
   autoMaxHeight: z.boolean().optional(),
@@ -16,7 +17,9 @@ export const ZFormDecoration = ZBaseElement.extend({
   horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   enabled: z.boolean().optional(),
   title: ZI8nText.optional(),
-  contextMenu: ZFormGroup.optional(),
+  get  contextMenu() {
+    return ZFormGroup.optional()
+  },
   maxHeight: z.number().optional(),
   maxWidth: z.number().optional(),
   toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
@@ -24,7 +27,7 @@ export const ZFormDecoration = ZBaseElement.extend({
   skipOnInput: z.boolean().optional(),
   verticalStretch: z.boolean().optional(),
   horizontalStretch: z.boolean().optional(),
-  get extendedTooltip() {
+  get  extendedTooltip() {
     return ZFormDecoration.optional()
   },
   shortcut: z.string().optional(),
@@ -44,7 +47,9 @@ export const ZFormDecorationXML = ZBaseElementXML.extend({
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   Enabled: z.boolean().optional(),
   Title: ZI8nTextXML.optional(),
-  ContextMenu: ZFormGroupXML.optional(),
+  get ContextMenu() {
+    return ZFormGroupXML.optional()
+  },
   MaxHeight: z.number().optional(),
   MaxWidth: z.number().optional(),
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),

@@ -3,8 +3,9 @@ import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
 import { ZPicture, ZPictureXML } from "../../pictures/types"
 import { ZBorder, ZBorderXML } from "~/lib/metadata/forms/border/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 
-export const ZPictureDecoration = ZPictureDecoration.extend({
+export const ZPictureDecoration = ZFormDecoration.extend({
   hyperlink: z.boolean().optional(),
   picture: ZPicture.optional(),
   scale: z.number().optional(),
@@ -18,7 +19,7 @@ export const ZPictureDecoration = ZPictureDecoration.extend({
   borderColor: ZColor.optional(),
 })
 
-export const ZPictureDecorationXML = ZPictureDecorationXML.extend({
+export const ZPictureDecorationXML = ZFormDecorationXML.extend({
   Hyperlink: z.boolean().optional(),
   Picture: ZPictureXML.optional(),
   Scale: z.number().optional(),

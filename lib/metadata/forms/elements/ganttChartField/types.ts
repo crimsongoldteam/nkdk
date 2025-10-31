@@ -6,8 +6,6 @@ export const ZGanttChartField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
   verticalLines: z.boolean().optional(),
-  selectedValues: ZМассив.optional(),
-  selectedIntervals: ZМассив.optional(),
   height: z.number().optional(),
   horizontalLines: z.boolean().optional(),
   maxHeight: z.number().optional(),
@@ -17,8 +15,6 @@ export const ZGanttChartField = ZFormField.extend({
   horizontalStretch: z.boolean().optional(),
   valuesSelectionMode: SE.ZGanttChartValuesSelectionMode.optional(),
   intervalsSelectionMode: SE.ZGanttChartIntervalsSelectionMode.optional(),
-  currentValue: ZИдентификаторЗначенияДиаграммыГанта.optional(),
-  currentInterval: ZИдентификаторИнтервалаДиаграммыГанта.optional(),
   width: z.number().optional(),
 })
 
@@ -26,8 +22,6 @@ export const ZGanttChartFieldXML = ZFormFieldXML.extend({
   AutoMaxHeight: z.boolean().optional(),
   AutoMaxWidth: z.boolean().optional(),
   VerticalLines: z.boolean().optional(),
-  SelectedValues: ZМассивXML.optional(),
-  SelectedIntervals: ZМассивXML.optional(),
   Height: z.number().optional(),
   HorizontalLines: z.boolean().optional(),
   MaxHeight: z.number().optional(),
@@ -37,8 +31,6 @@ export const ZGanttChartFieldXML = ZFormFieldXML.extend({
   HorizontalStretch: z.boolean().optional(),
   ValuesSelectionMode: SE.ZGanttChartValuesSelectionMode.optional(),
   IntervalsSelectionMode: SE.ZGanttChartIntervalsSelectionMode.optional(),
-  CurrentValue: ZИдентификаторЗначенияДиаграммыГантаXML.optional(),
-  CurrentInterval: ZИдентификаторИнтервалаДиаграммыГантаXML.optional(),
   Width: z.number().optional(),
 })
 

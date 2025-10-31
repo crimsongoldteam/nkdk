@@ -1,10 +1,10 @@
 import { TClientApplicationForm, TClientApplicationFormXML, TAttribute } from "./types"
-import importI8nXmlText from "~/lib/metadata/i8nText/importI8nTextFromXML"
 import importAttributeFromXML from "./attributes/importFromXML"
-import { ZElementType } from "~/lib/metadata/systemEnumerations/types"
 import { importElementFromXML } from "~/lib/xml/import/importerFactory"
+import { ZElementType } from "../types"
+import { importI8nTextFromXML } from "~/lib/metadata/i8nText/importI8nTextFromXML"
 
-export default function importClientApplicationFormFromXML(xml: TClientApplicationFormXML): TClientApplicationForm {
+export const importClientApplicationFormFromXML = (xml: TClientApplicationFormXML): TClientApplicationForm => {
   const result: TClientApplicationForm = {
     type: ZElementType.enum.Form,
     autoCommandBar: xml.Form.AutoCommandBar
@@ -13,7 +13,7 @@ export default function importClientApplicationFormFromXML(xml: TClientApplicati
           id: xml.Form.AutoCommandBar._id,
         }
       : undefined,
-    title: importI8nXmlText(xml.Form.Title),
+    title: importI8nTextFromXML(xml.Form.Title),
     items: xml.Form.ChildItems ? xml.Form.ChildItems.map((item) => importElementFromXML(item)) : [],
     attributes:
       xml.Form.Attributes?.map((attribute) => importAttributeFromXML(attribute)).filter(

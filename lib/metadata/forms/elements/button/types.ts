@@ -5,6 +5,7 @@ import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
 import { ZPicture, ZPictureXML } from "../../pictures/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 
 export const ZButton = ZBaseElement.extend({
   autoMaxHeight: z.boolean().optional(),
@@ -29,11 +30,12 @@ export const ZButton = ZBaseElement.extend({
   shapeRepresentation: SE.ZButtonShapeRepresentation.optional(),
   locationInCommandBar: SE.ZButtonLocationInCommandBar.optional(),
   pictureLocation: SE.ZFormButtonPictureLocation.optional(),
-  check: ERROR: No type found for property Пометка,
   skipOnInput: z.boolean().optional(),
   verticalStretch: z.boolean().optional(),
   horizontalStretch: z.boolean().optional(),
-  extendedTooltip: ZFormDecoration.optional(),
+  get  extendedTooltip() {
+    return ZFormDecoration.optional()
+  },
   shortcut: z.string().optional(),
   onlyInAllActions: z.boolean().optional(),
   commandUniqueness: z.boolean().optional(),
@@ -68,11 +70,12 @@ export const ZButtonXML = ZBaseElementXML.extend({
   ShapeRepresentation: SE.ZButtonShapeRepresentation.optional(),
   LocationInCommandBar: SE.ZButtonLocationInCommandBar.optional(),
   PictureLocation: SE.ZFormButtonPictureLocation.optional(),
-  Check: ERROR: No type found for property Пометка,
   SkipOnInput: z.boolean().optional(),
   VerticalStretch: z.boolean().optional(),
   HorizontalStretch: z.boolean().optional(),
-  ExtendedTooltip: ZFormDecorationXML.optional(),
+  get ExtendedTooltip() {
+    return ZFormDecorationXML.optional()
+  },
   Shortcut: z.string().optional(),
   OnlyInAllActions: z.boolean().optional(),
   CommandUniqueness: z.boolean().optional(),

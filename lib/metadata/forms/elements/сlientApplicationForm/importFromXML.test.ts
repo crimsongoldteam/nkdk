@@ -2,7 +2,7 @@ import { expect, it } from "vitest"
 import { TClientApplicationForm, TClientApplicationFormXML } from "./types"
 import importClientApplicationFormFromXML from "./importFromXML"
 import { xmlImport } from "~/lib"
-import { ZElementType } from "~/lib/metadata/systemEnumerations/types"
+import { ZElementType } from "../types"
 
 it("should import title from XML", () => {
   const mockXml = `<?xml version="1.0" encoding="UTF-8"?>

@@ -2,6 +2,7 @@ import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZFormTable, ZFormTableXML } from "../formTable/types"
 
 export const ZUsualGroup = ZFormGroup.extend({
   displayImportance: SE.ZDisplayImportance.optional(),
@@ -14,7 +15,9 @@ export const ZUsualGroup = ZFormGroup.extend({
   group: SE.ZChildFormItemsGroup.optional(),
   collapsedRepresentationTitle: z.string().optional(),
   currentRowUse: SE.ZCurrentRowUse.optional(),
-  associatedTable: ZFormTable.optional(),
+  get  associatedTable() {
+    return ZFormTable.optional()
+  },
   united: z.boolean().optional(),
   showTitle: z.boolean().optional(),
   showLeftMargin: z.boolean().optional(),
@@ -40,7 +43,9 @@ export const ZUsualGroupXML = ZFormGroupXML.extend({
   Group: SE.ZChildFormItemsGroup.optional(),
   CollapsedRepresentationTitle: z.string().optional(),
   CurrentRowUse: SE.ZCurrentRowUse.optional(),
-  AssociatedTable: ZFormTableXML.optional(),
+  get AssociatedTable() {
+    return ZFormTableXML.optional()
+  },
   United: z.boolean().optional(),
   ShowTitle: z.boolean().optional(),
   ShowLeftMargin: z.boolean().optional(),

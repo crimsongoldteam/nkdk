@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import importColorFromXML from "./importFromXML"
+import { importColorFromXML } from "./importFromXML"
 import { TColor, ZColorXML } from "./types"
 import { xmlImport } from "~/lib"
 

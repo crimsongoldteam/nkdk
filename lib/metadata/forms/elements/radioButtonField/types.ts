@@ -3,6 +3,7 @@ import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
+import { ZChoiceList, ZChoiceListXML } from "~/lib/metadata/choiceList/types"
 
 export const ZRadioButtonField = ZFormField.extend({
   radioButtonType: SE.ZRadioButtonType.optional(),

@@ -1,6 +1,6 @@
 import { TTypeDescription, TTypeDescriptionXML } from "./types"
 
-export default function importTypeDescriptionFromXML(
+export const importTypeDescriptionFromXML = (
   xml: TTypeDescriptionXML | undefined
 ): TTypeDescription | undefined {
   if (!xml) return undefined

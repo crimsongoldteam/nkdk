@@ -1,10 +1,13 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZFormTable, ZFormTableXML } from "../formTable/types"
 
 export const ZPages = ZFormGroup.extend({
   currentRowUse: SE.ZCurrentRowUse.optional(),
-  associatedTable: ZFormTable.optional(),
+  get  associatedTable() {
+    return ZFormTable.optional()
+  },
   pagesRepresentation: SE.ZFormPagesRepresentation.optional(),
   currentPage: ZFormGroup.optional(),
   currentPagesState: SE.ZFormPagesState.optional(),
@@ -12,7 +15,9 @@ export const ZPages = ZFormGroup.extend({
 
 export const ZPagesXML = ZFormGroupXML.extend({
   CurrentRowUse: SE.ZCurrentRowUse.optional(),
-  AssociatedTable: ZFormTableXML.optional(),
+  get AssociatedTable() {
+    return ZFormTableXML.optional()
+  },
   PagesRepresentation: SE.ZFormPagesRepresentation.optional(),
   CurrentPage: ZFormGroupXML.optional(),
   CurrentPagesState: SE.ZFormPagesState.optional(),

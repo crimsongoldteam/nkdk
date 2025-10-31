@@ -6,6 +6,9 @@ import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/typeDescri
 import { ZPicture, ZPictureXML } from "../../pictures/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZFormTable, ZFormTableXML } from "../formTable/types"
+import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 
 export const ZFormField = ZBaseElement.extend({
   autoCellHeight: z.boolean().optional(),
@@ -25,7 +28,9 @@ export const ZFormField = ZBaseElement.extend({
   title: ZI8nText.optional(),
   footerPicture: ZPicture.optional(),
   headerPicture: ZPicture.optional(),
-  contextMenu: ZFormGroup.optional(),
+  get  contextMenu() {
+    return ZFormGroup.optional()
+  },
   typeRestriction: ZTypeDescription.optional(),
   showInFooter: z.boolean().optional(),
   showInHeader: z.boolean().optional(),
@@ -37,10 +42,14 @@ export const ZFormField = ZBaseElement.extend({
   skipOnInput: z.boolean().optional(),
   dataPath: z.string().optional(),
   footerDataPath: z.string().optional(),
-  extendedTooltip: ZFormDecoration.optional(),
+  get  extendedTooltip() {
+    return ZFormDecoration.optional()
+  },
   editMode: SE.ZColumnEditMode.optional(),
   shortcut: z.string().optional(),
-  table: ZFormTable.optional(),
+  get  table() {
+    return ZFormTable.optional()
+  },
   footerText: ZI8nText.optional(),
   readOnly: z.boolean().optional(),
   fixingInTable: SE.ZFixingInTable.optional(),
@@ -70,7 +79,9 @@ export const ZFormFieldXML = ZBaseElementXML.extend({
   Title: ZI8nTextXML.optional(),
   FooterPicture: ZPictureXML.optional(),
   HeaderPicture: ZPictureXML.optional(),
-  ContextMenu: ZFormGroupXML.optional(),
+  get ContextMenu() {
+    return ZFormGroupXML.optional()
+  },
   TypeRestriction: ZTypeDescriptionXML.optional(),
   ShowInFooter: z.boolean().optional(),
   ShowInHeader: z.boolean().optional(),
@@ -82,10 +93,14 @@ export const ZFormFieldXML = ZBaseElementXML.extend({
   SkipOnInput: z.boolean().optional(),
   DataPath: z.string().optional(),
   FooterDataPath: z.string().optional(),
-  ExtendedTooltip: ZFormDecorationXML.optional(),
+  get ExtendedTooltip() {
+    return ZFormDecorationXML.optional()
+  },
   EditMode: SE.ZColumnEditMode.optional(),
   Shortcut: z.string().optional(),
-  Table: ZFormTableXML.optional(),
+  get Table() {
+    return ZFormTableXML.optional()
+  },
   FooterText: ZI8nTextXML.optional(),
   ReadOnly: z.boolean().optional(),
   FixingInTable: SE.ZFixingInTable.optional(),

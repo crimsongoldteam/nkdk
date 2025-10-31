@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { TBaseElement, TBaseElementXML } from "./types"
 import { ZElementType } from "~/lib/metadata/systemEnumerations/types"
-import { importBaseElementFromXML } from "./importBaseElementFromXML"
+import { importBaseElementFromXML } from "./importFromXML"
 import { xmlImport } from "~/lib"
 
 it("should decode element from XML", () => {

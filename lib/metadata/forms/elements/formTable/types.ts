@@ -4,6 +4,9 @@ import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 
 export const ZFormTable = ZBaseElement.extend({
   autoAddIncomplete: z.boolean().optional(),
@@ -11,7 +14,7 @@ export const ZFormTable = ZBaseElement.extend({
   autoMaxHeight: z.boolean().optional(),
   autoMaxHeightInTableRows: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
-  autoMarkIncomplete: ERROR: No type found for property АвтоОтметкаНезаполненного,
+  autoMarkIncomplete: z.boolean().optional(),
   defaultItem: z.boolean().optional(),
   displayImportance: SE.ZDisplayImportance.optional(),
   heightControlVariant: SE.ZTableHeightControlVariant.optional(),
@@ -20,7 +23,6 @@ export const ZFormTable = ZBaseElement.extend({
   verticalLines: z.boolean().optional(),
   visible: z.boolean().optional(),
   output: SE.ZUseOutput.optional(),
-  selectedRows: ZМассив.optional(),
   height: z.number().optional(),
   heightInTableRows: z.number().optional(),
   titleHeight: z.number().optional(),
@@ -37,7 +39,9 @@ export const ZFormTable = ZBaseElement.extend({
   currentRowUse: SE.ZTableCurrentRowUse.optional(),
   rowsPicture: z.boolean().optional(),
   commandBar: ZFormGroup.optional(),
-  contextMenu: ZFormGroup.optional(),
+  get  contextMenu() {
+    return ZFormGroup.optional()
+  },
   maxHeight: z.number().optional(),
   maxHeightInTableRows: z.number().optional(),
   maxWidth: z.number().optional(),
@@ -56,7 +60,6 @@ export const ZFormTable = ZBaseElement.extend({
   searchOnInput: SE.ZSearchInTableOnInput.optional(),
   titleLocation: SE.ZFormItemTitleLocation.optional(),
   commandBarLocation: SE.ZFormItemCommandBarLabelLocation.optional(),
-  hierarchyPanelLocation: Z. Указывает положение панели иерархии.optional(),
   viewStatusLocation: SE.ZViewStatusLocation.optional(),
   searchStringLocation: SE.ZSearchStringLocation.optional(),
   searchControlLocation: SE.ZSearchControlLocation.optional(),
@@ -67,17 +70,15 @@ export const ZFormTable = ZBaseElement.extend({
   enableDrag: z.boolean().optional(),
   verticalStretch: z.boolean().optional(),
   horizontalStretch: z.boolean().optional(),
-  extendedTooltip: ZFormDecoration.optional(),
+  get  extendedTooltip() {
+    return ZFormDecoration.optional()
+  },
   rowInputMode: SE.ZTableRowInputMode.optional(),
   choiceMode: z.boolean().optional(),
   selectionMode: SE.ZTableSelectionMode.optional(),
   rowSelectionMode: SE.ZTableRowSelectionMode.optional(),
   shortcut: z.string().optional(),
   fileDragMode: SE.ZFileDragMode.optional(),
-  currentRow: ZПроизвольный.optional(),
-  currentData: ZДанныеФормыСтруктура.optional(),
-  currentParent: ZПроизвольный.optional(),
-  currentItem: ZПолеФормы.optional(),
   readOnly: z.boolean().optional(),
   searchControl: ZДополнениеЭлементаФормы.optional(),
   borderColor: ZColor.optional(),
@@ -97,7 +98,7 @@ export const ZFormTableXML = ZBaseElementXML.extend({
   AutoMaxHeight: z.boolean().optional(),
   AutoMaxHeightInTableRows: z.boolean().optional(),
   AutoMaxWidth: z.boolean().optional(),
-  AutoMarkIncomplete: ERROR: No type found for property АвтоОтметкаНезаполненного,
+  AutoMarkIncomplete: z.boolean().optional(),
   DefaultItem: z.boolean().optional(),
   DisplayImportance: SE.ZDisplayImportance.optional(),
   HeightControlVariant: SE.ZTableHeightControlVariant.optional(),
@@ -106,7 +107,6 @@ export const ZFormTableXML = ZBaseElementXML.extend({
   VerticalLines: z.boolean().optional(),
   Visible: z.boolean().optional(),
   Output: SE.ZUseOutput.optional(),
-  SelectedRows: ZМассивXML.optional(),
   Height: z.number().optional(),
   HeightInTableRows: z.number().optional(),
   TitleHeight: z.number().optional(),
@@ -123,7 +123,9 @@ export const ZFormTableXML = ZBaseElementXML.extend({
   CurrentRowUse: SE.ZTableCurrentRowUse.optional(),
   RowsPicture: z.boolean().optional(),
   CommandBar: ZFormGroupXML.optional(),
-  ContextMenu: ZFormGroupXML.optional(),
+  get ContextMenu() {
+    return ZFormGroupXML.optional()
+  },
   MaxHeight: z.number().optional(),
   MaxHeightInTableRows: z.number().optional(),
   MaxWidth: z.number().optional(),
@@ -142,7 +144,6 @@ export const ZFormTableXML = ZBaseElementXML.extend({
   SearchOnInput: SE.ZSearchInTableOnInput.optional(),
   TitleLocation: SE.ZFormItemTitleLocation.optional(),
   CommandBarLocation: SE.ZFormItemCommandBarLabelLocation.optional(),
-  HierarchyPanelLocation: Z. Указывает положение панели иерархииXML.optional(),
   ViewStatusLocation: SE.ZViewStatusLocation.optional(),
   SearchStringLocation: SE.ZSearchStringLocation.optional(),
   SearchControlLocation: SE.ZSearchControlLocation.optional(),
@@ -153,17 +154,15 @@ export const ZFormTableXML = ZBaseElementXML.extend({
   EnableDrag: z.boolean().optional(),
   VerticalStretch: z.boolean().optional(),
   HorizontalStretch: z.boolean().optional(),
-  ExtendedTooltip: ZFormDecorationXML.optional(),
+  get ExtendedTooltip() {
+    return ZFormDecorationXML.optional()
+  },
   RowInputMode: SE.ZTableRowInputMode.optional(),
   ChoiceMode: z.boolean().optional(),
   SelectionMode: SE.ZTableSelectionMode.optional(),
   RowSelectionMode: SE.ZTableRowSelectionMode.optional(),
   Shortcut: z.string().optional(),
   FileDragMode: SE.ZFileDragMode.optional(),
-  CurrentRow: ZПроизвольныйXML.optional(),
-  CurrentData: ZДанныеФормыСтруктураXML.optional(),
-  CurrentParent: ZПроизвольныйXML.optional(),
-  CurrentItem: ZПолеФормыXML.optional(),
   ReadOnly: z.boolean().optional(),
   SearchControl: ZДополнениеЭлементаФормыXML.optional(),
   BorderColor: ZColorXML.optional(),

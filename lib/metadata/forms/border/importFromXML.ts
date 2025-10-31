@@ -1,7 +1,7 @@
 import { TBorder, TBorderXML } from "./types"
 import type { TControlBorderType } from "~/lib/metadata/systemEnumerations/types"
 
-export default function importBorderFromXML(xml: TBorderXML | { Border: TBorderXML } | undefined): TBorder | undefined {
+export const importBorderFromXML = (xml: TBorderXML | { Border: TBorderXML } | undefined): TBorder | undefined => {
   if (!xml) return undefined
 
   const node: TBorderXML = ("Border" in (xml as any) ? (xml as any).Border : xml) as TBorderXML

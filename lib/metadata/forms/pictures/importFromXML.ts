@@ -1,6 +1,6 @@
 import { TPicture, TPictureXML } from "./types"
 
-export default function importPictureFromXML(xml: TPictureXML | undefined): TPicture | undefined {
+export const importPictureFromXML = (xml: TPictureXML | undefined): TPicture | undefined => {
   if (!xml) return undefined
 
   // Parse Ref to extract type and reference

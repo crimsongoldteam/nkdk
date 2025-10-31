@@ -6,7 +6,7 @@ import { CheckBoxFieldComponent } from "./checkBoxField/checkBoxField"
 import { LabelDecorationComponent } from "./labelDecoration/labelDecoration"
 import { PictureDecorationComponent } from "./pictureDecoration/pictureDecoration"
 import { TableComponent } from "./table/table"
-import { TElementType, ZElementType } from "~/lib/metadata/systemEnumerations/types"
+import { TElementType, ZElementType } from "~/lib/metadata/forms/elements/types"
 
 export const components: Partial<Record<TElementType, React.ComponentType<any>>> = {
   [ZElementType.enum.InputField]: InputField,
@@ -16,5 +16,5 @@ export const components: Partial<Record<TElementType, React.ComponentType<any>>>
   [ZElementType.enum.CheckBoxField]: CheckBoxFieldComponent,
   [ZElementType.enum.LabelDecoration]: LabelDecorationComponent,
   [ZElementType.enum.PictureDecoration]: PictureDecorationComponent,
-  [ZElementType.enum.Table]: TableComponent,
+  [ZElementType.enum.FormTable]: TableComponent,
 }

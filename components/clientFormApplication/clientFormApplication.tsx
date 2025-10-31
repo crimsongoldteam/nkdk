@@ -1,11 +1,11 @@
 import React from "react"
 import { Divider, Space } from "antd"
-import { TNamedElement } from "~/lib/metadata/forms/elements/baseElement/types"
+import { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
 import { components } from "../components"
 
 interface IClientFormApplicationHTMLProps {
   title?: string
-  items: TNamedElement[]
+  items: TBaseElement[]
 }
 
 export function ClientFormApplication(props: Readonly<IClientFormApplicationHTMLProps>): React.ReactNode {

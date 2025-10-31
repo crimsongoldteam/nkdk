@@ -1,7 +1,7 @@
-import { TNamedElement, TNamedElementWithTitle } from "../metadata/forms/elements/baseElement/types"
+import { TBaseElement, TNamedElementWithTitle } from "../metadata/forms/elements/baseElement/types"
 import { pascalCase } from "change-case"
 
-export const formatElementName = (element: TNamedElement) => {
+export const formatElementName = (element: TBaseElement) => {
   // return ""
   return "{" + element.name + "}"
 }

@@ -1,6 +1,6 @@
 import React, { ElementType, useState } from "react"
 import { Flex, Form } from "antd"
-import { TNamedElement } from "~/lib/metadata/forms/elements/baseElement/types"
+import { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
 import { components } from "../components"
 import { TI8nText } from "~/lib/metadata/i8nText/types"
 import { TChildFormItemsGroup, ZChildFormItemsGroup } from "~/lib/metadata/systemEnumerations/types"
@@ -9,7 +9,7 @@ interface IUsualGroupHTMLProps {
   group: TChildFormItemsGroup
   name: string
   title?: TI8nText
-  childItems: TNamedElement[]
+  childItems: TBaseElement[]
   visible: boolean
 }
 

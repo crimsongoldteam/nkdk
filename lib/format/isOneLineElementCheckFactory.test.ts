@@ -5,7 +5,7 @@ import {
   clearIsOneLineElementCheckRegistry,
 } from "./isOneLineElementCheckFactory"
 import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
-import { ZElementType } from "../metadata/systemEnumerations/types"
+import { ZElementType } from "../metadata/forms/elements/types"
 
 describe("isOneLineElementCheckFactory", () => {
   beforeEach(() => {

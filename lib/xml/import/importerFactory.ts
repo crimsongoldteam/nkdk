@@ -1,6 +1,6 @@
 import { ImportFunction } from "./types"
 import { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
-import { baseElementXMLDecode } from "~/lib/metadata/forms/elements/baseElement/importBaseElementFromXML"
+import { baseElementXMLDecode } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
 
 const importRegistry: Map<string, ImportFunction<TBaseElement>> = new Map()
 

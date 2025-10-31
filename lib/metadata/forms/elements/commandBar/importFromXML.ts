@@ -1,12 +1,15 @@
-import { importBaseElementFromXML } from "../baseElement/importBaseElementFromXML"
+import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { TCommandBarXML, TCommandBar } from "./types"
 
-
 export const importCommandBarFromXML = (xml: TCommandBarXML | undefined): TCommandBar | undefined => {
-   if (!xml) return undefined
-   return {
-    ...importBaseElementFromXML(xml),
-     displayImportance: xml.DisplayImportance,
-     horizontalAlign: xml.HorizontalAlign,
+  if (!xml) return undefined 
+
+  const base = importFormGroupFromXML(xml)
+  if (!base) return undefined
+   
+  return {
+    ...base,
+    displayImportance: xml.DisplayImportance,
+    horizontalAlign: xml.HorizontalAlign,
   }
 }

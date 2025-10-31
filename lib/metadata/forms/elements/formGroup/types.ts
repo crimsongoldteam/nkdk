@@ -4,6 +4,8 @@ import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 
 export const ZFormGroup = ZBaseElement.extend({
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
@@ -19,7 +21,9 @@ export const ZFormGroup = ZBaseElement.extend({
   enableContentChange: z.boolean().optional(),
   verticalStretch: z.boolean().optional(),
   horizontalStretch: z.boolean().optional(),
-  extendedTooltip: ZFormDecoration.optional(),
+  get  extendedTooltip() {
+    return ZFormDecoration.optional()
+  },
   shortcut: z.string().optional(),
   readOnly: z.boolean().optional(),
   titleTextColor: ZColor.optional(),
@@ -41,7 +45,9 @@ export const ZFormGroupXML = ZBaseElementXML.extend({
   EnableContentChange: z.boolean().optional(),
   VerticalStretch: z.boolean().optional(),
   HorizontalStretch: z.boolean().optional(),
-  ExtendedTooltip: ZFormDecorationXML.optional(),
+  get ExtendedTooltip() {
+    return ZFormDecorationXML.optional()
+  },
   Shortcut: z.string().optional(),
   ReadOnly: z.boolean().optional(),
   TitleTextColor: ZColorXML.optional(),

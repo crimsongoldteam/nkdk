@@ -4,7 +4,6 @@ import { ZFormField, ZFormFieldXML } from "../formField/types"
 export const ZPlannerField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
-  selectedItems: ZFixedArray.optional(),
   height: z.number().optional(),
   wrappedTimeScaleHeaderHyperlink: z.boolean().optional(),
   dimensionItemHyperlink: z.boolean().optional(),
@@ -21,7 +20,6 @@ export const ZPlannerField = ZFormField.extend({
 export const ZPlannerFieldXML = ZFormFieldXML.extend({
   AutoMaxHeight: z.boolean().optional(),
   AutoMaxWidth: z.boolean().optional(),
-  SelectedItems: ZFixedArrayXML.optional(),
   Height: z.number().optional(),
   WrappedTimeScaleHeaderHyperlink: z.boolean().optional(),
   DimensionItemHyperlink: z.boolean().optional(),
