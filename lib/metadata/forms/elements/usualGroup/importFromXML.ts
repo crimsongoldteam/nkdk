@@ -1,4 +1,4 @@
-import { importColorFromXML } from "~/lib/metadata/color/importFromXML"
+import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFormTableFromXML } from "../formTable/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { TUsualGroupXML, TUsualGroup } from "./types"

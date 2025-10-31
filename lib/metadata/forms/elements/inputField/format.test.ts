@@ -44,7 +44,7 @@ it("should format multiline input field", () => {
     title: { ru: "Поле" },
     value: "Значение",
     height: 2,
-    isMultiline: true,
+    multiLine: true,
   }
 
   const result = formatInputField(element, mockParams)

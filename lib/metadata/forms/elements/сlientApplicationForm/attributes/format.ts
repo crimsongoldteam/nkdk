@@ -1,9 +1,9 @@
 import * as yaml from "js-yaml"
-import { formatTypeDescription } from "~/lib/metadata/typeDescription/format"
+import { formatTypeDescription } from "~/lib/metadata/commonObjects/typeDescription/format"
 import { TAttribute, TAttributesEnterpriseXML as TAttributesEnterprise } from "../types"
-import { formatI8nText } from "~/lib/metadata/i8nText/formatI8nText"
+import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/formatI8nText"
 import { formatBool } from "~/lib/format/formatBool"
-import { formatUse } from "~/lib/metadata/forms/use/format"
+import { formatUse } from "~/lib/metadata/commonObjects/use/format"
 
 export default function formatFormAttributes(attributes: TAttribute[]): string[] {
   const transformedAttributes = transformAttributes(attributes)

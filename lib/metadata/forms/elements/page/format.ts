@@ -5,7 +5,7 @@ import * as t from "~/lib/parser/lexer"
 import { formatElementTitleAndName } from "~/lib/format/helpers"
 import { addSimpleIndent } from "~/lib/format/wrap/addIndents"
 
-export const formatPage: FormatFunction<TPage> = (element: TPage, params: IFormatterParams): IFormatElementResult => {
+export const formatPage: FormatFunction<TPage> = (element: TPage, _params: IFormatterParams): IFormatElementResult => {
   const result: IFormatElementResult = { strings: [], haveSimpleHorizontalGroup: false }
 
   const header = getHeader(element)

@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { importI8nTextFromXML } from "./importI8nTextFromXML"
 import { TI8nTextXML } from "./types"
-import { TI8nText } from "~/lib/metadata/i8nText/types"
+import { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
 
 it("should import I8nText from XML", () => {
   const mockXml: TI8nTextXML = [{ "v8:item": { "v8:lang": "ru", "v8:content": "Поле" } }]

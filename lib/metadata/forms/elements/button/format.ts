@@ -4,7 +4,7 @@ import { formatElementName } from "~/lib/format/helpers"
 
 export const formatButton: FormatFunction<TButton> = (
   element: TButton,
-  params: IFormatterParams
+  _params: IFormatterParams
 ): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: ["<" + element.title?.ru + formatElementName(element) + ">"],

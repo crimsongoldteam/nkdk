@@ -9,10 +9,6 @@ it("should import button from XML", () => {
 					<Title>
 						<ru>ОК</ru>
 					</Title>
-					<ToolTip>
-						<ru>Нажмите для подтверждения</ru>
-					</ToolTip>
-					<Action>ОК</Action>
 				</Button>`
 
   const expectedResult: TButton = {
@@ -21,10 +17,6 @@ it("should import button from XML", () => {
     title: {
       ru: "ОК",
     },
-    toolTip: {
-      ru: "Нажмите для подтверждения",
-    },
-    action: "ОК",
     id: "1",
   }
 

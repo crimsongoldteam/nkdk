@@ -2,10 +2,10 @@ import { IFormatterParams, IFormatElementResult } from "~/lib/format/types"
 import { formatElements } from "~/lib/format/formatFactory"
 import { ZUsualGroupBehavior, ZUsualGroupRepresentation } from "~/lib/metadata/systemEnumerations/types"
 import * as t from "~/lib/parser/lexer"
-import { formatElementName, formatElementTitleAndName } from "~/lib/format/helpers"
+import { formatElementTitleAndName } from "~/lib/format/helpers"
 import { TUsualGroup } from "../types"
 
-export const formatVerticalGroup = (element: TUsualGroup, params: IFormatterParams): IFormatElementResult => {
+export const formatVerticalGroup = (element: TUsualGroup, _params: IFormatterParams): IFormatElementResult => {
   let result: IFormatElementResult = { strings: [], haveSimpleHorizontalGroup: false }
 
   // if (params.wrapInGroup != WrapInGroupStrategy.None) {

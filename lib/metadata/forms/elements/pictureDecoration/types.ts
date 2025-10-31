@@ -1,8 +1,8 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
-import { ZPicture, ZPictureXML } from "../../pictures/types"
-import { ZBorder, ZBorderXML } from "~/lib/metadata/forms/border/types"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
+import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 
 export const ZPictureDecoration = ZFormDecoration.extend({

@@ -1,7 +1,7 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
-import { ZBorder, ZBorderXML } from "~/lib/metadata/forms/border/types"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 
 export const ZLabelDecoration = ZFormDecoration.extend({

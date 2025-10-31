@@ -15,4 +15,4 @@ registerIsOneLineElementCheck<TInputField>(
   ZElementType.enum.InputField,
   (element: TInputField) => !isMultiline(element)
 )
-registerImport<TInputField>(ZElementType.enum.InputField, importInputFieldFromXML)
+registerImport<TInputField | undefined>(ZElementType.enum.InputField, importInputFieldFromXML)

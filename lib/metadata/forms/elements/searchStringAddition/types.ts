@@ -1,6 +1,6 @@
 import * as z from "zod"
-import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 
 export const ZSearchStringAddition = ZFormItemAddition.extend({

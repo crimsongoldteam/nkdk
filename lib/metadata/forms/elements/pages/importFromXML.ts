@@ -13,7 +13,6 @@ export const importPagesFromXML = (xml: TPagesXML | undefined): TPages | undefin
     currentRowUse: xml.CurrentRowUse,
     associatedTable: importFormTableFromXML(xml.AssociatedTable),
     pagesRepresentation: xml.PagesRepresentation,
-    currentPage: xml.CurrentPage,
     currentPagesState: xml.CurrentPagesState,
   }
 }

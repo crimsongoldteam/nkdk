@@ -1,7 +1,6 @@
 import { TCommand, TCommandEnterprise } from "./types"
-import { formatI8nText } from "../../i8nText/formatI8nText"
+import { formatI8nText } from "../../commonObjects/i8nText/formatI8nText"
 import * as yaml from "js-yaml"
-import { ZCurrentRowUse } from "../../systemEnumerations/types"
 
 export function formatCommands(commands: TCommand[]): string[] {
   const commandsEnterprise = commands.map((command) => formatCommand(command))

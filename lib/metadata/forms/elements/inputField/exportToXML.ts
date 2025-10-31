@@ -1,6 +1,6 @@
-import { TI8nTextXML } from "~/lib/metadata/i8nText/types"
+import { TI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { TInputField, TInputFieldXML } from "./types"
-import exportI8nXmlTextToXML from "~/lib/metadata/i8nText/exportI8nTextToXML"
+import exportI8nXmlTextToXML from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 
 export default function exportInputFieldToXML(element: TInputField): TInputFieldXML {
   let title: TI8nTextXML | undefined
@@ -11,27 +11,25 @@ export default function exportInputFieldToXML(element: TInputField): TInputField
   }
 
   const result: TInputFieldXML = {
-    InputField: {
-      _name: element.name,
-      _id: element.id ?? "",
+    _name: element.name,
+    _id: element.id ?? "",
 
-      // <DataPath>Фамилия</DataPath>
-      // <ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
-      // <ContextMenu name="ФамилияКонтекстноеМеню" id="2"/>
-      // <ExtendedTooltip name="ФамилияРасширеннаяПодсказка" id="3"/>
+    // <DataPath>Фамилия</DataPath>
+    // <ExtendedEditMultipleValues>true</ExtendedEditMultipleValues>
+    // <ContextMenu name="ФамилияКонтекстноеМеню" id="2"/>
+    // <ExtendedTooltip name="ФамилияРасширеннаяПодсказка" id="3"/>
 
-      DataPath: element.name,
-      // ExtendedEditMultipleValues: true,
-      // ContextMenu: {
-      //   _name: element.contextMenu?.name ?? "",
-      //   _id: element.contextMenu?.id ?? "",
-      // },
-      // ExtendedTooltip: {
-      //   _name: element.extendedTooltip?.name ?? "",
-      //   _id: element.extendedTooltip?.id ?? "",
-      // },
-      Title: title,
-    },
+    DataPath: element.name,
+    // ExtendedEditMultipleValues: true,
+    // ContextMenu: {
+    //   _name: element.contextMenu?.name ?? "",
+    //   _id: element.contextMenu?.id ?? "",
+    // },
+    // ExtendedTooltip: {
+    //   _name: element.extendedTooltip?.name ?? "",
+    //   _id: element.extendedTooltip?.id ?? "",
+    // },
+    Title: title,
   }
   return result
 }

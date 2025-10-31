@@ -1,4 +1,4 @@
-import { importColorFromXML } from "~/lib/metadata/color/importFromXML"
+import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { THtmlDocumentFieldXML, THtmlDocumentField } from "./types"
 

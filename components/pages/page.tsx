@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { TPage } from "~/lib/metadata/forms/elements/page/types"
-import { TI8nText } from "~/lib/metadata/i8nText/types"
+import { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
 import { components } from "../components"
 
 interface IPageHTMLProps {

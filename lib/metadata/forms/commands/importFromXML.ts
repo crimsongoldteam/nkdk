@@ -1,5 +1,5 @@
 import { TCommand, TCommandXML } from "./types"
-import { importI8nTextFromXML } from "../../i8nText/importI8nTextFromXML"
+import { importI8nTextFromXML } from "../../commonObjects/i8nText/importI8nTextFromXML"
 
 export default function importCommandFromXML(xml: TCommandXML | undefined): TCommand | undefined {
   if (!xml) return undefined

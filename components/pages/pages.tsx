@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Tabs } from "antd"
-import { TI8nText } from "~/lib/metadata/i8nText/types"
-import { PageComponent } from "./page"
+import { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
+// import { PageComponent } from "./page"
 import { TPage } from "~/lib/metadata/forms/elements/page/types"
 
 interface IPagesHTMLProps {
@@ -18,7 +18,7 @@ export function PagesComponent(props: Readonly<IPagesHTMLProps>): React.ReactNod
     return {
       key: item.name,
       label: item.title?.ru || "",
-      children: <PageComponent key={item.name} {...item} />,
+      // children: <PageComponent key={item.name} {...item} />,
     }
   })
   return <Tabs id={`tabs_${name}`} type="card" items={items}></Tabs>

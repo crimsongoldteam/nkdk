@@ -11,4 +11,4 @@ registerFormat<TLabelDecoration>(
   (element: TLabelDecoration) => element.elementType === ZElementType.enum.LabelDecoration
 )
 registerIsOneLineElementCheck<TLabelDecoration>(ZElementType.enum.LabelDecoration, () => true)
-registerImport<TLabelDecoration>(ZElementType.enum.LabelDecoration, importLabelDecorationFromXML)
+registerImport<TLabelDecoration | undefined>(ZElementType.enum.LabelDecoration, importLabelDecorationFromXML)

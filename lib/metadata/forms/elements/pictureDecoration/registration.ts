@@ -11,4 +11,4 @@ registerFormat<TPictureDecoration>(
   (element: TPictureDecoration) => element.elementType === ZElementType.enum.PictureDecoration
 )
 registerIsOneLineElementCheck<TPictureDecoration>(ZElementType.enum.PictureDecoration, () => true)
-registerImport<TPictureDecoration>(ZElementType.enum.PictureDecoration, importPictureDecorationFromXML)
+registerImport<TPictureDecoration | undefined>(ZElementType.enum.PictureDecoration, importPictureDecorationFromXML)

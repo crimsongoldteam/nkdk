@@ -2,8 +2,7 @@ import * as t from "~/lib/parser/lexer"
 import { type TInputField } from "./types"
 import { IFormatterParams, FormatFunction, IFormatElementResult } from "~/lib/format/types"
 import { isMultiline } from "./helpers"
-import { formatElementName, formatElementTitleAndName } from "~/lib/format/helpers"
-import { formatGroupWrapping } from "~/lib/format/wrap/formatGroupWrapping"
+import { formatElementName } from "~/lib/format/helpers"
 import { pascalCase } from "change-case"
 
 const UNDERLINE = t.Underscore.LABEL as string
@@ -11,7 +10,7 @@ const COLON = t.Colon.LABEL as string
 
 export const formatInputField: FormatFunction<TInputField> = (
   element: TInputField,
-  params: IFormatterParams
+  _params: IFormatterParams
 ): IFormatElementResult => {
   let header: string = ""
 

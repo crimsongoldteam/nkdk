@@ -24,5 +24,5 @@ export { formatInputField } from "./metadata/forms/elements/inputField/format"
 
 // Общие типы
 export type { TInputField } from "./metadata/forms/elements/inputField/types"
-export type { TI8nText } from "./metadata/i8nText/types"
+export type { TI8nText } from "./metadata/commonObjects/i8nText/types"
 export type { IFormatterParams } from "./format/types"

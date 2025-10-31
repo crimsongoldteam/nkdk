@@ -1,6 +1,6 @@
-import { importColorFromXML } from "~/lib/metadata/color/importFromXML"
-import { importFontFromXML } from "~/lib/metadata/font/importFromXML"
-import { importChoiceListFromXML } from "~/lib/metadata/choiceList/importFromXML"
+import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
+import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
+import { importChoiceListFromXML } from "~/lib/metadata/commonObjects/choiceList/importFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TRadioButtonFieldXML, TRadioButtonField } from "./types"
 

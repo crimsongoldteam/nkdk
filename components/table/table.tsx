@@ -1,13 +1,13 @@
-import React, { useState } from "react"
+import React from "react"
 import { Table } from "antd"
-import { TI8nText } from "~/lib/metadata/i8nText/types"
+import { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
 
 interface ITableHTMLProps {
   name: string
   title?: TI8nText
 }
 
-export function TableComponent(props: Readonly<ITableHTMLProps>): React.ReactNode {
+export function TableComponent(_props: Readonly<ITableHTMLProps>): React.ReactNode {
   const columns = [
     {
       title: "Заголовок",

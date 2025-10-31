@@ -11,7 +11,7 @@ export const formatUsualGroup: FormatFunction<TUsualGroup> = (
 ): IFormatElementResult => {
   //indentationStrategy: SimpleIndentationStrategy
   if (isVerticalGroup(element)) return formatVerticalGroup(element, params)
-  if (isOneLineGroup(element)) return formatOneLineGroup(element, params)
+  if (isOneLineGroup(element)) return formatOneLineGroup(element)
 
   return formatHorizontalGroup(element, params)
 }

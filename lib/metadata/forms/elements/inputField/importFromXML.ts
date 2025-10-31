@@ -1,8 +1,10 @@
-import { importColorFromXML } from "~/lib/metadata/color/importFromXML"
-import { importFontFromXML } from "~/lib/metadata/font/importFromXML"
-import { importTypeDescriptionFromXML } from "~/lib/metadata/typeDescription/importFromXML"
-import { importPictureFromXML } from "../../pictures/importFromXML"
-import { importChoiceListFromXML } from "~/lib/metadata/choiceList/importFromXML"
+import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
+import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
+import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
+import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
+import { importChoiceListFromXML } from "~/lib/metadata/commonObjects/choiceList/importFromXML"
+import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/importFromXML"
+import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TInputFieldXML, TInputField } from "./types"
 
@@ -53,7 +55,7 @@ export const importInputFieldFromXML = (xml: TInputFieldXML | undefined): TInput
     markIncomplete: xml.MarkIncomplete,
     showCheckBoxesInDropListWhenInputMultipleValues: xml.ShowCheckBoxesInDropListWhenInputMultipleValues,
     choiceButtonRepresentation: xml.ChoiceButtonRepresentation,
-    choiceParameters: xml.ChoiceParameters,
+    choiceParameters: importChoiceParameterLinksFromXML(xml.ChoiceParameters),
     autoFillHint: xml.AutoFillHint,
     inputHint: xml.InputHint,
     spellCheckingOnTextInput: xml.SpellCheckingOnTextInput,
@@ -72,8 +74,8 @@ export const importInputFieldFromXML = (xml: TInputFieldXML | undefined): TInput
     listChoiceMode: xml.ListChoiceMode,
     incompleteChoiceMode: xml.IncompleteChoiceMode,
     passwordMode: xml.PasswordMode,
-    choiceParameterLinks: xml.ChoiceParameterLinks,
-    typeLink: xml.TypeLink,
+    choiceParameterLinks: importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks),
+    typeLink: importTypeLinkFromXML(xml.TypeLink),
     specialTextInputMode: xml.SpecialTextInputMode,
     choiceList: importChoiceListFromXML(xml.ChoiceList),
     onScreenKeyboardReturnKeyText: xml.OnScreenKeyboardReturnKeyText,

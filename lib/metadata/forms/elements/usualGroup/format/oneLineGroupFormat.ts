@@ -1,6 +1,6 @@
 import { TUsualGroup } from "../types"
 import { formatElement } from "~/lib/format/formatFactory"
-import { IFormatElementResult, IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
+import { IFormatElementResult, WrapInGroupStrategy } from "~/lib/format/types"
 import { formatElementTitleAndName } from "~/lib/format/helpers"
 
 export const formatOneLineGroup = (element: TUsualGroup): IFormatElementResult => {

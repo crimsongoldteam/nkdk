@@ -9,7 +9,6 @@ export const ZPages = ZFormGroup.extend({
     return ZFormTable.optional()
   },
   pagesRepresentation: SE.ZFormPagesRepresentation.optional(),
-  currentPage: ZFormGroup.optional(),
   currentPagesState: SE.ZFormPagesState.optional(),
 })
 
@@ -19,7 +18,6 @@ export const ZPagesXML = ZFormGroupXML.extend({
     return ZFormTableXML.optional()
   },
   PagesRepresentation: SE.ZFormPagesRepresentation.optional(),
-  CurrentPage: ZFormGroupXML.optional(),
   CurrentPagesState: SE.ZFormPagesState.optional(),
 })
 

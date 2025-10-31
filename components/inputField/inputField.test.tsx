@@ -8,21 +8,21 @@ describe("InputField", () => {
   })
 
   it("should render with title and value", () => {
-    render(<InputField title="Test Title" value="Test Value" name="Test Name" />)
+    render(<InputField title={{ ru: "Test Title" }} value="Test Value" name="Test Name" />)
 
     expect(screen.getByText("Test Title")).toBeDefined()
     expect(screen.getByDisplayValue("Test Value")).toBeDefined()
   })
 
   it("should render with only title", () => {
-    render(<InputField title="Test Title" name="Test Name" />)
+    render(<InputField title={{ ru: "Test Title" }} name="Test Name" />)
 
     expect(screen.getByText("Test Title")).toBeDefined()
     expect(screen.getByRole("textbox")).toBeDefined()
   })
 
   it("should render with only value", () => {
-    render(<InputField value="Test Value" name="Test Name" />)
+    render(<InputField title={{ ru: "Test Title" }} value="Test Value" name="Test Name" />)
 
     expect(screen.getByDisplayValue("Test Value")).toBeDefined()
   })

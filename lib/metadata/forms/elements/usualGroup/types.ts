@@ -1,6 +1,6 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZFormTable, ZFormTableXML } from "../formTable/types"
 

@@ -2,7 +2,7 @@ import { TClientApplicationForm, TClientApplicationFormXML, TAttribute } from ".
 import importAttributeFromXML from "./attributes/importFromXML"
 import { importElementFromXML } from "~/lib/xml/import/importerFactory"
 import { ZElementType } from "../types"
-import { importI8nTextFromXML } from "~/lib/metadata/i8nText/importI8nTextFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 
 export const importClientApplicationFormFromXML = (xml: TClientApplicationFormXML): TClientApplicationForm => {
   const result: TClientApplicationForm = {

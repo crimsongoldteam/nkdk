@@ -8,4 +8,4 @@ import { formatButton } from "./format"
 
 registerFormat<TButton>(formatButton, (element: TButton) => element.elementType === ZElementType.enum.Button)
 registerIsOneLineElementCheck<TButton>(ZElementType.enum.Button, () => true)
-registerImport<TButton>(ZElementType.enum.Button, importButtonFromXML)
+registerImport<TButton | undefined>(ZElementType.enum.Button, importButtonFromXML)

@@ -1,4 +1,4 @@
-import { importI8nTextFromXML } from "~/lib/metadata/i8nText/importI8nTextFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 import { TChoiceList } from "./types"
 
 export const importChoiceListFromXML = (xml: any | undefined): TChoiceList | undefined => {

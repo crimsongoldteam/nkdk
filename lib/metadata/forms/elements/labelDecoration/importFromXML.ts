@@ -1,5 +1,5 @@
-import { importColorFromXML } from "~/lib/metadata/color/importFromXML"
-import { importBorderFromXML } from "~/lib/metadata/forms/border/importFromXML"
+import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
+import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { TLabelDecorationXML, TLabelDecoration } from "./types"
 

@@ -1,39 +1,39 @@
-import { CstChildrenDictionary, CstNode } from "chevrotain"
-import { Parser } from "./parser"
-import inputFieldVisit from "~/lib/metadata/forms/elements/inputField/parseVisit"
-import { TInputField } from "~/lib/metadata/forms/elements/inputField/types"
-import { TClientApplicationForm } from "~/lib/metadata/forms/elements/сlientApplicationForm/types"
-import clientApplicationFormVisit, {
-  сlientApplicationFormHeaderVisit,
-  IСlientApplicationFormHeaderVisit,
-} from "~/lib/metadata/forms/elements/clientApplicationForm/parseVisit"
+// import { CstChildrenDictionary, CstNode } from "chevrotain"
+// import { Parser } from "./parser"
+// import inputFieldVisit from "~/lib/metadata/forms/elements/inputField/parseVisit"
+// import { TInputField } from "~/lib/metadata/forms/elements/inputField/types"
+// import { TClientApplicationForm } from "~/lib/metadata/forms/elements/сlientApplicationForm/types"
+// import clientApplicationFormVisit, {
+//   сlientApplicationFormHeaderVisit,
+//   IСlientApplicationFormHeaderVisit,
+// } from "~/lib/metadata/forms/elements/clientApplicationForm/parseVisit"
 
-const BaseVisitor: new () => any = new Parser().getBaseCstVisitorConstructor()
+// const BaseVisitor: new () => any = new Parser().getBaseCstVisitorConstructor()
 
-export class Visitor extends BaseVisitor {
-  // #region form
+// export class Visitor extends BaseVisitor {
+//   // #region form
 
-  form(ctx: CstChildrenDictionary): TClientApplicationForm {
-    return clientApplicationFormVisit(this, ctx)
-  }
+//   form(ctx: CstChildrenDictionary): TClientApplicationForm {
+//     return clientApplicationFormVisit(this, ctx)
+//   }
 
-  formHeader(ctx: CstChildrenDictionary): IСlientApplicationFormHeaderVisit {
-    return сlientApplicationFormHeaderVisit(this, ctx)
-  }
+//   formHeader(ctx: CstChildrenDictionary): IСlientApplicationFormHeaderVisit {
+//     return сlientApplicationFormHeaderVisit(this, ctx)
+//   }
 
-  // #endregion
+//   // #endregion
 
-  // #region field
+//   // #region field
 
-  field(ctx: CstChildrenDictionary): any {
-    const firstKey = Object.keys(ctx)[0]
-    const firstValue = ctx[firstKey as keyof typeof ctx]
-    return this.visit(firstValue as CstNode[])
-  }
+//   field(ctx: CstChildrenDictionary): any {
+//     const firstKey = Object.keys(ctx)[0]
+//     const firstValue = ctx[firstKey as keyof typeof ctx]
+//     return this.visit(firstValue as CstNode[])
+//   }
 
-  // #endregion
+//   // #endregion
 
-  inputField(ctx: CstChildrenDictionary): TInputField {
-    return inputFieldVisit(this, ctx)
-  }
-}
+//   inputField(ctx: CstChildrenDictionary): TInputField {
+//     return inputFieldVisit(this, ctx)
+//   }
+// }

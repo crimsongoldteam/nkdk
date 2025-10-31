@@ -1,5 +1,5 @@
-import { importColorFromXML } from "~/lib/metadata/color/importFromXML"
-import { importPictureFromXML } from "../../pictures/importFromXML"
+import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
+import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { TPopupXML, TPopup } from "./types"
 

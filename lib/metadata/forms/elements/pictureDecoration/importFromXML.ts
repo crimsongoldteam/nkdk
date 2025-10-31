@@ -1,6 +1,6 @@
-import { importColorFromXML } from "~/lib/metadata/color/importFromXML"
-import { importPictureFromXML } from "../../pictures/importFromXML"
-import { importBorderFromXML } from "~/lib/metadata/forms/border/importFromXML"
+import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
+import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
+import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { TPictureDecorationXML, TPictureDecoration } from "./types"
 

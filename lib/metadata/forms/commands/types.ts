@@ -1,9 +1,9 @@
 import { z } from "zod"
-import { ZI8nTextXML, ZI8nText, ZI8nTextEnterprise } from "../../i8nText/types"
-import { ZPicture, ZPictureEnterprise, ZPictureXML } from "../pictures/types"
+import { ZI8nTextXML, ZI8nText, ZI8nTextEnterprise } from "../../commonObjects/i8nText/types"
+import { ZPicture, ZPictureEnterprise, ZPictureXML } from "../../commonObjects/pictures/types"
 import { ZButtonRepresentation, ZCurrentRowUse, ZCurrentRowUseEnterprise } from "../../systemEnumerations/types"
-import { ZUseEnterprise, ZUseXML } from "../use/types"
-import { ZUse } from "../use/types"
+import { ZUseEnterprise, ZUseXML } from "../../commonObjects/use/types"
+import { ZUse } from "../../commonObjects/use/types"
 
 const ZCommandXML = z.object({
   _name: z.string(),

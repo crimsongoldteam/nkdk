@@ -1,7 +1,6 @@
-import { IFormatterParams, WrapInGroupStrategy } from "../types"
-import { addIndents as addIndents } from "./addIndents"
+import { IFormatterParams } from "../types"
 
-export const formatGroupWrapping = (lines: string[], params: IFormatterParams): string[] => {
+export const formatGroupWrapping = (lines: string[], _params: IFormatterParams): string[] => {
   return [...lines]
   // if (params.wrapInGroup != WrapInGroupStrategy.Always) {
   //   return lines

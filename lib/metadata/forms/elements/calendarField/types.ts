@@ -1,8 +1,8 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
-import { ZBorder, ZBorderXML } from "~/lib/metadata/forms/border/types"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
+import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 
 export const ZCalendarField = ZFormField.extend({

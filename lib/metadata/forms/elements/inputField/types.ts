@@ -1,11 +1,13 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/typeDescription/types"
-import { ZPicture, ZPictureXML } from "../../pictures/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
+import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZChoiceList, ZChoiceListXML } from "~/lib/metadata/choiceList/types"
+import { ZChoiceList, ZChoiceListXML } from "~/lib/metadata/commonObjects/choiceList/types"
+import { ZTypeLink, ZTypeLinkXML } from "~/lib/metadata/commonObjects/typeLink/types"
+import { ZChoiceParameterLinks, ZChoiceParameterLinksXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types"
 
 export const ZInputField = ZFormField.extend({
   autoChoiceIncomplete: z.boolean().optional(),
@@ -47,7 +49,7 @@ export const ZInputField = ZFormField.extend({
   markIncomplete: z.boolean().optional(),
   showCheckBoxesInDropListWhenInputMultipleValues: z.boolean().optional(),
   choiceButtonRepresentation: SE.ZChoiceButtonRepresentation.optional(),
-  choiceParameters: ZFixedArray.optional(),
+  choiceParameters: ZChoiceParameterLinks.optional(),
   autoFillHint: SE.ZInputFieldAutofillHint.optional(),
   inputHint: z.string().optional(),
   spellCheckingOnTextInput: SE.ZSpellCheckingOnTextInput.optional(),
@@ -66,7 +68,7 @@ export const ZInputField = ZFormField.extend({
   listChoiceMode: z.boolean().optional(),
   incompleteChoiceMode: SE.ZIncompleteChoiceMode.optional(),
   passwordMode: z.boolean().optional(),
-  choiceParameterLinks: ZFixedArray.optional(),
+  choiceParameterLinks: ZChoiceParameterLinks.optional(),
   typeLink: ZTypeLink.optional(),
   specialTextInputMode: SE.ZSpecialTextInputMode.optional(),
   choiceList: ZChoiceList.optional(),
@@ -128,7 +130,7 @@ export const ZInputFieldXML = ZFormFieldXML.extend({
   MarkIncomplete: z.boolean().optional(),
   ShowCheckBoxesInDropListWhenInputMultipleValues: z.boolean().optional(),
   ChoiceButtonRepresentation: SE.ZChoiceButtonRepresentation.optional(),
-  ChoiceParameters: ZFixedArrayXML.optional(),
+  ChoiceParameters: ZChoiceParameterLinksXML.optional(),
   AutoFillHint: SE.ZInputFieldAutofillHint.optional(),
   InputHint: z.string().optional(),
   SpellCheckingOnTextInput: SE.ZSpellCheckingOnTextInput.optional(),
@@ -147,7 +149,7 @@ export const ZInputFieldXML = ZFormFieldXML.extend({
   ListChoiceMode: z.boolean().optional(),
   IncompleteChoiceMode: SE.ZIncompleteChoiceMode.optional(),
   PasswordMode: z.boolean().optional(),
-  ChoiceParameterLinks: ZFixedArrayXML.optional(),
+  ChoiceParameterLinks: ZChoiceParameterLinksXML.optional(),
   TypeLink: ZTypeLinkXML.optional(),
   SpecialTextInputMode: SE.ZSpecialTextInputMode.optional(),
   ChoiceList: ZChoiceListXML.optional(),

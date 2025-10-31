@@ -1,8 +1,8 @@
-import React, { ElementType, useState } from "react"
-import { Flex, Form } from "antd"
+import React, { useState } from "react"
+import { Flex } from "antd"
 import { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
 import { components } from "../components"
-import { TI8nText } from "~/lib/metadata/i8nText/types"
+import { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
 import { TChildFormItemsGroup, ZChildFormItemsGroup } from "~/lib/metadata/systemEnumerations/types"
 
 interface IUsualGroupHTMLProps {
@@ -14,7 +14,6 @@ interface IUsualGroupHTMLProps {
 }
 
 export function UsualGroup(props: Readonly<IUsualGroupHTMLProps>): React.ReactNode {
-  const [title] = useState(props.title?.ru || "")
   const [name] = useState(props.name)
   const [childItems] = useState(props.childItems)
   const [visible] = useState(props.visible)

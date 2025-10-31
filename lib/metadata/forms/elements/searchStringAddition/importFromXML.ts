@@ -1,5 +1,5 @@
-import { importColorFromXML } from "~/lib/metadata/color/importFromXML"
-import { importFontFromXML } from "~/lib/metadata/font/importFromXML"
+import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
+import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { TSearchStringAdditionXML, TSearchStringAddition } from "./types"
 

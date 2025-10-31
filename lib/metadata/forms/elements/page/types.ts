@@ -1,7 +1,7 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
-import { ZPicture, ZPictureXML } from "../../pictures/types"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 
 export const ZPage = ZFormGroup.extend({
