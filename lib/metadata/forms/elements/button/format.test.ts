@@ -1,11 +1,11 @@
 import { it, expect } from "vitest"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { ZElementType } from "../types"
 import { TButton } from "./types"
 import { formatButton } from "./format"
 
 it("should format button", () => {
   const element: TButton = {
-    type: ZElementType.enum.Button,
+    elementType: ZElementType.enum.Button,
     name: "ИмяКнопки",
     id: "1",
     title: {

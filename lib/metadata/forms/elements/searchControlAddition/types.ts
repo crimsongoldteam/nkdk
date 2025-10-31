@@ -1,6 +1,7 @@
 import * as z from "zod"
 import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
+import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 
 export const ZSearchControlAddition = ZFormItemAddition.extend({
   autoMaxWidth: z.boolean().optional(),

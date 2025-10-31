@@ -8,7 +8,7 @@ import { addSimpleIndent } from "~/lib/format/wrap/addIndents"
 const FIRST_LINE_SEPARATOR = " " + (t.Hash.LABEL as string)
 const SEPARATOR = " " + "|"
 
-export const formatHorizontalGroup = (element: TUsualGroup, params: IFormatterParams): IFormatElementResult => {
+export const formatHorizontalGroup = (element: TUsualGroup, _params: IFormatterParams): IFormatElementResult => {
   let result: IFormatElementResult = { strings: ["-" + formatElementName(element)], haveSimpleHorizontalGroup: false }
 
   let verticalGroups: string[][] = getVerticalItems(element)

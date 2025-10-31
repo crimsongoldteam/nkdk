@@ -26,9 +26,9 @@ export function UsualGroup(props: Readonly<IUsualGroupHTMLProps>): React.ReactNo
   return (
     <Flex id={`form_item_${name}`} vertical={props.group === ZChildFormItemsGroup.enum.Vertical} gap="small">
       {childItems.map((item) => {
-        const Component = components[item.type as keyof typeof components]
+        const Component = components[item.elementType as keyof typeof components]
         if (!Component) {
-          return <div key={item.name}>Компонент {item.type} не найден</div>
+          return <div key={item.name}>Компонент {item.elementType} не найден</div>
         }
         return <Component key={item.name} {...item} />
       })}

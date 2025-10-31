@@ -1,11 +1,11 @@
 import { it, expect } from "vitest"
-import { ElementType } from "~/lib/metadata/systemEnumerations/types"
+import { ZElementType } from "../types"
 import { TLabelDecoration } from "./types"
 import { formatLabelDecoration } from "./format"
 
 it("should format label decoration", () => {
   const element: TLabelDecoration = {
-    type: ElementType.LabelDecoration,
+    elementType: ZElementType.enum.LabelDecoration,
     name: "ИмяПоля",
     id: "1",
     title: {

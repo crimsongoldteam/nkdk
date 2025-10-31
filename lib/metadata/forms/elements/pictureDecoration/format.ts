@@ -5,7 +5,7 @@ import { formatElementName } from "~/lib/format/helpers"
 
 export const formatPictureDecoration: FormatFunction<TPictureDecoration> = (
   element: TPictureDecoration,
-  params: IFormatterParams
+  _params: IFormatterParams
 ): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: ["@" + element.picture?.ref + " " + formatElementName(element)],

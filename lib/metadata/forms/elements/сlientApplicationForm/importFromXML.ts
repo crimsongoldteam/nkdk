@@ -6,7 +6,7 @@ import { importI8nTextFromXML } from "~/lib/metadata/i8nText/importI8nTextFromXM
 
 export const importClientApplicationFormFromXML = (xml: TClientApplicationFormXML): TClientApplicationForm => {
   const result: TClientApplicationForm = {
-    type: ZElementType.enum.Form,
+    elementType: ZElementType.enum.Form,
     autoCommandBar: xml.Form.AutoCommandBar
       ? {
           name: xml.Form.AutoCommandBar._name,

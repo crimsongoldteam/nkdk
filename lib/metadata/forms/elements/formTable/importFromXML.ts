@@ -4,6 +4,7 @@ import { importI8nTextFromXML } from "~/lib/metadata/i8nText/importI8nTextFromXM
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { TFormTableXML, TFormTable } from "./types"
 
@@ -44,7 +45,7 @@ export const importFormTableFromXML = (xml: TFormTableXML | undefined): TFormTab
     changeRowSet: xml.ChangeRowSet,
     currentRowUse: xml.CurrentRowUse,
     rowsPicture: xml.RowsPicture,
-    commandBar: xml.CommandBar,
+    commandBar: importCommandBarFromXML(xml.CommandBar),
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
     maxHeight: xml.MaxHeight,
     maxHeightInTableRows: xml.MaxHeightInTableRows,
@@ -55,8 +56,8 @@ export const importFormTableFromXML = (xml: TFormTableXML | undefined): TFormTab
     markIncomplete: xml.MarkIncomplete,
     representation: xml.Representation,
     toolTipRepresentation: xml.ToolTipRepresentation,
-    viewStatusRepresentation: xml.ViewStatusRepresentation,
-    searchStringRepresentation: xml.SearchStringRepresentation,
+    viewStatusRepresentation: importFormItemAdditionFromXML(xml.ViewStatusRepresentation),
+    searchStringRepresentation: importFormItemAdditionFromXML(xml.SearchStringRepresentation),
     behaviorOnHorizontalCompression: xml.BehaviorOnHorizontalCompression,
     footer: xml.Footer,
     toolTip: importI8nTextFromXML(xml.ToolTip),
@@ -82,7 +83,7 @@ export const importFormTableFromXML = (xml: TFormTableXML | undefined): TFormTab
     shortcut: xml.Shortcut,
     fileDragMode: xml.FileDragMode,
     readOnly: xml.ReadOnly,
-    searchControl: xml.SearchControl,
+    searchControl: importFormItemAdditionFromXML(xml.SearchControl),
     borderColor: importColorFromXML(xml.BorderColor),
     textColor: importColorFromXML(xml.TextColor),
     titleTextColor: importColorFromXML(xml.TitleTextColor),

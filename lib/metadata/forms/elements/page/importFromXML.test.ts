@@ -19,7 +19,7 @@ it("should import usual group from XML", () => {
     title: { ru: "Заголовок группы" },
     id: "1",
     childItems: [],
-    type: ZElementType.enum.UsualGroup,
+    elementType: ZElementType.enum.UsualGroup,
   }
 
   const xmlData = xmlImport<TUsualGroupXML>(mockXml)

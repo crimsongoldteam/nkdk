@@ -1,6 +1,6 @@
-import importTypeDescriptionFromXML from "~/lib/metadata/typeDescription/importFromXML"
+import { importTypeDescriptionFromXML } from "~/lib/metadata/typeDescription/importFromXML"
 import { TAttribute, TAttributeXML } from "../types"
-import importI8nXmlTextFromXML from "~/lib/metadata/i8nText/importI8nTextFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/i8nText/importI8nTextFromXML"
 
 export default function importAttributeFromXML(xml: TAttributeXML): TAttribute | undefined {
   if (!xml.Attribute) {
@@ -13,6 +13,6 @@ export default function importAttributeFromXML(xml: TAttributeXML): TAttribute |
     type: importTypeDescriptionFromXML(xml.Attribute.Type),
     mainAttribute: xml.Attribute.MainAttribute,
     storedData: xml.Attribute.StoredData,
-    title: importI8nXmlTextFromXML(xml.Attribute.Title),
+    title: importI8nTextFromXML(xml.Attribute.Title),
   }
 }

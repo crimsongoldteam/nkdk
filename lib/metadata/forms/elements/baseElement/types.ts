@@ -1,5 +1,5 @@
 import * as z from "zod"
-import { ZElementType } from "~/lib/metadata/systemEnumerations/types"
+import { ZElementType } from "../types"
 import { ZI8nText } from "~/lib/metadata/i8nText/types"
 
 export const ZBaseElement = z.object({

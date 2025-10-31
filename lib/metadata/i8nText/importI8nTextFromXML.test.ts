@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import importI8nTextFromXML from "./importI8nTextFromXML"
+import { importI8nTextFromXML } from "./importI8nTextFromXML"
 import { TI8nTextXML } from "./types"
 import { TI8nText } from "~/lib/metadata/i8nText/types"
 

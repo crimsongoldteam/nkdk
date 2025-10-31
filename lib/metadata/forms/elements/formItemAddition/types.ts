@@ -3,7 +3,6 @@ import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
-import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 
 export const ZFormItemAddition = ZBaseElement.extend({
   displayImportance: SE.ZDisplayImportance.optional(),
@@ -13,7 +12,7 @@ export const ZFormItemAddition = ZBaseElement.extend({
   horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   enabled: z.boolean().optional(),
   title: ZI8nText.optional(),
-  get  contextMenu() {
+  get contextMenu() {
     return ZFormGroup.optional()
   },
   toolTipRepresentation: SE.ZToolTipRepresentation.optional(),

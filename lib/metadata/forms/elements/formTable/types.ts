@@ -7,6 +7,7 @@ import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 
 export const ZFormTable = ZBaseElement.extend({
   autoAddIncomplete: z.boolean().optional(),
@@ -51,8 +52,8 @@ export const ZFormTable = ZBaseElement.extend({
   markIncomplete: z.boolean().optional(),
   representation: SE.ZTableRepresentation.optional(),
   toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
-  viewStatusRepresentation: ZДополнениеЭлементаФормы.optional(),
-  searchStringRepresentation: ZДополнениеЭлементаФормы.optional(),
+  viewStatusRepresentation: ZFormItemAddition.optional(),
+  searchStringRepresentation: ZFormItemAddition.optional(),
   behaviorOnHorizontalCompression: SE.ZTableBehaviorOnHorizontalCompression.optional(),
   footer: z.boolean().optional(),
   toolTip: ZI8nText.optional(),
@@ -80,7 +81,7 @@ export const ZFormTable = ZBaseElement.extend({
   shortcut: z.string().optional(),
   fileDragMode: SE.ZFileDragMode.optional(),
   readOnly: z.boolean().optional(),
-  searchControl: ZДополнениеЭлементаФормы.optional(),
+  searchControl: ZFormItemAddition.optional(),
   borderColor: ZColor.optional(),
   textColor: ZColor.optional(),
   titleTextColor: ZColor.optional(),
@@ -135,8 +136,8 @@ export const ZFormTableXML = ZBaseElementXML.extend({
   MarkIncomplete: z.boolean().optional(),
   Representation: SE.ZTableRepresentation.optional(),
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
-  ViewStatusRepresentation: ZДополнениеЭлементаФормыXML.optional(),
-  SearchStringRepresentation: ZДополнениеЭлементаФормыXML.optional(),
+  ViewStatusRepresentation: ZFormItemAdditionXML.optional(),
+  SearchStringRepresentation: ZFormItemAdditionXML.optional(),
   BehaviorOnHorizontalCompression: SE.ZTableBehaviorOnHorizontalCompression.optional(),
   Footer: z.boolean().optional(),
   ToolTip: ZI8nTextXML.optional(),
@@ -164,7 +165,7 @@ export const ZFormTableXML = ZBaseElementXML.extend({
   Shortcut: z.string().optional(),
   FileDragMode: SE.ZFileDragMode.optional(),
   ReadOnly: z.boolean().optional(),
-  SearchControl: ZДополнениеЭлементаФормыXML.optional(),
+  SearchControl: ZFormItemAdditionXML.optional(),
   BorderColor: ZColorXML.optional(),
   TextColor: ZColorXML.optional(),
   TitleTextColor: ZColorXML.optional(),

@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest"
 import { createNameIdMapping, updateNameIdMapping } from "./nameIdMapping"
 import { TClientApplicationForm } from "~/lib/metadata/forms/elements/сlientApplicationForm/types"
-import { ZElementType } from "~/lib/metadata/systemEnumerations/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
 
 describe("nameMapping", () => {
   describe("createNameIdMapping", () => {
     it("should create empty mapping for empty form", () => {
       const form: TClientApplicationForm = {
-        type: ZElementType.enum.Form,
+        elementType: ZElementType.enum.Form,
         items: [],
       }
 
@@ -18,10 +18,10 @@ describe("nameMapping", () => {
 
     it("should create mapping for elements with id", () => {
       const form: TClientApplicationForm = {
-        type: ZElementType.enum.Form,
+        elementType: ZElementType.enum.Form,
         items: [
-          { name: "field1", id: "1", type: ZElementType.enum.InputField },
-          { name: "field2", id: "2", type: ZElementType.enum.InputField },
+          { name: "field1", id: "1", elementType: ZElementType.enum.InputField },
+          { name: "field2", id: "2", elementType: ZElementType.enum.InputField },
         ],
       }
 
@@ -41,10 +41,10 @@ describe("nameMapping", () => {
       ])
 
       const form: TClientApplicationForm = {
-        type: ZElementType.enum.Form,
+        elementType: ZElementType.enum.Form,
         items: [
-          { name: "field2", id: "2", type: ZElementType.enum.InputField },
-          { name: "field1", id: "1", type: ZElementType.enum.InputField },
+          { name: "field2", id: "2", elementType: ZElementType.enum.InputField },
+          { name: "field1", id: "1", elementType: ZElementType.enum.InputField },
         ],
       }
 
@@ -57,10 +57,10 @@ describe("nameMapping", () => {
     it("should assign next available id", () => {
       const mapping = new Map([["1", "field1"]])
       const form: TClientApplicationForm = {
-        type: ZElementType.enum.Form,
+        elementType: ZElementType.enum.Form,
         items: [
-          { name: "field1", id: "1", type: ZElementType.enum.InputField },
-          { name: "field2", id: "2", type: ZElementType.enum.InputField },
+          { name: "field1", id: "1", elementType: ZElementType.enum.InputField },
+          { name: "field2", id: "2", elementType: ZElementType.enum.InputField },
         ],
       }
 

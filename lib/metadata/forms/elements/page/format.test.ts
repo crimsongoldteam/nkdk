@@ -1,19 +1,19 @@
 import { expect, it, describe } from "vitest"
-import { formatUsualGroup } from "./format"
-import { TUsualGroup } from "./types"
 import "~/lib/metadata/forms/elements/inputField/registration"
-import { ElementType } from "~/lib/metadata/systemEnumerations/types"
 import { TInputField } from "../inputField/types"
+import { ZElementType } from "../types"
+import { formatUsualGroup } from "../usualGroup/format"
+import { TUsualGroup } from "../usualGroup/types"
 
 describe("formatOneLineGroup", () => {
   it("should format one-line group", () => {
     const mockElement: TUsualGroup = {
       name: "Группа",
       id: "1",
-      type: ElementType.UsualGroup,
+      elementType: ZElementType.enum.UsualGroup,
       childItems: [
-        { name: "Элемент1", id: "1", type: ElementType.InputField } as TInputField,
-        { name: "Элемент2", id: "2", type: ElementType.InputField } as TInputField,
+        { name: "Элемент1", id: "1", elementType: ZElementType.enum.InputField } as TInputField,
+        { name: "Элемент2", id: "2", elementType: ZElementType.enum.InputField } as TInputField,
       ],
     }
 
@@ -31,11 +31,11 @@ it("should format vertical group", () => {
     name: "Группа",
     group: "Vertical",
     title: { ru: "Заголовок группы" },
-    type: ElementType.UsualGroup,
+    elementType: ZElementType.enum.UsualGroup,
     id: "1",
     childItems: [
-      { name: "Элемент1", id: "1", type: ElementType.InputField } as TInputField,
-      { name: "Элемент2", id: "2", type: ElementType.InputField } as TInputField,
+      { name: "Элемент1", id: "1", elementType: ZElementType.enum.InputField } as TInputField,
+      { name: "Элемент2", id: "2", elementType: ZElementType.enum.InputField } as TInputField,
     ],
   }
 
@@ -45,5 +45,5 @@ it("should format vertical group", () => {
 
   const result = formatUsualGroup(mockElement, {})
 
-  expect(result.join("\n")).toEqual(expectedResult)
+  expect(result.strings.join("\n")).toEqual(expectedResult)
 })

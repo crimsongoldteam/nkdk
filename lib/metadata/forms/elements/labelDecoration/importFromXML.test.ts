@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
-import importLabelDecorationFromXML from "./importFromXML"
-import { ElementType } from "~/lib/metadata/systemEnumerations/types"
+import { importLabelDecorationFromXML } from "./importFromXML"
+import { ZElementType } from "../types"
 import { TLabelDecoration, TLabelDecorationXML } from "./types"
 import { xmlImport } from "~/lib"
 
@@ -13,7 +13,7 @@ it("should import name from XML", () => {
 
   const expectedResult: TLabelDecoration = {
     name: "Заголовок",
-    type: ElementType.LabelDecoration,
+    elementType: ZElementType.enum.LabelDecoration,
     title: {
       ru: "Заголовок формы",
     },

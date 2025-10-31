@@ -5,7 +5,6 @@ import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 
 export const ZFormGroup = ZBaseElement.extend({
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
@@ -21,7 +20,7 @@ export const ZFormGroup = ZBaseElement.extend({
   enableContentChange: z.boolean().optional(),
   verticalStretch: z.boolean().optional(),
   horizontalStretch: z.boolean().optional(),
-  get  extendedTooltip() {
+  get extendedTooltip() {
     return ZFormDecoration.optional()
   },
   shortcut: z.string().optional(),

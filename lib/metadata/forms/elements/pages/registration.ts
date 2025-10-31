@@ -1,5 +1,5 @@
 import { registerFormat } from "~/lib/format/formatFactory"
-import { ZElementType } from "~/lib/metadata/systemEnumerations/types"
+import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 import { importPagesFromXML } from "./importFromXML"
 import { formatPages } from "./format"

@@ -17,9 +17,9 @@ export function ClientFormApplication(props: Readonly<IClientFormApplicationHTML
       <Divider />
       <Space direction="vertical" size="middle">
         {items.map((item) => {
-          const Component = components[item.type as keyof typeof components]
+          const Component = components[item.elementType as keyof typeof components]
           if (!Component) {
-            return <div key={item.name}>Компонент {item.type} не найден</div>
+            return <div key={item.name}>Компонент {item.elementType} не найден</div>
           }
           return <Component key={item.name} {...item} />
         })}

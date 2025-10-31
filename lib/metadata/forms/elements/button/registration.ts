@@ -1,11 +1,11 @@
 import { registerFormat } from "~/lib/format/formatFactory"
 import { registerIsOneLineElementCheck } from "~/lib/format/isOneLineElementCheckFactory"
-import { ElementType } from "~/lib/metadata/systemEnumerations/types"
+import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 import { TButton } from "./types"
-import importButtonFromXML from "./importFromXML"
+import { importButtonFromXML } from "./importFromXML"
 import { formatButton } from "./format"
 
-registerFormat<TButton>(formatButton, (element: TButton) => element.type === ElementType.Button)
-registerIsOneLineElementCheck<TButton>(ElementType.Button, () => true)
-registerImport<TButton>(ElementType.Button, importButtonFromXML)
+registerFormat<TButton>(formatButton, (element: TButton) => element.elementType === ZElementType.enum.Button)
+registerIsOneLineElementCheck<TButton>(ZElementType.enum.Button, () => true)
+registerImport<TButton>(ZElementType.enum.Button, importButtonFromXML)

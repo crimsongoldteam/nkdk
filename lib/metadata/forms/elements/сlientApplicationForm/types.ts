@@ -4,8 +4,8 @@ import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/typeDescri
 import { ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 import { ZInputFieldXML } from "../inputField/types"
 import { ZUse, ZUseEnterprise, ZUseXML } from "~/lib/metadata/forms/use/types"
-import { ZElementType } from "~/lib/metadata/systemEnumerations/types"
-import { ZNamedElement } from "../baseElement/types"
+import { ZElementType } from "../types"
+import { ZBaseElement } from "../baseElement/types"
 import { ZBoolEnterprise } from "../../../types"
 
 export const ZAutoCommandBarXML = z.object({
@@ -68,11 +68,11 @@ export const ZAttribute = z.object({
 })
 
 export const ZClientApplicationForm = z.object({
-  type: ZElementType,
+  elementType: ZElementType,
   autoCommandBar: ZAutoCommandBar.optional(),
   title: ZI8nText.optional(),
   attributes: z.array(ZAttribute).optional(),
-  items: z.array(ZNamedElement),
+  items: z.array(ZBaseElement),
 })
 
 export const ZAttributeEnterprise = z.union([

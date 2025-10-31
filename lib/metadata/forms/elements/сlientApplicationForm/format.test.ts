@@ -3,7 +3,7 @@ import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
 import { TClientApplicationForm } from "./types"
 import { formatClientApplicationForm } from "./format"
 import { TInputField } from "~/lib"
-import { ElementType } from "~/lib/metadata/systemEnumerations/types"
+import { ZElementType } from "../types"
 
 const mockParams: IFormatterParams = {
   wrapInGroup: WrapInGroupStrategy.None,
@@ -13,7 +13,7 @@ const mockParams: IFormatterParams = {
 
 it("should format form header", () => {
   const form: TClientApplicationForm = {
-    type: ElementType.Form,
+    elementType: ZElementType.enum.Form,
     title: { ru: "Форма" },
     items: [],
   }
@@ -24,10 +24,15 @@ it("should format form header", () => {
 })
 
 it("should format form items", () => {
-  const input: TInputField = { name: "ИмяПоля", id: "1", type: ElementType.InputField, title: { ru: "Поле" } }
+  const input: TInputField = {
+    name: "ИмяПоля",
+    id: "1",
+    elementType: ZElementType.enum.InputField,
+    title: { ru: "Поле" },
+  }
 
   const form: TClientApplicationForm = {
-    type: ElementType.Form,
+    elementType: ZElementType.enum.Form,
     items: [input],
   }
 
@@ -43,7 +48,7 @@ it("should format form attributes", () => {
   Тип: Строка(10)`
 
   const form: TClientApplicationForm = {
-    type: ElementType.Form,
+    elementType: ZElementType.enum.Form,
     items: [],
     attributes: [
       {
@@ -57,5 +62,5 @@ it("should format form attributes", () => {
 
   const result = formatClientApplicationForm(form, mockParams)
 
-  expect(result.join("\n").trim()).toEqual(expectedResult)
+  expect(result.strings.join("\n").trim()).toEqual(expectedResult)
 })

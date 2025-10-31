@@ -40,11 +40,22 @@ export const formatElement = <T extends TBaseElement>(
 export const formatElements = (items: TBaseElement[]): IFormatElementResult => {
   let result: IFormatElementResult = { strings: [], haveSimpleHorizontalGroup: false }
 
-  const separatedItems = [ZElementType.enum.Pages, ZElementType.enum.UsualGroup]
+  const separatedItems: readonly (typeof ZElementType.enum.Pages | typeof ZElementType.enum.UsualGroup)[] = [
+    ZElementType.enum.Pages,
+    ZElementType.enum.UsualGroup,
+  ]
 
   let prevItem: TBaseElement | null = null
   for (const item of items) {
-    if (prevItem && (separatedItems.includes(item.type) || separatedItems.includes(prevItem.type))) {
+    if (
+      prevItem &&
+      (separatedItems.includes(
+        item.elementType as typeof ZElementType.enum.Pages | typeof ZElementType.enum.UsualGroup
+      ) ||
+        separatedItems.includes(
+          prevItem.elementType as typeof ZElementType.enum.Pages | typeof ZElementType.enum.UsualGroup
+        ))
+    ) {
       result.strings.push("")
     }
 

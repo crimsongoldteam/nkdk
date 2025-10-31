@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import xmlImport from "~/lib/xml/import/importer"
 import { TTypeDescription, TTypeDescriptionXML } from "./types"
-import importTypeDescriptionFromXML from "./importFromXML"
+import { importTypeDescriptionFromXML } from "./importFromXML"
 
 it("should import string type from XML", () => {
   const mockXml = `<v8:Type>xs:string</v8:Type>

@@ -1,7 +1,7 @@
 import { expect, it } from "vitest"
 import { importInputFieldFromXML } from "./importFromXML"
 import { TInputField, TInputFieldXML } from "./types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { ZElementType } from "../types"
 
 it("should import name from XML", () => {
   const mockXml: TInputFieldXML = {
@@ -12,7 +12,7 @@ it("should import name from XML", () => {
 
   const mockResult: TInputField = {
     name: "ИмяПоля",
-    type: ZElementType.enum.InputField,
+    elementType: ZElementType.enum.InputField,
     title: { ru: "Поле" },
     id: "16",
   }

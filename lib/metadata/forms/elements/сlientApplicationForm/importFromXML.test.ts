@@ -18,7 +18,7 @@ it("should import title from XML", () => {
 </Form>`
 
   const mockElement: TClientApplicationForm = {
-    type: ZElementType.enum.Form,
+    elementType: ZElementType.enum.Form,
     autoCommandBar: {
       id: "-1",
       name: "ФормаКоманднаяПанель",
@@ -48,8 +48,8 @@ it("should import items from XML", () => {
       id: "-1",
       name: "ФормаКоманднаяПанель",
     },
-    type: ZElementType.enum.Form,
-    items: [{ name: "ПолеВвода", id: "1", type: ZElementType.enum.InputField }],
+    elementType: ZElementType.enum.Form,
+    items: [{ name: "ПолеВвода", id: "1", elementType: ZElementType.enum.InputField }],
     attributes: [],
   }
 
@@ -79,7 +79,7 @@ it("should import attributes from XML", () => {
       id: "-1",
       name: "ФормаКоманднаяПанель",
     },
-    type: ZElementType.enum.Form,
+    elementType: ZElementType.enum.Form,
     items: [],
     attributes: [
       {

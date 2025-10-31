@@ -1,4 +1,4 @@
-import { TElementType } from "~/lib/metadata/systemEnumerations/types"
+import { TElementType } from "~/lib/metadata/forms/elements/types"
 import { TBaseElement, TBaseElementXML } from "./types"
 import { ImportFunction } from "~/lib/xml/import/types"
 

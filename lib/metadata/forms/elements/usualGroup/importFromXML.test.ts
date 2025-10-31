@@ -3,7 +3,7 @@ import { TUsualGroup } from "./types"
 import { importUsualGroupFromXML } from "./importFromXML"
 import { TUsualGroupXML } from "./types"
 import { xmlImport } from "~/lib"
-import { ElementType } from "~/lib/metadata/systemEnumerations/types"
+import { ZElementType } from "../types"
 
 it("should import usual group from XML", () => {
   const mockXml = `	<UsualGroup name="Группа" id="1">
@@ -20,7 +20,7 @@ it("should import usual group from XML", () => {
     title: { ru: "Заголовок группы" },
     id: "1",
     childItems: [],
-    type: ElementType.UsualGroup,
+    elementType: ZElementType.enum.UsualGroup,
   }
 
   const xmlData = xmlImport<TUsualGroupXML>(mockXml)

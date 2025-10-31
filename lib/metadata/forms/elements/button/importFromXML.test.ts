@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import importButtonFromXML from "./importFromXML"
-import { ElementType } from "~/lib/metadata/systemEnumerations/types"
+import { ZElementType } from "../types"
 import { TButton, TButtonXML } from "./types"
 import { xmlImport } from "~/lib"
 
@@ -17,7 +17,7 @@ it("should import button from XML", () => {
 
   const expectedResult: TButton = {
     name: "КнопкаОК",
-    type: ElementType.Button,
+    elementType: ZElementType.enum.Button,
     title: {
       ru: "ОК",
     },

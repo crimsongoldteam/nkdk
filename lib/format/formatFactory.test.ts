@@ -12,7 +12,7 @@ it("should register a format function", () => {
   const mockCheck = vi.fn().mockReturnValue(true)
 
   const mockData: TBaseElement = {
-    type: ZElementType.enum.InputField,
+    elementType: ZElementType.enum.InputField,
     name: "InputField",
     id: "1",
   }

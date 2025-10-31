@@ -2,7 +2,7 @@ import { expect, it } from "vitest"
 import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
 import { TInputField } from "./types"
 import { formatInputField } from "./format"
-import { ElementType } from "~/lib/metadata/systemEnumerations/types"
+import { ZElementType } from "../types"
 
 const mockParams: IFormatterParams = {
   wrapInGroup: WrapInGroupStrategy.None,
@@ -14,7 +14,7 @@ it("should format input field with title", () => {
   const element: TInputField = {
     name: "ИмяПоля",
     id: "1",
-    type: ElementType.InputField,
+    elementType: ZElementType.enum.InputField,
     title: { ru: "Поле" },
     value: "Значение",
   }
@@ -28,7 +28,7 @@ it("should format input field with value", () => {
   const element: TInputField = {
     name: "ИмяПоля",
     id: "1",
-    type: ElementType.InputField,
+    elementType: ZElementType.enum.InputField,
     title: { ru: "Поле" },
     value: "Значение",
   }
@@ -40,7 +40,7 @@ it("should format multiline input field", () => {
   const element: TInputField = {
     name: "ИмяПоля",
     id: "1",
-    type: ElementType.InputField,
+    elementType: ZElementType.enum.InputField,
     title: { ru: "Поле" },
     value: "Значение",
     height: 2,
@@ -56,7 +56,7 @@ it("should format input field with modificators", () => {
   const element: TInputField = {
     name: "ИмяПоля",
     id: "1",
-    type: ElementType.InputField,
+    elementType: ZElementType.enum.InputField,
     title: { ru: "Поле" },
     value: "Значение",
     choiceButton: true,
@@ -75,7 +75,7 @@ it("should format input field with name if title is not present", () => {
   const element: TInputField = {
     name: "ИмяПоля",
     id: "1",
-    type: ElementType.InputField,
+    elementType: ZElementType.enum.InputField,
   }
 
   const result = formatInputField(element, mockParams)

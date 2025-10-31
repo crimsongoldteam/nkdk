@@ -3,6 +3,7 @@ import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/font/types"
 import { ZBorder, ZBorderXML } from "~/lib/metadata/forms/border/types"
+import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 
 export const ZViewStatusAddition = ZFormItemAddition.extend({
   autoMaxWidth: z.boolean().optional(),

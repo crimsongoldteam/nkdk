@@ -9,7 +9,7 @@ const SLASH = (t.Slash.LABEL as string).repeat(2)
 
 export const formatPages: FormatFunction<TPages> = (
   element: TPages,
-  params: IFormatterParams
+  _params: IFormatterParams
 ): IFormatElementResult => {
   const result: IFormatElementResult = { strings: [], haveSimpleHorizontalGroup: false }
 
