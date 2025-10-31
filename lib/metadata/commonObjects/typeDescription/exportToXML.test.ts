@@ -1,7 +1,8 @@
 import { expect, it } from "vitest"
 import xmlExport from "~/lib/xml/export/exporter"
-import { TTypeDescription } from "./types"
-import exportTypeDescriptionToXML from "./exportToXML"
+import { TTypeDescription, ZTypeDescriptionXML } from "./types"
+import { exportTypeDescriptionToXML } from "./exportToXML"
+import z from "zod"
 
 it("should export string type to XML", () => {
   const mockTypeDescription: TTypeDescription = {
@@ -19,7 +20,7 @@ it("should export string type to XML", () => {
 </v8:StringQualifiers>`
 
   const result = exportTypeDescriptionToXML(mockTypeDescription)
-  const xmlString = xmlExport(result, false)
+  const xmlString = xmlExport({ TypeDescription: result }, z.object({ TypeDescription: ZTypeDescriptionXML }), false)
 
   expect(xmlString).toEqual(expectedXml)
 })
@@ -42,7 +43,7 @@ it("should export number type to XML", () => {
 </v8:NumberQualifiers>`
 
   const result = exportTypeDescriptionToXML(mockTypeDescription)
-  const xmlString = xmlExport(result, false)
+  const xmlString = xmlExport({ TypeDescription: result }, z.object({ TypeDescription: ZTypeDescriptionXML }), false)
 
   expect(xmlString).toEqual(expectedXml)
 })
@@ -61,7 +62,7 @@ it("should export date type to XML", () => {
 </v8:DateQualifiers>`
 
   const result = exportTypeDescriptionToXML(mockTypeDescription)
-  const xmlString = xmlExport(result, false)
+  const xmlString = xmlExport({ TypeDescription: result }, z.object({ TypeDescription: ZTypeDescriptionXML }), false)
 
   expect(xmlString).toEqual(expectedXml)
 })
@@ -75,7 +76,7 @@ it("should export complex type to XML", () => {
 <v8:Type>cfg:EnumRef.Статусы</v8:Type>`
 
   const result = exportTypeDescriptionToXML(mockTypeDescription)
-  const xmlString = xmlExport(result, false)
+  const xmlString = xmlExport({ TypeDescription: result }, z.object({ TypeDescription: ZTypeDescriptionXML }), false)
 
   expect(xmlString).toEqual(expectedXml)
 })

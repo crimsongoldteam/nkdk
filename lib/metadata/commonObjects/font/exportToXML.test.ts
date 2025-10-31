@@ -20,7 +20,7 @@ describe("exportFontToXML", () => {
     }
 
     const result = { Font: exportFontToXML(mockFont) }
-    const xmlString = xmlExport(result, false)
+    const xmlString = xmlExport(result, z.object({ Font: ZFontXML }), false)
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -37,7 +37,7 @@ describe("exportFontToXML", () => {
     const xml = xmlImport<{ Font: TFontXML }>(originalXml, z.object({ Font: ZFontXML }))
     const imported = importFontFromXML(xml.Font)
     const exported = exportFontToXML(imported)
-    const resultXml = xmlExport({ Font: exported }, false)
+    const resultXml = xmlExport({ Font: exported }, z.object({ Font: ZFontXML }), false)
 
     expect(resultXml).toEqual(originalXml)
   })

@@ -1,9 +1,13 @@
 import { TTypeDescription, TTypeDescriptionXML } from "./types"
 
-export default function exportTypeDescriptionToXML(typeDescription: TTypeDescription): TTypeDescriptionXML {
-  const result: any = {}
+export const exportTypeDescriptionToXML = (
+  typeDescription: TTypeDescription | undefined
+): TTypeDescriptionXML | undefined => {
+  if (!typeDescription) return undefined
 
-  result["v8:Type"] = typeDescription.type.map(mapType)
+  const result: TTypeDescriptionXML = {
+    "v8:Type": typeDescription.type.map(mapType),
+  }
 
   addStringQualifiers(result, typeDescription.stringQualifiers)
   addNumberQualifiers(result, typeDescription.numberQualifiers)
@@ -12,7 +16,7 @@ export default function exportTypeDescriptionToXML(typeDescription: TTypeDescrip
   return result
 }
 
-function mapType(type: string): string {
+const mapType = (type: string): string => {
   if (type === "string" || type === "decimal" || type === "date" || type === "boolean") {
     return `xs:${type}`
   }
@@ -22,7 +26,10 @@ function mapType(type: string): string {
   return type
 }
 
-function addStringQualifiers(result: any, stringQualifiers: any) {
+const addStringQualifiers = (
+  result: NonNullable<TTypeDescriptionXML>,
+  stringQualifiers: TTypeDescription["stringQualifiers"]
+) => {
   if (stringQualifiers) {
     result["v8:StringQualifiers"] = {
       "v8:Length": stringQualifiers.length,
@@ -31,7 +38,10 @@ function addStringQualifiers(result: any, stringQualifiers: any) {
   }
 }
 
-function addNumberQualifiers(result: any, numberQualifiers: any) {
+const addNumberQualifiers = (
+  result: NonNullable<TTypeDescriptionXML>,
+  numberQualifiers: TTypeDescription["numberQualifiers"]
+) => {
   if (numberQualifiers) {
     result["v8:NumberQualifiers"] = {
       "v8:Digits": numberQualifiers.digits,
@@ -41,7 +51,10 @@ function addNumberQualifiers(result: any, numberQualifiers: any) {
   }
 }
 
-function addDateQualifiers(result: any, dateQualifiers: any) {
+const addDateQualifiers = (
+  result: NonNullable<TTypeDescriptionXML>,
+  dateQualifiers: TTypeDescription["dateQualifiers"]
+) => {
   if (dateQualifiers) {
     result["v8:DateQualifiers"] = {
       "v8:DateFractions": dateQualifiers.dateFractions,

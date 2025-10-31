@@ -12,7 +12,7 @@ describe("exportColorToXML", () => {
     const mockColor: TColor = "style:NegativeTextColor"
 
     const result = { Color: exportColorToXML(mockColor) }
-    const xmlString = xmlExport(result, false)
+    const xmlString = xmlExport(result, z.object({ Color: ZColorXML }), false)
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -29,7 +29,7 @@ describe("exportColorToXML", () => {
     const xml = xmlImport<{ Color: TColorXML }>(originalXml, z.object({ Color: ZColorXML }))
     const imported = importColorFromXML(xml.Color)
     const exported = exportColorToXML(imported)
-    const resultXml = xmlExport({ Color: exported }, false)
+    const resultXml = xmlExport({ Color: exported }, z.object({ Color: ZColorXML }), false)
 
     expect(resultXml).toEqual(originalXml)
   })
