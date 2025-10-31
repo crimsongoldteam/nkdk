@@ -3,11 +3,12 @@ import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 
-export const ZHtmlDocumentField = ZFormField.extend({
+export const ZHTMLDocumentField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
   output: SE.ZUseOutput.optional(),
   height: z.number().optional(),
+  document: ZВнешнийОбъект.optional(),
   userAgentInformation: z.string().optional(),
   maxHeight: z.number().optional(),
   maxWidth: z.number().optional(),
@@ -17,11 +18,12 @@ export const ZHtmlDocumentField = ZFormField.extend({
   width: z.number().optional(),
 })
 
-export const ZHtmlDocumentFieldXML = ZFormFieldXML.extend({
+export const ZHTMLDocumentFieldXML = ZFormFieldXML.extend({
   AutoMaxHeight: z.boolean().optional(),
   AutoMaxWidth: z.boolean().optional(),
   Output: SE.ZUseOutput.optional(),
   Height: z.number().optional(),
+  Document: ZВнешнийОбъектXML.optional(),
   UserAgentInformation: z.string().optional(),
   MaxHeight: z.number().optional(),
   MaxWidth: z.number().optional(),
@@ -31,6 +33,6 @@ export const ZHtmlDocumentFieldXML = ZFormFieldXML.extend({
   Width: z.number().optional(),
 })
 
-export type THtmlDocumentField = z.infer<typeof ZHtmlDocumentField>
+export type THTMLDocumentField = z.infer<typeof ZHTMLDocumentField>
 
-export type THtmlDocumentFieldXML = z.infer<typeof ZHtmlDocumentFieldXML>
+export type THTMLDocumentFieldXML = z.infer<typeof ZHTMLDocumentFieldXML>

@@ -6,13 +6,14 @@ import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { TButtonXML, TButton } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importButtonFromXML = (xml: TButtonXML | undefined): TButton | undefined => {
   if (!xml) return undefined
 
   const base = importBaseElementFromXML(xml)
   if (!base) return undefined
-
+   
   return {
     ...base,
     elementType: ZElementType.enum.Button,
@@ -53,3 +54,5 @@ export const importButtonFromXML = (xml: TButtonXML | undefined): TButton | unde
     font: importFontFromXML(xml.Font),
   }
 }
+
+registerImport(ZElementType.enum.Button, importButtonFromXML)

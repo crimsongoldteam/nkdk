@@ -3,12 +3,13 @@ import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromX
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
-import { importFormTableFromXML } from "../formTable/importFromXML"
+import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { TFormFieldXML, TFormField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importFormFieldFromXML = (xml: TFormFieldXML | undefined): TFormField | undefined => {
   if (!xml) return undefined
@@ -51,7 +52,7 @@ export const importFormFieldFromXML = (xml: TFormFieldXML | undefined): TFormFie
     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),
     editMode: xml.EditMode,
     shortcut: xml.Shortcut,
-    table: importFormTableFromXML(xml.Table),
+    table: importTableFromXML(xml.Table),
     footerText: importI8nTextFromXML(xml.FooterText),
     readOnly: xml.ReadOnly,
     fixingInTable: xml.FixingInTable,
@@ -63,3 +64,5 @@ export const importFormFieldFromXML = (xml: TFormFieldXML | undefined): TFormFie
     footerFont: importFontFromXML(xml.FooterFont),
   }
 }
+
+registerImport(ZElementType.enum.FormField, importFormFieldFromXML)

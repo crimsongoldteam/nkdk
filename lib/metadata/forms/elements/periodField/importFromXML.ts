@@ -4,6 +4,7 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TPeriodFieldXML, TPeriodField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importPeriodFieldFromXML = (xml: TPeriodFieldXML | undefined): TPeriodField | undefined => {
   if (!xml) return undefined
@@ -27,3 +28,5 @@ export const importPeriodFieldFromXML = (xml: TPeriodFieldXML | undefined): TPer
     font: importFontFromXML(xml.Font),
   }
 }
+
+registerImport(ZElementType.enum.PeriodField, importPeriodFieldFromXML)

@@ -1,6 +1,7 @@
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TDendrogramFieldXML, TDendrogramField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importDendrogramFieldFromXML = (xml: TDendrogramFieldXML | undefined): TDendrogramField | undefined => {
   if (!xml) return undefined
@@ -21,3 +22,5 @@ export const importDendrogramFieldFromXML = (xml: TDendrogramFieldXML | undefine
     width: xml.Width,
   }
 }
+
+registerImport(ZElementType.enum.DendrogramField, importDendrogramFieldFromXML)

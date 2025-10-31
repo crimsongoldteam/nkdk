@@ -3,7 +3,7 @@ import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 
-export const ZSpreadsheetDocumentField = ZFormField.extend({
+export const ZSpreadSheetDocumentField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
   verticalScrollBar: SE.ZScrollBarUse.optional(),
@@ -34,7 +34,7 @@ export const ZSpreadsheetDocumentField = ZFormField.extend({
   width: z.number().optional(),
 })
 
-export const ZSpreadsheetDocumentFieldXML = ZFormFieldXML.extend({
+export const ZSpreadSheetDocumentFieldXML = ZFormFieldXML.extend({
   AutoMaxHeight: z.boolean().optional(),
   AutoMaxWidth: z.boolean().optional(),
   VerticalScrollBar: SE.ZScrollBarUse.optional(),
@@ -65,6 +65,6 @@ export const ZSpreadsheetDocumentFieldXML = ZFormFieldXML.extend({
   Width: z.number().optional(),
 })
 
-export type TSpreadsheetDocumentField = z.infer<typeof ZSpreadsheetDocumentField>
+export type TSpreadSheetDocumentField = z.infer<typeof ZSpreadSheetDocumentField>
 
-export type TSpreadsheetDocumentFieldXML = z.infer<typeof ZSpreadsheetDocumentFieldXML>
+export type TSpreadSheetDocumentFieldXML = z.infer<typeof ZSpreadSheetDocumentFieldXML>

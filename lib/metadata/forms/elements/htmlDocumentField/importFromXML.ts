@@ -1,9 +1,10 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
-import { THtmlDocumentFieldXML, THtmlDocumentField } from "./types"
+import { THTMLDocumentFieldXML, THTMLDocumentField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
-export const importHtmlDocumentFieldFromXML = (xml: THtmlDocumentFieldXML | undefined): THtmlDocumentField | undefined => {
+export const importHTMLDocumentFieldFromXML = (xml: THTMLDocumentFieldXML | undefined): THTMLDocumentField | undefined => {
   if (!xml) return undefined
 
   const base = importFormFieldFromXML(xml)
@@ -11,11 +12,12 @@ export const importHtmlDocumentFieldFromXML = (xml: THtmlDocumentFieldXML | unde
    
   return {
     ...base,
-    elementType: ZElementType.enum.HtmlDocumentField,
+    elementType: ZElementType.enum.HTMLDocumentField,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     output: xml.Output,
     height: xml.Height,
+    document: xml.Document,
     userAgentInformation: xml.UserAgentInformation,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
@@ -25,3 +27,5 @@ export const importHtmlDocumentFieldFromXML = (xml: THtmlDocumentFieldXML | unde
     width: xml.Width,
   }
 }
+
+registerImport(ZElementType.enum.HTMLDocumentField, importHTMLDocumentFieldFromXML)

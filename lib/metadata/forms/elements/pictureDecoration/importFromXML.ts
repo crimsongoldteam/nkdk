@@ -4,6 +4,7 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { TPictureDecorationXML, TPictureDecoration } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importPictureDecorationFromXML = (xml: TPictureDecorationXML | undefined): TPictureDecoration | undefined => {
   if (!xml) return undefined
@@ -27,3 +28,5 @@ export const importPictureDecorationFromXML = (xml: TPictureDecorationXML | unde
     borderColor: importColorFromXML(xml.BorderColor),
   }
 }
+
+registerImport(ZElementType.enum.PictureDecoration, importPictureDecorationFromXML)

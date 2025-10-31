@@ -6,10 +6,11 @@ import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
-import { TFormTableXML, TFormTable } from "./types"
+import { TTableXML, TTable } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
-export const importFormTableFromXML = (xml: TFormTableXML | undefined): TFormTable | undefined => {
+export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefined => {
   if (!xml) return undefined
 
   const base = importBaseElementFromXML(xml)
@@ -17,7 +18,7 @@ export const importFormTableFromXML = (xml: TFormTableXML | undefined): TFormTab
    
   return {
     ...base,
-    elementType: ZElementType.enum.FormTable,
+    elementType: ZElementType.enum.Table,
     autoAddIncomplete: xml.AutoAddIncomplete,
     autoInsertNewRow: xml.AutoInsertNewRow,
     autoMaxHeight: xml.AutoMaxHeight,
@@ -97,3 +98,5 @@ export const importFormTableFromXML = (xml: TFormTableXML | undefined): TFormTab
     titleFont: importFontFromXML(xml.TitleFont),
   }
 }
+
+registerImport(ZElementType.enum.Table, importTableFromXML)

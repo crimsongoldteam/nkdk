@@ -9,7 +9,7 @@ import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 
-export const ZFormTable = ZBaseElement.extend({
+export const ZTable = ZBaseElement.extend({
   autoAddIncomplete: z.boolean().optional(),
   autoInsertNewRow: z.boolean().optional(),
   autoMaxHeight: z.boolean().optional(),
@@ -93,7 +93,7 @@ export const ZFormTable = ZBaseElement.extend({
   titleFont: ZFont.optional(),
 })
 
-export const ZFormTableXML = ZBaseElementXML.extend({
+export const ZTableXML = ZBaseElementXML.extend({
   AutoAddIncomplete: z.boolean().optional(),
   AutoInsertNewRow: z.boolean().optional(),
   AutoMaxHeight: z.boolean().optional(),
@@ -177,6 +177,6 @@ export const ZFormTableXML = ZBaseElementXML.extend({
   TitleFont: ZFontXML.optional(),
 })
 
-export type TFormTable = z.infer<typeof ZFormTable>
+export type TTable = z.infer<typeof ZTable>
 
-export type TFormTableXML = z.infer<typeof ZFormTableXML>
+export type TTableXML = z.infer<typeof ZTableXML>

@@ -1,9 +1,10 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
-import { TSpreadsheetDocumentFieldXML, TSpreadsheetDocumentField } from "./types"
+import { TSpreadSheetDocumentFieldXML, TSpreadSheetDocumentField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
-export const importSpreadsheetDocumentFieldFromXML = (xml: TSpreadsheetDocumentFieldXML | undefined): TSpreadsheetDocumentField | undefined => {
+export const importSpreadSheetDocumentFieldFromXML = (xml: TSpreadSheetDocumentFieldXML | undefined): TSpreadSheetDocumentField | undefined => {
   if (!xml) return undefined
 
   const base = importFormFieldFromXML(xml)
@@ -11,7 +12,7 @@ export const importSpreadsheetDocumentFieldFromXML = (xml: TSpreadsheetDocumentF
    
   return {
     ...base,
-    elementType: ZElementType.enum.SpreadsheetDocumentField,
+    elementType: ZElementType.enum.SpreadSheetDocumentField,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     verticalScrollBar: xml.VerticalScrollBar,
@@ -42,3 +43,5 @@ export const importSpreadsheetDocumentFieldFromXML = (xml: TSpreadsheetDocumentF
     width: xml.Width,
   }
 }
+
+registerImport(ZElementType.enum.SpreadSheetDocumentField, importSpreadSheetDocumentFieldFromXML)

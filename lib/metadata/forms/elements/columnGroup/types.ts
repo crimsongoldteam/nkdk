@@ -4,7 +4,7 @@ import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 
-export const ZColumnsGroup = ZFormGroup.extend({
+export const ZColumnGroup = ZFormGroup.extend({
   headerHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
   group: SE.ZColumnsGroup.optional(),
   headerPicture: ZPicture.optional(),
@@ -16,7 +16,7 @@ export const ZColumnsGroup = ZFormGroup.extend({
   titleBackColor: ZColor.optional(),
 })
 
-export const ZColumnsGroupXML = ZFormGroupXML.extend({
+export const ZColumnGroupXML = ZFormGroupXML.extend({
   HeaderHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
   Group: SE.ZColumnsGroup.optional(),
   HeaderPicture: ZPictureXML.optional(),
@@ -28,6 +28,6 @@ export const ZColumnsGroupXML = ZFormGroupXML.extend({
   TitleBackColor: ZColorXML.optional(),
 })
 
-export type TColumnsGroup = z.infer<typeof ZColumnsGroup>
+export type TColumnGroup = z.infer<typeof ZColumnGroup>
 
-export type TColumnsGroupXML = z.infer<typeof ZColumnsGroupXML>
+export type TColumnGroupXML = z.infer<typeof ZColumnGroupXML>

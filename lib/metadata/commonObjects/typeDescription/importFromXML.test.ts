@@ -2,6 +2,7 @@ import { expect, it } from "vitest"
 import xmlImport from "~/lib/xml/import/importer"
 import { TTypeDescription, TTypeDescriptionXML } from "./types"
 import { importTypeDescriptionFromXML } from "./importFromXML"
+import { ZTypeDescriptionXML } from "./types"
 
 it("should import string type from XML", () => {
   const mockXml = `<v8:Type>xs:string</v8:Type>
@@ -12,7 +13,7 @@ it("should import string type from XML", () => {
 
   const mockResult: TTypeDescription = { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } }
 
-  const xmlData = xmlImport<TTypeDescriptionXML>(mockXml)
+  const xmlData = xmlImport<TTypeDescriptionXML>(mockXml, ZTypeDescriptionXML)
 
   const result = importTypeDescriptionFromXML(xmlData)
 
@@ -32,7 +33,7 @@ it("should import number type from XML", () => {
     numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Nonnegative" },
   }
 
-  const xmlData = xmlImport<TTypeDescriptionXML>(mockXml)
+  const xmlData = xmlImport<TTypeDescriptionXML>(mockXml, ZTypeDescriptionXML)
 
   const result = importTypeDescriptionFromXML(xmlData)
 
@@ -50,7 +51,7 @@ it("should import date type from XML", () => {
     dateQualifiers: { dateFractions: "Date" },
   }
 
-  const xmlData = xmlImport<TTypeDescriptionXML>(mockXml)
+  const xmlData = xmlImport<TTypeDescriptionXML>(mockXml, ZTypeDescriptionXML)
 
   const result = importTypeDescriptionFromXML(xmlData)
 
@@ -65,7 +66,7 @@ it("should import complex type from XML", () => {
     type: ["boolean", "EnumRef.Статусы"],
   }
 
-  const xmlData = xmlImport<TTypeDescriptionXML>(mockXml)
+  const xmlData = xmlImport<TTypeDescriptionXML>(mockXml, ZTypeDescriptionXML)
 
   const result = importTypeDescriptionFromXML(xmlData)
 
@@ -81,7 +82,7 @@ it("should import three types from XML", () => {
     type: ["CatalogRef.Сотрудники", "CatalogRef.Контрагенты", "CatalogRef.Пользователи"],
   }
 
-  const xmlData = xmlImport<TTypeDescriptionXML>(mockXml)
+  const xmlData = xmlImport<TTypeDescriptionXML>(mockXml, ZTypeDescriptionXML)
 
   const result = importTypeDescriptionFromXML(xmlData)
 
@@ -95,7 +96,7 @@ it("should import SpreadsheetDocument from XML", () => {
     type: ["SpreadsheetDocument"],
   }
 
-  const xmlData = xmlImport<TTypeDescriptionXML>(mockXml)
+  const xmlData = xmlImport<TTypeDescriptionXML>(mockXml, ZTypeDescriptionXML)
 
   const result = importTypeDescriptionFromXML(xmlData)
 

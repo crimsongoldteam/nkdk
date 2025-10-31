@@ -3,6 +3,7 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { TLabelDecorationXML, TLabelDecoration } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importLabelDecorationFromXML = (xml: TLabelDecorationXML | undefined): TLabelDecoration | undefined => {
   if (!xml) return undefined
@@ -22,3 +23,5 @@ export const importLabelDecorationFromXML = (xml: TLabelDecorationXML | undefine
     backColor: importColorFromXML(xml.BackColor),
   }
 }
+
+registerImport(ZElementType.enum.LabelDecoration, importLabelDecorationFromXML)

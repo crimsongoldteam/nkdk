@@ -7,7 +7,7 @@ import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/typ
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZFormTable, ZFormTableXML } from "../formTable/types"
+import { ZTable, ZTableXML } from "../table/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 
 export const ZFormField = ZBaseElement.extend({
@@ -48,7 +48,7 @@ export const ZFormField = ZBaseElement.extend({
   editMode: SE.ZColumnEditMode.optional(),
   shortcut: z.string().optional(),
   get table() {
-    return ZFormTable.optional()
+    return ZTable.optional()
   },
   footerText: ZI8nText.optional(),
   readOnly: z.boolean().optional(),
@@ -99,7 +99,7 @@ export const ZFormFieldXML = ZBaseElementXML.extend({
   EditMode: SE.ZColumnEditMode.optional(),
   Shortcut: z.string().optional(),
   get Table() {
-    return ZFormTableXML.optional()
+    return ZTableXML.optional()
   },
   FooterText: ZI8nTextXML.optional(),
   ReadOnly: z.boolean().optional(),

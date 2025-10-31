@@ -2,6 +2,8 @@ import { expect, it } from "vitest"
 import importAttributeFromXML from "./importFromXML"
 import { TAttribute, TAttributeXML } from "../types"
 import { xmlImport } from "~/lib"
+import { ZAttributeXML, ZAttributesXML, TAttributesXML } from "../types"
+import z from "zod"
 
 it("should import attribute from XML", () => {
   const mockXml = `<Attribute name="Поле" id="1">
@@ -27,7 +29,24 @@ it("should import attribute from XML", () => {
     title: { ru: "Заголовок поля" },
   }
 
-  const xmlData = xmlImport<TAttributeXML>(mockXml)
+  const xmlData = xmlImport<TAttributeXML>(mockXml, ZAttributeXML)
+
+  const result = importAttributeFromXML(xmlData)
+
+  expect(result).toEqual(mockResult)
+})
+
+it("should import attribute with empty type", () => {
+  const mockXml = `<Attribute name="Фамилия" id="1">
+ 			<Type/>
+		</Attribute>`
+
+  const mockResult: TAttribute = {
+    name: "Фамилия",
+    id: "1",
+  }
+
+  const xmlData = xmlImport<TAttributeXML>(mockXml, ZAttributeXML)
 
   const result = importAttributeFromXML(xmlData)
 
@@ -51,7 +70,7 @@ it("should import stored and main attribute from XML", () => {
     storedData: true,
   }
 
-  const xmlData = xmlImport<TAttributeXML>(mockXml)
+  const xmlData = xmlImport<TAttributeXML>(mockXml, ZAttributeXML)
 
   const result = importAttributeFromXML(xmlData)
 
@@ -59,11 +78,17 @@ it("should import stored and main attribute from XML", () => {
 })
 
 it("should ignore ConditionalAppearance from XML", () => {
-  const mockXml = `<ConditionalAppearance></ConditionalAppearance>`
+  const mockXml = `
+  <Attributes>
+    <ConditionalAppearance>
+      <dcsset:item>
+      </dcsset:item>
+    </ConditionalAppearance>
+  </Attributes>`
 
-  const xmlData = xmlImport<TAttributeXML>(mockXml)
+  const xmlData = xmlImport<{ Attributes: TAttributesXML }>(mockXml, z.object({ Attributes: ZAttributesXML }))
 
-  const result = importAttributeFromXML(xmlData)
+  const result = importAttributeFromXML(xmlData.Attributes[0] as TAttributeXML)
 
   expect(result).toBeUndefined()
 })

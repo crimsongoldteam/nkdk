@@ -1,4 +1,4 @@
-import { z } from "zod/v4"
+import { z } from "zod"
 import { ZBoolEnterprise } from "../../types"
 
 export const ZUseXML = z.object({

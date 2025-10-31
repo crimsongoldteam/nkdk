@@ -4,6 +4,7 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TCalendarFieldXML, TCalendarField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importCalendarFieldFromXML = (xml: TCalendarFieldXML | undefined): TCalendarField | undefined => {
   if (!xml) return undefined
@@ -37,3 +38,5 @@ export const importCalendarFieldFromXML = (xml: TCalendarFieldXML | undefined): 
     font: importFontFromXML(xml.Font),
   }
 }
+
+registerImport(ZElementType.enum.CalendarField, importCalendarFieldFromXML)

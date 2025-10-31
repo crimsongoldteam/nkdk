@@ -1,6 +1,7 @@
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TChartFieldXML, TChartField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importChartFieldFromXML = (xml: TChartFieldXML | undefined): TChartField | undefined => {
   if (!xml) return undefined
@@ -21,3 +22,5 @@ export const importChartFieldFromXML = (xml: TChartFieldXML | undefined): TChart
     width: xml.Width,
   }
 }
+
+registerImport(ZElementType.enum.ChartField, importChartFieldFromXML)

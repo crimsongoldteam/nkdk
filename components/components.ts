@@ -16,5 +16,5 @@ export const components: Partial<Record<TElementType, React.ComponentType<any>>>
   [ZElementType.enum.CheckBoxField]: CheckBoxFieldComponent,
   [ZElementType.enum.LabelDecoration]: LabelDecorationComponent,
   [ZElementType.enum.PictureDecoration]: PictureDecorationComponent,
-  [ZElementType.enum.FormTable]: TableComponent,
+  [ZElementType.enum.Table]: TableComponent,
 }

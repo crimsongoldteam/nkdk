@@ -1,6 +1,7 @@
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TGanttChartFieldXML, TGanttChartField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importGanttChartFieldFromXML = (xml: TGanttChartFieldXML | undefined): TGanttChartField | undefined => {
   if (!xml) return undefined
@@ -26,3 +27,5 @@ export const importGanttChartFieldFromXML = (xml: TGanttChartFieldXML | undefine
     width: xml.Width,
   }
 }
+
+registerImport(ZElementType.enum.GanttChartField, importGanttChartFieldFromXML)

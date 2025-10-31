@@ -4,6 +4,7 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { TViewStatusAdditionXML, TViewStatusAddition } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importViewStatusAdditionFromXML = (xml: TViewStatusAdditionXML | undefined): TViewStatusAddition | undefined => {
   if (!xml) return undefined
@@ -29,3 +30,5 @@ export const importViewStatusAdditionFromXML = (xml: TViewStatusAdditionXML | un
     titleFont: importFontFromXML(xml.TitleFont),
   }
 }
+
+registerImport(ZElementType.enum.ViewStatusAddition, importViewStatusAdditionFromXML)

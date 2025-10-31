@@ -1,6 +1,7 @@
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TTrackBarFieldXML, TTrackBarField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importTrackBarFieldFromXML = (xml: TTrackBarFieldXML | undefined): TTrackBarField | undefined => {
   if (!xml) return undefined
@@ -28,3 +29,5 @@ export const importTrackBarFieldFromXML = (xml: TTrackBarFieldXML | undefined): 
     width: xml.Width,
   }
 }
+
+registerImport(ZElementType.enum.TrackBarField, importTrackBarFieldFromXML)

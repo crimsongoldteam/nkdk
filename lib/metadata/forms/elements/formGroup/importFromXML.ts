@@ -6,13 +6,14 @@ import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { TFormGroupXML, TFormGroup } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importFormGroupFromXML = (xml: TFormGroupXML | undefined): TFormGroup | undefined => {
   if (!xml) return undefined
 
   const base = importBaseElementFromXML(xml)
   if (!base) return undefined
-   
+
   return {
     ...base,
     elementType: ZElementType.enum.FormGroup,

@@ -5,6 +5,7 @@ import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { TFormItemAdditionXML, TFormItemAddition } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importFormItemAdditionFromXML = (xml: TFormItemAdditionXML | undefined): TFormItemAddition | undefined => {
   if (!xml) return undefined
@@ -29,3 +30,5 @@ export const importFormItemAdditionFromXML = (xml: TFormItemAdditionXML | undefi
     extendedToolTip: importFormDecorationFromXML(xml.ExtendedToolTip),
   }
 }
+
+registerImport(ZElementType.enum.FormItemAddition, importFormItemAdditionFromXML)

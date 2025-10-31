@@ -3,6 +3,7 @@ import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromX
 import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { TSearchStringAdditionXML, TSearchStringAddition } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importSearchStringAdditionFromXML = (xml: TSearchStringAdditionXML | undefined): TSearchStringAddition | undefined => {
   if (!xml) return undefined
@@ -21,3 +22,5 @@ export const importSearchStringAdditionFromXML = (xml: TSearchStringAdditionXML 
     font: importFontFromXML(xml.Font),
   }
 }
+
+registerImport(ZElementType.enum.SearchStringAddition, importSearchStringAdditionFromXML)

@@ -3,6 +3,7 @@ import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromX
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TCheckBoxFieldXML, TCheckBoxField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importCheckBoxFieldFromXML = (xml: TCheckBoxFieldXML | undefined): TCheckBoxField | undefined => {
   if (!xml) return undefined
@@ -26,3 +27,5 @@ export const importCheckBoxFieldFromXML = (xml: TCheckBoxFieldXML | undefined): 
     font: importFontFromXML(xml.Font),
   }
 }
+
+registerImport(ZElementType.enum.CheckBoxField, importCheckBoxFieldFromXML)

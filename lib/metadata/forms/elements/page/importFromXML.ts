@@ -3,6 +3,7 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { TPageXML, TPage } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importPageFromXML = (xml: TPageXML | undefined): TPage | undefined => {
   if (!xml) return undefined
@@ -30,3 +31,5 @@ export const importPageFromXML = (xml: TPageXML | undefined): TPage | undefined 
     slaveItemsWidth: xml.SlaveItemsWidth,
   }
 }
+
+registerImport(ZElementType.enum.Page, importPageFromXML)

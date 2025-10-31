@@ -8,6 +8,7 @@ import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TInputFieldXML, TInputField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importInputFieldFromXML = (xml: TInputFieldXML | undefined): TInputField | undefined => {
   if (!xml) return undefined
@@ -97,3 +98,5 @@ export const importInputFieldFromXML = (xml: TInputFieldXML | undefined): TInput
     multipleValuesFont: importFontFromXML(xml.MultipleValuesFont),
   }
 }
+
+registerImport(ZElementType.enum.InputField, importInputFieldFromXML)

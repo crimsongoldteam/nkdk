@@ -22,8 +22,15 @@ export const ZTypeDescription = z.object({
     .optional(),
 })
 
+const ZTypeDescriptionXMLSpreadsheetDocument = z.object({
+  "_xmlns:mxl": z.literal("http://v8.1c.ru/8.2/data/spreadsheet"),
+  "#text": z.literal("mxl:SpreadsheetDocument"),
+})
+
+const ZType = z.union([z.string(), ZTypeDescriptionXMLSpreadsheetDocument])
+
 export const ZTypeDescriptionXML = z.object({
-  "v8:Type": z.array(z.string()),
+  "v8:Type": z.union([ZType, z.array(ZType)]),
   "v8:StringQualifiers": z
     .object({
       "v8:Length": z.number(),

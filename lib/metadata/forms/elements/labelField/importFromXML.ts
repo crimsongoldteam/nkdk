@@ -4,6 +4,7 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TLabelFieldXML, TLabelField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importLabelFieldFromXML = (xml: TLabelFieldXML | undefined): TLabelField | undefined => {
   if (!xml) return undefined
@@ -33,3 +34,5 @@ export const importLabelFieldFromXML = (xml: TLabelFieldXML | undefined): TLabel
     font: importFontFromXML(xml.Font),
   }
 }
+
+registerImport(ZElementType.enum.LabelField, importLabelFieldFromXML)

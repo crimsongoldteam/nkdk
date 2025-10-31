@@ -1,8 +1,9 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
-import { importFormTableFromXML } from "../formTable/importFromXML"
+import { importTableFromXML } from "../table/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { TUsualGroupXML, TUsualGroup } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importUsualGroupFromXML = (xml: TUsualGroupXML | undefined): TUsualGroup | undefined => {
   if (!xml) return undefined
@@ -23,7 +24,7 @@ export const importUsualGroupFromXML = (xml: TUsualGroupXML | undefined): TUsual
     group: xml.Group,
     collapsedRepresentationTitle: xml.CollapsedRepresentationTitle,
     currentRowUse: xml.CurrentRowUse,
-    associatedTable: importFormTableFromXML(xml.AssociatedTable),
+    associatedTable: importTableFromXML(xml.AssociatedTable),
     united: xml.United,
     showTitle: xml.ShowTitle,
     showLeftMargin: xml.ShowLeftMargin,
@@ -38,3 +39,5 @@ export const importUsualGroupFromXML = (xml: TUsualGroupXML | undefined): TUsual
     slaveItemsWidth: xml.SlaveItemsWidth,
   }
 }
+
+registerImport(ZElementType.enum.UsualGroup, importUsualGroupFromXML)

@@ -1,4 +1,4 @@
-import { z } from "zod/v4"
+import { z } from "zod"
 
 export const ZFontXML = z.object({
   _ref: z.string().optional(),

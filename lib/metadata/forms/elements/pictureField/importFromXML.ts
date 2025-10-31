@@ -4,6 +4,7 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TPictureFieldXML, TPictureField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importPictureFieldFromXML = (xml: TPictureFieldXML | undefined): TPictureField | undefined => {
   if (!xml) return undefined
@@ -37,3 +38,5 @@ export const importPictureFieldFromXML = (xml: TPictureFieldXML | undefined): TP
     font: importFontFromXML(xml.Font),
   }
 }
+
+registerImport(ZElementType.enum.PictureField, importPictureFieldFromXML)

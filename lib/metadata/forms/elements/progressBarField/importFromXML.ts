@@ -2,6 +2,7 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TProgressBarFieldXML, TProgressBarField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importProgressBarFieldFromXML = (xml: TProgressBarFieldXML | undefined): TProgressBarField | undefined => {
   if (!xml) return undefined
@@ -28,3 +29,5 @@ export const importProgressBarFieldFromXML = (xml: TProgressBarFieldXML | undefi
     width: xml.Width,
   }
 }
+
+registerImport(ZElementType.enum.ProgressBarField, importProgressBarFieldFromXML)

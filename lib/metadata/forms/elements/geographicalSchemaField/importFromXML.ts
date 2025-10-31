@@ -2,6 +2,7 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TGeographicalSchemaFieldXML, TGeographicalSchemaField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importGeographicalSchemaFieldFromXML = (xml: TGeographicalSchemaFieldXML | undefined): TGeographicalSchemaField | undefined => {
   if (!xml) return undefined
@@ -24,3 +25,5 @@ export const importGeographicalSchemaFieldFromXML = (xml: TGeographicalSchemaFie
     width: xml.Width,
   }
 }
+
+registerImport(ZElementType.enum.GeographicalSchemaField, importGeographicalSchemaFieldFromXML)

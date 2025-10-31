@@ -1,4 +1,4 @@
-import * as z from "zod/v4"
+import * as z from "zod"
 import { ZI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
 import { ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
@@ -12,6 +12,10 @@ export const ZAutoCommandBarXML = z.object({
   _id: z.string(),
 })
 
+export const ZConditionalAppearanceXML = z.object({
+  ConditionalAppearance: z.object(),
+})
+
 export const ZAttributeXML = z.object({
   Attribute: z.object({
     _name: z.string(),
@@ -23,6 +27,8 @@ export const ZAttributeXML = z.object({
     Use: ZUseXML.optional(),
   }),
 })
+
+export const ZAttributesXML = z.array(z.union([ZAttributeXML, ZConditionalAppearanceXML]))
 
 export const ZClientApplicationFormXML = z.object({
   Form: z.object({
@@ -47,7 +53,7 @@ export const ZClientApplicationFormXML = z.object({
     AutoCommandBar: ZAutoCommandBarXML.optional(),
     Title: ZI8nTextXML.optional(),
     ChildItems: ZChildItemsXML,
-    Attributes: z.array(ZAttributeXML).optional(),
+    Attributes: ZAttributesXML.optional(),
   }),
 })
 
@@ -84,12 +90,13 @@ export const ZAttributeEnterprise = z.union([
   ZUseEnterprise,
 ])
 
-export const ZAttributesEnterpriseXML = z.record(z.string(), ZAttributeEnterprise)
+// export const ZAttributesEnterpriseXML = z.record(z.string(), ZAttributeEnterprise)
 
 export type TClientApplicationForm = z.infer<typeof ZClientApplicationForm>
 export type TClientApplicationFormXML = z.infer<typeof ZClientApplicationFormXML>
 export type TAttributeXML = z.infer<typeof ZAttributeXML>
 export type TAttribute = z.infer<typeof ZAttribute>
+export type TAttributesXML = z.infer<typeof ZAttributesXML>
 
 export type TAttributeEnterprise = z.infer<typeof ZAttributeEnterprise>
-export type TAttributesEnterpriseXML = z.infer<typeof ZAttributesEnterpriseXML>
+// export type TAttributesEnterpriseXML = z.infer<typeof ZAttributesEnterpriseXML>

@@ -3,6 +3,7 @@ import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromX
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TFormattedDocumentFieldXML, TFormattedDocumentField } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importFormattedDocumentFieldFromXML = (xml: TFormattedDocumentFieldXML | undefined): TFormattedDocumentField | undefined => {
   if (!xml) return undefined
@@ -29,3 +30,5 @@ export const importFormattedDocumentFieldFromXML = (xml: TFormattedDocumentField
     font: importFontFromXML(xml.Font),
   }
 }
+
+registerImport(ZElementType.enum.FormattedDocumentField, importFormattedDocumentFieldFromXML)

@@ -3,6 +3,7 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { TPopupXML, TPopup } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importPopupFromXML = (xml: TPopupXML | undefined): TPopup | undefined => {
   if (!xml) return undefined
@@ -21,3 +22,5 @@ export const importPopupFromXML = (xml: TPopupXML | undefined): TPopup | undefin
     backColor: importColorFromXML(xml.BackColor),
   }
 }
+
+registerImport(ZElementType.enum.Popup, importPopupFromXML)

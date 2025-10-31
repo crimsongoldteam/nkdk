@@ -5,6 +5,7 @@ import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { TFormDecorationXML, TFormDecoration } from "./types"
 import { ZElementType } from "../types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importFormDecorationFromXML = (xml: TFormDecorationXML | undefined): TFormDecoration | undefined => {
   if (!xml) return undefined
@@ -40,3 +41,5 @@ export const importFormDecorationFromXML = (xml: TFormDecorationXML | undefined)
     font: importFontFromXML(xml.Font),
   }
 }
+
+registerImport(ZElementType.enum.FormDecoration, importFormDecorationFromXML)
