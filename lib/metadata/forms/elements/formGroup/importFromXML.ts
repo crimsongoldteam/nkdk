@@ -13,7 +13,7 @@ export const importFormGroupFromXML = (xml: TFormGroupXML | undefined): TFormGro
 
   const base = importBaseElementFromXML(xml)
   if (!base) return undefined
-
+   
   return {
     ...base,
     elementType: ZElementType.enum.FormGroup,

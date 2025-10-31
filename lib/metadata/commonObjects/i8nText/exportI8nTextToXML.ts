@@ -1,7 +1,6 @@
-import { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
-import { TI8nTextXML } from "./types"
+import { TI8nText, TI8nTextXML } from "./types"
 
-export default function exportI8nXmlTextToXML(xml: TI8nText | undefined): TI8nTextXML | undefined {
+export const exportI8nTextToXML = (xml: TI8nText | undefined): TI8nTextXML | undefined => {
   if (!xml) return undefined
 
   const result: TI8nTextXML = []
@@ -12,10 +11,3 @@ export default function exportI8nXmlTextToXML(xml: TI8nText | undefined): TI8nTe
 
   return result
 }
-
-// const I8nXmlCodec = z.codec(ZI8nTextXML.optional(), ZI8nText.optional(), {
-//   decode: importI8nXmlTextFromXML,
-//   encode: exportI8nXmlTextToXML,
-// })
-
-// I8nXmlCodec.decode([{ "v8:item": { "v8:lang": "en", "v8:content": "Hello" } }])

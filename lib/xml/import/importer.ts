@@ -3,7 +3,7 @@ import * as z from "zod"
 
 const METADATA_SYMBOL = Symbol.for("metadata")
 
-export default function xmlImport<T>(data: string, z: z.ZodType<T>): T {
+export default function xmlImport<T>(data: string, schema: z.ZodType<T>): T {
   const parser = new XMLParser({
     preserveOrder: true,
     ignoreAttributes: false,
@@ -18,7 +18,7 @@ export default function xmlImport<T>(data: string, z: z.ZodType<T>): T {
 
   let result = compress(parsedData, options, "")
 
-  const parsed = z.parse(result, { reportInput: true })
+  const parsed = schema.parse(result, { reportInput: true })
   return parsed
 }
 
