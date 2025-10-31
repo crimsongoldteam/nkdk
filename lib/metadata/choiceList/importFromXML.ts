@@ -1,7 +1,7 @@
 import { importI8nTextFromXML } from "~/lib/metadata/i8nText/importI8nTextFromXML"
 import { TChoiceList } from "./types"
 
-export default function importChoiceListFromXML(xml: any | undefined): TChoiceList | undefined {
+export const importChoiceListFromXML = (xml: any | undefined): TChoiceList | undefined => {
   if (!xml) return undefined
 
   const rawItems = (xml["xr:Item"] ?? xml.Item ?? []) as any[]

@@ -40,7 +40,7 @@ export const ZFormTable = ZBaseElement.extend({
   currentRowUse: SE.ZTableCurrentRowUse.optional(),
   rowsPicture: z.boolean().optional(),
   commandBar: ZFormGroup.optional(),
-  get  contextMenu() {
+  get contextMenu() {
     return ZFormGroup.optional()
   },
   maxHeight: z.number().optional(),
@@ -57,7 +57,7 @@ export const ZFormTable = ZBaseElement.extend({
   behaviorOnHorizontalCompression: SE.ZTableBehaviorOnHorizontalCompression.optional(),
   footer: z.boolean().optional(),
   toolTip: ZI8nText.optional(),
-  childItems: z.array(ZBaseElement),
+  childItems: ZChildItems,
   searchOnInput: SE.ZSearchInTableOnInput.optional(),
   titleLocation: SE.ZFormItemTitleLocation.optional(),
   commandBarLocation: SE.ZFormItemCommandBarLabelLocation.optional(),
@@ -71,7 +71,7 @@ export const ZFormTable = ZBaseElement.extend({
   enableDrag: z.boolean().optional(),
   verticalStretch: z.boolean().optional(),
   horizontalStretch: z.boolean().optional(),
-  get  extendedTooltip() {
+  get extendedTooltip() {
     return ZFormDecoration.optional()
   },
   rowInputMode: SE.ZTableRowInputMode.optional(),
@@ -141,7 +141,7 @@ export const ZFormTableXML = ZBaseElementXML.extend({
   BehaviorOnHorizontalCompression: SE.ZTableBehaviorOnHorizontalCompression.optional(),
   Footer: z.boolean().optional(),
   ToolTip: ZI8nTextXML.optional(),
-  ChildItems: z.array(ZBaseElementXML),
+  ChildItems: ZChildItemsXML,
   SearchOnInput: SE.ZSearchInTableOnInput.optional(),
   TitleLocation: SE.ZFormItemTitleLocation.optional(),
   CommandBarLocation: SE.ZFormItemCommandBarLabelLocation.optional(),

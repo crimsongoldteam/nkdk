@@ -17,7 +17,7 @@ export const ZFormDecoration = ZBaseElement.extend({
   horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   enabled: z.boolean().optional(),
   title: ZI8nText.optional(),
-  get  contextMenu() {
+  get contextMenu() {
     return ZFormGroup.optional()
   },
   maxHeight: z.number().optional(),
@@ -27,7 +27,7 @@ export const ZFormDecoration = ZBaseElement.extend({
   skipOnInput: z.boolean().optional(),
   verticalStretch: z.boolean().optional(),
   horizontalStretch: z.boolean().optional(),
-  get  extendedTooltip() {
+  get extendedTooltip() {
     return ZFormDecoration.optional()
   },
   shortcut: z.string().optional(),

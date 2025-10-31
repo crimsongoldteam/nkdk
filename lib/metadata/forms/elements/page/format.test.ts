@@ -22,7 +22,7 @@ describe("formatOneLineGroup", () => {
 
     const result = formatUsualGroup(mockElement, {})
 
-    expect(result.join("\n")).toEqual(expectedResult)
+    expect(result.strings.join("\n")).toEqual(expectedResult)
   })
 })
 

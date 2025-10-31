@@ -28,7 +28,7 @@ export const ZFormField = ZBaseElement.extend({
   title: ZI8nText.optional(),
   footerPicture: ZPicture.optional(),
   headerPicture: ZPicture.optional(),
-  get  contextMenu() {
+  get contextMenu() {
     return ZFormGroup.optional()
   },
   typeRestriction: ZTypeDescription.optional(),
@@ -42,12 +42,12 @@ export const ZFormField = ZBaseElement.extend({
   skipOnInput: z.boolean().optional(),
   dataPath: z.string().optional(),
   footerDataPath: z.string().optional(),
-  get  extendedTooltip() {
+  get extendedTooltip() {
     return ZFormDecoration.optional()
   },
   editMode: SE.ZColumnEditMode.optional(),
   shortcut: z.string().optional(),
-  get  table() {
+  get table() {
     return ZFormTable.optional()
   },
   footerText: ZI8nText.optional(),

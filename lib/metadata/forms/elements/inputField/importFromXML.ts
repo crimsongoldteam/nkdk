@@ -2,7 +2,7 @@ import { importColorFromXML } from "~/lib/metadata/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/font/importFromXML"
 import { importTypeDescriptionFromXML } from "~/lib/metadata/typeDescription/importFromXML"
 import { importPictureFromXML } from "../../pictures/importFromXML"
-import { importChoiceListFromXML } from "~/lib/metadata/types/importFromXML"
+import { importChoiceListFromXML } from "~/lib/metadata/choiceList/importFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TInputFieldXML, TInputField } from "./types"
 

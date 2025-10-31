@@ -5,7 +5,7 @@ import { ZFormTable, ZFormTableXML } from "../formTable/types"
 
 export const ZPages = ZFormGroup.extend({
   currentRowUse: SE.ZCurrentRowUse.optional(),
-  get  associatedTable() {
+  get associatedTable() {
     return ZFormTable.optional()
   },
   pagesRepresentation: SE.ZFormPagesRepresentation.optional(),

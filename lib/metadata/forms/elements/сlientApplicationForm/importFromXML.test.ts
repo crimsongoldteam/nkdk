@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import { TClientApplicationForm, TClientApplicationFormXML } from "./types"
-import importClientApplicationFormFromXML from "./importFromXML"
+import { importClientApplicationFormFromXML } from "./importFromXML"
 import { xmlImport } from "~/lib"
 import { ZElementType } from "../types"
 

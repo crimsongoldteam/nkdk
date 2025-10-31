@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import importPictureDecorationFromXML from "./importFromXML"
+import { importPictureDecorationFromXML } from "./importFromXML"
 import { ZElementType } from "../types"
 import { TPictureDecoration, TPictureDecorationXML } from "./types"
 import { xmlImport } from "~/lib"

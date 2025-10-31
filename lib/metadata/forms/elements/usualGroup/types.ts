@@ -15,7 +15,7 @@ export const ZUsualGroup = ZFormGroup.extend({
   group: SE.ZChildFormItemsGroup.optional(),
   collapsedRepresentationTitle: z.string().optional(),
   currentRowUse: SE.ZCurrentRowUse.optional(),
-  get  associatedTable() {
+  get associatedTable() {
     return ZFormTable.optional()
   },
   united: z.boolean().optional(),

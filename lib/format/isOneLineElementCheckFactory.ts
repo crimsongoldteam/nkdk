@@ -12,7 +12,7 @@ export const registerIsOneLineElementCheck = <T extends TBaseElement>(
 }
 
 export const isOneLineElement = <T extends TBaseElement>(element: T): boolean => {
-  const checkFunction = isOneLineElementCheckRegistry.get(element.type)
+  const checkFunction = isOneLineElementCheckRegistry.get(element.elementType)
 
   if (!checkFunction) return true
 

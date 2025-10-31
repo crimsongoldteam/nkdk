@@ -2,7 +2,9 @@ import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/i8nText/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 
 export const ZFormItemAddition = ZBaseElement.extend({
   displayImportance: SE.ZDisplayImportance.optional(),
@@ -17,8 +19,10 @@ export const ZFormItemAddition = ZBaseElement.extend({
   },
   toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   toolTip: ZI8nText.optional(),
-  childItems: z.array(ZBaseElement),
-  extendedToolTip: ZFormDecoration.optional(),
+  childItems: ZChildItems,
+  get extendedToolTip() {
+    return ZFormDecoration.optional()
+  },
 })
 
 export const ZFormItemAdditionXML = ZBaseElementXML.extend({
@@ -34,8 +38,10 @@ export const ZFormItemAdditionXML = ZBaseElementXML.extend({
   },
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   ToolTip: ZI8nTextXML.optional(),
-  ChildItems: z.array(ZBaseElementXML),
-  ExtendedToolTip: ZFormDecorationXML.optional(),
+  ChildItems: ZChildItemsXML,
+  get ExtendedToolTip() {
+    return ZFormDecorationXML.optional()
+  },
 })
 
 export type TFormItemAddition = z.infer<typeof ZFormItemAddition>

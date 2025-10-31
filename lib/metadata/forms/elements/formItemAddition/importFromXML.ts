@@ -1,4 +1,5 @@
 import { importI8nTextFromXML } from "~/lib/metadata/i8nText/importI8nTextFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
@@ -23,6 +24,6 @@ export const importFormItemAdditionFromXML = (xml: TFormItemAdditionXML | undefi
     toolTipRepresentation: xml.ToolTipRepresentation,
     toolTip: importI8nTextFromXML(xml.ToolTip),
     childItems: importChildItemsFromXML(xml.ChildItems),
-    extendedToolTip: xml.ExtendedToolTip,
+    extendedToolTip: importFormDecorationFromXML(xml.ExtendedToolTip),
   }
 }
