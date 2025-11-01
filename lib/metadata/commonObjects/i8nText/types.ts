@@ -8,7 +8,7 @@ export const ZI8nText = z.object({
 export const ZI8nTextEnterprise = z.union([z.string(), z.record(z.string(), z.string())])
 
 export const ZI8nTextXML = z.object({
-  _formatted: z.boolean().optional(),
+  _formatted: z.coerce.boolean().optional(),
   "v8:item": z.array(
     z.object({
       "v8:lang": z.string(),

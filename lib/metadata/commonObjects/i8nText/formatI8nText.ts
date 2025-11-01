@@ -7,7 +7,9 @@ export const formatI8nText = (
 ): TI8nTextEnterprise | undefined => {
   if (!title) return undefined
 
-  if (Object.keys(title).length === 1 && title[defaultLang]) return title[defaultLang]
+  const items = title.items
 
-  return title
+  if (Object.keys(items).length === 1 && items[defaultLang]) return items[defaultLang]
+
+  return items
 }
