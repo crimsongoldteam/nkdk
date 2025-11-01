@@ -150,7 +150,7 @@ export const ZClientApplicationFormXML = z.object({
   ShowCloseButton: z.boolean().optional(),
   ConversationsRepresentation: SE.ZFormConversationsRepresentation.optional(),
   EnterKeyBehavior: SE.ZEnterKeyBehaviorType.optional(),
-  ChildItems: ZChildItemsXML,
+  ChildItems: ZChildItemsXML.optional(),
   CommandBarLocation: SE.ZFormCommandBarLabelLocation.optional(),
   AutoFillCheck: z.boolean().optional(),
   FormWindowOpeningMode: SE.ZFormWindowOpeningMode.optional(),

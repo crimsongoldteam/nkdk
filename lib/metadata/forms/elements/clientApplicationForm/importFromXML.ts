@@ -12,6 +12,12 @@ export const importClientApplicationFormFromXML = (xml: TClientApplicationFormXM
       xml.Attributes?.map((attribute) =>
         "Attribute" in attribute ? importAttributeFromXML(attribute as TAttributeXML) : undefined
       ).filter((attr): attr is TAttribute => attr !== undefined) ?? [],
+    autoCommandBar: xml.AutoCommandBar
+      ? {
+          name: xml.AutoCommandBar._name,
+          id: xml.AutoCommandBar._id,
+        }
+      : undefined,
     autoTitle: xml.AutoTitle,
     autoSaveDataInSettings: xml.AutoSaveDataInSettings,
     autoURL: xml.AutoURL,

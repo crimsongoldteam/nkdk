@@ -18,8 +18,11 @@ export default function xmlImport<T>(data: string, schema: z.ZodType<T>): T {
 
   let result = compress(parsedData, options, "")
 
-  const parsed = schema.parse(result, { reportInput: true })
-  return parsed
+  const parsed = schema.safeParse(result, { reportInput: true })
+  if (!parsed.success) {
+    throw new Error(`Failed to parse XML: ${parsed.error.message}`)
+  }
+  return parsed.data
 }
 
 const defaultOptions = {
