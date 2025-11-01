@@ -1,6 +1,8 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TPdfDocumentFieldXML, TPdfDocumentField } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportPdfDocumentFieldToXML = (data: TPdfDocumentField | undefined): TPdfDocumentFieldXML | undefined => {
   if (!data) return undefined
@@ -12,18 +14,20 @@ export const exportPdfDocumentFieldToXML = (data: TPdfDocumentField | undefined)
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    Output: data.output,
+    BorderColor: exportColorToXML(data.borderColor),
+    CurrentPageNumber: data.currentPageNumber,
     Height: data.height,
-    UsedFileName: data.usedFileName,
+    HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
-    Scale: data.scale,
-    CurrentPageNumber: data.currentPageNumber,
     Orientation: data.orientation,
-    ViewStatusLocation: data.viewStatusLocation,
+    Output: data.output,
+    Scale: data.scale,
+    UsedFileName: data.usedFileName,
     VerticalStretch: data.verticalStretch,
-    HorizontalStretch: data.horizontalStretch,
-    BorderColor: exportColorToXML(data.borderColor),
+    ViewStatusLocation: data.viewStatusLocation,
     Width: data.width,
   }
 }
+
+registerExport(ZElementType.enum.PdfDocumentField, exportPdfDocumentFieldToXML)

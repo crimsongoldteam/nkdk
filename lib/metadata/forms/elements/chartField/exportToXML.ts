@@ -1,5 +1,7 @@
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TChartFieldXML, TChartField } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportChartFieldToXML = (data: TChartField | undefined): TChartFieldXML | undefined => {
   if (!data) return undefined
@@ -12,10 +14,12 @@ export const exportChartFieldToXML = (data: TChartField | undefined): TChartFiel
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
     Height: data.height,
+    HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
     VerticalStretch: data.verticalStretch,
-    HorizontalStretch: data.horizontalStretch,
     Width: data.width,
   }
 }
+
+registerExport(ZElementType.enum.ChartField, exportChartFieldToXML)

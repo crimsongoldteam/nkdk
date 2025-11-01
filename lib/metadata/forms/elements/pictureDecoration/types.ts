@@ -6,31 +6,31 @@ import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 
 export const ZPictureDecoration = ZFormDecoration.extend({
+  border: ZBorder.optional(),
+  borderColor: ZColor.optional(),
+  enableDrag: z.boolean().optional(),
+  enableStartDrag: z.boolean().optional(),
+  fileDragMode: SE.ZFileDragMode.optional(),
   hyperlink: z.boolean().optional(),
+  nonselectedPictureText: z.string().optional(),
   picture: ZPicture.optional(),
+  pictureSize: SE.ZPictureSize.optional(),
   scale: z.number().optional(),
   zoomable: z.boolean().optional(),
-  pictureSize: SE.ZPictureSize.optional(),
-  enableStartDrag: z.boolean().optional(),
-  enableDrag: z.boolean().optional(),
-  border: ZBorder.optional(),
-  fileDragMode: SE.ZFileDragMode.optional(),
-  nonselectedPictureText: z.string().optional(),
-  borderColor: ZColor.optional(),
 })
 
 export const ZPictureDecorationXML = ZFormDecorationXML.extend({
+  Border: ZBorderXML.optional(),
+  BorderColor: ZColorXML.optional(),
+  EnableDrag: z.boolean().optional(),
+  EnableStartDrag: z.boolean().optional(),
+  FileDragMode: SE.ZFileDragMode.optional(),
   Hyperlink: z.boolean().optional(),
+  NonselectedPictureText: z.string().optional(),
   Picture: ZPictureXML.optional(),
+  PictureSize: SE.ZPictureSize.optional(),
   Scale: z.number().optional(),
   Zoomable: z.boolean().optional(),
-  PictureSize: SE.ZPictureSize.optional(),
-  EnableStartDrag: z.boolean().optional(),
-  EnableDrag: z.boolean().optional(),
-  Border: ZBorderXML.optional(),
-  FileDragMode: SE.ZFileDragMode.optional(),
-  NonselectedPictureText: z.string().optional(),
-  BorderColor: ZColorXML.optional(),
 })
 
 export type TPictureDecoration = z.infer<typeof ZPictureDecoration>

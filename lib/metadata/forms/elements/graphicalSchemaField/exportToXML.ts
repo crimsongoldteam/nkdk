@@ -1,6 +1,8 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TGraphicalSchemaFieldXML, TGraphicalSchemaField } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportGraphicalSchemaFieldToXML = (data: TGraphicalSchemaField | undefined): TGraphicalSchemaFieldXML | undefined => {
   if (!data) return undefined
@@ -12,14 +14,16 @@ export const exportGraphicalSchemaFieldToXML = (data: TGraphicalSchemaField | un
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    Output: data.output,
+    BorderColor: exportColorToXML(data.borderColor),
+    Edit: data.edit,
     Height: data.height,
+    HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
+    Output: data.output,
     VerticalStretch: data.verticalStretch,
-    HorizontalStretch: data.horizontalStretch,
-    Edit: data.edit,
-    BorderColor: exportColorToXML(data.borderColor),
     Width: data.width,
   }
 }
+
+registerExport(ZElementType.enum.GraphicalSchemaField, exportGraphicalSchemaFieldToXML)

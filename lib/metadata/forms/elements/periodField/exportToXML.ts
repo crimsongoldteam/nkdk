@@ -3,6 +3,8 @@ import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TPeriodFieldXML, TPeriodField } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportPeriodFieldToXML = (data: TPeriodField | undefined): TPeriodFieldXML | undefined => {
   if (!data) return undefined
@@ -14,14 +16,16 @@ export const exportPeriodFieldToXML = (data: TPeriodField | undefined): TPeriodF
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
+    Border: exportBorderToXML(data.border),
+    BorderColor: exportColorToXML(data.borderColor),
+    Font: exportFontToXML(data.font),
     Height: data.height,
+    HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
-    Border: exportBorderToXML(data.border),
     VerticalStretch: data.verticalStretch,
-    HorizontalStretch: data.horizontalStretch,
-    BorderColor: exportColorToXML(data.borderColor),
     Width: data.width,
-    Font: exportFontToXML(data.font),
   }
 }
+
+registerExport(ZElementType.enum.PeriodField, exportPeriodFieldToXML)

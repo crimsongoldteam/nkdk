@@ -5,21 +5,21 @@ import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/typ
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 
 export const ZPopup = ZFormGroup.extend({
+  backColor: ZColor.optional(),
+  borderColor: ZColor.optional(),
   picture: ZPicture.optional(),
   representation: SE.ZButtonRepresentation.optional(),
-  shapeRepresentation: SE.ZButtonShapeRepresentation.optional(),
   shape: SE.ZButtonShape.optional(),
-  borderColor: ZColor.optional(),
-  backColor: ZColor.optional(),
+  shapeRepresentation: SE.ZButtonShapeRepresentation.optional(),
 })
 
 export const ZPopupXML = ZFormGroupXML.extend({
+  BackColor: ZColorXML.optional(),
+  BorderColor: ZColorXML.optional(),
   Picture: ZPictureXML.optional(),
   Representation: SE.ZButtonRepresentation.optional(),
-  ShapeRepresentation: SE.ZButtonShapeRepresentation.optional(),
   Shape: SE.ZButtonShape.optional(),
-  BorderColor: ZColorXML.optional(),
-  BackColor: ZColorXML.optional(),
+  ShapeRepresentation: SE.ZButtonShapeRepresentation.optional(),
 })
 
 export type TPopup = z.infer<typeof ZPopup>

@@ -2,6 +2,8 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { TPageXML, TPage } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportPageToXML = (data: TPage | undefined): TPageXML | undefined => {
   if (!data) return undefined
@@ -11,20 +13,22 @@ export const exportPageToXML = (data: TPage | undefined): TPageXML | undefined =
    
   return {
     ...base,
-    DisplayImportance: data.displayImportance,
-    VerticalScrollOnReduceSize: data.verticalScrollOnReduceSize,
-    VerticalAlign: data.verticalAlign,
-    ChildItemsVerticalAlign: data.childItemsVerticalAlign,
-    VerticalSpacing: data.verticalSpacing,
-    ItemsAndTitlesAlign: data.itemsAndTitlesAlign,
+    BackColor: exportColorToXML(data.backColor),
     ChildItemsHorizontalAlign: data.childItemsHorizontalAlign,
-    HorizontalSpacing: data.horizontalSpacing,
+    ChildItemsVerticalAlign: data.childItemsVerticalAlign,
+    DisplayImportance: data.displayImportance,
+    Format: data.format,
     Group: data.group,
+    HorizontalSpacing: data.horizontalSpacing,
+    ItemsAndTitlesAlign: data.itemsAndTitlesAlign,
     Picture: exportPictureToXML(data.picture),
     ShowTitle: data.showTitle,
-    TitleDataPath: data.titleDataPath,
-    Format: data.format,
-    BackColor: exportColorToXML(data.backColor),
     SlaveItemsWidth: data.slaveItemsWidth,
+    TitleDataPath: data.titleDataPath,
+    VerticalAlign: data.verticalAlign,
+    VerticalScrollOnReduceSize: data.verticalScrollOnReduceSize,
+    VerticalSpacing: data.verticalSpacing,
   }
 }
+
+registerExport(ZElementType.enum.Page, exportPageToXML)

@@ -5,6 +5,8 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportBaseElementToXML } from "../baseElement/exportToXML"
 import { TButtonXML, TButton } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportButtonToXML = (data: TButton | undefined): TButtonXML | undefined => {
   if (!data) return undefined
@@ -16,38 +18,40 @@ export const exportButtonToXML = (data: TButton | undefined): TButtonXML | undef
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
+    BackColor: exportColorToXML(data.backColor),
+    BorderColor: exportColorToXML(data.borderColor),
+    CommandName: data.commandName,
+    CommandUniqueness: data.commandUniqueness,
+    DefaultButton: data.defaultButton,
     DefaultItem: data.defaultItem,
     DisplayImportance: data.displayImportance,
-    VerticalAlignInGroup: data.verticalAlignInGroup,
-    Type: data.type,
-    Visible: data.visible,
-    Height: data.height,
-    TitleHeight: data.titleHeight,
-    HorizontalAlignInGroup: data.horizontalAlignInGroup,
     Enabled: data.enabled,
-    Title: exportI8nTextToXML(data.title),
-    CommandName: data.commandName,
-    Picture: exportPictureToXML(data.picture),
-    DefaultButton: data.defaultButton,
+    ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
+    Font: exportFontToXML(data.font),
+    Height: data.height,
+    HorizontalAlignInGroup: data.horizontalAlignInGroup,
+    HorizontalStretch: data.horizontalStretch,
+    LocationInCommandBar: data.locationInCommandBar,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
-    Representation: data.representation,
-    ToolTipRepresentation: data.toolTipRepresentation,
-    ShapeRepresentation: data.shapeRepresentation,
-    LocationInCommandBar: data.locationInCommandBar,
-    PictureLocation: data.pictureLocation,
-    SkipOnInput: data.skipOnInput,
-    VerticalStretch: data.verticalStretch,
-    HorizontalStretch: data.horizontalStretch,
-    ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
-    Shortcut: data.shortcut,
     OnlyInAllActions: data.onlyInAllActions,
-    CommandUniqueness: data.commandUniqueness,
+    Picture: exportPictureToXML(data.picture),
+    PictureLocation: data.pictureLocation,
+    Representation: data.representation,
     Shape: data.shape,
-    BorderColor: exportColorToXML(data.borderColor),
+    ShapeRepresentation: data.shapeRepresentation,
+    Shortcut: data.shortcut,
+    SkipOnInput: data.skipOnInput,
     TextColor: exportColorToXML(data.textColor),
-    BackColor: exportColorToXML(data.backColor),
+    Title: exportI8nTextToXML(data.title),
+    TitleHeight: data.titleHeight,
+    ToolTipRepresentation: data.toolTipRepresentation,
+    Type: data.type,
+    VerticalAlignInGroup: data.verticalAlignInGroup,
+    VerticalStretch: data.verticalStretch,
+    Visible: data.visible,
     Width: data.width,
-    Font: exportFontToXML(data.font),
   }
 }
+
+registerExport(ZElementType.enum.Button, exportButtonToXML)

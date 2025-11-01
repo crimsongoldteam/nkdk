@@ -5,23 +5,23 @@ import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 
 export const ZLabelDecoration = ZFormDecoration.extend({
-  verticalAlign: SE.ZItemVerticalAlign.optional(),
-  titleHeight: z.number().optional(),
-  hyperlink: z.boolean().optional(),
-  horizontalAlign: SE.ZItemHorizontalLocation.optional(),
+  backColor: ZColor.optional(),
   border: ZBorder.optional(),
   borderColor: ZColor.optional(),
-  backColor: ZColor.optional(),
+  horizontalAlign: SE.ZItemHorizontalLocation.optional(),
+  hyperlink: z.boolean().optional(),
+  titleHeight: z.number().optional(),
+  verticalAlign: SE.ZItemVerticalAlign.optional(),
 })
 
 export const ZLabelDecorationXML = ZFormDecorationXML.extend({
-  VerticalAlign: SE.ZItemVerticalAlign.optional(),
-  TitleHeight: z.number().optional(),
-  Hyperlink: z.boolean().optional(),
-  HorizontalAlign: SE.ZItemHorizontalLocation.optional(),
+  BackColor: ZColorXML.optional(),
   Border: ZBorderXML.optional(),
   BorderColor: ZColorXML.optional(),
-  BackColor: ZColorXML.optional(),
+  HorizontalAlign: SE.ZItemHorizontalLocation.optional(),
+  Hyperlink: z.boolean().optional(),
+  TitleHeight: z.number().optional(),
+  VerticalAlign: SE.ZItemVerticalAlign.optional(),
 })
 
 export type TLabelDecoration = z.infer<typeof ZLabelDecoration>

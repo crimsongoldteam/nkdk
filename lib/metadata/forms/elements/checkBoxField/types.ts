@@ -5,31 +5,31 @@ import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 
 export const ZCheckBoxField = ZFormField.extend({
-  checkBoxType: SE.ZCheckBoxType.optional(),
-  itemTitleHeight: z.number().optional(),
-  itemHeight: z.number().optional(),
-  equalItemsWidth: z.boolean().optional(),
-  threeState: z.boolean().optional(),
-  editFormat: z.boolean().optional(),
-  borderColor: ZColor.optional(),
-  textColor: ZColor.optional(),
   backColor: ZColor.optional(),
-  itemWidth: z.number().optional(),
+  borderColor: ZColor.optional(),
+  checkBoxType: SE.ZCheckBoxType.optional(),
+  editFormat: z.boolean().optional(),
+  equalItemsWidth: z.boolean().optional(),
   font: ZFont.optional(),
+  itemHeight: z.number().optional(),
+  itemTitleHeight: z.number().optional(),
+  itemWidth: z.number().optional(),
+  textColor: ZColor.optional(),
+  threeState: z.boolean().optional(),
 })
 
 export const ZCheckBoxFieldXML = ZFormFieldXML.extend({
-  CheckBoxType: SE.ZCheckBoxType.optional(),
-  ItemTitleHeight: z.number().optional(),
-  ItemHeight: z.number().optional(),
-  EqualItemsWidth: z.boolean().optional(),
-  ThreeState: z.boolean().optional(),
-  EditFormat: z.boolean().optional(),
-  BorderColor: ZColorXML.optional(),
-  TextColor: ZColorXML.optional(),
   BackColor: ZColorXML.optional(),
-  ItemWidth: z.number().optional(),
+  BorderColor: ZColorXML.optional(),
+  CheckBoxType: SE.ZCheckBoxType.optional(),
+  EditFormat: z.boolean().optional(),
+  EqualItemsWidth: z.boolean().optional(),
   Font: ZFontXML.optional(),
+  ItemHeight: z.number().optional(),
+  ItemTitleHeight: z.number().optional(),
+  ItemWidth: z.number().optional(),
+  TextColor: ZColorXML.optional(),
+  ThreeState: z.boolean().optional(),
 })
 
 export type TCheckBoxField = z.infer<typeof ZCheckBoxField>

@@ -3,6 +3,8 @@ import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TPictureFieldXML, TPictureField } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportPictureFieldToXML = (data: TPictureField | undefined): TPictureFieldXML | undefined => {
   if (!data) return undefined
@@ -14,24 +16,26 @@ export const exportPictureFieldToXML = (data: TPictureField | undefined): TPictu
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
+    Border: exportBorderToXML(data.border),
+    BorderColor: exportColorToXML(data.borderColor),
+    EnableDrag: data.enableDrag,
+    EnableStartDrag: data.enableStartDrag,
+    FileDragMode: data.fileDragMode,
+    Font: exportFontToXML(data.font),
     Height: data.height,
+    HorizontalStretch: data.horizontalStretch,
     Hyperlink: data.hyperlink,
-    ValuesPicture: data.valuesPicture,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
-    Scale: data.scale,
-    Zoomable: data.zoomable,
-    PictureSize: data.pictureSize,
-    EnableStartDrag: data.enableStartDrag,
-    EnableDrag: data.enableDrag,
-    Border: exportBorderToXML(data.border),
-    VerticalStretch: data.verticalStretch,
-    HorizontalStretch: data.horizontalStretch,
-    FileDragMode: data.fileDragMode,
     NonselectedPictureText: data.nonselectedPictureText,
-    BorderColor: exportColorToXML(data.borderColor),
+    PictureSize: data.pictureSize,
+    Scale: data.scale,
     TextColor: exportColorToXML(data.textColor),
+    ValuesPicture: data.valuesPicture,
+    VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Font: exportFontToXML(data.font),
+    Zoomable: data.zoomable,
   }
 }
+
+registerExport(ZElementType.enum.PictureField, exportPictureFieldToXML)

@@ -1,6 +1,8 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { THTMLDocumentFieldXML, THTMLDocumentField } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportHTMLDocumentFieldToXML = (data: THTMLDocumentField | undefined): THTMLDocumentFieldXML | undefined => {
   if (!data) return undefined
@@ -12,14 +14,16 @@ export const exportHTMLDocumentFieldToXML = (data: THTMLDocumentField | undefine
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    Output: data.output,
+    BorderColor: exportColorToXML(data.borderColor),
     Height: data.height,
-    UserAgentInformation: data.userAgentInformation,
+    HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
+    Output: data.output,
+    UserAgentInformation: data.userAgentInformation,
     VerticalStretch: data.verticalStretch,
-    HorizontalStretch: data.horizontalStretch,
-    BorderColor: exportColorToXML(data.borderColor),
     Width: data.width,
   }
 }
+
+registerExport(ZElementType.enum.HTMLDocumentField, exportHTMLDocumentFieldToXML)

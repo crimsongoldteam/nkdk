@@ -6,31 +6,31 @@ import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZChoiceList, ZChoiceListXML } from "~/lib/metadata/commonObjects/choiceList/types"
 
 export const ZRadioButtonField = ZFormField.extend({
-  radioButtonType: SE.ZRadioButtonType.optional(),
-  itemTitleHeight: z.number().optional(),
-  itemHeight: z.number().optional(),
+  backColor: ZColor.optional(),
+  borderColor: ZColor.optional(),
+  choiceList: ZChoiceList.optional(),
   columnsCount: z.number().optional(),
   equalColumnsWidth: z.boolean().optional(),
-  choiceList: ZChoiceList.optional(),
-  borderColor: ZColor.optional(),
-  textColor: ZColor.optional(),
-  backColor: ZColor.optional(),
-  itemWidth: z.number().optional(),
   font: ZFont.optional(),
+  itemHeight: z.number().optional(),
+  itemTitleHeight: z.number().optional(),
+  itemWidth: z.number().optional(),
+  radioButtonType: SE.ZRadioButtonType.optional(),
+  textColor: ZColor.optional(),
 })
 
 export const ZRadioButtonFieldXML = ZFormFieldXML.extend({
-  RadioButtonType: SE.ZRadioButtonType.optional(),
-  ItemTitleHeight: z.number().optional(),
-  ItemHeight: z.number().optional(),
+  BackColor: ZColorXML.optional(),
+  BorderColor: ZColorXML.optional(),
+  ChoiceList: ZChoiceListXML.optional(),
   ColumnsCount: z.number().optional(),
   EqualColumnsWidth: z.boolean().optional(),
-  ChoiceList: ZChoiceListXML.optional(),
-  BorderColor: ZColorXML.optional(),
-  TextColor: ZColorXML.optional(),
-  BackColor: ZColorXML.optional(),
-  ItemWidth: z.number().optional(),
   Font: ZFontXML.optional(),
+  ItemHeight: z.number().optional(),
+  ItemTitleHeight: z.number().optional(),
+  ItemWidth: z.number().optional(),
+  RadioButtonType: SE.ZRadioButtonType.optional(),
+  TextColor: ZColorXML.optional(),
 })
 
 export type TRadioButtonField = z.infer<typeof ZRadioButtonField>

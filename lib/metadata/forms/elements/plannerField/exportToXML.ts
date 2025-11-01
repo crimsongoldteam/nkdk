@@ -1,5 +1,7 @@
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TPlannerFieldXML, TPlannerField } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportPlannerFieldToXML = (data: TPlannerField | undefined): TPlannerFieldXML | undefined => {
   if (!data) return undefined
@@ -11,16 +13,18 @@ export const exportPlannerFieldToXML = (data: TPlannerField | undefined): TPlann
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    Height: data.height,
-    WrappedTimeScaleHeaderHyperlink: data.wrappedTimeScaleHeaderHyperlink,
     DimensionItemHyperlink: data.dimensionItemHyperlink,
-    TimeScaleItemHyperlink: data.timeScaleItemHyperlink,
+    EnableDrag: data.enableDrag,
+    EnableStartDrag: data.enableStartDrag,
+    Height: data.height,
+    HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
-    EnableStartDrag: data.enableStartDrag,
-    EnableDrag: data.enableDrag,
+    TimeScaleItemHyperlink: data.timeScaleItemHyperlink,
     VerticalStretch: data.verticalStretch,
-    HorizontalStretch: data.horizontalStretch,
     Width: data.width,
+    WrappedTimeScaleHeaderHyperlink: data.wrappedTimeScaleHeaderHyperlink,
   }
 }
+
+registerExport(ZElementType.enum.PlannerField, exportPlannerFieldToXML)

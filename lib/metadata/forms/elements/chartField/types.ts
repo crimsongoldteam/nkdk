@@ -5,10 +5,10 @@ export const ZChartField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
   height: z.number().optional(),
+  horizontalStretch: z.boolean().optional(),
   maxHeight: z.number().optional(),
   maxWidth: z.number().optional(),
   verticalStretch: z.boolean().optional(),
-  horizontalStretch: z.boolean().optional(),
   width: z.number().optional(),
 })
 
@@ -16,10 +16,10 @@ export const ZChartFieldXML = ZFormFieldXML.extend({
   AutoMaxHeight: z.boolean().optional(),
   AutoMaxWidth: z.boolean().optional(),
   Height: z.number().optional(),
+  HorizontalStretch: z.boolean().optional(),
   MaxHeight: z.number().optional(),
   MaxWidth: z.number().optional(),
   VerticalStretch: z.boolean().optional(),
-  HorizontalStretch: z.boolean().optional(),
   Width: z.number().optional(),
 })
 

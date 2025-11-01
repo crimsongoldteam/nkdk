@@ -15,13 +15,13 @@ export const importGeographicalSchemaFieldFromXML = (xml: TGeographicalSchemaFie
     elementType: ZElementType.enum.GeographicalSchemaField,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    output: xml.Output,
+    borderColor: importColorFromXML(xml.BorderColor),
     height: xml.Height,
+    horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
+    output: xml.Output,
     verticalStretch: xml.VerticalStretch,
-    horizontalStretch: xml.HorizontalStretch,
-    borderColor: importColorFromXML(xml.BorderColor),
     width: xml.Width,
   }
 }

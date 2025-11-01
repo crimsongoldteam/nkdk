@@ -1,5 +1,7 @@
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TTrackBarFieldXML, TTrackBarField } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportTrackBarFieldToXML = (data: TTrackBarField | undefined): TTrackBarFieldXML | undefined => {
   if (!data) return undefined
@@ -11,18 +13,20 @@ export const exportTrackBarFieldToXML = (data: TTrackBarField | undefined): TTra
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    LargeStep: data.largeStep,
     Height: data.height,
+    HorizontalStretch: data.horizontalStretch,
+    LargeStep: data.largeStep,
+    MarkingAppearance: data.markingAppearance,
+    MarkingStep: data.markingStep,
     MaxHeight: data.maxHeight,
-    MaxWidth: data.maxWidth,
     MaxValue: data.maxValue,
+    MaxWidth: data.maxWidth,
     MinValue: data.minValue,
     Orientation: data.orientation,
-    MarkingAppearance: data.markingAppearance,
-    VerticalStretch: data.verticalStretch,
-    HorizontalStretch: data.horizontalStretch,
     Step: data.step,
-    MarkingStep: data.markingStep,
+    VerticalStretch: data.verticalStretch,
     Width: data.width,
   }
 }
+
+registerExport(ZElementType.enum.TrackBarField, exportTrackBarFieldToXML)

@@ -3,6 +3,8 @@ import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportChoiceListToXML } from "~/lib/metadata/commonObjects/choiceList/exportToXML"
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TRadioButtonFieldXML, TRadioButtonField } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportRadioButtonFieldToXML = (data: TRadioButtonField | undefined): TRadioButtonFieldXML | undefined => {
   if (!data) return undefined
@@ -12,16 +14,18 @@ export const exportRadioButtonFieldToXML = (data: TRadioButtonField | undefined)
    
   return {
     ...base,
-    RadioButtonType: data.radioButtonType,
-    ItemTitleHeight: data.itemTitleHeight,
-    ItemHeight: data.itemHeight,
+    BackColor: exportColorToXML(data.backColor),
+    BorderColor: exportColorToXML(data.borderColor),
+    ChoiceList: exportChoiceListToXML(data.choiceList),
     ColumnsCount: data.columnsCount,
     EqualColumnsWidth: data.equalColumnsWidth,
-    ChoiceList: exportChoiceListToXML(data.choiceList),
-    BorderColor: exportColorToXML(data.borderColor),
-    TextColor: exportColorToXML(data.textColor),
-    BackColor: exportColorToXML(data.backColor),
-    ItemWidth: data.itemWidth,
     Font: exportFontToXML(data.font),
+    ItemHeight: data.itemHeight,
+    ItemTitleHeight: data.itemTitleHeight,
+    ItemWidth: data.itemWidth,
+    RadioButtonType: data.radioButtonType,
+    TextColor: exportColorToXML(data.textColor),
   }
 }
+
+registerExport(ZElementType.enum.RadioButtonField, exportRadioButtonFieldToXML)

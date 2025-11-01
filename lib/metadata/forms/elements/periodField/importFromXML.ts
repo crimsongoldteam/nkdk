@@ -17,15 +17,15 @@ export const importPeriodFieldFromXML = (xml: TPeriodFieldXML | undefined): TPer
     elementType: ZElementType.enum.PeriodField,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
+    border: importBorderFromXML(xml.Border),
+    borderColor: importColorFromXML(xml.BorderColor),
+    font: importFontFromXML(xml.Font),
     height: xml.Height,
+    horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
-    border: importBorderFromXML(xml.Border),
     verticalStretch: xml.VerticalStretch,
-    horizontalStretch: xml.HorizontalStretch,
-    borderColor: importColorFromXML(xml.BorderColor),
     width: xml.Width,
-    font: importFontFromXML(xml.Font),
   }
 }
 

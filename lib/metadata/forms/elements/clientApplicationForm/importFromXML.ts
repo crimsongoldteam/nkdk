@@ -26,7 +26,6 @@ export const importClientApplicationFormFromXML = (xml: TClientApplicationFormXM
     verticalSpacing: xml.VerticalSpacing,
     itemsAndTitlesAlign: xml.ItemsAndTitlesAlign,
     height: xml.Height,
-    childItemsHorizontalAlign: xml.ChildItemsHorizontalAlign,
     horizontalSpacing: xml.HorizontalSpacing,
     group: xml.Group,
     enabled: xml.Enabled,

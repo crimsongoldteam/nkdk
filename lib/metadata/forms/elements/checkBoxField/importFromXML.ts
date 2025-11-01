@@ -14,17 +14,17 @@ export const importCheckBoxFieldFromXML = (xml: TCheckBoxFieldXML | undefined): 
   return {
     ...base,
     elementType: ZElementType.enum.CheckBoxField,
-    checkBoxType: xml.CheckBoxType,
-    itemTitleHeight: xml.ItemTitleHeight,
-    itemHeight: xml.ItemHeight,
-    equalItemsWidth: xml.EqualItemsWidth,
-    threeState: xml.ThreeState,
-    editFormat: xml.EditFormat,
-    borderColor: importColorFromXML(xml.BorderColor),
-    textColor: importColorFromXML(xml.TextColor),
     backColor: importColorFromXML(xml.BackColor),
-    itemWidth: xml.ItemWidth,
+    borderColor: importColorFromXML(xml.BorderColor),
+    checkBoxType: xml.CheckBoxType,
+    editFormat: xml.EditFormat,
+    equalItemsWidth: xml.EqualItemsWidth,
     font: importFontFromXML(xml.Font),
+    itemHeight: xml.ItemHeight,
+    itemTitleHeight: xml.ItemTitleHeight,
+    itemWidth: xml.ItemWidth,
+    textColor: importColorFromXML(xml.TextColor),
+    threeState: xml.ThreeState,
   }
 }
 

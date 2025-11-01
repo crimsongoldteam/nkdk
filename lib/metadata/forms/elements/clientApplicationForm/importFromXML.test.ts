@@ -7,7 +7,7 @@ import {
   ZClientApplicationFormXML,
 } from "~/lib"
 import { ZElementType } from "../types"
-import "../inputField/registration"
+import "~/lib/metadata/forms/elements/importFromXML"
 import z from "zod"
 
 describe("importClientApplicationFormFromXML", () => {
@@ -100,6 +100,45 @@ describe("importClientApplicationFormFromXML", () => {
           id: "1",
           type: { type: ["DataProcessorObject.ТестоваяОбработка"] },
           mainAttribute: true,
+        },
+      ],
+    }
+
+    const xmlData = xmlImport<{ Form: TClientApplicationFormXML }>(
+      mockXml,
+      z.object({ Form: ZClientApplicationFormXML })
+    )
+
+    const form = importClientApplicationFormFromXML(xmlData.Form)
+
+    expect(form).toEqual(mockElement)
+  })
+
+  it("should import usual group child items from XML", () => {
+    const mockXml = `<?xml version="1.0" encoding="UTF-8"?>
+    <Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+      <AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+      <ChildItems>
+        <UsualGroup name="Группа" id="1">
+          <ChildItems>
+            <InputField name="ПолеВвода" id="1"/>
+          </ChildItems>
+        </UsualGroup>
+      </ChildItems>
+    </Form>`
+
+    const mockElement: TClientApplicationForm = {
+      autoCommandBar: {
+        id: "-1",
+        name: "ФормаКоманднаяПанель",
+      },
+      elementType: ZElementType.enum.ClientApplicationForm,
+      childItems: [
+        {
+          name: "Группа",
+          id: "1",
+          elementType: ZElementType.enum.UsualGroup,
+          childItems: [{ name: "ПолеВвода", id: "1", elementType: ZElementType.enum.InputField }],
         },
       ],
     }

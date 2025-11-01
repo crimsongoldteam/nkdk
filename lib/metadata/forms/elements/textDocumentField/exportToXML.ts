@@ -2,6 +2,8 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TTextDocumentFieldXML, TTextDocumentField } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportTextDocumentFieldToXML = (data: TTextDocumentField | undefined): TTextDocumentFieldXML | undefined => {
   if (!data) return undefined
@@ -13,17 +15,19 @@ export const exportTextDocumentFieldToXML = (data: TTextDocumentField | undefine
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    Output: data.output,
-    SelectedText: data.selectedText,
+    BackColor: exportColorToXML(data.backColor),
+    BorderColor: exportColorToXML(data.borderColor),
+    Font: exportFontToXML(data.font),
     Height: data.height,
+    HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
-    VerticalStretch: data.verticalStretch,
-    HorizontalStretch: data.horizontalStretch,
-    BorderColor: exportColorToXML(data.borderColor),
+    Output: data.output,
+    SelectedText: data.selectedText,
     TextColor: exportColorToXML(data.textColor),
-    BackColor: exportColorToXML(data.backColor),
+    VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Font: exportFontToXML(data.font),
   }
 }
+
+registerExport(ZElementType.enum.TextDocumentField, exportTextDocumentFieldToXML)

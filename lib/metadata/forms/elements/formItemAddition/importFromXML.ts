@@ -16,18 +16,18 @@ export const importFormItemAdditionFromXML = (xml: TFormItemAdditionXML | undefi
   return {
     ...base,
     elementType: ZElementType.enum.FormItemAddition,
-    displayImportance: xml.DisplayImportance,
-    verticalAlignInGroup: xml.VerticalAlignInGroup,
-    type: xml.Type,
-    visible: xml.Visible,
-    horizontalAlignInGroup: xml.HorizontalAlignInGroup,
-    enabled: xml.Enabled,
-    title: importI8nTextFromXML(xml.Title),
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
-    toolTipRepresentation: xml.ToolTipRepresentation,
-    toolTip: importI8nTextFromXML(xml.ToolTip),
-    childItems: importChildItemsFromXML(xml.ChildItems),
+    displayImportance: xml.DisplayImportance,
+    enabled: xml.Enabled,
     extendedToolTip: importFormDecorationFromXML(xml.ExtendedToolTip),
+    horizontalAlignInGroup: xml.HorizontalAlignInGroup,
+    title: importI8nTextFromXML(xml.Title),
+    toolTip: importI8nTextFromXML(xml.ToolTip),
+    toolTipRepresentation: xml.ToolTipRepresentation,
+    type: xml.Type,
+    verticalAlignInGroup: xml.VerticalAlignInGroup,
+    visible: xml.Visible,
+    childItems: importChildItemsFromXML(xml.ChildItems),
   }
 }
 

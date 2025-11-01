@@ -1,5 +1,7 @@
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { TButtonGroupXML, TButtonGroup } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportButtonGroupToXML = (data: TButtonGroup | undefined): TButtonGroupXML | undefined => {
   if (!data) return undefined
@@ -12,3 +14,5 @@ export const exportButtonGroupToXML = (data: TButtonGroup | undefined): TButtonG
     Representation: data.representation,
   }
 }
+
+registerExport(ZElementType.enum.ButtonGroup, exportButtonGroupToXML)

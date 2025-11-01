@@ -15,14 +15,14 @@ export const importHTMLDocumentFieldFromXML = (xml: THTMLDocumentFieldXML | unde
     elementType: ZElementType.enum.HTMLDocumentField,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    output: xml.Output,
+    borderColor: importColorFromXML(xml.BorderColor),
     height: xml.Height,
-    userAgentInformation: xml.UserAgentInformation,
+    horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
+    output: xml.Output,
+    userAgentInformation: xml.UserAgentInformation,
     verticalStretch: xml.VerticalStretch,
-    horizontalStretch: xml.HorizontalStretch,
-    borderColor: importColorFromXML(xml.BorderColor),
     width: xml.Width,
   }
 }

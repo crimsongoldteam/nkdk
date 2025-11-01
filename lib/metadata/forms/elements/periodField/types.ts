@@ -7,29 +7,29 @@ import { ZFormField, ZFormFieldXML } from "../formField/types"
 export const ZPeriodField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
+  border: ZBorder.optional(),
+  borderColor: ZColor.optional(),
+  font: ZFont.optional(),
   height: z.number().optional(),
+  horizontalStretch: z.boolean().optional(),
   maxHeight: z.number().optional(),
   maxWidth: z.number().optional(),
-  border: ZBorder.optional(),
   verticalStretch: z.boolean().optional(),
-  horizontalStretch: z.boolean().optional(),
-  borderColor: ZColor.optional(),
   width: z.number().optional(),
-  font: ZFont.optional(),
 })
 
 export const ZPeriodFieldXML = ZFormFieldXML.extend({
   AutoMaxHeight: z.boolean().optional(),
   AutoMaxWidth: z.boolean().optional(),
+  Border: ZBorderXML.optional(),
+  BorderColor: ZColorXML.optional(),
+  Font: ZFontXML.optional(),
   Height: z.number().optional(),
+  HorizontalStretch: z.boolean().optional(),
   MaxHeight: z.number().optional(),
   MaxWidth: z.number().optional(),
-  Border: ZBorderXML.optional(),
   VerticalStretch: z.boolean().optional(),
-  HorizontalStretch: z.boolean().optional(),
-  BorderColor: ZColorXML.optional(),
   Width: z.number().optional(),
-  Font: ZFontXML.optional(),
 })
 
 export type TPeriodField = z.infer<typeof ZPeriodField>

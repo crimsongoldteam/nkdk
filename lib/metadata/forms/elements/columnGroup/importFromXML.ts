@@ -14,14 +14,14 @@ export const importColumnGroupFromXML = (xml: TColumnGroupXML | undefined): TCol
   return {
     ...base,
     elementType: ZElementType.enum.ColumnGroup,
-    headerHorizontalAlign: xml.HeaderHorizontalAlign,
+    fixingInTable: xml.FixingInTable,
     group: xml.Group,
+    headerDataPath: xml.HeaderDataPath,
+    headerFormat: xml.HeaderFormat,
+    headerHorizontalAlign: xml.HeaderHorizontalAlign,
     headerPicture: importPictureFromXML(xml.HeaderPicture),
     showInHeader: xml.ShowInHeader,
     showTitle: xml.ShowTitle,
-    headerDataPath: xml.HeaderDataPath,
-    fixingInTable: xml.FixingInTable,
-    headerFormat: xml.HeaderFormat,
     titleBackColor: importColorFromXML(xml.TitleBackColor),
   }
 }

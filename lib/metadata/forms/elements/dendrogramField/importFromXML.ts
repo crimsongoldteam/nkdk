@@ -15,10 +15,10 @@ export const importDendrogramFieldFromXML = (xml: TDendrogramFieldXML | undefine
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     height: xml.Height,
+    horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
     verticalStretch: xml.VerticalStretch,
-    horizontalStretch: xml.HorizontalStretch,
     width: xml.Width,
   }
 }

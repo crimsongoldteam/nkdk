@@ -4,21 +4,21 @@ import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZTable, ZTableXML } from "../table/types"
 
 export const ZPages = ZFormGroup.extend({
-  currentRowUse: SE.ZCurrentRowUse.optional(),
   get associatedTable() {
     return ZTable.optional()
   },
-  pagesRepresentation: SE.ZFormPagesRepresentation.optional(),
   currentPagesState: SE.ZFormPagesState.optional(),
+  currentRowUse: SE.ZCurrentRowUse.optional(),
+  pagesRepresentation: SE.ZFormPagesRepresentation.optional(),
 })
 
 export const ZPagesXML = ZFormGroupXML.extend({
-  CurrentRowUse: SE.ZCurrentRowUse.optional(),
   get AssociatedTable() {
     return ZTableXML.optional()
   },
-  PagesRepresentation: SE.ZFormPagesRepresentation.optional(),
   CurrentPagesState: SE.ZFormPagesState.optional(),
+  CurrentRowUse: SE.ZCurrentRowUse.optional(),
+  PagesRepresentation: SE.ZFormPagesRepresentation.optional(),
 })
 
 export type TPages = z.infer<typeof ZPages>

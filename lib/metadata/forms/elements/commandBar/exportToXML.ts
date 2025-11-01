@@ -1,5 +1,7 @@
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { TCommandBarXML, TCommandBar } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportCommandBarToXML = (data: TCommandBar | undefined): TCommandBarXML | undefined => {
   if (!data) return undefined
@@ -13,3 +15,5 @@ export const exportCommandBarToXML = (data: TCommandBar | undefined): TCommandBa
     HorizontalAlign: data.horizontalAlign,
   }
 }
+
+registerExport(ZElementType.enum.CommandBar, exportCommandBarToXML)

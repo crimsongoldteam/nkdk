@@ -3,6 +3,8 @@ import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TCalendarFieldXML, TCalendarField } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportCalendarFieldToXML = (data: TCalendarField | undefined): TCalendarFieldXML | undefined => {
   if (!data) return undefined
@@ -14,24 +16,26 @@ export const exportCalendarFieldToXML = (data: TCalendarField | undefined): TCal
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
+    BeginOfRepresentationPeriod: data.beginOfRepresentationPeriod,
+    Border: exportBorderToXML(data.border),
+    BorderColor: exportColorToXML(data.borderColor),
+    CalendarNavigation: data.calendarNavigation,
+    EnableDrag: data.enableDrag,
+    EnableStartDrag: data.enableStartDrag,
+    EndOfRepresentationPeriod: data.endOfRepresentationPeriod,
+    Font: exportFontToXML(data.font),
     Height: data.height,
     HeightInMonths: data.heightInMonths,
-    EndOfRepresentationPeriod: data.endOfRepresentationPeriod,
+    HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
-    BeginOfRepresentationPeriod: data.beginOfRepresentationPeriod,
-    ShowMonthsPanel: data.showMonthsPanel,
-    ShowCurrentDate: data.showCurrentDate,
-    CalendarNavigation: data.calendarNavigation,
-    EnableStartDrag: data.enableStartDrag,
-    EnableDrag: data.enableDrag,
-    Border: exportBorderToXML(data.border),
-    VerticalStretch: data.verticalStretch,
-    HorizontalStretch: data.horizontalStretch,
     SelectionMode: data.selectionMode,
-    BorderColor: exportColorToXML(data.borderColor),
+    ShowCurrentDate: data.showCurrentDate,
+    ShowMonthsPanel: data.showMonthsPanel,
+    VerticalStretch: data.verticalStretch,
     Width: data.width,
     WidthInMonths: data.widthInMonths,
-    Font: exportFontToXML(data.font),
   }
 }
+
+registerExport(ZElementType.enum.CalendarField, exportCalendarFieldToXML)

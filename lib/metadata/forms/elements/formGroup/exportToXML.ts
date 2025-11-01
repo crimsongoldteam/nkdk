@@ -5,6 +5,8 @@ import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { exportBaseElementToXML } from "../baseElement/exportToXML"
 import { TFormGroupXML, TFormGroup } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportFormGroupToXML = (data: TFormGroup | undefined): TFormGroupXML | undefined => {
   if (!data) return undefined
@@ -14,24 +16,26 @@ export const exportFormGroupToXML = (data: TFormGroup | undefined): TFormGroupXM
    
   return {
     ...base,
-    VerticalAlignInGroup: data.verticalAlignInGroup,
-    Type: data.type,
-    Visible: data.visible,
+    EnableContentChange: data.enableContentChange,
+    Enabled: data.enabled,
+    ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
     Height: data.height,
     HorizontalAlignInGroup: data.horizontalAlignInGroup,
-    Enabled: data.enabled,
-    Title: exportI8nTextToXML(data.title),
-    ToolTipRepresentation: data.toolTipRepresentation,
-    ToolTip: exportI8nTextToXML(data.toolTip),
-    ChildItems: exportChildItemsToXML(data.childItems),
-    EnableContentChange: data.enableContentChange,
-    VerticalStretch: data.verticalStretch,
     HorizontalStretch: data.horizontalStretch,
-    ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
-    Shortcut: data.shortcut,
     ReadOnly: data.readOnly,
-    TitleTextColor: exportColorToXML(data.titleTextColor),
-    Width: data.width,
+    Shortcut: data.shortcut,
+    Title: exportI8nTextToXML(data.title),
     TitleFont: exportFontToXML(data.titleFont),
+    TitleTextColor: exportColorToXML(data.titleTextColor),
+    ToolTip: exportI8nTextToXML(data.toolTip),
+    ToolTipRepresentation: data.toolTipRepresentation,
+    Type: data.type,
+    VerticalAlignInGroup: data.verticalAlignInGroup,
+    VerticalStretch: data.verticalStretch,
+    Visible: data.visible,
+    Width: data.width,
+    ChildItems: exportChildItemsToXML(data.childItems),
   }
 }
+
+registerExport(ZElementType.enum.FormGroup, exportFormGroupToXML)

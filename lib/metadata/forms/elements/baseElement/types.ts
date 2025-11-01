@@ -16,8 +16,8 @@ export type TBaseElement = z.infer<typeof ZBaseElement>
 export type TNamedElementWithTitle = z.infer<typeof ZNamedElementWithTitle>
 
 export const ZBaseElementXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
 })
 
 export type TBaseElementXML = z.infer<typeof ZBaseElementXML>

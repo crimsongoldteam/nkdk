@@ -3,6 +3,8 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { TPictureDecorationXML, TPictureDecoration } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportPictureDecorationToXML = (data: TPictureDecoration | undefined): TPictureDecorationXML | undefined => {
   if (!data) return undefined
@@ -12,16 +14,18 @@ export const exportPictureDecorationToXML = (data: TPictureDecoration | undefine
    
   return {
     ...base,
+    Border: exportBorderToXML(data.border),
+    BorderColor: exportColorToXML(data.borderColor),
+    EnableDrag: data.enableDrag,
+    EnableStartDrag: data.enableStartDrag,
+    FileDragMode: data.fileDragMode,
     Hyperlink: data.hyperlink,
+    NonselectedPictureText: data.nonselectedPictureText,
     Picture: exportPictureToXML(data.picture),
+    PictureSize: data.pictureSize,
     Scale: data.scale,
     Zoomable: data.zoomable,
-    PictureSize: data.pictureSize,
-    EnableStartDrag: data.enableStartDrag,
-    EnableDrag: data.enableDrag,
-    Border: exportBorderToXML(data.border),
-    FileDragMode: data.fileDragMode,
-    NonselectedPictureText: data.nonselectedPictureText,
-    BorderColor: exportColorToXML(data.borderColor),
   }
 }
+
+registerExport(ZElementType.enum.PictureDecoration, exportPictureDecorationToXML)

@@ -15,17 +15,17 @@ export const importPictureDecorationFromXML = (xml: TPictureDecorationXML | unde
   return {
     ...base,
     elementType: ZElementType.enum.PictureDecoration,
+    border: importBorderFromXML(xml.Border),
+    borderColor: importColorFromXML(xml.BorderColor),
+    enableDrag: xml.EnableDrag,
+    enableStartDrag: xml.EnableStartDrag,
+    fileDragMode: xml.FileDragMode,
     hyperlink: xml.Hyperlink,
+    nonselectedPictureText: xml.NonselectedPictureText,
     picture: importPictureFromXML(xml.Picture),
+    pictureSize: xml.PictureSize,
     scale: xml.Scale,
     zoomable: xml.Zoomable,
-    pictureSize: xml.PictureSize,
-    enableStartDrag: xml.EnableStartDrag,
-    enableDrag: xml.EnableDrag,
-    border: importBorderFromXML(xml.Border),
-    fileDragMode: xml.FileDragMode,
-    nonselectedPictureText: xml.NonselectedPictureText,
-    borderColor: importColorFromXML(xml.BorderColor),
   }
 }
 

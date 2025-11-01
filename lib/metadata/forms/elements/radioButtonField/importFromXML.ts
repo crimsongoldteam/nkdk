@@ -15,17 +15,17 @@ export const importRadioButtonFieldFromXML = (xml: TRadioButtonFieldXML | undefi
   return {
     ...base,
     elementType: ZElementType.enum.RadioButtonField,
-    radioButtonType: xml.RadioButtonType,
-    itemTitleHeight: xml.ItemTitleHeight,
-    itemHeight: xml.ItemHeight,
+    backColor: importColorFromXML(xml.BackColor),
+    borderColor: importColorFromXML(xml.BorderColor),
+    choiceList: importChoiceListFromXML(xml.ChoiceList),
     columnsCount: xml.ColumnsCount,
     equalColumnsWidth: xml.EqualColumnsWidth,
-    choiceList: importChoiceListFromXML(xml.ChoiceList),
-    borderColor: importColorFromXML(xml.BorderColor),
-    textColor: importColorFromXML(xml.TextColor),
-    backColor: importColorFromXML(xml.BackColor),
-    itemWidth: xml.ItemWidth,
     font: importFontFromXML(xml.Font),
+    itemHeight: xml.ItemHeight,
+    itemTitleHeight: xml.ItemTitleHeight,
+    itemWidth: xml.ItemWidth,
+    radioButtonType: xml.RadioButtonType,
+    textColor: importColorFromXML(xml.TextColor),
   }
 }
 

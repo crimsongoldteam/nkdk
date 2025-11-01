@@ -7,40 +7,44 @@ import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 
 export const ZFormItemAddition = ZBaseElement.extend({
-  displayImportance: SE.ZDisplayImportance.optional(),
-  verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
-  type: SE.ZFormItemAdditionType.optional(),
-  visible: z.boolean().optional(),
-  horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
-  enabled: z.boolean().optional(),
-  title: ZI8nText.optional(),
   get contextMenu() {
     return ZFormGroup.optional()
   },
-  toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
-  toolTip: ZI8nText.optional(),
-  childItems: ZChildItems,
+  displayImportance: SE.ZDisplayImportance.optional(),
+  enabled: z.boolean().optional(),
   get extendedToolTip() {
     return ZFormDecoration.optional()
+  },
+  horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
+  title: ZI8nText.optional(),
+  toolTip: ZI8nText.optional(),
+  toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
+  type: SE.ZFormItemAdditionType.optional(),
+  verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
+  visible: z.boolean().optional(),
+  get childItems() {
+    return ZChildItems
   },
 })
 
 export const ZFormItemAdditionXML = ZBaseElementXML.extend({
-  DisplayImportance: SE.ZDisplayImportance.optional(),
-  VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
-  Type: SE.ZFormItemAdditionType.optional(),
-  Visible: z.boolean().optional(),
-  HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
-  Enabled: z.boolean().optional(),
-  Title: ZI8nTextXML.optional(),
   get ContextMenu() {
     return ZFormGroupXML.optional()
   },
-  ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
-  ToolTip: ZI8nTextXML.optional(),
-  ChildItems: ZChildItemsXML,
+  DisplayImportance: SE.ZDisplayImportance.optional(),
+  Enabled: z.boolean().optional(),
   get ExtendedToolTip() {
     return ZFormDecorationXML.optional()
+  },
+  HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
+  Title: ZI8nTextXML.optional(),
+  ToolTip: ZI8nTextXML.optional(),
+  ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
+  Type: SE.ZFormItemAdditionType.optional(),
+  VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
+  Visible: z.boolean().optional(),
+  get ChildItems() {
+    return ZChildItemsXML.optional()
   },
 })
 

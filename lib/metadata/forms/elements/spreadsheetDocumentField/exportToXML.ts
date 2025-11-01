@@ -1,6 +1,8 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TSpreadSheetDocumentFieldXML, TSpreadSheetDocumentField } from "./types"
+import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { ZElementType } from "../types"
 
 export const exportSpreadSheetDocumentFieldToXML = (data: TSpreadSheetDocumentField | undefined): TSpreadSheetDocumentFieldXML | undefined => {
   if (!data) return undefined
@@ -12,31 +14,33 @@ export const exportSpreadSheetDocumentFieldToXML = (data: TSpreadSheetDocumentFi
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    VerticalScrollBar: data.verticalScrollBar,
-    Output: data.output,
+    BlackAndWhiteView: data.blackAndWhiteView,
+    BorderColor: exportColorToXML(data.borderColor),
+    DrawingSelectionShowMode: data.drawingSelectionShowMode,
+    Edit: data.edit,
+    EnableDrag: data.enableDrag,
+    EnableStartDrag: data.enableStartDrag,
     Height: data.height,
     HorizontalScrollBar: data.horizontalScrollBar,
-    Protection: data.protection,
-    UsedFileName: data.usedFileName,
+    HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
+    Output: data.output,
+    PointerType: data.pointerType,
+    Protection: data.protection,
+    SelectionShowMode: data.selectionShowMode,
+    ShowCellNames: data.showCellNames,
+    ShowGrid: data.showGrid,
     ShowGroups: data.showGroups,
     ShowHeaders: data.showHeaders,
     ShowRowAndColumnNames: data.showRowAndColumnNames,
-    ShowCellNames: data.showCellNames,
-    ShowGrid: data.showGrid,
     StatePresentation: data.statePresentation,
-    EnableStartDrag: data.enableStartDrag,
-    EnableDrag: data.enableDrag,
+    UsedFileName: data.usedFileName,
+    VerticalScrollBar: data.verticalScrollBar,
     VerticalStretch: data.verticalStretch,
-    HorizontalStretch: data.horizontalStretch,
-    Edit: data.edit,
     ViewScalingMode: data.viewScalingMode,
-    SelectionShowMode: data.selectionShowMode,
-    DrawingSelectionShowMode: data.drawingSelectionShowMode,
-    PointerType: data.pointerType,
-    BorderColor: exportColorToXML(data.borderColor),
-    BlackAndWhiteView: data.blackAndWhiteView,
     Width: data.width,
   }
 }
+
+registerExport(ZElementType.enum.SpreadSheetDocumentField, exportSpreadSheetDocumentFieldToXML)

@@ -14,13 +14,13 @@ export const importLabelDecorationFromXML = (xml: TLabelDecorationXML | undefine
   return {
     ...base,
     elementType: ZElementType.enum.LabelDecoration,
-    verticalAlign: xml.VerticalAlign,
-    titleHeight: xml.TitleHeight,
-    hyperlink: xml.Hyperlink,
-    horizontalAlign: xml.HorizontalAlign,
+    backColor: importColorFromXML(xml.BackColor),
     border: importBorderFromXML(xml.Border),
     borderColor: importColorFromXML(xml.BorderColor),
-    backColor: importColorFromXML(xml.BackColor),
+    horizontalAlign: xml.HorizontalAlign,
+    hyperlink: xml.Hyperlink,
+    titleHeight: xml.TitleHeight,
+    verticalAlign: xml.VerticalAlign,
   }
 }
 

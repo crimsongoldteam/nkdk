@@ -13,10 +13,10 @@ export const importPagesFromXML = (xml: TPagesXML | undefined): TPages | undefin
   return {
     ...base,
     elementType: ZElementType.enum.Pages,
-    currentRowUse: xml.CurrentRowUse,
     associatedTable: importTableFromXML(xml.AssociatedTable),
-    pagesRepresentation: xml.PagesRepresentation,
     currentPagesState: xml.CurrentPagesState,
+    currentRowUse: xml.CurrentRowUse,
+    pagesRepresentation: xml.PagesRepresentation,
   }
 }
 

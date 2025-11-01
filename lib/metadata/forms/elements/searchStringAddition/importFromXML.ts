@@ -14,12 +14,12 @@ export const importSearchStringAdditionFromXML = (xml: TSearchStringAdditionXML 
   return {
     ...base,
     elementType: ZElementType.enum.SearchStringAddition,
-    horizontalStretch: xml.HorizontalStretch,
-    borderColor: importColorFromXML(xml.BorderColor),
-    textColor: importColorFromXML(xml.TextColor),
     backColor: importColorFromXML(xml.BackColor),
-    width: xml.Width,
+    borderColor: importColorFromXML(xml.BorderColor),
     font: importFontFromXML(xml.Font),
+    horizontalStretch: xml.HorizontalStretch,
+    textColor: importColorFromXML(xml.TextColor),
+    width: xml.Width,
   }
 }
 

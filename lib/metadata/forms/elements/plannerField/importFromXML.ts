@@ -14,17 +14,17 @@ export const importPlannerFieldFromXML = (xml: TPlannerFieldXML | undefined): TP
     elementType: ZElementType.enum.PlannerField,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    height: xml.Height,
-    wrappedTimeScaleHeaderHyperlink: xml.WrappedTimeScaleHeaderHyperlink,
     dimensionItemHyperlink: xml.DimensionItemHyperlink,
-    timeScaleItemHyperlink: xml.TimeScaleItemHyperlink,
+    enableDrag: xml.EnableDrag,
+    enableStartDrag: xml.EnableStartDrag,
+    height: xml.Height,
+    horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
-    enableStartDrag: xml.EnableStartDrag,
-    enableDrag: xml.EnableDrag,
+    timeScaleItemHyperlink: xml.TimeScaleItemHyperlink,
     verticalStretch: xml.VerticalStretch,
-    horizontalStretch: xml.HorizontalStretch,
     width: xml.Width,
+    wrappedTimeScaleHeaderHyperlink: xml.WrappedTimeScaleHeaderHyperlink,
   }
 }
 

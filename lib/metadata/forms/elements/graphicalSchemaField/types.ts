@@ -6,28 +6,28 @@ import { ZFormField, ZFormFieldXML } from "../formField/types"
 export const ZGraphicalSchemaField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
-  output: SE.ZUseOutput.optional(),
+  borderColor: ZColor.optional(),
+  edit: z.boolean().optional(),
   height: z.number().optional(),
+  horizontalStretch: z.boolean().optional(),
   maxHeight: z.number().optional(),
   maxWidth: z.number().optional(),
+  output: SE.ZUseOutput.optional(),
   verticalStretch: z.boolean().optional(),
-  horizontalStretch: z.boolean().optional(),
-  edit: z.boolean().optional(),
-  borderColor: ZColor.optional(),
   width: z.number().optional(),
 })
 
 export const ZGraphicalSchemaFieldXML = ZFormFieldXML.extend({
   AutoMaxHeight: z.boolean().optional(),
   AutoMaxWidth: z.boolean().optional(),
-  Output: SE.ZUseOutput.optional(),
+  BorderColor: ZColorXML.optional(),
+  Edit: z.boolean().optional(),
   Height: z.number().optional(),
+  HorizontalStretch: z.boolean().optional(),
   MaxHeight: z.number().optional(),
   MaxWidth: z.number().optional(),
+  Output: SE.ZUseOutput.optional(),
   VerticalStretch: z.boolean().optional(),
-  HorizontalStretch: z.boolean().optional(),
-  Edit: z.boolean().optional(),
-  BorderColor: ZColorXML.optional(),
   Width: z.number().optional(),
 })
 

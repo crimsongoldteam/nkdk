@@ -8,51 +8,55 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 
 export const ZFormGroup = ZBaseElement.extend({
-  verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
-  type: SE.ZFormGroupType.optional(),
-  visible: z.boolean().optional(),
-  height: z.number().optional(),
-  horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
-  enabled: z.boolean().optional(),
-  title: ZI8nText.optional(),
-  toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
-  toolTip: ZI8nText.optional(),
-  childItems: ZChildItems,
   enableContentChange: z.boolean().optional(),
-  verticalStretch: z.boolean().optional(),
-  horizontalStretch: z.boolean().optional(),
+  enabled: z.boolean().optional(),
   get extendedTooltip() {
     return ZFormDecoration.optional()
   },
-  shortcut: z.string().optional(),
+  height: z.number().optional(),
+  horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
+  horizontalStretch: z.boolean().optional(),
   readOnly: z.boolean().optional(),
-  titleTextColor: ZColor.optional(),
-  width: z.number().optional(),
+  shortcut: z.string().optional(),
+  title: ZI8nText.optional(),
   titleFont: ZFont.optional(),
+  titleTextColor: ZColor.optional(),
+  toolTip: ZI8nText.optional(),
+  toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
+  type: SE.ZFormGroupType.optional(),
+  verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
+  verticalStretch: z.boolean().optional(),
+  visible: z.boolean().optional(),
+  width: z.number().optional(),
+  get childItems() {
+    return ZChildItems
+  },
 })
 
 export const ZFormGroupXML = ZBaseElementXML.extend({
-  VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
-  Type: SE.ZFormGroupType.optional(),
-  Visible: z.boolean().optional(),
-  Height: z.number().optional(),
-  HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
-  Enabled: z.boolean().optional(),
-  Title: ZI8nTextXML.optional(),
-  ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
-  ToolTip: ZI8nTextXML.optional(),
-  ChildItems: ZChildItemsXML,
   EnableContentChange: z.boolean().optional(),
-  VerticalStretch: z.boolean().optional(),
-  HorizontalStretch: z.boolean().optional(),
+  Enabled: z.boolean().optional(),
   get ExtendedTooltip() {
     return ZFormDecorationXML.optional()
   },
-  Shortcut: z.string().optional(),
+  Height: z.number().optional(),
+  HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
+  HorizontalStretch: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),
-  TitleTextColor: ZColorXML.optional(),
-  Width: z.number().optional(),
+  Shortcut: z.string().optional(),
+  Title: ZI8nTextXML.optional(),
   TitleFont: ZFontXML.optional(),
+  TitleTextColor: ZColorXML.optional(),
+  ToolTip: ZI8nTextXML.optional(),
+  ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
+  Type: SE.ZFormGroupType.optional(),
+  VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
+  VerticalStretch: z.boolean().optional(),
+  Visible: z.boolean().optional(),
+  Width: z.number().optional(),
+  get ChildItems() {
+    return ZChildItemsXML.optional()
+  },
 })
 
 export type TFormGroup = z.infer<typeof ZFormGroup>

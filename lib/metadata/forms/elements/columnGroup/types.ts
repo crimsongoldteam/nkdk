@@ -5,26 +5,26 @@ import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/typ
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 
 export const ZColumnGroup = ZFormGroup.extend({
-  headerHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
+  fixingInTable: SE.ZFixingInTable.optional(),
   group: SE.ZColumnsGroup.optional(),
+  headerDataPath: z.string().optional(),
+  headerFormat: z.string().optional(),
+  headerHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
   headerPicture: ZPicture.optional(),
   showInHeader: z.boolean().optional(),
   showTitle: z.boolean().optional(),
-  headerDataPath: z.string().optional(),
-  fixingInTable: SE.ZFixingInTable.optional(),
-  headerFormat: z.string().optional(),
   titleBackColor: ZColor.optional(),
 })
 
 export const ZColumnGroupXML = ZFormGroupXML.extend({
-  HeaderHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
+  FixingInTable: SE.ZFixingInTable.optional(),
   Group: SE.ZColumnsGroup.optional(),
+  HeaderDataPath: z.string().optional(),
+  HeaderFormat: z.string().optional(),
+  HeaderHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
   HeaderPicture: ZPictureXML.optional(),
   ShowInHeader: z.boolean().optional(),
   ShowTitle: z.boolean().optional(),
-  HeaderDataPath: z.string().optional(),
-  FixingInTable: SE.ZFixingInTable.optional(),
-  HeaderFormat: z.string().optional(),
   TitleBackColor: ZColorXML.optional(),
 })
 

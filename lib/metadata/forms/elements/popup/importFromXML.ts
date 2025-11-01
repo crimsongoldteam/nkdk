@@ -14,12 +14,12 @@ export const importPopupFromXML = (xml: TPopupXML | undefined): TPopup | undefin
   return {
     ...base,
     elementType: ZElementType.enum.Popup,
+    backColor: importColorFromXML(xml.BackColor),
+    borderColor: importColorFromXML(xml.BorderColor),
     picture: importPictureFromXML(xml.Picture),
     representation: xml.Representation,
-    shapeRepresentation: xml.ShapeRepresentation,
     shape: xml.Shape,
-    borderColor: importColorFromXML(xml.BorderColor),
-    backColor: importColorFromXML(xml.BackColor),
+    shapeRepresentation: xml.ShapeRepresentation,
   }
 }
 

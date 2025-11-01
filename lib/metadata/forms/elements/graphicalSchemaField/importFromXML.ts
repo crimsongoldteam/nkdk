@@ -15,14 +15,14 @@ export const importGraphicalSchemaFieldFromXML = (xml: TGraphicalSchemaFieldXML 
     elementType: ZElementType.enum.GraphicalSchemaField,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    output: xml.Output,
+    borderColor: importColorFromXML(xml.BorderColor),
+    edit: xml.Edit,
     height: xml.Height,
+    horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
+    output: xml.Output,
     verticalStretch: xml.VerticalStretch,
-    horizontalStretch: xml.HorizontalStretch,
-    edit: xml.Edit,
-    borderColor: importColorFromXML(xml.BorderColor),
     width: xml.Width,
   }
 }

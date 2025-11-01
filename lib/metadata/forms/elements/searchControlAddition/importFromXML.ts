@@ -15,13 +15,13 @@ export const importSearchControlAdditionFromXML = (xml: TSearchControlAdditionXM
     ...base,
     elementType: ZElementType.enum.SearchControlAddition,
     autoMaxWidth: xml.AutoMaxWidth,
-    maxWidth: xml.MaxWidth,
-    horizontalStretch: xml.HorizontalStretch,
-    borderColor: importColorFromXML(xml.BorderColor),
-    textColor: importColorFromXML(xml.TextColor),
     backColor: importColorFromXML(xml.BackColor),
-    width: xml.Width,
+    borderColor: importColorFromXML(xml.BorderColor),
     font: importFontFromXML(xml.Font),
+    horizontalStretch: xml.HorizontalStretch,
+    maxWidth: xml.MaxWidth,
+    textColor: importColorFromXML(xml.TextColor),
+    width: xml.Width,
   }
 }
 
