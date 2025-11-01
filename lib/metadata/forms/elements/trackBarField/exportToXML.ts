@@ -2,6 +2,9 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TTrackBarFieldXML, TTrackBarField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER: string[] = []
 
 export const exportTrackBarFieldToXML = (data: TTrackBarField | undefined): TTrackBarFieldXML | undefined => {
   if (!data) return undefined
@@ -9,7 +12,7 @@ export const exportTrackBarFieldToXML = (data: TTrackBarField | undefined): TTra
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TTrackBarFieldXML>( {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -26,7 +29,7 @@ export const exportTrackBarFieldToXML = (data: TTrackBarField | undefined): TTra
     Step: data.step,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.TrackBarField, exportTrackBarFieldToXML)

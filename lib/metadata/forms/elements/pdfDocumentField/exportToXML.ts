@@ -3,6 +3,9 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TPdfDocumentFieldXML, TPdfDocumentField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER: string[] = []
 
 export const exportPdfDocumentFieldToXML = (data: TPdfDocumentField | undefined): TPdfDocumentFieldXML | undefined => {
   if (!data) return undefined
@@ -10,7 +13,7 @@ export const exportPdfDocumentFieldToXML = (data: TPdfDocumentField | undefined)
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TPdfDocumentFieldXML>( {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -27,7 +30,7 @@ export const exportPdfDocumentFieldToXML = (data: TPdfDocumentField | undefined)
     VerticalStretch: data.verticalStretch,
     ViewStatusLocation: data.viewStatusLocation,
     Width: data.width,
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.PdfDocumentField, exportPdfDocumentFieldToXML)

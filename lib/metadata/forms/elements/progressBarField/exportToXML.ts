@@ -3,6 +3,9 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TProgressBarFieldXML, TProgressBarField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER: string[] = []
 
 export const exportProgressBarFieldToXML = (data: TProgressBarField | undefined): TProgressBarFieldXML | undefined => {
   if (!data) return undefined
@@ -10,7 +13,7 @@ export const exportProgressBarFieldToXML = (data: TProgressBarField | undefined)
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TProgressBarFieldXML>( {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -26,7 +29,7 @@ export const exportProgressBarFieldToXML = (data: TProgressBarField | undefined)
     ShowPercent: data.showPercent,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.ProgressBarField, exportProgressBarFieldToXML)

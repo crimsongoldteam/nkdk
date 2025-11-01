@@ -9,6 +9,9 @@ import { exportBaseElementToXML } from "../baseElement/exportToXML"
 import { TTableXML, TTable } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER = ["UserVisible", "TitleLocation", "TitleHeight", "CommandBarLocation", "Enabled", "ReadOnly", "SkipOnInput", "ChangeRowSet", "ChangeRowOrder", "Width", "AutoMaxWidth", "MaxWidth", "Height", "AutoMaxHeight", "MaxHeight", "HeightInTableRows", "HeightControlVariant", "AutoMaxRowsCount", "MaxRowsCount", "ChoiceMode", "MultipleChoice", "RowInputMode", "SelectionMode", "RowSelectionMode", "Header", "HeaderHeight", "Footer", "FooterHeight", "HorizontalScrollBar", "VerticalScrollBar", "HorizontalLines", "VerticalLines", "UseAlternationRowColor", "AutoAddIncomplete", "AutoMarkIncomplete", "SearchOnInput", "InitialListView", "InitialTreeView", "Output", "HorizontalStretch", "VerticalStretch", "FileDragMode", "DataPath", "RowPictureDataPath", "RowsPicture", "TextColor", "BackColor", "BorderColor", "Font", "Title", "TitleTextColor", "TitleFont", "Shortcut", "CommandSet", "ToolTip", "ToolTipRepresentation", "SearchStringLocation", "ViewStatusLocation", "SearchControlLocation", "GroupHorizontalAlign", "GroupVerticalAlign", "RefreshRequest", "CurrentRowUse", "BehaviorOnHorizontalCompression", "OnMainServerUnavalableBehavior", "RowFilter", "ContextMenu", "AutoCommandBar", "ExtendedTooltip", "SearchStringAddition", "ViewStatusAddition", "SearchControlAddition", "Events", "ChildItems"]
 
 export const exportTableToXML = (data: TTable | undefined): TTableXML | undefined => {
   if (!data) return undefined
@@ -16,7 +19,7 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
   const base = exportBaseElementToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TTableXML>( {
     ...base,
     AutoAddIncomplete: data.autoAddIncomplete,
     AutoInsertNewRow: data.autoInsertNewRow,
@@ -95,7 +98,7 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
     Visible: data.visible,
     Width: data.width,
     ChildItems: exportChildItemsToXML(data.childItems),
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.Table, exportTableToXML)

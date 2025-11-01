@@ -5,6 +5,9 @@ import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { TPageXML, TPage } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER = ["UserVisible", "Enabled", "ReadOnly", "EnableContentChange", "Title", "TitleTextColor", "TitleFont", "ToolTip", "ToolTipRepresentation", "Shortcut", "Width", "Height", "HorizontalStretch", "VerticalStretch", "Picture", "Group", "ChildrenAlign", "HorizontalSpacing", "VerticalSpacing", "HorizontalAlign", "VerticalAlign", "Format", "TitleDataPath", "BackColor", "ScrollOnCompress", "ExtendedTooltip"]
 
 export const exportPageToXML = (data: TPage | undefined): TPageXML | undefined => {
   if (!data) return undefined
@@ -12,7 +15,7 @@ export const exportPageToXML = (data: TPage | undefined): TPageXML | undefined =
   const base = exportFormGroupToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TPageXML>( {
     ...base,
     BackColor: exportColorToXML(data.backColor),
     ChildItemsHorizontalAlign: data.childItemsHorizontalAlign,
@@ -29,7 +32,7 @@ export const exportPageToXML = (data: TPage | undefined): TPageXML | undefined =
     VerticalAlign: data.verticalAlign,
     VerticalScrollOnReduceSize: data.verticalScrollOnReduceSize,
     VerticalSpacing: data.verticalSpacing,
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.Page, exportPageToXML)

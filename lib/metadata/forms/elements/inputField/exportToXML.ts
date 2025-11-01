@@ -10,6 +10,9 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TInputFieldXML, TInputField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER = ["DataPath", "Visible", "UserVisible", "Enabled", "ReadOnly", "SkipOnInput", "Title", "TitleTextColor", "TitleFont", "TitleLocation", "TitleHeight", "ToolTip", "ToolTipRepresentation", "WarningOnEditRepresentation", "WarningOnEdit", "Shortcut", "HorizontalAlign", "GroupHorizontalAlign", "GroupVerticalAlign", "OnMainServerUnavalableBehavior", "Width", "AutoMaxWidth", "MaxWidth", "Height", "AutoMaxHeight", "MaxHeight", "HorizontalStretch", "VerticalStretch", "Wrap", "PasswordMode", "MultiLine", "ExtendedEdit", "DropListButton", "ChoiceButton", "ClearButton", "SpinButton", "OpenButton", "CreateButton", "Mask", "ListChoiceMode", "ExtendedEditMultipleValues", "AutoChoiceIncomplete", "QuickChoice", "ChoiceFoldersAndItems", "AutoMarkIncomplete", "ChooseType", "IncompleteChoiceMode", "TextEdit", "EditTextUpdate", "ChoiceButtonPicture", "ChoiceList", "ChoiceListHeight", "DropListWidth", "TextColor", "BackColor", "BorderColor", "Font", "TypeLink", "HeightControlVariant", "AutoShowClearButtonMode", "AutoShowOpenButtonMode", "AutoCorrectionOnTextInput", "SpellCheckingOnTextInput", "AutoCapitalizationOnTextInput", "SpecialTextInputMode", "AutofillHint", "OnScreenKeyboardReturnKeyText", "InputHint", "ChoiceHistoryOnInput", "ContextMenu", "ExtendedTooltip", "Events"]
 
 export const exportInputFieldToXML = (data: TInputField | undefined): TInputFieldXML | undefined => {
   if (!data) return undefined
@@ -17,7 +20,7 @@ export const exportInputFieldToXML = (data: TInputField | undefined): TInputFiel
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TInputFieldXML>( {
     ...base,
     AllowInputEmptyMultipleValues: data.allowInputEmptyMultipleValues,
     AllowMultipleValuesDuplicates: data.allowMultipleValuesDuplicates,
@@ -96,7 +99,7 @@ export const exportInputFieldToXML = (data: TInputField | undefined): TInputFiel
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     Wrap: data.wrap,
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.InputField, exportInputFieldToXML)

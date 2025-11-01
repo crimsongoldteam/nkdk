@@ -7,6 +7,9 @@ import { exportBaseElementToXML } from "../baseElement/exportToXML"
 import { TButtonXML, TButton } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER = ["Type", "Visible", "UserVisible", "TitleHeight", "Representation", "DefaultButton", "SkipOnInput", "Enabled", "DefaultItem", "Width", "AutoMaxWidth", "MaxWidth", "Height", "AutoMaxHeight", "MaxHeight", "HorizontalStretch", "VerticalStretch", "GroupHorizontalAlign", "GroupVerticalAlign", "Check", "CommandName", "TextColor", "BackColor", "BorderColor", "Font", "Picture", "Title", "ToolTipRepresentation", "RepresentationInContextMenu", "Shape", "ShapeRepresentation", "PictureLocation", "LocationInCommandBar", "CommandUniqueness", "OnMainServerUnavalableBehavior", "ExtendedTooltip"]
 
 export const exportButtonToXML = (data: TButton | undefined): TButtonXML | undefined => {
   if (!data) return undefined
@@ -14,7 +17,7 @@ export const exportButtonToXML = (data: TButton | undefined): TButtonXML | undef
   const base = exportBaseElementToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TButtonXML>( {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -51,7 +54,7 @@ export const exportButtonToXML = (data: TButton | undefined): TButtonXML | undef
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,
     Width: data.width,
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.Button, exportButtonToXML)

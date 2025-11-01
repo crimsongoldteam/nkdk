@@ -5,6 +5,9 @@ import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { TPictureDecorationXML, TPictureDecoration } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER = ["Visible", "UserVisible", "Enabled", "Width", "AutoMaxWidth", "MaxWidth", "Height", "AutoMaxHeight", "HorizontalStretch", "VerticalStretch", "SkipOnInput", "TextColor", "Font", "Shortcut", "Title", "ToolTip", "ToolTipRepresentation", "GroupHorizontalAlign", "GroupVerticalAlign", "OnMainServerUnavalableBehavior", "Hyperlink", "NonselectedPictureText", "EnableStartDrag", "EnableDrag", "Picture", "FileDragMode", "ContextMenu", "ExtendedTooltip", "Events"]
 
 export const exportPictureDecorationToXML = (data: TPictureDecoration | undefined): TPictureDecorationXML | undefined => {
   if (!data) return undefined
@@ -12,7 +15,7 @@ export const exportPictureDecorationToXML = (data: TPictureDecoration | undefine
   const base = exportFormDecorationToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TPictureDecorationXML>( {
     ...base,
     Border: exportBorderToXML(data.border),
     BorderColor: exportColorToXML(data.borderColor),
@@ -25,7 +28,7 @@ export const exportPictureDecorationToXML = (data: TPictureDecoration | undefine
     PictureSize: data.pictureSize,
     Scale: data.scale,
     Zoomable: data.zoomable,
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.PictureDecoration, exportPictureDecorationToXML)

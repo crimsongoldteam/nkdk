@@ -6,6 +6,9 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TLabelFieldXML, TLabelField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER = ["DataPath", "Visible", "UserVisible", "Enabled", "ReadOnly", "SkipOnInput", "Title", "TitleTextColor", "TitleFont", "TitleLocation", "TitleHeight", "ToolTip", "ToolTipRepresentation", "WarningOnEditRepresentation", "WarningOnEdit", "Shortcut", "HorizontalAlign", "GroupHorizontalAlign", "GroupVerticalAlign", "OnMainServerUnavalableBehavior", "Width", "Height", "HorizontalStretch", "VerticalStretch", "Hiperlink", "PasswordMode", "Border", "TextColor", "BackColor", "Font", "ContextMenu", "ExtendedTooltip", "Events"]
 
 export const exportLabelFieldToXML = (data: TLabelField | undefined): TLabelFieldXML | undefined => {
   if (!data) return undefined
@@ -13,7 +16,7 @@ export const exportLabelFieldToXML = (data: TLabelField | undefined): TLabelFiel
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TLabelFieldXML>( {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -32,7 +35,7 @@ export const exportLabelFieldToXML = (data: TLabelField | undefined): TLabelFiel
     TextColor: exportColorToXML(data.textColor),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.LabelField, exportLabelFieldToXML)

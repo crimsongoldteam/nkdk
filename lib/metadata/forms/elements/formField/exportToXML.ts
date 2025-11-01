@@ -10,6 +10,9 @@ import { exportBaseElementToXML } from "../baseElement/exportToXML"
 import { TFormFieldXML, TFormField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER: string[] = []
 
 export const exportFormFieldToXML = (data: TFormField | undefined): TFormFieldXML | undefined => {
   if (!data) return undefined
@@ -17,7 +20,7 @@ export const exportFormFieldToXML = (data: TFormField | undefined): TFormFieldXM
   const base = exportBaseElementToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TFormFieldXML>( {
     ...base,
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,
@@ -61,7 +64,7 @@ export const exportFormFieldToXML = (data: TFormField | undefined): TFormFieldXM
     Visible: data.visible,
     WarningOnEdit: exportI8nTextToXML(data.warningOnEdit),
     WarningOnEditRepresentation: data.warningOnEditRepresentation,
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.FormField, exportFormFieldToXML)

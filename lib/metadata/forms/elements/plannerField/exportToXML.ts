@@ -2,6 +2,9 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TPlannerFieldXML, TPlannerField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER: string[] = []
 
 export const exportPlannerFieldToXML = (data: TPlannerField | undefined): TPlannerFieldXML | undefined => {
   if (!data) return undefined
@@ -9,7 +12,7 @@ export const exportPlannerFieldToXML = (data: TPlannerField | undefined): TPlann
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TPlannerFieldXML>( {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -24,7 +27,7 @@ export const exportPlannerFieldToXML = (data: TPlannerField | undefined): TPlann
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     WrappedTimeScaleHeaderHyperlink: data.wrappedTimeScaleHeaderHyperlink,
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.PlannerField, exportPlannerFieldToXML)

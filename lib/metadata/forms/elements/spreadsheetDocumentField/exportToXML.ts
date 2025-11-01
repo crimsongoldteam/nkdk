@@ -3,6 +3,9 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TSpreadSheetDocumentFieldXML, TSpreadSheetDocumentField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER = ["DataPath", "Visible", "UserVisible", "Enabled", "ReadOnly", "SkipOnInput", "Title", "TitleTextColor", "TitleFont", "TitleLocation", "TitleHeight", "ToolTip", "ToolTipRepresentation", "WarningOnEditRepresentation", "WarningOnEdit", "Shortcut", "HorizontalAlign", "GroupHorizontalAlign", "GroupVerticalAlign", "OnMainServerUnavalableBehavior", "AutoMaxWidth", "MaxWidth", "AutoMaxHeight", "HorizontalStretch", "VerticalStretch", "ShowGrid", "ShowHeaders", "BlackAndWhiteView", "Protection", "DrawingSelectionShowMode", "PointerType", "Output", "Edit", "ShowGroups", "EnableStartDrag", "EnableDrag", "ShowCellNames", "ShowRowAndColumnNames", "ViewScalingMode", "ContextMenu", "ExtendedTooltip", "Events"]
 
 export const exportSpreadSheetDocumentFieldToXML = (data: TSpreadSheetDocumentField | undefined): TSpreadSheetDocumentFieldXML | undefined => {
   if (!data) return undefined
@@ -10,7 +13,7 @@ export const exportSpreadSheetDocumentFieldToXML = (data: TSpreadSheetDocumentFi
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TSpreadSheetDocumentFieldXML>( {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -40,7 +43,7 @@ export const exportSpreadSheetDocumentFieldToXML = (data: TSpreadSheetDocumentFi
     VerticalStretch: data.verticalStretch,
     ViewScalingMode: data.viewScalingMode,
     Width: data.width,
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.SpreadSheetDocumentField, exportSpreadSheetDocumentFieldToXML)

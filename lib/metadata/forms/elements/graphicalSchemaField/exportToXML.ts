@@ -3,6 +3,9 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TGraphicalSchemaFieldXML, TGraphicalSchemaField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER: string[] = []
 
 export const exportGraphicalSchemaFieldToXML = (data: TGraphicalSchemaField | undefined): TGraphicalSchemaFieldXML | undefined => {
   if (!data) return undefined
@@ -10,7 +13,7 @@ export const exportGraphicalSchemaFieldToXML = (data: TGraphicalSchemaField | un
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TGraphicalSchemaFieldXML>( {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -23,7 +26,7 @@ export const exportGraphicalSchemaFieldToXML = (data: TGraphicalSchemaField | un
     Output: data.output,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.GraphicalSchemaField, exportGraphicalSchemaFieldToXML)

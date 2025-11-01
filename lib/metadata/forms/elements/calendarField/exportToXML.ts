@@ -5,6 +5,9 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TCalendarFieldXML, TCalendarField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER: string[] = []
 
 export const exportCalendarFieldToXML = (data: TCalendarField | undefined): TCalendarFieldXML | undefined => {
   if (!data) return undefined
@@ -12,7 +15,7 @@ export const exportCalendarFieldToXML = (data: TCalendarField | undefined): TCal
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TCalendarFieldXML>( {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -35,7 +38,7 @@ export const exportCalendarFieldToXML = (data: TCalendarField | undefined): TCal
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     WidthInMonths: data.widthInMonths,
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.CalendarField, exportCalendarFieldToXML)

@@ -1,5 +1,5 @@
 import z from "zod"
-import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
+import { ZBaseElement } from "../baseElement/types"
 import { ZButton, ZButtonXML } from "../button/types"
 import { ZButtonGroup, ZButtonGroupXML } from "../buttonGroup/types"
 import { ZCalendarField, ZCalendarFieldXML } from "../calendarField/types"
@@ -123,6 +123,7 @@ export const ZChildItemXML = z.object({
   TrackBarField: ZTrackBarFieldXML.optional(),
   UsualGroup: ZUsualGroupXML.optional(),
   ViewStatusAddition: ZViewStatusAdditionXML.optional(),
+  FormGroup: ZFormGroupXML.optional(),
 })
 
 export const ZChildItemsXML = z.array(ZChildItemXML)

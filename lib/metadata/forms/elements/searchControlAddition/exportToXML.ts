@@ -4,6 +4,9 @@ import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
 import { TSearchControlAdditionXML, TSearchControlAddition } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER = ["AdditionSource", "ContextMenu", "ExtendedTooltip"]
 
 export const exportSearchControlAdditionToXML = (data: TSearchControlAddition | undefined): TSearchControlAdditionXML | undefined => {
   if (!data) return undefined
@@ -11,7 +14,7 @@ export const exportSearchControlAdditionToXML = (data: TSearchControlAddition | 
   const base = exportFormItemAdditionToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TSearchControlAdditionXML>( {
     ...base,
     AutoMaxWidth: data.autoMaxWidth,
     BackColor: exportColorToXML(data.backColor),
@@ -21,7 +24,7 @@ export const exportSearchControlAdditionToXML = (data: TSearchControlAddition | 
     MaxWidth: data.maxWidth,
     TextColor: exportColorToXML(data.textColor),
     Width: data.width,
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.SearchControlAddition, exportSearchControlAdditionToXML)

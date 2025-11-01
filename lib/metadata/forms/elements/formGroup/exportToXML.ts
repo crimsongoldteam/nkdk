@@ -7,6 +7,9 @@ import { exportBaseElementToXML } from "../baseElement/exportToXML"
 import { TFormGroupXML, TFormGroup } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER: string[] = []
 
 export const exportFormGroupToXML = (data: TFormGroup | undefined): TFormGroupXML | undefined => {
   if (!data) return undefined
@@ -14,7 +17,7 @@ export const exportFormGroupToXML = (data: TFormGroup | undefined): TFormGroupXM
   const base = exportBaseElementToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TFormGroupXML>( {
     ...base,
     EnableContentChange: data.enableContentChange,
     Enabled: data.enabled,
@@ -35,7 +38,7 @@ export const exportFormGroupToXML = (data: TFormGroup | undefined): TFormGroupXM
     Visible: data.visible,
     Width: data.width,
     ChildItems: exportChildItemsToXML(data.childItems),
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.FormGroup, exportFormGroupToXML)

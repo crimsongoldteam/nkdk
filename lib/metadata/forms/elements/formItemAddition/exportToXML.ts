@@ -6,6 +6,9 @@ import { exportBaseElementToXML } from "../baseElement/exportToXML"
 import { TFormItemAdditionXML, TFormItemAddition } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
+
+const ORDER: string[] = []
 
 export const exportFormItemAdditionToXML = (data: TFormItemAddition | undefined): TFormItemAdditionXML | undefined => {
   if (!data) return undefined
@@ -13,7 +16,7 @@ export const exportFormItemAdditionToXML = (data: TFormItemAddition | undefined)
   const base = exportBaseElementToXML(data)
   if (!base) return undefined
    
-  return {
+  return sortObjectByKeys<TFormItemAdditionXML>( {
     ...base,
     ContextMenu: exportCommandBarToXML(data.contextMenu),
     DisplayImportance: data.displayImportance,
@@ -27,7 +30,7 @@ export const exportFormItemAdditionToXML = (data: TFormItemAddition | undefined)
     VerticalAlignInGroup: data.verticalAlignInGroup,
     Visible: data.visible,
     ChildItems: exportChildItemsToXML(data.childItems),
-  }
+  }, ORDER)
 }
 
 registerExport(ZElementType.enum.FormItemAddition, exportFormItemAdditionToXML)
