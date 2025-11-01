@@ -10,7 +10,7 @@ interface IInputFieldHTMLProps {
 
 export function InputField(props: Readonly<IInputFieldHTMLProps>): React.ReactNode {
   const [value] = useState(props.value)
-  const [title] = useState(props.title?.ru || "")
+  const [title] = useState(props.title?.items.ru || "")
   const [name] = useState(props.name)
 
   return (

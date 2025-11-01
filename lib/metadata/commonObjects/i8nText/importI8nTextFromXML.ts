@@ -9,7 +9,11 @@ export const importI8nTextFromXML = (xml: TI8nTextXML | undefined): TI8nText | u
     items: {},
   }
 
-  xml["v8:item"].forEach((item) => {
+  const value = xml["v8:item"]
+
+  const items = Array.isArray(value) ? value : [value]
+
+  items.forEach((item) => {
     result.items[item["v8:lang"]] = item["v8:content"]
   })
 

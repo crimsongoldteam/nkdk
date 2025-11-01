@@ -30,7 +30,7 @@ it("should format main attribute", () => {
     {
       name: "ИмяАтрибута",
       id: "1",
-      title: { ru: "Атрибут" },
+      title: { items: { ru: "Атрибут" } },
       type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
       mainAttribute: true,
     },

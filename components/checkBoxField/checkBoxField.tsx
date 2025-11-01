@@ -8,7 +8,7 @@ interface ICheckBoxFieldHTMLProps {
 }
 
 export function CheckBoxFieldComponent(props: Readonly<ICheckBoxFieldHTMLProps>): React.ReactNode {
-  const [title] = useState(props.title?.ru || "")
+  const [title] = useState(props.title?.items.ru || "")
   const [name] = useState(props.name)
   return (
     <Checkbox id={`checkbox_${name}`} type="primary" onClick={() => {}}>

@@ -7,14 +7,15 @@ export const ZI8nText = z.object({
 
 export const ZI8nTextEnterprise = z.union([z.string(), z.record(z.string(), z.string())])
 
+export const ZI8nTextItemXML = z.object({
+  "v8:lang": z.string(),
+  "v8:content": z.string(),
+})
+
 export const ZI8nTextXML = z.object({
-  _formatted: z.coerce.boolean().optional(),
-  "v8:item": z.array(
-    z.object({
-      "v8:lang": z.string(),
-      "v8:content": z.string(),
-    })
-  ),
+  _formatted: z.union([z.boolean(), z.stringbool()]).optional(),
+
+  "v8:item": z.union([z.array(ZI8nTextItemXML), ZI8nTextItemXML]),
 })
 
 export type TI8nText = z.infer<typeof ZI8nText>

@@ -8,7 +8,7 @@ interface IButtonHTMLProps {
 }
 
 export function ButtonComponent(props: Readonly<IButtonHTMLProps>): React.ReactNode {
-  const [title] = useState(props.title?.ru || "")
+  const [title] = useState(props.title?.items.ru || "")
   const [name] = useState(props.name)
   return (
     <Button id={`button_${name}`} onClick={() => {}}>

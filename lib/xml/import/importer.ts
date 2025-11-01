@@ -1,7 +1,6 @@
 import { XMLParser } from "fast-xml-parser"
 import * as z from "zod"
 
-export const I8N_TEXT_FIELDS = ["Title", "FooterText", "ToolTip", "Format", "EditFormat", "WarningOnEdit", "InputHint"]
 const METADATA_SYMBOL = Symbol.for("metadata")
 
 export default function xmlImport<T>(data: string, schema: z.ZodType<T>): T {
@@ -14,7 +13,7 @@ export default function xmlImport<T>(data: string, schema: z.ZodType<T>): T {
 
   let options = { ...defaultOptions }
   options.isArray = (name: string, _jPath: string, _isLeaf: boolean) => {
-    return name === "ChildItems" || name === "Attributes" || name === "v8:item"
+    return name === "ChildItems" || name === "Attributes"
   }
 
   let result = compress(parsedData, options, "")

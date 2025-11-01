@@ -8,7 +8,7 @@ interface ILabelDecorationHTMLProps {
 }
 
 export function LabelDecorationComponent(props: Readonly<ILabelDecorationHTMLProps>): React.ReactNode {
-  const [title] = useState(props.title?.ru || "")
+  const [title] = useState(props.title?.items.ru || "")
 
   return <Typography.Text>{title}</Typography.Text>
 }
