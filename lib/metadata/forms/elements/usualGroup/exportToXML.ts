@@ -4,14 +4,15 @@ import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { TUsualGroupXML, TUsualGroup } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { sortObjectKeys } from "~/lib/xml/export/sortObjectKeys"
 
 export const exportUsualGroupToXML = (data: TUsualGroup | undefined): TUsualGroupXML | undefined => {
   if (!data) return undefined
 
   const base = exportFormGroupToXML(data)
   if (!base) return undefined
-   
-  return {
+
+  const result = {
     ...base,
     AssociatedTable: exportTableToXML(data.associatedTable),
     BackColor: exportColorToXML(data.backColor),
@@ -37,6 +38,8 @@ export const exportUsualGroupToXML = (data: TUsualGroup | undefined): TUsualGrou
     VerticalAlign: data.verticalAlign,
     VerticalSpacing: data.verticalSpacing,
   }
+
+  return result
 }
 
 registerExport(ZElementType.enum.UsualGroup, exportUsualGroupToXML)

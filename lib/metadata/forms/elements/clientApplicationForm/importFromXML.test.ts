@@ -128,6 +128,7 @@ describe("importClientApplicationFormFromXML", () => {
     </Form>`
 
     const mockElement: TClientApplicationForm = {
+      attributes: [],
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
