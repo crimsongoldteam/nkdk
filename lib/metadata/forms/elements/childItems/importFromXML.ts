@@ -1,7 +1,8 @@
-import { TChildItems, TChildItemsXML } from "./types"
+import { ZChildItems, TChildItemsXML } from "./types"
 import { importElementFromXML } from "~/lib/xml/import/importerFactory"
+import z from "zod"
 
-export const importChildItemsFromXML = (xml: TChildItemsXML | undefined): TChildItems => {
+export const importChildItemsFromXML = (xml: TChildItemsXML | undefined): z.infer<typeof ZChildItems> => {
   if (!xml) return []
   return xml
     .filter((item) => {

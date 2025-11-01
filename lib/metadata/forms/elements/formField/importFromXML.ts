@@ -5,7 +5,7 @@ import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeD
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { TFormFieldXML, TFormField } from "./types"
 import { ZElementType } from "../types"
@@ -22,7 +22,7 @@ export const importFormFieldFromXML = (xml: TFormFieldXML | undefined): TFormFie
     elementType: ZElementType.enum.FormField,
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,
-    contextMenu: importCommandBarFromXML(xml.ContextMenu),
+    contextMenu: importFormGroupFromXML(xml.ContextMenu),
     dataPath: xml.DataPath,
     defaultItem: xml.DefaultItem,
     displayImportance: xml.DisplayImportance,

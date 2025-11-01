@@ -5,7 +5,7 @@ import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDes
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { exportBaseElementToXML } from "../baseElement/exportToXML"
 import { TFormFieldXML, TFormField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
@@ -24,7 +24,7 @@ export const exportFormFieldToXML = (data: TFormField | undefined): TFormFieldXM
     ...base,
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,
-    ContextMenu: exportCommandBarToXML(data.contextMenu),
+    ContextMenu: exportFormGroupToXML(data.contextMenu),
     DataPath: data.dataPath,
     DefaultItem: data.defaultItem,
     DisplayImportance: data.displayImportance,

@@ -1,7 +1,7 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { TClientApplicationFormXML, TClientApplicationForm } from "./types"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportFormGroupToXML } from "../formGroup/exportToXML"
 
 export const exportClientApplicationFormToXML = (
   data: TClientApplicationForm | undefined
@@ -34,7 +34,7 @@ export const exportClientApplicationFormToXML = (
     CloseOnChoice: data.closeOnChoice,
     CloseOnOwnerClose: data.closeOnOwnerClose,
     CollapseItemsByImportance: data.collapseItemsByImportance,
-    CommandBar: exportCommandBarToXML(data.commandBar),
+    CommandBar: exportFormGroupToXML(data.commandBar),
     CommandBarLocation: data.commandBarLocation,
     // Commands: data.commands,
     ConversationsRepresentation: data.conversationsRepresentation,

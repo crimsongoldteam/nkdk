@@ -1,6 +1,6 @@
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { TFormItemAdditionXML, TFormItemAddition } from "./types"
@@ -16,7 +16,7 @@ export const importFormItemAdditionFromXML = (xml: TFormItemAdditionXML | undefi
   return {
     ...base,
     elementType: ZElementType.enum.FormItemAddition,
-    contextMenu: importCommandBarFromXML(xml.ContextMenu),
+    contextMenu: importFormGroupFromXML(xml.ContextMenu),
     displayImportance: xml.DisplayImportance,
     enabled: xml.Enabled,
     extendedToolTip: importFormDecorationFromXML(xml.ExtendedToolTip),

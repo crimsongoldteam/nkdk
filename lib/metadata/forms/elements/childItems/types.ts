@@ -1,7 +1,9 @@
 import z from "zod"
-import { ZBaseElement } from "../baseElement/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZFormField, ZFormFieldXML } from "../formField/types"
+import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 import { ZButton, ZButtonXML } from "../button/types"
-import { ZButtonGroup, ZButtonGroupXML } from "../buttonGroup/types"
 import { ZCalendarField, ZCalendarFieldXML } from "../calendarField/types"
 import { ZChartField, ZChartFieldXML } from "../chartField/types"
 import { ZCheckBoxField, ZCheckBoxFieldXML } from "../checkBoxField/types"
@@ -9,10 +11,6 @@ import { ZColumnGroup, ZColumnGroupXML } from "../columnGroup/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZDendrogramField, ZDendrogramFieldXML } from "../dendrogramField/types"
 import { ZFormattedDocumentField, ZFormattedDocumentFieldXML } from "../formattedDocumentField/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
-import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 import { ZGanttChartField, ZGanttChartFieldXML } from "../ganttChartField/types"
 import { ZGeographicalSchemaField, ZGeographicalSchemaFieldXML } from "../geographicalSchemaField/types"
 import { ZGraphicalSchemaField, ZGraphicalSchemaFieldXML } from "../graphicalSchemaField/types"
@@ -38,52 +36,50 @@ import { ZTextDocumentField, ZTextDocumentFieldXML } from "../textDocumentField/
 import { ZTrackBarField, ZTrackBarFieldXML } from "../trackBarField/types"
 import { ZUsualGroup, ZUsualGroupXML } from "../usualGroup/types"
 import { ZViewStatusAddition, ZViewStatusAdditionXML } from "../viewStatusAddition/types"
+import { ZButtonGroup, ZButtonGroupXML } from "../buttonGroup/types"
 
-const ZChildItem = z.union([
-  ZButton,
-  ZButtonGroup,
-  ZCalendarField,
-  ZChartField,
-  ZCheckBoxField,
-  ZColumnGroup,
-  ZCommandBar,
-  ZDendrogramField,
-  ZFormattedDocumentField,
-  ZFormDecoration,
-  ZFormField,
-  ZFormGroup,
-  ZFormItemAddition,
-  ZGanttChartField,
-  ZGeographicalSchemaField,
-  ZGraphicalSchemaField,
-  ZHTMLDocumentField,
-  ZInputField,
-  ZLabelDecoration,
-  ZLabelField,
-  ZPage,
-  ZPages,
-  ZPdfDocumentField,
-  ZPeriodField,
-  ZPictureDecoration,
-  ZPictureField,
-  ZPlannerField,
-  ZPopup,
-  ZProgressBarField,
-  ZRadioButtonField,
-  ZSearchControlAddition,
-  ZSearchStringAddition,
-  ZSpreadSheetDocumentField,
-  ZTable,
-  ZTextDocumentField,
-  ZTrackBarField,
-  ZUsualGroup,
-  ZViewStatusAddition,
-  ZBaseElement,
-])
-
-export type TChildItem = z.infer<typeof ZChildItem>
-
-export const ZChildItems = z.array(ZChildItem)
+export const ZChildItems = z.array(
+  z.discriminatedUnion("elementType", [
+    ZButton,
+    ZButtonGroup,
+    ZCalendarField,
+    ZChartField,
+    ZCheckBoxField,
+    ZColumnGroup,
+    ZCommandBar,
+    ZDendrogramField,
+    ZFormattedDocumentField,
+    ZFormDecoration,
+    ZFormField,
+    ZFormGroup,
+    ZFormItemAddition,
+    ZGanttChartField,
+    ZGeographicalSchemaField,
+    ZGraphicalSchemaField,
+    ZHTMLDocumentField,
+    ZInputField,
+    ZLabelDecoration,
+    ZLabelField,
+    ZPage,
+    ZPages,
+    ZPdfDocumentField,
+    ZPeriodField,
+    ZPictureDecoration,
+    ZPictureField,
+    ZPlannerField,
+    ZPopup,
+    ZProgressBarField,
+    ZRadioButtonField,
+    ZSearchControlAddition,
+    ZSearchStringAddition,
+    ZSpreadSheetDocumentField,
+    ZTable,
+    ZTextDocumentField,
+    ZTrackBarField,
+    ZUsualGroup,
+    ZViewStatusAddition,
+  ])
+)
 
 export const ZChildItemXML = z.object({
   Button: ZButtonXML.optional(),
@@ -128,7 +124,7 @@ export const ZChildItemXML = z.object({
 
 export const ZChildItemsXML = z.array(ZChildItemXML)
 
-export type TChildItems = z.infer<typeof ZChildItems>
+// export type TChildItems = z.infer<typeof ZChildItems>
 
 export type TChildItemXML = z.infer<typeof ZChildItemXML>
 export type TChildItemsXML = z.infer<typeof ZChildItemsXML>

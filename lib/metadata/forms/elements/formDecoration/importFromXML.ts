@@ -1,7 +1,7 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { TFormDecorationXML, TFormDecoration } from "./types"
 import { ZElementType } from "../types"
@@ -18,7 +18,7 @@ export const importFormDecorationFromXML = (xml: TFormDecorationXML | undefined)
     elementType: ZElementType.enum.FormDecoration,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    contextMenu: importCommandBarFromXML(xml.ContextMenu),
+    contextMenu: importFormGroupFromXML(xml.ContextMenu),
     displayImportance: xml.DisplayImportance,
     enabled: xml.Enabled,
     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),

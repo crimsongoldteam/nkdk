@@ -5,6 +5,7 @@ import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
+    import { TChildItems } from "../childItems/typesExt"
 
 export const ZFormItemAddition = ZBaseElement.extend({
   get contextMenu() {
@@ -22,7 +23,7 @@ export const ZFormItemAddition = ZBaseElement.extend({
   type: SE.ZFormItemAdditionType.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   visible: z.boolean().optional(),
-  get childItems() {
+  get childItems() : TChildItems {
     return ZChildItems
   },
 })

@@ -2,7 +2,7 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
@@ -31,9 +31,9 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     changeRowOrder: xml.ChangeRowOrder,
     changeRowSet: xml.ChangeRowSet,
     choiceMode: xml.ChoiceMode,
-    commandBar: importCommandBarFromXML(xml.CommandBar),
+    commandBar: importFormGroupFromXML(xml.CommandBar),
     commandBarLocation: xml.CommandBarLocation,
-    contextMenu: importCommandBarFromXML(xml.ContextMenu),
+    contextMenu: importFormGroupFromXML(xml.ContextMenu),
     currentRowUse: xml.CurrentRowUse,
     dataPath: xml.DataPath,
     defaultItem: xml.DefaultItem,

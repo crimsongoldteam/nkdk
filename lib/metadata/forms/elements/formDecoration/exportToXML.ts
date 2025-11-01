@@ -1,7 +1,7 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { exportBaseElementToXML } from "../baseElement/exportToXML"
 import { TFormDecorationXML, TFormDecoration } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
@@ -20,7 +20,7 @@ export const exportFormDecorationToXML = (data: TFormDecoration | undefined): TF
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    ContextMenu: exportCommandBarToXML(data.contextMenu),
+    ContextMenu: exportFormGroupToXML(data.contextMenu),
     DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),

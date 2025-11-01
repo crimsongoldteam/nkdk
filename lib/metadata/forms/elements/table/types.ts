@@ -7,6 +7,7 @@ import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
+    import { TChildItems } from "../childItems/typesExt"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 
 export const ZTable = ZBaseElement.extend({
@@ -22,7 +23,9 @@ export const ZTable = ZBaseElement.extend({
   changeRowOrder: z.boolean().optional(),
   changeRowSet: z.boolean().optional(),
   choiceMode: z.boolean().optional(),
-  commandBar: ZFormGroup.optional(),
+  get commandBar() {
+    return ZFormGroup.optional()
+  },
   commandBarLocation: SE.ZFormItemCommandBarLabelLocation.optional(),
   get contextMenu() {
     return ZFormGroup.optional()
@@ -90,7 +93,7 @@ export const ZTable = ZBaseElement.extend({
   viewStatusRepresentation: ZFormItemAddition.optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-  get childItems() {
+  get childItems() : TChildItems {
     return ZChildItems
   },
 })
@@ -108,7 +111,9 @@ export const ZTableXML = ZBaseElementXML.extend({
   ChangeRowOrder: z.boolean().optional(),
   ChangeRowSet: z.boolean().optional(),
   ChoiceMode: z.boolean().optional(),
-  CommandBar: ZFormGroupXML.optional(),
+  get CommandBar() {
+    return ZFormGroupXML.optional()
+  },
   CommandBarLocation: SE.ZFormItemCommandBarLabelLocation.optional(),
   get ContextMenu() {
     return ZFormGroupXML.optional()

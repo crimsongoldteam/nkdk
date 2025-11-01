@@ -2,7 +2,7 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
 import { exportBaseElementToXML } from "../baseElement/exportToXML"
@@ -33,9 +33,9 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
     ChangeRowOrder: data.changeRowOrder,
     ChangeRowSet: data.changeRowSet,
     ChoiceMode: data.choiceMode,
-    CommandBar: exportCommandBarToXML(data.commandBar),
+    CommandBar: exportFormGroupToXML(data.commandBar),
     CommandBarLocation: data.commandBarLocation,
-    ContextMenu: exportCommandBarToXML(data.contextMenu),
+    ContextMenu: exportFormGroupToXML(data.contextMenu),
     CurrentRowUse: data.currentRowUse,
     DataPath: data.dataPath,
     DefaultItem: data.defaultItem,

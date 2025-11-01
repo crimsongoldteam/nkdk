@@ -6,6 +6,7 @@ import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
+    import { TChildItems } from "../childItems/typesExt"
 
 export const ZFormGroup = ZBaseElement.extend({
   enableContentChange: z.boolean().optional(),
@@ -28,7 +29,7 @@ export const ZFormGroup = ZBaseElement.extend({
   verticalStretch: z.boolean().optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-  get childItems() {
+  get childItems() : TChildItems {
     return ZChildItems
   },
 })
