@@ -4,11 +4,11 @@
 // import { joinTokens, visitAll } from "~/lib/parser/visitorUtils"
 // import { ElementType } from "~/lib/metadata/systemEnumerations/types"
 
-// export interface IСlientApplicationFormHeaderVisit {
+// export interface IClientApplicationFormHeaderVisit {
 //   title: string | undefined
 // }
 
-// export default function сlientApplicationFormVisit(
+// export default function clientApplicationFormVisit(
 //   visitor: Visitor,
 //   ctx: CstChildrenDictionary
 // ): TClientApplicationForm {
@@ -29,15 +29,15 @@
 //   return result
 // }
 
-// export function сlientApplicationFormHeaderVisit(
+// export function clientApplicationFormHeaderVisit(
 //   _visitor: Visitor,
 //   ctx: CstChildrenDictionary
-// ): IСlientApplicationFormHeaderVisit {
+// ): IClientApplicationFormHeaderVisit {
 //   return {
 //     title: joinTokens(ctx.HeaderText as CstElement[]),
 //   }
 // }
 
-// export function сlientApplicationFormItemsVisit(visitor: Visitor, ctx: CstChildrenDictionary): any[] {
+// export function clientApplicationFormItemsVisit(visitor: Visitor, ctx: CstChildrenDictionary): any[] {
 //   return visitAll(visitor, ctx.Items as CstNode[])
 // }

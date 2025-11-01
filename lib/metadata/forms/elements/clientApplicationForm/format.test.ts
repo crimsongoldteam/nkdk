@@ -1,8 +1,7 @@
 import { expect, it } from "vitest"
 import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
-import { TClientApplicationForm } from "./types"
 import { formatClientApplicationForm } from "./format"
-import { TInputField } from "~/lib"
+import { TClientApplicationForm, TInputField } from "~/lib"
 import { ZElementType } from "../types"
 
 const mockParams: IFormatterParams = {
@@ -15,7 +14,7 @@ it("should format form header", () => {
   const form: TClientApplicationForm = {
     elementType: ZElementType.enum.Form,
     title: { ru: "Форма" },
-    items: [],
+    childItems: [],
   }
 
   const result = formatClientApplicationForm(form, mockParams)
@@ -33,7 +32,7 @@ it("should format form items", () => {
 
   const form: TClientApplicationForm = {
     elementType: ZElementType.enum.Form,
-    items: [input],
+    childItems: [input],
   }
 
   const result = formatClientApplicationForm(form, mockParams)
@@ -49,7 +48,8 @@ it("should format form attributes", () => {
 
   const form: TClientApplicationForm = {
     elementType: ZElementType.enum.Form,
-    items: [],
+
+    childItems: [],
     attributes: [
       {
         name: "ИмяАтрибута",

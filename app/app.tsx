@@ -14,7 +14,7 @@ import {
   xmlImport,
 } from "~/lib"
 import { ConfigProvider } from "antd"
-import { ZClientApplicationFormXML } from "~/lib/metadata/forms/elements/сlientApplicationForm/types"
+import { ZClientApplicationFormXML } from "~/lib"
 
 export default function App() {
   const [form, setForm] = useState<TClientApplicationForm | null>(null)
@@ -91,7 +91,7 @@ export default function App() {
         },
       }}
     >
-      {<main className="app-main">{form && <ClientFormApplication title={""} items={form.items} />}</main>}
+      {<main className="app-main">{form && <ClientFormApplication title={""} items={form.childItems} />}</main>}
     </ConfigProvider>
   )
 }

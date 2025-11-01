@@ -1,11 +1,14 @@
 import { expect, it } from "vitest"
-import { TClientApplicationForm, TClientApplicationFormXML } from "./types"
-import { importClientApplicationFormFromXML } from "./importFromXML"
-import { xmlImport } from "~/lib"
+import {
+  importClientApplicationFormFromXML,
+  TClientApplicationForm,
+  TClientApplicationFormXML,
+  xmlImport,
+  ZClientApplicationFormXML,
+} from "~/lib"
 import { ZElementType } from "../types"
 import "../inputField/registration"
 import z from "zod"
-import { ZClientApplicationFormXML } from "./types"
 
 it("should import title from XML", () => {
   const mockXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -21,13 +24,13 @@ it("should import title from XML", () => {
 </Form>`
 
   const mockElement: TClientApplicationForm = {
-    elementType: ZElementType.enum.Form,
+    elementType: ZElementType.enum.ClientApplicationForm,
     autoCommandBar: {
       id: "-1",
       name: "ФормаКоманднаяПанель",
     },
     title: { ru: "Поле" },
-    items: [],
+    childItems: [],
     attributes: [],
   }
 
@@ -51,8 +54,8 @@ it("should import items from XML", () => {
       id: "-1",
       name: "ФормаКоманднаяПанель",
     },
-    elementType: ZElementType.enum.Form,
-    items: [{ name: "ПолеВвода", id: "1", elementType: ZElementType.enum.InputField }],
+    elementType: ZElementType.enum.ClientApplicationForm,
+    childItems: [{ name: "ПолеВвода", id: "1", elementType: ZElementType.enum.InputField }],
     attributes: [],
   }
 
@@ -82,8 +85,8 @@ it("should import attributes from XML", () => {
       id: "-1",
       name: "ФормаКоманднаяПанель",
     },
-    elementType: ZElementType.enum.Form,
-    items: [],
+    elementType: ZElementType.enum.ClientApplicationForm,
+    childItems: [],
     attributes: [
       {
         name: "Объект",

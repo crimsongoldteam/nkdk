@@ -4,14 +4,12 @@ import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToX
 import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
 import { TViewStatusAdditionXML, TViewStatusAddition } from "./types"
 
-export const exportViewStatusAdditionToXML = (
-  data: TViewStatusAddition | undefined
-): TViewStatusAdditionXML | undefined => {
+export const exportViewStatusAdditionToXML = (data: TViewStatusAddition | undefined): TViewStatusAdditionXML | undefined => {
   if (!data) return undefined
 
   const base = exportFormItemAdditionToXML(data)
   if (!base) return undefined
-
+   
   return {
     ...base,
     AutoMaxWidth: data.autoMaxWidth,

@@ -6,16 +6,16 @@ export { default as xmlImport } from "./xml/import/importer"
 export { default as xmlExport } from "./xml/export/exporter"
 
 // ClientApplicationForm
-export { importClientApplicationFormFromXML } from "./metadata/forms/elements/сlientApplicationForm/importFromXML"
-// export { exportClientApplicationFormToXML } from "./metadata/forms/elements/сlientApplicationForm/exportToXML"
-export { ZClientApplicationFormXML } from "./metadata/forms/elements/сlientApplicationForm/types"
-export { formatClientApplicationForm } from "./metadata/forms/elements/сlientApplicationForm/format"
+export { importClientApplicationFormFromXML } from "./metadata/forms/elements/clientApplicationForm/importFromXML"
+export { exportClientApplicationFormToXML } from "./metadata/forms/elements/clientApplicationForm/exportToXML"
+export { ZClientApplicationFormXML } from "./metadata/forms/elements/clientApplicationForm/types"
+export { formatClientApplicationForm } from "./metadata/forms/elements/clientApplicationForm/format"
 
 // Типы
 export type {
   TClientApplicationForm,
   TClientApplicationFormXML,
-} from "./metadata/forms/elements/сlientApplicationForm/types"
+} from "./metadata/forms/elements/clientApplicationForm/types"
 
 // InputField
 export { importInputFieldFromXML } from "./metadata/forms/elements/inputField/importFromXML"

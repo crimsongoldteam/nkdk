@@ -14,6 +14,7 @@ it("should import pages from XML", () => {
         <v8:content>Заголовок страниц</v8:content>
       </v8:item>
     </Title>
+    <ChildItems/>
   </Pages>`
 
   const mockResult: TPages = {

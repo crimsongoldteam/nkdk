@@ -1,10 +1,10 @@
-import { TClientApplicationForm } from "~/lib/metadata/forms/elements/сlientApplicationForm/types"
+import { TClientApplicationForm } from "~/lib"
 
 export type TNameIdMapping = Map<string, string>
 
 export function createNameIdMapping(form: TClientApplicationForm): TNameIdMapping {
   const result: TNameIdMapping = new Map()
-  form.items.forEach((item) => {
+  form.childItems.forEach((item) => {
     if (!item.id) return
     result.set(item.id, item.name)
   })
@@ -12,7 +12,7 @@ export function createNameIdMapping(form: TClientApplicationForm): TNameIdMappin
 }
 
 export function updateNameIdMapping(nameIdMapping: TNameIdMapping, form: TClientApplicationForm): void {
-  form.items.forEach((item) => {
+  form.childItems.forEach((item) => {
     if (item.id) {
       nameIdMapping.set(item.id, item.name)
       return

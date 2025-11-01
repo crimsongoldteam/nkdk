@@ -2,10 +2,10 @@
 // import { Parser } from "./parser"
 // import inputFieldVisit from "~/lib/metadata/forms/elements/inputField/parseVisit"
 // import { TInputField } from "~/lib/metadata/forms/elements/inputField/types"
-// import { TClientApplicationForm } from "~/lib/metadata/forms/elements/сlientApplicationForm/types"
+// import { TClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
 // import clientApplicationFormVisit, {
-//   сlientApplicationFormHeaderVisit,
-//   IСlientApplicationFormHeaderVisit,
+//   clientApplicationFormHeaderVisit,
+//   IClientApplicationFormHeaderVisit,
 // } from "~/lib/metadata/forms/elements/clientApplicationForm/parseVisit"
 
 // const BaseVisitor: new () => any = new Parser().getBaseCstVisitorConstructor()
@@ -17,8 +17,8 @@
 //     return clientApplicationFormVisit(this, ctx)
 //   }
 
-//   formHeader(ctx: CstChildrenDictionary): IСlientApplicationFormHeaderVisit {
-//     return сlientApplicationFormHeaderVisit(this, ctx)
+//   formHeader(ctx: CstChildrenDictionary): IClientApplicationFormHeaderVisit {
+//     return clientApplicationFormHeaderVisit(this, ctx)
 //   }
 
 //   // #endregion

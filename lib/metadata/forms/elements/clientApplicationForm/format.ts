@@ -1,7 +1,7 @@
-import { type TClientApplicationForm } from "./types"
-import { IFormatElementResult, IFormatterParams } from "~/lib/format/types"
-import formatFormAttributes from "./attributes/format"
 import { formatElements } from "~/lib/format/formatFactory"
+import { IFormatterParams, IFormatElementResult } from "~/lib/format/types"
+import formatFormAttributes from "./attributes/format"
+import { TClientApplicationForm } from "./types"
 
 export function formatClientApplicationForm(
   element: TClientApplicationForm,
@@ -19,7 +19,7 @@ export function formatClientApplicationForm(
   //   result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || itemFormatted.haveSimpleHorizontalGroup
   // }
 
-  const itemsResult = formatElements(element.items)
+  const itemsResult = formatElements(element.childItems)
   result.strings.push(...itemsResult.strings)
   result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || itemsResult.haveSimpleHorizontalGroup
 
