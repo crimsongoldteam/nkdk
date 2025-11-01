@@ -2,9 +2,6 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TGanttChartFieldXML, TGanttChartField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
-import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
-
-const ORDER: string[] = []
 
 export const exportGanttChartFieldToXML = (data: TGanttChartField | undefined): TGanttChartFieldXML | undefined => {
   if (!data) return undefined
@@ -12,7 +9,7 @@ export const exportGanttChartFieldToXML = (data: TGanttChartField | undefined): 
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return sortObjectByKeys<TGanttChartFieldXML>( {
+  return {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -27,7 +24,7 @@ export const exportGanttChartFieldToXML = (data: TGanttChartField | undefined): 
     VerticalLines: data.verticalLines,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-  }, ORDER)
+  }
 }
 
 registerExport(ZElementType.enum.GanttChartField, exportGanttChartFieldToXML)

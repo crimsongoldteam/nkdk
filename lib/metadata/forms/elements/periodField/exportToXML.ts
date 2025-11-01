@@ -5,9 +5,6 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TPeriodFieldXML, TPeriodField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
-import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
-
-const ORDER: string[] = []
 
 export const exportPeriodFieldToXML = (data: TPeriodField | undefined): TPeriodFieldXML | undefined => {
   if (!data) return undefined
@@ -15,7 +12,7 @@ export const exportPeriodFieldToXML = (data: TPeriodField | undefined): TPeriodF
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return sortObjectByKeys<TPeriodFieldXML>( {
+  return {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -28,7 +25,7 @@ export const exportPeriodFieldToXML = (data: TPeriodField | undefined): TPeriodF
     MaxWidth: data.maxWidth,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-  }, ORDER)
+  }
 }
 
 registerExport(ZElementType.enum.PeriodField, exportPeriodFieldToXML)

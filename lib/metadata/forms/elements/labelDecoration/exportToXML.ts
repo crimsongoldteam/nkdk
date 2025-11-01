@@ -4,9 +4,6 @@ import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { TLabelDecorationXML, TLabelDecoration } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
-import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
-
-const ORDER = ["Visible", "UserVisible", "Enabled", "Width", "AutoMaxWidth", "MaxWidth", "Height", "AutoMaxHeight", "HorizontalStretch", "VerticalStretch", "SkipOnInput", "TextColor", "Font", "Shortcut", "Title", "ToolTip", "ToolTipRepresentation", "GroupHorizontalAlign", "GroupVerticalAlign", "OnMainServerUnavalableBehavior", "Hyperlink", "HorizontalAlign", "VerticalAlign", "TitleHeight", "BackColor", "BorderColor", "Border", "ContextMenu", "ExtendedTooltip", "Events"]
 
 export const exportLabelDecorationToXML = (data: TLabelDecoration | undefined): TLabelDecorationXML | undefined => {
   if (!data) return undefined
@@ -14,7 +11,7 @@ export const exportLabelDecorationToXML = (data: TLabelDecoration | undefined): 
   const base = exportFormDecorationToXML(data)
   if (!base) return undefined
    
-  return sortObjectByKeys<TLabelDecorationXML>( {
+  return {
     ...base,
     BackColor: exportColorToXML(data.backColor),
     Border: exportBorderToXML(data.border),
@@ -23,7 +20,7 @@ export const exportLabelDecorationToXML = (data: TLabelDecoration | undefined): 
     Hyperlink: data.hyperlink,
     TitleHeight: data.titleHeight,
     VerticalAlign: data.verticalAlign,
-  }, ORDER)
+  }
 }
 
 registerExport(ZElementType.enum.LabelDecoration, exportLabelDecorationToXML)

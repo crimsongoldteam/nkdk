@@ -4,9 +4,6 @@ import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { TColumnGroupXML, TColumnGroup } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
-import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
-
-const ORDER = ["Visible", "UserVisible", "Enabled", "ReadOnly", "EnableContentChange", "Title", "TitleTextColor", "TitleFont", "ToolTip", "ToolTipRepresentation", "Width", "Height", "HorizontalStretch", "VerticalStretch", "Group", "TitleBackColor", "ShowInHeader", "HeaderDataPath", "HeaderHorizontalAlign", "HeaderPicture", "HeaderFormat", "FixingInTable", "ExtendedTooltip"]
 
 export const exportColumnGroupToXML = (data: TColumnGroup | undefined): TColumnGroupXML | undefined => {
   if (!data) return undefined
@@ -14,7 +11,7 @@ export const exportColumnGroupToXML = (data: TColumnGroup | undefined): TColumnG
   const base = exportFormGroupToXML(data)
   if (!base) return undefined
    
-  return sortObjectByKeys<TColumnGroupXML>( {
+  return {
     ...base,
     FixingInTable: data.fixingInTable,
     Group: data.group,
@@ -25,7 +22,7 @@ export const exportColumnGroupToXML = (data: TColumnGroup | undefined): TColumnG
     ShowInHeader: data.showInHeader,
     ShowTitle: data.showTitle,
     TitleBackColor: exportColorToXML(data.titleBackColor),
-  }, ORDER)
+  }
 }
 
 registerExport(ZElementType.enum.ColumnGroup, exportColumnGroupToXML)

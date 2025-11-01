@@ -4,9 +4,6 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TFormattedDocumentFieldXML, TFormattedDocumentField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
-import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
-
-const ORDER: string[] = []
 
 export const exportFormattedDocumentFieldToXML = (data: TFormattedDocumentField | undefined): TFormattedDocumentFieldXML | undefined => {
   if (!data) return undefined
@@ -14,7 +11,7 @@ export const exportFormattedDocumentFieldToXML = (data: TFormattedDocumentField 
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return sortObjectByKeys<TFormattedDocumentFieldXML>( {
+  return {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -30,7 +27,7 @@ export const exportFormattedDocumentFieldToXML = (data: TFormattedDocumentField 
     TextColor: exportColorToXML(data.textColor),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-  }, ORDER)
+  }
 }
 
 registerExport(ZElementType.enum.FormattedDocumentField, exportFormattedDocumentFieldToXML)

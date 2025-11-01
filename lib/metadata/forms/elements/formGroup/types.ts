@@ -6,7 +6,7 @@ import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-    import { TChildItems } from "../childItems/typesExt"
+import { TChildItems } from "../childItems/typesExt"
 
 export const ZFormGroup = ZBaseElement.extend({
   enableContentChange: z.boolean().optional(),

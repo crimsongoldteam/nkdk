@@ -1,12 +1,15 @@
 import { TI8nText, TI8nTextXML } from "./types"
 
-export const exportI8nTextToXML = (xml: TI8nText | undefined): TI8nTextXML | undefined => {
-  if (!xml) return undefined
+export const exportI8nTextToXML = (data: TI8nText | undefined): TI8nTextXML | undefined => {
+  if (!data) return undefined
 
-  const result: TI8nTextXML = []
+  const result: TI8nTextXML = {
+    _formatted: data.formatted,
+    "v8:item": [],
+  }
 
-  Object.entries(xml).forEach(([lang, content]) => {
-    result.push({ "v8:item": { "v8:lang": lang, "v8:content": content } })
+  Object.entries(data.items).forEach(([lang, content]) => {
+    result["v8:item"].push({ "v8:lang": lang, "v8:content": content })
   })
 
   return result

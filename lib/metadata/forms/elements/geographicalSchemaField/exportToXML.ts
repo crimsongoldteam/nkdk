@@ -3,9 +3,6 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TGeographicalSchemaFieldXML, TGeographicalSchemaField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
-import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
-
-const ORDER: string[] = []
 
 export const exportGeographicalSchemaFieldToXML = (data: TGeographicalSchemaField | undefined): TGeographicalSchemaFieldXML | undefined => {
   if (!data) return undefined
@@ -13,7 +10,7 @@ export const exportGeographicalSchemaFieldToXML = (data: TGeographicalSchemaFiel
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return sortObjectByKeys<TGeographicalSchemaFieldXML>( {
+  return {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -25,7 +22,7 @@ export const exportGeographicalSchemaFieldToXML = (data: TGeographicalSchemaFiel
     Output: data.output,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-  }, ORDER)
+  }
 }
 
 registerExport(ZElementType.enum.GeographicalSchemaField, exportGeographicalSchemaFieldToXML)

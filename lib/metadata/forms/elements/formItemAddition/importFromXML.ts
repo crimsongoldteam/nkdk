@@ -17,7 +17,7 @@ export const importFormItemAdditionFromXML = (xml: TFormItemAdditionXML | undefi
     ...base,
     elementType: ZElementType.enum.FormItemAddition,
     contextMenu: importFormGroupFromXML(xml.ContextMenu),
-    displayImportance: xml.DisplayImportance,
+    displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
     extendedToolTip: importFormDecorationFromXML(xml.ExtendedToolTip),
     horizontalAlignInGroup: xml.HorizontalAlignInGroup,

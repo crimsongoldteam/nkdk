@@ -25,7 +25,7 @@ export const importFormFieldFromXML = (xml: TFormFieldXML | undefined): TFormFie
     contextMenu: importFormGroupFromXML(xml.ContextMenu),
     dataPath: xml.DataPath,
     defaultItem: xml.DefaultItem,
-    displayImportance: xml.DisplayImportance,
+    displayImportance: xml._DisplayImportance,
     editMode: xml.EditMode,
     enabled: xml.Enabled,
     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),

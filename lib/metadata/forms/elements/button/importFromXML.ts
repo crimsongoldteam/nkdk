@@ -25,7 +25,7 @@ export const importButtonFromXML = (xml: TButtonXML | undefined): TButton | unde
     commandUniqueness: xml.CommandUniqueness,
     defaultButton: xml.DefaultButton,
     defaultItem: xml.DefaultItem,
-    displayImportance: xml.DisplayImportance,
+    displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),
     font: importFontFromXML(xml.Font),

@@ -18,7 +18,7 @@ export const importPageFromXML = (xml: TPageXML | undefined): TPage | undefined 
     backColor: importColorFromXML(xml.BackColor),
     childItemsHorizontalAlign: xml.ChildItemsHorizontalAlign,
     childItemsVerticalAlign: xml.ChildItemsVerticalAlign,
-    displayImportance: xml.DisplayImportance,
+    displayImportance: xml._DisplayImportance,
     format: importI8nTextFromXML(xml.Format),
     group: xml.Group,
     horizontalSpacing: xml.HorizontalSpacing,

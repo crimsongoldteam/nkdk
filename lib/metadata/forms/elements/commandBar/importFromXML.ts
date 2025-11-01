@@ -12,7 +12,7 @@ export const importCommandBarFromXML = (xml: TCommandBarXML | undefined): TComma
   return {
     ...base,
     elementType: ZElementType.enum.CommandBar,
-    displayImportance: xml.DisplayImportance,
+    displayImportance: xml._DisplayImportance,
     horizontalAlign: xml.HorizontalAlign,
   }
 }

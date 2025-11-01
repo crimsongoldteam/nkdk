@@ -5,9 +5,6 @@ import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
 import { TViewStatusAdditionXML, TViewStatusAddition } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
-import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
-
-const ORDER = ["AdditionSource", "ContextMenu", "ExtendedTooltip"]
 
 export const exportViewStatusAdditionToXML = (data: TViewStatusAddition | undefined): TViewStatusAdditionXML | undefined => {
   if (!data) return undefined
@@ -15,7 +12,7 @@ export const exportViewStatusAdditionToXML = (data: TViewStatusAddition | undefi
   const base = exportFormItemAdditionToXML(data)
   if (!base) return undefined
    
-  return sortObjectByKeys<TViewStatusAdditionXML>( {
+  return {
     ...base,
     AutoMaxWidth: data.autoMaxWidth,
     BackColor: exportColorToXML(data.backColor),
@@ -30,7 +27,7 @@ export const exportViewStatusAdditionToXML = (data: TViewStatusAddition | undefi
     TitleFont: exportFontToXML(data.titleFont),
     TitleTextColor: exportColorToXML(data.titleTextColor),
     Width: data.width,
-  }, ORDER)
+  }
 }
 
 registerExport(ZElementType.enum.ViewStatusAddition, exportViewStatusAdditionToXML)

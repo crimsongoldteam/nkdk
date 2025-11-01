@@ -23,7 +23,7 @@ export const importUsualGroupFromXML = (xml: TUsualGroupXML | undefined): TUsual
     collapsedRepresentationTitle: xml.CollapsedRepresentationTitle,
     controlRepresentation: xml.ControlRepresentation,
     currentRowUse: xml.CurrentRowUse,
-    displayImportance: xml.DisplayImportance,
+    displayImportance: xml._DisplayImportance,
     format: importI8nTextFromXML(xml.Format),
     group: xml.Group,
     hiddenRepresentationTitleBackColor: importColorFromXML(xml.HiddenRepresentationTitleBackColor),

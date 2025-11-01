@@ -37,7 +37,7 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     currentRowUse: xml.CurrentRowUse,
     dataPath: xml.DataPath,
     defaultItem: xml.DefaultItem,
-    displayImportance: xml.DisplayImportance,
+    displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
     enableDrag: xml.EnableDrag,
     enableStartDrag: xml.EnableStartDrag,

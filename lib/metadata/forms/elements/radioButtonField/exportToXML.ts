@@ -5,9 +5,6 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TRadioButtonFieldXML, TRadioButtonField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
-import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
-
-const ORDER = ["DataPath", "Visible", "UserVisible", "Enabled", "ReadOnly", "SkipOnInput", "Title", "TitleTextColor", "TitleFont", "TitleLocation", "TitleHeight", "ToolTip", "ToolTipRepresentation", "WarningOnEditRepresentation", "WarningOnEdit", "Shortcut", "HorizontalAlign", "VerticalAlign", "GroupHorizontalAlign", "GroupVerticalAlign", "OnMainServerUnavalableBehavior", "RadioButtonType", "ItemTitleHeight", "ColumnsCount", "Font", "TextColor", "ContextMenu", "ExtendedTooltip", "Events"]
 
 export const exportRadioButtonFieldToXML = (data: TRadioButtonField | undefined): TRadioButtonFieldXML | undefined => {
   if (!data) return undefined
@@ -15,7 +12,7 @@ export const exportRadioButtonFieldToXML = (data: TRadioButtonField | undefined)
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return sortObjectByKeys<TRadioButtonFieldXML>( {
+  return {
     ...base,
     BackColor: exportColorToXML(data.backColor),
     BorderColor: exportColorToXML(data.borderColor),
@@ -28,7 +25,7 @@ export const exportRadioButtonFieldToXML = (data: TRadioButtonField | undefined)
     ItemWidth: data.itemWidth,
     RadioButtonType: data.radioButtonType,
     TextColor: exportColorToXML(data.textColor),
-  }, ORDER)
+  }
 }
 
 registerExport(ZElementType.enum.RadioButtonField, exportRadioButtonFieldToXML)

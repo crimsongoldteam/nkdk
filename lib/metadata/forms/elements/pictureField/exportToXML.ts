@@ -6,9 +6,6 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TPictureFieldXML, TPictureField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
-import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
-
-const ORDER = ["DataPath", "Visible", "UserVisible", "Enabled", "ReadOnly", "SkipOnInput", "Title", "TitleTextColor", "TitleFont", "TitleLocation", "TitleHeight", "ToolTip", "ToolTipRepresentation", "WarningOnEditRepresentation", "WarningOnEdit", "Shortcut", "HorizontalAlign", "GroupHorizontalAlign", "GroupVerticalAlign", "OnMainServerUnavalableBehavior", "Width", "Zoomable", "ImageScale", "Hyperlink", "NonselectedPictureText", "EnableStartDrag", "EnableDrag", "ValuesPicture", "TextColor", "Font", "FileDragMode", "ContextMenu", "ExtendedTooltip", "Events"]
 
 export const exportPictureFieldToXML = (data: TPictureField | undefined): TPictureFieldXML | undefined => {
   if (!data) return undefined
@@ -16,7 +13,7 @@ export const exportPictureFieldToXML = (data: TPictureField | undefined): TPictu
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return sortObjectByKeys<TPictureFieldXML>( {
+  return {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -39,7 +36,7 @@ export const exportPictureFieldToXML = (data: TPictureField | undefined): TPictu
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     Zoomable: data.zoomable,
-  }, ORDER)
+  }
 }
 
 registerExport(ZElementType.enum.PictureField, exportPictureFieldToXML)

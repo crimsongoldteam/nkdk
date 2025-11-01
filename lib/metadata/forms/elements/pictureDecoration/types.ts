@@ -1,9 +1,13 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
+import {  ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 
 export const ZPictureDecoration = ZFormDecoration.extend({
   border: ZBorder.optional(),
@@ -19,17 +23,44 @@ export const ZPictureDecoration = ZFormDecoration.extend({
   zoomable: z.boolean().optional(),
 })
 
-export const ZPictureDecorationXML = ZFormDecorationXML.extend({
-  Border: ZBorderXML.optional(),
-  BorderColor: ZColorXML.optional(),
-  EnableDrag: z.boolean().optional(),
-  EnableStartDrag: z.boolean().optional(),
-  FileDragMode: SE.ZFileDragMode.optional(),
+export const ZPictureDecorationXML = ZBaseElementXML.extend({
+  _DisplayImportance: SE.ZDisplayImportance.optional(),
+  Visible: z.boolean().optional(),
+  Enabled: z.boolean().optional(),
+  Width: z.number().optional(),
+  AutoMaxWidth: z.boolean().optional(),
+  MaxWidth: z.number().optional(),
+  Height: z.number().optional(),
+  AutoMaxHeight: z.boolean().optional(),
+  HorizontalStretch: z.boolean().optional(),
+  VerticalStretch: z.boolean().optional(),
+  SkipOnInput: z.boolean().optional(),
+  TextColor: ZColorXML.optional(),
+  Font: ZFontXML.optional(),
+  Shortcut: z.string().optional(),
+  Title: ZI8nTextXML.optional(),
+  ToolTip: ZI8nTextXML.optional(),
+  ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   Hyperlink: z.boolean().optional(),
   NonselectedPictureText: z.string().optional(),
+  EnableStartDrag: z.boolean().optional(),
+  EnableDrag: z.boolean().optional(),
   Picture: ZPictureXML.optional(),
+  FileDragMode: SE.ZFileDragMode.optional(),
+  get ContextMenu() {
+    return ZFormGroupXML.optional()
+  },
+  get ExtendedTooltip() {
+    return ZFormDecorationXML.optional()
+  },
+  Border: ZBorderXML.optional(),
+  BorderColor: ZColorXML.optional(),
+  HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
+  MaxHeight: z.number().optional(),
   PictureSize: SE.ZPictureSize.optional(),
   Scale: z.number().optional(),
+  Type: SE.ZFormDecorationType.optional(),
+  VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   Zoomable: z.boolean().optional(),
 })
 

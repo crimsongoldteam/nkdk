@@ -6,9 +6,6 @@ import { exportBaseElementToXML } from "../baseElement/exportToXML"
 import { TFormDecorationXML, TFormDecoration } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
-import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
-
-const ORDER: string[] = []
 
 export const exportFormDecorationToXML = (data: TFormDecoration | undefined): TFormDecorationXML | undefined => {
   if (!data) return undefined
@@ -16,12 +13,12 @@ export const exportFormDecorationToXML = (data: TFormDecoration | undefined): TF
   const base = exportBaseElementToXML(data)
   if (!base) return undefined
    
-  return sortObjectByKeys<TFormDecorationXML>( {
+  return {
     ...base,
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
     ContextMenu: exportFormGroupToXML(data.contextMenu),
-    DisplayImportance: data.displayImportance,
+    _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
     Font: exportFontToXML(data.font),
@@ -41,7 +38,7 @@ export const exportFormDecorationToXML = (data: TFormDecoration | undefined): TF
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,
     Width: data.width,
-  }, ORDER)
+  }
 }
 
 registerExport(ZElementType.enum.FormDecoration, exportFormDecorationToXML)

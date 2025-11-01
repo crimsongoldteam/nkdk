@@ -5,9 +5,6 @@ import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TCheckBoxFieldXML, TCheckBoxField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
-import { sortObjectByKeys } from "~/lib/xml/export/sortObjectKeys"
-
-const ORDER: string[] = []
 
 export const exportCheckBoxFieldToXML = (data: TCheckBoxField | undefined): TCheckBoxFieldXML | undefined => {
   if (!data) return undefined
@@ -15,7 +12,7 @@ export const exportCheckBoxFieldToXML = (data: TCheckBoxField | undefined): TChe
   const base = exportFormFieldToXML(data)
   if (!base) return undefined
    
-  return sortObjectByKeys<TCheckBoxFieldXML>( {
+  return {
     ...base,
     BackColor: exportColorToXML(data.backColor),
     BorderColor: exportColorToXML(data.borderColor),
@@ -28,7 +25,7 @@ export const exportCheckBoxFieldToXML = (data: TCheckBoxField | undefined): TChe
     ItemWidth: data.itemWidth,
     TextColor: exportColorToXML(data.textColor),
     ThreeState: data.threeState,
-  }, ORDER)
+  }
 }
 
 registerExport(ZElementType.enum.CheckBoxField, exportCheckBoxFieldToXML)
