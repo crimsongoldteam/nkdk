@@ -57,7 +57,7 @@ export const ZFormField = ZBaseElement.extend({
   verticalAlign: SE.ZItemVerticalAlign.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   visible: z.boolean().optional(),
-  warningOnEdit: z.string().optional(),
+  warningOnEdit: ZI8nText.optional(),
   warningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
 })
 
@@ -108,7 +108,7 @@ export const ZFormFieldXML = ZBaseElementXML.extend({
   VerticalAlign: SE.ZItemVerticalAlign.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   Visible: z.boolean().optional(),
-  WarningOnEdit: z.string().optional(),
+  WarningOnEdit: ZI8nTextXML.optional(),
   WarningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
 })
 

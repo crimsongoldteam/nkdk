@@ -1,5 +1,6 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
 import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
@@ -40,17 +41,17 @@ export const ZInputField = ZFormField.extend({
   createButton: z.boolean().optional(),
   dropListButton: z.boolean().optional(),
   dropListWidth: z.number().optional(),
-  editFormat: z.string().optional(),
+  editFormat: ZI8nText.optional(),
   editText: z.string().optional(),
   editTextUpdate: SE.ZEditTextUpdate.optional(),
   extendedEdit: z.boolean().optional(),
   font: ZFont.optional(),
-  format: z.string().optional(),
+  format: ZI8nText.optional(),
   height: z.number().optional(),
   heightControlVariant: SE.ZItemHeightControlVariant.optional(),
   horizontalStretch: z.boolean().optional(),
   incompleteChoiceMode: SE.ZIncompleteChoiceMode.optional(),
-  inputHint: z.string().optional(),
+  inputHint: ZI8nText.optional(),
   listChoiceMode: z.boolean().optional(),
   markIncomplete: z.boolean().optional(),
   markNegatives: z.boolean().optional(),
@@ -121,17 +122,17 @@ export const ZInputFieldXML = ZFormFieldXML.extend({
   CreateButton: z.boolean().optional(),
   DropListButton: z.boolean().optional(),
   DropListWidth: z.number().optional(),
-  EditFormat: z.string().optional(),
+  EditFormat: ZI8nTextXML.optional(),
   EditText: z.string().optional(),
   EditTextUpdate: SE.ZEditTextUpdate.optional(),
   ExtendedEdit: z.boolean().optional(),
   Font: ZFontXML.optional(),
-  Format: z.string().optional(),
+  Format: ZI8nTextXML.optional(),
   Height: z.number().optional(),
   HeightControlVariant: SE.ZItemHeightControlVariant.optional(),
   HorizontalStretch: z.boolean().optional(),
   IncompleteChoiceMode: SE.ZIncompleteChoiceMode.optional(),
-  InputHint: z.string().optional(),
+  InputHint: ZI8nTextXML.optional(),
   ListChoiceMode: z.boolean().optional(),
   MarkIncomplete: z.boolean().optional(),
   MarkNegatives: z.boolean().optional(),

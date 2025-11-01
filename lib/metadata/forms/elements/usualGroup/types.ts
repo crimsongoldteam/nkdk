@@ -1,5 +1,6 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZTable, ZTableXML } from "../table/types"
@@ -16,7 +17,7 @@ export const ZUsualGroup = ZFormGroup.extend({
   controlRepresentation: SE.ZUsualGroupControlRepresentation.optional(),
   currentRowUse: SE.ZCurrentRowUse.optional(),
   displayImportance: SE.ZDisplayImportance.optional(),
-  format: z.string().optional(),
+  format: ZI8nText.optional(),
   group: SE.ZChildFormItemsGroup.optional(),
   hiddenRepresentationTitleBackColor: ZColor.optional(),
   horizontalSpacing: SE.ZFormItemSpacing.optional(),
@@ -44,7 +45,7 @@ export const ZUsualGroupXML = ZFormGroupXML.extend({
   ControlRepresentation: SE.ZUsualGroupControlRepresentation.optional(),
   CurrentRowUse: SE.ZCurrentRowUse.optional(),
   DisplayImportance: SE.ZDisplayImportance.optional(),
-  Format: z.string().optional(),
+  Format: ZI8nTextXML.optional(),
   Group: SE.ZChildFormItemsGroup.optional(),
   HiddenRepresentationTitleBackColor: ZColorXML.optional(),
   HorizontalSpacing: SE.ZFormItemSpacing.optional(),

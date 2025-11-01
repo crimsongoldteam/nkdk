@@ -1,5 +1,6 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
+import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TPictureFieldXML, TPictureField } from "./types"
@@ -31,7 +32,7 @@ export const exportPictureFieldToXML = (data: TPictureField | undefined): TPictu
     PictureSize: data.pictureSize,
     Scale: data.scale,
     TextColor: exportColorToXML(data.textColor),
-    ValuesPicture: data.valuesPicture,
+    ValuesPicture: exportPictureToXML(data.valuesPicture),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     Zoomable: data.zoomable,

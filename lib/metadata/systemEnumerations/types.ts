@@ -6699,6 +6699,7 @@ enum SearchStringLocation {
   CommandBar = "КоманднаяПанель",
   Bottom = "Низ",
   PullFromTop = "ПотянутьСверху",
+  None = "Нет",
 }
 
 export const ZSearchStringLocation = z.enum(Object.keys(SearchStringLocation) as [TSearchStringLocation, ...TSearchStringLocation[]])

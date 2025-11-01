@@ -1,5 +1,6 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
+import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TPictureFieldXML, TPictureField } from "./types"
@@ -32,7 +33,7 @@ export const importPictureFieldFromXML = (xml: TPictureFieldXML | undefined): TP
     pictureSize: xml.PictureSize,
     scale: xml.Scale,
     textColor: importColorFromXML(xml.TextColor),
-    valuesPicture: xml.ValuesPicture,
+    valuesPicture: importPictureFromXML(xml.ValuesPicture),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     zoomable: xml.Zoomable,

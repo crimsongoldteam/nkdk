@@ -1,5 +1,6 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TCheckBoxFieldXML, TCheckBoxField } from "./types"
 import { ZElementType } from "../types"
@@ -17,7 +18,7 @@ export const importCheckBoxFieldFromXML = (xml: TCheckBoxFieldXML | undefined): 
     backColor: importColorFromXML(xml.BackColor),
     borderColor: importColorFromXML(xml.BorderColor),
     checkBoxType: xml.CheckBoxType,
-    editFormat: xml.EditFormat,
+    editFormat: importI8nTextFromXML(xml.EditFormat),
     equalItemsWidth: xml.EqualItemsWidth,
     font: importFontFromXML(xml.Font),
     itemHeight: xml.ItemHeight,

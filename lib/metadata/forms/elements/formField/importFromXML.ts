@@ -60,7 +60,7 @@ export const importFormFieldFromXML = (xml: TFormFieldXML | undefined): TFormFie
     verticalAlign: xml.VerticalAlign,
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     visible: xml.Visible,
-    warningOnEdit: xml.WarningOnEdit,
+    warningOnEdit: importI8nTextFromXML(xml.WarningOnEdit),
     warningOnEditRepresentation: xml.WarningOnEditRepresentation,
   }
 }

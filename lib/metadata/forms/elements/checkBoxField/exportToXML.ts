@@ -1,5 +1,6 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TCheckBoxFieldXML, TCheckBoxField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
@@ -16,7 +17,7 @@ export const exportCheckBoxFieldToXML = (data: TCheckBoxField | undefined): TChe
     BackColor: exportColorToXML(data.backColor),
     BorderColor: exportColorToXML(data.borderColor),
     CheckBoxType: data.checkBoxType,
-    EditFormat: data.editFormat,
+    EditFormat: exportI8nTextToXML(data.editFormat),
     EqualItemsWidth: data.equalItemsWidth,
     Font: exportFontToXML(data.font),
     ItemHeight: data.itemHeight,

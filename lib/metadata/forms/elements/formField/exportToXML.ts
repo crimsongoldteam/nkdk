@@ -59,7 +59,7 @@ export const exportFormFieldToXML = (data: TFormField | undefined): TFormFieldXM
     VerticalAlign: data.verticalAlign,
     VerticalAlignInGroup: data.verticalAlignInGroup,
     Visible: data.visible,
-    WarningOnEdit: data.warningOnEdit,
+    WarningOnEdit: exportI8nTextToXML(data.warningOnEdit),
     WarningOnEditRepresentation: data.warningOnEditRepresentation,
   }
 }

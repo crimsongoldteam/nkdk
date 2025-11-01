@@ -1,4 +1,5 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { TPageXML, TPage } from "./types"
@@ -17,7 +18,7 @@ export const exportPageToXML = (data: TPage | undefined): TPageXML | undefined =
     ChildItemsHorizontalAlign: data.childItemsHorizontalAlign,
     ChildItemsVerticalAlign: data.childItemsVerticalAlign,
     DisplayImportance: data.displayImportance,
-    Format: data.format,
+    Format: exportI8nTextToXML(data.format),
     Group: data.group,
     HorizontalSpacing: data.horizontalSpacing,
     ItemsAndTitlesAlign: data.itemsAndTitlesAlign,

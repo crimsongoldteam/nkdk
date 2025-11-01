@@ -1,5 +1,6 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportChoiceListToXML } from "~/lib/metadata/commonObjects/choiceList/exportToXML"
@@ -48,17 +49,17 @@ export const exportInputFieldToXML = (data: TInputField | undefined): TInputFiel
     CreateButton: data.createButton,
     DropListButton: data.dropListButton,
     DropListWidth: data.dropListWidth,
-    EditFormat: data.editFormat,
+    EditFormat: exportI8nTextToXML(data.editFormat),
     EditText: data.editText,
     EditTextUpdate: data.editTextUpdate,
     ExtendedEdit: data.extendedEdit,
     Font: exportFontToXML(data.font),
-    Format: data.format,
+    Format: exportI8nTextToXML(data.format),
     Height: data.height,
     HeightControlVariant: data.heightControlVariant,
     HorizontalStretch: data.horizontalStretch,
     IncompleteChoiceMode: data.incompleteChoiceMode,
-    InputHint: data.inputHint,
+    InputHint: exportI8nTextToXML(data.inputHint),
     ListChoiceMode: data.listChoiceMode,
     MarkIncomplete: data.markIncomplete,
     MarkNegatives: data.markNegatives,

@@ -1,5 +1,6 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
@@ -9,7 +10,7 @@ export const ZPage = ZFormGroup.extend({
   childItemsHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
   childItemsVerticalAlign: SE.ZItemVerticalAlign.optional(),
   displayImportance: SE.ZDisplayImportance.optional(),
-  format: z.string().optional(),
+  format: ZI8nText.optional(),
   group: SE.ZChildFormItemsGroup.optional(),
   horizontalSpacing: SE.ZFormItemSpacing.optional(),
   itemsAndTitlesAlign: SE.ZItemsAndTitlesAlignVariant.optional(),
@@ -27,7 +28,7 @@ export const ZPageXML = ZFormGroupXML.extend({
   ChildItemsHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
   ChildItemsVerticalAlign: SE.ZItemVerticalAlign.optional(),
   DisplayImportance: SE.ZDisplayImportance.optional(),
-  Format: z.string().optional(),
+  Format: ZI8nTextXML.optional(),
   Group: SE.ZChildFormItemsGroup.optional(),
   HorizontalSpacing: SE.ZFormItemSpacing.optional(),
   ItemsAndTitlesAlign: SE.ZItemsAndTitlesAlignVariant.optional(),

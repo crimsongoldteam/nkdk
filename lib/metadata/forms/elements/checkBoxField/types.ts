@@ -1,5 +1,6 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
@@ -8,7 +9,7 @@ export const ZCheckBoxField = ZFormField.extend({
   backColor: ZColor.optional(),
   borderColor: ZColor.optional(),
   checkBoxType: SE.ZCheckBoxType.optional(),
-  editFormat: z.boolean().optional(),
+  editFormat: ZI8nText.optional(),
   equalItemsWidth: z.boolean().optional(),
   font: ZFont.optional(),
   itemHeight: z.number().optional(),
@@ -22,7 +23,7 @@ export const ZCheckBoxFieldXML = ZFormFieldXML.extend({
   BackColor: ZColorXML.optional(),
   BorderColor: ZColorXML.optional(),
   CheckBoxType: SE.ZCheckBoxType.optional(),
-  EditFormat: z.boolean().optional(),
+  EditFormat: ZI8nTextXML.optional(),
   EqualItemsWidth: z.boolean().optional(),
   Font: ZFontXML.optional(),
   ItemHeight: z.number().optional(),

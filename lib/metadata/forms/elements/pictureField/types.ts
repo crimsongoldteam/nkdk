@@ -1,6 +1,7 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
@@ -23,7 +24,7 @@ export const ZPictureField = ZFormField.extend({
   pictureSize: SE.ZPictureSize.optional(),
   scale: z.number().optional(),
   textColor: ZColor.optional(),
-  valuesPicture: z.boolean().optional(),
+  valuesPicture: ZPicture.optional(),
   verticalStretch: z.boolean().optional(),
   width: z.number().optional(),
   zoomable: z.boolean().optional(),
@@ -47,7 +48,7 @@ export const ZPictureFieldXML = ZFormFieldXML.extend({
   PictureSize: SE.ZPictureSize.optional(),
   Scale: z.number().optional(),
   TextColor: ZColorXML.optional(),
-  ValuesPicture: z.boolean().optional(),
+  ValuesPicture: ZPictureXML.optional(),
   VerticalStretch: z.boolean().optional(),
   Width: z.number().optional(),
   Zoomable: z.boolean().optional(),

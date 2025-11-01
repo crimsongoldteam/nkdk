@@ -1,4 +1,5 @@
 import * as z from "zod"
+import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
@@ -11,7 +12,7 @@ export const ZLabelField = ZFormField.extend({
   border: ZBorder.optional(),
   borderColor: ZColor.optional(),
   font: ZFont.optional(),
-  format: z.string().optional(),
+  format: ZI8nText.optional(),
   height: z.number().optional(),
   horizontalStretch: z.boolean().optional(),
   hyperlink: z.boolean().optional(),
@@ -31,7 +32,7 @@ export const ZLabelFieldXML = ZFormFieldXML.extend({
   Border: ZBorderXML.optional(),
   BorderColor: ZColorXML.optional(),
   Font: ZFontXML.optional(),
-  Format: z.string().optional(),
+  Format: ZI8nTextXML.optional(),
   Height: z.number().optional(),
   HorizontalStretch: z.boolean().optional(),
   Hyperlink: z.boolean().optional(),

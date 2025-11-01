@@ -1,5 +1,6 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importChoiceListFromXML } from "~/lib/metadata/commonObjects/choiceList/importFromXML"
@@ -49,17 +50,17 @@ export const importInputFieldFromXML = (xml: TInputFieldXML | undefined): TInput
     createButton: xml.CreateButton,
     dropListButton: xml.DropListButton,
     dropListWidth: xml.DropListWidth,
-    editFormat: xml.EditFormat,
+    editFormat: importI8nTextFromXML(xml.EditFormat),
     editText: xml.EditText,
     editTextUpdate: xml.EditTextUpdate,
     extendedEdit: xml.ExtendedEdit,
     font: importFontFromXML(xml.Font),
-    format: xml.Format,
+    format: importI8nTextFromXML(xml.Format),
     height: xml.Height,
     heightControlVariant: xml.HeightControlVariant,
     horizontalStretch: xml.HorizontalStretch,
     incompleteChoiceMode: xml.IncompleteChoiceMode,
-    inputHint: xml.InputHint,
+    inputHint: importI8nTextFromXML(xml.InputHint),
     listChoiceMode: xml.ListChoiceMode,
     markIncomplete: xml.MarkIncomplete,
     markNegatives: xml.MarkNegatives,

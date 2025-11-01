@@ -16,7 +16,11 @@ export const registerImport = <T extends TBaseElement | undefined>(
 }
 
 export const importElementFromXML = <T extends TBaseElement | undefined>(data: TChildItemXML): T => {
-  const key = Object.keys(data)[0] as string
+  const key = Object.keys(data)[0] as string | undefined
+
+  if (!key) {
+    throw new Error("Empty child item object: no keys found")
+  }
 
   const importFunction = importRegistry.get(key.toLowerCase()) as ImportFunction<T>
 

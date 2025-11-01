@@ -1,5 +1,6 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
 import { exportFormFieldToXML } from "../formField/exportToXML"
 import { TLabelFieldXML, TLabelField } from "./types"
@@ -20,7 +21,7 @@ export const exportLabelFieldToXML = (data: TLabelField | undefined): TLabelFiel
     Border: exportBorderToXML(data.border),
     BorderColor: exportColorToXML(data.borderColor),
     Font: exportFontToXML(data.font),
-    Format: data.format,
+    Format: exportI8nTextToXML(data.format),
     Height: data.height,
     HorizontalStretch: data.horizontalStretch,
     Hyperlink: data.hyperlink,

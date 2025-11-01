@@ -1,5 +1,6 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importFormFieldFromXML } from "../formField/importFromXML"
 import { TLabelFieldXML, TLabelField } from "./types"
@@ -21,7 +22,7 @@ export const importLabelFieldFromXML = (xml: TLabelFieldXML | undefined): TLabel
     border: importBorderFromXML(xml.Border),
     borderColor: importColorFromXML(xml.BorderColor),
     font: importFontFromXML(xml.Font),
-    format: xml.Format,
+    format: importI8nTextFromXML(xml.Format),
     height: xml.Height,
     horizontalStretch: xml.HorizontalStretch,
     hyperlink: xml.Hyperlink,

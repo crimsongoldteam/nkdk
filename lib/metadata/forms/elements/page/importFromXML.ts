@@ -1,4 +1,5 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { TPageXML, TPage } from "./types"
@@ -18,7 +19,7 @@ export const importPageFromXML = (xml: TPageXML | undefined): TPage | undefined 
     childItemsHorizontalAlign: xml.ChildItemsHorizontalAlign,
     childItemsVerticalAlign: xml.ChildItemsVerticalAlign,
     displayImportance: xml.DisplayImportance,
-    format: xml.Format,
+    format: importI8nTextFromXML(xml.Format),
     group: xml.Group,
     horizontalSpacing: xml.HorizontalSpacing,
     itemsAndTitlesAlign: xml.ItemsAndTitlesAlign,

@@ -1,4 +1,5 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { TUsualGroupXML, TUsualGroup } from "./types"
@@ -23,7 +24,7 @@ export const importUsualGroupFromXML = (xml: TUsualGroupXML | undefined): TUsual
     controlRepresentation: xml.ControlRepresentation,
     currentRowUse: xml.CurrentRowUse,
     displayImportance: xml.DisplayImportance,
-    format: xml.Format,
+    format: importI8nTextFromXML(xml.Format),
     group: xml.Group,
     hiddenRepresentationTitleBackColor: importColorFromXML(xml.HiddenRepresentationTitleBackColor),
     horizontalSpacing: xml.HorizontalSpacing,

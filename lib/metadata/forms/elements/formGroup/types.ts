@@ -8,7 +8,6 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 
 export const ZFormGroup = ZBaseElement.extend({
-  visible: z.boolean().optional(),
   enableContentChange: z.boolean().optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {
@@ -27,6 +26,7 @@ export const ZFormGroup = ZBaseElement.extend({
   type: SE.ZFormGroupType.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   verticalStretch: z.boolean().optional(),
+  visible: z.boolean().optional(),
   width: z.number().optional(),
   get childItems() {
     return ZChildItems
