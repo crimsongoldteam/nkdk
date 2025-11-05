@@ -32,6 +32,10 @@ export const exportLabelFieldToXML = (data: TLabelField | undefined): TLabelFiel
     TextColor: exportColorToXML(data.textColor),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
+    Events: data.events ? {
+       Click: data.events.click,
+       URLProcessing: data.events.uRLProcessing,
+    } : undefined,
   }
 }
 

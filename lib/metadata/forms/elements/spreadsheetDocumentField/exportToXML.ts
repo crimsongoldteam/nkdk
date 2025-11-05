@@ -40,6 +40,21 @@ export const exportSpreadSheetDocumentFieldToXML = (data: TSpreadSheetDocumentFi
     VerticalStretch: data.verticalStretch,
     ViewScalingMode: data.viewScalingMode,
     Width: data.width,
+    Events: data.events ? {
+       Selection: data.events.selection,
+       DragStart: data.events.dragStart,
+       AdditionalDetailProcessing: data.events.additionalDetailProcessing,
+       URLProcessing: data.events.uRLProcessing,
+       DetailProcessing: data.events.detailProcessing,
+       DragEnd: data.events.dragEnd,
+       BeforeWrite: data.events.beforeWrite,
+       BeforePrint: data.events.beforePrint,
+       Drag: data.events.drag,
+       AfterWrite: data.events.afterWrite,
+       OnActivate: data.events.onActivate,
+       OnChangeAreaContentEvent: data.events.onChangeAreaContentEvent,
+       DragCheck: data.events.dragCheck,
+    } : undefined,
   }
 }
 

@@ -59,10 +59,12 @@ export const ZFormField = ZBaseElement.extend({
   visible: z.boolean().optional(),
   warningOnEdit: ZI8nText.optional(),
   warningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
+  events: z.object({
+    onChange: z.string().optional(),
+  }).optional(),
 })
 
 export const ZFormFieldXML = ZBaseElementXML.extend({
-  _DisplayImportance: SE.ZDisplayImportance.optional(),
   AutoCellHeight: z.boolean().optional(),
   CellHyperlink: z.boolean().optional(),
   get ContextMenu() {
@@ -70,6 +72,7 @@ export const ZFormFieldXML = ZBaseElementXML.extend({
   },
   DataPath: z.string().optional(),
   DefaultItem: z.boolean().optional(),
+  DisplayImportance: SE.ZDisplayImportance.optional(),
   EditMode: SE.ZColumnEditMode.optional(),
   Enabled: z.boolean().optional(),
   get ExtendedTooltip() {
@@ -110,6 +113,9 @@ export const ZFormFieldXML = ZBaseElementXML.extend({
   Visible: z.boolean().optional(),
   WarningOnEdit: ZI8nTextXML.optional(),
   WarningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
+  Events: z.object({
+    OnChange: z.string().optional(),
+  }).optional(),
 })
 
 export type TFormField = z.infer<typeof ZFormField>

@@ -25,7 +25,7 @@ export const importFormFieldFromXML = (xml: TFormFieldXML | undefined): TFormFie
     contextMenu: importFormGroupFromXML(xml.ContextMenu),
     dataPath: xml.DataPath,
     defaultItem: xml.DefaultItem,
-    displayImportance: xml._DisplayImportance,
+    displayImportance: xml.DisplayImportance,
     editMode: xml.EditMode,
     enabled: xml.Enabled,
     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),
@@ -62,6 +62,9 @@ export const importFormFieldFromXML = (xml: TFormFieldXML | undefined): TFormFie
     visible: xml.Visible,
     warningOnEdit: importI8nTextFromXML(xml.WarningOnEdit),
     warningOnEditRepresentation: xml.WarningOnEditRepresentation,
+    events: xml.Events ? {
+       onChange: xml.Events.OnChange,
+    } : undefined,
   }
 }
 

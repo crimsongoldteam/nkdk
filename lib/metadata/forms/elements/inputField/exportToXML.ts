@@ -96,6 +96,23 @@ export const exportInputFieldToXML = (data: TInputField | undefined): TInputFiel
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     Wrap: data.wrap,
+    Events: data.events ? {
+       AutoComplete: data.events.autoComplete,
+       MultipleValuesAdd: data.events.multipleValuesAdd,
+       EditTextChange: data.events.editTextChange,
+       StartChoice: data.events.startChoice,
+       StartListChoice: data.events.startListChoice,
+       ChoiceProcessing: data.events.choiceProcessing,
+       MultipleValueURLProcessing: data.events.multipleValueURLProcessing,
+       CommandGenerateProcessing: data.events.commandGenerateProcessing,
+       TextEditEnd: data.events.textEditEnd,
+       Opening: data.events.opening,
+       MultipleValueOpening: data.events.multipleValueOpening,
+       Clearing: data.events.clearing,
+       Tuning: data.events.tuning,
+       Creating: data.events.creating,
+       MultipleValuesDelete: data.events.multipleValuesDelete,
+    } : undefined,
   }
 }
 

@@ -16,7 +16,7 @@ export const exportFormItemAdditionToXML = (data: TFormItemAddition | undefined)
   return {
     ...base,
     ContextMenu: exportFormGroupToXML(data.contextMenu),
-    _DisplayImportance: data.displayImportance,
+    DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
     ExtendedToolTip: exportFormDecorationToXML(data.extendedToolTip),
     HorizontalAlignInGroup: data.horizontalAlignInGroup,

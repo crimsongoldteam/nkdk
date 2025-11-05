@@ -1,14 +1,8 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
-import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { TChildItems } from "../childItems/typesExt"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 
 export const ZViewStatusAddition = ZFormItemAddition.extend({
@@ -27,38 +21,20 @@ export const ZViewStatusAddition = ZFormItemAddition.extend({
   width: z.number().optional(),
 })
 
-export const ZViewStatusAdditionXML = ZBaseElementXML.extend({
-  _DisplayImportance: SE.ZDisplayImportance.optional(),
-  get ContextMenu() {
-    return ZFormGroupXML.optional()
-  },
+export const ZViewStatusAdditionXML = ZFormItemAdditionXML.extend({
   AutoMaxWidth: z.boolean().optional(),
   BackColor: ZColorXML.optional(),
   Border: ZBorderXML.optional(),
   BorderColor: ZColorXML.optional(),
   ButtonsBackColor: ZColorXML.optional(),
-  Enabled: z.boolean().optional(),
-  get ExtendedToolTip() {
-    return ZFormDecorationXML.optional()
-  },
   Font: ZFontXML.optional(),
   HorizontalAlign: SE.ZItemHorizontalLocation.optional(),
-  HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   HorizontalStretch: z.boolean().optional(),
   MaxWidth: z.number().optional(),
   TextColor: ZColorXML.optional(),
-  Title: ZI8nTextXML.optional(),
   TitleFont: ZFontXML.optional(),
   TitleTextColor: ZColorXML.optional(),
-  ToolTip: ZI8nTextXML.optional(),
-  ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
-  Type: SE.ZFormItemAdditionType.optional(),
-  VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
-  Visible: z.boolean().optional(),
   Width: z.number().optional(),
-  get ChildItems() {
-    return ZChildItemsXML.optional()
-  },
 })
 
 export type TViewStatusAddition = z.infer<typeof ZViewStatusAddition>

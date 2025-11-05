@@ -1,5 +1,18 @@
 import { z } from "zod"
 
+enum DynamicListSearchStringViewMode {
+  Auto = "Авто",
+  DontShow = "НеОтображать",
+  Show = "Отображать",
+  ShowOnUsingFullTextSearch = "ОтображатьПриИспользованииПолнотекстовогоПоиска",
+}
+
+export const ZDynamicListSearchStringViewMode = z.enum(Object.keys(DynamicListSearchStringViewMode) as [TDynamicListSearchStringViewMode, ...TDynamicListSearchStringViewMode[]])
+export const ZDynamicListSearchStringViewModeEnterprise = z.enum(Object.values(DynamicListSearchStringViewMode) as [TDynamicListSearchStringViewModeEnterprise, ...TDynamicListSearchStringViewModeEnterprise[]])
+
+export type TDynamicListSearchStringViewMode = keyof typeof DynamicListSearchStringViewMode
+export type TDynamicListSearchStringViewModeEnterprise = `${DynamicListSearchStringViewMode}`
+
 enum XDTOFacetType {
   Length = "Длина",
   MaxInclusive = "МаксВключающее",
@@ -1004,17 +1017,6 @@ export const ZDataLockModeEnterprise = z.enum(Object.values(DataLockMode) as [TD
 export type TDataLockMode = keyof typeof DataLockMode
 export type TDataLockModeEnterprise = `${DataLockMode}`
 
-enum AccountingRecordType {
-  Debit = "Дебет",
-  Credit = "Кредит",
-}
-
-export const ZAccountingRecordType = z.enum(Object.keys(AccountingRecordType) as [TAccountingRecordType, ...TAccountingRecordType[]])
-export const ZAccountingRecordTypeEnterprise = z.enum(Object.values(AccountingRecordType) as [TAccountingRecordTypeEnterprise, ...TAccountingRecordTypeEnterprise[]])
-
-export type TAccountingRecordType = keyof typeof AccountingRecordType
-export type TAccountingRecordTypeEnterprise = `${AccountingRecordType}`
-
 enum AccountType {
   ActivePassive = "АктивноПассивный",
   Active = "Активный",
@@ -1026,6 +1028,17 @@ export const ZAccountTypeEnterprise = z.enum(Object.values(AccountType) as [TAcc
 
 export type TAccountType = keyof typeof AccountType
 export type TAccountTypeEnterprise = `${AccountType}`
+
+enum AccountingRecordType {
+  Debit = "Дебет",
+  Credit = "Кредит",
+}
+
+export const ZAccountingRecordType = z.enum(Object.keys(AccountingRecordType) as [TAccountingRecordType, ...TAccountingRecordType[]])
+export const ZAccountingRecordTypeEnterprise = z.enum(Object.values(AccountingRecordType) as [TAccountingRecordTypeEnterprise, ...TAccountingRecordTypeEnterprise[]])
+
+export type TAccountingRecordType = keyof typeof AccountingRecordType
+export type TAccountingRecordTypeEnterprise = `${AccountingRecordType}`
 
 enum AccumulationRecordType {
   Receipt = "Приход",
@@ -2284,6 +2297,19 @@ export const ZTransactionsIsolationLevelEnterprise = z.enum(Object.values(Transa
 export type TTransactionsIsolationLevel = keyof typeof TransactionsIsolationLevel
 export type TTransactionsIsolationLevelEnterprise = `${TransactionsIsolationLevel}`
 
+enum UUIDVersion {
+  Version1 = "Версия1",
+  Version3 = "Версия3",
+  Version4 = "Версия4",
+  Version5 = "Версия5",
+}
+
+export const ZUUIDVersion = z.enum(Object.keys(UUIDVersion) as [TUUIDVersion, ...TUUIDVersion[]])
+export const ZUUIDVersionEnterprise = z.enum(Object.values(UUIDVersion) as [TUUIDVersionEnterprise, ...TUUIDVersionEnterprise[]])
+
+export type TUUIDVersion = keyof typeof UUIDVersion
+export type TUUIDVersionEnterprise = `${UUIDVersion}`
+
 enum UpdateOnDataChange {
   Auto = "Авто",
   DontUpdate = "НеОбновлять",
@@ -2307,19 +2333,6 @@ export const ZUserPasswordHashAlgorithmTypeEnterprise = z.enum(Object.values(Use
 
 export type TUserPasswordHashAlgorithmType = keyof typeof UserPasswordHashAlgorithmType
 export type TUserPasswordHashAlgorithmTypeEnterprise = `${UserPasswordHashAlgorithmType}`
-
-enum UUIDVersion {
-  Version1 = "Версия1",
-  Version3 = "Версия3",
-  Version4 = "Версия4",
-  Version5 = "Версия5",
-}
-
-export const ZUUIDVersion = z.enum(Object.keys(UUIDVersion) as [TUUIDVersion, ...TUUIDVersion[]])
-export const ZUUIDVersionEnterprise = z.enum(Object.values(UUIDVersion) as [TUUIDVersionEnterprise, ...TUUIDVersionEnterprise[]])
-
-export type TUUIDVersion = keyof typeof UUIDVersion
-export type TUUIDVersionEnterprise = `${UUIDVersion}`
 
 enum WorkingDateMode {
   UseCurrentDate = "ИспользоватьТекущуюДату",
@@ -3151,6 +3164,30 @@ export const ZClientApplicationAgentStateEnterprise = z.enum(Object.values(Clien
 export type TClientApplicationAgentState = keyof typeof ClientApplicationAgentState
 export type TClientApplicationAgentStateEnterprise = `${ClientApplicationAgentState}`
 
+enum DataCompositionDataRelevanceOutputType {
+  Auto = "Авто",
+  Output = "Выводить",
+  DontOutput = "НеВыводить",
+}
+
+export const ZDataCompositionDataRelevanceOutputType = z.enum(Object.keys(DataCompositionDataRelevanceOutputType) as [TDataCompositionDataRelevanceOutputType, ...TDataCompositionDataRelevanceOutputType[]])
+export const ZDataCompositionDataRelevanceOutputTypeEnterprise = z.enum(Object.values(DataCompositionDataRelevanceOutputType) as [TDataCompositionDataRelevanceOutputTypeEnterprise, ...TDataCompositionDataRelevanceOutputTypeEnterprise[]])
+
+export type TDataCompositionDataRelevanceOutputType = keyof typeof DataCompositionDataRelevanceOutputType
+export type TDataCompositionDataRelevanceOutputTypeEnterprise = `${DataCompositionDataRelevanceOutputType}`
+
+enum DataCompositionDatabaseCopyOutputType {
+  Auto = "Авто",
+  Output = "Выводить",
+  DontOutput = "НеВыводить",
+}
+
+export const ZDataCompositionDatabaseCopyOutputType = z.enum(Object.keys(DataCompositionDatabaseCopyOutputType) as [TDataCompositionDatabaseCopyOutputType, ...TDataCompositionDatabaseCopyOutputType[]])
+export const ZDataCompositionDatabaseCopyOutputTypeEnterprise = z.enum(Object.values(DataCompositionDatabaseCopyOutputType) as [TDataCompositionDatabaseCopyOutputTypeEnterprise, ...TDataCompositionDatabaseCopyOutputTypeEnterprise[]])
+
+export type TDataCompositionDatabaseCopyOutputType = keyof typeof DataCompositionDatabaseCopyOutputType
+export type TDataCompositionDatabaseCopyOutputTypeEnterprise = `${DataCompositionDatabaseCopyOutputType}`
+
 enum DatabaseCopiesStandardReplicationVersion {
   Version1 = "Версия1",
   Version2 = "Версия2",
@@ -3249,30 +3286,6 @@ export const ZDatabaseCopyUpdateStateEnterprise = z.enum(Object.values(DatabaseC
 
 export type TDatabaseCopyUpdateState = keyof typeof DatabaseCopyUpdateState
 export type TDatabaseCopyUpdateStateEnterprise = `${DatabaseCopyUpdateState}`
-
-enum DataCompositionDatabaseCopyOutputType {
-  Auto = "Авто",
-  Output = "Выводить",
-  DontOutput = "НеВыводить",
-}
-
-export const ZDataCompositionDatabaseCopyOutputType = z.enum(Object.keys(DataCompositionDatabaseCopyOutputType) as [TDataCompositionDatabaseCopyOutputType, ...TDataCompositionDatabaseCopyOutputType[]])
-export const ZDataCompositionDatabaseCopyOutputTypeEnterprise = z.enum(Object.values(DataCompositionDatabaseCopyOutputType) as [TDataCompositionDatabaseCopyOutputTypeEnterprise, ...TDataCompositionDatabaseCopyOutputTypeEnterprise[]])
-
-export type TDataCompositionDatabaseCopyOutputType = keyof typeof DataCompositionDatabaseCopyOutputType
-export type TDataCompositionDatabaseCopyOutputTypeEnterprise = `${DataCompositionDatabaseCopyOutputType}`
-
-enum DataCompositionDataRelevanceOutputType {
-  Auto = "Авто",
-  Output = "Выводить",
-  DontOutput = "НеВыводить",
-}
-
-export const ZDataCompositionDataRelevanceOutputType = z.enum(Object.keys(DataCompositionDataRelevanceOutputType) as [TDataCompositionDataRelevanceOutputType, ...TDataCompositionDataRelevanceOutputType[]])
-export const ZDataCompositionDataRelevanceOutputTypeEnterprise = z.enum(Object.values(DataCompositionDataRelevanceOutputType) as [TDataCompositionDataRelevanceOutputTypeEnterprise, ...TDataCompositionDataRelevanceOutputTypeEnterprise[]])
-
-export type TDataCompositionDataRelevanceOutputType = keyof typeof DataCompositionDataRelevanceOutputType
-export type TDataCompositionDataRelevanceOutputTypeEnterprise = `${DataCompositionDataRelevanceOutputType}`
 
 enum RequiredDataRelevance {
   Auto = "Авто",
@@ -3493,39 +3506,6 @@ export const ZAdministrationWorkProcessStatusEnterprise = z.enum(Object.values(A
 
 export type TAdministrationWorkProcessStatus = keyof typeof AdministrationWorkProcessStatus
 export type TAdministrationWorkProcessStatusEnterprise = `${AdministrationWorkProcessStatus}`
-
-enum PivotTableColumnTotalPosition {
-  Left = "Лево",
-  Right = "Право",
-}
-
-export const ZPivotTableColumnTotalPosition = z.enum(Object.keys(PivotTableColumnTotalPosition) as [TPivotTableColumnTotalPosition, ...TPivotTableColumnTotalPosition[]])
-export const ZPivotTableColumnTotalPositionEnterprise = z.enum(Object.values(PivotTableColumnTotalPosition) as [TPivotTableColumnTotalPositionEnterprise, ...TPivotTableColumnTotalPositionEnterprise[]])
-
-export type TPivotTableColumnTotalPosition = keyof typeof PivotTableColumnTotalPosition
-export type TPivotTableColumnTotalPositionEnterprise = `${PivotTableColumnTotalPosition}`
-
-enum PivotTableLinesShowType {
-  Auto = "Авто",
-  Always = "Всегда",
-}
-
-export const ZPivotTableLinesShowType = z.enum(Object.keys(PivotTableLinesShowType) as [TPivotTableLinesShowType, ...TPivotTableLinesShowType[]])
-export const ZPivotTableLinesShowTypeEnterprise = z.enum(Object.values(PivotTableLinesShowType) as [TPivotTableLinesShowTypeEnterprise, ...TPivotTableLinesShowTypeEnterprise[]])
-
-export type TPivotTableLinesShowType = keyof typeof PivotTableLinesShowType
-export type TPivotTableLinesShowTypeEnterprise = `${PivotTableLinesShowType}`
-
-enum PivotTableRowTotalPosition {
-  Top = "Верх",
-  Bottom = "Низ",
-}
-
-export const ZPivotTableRowTotalPosition = z.enum(Object.keys(PivotTableRowTotalPosition) as [TPivotTableRowTotalPosition, ...TPivotTableRowTotalPosition[]])
-export const ZPivotTableRowTotalPositionEnterprise = z.enum(Object.values(PivotTableRowTotalPosition) as [TPivotTableRowTotalPositionEnterprise, ...TPivotTableRowTotalPositionEnterprise[]])
-
-export type TPivotTableRowTotalPosition = keyof typeof PivotTableRowTotalPosition
-export type TPivotTableRowTotalPositionEnterprise = `${PivotTableRowTotalPosition}`
 
 enum DuplexPrintingType {
   UsePrinterSettings = "ИспользоватьНастройкиПринтера",
@@ -3843,6 +3823,39 @@ export const ZUseSpreadsheetDocumentWidthReductionEnterprise = z.enum(Object.val
 export type TUseSpreadsheetDocumentWidthReduction = keyof typeof UseSpreadsheetDocumentWidthReduction
 export type TUseSpreadsheetDocumentWidthReductionEnterprise = `${UseSpreadsheetDocumentWidthReduction}`
 
+enum PivotTableColumnTotalPosition {
+  Left = "Лево",
+  Right = "Право",
+}
+
+export const ZPivotTableColumnTotalPosition = z.enum(Object.keys(PivotTableColumnTotalPosition) as [TPivotTableColumnTotalPosition, ...TPivotTableColumnTotalPosition[]])
+export const ZPivotTableColumnTotalPositionEnterprise = z.enum(Object.values(PivotTableColumnTotalPosition) as [TPivotTableColumnTotalPositionEnterprise, ...TPivotTableColumnTotalPositionEnterprise[]])
+
+export type TPivotTableColumnTotalPosition = keyof typeof PivotTableColumnTotalPosition
+export type TPivotTableColumnTotalPositionEnterprise = `${PivotTableColumnTotalPosition}`
+
+enum PivotTableLinesShowType {
+  Auto = "Авто",
+  Always = "Всегда",
+}
+
+export const ZPivotTableLinesShowType = z.enum(Object.keys(PivotTableLinesShowType) as [TPivotTableLinesShowType, ...TPivotTableLinesShowType[]])
+export const ZPivotTableLinesShowTypeEnterprise = z.enum(Object.values(PivotTableLinesShowType) as [TPivotTableLinesShowTypeEnterprise, ...TPivotTableLinesShowTypeEnterprise[]])
+
+export type TPivotTableLinesShowType = keyof typeof PivotTableLinesShowType
+export type TPivotTableLinesShowTypeEnterprise = `${PivotTableLinesShowType}`
+
+enum PivotTableRowTotalPosition {
+  Top = "Верх",
+  Bottom = "Низ",
+}
+
+export const ZPivotTableRowTotalPosition = z.enum(Object.keys(PivotTableRowTotalPosition) as [TPivotTableRowTotalPosition, ...TPivotTableRowTotalPosition[]])
+export const ZPivotTableRowTotalPositionEnterprise = z.enum(Object.values(PivotTableRowTotalPosition) as [TPivotTableRowTotalPositionEnterprise, ...TPivotTableRowTotalPositionEnterprise[]])
+
+export type TPivotTableRowTotalPosition = keyof typeof PivotTableRowTotalPosition
+export type TPivotTableRowTotalPositionEnterprise = `${PivotTableRowTotalPosition}`
+
 enum QueryRecordType {
   DetailRecord = "ДетальнаяЗапись",
   GroupTotal = "ИтогПоГруппировке",
@@ -4135,17 +4148,6 @@ export const ZAutoCorrectionOnTextInputEnterprise = z.enum(Object.values(AutoCor
 export type TAutoCorrectionOnTextInput = keyof typeof AutoCorrectionOnTextInput
 export type TAutoCorrectionOnTextInputEnterprise = `${AutoCorrectionOnTextInput}`
 
-enum AutonumerationInForm {
-  Auto = "Авто",
-  DontUse = "НеИспользовать",
-}
-
-export const ZAutonumerationInForm = z.enum(Object.keys(AutonumerationInForm) as [TAutonumerationInForm, ...TAutonumerationInForm[]])
-export const ZAutonumerationInFormEnterprise = z.enum(Object.values(AutonumerationInForm) as [TAutonumerationInFormEnterprise, ...TAutonumerationInFormEnterprise[]])
-
-export type TAutonumerationInForm = keyof typeof AutonumerationInForm
-export type TAutonumerationInFormEnterprise = `${AutonumerationInForm}`
-
 enum AutoSaveFormDataInSettings {
   Use = "Использовать",
   DontUse = "НеИспользовать",
@@ -4193,6 +4195,17 @@ export const ZAutoShowStateModeEnterprise = z.enum(Object.values(AutoShowStateMo
 
 export type TAutoShowStateMode = keyof typeof AutoShowStateMode
 export type TAutoShowStateModeEnterprise = `${AutoShowStateMode}`
+
+enum AutonumerationInForm {
+  Auto = "Авто",
+  DontUse = "НеИспользовать",
+}
+
+export const ZAutonumerationInForm = z.enum(Object.keys(AutonumerationInForm) as [TAutonumerationInForm, ...TAutonumerationInForm[]])
+export const ZAutonumerationInFormEnterprise = z.enum(Object.values(AutonumerationInForm) as [TAutonumerationInFormEnterprise, ...TAutonumerationInFormEnterprise[]])
+
+export type TAutonumerationInForm = keyof typeof AutonumerationInForm
+export type TAutonumerationInFormEnterprise = `${AutonumerationInForm}`
 
 enum ButtonGroupRepresentation {
   Auto = "Авто",
@@ -4267,1204 +4280,6 @@ export const ZButtonShapeRepresentationEnterprise = z.enum(Object.values(ButtonS
 
 export type TButtonShapeRepresentation = keyof typeof ButtonShapeRepresentation
 export type TButtonShapeRepresentationEnterprise = `${ButtonShapeRepresentation}`
-
-enum AutoSeriesSeparation {
-  All = "Все",
-  Maximum = "Максимум",
-  Minimum = "Минимум",
-  None = "Нет",
-}
-
-export const ZAutoSeriesSeparation = z.enum(Object.keys(AutoSeriesSeparation) as [TAutoSeriesSeparation, ...TAutoSeriesSeparation[]])
-export const ZAutoSeriesSeparationEnterprise = z.enum(Object.values(AutoSeriesSeparation) as [TAutoSeriesSeparationEnterprise, ...TAutoSeriesSeparationEnterprise[]])
-
-export type TAutoSeriesSeparation = keyof typeof AutoSeriesSeparation
-export type TAutoSeriesSeparationEnterprise = `${AutoSeriesSeparation}`
-
-enum BarChartPointsOrder {
-  Auto = "Авто",
-  TopToBottom = "СверхуВниз",
-  BottomToTop = "СнизуВверх",
-}
-
-export const ZBarChartPointsOrder = z.enum(Object.keys(BarChartPointsOrder) as [TBarChartPointsOrder, ...TBarChartPointsOrder[]])
-export const ZBarChartPointsOrderEnterprise = z.enum(Object.values(BarChartPointsOrder) as [TBarChartPointsOrderEnterprise, ...TBarChartPointsOrderEnterprise[]])
-
-export type TBarChartPointsOrder = keyof typeof BarChartPointsOrder
-export type TBarChartPointsOrderEnterprise = `${BarChartPointsOrder}`
-
-enum BubbleChartNegativeValuesShowMode {
-  InvertedBackColor = "ИнвертированныйЦветФона",
-  DontShow = "НеОтображать",
-  Abs = "ПоМодулю",
-  Transparent = "ПрозрачныйФон",
-}
-
-export const ZBubbleChartNegativeValuesShowMode = z.enum(Object.keys(BubbleChartNegativeValuesShowMode) as [TBubbleChartNegativeValuesShowMode, ...TBubbleChartNegativeValuesShowMode[]])
-export const ZBubbleChartNegativeValuesShowModeEnterprise = z.enum(Object.values(BubbleChartNegativeValuesShowMode) as [TBubbleChartNegativeValuesShowModeEnterprise, ...TBubbleChartNegativeValuesShowModeEnterprise[]])
-
-export type TBubbleChartNegativeValuesShowMode = keyof typeof BubbleChartNegativeValuesShowMode
-export type TBubbleChartNegativeValuesShowModeEnterprise = `${BubbleChartNegativeValuesShowMode}`
-
-enum ChartAnimation {
-  Auto = "Авто",
-  Use = "Использовать",
-  DontUse = "НеИспользовать",
-}
-
-export const ZChartAnimation = z.enum(Object.keys(ChartAnimation) as [TChartAnimation, ...TChartAnimation[]])
-export const ZChartAnimationEnterprise = z.enum(Object.values(ChartAnimation) as [TChartAnimationEnterprise, ...TChartAnimationEnterprise[]])
-
-export type TChartAnimation = keyof typeof ChartAnimation
-export type TChartAnimationEnterprise = `${ChartAnimation}`
-
-enum ChartBoundaryDetectionMethod {
-  AutoDetect = "АвтоОпределение",
-  UseValue = "ИспользоватьЗначение",
-  UseValueWithLimitations = "ИспользоватьЗначениеСОграничением",
-}
-
-export const ZChartBoundaryDetectionMethod = z.enum(Object.keys(ChartBoundaryDetectionMethod) as [TChartBoundaryDetectionMethod, ...TChartBoundaryDetectionMethod[]])
-export const ZChartBoundaryDetectionMethodEnterprise = z.enum(Object.values(ChartBoundaryDetectionMethod) as [TChartBoundaryDetectionMethodEnterprise, ...TChartBoundaryDetectionMethodEnterprise[]])
-
-export type TChartBoundaryDetectionMethod = keyof typeof ChartBoundaryDetectionMethod
-export type TChartBoundaryDetectionMethodEnterprise = `${ChartBoundaryDetectionMethod}`
-
-enum ChartBubbleSizeValueSource {
-  None = "Нет",
-  CommonSeries = "ОбщаяСерия",
-  NextSeries = "СледующаяСерия",
-}
-
-export const ZChartBubbleSizeValueSource = z.enum(Object.keys(ChartBubbleSizeValueSource) as [TChartBubbleSizeValueSource, ...TChartBubbleSizeValueSource[]])
-export const ZChartBubbleSizeValueSourceEnterprise = z.enum(Object.values(ChartBubbleSizeValueSource) as [TChartBubbleSizeValueSourceEnterprise, ...TChartBubbleSizeValueSourceEnterprise[]])
-
-export type TChartBubbleSizeValueSource = keyof typeof ChartBubbleSizeValueSource
-export type TChartBubbleSizeValueSourceEnterprise = `${ChartBubbleSizeValueSource}`
-
-enum ChartBubbleSizing {
-  IncreaseDiameter = "УвеличениеДиаметра",
-  IncreaseArea = "УвеличениеПлощади",
-  DecreaseDiameter = "УменьшениеДиаметра",
-  DecreaseArea = "УменьшениеПлощади",
-}
-
-export const ZChartBubbleSizing = z.enum(Object.keys(ChartBubbleSizing) as [TChartBubbleSizing, ...TChartBubbleSizing[]])
-export const ZChartBubbleSizingEnterprise = z.enum(Object.values(ChartBubbleSizing) as [TChartBubbleSizingEnterprise, ...TChartBubbleSizingEnterprise[]])
-
-export type TChartBubbleSizing = keyof typeof ChartBubbleSizing
-export type TChartBubbleSizingEnterprise = `${ChartBubbleSizing}`
-
-enum ChartColorPalette {
-  Auto = "Авто",
-  Gradient = "Градиентная",
-  Yellow = "Желтая",
-  Green = "Зеленая",
-  Soft = "Мягкая",
-  SoftAdaptive = "МягкаяАдаптивная",
-  Orange = "Оранжевая",
-  Palette32 = "Палитра32",
-  Palette8 = "Палитра8",
-  Pastel = "Пастельная",
-  Custom = "Произвольная",
-  Gray = "Серая",
-  Blue = "Синяя",
-  Warm = "Теплая",
-  Cold = "Холодная",
-  Bright = "Яркая",
-}
-
-export const ZChartColorPalette = z.enum(Object.keys(ChartColorPalette) as [TChartColorPalette, ...TChartColorPalette[]])
-export const ZChartColorPaletteEnterprise = z.enum(Object.values(ChartColorPalette) as [TChartColorPaletteEnterprise, ...TChartColorPaletteEnterprise[]])
-
-export type TChartColorPalette = keyof typeof ChartColorPalette
-export type TChartColorPaletteEnterprise = `${ChartColorPalette}`
-
-enum ChartGridLinesShowMode {
-  Auto = "Авто",
-  DontShow = "НеОтображать",
-  Show = "Отображать",
-}
-
-export const ZChartGridLinesShowMode = z.enum(Object.keys(ChartGridLinesShowMode) as [TChartGridLinesShowMode, ...TChartGridLinesShowMode[]])
-export const ZChartGridLinesShowModeEnterprise = z.enum(Object.values(ChartGridLinesShowMode) as [TChartGridLinesShowModeEnterprise, ...TChartGridLinesShowModeEnterprise[]])
-
-export type TChartGridLinesShowMode = keyof typeof ChartGridLinesShowMode
-export type TChartGridLinesShowModeEnterprise = `${ChartGridLinesShowMode}`
-
-enum ChartLabelLocation {
-  Auto = "Авто",
-  Edge = "Край",
-  EdgeAuto = "КрайАвто",
-  EdgeInside = "КрайВнутри",
-  TopLeft = "ЛевоВерх",
-  BottomLeft = "ЛевоНиз",
-  TopRight = "ПравоВерх",
-  BottomRight = "ПравоНиз",
-  EmptySpace = "СвободноеМесто",
-  TopAndLeftSpecified = "УказываетсяЛевоИВерх",
-  Center = "Центр",
-}
-
-export const ZChartLabelLocation = z.enum(Object.keys(ChartLabelLocation) as [TChartLabelLocation, ...TChartLabelLocation[]])
-export const ZChartLabelLocationEnterprise = z.enum(Object.values(ChartLabelLocation) as [TChartLabelLocationEnterprise, ...TChartLabelLocationEnterprise[]])
-
-export type TChartLabelLocation = keyof typeof ChartLabelLocation
-export type TChartLabelLocationEnterprise = `${ChartLabelLocation}`
-
-enum ChartLabelsOrientation {
-  Auto = "Авто",
-  Vertical = "Вертикально",
-  Horizontal = "Горизонтально",
-  CustomAngle = "ПроизвольныйУголНаклона",
-}
-
-export const ZChartLabelsOrientation = z.enum(Object.keys(ChartLabelsOrientation) as [TChartLabelsOrientation, ...TChartLabelsOrientation[]])
-export const ZChartLabelsOrientationEnterprise = z.enum(Object.values(ChartLabelsOrientation) as [TChartLabelsOrientationEnterprise, ...TChartLabelsOrientationEnterprise[]])
-
-export type TChartLabelsOrientation = keyof typeof ChartLabelsOrientation
-export type TChartLabelsOrientationEnterprise = `${ChartLabelsOrientation}`
-
-enum ChartLabelType {
-  Value = "Значение",
-  ValuePercent = "ЗначениеПроцент",
-  ValueSize = "ЗначениеРазмер",
-  None = "Нет",
-  Percent = "Процент",
-  Series = "Серия",
-  SeriesValue = "СерияЗначение",
-  SeriesValuePercent = "СерияЗначениеПроцент",
-  SeriesValueSize = "СерияЗначениеРазмер",
-  SeriesPercent = "СерияПроцент",
-  SeriesSize = "СерияРазмер",
-  SeriesPoint = "СерияТочка",
-  SeriesPointValue = "СерияТочкаЗначение",
-  SeriesPointValuePercent = "СерияТочкаЗначениеПроцент",
-  SeriesPointValueSize = "СерияТочкаЗначениеРазмер",
-  SeriesPointPercent = "СерияТочкаПроцент",
-  SeriesPointSize = "СерияТочкаРазмер",
-  Point = "Точка",
-  PointValue = "ТочкаЗначение",
-  PointValuePercent = "ТочкаЗначениеПроцент",
-  PointValueSize = "ТочкаЗначениеРазмер",
-  PointPercent = "ТочкаПроцент",
-  PointSize = "ТочкаРазмер",
-}
-
-export const ZChartLabelType = z.enum(Object.keys(ChartLabelType) as [TChartLabelType, ...TChartLabelType[]])
-export const ZChartLabelTypeEnterprise = z.enum(Object.values(ChartLabelType) as [TChartLabelTypeEnterprise, ...TChartLabelTypeEnterprise[]])
-
-export type TChartLabelType = keyof typeof ChartLabelType
-export type TChartLabelTypeEnterprise = `${ChartLabelType}`
-
-enum ChartLegendPlacement {
-  Auto = "Авто",
-  Top = "Верх",
-  Left = "Лево",
-  None = "Нет",
-  Bottom = "Низ",
-  Right = "Право",
-  UseCoordinates = "УказываетсяРасположение",
-}
-
-export const ZChartLegendPlacement = z.enum(Object.keys(ChartLegendPlacement) as [TChartLegendPlacement, ...TChartLegendPlacement[]])
-export const ZChartLegendPlacementEnterprise = z.enum(Object.values(ChartLegendPlacement) as [TChartLegendPlacementEnterprise, ...TChartLegendPlacementEnterprise[]])
-
-export type TChartLegendPlacement = keyof typeof ChartLegendPlacement
-export type TChartLegendPlacementEnterprise = `${ChartLegendPlacement}`
-
-enum ChartLineType {
-  None = "НетЛинии",
-  Dashed = "Пунктир",
-  DashDotted = "ПунктирТочка",
-  DashDottedDotted = "ПунктирТочкаТочка",
-  Solid = "Сплошная",
-  Dotted = "Точечная",
-}
-
-export const ZChartLineType = z.enum(Object.keys(ChartLineType) as [TChartLineType, ...TChartLineType[]])
-export const ZChartLineTypeEnterprise = z.enum(Object.values(ChartLineType) as [TChartLineTypeEnterprise, ...TChartLineTypeEnterprise[]])
-
-export type TChartLineType = keyof typeof ChartLineType
-export type TChartLineTypeEnterprise = `${ChartLineType}`
-
-enum ChartMarkerType {
-  Auto = "Авто",
-  Rect = "Квадрат",
-  Circle = "Круг",
-  None = "Нет",
-  Rhomb = "Ромб",
-  Alternation = "Чередование",
-}
-
-export const ZChartMarkerType = z.enum(Object.keys(ChartMarkerType) as [TChartMarkerType, ...TChartMarkerType[]])
-export const ZChartMarkerTypeEnterprise = z.enum(Object.values(ChartMarkerType) as [TChartMarkerTypeEnterprise, ...TChartMarkerTypeEnterprise[]])
-
-export type TChartMarkerType = keyof typeof ChartMarkerType
-export type TChartMarkerTypeEnterprise = `${ChartMarkerType}`
-
-enum ChartOrientation {
-  SouthEast = "ЮгВосток",
-  SouthWest = "ЮгЗапад",
-}
-
-export const ZChartOrientation = z.enum(Object.keys(ChartOrientation) as [TChartOrientation, ...TChartOrientation[]])
-export const ZChartOrientationEnterprise = z.enum(Object.values(ChartOrientation) as [TChartOrientationEnterprise, ...TChartOrientationEnterprise[]])
-
-export type TChartOrientation = keyof typeof ChartOrientation
-export type TChartOrientationEnterprise = `${ChartOrientation}`
-
-enum ChartPlotAreaPlacement {
-  Auto = "Авто",
-  EmptySpace = "СвободноеМесто",
-  UseCoordinates = "УказываетсяРасположение",
-}
-
-export const ZChartPlotAreaPlacement = z.enum(Object.keys(ChartPlotAreaPlacement) as [TChartPlotAreaPlacement, ...TChartPlotAreaPlacement[]])
-export const ZChartPlotAreaPlacementEnterprise = z.enum(Object.values(ChartPlotAreaPlacement) as [TChartPlotAreaPlacementEnterprise, ...TChartPlotAreaPlacementEnterprise[]])
-
-export type TChartPlotAreaPlacement = keyof typeof ChartPlotAreaPlacement
-export type TChartPlotAreaPlacementEnterprise = `${ChartPlotAreaPlacement}`
-
-enum ChartPointsAxisValuesSource {
-  Auto = "Авто",
-  Series = "Серия",
-  Points = "Точки",
-}
-
-export const ZChartPointsAxisValuesSource = z.enum(Object.keys(ChartPointsAxisValuesSource) as [TChartPointsAxisValuesSource, ...TChartPointsAxisValuesSource[]])
-export const ZChartPointsAxisValuesSourceEnterprise = z.enum(Object.values(ChartPointsAxisValuesSource) as [TChartPointsAxisValuesSourceEnterprise, ...TChartPointsAxisValuesSourceEnterprise[]])
-
-export type TChartPointsAxisValuesSource = keyof typeof ChartPointsAxisValuesSource
-export type TChartPointsAxisValuesSourceEnterprise = `${ChartPointsAxisValuesSource}`
-
-enum ChartPointsConnectionType {
-  Auto = "Авто",
-  DontConnect = "НеСоединять",
-  Connect = "Соединять",
-}
-
-export const ZChartPointsConnectionType = z.enum(Object.keys(ChartPointsConnectionType) as [TChartPointsConnectionType, ...TChartPointsConnectionType[]])
-export const ZChartPointsConnectionTypeEnterprise = z.enum(Object.values(ChartPointsConnectionType) as [TChartPointsConnectionTypeEnterprise, ...TChartPointsConnectionTypeEnterprise[]])
-
-export type TChartPointsConnectionType = keyof typeof ChartPointsConnectionType
-export type TChartPointsConnectionTypeEnterprise = `${ChartPointsConnectionType}`
-
-enum ChartReferenceBandBorderPosition {
-  Auto = "Авто",
-  OnValue = "ВЗначении",
-  BetweenValues = "МеждуЗначениями",
-}
-
-export const ZChartReferenceBandBorderPosition = z.enum(Object.keys(ChartReferenceBandBorderPosition) as [TChartReferenceBandBorderPosition, ...TChartReferenceBandBorderPosition[]])
-export const ZChartReferenceBandBorderPositionEnterprise = z.enum(Object.values(ChartReferenceBandBorderPosition) as [TChartReferenceBandBorderPositionEnterprise, ...TChartReferenceBandBorderPositionEnterprise[]])
-
-export type TChartReferenceBandBorderPosition = keyof typeof ChartReferenceBandBorderPosition
-export type TChartReferenceBandBorderPositionEnterprise = `${ChartReferenceBandBorderPosition}`
-
-enum ChartReferenceLinePosition {
-  Auto = "Авто",
-  OnValue = "ВЗначении",
-  BetweenValues = "МеждуЗначениями",
-}
-
-export const ZChartReferenceLinePosition = z.enum(Object.keys(ChartReferenceLinePosition) as [TChartReferenceLinePosition, ...TChartReferenceLinePosition[]])
-export const ZChartReferenceLinePositionEnterprise = z.enum(Object.values(ChartReferenceLinePosition) as [TChartReferenceLinePositionEnterprise, ...TChartReferenceLinePositionEnterprise[]])
-
-export type TChartReferenceLinePosition = keyof typeof ChartReferenceLinePosition
-export type TChartReferenceLinePositionEnterprise = `${ChartReferenceLinePosition}`
-
-enum ChartScaleLabelLocation {
-  Auto = "Авто",
-  Inside = "Внутри",
-  None = "Нет",
-  Outside = "Снаружи",
-}
-
-export const ZChartScaleLabelLocation = z.enum(Object.keys(ChartScaleLabelLocation) as [TChartScaleLabelLocation, ...TChartScaleLabelLocation[]])
-export const ZChartScaleLabelLocationEnterprise = z.enum(Object.values(ChartScaleLabelLocation) as [TChartScaleLabelLocationEnterprise, ...TChartScaleLabelLocationEnterprise[]])
-
-export type TChartScaleLabelLocation = keyof typeof ChartScaleLabelLocation
-export type TChartScaleLabelLocationEnterprise = `${ChartScaleLabelLocation}`
-
-enum ChartScaleLocation {
-  Auto = "Авто",
-  BaseValue = "БазовоеЗначение",
-  Edge = "Край",
-}
-
-export const ZChartScaleLocation = z.enum(Object.keys(ChartScaleLocation) as [TChartScaleLocation, ...TChartScaleLocation[]])
-export const ZChartScaleLocationEnterprise = z.enum(Object.values(ChartScaleLocation) as [TChartScaleLocationEnterprise, ...TChartScaleLocationEnterprise[]])
-
-export type TChartScaleLocation = keyof typeof ChartScaleLocation
-export type TChartScaleLocationEnterprise = `${ChartScaleLocation}`
-
-enum ChartScaleMarkLocation {
-  Auto = "Авто",
-  Inside = "Внутри",
-  None = "Нет",
-  Outside = "Снаружи",
-  Center = "Центр",
-}
-
-export const ZChartScaleMarkLocation = z.enum(Object.keys(ChartScaleMarkLocation) as [TChartScaleMarkLocation, ...TChartScaleMarkLocation[]])
-export const ZChartScaleMarkLocationEnterprise = z.enum(Object.values(ChartScaleMarkLocation) as [TChartScaleMarkLocationEnterprise, ...TChartScaleMarkLocationEnterprise[]])
-
-export type TChartScaleMarkLocation = keyof typeof ChartScaleMarkLocation
-export type TChartScaleMarkLocationEnterprise = `${ChartScaleMarkLocation}`
-
-enum ChartScaleTitlePlacement {
-  SpecialArea = "ВВыделеннойОбласти",
-  PlotArea = "ВОбластиПостроения",
-  WithAxis = "РядомСОсью",
-}
-
-export const ZChartScaleTitlePlacement = z.enum(Object.keys(ChartScaleTitlePlacement) as [TChartScaleTitlePlacement, ...TChartScaleTitlePlacement[]])
-export const ZChartScaleTitlePlacementEnterprise = z.enum(Object.values(ChartScaleTitlePlacement) as [TChartScaleTitlePlacementEnterprise, ...TChartScaleTitlePlacementEnterprise[]])
-
-export type TChartScaleTitlePlacement = keyof typeof ChartScaleTitlePlacement
-export type TChartScaleTitlePlacementEnterprise = `${ChartScaleTitlePlacement}`
-
-enum ChartScaleTitleTextSource {
-  Auto = "Авто",
-  AutoText = "АвтоТекст",
-  UseText = "ИспользоватьТекст",
-}
-
-export const ZChartScaleTitleTextSource = z.enum(Object.keys(ChartScaleTitleTextSource) as [TChartScaleTitleTextSource, ...TChartScaleTitleTextSource[]])
-export const ZChartScaleTitleTextSourceEnterprise = z.enum(Object.values(ChartScaleTitleTextSource) as [TChartScaleTitleTextSourceEnterprise, ...TChartScaleTitleTextSourceEnterprise[]])
-
-export type TChartScaleTitleTextSource = keyof typeof ChartScaleTitleTextSource
-export type TChartScaleTitleTextSourceEnterprise = `${ChartScaleTitleTextSource}`
-
-enum ChartSelectionMode {
-  Auto = "Авто",
-  ValuesSelection = "ВыделениеЗначений",
-  PointsSelection = "ВыделениеТочек",
-  None = "Нет",
-}
-
-export const ZChartSelectionMode = z.enum(Object.keys(ChartSelectionMode) as [TChartSelectionMode, ...TChartSelectionMode[]])
-export const ZChartSelectionModeEnterprise = z.enum(Object.values(ChartSelectionMode) as [TChartSelectionModeEnterprise, ...TChartSelectionModeEnterprise[]])
-
-export type TChartSelectionMode = keyof typeof ChartSelectionMode
-export type TChartSelectionModeEnterprise = `${ChartSelectionMode}`
-
-enum ChartSemitransparencyMode {
-  Auto = "Авто",
-  AutoCalculate = "АвтоматическийРасчет",
-  Use = "Использовать",
-  DontUse = "НеИспользовать",
-}
-
-export const ZChartSemitransparencyMode = z.enum(Object.keys(ChartSemitransparencyMode) as [TChartSemitransparencyMode, ...TChartSemitransparencyMode[]])
-export const ZChartSemitransparencyModeEnterprise = z.enum(Object.values(ChartSemitransparencyMode) as [TChartSemitransparencyModeEnterprise, ...TChartSemitransparencyModeEnterprise[]])
-
-export type TChartSemitransparencyMode = keyof typeof ChartSemitransparencyMode
-export type TChartSemitransparencyModeEnterprise = `${ChartSemitransparencyMode}`
-
-enum ChartSeriesGraphicalRepresentationType {
-  Auto = "Авто",
-  Column = "Гистограмма",
-  Column3D = "ГистограммаОбъемная",
-  Line = "График",
-  Step = "ГрафикПоШагам",
-  Area = "ГрафикСОбластями",
-}
-
-export const ZChartSeriesGraphicalRepresentationType = z.enum(Object.keys(ChartSeriesGraphicalRepresentationType) as [TChartSeriesGraphicalRepresentationType, ...TChartSeriesGraphicalRepresentationType[]])
-export const ZChartSeriesGraphicalRepresentationTypeEnterprise = z.enum(Object.values(ChartSeriesGraphicalRepresentationType) as [TChartSeriesGraphicalRepresentationTypeEnterprise, ...TChartSeriesGraphicalRepresentationTypeEnterprise[]])
-
-export type TChartSeriesGraphicalRepresentationType = keyof typeof ChartSeriesGraphicalRepresentationType
-export type TChartSeriesGraphicalRepresentationTypeEnterprise = `${ChartSeriesGraphicalRepresentationType}`
-
-enum ChartSeriesOrderInLegend {
-  Auto = "Авто",
-  Reverse = "Обратный",
-  Direct = "Прямой",
-}
-
-export const ZChartSeriesOrderInLegend = z.enum(Object.keys(ChartSeriesOrderInLegend) as [TChartSeriesOrderInLegend, ...TChartSeriesOrderInLegend[]])
-export const ZChartSeriesOrderInLegendEnterprise = z.enum(Object.values(ChartSeriesOrderInLegend) as [TChartSeriesOrderInLegendEnterprise, ...TChartSeriesOrderInLegendEnterprise[]])
-
-export type TChartSeriesOrderInLegend = keyof typeof ChartSeriesOrderInLegend
-export type TChartSeriesOrderInLegendEnterprise = `${ChartSeriesOrderInLegend}`
-
-enum ChartSeriesStackType {
-  Auto = "Авто",
-  Unstacked = "БезНакопления",
-  Stacked = "СНакоплением",
-  StackedNormalized = "СНакоплениемНормированная",
-}
-
-export const ZChartSeriesStackType = z.enum(Object.keys(ChartSeriesStackType) as [TChartSeriesStackType, ...TChartSeriesStackType[]])
-export const ZChartSeriesStackTypeEnterprise = z.enum(Object.values(ChartSeriesStackType) as [TChartSeriesStackTypeEnterprise, ...TChartSeriesStackTypeEnterprise[]])
-
-export type TChartSeriesStackType = keyof typeof ChartSeriesStackType
-export type TChartSeriesStackTypeEnterprise = `${ChartSeriesStackType}`
-
-enum ChartSpaceMode {
-  None = "Нет",
-  Full = "ПолнаяШирина",
-  Half = "ПоловинаШирины",
-}
-
-export const ZChartSpaceMode = z.enum(Object.keys(ChartSpaceMode) as [TChartSpaceMode, ...TChartSpaceMode[]])
-export const ZChartSpaceModeEnterprise = z.enum(Object.values(ChartSpaceMode) as [TChartSpaceModeEnterprise, ...TChartSpaceModeEnterprise[]])
-
-export type TChartSpaceMode = keyof typeof ChartSpaceMode
-export type TChartSpaceModeEnterprise = `${ChartSpaceMode}`
-
-enum ChartSplineMode {
-  SmoothCurve = "ГладкаяКривая",
-  None = "Нет",
-}
-
-export const ZChartSplineMode = z.enum(Object.keys(ChartSplineMode) as [TChartSplineMode, ...TChartSplineMode[]])
-export const ZChartSplineModeEnterprise = z.enum(Object.values(ChartSplineMode) as [TChartSplineModeEnterprise, ...TChartSplineModeEnterprise[]])
-
-export type TChartSplineMode = keyof typeof ChartSplineMode
-export type TChartSplineModeEnterprise = `${ChartSplineMode}`
-
-enum ChartTitleAreaPlacement {
-  Auto = "Авто",
-  Top = "Верх",
-  LeftTop = "ЛевоВерх",
-  LeftBottom = "ЛевоНиз",
-  None = "Нет",
-  Bottom = "Низ",
-  RightTop = "ПравоВерх",
-  RightBottom = "ПравоНиз",
-  UseCoordinates = "УказываетсяРасположение",
-}
-
-export const ZChartTitleAreaPlacement = z.enum(Object.keys(ChartTitleAreaPlacement) as [TChartTitleAreaPlacement, ...TChartTitleAreaPlacement[]])
-export const ZChartTitleAreaPlacementEnterprise = z.enum(Object.values(ChartTitleAreaPlacement) as [TChartTitleAreaPlacementEnterprise, ...TChartTitleAreaPlacementEnterprise[]])
-
-export type TChartTitleAreaPlacement = keyof typeof ChartTitleAreaPlacement
-export type TChartTitleAreaPlacementEnterprise = `${ChartTitleAreaPlacement}`
-
-enum ChartTrendlineApproximationType {
-  Linear = "Линейный",
-  Logarithmic = "Логарифмический",
-  Polynomial = "Полиномиальный",
-  Power = "Степенной",
-  Exponential = "Экспоненциальный",
-}
-
-export const ZChartTrendlineApproximationType = z.enum(Object.keys(ChartTrendlineApproximationType) as [TChartTrendlineApproximationType, ...TChartTrendlineApproximationType[]])
-export const ZChartTrendlineApproximationTypeEnterprise = z.enum(Object.values(ChartTrendlineApproximationType) as [TChartTrendlineApproximationTypeEnterprise, ...TChartTrendlineApproximationTypeEnterprise[]])
-
-export type TChartTrendlineApproximationType = keyof typeof ChartTrendlineApproximationType
-export type TChartTrendlineApproximationTypeEnterprise = `${ChartTrendlineApproximationType}`
-
-enum ChartTrendlineFactor {
-  Auto = "Авто",
-  PointValue = "ЗначениеТочки",
-  PointNumber = "НомерТочки",
-}
-
-export const ZChartTrendlineFactor = z.enum(Object.keys(ChartTrendlineFactor) as [TChartTrendlineFactor, ...TChartTrendlineFactor[]])
-export const ZChartTrendlineFactorEnterprise = z.enum(Object.values(ChartTrendlineFactor) as [TChartTrendlineFactorEnterprise, ...TChartTrendlineFactorEnterprise[]])
-
-export type TChartTrendlineFactor = keyof typeof ChartTrendlineFactor
-export type TChartTrendlineFactorEnterprise = `${ChartTrendlineFactor}`
-
-enum ChartType {
-  Stock = "Биржевая",
-  OpenHighLowClose = "БиржеваяСвеча",
-  ConcaveSurface = "ВогнутаяПоверхность",
-  Waterfall = "Водопад",
-  Funnel = "Воронка",
-  NormalizedFunnel = "ВоронкаНормированная",
-  NormalizedFunnel3D = "ВоронкаНормированнаяОбъемная",
-  Funnel3D = "ВоронкаОбъемная",
-  ConvexSurface = "ВыпуклаяПоверхность",
-  Column = "Гистограмма",
-  Bar = "ГистограммаГоризонтальная",
-  Bar3D = "ГистограммаГоризонтальнаяОбъемная",
-  NormalizedColumn = "ГистограммаНормированная",
-  NormalizedBar = "ГистограммаНормированнаяГоризонтальная",
-  NormalizedBar3D = "ГистограммаНормированнаяГоризонтальнаяОбъемная",
-  NormalizedColumn3D = "ГистограммаНормированнаяОбъемная",
-  Column3D = "ГистограммаОбъемная",
-  StackedColumn = "ГистограммаСНакоплением",
-  StackedBar = "ГистограммаСНакоплениемГоризонтальная",
-  StackedBar3D = "ГистограммаСНакоплениемГоризонтальнаяОбъемная",
-  StackedColumn3D = "ГистограммаСНакоплениемОбъемная",
-  Line = "График",
-  Step = "ГрафикПоШагам",
-  StackedLine = "ГрафикСНакоплением",
-  Area = "ГрафикСОбластями",
-  StackedArea = "ГрафикСОбластямиИНакоплением",
-  NormalizedArea = "ГрафикСОбластямиНормированный",
-  ShadedSurface = "ЗатененнаяПоверхность",
-  Gauge = "Измерительная",
-  BarGraph = "Изометрическая",
-  TapeGraph = "ИзометрическаяЛента",
-  CeilGraph = "ИзометрическаяНепрерывная",
-  PyramidGraph = "ИзометрическаяПирамида",
-  WireframeSurface = "КаркаснаяПоверхность",
-  Donut = "Кольцевая",
-  Donut3D = "КольцеваяОбъемная",
-  Pie = "Круговая",
-  Pie3D = "КруговаяОбъемная",
-  Surface = "Поверхность",
-  Bubble = "Пузырьковая",
-  RadarLine = "РадарныйГрафик",
-  RadarStackedLine = "РадарныйГрафикСНакоплением",
-  RadarArea = "РадарныйГрафикСОбластями",
-  RadarStackedArea = "РадарныйГрафикСОбластямиИНакоплением",
-  RadarNormalizedArea = "РадарныйГрафикСОбластямиНормированный",
-  Honeycomb = "Сотовая",
-  Scatter = "Точечная",
-}
-
-export const ZChartType = z.enum(Object.keys(ChartType) as [TChartType, ...TChartType[]])
-export const ZChartTypeEnterprise = z.enum(Object.values(ChartType) as [TChartTypeEnterprise, ...TChartTypeEnterprise[]])
-
-export type TChartType = keyof typeof ChartType
-export type TChartTypeEnterprise = `${ChartType}`
-
-enum ChartValueEditState {
-  Finished = "Завершено",
-  NotFinished = "НеЗавершено",
-  Canceled = "Отменено",
-}
-
-export const ZChartValueEditState = z.enum(Object.keys(ChartValueEditState) as [TChartValueEditState, ...TChartValueEditState[]])
-export const ZChartValueEditStateEnterprise = z.enum(Object.values(ChartValueEditState) as [TChartValueEditStateEnterprise, ...TChartValueEditStateEnterprise[]])
-
-export type TChartValueEditState = keyof typeof ChartValueEditState
-export type TChartValueEditStateEnterprise = `${ChartValueEditState}`
-
-enum ChartValuesBySeriesConnectionType {
-  None = "Нет",
-  EdgesConnection = "СоединениеКраев",
-}
-
-export const ZChartValuesBySeriesConnectionType = z.enum(Object.keys(ChartValuesBySeriesConnectionType) as [TChartValuesBySeriesConnectionType, ...TChartValuesBySeriesConnectionType[]])
-export const ZChartValuesBySeriesConnectionTypeEnterprise = z.enum(Object.values(ChartValuesBySeriesConnectionType) as [TChartValuesBySeriesConnectionTypeEnterprise, ...TChartValuesBySeriesConnectionTypeEnterprise[]])
-
-export type TChartValuesBySeriesConnectionType = keyof typeof ChartValuesBySeriesConnectionType
-export type TChartValuesBySeriesConnectionTypeEnterprise = `${ChartValuesBySeriesConnectionType}`
-
-enum ChartValuesEditMode {
-  Auto = "Авто",
-  Use = "Использовать",
-  DontUse = "НеИспользовать",
-}
-
-export const ZChartValuesEditMode = z.enum(Object.keys(ChartValuesEditMode) as [TChartValuesEditMode, ...TChartValuesEditMode[]])
-export const ZChartValuesEditModeEnterprise = z.enum(Object.values(ChartValuesEditMode) as [TChartValuesEditModeEnterprise, ...TChartValuesEditModeEnterprise[]])
-
-export type TChartValuesEditMode = keyof typeof ChartValuesEditMode
-export type TChartValuesEditModeEnterprise = `${ChartValuesEditMode}`
-
-enum ChartValuesToolTipFillType {
-  Auto = "Авто",
-  AllPointValues = "ВсеЗначенияТочки",
-  SingleValue = "ОдноЗначение",
-}
-
-export const ZChartValuesToolTipFillType = z.enum(Object.keys(ChartValuesToolTipFillType) as [TChartValuesToolTipFillType, ...TChartValuesToolTipFillType[]])
-export const ZChartValuesToolTipFillTypeEnterprise = z.enum(Object.values(ChartValuesToolTipFillType) as [TChartValuesToolTipFillTypeEnterprise, ...TChartValuesToolTipFillTypeEnterprise[]])
-
-export type TChartValuesToolTipFillType = keyof typeof ChartValuesToolTipFillType
-export type TChartValuesToolTipFillTypeEnterprise = `${ChartValuesToolTipFillType}`
-
-enum ChartValuesToolTipShowMode {
-  Auto = "Авто",
-  DontShow = "НеОтображать",
-  ShowForNearestValue = "ОтображатьДляБлижайшего",
-  ShowOnHover = "ОтображатьПриНаведении",
-}
-
-export const ZChartValuesToolTipShowMode = z.enum(Object.keys(ChartValuesToolTipShowMode) as [TChartValuesToolTipShowMode, ...TChartValuesToolTipShowMode[]])
-export const ZChartValuesToolTipShowModeEnterprise = z.enum(Object.values(ChartValuesToolTipShowMode) as [TChartValuesToolTipShowModeEnterprise, ...TChartValuesToolTipShowModeEnterprise[]])
-
-export type TChartValuesToolTipShowMode = keyof typeof ChartValuesToolTipShowMode
-export type TChartValuesToolTipShowModeEnterprise = `${ChartValuesToolTipShowMode}`
-
-enum GaugeChartValueRepresentation {
-  Sector = "Сектор",
-  Needle = "Стрелка",
-}
-
-export const ZGaugeChartValueRepresentation = z.enum(Object.keys(GaugeChartValueRepresentation) as [TGaugeChartValueRepresentation, ...TGaugeChartValueRepresentation[]])
-export const ZGaugeChartValueRepresentationEnterprise = z.enum(Object.values(GaugeChartValueRepresentation) as [TGaugeChartValueRepresentationEnterprise, ...TGaugeChartValueRepresentationEnterprise[]])
-
-export type TGaugeChartValueRepresentation = keyof typeof GaugeChartValueRepresentation
-export type TGaugeChartValueRepresentationEnterprise = `${GaugeChartValueRepresentation}`
-
-enum GaugeChartValuesScaleLabelsLocation {
-  InsideScale = "ВнутриШкалы",
-  AtScale = "НаШкале",
-}
-
-export const ZGaugeChartValuesScaleLabelsLocation = z.enum(Object.keys(GaugeChartValuesScaleLabelsLocation) as [TGaugeChartValuesScaleLabelsLocation, ...TGaugeChartValuesScaleLabelsLocation[]])
-export const ZGaugeChartValuesScaleLabelsLocationEnterprise = z.enum(Object.values(GaugeChartValuesScaleLabelsLocation) as [TGaugeChartValuesScaleLabelsLocationEnterprise, ...TGaugeChartValuesScaleLabelsLocationEnterprise[]])
-
-export type TGaugeChartValuesScaleLabelsLocation = keyof typeof GaugeChartValuesScaleLabelsLocation
-export type TGaugeChartValuesScaleLabelsLocationEnterprise = `${GaugeChartValuesScaleLabelsLocation}`
-
-enum MaxSeries {
-  NotDefined = "НеЗадано",
-  Limited = "Ограничено",
-  Percent = "Процент",
-}
-
-export const ZMaxSeries = z.enum(Object.keys(MaxSeries) as [TMaxSeries, ...TMaxSeries[]])
-export const ZMaxSeriesEnterprise = z.enum(Object.values(MaxSeries) as [TMaxSeriesEnterprise, ...TMaxSeriesEnterprise[]])
-
-export type TMaxSeries = keyof typeof MaxSeries
-export type TMaxSeriesEnterprise = `${MaxSeries}`
-
-enum NonnumericChartValueUse {
-  Auto = "Авто",
-  AsZero = "КакНоль",
-  Skip = "Пропускать",
-}
-
-export const ZNonnumericChartValueUse = z.enum(Object.keys(NonnumericChartValueUse) as [TNonnumericChartValueUse, ...TNonnumericChartValueUse[]])
-export const ZNonnumericChartValueUseEnterprise = z.enum(Object.values(NonnumericChartValueUse) as [TNonnumericChartValueUseEnterprise, ...TNonnumericChartValueUseEnterprise[]])
-
-export type TNonnumericChartValueUse = keyof typeof NonnumericChartValueUse
-export type TNonnumericChartValueUseEnterprise = `${NonnumericChartValueUse}`
-
-enum PointsConnectionAcrossSkippedChartValuesType {
-  Auto = "Авто",
-  None = "Нет",
-  ConnectUnskippedValues = "СоединениеНеПропущенных",
-  ConnectWithBaseValue = "СоединениеСБазовымЗначением",
-}
-
-export const ZPointsConnectionAcrossSkippedChartValuesType = z.enum(Object.keys(PointsConnectionAcrossSkippedChartValuesType) as [TPointsConnectionAcrossSkippedChartValuesType, ...TPointsConnectionAcrossSkippedChartValuesType[]])
-export const ZPointsConnectionAcrossSkippedChartValuesTypeEnterprise = z.enum(Object.values(PointsConnectionAcrossSkippedChartValuesType) as [TPointsConnectionAcrossSkippedChartValuesTypeEnterprise, ...TPointsConnectionAcrossSkippedChartValuesTypeEnterprise[]])
-
-export type TPointsConnectionAcrossSkippedChartValuesType = keyof typeof PointsConnectionAcrossSkippedChartValuesType
-export type TPointsConnectionAcrossSkippedChartValuesTypeEnterprise = `${PointsConnectionAcrossSkippedChartValuesType}`
-
-enum RadarChartScaleType {
-  Circle = "Окружность",
-  Polygon = "Полигон",
-}
-
-export const ZRadarChartScaleType = z.enum(Object.keys(RadarChartScaleType) as [TRadarChartScaleType, ...TRadarChartScaleType[]])
-export const ZRadarChartScaleTypeEnterprise = z.enum(Object.values(RadarChartScaleType) as [TRadarChartScaleTypeEnterprise, ...TRadarChartScaleTypeEnterprise[]])
-
-export type TRadarChartScaleType = keyof typeof RadarChartScaleType
-export type TRadarChartScaleTypeEnterprise = `${RadarChartScaleType}`
-
-enum ShowChartPopupReferenceLine {
-  Auto = "Авто",
-  DontShow = "НеОтображать",
-  Show = "Отображать",
-}
-
-export const ZShowChartPopupReferenceLine = z.enum(Object.keys(ShowChartPopupReferenceLine) as [TShowChartPopupReferenceLine, ...TShowChartPopupReferenceLine[]])
-export const ZShowChartPopupReferenceLineEnterprise = z.enum(Object.values(ShowChartPopupReferenceLine) as [TShowChartPopupReferenceLineEnterprise, ...TShowChartPopupReferenceLineEnterprise[]])
-
-export type TShowChartPopupReferenceLine = keyof typeof ShowChartPopupReferenceLine
-export type TShowChartPopupReferenceLineEnterprise = `${ShowChartPopupReferenceLine}`
-
-enum ShowChartScaleTitle {
-  Auto = "Авто",
-  DontShow = "НеОтображать",
-  Show = "Отображать",
-}
-
-export const ZShowChartScaleTitle = z.enum(Object.keys(ShowChartScaleTitle) as [TShowChartScaleTitle, ...TShowChartScaleTitle[]])
-export const ZShowChartScaleTitleEnterprise = z.enum(Object.values(ShowChartScaleTitle) as [TShowChartScaleTitleEnterprise, ...TShowChartScaleTitleEnterprise[]])
-
-export type TShowChartScaleTitle = keyof typeof ShowChartScaleTitle
-export type TShowChartScaleTitleEnterprise = `${ShowChartScaleTitle}`
-
-enum ShowInChart {
-  Auto = "Авто",
-  DontShow = "НеОтображать",
-  Show = "Отображать",
-}
-
-export const ZShowInChart = z.enum(Object.keys(ShowInChart) as [TShowInChart, ...TShowInChart[]])
-export const ZShowInChartEnterprise = z.enum(Object.values(ShowInChart) as [TShowInChartEnterprise, ...TShowInChartEnterprise[]])
-
-export type TShowInChart = keyof typeof ShowInChart
-export type TShowInChartEnterprise = `${ShowInChart}`
-
-enum ShowInChartLegend {
-  Auto = "Авто",
-  DontShow = "НеОтображать",
-  Show = "Отображать",
-}
-
-export const ZShowInChartLegend = z.enum(Object.keys(ShowInChartLegend) as [TShowInChartLegend, ...TShowInChartLegend[]])
-export const ZShowInChartLegendEnterprise = z.enum(Object.values(ShowInChartLegend) as [TShowInChartLegendEnterprise, ...TShowInChartLegendEnterprise[]])
-
-export type TShowInChartLegend = keyof typeof ShowInChartLegend
-export type TShowInChartLegendEnterprise = `${ShowInChartLegend}`
-
-enum StockChartUsedPointValue {
-  Close = "Закрытие",
-  High = "Максимальное",
-  Low = "Минимальное",
-  Open = "Открытие",
-  OpenCloseAverage = "СреднееОткрытияИЗакрытия",
-}
-
-export const ZStockChartUsedPointValue = z.enum(Object.keys(StockChartUsedPointValue) as [TStockChartUsedPointValue, ...TStockChartUsedPointValue[]])
-export const ZStockChartUsedPointValueEnterprise = z.enum(Object.values(StockChartUsedPointValue) as [TStockChartUsedPointValueEnterprise, ...TStockChartUsedPointValueEnterprise[]])
-
-export type TStockChartUsedPointValue = keyof typeof StockChartUsedPointValue
-export type TStockChartUsedPointValueEnterprise = `${StockChartUsedPointValue}`
-
-enum UsedChartValuesAxis {
-  Auto = "Авто",
-  Additional = "Дополнительная",
-  Main = "Основная",
-}
-
-export const ZUsedChartValuesAxis = z.enum(Object.keys(UsedChartValuesAxis) as [TUsedChartValuesAxis, ...TUsedChartValuesAxis[]])
-export const ZUsedChartValuesAxisEnterprise = z.enum(Object.values(UsedChartValuesAxis) as [TUsedChartValuesAxisEnterprise, ...TUsedChartValuesAxisEnterprise[]])
-
-export type TUsedChartValuesAxis = keyof typeof UsedChartValuesAxis
-export type TUsedChartValuesAxisEnterprise = `${UsedChartValuesAxis}`
-
-enum GanttChartIntervalRepresentation {
-  Gradient = "Градиент",
-  ThreeDimensional = "Объемный",
-  Flat = "Плоский",
-  Rhomb = "Ромб",
-}
-
-export const ZGanttChartIntervalRepresentation = z.enum(Object.keys(GanttChartIntervalRepresentation) as [TGanttChartIntervalRepresentation, ...TGanttChartIntervalRepresentation[]])
-export const ZGanttChartIntervalRepresentationEnterprise = z.enum(Object.values(GanttChartIntervalRepresentation) as [TGanttChartIntervalRepresentationEnterprise, ...TGanttChartIntervalRepresentationEnterprise[]])
-
-export type TGanttChartIntervalRepresentation = keyof typeof GanttChartIntervalRepresentation
-export type TGanttChartIntervalRepresentationEnterprise = `${GanttChartIntervalRepresentation}`
-
-enum GanttChartIntervalsSelectionMode {
-  Auto = "Авто",
-  Multiple = "Множественный",
-  None = "Нет",
-  Single = "Одиночный",
-}
-
-export const ZGanttChartIntervalsSelectionMode = z.enum(Object.keys(GanttChartIntervalsSelectionMode) as [TGanttChartIntervalsSelectionMode, ...TGanttChartIntervalsSelectionMode[]])
-export const ZGanttChartIntervalsSelectionModeEnterprise = z.enum(Object.values(GanttChartIntervalsSelectionMode) as [TGanttChartIntervalsSelectionModeEnterprise, ...TGanttChartIntervalsSelectionModeEnterprise[]])
-
-export type TGanttChartIntervalsSelectionMode = keyof typeof GanttChartIntervalsSelectionMode
-export type TGanttChartIntervalsSelectionModeEnterprise = `${GanttChartIntervalsSelectionMode}`
-
-enum GanttChartIntervalTextRepresentation {
-  Auto = "Авто",
-  DontShow = "НеОтображать",
-  Show = "Отображать",
-}
-
-export const ZGanttChartIntervalTextRepresentation = z.enum(Object.keys(GanttChartIntervalTextRepresentation) as [TGanttChartIntervalTextRepresentation, ...TGanttChartIntervalTextRepresentation[]])
-export const ZGanttChartIntervalTextRepresentationEnterprise = z.enum(Object.values(GanttChartIntervalTextRepresentation) as [TGanttChartIntervalTextRepresentationEnterprise, ...TGanttChartIntervalTextRepresentationEnterprise[]])
-
-export type TGanttChartIntervalTextRepresentation = keyof typeof GanttChartIntervalTextRepresentation
-export type TGanttChartIntervalTextRepresentationEnterprise = `${GanttChartIntervalTextRepresentation}`
-
-enum GanttChartLinkType {
-  EndEnd = "КонецКонец",
-  EndBegin = "КонецНачало",
-  BeginEnd = "НачалоКонец",
-  BeginBegin = "НачалоНачало",
-}
-
-export const ZGanttChartLinkType = z.enum(Object.keys(GanttChartLinkType) as [TGanttChartLinkType, ...TGanttChartLinkType[]])
-export const ZGanttChartLinkTypeEnterprise = z.enum(Object.values(GanttChartLinkType) as [TGanttChartLinkTypeEnterprise, ...TGanttChartLinkTypeEnterprise[]])
-
-export type TGanttChartLinkType = keyof typeof GanttChartLinkType
-export type TGanttChartLinkTypeEnterprise = `${GanttChartLinkType}`
-
-enum GanttChartScaleKeeping {
-  Auto = "Авто",
-  AllData = "ВсеДанные",
-  Period = "Период",
-  Fixed = "Фиксированная",
-}
-
-export const ZGanttChartScaleKeeping = z.enum(Object.keys(GanttChartScaleKeeping) as [TGanttChartScaleKeeping, ...TGanttChartScaleKeeping[]])
-export const ZGanttChartScaleKeepingEnterprise = z.enum(Object.values(GanttChartScaleKeeping) as [TGanttChartScaleKeepingEnterprise, ...TGanttChartScaleKeepingEnterprise[]])
-
-export type TGanttChartScaleKeeping = keyof typeof GanttChartScaleKeeping
-export type TGanttChartScaleKeepingEnterprise = `${GanttChartScaleKeeping}`
-
-enum GanttChartTableLocation {
-  Auto = "Авто",
-  Left = "Лево",
-  None = "Нет",
-  Right = "Право",
-}
-
-export const ZGanttChartTableLocation = z.enum(Object.keys(GanttChartTableLocation) as [TGanttChartTableLocation, ...TGanttChartTableLocation[]])
-export const ZGanttChartTableLocationEnterprise = z.enum(Object.values(GanttChartTableLocation) as [TGanttChartTableLocationEnterprise, ...TGanttChartTableLocationEnterprise[]])
-
-export type TGanttChartTableLocation = keyof typeof GanttChartTableLocation
-export type TGanttChartTableLocationEnterprise = `${GanttChartTableLocation}`
-
-enum GanttChartTextPlacementType {
-  Auto = "Авто",
-  Cut = "Обрезать",
-  Wrap = "Переносить",
-}
-
-export const ZGanttChartTextPlacementType = z.enum(Object.keys(GanttChartTextPlacementType) as [TGanttChartTextPlacementType, ...TGanttChartTextPlacementType[]])
-export const ZGanttChartTextPlacementTypeEnterprise = z.enum(Object.values(GanttChartTextPlacementType) as [TGanttChartTextPlacementTypeEnterprise, ...TGanttChartTextPlacementTypeEnterprise[]])
-
-export type TGanttChartTextPlacementType = keyof typeof GanttChartTextPlacementType
-export type TGanttChartTextPlacementTypeEnterprise = `${GanttChartTextPlacementType}`
-
-enum GanttChartValuesSelectionMode {
-  Auto = "Авто",
-  Multiple = "Множественный",
-  None = "Нет",
-  Single = "Одиночный",
-}
-
-export const ZGanttChartValuesSelectionMode = z.enum(Object.keys(GanttChartValuesSelectionMode) as [TGanttChartValuesSelectionMode, ...TGanttChartValuesSelectionMode[]])
-export const ZGanttChartValuesSelectionModeEnterprise = z.enum(Object.values(GanttChartValuesSelectionMode) as [TGanttChartValuesSelectionModeEnterprise, ...TGanttChartValuesSelectionModeEnterprise[]])
-
-export type TGanttChartValuesSelectionMode = keyof typeof GanttChartValuesSelectionMode
-export type TGanttChartValuesSelectionModeEnterprise = `${GanttChartValuesSelectionMode}`
-
-enum GanttChartValueTextRepresentation {
-  None = "НеОтображать",
-  Right = "Право",
-}
-
-export const ZGanttChartValueTextRepresentation = z.enum(Object.keys(GanttChartValueTextRepresentation) as [TGanttChartValueTextRepresentation, ...TGanttChartValueTextRepresentation[]])
-export const ZGanttChartValueTextRepresentationEnterprise = z.enum(Object.values(GanttChartValueTextRepresentation) as [TGanttChartValueTextRepresentationEnterprise, ...TGanttChartValueTextRepresentationEnterprise[]])
-
-export type TGanttChartValueTextRepresentation = keyof typeof GanttChartValueTextRepresentation
-export type TGanttChartValueTextRepresentationEnterprise = `${GanttChartValueTextRepresentation}`
-
-enum GanttChartVerticalStretch {
-  None = "НеРастягивать",
-  StretchRows = "РастягиватьСтроки",
-  StretchRowsAndData = "РастягиватьСтрокиИДанные",
-}
-
-export const ZGanttChartVerticalStretch = z.enum(Object.keys(GanttChartVerticalStretch) as [TGanttChartVerticalStretch, ...TGanttChartVerticalStretch[]])
-export const ZGanttChartVerticalStretchEnterprise = z.enum(Object.values(GanttChartVerticalStretch) as [TGanttChartVerticalStretchEnterprise, ...TGanttChartVerticalStretchEnterprise[]])
-
-export type TGanttChartVerticalStretch = keyof typeof GanttChartVerticalStretch
-export type TGanttChartVerticalStretchEnterprise = `${GanttChartVerticalStretch}`
-
-enum ShowInGanttChart {
-  Auto = "Авто",
-  DontShow = "НеОтображать",
-  Show = "Отображать",
-}
-
-export const ZShowInGanttChart = z.enum(Object.keys(ShowInGanttChart) as [TShowInGanttChart, ...TShowInGanttChart[]])
-export const ZShowInGanttChartEnterprise = z.enum(Object.values(ShowInGanttChart) as [TShowInGanttChartEnterprise, ...TShowInGanttChartEnterprise[]])
-
-export type TShowInGanttChart = keyof typeof ShowInGanttChart
-export type TShowInGanttChartEnterprise = `${ShowInGanttChart}`
-
-enum TimeScaleDayFormat {
-  MonthDay = "ДеньМесяца",
-  MonthDayWeekDay = "ДеньМесяцаДеньНедели",
-  WeekDay = "ДеньНедели",
-  WeekDayMonthDay = "ДеньНеделиДеньМесяца",
-}
-
-export const ZTimeScaleDayFormat = z.enum(Object.keys(TimeScaleDayFormat) as [TTimeScaleDayFormat, ...TTimeScaleDayFormat[]])
-export const ZTimeScaleDayFormatEnterprise = z.enum(Object.values(TimeScaleDayFormat) as [TTimeScaleDayFormatEnterprise, ...TTimeScaleDayFormatEnterprise[]])
-
-export type TTimeScaleDayFormat = keyof typeof TimeScaleDayFormat
-export type TTimeScaleDayFormatEnterprise = `${TimeScaleDayFormat}`
-
-enum TimeScaleUnitType {
-  Year = "Год",
-  Day = "День",
-  Quarter = "Квартал",
-  Month = "Месяц",
-  Minute = "Минута",
-  Week = "Неделя",
-  Second = "Секунда",
-  Hour = "Час",
-}
-
-export const ZTimeScaleUnitType = z.enum(Object.keys(TimeScaleUnitType) as [TTimeScaleUnitType, ...TTimeScaleUnitType[]])
-export const ZTimeScaleUnitTypeEnterprise = z.enum(Object.values(TimeScaleUnitType) as [TTimeScaleUnitTypeEnterprise, ...TTimeScaleUnitTypeEnterprise[]])
-
-export type TTimeScaleUnitType = keyof typeof TimeScaleUnitType
-export type TTimeScaleUnitTypeEnterprise = `${TimeScaleUnitType}`
-
-enum PivotChartLabelsOrientation {
-  TopLevelsVertical = "ВерхниеУровниВертикально",
-  AllLevelsVertical = "ВсеУровниВертикально",
-  AllLevelsHorizontal = "ВсеУровниГоризонтально",
-}
-
-export const ZPivotChartLabelsOrientation = z.enum(Object.keys(PivotChartLabelsOrientation) as [TPivotChartLabelsOrientation, ...TPivotChartLabelsOrientation[]])
-export const ZPivotChartLabelsOrientationEnterprise = z.enum(Object.values(PivotChartLabelsOrientation) as [TPivotChartLabelsOrientationEnterprise, ...TPivotChartLabelsOrientationEnterprise[]])
-
-export type TPivotChartLabelsOrientation = keyof typeof PivotChartLabelsOrientation
-export type TPivotChartLabelsOrientationEnterprise = `${PivotChartLabelsOrientation}`
-
-enum PivotChartScaleKeeping {
-  AllValues = "ВсеЗначения",
-  ValuesCount = "КоличествоЗначений",
-  MinimumWidth = "МинимальнаяШирина",
-}
-
-export const ZPivotChartScaleKeeping = z.enum(Object.keys(PivotChartScaleKeeping) as [TPivotChartScaleKeeping, ...TPivotChartScaleKeeping[]])
-export const ZPivotChartScaleKeepingEnterprise = z.enum(Object.values(PivotChartScaleKeeping) as [TPivotChartScaleKeepingEnterprise, ...TPivotChartScaleKeepingEnterprise[]])
-
-export type TPivotChartScaleKeeping = keyof typeof PivotChartScaleKeeping
-export type TPivotChartScaleKeepingEnterprise = `${PivotChartScaleKeeping}`
-
-enum PivotChartType {
-  Column = "Гистограмма",
-  Column3D = "ГистограммаОбъемная",
-}
-
-export const ZPivotChartType = z.enum(Object.keys(PivotChartType) as [TPivotChartType, ...TPivotChartType[]])
-export const ZPivotChartTypeEnterprise = z.enum(Object.values(PivotChartType) as [TPivotChartTypeEnterprise, ...TPivotChartTypeEnterprise[]])
-
-export type TPivotChartType = keyof typeof PivotChartType
-export type TPivotChartTypeEnterprise = `${PivotChartType}`
-
-enum PivotChartValuesShowMode {
-  AllValues = "ВсеЗначения",
-  LastLevelValues = "ЗначенияПоследнегоУровня",
-}
-
-export const ZPivotChartValuesShowMode = z.enum(Object.keys(PivotChartValuesShowMode) as [TPivotChartValuesShowMode, ...TPivotChartValuesShowMode[]])
-export const ZPivotChartValuesShowModeEnterprise = z.enum(Object.values(PivotChartValuesShowMode) as [TPivotChartValuesShowModeEnterprise, ...TPivotChartValuesShowModeEnterprise[]])
-
-export type TPivotChartValuesShowMode = keyof typeof PivotChartValuesShowMode
-export type TPivotChartValuesShowModeEnterprise = `${PivotChartValuesShowMode}`
-
-enum DendrogramOrientation {
-  Top = "Верх",
-  Left = "Лево",
-  Bottom = "Низ",
-  Right = "Право",
-}
-
-export const ZDendrogramOrientation = z.enum(Object.keys(DendrogramOrientation) as [TDendrogramOrientation, ...TDendrogramOrientation[]])
-export const ZDendrogramOrientationEnterprise = z.enum(Object.values(DendrogramOrientation) as [TDendrogramOrientationEnterprise, ...TDendrogramOrientationEnterprise[]])
-
-export type TDendrogramOrientation = keyof typeof DendrogramOrientation
-export type TDendrogramOrientationEnterprise = `${DendrogramOrientation}`
-
-enum DendrogramScaleKeeping {
-  AllItems = "ВсеЭлементы",
-  ItemCount = "КоличествоЭлементов",
-  MinimumWidth = "МинимальнаяШирина",
-}
-
-export const ZDendrogramScaleKeeping = z.enum(Object.keys(DendrogramScaleKeeping) as [TDendrogramScaleKeeping, ...TDendrogramScaleKeeping[]])
-export const ZDendrogramScaleKeepingEnterprise = z.enum(Object.values(DendrogramScaleKeeping) as [TDendrogramScaleKeepingEnterprise, ...TDendrogramScaleKeepingEnterprise[]])
-
-export type TDendrogramScaleKeeping = keyof typeof DendrogramScaleKeeping
-export type TDendrogramScaleKeepingEnterprise = `${DendrogramScaleKeeping}`
-
-enum GeographicalSchemaDataSourceOrganizationType {
-  AtRow = "ВСтроке",
-  AtIntersection = "НаПересечении",
-}
-
-export const ZGeographicalSchemaDataSourceOrganizationType = z.enum(Object.keys(GeographicalSchemaDataSourceOrganizationType) as [TGeographicalSchemaDataSourceOrganizationType, ...TGeographicalSchemaDataSourceOrganizationType[]])
-export const ZGeographicalSchemaDataSourceOrganizationTypeEnterprise = z.enum(Object.values(GeographicalSchemaDataSourceOrganizationType) as [TGeographicalSchemaDataSourceOrganizationTypeEnterprise, ...TGeographicalSchemaDataSourceOrganizationTypeEnterprise[]])
-
-export type TGeographicalSchemaDataSourceOrganizationType = keyof typeof GeographicalSchemaDataSourceOrganizationType
-export type TGeographicalSchemaDataSourceOrganizationTypeEnterprise = `${GeographicalSchemaDataSourceOrganizationType}`
-
-enum GeographicalSchemaLayerSeriesImportModeType {
-  ImportAll = "ИмпортироватьВсе",
-  DontImport = "НеИмпортировать",
-}
-
-export const ZGeographicalSchemaLayerSeriesImportModeType = z.enum(Object.keys(GeographicalSchemaLayerSeriesImportModeType) as [TGeographicalSchemaLayerSeriesImportModeType, ...TGeographicalSchemaLayerSeriesImportModeType[]])
-export const ZGeographicalSchemaLayerSeriesImportModeTypeEnterprise = z.enum(Object.values(GeographicalSchemaLayerSeriesImportModeType) as [TGeographicalSchemaLayerSeriesImportModeTypeEnterprise, ...TGeographicalSchemaLayerSeriesImportModeTypeEnterprise[]])
-
-export type TGeographicalSchemaLayerSeriesImportModeType = keyof typeof GeographicalSchemaLayerSeriesImportModeType
-export type TGeographicalSchemaLayerSeriesImportModeTypeEnterprise = `${GeographicalSchemaLayerSeriesImportModeType}`
-
-enum GeographicalSchemaLayerSeriesShowMode {
-  Column = "Гистограмма",
-  Picture = "Картинка",
-  Pie = "Круговая",
-  SizedPie = "КруговаяСРазмером",
-  DontShow = "НеОтображать",
-  ShapeColorHue = "ОттенокЦветаФигуры",
-  ShapeSize = "РазмерФигуры",
-  Text = "Текст",
-  ShapeColor = "ЦветФигуры",
-}
-
-export const ZGeographicalSchemaLayerSeriesShowMode = z.enum(Object.keys(GeographicalSchemaLayerSeriesShowMode) as [TGeographicalSchemaLayerSeriesShowMode, ...TGeographicalSchemaLayerSeriesShowMode[]])
-export const ZGeographicalSchemaLayerSeriesShowModeEnterprise = z.enum(Object.values(GeographicalSchemaLayerSeriesShowMode) as [TGeographicalSchemaLayerSeriesShowModeEnterprise, ...TGeographicalSchemaLayerSeriesShowModeEnterprise[]])
-
-export type TGeographicalSchemaLayerSeriesShowMode = keyof typeof GeographicalSchemaLayerSeriesShowMode
-export type TGeographicalSchemaLayerSeriesShowModeEnterprise = `${GeographicalSchemaLayerSeriesShowMode}`
-
-enum GeographicalSchemaLegendItemShowScaleType {
-  DontShow = "НеОтображать",
-  ShowByValues = "ОтображатьПоЗначениям",
-}
-
-export const ZGeographicalSchemaLegendItemShowScaleType = z.enum(Object.keys(GeographicalSchemaLegendItemShowScaleType) as [TGeographicalSchemaLegendItemShowScaleType, ...TGeographicalSchemaLegendItemShowScaleType[]])
-export const ZGeographicalSchemaLegendItemShowScaleTypeEnterprise = z.enum(Object.values(GeographicalSchemaLegendItemShowScaleType) as [TGeographicalSchemaLegendItemShowScaleTypeEnterprise, ...TGeographicalSchemaLegendItemShowScaleTypeEnterprise[]])
-
-export type TGeographicalSchemaLegendItemShowScaleType = keyof typeof GeographicalSchemaLegendItemShowScaleType
-export type TGeographicalSchemaLegendItemShowScaleTypeEnterprise = `${GeographicalSchemaLegendItemShowScaleType}`
-
-enum GeographicalSchemaLineType {
-  None = "НетЛинии",
-  Dashed = "Пунктир",
-  DashDotted = "ПунктирТочка",
-  DashDottedDotted = "ПунктирТочкаТочка",
-  Solid = "Сплошная",
-  Dotted = "Точечная",
-}
-
-export const ZGeographicalSchemaLineType = z.enum(Object.keys(GeographicalSchemaLineType) as [TGeographicalSchemaLineType, ...TGeographicalSchemaLineType[]])
-export const ZGeographicalSchemaLineTypeEnterprise = z.enum(Object.values(GeographicalSchemaLineType) as [TGeographicalSchemaLineTypeEnterprise, ...TGeographicalSchemaLineTypeEnterprise[]])
-
-export type TGeographicalSchemaLineType = keyof typeof GeographicalSchemaLineType
-export type TGeographicalSchemaLineTypeEnterprise = `${GeographicalSchemaLineType}`
-
-enum GeographicalSchemaMarkerType {
-  BigSquare = "БольшойКвадрат",
-  BigCircle = "БольшойКруг",
-  BigTriangle = "БольшойТреугольник",
-  ExclamationPoint = "ВосклицательныйЗнак",
-  Darts = "Дартс",
-  QuestionMark = "ЗнакВопроса",
-  Pin = "Кнопка",
-  LittleSquare = "МаленькийКвадрат",
-  LittleCircle = "МаленькийКруг",
-  LittleTriangle = "МаленькийТреугольник",
-  None = "Нет",
-}
-
-export const ZGeographicalSchemaMarkerType = z.enum(Object.keys(GeographicalSchemaMarkerType) as [TGeographicalSchemaMarkerType, ...TGeographicalSchemaMarkerType[]])
-export const ZGeographicalSchemaMarkerTypeEnterprise = z.enum(Object.values(GeographicalSchemaMarkerType) as [TGeographicalSchemaMarkerTypeEnterprise, ...TGeographicalSchemaMarkerTypeEnterprise[]])
-
-export type TGeographicalSchemaMarkerType = keyof typeof GeographicalSchemaMarkerType
-export type TGeographicalSchemaMarkerTypeEnterprise = `${GeographicalSchemaMarkerType}`
-
-enum GeographicalSchemaObjectFindType {
-  Included = "Включает",
-  IncludedWholly = "ВключаетПолностью",
-  Includes = "Включают",
-  IncludesWholly = "ВключаютПолностью",
-}
-
-export const ZGeographicalSchemaObjectFindType = z.enum(Object.keys(GeographicalSchemaObjectFindType) as [TGeographicalSchemaObjectFindType, ...TGeographicalSchemaObjectFindType[]])
-export const ZGeographicalSchemaObjectFindTypeEnterprise = z.enum(Object.values(GeographicalSchemaObjectFindType) as [TGeographicalSchemaObjectFindTypeEnterprise, ...TGeographicalSchemaObjectFindTypeEnterprise[]])
-
-export type TGeographicalSchemaObjectFindType = keyof typeof GeographicalSchemaObjectFindType
-export type TGeographicalSchemaObjectFindTypeEnterprise = `${GeographicalSchemaObjectFindType}`
-
-enum GeographicalSchemaPointObjectDrawingType {
-  Picture = "Картинка",
-  Marker = "Маркер",
-  Char = "Символ",
-}
-
-export const ZGeographicalSchemaPointObjectDrawingType = z.enum(Object.keys(GeographicalSchemaPointObjectDrawingType) as [TGeographicalSchemaPointObjectDrawingType, ...TGeographicalSchemaPointObjectDrawingType[]])
-export const ZGeographicalSchemaPointObjectDrawingTypeEnterprise = z.enum(Object.values(GeographicalSchemaPointObjectDrawingType) as [TGeographicalSchemaPointObjectDrawingTypeEnterprise, ...TGeographicalSchemaPointObjectDrawingTypeEnterprise[]])
-
-export type TGeographicalSchemaPointObjectDrawingType = keyof typeof GeographicalSchemaPointObjectDrawingType
-export type TGeographicalSchemaPointObjectDrawingTypeEnterprise = `${GeographicalSchemaPointObjectDrawingType}`
-
-enum GeographicalSchemaProjection {
-  AzimuthalAitoffProjection = "АзимутальнаяПроекцияАитофа",
-  AzimuthalWagner7Projection = "АзимутальнаяПроекцияВагнера7",
-  AzimuthalWinkelTripelProjection = "АзимутальнаяПроекцияВинкеляТрипеля",
-  AzimuthalLambertEqualAreaProjection = "АзимутальнаяПроекцияРавныхПлощадейЛамберта",
-  AzimuthalHammerProjection = "АзимутальнаяПроекцияХамера",
-  AzimuthalEquidistantProjection = "АзимутальнаяРавноудаленнаяПроекция",
-  ConicLambertEqualAreaProjection = "КоническаяПроекцияРавныхПлощадейЛамберта",
-  MiscellaneousOrteliusOvalProjection = "ПрочаяОвальнаяПроекцияОртелиуса",
-  MiscellaneousVanDerGrinten1Projection = "ПрочаяПроекцияВанДерГринтена1",
-  MiscellaneousVanDerGrinten2Projection = "ПрочаяПроекцияВанДерГринтена2",
-  MiscellaneousVanDerGrinten3Projection = "ПрочаяПроекцияВанДерГринтена3",
-  MiscellaneousApianGlobular1Projection = "ПрочаяСотоваяШаровая1Проекция",
-  MiscellaneousBaconGlobularProjection = "ПрочаяШароваяПроекцияБекона",
-  MiscellaneousNicolosiGlobularProjection = "ПрочаяШароваяПроекцияНиколоси",
-  MiscellaneousAugustEpicycloidalProjection = "ПрочаяЭпициклоидальнаяПроекцияАвгуста",
-  PseudoCylindricalBoggsEumorphicProjection = "ПсевдоцилиндрическаяНормальнаяПроекцияБоггса",
-  PseudoCylindricalMcBrydeThomasFlatPolarParabolicProjection = "ПсевдоцилиндрическаяПлоскоПолярнаяПараболическаяПроекцияМакБрайдаТомаса",
-  PseudoCylindricalMcBrydeThomasFlatPolarQuarticProjection = "ПсевдоцилиндрическаяПлоскоПолярнаяПроекцияЧетвертогоПорядкаМакБрайдаТомаса",
-  PseudoCylindricalMcBrydeThomasFlatPolarSinusoidalProjection = "ПсевдоцилиндрическаяПлоскоПолярнаяСинусоидальнаяПроекцияМакБрайдаТомаса",
-  PseudoCylindricalWinkel1Projection = "ПсевдоцилиндрическаяПроекцияВинкеля1",
-  PseudoCylindricalLoximutalProjection = "ПсевдоцилиндрическаяПроекцияЛоксимутала",
-  PseudoCylindricalMollweideProjection = "ПсевдоцилиндрическаяПроекцияМолвейда",
-  PseudoCylindricalHatanoAsymetricalEqualAreaProjection = "ПсевдоцилиндрическаяПроекцияНесимметричныхРавныхОбластейХатано",
-  PseudoCylindricalPutninP2Projection = "ПсевдоцилиндрическаяПроекцияПутнинаP2",
-  PseudoCylindricalPutninP5Projection = "ПсевдоцилиндрическаяПроекцияПутнинаP5",
-  PseudoCylindricalRobinsonProjection = "ПсевдоцилиндрическаяПроекцияРобинсона",
-  PseudoCylindricalEckert1Projection = "ПсевдоцилиндрическаяПроекцияЭкерта1",
-  PseudoCylindricalEckert2Projection = "ПсевдоцилиндрическаяПроекцияЭкерта2",
-  PseudoCylindricalEckert3Projection = "ПсевдоцилиндрическаяПроекцияЭкерта3",
-  PseudoCylindricalEckert4Projection = "ПсевдоцилиндрическаяПроекцияЭкерта4",
-  PseudoCylindricalEckert5Projection = "ПсевдоцилиндрическаяПроекцияЭкерта5",
-  PseudoCylindricalEckert6Projection = "ПсевдоцилиндрическаяПроекцияЭкерта6",
-  PseudoCylindricalSinusoidalProjection = "ПсевдоцилиндрическаяСинусоидальнаяПроекция",
-  CylindricalMillerProjection = "ЦилиндрическаяПроекцияМиллера",
-  CylindricalLambertEqualAreaProjection = "ЦилиндрическаяПроекцияРавныхОбластейЛамберта",
-  CylindricalEquidistantProjection = "ЦилиндрическаяРавноудаленнаяПроекция",
-  CylindricalGallStereographicProjection = "ЦилиндрическаяСтереографическаяПроекцияГалла",
-}
-
-export const ZGeographicalSchemaProjection = z.enum(Object.keys(GeographicalSchemaProjection) as [TGeographicalSchemaProjection, ...TGeographicalSchemaProjection[]])
-export const ZGeographicalSchemaProjectionEnterprise = z.enum(Object.values(GeographicalSchemaProjection) as [TGeographicalSchemaProjectionEnterprise, ...TGeographicalSchemaProjectionEnterprise[]])
-
-export type TGeographicalSchemaProjection = keyof typeof GeographicalSchemaProjection
-export type TGeographicalSchemaProjectionEnterprise = `${GeographicalSchemaProjection}`
-
-enum GeographicalSchemaShowMode {
-  AllData = "ВсеДанные",
-  ScaleDefined = "ЗадаетсяМасштабом",
-  SpecifiedArea = "ЗаданнаяОбласть",
-}
-
-export const ZGeographicalSchemaShowMode = z.enum(Object.keys(GeographicalSchemaShowMode) as [TGeographicalSchemaShowMode, ...TGeographicalSchemaShowMode[]])
-export const ZGeographicalSchemaShowModeEnterprise = z.enum(Object.values(GeographicalSchemaShowMode) as [TGeographicalSchemaShowModeEnterprise, ...TGeographicalSchemaShowModeEnterprise[]])
-
-export type TGeographicalSchemaShowMode = keyof typeof GeographicalSchemaShowMode
-export type TGeographicalSchemaShowModeEnterprise = `${GeographicalSchemaShowMode}`
-
-enum PaintingReferencePointPosition {
-  LeftTop = "ЛевоВерх",
-  LeftBottom = "ЛевоНиз",
-  LeftCenter = "ЛевоЦентр",
-  RightTop = "ПравоВерх",
-  RightBottom = "ПравоНиз",
-  RightCenter = "ПравоЦентр",
-  Center = "Центр",
-  CenterTop = "ЦентрВерх",
-  CenterBottom = "ЦентрНиз",
-}
-
-export const ZPaintingReferencePointPosition = z.enum(Object.keys(PaintingReferencePointPosition) as [TPaintingReferencePointPosition, ...TPaintingReferencePointPosition[]])
-export const ZPaintingReferencePointPositionEnterprise = z.enum(Object.values(PaintingReferencePointPosition) as [TPaintingReferencePointPositionEnterprise, ...TPaintingReferencePointPositionEnterprise[]])
-
-export type TPaintingReferencePointPosition = keyof typeof PaintingReferencePointPosition
-export type TPaintingReferencePointPositionEnterprise = `${PaintingReferencePointPosition}`
-
-enum SeriesValuesDrawingMode {
-  ShowAsPart = "ОтображатьКакДолю",
-  ShowAsValue = "ОтображатьКакЗначение",
-}
-
-export const ZSeriesValuesDrawingMode = z.enum(Object.keys(SeriesValuesDrawingMode) as [TSeriesValuesDrawingMode, ...TSeriesValuesDrawingMode[]])
-export const ZSeriesValuesDrawingModeEnterprise = z.enum(Object.values(SeriesValuesDrawingMode) as [TSeriesValuesDrawingModeEnterprise, ...TSeriesValuesDrawingModeEnterprise[]])
-
-export type TSeriesValuesDrawingMode = keyof typeof SeriesValuesDrawingMode
-export type TSeriesValuesDrawingModeEnterprise = `${SeriesValuesDrawingMode}`
 
 enum CheckBoxType {
   Auto = "Авто",
@@ -5593,6 +4408,17 @@ export const ZColumnLocationEnterprise = z.enum(Object.values(ColumnLocation) as
 export type TColumnLocation = keyof typeof ColumnLocation
 export type TColumnLocationEnterprise = `${ColumnLocation}`
 
+enum ColumnSizeChange {
+  Change = "Изменять",
+  DontChange = "НеИзменять",
+}
+
+export const ZColumnSizeChange = z.enum(Object.keys(ColumnSizeChange) as [TColumnSizeChange, ...TColumnSizeChange[]])
+export const ZColumnSizeChangeEnterprise = z.enum(Object.values(ColumnSizeChange) as [TColumnSizeChangeEnterprise, ...TColumnSizeChangeEnterprise[]])
+
+export type TColumnSizeChange = keyof typeof ColumnSizeChange
+export type TColumnSizeChangeEnterprise = `${ColumnSizeChange}`
+
 enum ColumnsGroup {
   Vertical = "Вертикальная",
   InCell = "ВЯчейке",
@@ -5604,17 +4430,6 @@ export const ZColumnsGroupEnterprise = z.enum(Object.values(ColumnsGroup) as [TC
 
 export type TColumnsGroup = keyof typeof ColumnsGroup
 export type TColumnsGroupEnterprise = `${ColumnsGroup}`
-
-enum ColumnSizeChange {
-  Change = "Изменять",
-  DontChange = "НеИзменять",
-}
-
-export const ZColumnSizeChange = z.enum(Object.keys(ColumnSizeChange) as [TColumnSizeChange, ...TColumnSizeChange[]])
-export const ZColumnSizeChangeEnterprise = z.enum(Object.values(ColumnSizeChange) as [TColumnSizeChangeEnterprise, ...TColumnSizeChangeEnterprise[]])
-
-export type TColumnSizeChange = keyof typeof ColumnSizeChange
-export type TColumnSizeChangeEnterprise = `${ColumnSizeChange}`
 
 enum CommandBarButtonAlignment {
   Left = "Лево",
@@ -6220,6 +5035,17 @@ export const ZGraphicalSchemeElementSideTypeEnterprise = z.enum(Object.values(Gr
 export type TGraphicalSchemeElementSideType = keyof typeof GraphicalSchemeElementSideType
 export type TGraphicalSchemeElementSideTypeEnterprise = `${GraphicalSchemeElementSideType}`
 
+enum HTMLDocumentFieldMode {
+  Browse = "Просмотр",
+  Design = "Редактирование",
+}
+
+export const ZHTMLDocumentFieldMode = z.enum(Object.keys(HTMLDocumentFieldMode) as [THTMLDocumentFieldMode, ...THTMLDocumentFieldMode[]])
+export const ZHTMLDocumentFieldModeEnterprise = z.enum(Object.values(HTMLDocumentFieldMode) as [THTMLDocumentFieldModeEnterprise, ...THTMLDocumentFieldModeEnterprise[]])
+
+export type THTMLDocumentFieldMode = keyof typeof HTMLDocumentFieldMode
+export type THTMLDocumentFieldModeEnterprise = `${HTMLDocumentFieldMode}`
+
 enum HorizontalAlign {
   Auto = "Авто",
   Left = "Лево",
@@ -6233,17 +5059,6 @@ export const ZHorizontalAlignEnterprise = z.enum(Object.values(HorizontalAlign) 
 
 export type THorizontalAlign = keyof typeof HorizontalAlign
 export type THorizontalAlignEnterprise = `${HorizontalAlign}`
-
-enum HTMLDocumentFieldMode {
-  Browse = "Просмотр",
-  Design = "Редактирование",
-}
-
-export const ZHTMLDocumentFieldMode = z.enum(Object.keys(HTMLDocumentFieldMode) as [THTMLDocumentFieldMode, ...THTMLDocumentFieldMode[]])
-export const ZHTMLDocumentFieldModeEnterprise = z.enum(Object.values(HTMLDocumentFieldMode) as [THTMLDocumentFieldModeEnterprise, ...THTMLDocumentFieldModeEnterprise[]])
-
-export type THTMLDocumentFieldMode = keyof typeof HTMLDocumentFieldMode
-export type THTMLDocumentFieldModeEnterprise = `${HTMLDocumentFieldMode}`
 
 enum IncompleteChoiceMode {
   OnActivate = "ПриАктивизации",
@@ -6389,6 +5204,19 @@ export const ZItemHorizontalLocationEnterprise = z.enum(Object.values(ItemHorizo
 export type TItemHorizontalLocation = keyof typeof ItemHorizontalLocation
 export type TItemHorizontalLocationEnterprise = `${ItemHorizontalLocation}`
 
+enum ItemVerticalAlign {
+  Auto = "Авто",
+  Top = "Верх",
+  Bottom = "Низ",
+  Center = "Центр",
+}
+
+export const ZItemVerticalAlign = z.enum(Object.keys(ItemVerticalAlign) as [TItemVerticalAlign, ...TItemVerticalAlign[]])
+export const ZItemVerticalAlignEnterprise = z.enum(Object.values(ItemVerticalAlign) as [TItemVerticalAlignEnterprise, ...TItemVerticalAlignEnterprise[]])
+
+export type TItemVerticalAlign = keyof typeof ItemVerticalAlign
+export type TItemVerticalAlignEnterprise = `${ItemVerticalAlign}`
+
 enum ItemsAndTitlesAlignVariant {
   Auto = "Авто",
   None = "Нет",
@@ -6403,19 +5231,6 @@ export const ZItemsAndTitlesAlignVariantEnterprise = z.enum(Object.values(ItemsA
 
 export type TItemsAndTitlesAlignVariant = keyof typeof ItemsAndTitlesAlignVariant
 export type TItemsAndTitlesAlignVariantEnterprise = `${ItemsAndTitlesAlignVariant}`
-
-enum ItemVerticalAlign {
-  Auto = "Авто",
-  Top = "Верх",
-  Bottom = "Низ",
-  Center = "Центр",
-}
-
-export const ZItemVerticalAlign = z.enum(Object.keys(ItemVerticalAlign) as [TItemVerticalAlign, ...TItemVerticalAlign[]])
-export const ZItemVerticalAlignEnterprise = z.enum(Object.values(ItemVerticalAlign) as [TItemVerticalAlignEnterprise, ...TItemVerticalAlignEnterprise[]])
-
-export type TItemVerticalAlign = keyof typeof ItemVerticalAlign
-export type TItemVerticalAlignEnterprise = `${ItemVerticalAlign}`
 
 enum LabelPictureLocation {
   Top = "Верх",
@@ -7262,6 +6077,1204 @@ export const ZWindowStateVariantEnterprise = z.enum(Object.values(WindowStateVar
 export type TWindowStateVariant = keyof typeof WindowStateVariant
 export type TWindowStateVariantEnterprise = `${WindowStateVariant}`
 
+enum AutoSeriesSeparation {
+  All = "Все",
+  Maximum = "Максимум",
+  Minimum = "Минимум",
+  None = "Нет",
+}
+
+export const ZAutoSeriesSeparation = z.enum(Object.keys(AutoSeriesSeparation) as [TAutoSeriesSeparation, ...TAutoSeriesSeparation[]])
+export const ZAutoSeriesSeparationEnterprise = z.enum(Object.values(AutoSeriesSeparation) as [TAutoSeriesSeparationEnterprise, ...TAutoSeriesSeparationEnterprise[]])
+
+export type TAutoSeriesSeparation = keyof typeof AutoSeriesSeparation
+export type TAutoSeriesSeparationEnterprise = `${AutoSeriesSeparation}`
+
+enum BarChartPointsOrder {
+  Auto = "Авто",
+  TopToBottom = "СверхуВниз",
+  BottomToTop = "СнизуВверх",
+}
+
+export const ZBarChartPointsOrder = z.enum(Object.keys(BarChartPointsOrder) as [TBarChartPointsOrder, ...TBarChartPointsOrder[]])
+export const ZBarChartPointsOrderEnterprise = z.enum(Object.values(BarChartPointsOrder) as [TBarChartPointsOrderEnterprise, ...TBarChartPointsOrderEnterprise[]])
+
+export type TBarChartPointsOrder = keyof typeof BarChartPointsOrder
+export type TBarChartPointsOrderEnterprise = `${BarChartPointsOrder}`
+
+enum BubbleChartNegativeValuesShowMode {
+  InvertedBackColor = "ИнвертированныйЦветФона",
+  DontShow = "НеОтображать",
+  Abs = "ПоМодулю",
+  Transparent = "ПрозрачныйФон",
+}
+
+export const ZBubbleChartNegativeValuesShowMode = z.enum(Object.keys(BubbleChartNegativeValuesShowMode) as [TBubbleChartNegativeValuesShowMode, ...TBubbleChartNegativeValuesShowMode[]])
+export const ZBubbleChartNegativeValuesShowModeEnterprise = z.enum(Object.values(BubbleChartNegativeValuesShowMode) as [TBubbleChartNegativeValuesShowModeEnterprise, ...TBubbleChartNegativeValuesShowModeEnterprise[]])
+
+export type TBubbleChartNegativeValuesShowMode = keyof typeof BubbleChartNegativeValuesShowMode
+export type TBubbleChartNegativeValuesShowModeEnterprise = `${BubbleChartNegativeValuesShowMode}`
+
+enum ChartAnimation {
+  Auto = "Авто",
+  Use = "Использовать",
+  DontUse = "НеИспользовать",
+}
+
+export const ZChartAnimation = z.enum(Object.keys(ChartAnimation) as [TChartAnimation, ...TChartAnimation[]])
+export const ZChartAnimationEnterprise = z.enum(Object.values(ChartAnimation) as [TChartAnimationEnterprise, ...TChartAnimationEnterprise[]])
+
+export type TChartAnimation = keyof typeof ChartAnimation
+export type TChartAnimationEnterprise = `${ChartAnimation}`
+
+enum ChartBoundaryDetectionMethod {
+  AutoDetect = "АвтоОпределение",
+  UseValue = "ИспользоватьЗначение",
+  UseValueWithLimitations = "ИспользоватьЗначениеСОграничением",
+}
+
+export const ZChartBoundaryDetectionMethod = z.enum(Object.keys(ChartBoundaryDetectionMethod) as [TChartBoundaryDetectionMethod, ...TChartBoundaryDetectionMethod[]])
+export const ZChartBoundaryDetectionMethodEnterprise = z.enum(Object.values(ChartBoundaryDetectionMethod) as [TChartBoundaryDetectionMethodEnterprise, ...TChartBoundaryDetectionMethodEnterprise[]])
+
+export type TChartBoundaryDetectionMethod = keyof typeof ChartBoundaryDetectionMethod
+export type TChartBoundaryDetectionMethodEnterprise = `${ChartBoundaryDetectionMethod}`
+
+enum ChartBubbleSizeValueSource {
+  None = "Нет",
+  CommonSeries = "ОбщаяСерия",
+  NextSeries = "СледующаяСерия",
+}
+
+export const ZChartBubbleSizeValueSource = z.enum(Object.keys(ChartBubbleSizeValueSource) as [TChartBubbleSizeValueSource, ...TChartBubbleSizeValueSource[]])
+export const ZChartBubbleSizeValueSourceEnterprise = z.enum(Object.values(ChartBubbleSizeValueSource) as [TChartBubbleSizeValueSourceEnterprise, ...TChartBubbleSizeValueSourceEnterprise[]])
+
+export type TChartBubbleSizeValueSource = keyof typeof ChartBubbleSizeValueSource
+export type TChartBubbleSizeValueSourceEnterprise = `${ChartBubbleSizeValueSource}`
+
+enum ChartBubbleSizing {
+  IncreaseDiameter = "УвеличениеДиаметра",
+  IncreaseArea = "УвеличениеПлощади",
+  DecreaseDiameter = "УменьшениеДиаметра",
+  DecreaseArea = "УменьшениеПлощади",
+}
+
+export const ZChartBubbleSizing = z.enum(Object.keys(ChartBubbleSizing) as [TChartBubbleSizing, ...TChartBubbleSizing[]])
+export const ZChartBubbleSizingEnterprise = z.enum(Object.values(ChartBubbleSizing) as [TChartBubbleSizingEnterprise, ...TChartBubbleSizingEnterprise[]])
+
+export type TChartBubbleSizing = keyof typeof ChartBubbleSizing
+export type TChartBubbleSizingEnterprise = `${ChartBubbleSizing}`
+
+enum ChartColorPalette {
+  Auto = "Авто",
+  Gradient = "Градиентная",
+  Yellow = "Желтая",
+  Green = "Зеленая",
+  Soft = "Мягкая",
+  SoftAdaptive = "МягкаяАдаптивная",
+  Orange = "Оранжевая",
+  Palette32 = "Палитра32",
+  Palette8 = "Палитра8",
+  Pastel = "Пастельная",
+  Custom = "Произвольная",
+  Gray = "Серая",
+  Blue = "Синяя",
+  Warm = "Теплая",
+  Cold = "Холодная",
+  Bright = "Яркая",
+}
+
+export const ZChartColorPalette = z.enum(Object.keys(ChartColorPalette) as [TChartColorPalette, ...TChartColorPalette[]])
+export const ZChartColorPaletteEnterprise = z.enum(Object.values(ChartColorPalette) as [TChartColorPaletteEnterprise, ...TChartColorPaletteEnterprise[]])
+
+export type TChartColorPalette = keyof typeof ChartColorPalette
+export type TChartColorPaletteEnterprise = `${ChartColorPalette}`
+
+enum ChartGridLinesShowMode {
+  Auto = "Авто",
+  DontShow = "НеОтображать",
+  Show = "Отображать",
+}
+
+export const ZChartGridLinesShowMode = z.enum(Object.keys(ChartGridLinesShowMode) as [TChartGridLinesShowMode, ...TChartGridLinesShowMode[]])
+export const ZChartGridLinesShowModeEnterprise = z.enum(Object.values(ChartGridLinesShowMode) as [TChartGridLinesShowModeEnterprise, ...TChartGridLinesShowModeEnterprise[]])
+
+export type TChartGridLinesShowMode = keyof typeof ChartGridLinesShowMode
+export type TChartGridLinesShowModeEnterprise = `${ChartGridLinesShowMode}`
+
+enum ChartLabelLocation {
+  Auto = "Авто",
+  Edge = "Край",
+  EdgeAuto = "КрайАвто",
+  EdgeInside = "КрайВнутри",
+  TopLeft = "ЛевоВерх",
+  BottomLeft = "ЛевоНиз",
+  TopRight = "ПравоВерх",
+  BottomRight = "ПравоНиз",
+  EmptySpace = "СвободноеМесто",
+  TopAndLeftSpecified = "УказываетсяЛевоИВерх",
+  Center = "Центр",
+}
+
+export const ZChartLabelLocation = z.enum(Object.keys(ChartLabelLocation) as [TChartLabelLocation, ...TChartLabelLocation[]])
+export const ZChartLabelLocationEnterprise = z.enum(Object.values(ChartLabelLocation) as [TChartLabelLocationEnterprise, ...TChartLabelLocationEnterprise[]])
+
+export type TChartLabelLocation = keyof typeof ChartLabelLocation
+export type TChartLabelLocationEnterprise = `${ChartLabelLocation}`
+
+enum ChartLabelType {
+  Value = "Значение",
+  ValuePercent = "ЗначениеПроцент",
+  ValueSize = "ЗначениеРазмер",
+  None = "Нет",
+  Percent = "Процент",
+  Series = "Серия",
+  SeriesValue = "СерияЗначение",
+  SeriesValuePercent = "СерияЗначениеПроцент",
+  SeriesValueSize = "СерияЗначениеРазмер",
+  SeriesPercent = "СерияПроцент",
+  SeriesSize = "СерияРазмер",
+  SeriesPoint = "СерияТочка",
+  SeriesPointValue = "СерияТочкаЗначение",
+  SeriesPointValuePercent = "СерияТочкаЗначениеПроцент",
+  SeriesPointValueSize = "СерияТочкаЗначениеРазмер",
+  SeriesPointPercent = "СерияТочкаПроцент",
+  SeriesPointSize = "СерияТочкаРазмер",
+  Point = "Точка",
+  PointValue = "ТочкаЗначение",
+  PointValuePercent = "ТочкаЗначениеПроцент",
+  PointValueSize = "ТочкаЗначениеРазмер",
+  PointPercent = "ТочкаПроцент",
+  PointSize = "ТочкаРазмер",
+}
+
+export const ZChartLabelType = z.enum(Object.keys(ChartLabelType) as [TChartLabelType, ...TChartLabelType[]])
+export const ZChartLabelTypeEnterprise = z.enum(Object.values(ChartLabelType) as [TChartLabelTypeEnterprise, ...TChartLabelTypeEnterprise[]])
+
+export type TChartLabelType = keyof typeof ChartLabelType
+export type TChartLabelTypeEnterprise = `${ChartLabelType}`
+
+enum ChartLabelsOrientation {
+  Auto = "Авто",
+  Vertical = "Вертикально",
+  Horizontal = "Горизонтально",
+  CustomAngle = "ПроизвольныйУголНаклона",
+}
+
+export const ZChartLabelsOrientation = z.enum(Object.keys(ChartLabelsOrientation) as [TChartLabelsOrientation, ...TChartLabelsOrientation[]])
+export const ZChartLabelsOrientationEnterprise = z.enum(Object.values(ChartLabelsOrientation) as [TChartLabelsOrientationEnterprise, ...TChartLabelsOrientationEnterprise[]])
+
+export type TChartLabelsOrientation = keyof typeof ChartLabelsOrientation
+export type TChartLabelsOrientationEnterprise = `${ChartLabelsOrientation}`
+
+enum ChartLegendPlacement {
+  Auto = "Авто",
+  Top = "Верх",
+  Left = "Лево",
+  None = "Нет",
+  Bottom = "Низ",
+  Right = "Право",
+  UseCoordinates = "УказываетсяРасположение",
+}
+
+export const ZChartLegendPlacement = z.enum(Object.keys(ChartLegendPlacement) as [TChartLegendPlacement, ...TChartLegendPlacement[]])
+export const ZChartLegendPlacementEnterprise = z.enum(Object.values(ChartLegendPlacement) as [TChartLegendPlacementEnterprise, ...TChartLegendPlacementEnterprise[]])
+
+export type TChartLegendPlacement = keyof typeof ChartLegendPlacement
+export type TChartLegendPlacementEnterprise = `${ChartLegendPlacement}`
+
+enum ChartLineType {
+  None = "НетЛинии",
+  Dashed = "Пунктир",
+  DashDotted = "ПунктирТочка",
+  DashDottedDotted = "ПунктирТочкаТочка",
+  Solid = "Сплошная",
+  Dotted = "Точечная",
+}
+
+export const ZChartLineType = z.enum(Object.keys(ChartLineType) as [TChartLineType, ...TChartLineType[]])
+export const ZChartLineTypeEnterprise = z.enum(Object.values(ChartLineType) as [TChartLineTypeEnterprise, ...TChartLineTypeEnterprise[]])
+
+export type TChartLineType = keyof typeof ChartLineType
+export type TChartLineTypeEnterprise = `${ChartLineType}`
+
+enum ChartMarkerType {
+  Auto = "Авто",
+  Rect = "Квадрат",
+  Circle = "Круг",
+  None = "Нет",
+  Rhomb = "Ромб",
+  Alternation = "Чередование",
+}
+
+export const ZChartMarkerType = z.enum(Object.keys(ChartMarkerType) as [TChartMarkerType, ...TChartMarkerType[]])
+export const ZChartMarkerTypeEnterprise = z.enum(Object.values(ChartMarkerType) as [TChartMarkerTypeEnterprise, ...TChartMarkerTypeEnterprise[]])
+
+export type TChartMarkerType = keyof typeof ChartMarkerType
+export type TChartMarkerTypeEnterprise = `${ChartMarkerType}`
+
+enum ChartOrientation {
+  SouthEast = "ЮгВосток",
+  SouthWest = "ЮгЗапад",
+}
+
+export const ZChartOrientation = z.enum(Object.keys(ChartOrientation) as [TChartOrientation, ...TChartOrientation[]])
+export const ZChartOrientationEnterprise = z.enum(Object.values(ChartOrientation) as [TChartOrientationEnterprise, ...TChartOrientationEnterprise[]])
+
+export type TChartOrientation = keyof typeof ChartOrientation
+export type TChartOrientationEnterprise = `${ChartOrientation}`
+
+enum ChartPlotAreaPlacement {
+  Auto = "Авто",
+  EmptySpace = "СвободноеМесто",
+  UseCoordinates = "УказываетсяРасположение",
+}
+
+export const ZChartPlotAreaPlacement = z.enum(Object.keys(ChartPlotAreaPlacement) as [TChartPlotAreaPlacement, ...TChartPlotAreaPlacement[]])
+export const ZChartPlotAreaPlacementEnterprise = z.enum(Object.values(ChartPlotAreaPlacement) as [TChartPlotAreaPlacementEnterprise, ...TChartPlotAreaPlacementEnterprise[]])
+
+export type TChartPlotAreaPlacement = keyof typeof ChartPlotAreaPlacement
+export type TChartPlotAreaPlacementEnterprise = `${ChartPlotAreaPlacement}`
+
+enum ChartPointsAxisValuesSource {
+  Auto = "Авто",
+  Series = "Серия",
+  Points = "Точки",
+}
+
+export const ZChartPointsAxisValuesSource = z.enum(Object.keys(ChartPointsAxisValuesSource) as [TChartPointsAxisValuesSource, ...TChartPointsAxisValuesSource[]])
+export const ZChartPointsAxisValuesSourceEnterprise = z.enum(Object.values(ChartPointsAxisValuesSource) as [TChartPointsAxisValuesSourceEnterprise, ...TChartPointsAxisValuesSourceEnterprise[]])
+
+export type TChartPointsAxisValuesSource = keyof typeof ChartPointsAxisValuesSource
+export type TChartPointsAxisValuesSourceEnterprise = `${ChartPointsAxisValuesSource}`
+
+enum ChartPointsConnectionType {
+  Auto = "Авто",
+  DontConnect = "НеСоединять",
+  Connect = "Соединять",
+}
+
+export const ZChartPointsConnectionType = z.enum(Object.keys(ChartPointsConnectionType) as [TChartPointsConnectionType, ...TChartPointsConnectionType[]])
+export const ZChartPointsConnectionTypeEnterprise = z.enum(Object.values(ChartPointsConnectionType) as [TChartPointsConnectionTypeEnterprise, ...TChartPointsConnectionTypeEnterprise[]])
+
+export type TChartPointsConnectionType = keyof typeof ChartPointsConnectionType
+export type TChartPointsConnectionTypeEnterprise = `${ChartPointsConnectionType}`
+
+enum ChartReferenceBandBorderPosition {
+  Auto = "Авто",
+  OnValue = "ВЗначении",
+  BetweenValues = "МеждуЗначениями",
+}
+
+export const ZChartReferenceBandBorderPosition = z.enum(Object.keys(ChartReferenceBandBorderPosition) as [TChartReferenceBandBorderPosition, ...TChartReferenceBandBorderPosition[]])
+export const ZChartReferenceBandBorderPositionEnterprise = z.enum(Object.values(ChartReferenceBandBorderPosition) as [TChartReferenceBandBorderPositionEnterprise, ...TChartReferenceBandBorderPositionEnterprise[]])
+
+export type TChartReferenceBandBorderPosition = keyof typeof ChartReferenceBandBorderPosition
+export type TChartReferenceBandBorderPositionEnterprise = `${ChartReferenceBandBorderPosition}`
+
+enum ChartReferenceLinePosition {
+  Auto = "Авто",
+  OnValue = "ВЗначении",
+  BetweenValues = "МеждуЗначениями",
+}
+
+export const ZChartReferenceLinePosition = z.enum(Object.keys(ChartReferenceLinePosition) as [TChartReferenceLinePosition, ...TChartReferenceLinePosition[]])
+export const ZChartReferenceLinePositionEnterprise = z.enum(Object.values(ChartReferenceLinePosition) as [TChartReferenceLinePositionEnterprise, ...TChartReferenceLinePositionEnterprise[]])
+
+export type TChartReferenceLinePosition = keyof typeof ChartReferenceLinePosition
+export type TChartReferenceLinePositionEnterprise = `${ChartReferenceLinePosition}`
+
+enum ChartScaleLabelLocation {
+  Auto = "Авто",
+  Inside = "Внутри",
+  None = "Нет",
+  Outside = "Снаружи",
+}
+
+export const ZChartScaleLabelLocation = z.enum(Object.keys(ChartScaleLabelLocation) as [TChartScaleLabelLocation, ...TChartScaleLabelLocation[]])
+export const ZChartScaleLabelLocationEnterprise = z.enum(Object.values(ChartScaleLabelLocation) as [TChartScaleLabelLocationEnterprise, ...TChartScaleLabelLocationEnterprise[]])
+
+export type TChartScaleLabelLocation = keyof typeof ChartScaleLabelLocation
+export type TChartScaleLabelLocationEnterprise = `${ChartScaleLabelLocation}`
+
+enum ChartScaleLocation {
+  Auto = "Авто",
+  BaseValue = "БазовоеЗначение",
+  Edge = "Край",
+}
+
+export const ZChartScaleLocation = z.enum(Object.keys(ChartScaleLocation) as [TChartScaleLocation, ...TChartScaleLocation[]])
+export const ZChartScaleLocationEnterprise = z.enum(Object.values(ChartScaleLocation) as [TChartScaleLocationEnterprise, ...TChartScaleLocationEnterprise[]])
+
+export type TChartScaleLocation = keyof typeof ChartScaleLocation
+export type TChartScaleLocationEnterprise = `${ChartScaleLocation}`
+
+enum ChartScaleMarkLocation {
+  Auto = "Авто",
+  Inside = "Внутри",
+  None = "Нет",
+  Outside = "Снаружи",
+  Center = "Центр",
+}
+
+export const ZChartScaleMarkLocation = z.enum(Object.keys(ChartScaleMarkLocation) as [TChartScaleMarkLocation, ...TChartScaleMarkLocation[]])
+export const ZChartScaleMarkLocationEnterprise = z.enum(Object.values(ChartScaleMarkLocation) as [TChartScaleMarkLocationEnterprise, ...TChartScaleMarkLocationEnterprise[]])
+
+export type TChartScaleMarkLocation = keyof typeof ChartScaleMarkLocation
+export type TChartScaleMarkLocationEnterprise = `${ChartScaleMarkLocation}`
+
+enum ChartScaleTitlePlacement {
+  SpecialArea = "ВВыделеннойОбласти",
+  PlotArea = "ВОбластиПостроения",
+  WithAxis = "РядомСОсью",
+}
+
+export const ZChartScaleTitlePlacement = z.enum(Object.keys(ChartScaleTitlePlacement) as [TChartScaleTitlePlacement, ...TChartScaleTitlePlacement[]])
+export const ZChartScaleTitlePlacementEnterprise = z.enum(Object.values(ChartScaleTitlePlacement) as [TChartScaleTitlePlacementEnterprise, ...TChartScaleTitlePlacementEnterprise[]])
+
+export type TChartScaleTitlePlacement = keyof typeof ChartScaleTitlePlacement
+export type TChartScaleTitlePlacementEnterprise = `${ChartScaleTitlePlacement}`
+
+enum ChartScaleTitleTextSource {
+  Auto = "Авто",
+  AutoText = "АвтоТекст",
+  UseText = "ИспользоватьТекст",
+}
+
+export const ZChartScaleTitleTextSource = z.enum(Object.keys(ChartScaleTitleTextSource) as [TChartScaleTitleTextSource, ...TChartScaleTitleTextSource[]])
+export const ZChartScaleTitleTextSourceEnterprise = z.enum(Object.values(ChartScaleTitleTextSource) as [TChartScaleTitleTextSourceEnterprise, ...TChartScaleTitleTextSourceEnterprise[]])
+
+export type TChartScaleTitleTextSource = keyof typeof ChartScaleTitleTextSource
+export type TChartScaleTitleTextSourceEnterprise = `${ChartScaleTitleTextSource}`
+
+enum ChartSelectionMode {
+  Auto = "Авто",
+  ValuesSelection = "ВыделениеЗначений",
+  PointsSelection = "ВыделениеТочек",
+  None = "Нет",
+}
+
+export const ZChartSelectionMode = z.enum(Object.keys(ChartSelectionMode) as [TChartSelectionMode, ...TChartSelectionMode[]])
+export const ZChartSelectionModeEnterprise = z.enum(Object.values(ChartSelectionMode) as [TChartSelectionModeEnterprise, ...TChartSelectionModeEnterprise[]])
+
+export type TChartSelectionMode = keyof typeof ChartSelectionMode
+export type TChartSelectionModeEnterprise = `${ChartSelectionMode}`
+
+enum ChartSemitransparencyMode {
+  Auto = "Авто",
+  AutoCalculate = "АвтоматическийРасчет",
+  Use = "Использовать",
+  DontUse = "НеИспользовать",
+}
+
+export const ZChartSemitransparencyMode = z.enum(Object.keys(ChartSemitransparencyMode) as [TChartSemitransparencyMode, ...TChartSemitransparencyMode[]])
+export const ZChartSemitransparencyModeEnterprise = z.enum(Object.values(ChartSemitransparencyMode) as [TChartSemitransparencyModeEnterprise, ...TChartSemitransparencyModeEnterprise[]])
+
+export type TChartSemitransparencyMode = keyof typeof ChartSemitransparencyMode
+export type TChartSemitransparencyModeEnterprise = `${ChartSemitransparencyMode}`
+
+enum ChartSeriesGraphicalRepresentationType {
+  Auto = "Авто",
+  Column = "Гистограмма",
+  Column3D = "ГистограммаОбъемная",
+  Line = "График",
+  Step = "ГрафикПоШагам",
+  Area = "ГрафикСОбластями",
+}
+
+export const ZChartSeriesGraphicalRepresentationType = z.enum(Object.keys(ChartSeriesGraphicalRepresentationType) as [TChartSeriesGraphicalRepresentationType, ...TChartSeriesGraphicalRepresentationType[]])
+export const ZChartSeriesGraphicalRepresentationTypeEnterprise = z.enum(Object.values(ChartSeriesGraphicalRepresentationType) as [TChartSeriesGraphicalRepresentationTypeEnterprise, ...TChartSeriesGraphicalRepresentationTypeEnterprise[]])
+
+export type TChartSeriesGraphicalRepresentationType = keyof typeof ChartSeriesGraphicalRepresentationType
+export type TChartSeriesGraphicalRepresentationTypeEnterprise = `${ChartSeriesGraphicalRepresentationType}`
+
+enum ChartSeriesOrderInLegend {
+  Auto = "Авто",
+  Reverse = "Обратный",
+  Direct = "Прямой",
+}
+
+export const ZChartSeriesOrderInLegend = z.enum(Object.keys(ChartSeriesOrderInLegend) as [TChartSeriesOrderInLegend, ...TChartSeriesOrderInLegend[]])
+export const ZChartSeriesOrderInLegendEnterprise = z.enum(Object.values(ChartSeriesOrderInLegend) as [TChartSeriesOrderInLegendEnterprise, ...TChartSeriesOrderInLegendEnterprise[]])
+
+export type TChartSeriesOrderInLegend = keyof typeof ChartSeriesOrderInLegend
+export type TChartSeriesOrderInLegendEnterprise = `${ChartSeriesOrderInLegend}`
+
+enum ChartSeriesStackType {
+  Auto = "Авто",
+  Unstacked = "БезНакопления",
+  Stacked = "СНакоплением",
+  StackedNormalized = "СНакоплениемНормированная",
+}
+
+export const ZChartSeriesStackType = z.enum(Object.keys(ChartSeriesStackType) as [TChartSeriesStackType, ...TChartSeriesStackType[]])
+export const ZChartSeriesStackTypeEnterprise = z.enum(Object.values(ChartSeriesStackType) as [TChartSeriesStackTypeEnterprise, ...TChartSeriesStackTypeEnterprise[]])
+
+export type TChartSeriesStackType = keyof typeof ChartSeriesStackType
+export type TChartSeriesStackTypeEnterprise = `${ChartSeriesStackType}`
+
+enum ChartSpaceMode {
+  None = "Нет",
+  Full = "ПолнаяШирина",
+  Half = "ПоловинаШирины",
+}
+
+export const ZChartSpaceMode = z.enum(Object.keys(ChartSpaceMode) as [TChartSpaceMode, ...TChartSpaceMode[]])
+export const ZChartSpaceModeEnterprise = z.enum(Object.values(ChartSpaceMode) as [TChartSpaceModeEnterprise, ...TChartSpaceModeEnterprise[]])
+
+export type TChartSpaceMode = keyof typeof ChartSpaceMode
+export type TChartSpaceModeEnterprise = `${ChartSpaceMode}`
+
+enum ChartSplineMode {
+  SmoothCurve = "ГладкаяКривая",
+  None = "Нет",
+}
+
+export const ZChartSplineMode = z.enum(Object.keys(ChartSplineMode) as [TChartSplineMode, ...TChartSplineMode[]])
+export const ZChartSplineModeEnterprise = z.enum(Object.values(ChartSplineMode) as [TChartSplineModeEnterprise, ...TChartSplineModeEnterprise[]])
+
+export type TChartSplineMode = keyof typeof ChartSplineMode
+export type TChartSplineModeEnterprise = `${ChartSplineMode}`
+
+enum ChartTitleAreaPlacement {
+  Auto = "Авто",
+  Top = "Верх",
+  LeftTop = "ЛевоВерх",
+  LeftBottom = "ЛевоНиз",
+  None = "Нет",
+  Bottom = "Низ",
+  RightTop = "ПравоВерх",
+  RightBottom = "ПравоНиз",
+  UseCoordinates = "УказываетсяРасположение",
+}
+
+export const ZChartTitleAreaPlacement = z.enum(Object.keys(ChartTitleAreaPlacement) as [TChartTitleAreaPlacement, ...TChartTitleAreaPlacement[]])
+export const ZChartTitleAreaPlacementEnterprise = z.enum(Object.values(ChartTitleAreaPlacement) as [TChartTitleAreaPlacementEnterprise, ...TChartTitleAreaPlacementEnterprise[]])
+
+export type TChartTitleAreaPlacement = keyof typeof ChartTitleAreaPlacement
+export type TChartTitleAreaPlacementEnterprise = `${ChartTitleAreaPlacement}`
+
+enum ChartTrendlineApproximationType {
+  Linear = "Линейный",
+  Logarithmic = "Логарифмический",
+  Polynomial = "Полиномиальный",
+  Power = "Степенной",
+  Exponential = "Экспоненциальный",
+}
+
+export const ZChartTrendlineApproximationType = z.enum(Object.keys(ChartTrendlineApproximationType) as [TChartTrendlineApproximationType, ...TChartTrendlineApproximationType[]])
+export const ZChartTrendlineApproximationTypeEnterprise = z.enum(Object.values(ChartTrendlineApproximationType) as [TChartTrendlineApproximationTypeEnterprise, ...TChartTrendlineApproximationTypeEnterprise[]])
+
+export type TChartTrendlineApproximationType = keyof typeof ChartTrendlineApproximationType
+export type TChartTrendlineApproximationTypeEnterprise = `${ChartTrendlineApproximationType}`
+
+enum ChartTrendlineFactor {
+  Auto = "Авто",
+  PointValue = "ЗначениеТочки",
+  PointNumber = "НомерТочки",
+}
+
+export const ZChartTrendlineFactor = z.enum(Object.keys(ChartTrendlineFactor) as [TChartTrendlineFactor, ...TChartTrendlineFactor[]])
+export const ZChartTrendlineFactorEnterprise = z.enum(Object.values(ChartTrendlineFactor) as [TChartTrendlineFactorEnterprise, ...TChartTrendlineFactorEnterprise[]])
+
+export type TChartTrendlineFactor = keyof typeof ChartTrendlineFactor
+export type TChartTrendlineFactorEnterprise = `${ChartTrendlineFactor}`
+
+enum ChartType {
+  Stock = "Биржевая",
+  OpenHighLowClose = "БиржеваяСвеча",
+  ConcaveSurface = "ВогнутаяПоверхность",
+  Waterfall = "Водопад",
+  Funnel = "Воронка",
+  NormalizedFunnel = "ВоронкаНормированная",
+  NormalizedFunnel3D = "ВоронкаНормированнаяОбъемная",
+  Funnel3D = "ВоронкаОбъемная",
+  ConvexSurface = "ВыпуклаяПоверхность",
+  Column = "Гистограмма",
+  Bar = "ГистограммаГоризонтальная",
+  Bar3D = "ГистограммаГоризонтальнаяОбъемная",
+  NormalizedColumn = "ГистограммаНормированная",
+  NormalizedBar = "ГистограммаНормированнаяГоризонтальная",
+  NormalizedBar3D = "ГистограммаНормированнаяГоризонтальнаяОбъемная",
+  NormalizedColumn3D = "ГистограммаНормированнаяОбъемная",
+  Column3D = "ГистограммаОбъемная",
+  StackedColumn = "ГистограммаСНакоплением",
+  StackedBar = "ГистограммаСНакоплениемГоризонтальная",
+  StackedBar3D = "ГистограммаСНакоплениемГоризонтальнаяОбъемная",
+  StackedColumn3D = "ГистограммаСНакоплениемОбъемная",
+  Line = "График",
+  Step = "ГрафикПоШагам",
+  StackedLine = "ГрафикСНакоплением",
+  Area = "ГрафикСОбластями",
+  StackedArea = "ГрафикСОбластямиИНакоплением",
+  NormalizedArea = "ГрафикСОбластямиНормированный",
+  ShadedSurface = "ЗатененнаяПоверхность",
+  Gauge = "Измерительная",
+  BarGraph = "Изометрическая",
+  TapeGraph = "ИзометрическаяЛента",
+  CeilGraph = "ИзометрическаяНепрерывная",
+  PyramidGraph = "ИзометрическаяПирамида",
+  WireframeSurface = "КаркаснаяПоверхность",
+  Donut = "Кольцевая",
+  Donut3D = "КольцеваяОбъемная",
+  Pie = "Круговая",
+  Pie3D = "КруговаяОбъемная",
+  Surface = "Поверхность",
+  Bubble = "Пузырьковая",
+  RadarLine = "РадарныйГрафик",
+  RadarStackedLine = "РадарныйГрафикСНакоплением",
+  RadarArea = "РадарныйГрафикСОбластями",
+  RadarStackedArea = "РадарныйГрафикСОбластямиИНакоплением",
+  RadarNormalizedArea = "РадарныйГрафикСОбластямиНормированный",
+  Honeycomb = "Сотовая",
+  Scatter = "Точечная",
+}
+
+export const ZChartType = z.enum(Object.keys(ChartType) as [TChartType, ...TChartType[]])
+export const ZChartTypeEnterprise = z.enum(Object.values(ChartType) as [TChartTypeEnterprise, ...TChartTypeEnterprise[]])
+
+export type TChartType = keyof typeof ChartType
+export type TChartTypeEnterprise = `${ChartType}`
+
+enum ChartValueEditState {
+  Finished = "Завершено",
+  NotFinished = "НеЗавершено",
+  Canceled = "Отменено",
+}
+
+export const ZChartValueEditState = z.enum(Object.keys(ChartValueEditState) as [TChartValueEditState, ...TChartValueEditState[]])
+export const ZChartValueEditStateEnterprise = z.enum(Object.values(ChartValueEditState) as [TChartValueEditStateEnterprise, ...TChartValueEditStateEnterprise[]])
+
+export type TChartValueEditState = keyof typeof ChartValueEditState
+export type TChartValueEditStateEnterprise = `${ChartValueEditState}`
+
+enum ChartValuesBySeriesConnectionType {
+  None = "Нет",
+  EdgesConnection = "СоединениеКраев",
+}
+
+export const ZChartValuesBySeriesConnectionType = z.enum(Object.keys(ChartValuesBySeriesConnectionType) as [TChartValuesBySeriesConnectionType, ...TChartValuesBySeriesConnectionType[]])
+export const ZChartValuesBySeriesConnectionTypeEnterprise = z.enum(Object.values(ChartValuesBySeriesConnectionType) as [TChartValuesBySeriesConnectionTypeEnterprise, ...TChartValuesBySeriesConnectionTypeEnterprise[]])
+
+export type TChartValuesBySeriesConnectionType = keyof typeof ChartValuesBySeriesConnectionType
+export type TChartValuesBySeriesConnectionTypeEnterprise = `${ChartValuesBySeriesConnectionType}`
+
+enum ChartValuesEditMode {
+  Auto = "Авто",
+  Use = "Использовать",
+  DontUse = "НеИспользовать",
+}
+
+export const ZChartValuesEditMode = z.enum(Object.keys(ChartValuesEditMode) as [TChartValuesEditMode, ...TChartValuesEditMode[]])
+export const ZChartValuesEditModeEnterprise = z.enum(Object.values(ChartValuesEditMode) as [TChartValuesEditModeEnterprise, ...TChartValuesEditModeEnterprise[]])
+
+export type TChartValuesEditMode = keyof typeof ChartValuesEditMode
+export type TChartValuesEditModeEnterprise = `${ChartValuesEditMode}`
+
+enum ChartValuesToolTipFillType {
+  Auto = "Авто",
+  AllPointValues = "ВсеЗначенияТочки",
+  SingleValue = "ОдноЗначение",
+}
+
+export const ZChartValuesToolTipFillType = z.enum(Object.keys(ChartValuesToolTipFillType) as [TChartValuesToolTipFillType, ...TChartValuesToolTipFillType[]])
+export const ZChartValuesToolTipFillTypeEnterprise = z.enum(Object.values(ChartValuesToolTipFillType) as [TChartValuesToolTipFillTypeEnterprise, ...TChartValuesToolTipFillTypeEnterprise[]])
+
+export type TChartValuesToolTipFillType = keyof typeof ChartValuesToolTipFillType
+export type TChartValuesToolTipFillTypeEnterprise = `${ChartValuesToolTipFillType}`
+
+enum ChartValuesToolTipShowMode {
+  Auto = "Авто",
+  DontShow = "НеОтображать",
+  ShowForNearestValue = "ОтображатьДляБлижайшего",
+  ShowOnHover = "ОтображатьПриНаведении",
+}
+
+export const ZChartValuesToolTipShowMode = z.enum(Object.keys(ChartValuesToolTipShowMode) as [TChartValuesToolTipShowMode, ...TChartValuesToolTipShowMode[]])
+export const ZChartValuesToolTipShowModeEnterprise = z.enum(Object.values(ChartValuesToolTipShowMode) as [TChartValuesToolTipShowModeEnterprise, ...TChartValuesToolTipShowModeEnterprise[]])
+
+export type TChartValuesToolTipShowMode = keyof typeof ChartValuesToolTipShowMode
+export type TChartValuesToolTipShowModeEnterprise = `${ChartValuesToolTipShowMode}`
+
+enum GaugeChartValueRepresentation {
+  Sector = "Сектор",
+  Needle = "Стрелка",
+}
+
+export const ZGaugeChartValueRepresentation = z.enum(Object.keys(GaugeChartValueRepresentation) as [TGaugeChartValueRepresentation, ...TGaugeChartValueRepresentation[]])
+export const ZGaugeChartValueRepresentationEnterprise = z.enum(Object.values(GaugeChartValueRepresentation) as [TGaugeChartValueRepresentationEnterprise, ...TGaugeChartValueRepresentationEnterprise[]])
+
+export type TGaugeChartValueRepresentation = keyof typeof GaugeChartValueRepresentation
+export type TGaugeChartValueRepresentationEnterprise = `${GaugeChartValueRepresentation}`
+
+enum GaugeChartValuesScaleLabelsLocation {
+  InsideScale = "ВнутриШкалы",
+  AtScale = "НаШкале",
+}
+
+export const ZGaugeChartValuesScaleLabelsLocation = z.enum(Object.keys(GaugeChartValuesScaleLabelsLocation) as [TGaugeChartValuesScaleLabelsLocation, ...TGaugeChartValuesScaleLabelsLocation[]])
+export const ZGaugeChartValuesScaleLabelsLocationEnterprise = z.enum(Object.values(GaugeChartValuesScaleLabelsLocation) as [TGaugeChartValuesScaleLabelsLocationEnterprise, ...TGaugeChartValuesScaleLabelsLocationEnterprise[]])
+
+export type TGaugeChartValuesScaleLabelsLocation = keyof typeof GaugeChartValuesScaleLabelsLocation
+export type TGaugeChartValuesScaleLabelsLocationEnterprise = `${GaugeChartValuesScaleLabelsLocation}`
+
+enum MaxSeries {
+  NotDefined = "НеЗадано",
+  Limited = "Ограничено",
+  Percent = "Процент",
+}
+
+export const ZMaxSeries = z.enum(Object.keys(MaxSeries) as [TMaxSeries, ...TMaxSeries[]])
+export const ZMaxSeriesEnterprise = z.enum(Object.values(MaxSeries) as [TMaxSeriesEnterprise, ...TMaxSeriesEnterprise[]])
+
+export type TMaxSeries = keyof typeof MaxSeries
+export type TMaxSeriesEnterprise = `${MaxSeries}`
+
+enum NonnumericChartValueUse {
+  Auto = "Авто",
+  AsZero = "КакНоль",
+  Skip = "Пропускать",
+}
+
+export const ZNonnumericChartValueUse = z.enum(Object.keys(NonnumericChartValueUse) as [TNonnumericChartValueUse, ...TNonnumericChartValueUse[]])
+export const ZNonnumericChartValueUseEnterprise = z.enum(Object.values(NonnumericChartValueUse) as [TNonnumericChartValueUseEnterprise, ...TNonnumericChartValueUseEnterprise[]])
+
+export type TNonnumericChartValueUse = keyof typeof NonnumericChartValueUse
+export type TNonnumericChartValueUseEnterprise = `${NonnumericChartValueUse}`
+
+enum PointsConnectionAcrossSkippedChartValuesType {
+  Auto = "Авто",
+  None = "Нет",
+  ConnectUnskippedValues = "СоединениеНеПропущенных",
+  ConnectWithBaseValue = "СоединениеСБазовымЗначением",
+}
+
+export const ZPointsConnectionAcrossSkippedChartValuesType = z.enum(Object.keys(PointsConnectionAcrossSkippedChartValuesType) as [TPointsConnectionAcrossSkippedChartValuesType, ...TPointsConnectionAcrossSkippedChartValuesType[]])
+export const ZPointsConnectionAcrossSkippedChartValuesTypeEnterprise = z.enum(Object.values(PointsConnectionAcrossSkippedChartValuesType) as [TPointsConnectionAcrossSkippedChartValuesTypeEnterprise, ...TPointsConnectionAcrossSkippedChartValuesTypeEnterprise[]])
+
+export type TPointsConnectionAcrossSkippedChartValuesType = keyof typeof PointsConnectionAcrossSkippedChartValuesType
+export type TPointsConnectionAcrossSkippedChartValuesTypeEnterprise = `${PointsConnectionAcrossSkippedChartValuesType}`
+
+enum RadarChartScaleType {
+  Circle = "Окружность",
+  Polygon = "Полигон",
+}
+
+export const ZRadarChartScaleType = z.enum(Object.keys(RadarChartScaleType) as [TRadarChartScaleType, ...TRadarChartScaleType[]])
+export const ZRadarChartScaleTypeEnterprise = z.enum(Object.values(RadarChartScaleType) as [TRadarChartScaleTypeEnterprise, ...TRadarChartScaleTypeEnterprise[]])
+
+export type TRadarChartScaleType = keyof typeof RadarChartScaleType
+export type TRadarChartScaleTypeEnterprise = `${RadarChartScaleType}`
+
+enum ShowChartPopupReferenceLine {
+  Auto = "Авто",
+  DontShow = "НеОтображать",
+  Show = "Отображать",
+}
+
+export const ZShowChartPopupReferenceLine = z.enum(Object.keys(ShowChartPopupReferenceLine) as [TShowChartPopupReferenceLine, ...TShowChartPopupReferenceLine[]])
+export const ZShowChartPopupReferenceLineEnterprise = z.enum(Object.values(ShowChartPopupReferenceLine) as [TShowChartPopupReferenceLineEnterprise, ...TShowChartPopupReferenceLineEnterprise[]])
+
+export type TShowChartPopupReferenceLine = keyof typeof ShowChartPopupReferenceLine
+export type TShowChartPopupReferenceLineEnterprise = `${ShowChartPopupReferenceLine}`
+
+enum ShowChartScaleTitle {
+  Auto = "Авто",
+  DontShow = "НеОтображать",
+  Show = "Отображать",
+}
+
+export const ZShowChartScaleTitle = z.enum(Object.keys(ShowChartScaleTitle) as [TShowChartScaleTitle, ...TShowChartScaleTitle[]])
+export const ZShowChartScaleTitleEnterprise = z.enum(Object.values(ShowChartScaleTitle) as [TShowChartScaleTitleEnterprise, ...TShowChartScaleTitleEnterprise[]])
+
+export type TShowChartScaleTitle = keyof typeof ShowChartScaleTitle
+export type TShowChartScaleTitleEnterprise = `${ShowChartScaleTitle}`
+
+enum ShowInChart {
+  Auto = "Авто",
+  DontShow = "НеОтображать",
+  Show = "Отображать",
+}
+
+export const ZShowInChart = z.enum(Object.keys(ShowInChart) as [TShowInChart, ...TShowInChart[]])
+export const ZShowInChartEnterprise = z.enum(Object.values(ShowInChart) as [TShowInChartEnterprise, ...TShowInChartEnterprise[]])
+
+export type TShowInChart = keyof typeof ShowInChart
+export type TShowInChartEnterprise = `${ShowInChart}`
+
+enum ShowInChartLegend {
+  Auto = "Авто",
+  DontShow = "НеОтображать",
+  Show = "Отображать",
+}
+
+export const ZShowInChartLegend = z.enum(Object.keys(ShowInChartLegend) as [TShowInChartLegend, ...TShowInChartLegend[]])
+export const ZShowInChartLegendEnterprise = z.enum(Object.values(ShowInChartLegend) as [TShowInChartLegendEnterprise, ...TShowInChartLegendEnterprise[]])
+
+export type TShowInChartLegend = keyof typeof ShowInChartLegend
+export type TShowInChartLegendEnterprise = `${ShowInChartLegend}`
+
+enum StockChartUsedPointValue {
+  Close = "Закрытие",
+  High = "Максимальное",
+  Low = "Минимальное",
+  Open = "Открытие",
+  OpenCloseAverage = "СреднееОткрытияИЗакрытия",
+}
+
+export const ZStockChartUsedPointValue = z.enum(Object.keys(StockChartUsedPointValue) as [TStockChartUsedPointValue, ...TStockChartUsedPointValue[]])
+export const ZStockChartUsedPointValueEnterprise = z.enum(Object.values(StockChartUsedPointValue) as [TStockChartUsedPointValueEnterprise, ...TStockChartUsedPointValueEnterprise[]])
+
+export type TStockChartUsedPointValue = keyof typeof StockChartUsedPointValue
+export type TStockChartUsedPointValueEnterprise = `${StockChartUsedPointValue}`
+
+enum UsedChartValuesAxis {
+  Auto = "Авто",
+  Additional = "Дополнительная",
+  Main = "Основная",
+}
+
+export const ZUsedChartValuesAxis = z.enum(Object.keys(UsedChartValuesAxis) as [TUsedChartValuesAxis, ...TUsedChartValuesAxis[]])
+export const ZUsedChartValuesAxisEnterprise = z.enum(Object.values(UsedChartValuesAxis) as [TUsedChartValuesAxisEnterprise, ...TUsedChartValuesAxisEnterprise[]])
+
+export type TUsedChartValuesAxis = keyof typeof UsedChartValuesAxis
+export type TUsedChartValuesAxisEnterprise = `${UsedChartValuesAxis}`
+
+enum GanttChartIntervalRepresentation {
+  Gradient = "Градиент",
+  ThreeDimensional = "Объемный",
+  Flat = "Плоский",
+  Rhomb = "Ромб",
+}
+
+export const ZGanttChartIntervalRepresentation = z.enum(Object.keys(GanttChartIntervalRepresentation) as [TGanttChartIntervalRepresentation, ...TGanttChartIntervalRepresentation[]])
+export const ZGanttChartIntervalRepresentationEnterprise = z.enum(Object.values(GanttChartIntervalRepresentation) as [TGanttChartIntervalRepresentationEnterprise, ...TGanttChartIntervalRepresentationEnterprise[]])
+
+export type TGanttChartIntervalRepresentation = keyof typeof GanttChartIntervalRepresentation
+export type TGanttChartIntervalRepresentationEnterprise = `${GanttChartIntervalRepresentation}`
+
+enum GanttChartIntervalTextRepresentation {
+  Auto = "Авто",
+  DontShow = "НеОтображать",
+  Show = "Отображать",
+}
+
+export const ZGanttChartIntervalTextRepresentation = z.enum(Object.keys(GanttChartIntervalTextRepresentation) as [TGanttChartIntervalTextRepresentation, ...TGanttChartIntervalTextRepresentation[]])
+export const ZGanttChartIntervalTextRepresentationEnterprise = z.enum(Object.values(GanttChartIntervalTextRepresentation) as [TGanttChartIntervalTextRepresentationEnterprise, ...TGanttChartIntervalTextRepresentationEnterprise[]])
+
+export type TGanttChartIntervalTextRepresentation = keyof typeof GanttChartIntervalTextRepresentation
+export type TGanttChartIntervalTextRepresentationEnterprise = `${GanttChartIntervalTextRepresentation}`
+
+enum GanttChartIntervalsSelectionMode {
+  Auto = "Авто",
+  Multiple = "Множественный",
+  None = "Нет",
+  Single = "Одиночный",
+}
+
+export const ZGanttChartIntervalsSelectionMode = z.enum(Object.keys(GanttChartIntervalsSelectionMode) as [TGanttChartIntervalsSelectionMode, ...TGanttChartIntervalsSelectionMode[]])
+export const ZGanttChartIntervalsSelectionModeEnterprise = z.enum(Object.values(GanttChartIntervalsSelectionMode) as [TGanttChartIntervalsSelectionModeEnterprise, ...TGanttChartIntervalsSelectionModeEnterprise[]])
+
+export type TGanttChartIntervalsSelectionMode = keyof typeof GanttChartIntervalsSelectionMode
+export type TGanttChartIntervalsSelectionModeEnterprise = `${GanttChartIntervalsSelectionMode}`
+
+enum GanttChartLinkType {
+  EndEnd = "КонецКонец",
+  EndBegin = "КонецНачало",
+  BeginEnd = "НачалоКонец",
+  BeginBegin = "НачалоНачало",
+}
+
+export const ZGanttChartLinkType = z.enum(Object.keys(GanttChartLinkType) as [TGanttChartLinkType, ...TGanttChartLinkType[]])
+export const ZGanttChartLinkTypeEnterprise = z.enum(Object.values(GanttChartLinkType) as [TGanttChartLinkTypeEnterprise, ...TGanttChartLinkTypeEnterprise[]])
+
+export type TGanttChartLinkType = keyof typeof GanttChartLinkType
+export type TGanttChartLinkTypeEnterprise = `${GanttChartLinkType}`
+
+enum GanttChartScaleKeeping {
+  Auto = "Авто",
+  AllData = "ВсеДанные",
+  Period = "Период",
+  Fixed = "Фиксированная",
+}
+
+export const ZGanttChartScaleKeeping = z.enum(Object.keys(GanttChartScaleKeeping) as [TGanttChartScaleKeeping, ...TGanttChartScaleKeeping[]])
+export const ZGanttChartScaleKeepingEnterprise = z.enum(Object.values(GanttChartScaleKeeping) as [TGanttChartScaleKeepingEnterprise, ...TGanttChartScaleKeepingEnterprise[]])
+
+export type TGanttChartScaleKeeping = keyof typeof GanttChartScaleKeeping
+export type TGanttChartScaleKeepingEnterprise = `${GanttChartScaleKeeping}`
+
+enum GanttChartTableLocation {
+  Auto = "Авто",
+  Left = "Лево",
+  None = "Нет",
+  Right = "Право",
+}
+
+export const ZGanttChartTableLocation = z.enum(Object.keys(GanttChartTableLocation) as [TGanttChartTableLocation, ...TGanttChartTableLocation[]])
+export const ZGanttChartTableLocationEnterprise = z.enum(Object.values(GanttChartTableLocation) as [TGanttChartTableLocationEnterprise, ...TGanttChartTableLocationEnterprise[]])
+
+export type TGanttChartTableLocation = keyof typeof GanttChartTableLocation
+export type TGanttChartTableLocationEnterprise = `${GanttChartTableLocation}`
+
+enum GanttChartTextPlacementType {
+  Auto = "Авто",
+  Cut = "Обрезать",
+  Wrap = "Переносить",
+}
+
+export const ZGanttChartTextPlacementType = z.enum(Object.keys(GanttChartTextPlacementType) as [TGanttChartTextPlacementType, ...TGanttChartTextPlacementType[]])
+export const ZGanttChartTextPlacementTypeEnterprise = z.enum(Object.values(GanttChartTextPlacementType) as [TGanttChartTextPlacementTypeEnterprise, ...TGanttChartTextPlacementTypeEnterprise[]])
+
+export type TGanttChartTextPlacementType = keyof typeof GanttChartTextPlacementType
+export type TGanttChartTextPlacementTypeEnterprise = `${GanttChartTextPlacementType}`
+
+enum GanttChartValueTextRepresentation {
+  None = "НеОтображать",
+  Right = "Право",
+}
+
+export const ZGanttChartValueTextRepresentation = z.enum(Object.keys(GanttChartValueTextRepresentation) as [TGanttChartValueTextRepresentation, ...TGanttChartValueTextRepresentation[]])
+export const ZGanttChartValueTextRepresentationEnterprise = z.enum(Object.values(GanttChartValueTextRepresentation) as [TGanttChartValueTextRepresentationEnterprise, ...TGanttChartValueTextRepresentationEnterprise[]])
+
+export type TGanttChartValueTextRepresentation = keyof typeof GanttChartValueTextRepresentation
+export type TGanttChartValueTextRepresentationEnterprise = `${GanttChartValueTextRepresentation}`
+
+enum GanttChartValuesSelectionMode {
+  Auto = "Авто",
+  Multiple = "Множественный",
+  None = "Нет",
+  Single = "Одиночный",
+}
+
+export const ZGanttChartValuesSelectionMode = z.enum(Object.keys(GanttChartValuesSelectionMode) as [TGanttChartValuesSelectionMode, ...TGanttChartValuesSelectionMode[]])
+export const ZGanttChartValuesSelectionModeEnterprise = z.enum(Object.values(GanttChartValuesSelectionMode) as [TGanttChartValuesSelectionModeEnterprise, ...TGanttChartValuesSelectionModeEnterprise[]])
+
+export type TGanttChartValuesSelectionMode = keyof typeof GanttChartValuesSelectionMode
+export type TGanttChartValuesSelectionModeEnterprise = `${GanttChartValuesSelectionMode}`
+
+enum GanttChartVerticalStretch {
+  None = "НеРастягивать",
+  StretchRows = "РастягиватьСтроки",
+  StretchRowsAndData = "РастягиватьСтрокиИДанные",
+}
+
+export const ZGanttChartVerticalStretch = z.enum(Object.keys(GanttChartVerticalStretch) as [TGanttChartVerticalStretch, ...TGanttChartVerticalStretch[]])
+export const ZGanttChartVerticalStretchEnterprise = z.enum(Object.values(GanttChartVerticalStretch) as [TGanttChartVerticalStretchEnterprise, ...TGanttChartVerticalStretchEnterprise[]])
+
+export type TGanttChartVerticalStretch = keyof typeof GanttChartVerticalStretch
+export type TGanttChartVerticalStretchEnterprise = `${GanttChartVerticalStretch}`
+
+enum ShowInGanttChart {
+  Auto = "Авто",
+  DontShow = "НеОтображать",
+  Show = "Отображать",
+}
+
+export const ZShowInGanttChart = z.enum(Object.keys(ShowInGanttChart) as [TShowInGanttChart, ...TShowInGanttChart[]])
+export const ZShowInGanttChartEnterprise = z.enum(Object.values(ShowInGanttChart) as [TShowInGanttChartEnterprise, ...TShowInGanttChartEnterprise[]])
+
+export type TShowInGanttChart = keyof typeof ShowInGanttChart
+export type TShowInGanttChartEnterprise = `${ShowInGanttChart}`
+
+enum TimeScaleDayFormat {
+  MonthDay = "ДеньМесяца",
+  MonthDayWeekDay = "ДеньМесяцаДеньНедели",
+  WeekDay = "ДеньНедели",
+  WeekDayMonthDay = "ДеньНеделиДеньМесяца",
+}
+
+export const ZTimeScaleDayFormat = z.enum(Object.keys(TimeScaleDayFormat) as [TTimeScaleDayFormat, ...TTimeScaleDayFormat[]])
+export const ZTimeScaleDayFormatEnterprise = z.enum(Object.values(TimeScaleDayFormat) as [TTimeScaleDayFormatEnterprise, ...TTimeScaleDayFormatEnterprise[]])
+
+export type TTimeScaleDayFormat = keyof typeof TimeScaleDayFormat
+export type TTimeScaleDayFormatEnterprise = `${TimeScaleDayFormat}`
+
+enum TimeScaleUnitType {
+  Year = "Год",
+  Day = "День",
+  Quarter = "Квартал",
+  Month = "Месяц",
+  Minute = "Минута",
+  Week = "Неделя",
+  Second = "Секунда",
+  Hour = "Час",
+}
+
+export const ZTimeScaleUnitType = z.enum(Object.keys(TimeScaleUnitType) as [TTimeScaleUnitType, ...TTimeScaleUnitType[]])
+export const ZTimeScaleUnitTypeEnterprise = z.enum(Object.values(TimeScaleUnitType) as [TTimeScaleUnitTypeEnterprise, ...TTimeScaleUnitTypeEnterprise[]])
+
+export type TTimeScaleUnitType = keyof typeof TimeScaleUnitType
+export type TTimeScaleUnitTypeEnterprise = `${TimeScaleUnitType}`
+
+enum PivotChartLabelsOrientation {
+  TopLevelsVertical = "ВерхниеУровниВертикально",
+  AllLevelsVertical = "ВсеУровниВертикально",
+  AllLevelsHorizontal = "ВсеУровниГоризонтально",
+}
+
+export const ZPivotChartLabelsOrientation = z.enum(Object.keys(PivotChartLabelsOrientation) as [TPivotChartLabelsOrientation, ...TPivotChartLabelsOrientation[]])
+export const ZPivotChartLabelsOrientationEnterprise = z.enum(Object.values(PivotChartLabelsOrientation) as [TPivotChartLabelsOrientationEnterprise, ...TPivotChartLabelsOrientationEnterprise[]])
+
+export type TPivotChartLabelsOrientation = keyof typeof PivotChartLabelsOrientation
+export type TPivotChartLabelsOrientationEnterprise = `${PivotChartLabelsOrientation}`
+
+enum PivotChartScaleKeeping {
+  AllValues = "ВсеЗначения",
+  ValuesCount = "КоличествоЗначений",
+  MinimumWidth = "МинимальнаяШирина",
+}
+
+export const ZPivotChartScaleKeeping = z.enum(Object.keys(PivotChartScaleKeeping) as [TPivotChartScaleKeeping, ...TPivotChartScaleKeeping[]])
+export const ZPivotChartScaleKeepingEnterprise = z.enum(Object.values(PivotChartScaleKeeping) as [TPivotChartScaleKeepingEnterprise, ...TPivotChartScaleKeepingEnterprise[]])
+
+export type TPivotChartScaleKeeping = keyof typeof PivotChartScaleKeeping
+export type TPivotChartScaleKeepingEnterprise = `${PivotChartScaleKeeping}`
+
+enum PivotChartType {
+  Column = "Гистограмма",
+  Column3D = "ГистограммаОбъемная",
+}
+
+export const ZPivotChartType = z.enum(Object.keys(PivotChartType) as [TPivotChartType, ...TPivotChartType[]])
+export const ZPivotChartTypeEnterprise = z.enum(Object.values(PivotChartType) as [TPivotChartTypeEnterprise, ...TPivotChartTypeEnterprise[]])
+
+export type TPivotChartType = keyof typeof PivotChartType
+export type TPivotChartTypeEnterprise = `${PivotChartType}`
+
+enum PivotChartValuesShowMode {
+  AllValues = "ВсеЗначения",
+  LastLevelValues = "ЗначенияПоследнегоУровня",
+}
+
+export const ZPivotChartValuesShowMode = z.enum(Object.keys(PivotChartValuesShowMode) as [TPivotChartValuesShowMode, ...TPivotChartValuesShowMode[]])
+export const ZPivotChartValuesShowModeEnterprise = z.enum(Object.values(PivotChartValuesShowMode) as [TPivotChartValuesShowModeEnterprise, ...TPivotChartValuesShowModeEnterprise[]])
+
+export type TPivotChartValuesShowMode = keyof typeof PivotChartValuesShowMode
+export type TPivotChartValuesShowModeEnterprise = `${PivotChartValuesShowMode}`
+
+enum DendrogramOrientation {
+  Top = "Верх",
+  Left = "Лево",
+  Bottom = "Низ",
+  Right = "Право",
+}
+
+export const ZDendrogramOrientation = z.enum(Object.keys(DendrogramOrientation) as [TDendrogramOrientation, ...TDendrogramOrientation[]])
+export const ZDendrogramOrientationEnterprise = z.enum(Object.values(DendrogramOrientation) as [TDendrogramOrientationEnterprise, ...TDendrogramOrientationEnterprise[]])
+
+export type TDendrogramOrientation = keyof typeof DendrogramOrientation
+export type TDendrogramOrientationEnterprise = `${DendrogramOrientation}`
+
+enum DendrogramScaleKeeping {
+  AllItems = "ВсеЭлементы",
+  ItemCount = "КоличествоЭлементов",
+  MinimumWidth = "МинимальнаяШирина",
+}
+
+export const ZDendrogramScaleKeeping = z.enum(Object.keys(DendrogramScaleKeeping) as [TDendrogramScaleKeeping, ...TDendrogramScaleKeeping[]])
+export const ZDendrogramScaleKeepingEnterprise = z.enum(Object.values(DendrogramScaleKeeping) as [TDendrogramScaleKeepingEnterprise, ...TDendrogramScaleKeepingEnterprise[]])
+
+export type TDendrogramScaleKeeping = keyof typeof DendrogramScaleKeeping
+export type TDendrogramScaleKeepingEnterprise = `${DendrogramScaleKeeping}`
+
+enum GeographicalSchemaDataSourceOrganizationType {
+  AtRow = "ВСтроке",
+  AtIntersection = "НаПересечении",
+}
+
+export const ZGeographicalSchemaDataSourceOrganizationType = z.enum(Object.keys(GeographicalSchemaDataSourceOrganizationType) as [TGeographicalSchemaDataSourceOrganizationType, ...TGeographicalSchemaDataSourceOrganizationType[]])
+export const ZGeographicalSchemaDataSourceOrganizationTypeEnterprise = z.enum(Object.values(GeographicalSchemaDataSourceOrganizationType) as [TGeographicalSchemaDataSourceOrganizationTypeEnterprise, ...TGeographicalSchemaDataSourceOrganizationTypeEnterprise[]])
+
+export type TGeographicalSchemaDataSourceOrganizationType = keyof typeof GeographicalSchemaDataSourceOrganizationType
+export type TGeographicalSchemaDataSourceOrganizationTypeEnterprise = `${GeographicalSchemaDataSourceOrganizationType}`
+
+enum GeographicalSchemaLayerSeriesImportModeType {
+  ImportAll = "ИмпортироватьВсе",
+  DontImport = "НеИмпортировать",
+}
+
+export const ZGeographicalSchemaLayerSeriesImportModeType = z.enum(Object.keys(GeographicalSchemaLayerSeriesImportModeType) as [TGeographicalSchemaLayerSeriesImportModeType, ...TGeographicalSchemaLayerSeriesImportModeType[]])
+export const ZGeographicalSchemaLayerSeriesImportModeTypeEnterprise = z.enum(Object.values(GeographicalSchemaLayerSeriesImportModeType) as [TGeographicalSchemaLayerSeriesImportModeTypeEnterprise, ...TGeographicalSchemaLayerSeriesImportModeTypeEnterprise[]])
+
+export type TGeographicalSchemaLayerSeriesImportModeType = keyof typeof GeographicalSchemaLayerSeriesImportModeType
+export type TGeographicalSchemaLayerSeriesImportModeTypeEnterprise = `${GeographicalSchemaLayerSeriesImportModeType}`
+
+enum GeographicalSchemaLayerSeriesShowMode {
+  Column = "Гистограмма",
+  Picture = "Картинка",
+  Pie = "Круговая",
+  SizedPie = "КруговаяСРазмером",
+  DontShow = "НеОтображать",
+  ShapeColorHue = "ОттенокЦветаФигуры",
+  ShapeSize = "РазмерФигуры",
+  Text = "Текст",
+  ShapeColor = "ЦветФигуры",
+}
+
+export const ZGeographicalSchemaLayerSeriesShowMode = z.enum(Object.keys(GeographicalSchemaLayerSeriesShowMode) as [TGeographicalSchemaLayerSeriesShowMode, ...TGeographicalSchemaLayerSeriesShowMode[]])
+export const ZGeographicalSchemaLayerSeriesShowModeEnterprise = z.enum(Object.values(GeographicalSchemaLayerSeriesShowMode) as [TGeographicalSchemaLayerSeriesShowModeEnterprise, ...TGeographicalSchemaLayerSeriesShowModeEnterprise[]])
+
+export type TGeographicalSchemaLayerSeriesShowMode = keyof typeof GeographicalSchemaLayerSeriesShowMode
+export type TGeographicalSchemaLayerSeriesShowModeEnterprise = `${GeographicalSchemaLayerSeriesShowMode}`
+
+enum GeographicalSchemaLegendItemShowScaleType {
+  DontShow = "НеОтображать",
+  ShowByValues = "ОтображатьПоЗначениям",
+}
+
+export const ZGeographicalSchemaLegendItemShowScaleType = z.enum(Object.keys(GeographicalSchemaLegendItemShowScaleType) as [TGeographicalSchemaLegendItemShowScaleType, ...TGeographicalSchemaLegendItemShowScaleType[]])
+export const ZGeographicalSchemaLegendItemShowScaleTypeEnterprise = z.enum(Object.values(GeographicalSchemaLegendItemShowScaleType) as [TGeographicalSchemaLegendItemShowScaleTypeEnterprise, ...TGeographicalSchemaLegendItemShowScaleTypeEnterprise[]])
+
+export type TGeographicalSchemaLegendItemShowScaleType = keyof typeof GeographicalSchemaLegendItemShowScaleType
+export type TGeographicalSchemaLegendItemShowScaleTypeEnterprise = `${GeographicalSchemaLegendItemShowScaleType}`
+
+enum GeographicalSchemaLineType {
+  None = "НетЛинии",
+  Dashed = "Пунктир",
+  DashDotted = "ПунктирТочка",
+  DashDottedDotted = "ПунктирТочкаТочка",
+  Solid = "Сплошная",
+  Dotted = "Точечная",
+}
+
+export const ZGeographicalSchemaLineType = z.enum(Object.keys(GeographicalSchemaLineType) as [TGeographicalSchemaLineType, ...TGeographicalSchemaLineType[]])
+export const ZGeographicalSchemaLineTypeEnterprise = z.enum(Object.values(GeographicalSchemaLineType) as [TGeographicalSchemaLineTypeEnterprise, ...TGeographicalSchemaLineTypeEnterprise[]])
+
+export type TGeographicalSchemaLineType = keyof typeof GeographicalSchemaLineType
+export type TGeographicalSchemaLineTypeEnterprise = `${GeographicalSchemaLineType}`
+
+enum GeographicalSchemaMarkerType {
+  BigSquare = "БольшойКвадрат",
+  BigCircle = "БольшойКруг",
+  BigTriangle = "БольшойТреугольник",
+  ExclamationPoint = "ВосклицательныйЗнак",
+  Darts = "Дартс",
+  QuestionMark = "ЗнакВопроса",
+  Pin = "Кнопка",
+  LittleSquare = "МаленькийКвадрат",
+  LittleCircle = "МаленькийКруг",
+  LittleTriangle = "МаленькийТреугольник",
+  None = "Нет",
+}
+
+export const ZGeographicalSchemaMarkerType = z.enum(Object.keys(GeographicalSchemaMarkerType) as [TGeographicalSchemaMarkerType, ...TGeographicalSchemaMarkerType[]])
+export const ZGeographicalSchemaMarkerTypeEnterprise = z.enum(Object.values(GeographicalSchemaMarkerType) as [TGeographicalSchemaMarkerTypeEnterprise, ...TGeographicalSchemaMarkerTypeEnterprise[]])
+
+export type TGeographicalSchemaMarkerType = keyof typeof GeographicalSchemaMarkerType
+export type TGeographicalSchemaMarkerTypeEnterprise = `${GeographicalSchemaMarkerType}`
+
+enum GeographicalSchemaObjectFindType {
+  Included = "Включает",
+  IncludedWholly = "ВключаетПолностью",
+  Includes = "Включают",
+  IncludesWholly = "ВключаютПолностью",
+}
+
+export const ZGeographicalSchemaObjectFindType = z.enum(Object.keys(GeographicalSchemaObjectFindType) as [TGeographicalSchemaObjectFindType, ...TGeographicalSchemaObjectFindType[]])
+export const ZGeographicalSchemaObjectFindTypeEnterprise = z.enum(Object.values(GeographicalSchemaObjectFindType) as [TGeographicalSchemaObjectFindTypeEnterprise, ...TGeographicalSchemaObjectFindTypeEnterprise[]])
+
+export type TGeographicalSchemaObjectFindType = keyof typeof GeographicalSchemaObjectFindType
+export type TGeographicalSchemaObjectFindTypeEnterprise = `${GeographicalSchemaObjectFindType}`
+
+enum GeographicalSchemaPointObjectDrawingType {
+  Picture = "Картинка",
+  Marker = "Маркер",
+  Char = "Символ",
+}
+
+export const ZGeographicalSchemaPointObjectDrawingType = z.enum(Object.keys(GeographicalSchemaPointObjectDrawingType) as [TGeographicalSchemaPointObjectDrawingType, ...TGeographicalSchemaPointObjectDrawingType[]])
+export const ZGeographicalSchemaPointObjectDrawingTypeEnterprise = z.enum(Object.values(GeographicalSchemaPointObjectDrawingType) as [TGeographicalSchemaPointObjectDrawingTypeEnterprise, ...TGeographicalSchemaPointObjectDrawingTypeEnterprise[]])
+
+export type TGeographicalSchemaPointObjectDrawingType = keyof typeof GeographicalSchemaPointObjectDrawingType
+export type TGeographicalSchemaPointObjectDrawingTypeEnterprise = `${GeographicalSchemaPointObjectDrawingType}`
+
+enum GeographicalSchemaProjection {
+  AzimuthalAitoffProjection = "АзимутальнаяПроекцияАитофа",
+  AzimuthalWagner7Projection = "АзимутальнаяПроекцияВагнера7",
+  AzimuthalWinkelTripelProjection = "АзимутальнаяПроекцияВинкеляТрипеля",
+  AzimuthalLambertEqualAreaProjection = "АзимутальнаяПроекцияРавныхПлощадейЛамберта",
+  AzimuthalHammerProjection = "АзимутальнаяПроекцияХамера",
+  AzimuthalEquidistantProjection = "АзимутальнаяРавноудаленнаяПроекция",
+  ConicLambertEqualAreaProjection = "КоническаяПроекцияРавныхПлощадейЛамберта",
+  MiscellaneousOrteliusOvalProjection = "ПрочаяОвальнаяПроекцияОртелиуса",
+  MiscellaneousVanDerGrinten1Projection = "ПрочаяПроекцияВанДерГринтена1",
+  MiscellaneousVanDerGrinten2Projection = "ПрочаяПроекцияВанДерГринтена2",
+  MiscellaneousVanDerGrinten3Projection = "ПрочаяПроекцияВанДерГринтена3",
+  MiscellaneousApianGlobular1Projection = "ПрочаяСотоваяШаровая1Проекция",
+  MiscellaneousBaconGlobularProjection = "ПрочаяШароваяПроекцияБекона",
+  MiscellaneousNicolosiGlobularProjection = "ПрочаяШароваяПроекцияНиколоси",
+  MiscellaneousAugustEpicycloidalProjection = "ПрочаяЭпициклоидальнаяПроекцияАвгуста",
+  PseudoCylindricalBoggsEumorphicProjection = "ПсевдоцилиндрическаяНормальнаяПроекцияБоггса",
+  PseudoCylindricalMcBrydeThomasFlatPolarParabolicProjection = "ПсевдоцилиндрическаяПлоскоПолярнаяПараболическаяПроекцияМакБрайдаТомаса",
+  PseudoCylindricalMcBrydeThomasFlatPolarQuarticProjection = "ПсевдоцилиндрическаяПлоскоПолярнаяПроекцияЧетвертогоПорядкаМакБрайдаТомаса",
+  PseudoCylindricalMcBrydeThomasFlatPolarSinusoidalProjection = "ПсевдоцилиндрическаяПлоскоПолярнаяСинусоидальнаяПроекцияМакБрайдаТомаса",
+  PseudoCylindricalWinkel1Projection = "ПсевдоцилиндрическаяПроекцияВинкеля1",
+  PseudoCylindricalLoximutalProjection = "ПсевдоцилиндрическаяПроекцияЛоксимутала",
+  PseudoCylindricalMollweideProjection = "ПсевдоцилиндрическаяПроекцияМолвейда",
+  PseudoCylindricalHatanoAsymetricalEqualAreaProjection = "ПсевдоцилиндрическаяПроекцияНесимметричныхРавныхОбластейХатано",
+  PseudoCylindricalPutninP2Projection = "ПсевдоцилиндрическаяПроекцияПутнинаP2",
+  PseudoCylindricalPutninP5Projection = "ПсевдоцилиндрическаяПроекцияПутнинаP5",
+  PseudoCylindricalRobinsonProjection = "ПсевдоцилиндрическаяПроекцияРобинсона",
+  PseudoCylindricalEckert1Projection = "ПсевдоцилиндрическаяПроекцияЭкерта1",
+  PseudoCylindricalEckert2Projection = "ПсевдоцилиндрическаяПроекцияЭкерта2",
+  PseudoCylindricalEckert3Projection = "ПсевдоцилиндрическаяПроекцияЭкерта3",
+  PseudoCylindricalEckert4Projection = "ПсевдоцилиндрическаяПроекцияЭкерта4",
+  PseudoCylindricalEckert5Projection = "ПсевдоцилиндрическаяПроекцияЭкерта5",
+  PseudoCylindricalEckert6Projection = "ПсевдоцилиндрическаяПроекцияЭкерта6",
+  PseudoCylindricalSinusoidalProjection = "ПсевдоцилиндрическаяСинусоидальнаяПроекция",
+  CylindricalMillerProjection = "ЦилиндрическаяПроекцияМиллера",
+  CylindricalLambertEqualAreaProjection = "ЦилиндрическаяПроекцияРавныхОбластейЛамберта",
+  CylindricalEquidistantProjection = "ЦилиндрическаяРавноудаленнаяПроекция",
+  CylindricalGallStereographicProjection = "ЦилиндрическаяСтереографическаяПроекцияГалла",
+}
+
+export const ZGeographicalSchemaProjection = z.enum(Object.keys(GeographicalSchemaProjection) as [TGeographicalSchemaProjection, ...TGeographicalSchemaProjection[]])
+export const ZGeographicalSchemaProjectionEnterprise = z.enum(Object.values(GeographicalSchemaProjection) as [TGeographicalSchemaProjectionEnterprise, ...TGeographicalSchemaProjectionEnterprise[]])
+
+export type TGeographicalSchemaProjection = keyof typeof GeographicalSchemaProjection
+export type TGeographicalSchemaProjectionEnterprise = `${GeographicalSchemaProjection}`
+
+enum GeographicalSchemaShowMode {
+  AllData = "ВсеДанные",
+  ScaleDefined = "ЗадаетсяМасштабом",
+  SpecifiedArea = "ЗаданнаяОбласть",
+}
+
+export const ZGeographicalSchemaShowMode = z.enum(Object.keys(GeographicalSchemaShowMode) as [TGeographicalSchemaShowMode, ...TGeographicalSchemaShowMode[]])
+export const ZGeographicalSchemaShowModeEnterprise = z.enum(Object.values(GeographicalSchemaShowMode) as [TGeographicalSchemaShowModeEnterprise, ...TGeographicalSchemaShowModeEnterprise[]])
+
+export type TGeographicalSchemaShowMode = keyof typeof GeographicalSchemaShowMode
+export type TGeographicalSchemaShowModeEnterprise = `${GeographicalSchemaShowMode}`
+
+enum PaintingReferencePointPosition {
+  LeftTop = "ЛевоВерх",
+  LeftBottom = "ЛевоНиз",
+  LeftCenter = "ЛевоЦентр",
+  RightTop = "ПравоВерх",
+  RightBottom = "ПравоНиз",
+  RightCenter = "ПравоЦентр",
+  Center = "Центр",
+  CenterTop = "ЦентрВерх",
+  CenterBottom = "ЦентрНиз",
+}
+
+export const ZPaintingReferencePointPosition = z.enum(Object.keys(PaintingReferencePointPosition) as [TPaintingReferencePointPosition, ...TPaintingReferencePointPosition[]])
+export const ZPaintingReferencePointPositionEnterprise = z.enum(Object.values(PaintingReferencePointPosition) as [TPaintingReferencePointPositionEnterprise, ...TPaintingReferencePointPositionEnterprise[]])
+
+export type TPaintingReferencePointPosition = keyof typeof PaintingReferencePointPosition
+export type TPaintingReferencePointPositionEnterprise = `${PaintingReferencePointPosition}`
+
+enum SeriesValuesDrawingMode {
+  ShowAsPart = "ОтображатьКакДолю",
+  ShowAsValue = "ОтображатьКакЗначение",
+}
+
+export const ZSeriesValuesDrawingMode = z.enum(Object.keys(SeriesValuesDrawingMode) as [TSeriesValuesDrawingMode, ...TSeriesValuesDrawingMode[]])
+export const ZSeriesValuesDrawingModeEnterprise = z.enum(Object.values(SeriesValuesDrawingMode) as [TSeriesValuesDrawingModeEnterprise, ...TSeriesValuesDrawingModeEnterprise[]])
+
+export type TSeriesValuesDrawingMode = keyof typeof SeriesValuesDrawingMode
+export type TSeriesValuesDrawingModeEnterprise = `${SeriesValuesDrawingMode}`
+
 enum IntegrationServiceChannelState {
   Disconnected = "Отключен",
   Connected = "Подключен",
@@ -7600,6 +7613,17 @@ export const ZCalculationTypeMainPresentationEnterprise = z.enum(Object.values(C
 export type TCalculationTypeMainPresentation = keyof typeof CalculationTypeMainPresentation
 export type TCalculationTypeMainPresentationEnterprise = `${CalculationTypeMainPresentation}`
 
+enum CharOfAccountCodeSeries {
+  WholeChartOfAccounts = "ВоВсемПланеСчетов",
+  WithinSubordination = "ВПределахПодчинения",
+}
+
+export const ZCharOfAccountCodeSeries = z.enum(Object.keys(CharOfAccountCodeSeries) as [TCharOfAccountCodeSeries, ...TCharOfAccountCodeSeries[]])
+export const ZCharOfAccountCodeSeriesEnterprise = z.enum(Object.values(CharOfAccountCodeSeries) as [TCharOfAccountCodeSeriesEnterprise, ...TCharOfAccountCodeSeriesEnterprise[]])
+
+export type TCharOfAccountCodeSeries = keyof typeof CharOfAccountCodeSeries
+export type TCharOfAccountCodeSeriesEnterprise = `${CharOfAccountCodeSeries}`
+
 enum CharacteristicKindCodesSeries {
   WholeCharacteristicKind = "ВоВсемПланеВидовХарактеристик",
   WithinSubordination = "ВПределахПодчинения",
@@ -7621,17 +7645,6 @@ export const ZCharacteristicTypeMainPresentationEnterprise = z.enum(Object.value
 
 export type TCharacteristicTypeMainPresentation = keyof typeof CharacteristicTypeMainPresentation
 export type TCharacteristicTypeMainPresentationEnterprise = `${CharacteristicTypeMainPresentation}`
-
-enum CharOfAccountCodeSeries {
-  WholeChartOfAccounts = "ВоВсемПланеСчетов",
-  WithinSubordination = "ВПределахПодчинения",
-}
-
-export const ZCharOfAccountCodeSeries = z.enum(Object.keys(CharOfAccountCodeSeries) as [TCharOfAccountCodeSeries, ...TCharOfAccountCodeSeries[]])
-export const ZCharOfAccountCodeSeriesEnterprise = z.enum(Object.values(CharOfAccountCodeSeries) as [TCharOfAccountCodeSeriesEnterprise, ...TCharOfAccountCodeSeriesEnterprise[]])
-
-export type TCharOfAccountCodeSeries = keyof typeof CharOfAccountCodeSeries
-export type TCharOfAccountCodeSeriesEnterprise = `${CharOfAccountCodeSeries}`
 
 enum ChartOfCalculationTypesBaseUse {
   DontUse = "НеИспользовать",
@@ -7935,17 +7948,6 @@ export const ZFullTextSearchOnInputByStringEnterprise = z.enum(Object.values(Ful
 export type TFullTextSearchOnInputByString = keyof typeof FullTextSearchOnInputByString
 export type TFullTextSearchOnInputByStringEnterprise = `${FullTextSearchOnInputByString}`
 
-enum HierarchyType {
-  HierarchyFoldersAndItems = "ИерархияГруппИЭлементов",
-  HierarchyOfItems = "ИерархияЭлементов",
-}
-
-export const ZHierarchyType = z.enum(Object.keys(HierarchyType) as [THierarchyType, ...THierarchyType[]])
-export const ZHierarchyTypeEnterprise = z.enum(Object.values(HierarchyType) as [THierarchyTypeEnterprise, ...THierarchyTypeEnterprise[]])
-
-export type THierarchyType = keyof typeof HierarchyType
-export type THierarchyTypeEnterprise = `${HierarchyType}`
-
 enum HTTPMethod {
   CONNECT = "CONNECT",
   COPY = "COPY",
@@ -7972,6 +7974,17 @@ export const ZHTTPMethodEnterprise = z.enum(Object.values(HTTPMethod) as [THTTPM
 
 export type THTTPMethod = keyof typeof HTTPMethod
 export type THTTPMethodEnterprise = `${HTTPMethod}`
+
+enum HierarchyType {
+  HierarchyFoldersAndItems = "ИерархияГруппИЭлементов",
+  HierarchyOfItems = "ИерархияЭлементов",
+}
+
+export const ZHierarchyType = z.enum(Object.keys(HierarchyType) as [THierarchyType, ...THierarchyType[]])
+export const ZHierarchyTypeEnterprise = z.enum(Object.values(HierarchyType) as [THierarchyTypeEnterprise, ...THierarchyTypeEnterprise[]])
+
+export type THierarchyType = keyof typeof HierarchyType
+export type THierarchyTypeEnterprise = `${HierarchyType}`
 
 enum Indexing {
   Index = "Индексировать",
@@ -8827,19 +8840,6 @@ export const ZZIPSubDirProcessingModeEnterprise = z.enum(Object.values(ZIPSubDir
 
 export type TZIPSubDirProcessingMode = keyof typeof ZIPSubDirProcessingMode
 export type TZIPSubDirProcessingModeEnterprise = `${ZIPSubDirProcessingMode}`
-
-enum DynamicListSearchStringViewMode {
-  Auto = "Авто",
-  DontShow = "НеОтображать",
-  Show = "Отображать",
-  ShowOnUsingFullTextSearch = "ОтображатьПриИспользованииПолнотекстовогоПоиска",
-}
-
-export const ZDynamicListSearchStringViewMode = z.enum(Object.keys(DynamicListSearchStringViewMode) as [TDynamicListSearchStringViewMode, ...TDynamicListSearchStringViewMode[]])
-export const ZDynamicListSearchStringViewModeEnterprise = z.enum(Object.values(DynamicListSearchStringViewMode) as [TDynamicListSearchStringViewModeEnterprise, ...TDynamicListSearchStringViewModeEnterprise[]])
-
-export type TDynamicListSearchStringViewMode = keyof typeof DynamicListSearchStringViewMode
-export type TDynamicListSearchStringViewModeEnterprise = `${DynamicListSearchStringViewMode}`
 
 enum StatePresentation {
   Visible = "Видимость",

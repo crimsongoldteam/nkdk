@@ -23,6 +23,12 @@ export const importGeographicalSchemaFieldFromXML = (xml: TGeographicalSchemaFie
     output: xml.Output,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
+    events: xml.Events ? {
+       detailProcessing: xml.Events.DetailProcessing,
+       beforeWrite: xml.Events.BeforeWrite,
+       beforePrint: xml.Events.BeforePrint,
+       afterWrite: xml.Events.AfterWrite,
+    } : undefined,
   }
 }
 

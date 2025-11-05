@@ -27,6 +27,11 @@ export const exportTextDocumentFieldToXML = (data: TTextDocumentField | undefine
     TextColor: exportColorToXML(data.textColor),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
+    Events: data.events ? {
+       BeforeWrite: data.events.beforeWrite,
+       BeforePrint: data.events.beforePrint,
+       AfterWrite: data.events.afterWrite,
+    } : undefined,
   }
 }
 

@@ -7,7 +7,7 @@ import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { TChildItems } from "../childItems/typesExt"
+    import { TChildItems } from "../childItems/typesExt"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 
 export const ZTable = ZBaseElement.extend({
@@ -96,10 +96,34 @@ export const ZTable = ZBaseElement.extend({
   get childItems() : TChildItems {
     return ZChildItems
   },
+  events: z.object({
+    selection: z.string().optional(),
+    valueChoice: z.string().optional(),
+    dragStart: z.string().optional(),
+    choiceProcessing: z.string().optional(),
+    newWriteProcessing: z.string().optional(),
+    refreshRequestProcessing: z.string().optional(),
+    dragEnd: z.string().optional(),
+    beforeAddRow: z.string().optional(),
+    beforeRowChange: z.string().optional(),
+    beforeEditEnd: z.string().optional(),
+    beforeExpand: z.string().optional(),
+    beforeCollapse: z.string().optional(),
+    beforeDeleteRow: z.string().optional(),
+    drag: z.string().optional(),
+    afterDeleteRow: z.string().optional(),
+    onActivateField: z.string().optional(),
+    onActivateRow: z.string().optional(),
+    onActivateCell: z.string().optional(),
+    onChange: z.string().optional(),
+    onStartEdit: z.string().optional(),
+    onEditEnd: z.string().optional(),
+    onCurrentParentChange: z.string().optional(),
+    dragCheck: z.string().optional(),
+  }).optional(),
 })
 
 export const ZTableXML = ZBaseElementXML.extend({
-  _DisplayImportance: SE.ZDisplayImportance.optional(),
   TitleLocation: SE.ZFormItemTitleLocation.optional(),
   TitleHeight: z.number().optional(),
   CommandBarLocation: SE.ZFormItemCommandBarLabelLocation.optional(),
@@ -164,12 +188,16 @@ export const ZTableXML = ZBaseElementXML.extend({
   get ExtendedTooltip() {
     return ZFormDecorationXML.optional()
   },
+  get ChildItems() {
+    return ZChildItemsXML.optional()
+  },
   AutoInsertNewRow: z.boolean().optional(),
   AutoMaxHeightInTableRows: z.boolean().optional(),
   get CommandBar() {
     return ZFormGroupXML.optional()
   },
   DefaultItem: z.boolean().optional(),
+  DisplayImportance: SE.ZDisplayImportance.optional(),
   EnableDrag: z.boolean().optional(),
   EnableStartDrag: z.boolean().optional(),
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
@@ -181,9 +209,31 @@ export const ZTableXML = ZBaseElementXML.extend({
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   ViewStatusRepresentation: ZFormItemAdditionXML.optional(),
   Visible: z.boolean().optional(),
-  get ChildItems() {
-    return ZChildItemsXML.optional()
-  },
+  Events: z.object({
+    Selection: z.string().optional(),
+    ValueChoice: z.string().optional(),
+    DragStart: z.string().optional(),
+    ChoiceProcessing: z.string().optional(),
+    NewWriteProcessing: z.string().optional(),
+    RefreshRequestProcessing: z.string().optional(),
+    DragEnd: z.string().optional(),
+    BeforeAddRow: z.string().optional(),
+    BeforeRowChange: z.string().optional(),
+    BeforeEditEnd: z.string().optional(),
+    BeforeExpand: z.string().optional(),
+    BeforeCollapse: z.string().optional(),
+    BeforeDeleteRow: z.string().optional(),
+    Drag: z.string().optional(),
+    AfterDeleteRow: z.string().optional(),
+    OnActivateField: z.string().optional(),
+    OnActivateRow: z.string().optional(),
+    OnActivateCell: z.string().optional(),
+    OnChange: z.string().optional(),
+    OnStartEdit: z.string().optional(),
+    OnEditEnd: z.string().optional(),
+    OnCurrentParentChange: z.string().optional(),
+    DragCheck: z.string().optional(),
+  }).optional(),
 })
 
 export type TTable = z.infer<typeof ZTable>

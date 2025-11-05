@@ -28,6 +28,9 @@ export const importPdfDocumentFieldFromXML = (xml: TPdfDocumentFieldXML | undefi
     verticalStretch: xml.VerticalStretch,
     viewStatusLocation: xml.ViewStatusLocation,
     width: xml.Width,
+    events: xml.Events ? {
+       uRLClick: xml.Events.URLClick,
+    } : undefined,
   }
 }
 

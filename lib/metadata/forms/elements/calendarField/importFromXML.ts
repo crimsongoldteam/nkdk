@@ -36,6 +36,15 @@ export const importCalendarFieldFromXML = (xml: TCalendarFieldXML | undefined): 
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     widthInMonths: xml.WidthInMonths,
+    events: xml.Events ? {
+       selection: xml.Events.Selection,
+       dragStart: xml.Events.DragStart,
+       dragEnd: xml.Events.DragEnd,
+       drag: xml.Events.Drag,
+       onActivateDate: xml.Events.OnActivateDate,
+       onPeriodOutput: xml.Events.OnPeriodOutput,
+       dragCheck: xml.Events.DragCheck,
+    } : undefined,
   }
 }
 

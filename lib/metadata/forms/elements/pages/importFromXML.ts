@@ -17,6 +17,9 @@ export const importPagesFromXML = (xml: TPagesXML | undefined): TPages | undefin
     currentPagesState: xml.CurrentPagesState,
     currentRowUse: xml.CurrentRowUse,
     pagesRepresentation: xml.PagesRepresentation,
+    events: xml.Events ? {
+       onCurrentPageChange: xml.Events.OnCurrentPageChange,
+    } : undefined,
   }
 }
 

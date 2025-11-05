@@ -35,6 +35,15 @@ export const exportCalendarFieldToXML = (data: TCalendarField | undefined): TCal
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     WidthInMonths: data.widthInMonths,
+    Events: data.events ? {
+       Selection: data.events.selection,
+       DragStart: data.events.dragStart,
+       DragEnd: data.events.dragEnd,
+       Drag: data.events.drag,
+       OnActivateDate: data.events.onActivateDate,
+       OnPeriodOutput: data.events.onPeriodOutput,
+       DragCheck: data.events.dragCheck,
+    } : undefined,
   }
 }
 

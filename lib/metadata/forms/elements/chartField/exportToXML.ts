@@ -19,6 +19,11 @@ export const exportChartFieldToXML = (data: TChartField | undefined): TChartFiel
     MaxWidth: data.maxWidth,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
+    Events: data.events ? {
+       Selection: data.events.selection,
+       DetailProcessing: data.events.detailProcessing,
+       OnActivate: data.events.onActivate,
+    } : undefined,
   }
 }
 

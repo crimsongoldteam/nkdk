@@ -27,6 +27,9 @@ export const exportPdfDocumentFieldToXML = (data: TPdfDocumentField | undefined)
     VerticalStretch: data.verticalStretch,
     ViewStatusLocation: data.viewStatusLocation,
     Width: data.width,
+    Events: data.events ? {
+       URLClick: data.events.uRLClick,
+    } : undefined,
   }
 }
 

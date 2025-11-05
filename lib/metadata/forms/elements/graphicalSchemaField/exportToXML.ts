@@ -23,6 +23,13 @@ export const exportGraphicalSchemaFieldToXML = (data: TGraphicalSchemaField | un
     Output: data.output,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
+    Events: data.events ? {
+       Selection: data.events.selection,
+       BeforeWrite: data.events.beforeWrite,
+       BeforePrint: data.events.beforePrint,
+       AfterWrite: data.events.afterWrite,
+       OnActivate: data.events.onActivate,
+    } : undefined,
   }
 }
 

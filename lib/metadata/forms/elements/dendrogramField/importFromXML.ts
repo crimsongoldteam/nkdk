@@ -20,6 +20,10 @@ export const importDendrogramFieldFromXML = (xml: TDendrogramFieldXML | undefine
     maxWidth: xml.MaxWidth,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
+    events: xml.Events ? {
+       selection: xml.Events.Selection,
+       detailProcessing: xml.Events.DetailProcessing,
+    } : undefined,
   }
 }
 

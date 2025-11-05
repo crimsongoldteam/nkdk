@@ -16,6 +16,9 @@ export const exportPagesToXML = (data: TPages | undefined): TPagesXML | undefine
     CurrentPagesState: data.currentPagesState,
     CurrentRowUse: data.currentRowUse,
     PagesRepresentation: data.pagesRepresentation,
+    Events: data.events ? {
+       OnCurrentPageChange: data.events.onCurrentPageChange,
+    } : undefined,
   }
 }
 

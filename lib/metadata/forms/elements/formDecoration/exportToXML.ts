@@ -18,7 +18,7 @@ export const exportFormDecorationToXML = (data: TFormDecoration | undefined): TF
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
     ContextMenu: exportFormGroupToXML(data.contextMenu),
-    _DisplayImportance: data.displayImportance,
+    DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
     Font: exportFontToXML(data.font),

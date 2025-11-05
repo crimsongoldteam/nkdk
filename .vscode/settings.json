@@ -12,5 +12,9 @@
   },
   "[bsl]": {
     "editor.defaultFormatter": "1c-syntax.language-1c-bsl"
+  },
+  "vitest.nodeExecutable": "/opt/homebrew/bin/node",
+  "terminal.integrated.env.osx": {
+    "PATH": "${env:PATH}:/opt/homebrew/bin"
   }
 }

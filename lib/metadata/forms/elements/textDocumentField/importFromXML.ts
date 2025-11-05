@@ -28,6 +28,11 @@ export const importTextDocumentFieldFromXML = (xml: TTextDocumentFieldXML | unde
     textColor: importColorFromXML(xml.TextColor),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
+    events: xml.Events ? {
+       beforeWrite: xml.Events.BeforeWrite,
+       beforePrint: xml.Events.BeforePrint,
+       afterWrite: xml.Events.AfterWrite,
+    } : undefined,
   }
 }
 

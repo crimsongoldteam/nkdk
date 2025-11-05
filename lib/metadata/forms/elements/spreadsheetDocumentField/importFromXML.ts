@@ -41,6 +41,21 @@ export const importSpreadSheetDocumentFieldFromXML = (xml: TSpreadSheetDocumentF
     verticalStretch: xml.VerticalStretch,
     viewScalingMode: xml.ViewScalingMode,
     width: xml.Width,
+    events: xml.Events ? {
+       selection: xml.Events.Selection,
+       dragStart: xml.Events.DragStart,
+       additionalDetailProcessing: xml.Events.AdditionalDetailProcessing,
+       uRLProcessing: xml.Events.URLProcessing,
+       detailProcessing: xml.Events.DetailProcessing,
+       dragEnd: xml.Events.DragEnd,
+       beforeWrite: xml.Events.BeforeWrite,
+       beforePrint: xml.Events.BeforePrint,
+       drag: xml.Events.Drag,
+       afterWrite: xml.Events.AfterWrite,
+       onActivate: xml.Events.OnActivate,
+       onChangeAreaContentEvent: xml.Events.OnChangeAreaContentEvent,
+       dragCheck: xml.Events.DragCheck,
+    } : undefined,
   }
 }
 

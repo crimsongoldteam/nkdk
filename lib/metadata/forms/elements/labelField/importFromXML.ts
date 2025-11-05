@@ -33,6 +33,10 @@ export const importLabelFieldFromXML = (xml: TLabelFieldXML | undefined): TLabel
     textColor: importColorFromXML(xml.TextColor),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
+    events: xml.Events ? {
+       click: xml.Events.Click,
+       uRLProcessing: xml.Events.URLProcessing,
+    } : undefined,
   }
 }
 

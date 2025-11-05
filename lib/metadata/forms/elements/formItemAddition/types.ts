@@ -5,7 +5,7 @@ import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { TChildItems } from "../childItems/typesExt"
+    import { TChildItems } from "../childItems/typesExt"
 
 export const ZFormItemAddition = ZBaseElement.extend({
   get contextMenu() {
@@ -29,10 +29,13 @@ export const ZFormItemAddition = ZBaseElement.extend({
 })
 
 export const ZFormItemAdditionXML = ZBaseElementXML.extend({
-  _DisplayImportance: SE.ZDisplayImportance.optional(),
+  get ChildItems() {
+    return ZChildItemsXML.optional()
+  },
   get ContextMenu() {
     return ZFormGroupXML.optional()
   },
+  DisplayImportance: SE.ZDisplayImportance.optional(),
   Enabled: z.boolean().optional(),
   get ExtendedToolTip() {
     return ZFormDecorationXML.optional()
@@ -44,9 +47,6 @@ export const ZFormItemAdditionXML = ZBaseElementXML.extend({
   Type: SE.ZFormItemAdditionType.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   Visible: z.boolean().optional(),
-  get ChildItems() {
-    return ZChildItemsXML.optional()
-  },
 })
 
 export type TFormItemAddition = z.infer<typeof ZFormItemAddition>

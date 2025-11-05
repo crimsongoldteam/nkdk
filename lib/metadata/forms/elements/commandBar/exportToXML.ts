@@ -11,7 +11,7 @@ export const exportCommandBarToXML = (data: TCommandBar | undefined): TCommandBa
    
   return {
     ...base,
-    _DisplayImportance: data.displayImportance,
+    DisplayImportance: data.displayImportance,
     HorizontalAlign: data.horizontalAlign,
   }
 }

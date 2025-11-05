@@ -97,6 +97,23 @@ export const importInputFieldFromXML = (xml: TInputFieldXML | undefined): TInput
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     wrap: xml.Wrap,
+    events: xml.Events ? {
+       autoComplete: xml.Events.AutoComplete,
+       multipleValuesAdd: xml.Events.MultipleValuesAdd,
+       editTextChange: xml.Events.EditTextChange,
+       startChoice: xml.Events.StartChoice,
+       startListChoice: xml.Events.StartListChoice,
+       choiceProcessing: xml.Events.ChoiceProcessing,
+       multipleValueURLProcessing: xml.Events.MultipleValueURLProcessing,
+       commandGenerateProcessing: xml.Events.CommandGenerateProcessing,
+       textEditEnd: xml.Events.TextEditEnd,
+       opening: xml.Events.Opening,
+       multipleValueOpening: xml.Events.MultipleValueOpening,
+       clearing: xml.Events.Clearing,
+       tuning: xml.Events.Tuning,
+       creating: xml.Events.Creating,
+       multipleValuesDelete: xml.Events.MultipleValuesDelete,
+    } : undefined,
   }
 }
 

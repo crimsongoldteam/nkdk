@@ -22,6 +22,12 @@ export const exportGeographicalSchemaFieldToXML = (data: TGeographicalSchemaFiel
     Output: data.output,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
+    Events: data.events ? {
+       DetailProcessing: data.events.detailProcessing,
+       BeforeWrite: data.events.beforeWrite,
+       BeforePrint: data.events.beforePrint,
+       AfterWrite: data.events.afterWrite,
+    } : undefined,
   }
 }
 

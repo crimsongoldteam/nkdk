@@ -25,6 +25,13 @@ export const exportPictureDecorationToXML = (data: TPictureDecoration | undefine
     PictureSize: data.pictureSize,
     Scale: data.scale,
     Zoomable: data.zoomable,
+    Events: data.events ? {
+       Click: data.events.click,
+       DragStart: data.events.dragStart,
+       DragEnd: data.events.dragEnd,
+       Drag: data.events.drag,
+       DragCheck: data.events.dragCheck,
+    } : undefined,
   }
 }
 

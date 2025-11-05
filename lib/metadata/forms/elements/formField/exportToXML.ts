@@ -24,7 +24,7 @@ export const exportFormFieldToXML = (data: TFormField | undefined): TFormFieldXM
     ContextMenu: exportFormGroupToXML(data.contextMenu),
     DataPath: data.dataPath,
     DefaultItem: data.defaultItem,
-    _DisplayImportance: data.displayImportance,
+    DisplayImportance: data.displayImportance,
     EditMode: data.editMode,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
@@ -61,6 +61,9 @@ export const exportFormFieldToXML = (data: TFormField | undefined): TFormFieldXM
     Visible: data.visible,
     WarningOnEdit: exportI8nTextToXML(data.warningOnEdit),
     WarningOnEditRepresentation: data.warningOnEditRepresentation,
+    Events: data.events ? {
+       OnChange: data.events.onChange,
+    } : undefined,
   }
 }
 

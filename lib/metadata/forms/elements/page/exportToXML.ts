@@ -17,7 +17,7 @@ export const exportPageToXML = (data: TPage | undefined): TPageXML | undefined =
     BackColor: exportColorToXML(data.backColor),
     ChildItemsHorizontalAlign: data.childItemsHorizontalAlign,
     ChildItemsVerticalAlign: data.childItemsVerticalAlign,
-    _DisplayImportance: data.displayImportance,
+    DisplayImportance: data.displayImportance,
     Format: exportI8nTextToXML(data.format),
     Group: data.group,
     HorizontalSpacing: data.horizontalSpacing,

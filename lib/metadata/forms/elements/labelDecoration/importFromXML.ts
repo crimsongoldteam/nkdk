@@ -21,6 +21,10 @@ export const importLabelDecorationFromXML = (xml: TLabelDecorationXML | undefine
     hyperlink: xml.Hyperlink,
     titleHeight: xml.TitleHeight,
     verticalAlign: xml.VerticalAlign,
+    events: xml.Events ? {
+       click: xml.Events.Click,
+       uRLProcessing: xml.Events.URLProcessing,
+    } : undefined,
   }
 }
 

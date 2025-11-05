@@ -1,15 +1,5 @@
 import * as z from "zod"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 
 export const ZPlannerField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
@@ -25,70 +15,70 @@ export const ZPlannerField = ZFormField.extend({
   verticalStretch: z.boolean().optional(),
   width: z.number().optional(),
   wrappedTimeScaleHeaderHyperlink: z.boolean().optional(),
+  events: z.object({
+    selection: z.string().optional(),
+    plannerActionClick: z.string().optional(),
+    uRLClick: z.string().optional(),
+    wrappedTimeScaleHeaderClick: z.string().optional(),
+    dimensionItemClick: z.string().optional(),
+    timeScaleItemClick: z.string().optional(),
+    dragStart: z.string().optional(),
+    commandGenerateProcessing: z.string().optional(),
+    dragEnd: z.string().optional(),
+    beforeStartQuickEdit: z.string().optional(),
+    beforeStartEdit: z.string().optional(),
+    beforePrint: z.string().optional(),
+    beforeExpandDimensionItem: z.string().optional(),
+    beforeCollapseDimensionItem: z.string().optional(),
+    beforeCreate: z.string().optional(),
+    beforeDelete: z.string().optional(),
+    drag: z.string().optional(),
+    onActivate: z.string().optional(),
+    onEditEnd: z.string().optional(),
+    onCurrentRepresentationPeriodChange: z.string().optional(),
+    dragCheck: z.string().optional(),
+    insideDragCheck: z.string().optional(),
+  }).optional(),
 })
 
-export const ZPlannerFieldXML = ZBaseElementXML.extend({
-  _DisplayImportance: SE.ZDisplayImportance.optional(),
-  AutoCellHeight: z.boolean().optional(),
+export const ZPlannerFieldXML = ZFormFieldXML.extend({
   AutoMaxHeight: z.boolean().optional(),
   AutoMaxWidth: z.boolean().optional(),
-  CellHyperlink: z.boolean().optional(),
-  get ContextMenu() {
-    return ZFormGroupXML.optional()
-  },
-  DataPath: z.string().optional(),
-  DefaultItem: z.boolean().optional(),
   DimensionItemHyperlink: z.boolean().optional(),
-  EditMode: SE.ZColumnEditMode.optional(),
-  Enabled: z.boolean().optional(),
   EnableDrag: z.boolean().optional(),
   EnableStartDrag: z.boolean().optional(),
-  get ExtendedTooltip() {
-    return ZFormDecorationXML.optional()
-  },
-  FixingInTable: SE.ZFixingInTable.optional(),
-  FooterBackColor: ZColorXML.optional(),
-  FooterDataPath: z.string().optional(),
-  FooterFont: ZFontXML.optional(),
-  FooterHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
-  FooterPicture: ZPictureXML.optional(),
-  FooterText: ZI8nTextXML.optional(),
-  FooterTextColor: ZColorXML.optional(),
-  HeaderHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
-  HeaderPicture: ZPictureXML.optional(),
   Height: z.number().optional(),
-  HorizontalAlign: SE.ZItemHorizontalLocation.optional(),
-  HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   HorizontalStretch: z.boolean().optional(),
   MaxHeight: z.number().optional(),
   MaxWidth: z.number().optional(),
-  ReadOnly: z.boolean().optional(),
-  Shortcut: z.string().optional(),
-  ShowInFooter: z.boolean().optional(),
-  ShowInHeader: z.boolean().optional(),
-  SkipOnInput: z.boolean().optional(),
-  get Table() {
-    return ZTableXML.optional()
-  },
   TimeScaleItemHyperlink: z.boolean().optional(),
-  Title: ZI8nTextXML.optional(),
-  TitleBackColor: ZColorXML.optional(),
-  TitleFont: ZFontXML.optional(),
-  TitleHeight: z.number().optional(),
-  TitleLocation: SE.ZFormItemTitleLocation.optional(),
-  TitleTextColor: ZColorXML.optional(),
-  ToolTip: ZI8nTextXML.optional(),
-  ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
-  Type: SE.ZFormFieldType.optional(),
-  TypeRestriction: ZTypeDescriptionXML.optional(),
-  VerticalAlign: SE.ZItemVerticalAlign.optional(),
-  VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   VerticalStretch: z.boolean().optional(),
-  Visible: z.boolean().optional(),
-  WarningOnEdit: ZI8nTextXML.optional(),
-  WarningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
   Width: z.number().optional(),
   WrappedTimeScaleHeaderHyperlink: z.boolean().optional(),
+  Events: z.object({
+    Selection: z.string().optional(),
+    PlannerActionClick: z.string().optional(),
+    URLClick: z.string().optional(),
+    WrappedTimeScaleHeaderClick: z.string().optional(),
+    DimensionItemClick: z.string().optional(),
+    TimeScaleItemClick: z.string().optional(),
+    DragStart: z.string().optional(),
+    CommandGenerateProcessing: z.string().optional(),
+    DragEnd: z.string().optional(),
+    BeforeStartQuickEdit: z.string().optional(),
+    BeforeStartEdit: z.string().optional(),
+    BeforePrint: z.string().optional(),
+    BeforeExpandDimensionItem: z.string().optional(),
+    BeforeCollapseDimensionItem: z.string().optional(),
+    BeforeCreate: z.string().optional(),
+    BeforeDelete: z.string().optional(),
+    Drag: z.string().optional(),
+    OnActivate: z.string().optional(),
+    OnEditEnd: z.string().optional(),
+    OnCurrentRepresentationPeriodChange: z.string().optional(),
+    DragCheck: z.string().optional(),
+    InsideDragCheck: z.string().optional(),
+  }).optional(),
 })
 
 export type TPlannerField = z.infer<typeof ZPlannerField>

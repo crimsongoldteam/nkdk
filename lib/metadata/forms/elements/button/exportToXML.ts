@@ -24,7 +24,7 @@ export const exportButtonToXML = (data: TButton | undefined): TButtonXML | undef
     CommandUniqueness: data.commandUniqueness,
     DefaultButton: data.defaultButton,
     DefaultItem: data.defaultItem,
-    _DisplayImportance: data.displayImportance,
+    DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
     Font: exportFontToXML(data.font),

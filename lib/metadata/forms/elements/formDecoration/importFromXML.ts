@@ -19,7 +19,7 @@ export const importFormDecorationFromXML = (xml: TFormDecorationXML | undefined)
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     contextMenu: importFormGroupFromXML(xml.ContextMenu),
-    displayImportance: xml._DisplayImportance,
+    displayImportance: xml.DisplayImportance,
     enabled: xml.Enabled,
     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),
     font: importFontFromXML(xml.Font),

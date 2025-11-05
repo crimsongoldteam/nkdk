@@ -22,7 +22,7 @@ export const exportUsualGroupToXML = (data: TUsualGroup | undefined): TUsualGrou
     CollapsedRepresentationTitle: data.collapsedRepresentationTitle,
     ControlRepresentation: data.controlRepresentation,
     CurrentRowUse: data.currentRowUse,
-    _DisplayImportance: data.displayImportance,
+    DisplayImportance: data.displayImportance,
     Format: exportI8nTextToXML(data.format),
     Group: data.group,
     HiddenRepresentationTitleBackColor: exportColorToXML(data.hiddenRepresentationTitleBackColor),

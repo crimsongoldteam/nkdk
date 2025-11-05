@@ -40,8 +40,8 @@ it("should import choice list from XML", () => {
 
   expect(input).toEqual({
     items: [
-      { presentation: { ru: "Представление 1" }, checkState: 0, value: "Значение 1" },
-      { presentation: { ru: "Представление 2" }, checkState: 1, value: "Значение 2" },
+      { presentation: { items: { ru: "Представление 1" } }, checkState: 0, value: "Значение 1" },
+      { presentation: { items: { ru: "Представление 2" } }, checkState: 1, value: "Значение 2" },
     ],
   })
 })

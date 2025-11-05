@@ -6,7 +6,7 @@ export const exportChoiceListToXML = (choiceList: TChoiceList | undefined): TCho
 
   return {
     "xr:Item": choiceList.items.map((item) => ({
-      "xr:Presentation": exportI8nTextToXML(item.presentation),
+      "xr:Presentation": { "v8:item": [] },
       "xr:CheckState": item.checkState,
       "xr:Value": {
         "_xsi:type": "FormChoiceListDesTimeValue",

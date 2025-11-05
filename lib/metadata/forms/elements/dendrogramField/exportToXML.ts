@@ -19,6 +19,10 @@ export const exportDendrogramFieldToXML = (data: TDendrogramField | undefined): 
     MaxWidth: data.maxWidth,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
+    Events: data.events ? {
+       Selection: data.events.selection,
+       DetailProcessing: data.events.detailProcessing,
+    } : undefined,
   }
 }
 

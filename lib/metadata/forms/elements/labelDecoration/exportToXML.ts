@@ -20,6 +20,10 @@ export const exportLabelDecorationToXML = (data: TLabelDecoration | undefined): 
     Hyperlink: data.hyperlink,
     TitleHeight: data.titleHeight,
     VerticalAlign: data.verticalAlign,
+    Events: data.events ? {
+       Click: data.events.click,
+       URLProcessing: data.events.uRLProcessing,
+    } : undefined,
   }
 }
 

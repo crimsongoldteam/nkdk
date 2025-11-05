@@ -24,6 +24,15 @@ export const exportGanttChartFieldToXML = (data: TGanttChartField | undefined): 
     VerticalLines: data.verticalLines,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
+    Events: data.events ? {
+       Selection: data.events.selection,
+       DetailProcessing: data.events.detailProcessing,
+       BeforeExpand: data.events.beforeExpand,
+       BeforeCollapse: data.events.beforeCollapse,
+       OnActivateValue: data.events.onActivateValue,
+       OnActivateInterval: data.events.onActivateInterval,
+       OnIntervalEditEnd: data.events.onIntervalEditEnd,
+    } : undefined,
   }
 }
 

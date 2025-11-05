@@ -25,6 +25,9 @@ export const exportPeriodFieldToXML = (data: TPeriodField | undefined): TPeriodF
     MaxWidth: data.maxWidth,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
+    Events: data.events ? {
+       Selection: data.events.selection,
+    } : undefined,
   }
 }
 

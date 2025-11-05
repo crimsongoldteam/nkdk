@@ -1,13 +1,6 @@
 import * as z from "zod"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
-import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { TChildItems } from "../childItems/typesExt"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 
 export const ZSearchStringAddition = ZFormItemAddition.extend({
@@ -19,31 +12,13 @@ export const ZSearchStringAddition = ZFormItemAddition.extend({
   width: z.number().optional(),
 })
 
-export const ZSearchStringAdditionXML = ZBaseElementXML.extend({
-  _DisplayImportance: SE.ZDisplayImportance.optional(),
-  get ContextMenu() {
-    return ZFormGroupXML.optional()
-  },
+export const ZSearchStringAdditionXML = ZFormItemAdditionXML.extend({
   BackColor: ZColorXML.optional(),
   BorderColor: ZColorXML.optional(),
-  Enabled: z.boolean().optional(),
-  get ExtendedToolTip() {
-    return ZFormDecorationXML.optional()
-  },
   Font: ZFontXML.optional(),
-  HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   HorizontalStretch: z.boolean().optional(),
   TextColor: ZColorXML.optional(),
-  Title: ZI8nTextXML.optional(),
-  ToolTip: ZI8nTextXML.optional(),
-  ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
-  Type: SE.ZFormItemAdditionType.optional(),
-  VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
-  Visible: z.boolean().optional(),
   Width: z.number().optional(),
-  get ChildItems() {
-    return ZChildItemsXML.optional()
-  },
 })
 
 export type TSearchStringAddition = z.infer<typeof ZSearchStringAddition>

@@ -26,6 +26,13 @@ export const importPictureDecorationFromXML = (xml: TPictureDecorationXML | unde
     pictureSize: xml.PictureSize,
     scale: xml.Scale,
     zoomable: xml.Zoomable,
+    events: xml.Events ? {
+       click: xml.Events.Click,
+       dragStart: xml.Events.DragStart,
+       dragEnd: xml.Events.DragEnd,
+       drag: xml.Events.Drag,
+       dragCheck: xml.Events.DragCheck,
+    } : undefined,
   }
 }
 

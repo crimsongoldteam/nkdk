@@ -1,15 +1,7 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 
 export const ZSpreadSheetDocumentField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
@@ -40,26 +32,24 @@ export const ZSpreadSheetDocumentField = ZFormField.extend({
   verticalStretch: z.boolean().optional(),
   viewScalingMode: SE.ZViewScalingMode.optional(),
   width: z.number().optional(),
+  events: z.object({
+    selection: z.string().optional(),
+    dragStart: z.string().optional(),
+    additionalDetailProcessing: z.string().optional(),
+    uRLProcessing: z.string().optional(),
+    detailProcessing: z.string().optional(),
+    dragEnd: z.string().optional(),
+    beforeWrite: z.string().optional(),
+    beforePrint: z.string().optional(),
+    drag: z.string().optional(),
+    afterWrite: z.string().optional(),
+    onActivate: z.string().optional(),
+    onChangeAreaContentEvent: z.string().optional(),
+    dragCheck: z.string().optional(),
+  }).optional(),
 })
 
-export const ZSpreadSheetDocumentFieldXML = ZBaseElementXML.extend({
-  _DisplayImportance: SE.ZDisplayImportance.optional(),
-  DataPath: z.string().optional(),
-  Visible: z.boolean().optional(),
-  Enabled: z.boolean().optional(),
-  ReadOnly: z.boolean().optional(),
-  SkipOnInput: z.boolean().optional(),
-  Title: ZI8nTextXML.optional(),
-  TitleTextColor: ZColorXML.optional(),
-  TitleFont: ZFontXML.optional(),
-  TitleLocation: SE.ZFormItemTitleLocation.optional(),
-  TitleHeight: z.number().optional(),
-  ToolTip: ZI8nTextXML.optional(),
-  ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
-  WarningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
-  WarningOnEdit: ZI8nTextXML.optional(),
-  Shortcut: z.string().optional(),
-  HorizontalAlign: SE.ZItemHorizontalLocation.optional(),
+export const ZSpreadSheetDocumentFieldXML = ZFormFieldXML.extend({
   AutoMaxWidth: z.boolean().optional(),
   MaxWidth: z.number().optional(),
   AutoMaxHeight: z.boolean().optional(),
@@ -79,46 +69,30 @@ export const ZSpreadSheetDocumentFieldXML = ZBaseElementXML.extend({
   ShowCellNames: z.boolean().optional(),
   ShowRowAndColumnNames: z.boolean().optional(),
   ViewScalingMode: SE.ZViewScalingMode.optional(),
-  get ContextMenu() {
-    return ZFormGroupXML.optional()
-  },
-  get ExtendedTooltip() {
-    return ZFormDecorationXML.optional()
-  },
-  AutoCellHeight: z.boolean().optional(),
   BorderColor: ZColorXML.optional(),
-  CellHyperlink: z.boolean().optional(),
-  DefaultItem: z.boolean().optional(),
-  EditMode: SE.ZColumnEditMode.optional(),
-  FixingInTable: SE.ZFixingInTable.optional(),
-  FooterBackColor: ZColorXML.optional(),
-  FooterDataPath: z.string().optional(),
-  FooterFont: ZFontXML.optional(),
-  FooterHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
-  FooterPicture: ZPictureXML.optional(),
-  FooterText: ZI8nTextXML.optional(),
-  FooterTextColor: ZColorXML.optional(),
-  HeaderHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
-  HeaderPicture: ZPictureXML.optional(),
   Height: z.number().optional(),
-  HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   HorizontalScrollBar: SE.ZScrollBarUse.optional(),
   MaxHeight: z.number().optional(),
   SelectionShowMode: SE.ZSelectionShowMode.optional(),
-  ShowInFooter: z.boolean().optional(),
-  ShowInHeader: z.boolean().optional(),
   StatePresentation: SE.ZStatePresentation.optional(),
-  get Table() {
-    return ZTableXML.optional()
-  },
-  TitleBackColor: ZColorXML.optional(),
-  Type: SE.ZFormFieldType.optional(),
-  TypeRestriction: ZTypeDescriptionXML.optional(),
   UsedFileName: z.string().optional(),
-  VerticalAlign: SE.ZItemVerticalAlign.optional(),
-  VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   VerticalScrollBar: SE.ZScrollBarUse.optional(),
   Width: z.number().optional(),
+  Events: z.object({
+    Selection: z.string().optional(),
+    DragStart: z.string().optional(),
+    AdditionalDetailProcessing: z.string().optional(),
+    URLProcessing: z.string().optional(),
+    DetailProcessing: z.string().optional(),
+    DragEnd: z.string().optional(),
+    BeforeWrite: z.string().optional(),
+    BeforePrint: z.string().optional(),
+    Drag: z.string().optional(),
+    AfterWrite: z.string().optional(),
+    OnActivate: z.string().optional(),
+    OnChangeAreaContentEvent: z.string().optional(),
+    DragCheck: z.string().optional(),
+  }).optional(),
 })
 
 export type TSpreadSheetDocumentField = z.infer<typeof ZSpreadSheetDocumentField>

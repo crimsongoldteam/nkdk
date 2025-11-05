@@ -17,7 +17,7 @@ it("should import button from XML", () => {
     name: "КнопкаОК",
     elementType: ZElementType.enum.Button,
     title: {
-      ru: "ОК",
+      items: { ru: "ОК" },
     },
     id: "1",
   }

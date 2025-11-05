@@ -26,6 +26,9 @@ export const importPeriodFieldFromXML = (xml: TPeriodFieldXML | undefined): TPer
     maxWidth: xml.MaxWidth,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
+    events: xml.Events ? {
+       selection: xml.Events.Selection,
+    } : undefined,
   }
 }
 

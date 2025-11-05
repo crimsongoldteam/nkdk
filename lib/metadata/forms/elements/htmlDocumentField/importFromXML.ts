@@ -24,6 +24,13 @@ export const importHTMLDocumentFieldFromXML = (xml: THTMLDocumentFieldXML | unde
     userAgentInformation: xml.UserAgentInformation,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
+    events: xml.Events ? {
+       documentComplete: xml.Events.DocumentComplete,
+       beforeWrite: xml.Events.BeforeWrite,
+       beforePrint: xml.Events.BeforePrint,
+       afterWrite: xml.Events.AfterWrite,
+       onClick: xml.Events.OnClick,
+    } : undefined,
   }
 }
 

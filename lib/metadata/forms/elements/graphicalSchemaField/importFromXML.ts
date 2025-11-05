@@ -24,6 +24,13 @@ export const importGraphicalSchemaFieldFromXML = (xml: TGraphicalSchemaFieldXML 
     output: xml.Output,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
+    events: xml.Events ? {
+       selection: xml.Events.Selection,
+       beforeWrite: xml.Events.BeforeWrite,
+       beforePrint: xml.Events.BeforePrint,
+       afterWrite: xml.Events.AfterWrite,
+       onActivate: xml.Events.OnActivate,
+    } : undefined,
   }
 }
 

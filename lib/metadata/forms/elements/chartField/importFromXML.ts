@@ -20,6 +20,11 @@ export const importChartFieldFromXML = (xml: TChartFieldXML | undefined): TChart
     maxWidth: xml.MaxWidth,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
+    events: xml.Events ? {
+       selection: xml.Events.Selection,
+       detailProcessing: xml.Events.DetailProcessing,
+       onActivate: xml.Events.OnActivate,
+    } : undefined,
   }
 }
 

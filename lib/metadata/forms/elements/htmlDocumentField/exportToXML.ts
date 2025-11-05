@@ -23,6 +23,13 @@ export const exportHTMLDocumentFieldToXML = (data: THTMLDocumentField | undefine
     UserAgentInformation: data.userAgentInformation,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
+    Events: data.events ? {
+       DocumentComplete: data.events.documentComplete,
+       BeforeWrite: data.events.beforeWrite,
+       BeforePrint: data.events.beforePrint,
+       AfterWrite: data.events.afterWrite,
+       OnClick: data.events.onClick,
+    } : undefined,
   }
 }
 
