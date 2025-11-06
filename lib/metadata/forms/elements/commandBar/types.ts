@@ -11,6 +11,7 @@ import { TChildItems } from "../childItems/typesExt"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZCommandBar = ZFormGroup.extend({
+  autoFill: z.boolean().optional(),
   displayImportance: SE.ZDisplayImportance.optional(),
   horizontalAlign: SE.ZItemHorizontalLocation.optional(),
   userVisible: ZUserVisible.optional(),
@@ -37,6 +38,7 @@ export const ZCommandBarXML = z.object({
   get ExtendedTooltip() {
     return ZFormDecorationXML.optional()
   },
+  AutoFill: z.boolean().optional(),
   HorizontalAlign: SE.ZItemHorizontalLocation.optional(),
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   Shortcut: z.string().optional(),

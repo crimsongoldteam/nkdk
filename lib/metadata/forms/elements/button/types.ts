@@ -72,6 +72,7 @@ export const ZButtonXML = z.object({
   HorizontalStretch: z.boolean().optional(),
   VerticalStretch: z.boolean().optional(),
   CommandName: z.union([z.string(), z.number()]).optional(),
+  DataPath: z.string().optional(),
   TextColor: ZColorXML.optional(),
   BackColor: ZColorXML.optional(),
   BorderColor: ZColorXML.optional(),
@@ -87,7 +88,6 @@ export const ZButtonXML = z.object({
   get ExtendedTooltip() {
     return ZFormDecorationXML.optional()
   },
-  DataPath: z.string().optional(),
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   OnlyInAllActions: z.boolean().optional(),
   Shortcut: z.string().optional(),

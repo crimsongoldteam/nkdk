@@ -35,6 +35,7 @@ export const importCommandBarFromXML = (xml: TCommandBarXML | undefined): TComma
     visible: xml.Visible,
     width: xml.Width,
     childItems: importChildItemsFromXML(xml.ChildItems),
+    autoFill: xml.AutoFill,
     displayImportance: xml._DisplayImportance,
     horizontalAlign: xml.HorizontalAlign,
   }

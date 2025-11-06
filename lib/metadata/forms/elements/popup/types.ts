@@ -24,9 +24,10 @@ export const ZPopup = ZFormGroup.extend({
 export const ZPopupXML = z.object({
   _name: z.string(),
   _id: z.string(),
-  Picture: ZPictureXML.optional(),
   Title: ZI8nTextXML.optional(),
   ToolTip: ZI8nTextXML.optional(),
+  Picture: ZPictureXML.optional(),
+  Representation: SE.ZButtonRepresentation.optional(),
   get ExtendedTooltip() {
     return ZFormDecorationXML.optional()
   },
@@ -38,7 +39,6 @@ export const ZPopupXML = z.object({
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   HorizontalStretch: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),
-  Representation: SE.ZButtonRepresentation.optional(),
   Shape: SE.ZButtonShape.optional(),
   ShapeRepresentation: SE.ZButtonShapeRepresentation.optional(),
   Shortcut: z.string().optional(),

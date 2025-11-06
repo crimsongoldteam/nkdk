@@ -309,8 +309,8 @@
 						<Button name="ОтправитьОбъекты" id="2433">
 							<Type>CommandBarButton</Type>
 							<CommandName>CommonCommand.ОтправитьОбъекты</CommandName>
-							<ExtendedTooltip name="ОтправитьОбъектыРасширеннаяПодсказка" id="2434"/>
 							<DataPath>Объект.Ref</DataPath>
+							<ExtendedTooltip name="ОтправитьОбъектыРасширеннаяПодсказка" id="2434"/>
 						</Button>
 					</ChildItems>
 					<ChildItems>
@@ -332,50 +332,54 @@
 								<Button name="СправочникДокументыПредприятияСоздатьДокументПредприятияНаОсновании" id="1768">
 									<Type>CommandBarButton</Type>
 									<CommandName>Catalog.ДокументыПредприятия.Command.СоздатьДокументПредприятияНаОсновании</CommandName>
+									<DataPath>Объект.Ref</DataPath>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="СправочникДокументыПредприятияСоздатьДокументПредприятияНаОснованииРасширеннаяПодсказка" id="1769"/>
-									<DataPath>Объект.Ref</DataPath>
 								</Button>
 							</ChildItems>
 							<ChildItems>
 								<Button name="ОбщаяКомандаСоздатьЗаписьЖурналаПередачи" id="1772">
 									<Type>CommandBarButton</Type>
 									<CommandName>CommonCommand.СоздатьЗаписьЖурналаПередачи</CommandName>
+									<DataPath>Объект.Ref</DataPath>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ОбщаяКомандаСоздатьЗаписьЖурналаПередачиРасширеннаяПодсказка" id="1773"/>
-									<DataPath>Объект.Ref</DataPath>
 								</Button>
 							</ChildItems>
 							<ChildItems>
 								<Button name="СправочникЗаписиРабочегоКалендаряСоздатьЗаписьКалендаряНаОсновании" id="1774">
 									<Type>CommandBarButton</Type>
 									<CommandName>Catalog.ЗаписиРабочегоКалендаря.Command.СоздатьЗаписьКалендаряНаОсновании</CommandName>
+									<DataPath>Объект.Ref</DataPath>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="СправочникЗаписиРабочегоКалендаряСоздатьЗаписьКалендаряНаОснованииРасширеннаяПодсказка" id="1775"/>
-									<DataPath>Объект.Ref</DataPath>
 								</Button>
 							</ChildItems>
 							<ChildItems>
 								<Button name="СправочникМероприятияСоздатьНаОсновании" id="1776">
 									<Type>CommandBarButton</Type>
 									<CommandName>Catalog.Мероприятия.Command.СоздатьМероприятиеНаОсновании</CommandName>
+									<DataPath>Объект.Ref</DataPath>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="СправочникМероприятияСоздатьНаОснованииРасширеннаяПодсказка" id="1777"/>
-									<DataPath>Объект.Ref</DataPath>
 								</Button>
 							</ChildItems>
 							<ChildItems>
 								<Button name="ОбщаяКомандаСозданиеСвязанныхОбъектов" id="1782">
 									<Type>CommandBarButton</Type>
 									<CommandName>CommonCommand.СозданиеСвязанныхОбъектов</CommandName>
+									<DataPath>Объект.Ref</DataPath>
 									<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ОбщаяКомандаСозданиеСвязанныхОбъектовРасширеннаяПодсказка" id="1783"/>
-									<DataPath>Объект.Ref</DataPath>
 								</Button>
 							</ChildItems>
 							<ChildItems>
 								<Button name="СоздатьИсходящийДокументЭДО" id="4072">
 									<Type>CommandBarButton</Type>
+									<UserVisible>
+										<xr:Common>true</xr:Common>
+										<xr:Value name="Role.Локализация">true</xr:Value>
+									</UserVisible>
 									<Representation>Text</Representation>
 									<CommandName>Form.Command.СоздатьИсходящийДокументЭДО</CommandName>
 									<Title>
@@ -392,6 +396,10 @@
 					<ChildItems>
 						<Button name="ПоделитьсяДокументомShareКомПанель" id="4116">
 							<Type>CommandBarButton</Type>
+							<UserVisible>
+								<xr:Common>true</xr:Common>
+								<xr:Value name="Role.Локализация">true</xr:Value>
+							</UserVisible>
 							<Representation>Picture</Representation>
 							<CommandName>Form.Command.ПоделитьсяДокументомShare</CommandName>
 							<LocationInCommandBar>InCommandBar</LocationInCommandBar>
@@ -400,10 +408,6 @@
 					</ChildItems>
 					<ChildItems>
 						<Popup name="ГруппаКомандыЭДО" id="4064">
-							<Picture>
-								<xr:Ref>CommonPicture.ЭмблемаСервиса1СЭДО</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
-							</Picture>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
@@ -416,8 +420,16 @@
 									<v8:content>Команды ЭДО</v8:content>
 								</v8:item>
 							</ToolTip>
-							<ExtendedTooltip name="ГруппаКомандыЭДОРасширеннаяПодсказка" id="4065"/>
+							<Picture>
+								<xr:Ref>CommonPicture.ЭмблемаСервиса1СЭДО</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</Picture>
 							<Representation>PictureAndText</Representation>
+							<ExtendedTooltip name="ГруппаКомандыЭДОРасширеннаяПодсказка" id="4065"/>
+							<UserVisible>
+								<xr:Common>true</xr:Common>
+								<xr:Value name="Role.Локализация">true</xr:Value>
+							</UserVisible>
 							<ChildItems>
 								<Button name="ПереформироватьДокументЭДО" id="4087">
 									<Type>CommandBarButton</Type>
@@ -471,10 +483,6 @@
 					</ChildItems>
 					<ChildItems>
 						<Popup name="ПодменюПечать" id="1758">
-							<Picture>
-								<xr:Ref>StdPicture.Print</xr:Ref>
-								<xr:LoadTransparent>true</xr:LoadTransparent>
-							</Picture>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
@@ -487,15 +495,15 @@
 									<v8:content>Команды печати</v8:content>
 								</v8:item>
 							</ToolTip>
+							<Picture>
+								<xr:Ref>StdPicture.Print</xr:Ref>
+								<xr:LoadTransparent>true</xr:LoadTransparent>
+							</Picture>
 							<ExtendedTooltip name="ПодменюПечатьРасширеннаяПодсказка" id="1759"/>
 						</Popup>
 					</ChildItems>
 					<ChildItems>
 						<Popup name="ПодменюЗаполнить" id="2063">
-							<Picture>
-								<xr:Ref>CommonPicture.ЗаполнитьФорму</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
-							</Picture>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
@@ -508,16 +516,16 @@
 									<v8:content>Подменю заполнить</v8:content>
 								</v8:item>
 							</ToolTip>
-							<ExtendedTooltip name="ПодменюЗаполнитьРасширеннаяПодсказка" id="2064"/>
+							<Picture>
+								<xr:Ref>CommonPicture.ЗаполнитьФорму</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</Picture>
 							<Representation>Picture</Representation>
+							<ExtendedTooltip name="ПодменюЗаполнитьРасширеннаяПодсказка" id="2064"/>
 						</Popup>
 					</ChildItems>
 					<ChildItems>
 						<Popup name="ГруппаВажность" id="3509">
-							<Picture>
-								<xr:Ref>CommonPicture.ВажностьНеЗадана</xr:Ref>
-								<xr:LoadTransparent>false</xr:LoadTransparent>
-							</Picture>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
@@ -530,8 +538,12 @@
 									<v8:content>Нормальная важность</v8:content>
 								</v8:item>
 							</ToolTip>
-							<ExtendedTooltip name="ГруппаВажностьРасширеннаяПодсказка" id="3510"/>
+							<Picture>
+								<xr:Ref>CommonPicture.ВажностьНеЗадана</xr:Ref>
+								<xr:LoadTransparent>false</xr:LoadTransparent>
+							</Picture>
 							<Representation>Picture</Representation>
+							<ExtendedTooltip name="ГруппаВажностьРасширеннаяПодсказка" id="3510"/>
 							<ChildItems>
 								<Button name="ВажностьВысокая" id="3511">
 									<Type>CommandBarButton</Type>
@@ -646,18 +658,18 @@
 								<Button name="ФормаКонтроль" id="1586">
 									<Type>CommandBarButton</Type>
 									<CommandName>Catalog.Контроль.Command.Контроль</CommandName>
+									<DataPath>Объект.Ref</DataPath>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ФормаКонтрольРасширеннаяПодсказка" id="1587"/>
-									<DataPath>Объект.Ref</DataPath>
 								</Button>
 							</ChildItems>
 							<ChildItems>
 								<Button name="ОбщаяКомандаОтправитьПоЭлектроннойПочте" id="1947">
 									<Type>CommandBarButton</Type>
 									<CommandName>CommonCommand.ОтправитьПоЭлектроннойПочте</CommandName>
+									<DataPath>Объект.Ref</DataPath>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ОбщаяКомандаОтправитьПоЭлектроннойПочтеРасширеннаяПодсказка" id="1948"/>
-									<DataPath>Объект.Ref</DataPath>
 								</Button>
 							</ChildItems>
 							<ChildItems>
@@ -687,18 +699,18 @@
 										<Button name="ФормаОбщаяКомандаДобавитьВнешнийШтрихкод" id="376">
 											<Type>CommandBarButton</Type>
 											<CommandName>CommonCommand.ДобавитьВнешнийШтрихкод</CommandName>
+											<DataPath>Объект.Ref</DataPath>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="ФормаОбщаяКомандаДобавитьВнешнийШтрихкодExtendedTooltip" id="1070"/>
-											<DataPath>Объект.Ref</DataPath>
 										</Button>
 									</ChildItems>
 									<ChildItems>
 										<Button name="ФормаОбщаяКомандаСохранитьШтрихкодВФайл" id="377">
 											<Type>CommandBarButton</Type>
 											<CommandName>CommonCommand.СохранитьШтрихкодВФайл</CommandName>
+											<DataPath>Объект.Ref</DataPath>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="ФормаОбщаяКомандаСохранитьШтрихкодВФайлExtendedTooltip" id="1071"/>
-											<DataPath>Объект.Ref</DataPath>
 										</Button>
 									</ChildItems>
 								</Popup>
@@ -721,18 +733,18 @@
 								<Button name="ОбщаяКомандаДополнительныеСведения" id="1802">
 									<Type>CommandBarButton</Type>
 									<CommandName>CommonCommand.ДополнительныеСведенияКоманднаяПанель</CommandName>
+									<DataPath>Объект.Ref</DataPath>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ОбщаяКомандаДополнительныеСведенияРасширеннаяПодсказка" id="1803"/>
-									<DataPath>Объект.Ref</DataPath>
 								</Button>
 							</ChildItems>
 							<ChildItems>
 								<Button name="ОбщаяКомандаИсторияИзменений" id="2439">
 									<Type>CommandBarButton</Type>
 									<CommandName>CommonCommand.ИсторияИзменений</CommandName>
+									<DataPath>Объект.Ref</DataPath>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ОбщаяКомандаИсторияИзмененийРасширеннаяПодсказка" id="2440"/>
-									<DataPath>Объект.Ref</DataPath>
 								</Button>
 							</ChildItems>
 							<ChildItems>
@@ -745,10 +757,6 @@
 							</ChildItems>
 							<ChildItems>
 								<Popup name="ЭДО" id="2244">
-									<Picture>
-										<xr:Ref>CommonPicture.ЭмблемаСервиса1СЭДО</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
-									</Picture>
 									<Title>
 										<v8:item>
 											<v8:lang>ru</v8:lang>
@@ -761,7 +769,15 @@
 											<v8:content>ЭДО</v8:content>
 										</v8:item>
 									</ToolTip>
+									<Picture>
+										<xr:Ref>CommonPicture.ЭмблемаСервиса1СЭДО</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
 									<ExtendedTooltip name="ЭДОРасширеннаяПодсказка" id="2245"/>
+									<UserVisible>
+										<xr:Common>true</xr:Common>
+										<xr:Value name="Role.Локализация">true</xr:Value>
+									</UserVisible>
 									<ChildItems>
 										<ButtonGroup name="ГруппаЭДОСервис" id="2419">
 											<ExtendedTooltip name="ГруппаЭДОСервисРасширеннаяПодсказка" id="2420"/>
@@ -821,6 +837,7 @@
 										<Button name="РегистрСведенийФактическиеТрудозатратыТрудозатратыПоИсточнику" id="1798">
 											<Type>CommandBarButton</Type>
 											<CommandName>InformationRegister.ФактическиеТрудозатраты.Command.ТрудозатратыПоИсточнику</CommandName>
+											<DataPath>Объект.Ref</DataPath>
 											<Title>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
@@ -829,7 +846,6 @@
 											</Title>
 											<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 											<ExtendedTooltip name="РегистрСведенийФактическиеТрудозатратыТрудозатратыПоИсточникуРасширеннаяПодсказка" id="1799"/>
-											<DataPath>Объект.Ref</DataPath>
 										</Button>
 									</ChildItems>
 								</Popup>
@@ -845,6 +861,7 @@
 								<Button name="ОбщаяКомандаНапечататьВсе" id="1742">
 									<Type>CommandBarButton</Type>
 									<CommandName>CommonCommand.НапечататьВсе</CommandName>
+									<DataPath>Объект.Ref</DataPath>
 									<Title>
 										<v8:item>
 											<v8:lang>ru</v8:lang>
@@ -853,13 +870,13 @@
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ОбщаяКомандаНапечататьВсеРасширеннаяПодсказка" id="1743"/>
-									<DataPath>Объект.Ref</DataPath>
 								</Button>
 							</ChildItems>
 							<ChildItems>
 								<Button name="ОбщаяКомандаСохранитьВсе" id="1744">
 									<Type>CommandBarButton</Type>
 									<CommandName>CommonCommand.СохранитьВсе</CommandName>
+									<DataPath>Объект.Ref</DataPath>
 									<Title>
 										<v8:item>
 											<v8:lang>ru</v8:lang>
@@ -868,13 +885,13 @@
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="ОбщаяКомандаСохранитьВсеРасширеннаяПодсказка" id="1745"/>
-									<DataPath>Объект.Ref</DataPath>
 								</Button>
 							</ChildItems>
 							<ChildItems>
 								<Button name="РегистрСведенийЖурналПередачиДокументовОткрытьФормуСпискаДокумента" id="1800">
 									<Type>CommandBarButton</Type>
 									<CommandName>InformationRegister.ЖурналПередачиДокументов.Command.ОткрытьФормуСпискаДокумента</CommandName>
+									<DataPath>Объект.Ref</DataPath>
 									<Title>
 										<v8:item>
 											<v8:lang>ru</v8:lang>
@@ -883,7 +900,6 @@
 									</Title>
 									<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 									<ExtendedTooltip name="РегистрСведенийЖурналПередачиДокументовОткрытьФормуСпискаДокументаРасширеннаяПодсказка" id="1801"/>
-									<DataPath>Объект.Ref</DataPath>
 								</Button>
 							</ChildItems>
 							<ChildItems>
@@ -928,17 +944,21 @@
 							</ChildItems>
 							<ChildItems>
 								<Popup name="ГруппаСервисЭДО" id="4097">
-									<Picture>
-										<xr:Ref>CommonPicture.ЭмблемаСервиса1СЭДО</xr:Ref>
-										<xr:LoadTransparent>false</xr:LoadTransparent>
-									</Picture>
 									<Title>
 										<v8:item>
 											<v8:lang>ru</v8:lang>
 											<v8:content>ЭДО</v8:content>
 										</v8:item>
 									</Title>
+									<Picture>
+										<xr:Ref>CommonPicture.ЭмблемаСервиса1СЭДО</xr:Ref>
+										<xr:LoadTransparent>false</xr:LoadTransparent>
+									</Picture>
 									<ExtendedTooltip name="ГруппаСервисЭДОРасширеннаяПодсказка" id="4098"/>
+									<UserVisible>
+										<xr:Common>true</xr:Common>
+										<xr:Value name="Role.Локализация">true</xr:Value>
+									</UserVisible>
 									<ChildItems>
 										<Button name="ПросмотретьЭлектронныйДокумент" id="4103">
 											<Type>CommandBarButton</Type>
@@ -1108,6 +1128,10 @@
 	<ChildItems>
 		<UsualGroup name="ГруппаПлашкаЭДО" id="4089">
 			<Visible>false</Visible>
+			<UserVisible>
+				<xr:Common>true</xr:Common>
+				<xr:Value name="Role.Локализация">true</xr:Value>
+			</UserVisible>
 			<Title>
 				<v8:item>
 					<v8:lang>ru</v8:lang>
@@ -1685,18 +1709,18 @@
 																				<Button name="СохранитьВсе" id="1515">
 																					<Type>CommandBarButton</Type>
 																					<CommandName>CommonCommand.СохранитьВсе</CommandName>
+																					<DataPath>Объект.Ref</DataPath>
 																					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 																					<ExtendedTooltip name="СохранитьВсеРасширеннаяПодсказка" id="1516"/>
-																					<DataPath>Объект.Ref</DataPath>
 																				</Button>
 																			</ChildItems>
 																			<ChildItems>
 																				<Button name="НапечататьВсе" id="1517">
 																					<Type>CommandBarButton</Type>
 																					<CommandName>CommonCommand.НапечататьВсе</CommandName>
+																					<DataPath>Объект.Ref</DataPath>
 																					<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 																					<ExtendedTooltip name="НапечататьВсеРасширеннаяПодсказка" id="1518"/>
-																					<DataPath>Объект.Ref</DataPath>
 																				</Button>
 																			</ChildItems>
 																		</ButtonGroup>
@@ -1827,16 +1851,16 @@
 															</ChildItems>
 															<ChildItems>
 																<Popup name="ФормаШтрихкоды" id="1825">
-																	<Picture>
-																		<xr:Ref>CommonPicture.Штрихкод</xr:Ref>
-																		<xr:LoadTransparent>false</xr:LoadTransparent>
-																	</Picture>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
 																			<v8:content>Штрихкоды</v8:content>
 																		</v8:item>
 																	</Title>
+																	<Picture>
+																		<xr:Ref>CommonPicture.Штрихкод</xr:Ref>
+																		<xr:LoadTransparent>false</xr:LoadTransparent>
+																	</Picture>
 																	<ExtendedTooltip name="ФормаШтрихкодыРасширеннаяПодсказка" id="1826"/>
 																	<ChildItems>
 																		<Button name="ФайлыВставитьШтрихкод" id="343">
@@ -2434,6 +2458,9 @@
 																			<ChildItems>
 																				<InputField name="Описание" id="127">
 																					<DataPath>Файлы.Описание</DataPath>
+																					<UserVisible>
+																						<xr:Common>false</xr:Common>
+																					</UserVisible>
 																					<Width>5</Width>
 																					<Wrap>false</Wrap>
 																					<TextEdit>false</TextEdit>
@@ -2467,6 +2494,9 @@
 																	<ChildItems>
 																		<InputField name="ДатаСоздания" id="129">
 																			<DataPath>Файлы.ДатаСоздания</DataPath>
+																			<UserVisible>
+																				<xr:Common>false</xr:Common>
+																			</UserVisible>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -2482,6 +2512,9 @@
 																	<ChildItems>
 																		<InputField name="Автор" id="131">
 																			<DataPath>Файлы.Автор</DataPath>
+																			<UserVisible>
+																				<xr:Common>false</xr:Common>
+																			</UserVisible>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -2500,6 +2533,9 @@
 																	<ChildItems>
 																		<InputField name="Редактирует" id="133">
 																			<DataPath>Файлы.Редактирует</DataPath>
+																			<UserVisible>
+																				<xr:Common>false</xr:Common>
+																			</UserVisible>
 																			<Width>1</Width>
 																			<Wrap>false</Wrap>
 																			<TextEdit>false</TextEdit>
@@ -2539,6 +2575,9 @@
 																	<ChildItems>
 																		<InputField name="ТекущаяВерсияАвтор" id="137">
 																			<DataPath>Файлы.ТекущаяВерсияАвтор</DataPath>
+																			<UserVisible>
+																				<xr:Common>false</xr:Common>
+																			</UserVisible>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -2555,6 +2594,9 @@
 																	<ChildItems>
 																		<InputField name="ТекущаяВерсияДатаСоздания" id="139">
 																			<DataPath>Файлы.ТекущаяВерсияДатаСоздания</DataPath>
+																			<UserVisible>
+																				<xr:Common>false</xr:Common>
+																			</UserVisible>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -2583,6 +2625,9 @@
 																			<DataPath>Файлы.ХранитьВерсии</DataPath>
 																			<ExtendedTooltip name="ХранитьВерсииExtendedTooltip" id="1149"/>
 																			<ReadOnly>true</ReadOnly>
+																			<UserVisible>
+																				<xr:Common>false</xr:Common>
+																			</UserVisible>
 																			<Visible>false</Visible>
 																		</CheckBoxField>
 																	</ChildItems>
@@ -3245,6 +3290,10 @@
 													<ChildItems>
 														<PictureField name="КартинкаЭДО" id="2421">
 															<DataPath>СтатусЭДО</DataPath>
+															<UserVisible>
+																<xr:Common>true</xr:Common>
+																<xr:Value name="Role.Локализация">true</xr:Value>
+															</UserVisible>
 															<TitleLocation>None</TitleLocation>
 															<Width>3</Width>
 															<Hyperlink>true</Hyperlink>
@@ -3905,6 +3954,10 @@
 															</ChildItems>
 															<ChildItems>
 																<UsualGroup name="ГруппаИндексыСПАРКРиски2" id="2390">
+																	<UserVisible>
+																		<xr:Common>true</xr:Common>
+																		<xr:Value name="Role.Локализация">true</xr:Value>
+																	</UserVisible>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
@@ -4028,6 +4081,10 @@
 													</ChildItems>
 													<ChildItems>
 														<UsualGroup name="ГруппаИндексыСПАРКРиски" id="2377">
+															<UserVisible>
+																<xr:Common>true</xr:Common>
+																<xr:Value name="Role.Локализация">true</xr:Value>
+															</UserVisible>
 															<Shortcut>Ctrl+F4</Shortcut>
 															<Group>Horizontal</Group>
 															<Behavior>Usual</Behavior>
@@ -4650,6 +4707,10 @@
 																	<ChildItems>
 																		<PictureField name="СтороныСводныйИндикатор" id="2406">
 																			<DataPath>Объект.Стороны.СводныйИндикатор</DataPath>
+																			<UserVisible>
+																				<xr:Common>true</xr:Common>
+																				<xr:Value name="Role.Локализация">true</xr:Value>
+																			</UserVisible>
 																			<SkipOnInput>true</SkipOnInput>
 																			<TitleLocation>None</TitleLocation>
 																			<ToolTip>
@@ -4908,6 +4969,9 @@
 																	<ChildItems>
 																		<InputField name="СтороныУстановил" id="2365">
 																			<DataPath>Объект.Стороны.Установил</DataPath>
+																			<UserVisible>
+																				<xr:Common>false</xr:Common>
+																			</UserVisible>
 																			<ReadOnly>true</ReadOnly>
 																			<Width>15</Width>
 																			<ContextMenu name="СтороныУстановилКонтекстноеМеню" id="2366"/>
@@ -5993,6 +6057,10 @@
 														<LabelField name="СостояниеЭДО" id="4094">
 															<DataPath>СостояниеЭДО</DataPath>
 															<Visible>false</Visible>
+															<UserVisible>
+																<xr:Common>true</xr:Common>
+																<xr:Value name="Role.Локализация">true</xr:Value>
+															</UserVisible>
 															<ContextMenu name="СостояниеЭДОКонтекстноеМеню" id="4095"/>
 															<ExtendedTooltip name="СостояниеЭДОРасширеннаяПодсказка" id="4096"/>
 															<AutoMaxWidth>false</AutoMaxWidth>
@@ -6415,6 +6483,10 @@
 									<ChildItems>
 										<PictureField name="КонтрагентыСводныйИндикатор" id="2401">
 											<DataPath>Объект.Контрагенты.СводныйИндикатор</DataPath>
+											<UserVisible>
+												<xr:Common>true</xr:Common>
+												<xr:Value name="Role.Локализация">true</xr:Value>
+											</UserVisible>
 											<SkipOnInput>true</SkipOnInput>
 											<TitleLocation>None</TitleLocation>
 											<ToolTip>
@@ -7388,6 +7460,9 @@
 													<ChildItems>
 														<InputField name="АвторСоздание" id="909">
 															<DataPath>Файлы.Автор</DataPath>
+															<UserVisible>
+																<xr:Common>false</xr:Common>
+															</UserVisible>
 															<TextEdit>false</TextEdit>
 															<ContextMenu name="АвторСозданиеКонтекстноеМеню" id="910"/>
 															<ExtendedTooltip name="АвторСозданиеРасширеннаяПодсказка" id="1318"/>
@@ -7396,6 +7471,9 @@
 													<ChildItems>
 														<InputField name="РедактируетСоздание" id="911">
 															<DataPath>Файлы.Редактирует</DataPath>
+															<UserVisible>
+																<xr:Common>false</xr:Common>
+															</UserVisible>
 															<TextEdit>false</TextEdit>
 															<ContextMenu name="РедактируетСозданиеКонтекстноеМеню" id="912"/>
 															<ExtendedTooltip name="РедактируетСозданиеРасширеннаяПодсказка" id="1319"/>
@@ -7430,6 +7508,9 @@
 													<ChildItems>
 														<InputField name="ТекущаяВерсияАвторСоздание" id="915">
 															<DataPath>Файлы.ТекущаяВерсияАвтор</DataPath>
+															<UserVisible>
+																<xr:Common>false</xr:Common>
+															</UserVisible>
 															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
@@ -7444,6 +7525,9 @@
 													<ChildItems>
 														<InputField name="ТекущаяВерсияДатаСозданияСоздание" id="917">
 															<DataPath>Файлы.ТекущаяВерсияДатаСоздания</DataPath>
+															<UserVisible>
+																<xr:Common>false</xr:Common>
+															</UserVisible>
 															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
@@ -7467,6 +7551,9 @@
 															<ContextMenu name="ХранитьВерсииСозданиеКонтекстноеМеню" id="920"/>
 															<DataPath>Файлы.ХранитьВерсии</DataPath>
 															<ExtendedTooltip name="ХранитьВерсииСозданиеРасширеннаяПодсказка" id="1323"/>
+															<UserVisible>
+																<xr:Common>false</xr:Common>
+															</UserVisible>
 														</CheckBoxField>
 													</ChildItems>
 													<ChildItems>
@@ -7475,6 +7562,9 @@
 															<ContextMenu name="СозданИзШаблонаСозданиеКонтекстноеМеню" id="922"/>
 															<DataPath>Файлы.СозданИзШаблона</DataPath>
 															<ExtendedTooltip name="СозданИзШаблонаСозданиеРасширеннаяПодсказка" id="1324"/>
+															<UserVisible>
+																<xr:Common>false</xr:Common>
+															</UserVisible>
 														</CheckBoxField>
 													</ChildItems>
 													<ChildItems>
@@ -8020,6 +8110,9 @@
 															<ChildItems>
 																<LabelField name="ВсеТоварыАртикул" id="2151">
 																	<DataPath>ВсеТовары.Артикул</DataPath>
+																	<UserVisible>
+																		<xr:Common>false</xr:Common>
+																	</UserVisible>
 																	<ContextMenu name="ВсеТоварыАртикулКонтекстноеМеню" id="2152"/>
 																	<ExtendedTooltip name="ВсеТоварыАртикулРасширеннаяПодсказка" id="2153"/>
 																	<ShowInHeader>false</ShowInHeader>
@@ -8036,6 +8129,9 @@
 															<ChildItems>
 																<LabelField name="ВсеТоварыСсылка" id="2157">
 																	<DataPath>ВсеТовары.Ref</DataPath>
+																	<UserVisible>
+																		<xr:Common>false</xr:Common>
+																	</UserVisible>
 																	<ContextMenu name="ВсеТоварыСсылкаКонтекстноеМеню" id="2158"/>
 																	<ExtendedTooltip name="ВсеТоварыСсылкаРасширеннаяПодсказка" id="2159"/>
 																	<ShowInHeader>false</ShowInHeader>
@@ -8693,6 +8789,10 @@
 					</ChildItems>
 					<ChildItems>
 						<Page name="ГруппаМЭДО" id="3786">
+							<UserVisible>
+								<xr:Common>true</xr:Common>
+								<xr:Value name="Role.Локализация">true</xr:Value>
+							</UserVisible>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
@@ -9242,9 +9342,9 @@
 												<Button name="ДействиеОткрытьИсторию" id="2817">
 													<Type>CommandBarButton</Type>
 													<CommandName>Catalog.ОбработкиОбъектов.Command.ИсторияОбработки</CommandName>
+													<DataPath>Объект.Ref</DataPath>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="ДействиеОткрытьИсториюРасширеннаяПодсказка" id="2818"/>
-													<DataPath>Объект.Ref</DataPath>
 												</Button>
 											</ChildItems>
 											<ChildItems>
@@ -9268,9 +9368,9 @@
 													<Type>CommandBarButton</Type>
 													<Representation>Text</Representation>
 													<CommandName>CommonCommand.ПроцессыИЗадачи</CommandName>
+													<DataPath>Объект.Ref</DataPath>
 													<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
 													<ExtendedTooltip name="КомандаПроцессыИЗадачиРасширеннаяПодсказка" id="3704"/>
-													<DataPath>Объект.Ref</DataPath>
 												</Button>
 											</ChildItems>
 										</CommandBar>
@@ -9677,8 +9777,8 @@
 								<Button name="ЗадачиПоПриложению" id="3099">
 									<Type>Hyperlink</Type>
 									<CommandName>Document.Задача.Command.ЗадачиПоПриложению</CommandName>
-									<ExtendedTooltip name="ЗадачиПоПриложениюРасширеннаяПодсказка" id="3100"/>
 									<DataPath>Объект.Ref</DataPath>
+									<ExtendedTooltip name="ЗадачиПоПриложениюРасширеннаяПодсказка" id="3100"/>
 								</Button>
 							</ChildItems>
 						</Page>
@@ -9718,6 +9818,9 @@
 							<ChildItems>
 								<LabelField name="СоздалТекст" id="2060">
 									<DataPath>СоздалТекст</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
 									<ContextMenu name="СоздалТекстКонтекстноеМеню" id="2061"/>
 									<ExtendedTooltip name="СоздалТекстРасширеннаяПодсказка" id="2062"/>
 								</LabelField>
@@ -9725,6 +9828,9 @@
 							<ChildItems>
 								<InputField name="Зарегистрировал" id="176">
 									<DataPath>Объект.Зарегистрировал</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
 									<ContextMenu name="ЗарегистрировалКонтекстноеМеню" id="177"/>
 									<ExtendedTooltip name="ЗарегистрировалExtendedTooltip" id="1392"/>
 									<Events>
