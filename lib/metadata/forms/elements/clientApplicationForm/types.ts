@@ -20,6 +20,7 @@ import {
   ZCommandSet,
   ZCommandSetXML,
 } from "~/lib/metadata/forms/commandSet/types"
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 
 export const ZAttribute = z.object({
   name: z.string(),
@@ -45,7 +46,7 @@ export const ZClientApplicationForm = z.object({
   commandSet: ZCommandSet.optional(),
   elementType: ZElementType.enum.ClientApplicationForm,
   attributes: z.array(ZAttribute).optional(),
-  autoCommandBar: ZFormGroup.optional(),
+  autoCommandBar: ZCommandBar.optional(),
   autoTitle: z.boolean().optional(),
   autoSaveDataInSettings: SE.ZAutoSaveFormDataInSettings.optional(),
   autoURL: z.boolean().optional(),
@@ -171,7 +172,7 @@ export const ZClientApplicationFormXML = z.object({
   CloseOnChoice: z.boolean().optional(),
   CloseOnOwnerClose: z.boolean().optional(),
   CollapseItemsByImportance: SE.ZCollapseFormItemsByImportance.optional(),
-  CommandBar: ZFormGroupXML.optional(),
+  CommandBar: ZCommandBarXML.optional(),
   CommandBarLocation: SE.ZFormCommandBarLabelLocation.optional(),
   // Commands: ZКомандыФормыXML.optional(),
   ConversationsRepresentation: SE.ZFormConversationsRepresentation.optional(),
@@ -204,7 +205,7 @@ export const ZClientApplicationFormXML = z.object({
   // ConditionalAppearance: ZУсловноеОформлениеКомпоновкиДанныхXML.optional(),\  CommandSet: ZCommandSetXML.optional(),
   CommandSet: ZCommandSetXML.optional(),
   UseForFoldersAndItems: SE.ZFoldersAndItemsUse.optional(),
-  AutoCommandBar: ZFormGroupXML.optional(),
+  AutoCommandBar: ZCommandBarXML.optional(),
   Events: ZEventsXML.optional(),
   ChildItems: ZChildItemsXML.optional(),
 })

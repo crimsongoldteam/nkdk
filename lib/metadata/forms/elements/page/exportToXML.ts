@@ -44,6 +44,7 @@ export const exportPageToXML = (data: TPage | undefined): TPageXML | undefined =
     HorizontalSpacing: data.horizontalSpacing,
     ItemsAndTitlesAlign: data.itemsAndTitlesAlign,
     Picture: exportPictureToXML(data.picture),
+    ScrollOnCompress: data.scrollOnCompress,
     ShowTitle: data.showTitle,
     SlaveItemsWidth: data.slaveItemsWidth,
     TitleDataPath: data.titleDataPath,

@@ -6,6 +6,7 @@ import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { importCommandSetFromXML } from "~/lib/metadata/forms/commandSet/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TTableXML, TTable } from "./types"
 import { ZElementType } from "../types"
@@ -19,6 +20,7 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     name: xml._name,
     elementType: ZElementType.enum.Table,
     autoAddIncomplete: xml.AutoAddIncomplete,
+    autoCommandBar: xml.AutoCommandBar,
     autoInsertNewRow: xml.AutoInsertNewRow,
     autoMarkIncomplete: xml.AutoMarkIncomplete,
     autoMaxHeight: xml.AutoMaxHeight,
@@ -32,6 +34,7 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     choiceMode: xml.ChoiceMode,
     commandBar: importFormGroupFromXML(xml.CommandBar),
     commandBarLocation: xml.CommandBarLocation,
+    commandSet: xml.CommandSet,
     contextMenu: importFormGroupFromXML(xml.ContextMenu),
     currentRowUse: xml.CurrentRowUse,
     dataPath: xml.DataPath,

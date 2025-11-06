@@ -45,6 +45,7 @@ export const importPageFromXML = (xml: TPageXML | undefined): TPage | undefined 
     horizontalSpacing: xml.HorizontalSpacing,
     itemsAndTitlesAlign: xml.ItemsAndTitlesAlign,
     picture: importPictureFromXML(xml.Picture),
+    scrollOnCompress: xml.ScrollOnCompress,
     showTitle: xml.ShowTitle,
     slaveItemsWidth: xml.SlaveItemsWidth,
     titleDataPath: xml.TitleDataPath,

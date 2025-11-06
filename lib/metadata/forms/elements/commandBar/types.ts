@@ -21,6 +21,7 @@ export const ZCommandBarXML = z.object({
   _name: z.string(),
   _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
+  AutoFill: z.boolean().optional(),
   Visible: z.boolean().optional(),
   UserVisible: ZUserVisibleXML.optional(),
   Enabled: z.boolean().optional(),
@@ -38,7 +39,6 @@ export const ZCommandBarXML = z.object({
   get ExtendedTooltip() {
     return ZFormDecorationXML.optional()
   },
-  AutoFill: z.boolean().optional(),
   HorizontalAlign: SE.ZItemHorizontalLocation.optional(),
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   Shortcut: z.string().optional(),

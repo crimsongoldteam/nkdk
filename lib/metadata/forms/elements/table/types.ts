@@ -10,10 +10,12 @@ import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZCommandSet, ZCommandSetXML } from "~/lib/metadata/forms/commandSet/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZTable = ZBaseElement.extend({
   autoAddIncomplete: z.boolean().optional(),
+  autoCommandBar: ZCommandBar.optional(),
   autoInsertNewRow: z.boolean().optional(),
   autoMarkIncomplete: z.boolean().optional(),
   autoMaxHeight: z.boolean().optional(),
@@ -29,6 +31,7 @@ export const ZTable = ZBaseElement.extend({
     return ZFormGroup.optional()
   },
   commandBarLocation: SE.ZFormItemCommandBarLabelLocation.optional(),
+  commandSet: ZCommandSet.optional(),
   get contextMenu() {
     return ZFormGroup.optional()
   },
@@ -133,10 +136,12 @@ export const ZTableXML = z.object({
   UserVisible: ZUserVisibleXML.optional(),
   TitleLocation: SE.ZFormItemTitleLocation.optional(),
   TitleHeight: z.number().optional(),
+  Representation: SE.ZTableRepresentation.optional(),
   CommandBarLocation: SE.ZFormItemCommandBarLabelLocation.optional(),
   Enabled: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),
   SkipOnInput: z.boolean().optional(),
+  DefaultItem: z.boolean().optional(),
   ChangeRowSet: z.boolean().optional(),
   ChangeRowOrder: z.boolean().optional(),
   Width: z.number().optional(),
@@ -152,6 +157,8 @@ export const ZTableXML = z.object({
   RowInputMode: SE.ZTableRowInputMode.optional(),
   SelectionMode: SE.ZTableSelectionMode.optional(),
   RowSelectionMode: SE.ZTableRowSelectionMode.optional(),
+  EnableStartDrag: z.boolean().optional(),
+  EnableDrag: z.boolean().optional(),
   Header: z.boolean().optional(),
   HeaderHeight: z.number().optional(),
   Footer: z.boolean().optional(),
@@ -171,6 +178,7 @@ export const ZTableXML = z.object({
   VerticalStretch: z.boolean().optional(),
   FileDragMode: SE.ZFileDragMode.optional(),
   DataPath: z.string().optional(),
+  CommandSet: ZCommandSetXML.optional(),
   RowPictureDataPath: z.string().optional(),
   RowsPicture: z.boolean().optional(),
   TextColor: ZColorXML.optional(),
@@ -192,6 +200,7 @@ export const ZTableXML = z.object({
   get ContextMenu() {
     return ZFormGroupXML.optional()
   },
+  AutoCommandBar: ZCommandBarXML.optional(),
   get ExtendedTooltip() {
     return ZFormDecorationXML.optional()
   },
@@ -200,13 +209,9 @@ export const ZTableXML = z.object({
   get CommandBar() {
     return ZFormGroupXML.optional()
   },
-  DefaultItem: z.boolean().optional(),
-  EnableDrag: z.boolean().optional(),
-  EnableStartDrag: z.boolean().optional(),
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   MarkIncomplete: z.boolean().optional(),
   MaxHeightInTableRows: z.number().optional(),
-  Representation: SE.ZTableRepresentation.optional(),
   SearchControl: ZFormItemAdditionXML.optional(),
   SearchStringRepresentation: ZFormItemAdditionXML.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),

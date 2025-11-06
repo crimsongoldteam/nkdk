@@ -1217,6 +1217,7 @@
 									<v8:content>Обзор</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ScrollOnCompress>true</ScrollOnCompress>
 							<ExtendedTooltip name="ОбзорExtendedTooltip" id="1077"/>
 							<ChildItems>
 								<UsualGroup name="ГруппаОбзорФайлы" id="1710">
@@ -1534,7 +1535,6 @@
 																	<ExtendedTooltip name="ФормаЭПИШифрованиеРасширеннаяПодсказка" id="1098"/>
 																	<ChildItems>
 																		<ButtonGroup name="ЭП" id="279">
-																			<ExtendedTooltip name="ЭПРасширеннаяПодсказка" id="1099"/>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -1547,6 +1547,7 @@
 																					<v8:content>ЭП</v8:content>
 																				</v8:item>
 																			</ToolTip>
+																			<ExtendedTooltip name="ЭПРасширеннаяПодсказка" id="1099"/>
 																			<ChildItems>
 																				<Button name="ФайлыПодписатьФайл" id="280">
 																					<Type>CommandBarButton</Type>
@@ -1573,7 +1574,6 @@
 																			</ChildItems>
 																		</ButtonGroup>
 																		<ButtonGroup name="Шифрование" id="283">
-																			<ExtendedTooltip name="ШифрованиеExtendedTooltip" id="1103"/>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -1586,6 +1586,7 @@
 																					<v8:content>Шифрование</v8:content>
 																				</v8:item>
 																			</ToolTip>
+																			<ExtendedTooltip name="ШифрованиеExtendedTooltip" id="1103"/>
 																			<ChildItems>
 																				<Button name="ФайлыЗашифровать" id="284">
 																					<Type>CommandBarButton</Type>
@@ -1602,13 +1603,13 @@
 																			</ChildItems>
 																		</ButtonGroup>
 																		<ButtonGroup name="ГруппаВизуализация" id="3076">
-																			<ExtendedTooltip name="ГруппаВизуализацияРасширеннаяПодсказка" id="3077"/>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
 																					<v8:content>Группа визуализация</v8:content>
 																				</v8:item>
 																			</Title>
+																			<ExtendedTooltip name="ГруппаВизуализацияРасширеннаяПодсказка" id="3077"/>
 																			<ChildItems>
 																				<Button name="РедактироватьВизуализациюЭП" id="3072">
 																					<Type>CommandBarButton</Type>
@@ -1673,13 +1674,13 @@
 																	<ExtendedTooltip name="ОбновитьExtendedTooltip" id="1108"/>
 																</Button>
 																<ButtonGroup name="ФайлыГруппаСортировка" id="3525">
-																	<ExtendedTooltip name="ФайлыГруппаСортировкаРасширеннаяПодсказка" id="3526"/>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
 																			<v8:content>Файлы группа сортировка</v8:content>
 																		</v8:item>
 																	</Title>
+																	<ExtendedTooltip name="ФайлыГруппаСортировкаРасширеннаяПодсказка" id="3526"/>
 																	<ChildItems>
 																		<Button name="ВложенияПереместитьВверх1" id="3527">
 																			<Type>CommandBarButton</Type>
@@ -1702,7 +1703,6 @@
 																	</ChildItems>
 																</ButtonGroup>
 																<ButtonGroup name="ГруппаКопирование" id="2050">
-																	<ExtendedTooltip name="ГруппаКопированиеРасширеннаяПодсказка" id="2051"/>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
@@ -1715,6 +1715,7 @@
 																			<v8:content>Группа копирование</v8:content>
 																		</v8:item>
 																	</ToolTip>
+																	<ExtendedTooltip name="ГруппаКопированиеРасширеннаяПодсказка" id="2051"/>
 																	<ChildItems>
 																		<Button name="СкопироватьСтроки" id="2052">
 																			<Type>CommandBarButton</Type>
@@ -1735,13 +1736,20 @@
 													</ChildItems>
 												</UsualGroup>
 												<Table name="Файлы" id="80">
+													<Representation>Tree</Representation>
 													<CommandBarLocation>None</CommandBarLocation>
 													<SkipOnInput>false</SkipOnInput>
+													<DefaultItem>true</DefaultItem>
 													<ChangeRowOrder>false</ChangeRowOrder>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<RowSelectionMode>Row</RowSelectionMode>
+													<EnableStartDrag>true</EnableStartDrag>
+													<EnableDrag>true</EnableDrag>
 													<FileDragMode>AsFile</FileDragMode>
 													<DataPath>Файлы</DataPath>
+													<CommandSet>
+														<ExcludedCommand>Copy</ExcludedCommand>
+													</CommandSet>
 													<SearchStringLocation>None</SearchStringLocation>
 													<ViewStatusLocation>None</ViewStatusLocation>
 													<SearchControlLocation>None</SearchControlLocation>
@@ -1906,7 +1914,6 @@
 																<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаЭПИШифрованиеРасширеннаяПодсказка" id="1126"/>
 																<ChildItems>
 																	<ButtonGroup name="КонтекстноеМенюФайлыГруппаЭП" id="287">
-																		<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаЭПРасширеннаяПодсказка" id="1127"/>
 																		<Title>
 																			<v8:item>
 																				<v8:lang>ru</v8:lang>
@@ -1919,6 +1926,7 @@
 																				<v8:content>Контекстное меню файлы группа ЭП</v8:content>
 																			</v8:item>
 																		</ToolTip>
+																		<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаЭПРасширеннаяПодсказка" id="1127"/>
 																		<ChildItems>
 																			<Button name="КонтекстноеМенюФайлыПодписатьФайл" id="288">
 																				<Type>CommandBarButton</Type>
@@ -1938,7 +1946,6 @@
 																		</ChildItems>
 																	</ButtonGroup>
 																	<ButtonGroup name="КонтекстноеМенюФайлыГруппаШифрование" id="291">
-																		<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаШифрованиеРасширеннаяПодсказка" id="1131"/>
 																		<Title>
 																			<v8:item>
 																				<v8:lang>ru</v8:lang>
@@ -1951,6 +1958,7 @@
 																				<v8:content>Контекстное меню файлы группа шифрование</v8:content>
 																			</v8:item>
 																		</ToolTip>
+																		<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаШифрованиеРасширеннаяПодсказка" id="1131"/>
 																		<ChildItems>
 																			<Button name="КонтекстноеМенюФайлыЗашифровать" id="292">
 																				<Type>CommandBarButton</Type>
@@ -1965,13 +1973,13 @@
 																		</ChildItems>
 																	</ButtonGroup>
 																	<ButtonGroup name="ГруппаКнопокВизуализация" id="3078">
-																		<ExtendedTooltip name="ГруппаКнопокВизуализацияРасширеннаяПодсказка" id="3079"/>
 																		<Title>
 																			<v8:item>
 																				<v8:lang>ru</v8:lang>
 																				<v8:content>Группа кнопок визуализация</v8:content>
 																			</v8:item>
 																		</Title>
+																		<ExtendedTooltip name="ГруппаКнопокВизуализацияРасширеннаяПодсказка" id="3079"/>
 																		<ChildItems>
 																			<Button name="РедактироватьВизуализациюЭПКонтекстноеМеню" id="3080">
 																				<Type>CommandBarButton</Type>
@@ -2016,13 +2024,13 @@
 																</ChildItems>
 															</Popup>
 															<ButtonGroup name="ГруппаИмпорт" id="215">
-																<ExtendedTooltip name="ГруппаИмпортExtendedTooltip" id="1134"/>
 																<Title>
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
 																		<v8:content>Группа импорт</v8:content>
 																	</v8:item>
 																</Title>
+																<ExtendedTooltip name="ГруппаИмпортExtendedTooltip" id="1134"/>
 																<ChildItems>
 																	<Button name="КонтекстноеМенюФайлыИмпортФайлов" id="216">
 																		<Type>CommandBarButton</Type>
@@ -2033,7 +2041,6 @@
 																</ChildItems>
 															</ButtonGroup>
 															<ButtonGroup name="ГруппаКонтекстноеМеню" id="182">
-																<ExtendedTooltip name="ГруппаКонтекстноеМенюExtendedTooltip" id="1113"/>
 																<Title>
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
@@ -2046,14 +2053,11 @@
 																		<v8:content>Группа контекстное меню</v8:content>
 																	</v8:item>
 																</ToolTip>
+																<ExtendedTooltip name="ГруппаКонтекстноеМенюExtendedTooltip" id="1113"/>
 															</ButtonGroup>
 														</ChildItems>
 													</ContextMenu>
 													<ExtendedTooltip name="ФайлыExtendedTooltip" id="1136"/>
-													<DefaultItem>true</DefaultItem>
-													<EnableDrag>true</EnableDrag>
-													<EnableStartDrag>true</EnableStartDrag>
-													<Representation>Tree</Representation>
 													<ChildItems>
 														<ColumnGroup name="ГруппаДанныеФайла" id="1714">
 															<Title>
@@ -2535,13 +2539,13 @@
 																				<ExtendedTooltip name="ПредставлениеHTMLКонтекстноеМенюРедактироватьТекстовыеДанныеТаймлистРасширеннаяПодсказка" id="4188"/>
 																			</Button>
 																			<ButtonGroup name="ПредставлениеHTMLКонтекстноеМенюГруппаОбновить" id="3431">
-																				<ExtendedTooltip name="ПредставлениеHTMLКонтекстноеМенюГруппаОбновитьРасширеннаяПодсказка" id="3432"/>
 																				<Title>
 																					<v8:item>
 																						<v8:lang>ru</v8:lang>
 																						<v8:content>Представление HTMLКонтекстное меню группа обновить</v8:content>
 																					</v8:item>
 																				</Title>
+																				<ExtendedTooltip name="ПредставлениеHTMLКонтекстноеМенюГруппаОбновитьРасширеннаяПодсказка" id="3432"/>
 																				<ChildItems>
 																					<Button name="НеПоказыватьДанныеОбработки" id="3701">
 																						<Type>CommandBarButton</Type>
@@ -2556,13 +2560,13 @@
 																				</ChildItems>
 																			</ButtonGroup>
 																			<ButtonGroup name="ПредставлениеHTMLКонтекстноеМенюГруппаМасштаб" id="3707">
-																				<ExtendedTooltip name="ПредставлениеHTMLКонтекстноеМенюГруппаМасштабРасширеннаяПодсказка" id="3708"/>
 																				<Title>
 																					<v8:item>
 																						<v8:lang>ru</v8:lang>
 																						<v8:content>Представление HTMLКонтекстное меню группа1</v8:content>
 																					</v8:item>
 																				</Title>
+																				<ExtendedTooltip name="ПредставлениеHTMLКонтекстноеМенюГруппаМасштабРасширеннаяПодсказка" id="3708"/>
 																				<ChildItems>
 																					<Button name="НастоящийРазмер" id="3705">
 																						<Type>CommandBarButton</Type>
@@ -2596,8 +2600,6 @@
 																	<ExtendedTooltip name="ПереключениеСтраницРасширеннаяПодсказка" id="4123"/>
 																	<ChildItems>
 																		<ButtonGroup name="ГруппаСтраницыКнопкиПеремотки" id="4126">
-																			<ExtendedTooltip name="ГруппаСтраницыКнопкиПеремоткиРасширеннаяПодсказка" id="4127"/>
-																			<Representation>Compact</Representation>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -2610,6 +2612,8 @@
 																					<v8:content>Группа страницы кнопки перемотки</v8:content>
 																				</v8:item>
 																			</ToolTip>
+																			<ExtendedTooltip name="ГруппаСтраницыКнопкиПеремоткиРасширеннаяПодсказка" id="4127"/>
+																			<Representation>Compact</Representation>
 																			<ChildItems>
 																				<Button name="Назад" id="4124">
 																					<Type>CommandBarButton</Type>
@@ -2955,6 +2959,7 @@
 									<v8:content>Основная</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ScrollOnCompress>true</ScrollOnCompress>
 							<ExtendedTooltip name="ГруппаОсновныеРасширеннаяПодсказка" id="1158"/>
 							<ChildItems>
 								<UsualGroup name="ГруппаЭлемента" id="788">
@@ -3137,10 +3142,19 @@
 													<ExtendedTooltip name="ГруппаСписокПредметовПерепискиИКомандыРасширеннаяПодсказка" id="3478"/>
 													<ChildItems>
 														<Table name="СписокПредметовПереписки" id="3441">
+															<Representation>List</Representation>
 															<CommandBarLocation>None</CommandBarLocation>
 															<HeightInTableRows>3</HeightInTableRows>
 															<VerticalStretch>false</VerticalStretch>
 															<DataPath>СписокПредметовПереписки</DataPath>
+															<CommandSet>
+																<ExcludedCommand>CheckAll</ExcludedCommand>
+																<ExcludedCommand>Pickup</ExcludedCommand>
+																<ExcludedCommand>ShowRowRearrangement</ExcludedCommand>
+																<ExcludedCommand>SortListAsc</ExcludedCommand>
+																<ExcludedCommand>SortListDesc</ExcludedCommand>
+																<ExcludedCommand>UncheckAll</ExcludedCommand>
+															</CommandSet>
 															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
@@ -3150,7 +3164,6 @@
 															<ViewStatusLocation>None</ViewStatusLocation>
 															<ContextMenu name="СписокПредметовПерепискиКонтекстноеМеню" id="3444"/>
 															<ExtendedTooltip name="СписокПредметовПерепискиРасширеннаяПодсказка" id="3445"/>
-															<Representation>List</Representation>
 															<ChildItems>
 																<InputField name="СписокПредметовПерепискиЗначение" id="3449">
 																	<DataPath>СписокПредметовПереписки.Value</DataPath>
@@ -3356,14 +3369,22 @@
 													<ExtendedTooltip name="ГруппаСписокВОтветНаИКомандыРасширеннаяПодсказка" id="3462"/>
 													<ChildItems>
 														<Table name="СписокВОтветНа" id="3148">
+															<Representation>List</Representation>
 															<CommandBarLocation>None</CommandBarLocation>
 															<HeightInTableRows>3</HeightInTableRows>
 															<VerticalStretch>false</VerticalStretch>
 															<DataPath>СписокВОтветНа</DataPath>
+															<CommandSet>
+																<ExcludedCommand>CheckAll</ExcludedCommand>
+																<ExcludedCommand>Pickup</ExcludedCommand>
+																<ExcludedCommand>ShowRowRearrangement</ExcludedCommand>
+																<ExcludedCommand>SortListAsc</ExcludedCommand>
+																<ExcludedCommand>SortListDesc</ExcludedCommand>
+																<ExcludedCommand>UncheckAll</ExcludedCommand>
+															</CommandSet>
 															<ViewStatusLocation>None</ViewStatusLocation>
 															<ContextMenu name="СписокВОтветНаКонтекстноеМеню" id="3150"/>
 															<ExtendedTooltip name="СписокВОтветНаРасширеннаяПодсказка" id="3151"/>
-															<Representation>List</Representation>
 															<ChildItems>
 																<InputField name="СписокВОтветНаЗначение" id="3161">
 																	<DataPath>СписокВОтветНа.Value</DataPath>
@@ -4118,13 +4139,13 @@
 																	<ExtendedTooltip name="КоманднаяПанельСтороныРасширеннаяПодсказка" id="2204"/>
 																	<ChildItems>
 																		<ButtonGroup name="ГруппаКнопокСтороны" id="2205">
-																			<ExtendedTooltip name="ГруппаКнопокСтороныРасширеннаяПодсказка" id="2206"/>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
 																					<v8:content>Группа кнопок стороны</v8:content>
 																				</v8:item>
 																			</Title>
+																			<ExtendedTooltip name="ГруппаКнопокСтороныРасширеннаяПодсказка" id="2206"/>
 																			<ChildItems>
 																				<Button name="СтороныДобавить" id="2207">
 																					<Type>CommandBarButton</Type>
@@ -4157,6 +4178,8 @@
 														</UsualGroup>
 														<Table name="Стороны" id="2162">
 															<HeightInTableRows>3</HeightInTableRows>
+															<EnableStartDrag>true</EnableStartDrag>
+															<EnableDrag>true</EnableDrag>
 															<VerticalStretch>false</VerticalStretch>
 															<FileDragMode>AsFile</FileDragMode>
 															<DataPath>Объект.Стороны</DataPath>
@@ -4192,8 +4215,6 @@
 															</ContextMenu>
 															<ExtendedTooltip name="СтороныРасширеннаяПодсказка" id="2165"/>
 															<AutoInsertNewRow>true</AutoInsertNewRow>
-															<EnableDrag>true</EnableDrag>
-															<EnableStartDrag>true</EnableStartDrag>
 															<ChildItems>
 																<ColumnGroup name="СтороныМК" id="3656">
 																	<Visible>false</Visible>
@@ -5732,14 +5753,20 @@
 									<v8:content>Группа контрагенты</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ScrollOnCompress>true</ScrollOnCompress>
 							<TitleDataPath>Объект.Контрагенты.RowsCount</TitleDataPath>
 							<ExtendedTooltip name="ГруппаКонтрагентыExtendedTooltip" id="2251"/>
 							<ChildItems>
 								<Table name="Контрагенты" id="2252">
 									<HeightInTableRows>1</HeightInTableRows>
+									<EnableStartDrag>true</EnableStartDrag>
+									<EnableDrag>true</EnableDrag>
 									<AutoMarkIncomplete>true</AutoMarkIncomplete>
 									<FileDragMode>AsFile</FileDragMode>
 									<DataPath>Объект.Контрагенты</DataPath>
+									<CommandSet>
+										<ExcludedCommand>Copy</ExcludedCommand>
+									</CommandSet>
 									<SearchStringLocation>None</SearchStringLocation>
 									<ViewStatusLocation>None</ViewStatusLocation>
 									<SearchControlLocation>None</SearchControlLocation>
@@ -5771,13 +5798,13 @@
 												<ExtendedTooltip name="КонтрагентыКонтекстноеМенюОтменитьПоискРасширеннаяПодсказка" id="3775"/>
 											</Button>
 											<ButtonGroup name="КонтрагентыКонтекстноеМенюГруппаПереместить" id="3752">
-												<ExtendedTooltip name="КонтрагентыКонтекстноеМенюГруппаПереместитьРасширеннаяПодсказка" id="3753"/>
 												<Title>
 													<v8:item>
 														<v8:lang>ru</v8:lang>
 														<v8:content>Контрагенты контекстное меню группа1</v8:content>
 													</v8:item>
 												</Title>
+												<ExtendedTooltip name="КонтрагентыКонтекстноеМенюГруппаПереместитьРасширеннаяПодсказка" id="3753"/>
 												<ChildItems>
 													<Button name="ПереместитьВверх" id="3776">
 														<Type>CommandBarButton</Type>
@@ -5792,13 +5819,13 @@
 												</ChildItems>
 											</ButtonGroup>
 											<ButtonGroup name="КонтрагентыКонтекстноеМенюГруппаВыделить" id="3758">
-												<ExtendedTooltip name="КонтрагентыКонтекстноеМенюГруппаВыделитьРасширеннаяПодсказка" id="3759"/>
 												<Title>
 													<v8:item>
 														<v8:lang>ru</v8:lang>
 														<v8:content>Контрагенты контекстное меню группа1</v8:content>
 													</v8:item>
 												</Title>
+												<ExtendedTooltip name="КонтрагентыКонтекстноеМенюГруппаВыделитьРасширеннаяПодсказка" id="3759"/>
 												<ChildItems>
 													<Button name="КопироватьВБуферОбмена" id="3780">
 														<Type>CommandBarButton</Type>
@@ -5821,8 +5848,6 @@
 									</ContextMenu>
 									<ExtendedTooltip name="КонтрагентыРасширеннаяПодсказка" id="2255"/>
 									<AutoInsertNewRow>true</AutoInsertNewRow>
-									<EnableDrag>true</EnableDrag>
-									<EnableStartDrag>true</EnableStartDrag>
 									<ChildItems>
 										<ColumnGroup name="КонтрагентыГруппаКолонокМК" id="3678">
 											<Visible>false</Visible>
@@ -6085,15 +6110,35 @@
 									<v8:content>Состав комплекта</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ScrollOnCompress>true</ScrollOnCompress>
 							<TitleDataPath>КоличествоЭлементовКомплекта</TitleDataPath>
 							<ExtendedTooltip name="ГруппаСоставКомплектаExtendedTooltip" id="1215"/>
 							<ChildItems>
 								<Table name="СоставКомплекта" id="497">
+									<Representation>Tree</Representation>
 									<HeightInTableRows>1</HeightInTableRows>
+									<EnableDrag>true</EnableDrag>
 									<VerticalLines>false</VerticalLines>
 									<InitialTreeView>ExpandAllLevels</InitialTreeView>
 									<FileDragMode>AsFile</FileDragMode>
 									<DataPath>СоставКомплекта</DataPath>
+									<CommandSet>
+										<ExcludedCommand>Add</ExcludedCommand>
+										<ExcludedCommand>Change</ExcludedCommand>
+										<ExcludedCommand>Copy</ExcludedCommand>
+										<ExcludedCommand>CopyToClipboard</ExcludedCommand>
+										<ExcludedCommand>Delete</ExcludedCommand>
+										<ExcludedCommand>EndEdit</ExcludedCommand>
+										<ExcludedCommand>HierarchicalList</ExcludedCommand>
+										<ExcludedCommand>List</ExcludedCommand>
+										<ExcludedCommand>MoveDown</ExcludedCommand>
+										<ExcludedCommand>MoveUp</ExcludedCommand>
+										<ExcludedCommand>OutputList</ExcludedCommand>
+										<ExcludedCommand>SelectAll</ExcludedCommand>
+										<ExcludedCommand>SortListAsc</ExcludedCommand>
+										<ExcludedCommand>SortListDesc</ExcludedCommand>
+										<ExcludedCommand>Tree</ExcludedCommand>
+									</CommandSet>
 									<SearchStringLocation>None</SearchStringLocation>
 									<ViewStatusLocation>None</ViewStatusLocation>
 									<SearchControlLocation>None</SearchControlLocation>
@@ -6178,8 +6223,6 @@
 									</ContextMenu>
 									<ExtendedTooltip name="СоставКомплектаExtendedTooltip" id="1249"/>
 									<AutoInsertNewRow>true</AutoInsertNewRow>
-									<EnableDrag>true</EnableDrag>
-									<Representation>Tree</Representation>
 									<ChildItems>
 										<PictureField name="СоставКомплектаОбработка" id="557">
 											<DataPath>СоставКомплекта.Задачи</DataPath>
@@ -6285,6 +6328,7 @@
 									<v8:content>Страница файлы</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ScrollOnCompress>true</ScrollOnCompress>
 							<TitleDataPath>КоличествоФайлов</TitleDataPath>
 							<ExtendedTooltip name="СтраницаФайлыExtendedTooltip" id="1256"/>
 							<ChildItems>
@@ -6320,12 +6364,20 @@
 											<ExtendedTooltip name="ГруппаСписокСозданиеExtendedTooltip" id="1258"/>
 											<ChildItems>
 												<Table name="ФайлыСоздание" id="824">
+													<Representation>Tree</Representation>
 													<SkipOnInput>false</SkipOnInput>
 													<ChangeRowOrder>false</ChangeRowOrder>
 													<HeightInTableRows>1</HeightInTableRows>
+													<EnableStartDrag>true</EnableStartDrag>
+													<EnableDrag>true</EnableDrag>
 													<UseAlternationRowColor>true</UseAlternationRowColor>
 													<FileDragMode>AsFile</FileDragMode>
 													<DataPath>Файлы</DataPath>
+													<CommandSet>
+														<ExcludedCommand>Copy</ExcludedCommand>
+														<ExcludedCommand>MoveDown</ExcludedCommand>
+														<ExcludedCommand>MoveUp</ExcludedCommand>
+													</CommandSet>
 													<SearchStringLocation>None</SearchStringLocation>
 													<ViewStatusLocation>None</ViewStatusLocation>
 													<SearchControlLocation>None</SearchControlLocation>
@@ -6490,7 +6542,6 @@
 																<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаЭПИШифрованиеСозданиеРасширеннаяПодсказка" id="1274"/>
 																<ChildItems>
 																	<ButtonGroup name="КонтекстноеМенюФайлыГруппаЭПСоздание" id="865">
-																		<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаЭПСозданиеРасширеннаяПодсказка" id="1275"/>
 																		<Title>
 																			<v8:item>
 																				<v8:lang>ru</v8:lang>
@@ -6503,6 +6554,7 @@
 																				<v8:content>Файлы контекстное меню группа ЭП</v8:content>
 																			</v8:item>
 																		</ToolTip>
+																		<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаЭПСозданиеРасширеннаяПодсказка" id="1275"/>
 																		<ChildItems>
 																			<Button name="КонтекстноеМенюФайлыПодписатьФайлСоздание" id="866">
 																				<Type>CommandBarButton</Type>
@@ -6522,7 +6574,6 @@
 																		</ChildItems>
 																	</ButtonGroup>
 																	<ButtonGroup name="КонтекстноеМенюФайлыГруппаШифрованиеСоздание" id="869">
-																		<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаШифрованиеСозданиеРасширеннаяПодсказка" id="1279"/>
 																		<Title>
 																			<v8:item>
 																				<v8:lang>ru</v8:lang>
@@ -6535,6 +6586,7 @@
 																				<v8:content>Файлы контекстное меню группа шифрование</v8:content>
 																			</v8:item>
 																		</ToolTip>
+																		<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаШифрованиеСозданиеРасширеннаяПодсказка" id="1279"/>
 																		<ChildItems>
 																			<Button name="КонтекстноеМенюФайлыЗашифроватьСоздание" id="870">
 																				<Type>CommandBarButton</Type>
@@ -6549,13 +6601,13 @@
 																		</ChildItems>
 																	</ButtonGroup>
 																	<ButtonGroup name="КонтекстноеМенюСозданиеВизуализация" id="3090">
-																		<ExtendedTooltip name="КонтекстноеМенюСозданиеВизуализацияРасширеннаяПодсказка" id="3091"/>
 																		<Title>
 																			<v8:item>
 																				<v8:lang>ru</v8:lang>
 																				<v8:content>Контекстное меню создание визуализация</v8:content>
 																			</v8:item>
 																		</Title>
+																		<ExtendedTooltip name="КонтекстноеМенюСозданиеВизуализацияРасширеннаяПодсказка" id="3091"/>
 																		<ChildItems>
 																			<Button name="РедактироватьВизуализациюЭПКонтекстноеМенюСоздание" id="3092">
 																				<Type>CommandBarButton</Type>
@@ -6598,13 +6650,13 @@
 																</ChildItems>
 															</Popup>
 															<ButtonGroup name="ГруппаИмпортСоздание" id="872">
-																<ExtendedTooltip name="ГруппаИмпортСозданиеExtendedTooltip" id="1282"/>
 																<Title>
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
 																		<v8:content>Группа импорт</v8:content>
 																	</v8:item>
 																</Title>
+																<ExtendedTooltip name="ГруппаИмпортСозданиеExtendedTooltip" id="1282"/>
 																<ChildItems>
 																	<Button name="КонтекстноеМенюФайлыИмпортФайловСоздание" id="873">
 																		<Type>CommandBarButton</Type>
@@ -6615,20 +6667,17 @@
 																</ChildItems>
 															</ButtonGroup>
 															<ButtonGroup name="ФайлыСозданиеКонтекстноеМенюГруппа" id="1573">
-																<ExtendedTooltip name="ФайлыСозданиеКонтекстноеМенюГруппаРасширеннаяПодсказка" id="1574"/>
 																<Title>
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
 																		<v8:content>Файлы создание контекстное меню группа</v8:content>
 																	</v8:item>
 																</Title>
+																<ExtendedTooltip name="ФайлыСозданиеКонтекстноеМенюГруппаРасширеннаяПодсказка" id="1574"/>
 															</ButtonGroup>
 														</ChildItems>
 													</ContextMenu>
 													<ExtendedTooltip name="ФайлыСозданиеExtendedTooltip" id="1311"/>
-													<EnableDrag>true</EnableDrag>
-													<EnableStartDrag>true</EnableStartDrag>
-													<Representation>Tree</Representation>
 													<ChildItems>
 														<ColumnGroup name="КартинкаИНаименованиеСоздание" id="831">
 															<Group>InCell</Group>
@@ -6910,10 +6959,22 @@
 											<ExtendedTooltip name="ГруппаТаблицаExtendedTooltip" id="1325"/>
 											<ChildItems>
 												<Table name="ФайлыДобавленные" id="187">
+													<Representation>List</Representation>
 													<SkipOnInput>false</SkipOnInput>
 													<ChangeRowOrder>false</ChangeRowOrder>
+													<EnableStartDrag>true</EnableStartDrag>
+													<EnableDrag>true</EnableDrag>
 													<FileDragMode>AsFile</FileDragMode>
 													<DataPath>ФайлыДобавленные</DataPath>
+													<CommandSet>
+														<ExcludedCommand>Add</ExcludedCommand>
+														<ExcludedCommand>CancelSearch</ExcludedCommand>
+														<ExcludedCommand>Copy</ExcludedCommand>
+														<ExcludedCommand>CopyToClipboard</ExcludedCommand>
+														<ExcludedCommand>EndEdit</ExcludedCommand>
+														<ExcludedCommand>Find</ExcludedCommand>
+														<ExcludedCommand>SelectAll</ExcludedCommand>
+													</CommandSet>
 													<SearchStringLocation>None</SearchStringLocation>
 													<ViewStatusLocation>None</ViewStatusLocation>
 													<SearchControlLocation>None</SearchControlLocation>
@@ -6952,9 +7013,6 @@
 														</ChildItems>
 													</ContextMenu>
 													<ExtendedTooltip name="ФайлыДобавленныеExtendedTooltip" id="1334"/>
-													<EnableDrag>true</EnableDrag>
-													<EnableStartDrag>true</EnableStartDrag>
-													<Representation>List</Representation>
 													<ChildItems>
 														<ColumnGroup name="КартинкаИИмя" id="196">
 															<Title>
@@ -7044,6 +7102,7 @@
 									<v8:content>Страница товары</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ScrollOnCompress>true</ScrollOnCompress>
 							<TitleDataPath>Объект.Товары.RowsCount</TitleDataPath>
 							<ExtendedTooltip name="СтраницаТоварыРасширеннаяПодсказка" id="2074"/>
 							<ChildItems>
@@ -7083,9 +7142,25 @@
 									<ChildItems>
 										<Table name="Товары" id="2083">
 											<Height>1</Height>
+											<EnableStartDrag>true</EnableStartDrag>
+											<EnableDrag>true</EnableDrag>
 											<Footer>true</Footer>
 											<FileDragMode>AsFile</FileDragMode>
 											<DataPath>Объект.Товары</DataPath>
+											<CommandSet>
+												<ExcludedCommand>CancelSearch</ExcludedCommand>
+												<ExcludedCommand>Change</ExcludedCommand>
+												<ExcludedCommand>Copy</ExcludedCommand>
+												<ExcludedCommand>CopyToClipboard</ExcludedCommand>
+												<ExcludedCommand>EndEdit</ExcludedCommand>
+												<ExcludedCommand>Find</ExcludedCommand>
+												<ExcludedCommand>OutputList</ExcludedCommand>
+												<ExcludedCommand>SelectAll</ExcludedCommand>
+												<ExcludedCommand>ShowMultipleSelection</ExcludedCommand>
+												<ExcludedCommand>ShowRowRearrangement</ExcludedCommand>
+												<ExcludedCommand>SortListAsc</ExcludedCommand>
+												<ExcludedCommand>SortListDesc</ExcludedCommand>
+											</CommandSet>
 											<ContextMenu name="ТоварыКонтекстноеМеню" id="2084">
 												<ChildItems>
 													<Button name="ТоварыКонтекстноеМенюПереместитьВверх" id="2120">
@@ -7102,8 +7177,6 @@
 											</ContextMenu>
 											<ExtendedTooltip name="ТоварыРасширеннаяПодсказка" id="2086"/>
 											<AutoInsertNewRow>true</AutoInsertNewRow>
-											<EnableDrag>true</EnableDrag>
-											<EnableStartDrag>true</EnableStartDrag>
 											<ChildItems>
 												<LabelField name="ТоварыНомерСтроки" id="2096">
 													<DataPath>Объект.Товары.LineNumber</DataPath>
@@ -7243,21 +7316,44 @@
 												</UsualGroup>
 												<Table name="ВсеТовары" id="2130">
 													<TitleLocation>Auto</TitleLocation>
+													<Representation>Tree</Representation>
 													<Height>1</Height>
+													<EnableStartDrag>true</EnableStartDrag>
+													<EnableDrag>true</EnableDrag>
 													<HorizontalLines>false</HorizontalLines>
 													<VerticalLines>false</VerticalLines>
 													<InitialListView>Beginning</InitialListView>
 													<InitialTreeView>ExpandTopLevel</InitialTreeView>
 													<FileDragMode>AsFile</FileDragMode>
 													<DataPath>ВсеТовары</DataPath>
+													<CommandSet>
+														<ExcludedCommand>CancelSearch</ExcludedCommand>
+														<ExcludedCommand>Copy</ExcludedCommand>
+														<ExcludedCommand>CopyToClipboard</ExcludedCommand>
+														<ExcludedCommand>CreateFolder</ExcludedCommand>
+														<ExcludedCommand>Delete</ExcludedCommand>
+														<ExcludedCommand>DynamicListStandardSettings</ExcludedCommand>
+														<ExcludedCommand>Find</ExcludedCommand>
+														<ExcludedCommand>FindByCurrentValue</ExcludedCommand>
+														<ExcludedCommand>HierarchicalList</ExcludedCommand>
+														<ExcludedCommand>LevelDown</ExcludedCommand>
+														<ExcludedCommand>LevelUp</ExcludedCommand>
+														<ExcludedCommand>List</ExcludedCommand>
+														<ExcludedCommand>ListSettings</ExcludedCommand>
+														<ExcludedCommand>LoadDynamicListSettings</ExcludedCommand>
+														<ExcludedCommand>MoveItem</ExcludedCommand>
+														<ExcludedCommand>OutputList</ExcludedCommand>
+														<ExcludedCommand>Refresh</ExcludedCommand>
+														<ExcludedCommand>SaveDynamicListSettings</ExcludedCommand>
+														<ExcludedCommand>SetDeletionMark</ExcludedCommand>
+														<ExcludedCommand>ShowMultipleSelection</ExcludedCommand>
+														<ExcludedCommand>Tree</ExcludedCommand>
+													</CommandSet>
 													<SearchStringLocation>None</SearchStringLocation>
 													<ViewStatusLocation>None</ViewStatusLocation>
 													<SearchControlLocation>None</SearchControlLocation>
 													<ContextMenu name="ВсеТоварыКонтекстноеМеню" id="2131"/>
 													<ExtendedTooltip name="ВсеТоварыРасширеннаяПодсказка" id="2133"/>
-													<EnableDrag>true</EnableDrag>
-													<EnableStartDrag>true</EnableStartDrag>
-													<Representation>Tree</Representation>
 													<ChildItems>
 														<ColumnGroup name="ВсеТоварыГруппа" id="2149">
 															<Title>
@@ -7355,17 +7451,24 @@
 									<ChildItems>
 										<Table name="Вопросы" id="2545">
 											<TitleHeight>2</TitleHeight>
+											<Representation>List</Representation>
 											<RowSelectionMode>Row</RowSelectionMode>
+											<EnableStartDrag>true</EnableStartDrag>
+											<EnableDrag>true</EnableDrag>
 											<HeaderHeight>2</HeaderHeight>
 											<AutoMarkIncomplete>true</AutoMarkIncomplete>
 											<FileDragMode>AsFile</FileDragMode>
 											<DataPath>ВопросыОбращения</DataPath>
+											<CommandSet>
+												<ExcludedCommand>EndEdit</ExcludedCommand>
+												<ExcludedCommand>MoveDown</ExcludedCommand>
+												<ExcludedCommand>MoveUp</ExcludedCommand>
+												<ExcludedCommand>SortListAsc</ExcludedCommand>
+												<ExcludedCommand>SortListDesc</ExcludedCommand>
+											</CommandSet>
 											<ContextMenu name="ВопросыКонтекстноеМеню" id="2546"/>
 											<ExtendedTooltip name="ВопросыРасширеннаяПодсказка" id="2548"/>
 											<AutoInsertNewRow>true</AutoInsertNewRow>
-											<EnableDrag>true</EnableDrag>
-											<EnableStartDrag>true</EnableStartDrag>
-											<Representation>List</Representation>
 											<ChildItems>
 												<InputField name="ВопросыКодВопроса" id="2726">
 													<DataPath>ВопросыОбращения.КодВопроса</DataPath>
@@ -8064,12 +8167,12 @@
 									</ChildItems>
 								</UsualGroup>
 								<Table name="ИсторияСостоянийМЭДО" id="3788">
+									<Representation>List</Representation>
 									<ReadOnly>true</ReadOnly>
 									<MaxHeight>10</MaxHeight>
 									<DataPath>ИсторияСостоянийМЭДО</DataPath>
 									<ContextMenu name="ИсторияСостоянийМЭДОКонтекстноеМеню" id="3790"/>
 									<ExtendedTooltip name="ИсторияСостоянийМЭДОРасширеннаяПодсказка" id="3791"/>
-									<Representation>List</Representation>
 									<ChildItems>
 										<InputField name="ИсторияСостоянийМЭДОПериод" id="3907">
 											<DataPath>ИсторияСостоянийМЭДО.Период</DataPath>
@@ -8263,8 +8366,6 @@
 											<ExtendedTooltip name="ГруппаДействияКомПанельРасширеннаяПодсказка" id="2780"/>
 											<ChildItems>
 												<ButtonGroup name="ГруппаДействияСоставУчастников" id="2781">
-													<ExtendedTooltip name="ГруппаДействияСоставУчастниковРасширеннаяПодсказка" id="2782"/>
-													<Representation>Compact</Representation>
 													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -8277,6 +8378,8 @@
 															<v8:content>Группа действия состав участников</v8:content>
 														</v8:item>
 													</ToolTip>
+													<ExtendedTooltip name="ГруппаДействияСоставУчастниковРасширеннаяПодсказка" id="2782"/>
+													<Representation>Compact</Representation>
 													<ChildItems>
 														<Button name="ДобавитьДействие" id="2783">
 															<Type>CommandBarButton</Type>
@@ -8480,7 +8583,13 @@
 									</ChildItems>
 								</UsualGroup>
 								<Table name="Действия" id="2819">
+									<Representation>Tree</Representation>
 									<DataPath>Действия</DataPath>
+									<CommandSet>
+										<ExcludedCommand>Copy</ExcludedCommand>
+										<ExcludedCommand>MoveDown</ExcludedCommand>
+										<ExcludedCommand>MoveUp</ExcludedCommand>
+									</CommandSet>
 									<ContextMenu name="ДействияКонтекстноеМеню" id="2820">
 										<ChildItems>
 											<Button name="ДействияКонтекстноеМенюДобавить" id="3101">
@@ -8522,7 +8631,6 @@
 									</ContextMenu>
 									<ExtendedTooltip name="ДействияРасширеннаяПодсказка" id="2822"/>
 									<AutoInsertNewRow>true</AutoInsertNewRow>
-									<Representation>Tree</Representation>
 									<ChildItems>
 										<PictureField name="ДействияНомерКартинки" id="2867">
 											<DataPath>Действия.НомерКартинки</DataPath>
@@ -8797,6 +8905,7 @@
 									<v8:content>Группа свойства</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ScrollOnCompress>true</ScrollOnCompress>
 							<ExtendedTooltip name="ГруппаСвойстваExtendedTooltip" id="1390"/>
 						</Page>
 						<Page name="ГруппаДополнительно" id="175">
@@ -8812,6 +8921,7 @@
 									<v8:content>Группа дополнительно</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ScrollOnCompress>true</ScrollOnCompress>
 							<ExtendedTooltip name="ГруппаДополнительноExtendedTooltip" id="1391"/>
 							<ChildItems>
 								<LabelField name="СоздалТекст" id="2060">
@@ -8838,6 +8948,8 @@
 									<TitleLocation>Top</TitleLocation>
 									<SkipOnInput>false</SkipOnInput>
 									<HeightInTableRows>1</HeightInTableRows>
+									<EnableStartDrag>true</EnableStartDrag>
+									<EnableDrag>true</EnableDrag>
 									<Header>false</Header>
 									<FileDragMode>AsFile</FileDragMode>
 									<DataPath>Объект.СубъектыПерсональныхДанных</DataPath>
@@ -8853,8 +8965,6 @@
 									<ContextMenu name="СубъектыПерсональныхДанныхКонтекстноеМеню" id="222"/>
 									<ExtendedTooltip name="СубъектыПерсональныхДанныхExtendedTooltip" id="1393"/>
 									<AutoInsertNewRow>true</AutoInsertNewRow>
-									<EnableDrag>true</EnableDrag>
-									<EnableStartDrag>true</EnableStartDrag>
 									<ChildItems>
 										<InputField name="ФизическоеЛицо" id="226">
 											<DataPath>Объект.СубъектыПерсональныхДанных.ФизическоеЛицо</DataPath>
@@ -8879,6 +8989,7 @@
 									<v8:content>Группа связи</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ScrollOnCompress>true</ScrollOnCompress>
 							<TitleDataPath>КоличествоСвязей</TitleDataPath>
 							<ExtendedTooltip name="ГруппаСвязиExtendedTooltip" id="1395"/>
 							<ChildItems>
@@ -8929,7 +9040,6 @@
 											<ExtendedTooltip name="ДеревоСвязейПоказыватьУдаленныеСвязиРасширеннаяПодсказка" id="2241"/>
 										</Button>
 										<ButtonGroup name="ДеревоСвязейГруппаФайлы" id="1529">
-											<ExtendedTooltip name="ДеревоСвязейГруппаФайлыРасширеннаяПодсказка" id="1530"/>
 											<Title>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
@@ -8942,6 +9052,7 @@
 													<v8:content>Дерево связей группа файлы</v8:content>
 												</v8:item>
 											</ToolTip>
+											<ExtendedTooltip name="ДеревоСвязейГруппаФайлыРасширеннаяПодсказка" id="1530"/>
 											<ChildItems>
 												<Button name="ДеревоСвязейНапечататьФайлы" id="1533">
 													<Type>CommandBarButton</Type>
@@ -8974,7 +9085,10 @@
 											<ExtendedTooltip name="ГруппаДеревоСвязейРасширеннаяПодсказка" id="3586"/>
 											<ChildItems>
 												<Table name="ДеревоСвязей" id="801">
+													<Representation>Tree</Representation>
 													<HeightInTableRows>1</HeightInTableRows>
+													<EnableStartDrag>true</EnableStartDrag>
+													<EnableDrag>true</EnableDrag>
 													<Header>false</Header>
 													<HorizontalLines>false</HorizontalLines>
 													<InitialTreeView>ExpandAllLevels</InitialTreeView>
@@ -9026,7 +9140,6 @@
 																<ExtendedTooltip name="ДеревоСвязейКонтекстноеМенюКнопкаВыделитьВсеExtendedTooltip" id="1402"/>
 															</Button>
 															<ButtonGroup name="ДеревоСвязейКонтекстноеМенюГруппаФайлы" id="1487">
-																<ExtendedTooltip name="ДеревоСвязейКонтекстноеМенюГруппаФайлыРасширеннаяПодсказка" id="1488"/>
 																<Title>
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
@@ -9039,6 +9152,7 @@
 																		<v8:content>Дерево связей контекстное меню группа файлы</v8:content>
 																	</v8:item>
 																</ToolTip>
+																<ExtendedTooltip name="ДеревоСвязейКонтекстноеМенюГруппаФайлыРасширеннаяПодсказка" id="1488"/>
 																<ChildItems>
 																	<Button name="ДеревоСвязейКонтекстноеМенюДеревоСвязейНапечататьФайлы" id="1483">
 																		<Type>CommandBarButton</Type>
@@ -9056,9 +9170,6 @@
 													</ContextMenu>
 													<ExtendedTooltip name="ДеревоСвязейExtendedTooltip" id="1408"/>
 													<AutoInsertNewRow>true</AutoInsertNewRow>
-													<EnableDrag>true</EnableDrag>
-													<EnableStartDrag>true</EnableStartDrag>
-													<Representation>Tree</Representation>
 													<ChildItems>
 														<ColumnGroup name="ДеревоСвязейГруппаКартинкаПредставление" id="1476">
 															<Title>
@@ -9241,6 +9352,7 @@
 									<v8:content>Переадресован</v8:content>
 								</v8:item>
 							</Title>
+							<ScrollOnCompress>true</ScrollOnCompress>
 							<Group>Horizontal</Group>
 							<ExtendedTooltip name="ГруппаПереадресацияExtendedTooltip" id="3033"/>
 							<ChildItems>
@@ -9436,16 +9548,35 @@
 									<v8:content>Группа ЭП</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ScrollOnCompress>true</ScrollOnCompress>
 							<ExtendedTooltip name="ГруппаЭПРасширеннаяПодсказка" id="1410"/>
 							<ChildItems>
 								<Table name="ЭлектронныеПодписи" id="260">
+									<Representation>Tree</Representation>
 									<ChangeRowOrder>false</ChangeRowOrder>
 									<HeightInTableRows>1</HeightInTableRows>
 									<RowSelectionMode>Row</RowSelectionMode>
+									<EnableStartDrag>true</EnableStartDrag>
+									<EnableDrag>true</EnableDrag>
 									<AutoAddIncomplete>false</AutoAddIncomplete>
 									<InitialTreeView>ExpandAllLevels</InitialTreeView>
 									<FileDragMode>AsFile</FileDragMode>
 									<DataPath>ЭлектронныеПодписи</DataPath>
+									<CommandSet>
+										<ExcludedCommand>Add</ExcludedCommand>
+										<ExcludedCommand>Change</ExcludedCommand>
+										<ExcludedCommand>Copy</ExcludedCommand>
+										<ExcludedCommand>Delete</ExcludedCommand>
+										<ExcludedCommand>EndEdit</ExcludedCommand>
+										<ExcludedCommand>HierarchicalList</ExcludedCommand>
+										<ExcludedCommand>List</ExcludedCommand>
+										<ExcludedCommand>MoveDown</ExcludedCommand>
+										<ExcludedCommand>MoveUp</ExcludedCommand>
+										<ExcludedCommand>OutputList</ExcludedCommand>
+										<ExcludedCommand>SortListAsc</ExcludedCommand>
+										<ExcludedCommand>SortListDesc</ExcludedCommand>
+										<ExcludedCommand>Tree</ExcludedCommand>
+									</CommandSet>
 									<SearchStringLocation>None</SearchStringLocation>
 									<ViewStatusLocation>None</ViewStatusLocation>
 									<SearchControlLocation>None</SearchControlLocation>
@@ -9478,7 +9609,6 @@
 												<ExtendedTooltip name="ТаблицаПодписейКонтекстноеМенюУдалитьExtendedTooltip" id="1415"/>
 											</Button>
 											<ButtonGroup name="ТаблицаПодписейКонтекстноеМенюСтандартные" id="301">
-												<ExtendedTooltip name="ТаблицаПодписейКонтекстноеМенюСтандартныеExtendedTooltip" id="1416"/>
 												<Title>
 													<v8:item>
 														<v8:lang>ru</v8:lang>
@@ -9491,6 +9621,7 @@
 														<v8:content>Таблица подписей контекстное меню стандартные</v8:content>
 													</v8:item>
 												</ToolTip>
+												<ExtendedTooltip name="ТаблицаПодписейКонтекстноеМенюСтандартныеExtendedTooltip" id="1416"/>
 												<ChildItems>
 													<Button name="ТаблицаПодписейКонтекстноеМенюКопироватьВБуферОбмена" id="299">
 														<Type>CommandBarButton</Type>
@@ -9507,9 +9638,6 @@
 										</ChildItems>
 									</ContextMenu>
 									<ExtendedTooltip name="ЭлектронныеПодписиРасширеннаяПодсказка" id="1424"/>
-									<EnableDrag>true</EnableDrag>
-									<EnableStartDrag>true</EnableStartDrag>
-									<Representation>Tree</Representation>
 									<ChildItems>
 										<InputField name="ТаблицаПодписейАвторПодписиИСтатус" id="1720">
 											<DataPath>ЭлектронныеПодписи.АвторПодписиИСтатус</DataPath>
@@ -9552,6 +9680,7 @@
 									<v8:content>Категории</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ScrollOnCompress>true</ScrollOnCompress>
 							<ExtendedTooltip name="КатегорииExtendedTooltip" id="1429"/>
 							<ChildItems>
 								<UsualGroup name="ГруппаКатегории" id="328">
@@ -9574,11 +9703,26 @@
 									<ExtendedTooltip name="ГруппаКатегорииExtendedTooltip" id="1430"/>
 									<ChildItems>
 										<Table name="СписокКатегорийДанных" id="304">
+											<Representation>List</Representation>
 											<HeightInTableRows>1</HeightInTableRows>
+											<EnableStartDrag>true</EnableStartDrag>
+											<EnableDrag>true</EnableDrag>
 											<Header>false</Header>
 											<HorizontalLines>false</HorizontalLines>
 											<FileDragMode>AsFile</FileDragMode>
 											<DataPath>СписокКатегорийДанных</DataPath>
+											<CommandSet>
+												<ExcludedCommand>Add</ExcludedCommand>
+												<ExcludedCommand>CancelSearch</ExcludedCommand>
+												<ExcludedCommand>Change</ExcludedCommand>
+												<ExcludedCommand>Copy</ExcludedCommand>
+												<ExcludedCommand>EndEdit</ExcludedCommand>
+												<ExcludedCommand>Find</ExcludedCommand>
+												<ExcludedCommand>MoveDown</ExcludedCommand>
+												<ExcludedCommand>MoveUp</ExcludedCommand>
+												<ExcludedCommand>SortListAsc</ExcludedCommand>
+												<ExcludedCommand>SortListDesc</ExcludedCommand>
+											</CommandSet>
 											<SearchStringLocation>None</SearchStringLocation>
 											<ViewStatusLocation>None</ViewStatusLocation>
 											<SearchControlLocation>None</SearchControlLocation>
@@ -9590,7 +9734,6 @@
 														<ExtendedTooltip name="СписокКатегорийДанныхКонтекстноеМенюОткрытьФормуПодбораКатегорийРасширеннаяПодсказка" id="1568"/>
 													</Button>
 													<ButtonGroup name="СписокКатегорийДанныхКонтекстноеМенюСтандартныеКоманды" id="1575">
-														<ExtendedTooltip name="СписокКатегорийДанныхКонтекстноеМенюСтандартныеКомандыРасширеннаяПодсказка" id="1576"/>
 														<Title>
 															<v8:item>
 																<v8:lang>ru</v8:lang>
@@ -9603,14 +9746,12 @@
 																<v8:content>Список категорий данных контекстное меню стандартные команды</v8:content>
 															</v8:item>
 														</ToolTip>
+														<ExtendedTooltip name="СписокКатегорийДанныхКонтекстноеМенюСтандартныеКомандыРасширеннаяПодсказка" id="1576"/>
 													</ButtonGroup>
 												</ChildItems>
 											</ContextMenu>
 											<ExtendedTooltip name="СписокКатегорийДанныхExtendedTooltip" id="1435"/>
 											<AutoInsertNewRow>true</AutoInsertNewRow>
-											<EnableDrag>true</EnableDrag>
-											<EnableStartDrag>true</EnableStartDrag>
-											<Representation>List</Representation>
 											<ChildItems>
 												<InputField name="СписокКатегорийДанныхНаименование" id="307">
 													<DataPath>СписокКатегорийДанных.ПолноеНаименование</DataPath>
@@ -9866,6 +10007,7 @@
 									<v8:content>Группа доступ</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ScrollOnCompress>true</ScrollOnCompress>
 							<TitleDataPath>КоличествоУчастниковРабочейГруппы</TitleDataPath>
 							<ExtendedTooltip name="ГруппаДоступРасширеннаяПодсказка" id="1452"/>
 							<ChildItems>
@@ -9893,19 +10035,31 @@
 									<ExtendedTooltip name="ДекорацияРГОбновленаРасширеннаяПодсказка" id="3692"/>
 								</LabelDecoration>
 								<Table name="РабочаяГруппаТаблица" id="471">
+									<Representation>List</Representation>
 									<HeightInTableRows>1</HeightInTableRows>
+									<EnableStartDrag>true</EnableStartDrag>
+									<EnableDrag>true</EnableDrag>
 									<HorizontalLines>false</HorizontalLines>
 									<FileDragMode>AsFile</FileDragMode>
 									<DataPath>РабочаяГруппаТаблица</DataPath>
+									<CommandSet>
+										<ExcludedCommand>CancelSearch</ExcludedCommand>
+										<ExcludedCommand>Change</ExcludedCommand>
+										<ExcludedCommand>Copy</ExcludedCommand>
+										<ExcludedCommand>EndEdit</ExcludedCommand>
+										<ExcludedCommand>Find</ExcludedCommand>
+										<ExcludedCommand>MoveDown</ExcludedCommand>
+										<ExcludedCommand>MoveUp</ExcludedCommand>
+										<ExcludedCommand>SelectAll</ExcludedCommand>
+										<ExcludedCommand>SortListAsc</ExcludedCommand>
+										<ExcludedCommand>SortListDesc</ExcludedCommand>
+									</CommandSet>
 									<SearchStringLocation>None</SearchStringLocation>
 									<ViewStatusLocation>None</ViewStatusLocation>
 									<SearchControlLocation>None</SearchControlLocation>
 									<ContextMenu name="РабочаяГруппаТаблицаКонтекстноеМеню" id="472"/>
 									<ExtendedTooltip name="РабочаяГруппаТаблицаExtendedTooltip" id="1459"/>
 									<AutoInsertNewRow>true</AutoInsertNewRow>
-									<EnableDrag>true</EnableDrag>
-									<EnableStartDrag>true</EnableStartDrag>
-									<Representation>List</Representation>
 									<ChildItems>
 										<ColumnGroup name="РабочаяГруппаТаблицаГруппаУчастник" id="474">
 											<Title>
