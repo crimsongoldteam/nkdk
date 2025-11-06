@@ -7,10 +7,15 @@ export default function exportUserVisibleToXML(
 
   const result: TUserVisibleXML = {
     Common: userVisible.common,
-    Value: userVisible.values.map((item) => ({
-      _name: `Role.${item.name}`,
-      "#text": item.value,
-    })),
+    Value:
+      userVisible.values.length > 0
+        ? {
+            Item: userVisible.values.map((item) => ({
+              _name: `Role.${item.name}`,
+              "#text": item.value,
+            })),
+          }
+        : {}, // empty object will be exported as <Value />
   }
 
   return result

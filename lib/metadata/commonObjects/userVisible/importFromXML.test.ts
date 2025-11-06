@@ -21,6 +21,10 @@ describe("importUserVisibleFromXML", () => {
           name: "Администратор",
           value: true,
         },
+        {
+          name: "Пользователь",
+          value: false,
+        },
       ],
     }
 

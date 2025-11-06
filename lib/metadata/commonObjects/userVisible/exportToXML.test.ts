@@ -47,7 +47,7 @@ describe("exportUserVisibleToXML", () => {
 
     const expectedResult = `<UserVisible>
 	<Common>false</Common>
-	<Value />
+	<Value/>
 </UserVisible>`
 
     const result = { UserVisible: exportUserVisibleToXML(mockUserVisible) }
@@ -96,12 +96,12 @@ describe("exportUserVisibleToXML", () => {
 
   it("should export and import UserVisible correctly (round-trip)", () => {
     const originalXml = `<UserVisible>
-      <Common>true</Common>
-      <Value>
-        <Item name="Role.Администратор">true</Item>
-        <Item name="Role.Пользователь">false</Item>
-      </Value>
-    </UserVisible>`
+	<Common>true</Common>
+	<Value>
+		<Item name="Role.Администратор">true</Item>
+		<Item name="Role.Пользователь">false</Item>
+	</Value>
+</UserVisible>`
 
     const xml = xmlImport<{ UserVisible: TUserVisibleXML }>(
       originalXml,
