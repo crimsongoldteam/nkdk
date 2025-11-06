@@ -5,20 +5,22 @@ export const importUserVisibleFromXML = (
 ): TUserVisible | undefined => {
   if (!xml) return undefined
 
-  let items: Array<{ _name: string; "#text": boolean }> = []
-
-  const value = xml["xr:Value"]
-
-  if (value !== undefined) {
-    items = Array.isArray(value) ? value : [value]
+  const result: TUserVisible = {
+    common: false,
+    values: [],
   }
 
-  const result: TUserVisible = {
-    common: xml["xr:Common"],
-    values: items.map((item) => ({
-      name: item._name.replace(/^Role\./, ""),
-      value: item["#text"],
-    })),
+  for (const item of xml) {
+    if (item["xr:Value"] !== undefined) {
+      result.values.push({
+        name: item["xr:Value"]["_name"].replace(/^Role\./, ""),
+        value: item["xr:Value"]["#text"],
+      })
+    }
+
+    if (item["xr:Common"] !== undefined) {
+      result.common = item["xr:Common"]
+    }
   }
 
   return result

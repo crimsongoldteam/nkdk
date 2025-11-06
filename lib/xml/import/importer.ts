@@ -17,7 +17,9 @@ export default function xmlImport<T>(data: string, schema: z.ZodType<T>): T {
       name === "ChildItems" ||
       name === "Attributes" ||
       name === "CommandSet" ||
-      name === "Events"
+      name === "Events" ||
+      name === "UserVisible" ||
+      name === "Use"
     )
   }
 

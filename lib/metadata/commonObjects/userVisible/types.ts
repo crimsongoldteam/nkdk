@@ -6,12 +6,12 @@ const ZUserVisibleItemXML = z.object({
   "#text": z.boolean(),
 })
 
-export const ZUserVisibleXML = z.object({
-  "xr:Common": z.boolean(),
-  "xr:Value": z
-    .union([z.array(ZUserVisibleItemXML), ZUserVisibleItemXML])
-    .optional(),
-})
+export const ZUserVisibleXML = z.array(
+  z.object({
+    "xr:Common": z.boolean().optional(),
+    "xr:Value": ZUserVisibleItemXML.optional(),
+  })
+)
 
 export const ZUserVisible = z.object({
   common: z.boolean(),
