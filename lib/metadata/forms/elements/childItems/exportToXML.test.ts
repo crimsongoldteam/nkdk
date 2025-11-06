@@ -1,13 +1,11 @@
 import { expect, it, describe } from "vitest"
 import { ZElementType } from "../types"
 import { exportChildItemsToXML } from "./exportToXML"
-import { importChildItemsFromXML } from "./importFromXML"
 import { ZChildItems, ZChildItemsXML } from "./types"
 import "~/lib/metadata/forms/elements/importFromXML"
 import "~/lib/metadata/forms/elements/exportToXML"
-import { xmlExport, xmlImport } from "~/lib"
+import { xmlExport } from "~/lib"
 import z from "zod"
-import { XMLBuilder } from "fast-xml-parser"
 
 describe("exportChildItemsToXML", () => {
   it("should export child items to XML", () => {
@@ -30,9 +28,9 @@ describe("exportChildItemsToXML", () => {
     ]
 
     const expectedResult = `<ChildItems>
-<InputField id="1" name="Input1"/>
-<Button id="2" name="Button2"/>
-<InputField id="3" name="Input3"/>
+	<InputField name="Input1" id="1"/>
+	<Button name="Button2" id="2"/>
+	<InputField name="Input3" id="3"/>
 </ChildItems>`
 
     const result = exportChildItemsToXML(mockChildItems)
