@@ -1,7 +1,8 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { TClientApplicationFormXML, TClientApplicationForm } from "./types"
-import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 
 export const exportClientApplicationFormToXML = (
   data: TClientApplicationForm | undefined
@@ -27,6 +28,7 @@ export const exportClientApplicationFormToXML = (
     "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
     _version: "2.18",
+    AutoCommandBar: exportCommandBarToXML(data.autoCommandBar),
     AutoFillCheck: data.autoFillCheck,
     AutoSaveDataInSettings: data.autoSaveDataInSettings,
     AutoTitle: data.autoTitle,
@@ -34,7 +36,7 @@ export const exportClientApplicationFormToXML = (
     CloseOnChoice: data.closeOnChoice,
     CloseOnOwnerClose: data.closeOnOwnerClose,
     CollapseItemsByImportance: data.collapseItemsByImportance,
-    CommandBar: exportFormGroupToXML(data.commandBar),
+    CommandBar: exportCommandBarToXML(data.commandBar),
     CommandBarLocation: data.commandBarLocation,
     // Commands: data.commands,
     ConversationsRepresentation: data.conversationsRepresentation,
@@ -65,5 +67,6 @@ export const exportClientApplicationFormToXML = (
     WindowOptionsKey: data.windowOptionsKey,
     // ConditionalAppearance: data.conditionalAppearance,
     ChildItems: exportChildItemsToXML(data.childItems),
+    Events: exportEventsToXML(data.events),
   }
 }

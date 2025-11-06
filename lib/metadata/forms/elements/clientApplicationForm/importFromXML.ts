@@ -4,6 +4,7 @@ import { TClientApplicationFormXML, TClientApplicationForm, TAttribute, TAttribu
 import { ZElementType } from "../types"
 import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import importAttributeFromXML from "./attributes/importFromXML"
+import { importEventsFromXML } from "../../events/importFromXML"
 
 export const importClientApplicationFormFromXML = (xml: TClientApplicationFormXML): TClientApplicationForm => {
   return {
@@ -12,12 +13,7 @@ export const importClientApplicationFormFromXML = (xml: TClientApplicationFormXM
       xml.Attributes?.map((attribute) =>
         "Attribute" in attribute ? importAttributeFromXML(attribute as TAttributeXML) : undefined
       ).filter((attr): attr is TAttribute => attr !== undefined) ?? [],
-    autoCommandBar: xml.AutoCommandBar
-      ? {
-          name: xml.AutoCommandBar._name,
-          id: xml.AutoCommandBar._id,
-        }
-      : undefined,
+    autoCommandBar: importCommandBarFromXML(xml.AutoCommandBar),
     autoTitle: xml.AutoTitle,
     autoSaveDataInSettings: xml.AutoSaveDataInSettings,
     autoURL: xml.AutoURL,
@@ -58,6 +54,7 @@ export const importClientApplicationFormFromXML = (xml: TClientApplicationFormXM
     // conditionalAppearance: xml.ConditionalAppearance,
     width: xml.Width,
     slaveItemsWidth: xml.SlaveItemsWidth,
+    events: importEventsFromXML(xml.Events),
   }
 }
 
