@@ -24,6 +24,7 @@ export const ZPopup = ZFormGroup.extend({
 export const ZPopupXML = z.object({
   _name: z.string(),
   _id: z.string(),
+  UserVisible: ZUserVisibleXML.optional(),
   Title: ZI8nTextXML.optional(),
   ToolTip: ZI8nTextXML.optional(),
   Picture: ZPictureXML.optional(),
@@ -46,7 +47,6 @@ export const ZPopupXML = z.object({
   TitleTextColor: ZColorXML.optional(),
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   Type: SE.ZFormGroupType.optional(),
-  UserVisible: ZUserVisibleXML.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   VerticalStretch: z.boolean().optional(),
   Visible: z.boolean().optional(),

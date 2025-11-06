@@ -342,6 +342,10 @@
 								</Button>
 								<Button name="СоздатьИсходящийДокументЭДО" id="4072">
 									<Type>CommandBarButton</Type>
+									<UserVisible>
+										<xr:Common>true</xr:Common>
+										<xr:Value name="Role.Локализация">true</xr:Value>
+									</UserVisible>
 									<Representation>Text</Representation>
 									<CommandName>Form.Command.СоздатьИсходящийДокументЭДО</CommandName>
 									<Title>
@@ -356,12 +360,20 @@
 						</Popup>
 						<Button name="ПоделитьсяДокументомShareКомПанель" id="4116">
 							<Type>CommandBarButton</Type>
+							<UserVisible>
+								<xr:Common>true</xr:Common>
+								<xr:Value name="Role.Локализация">true</xr:Value>
+							</UserVisible>
 							<Representation>Picture</Representation>
 							<CommandName>Form.Command.ПоделитьсяДокументомShare</CommandName>
 							<LocationInCommandBar>InCommandBar</LocationInCommandBar>
 							<ExtendedTooltip name="ПоделитьсяДокументомShareКомПанельРасширеннаяПодсказка" id="4117"/>
 						</Button>
 						<Popup name="ГруппаКомандыЭДО" id="4064">
+							<UserVisible>
+								<xr:Common>true</xr:Common>
+								<xr:Value name="Role.Локализация">true</xr:Value>
+							</UserVisible>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
@@ -655,6 +667,10 @@
 									<ExtendedTooltip name="ПраваДоступаРасширеннаяПодсказка" id="1889"/>
 								</Button>
 								<Popup name="ЭДО" id="2244">
+									<UserVisible>
+										<xr:Common>true</xr:Common>
+										<xr:Value name="Role.Локализация">true</xr:Value>
+									</UserVisible>
 									<Title>
 										<v8:item>
 											<v8:lang>ru</v8:lang>
@@ -812,6 +828,10 @@
 									<ExtendedTooltip name="ВыгрузитьВССТУРасширеннаяПодсказка" id="4026"/>
 								</Button>
 								<Popup name="ГруппаСервисЭДО" id="4097">
+									<UserVisible>
+										<xr:Common>true</xr:Common>
+										<xr:Value name="Role.Локализация">true</xr:Value>
+									</UserVisible>
 									<Title>
 										<v8:item>
 											<v8:lang>ru</v8:lang>
@@ -966,6 +986,10 @@
 		</UsualGroup>
 		<UsualGroup name="ГруппаПлашкаЭДО" id="4089">
 			<Visible>false</Visible>
+			<UserVisible>
+				<xr:Common>true</xr:Common>
+				<xr:Value name="Role.Локализация">true</xr:Value>
+			</UserVisible>
 			<Title>
 				<v8:item>
 					<v8:lang>ru</v8:lang>
@@ -2122,6 +2146,9 @@
 																				</InputField>
 																				<InputField name="Описание" id="127">
 																					<DataPath>Файлы.Описание</DataPath>
+																					<UserVisible>
+																						<xr:Common>false</xr:Common>
+																					</UserVisible>
 																					<Width>5</Width>
 																					<Wrap>false</Wrap>
 																					<TextEdit>false</TextEdit>
@@ -2153,6 +2180,9 @@
 																	<ChildItems>
 																		<InputField name="ДатаСоздания" id="129">
 																			<DataPath>Файлы.ДатаСоздания</DataPath>
+																			<UserVisible>
+																				<xr:Common>false</xr:Common>
+																			</UserVisible>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -2166,6 +2196,9 @@
 																		</InputField>
 																		<InputField name="Автор" id="131">
 																			<DataPath>Файлы.Автор</DataPath>
+																			<UserVisible>
+																				<xr:Common>false</xr:Common>
+																			</UserVisible>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -2182,6 +2215,9 @@
 																		</InputField>
 																		<InputField name="Редактирует" id="133">
 																			<DataPath>Файлы.Редактирует</DataPath>
+																			<UserVisible>
+																				<xr:Common>false</xr:Common>
+																			</UserVisible>
 																			<Width>1</Width>
 																			<Wrap>false</Wrap>
 																			<TextEdit>false</TextEdit>
@@ -2217,6 +2253,9 @@
 																		</InputField>
 																		<InputField name="ТекущаяВерсияАвтор" id="137">
 																			<DataPath>Файлы.ТекущаяВерсияАвтор</DataPath>
+																			<UserVisible>
+																				<xr:Common>false</xr:Common>
+																			</UserVisible>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -2231,6 +2270,9 @@
 																		</InputField>
 																		<InputField name="ТекущаяВерсияДатаСоздания" id="139">
 																			<DataPath>Файлы.ТекущаяВерсияДатаСоздания</DataPath>
+																			<UserVisible>
+																				<xr:Common>false</xr:Common>
+																			</UserVisible>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -2257,6 +2299,9 @@
 																			<DataPath>Файлы.ХранитьВерсии</DataPath>
 																			<ExtendedTooltip name="ХранитьВерсииExtendedTooltip" id="1149"/>
 																			<ReadOnly>true</ReadOnly>
+																			<UserVisible>
+																				<xr:Common>false</xr:Common>
+																			</UserVisible>
 																			<Visible>false</Visible>
 																		</CheckBoxField>
 																		<CheckBoxField name="СозданИзШаблона" id="349">
@@ -2865,6 +2910,10 @@
 														</PictureField>
 														<PictureField name="КартинкаЭДО" id="2421">
 															<DataPath>СтатусЭДО</DataPath>
+															<UserVisible>
+																<xr:Common>true</xr:Common>
+																<xr:Value name="Role.Локализация">true</xr:Value>
+															</UserVisible>
 															<TitleLocation>None</TitleLocation>
 															<Width>3</Width>
 															<Hyperlink>true</Hyperlink>
@@ -3475,6 +3524,10 @@
 																	</ChildItems>
 																</UsualGroup>
 																<UsualGroup name="ГруппаИндексыСПАРКРиски2" id="2390">
+																	<UserVisible>
+																		<xr:Common>true</xr:Common>
+																		<xr:Value name="Role.Локализация">true</xr:Value>
+																	</UserVisible>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
@@ -3590,6 +3643,10 @@
 															</ChildItems>
 														</UsualGroup>
 														<UsualGroup name="ГруппаИндексыСПАРКРиски" id="2377">
+															<UserVisible>
+																<xr:Common>true</xr:Common>
+																<xr:Value name="Role.Локализация">true</xr:Value>
+															</UserVisible>
 															<Shortcut>Ctrl+F4</Shortcut>
 															<Group>Horizontal</Group>
 															<Behavior>Usual</Behavior>
@@ -4162,6 +4219,10 @@
 																	<ChildItems>
 																		<PictureField name="СтороныСводныйИндикатор" id="2406">
 																			<DataPath>Объект.Стороны.СводныйИндикатор</DataPath>
+																			<UserVisible>
+																				<xr:Common>true</xr:Common>
+																				<xr:Value name="Role.Локализация">true</xr:Value>
+																			</UserVisible>
 																			<SkipOnInput>true</SkipOnInput>
 																			<TitleLocation>None</TitleLocation>
 																			<ToolTip>
@@ -4400,6 +4461,9 @@
 																		</InputField>
 																		<InputField name="СтороныУстановил" id="2365">
 																			<DataPath>Объект.Стороны.Установил</DataPath>
+																			<UserVisible>
+																				<xr:Common>false</xr:Common>
+																			</UserVisible>
 																			<ReadOnly>true</ReadOnly>
 																			<Width>15</Width>
 																			<ContextMenu name="СтороныУстановилКонтекстноеМеню" id="2366"/>
@@ -5403,6 +5467,10 @@
 														<LabelField name="СостояниеЭДО" id="4094">
 															<DataPath>СостояниеЭДО</DataPath>
 															<Visible>false</Visible>
+															<UserVisible>
+																<xr:Common>true</xr:Common>
+																<xr:Value name="Role.Локализация">true</xr:Value>
+															</UserVisible>
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<ContextMenu name="СостояниеЭДОКонтекстноеМеню" id="4095"/>
 															<ExtendedTooltip name="СостояниеЭДОРасширеннаяПодсказка" id="4096"/>
@@ -5775,6 +5843,10 @@
 										</LabelField>
 										<PictureField name="КонтрагентыСводныйИндикатор" id="2401">
 											<DataPath>Объект.Контрагенты.СводныйИндикатор</DataPath>
+											<UserVisible>
+												<xr:Common>true</xr:Common>
+												<xr:Value name="Role.Локализация">true</xr:Value>
+											</UserVisible>
 											<SkipOnInput>true</SkipOnInput>
 											<TitleLocation>None</TitleLocation>
 											<ToolTip>
@@ -6620,12 +6692,18 @@
 														</ColumnGroup>
 														<InputField name="АвторСоздание" id="909">
 															<DataPath>Файлы.Автор</DataPath>
+															<UserVisible>
+																<xr:Common>false</xr:Common>
+															</UserVisible>
 															<TextEdit>false</TextEdit>
 															<ContextMenu name="АвторСозданиеКонтекстноеМеню" id="910"/>
 															<ExtendedTooltip name="АвторСозданиеРасширеннаяПодсказка" id="1318"/>
 														</InputField>
 														<InputField name="РедактируетСоздание" id="911">
 															<DataPath>Файлы.Редактирует</DataPath>
+															<UserVisible>
+																<xr:Common>false</xr:Common>
+															</UserVisible>
 															<TextEdit>false</TextEdit>
 															<ContextMenu name="РедактируетСозданиеКонтекстноеМеню" id="912"/>
 															<ExtendedTooltip name="РедактируетСозданиеРасширеннаяПодсказка" id="1319"/>
@@ -6656,6 +6734,9 @@
 														</InputField>
 														<InputField name="ТекущаяВерсияАвторСоздание" id="915">
 															<DataPath>Файлы.ТекущаяВерсияАвтор</DataPath>
+															<UserVisible>
+																<xr:Common>false</xr:Common>
+															</UserVisible>
 															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
@@ -6668,6 +6749,9 @@
 														</InputField>
 														<InputField name="ТекущаяВерсияДатаСозданияСоздание" id="917">
 															<DataPath>Файлы.ТекущаяВерсияДатаСоздания</DataPath>
+															<UserVisible>
+																<xr:Common>false</xr:Common>
+															</UserVisible>
 															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
@@ -6689,12 +6773,18 @@
 															<ContextMenu name="ХранитьВерсииСозданиеКонтекстноеМеню" id="920"/>
 															<DataPath>Файлы.ХранитьВерсии</DataPath>
 															<ExtendedTooltip name="ХранитьВерсииСозданиеРасширеннаяПодсказка" id="1323"/>
+															<UserVisible>
+																<xr:Common>false</xr:Common>
+															</UserVisible>
 														</CheckBoxField>
 														<CheckBoxField name="СозданИзШаблонаСоздание" id="921">
 															<CheckBoxType>Auto</CheckBoxType>
 															<ContextMenu name="СозданИзШаблонаСозданиеКонтекстноеМеню" id="922"/>
 															<DataPath>Файлы.СозданИзШаблона</DataPath>
 															<ExtendedTooltip name="СозданИзШаблонаСозданиеРасширеннаяПодсказка" id="1324"/>
+															<UserVisible>
+																<xr:Common>false</xr:Common>
+															</UserVisible>
 														</CheckBoxField>
 														<PictureField name="ФайлыПодписанСоздание" id="897">
 															<DataPath>Файлы.СтатусПроверкиЭП</DataPath>
@@ -7192,6 +7282,9 @@
 																</LabelField>
 																<LabelField name="ВсеТоварыАртикул" id="2151">
 																	<DataPath>ВсеТовары.Артикул</DataPath>
+																	<UserVisible>
+																		<xr:Common>false</xr:Common>
+																	</UserVisible>
 																	<ContextMenu name="ВсеТоварыАртикулКонтекстноеМеню" id="2152"/>
 																	<ExtendedTooltip name="ВсеТоварыАртикулРасширеннаяПодсказка" id="2153"/>
 																	<ShowInHeader>false</ShowInHeader>
@@ -7204,6 +7297,9 @@
 																</LabelField>
 																<LabelField name="ВсеТоварыСсылка" id="2157">
 																	<DataPath>ВсеТовары.Ref</DataPath>
+																	<UserVisible>
+																		<xr:Common>false</xr:Common>
+																	</UserVisible>
 																	<ContextMenu name="ВсеТоварыСсылкаКонтекстноеМеню" id="2158"/>
 																	<ExtendedTooltip name="ВсеТоварыСсылкаРасширеннаяПодсказка" id="2159"/>
 																	<ShowInHeader>false</ShowInHeader>
@@ -7815,6 +7911,10 @@
 							</ChildItems>
 						</Page>
 						<Page name="ГруппаМЭДО" id="3786">
+							<UserVisible>
+								<xr:Common>true</xr:Common>
+								<xr:Value name="Role.Локализация">true</xr:Value>
+							</UserVisible>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
@@ -8716,11 +8816,17 @@
 							<ChildItems>
 								<LabelField name="СоздалТекст" id="2060">
 									<DataPath>СоздалТекст</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
 									<ContextMenu name="СоздалТекстКонтекстноеМеню" id="2061"/>
 									<ExtendedTooltip name="СоздалТекстРасширеннаяПодсказка" id="2062"/>
 								</LabelField>
 								<InputField name="Зарегистрировал" id="176">
 									<DataPath>Объект.Зарегистрировал</DataPath>
+									<UserVisible>
+										<xr:Common>false</xr:Common>
+									</UserVisible>
 									<ContextMenu name="ЗарегистрировалКонтекстноеМеню" id="177"/>
 									<ExtendedTooltip name="ЗарегистрировалExtendedTooltip" id="1392"/>
 									<Events>
