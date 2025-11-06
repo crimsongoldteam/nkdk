@@ -3,6 +3,7 @@ import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { TClientApplicationFormXML, TClientApplicationForm } from "./types"
 import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
+import { exportCommandSetToXML } from "~/lib/metadata/forms/commandSet/exportToXML"
 
 export const exportClientApplicationFormToXML = (
   data: TClientApplicationForm | undefined
@@ -29,6 +30,7 @@ export const exportClientApplicationFormToXML = (
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
     _version: "2.18",
     AutoCommandBar: exportCommandBarToXML(data.autoCommandBar),
+    CommandSet: exportCommandSetToXML(data.commandSet),
     AutoFillCheck: data.autoFillCheck,
     AutoSaveDataInSettings: data.autoSaveDataInSettings,
     AutoTitle: data.autoTitle,

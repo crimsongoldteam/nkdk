@@ -1,13 +1,22 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import {
+  ZI8nText,
+  ZI8nTextXML,
+} from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZUse, ZUseXML } from "~/lib/metadata/commonObjects/use/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
+import {
+  ZTypeDescription,
+  ZTypeDescriptionXML,
+} from "~/lib/metadata/commonObjects/typeDescription/types"
 import { ZElementType } from "../types"
 import { ZEventsXML } from "../../events/types"
-
+import {
+  ZCommandSet,
+  ZCommandSetXML,
+} from "~/lib/metadata/forms/commandSet/types"
 
 export const ZAttribute = z.object({
   name: z.string(),
@@ -30,6 +39,7 @@ export const ZAttribute = z.object({
 // ])
 
 export const ZClientApplicationForm = z.object({
+  commandSet: ZCommandSet.optional(),
   elementType: ZElementType.enum.ClientApplicationForm,
   attributes: z.array(ZAttribute).optional(),
   autoCommandBar: ZFormGroup.optional(),
@@ -72,34 +82,36 @@ export const ZClientApplicationForm = z.object({
   uUID: z.uuid().optional(),
   width: z.number().optional(),
   slaveItemsWidth: SE.ZChildFormItemsWidth.optional(),
-  events: z.object({
-    collaborationSystemUsersAutoComplete: z.string().optional(),
-    externalEvent: z.string().optional(),
-    activationProcessing: z.string().optional(),
-    choiceProcessing: z.string().optional(),
-    newWriteProcessing: z.string().optional(),
-    uRLProcessing: z.string().optional(),
-    notificationProcessing: z.string().optional(),
-    navigationProcessing: z.string().optional(),
-    uRLGetProcessing: z.string().optional(),
-    uRLListGetProcessing: z.string().optional(),
-    collaborationSystemUsersChoiceFormGetProcessing: z.string().optional(),
-    fillCheckProcessingAtServer: z.string().optional(),
-    addInDetachmentOnError: z.string().optional(),
-    beforeLoadDataFromSettingsAtServer: z.string().optional(),
-    beforeClose: z.string().optional(),
-    beforeReopenFromOtherServer: z.string().optional(),
-    onPasteFromClipboard: z.string().optional(),
-    onLoadDataFromSettingsAtServer: z.string().optional(),
-    onClose: z.string().optional(),
-    onMainServerAvailabilityChange: z.string().optional(),
-    onChangeDisplaySettings: z.string().optional(),
-    onOpen: z.string().optional(),
-    onReopenFromOtherServer: z.string().optional(),
-    onReopen: z.string().optional(),
-    onCreateAtServer: z.string().optional(),
-    onSaveDataInSettingsAtServer: z.string().optional(),
-  }).optional(),
+  events: z
+    .object({
+      collaborationSystemUsersAutoComplete: z.string().optional(),
+      externalEvent: z.string().optional(),
+      activationProcessing: z.string().optional(),
+      choiceProcessing: z.string().optional(),
+      newWriteProcessing: z.string().optional(),
+      uRLProcessing: z.string().optional(),
+      notificationProcessing: z.string().optional(),
+      navigationProcessing: z.string().optional(),
+      uRLGetProcessing: z.string().optional(),
+      uRLListGetProcessing: z.string().optional(),
+      collaborationSystemUsersChoiceFormGetProcessing: z.string().optional(),
+      fillCheckProcessingAtServer: z.string().optional(),
+      addInDetachmentOnError: z.string().optional(),
+      beforeLoadDataFromSettingsAtServer: z.string().optional(),
+      beforeClose: z.string().optional(),
+      beforeReopenFromOtherServer: z.string().optional(),
+      onPasteFromClipboard: z.string().optional(),
+      onLoadDataFromSettingsAtServer: z.string().optional(),
+      onClose: z.string().optional(),
+      onMainServerAvailabilityChange: z.string().optional(),
+      onChangeDisplaySettings: z.string().optional(),
+      onOpen: z.string().optional(),
+      onReopenFromOtherServer: z.string().optional(),
+      onReopen: z.string().optional(),
+      onCreateAtServer: z.string().optional(),
+      onSaveDataInSettingsAtServer: z.string().optional(),
+    })
+    .optional(),
 })
 
 export const ZAutoCommandBarXML = z.object({
@@ -123,7 +135,9 @@ export const ZAttributeXML = z.object({
   }),
 })
 
-export const ZAttributesXML = z.array(z.union([ZAttributeXML, ZConditionalAppearanceXML]))
+export const ZAttributesXML = z.array(
+  z.union([ZAttributeXML, ZConditionalAppearanceXML])
+)
 
 export const ZClientApplicationFormXML = z.object({
   _xmlns: z.string().optional(),
@@ -144,6 +158,7 @@ export const ZClientApplicationFormXML = z.object({
   "_xmlns:xs": z.string().optional(),
   "_xmlns:xsi": z.string().optional(),
   _version: z.string().optional(),
+  CommandSet: ZCommandSetXML.optional(),
   Attributes: ZAttributesXML.optional(),
   AutoCommandBar: ZFormGroupXML.optional(),
   AutoFillCheck: z.boolean().optional(),
@@ -194,6 +209,8 @@ export type TAttribute = z.infer<typeof ZAttribute>
 
 export type TAttributeXML = z.infer<typeof ZAttributeXML>
 export type TAttributesXML = z.infer<typeof ZAttributesXML>
-export type TClientApplicationFormXML = z.infer<typeof ZClientApplicationFormXML>
+export type TClientApplicationFormXML = z.infer<
+  typeof ZClientApplicationFormXML
+>
 
 // export type TAttributeEnterprise = z.infer<typeof ZAttributeEnterprise>
