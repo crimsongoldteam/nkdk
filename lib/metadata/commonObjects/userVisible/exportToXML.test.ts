@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import exportUserVisibleToXML from "./exportToXML"
-import importUserVisibleFromXML from "./importFromXML"
+import { exportUserVisibleToXML } from "./exportToXML"
+import { importUserVisibleFromXML } from "./importFromXML"
 import { TUserVisible, TUserVisibleXML, ZUserVisibleXML } from "./types"
 import { xmlExport, xmlImport } from "~/lib"
 import z from "zod"
@@ -22,11 +22,9 @@ describe("exportUserVisibleToXML", () => {
     }
 
     const expectedResult = `<UserVisible>
-	<Common>true</Common>
-	<Value>
-		<Item name="Role.Администратор">true</Item>
-		<Item name="Role.Пользователь">false</Item>
-	</Value>
+	<xr:Common>true</xr:Common>
+	<xr:Value name="Role.Администратор">true</xr:Value>
+	<xr:Value name="Role.Пользователь">false</xr:Value>
 </UserVisible>`
 
     const result = { UserVisible: exportUserVisibleToXML(mockUserVisible) }
@@ -46,8 +44,7 @@ describe("exportUserVisibleToXML", () => {
     }
 
     const expectedResult = `<UserVisible>
-	<Common>false</Common>
-	<Value/>
+	<xr:Common>false</xr:Common>
 </UserVisible>`
 
     const result = { UserVisible: exportUserVisibleToXML(mockUserVisible) }
@@ -78,10 +75,8 @@ describe("exportUserVisibleToXML", () => {
     }
 
     const expectedResult = `<UserVisible>
-	<Common>true</Common>
-	<Value>
-		<Item name="Role.Менеджер">true</Item>
-	</Value>
+	<xr:Common>true</xr:Common>
+	<xr:Value name="Role.Менеджер">true</xr:Value>
 </UserVisible>`
 
     const result = { UserVisible: exportUserVisibleToXML(mockUserVisible) }
@@ -96,11 +91,9 @@ describe("exportUserVisibleToXML", () => {
 
   it("should export and import UserVisible correctly (round-trip)", () => {
     const originalXml = `<UserVisible>
-	<Common>true</Common>
-	<Value>
-		<Item name="Role.Администратор">true</Item>
-		<Item name="Role.Пользователь">false</Item>
-	</Value>
+	<xr:Common>true</xr:Common>
+	<xr:Value name="Role.Администратор">true</xr:Value>
+	<xr:Value name="Role.Пользователь">false</xr:Value>
 </UserVisible>`
 
     const xml = xmlImport<{ UserVisible: TUserVisibleXML }>(

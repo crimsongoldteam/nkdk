@@ -1,8 +1,8 @@
 import { TUserVisible, TUserVisibleXML } from "./types"
 
-export default function importUseFromXML(
+export const importUserVisibleFromXML = (
   xml: TUserVisibleXML | undefined
-): TUserVisible | undefined {
+): TUserVisible | undefined => {
   if (!xml) return undefined
 
   let items: Array<{ _name: string; "#text": boolean }> = []

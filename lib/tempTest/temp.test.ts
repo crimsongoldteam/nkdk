@@ -21,7 +21,10 @@ it("should round-trip test", () => {
 
   const exportedForm = exportClientApplicationFormToXML(form)
 
-  const exportedXml = xmlExport({ Form: exportedForm }, z.object({ Form: ZClientApplicationFormXML }))
+  const exportedXml = xmlExport(
+    { Form: exportedForm },
+    z.object({ Form: ZClientApplicationFormXML })
+  )
 
   writeFileSync(join(__dirname, "FormOut.xml"), exportedXml, "utf-8")
   expect(exportedXml).toEqual(originalContent)

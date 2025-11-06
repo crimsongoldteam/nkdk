@@ -1,8 +1,8 @@
 import { TUserVisible, TUserVisibleXML } from "./types"
 
-export default function exportUserVisibleToXML(
+export const exportUserVisibleToXML = (
   userVisible: TUserVisible | undefined
-): TUserVisibleXML | undefined {
+): TUserVisibleXML | undefined => {
   if (!userVisible) return undefined
 
   const result: TUserVisibleXML = {
@@ -15,7 +15,7 @@ export default function exportUserVisibleToXML(
               "#text": item.value,
             })),
           }
-        : {}, // empty object will be exported as <Value />
+        : undefined, // empty object will be exported as <Value />
   }
 
   return result

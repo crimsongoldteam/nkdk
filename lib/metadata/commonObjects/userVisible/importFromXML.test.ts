@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import importUserVisibleFromXML from "./importFromXML"
+import { importUserVisibleFromXML } from "./importFromXML"
 import { TUserVisible, TUserVisibleXML, ZUserVisibleXML } from "./types"
 import z from "zod"
 import { xmlImport } from "~/lib"
@@ -7,11 +7,9 @@ import { xmlImport } from "~/lib"
 describe("importUserVisibleFromXML", () => {
   it("should import Use from XML", () => {
     const mockXml = `<UserVisible>
-      <Common>true</Common>
-      <Value>
-        <Item name="Role.Администратор">true</Item>
-        <Item name="Role.Пользователь">false</Item>
-      </Value>
+      <xr:Common>true</xr:Common>
+      <xr:Value name="Role.Администратор">true</xr:Value> 
+      <xr:Value name="Role.Пользователь">false</xr:Value>
     </UserVisible>`
 
     const expectedResult = {
@@ -40,8 +38,7 @@ describe("importUserVisibleFromXML", () => {
 
   it("should import Use from XML with empty values", () => {
     const mockXml = `<UserVisible>
-      <Common>false</Common>
-      <Value />
+      <xr:Common>false</xr:Common>
     </UserVisible>`
 
     const expectedResult: TUserVisible = {
@@ -67,10 +64,8 @@ describe("importUserVisibleFromXML", () => {
 
   it("should handle single value in Use XML", () => {
     const mockXml = `<UserVisible>
-      <Common>true</Common>
-      <Value>
-        <Item name="Role.Менеджер">true</Item>
-      </Value>
+      <xr:Common>true</xr:Common>
+      <xr:Value name="Role.Менеджер">true</xr:Value>
     </UserVisible>`
 
     const expectedResult: TUserVisible = {

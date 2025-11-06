@@ -8,15 +8,14 @@ const ZUserVisibleItemXML = z.object({
 
 export const ZUserVisibleXML = z.object({
   Common: z.boolean(),
-  Value: z.union([
-    z.array(ZUserVisibleItemXML),
-    z.object({
-      Item: z.union([z.array(ZUserVisibleItemXML), ZUserVisibleItemXML]),
-    }),
-    z.object({}), // empty object for <Value />
-    z.array(z.never()).length(0), // empty array
-    z.undefined(), // undefined for <Value />
-  ]),
+  Value: z
+    .union([
+      z.array(ZUserVisibleItemXML),
+      z.object({
+        Item: z.union([z.array(ZUserVisibleItemXML), ZUserVisibleItemXML]),
+      }),
+    ])
+    .optional(),
 })
 
 export const ZUserVisible = z.object({
