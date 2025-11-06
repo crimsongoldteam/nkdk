@@ -6,14 +6,13 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
-import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TDendrogramFieldXML, TDendrogramField } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importDendrogramFieldFromXML = (xml: TDendrogramFieldXML | undefined): TDendrogramField | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -69,11 +68,7 @@ export const importDendrogramFieldFromXML = (xml: TDendrogramFieldXML | undefine
     maxWidth: xml.MaxWidth,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: xml.Events ? {
-       onChange: xml.Events.OnChange,
-       selection: xml.Events.Selection,
-       detailProcessing: xml.Events.DetailProcessing,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

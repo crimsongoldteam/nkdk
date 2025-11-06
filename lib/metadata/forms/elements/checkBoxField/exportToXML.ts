@@ -6,7 +6,7 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportFormFieldToXML } from "../formField/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TCheckBoxFieldXML, TCheckBoxField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -70,9 +70,7 @@ export const exportCheckBoxFieldToXML = (data: TCheckBoxField | undefined): TChe
     ItemWidth: data.itemWidth,
     TextColor: exportColorToXML(data.textColor),
     ThreeState: data.threeState,
-    Events: data.events ? {
-       OnChange: data.events.onChange,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

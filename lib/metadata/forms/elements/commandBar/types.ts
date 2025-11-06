@@ -15,8 +15,8 @@ export const ZCommandBar = ZFormGroup.extend({
 })
 
 export const ZCommandBarXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   Visible: z.boolean().optional(),
   Enabled: z.boolean().optional(),

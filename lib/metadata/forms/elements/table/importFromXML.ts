@@ -5,14 +5,13 @@ import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
-import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TTableXML, TTable } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -95,31 +94,7 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     visible: xml.Visible,
     width: xml.Width,
     childItems: importChildItemsFromXML(xml.ChildItems),
-    events: xml.Events ? {
-       selection: xml.Events.Selection,
-       valueChoice: xml.Events.ValueChoice,
-       dragStart: xml.Events.DragStart,
-       choiceProcessing: xml.Events.ChoiceProcessing,
-       newWriteProcessing: xml.Events.NewWriteProcessing,
-       refreshRequestProcessing: xml.Events.RefreshRequestProcessing,
-       dragEnd: xml.Events.DragEnd,
-       beforeAddRow: xml.Events.BeforeAddRow,
-       beforeRowChange: xml.Events.BeforeRowChange,
-       beforeEditEnd: xml.Events.BeforeEditEnd,
-       beforeExpand: xml.Events.BeforeExpand,
-       beforeCollapse: xml.Events.BeforeCollapse,
-       beforeDeleteRow: xml.Events.BeforeDeleteRow,
-       drag: xml.Events.Drag,
-       afterDeleteRow: xml.Events.AfterDeleteRow,
-       onActivateField: xml.Events.OnActivateField,
-       onActivateRow: xml.Events.OnActivateRow,
-       onActivateCell: xml.Events.OnActivateCell,
-       onChange: xml.Events.OnChange,
-       onStartEdit: xml.Events.OnStartEdit,
-       onEditEnd: xml.Events.OnEditEnd,
-       onCurrentParentChange: xml.Events.OnCurrentParentChange,
-       dragCheck: xml.Events.DragCheck,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

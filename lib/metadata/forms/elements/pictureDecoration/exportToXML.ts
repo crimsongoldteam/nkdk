@@ -5,7 +5,7 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TPictureDecorationXML, TPictureDecoration } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -50,13 +50,7 @@ export const exportPictureDecorationToXML = (data: TPictureDecoration | undefine
     PictureSize: data.pictureSize,
     Scale: data.scale,
     Zoomable: data.zoomable,
-    Events: data.events ? {
-       Click: data.events.click,
-       DragStart: data.events.dragStart,
-       DragEnd: data.events.dragEnd,
-       Drag: data.events.drag,
-       DragCheck: data.events.dragCheck,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

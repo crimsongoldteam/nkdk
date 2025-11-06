@@ -6,14 +6,13 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
-import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TGraphicalSchemaFieldXML, TGraphicalSchemaField } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importGraphicalSchemaFieldFromXML = (xml: TGraphicalSchemaFieldXML | undefined): TGraphicalSchemaField | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -72,14 +71,7 @@ export const importGraphicalSchemaFieldFromXML = (xml: TGraphicalSchemaFieldXML 
     output: xml.Output,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: xml.Events ? {
-       onChange: xml.Events.OnChange,
-       selection: xml.Events.Selection,
-       beforeWrite: xml.Events.BeforeWrite,
-       beforePrint: xml.Events.BeforePrint,
-       afterWrite: xml.Events.AfterWrite,
-       onActivate: xml.Events.OnActivate,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

@@ -7,14 +7,13 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
-import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TPeriodFieldXML, TPeriodField } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importPeriodFieldFromXML = (xml: TPeriodFieldXML | undefined): TPeriodField | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -73,10 +72,7 @@ export const importPeriodFieldFromXML = (xml: TPeriodFieldXML | undefined): TPer
     maxWidth: xml.MaxWidth,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: xml.Events ? {
-       onChange: xml.Events.OnChange,
-       selection: xml.Events.Selection,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

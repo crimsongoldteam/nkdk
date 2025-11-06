@@ -7,7 +7,7 @@ import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { exportChoiceListToXML } from "~/lib/metadata/commonObjects/choiceList/exportToXML"
-import { exportFormFieldToXML } from "../formField/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TRadioButtonFieldXML, TRadioButtonField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -71,9 +71,7 @@ export const exportRadioButtonFieldToXML = (data: TRadioButtonField | undefined)
     ItemWidth: data.itemWidth,
     RadioButtonType: data.radioButtonType,
     TextColor: exportColorToXML(data.textColor),
-    Events: data.events ? {
-       OnChange: data.events.onChange,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

@@ -10,6 +10,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZGanttChartField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
@@ -38,8 +39,8 @@ export const ZGanttChartField = ZFormField.extend({
 })
 
 export const ZGanttChartFieldXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   AutoCellHeight: z.boolean().optional(),
   AutoMaxHeight: z.boolean().optional(),
@@ -101,16 +102,7 @@ export const ZGanttChartFieldXML = z.object({
   WarningOnEdit: ZI8nTextXML.optional(),
   WarningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
   Width: z.number().optional(),
-  Events: z.object({
-    OnChange: z.string().optional(),
-    Selection: z.string().optional(),
-    DetailProcessing: z.string().optional(),
-    BeforeExpand: z.string().optional(),
-    BeforeCollapse: z.string().optional(),
-    OnActivateValue: z.string().optional(),
-    OnActivateInterval: z.string().optional(),
-    OnIntervalEditEnd: z.string().optional(),
-  }).optional(),
+  Events: ZEventsXML.optional(),
 })
 
 export type TGanttChartField = z.infer<typeof ZGanttChartField>

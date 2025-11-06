@@ -7,7 +7,7 @@ import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToX
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportFormFieldToXML } from "../formField/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TPictureFieldXML, TPictureField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -81,14 +81,7 @@ export const exportPictureFieldToXML = (data: TPictureField | undefined): TPictu
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     Zoomable: data.zoomable,
-    Events: data.events ? {
-       OnChange: data.events.onChange,
-       Click: data.events.click,
-       DragStart: data.events.dragStart,
-       DragEnd: data.events.dragEnd,
-       Drag: data.events.drag,
-       DragCheck: data.events.dragCheck,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

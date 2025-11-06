@@ -4,7 +4,6 @@ import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
-import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
 import { TSearchControlAdditionXML, TSearchControlAddition } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"

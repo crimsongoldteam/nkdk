@@ -11,6 +11,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZPictureField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
@@ -45,8 +46,8 @@ export const ZPictureField = ZFormField.extend({
 })
 
 export const ZPictureFieldXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   DataPath: z.string().optional(),
   Visible: z.boolean().optional(),
@@ -116,14 +117,7 @@ export const ZPictureFieldXML = z.object({
   VerticalAlign: SE.ZItemVerticalAlign.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   VerticalStretch: z.boolean().optional(),
-  Events: z.object({
-    OnChange: z.string().optional(),
-    Click: z.string().optional(),
-    DragStart: z.string().optional(),
-    DragEnd: z.string().optional(),
-    Drag: z.string().optional(),
-    DragCheck: z.string().optional(),
-  }).optional(),
+  Events: ZEventsXML.optional(),
 })
 
 export type TPictureField = z.infer<typeof ZPictureField>

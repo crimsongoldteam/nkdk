@@ -6,7 +6,7 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportBaseElementToXML } from "../baseElement/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TFormFieldXML, TFormField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -59,9 +59,7 @@ export const exportFormFieldToXML = (data: TFormField | undefined): TFormFieldXM
     Visible: data.visible,
     WarningOnEdit: exportI8nTextToXML(data.warningOnEdit),
     WarningOnEditRepresentation: data.warningOnEditRepresentation,
-    Events: data.events ? {
-       OnChange: data.events.onChange,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

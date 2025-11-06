@@ -35,8 +35,8 @@ export const ZFormGroup = ZBaseElement.extend({
 })
 
 export const ZFormGroupXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   EnableContentChange: z.boolean().optional(),
   Enabled: z.boolean().optional(),
   get ExtendedTooltip() {

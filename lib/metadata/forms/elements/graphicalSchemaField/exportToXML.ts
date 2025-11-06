@@ -6,7 +6,7 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportFormFieldToXML } from "../formField/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TGraphicalSchemaFieldXML, TGraphicalSchemaField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -70,14 +70,7 @@ export const exportGraphicalSchemaFieldToXML = (data: TGraphicalSchemaField | un
     Output: data.output,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Events: data.events ? {
-       OnChange: data.events.onChange,
-       Selection: data.events.selection,
-       BeforeWrite: data.events.beforeWrite,
-       BeforePrint: data.events.beforePrint,
-       AfterWrite: data.events.afterWrite,
-       OnActivate: data.events.onActivate,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

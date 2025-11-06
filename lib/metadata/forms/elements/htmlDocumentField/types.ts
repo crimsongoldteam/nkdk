@@ -10,6 +10,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZHTMLDocumentField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
@@ -34,8 +35,8 @@ export const ZHTMLDocumentField = ZFormField.extend({
 })
 
 export const ZHTMLDocumentFieldXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   DataPath: z.string().optional(),
   Visible: z.boolean().optional(),
@@ -95,14 +96,7 @@ export const ZHTMLDocumentFieldXML = z.object({
   VerticalAlign: SE.ZItemVerticalAlign.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   VerticalStretch: z.boolean().optional(),
-  Events: z.object({
-    OnChange: z.string().optional(),
-    DocumentComplete: z.string().optional(),
-    BeforeWrite: z.string().optional(),
-    BeforePrint: z.string().optional(),
-    AfterWrite: z.string().optional(),
-    OnClick: z.string().optional(),
-  }).optional(),
+  Events: ZEventsXML.optional(),
 })
 
 export type THTMLDocumentField = z.infer<typeof ZHTMLDocumentField>

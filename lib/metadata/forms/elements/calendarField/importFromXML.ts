@@ -7,14 +7,13 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
-import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TCalendarFieldXML, TCalendarField } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importCalendarFieldFromXML = (xml: TCalendarFieldXML | undefined): TCalendarField | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -83,16 +82,7 @@ export const importCalendarFieldFromXML = (xml: TCalendarFieldXML | undefined): 
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     widthInMonths: xml.WidthInMonths,
-    events: xml.Events ? {
-       onChange: xml.Events.OnChange,
-       selection: xml.Events.Selection,
-       dragStart: xml.Events.DragStart,
-       dragEnd: xml.Events.DragEnd,
-       drag: xml.Events.Drag,
-       onActivateDate: xml.Events.OnActivateDate,
-       onPeriodOutput: xml.Events.OnPeriodOutput,
-       dragCheck: xml.Events.DragCheck,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

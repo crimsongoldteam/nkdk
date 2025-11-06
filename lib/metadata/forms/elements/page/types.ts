@@ -29,8 +29,8 @@ export const ZPage = ZFormGroup.extend({
 })
 
 export const ZPageXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   Enabled: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),

@@ -6,14 +6,13 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
-import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TChartFieldXML, TChartField } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importChartFieldFromXML = (xml: TChartFieldXML | undefined): TChartField | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -69,12 +68,7 @@ export const importChartFieldFromXML = (xml: TChartFieldXML | undefined): TChart
     maxWidth: xml.MaxWidth,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: xml.Events ? {
-       onChange: xml.Events.OnChange,
-       selection: xml.Events.Selection,
-       detailProcessing: xml.Events.DetailProcessing,
-       onActivate: xml.Events.OnActivate,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

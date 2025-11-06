@@ -6,7 +6,7 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportFormFieldToXML } from "../formField/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TChartFieldXML, TChartField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -67,12 +67,7 @@ export const exportChartFieldToXML = (data: TChartField | undefined): TChartFiel
     MaxWidth: data.maxWidth,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Events: data.events ? {
-       OnChange: data.events.onChange,
-       Selection: data.events.selection,
-       DetailProcessing: data.events.detailProcessing,
-       OnActivate: data.events.onActivate,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

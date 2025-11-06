@@ -4,7 +4,7 @@ import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
-import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TPagesXML, TPages } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -38,9 +38,7 @@ export const exportPagesToXML = (data: TPages | undefined): TPagesXML | undefine
     CurrentPagesState: data.currentPagesState,
     CurrentRowUse: data.currentRowUse,
     PagesRepresentation: data.pagesRepresentation,
-    Events: data.events ? {
-       OnCurrentPageChange: data.events.onCurrentPageChange,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

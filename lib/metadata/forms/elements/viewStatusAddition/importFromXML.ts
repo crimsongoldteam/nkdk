@@ -5,14 +5,12 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
-import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { TViewStatusAdditionXML, TViewStatusAddition } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importViewStatusAdditionFromXML = (xml: TViewStatusAdditionXML | undefined): TViewStatusAddition | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,

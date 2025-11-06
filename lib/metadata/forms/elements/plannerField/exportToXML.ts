@@ -6,7 +6,7 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportFormFieldToXML } from "../formField/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TPlannerFieldXML, TPlannerField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -72,31 +72,7 @@ export const exportPlannerFieldToXML = (data: TPlannerField | undefined): TPlann
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     WrappedTimeScaleHeaderHyperlink: data.wrappedTimeScaleHeaderHyperlink,
-    Events: data.events ? {
-       OnChange: data.events.onChange,
-       Selection: data.events.selection,
-       PlannerActionClick: data.events.plannerActionClick,
-       URLClick: data.events.uRLClick,
-       WrappedTimeScaleHeaderClick: data.events.wrappedTimeScaleHeaderClick,
-       DimensionItemClick: data.events.dimensionItemClick,
-       TimeScaleItemClick: data.events.timeScaleItemClick,
-       DragStart: data.events.dragStart,
-       CommandGenerateProcessing: data.events.commandGenerateProcessing,
-       DragEnd: data.events.dragEnd,
-       BeforeStartQuickEdit: data.events.beforeStartQuickEdit,
-       BeforeStartEdit: data.events.beforeStartEdit,
-       BeforePrint: data.events.beforePrint,
-       BeforeExpandDimensionItem: data.events.beforeExpandDimensionItem,
-       BeforeCollapseDimensionItem: data.events.beforeCollapseDimensionItem,
-       BeforeCreate: data.events.beforeCreate,
-       BeforeDelete: data.events.beforeDelete,
-       Drag: data.events.drag,
-       OnActivate: data.events.onActivate,
-       OnEditEnd: data.events.onEditEnd,
-       OnCurrentRepresentationPeriodChange: data.events.onCurrentRepresentationPeriodChange,
-       DragCheck: data.events.dragCheck,
-       InsideDragCheck: data.events.insideDragCheck,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

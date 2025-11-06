@@ -4,14 +4,12 @@ import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/impor
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
-import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { TColumnGroupXML, TColumnGroup } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importColumnGroupFromXML = (xml: TColumnGroupXML | undefined): TColumnGroup | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,

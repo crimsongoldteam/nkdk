@@ -7,6 +7,7 @@ import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
 import {  ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZLabelDecoration = ZFormDecoration.extend({
   backColor: ZColor.optional(),
@@ -23,9 +24,22 @@ export const ZLabelDecoration = ZFormDecoration.extend({
 })
 
 export const ZLabelDecorationXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
+  Visible: z.boolean().optional(),
+  Enabled: z.boolean().optional(),
+  Width: z.number().optional(),
+  AutoMaxWidth: z.boolean().optional(),
+  MaxWidth: z.number().optional(),
+  Height: z.number().optional(),
+  AutoMaxHeight: z.boolean().optional(),
+  HorizontalStretch: z.boolean().optional(),
+  VerticalStretch: z.boolean().optional(),
+  SkipOnInput: z.boolean().optional(),
+  TextColor: ZColorXML.optional(),
+  Font: ZFontXML.optional(),
+  Shortcut: z.string().optional(),
   Title: ZI8nTextXML.optional(),
   ToolTip: ZI8nTextXML.optional(),
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
@@ -42,27 +56,11 @@ export const ZLabelDecorationXML = z.object({
   get ExtendedTooltip() {
     return ZFormDecorationXML.optional()
   },
-  Visible: z.boolean().optional(),
-  Enabled: z.boolean().optional(),
-  Width: z.number().optional(),
-  AutoMaxWidth: z.boolean().optional(),
-  MaxWidth: z.number().optional(),
-  Height: z.number().optional(),
-  AutoMaxHeight: z.boolean().optional(),
-  HorizontalStretch: z.boolean().optional(),
-  VerticalStretch: z.boolean().optional(),
-  SkipOnInput: z.boolean().optional(),
-  TextColor: ZColorXML.optional(),
-  Font: ZFontXML.optional(),
-  Shortcut: z.string().optional(),
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   MaxHeight: z.number().optional(),
   Type: SE.ZFormDecorationType.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
-  Events: z.object({
-    Click: z.string().optional(),
-    URLProcessing: z.string().optional(),
-  }).optional(),
+  Events: ZEventsXML.optional(),
 })
 
 export type TLabelDecoration = z.infer<typeof ZLabelDecoration>

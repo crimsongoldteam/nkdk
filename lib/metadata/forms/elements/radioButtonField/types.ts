@@ -11,6 +11,7 @@ import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChoiceList, ZChoiceListXML } from "~/lib/metadata/commonObjects/choiceList/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZRadioButtonField = ZFormField.extend({
   backColor: ZColor.optional(),
@@ -30,8 +31,8 @@ export const ZRadioButtonField = ZFormField.extend({
 })
 
 export const ZRadioButtonFieldXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   DataPath: z.string().optional(),
   Visible: z.boolean().optional(),
@@ -91,9 +92,7 @@ export const ZRadioButtonFieldXML = z.object({
   Type: SE.ZFormFieldType.optional(),
   TypeRestriction: ZTypeDescriptionXML.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
-  Events: z.object({
-    OnChange: z.string().optional(),
-  }).optional(),
+  Events: ZEventsXML.optional(),
 })
 
 export type TRadioButtonField = z.infer<typeof ZRadioButtonField>

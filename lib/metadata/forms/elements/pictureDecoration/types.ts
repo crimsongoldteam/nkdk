@@ -8,6 +8,7 @@ import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
 import {  ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZPictureDecoration = ZFormDecoration.extend({
   border: ZBorder.optional(),
@@ -31,8 +32,8 @@ export const ZPictureDecoration = ZFormDecoration.extend({
 })
 
 export const ZPictureDecorationXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   Visible: z.boolean().optional(),
   Enabled: z.boolean().optional(),
@@ -71,13 +72,7 @@ export const ZPictureDecorationXML = z.object({
   Type: SE.ZFormDecorationType.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   Zoomable: z.boolean().optional(),
-  Events: z.object({
-    Click: z.string().optional(),
-    DragStart: z.string().optional(),
-    DragEnd: z.string().optional(),
-    Drag: z.string().optional(),
-    DragCheck: z.string().optional(),
-  }).optional(),
+  Events: ZEventsXML.optional(),
 })
 
 export type TPictureDecoration = z.infer<typeof ZPictureDecoration>

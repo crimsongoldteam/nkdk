@@ -6,7 +6,7 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportFormFieldToXML } from "../formField/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { THTMLDocumentFieldXML, THTMLDocumentField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -70,14 +70,7 @@ export const exportHTMLDocumentFieldToXML = (data: THTMLDocumentField | undefine
     UserAgentInformation: data.userAgentInformation,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Events: data.events ? {
-       OnChange: data.events.onChange,
-       DocumentComplete: data.events.documentComplete,
-       BeforeWrite: data.events.beforeWrite,
-       BeforePrint: data.events.beforePrint,
-       AfterWrite: data.events.afterWrite,
-       OnClick: data.events.onClick,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

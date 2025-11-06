@@ -11,6 +11,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZCalendarField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
@@ -48,8 +49,8 @@ export const ZCalendarField = ZFormField.extend({
 })
 
 export const ZCalendarFieldXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   AutoCellHeight: z.boolean().optional(),
   AutoMaxHeight: z.boolean().optional(),
@@ -119,16 +120,7 @@ export const ZCalendarFieldXML = z.object({
   WarningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
   Width: z.number().optional(),
   WidthInMonths: z.number().optional(),
-  Events: z.object({
-    OnChange: z.string().optional(),
-    Selection: z.string().optional(),
-    DragStart: z.string().optional(),
-    DragEnd: z.string().optional(),
-    Drag: z.string().optional(),
-    OnActivateDate: z.string().optional(),
-    OnPeriodOutput: z.string().optional(),
-    DragCheck: z.string().optional(),
-  }).optional(),
+  Events: ZEventsXML.optional(),
 })
 
 export type TCalendarField = z.infer<typeof ZCalendarField>

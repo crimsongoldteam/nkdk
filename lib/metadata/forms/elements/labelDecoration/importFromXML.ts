@@ -4,13 +4,13 @@ import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/impor
 import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TLabelDecorationXML, TLabelDecoration } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importLabelDecorationFromXML = (xml: TLabelDecorationXML | undefined): TLabelDecoration | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -46,10 +46,7 @@ export const importLabelDecorationFromXML = (xml: TLabelDecorationXML | undefine
     hyperlink: xml.Hyperlink,
     titleHeight: xml.TitleHeight,
     verticalAlign: xml.VerticalAlign,
-    events: xml.Events ? {
-       click: xml.Events.Click,
-       uRLProcessing: xml.Events.URLProcessing,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

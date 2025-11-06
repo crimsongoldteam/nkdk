@@ -6,7 +6,7 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportFormFieldToXML } from "../formField/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TPdfDocumentFieldXML, TPdfDocumentField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -74,10 +74,7 @@ export const exportPdfDocumentFieldToXML = (data: TPdfDocumentField | undefined)
     VerticalStretch: data.verticalStretch,
     ViewStatusLocation: data.viewStatusLocation,
     Width: data.width,
-    Events: data.events ? {
-       OnChange: data.events.onChange,
-       URLClick: data.events.uRLClick,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

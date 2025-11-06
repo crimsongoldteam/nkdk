@@ -10,6 +10,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZPdfDocumentField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
@@ -34,8 +35,8 @@ export const ZPdfDocumentField = ZFormField.extend({
 })
 
 export const ZPdfDocumentFieldXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   AutoCellHeight: z.boolean().optional(),
   AutoMaxHeight: z.boolean().optional(),
@@ -99,10 +100,7 @@ export const ZPdfDocumentFieldXML = z.object({
   WarningOnEdit: ZI8nTextXML.optional(),
   WarningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
   Width: z.number().optional(),
-  Events: z.object({
-    OnChange: z.string().optional(),
-    URLClick: z.string().optional(),
-  }).optional(),
+  Events: ZEventsXML.optional(),
 })
 
 export type TPdfDocumentField = z.infer<typeof ZPdfDocumentField>

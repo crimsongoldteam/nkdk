@@ -10,6 +10,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZPlannerField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
@@ -53,8 +54,8 @@ export const ZPlannerField = ZFormField.extend({
 })
 
 export const ZPlannerFieldXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   AutoCellHeight: z.boolean().optional(),
   AutoMaxHeight: z.boolean().optional(),
@@ -116,31 +117,7 @@ export const ZPlannerFieldXML = z.object({
   WarningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
   Width: z.number().optional(),
   WrappedTimeScaleHeaderHyperlink: z.boolean().optional(),
-  Events: z.object({
-    OnChange: z.string().optional(),
-    Selection: z.string().optional(),
-    PlannerActionClick: z.string().optional(),
-    URLClick: z.string().optional(),
-    WrappedTimeScaleHeaderClick: z.string().optional(),
-    DimensionItemClick: z.string().optional(),
-    TimeScaleItemClick: z.string().optional(),
-    DragStart: z.string().optional(),
-    CommandGenerateProcessing: z.string().optional(),
-    DragEnd: z.string().optional(),
-    BeforeStartQuickEdit: z.string().optional(),
-    BeforeStartEdit: z.string().optional(),
-    BeforePrint: z.string().optional(),
-    BeforeExpandDimensionItem: z.string().optional(),
-    BeforeCollapseDimensionItem: z.string().optional(),
-    BeforeCreate: z.string().optional(),
-    BeforeDelete: z.string().optional(),
-    Drag: z.string().optional(),
-    OnActivate: z.string().optional(),
-    OnEditEnd: z.string().optional(),
-    OnCurrentRepresentationPeriodChange: z.string().optional(),
-    DragCheck: z.string().optional(),
-    InsideDragCheck: z.string().optional(),
-  }).optional(),
+  Events: ZEventsXML.optional(),
 })
 
 export type TPlannerField = z.infer<typeof ZPlannerField>

@@ -6,14 +6,13 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
-import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TPdfDocumentFieldXML, TPdfDocumentField } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importPdfDocumentFieldFromXML = (xml: TPdfDocumentFieldXML | undefined): TPdfDocumentField | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -76,10 +75,7 @@ export const importPdfDocumentFieldFromXML = (xml: TPdfDocumentFieldXML | undefi
     verticalStretch: xml.VerticalStretch,
     viewStatusLocation: xml.ViewStatusLocation,
     width: xml.Width,
-    events: xml.Events ? {
-       onChange: xml.Events.OnChange,
-       uRLClick: xml.Events.URLClick,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

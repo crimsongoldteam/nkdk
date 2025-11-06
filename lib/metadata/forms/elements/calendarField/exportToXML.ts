@@ -7,7 +7,7 @@ import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToX
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportFormFieldToXML } from "../formField/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TCalendarFieldXML, TCalendarField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -81,16 +81,7 @@ export const exportCalendarFieldToXML = (data: TCalendarField | undefined): TCal
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     WidthInMonths: data.widthInMonths,
-    Events: data.events ? {
-       OnChange: data.events.onChange,
-       Selection: data.events.selection,
-       DragStart: data.events.dragStart,
-       DragEnd: data.events.dragEnd,
-       Drag: data.events.drag,
-       OnActivateDate: data.events.onActivateDate,
-       OnPeriodOutput: data.events.onPeriodOutput,
-       DragCheck: data.events.dragCheck,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

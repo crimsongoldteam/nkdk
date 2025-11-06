@@ -6,7 +6,7 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportFormFieldToXML } from "../formField/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TGanttChartFieldXML, TGanttChartField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -72,16 +72,7 @@ export const exportGanttChartFieldToXML = (data: TGanttChartField | undefined): 
     VerticalLines: data.verticalLines,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Events: data.events ? {
-       OnChange: data.events.onChange,
-       Selection: data.events.selection,
-       DetailProcessing: data.events.detailProcessing,
-       BeforeExpand: data.events.beforeExpand,
-       BeforeCollapse: data.events.beforeCollapse,
-       OnActivateValue: data.events.onActivateValue,
-       OnActivateInterval: data.events.onActivateInterval,
-       OnIntervalEditEnd: data.events.onIntervalEditEnd,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

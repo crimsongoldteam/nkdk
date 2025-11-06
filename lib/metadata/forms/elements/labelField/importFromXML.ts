@@ -7,14 +7,13 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
-import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TLabelFieldXML, TLabelField } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importLabelFieldFromXML = (xml: TLabelFieldXML | undefined): TLabelField | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -79,11 +78,7 @@ export const importLabelFieldFromXML = (xml: TLabelFieldXML | undefined): TLabel
     textColor: importColorFromXML(xml.TextColor),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: xml.Events ? {
-       onChange: xml.Events.OnChange,
-       click: xml.Events.Click,
-       uRLProcessing: xml.Events.URLProcessing,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

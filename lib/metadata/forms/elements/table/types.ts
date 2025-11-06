@@ -9,6 +9,7 @@ import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZTable = ZBaseElement.extend({
   autoAddIncomplete: z.boolean().optional(),
@@ -124,8 +125,8 @@ export const ZTable = ZBaseElement.extend({
 })
 
 export const ZTableXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   TitleLocation: SE.ZFormItemTitleLocation.optional(),
   TitleHeight: z.number().optional(),
@@ -211,31 +212,7 @@ export const ZTableXML = z.object({
   get ChildItems() {
     return ZChildItemsXML.optional()
   },
-  Events: z.object({
-    Selection: z.string().optional(),
-    ValueChoice: z.string().optional(),
-    DragStart: z.string().optional(),
-    ChoiceProcessing: z.string().optional(),
-    NewWriteProcessing: z.string().optional(),
-    RefreshRequestProcessing: z.string().optional(),
-    DragEnd: z.string().optional(),
-    BeforeAddRow: z.string().optional(),
-    BeforeRowChange: z.string().optional(),
-    BeforeEditEnd: z.string().optional(),
-    BeforeExpand: z.string().optional(),
-    BeforeCollapse: z.string().optional(),
-    BeforeDeleteRow: z.string().optional(),
-    Drag: z.string().optional(),
-    AfterDeleteRow: z.string().optional(),
-    OnActivateField: z.string().optional(),
-    OnActivateRow: z.string().optional(),
-    OnActivateCell: z.string().optional(),
-    OnChange: z.string().optional(),
-    OnStartEdit: z.string().optional(),
-    OnEditEnd: z.string().optional(),
-    OnCurrentParentChange: z.string().optional(),
-    DragCheck: z.string().optional(),
-  }).optional(),
+  Events: ZEventsXML.optional(),
 })
 
 export type TTable = z.infer<typeof ZTable>

@@ -7,14 +7,13 @@ import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importChoiceListFromXML } from "~/lib/metadata/commonObjects/choiceList/importFromXML"
-import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TRadioButtonFieldXML, TRadioButtonField } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importRadioButtonFieldFromXML = (xml: TRadioButtonFieldXML | undefined): TRadioButtonField | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -73,9 +72,7 @@ export const importRadioButtonFieldFromXML = (xml: TRadioButtonFieldXML | undefi
     itemWidth: xml.ItemWidth,
     radioButtonType: xml.RadioButtonType,
     textColor: importColorFromXML(xml.TextColor),
-    events: xml.Events ? {
-       onChange: xml.Events.OnChange,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

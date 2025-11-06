@@ -6,14 +6,13 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
-import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TFormattedDocumentFieldXML, TFormattedDocumentField } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importFormattedDocumentFieldFromXML = (xml: TFormattedDocumentFieldXML | undefined): TFormattedDocumentField | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -75,12 +74,7 @@ export const importFormattedDocumentFieldFromXML = (xml: TFormattedDocumentField
     textColor: importColorFromXML(xml.TextColor),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: xml.Events ? {
-       onChange: xml.Events.OnChange,
-       beforeWrite: xml.Events.BeforeWrite,
-       beforePrint: xml.Events.BeforePrint,
-       afterWrite: xml.Events.AfterWrite,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

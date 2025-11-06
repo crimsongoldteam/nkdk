@@ -10,6 +10,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZSpreadSheetDocumentField = ZFormField.extend({
   autoMaxHeight: z.boolean().optional(),
@@ -59,8 +60,8 @@ export const ZSpreadSheetDocumentField = ZFormField.extend({
 })
 
 export const ZSpreadSheetDocumentFieldXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   DataPath: z.string().optional(),
   Visible: z.boolean().optional(),
@@ -137,22 +138,7 @@ export const ZSpreadSheetDocumentFieldXML = z.object({
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   VerticalScrollBar: SE.ZScrollBarUse.optional(),
   Width: z.number().optional(),
-  Events: z.object({
-    OnChange: z.string().optional(),
-    Selection: z.string().optional(),
-    DragStart: z.string().optional(),
-    AdditionalDetailProcessing: z.string().optional(),
-    URLProcessing: z.string().optional(),
-    DetailProcessing: z.string().optional(),
-    DragEnd: z.string().optional(),
-    BeforeWrite: z.string().optional(),
-    BeforePrint: z.string().optional(),
-    Drag: z.string().optional(),
-    AfterWrite: z.string().optional(),
-    OnActivate: z.string().optional(),
-    OnChangeAreaContentEvent: z.string().optional(),
-    DragCheck: z.string().optional(),
-  }).optional(),
+  Events: ZEventsXML.optional(),
 })
 
 export type TSpreadSheetDocumentField = z.infer<typeof ZSpreadSheetDocumentField>

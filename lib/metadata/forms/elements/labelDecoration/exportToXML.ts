@@ -2,8 +2,9 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
-import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TLabelDecorationXML, TLabelDecoration } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -44,10 +45,7 @@ export const exportLabelDecorationToXML = (data: TLabelDecoration | undefined): 
     Hyperlink: data.hyperlink,
     TitleHeight: data.titleHeight,
     VerticalAlign: data.verticalAlign,
-    Events: data.events ? {
-       Click: data.events.click,
-       URLProcessing: data.events.uRLProcessing,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

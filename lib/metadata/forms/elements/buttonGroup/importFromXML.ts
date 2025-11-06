@@ -3,14 +3,12 @@ import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromX
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
-import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { TButtonGroupXML, TButtonGroup } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importButtonGroupFromXML = (xml: TButtonGroupXML | undefined): TButtonGroup | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,

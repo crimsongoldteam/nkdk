@@ -5,14 +5,13 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TPictureDecorationXML, TPictureDecoration } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importPictureDecorationFromXML = (xml: TPictureDecorationXML | undefined): TPictureDecoration | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -52,13 +51,7 @@ export const importPictureDecorationFromXML = (xml: TPictureDecorationXML | unde
     pictureSize: xml.PictureSize,
     scale: xml.Scale,
     zoomable: xml.Zoomable,
-    events: xml.Events ? {
-       click: xml.Events.Click,
-       dragStart: xml.Events.DragStart,
-       dragEnd: xml.Events.DragEnd,
-       drag: xml.Events.Drag,
-       dragCheck: xml.Events.DragCheck,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

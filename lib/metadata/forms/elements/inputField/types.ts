@@ -13,6 +13,7 @@ import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChoiceList, ZChoiceListXML } from "~/lib/metadata/commonObjects/choiceList/types"
 import { ZTypeLink, ZTypeLinkXML } from "~/lib/metadata/commonObjects/typeLink/types"
 import { ZChoiceParameterLinks, ZChoiceParameterLinksXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZInputField = ZFormField.extend({
   allowInputEmptyMultipleValues: z.boolean().optional(),
@@ -114,8 +115,8 @@ export const ZInputField = ZFormField.extend({
 })
 
 export const ZInputFieldXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   DataPath: z.string().optional(),
   Visible: z.boolean().optional(),
@@ -241,24 +242,7 @@ export const ZInputFieldXML = z.object({
   TypeRestriction: ZTypeDescriptionXML.optional(),
   VerticalAlign: SE.ZItemVerticalAlign.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
-  Events: z.object({
-    OnChange: z.string().optional(),
-    AutoComplete: z.string().optional(),
-    MultipleValuesAdd: z.string().optional(),
-    EditTextChange: z.string().optional(),
-    StartChoice: z.string().optional(),
-    StartListChoice: z.string().optional(),
-    ChoiceProcessing: z.string().optional(),
-    MultipleValueURLProcessing: z.string().optional(),
-    CommandGenerateProcessing: z.string().optional(),
-    TextEditEnd: z.string().optional(),
-    Opening: z.string().optional(),
-    MultipleValueOpening: z.string().optional(),
-    Clearing: z.string().optional(),
-    Tuning: z.string().optional(),
-    Creating: z.string().optional(),
-    MultipleValuesDelete: z.string().optional(),
-  }).optional(),
+  Events: ZEventsXML.optional(),
 })
 
 export type TInputField = z.infer<typeof ZInputField>

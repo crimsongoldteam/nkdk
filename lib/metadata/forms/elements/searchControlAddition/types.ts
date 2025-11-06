@@ -22,8 +22,8 @@ export const ZSearchControlAddition = ZFormItemAddition.extend({
 })
 
 export const ZSearchControlAdditionXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   get ContextMenu() {
     return ZFormGroupXML.optional()

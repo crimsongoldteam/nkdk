@@ -20,8 +20,8 @@ export const ZPopup = ZFormGroup.extend({
 })
 
 export const ZPopupXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   BackColor: ZColorXML.optional(),
   BorderColor: ZColorXML.optional(),
   EnableContentChange: z.boolean().optional(),

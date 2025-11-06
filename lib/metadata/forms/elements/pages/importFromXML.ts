@@ -4,14 +4,13 @@ import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/impor
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
-import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TPagesXML, TPages } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importPagesFromXML = (xml: TPagesXML | undefined): TPages | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -40,9 +39,7 @@ export const importPagesFromXML = (xml: TPagesXML | undefined): TPages | undefin
     currentPagesState: xml.CurrentPagesState,
     currentRowUse: xml.CurrentRowUse,
     pagesRepresentation: xml.PagesRepresentation,
-    events: xml.Events ? {
-       onCurrentPageChange: xml.Events.OnCurrentPageChange,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

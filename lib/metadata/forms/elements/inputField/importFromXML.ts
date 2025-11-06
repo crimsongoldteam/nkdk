@@ -9,14 +9,13 @@ import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importChoiceListFromXML } from "~/lib/metadata/commonObjects/choiceList/importFromXML"
 import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
-import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TInputFieldXML, TInputField } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importInputFieldFromXML = (xml: TInputFieldXML | undefined): TInputField | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -141,24 +140,7 @@ export const importInputFieldFromXML = (xml: TInputFieldXML | undefined): TInput
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     wrap: xml.Wrap,
-    events: xml.Events ? {
-       onChange: xml.Events.OnChange,
-       autoComplete: xml.Events.AutoComplete,
-       multipleValuesAdd: xml.Events.MultipleValuesAdd,
-       editTextChange: xml.Events.EditTextChange,
-       startChoice: xml.Events.StartChoice,
-       startListChoice: xml.Events.StartListChoice,
-       choiceProcessing: xml.Events.ChoiceProcessing,
-       multipleValueURLProcessing: xml.Events.MultipleValueURLProcessing,
-       commandGenerateProcessing: xml.Events.CommandGenerateProcessing,
-       textEditEnd: xml.Events.TextEditEnd,
-       opening: xml.Events.Opening,
-       multipleValueOpening: xml.Events.MultipleValueOpening,
-       clearing: xml.Events.Clearing,
-       tuning: xml.Events.Tuning,
-       creating: xml.Events.Creating,
-       multipleValuesDelete: xml.Events.MultipleValuesDelete,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

@@ -9,6 +9,7 @@ import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZFormField = ZBaseElement.extend({
   autoCellHeight: z.boolean().optional(),
@@ -65,8 +66,8 @@ export const ZFormField = ZBaseElement.extend({
 })
 
 export const ZFormFieldXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   AutoCellHeight: z.boolean().optional(),
   CellHyperlink: z.boolean().optional(),
@@ -115,9 +116,7 @@ export const ZFormFieldXML = z.object({
   Visible: z.boolean().optional(),
   WarningOnEdit: ZI8nTextXML.optional(),
   WarningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
-  Events: z.object({
-    OnChange: z.string().optional(),
-  }).optional(),
+  Events: ZEventsXML.optional(),
 })
 
 export type TFormField = z.infer<typeof ZFormField>

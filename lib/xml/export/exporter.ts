@@ -10,7 +10,7 @@ export default function xmlExport<T>(data: T, schema: z.ZodType<T>, addDeclarati
     suppressEmptyNode: true,
     suppressBooleanAttributes: false,
     indentBy: "\t",
-    // oneListGroup: true,
+    oneListGroup: true,
   })
   const xml = builder.build(parsedData)
   const declaration = addDeclaration ? '<?xml version="1.0" encoding="UTF-8"?>\n' : ""

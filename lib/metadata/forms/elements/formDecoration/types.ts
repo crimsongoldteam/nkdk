@@ -37,8 +37,8 @@ export const ZFormDecoration = ZBaseElement.extend({
 })
 
 export const ZFormDecorationXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   AutoMaxHeight: z.boolean().optional(),
   AutoMaxWidth: z.boolean().optional(),

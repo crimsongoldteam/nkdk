@@ -6,14 +6,13 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
-import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TCheckBoxFieldXML, TCheckBoxField } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importCheckBoxFieldFromXML = (xml: TCheckBoxFieldXML | undefined): TCheckBoxField | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -72,9 +71,7 @@ export const importCheckBoxFieldFromXML = (xml: TCheckBoxFieldXML | undefined): 
     itemWidth: xml.ItemWidth,
     textColor: importColorFromXML(xml.TextColor),
     threeState: xml.ThreeState,
-    events: xml.Events ? {
-       onChange: xml.Events.OnChange,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

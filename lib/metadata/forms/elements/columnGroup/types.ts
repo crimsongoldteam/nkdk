@@ -23,8 +23,8 @@ export const ZColumnGroup = ZFormGroup.extend({
 })
 
 export const ZColumnGroupXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   Visible: z.boolean().optional(),
   Enabled: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),

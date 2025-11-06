@@ -6,14 +6,13 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
-import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TTrackBarFieldXML, TTrackBarField } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
 export const importTrackBarFieldFromXML = (xml: TTrackBarFieldXML | undefined): TTrackBarField | undefined => {
   if (!xml) return undefined
-
    
   return {
     id: xml._id,
@@ -76,9 +75,7 @@ export const importTrackBarFieldFromXML = (xml: TTrackBarFieldXML | undefined): 
     step: xml.Step,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: xml.Events ? {
-       onChange: xml.Events.OnChange,
-    } : undefined,
+    events: importEventsFromXML(xml.Events),
   }
 }
 

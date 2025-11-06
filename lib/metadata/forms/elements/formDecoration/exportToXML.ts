@@ -2,7 +2,6 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportBaseElementToXML } from "../baseElement/exportToXML"
 import { TFormDecorationXML, TFormDecoration } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"

@@ -9,6 +9,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZPages = ZFormGroup.extend({
   get associatedTable() {
@@ -23,8 +24,8 @@ export const ZPages = ZFormGroup.extend({
 })
 
 export const ZPagesXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   Visible: z.boolean().optional(),
   Enabled: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),
@@ -54,9 +55,7 @@ export const ZPagesXML = z.object({
   get ChildItems() {
     return ZChildItemsXML.optional()
   },
-  Events: z.object({
-    OnCurrentPageChange: z.string().optional(),
-  }).optional(),
+  Events: ZEventsXML.optional(),
 })
 
 export type TPages = z.infer<typeof ZPages>

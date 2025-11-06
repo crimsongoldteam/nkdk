@@ -5,7 +5,7 @@ import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
-import { exportBaseElementToXML } from "../baseElement/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TTableXML, TTable } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -93,31 +93,7 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
     Visible: data.visible,
     Width: data.width,
     ChildItems: exportChildItemsToXML(data.childItems),
-    Events: data.events ? {
-       Selection: data.events.selection,
-       ValueChoice: data.events.valueChoice,
-       DragStart: data.events.dragStart,
-       ChoiceProcessing: data.events.choiceProcessing,
-       NewWriteProcessing: data.events.newWriteProcessing,
-       RefreshRequestProcessing: data.events.refreshRequestProcessing,
-       DragEnd: data.events.dragEnd,
-       BeforeAddRow: data.events.beforeAddRow,
-       BeforeRowChange: data.events.beforeRowChange,
-       BeforeEditEnd: data.events.beforeEditEnd,
-       BeforeExpand: data.events.beforeExpand,
-       BeforeCollapse: data.events.beforeCollapse,
-       BeforeDeleteRow: data.events.beforeDeleteRow,
-       Drag: data.events.drag,
-       AfterDeleteRow: data.events.afterDeleteRow,
-       OnActivateField: data.events.onActivateField,
-       OnActivateRow: data.events.onActivateRow,
-       OnActivateCell: data.events.onActivateCell,
-       OnChange: data.events.onChange,
-       OnStartEdit: data.events.onStartEdit,
-       OnEditEnd: data.events.onEditEnd,
-       OnCurrentParentChange: data.events.onCurrentParentChange,
-       DragCheck: data.events.dragCheck,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 

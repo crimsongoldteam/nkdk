@@ -29,8 +29,8 @@ export const ZFormItemAddition = ZBaseElement.extend({
 })
 
 export const ZFormItemAdditionXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   get ContextMenu() {
     return ZFormGroupXML.optional()

@@ -48,8 +48,8 @@ export const ZButton = ZBaseElement.extend({
 })
 
 export const ZButtonXML = z.object({
-  _id: z.string(),
   _name: z.string(),
+  _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   Type: SE.ZFormButtonType.optional(),
   Visible: z.boolean().optional(),

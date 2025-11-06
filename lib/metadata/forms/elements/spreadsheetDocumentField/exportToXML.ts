@@ -6,7 +6,7 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportFormFieldToXML } from "../formField/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TSpreadSheetDocumentFieldXML, TSpreadSheetDocumentField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -87,22 +87,7 @@ export const exportSpreadSheetDocumentFieldToXML = (data: TSpreadSheetDocumentFi
     VerticalStretch: data.verticalStretch,
     ViewScalingMode: data.viewScalingMode,
     Width: data.width,
-    Events: data.events ? {
-       OnChange: data.events.onChange,
-       Selection: data.events.selection,
-       DragStart: data.events.dragStart,
-       AdditionalDetailProcessing: data.events.additionalDetailProcessing,
-       URLProcessing: data.events.uRLProcessing,
-       DetailProcessing: data.events.detailProcessing,
-       DragEnd: data.events.dragEnd,
-       BeforeWrite: data.events.beforeWrite,
-       BeforePrint: data.events.beforePrint,
-       Drag: data.events.drag,
-       AfterWrite: data.events.afterWrite,
-       OnActivate: data.events.onActivate,
-       OnChangeAreaContentEvent: data.events.onChangeAreaContentEvent,
-       DragCheck: data.events.dragCheck,
-    } : undefined,
+    Events: exportEventsToXML(data.events)
   }
 }
 
