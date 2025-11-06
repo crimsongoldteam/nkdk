@@ -28,7 +28,7 @@ export const formatPages: FormatFunction<TPages> = (
 const getHeader = (element: TPages): string => {
   let result = SLASH
 
-  result += element.title?.ru ?? ""
+  result += element.title?.items.ru ?? ""
 
   result += formatElementName(element)
 

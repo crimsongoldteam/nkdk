@@ -12,12 +12,10 @@ import { ZElementType } from "../types"
 
 export const exportTableToXML = (data: TTable | undefined): TTableXML | undefined => {
   if (!data) return undefined
-
-  const base = exportBaseElementToXML(data)
-  if (!base) return undefined
-   
+ 
   return {
-    ...base,
+   _id: data.id ?? "",
+   _name: data.name ?? "",
     AutoAddIncomplete: data.autoAddIncomplete,
     AutoInsertNewRow: data.autoInsertNewRow,
     AutoMarkIncomplete: data.autoMarkIncomplete,
@@ -36,7 +34,7 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
     CurrentRowUse: data.currentRowUse,
     DataPath: data.dataPath,
     DefaultItem: data.defaultItem,
-    DisplayImportance: data.displayImportance,
+    _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
     EnableDrag: data.enableDrag,
     EnableStartDrag: data.enableStartDrag,

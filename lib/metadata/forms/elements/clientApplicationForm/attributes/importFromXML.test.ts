@@ -26,7 +26,7 @@ it("should import attribute from XML", () => {
     name: "Поле",
     id: "1",
     type: { type: ["string"], stringQualifiers: { length: 0, allowedLength: "Variable" } },
-    title: { ru: "Заголовок поля" },
+    title: { items: { ru: "Заголовок поля" } },
   }
 
   const xmlData = xmlImport<TAttributeXML>(mockXml, ZAttributeXML)

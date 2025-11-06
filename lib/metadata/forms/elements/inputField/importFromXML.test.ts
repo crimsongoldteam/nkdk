@@ -7,13 +7,13 @@ it("should import name from XML", () => {
   const mockXml: TInputFieldXML = {
     _name: "ИмяПоля",
     _id: "16",
-    Title: [{ "v8:item": { "v8:lang": "ru", "v8:content": "Поле" } }],
+    Title: { "v8:item": { "v8:lang": "ru", "v8:content": "Поле" } },
   }
 
   const mockResult: TInputField = {
     name: "ИмяПоля",
     elementType: ZElementType.enum.InputField,
-    title: { ru: "Поле" },
+    title: { items: { ru: "Поле" } },
     id: "16",
   }
 

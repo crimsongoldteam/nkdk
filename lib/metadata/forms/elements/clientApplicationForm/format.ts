@@ -9,7 +9,7 @@ export function formatClientApplicationForm(
 ): IFormatElementResult {
   const result: IFormatElementResult = { strings: [], haveSimpleHorizontalGroup: false }
 
-  let header = element.title?.ru ?? ""
+  let header = element.title?.items.ru ?? ""
 
   result.strings.push(...formatSectionHeader(header))
 

@@ -14,10 +14,10 @@ export const formatInputField: FormatFunction<TInputField> = (
 ): IFormatElementResult => {
   let header: string = ""
 
-  const hasTitle = element.title?.ru !== undefined
+  const hasTitle = element.title?.items.ru !== undefined
 
   if (hasTitle) {
-    header += element.title?.ru
+    header += element.title?.items.ru
   } else {
     header += formatElementName(element)
   }
@@ -33,7 +33,7 @@ export const formatInputField: FormatFunction<TInputField> = (
     value += UNDERLINE.repeat(2) + modificators
   }
 
-  if (hasTitle && pascalCase(element.title!.ru).toLowerCase() !== element.name.toLowerCase()) {
+  if (hasTitle && pascalCase(element.title?.items.ru ?? "").toLowerCase() !== element.name.toLowerCase()) {
     header += " " + formatElementName(element)
   }
 

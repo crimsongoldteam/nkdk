@@ -9,16 +9,14 @@ import { ZElementType } from "../types"
 
 export const exportFormDecorationToXML = (data: TFormDecoration | undefined): TFormDecorationXML | undefined => {
   if (!data) return undefined
-
-  const base = exportBaseElementToXML(data)
-  if (!base) return undefined
-   
+ 
   return {
-    ...base,
+   _id: data.id ?? "",
+   _name: data.name ?? "",
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
     ContextMenu: exportFormGroupToXML(data.contextMenu),
-    DisplayImportance: data.displayImportance,
+    _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
     Font: exportFontToXML(data.font),

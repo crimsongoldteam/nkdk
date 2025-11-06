@@ -30,7 +30,7 @@ describe("importClientApplicationFormFromXML", () => {
         id: "-1",
         name: "ФормаКоманднаяПанель",
       },
-      title: { ru: "Поле" },
+      title: { items: { ru: "Поле" } },
       childItems: [],
       attributes: [],
     }

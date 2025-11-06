@@ -10,12 +10,10 @@ import { ZElementType } from "../types"
 
 export const exportFormGroupToXML = (data: TFormGroup | undefined): TFormGroupXML | undefined => {
   if (!data) return undefined
-
-  const base = exportBaseElementToXML(data)
-  if (!base) return undefined
-   
+ 
   return {
-    ...base,
+   _id: data.id ?? "",
+   _name: data.name ?? "",
     EnableContentChange: data.enableContentChange,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),

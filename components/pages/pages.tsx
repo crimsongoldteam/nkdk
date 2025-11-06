@@ -17,7 +17,7 @@ export function PagesComponent(props: Readonly<IPagesHTMLProps>): React.ReactNod
   const items = childItems.map((item: TPage) => {
     return {
       key: item.name,
-      label: item.title?.ru || "",
+      label: item.title?.items?.["ru"] || "",
       // children: <PageComponent key={item.name} {...item} />,
     }
   })

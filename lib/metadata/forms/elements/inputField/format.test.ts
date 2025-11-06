@@ -15,7 +15,7 @@ it("should format input field with title", () => {
     name: "ИмяПоля",
     id: "1",
     elementType: ZElementType.enum.InputField,
-    title: { ru: "Поле" },
+    title: { items: { ru: "Поле" } },
     value: "Значение",
   }
 
@@ -29,7 +29,7 @@ it("should format input field with value", () => {
     name: "ИмяПоля",
     id: "1",
     elementType: ZElementType.enum.InputField,
-    title: { ru: "Поле" },
+    title: { items: { ru: "Поле" } },
     value: "Значение",
   }
   const result = formatInputField(element, mockParams)
@@ -41,7 +41,7 @@ it("should format multiline input field", () => {
     name: "ИмяПоля",
     id: "1",
     elementType: ZElementType.enum.InputField,
-    title: { ru: "Поле" },
+    title: { items: { ru: "Поле" } },
     value: "Значение",
     height: 2,
     multiLine: true,
@@ -57,7 +57,7 @@ it("should format input field with modificators", () => {
     name: "ИмяПоля",
     id: "1",
     elementType: ZElementType.enum.InputField,
-    title: { ru: "Поле" },
+    title: { items: { ru: "Поле" } },
     value: "Значение",
     choiceButton: true,
     dropListButton: true,

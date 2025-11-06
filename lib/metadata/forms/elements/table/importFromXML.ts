@@ -13,11 +13,10 @@ import { registerImport } from "~/lib/xml/import/importerFactory"
 export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefined => {
   if (!xml) return undefined
 
-  const base = importBaseElementFromXML(xml)
-  if (!base) return undefined
    
   return {
-    ...base,
+    id: xml._id,
+    name: xml._name,
     elementType: ZElementType.enum.Table,
     autoAddIncomplete: xml.AutoAddIncomplete,
     autoInsertNewRow: xml.AutoInsertNewRow,
@@ -37,7 +36,7 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     currentRowUse: xml.CurrentRowUse,
     dataPath: xml.DataPath,
     defaultItem: xml.DefaultItem,
-    displayImportance: xml.DisplayImportance,
+    displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
     enableDrag: xml.EnableDrag,
     enableStartDrag: xml.EnableStartDrag,

@@ -5,7 +5,11 @@ import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
 import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
+import {  ZBaseElementXML } from "../baseElement/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
+import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChoiceList, ZChoiceListXML } from "~/lib/metadata/commonObjects/choiceList/types"
 import { ZTypeLink, ZTypeLinkXML } from "~/lib/metadata/commonObjects/typeLink/types"
 import { ZChoiceParameterLinks, ZChoiceParameterLinksXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types"
@@ -90,6 +94,7 @@ export const ZInputField = ZFormField.extend({
   wrap: z.boolean().optional(),
   value: z.string().optional(),
   events: z.object({
+    onChange: z.string().optional(),
     autoComplete: z.string().optional(),
     multipleValuesAdd: z.string().optional(),
     editTextChange: z.string().optional(),
@@ -108,7 +113,26 @@ export const ZInputField = ZFormField.extend({
   }).optional(),
 })
 
-export const ZInputFieldXML = ZFormFieldXML.extend({
+export const ZInputFieldXML = z.object({
+  _id: z.string(),
+  _name: z.string(),
+  _DisplayImportance: SE.ZDisplayImportance.optional(),
+  DataPath: z.string().optional(),
+  Visible: z.boolean().optional(),
+  Enabled: z.boolean().optional(),
+  ReadOnly: z.boolean().optional(),
+  SkipOnInput: z.boolean().optional(),
+  Title: ZI8nTextXML.optional(),
+  TitleTextColor: ZColorXML.optional(),
+  TitleFont: ZFontXML.optional(),
+  TitleLocation: SE.ZFormItemTitleLocation.optional(),
+  TitleHeight: z.number().optional(),
+  ToolTip: ZI8nTextXML.optional(),
+  ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
+  WarningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
+  WarningOnEdit: ZI8nTextXML.optional(),
+  Shortcut: z.string().optional(),
+  HorizontalAlign: SE.ZItemHorizontalLocation.optional(),
   Width: z.number().optional(),
   AutoMaxWidth: z.boolean().optional(),
   MaxWidth: z.number().optional(),
@@ -154,20 +178,41 @@ export const ZInputFieldXML = ZFormFieldXML.extend({
   OnScreenKeyboardReturnKeyText: SE.ZOnScreenKeyboardReturnKeyText.optional(),
   InputHint: ZI8nTextXML.optional(),
   ChoiceHistoryOnInput: SE.ZChoiceHistoryOnInput.optional(),
+  get ContextMenu() {
+    return ZFormGroupXML.optional()
+  },
+  get ExtendedTooltip() {
+    return ZFormDecorationXML.optional()
+  },
   AllowInputEmptyMultipleValues: z.boolean().optional(),
   AllowMultipleValuesDuplicates: z.boolean().optional(),
+  AutoCellHeight: z.boolean().optional(),
   AutoFillHint: SE.ZInputFieldAutofillHint.optional(),
   AutoShowClearButton: SE.ZAutoShowClearButtonMode.optional(),
   AutoShowOpenButton: SE.ZAutoShowOpenButtonMode.optional(),
   AvailableTypes: ZTypeDescriptionXML.optional(),
+  CellHyperlink: z.boolean().optional(),
   ChoiceButtonRepresentation: SE.ZChoiceButtonRepresentation.optional(),
   ChoiceForm: z.string().optional(),
   ChoiceListButton: z.boolean().optional(),
   ChoiceParameterLinks: ZChoiceParameterLinksXML.optional(),
   ChoiceParameters: ZChoiceParameterLinksXML.optional(),
+  DefaultItem: z.boolean().optional(),
   EditFormat: ZI8nTextXML.optional(),
+  EditMode: SE.ZColumnEditMode.optional(),
   EditText: z.string().optional(),
+  FixingInTable: SE.ZFixingInTable.optional(),
+  FooterBackColor: ZColorXML.optional(),
+  FooterDataPath: z.string().optional(),
+  FooterFont: ZFontXML.optional(),
+  FooterHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
+  FooterPicture: ZPictureXML.optional(),
+  FooterText: ZI8nTextXML.optional(),
+  FooterTextColor: ZColorXML.optional(),
   Format: ZI8nTextXML.optional(),
+  HeaderHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
+  HeaderPicture: ZPictureXML.optional(),
+  HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   MarkIncomplete: z.boolean().optional(),
   MarkNegatives: z.boolean().optional(),
   MaxValue: z.number().optional(),
@@ -185,8 +230,19 @@ export const ZInputFieldXML = ZFormFieldXML.extend({
   MultipleValueValueDataPath: z.string().optional(),
   SelectedText: z.string().optional(),
   ShowCheckBoxesInDropListWhenInputMultipleValues: z.boolean().optional(),
+  ShowInFooter: z.boolean().optional(),
+  ShowInHeader: z.boolean().optional(),
+  get Table() {
+    return ZTableXML.optional()
+  },
+  TitleBackColor: ZColorXML.optional(),
+  Type: SE.ZFormFieldType.optional(),
   TypeDomainEnabled: z.boolean().optional(),
+  TypeRestriction: ZTypeDescriptionXML.optional(),
+  VerticalAlign: SE.ZItemVerticalAlign.optional(),
+  VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   Events: z.object({
+    OnChange: z.string().optional(),
     AutoComplete: z.string().optional(),
     MultipleValuesAdd: z.string().optional(),
     EditTextChange: z.string().optional(),

@@ -7,7 +7,7 @@ import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-    import { TChildItems } from "../childItems/typesExt"
+import { TChildItems } from "../childItems/typesExt"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 
 export const ZTable = ZBaseElement.extend({
@@ -123,7 +123,10 @@ export const ZTable = ZBaseElement.extend({
   }).optional(),
 })
 
-export const ZTableXML = ZBaseElementXML.extend({
+export const ZTableXML = z.object({
+  _id: z.string(),
+  _name: z.string(),
+  _DisplayImportance: SE.ZDisplayImportance.optional(),
   TitleLocation: SE.ZFormItemTitleLocation.optional(),
   TitleHeight: z.number().optional(),
   CommandBarLocation: SE.ZFormItemCommandBarLabelLocation.optional(),
@@ -188,16 +191,12 @@ export const ZTableXML = ZBaseElementXML.extend({
   get ExtendedTooltip() {
     return ZFormDecorationXML.optional()
   },
-  get ChildItems() {
-    return ZChildItemsXML.optional()
-  },
   AutoInsertNewRow: z.boolean().optional(),
   AutoMaxHeightInTableRows: z.boolean().optional(),
   get CommandBar() {
     return ZFormGroupXML.optional()
   },
   DefaultItem: z.boolean().optional(),
-  DisplayImportance: SE.ZDisplayImportance.optional(),
   EnableDrag: z.boolean().optional(),
   EnableStartDrag: z.boolean().optional(),
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
@@ -209,6 +208,9 @@ export const ZTableXML = ZBaseElementXML.extend({
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   ViewStatusRepresentation: ZFormItemAdditionXML.optional(),
   Visible: z.boolean().optional(),
+  get ChildItems() {
+    return ZChildItemsXML.optional()
+  },
   Events: z.object({
     Selection: z.string().optional(),
     ValueChoice: z.string().optional(),

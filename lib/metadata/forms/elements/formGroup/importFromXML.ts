@@ -11,11 +11,10 @@ import { registerImport } from "~/lib/xml/import/importerFactory"
 export const importFormGroupFromXML = (xml: TFormGroupXML | undefined): TFormGroup | undefined => {
   if (!xml) return undefined
 
-  const base = importBaseElementFromXML(xml)
-  if (!base) return undefined
    
   return {
-    ...base,
+    id: xml._id,
+    name: xml._name,
     elementType: ZElementType.enum.FormGroup,
     enableContentChange: xml.EnableContentChange,
     enabled: xml.Enabled,

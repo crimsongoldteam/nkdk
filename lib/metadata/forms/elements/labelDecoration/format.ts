@@ -7,7 +7,7 @@ export const formatLabelDecoration: FormatFunction<TLabelDecoration> = (
   _params: IFormatterParams
 ): IFormatElementResult => {
   const result: IFormatElementResult = {
-    strings: [element.title?.ru + " " + formatElementName(element)],
+    strings: [element.title?.items.ru + " " + formatElementName(element)],
     haveSimpleHorizontalGroup: false,
   }
 

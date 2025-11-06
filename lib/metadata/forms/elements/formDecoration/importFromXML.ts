@@ -10,16 +10,15 @@ import { registerImport } from "~/lib/xml/import/importerFactory"
 export const importFormDecorationFromXML = (xml: TFormDecorationXML | undefined): TFormDecoration | undefined => {
   if (!xml) return undefined
 
-  const base = importBaseElementFromXML(xml)
-  if (!base) return undefined
    
   return {
-    ...base,
+    id: xml._id,
+    name: xml._name,
     elementType: ZElementType.enum.FormDecoration,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     contextMenu: importFormGroupFromXML(xml.ContextMenu),
-    displayImportance: xml.DisplayImportance,
+    displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),
     font: importFontFromXML(xml.Font),

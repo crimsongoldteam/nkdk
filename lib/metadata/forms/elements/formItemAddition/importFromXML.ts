@@ -10,14 +10,13 @@ import { registerImport } from "~/lib/xml/import/importerFactory"
 export const importFormItemAdditionFromXML = (xml: TFormItemAdditionXML | undefined): TFormItemAddition | undefined => {
   if (!xml) return undefined
 
-  const base = importBaseElementFromXML(xml)
-  if (!base) return undefined
    
   return {
-    ...base,
+    id: xml._id,
+    name: xml._name,
     elementType: ZElementType.enum.FormItemAddition,
     contextMenu: importFormGroupFromXML(xml.ContextMenu),
-    displayImportance: xml.DisplayImportance,
+    displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
     extendedToolTip: importFormDecorationFromXML(xml.ExtendedToolTip),
     horizontalAlignInGroup: xml.HorizontalAlignInGroup,

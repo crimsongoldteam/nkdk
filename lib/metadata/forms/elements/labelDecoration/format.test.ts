@@ -9,7 +9,7 @@ it("should format label decoration", () => {
     name: "ИмяПоля",
     id: "1",
     title: {
-      ru: "Заголовок",
+      items: { ru: "Заголовок" },
     },
   }
 

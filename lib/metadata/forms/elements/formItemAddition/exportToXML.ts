@@ -9,14 +9,12 @@ import { ZElementType } from "../types"
 
 export const exportFormItemAdditionToXML = (data: TFormItemAddition | undefined): TFormItemAdditionXML | undefined => {
   if (!data) return undefined
-
-  const base = exportBaseElementToXML(data)
-  if (!base) return undefined
-   
+ 
   return {
-    ...base,
+   _id: data.id ?? "",
+   _name: data.name ?? "",
     ContextMenu: exportFormGroupToXML(data.contextMenu),
-    DisplayImportance: data.displayImportance,
+    _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
     ExtendedToolTip: exportFormDecorationToXML(data.extendedToolTip),
     HorizontalAlignInGroup: data.horizontalAlignInGroup,

@@ -1,6 +1,9 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
+import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportTableToXML } from "../table/exportToXML"
+import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { TUsualGroupXML, TUsualGroup } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
@@ -8,12 +11,29 @@ import { ZElementType } from "../types"
 
 export const exportUsualGroupToXML = (data: TUsualGroup | undefined): TUsualGroupXML | undefined => {
   if (!data) return undefined
-
-  const base = exportFormGroupToXML(data)
-  if (!base) return undefined
-   
+ 
   return {
-    ...base,
+   _id: data.id ?? "",
+   _name: data.name ?? "",
+    EnableContentChange: data.enableContentChange,
+    Enabled: data.enabled,
+    ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
+    Height: data.height,
+    HorizontalAlignInGroup: data.horizontalAlignInGroup,
+    HorizontalStretch: data.horizontalStretch,
+    ReadOnly: data.readOnly,
+    Shortcut: data.shortcut,
+    Title: exportI8nTextToXML(data.title),
+    TitleFont: exportFontToXML(data.titleFont),
+    TitleTextColor: exportColorToXML(data.titleTextColor),
+    ToolTip: exportI8nTextToXML(data.toolTip),
+    ToolTipRepresentation: data.toolTipRepresentation,
+    Type: data.type,
+    VerticalAlignInGroup: data.verticalAlignInGroup,
+    VerticalStretch: data.verticalStretch,
+    Visible: data.visible,
+    Width: data.width,
+    ChildItems: exportChildItemsToXML(data.childItems),
     AssociatedTable: exportTableToXML(data.associatedTable),
     BackColor: exportColorToXML(data.backColor),
     Behavior: data.behavior,
@@ -22,7 +42,7 @@ export const exportUsualGroupToXML = (data: TUsualGroup | undefined): TUsualGrou
     CollapsedRepresentationTitle: data.collapsedRepresentationTitle,
     ControlRepresentation: data.controlRepresentation,
     CurrentRowUse: data.currentRowUse,
-    DisplayImportance: data.displayImportance,
+    _DisplayImportance: data.displayImportance,
     Format: exportI8nTextToXML(data.format),
     Group: data.group,
     HiddenRepresentationTitleBackColor: exportColorToXML(data.hiddenRepresentationTitleBackColor),

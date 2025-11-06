@@ -36,13 +36,15 @@ export const ZFormDecoration = ZBaseElement.extend({
   width: z.number().optional(),
 })
 
-export const ZFormDecorationXML = ZBaseElementXML.extend({
+export const ZFormDecorationXML = z.object({
+  _id: z.string(),
+  _name: z.string(),
+  _DisplayImportance: SE.ZDisplayImportance.optional(),
   AutoMaxHeight: z.boolean().optional(),
   AutoMaxWidth: z.boolean().optional(),
   get ContextMenu() {
     return ZFormGroupXML.optional()
   },
-  DisplayImportance: SE.ZDisplayImportance.optional(),
   Enabled: z.boolean().optional(),
   get ExtendedTooltip() {
     return ZFormDecorationXML.optional()

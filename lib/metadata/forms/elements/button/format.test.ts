@@ -9,7 +9,7 @@ it("should format button", () => {
     name: "ИмяКнопки",
     id: "1",
     title: {
-      ru: "Заголовок кнопки",
+      items: { ru: "Заголовок кнопки" },
     },
   }
 

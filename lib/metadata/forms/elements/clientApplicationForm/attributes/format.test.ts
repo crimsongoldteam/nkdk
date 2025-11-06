@@ -11,7 +11,7 @@ it("should format form attributes", () => {
     {
       name: "ИмяАтрибута",
       id: "1",
-      title: { ru: "Атрибут" },
+      title: { items: { ru: "Атрибут" } },
       type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
     },
   ]
@@ -50,7 +50,7 @@ it("should format stored data", () => {
     {
       name: "ИмяАтрибута",
       id: "1",
-      title: { ru: "Атрибут" },
+      title: { items: { ru: "Атрибут" } },
       type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
       storedData: true,
     },
@@ -81,7 +81,7 @@ it("should format `use`", () => {
     {
       name: "ИмяАтрибута",
       id: "1",
-      title: { ru: "Атрибут" },
+      title: { items: { ru: "Атрибут" } },
       type: { type: ["string"] },
       use: {
         common: true,

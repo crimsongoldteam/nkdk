@@ -19,7 +19,7 @@ it("should import pages from XML", () => {
 
   const mockResult: TPages = {
     name: "Страницы",
-    title: { ru: "Заголовок страниц" },
+    title: { items: { ru: "Заголовок страниц" } },
     id: "1",
     childItems: [],
     elementType: ZElementType.enum.Pages,

@@ -13,7 +13,7 @@ const mockParams: IFormatterParams = {
 it("should format form header", () => {
   const form: TClientApplicationForm = {
     elementType: ZElementType.enum.Form,
-    title: { ru: "Форма" },
+    title: { items: { ru: "Форма" } },
     childItems: [],
   }
 
@@ -27,7 +27,7 @@ it("should format form items", () => {
     name: "ИмяПоля",
     id: "1",
     elementType: ZElementType.enum.InputField,
-    title: { ru: "Поле" },
+    title: { items: { ru: "Поле" } },
   }
 
   const form: TClientApplicationForm = {
@@ -54,7 +54,7 @@ it("should format form attributes", () => {
       {
         name: "ИмяАтрибута",
         id: "1",
-        title: { ru: "Атрибут" },
+        title: { items: { ru: "Атрибут" } },
         type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
       },
     ],

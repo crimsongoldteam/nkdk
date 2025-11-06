@@ -17,8 +17,7 @@ describe("formatOneLineGroup", () => {
       ],
     }
 
-    const expectedResult = `{Группа}
-Элемент1: {Элемент1} & Элемент2: {Элемент2}`
+    const expectedResult = `-{Группа}; {Элемент1}:; {Элемент2}:`
 
     const result = formatUsualGroup(mockElement, {})
 
@@ -30,7 +29,7 @@ it("should format vertical group", () => {
   const mockElement: TUsualGroup = {
     name: "Группа",
     group: "Vertical",
-    title: { ru: "Заголовок группы" },
+    title: { items: { ru: "Заголовок группы" } },
     elementType: ZElementType.enum.UsualGroup,
     id: "1",
     childItems: [

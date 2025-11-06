@@ -10,12 +10,10 @@ import { ZElementType } from "../types"
 
 export const exportButtonToXML = (data: TButton | undefined): TButtonXML | undefined => {
   if (!data) return undefined
-
-  const base = exportBaseElementToXML(data)
-  if (!base) return undefined
-   
+ 
   return {
-    ...base,
+   _id: data.id ?? "",
+   _name: data.name ?? "",
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
     BackColor: exportColorToXML(data.backColor),
@@ -24,7 +22,7 @@ export const exportButtonToXML = (data: TButton | undefined): TButtonXML | undef
     CommandUniqueness: data.commandUniqueness,
     DefaultButton: data.defaultButton,
     DefaultItem: data.defaultItem,
-    DisplayImportance: data.displayImportance,
+    _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
     Font: exportFontToXML(data.font),

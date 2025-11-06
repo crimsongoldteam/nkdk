@@ -20,7 +20,7 @@ it("should import name from XML", () => {
     name: "Заголовок",
     elementType: ZElementType.enum.LabelDecoration,
     title: {
-      ru: "Заголовок формы",
+      items: { ru: "Заголовок формы" },
     },
     id: "1",
   }

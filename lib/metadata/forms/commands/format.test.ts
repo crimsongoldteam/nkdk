@@ -6,8 +6,8 @@ it("should format command", () => {
   const data: TCommand = {
     name: "СоставКомплектаПодобратьФайлы",
     id: "60",
-    title: { ru: "Файлы" },
-    toolTip: { ru: "Состав комплекта подобрать файлы" },
+    title: { items: { ru: "Файлы" } },
+    toolTip: { items: { ru: "Состав комплекта подобрать файлы" } },
     action: "СоставКомплектаПодобратьФайлы",
     currentRowUse: "DontUse",
   }

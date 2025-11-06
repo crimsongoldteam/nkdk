@@ -47,7 +47,10 @@ export const ZButton = ZBaseElement.extend({
   width: z.number().optional(),
 })
 
-export const ZButtonXML = ZBaseElementXML.extend({
+export const ZButtonXML = z.object({
+  _id: z.string(),
+  _name: z.string(),
+  _DisplayImportance: SE.ZDisplayImportance.optional(),
   Type: SE.ZFormButtonType.optional(),
   Visible: z.boolean().optional(),
   TitleHeight: z.number().optional(),
@@ -80,7 +83,6 @@ export const ZButtonXML = ZBaseElementXML.extend({
   get ExtendedTooltip() {
     return ZFormDecorationXML.optional()
   },
-  DisplayImportance: SE.ZDisplayImportance.optional(),
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   OnlyInAllActions: z.boolean().optional(),
   Shortcut: z.string().optional(),

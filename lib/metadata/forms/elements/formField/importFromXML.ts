@@ -14,18 +14,17 @@ import { registerImport } from "~/lib/xml/import/importerFactory"
 export const importFormFieldFromXML = (xml: TFormFieldXML | undefined): TFormField | undefined => {
   if (!xml) return undefined
 
-  const base = importBaseElementFromXML(xml)
-  if (!base) return undefined
    
   return {
-    ...base,
+    id: xml._id,
+    name: xml._name,
     elementType: ZElementType.enum.FormField,
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,
     contextMenu: importFormGroupFromXML(xml.ContextMenu),
     dataPath: xml.DataPath,
     defaultItem: xml.DefaultItem,
-    displayImportance: xml.DisplayImportance,
+    displayImportance: xml._DisplayImportance,
     editMode: xml.EditMode,
     enabled: xml.Enabled,
     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),

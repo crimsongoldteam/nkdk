@@ -7,7 +7,7 @@ export const formatElementName = (element: TBaseElement) => {
 }
 
 export const formatElementTitleAndName = (element: TNamedElementWithTitle) => {
-  const title = element.title?.ru ?? ""
+  const title = element.title?.items?.["ru"] ?? ""
   if (pascalCase(title).toLowerCase() === element.name.toLowerCase()) return title.trim()
 
   const result = `${title} {${element.name}}`

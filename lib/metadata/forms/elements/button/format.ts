@@ -7,7 +7,7 @@ export const formatButton: FormatFunction<TButton> = (
   _params: IFormatterParams
 ): IFormatElementResult => {
   let result: IFormatElementResult = {
-    strings: ["<" + element.title?.ru + formatElementName(element) + ">"],
+    strings: ["<" + element.title?.items?.["ru"] + formatElementName(element) + ">"],
     haveSimpleHorizontalGroup: false,
   }
   return result

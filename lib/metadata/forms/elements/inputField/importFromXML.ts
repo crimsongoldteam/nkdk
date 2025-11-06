@@ -3,6 +3,9 @@ import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromX
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
+import { importTableFromXML } from "../table/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importChoiceListFromXML } from "~/lib/metadata/commonObjects/choiceList/importFromXML"
 import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
@@ -14,12 +17,53 @@ import { registerImport } from "~/lib/xml/import/importerFactory"
 export const importInputFieldFromXML = (xml: TInputFieldXML | undefined): TInputField | undefined => {
   if (!xml) return undefined
 
-  const base = importFormFieldFromXML(xml)
-  if (!base) return undefined
    
   return {
-    ...base,
+    id: xml._id,
+    name: xml._name,
     elementType: ZElementType.enum.InputField,
+    autoCellHeight: xml.AutoCellHeight,
+    cellHyperlink: xml.CellHyperlink,
+    contextMenu: importFormGroupFromXML(xml.ContextMenu),
+    dataPath: xml.DataPath,
+    defaultItem: xml.DefaultItem,
+    displayImportance: xml._DisplayImportance,
+    editMode: xml.EditMode,
+    enabled: xml.Enabled,
+    extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),
+    fixingInTable: xml.FixingInTable,
+    footerBackColor: importColorFromXML(xml.FooterBackColor),
+    footerDataPath: xml.FooterDataPath,
+    footerFont: importFontFromXML(xml.FooterFont),
+    footerHorizontalAlign: xml.FooterHorizontalAlign,
+    footerPicture: importPictureFromXML(xml.FooterPicture),
+    footerText: importI8nTextFromXML(xml.FooterText),
+    footerTextColor: importColorFromXML(xml.FooterTextColor),
+    headerHorizontalAlign: xml.HeaderHorizontalAlign,
+    headerPicture: importPictureFromXML(xml.HeaderPicture),
+    horizontalAlign: xml.HorizontalAlign,
+    horizontalAlignInGroup: xml.HorizontalAlignInGroup,
+    readOnly: xml.ReadOnly,
+    shortcut: xml.Shortcut,
+    showInFooter: xml.ShowInFooter,
+    showInHeader: xml.ShowInHeader,
+    skipOnInput: xml.SkipOnInput,
+    table: importTableFromXML(xml.Table),
+    title: importI8nTextFromXML(xml.Title),
+    titleBackColor: importColorFromXML(xml.TitleBackColor),
+    titleFont: importFontFromXML(xml.TitleFont),
+    titleHeight: xml.TitleHeight,
+    titleLocation: xml.TitleLocation,
+    titleTextColor: importColorFromXML(xml.TitleTextColor),
+    toolTip: importI8nTextFromXML(xml.ToolTip),
+    toolTipRepresentation: xml.ToolTipRepresentation,
+    type: xml.Type,
+    typeRestriction: importTypeDescriptionFromXML(xml.TypeRestriction),
+    verticalAlign: xml.VerticalAlign,
+    verticalAlignInGroup: xml.VerticalAlignInGroup,
+    visible: xml.Visible,
+    warningOnEdit: importI8nTextFromXML(xml.WarningOnEdit),
+    warningOnEditRepresentation: xml.WarningOnEditRepresentation,
     allowInputEmptyMultipleValues: xml.AllowInputEmptyMultipleValues,
     allowMultipleValuesDuplicates: xml.AllowMultipleValuesDuplicates,
     autoCapitalizationOnTextInput: xml.AutoCapitalizationOnTextInput,
@@ -98,6 +142,7 @@ export const importInputFieldFromXML = (xml: TInputFieldXML | undefined): TInput
     width: xml.Width,
     wrap: xml.Wrap,
     events: xml.Events ? {
+       onChange: xml.Events.OnChange,
        autoComplete: xml.Events.AutoComplete,
        multipleValuesAdd: xml.Events.MultipleValuesAdd,
        editTextChange: xml.Events.EditTextChange,

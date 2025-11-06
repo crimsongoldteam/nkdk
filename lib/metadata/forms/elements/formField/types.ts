@@ -64,7 +64,10 @@ export const ZFormField = ZBaseElement.extend({
   }).optional(),
 })
 
-export const ZFormFieldXML = ZBaseElementXML.extend({
+export const ZFormFieldXML = z.object({
+  _id: z.string(),
+  _name: z.string(),
+  _DisplayImportance: SE.ZDisplayImportance.optional(),
   AutoCellHeight: z.boolean().optional(),
   CellHyperlink: z.boolean().optional(),
   get ContextMenu() {
@@ -72,7 +75,6 @@ export const ZFormFieldXML = ZBaseElementXML.extend({
   },
   DataPath: z.string().optional(),
   DefaultItem: z.boolean().optional(),
-  DisplayImportance: SE.ZDisplayImportance.optional(),
   EditMode: SE.ZColumnEditMode.optional(),
   Enabled: z.boolean().optional(),
   get ExtendedTooltip() {

@@ -14,7 +14,7 @@ describe("exportUsualGroupToXML", () => {
   it("should export usual group to XML with child items", () => {
     const mockElement: TUsualGroup = {
       name: "Группа",
-      title: { ru: "Заголовок группы" },
+      title: { items: { "ru": "Заголовок группы" } },
       id: "1",
       childItems: [{ name: "ПолеВвода", id: "1", elementType: ZElementType.enum.InputField }],
       elementType: ZElementType.enum.UsualGroup,

@@ -13,18 +13,16 @@ import { ZElementType } from "../types"
 
 export const exportFormFieldToXML = (data: TFormField | undefined): TFormFieldXML | undefined => {
   if (!data) return undefined
-
-  const base = exportBaseElementToXML(data)
-  if (!base) return undefined
-   
+ 
   return {
-    ...base,
+   _id: data.id ?? "",
+   _name: data.name ?? "",
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,
     ContextMenu: exportFormGroupToXML(data.contextMenu),
     DataPath: data.dataPath,
     DefaultItem: data.defaultItem,
-    DisplayImportance: data.displayImportance,
+    _DisplayImportance: data.displayImportance,
     EditMode: data.editMode,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
