@@ -215,9 +215,9 @@
 						<LabelField name="НеРедактируетсяОписание" id="3554">
 							<DataPath>НеРедактируетсяОписание</DataPath>
 							<TitleLocation>None</TitleLocation>
+							<AutoMaxWidth>false</AutoMaxWidth>
 							<ContextMenu name="НеРедактируетсяОписаниеКонтекстноеМеню" id="3555"/>
 							<ExtendedTooltip name="НеРедактируетсяОписаниеРасширеннаяПодсказка" id="3556"/>
-							<AutoMaxWidth>false</AutoMaxWidth>
 						</LabelField>
 					</ChildItems>
 				</UsualGroup>
@@ -4767,9 +4767,9 @@
 														</v8:item>
 													</Title>
 													<HorizontalAlign>Left</HorizontalAlign>
+													<AutoMaxWidth>false</AutoMaxWidth>
 													<ContextMenu name="ОригиналПолученТекстКонтекстноеМеню" id="2530"/>
 													<ExtendedTooltip name="ОригиналПолученТекстРасширеннаяПодсказка" id="2531"/>
-													<AutoMaxWidth>false</AutoMaxWidth>
 													<Events>
 														<Event name="Click">ОригиналПолученТекстНажатие</Event>
 													</Events>
@@ -5471,9 +5471,9 @@
 																<xr:Common>true</xr:Common>
 																<xr:Value>true</xr:Value>
 															</UserVisible>
+															<AutoMaxWidth>false</AutoMaxWidth>
 															<ContextMenu name="СостояниеЭДОКонтекстноеМеню" id="4095"/>
 															<ExtendedTooltip name="СостояниеЭДОРасширеннаяПодсказка" id="4096"/>
-															<AutoMaxWidth>false</AutoMaxWidth>
 															<Events>
 																<Event name="Click">СостояниеЭДОНажатие</Event>
 															</Events>
