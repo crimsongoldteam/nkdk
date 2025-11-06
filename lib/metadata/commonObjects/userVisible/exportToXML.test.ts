@@ -27,9 +27,9 @@ describe("exportUserVisibleToXML", () => {
 	<xr:Value name="Role.Пользователь">false</xr:Value>
 </UserVisible>`
 
-    const result = { UserVisible: exportUserVisibleToXML(mockUserVisible) }
+    const exported = exportUserVisibleToXML(mockUserVisible)
     const xmlString = xmlExport(
-      result,
+      { UserVisible: exported },
       z.object({ UserVisible: ZUserVisibleXML }),
       false
     )
@@ -47,9 +47,9 @@ describe("exportUserVisibleToXML", () => {
 	<xr:Common>false</xr:Common>
 </UserVisible>`
 
-    const result = { UserVisible: exportUserVisibleToXML(mockUserVisible) }
+    const exported = exportUserVisibleToXML(mockUserVisible)
     const xmlString = xmlExport(
-      result,
+      { UserVisible: exported },
       z.object({ UserVisible: ZUserVisibleXML }),
       false
     )
@@ -79,9 +79,9 @@ describe("exportUserVisibleToXML", () => {
 	<xr:Value name="Role.Менеджер">true</xr:Value>
 </UserVisible>`
 
-    const result = { UserVisible: exportUserVisibleToXML(mockUserVisible) }
+    const exported = exportUserVisibleToXML(mockUserVisible)
     const xmlString = xmlExport(
-      result,
+      { UserVisible: exported },
       z.object({ UserVisible: ZUserVisibleXML }),
       false
     )

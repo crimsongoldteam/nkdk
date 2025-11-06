@@ -6,16 +6,14 @@ export const exportUserVisibleToXML = (
   if (!userVisible) return undefined
 
   const result: TUserVisibleXML = {
-    Common: userVisible.common,
-    Value:
+    "xr:Common": userVisible.common,
+    "xr:Value":
       userVisible.values.length > 0
-        ? {
-            Item: userVisible.values.map((item) => ({
-              _name: `Role.${item.name}`,
-              "#text": item.value,
-            })),
-          }
-        : undefined, // empty object will be exported as <Value />
+        ? userVisible.values.map((item) => ({
+            _name: `Role.${item.name}`,
+            "#text": item.value,
+          }))
+        : undefined,
   }
 
   return result

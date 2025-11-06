@@ -12,7 +12,7 @@ describe("importUserVisibleFromXML", () => {
       <xr:Value name="Role.Пользователь">false</xr:Value>
     </UserVisible>`
 
-    const expectedResult = {
+    const expectedResult: TUserVisible = {
       common: true,
       values: [
         {

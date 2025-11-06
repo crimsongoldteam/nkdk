@@ -7,14 +7,9 @@ const ZUserVisibleItemXML = z.object({
 })
 
 export const ZUserVisibleXML = z.object({
-  Common: z.boolean(),
-  Value: z
-    .union([
-      z.array(ZUserVisibleItemXML),
-      z.object({
-        Item: z.union([z.array(ZUserVisibleItemXML), ZUserVisibleItemXML]),
-      }),
-    ])
+  "xr:Common": z.boolean(),
+  "xr:Value": z
+    .union([z.array(ZUserVisibleItemXML), ZUserVisibleItemXML])
     .optional(),
 })
 
