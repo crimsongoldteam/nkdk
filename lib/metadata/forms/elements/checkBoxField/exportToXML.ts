@@ -6,17 +6,19 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TCheckBoxFieldXML, TCheckBoxField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 
-export const exportCheckBoxFieldToXML = (data: TCheckBoxField | undefined): TCheckBoxFieldXML | undefined => {
+export const exportCheckBoxFieldToXML = (
+  data: TCheckBoxField | undefined
+): TCheckBoxFieldXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    _id: data.id ?? "",
+    _name: data.name ?? "",
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,
     ContextMenu: exportFormGroupToXML(data.contextMenu),
@@ -70,7 +72,7 @@ export const exportCheckBoxFieldToXML = (data: TCheckBoxField | undefined): TChe
     ItemWidth: data.itemWidth,
     TextColor: exportColorToXML(data.textColor),
     ThreeState: data.threeState,
-    Events: exportEventsToXML(data.events)
+    Events: exportEventsToXML(data.events),
   }
 }
 

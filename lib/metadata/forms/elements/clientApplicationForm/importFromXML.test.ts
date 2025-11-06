@@ -29,6 +29,8 @@ describe("importClientApplicationFormFromXML", () => {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
+        elementType: ZElementType.enum.FormGroup,
+        childItems: [],
       },
       title: { items: { ru: "Поле" } },
       childItems: [],
@@ -57,9 +59,17 @@ describe("importClientApplicationFormFromXML", () => {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
+        elementType: ZElementType.enum.FormGroup,
+        childItems: [],
       },
       elementType: ZElementType.enum.ClientApplicationForm,
-      childItems: [{ name: "ПолеВвода", id: "1", elementType: ZElementType.enum.InputField }],
+      childItems: [
+        {
+          name: "ПолеВвода",
+          id: "1",
+          elementType: ZElementType.enum.InputField,
+        },
+      ],
       attributes: [],
     }
 
@@ -91,6 +101,8 @@ describe("importClientApplicationFormFromXML", () => {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
+        elementType: ZElementType.enum.FormGroup,
+        childItems: [],
       },
       elementType: ZElementType.enum.ClientApplicationForm,
       childItems: [],
@@ -139,7 +151,13 @@ describe("importClientApplicationFormFromXML", () => {
           name: "Группа",
           id: "1",
           elementType: ZElementType.enum.UsualGroup,
-          childItems: [{ name: "ПолеВвода", id: "1", elementType: ZElementType.enum.InputField }],
+          childItems: [
+            {
+              name: "ПолеВвода",
+              id: "1",
+              elementType: ZElementType.enum.InputField,
+            },
+          ],
         },
       ],
     }
