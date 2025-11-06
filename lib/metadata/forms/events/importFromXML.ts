@@ -5,21 +5,18 @@ function toCamelCase(str: string): string {
   return str.charAt(0).toLowerCase() + str.slice(1)
 }
 
-export const importEventsFromXML = (xml: TEventsXML | undefined): TEvents | undefined => {
-  if (!xml || !xml.Event) return undefined
+export const importEventsFromXML = (
+  xml: TEventsXML | undefined
+): TEvents | undefined => {
+  if (!xml || xml.length === 0) return undefined
 
   const events: TEvents = {}
-  
-  const eventArray = Array.isArray(xml.Event) ? xml.Event : [xml.Event]
-  
-  for (const event of eventArray) {
-    if (event._name) {
-      const eventName = toCamelCase(event._name)
-      const eventValue = event["#text"] ?? ""
-      events[eventName] = eventValue
-    }
+
+  for (const event of xml) {
+    const eventName = toCamelCase(event.Event._name)
+    const eventValue = event.Event["#text"] ?? ""
+    events[eventName] = eventValue
   }
 
   return Object.keys(events).length > 0 ? events : undefined
 }
-

@@ -27,7 +27,3 @@ describe("importEventsFromXML", () => {
     expect(result).toEqual(expectedResult)
   })
 })
-
-// <Events>
-// <Event name="Click">РаспознаваниеДокументаНадписьНажатие</Event>
-// </Events>

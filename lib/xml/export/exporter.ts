@@ -6,7 +6,7 @@ export default function xmlExport<T>(
   schema: z.ZodType<T>,
   addDeclaration: boolean = true
 ): string {
-  // const parsedData = schema.parse(data)
+  const parsedData = schema.parse(data)
   const builder = new XMLBuilder({
     attributeNamePrefix: "_",
     ignoreAttributes: false,
@@ -16,7 +16,7 @@ export default function xmlExport<T>(
     indentBy: "\t",
     oneListGroup: true,
   })
-  const xml = builder.build(data)
+  const xml = builder.build(parsedData)
   const declaration = addDeclaration
     ? '<?xml version="1.0" encoding="UTF-8"?>\n'
     : ""
