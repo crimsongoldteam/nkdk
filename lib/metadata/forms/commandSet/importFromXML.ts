@@ -3,11 +3,12 @@ import { TCommandSet, TCommandSetXML } from "./types"
 export const importCommandSetFromXML = (
   xml: TCommandSetXML | undefined
 ): TCommandSet | undefined => {
-  if (!xml || !xml.ExcludedCommand) return undefined
+  if (!xml) return undefined
 
-  if (Array.isArray(xml.ExcludedCommand)) {
-    return xml.ExcludedCommand
+  const result: TCommandSet = []
+  for (const command of xml) {
+    result.push(command.ExcludedCommand)
   }
 
-  return [xml.ExcludedCommand]
+  return result.length > 0 ? result : undefined
 }
