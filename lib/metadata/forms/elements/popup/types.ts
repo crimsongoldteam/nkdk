@@ -22,26 +22,26 @@ export const ZPopup = ZFormGroup.extend({
 export const ZPopupXML = z.object({
   _name: z.string(),
   _id: z.string(),
+  Picture: ZPictureXML.optional(),
+  Title: ZI8nTextXML.optional(),
+  ToolTip: ZI8nTextXML.optional(),
+  get ExtendedTooltip() {
+    return ZFormDecorationXML.optional()
+  },
   BackColor: ZColorXML.optional(),
   BorderColor: ZColorXML.optional(),
   EnableContentChange: z.boolean().optional(),
   Enabled: z.boolean().optional(),
-  get ExtendedTooltip() {
-    return ZFormDecorationXML.optional()
-  },
   Height: z.number().optional(),
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   HorizontalStretch: z.boolean().optional(),
-  Picture: ZPictureXML.optional(),
   ReadOnly: z.boolean().optional(),
   Representation: SE.ZButtonRepresentation.optional(),
   Shape: SE.ZButtonShape.optional(),
   ShapeRepresentation: SE.ZButtonShapeRepresentation.optional(),
   Shortcut: z.string().optional(),
-  Title: ZI8nTextXML.optional(),
   TitleFont: ZFontXML.optional(),
   TitleTextColor: ZColorXML.optional(),
-  ToolTip: ZI8nTextXML.optional(),
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   Type: SE.ZFormGroupType.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),

@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
-	<CommandSet>
-		<ExcludedCommand>WriteAndClose</ExcludedCommand>
-	</CommandSet>
-	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
 	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
 	<CommandBarLocation>None</CommandBarLocation>
 	<VerticalScroll>UseIfNecessary</VerticalScroll>
+	<CommandSet>
+		<ExcludedCommand>WriteAndClose</ExcludedCommand>
+	</CommandSet>
+	<UseForFoldersAndItems>Items</UseForFoldersAndItems>
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+	<Events>
+		<Event>ПослеЗаписиОбработкаВыбораПослеЗаписиНаСервереОбработкаОповещенияПриЧтенииНаСервереПриОткрытииОбработкаПолученияСпискаНавигационныхСсылокПередЗакрытиемОбработкаПолученияНавигационнойСсылкиПриЗагрузкеДанныхИзНастроекНаСервереПередЗаписьюПриСозданииНаСервереПередЗаписьюНаСервереПриЗаписиНаСервереПриЗакрытииОбработкаПроверкиЗаполненияНаСервере</Event>
+	</Events>
 	<ChildItems>
 		<UsualGroup name="ГруппаРаспознаваниеДокумента" id="4201">
 			<Visible>false</Visible>
@@ -42,7 +46,7 @@
 					<ContextMenu name="РаспознаваниеДокументаНадписьКонтекстноеМеню" id="4204"/>
 					<ExtendedTooltip name="РаспознаваниеДокументаНадписьРасширеннаяПодсказка" id="4205"/>
 					<Events>
-						<Event name="Click">РаспознаваниеДокументаНадписьНажатие</Event>
+						<Event>РаспознаваниеДокументаНадписьНажатие</Event>
 					</Events>
 				</LabelDecoration>
 			</ChildItems>
@@ -87,7 +91,7 @@
 					<ContextMenu name="ПереданВАрхивИлиУничтоженНадписьКонтекстноеМеню" id="3946"/>
 					<ExtendedTooltip name="ПереданВАрхивИлиУничтоженНадписьРасширеннаяПодсказка" id="3947"/>
 					<Events>
-						<Event name="Click">ПереданВАрхивИлиУничтоженНадписьНажатие</Event>
+						<Event>ПереданВАрхивИлиУничтоженНадписьНажатие</Event>
 					</Events>
 				</LabelDecoration>
 			</ChildItems>
@@ -266,7 +270,6 @@
 							<ExtendedTooltip name="ОтправитьОбъектыРасширеннаяПодсказка" id="2434"/>
 						</Button>
 						<Popup name="ГруппаСоздатьНаОсновании" id="1764">
-							<ExtendedTooltip name="ГруппаСоздатьНаОснованииРасширеннаяПодсказка" id="1765"/>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
@@ -279,6 +282,7 @@
 									<v8:content>Создать на основании</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ExtendedTooltip name="ГруппаСоздатьНаОснованииРасширеннаяПодсказка" id="1765"/>
 							<ChildItems>
 								<Button name="СправочникДокументыПредприятияСоздатьДокументПредприятияНаОсновании" id="1768">
 									<Type>CommandBarButton</Type>
@@ -332,12 +336,10 @@
 							<ExtendedTooltip name="ПоделитьсяДокументомShareКомПанельРасширеннаяПодсказка" id="4117"/>
 						</Button>
 						<Popup name="ГруппаКомандыЭДО" id="4064">
-							<ExtendedTooltip name="ГруппаКомандыЭДОРасширеннаяПодсказка" id="4065"/>
 							<Picture>
 								<xr:Ref>CommonPicture.ЭмблемаСервиса1СЭДО</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<Representation>PictureAndText</Representation>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
@@ -350,6 +352,8 @@
 									<v8:content>Команды ЭДО</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ExtendedTooltip name="ГруппаКомандыЭДОРасширеннаяПодсказка" id="4065"/>
+							<Representation>PictureAndText</Representation>
 							<ChildItems>
 								<Button name="ПереформироватьДокументЭДО" id="4087">
 									<Type>CommandBarButton</Type>
@@ -393,7 +397,6 @@
 							</ChildItems>
 						</Popup>
 						<Popup name="ПодменюПечать" id="1758">
-							<ExtendedTooltip name="ПодменюПечатьРасширеннаяПодсказка" id="1759"/>
 							<Picture>
 								<xr:Ref>StdPicture.Print</xr:Ref>
 								<xr:LoadTransparent>true</xr:LoadTransparent>
@@ -410,14 +413,13 @@
 									<v8:content>Команды печати</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ExtendedTooltip name="ПодменюПечатьРасширеннаяПодсказка" id="1759"/>
 						</Popup>
 						<Popup name="ПодменюЗаполнить" id="2063">
-							<ExtendedTooltip name="ПодменюЗаполнитьРасширеннаяПодсказка" id="2064"/>
 							<Picture>
 								<xr:Ref>CommonPicture.ЗаполнитьФорму</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<Representation>Picture</Representation>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
@@ -430,14 +432,14 @@
 									<v8:content>Подменю заполнить</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ExtendedTooltip name="ПодменюЗаполнитьРасширеннаяПодсказка" id="2064"/>
+							<Representation>Picture</Representation>
 						</Popup>
 						<Popup name="ГруппаВажность" id="3509">
-							<ExtendedTooltip name="ГруппаВажностьРасширеннаяПодсказка" id="3510"/>
 							<Picture>
 								<xr:Ref>CommonPicture.ВажностьНеЗадана</xr:Ref>
 								<xr:LoadTransparent>false</xr:LoadTransparent>
 							</Picture>
-							<Representation>Picture</Representation>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
@@ -450,6 +452,8 @@
 									<v8:content>Нормальная важность</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ExtendedTooltip name="ГруппаВажностьРасширеннаяПодсказка" id="3510"/>
+							<Representation>Picture</Representation>
 							<ChildItems>
 								<Button name="ВажностьВысокая" id="3511">
 									<Type>CommandBarButton</Type>
@@ -488,7 +492,6 @@
 					<ExtendedTooltip name="ГруппаВсеДействияРасширеннаяПодсказка" id="1735"/>
 					<ChildItems>
 						<Popup name="ГруппаДокумент" id="1736">
-							<ExtendedTooltip name="ГруппаДокументРасширеннаяПодсказка" id="1737"/>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
@@ -501,6 +504,7 @@
 									<v8:content>Группа документ</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ExtendedTooltip name="ГруппаДокументРасширеннаяПодсказка" id="1737"/>
 							<ChildItems>
 								<Button name="ЗаписатьИЗакрытьЕще" id="1746">
 									<Type>CommandBarButton</Type>
@@ -562,7 +566,6 @@
 									<ExtendedTooltip name="ФормаПодписатьExtendedTooltip" id="1066"/>
 								</Button>
 								<Popup name="ГруппаШтрихкоды" id="375">
-									<ExtendedTooltip name="ГруппаШтрихкодыExtendedTooltip" id="1069"/>
 									<Title>
 										<v8:item>
 											<v8:lang>ru</v8:lang>
@@ -575,6 +578,7 @@
 											<v8:content>Группа штрихкоды</v8:content>
 										</v8:item>
 									</ToolTip>
+									<ExtendedTooltip name="ГруппаШтрихкодыExtendedTooltip" id="1069"/>
 									<ChildItems>
 										<Button name="ФормаОбщаяКомандаДобавитьВнешнийШтрихкод" id="376">
 											<Type>CommandBarButton</Type>
@@ -619,7 +623,6 @@
 									<ExtendedTooltip name="ПраваДоступаРасширеннаяПодсказка" id="1889"/>
 								</Button>
 								<Popup name="ЭДО" id="2244">
-									<ExtendedTooltip name="ЭДОРасширеннаяПодсказка" id="2245"/>
 									<Picture>
 										<xr:Ref>CommonPicture.ЭмблемаСервиса1СЭДО</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
@@ -636,6 +639,7 @@
 											<v8:content>ЭДО</v8:content>
 										</v8:item>
 									</ToolTip>
+									<ExtendedTooltip name="ЭДОРасширеннаяПодсказка" id="2245"/>
 									<ChildItems>
 										<ButtonGroup name="ГруппаЭДОСервис" id="2419">
 											<ExtendedTooltip name="ГруппаЭДОСервисРасширеннаяПодсказка" id="2420"/>
@@ -645,7 +649,6 @@
 							</ChildItems>
 						</Popup>
 						<Popup name="ГруппаСервис" id="1738">
-							<ExtendedTooltip name="ГруппаСервисРасширеннаяПодсказка" id="1739"/>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
@@ -658,9 +661,9 @@
 									<v8:content>Группа документ</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ExtendedTooltip name="ГруппаСервисРасширеннаяПодсказка" id="1739"/>
 							<ChildItems>
 								<Popup name="ГруппаТрудозатраты" id="1796">
-									<ExtendedTooltip name="ГруппаТрудозатратыРасширеннаяПодсказка" id="1797"/>
 									<Title>
 										<v8:item>
 											<v8:lang>ru</v8:lang>
@@ -673,6 +676,7 @@
 											<v8:content>Трудозатраты</v8:content>
 										</v8:item>
 									</ToolTip>
+									<ExtendedTooltip name="ГруппаТрудозатратыРасширеннаяПодсказка" id="1797"/>
 									<ChildItems>
 										<Button name="УказатьТрудозатраты" id="676">
 											<Type>CommandBarButton</Type>
@@ -772,7 +776,6 @@
 									<ExtendedTooltip name="ВыгрузитьВССТУРасширеннаяПодсказка" id="4026"/>
 								</Button>
 								<Popup name="ГруппаСервисЭДО" id="4097">
-									<ExtendedTooltip name="ГруппаСервисЭДОРасширеннаяПодсказка" id="4098"/>
 									<Picture>
 										<xr:Ref>CommonPicture.ЭмблемаСервиса1СЭДО</xr:Ref>
 										<xr:LoadTransparent>false</xr:LoadTransparent>
@@ -783,6 +786,7 @@
 											<v8:content>ЭДО</v8:content>
 										</v8:item>
 									</Title>
+									<ExtendedTooltip name="ГруппаСервисЭДОРасширеннаяПодсказка" id="4098"/>
 									<ChildItems>
 										<Button name="ПросмотретьЭлектронныйДокумент" id="4103">
 											<Type>CommandBarButton</Type>
@@ -820,7 +824,6 @@
 							</ChildItems>
 						</Popup>
 						<Popup name="ГруппаНастройки" id="1740">
-							<ExtendedTooltip name="ГруппаНастройкиРасширеннаяПодсказка" id="1741"/>
 							<Title>
 								<v8:item>
 									<v8:lang>ru</v8:lang>
@@ -833,6 +836,7 @@
 									<v8:content>Группа документ</v8:content>
 								</v8:item>
 							</ToolTip>
+							<ExtendedTooltip name="ГруппаНастройкиРасширеннаяПодсказка" id="1741"/>
 							<ChildItems>
 								<Button name="ПоказыватьИнструкции" id="1029">
 									<Type>CommandBarButton</Type>
@@ -1398,13 +1402,13 @@
 																	<ExtendedTooltip name="ВставитьРегистрационныйШтампИШтрихкодРасширеннаяПодсказка" id="3695"/>
 																</Button>
 																<Popup name="ФормаДополнительно" id="1827">
-																	<ExtendedTooltip name="ФормаДополнительноРасширеннаяПодсказка" id="1828"/>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
 																			<v8:content>Дополнительно</v8:content>
 																		</v8:item>
 																	</Title>
+																	<ExtendedTooltip name="ФормаДополнительноРасширеннаяПодсказка" id="1828"/>
 																	<ChildItems>
 																		<Button name="Занять" id="105">
 																			<Type>CommandBarButton</Type>
@@ -1452,7 +1456,6 @@
 																	</ChildItems>
 																</Popup>
 																<Popup name="ФормаЭПИШифрование" id="278">
-																	<ExtendedTooltip name="ФормаЭПИШифрованиеРасширеннаяПодсказка" id="1098"/>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
@@ -1465,6 +1468,7 @@
 																			<v8:content>ЭП и шифрование</v8:content>
 																		</v8:item>
 																	</ToolTip>
+																	<ExtendedTooltip name="ФормаЭПИШифрованиеРасширеннаяПодсказка" id="1098"/>
 																	<ChildItems>
 																		<ButtonGroup name="ЭП" id="279">
 																			<ExtendedTooltip name="ЭПРасширеннаяПодсказка" id="1099"/>
@@ -1560,7 +1564,6 @@
 																	</ChildItems>
 																</Popup>
 																<Popup name="ФормаШтрихкоды" id="1825">
-																	<ExtendedTooltip name="ФормаШтрихкодыРасширеннаяПодсказка" id="1826"/>
 																	<Picture>
 																		<xr:Ref>CommonPicture.Штрихкод</xr:Ref>
 																		<xr:LoadTransparent>false</xr:LoadTransparent>
@@ -1571,6 +1574,7 @@
 																			<v8:content>Штрихкоды</v8:content>
 																		</v8:item>
 																	</Title>
+																	<ExtendedTooltip name="ФормаШтрихкодыРасширеннаяПодсказка" id="1826"/>
 																	<ChildItems>
 																		<Button name="ФайлыВставитьШтрихкод" id="343">
 																			<Type>CommandBarButton</Type>
@@ -1765,13 +1769,13 @@
 																<ExtendedTooltip name="КонтекстноеМенюВставитьРегистрационныйШтампИШтрихкодРасширеннаяПодсказка" id="3685"/>
 															</Button>
 															<Popup name="ФайлыКонтекстноеМенюГруппаСортировка" id="3517">
-																<ExtendedTooltip name="ФайлыКонтекстноеМенюГруппаСортировкаРасширеннаяПодсказка" id="3518"/>
 																<Title>
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
 																		<v8:content>Порядок</v8:content>
 																	</v8:item>
 																</Title>
+																<ExtendedTooltip name="ФайлыКонтекстноеМенюГруппаСортировкаРасширеннаяПодсказка" id="3518"/>
 																<ChildItems>
 																	<Button name="ВложенияПереместитьВверх" id="3519">
 																		<Type>CommandBarButton</Type>
@@ -1791,13 +1795,13 @@
 																</ChildItems>
 															</Popup>
 															<Popup name="КонтекстноеМенюФайлыГруппаДополнительно" id="1831">
-																<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаДополнительноРасширеннаяПодсказка" id="1832"/>
 																<Title>
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
 																		<v8:content>Дополнительно</v8:content>
 																	</v8:item>
 																</Title>
+																<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаДополнительноРасширеннаяПодсказка" id="1832"/>
 																<ChildItems>
 																	<Button name="КонтекстноеМенюФайлыЗанять" id="159">
 																		<Type>CommandBarButton</Type>
@@ -1824,7 +1828,6 @@
 																</ChildItems>
 															</Popup>
 															<Popup name="КонтекстноеМенюФайлыГруппаЭПИШифрование" id="286">
-																<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаЭПИШифрованиеРасширеннаяПодсказка" id="1126"/>
 																<Title>
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
@@ -1837,6 +1840,7 @@
 																		<v8:content>ЭП и шифрование</v8:content>
 																	</v8:item>
 																</ToolTip>
+																<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаЭПИШифрованиеРасширеннаяПодсказка" id="1126"/>
 																<ChildItems>
 																	<ButtonGroup name="КонтекстноеМенюФайлыГруппаЭП" id="287">
 																		<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаЭПРасширеннаяПодсказка" id="1127"/>
@@ -1928,13 +1932,13 @@
 																<ExtendedTooltip name="КонтекстноеМенюФайлыРаспознатьРасширеннаяПодсказка" id="1122"/>
 															</Button>
 															<Popup name="КонтекстноеМенюФайлыГруппаШтрихкоды" id="1829">
-																<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаШтрихкодыРасширеннаяПодсказка" id="1830"/>
 																<Title>
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
 																		<v8:content>Штрихкоды</v8:content>
 																	</v8:item>
 																</Title>
+																<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаШтрихкодыРасширеннаяПодсказка" id="1830"/>
 																<ChildItems>
 																	<Button name="КонтекстноеМенюФайлыВставитьШтрихкод" id="346">
 																		<Type>CommandBarButton</Type>
@@ -2270,7 +2274,7 @@
 																</v8:item>
 															</ToolTip>
 															<Events>
-																<Event name="OnChange">ОригиналПриИзменении</Event>
+																<Event>ОригиналПриИзменении</Event>
 															</Events>
 														</CheckBoxField>
 													</ChildItems>
@@ -2638,7 +2642,7 @@
 																	<BorderColor>style:FormBackColor</BorderColor>
 																	<Height>13</Height>
 																	<Events>
-																		<Event name="OnClick">ТаймлистАвтопротоколHTMLПриНажатии</Event>
+																		<Event>ТаймлистАвтопротоколHTMLПриНажатии</Event>
 																	</Events>
 																</HTMLDocumentField>
 															</ChildItems>
@@ -2702,7 +2706,7 @@
 															<HorizontalStretch>false</HorizontalStretch>
 															<VerticalStretch>false</VerticalStretch>
 															<Events>
-																<Event name="Click">ДекорацияВзаимодействиеНажатие</Event>
+																<Event>ДекорацияВзаимодействиеНажатие</Event>
 															</Events>
 														</PictureField>
 														<PictureField name="КартинкаЭП" id="1809">
@@ -2724,7 +2728,7 @@
 															<HorizontalStretch>false</HorizontalStretch>
 															<VerticalStretch>false</VerticalStretch>
 															<Events>
-																<Event name="Click">КартинкаЭПНажатие</Event>
+																<Event>КартинкаЭПНажатие</Event>
 															</Events>
 														</PictureField>
 														<PictureField name="КартинкаКатегории" id="1812">
@@ -2746,7 +2750,7 @@
 															<HorizontalStretch>false</HorizontalStretch>
 															<VerticalStretch>false</VerticalStretch>
 															<Events>
-																<Event name="Click">КартинкаКатегорииНажатие</Event>
+																<Event>КартинкаКатегорииНажатие</Event>
 															</Events>
 														</PictureField>
 														<PictureField name="КартинкаФорум" id="1949">
@@ -2768,7 +2772,7 @@
 															<HorizontalStretch>false</HorizontalStretch>
 															<VerticalStretch>false</VerticalStretch>
 															<Events>
-																<Event name="Click">КартинкаФорумНажатие</Event>
+																<Event>КартинкаФорумНажатие</Event>
 															</Events>
 														</PictureField>
 														<PictureField name="КартинкаКонтроль" id="1815">
@@ -2790,7 +2794,7 @@
 															<HorizontalStretch>false</HorizontalStretch>
 															<VerticalStretch>false</VerticalStretch>
 															<Events>
-																<Event name="Click">КартинкаКонтрольНажатие</Event>
+																<Event>КартинкаКонтрольНажатие</Event>
 															</Events>
 														</PictureField>
 														<PictureField name="КартинкаСостояниеДела" id="3711">
@@ -2830,7 +2834,7 @@
 															<HorizontalStretch>false</HorizontalStretch>
 															<VerticalStretch>false</VerticalStretch>
 															<Events>
-																<Event name="Click">КартинкаЭДОНажатие</Event>
+																<Event>КартинкаЭДОНажатие</Event>
 															</Events>
 														</PictureField>
 													</ChildItems>
@@ -3126,7 +3130,7 @@
 															<ContextMenu name="ОрганизацияКонтекстноеМеню" id="214"/>
 															<ExtendedTooltip name="ОрганизацияExtendedTooltip" id="1172"/>
 															<Events>
-																<Event name="OnChange">ОрганизацияПриИзменении</Event>
+																<Event>ОрганизацияПриИзменении</Event>
 															</Events>
 														</InputField>
 														<InputField name="АдресатВходящейКорреспонденции" id="2655">
@@ -3334,7 +3338,7 @@
 															<ContextMenu name="ВидОбращенияКонтекстноеМеню" id="2639"/>
 															<ExtendedTooltip name="ВидОбращенияExtendedTooltip" id="2640"/>
 															<Events>
-																<Event name="OnChange">ВидОбращенияПриИзменении</Event>
+																<Event>ВидОбращенияПриИзменении</Event>
 															</Events>
 														</InputField>
 														<UsualGroup name="ГруппаКонтрагентМного" id="2286">
@@ -3432,7 +3436,7 @@
 																			<ContextMenu name="ДекорацияИндексыСПАРКРискиСтрока2КартинкаКрКонтекстноеМеню" id="2393"/>
 																			<ExtendedTooltip name="ДекорацияИндексыСПАРКРискиСтрока2КартинкаКрРасширеннаяПодсказка" id="2394"/>
 																			<Events>
-																				<Event name="Click">ДекорацияИндексыСПАРКРискиСтрока2КартинкаКрНажатие</Event>
+																				<Event>ДекорацияИндексыСПАРКРискиСтрока2КартинкаКрНажатие</Event>
 																			</Events>
 																		</PictureDecoration>
 																		<PictureDecoration name="ДекорацияИндексыСПАРКРискиСтрока2КартинкаОранж" id="2395">
@@ -3461,7 +3465,7 @@
 																			<ContextMenu name="ДекорацияИндексыСПАРКРискиСтрока2КартинкаОранжКонтекстноеМеню" id="2396"/>
 																			<ExtendedTooltip name="ДекорацияИндексыСПАРКРискиСтрока2КартинкаОранжРасширеннаяПодсказка" id="2397"/>
 																			<Events>
-																				<Event name="Click">ДекорацияИндексыСПАРКРискиСтрока2КартинкаОранжНажатие</Event>
+																				<Event>ДекорацияИндексыСПАРКРискиСтрока2КартинкаОранжНажатие</Event>
 																			</Events>
 																		</PictureDecoration>
 																		<PictureDecoration name="ДекорацияИндексыСПАРКРискиСтрока2КартинкаЗел" id="2398">
@@ -3490,7 +3494,7 @@
 																			<ContextMenu name="ДекорацияИндексыСПАРКРискиСтрока2КартинкаЗелКонтекстноеМеню" id="2399"/>
 																			<ExtendedTooltip name="ДекорацияИндексыСПАРКРискиСтрока2КартинкаЗелРасширеннаяПодсказка" id="2400"/>
 																			<Events>
-																				<Event name="Click">ДекорацияИндексыСПАРКРискиСтрока2КартинкаЗелНажатие</Event>
+																				<Event>ДекорацияИндексыСПАРКРискиСтрока2КартинкаЗелНажатие</Event>
 																			</Events>
 																		</PictureDecoration>
 																	</ChildItems>
@@ -3518,7 +3522,7 @@
 																	<ContextMenu name="ДекорацияИндексыСПАРКРискиКонтекстноеМеню" id="2385"/>
 																	<ExtendedTooltip name="ДекорацияИндексыСПАРКРискиРасширеннаяПодсказка" id="2386"/>
 																	<Events>
-																		<Event name="URLProcessing">ДекорацияИндексыСПАРКРискиОбработкаНавигационнойСсылки</Event>
+																		<Event>ДекорацияИндексыСПАРКРискиОбработкаНавигационнойСсылки</Event>
 																	</Events>
 																</LabelDecoration>
 																<PictureDecoration name="КартинкаОжиданиеЗагрузкиИндексовСПАРКРиски" id="2387">
@@ -3698,7 +3702,7 @@
 																			</Title>
 																			<TitleLocation>Right</TitleLocation>
 																			<Events>
-																				<Event name="OnChange">ПовторноеПриИзменении</Event>
+																				<Event>ПовторноеПриИзменении</Event>
 																			</Events>
 																		</CheckBoxField>
 																		<CheckBoxField name="Дубликат" id="2665">
@@ -3714,7 +3718,7 @@
 																			</Title>
 																			<TitleLocation>Right</TitleLocation>
 																			<Events>
-																				<Event name="OnChange">ДубликатПриИзменении</Event>
+																				<Event>ДубликатПриИзменении</Event>
 																			</Events>
 																		</CheckBoxField>
 																	</ChildItems>
@@ -3798,7 +3802,7 @@
 																	<ContextMenu name="ВходящийНомерКонтекстноеМеню" id="2682"/>
 																	<ExtendedTooltip name="ВходящийНомерExtendedTooltip" id="2683"/>
 																	<Events>
-																		<Event name="OnChange">ВходящийНомерПриИзменении</Event>
+																		<Event>ВходящийНомерПриИзменении</Event>
 																	</Events>
 																</InputField>
 																<InputField name="ВходящаяДата" id="2684">
@@ -3822,7 +3826,7 @@
 																	<ContextMenu name="ВходящаяДатаКонтекстноеМеню" id="2685"/>
 																	<ExtendedTooltip name="ВходящаяДатаExtendedTooltip" id="2686"/>
 																	<Events>
-																		<Event name="OnChange">ВходящаяДатаПриИзменении</Event>
+																		<Event>ВходящаяДатаПриИзменении</Event>
 																	</Events>
 																</InputField>
 															</ChildItems>
@@ -3860,7 +3864,7 @@
 																	</Title>
 																	<TitleLocation>Left</TitleLocation>
 																	<Events>
-																		<Event name="OnChange">ОтправленПриИзменении</Event>
+																		<Event>ОтправленПриИзменении</Event>
 																	</Events>
 																</CheckBoxField>
 																<InputField name="ДатаОтправки" id="2692">
@@ -3888,7 +3892,7 @@
 																		</v8:item>
 																	</EditFormat>
 																	<Events>
-																		<Event name="OnChange">ДатаОтправкиПриИзменении</Event>
+																		<Event>ДатаОтправкиПриИзменении</Event>
 																	</Events>
 																</InputField>
 															</ChildItems>
@@ -3913,7 +3917,7 @@
 															<ContextMenu name="СпособОтправкиКонтекстноеМеню" id="2696"/>
 															<ExtendedTooltip name="СпособОтправкиExtendedTooltip" id="2697"/>
 															<Events>
-																<Event name="OnChange">СпособОтправкиПриИзменении</Event>
+																<Event>СпособОтправкиПриИзменении</Event>
 															</Events>
 														</InputField>
 														<LabelDecoration name="ДекорацияКому" id="2301">
@@ -4229,7 +4233,7 @@
 																			<EditMode>EnterOnInput</EditMode>
 																			<ExtendedTooltip name="СтороныПодписанРасширеннаяПодсказка" id="2177"/>
 																			<Events>
-																				<Event name="OnChange">СтороныПодписанПриИзменении</Event>
+																				<Event>СтороныПодписанПриИзменении</Event>
 																			</Events>
 																		</CheckBoxField>
 																		<InputField name="СтороныДатаПодписи" id="2195">
@@ -4289,7 +4293,7 @@
 																			<ExtendedTooltip name="СтороныКомментарийРасширеннаяПодсказка" id="2352"/>
 																			<EditMode>EnterOnInput</EditMode>
 																			<Events>
-																				<Event name="StartChoice">СтороныКомментарийНачалоВыбора</Event>
+																				<Event>СтороныКомментарийНачалоВыбора</Event>
 																			</Events>
 																		</InputField>
 																		<InputField name="СтороныУстановил" id="2365">
@@ -4413,7 +4417,7 @@
 																			<ContextMenu name="ДекорацияАвансовыйОтчетНеПредоставленСсылкаКонтекстноеМеню" id="2483"/>
 																			<ExtendedTooltip name="ДекорацияАвансовыйОтчетНеПредоставленСсылкаРасширеннаяПодсказка" id="2484"/>
 																			<Events>
-																				<Event name="Click">ДекорацияАвансовыйОтчетНеПредоставленСсылкаНажатие</Event>
+																				<Event>ДекорацияАвансовыйОтчетНеПредоставленСсылкаНажатие</Event>
 																			</Events>
 																		</LabelDecoration>
 																		<InputField name="СрокПредоставленияАвансовогоОтчета" id="2485">
@@ -4457,7 +4461,7 @@
 																			<ContextMenu name="ДекорацияАвансовыйОтчетПредоставленСсылкаКонтекстноеМеню" id="2492"/>
 																			<ExtendedTooltip name="ДекорацияАвансовыйОтчетПредоставленСсылкаРасширеннаяПодсказка" id="2493"/>
 																			<Events>
-																				<Event name="Click">ДекорацияАвансовыйОтчетПредоставленСсылкаНажатие</Event>
+																				<Event>ДекорацияАвансовыйОтчетПредоставленСсылкаНажатие</Event>
 																			</Events>
 																		</LabelDecoration>
 																	</ChildItems>
@@ -4504,7 +4508,7 @@
 																			<ContextMenu name="АвансовыйОтчетКонтекстноеМеню" id="2495"/>
 																			<ExtendedTooltip name="АвансовыйОтчетРасширеннаяПодсказка" id="2496"/>
 																			<Events>
-																				<Event name="ChoiceProcessing">АвансовыйОтчетОбработкаВыбора</Event>
+																				<Event>АвансовыйОтчетОбработкаВыбора</Event>
 																			</Events>
 																		</InputField>
 																	</ChildItems>
@@ -4549,7 +4553,7 @@
 																			<ContextMenu name="ДекорацияАвансовыйОтчетНеТребуетсяСсылкаКонтекстноеМеню" id="2516"/>
 																			<ExtendedTooltip name="ДекорацияАвансовыйОтчетНеТребуетсяСсылкаРасширеннаяПодсказка" id="2517"/>
 																			<Events>
-																				<Event name="Click">ДекорацияАвансовыйОтчетНеТребуетсяСсылкаНажатие</Event>
+																				<Event>ДекорацияАвансовыйОтчетНеТребуетсяСсылкаНажатие</Event>
 																			</Events>
 																		</LabelDecoration>
 																	</ChildItems>
@@ -4565,7 +4569,7 @@
 													<ContextMenu name="КраткиеСведенияОСвязяхКонтекстноеМеню" id="3015"/>
 													<ExtendedTooltip name="КраткиеСведенияОСвязяхРасширеннаяПодсказка" id="3016"/>
 													<Events>
-														<Event name="Click">КраткиеСведенияОСвязяхНажатие</Event>
+														<Event>КраткиеСведенияОСвязяхНажатие</Event>
 													</Events>
 												</LabelField>
 												<InputField name="КомментарийРеквизит" id="1039">
@@ -4590,7 +4594,7 @@
 													<ExtendedTooltip name="ОригиналПолученТекстРасширеннаяПодсказка" id="2531"/>
 													<AutoMaxWidth>false</AutoMaxWidth>
 													<Events>
-														<Event name="Click">ОригиналПолученТекстНажатие</Event>
+														<Event>ОригиналПолученТекстНажатие</Event>
 													</Events>
 												</LabelField>
 											</ChildItems>
@@ -4658,7 +4662,7 @@
 																	<ExtendedTooltip name="РегистрационныйНомерExtendedTooltip" id="1162"/>
 																	<EditMode>EnterOnInput</EditMode>
 																	<Events>
-																		<Event name="OnChange">НомерПриИзменении</Event>
+																		<Event>НомерПриИзменении</Event>
 																	</Events>
 																</InputField>
 																<InputField name="ДатаРегистрации" id="117">
@@ -4690,7 +4694,7 @@
 																	</EditFormat>
 																	<EditMode>EnterOnInput</EditMode>
 																	<Events>
-																		<Event name="OnChange">ДатаРегистрацииПриИзменении</Event>
+																		<Event>ДатаРегистрацииПриИзменении</Event>
 																	</Events>
 																</InputField>
 															</ChildItems>
@@ -4795,7 +4799,7 @@
 																	<ExtendedTooltip name="ПапкаExtendedTooltip" id="1194"/>
 																	<EditMode>EnterOnInput</EditMode>
 																	<Events>
-																		<Event name="OnChange">ПапкаПриИзменении</Event>
+																		<Event>ПапкаПриИзменении</Event>
 																	</Events>
 																</InputField>
 															</ChildItems>
@@ -4839,7 +4843,7 @@
 																	<ExtendedTooltip name="СрокИсполненияExtendedTooltip" id="1184"/>
 																	<EditMode>EnterOnInput</EditMode>
 																	<Events>
-																		<Event name="OnChange">СрокИсполненияПриИзменении</Event>
+																		<Event>СрокИсполненияПриИзменении</Event>
 																	</Events>
 																</InputField>
 																<LabelDecoration name="НадписьРабочихДней" id="2974">
@@ -4880,7 +4884,7 @@
 																	<ContextMenu name="СуммаКонтекстноеМеню" id="368"/>
 																	<ExtendedTooltip name="СуммаExtendedTooltip" id="1186"/>
 																	<Events>
-																		<Event name="OnChange">СуммаПриИзменении</Event>
+																		<Event>СуммаПриИзменении</Event>
 																	</Events>
 																</InputField>
 																<InputField name="Сумма1" id="2070">
@@ -4897,7 +4901,7 @@
 																	<ContextMenu name="Сумма1КонтекстноеМеню" id="2071"/>
 																	<ExtendedTooltip name="Сумма1РасширеннаяПодсказка" id="2072"/>
 																	<Events>
-																		<Event name="OnChange">СуммаПриИзменении</Event>
+																		<Event>СуммаПриИзменении</Event>
 																	</Events>
 																</InputField>
 																<InputField name="Валюта" id="369">
@@ -4909,7 +4913,7 @@
 																	<ContextMenu name="ВалютаКонтекстноеМеню" id="370"/>
 																	<ExtendedTooltip name="ВалютаExtendedTooltip" id="1187"/>
 																	<Events>
-																		<Event name="OnChange">ВалютаПриИзменении</Event>
+																		<Event>ВалютаПриИзменении</Event>
 																	</Events>
 																</InputField>
 															</ChildItems>
@@ -4933,7 +4937,7 @@
 																	<ContextMenu name="СуммаНДСКонтекстноеМеню" id="1906"/>
 																	<ExtendedTooltip name="СуммаНДСРасширеннаяПодсказка" id="1907"/>
 																	<Events>
-																		<Event name="OnChange">СуммаНДСПриИзменении</Event>
+																		<Event>СуммаНДСПриИзменении</Event>
 																	</Events>
 																</InputField>
 															</ChildItems>
@@ -5072,7 +5076,7 @@
 																							<ContextMenu name="ДекорацияИзменитьСуммуКонтекстноеМеню" id="1940"/>
 																							<ExtendedTooltip name="ДекорацияИзменитьСуммуРасширеннаяПодсказка" id="1941"/>
 																							<Events>
-																								<Event name="Click">ДекорацияИзменитьСуммуНажатие</Event>
+																								<Event>ДекорацияИзменитьСуммуНажатие</Event>
 																							</Events>
 																						</LabelDecoration>
 																					</ChildItems>
@@ -5102,7 +5106,7 @@
 															<ContextMenu name="СрокДействияСтрокаКонтекстноеМеню" id="562"/>
 															<ExtendedTooltip name="СрокДействияСтрокаExtendedTooltip" id="1189"/>
 															<Events>
-																<Event name="StartChoice">СрокДействияСтрокаНачалоВыбора</Event>
+																<Event>СрокДействияСтрокаНачалоВыбора</Event>
 															</Events>
 														</InputField>
 														<UsualGroup name="ГруппаОтменен" id="246">
@@ -5131,7 +5135,7 @@
 																	<ExtendedTooltip name="НеДействуетExtendedTooltip" id="1191"/>
 																	<TitleLocation>Right</TitleLocation>
 																	<Events>
-																		<Event name="OnChange">ОтмененПриИзменении</Event>
+																		<Event>ОтмененПриИзменении</Event>
 																	</Events>
 																</CheckBoxField>
 																<LabelDecoration name="ДекорацияГотовитсяКОтмене" id="3132">
@@ -5197,7 +5201,7 @@
 																	<ContextMenu name="НеДействуетВСоответствииКонтекстноеМеню" id="250"/>
 																	<ExtendedTooltip name="НеДействуетВСоответствииExtendedTooltip" id="1192"/>
 																	<Events>
-																		<Event name="StartChoice">ОтмененДокументомНачалоВыбора</Event>
+																		<Event>ОтмененДокументомНачалоВыбора</Event>
 																	</Events>
 																</InputField>
 															</ChildItems>
@@ -5213,7 +5217,7 @@
 															<ContextMenu name="ДелаетНедействующимиСтрокаКонтекстноеМеню" id="3142"/>
 															<ExtendedTooltip name="ДелаетНедействующимиСтрокаРасширеннаяПодсказка" id="3143"/>
 															<Events>
-																<Event name="Click">ДелаетНедействующимиСтрокаНажатие</Event>
+																<Event>ДелаетНедействующимиСтрокаНажатие</Event>
 															</Events>
 														</LabelDecoration>
 														<InputField name="ГрифДоступа" id="238">
@@ -5228,7 +5232,7 @@
 															<ContextMenu name="ГрифДоступаКонтекстноеМеню" id="239"/>
 															<ExtendedTooltip name="ГрифДоступаExtendedTooltip" id="1196"/>
 															<Events>
-																<Event name="OnChange">ГрифДоступаПриИзменении</Event>
+																<Event>ГрифДоступаПриИзменении</Event>
 															</Events>
 														</InputField>
 														<InputField name="ВопросДеятельности" id="240">
@@ -5249,7 +5253,7 @@
 															<ContextMenu name="ВопросДеятельностиКонтекстноеМеню" id="241"/>
 															<ExtendedTooltip name="ВопросДеятельностиExtendedTooltip" id="1197"/>
 															<Events>
-																<Event name="OnChange">ВопросДеятельностиПриИзменении</Event>
+																<Event>ВопросДеятельностиПриИзменении</Event>
 															</Events>
 														</InputField>
 														<InputField name="Проект" id="673">
@@ -5280,7 +5284,7 @@
 															<ExtendedTooltip name="СостояниеЭДОРасширеннаяПодсказка" id="4096"/>
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<Events>
-																<Event name="Click">СостояниеЭДОНажатие</Event>
+																<Event>СостояниеЭДОНажатие</Event>
 															</Events>
 														</LabelField>
 														<InputField name="Адресат" id="1820">
@@ -5312,7 +5316,7 @@
 															<ContextMenu name="ПодразделениеКонтекстноеМеню" id="1545"/>
 															<ExtendedTooltip name="ПодразделениеРасширеннаяПодсказка" id="1546"/>
 															<Events>
-																<Event name="OnChange">ПодразделениеПриИзменении</Event>
+																<Event>ПодразделениеПриИзменении</Event>
 															</Events>
 														</InputField>
 														<InputField name="Подготовил" id="1547">
@@ -5720,7 +5724,7 @@
 											</ChoiceParameterLinks>
 											<EditMode>EnterOnInput</EditMode>
 											<Events>
-												<Event name="StartChoice">КонтрагентыПодписалОтКонтрагентаНачалоВыбора</Event>
+												<Event>КонтрагентыПодписалОтКонтрагентаНачалоВыбора</Event>
 											</Events>
 										</InputField>
 										<InputField name="КонтрагентыКонтактноеЛицо" id="2279">
@@ -5743,7 +5747,7 @@
 											</ChoiceParameterLinks>
 											<EditMode>EnterOnInput</EditMode>
 											<Events>
-												<Event name="StartChoice">КонтрагентыКонтактноеЛицоНачалоВыбора</Event>
+												<Event>КонтрагентыКонтактноеЛицоНачалоВыбора</Event>
 											</Events>
 										</InputField>
 										<ColumnGroup name="ПолучателиИсходящейКорреспонденции" id="2703">
@@ -5763,7 +5767,7 @@
 													<EditMode>EnterOnInput</EditMode>
 													<ExtendedTooltip name="КонтрагентыОтправленРасширеннаяПодсказка" id="2707"/>
 													<Events>
-														<Event name="OnChange">КонтрагентыОтправленПриИзменении</Event>
+														<Event>КонтрагентыОтправленПриИзменении</Event>
 													</Events>
 												</CheckBoxField>
 												<InputField name="КонтрагентыДатаОтправки" id="2708">
@@ -5806,7 +5810,7 @@
 													<ExtendedTooltip name="КонтрагентыСпособОтправкиРасширеннаяПодсказка" id="2713"/>
 													<EditMode>EnterOnInput</EditMode>
 													<Events>
-														<Event name="OnChange">КонтрагентыСпособОтправкиПриИзменении</Event>
+														<Event>КонтрагентыСпособОтправкиПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="КонтрагентыВходящийНомер" id="2714">
@@ -6029,7 +6033,7 @@
 											<ExtendedTooltip name="СоставКомплектаКомментарийExtendedTooltip" id="1255"/>
 											<EditMode>EnterOnInput</EditMode>
 											<Events>
-												<Event name="StartChoice">СоставКомплектаКомментарийНачалоВыбора</Event>
+												<Event>СоставКомплектаКомментарийНачалоВыбора</Event>
 											</Events>
 										</InputField>
 									</ChildItems>
@@ -6183,13 +6187,13 @@
 																<ExtendedTooltip name="КонтекстноеМенюВставитьРегистрационныйШтампИШтрихкодСозданиеРасширеннаяПодсказка" id="3697"/>
 															</Button>
 															<Popup name="ФайлыСозданиеКонтекстноеМенюГруппаСортировка" id="3541">
-																<ExtendedTooltip name="ФайлыСозданиеКонтекстноеМенюГруппаСортировкаРасширеннаяПодсказка" id="3542"/>
 																<Title>
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
 																		<v8:content>Порядок</v8:content>
 																	</v8:item>
 																</Title>
+																<ExtendedTooltip name="ФайлыСозданиеКонтекстноеМенюГруппаСортировкаРасширеннаяПодсказка" id="3542"/>
 																<ChildItems>
 																	<Button name="ВложенияПереместитьВверх2" id="3543">
 																		<Type>CommandBarButton</Type>
@@ -6209,13 +6213,13 @@
 																</ChildItems>
 															</Popup>
 															<Popup name="КонтекстноеМенюФайлыГруппаДополнительноСоздание" id="1884">
-																<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаДополнительноСозданиеРасширеннаяПодсказка" id="1885"/>
 																<Title>
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
 																		<v8:content>Дополнительно</v8:content>
 																	</v8:item>
 																</Title>
+																<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаДополнительноСозданиеРасширеннаяПодсказка" id="1885"/>
 																<ChildItems>
 																	<Button name="КонтекстноеМенюФайлыЗанятьСоздание" id="858">
 																		<Type>CommandBarButton</Type>
@@ -6242,7 +6246,6 @@
 																</ChildItems>
 															</Popup>
 															<Popup name="КонтекстноеМенюФайлыГруппаЭПИШифрованиеСоздание" id="864">
-																<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаЭПИШифрованиеСозданиеРасширеннаяПодсказка" id="1274"/>
 																<Title>
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
@@ -6255,6 +6258,7 @@
 																		<v8:content>ЭП и шифрование</v8:content>
 																	</v8:item>
 																</ToolTip>
+																<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаЭПИШифрованиеСозданиеРасширеннаяПодсказка" id="1274"/>
 																<ChildItems>
 																	<ButtonGroup name="КонтекстноеМенюФайлыГруппаЭПСоздание" id="865">
 																		<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаЭПСозданиеРасширеннаяПодсказка" id="1275"/>
@@ -6344,13 +6348,13 @@
 																<ExtendedTooltip name="КонтекстноеМенюФайлыРаспознатьСозданиеРасширеннаяПодсказка" id="1273"/>
 															</Button>
 															<Popup name="КонтекстноеМенюФайлыГруппаШтрихкодыСоздание" id="1886">
-																<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаШтрихкодыСозданиеРасширеннаяПодсказка" id="1887"/>
 																<Title>
 																	<v8:item>
 																		<v8:lang>ru</v8:lang>
 																		<v8:content>Штрихкоды</v8:content>
 																	</v8:item>
 																</Title>
+																<ExtendedTooltip name="КонтекстноеМенюФайлыГруппаШтрихкодыСозданиеРасширеннаяПодсказка" id="1887"/>
 																<ChildItems>
 																	<Button name="КонтекстноеМенюФайлыВставитьШтрихкодСОздание" id="925">
 																		<Type>CommandBarButton</Type>
@@ -6575,7 +6579,7 @@
 																</v8:item>
 															</ToolTip>
 															<Events>
-																<Event name="OnChange">ОригиналПриИзменении</Event>
+																<Event>ОригиналПриИзменении</Event>
 															</Events>
 														</CheckBoxField>
 													</ChildItems>
@@ -6853,7 +6857,7 @@
 													<ExtendedTooltip name="ТоварыНоменклатураРасширеннаяПодсказка" id="2101"/>
 													<EditMode>EnterOnInput</EditMode>
 													<Events>
-														<Event name="OnChange">ТоварыНоменклатураПриИзменении</Event>
+														<Event>ТоварыНоменклатураПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="ТоварыКоличество" id="2102">
@@ -6863,7 +6867,7 @@
 													<ExtendedTooltip name="ТоварыКоличествоРасширеннаяПодсказка" id="2104"/>
 													<EditMode>EnterOnInput</EditMode>
 													<Events>
-														<Event name="OnChange">ТоварыКоличествоПриИзменении</Event>
+														<Event>ТоварыКоличествоПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="ТоварыЕдиницаИзмерения" id="2105">
@@ -6890,7 +6894,7 @@
 													<ExtendedTooltip name="ТоварыЦенаРасширеннаяПодсказка" id="2110"/>
 													<EditMode>EnterOnInput</EditMode>
 													<Events>
-														<Event name="OnChange">ТоварыЦенаПриИзменении</Event>
+														<Event>ТоварыЦенаПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="ТоварыСтавкаНДС" id="2111">
@@ -6923,7 +6927,7 @@
 													<EditMode>EnterOnInput</EditMode>
 													<FooterDataPath>Объект.Товары.TotalСумма</FooterDataPath>
 													<Events>
-														<Event name="OnChange">ТоварыСуммаПриИзменении</Event>
+														<Event>ТоварыСуммаПриИзменении</Event>
 													</Events>
 												</InputField>
 											</ChildItems>
@@ -7031,7 +7035,7 @@
 														</ColumnGroup>
 													</ChildItems>
 													<Events>
-														<Event name="Selection">ВсеТоварыВыбор</Event>
+														<Event>ВсеТоварыВыбор</Event>
 													</Events>
 												</Table>
 											</ChildItems>
@@ -7105,7 +7109,7 @@
 													<ExtendedTooltip name="ВопросыКодВопросаРасширеннаяПодсказка" id="2728"/>
 													<EditMode>EnterOnInput</EditMode>
 													<Events>
-														<Event name="StartChoice">КодыВопросовКодВопросаНачалоВыбора</Event>
+														<Event>КодыВопросовКодВопросаНачалоВыбора</Event>
 													</Events>
 												</InputField>
 												<InputField name="ВопросыРаздел" id="2732">
@@ -7115,7 +7119,7 @@
 													<ExtendedTooltip name="ВопросыРазделРасширеннаяПодсказка" id="2734"/>
 													<EditMode>EnterOnInput</EditMode>
 													<Events>
-														<Event name="OnChange">КодыВопросовРазделПриИзменении</Event>
+														<Event>КодыВопросовРазделПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="ВопросыТематика" id="2741">
@@ -7125,7 +7129,7 @@
 													<ExtendedTooltip name="ВопросыТематикаРасширеннаяПодсказка" id="2743"/>
 													<EditMode>EnterOnInput</EditMode>
 													<Events>
-														<Event name="OnChange">КодыВопросовТематикаПриИзменении</Event>
+														<Event>КодыВопросовТематикаПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="ВопросыТема" id="2738">
@@ -7135,7 +7139,7 @@
 													<ExtendedTooltip name="ВопросыТемаРасширеннаяПодсказка" id="2740"/>
 													<EditMode>EnterOnInput</EditMode>
 													<Events>
-														<Event name="OnChange">КодыВопросовТемаПриИзменении</Event>
+														<Event>КодыВопросовТемаПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="ВопросыВопрос" id="2720">
@@ -7145,7 +7149,7 @@
 													<ExtendedTooltip name="ВопросыВопросРасширеннаяПодсказка" id="2722"/>
 													<EditMode>EnterOnInput</EditMode>
 													<Events>
-														<Event name="OnChange">КодыВопросовВопросПриИзменении</Event>
+														<Event>КодыВопросовВопросПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="ВопросыРезультатРассмотрения" id="2735">
@@ -7347,7 +7351,7 @@
 															<ContextMenu name="РезультатРассмотренияКонтекстноеМеню" id="2608"/>
 															<ExtendedTooltip name="РезультатРассмотренияРасширеннаяПодсказка" id="2609"/>
 															<Events>
-																<Event name="OnChange">РезультатРассмотренияПриИзменении</Event>
+																<Event>РезультатРассмотренияПриИзменении</Event>
 															</Events>
 														</InputField>
 														<UsualGroup name="ГруппаРезультат" id="2610">
@@ -7372,7 +7376,7 @@
 																	<ContextMenu name="ДатаОтветаКонтекстноеМеню" id="2613"/>
 																	<ExtendedTooltip name="ДатаОтветаРасширеннаяПодсказка" id="2614"/>
 																	<Events>
-																		<Event name="OnChange">ДатаОтветаПриИзменении</Event>
+																		<Event>ДатаОтветаПриИзменении</Event>
 																	</Events>
 																</InputField>
 																<UsualGroup name="ГруппаОрганИСопроводительныйДокумент" id="2615">
@@ -7411,7 +7415,7 @@
 																			<ContextMenu name="ОрганДляПередачиКонтекстноеМеню" id="2618"/>
 																			<ExtendedTooltip name="ОрганДляПередачиРасширеннаяПодсказка" id="2619"/>
 																			<Events>
-																				<Event name="OnChange">ОрганДляПередачиПриИзменении</Event>
+																				<Event>ОрганДляПередачиПриИзменении</Event>
 																			</Events>
 																		</InputField>
 																		<UsualGroup name="СопроводительныйДокмуент" id="2620">
@@ -7589,7 +7593,7 @@
 											</ToolTip>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
 											<Events>
-												<Event name="OnChange">ГотовоКВыгрузкеССТУПриИзменении</Event>
+												<Event>ГотовоКВыгрузкеССТУПриИзменении</Event>
 											</Events>
 										</CheckBoxField>
 										<LabelDecoration name="ДекорацияСостояниеССТУ" id="4019">
@@ -7609,7 +7613,7 @@
 											<ContextMenu name="ДекорацияСостояниеССТУКонтекстноеМеню" id="4020"/>
 											<ExtendedTooltip name="ДекорацияСостояниеССТУРасширеннаяПодсказка" id="4021"/>
 											<Events>
-												<Event name="Click">ДекорацияСостояниеССТУНажатие</Event>
+												<Event>ДекорацияСостояниеССТУНажатие</Event>
 											</Events>
 										</LabelDecoration>
 									</ChildItems>
@@ -7652,7 +7656,7 @@
 											</ToolTip>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
 											<Events>
-												<Event name="OnChange">ГотовКОтправкеМЭДОПриИзменении</Event>
+												<Event>ГотовКОтправкеМЭДОПриИзменении</Event>
 											</Events>
 										</CheckBoxField>
 										<CheckBoxField name="ОтправленМЭДО" id="3887">
@@ -7861,7 +7865,7 @@
 										</ColumnGroup>
 									</ChildItems>
 									<Events>
-										<Event name="Selection">ИсторияСостоянийМЭДОВыбор</Event>
+										<Event>ИсторияСостоянийМЭДОВыбор</Event>
 									</Events>
 								</Table>
 							</ChildItems>
@@ -8025,13 +8029,13 @@
 													<ExtendedTooltip name="ДействияПоказатьВсеРасширеннаяПодсказка" id="2798"/>
 												</Button>
 												<Popup name="ГруппаЛистСогласования" id="2799">
-													<ExtendedTooltip name="ГруппаЛистСогласованияРасширеннаяПодсказка" id="2800"/>
 													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
 															<v8:content>Результаты обработки</v8:content>
 														</v8:item>
 													</Title>
+													<ExtendedTooltip name="ГруппаЛистСогласованияРасширеннаяПодсказка" id="2800"/>
 													<ChildItems>
 														<Button name="ДействияПечатьЛистСогласования" id="2801">
 															<Type>CommandBarButton</Type>
@@ -8819,7 +8823,7 @@
 														</v8:item>
 													</ToolTip>
 													<Events>
-														<Event name="OnChange">ПоказыватьТолькоОригиналыВСвязяхПриИзменении</Event>
+														<Event>ПоказыватьТолькоОригиналыВСвязяхПриИзменении</Event>
 													</Events>
 												</CheckBoxField>
 											</ChildItems>
@@ -8899,7 +8903,7 @@
 													<BorderColor>style:FormBackColor</BorderColor>
 													<Height>13</Height>
 													<Events>
-														<Event name="OnClick">ПолеHTMLПриНажатии</Event>
+														<Event>ПолеHTMLПриНажатии</Event>
 													</Events>
 												</HTMLDocumentField>
 												<LabelDecoration name="ДекорацияВыравнивающийБлок" id="3649">
@@ -8974,7 +8978,7 @@
 												</xr:Link>
 											</ChoiceParameterLinks>
 											<Events>
-												<Event name="StartChoice">КонтактноеЛицоПереадресовавшегоНачалоВыбора</Event>
+												<Event>КонтактноеЛицоПереадресовавшегоНачалоВыбора</Event>
 											</Events>
 										</InputField>
 										<UsualGroup name="ГруппаТребуетсяОтвет" id="3042">
@@ -9009,7 +9013,7 @@
 													</Title>
 													<TitleLocation>Right</TitleLocation>
 													<Events>
-														<Event name="OnChange">ТребуетсяОтветПереадресовавшемуПриИзменении</Event>
+														<Event>ТребуетсяОтветПереадресовавшемуПриИзменении</Event>
 													</Events>
 												</CheckBoxField>
 												<InputField name="СрокОтветаПереадресовавшему" id="3047">
@@ -9690,7 +9694,7 @@
 						</Page>
 					</ChildItems>
 					<Events>
-						<Event name="OnCurrentPageChange">ГруппаСтраницыПриСменеСтраницы</Event>
+						<Event>ГруппаСтраницыПриСменеСтраницы</Event>
 					</Events>
 				</Pages>
 				<UsualGroup name="ГруппаИнструкции" id="789">
@@ -9722,7 +9726,7 @@
 							<ExtendedTooltip name="ИнструкцияExtendedTooltip" id="1469"/>
 							<MaxWidth>30</MaxWidth>
 							<Events>
-								<Event name="OnClick">ИнструкцияПриНажатии</Event>
+								<Event>ИнструкцияПриНажатии</Event>
 							</Events>
 						</HTMLDocumentField>
 					</ChildItems>
@@ -9730,7 +9734,4 @@
 			</ChildItems>
 		</UsualGroup>
 	</ChildItems>
-	<Events>
-		<Event>ПослеЗаписиОбработкаВыбораПослеЗаписиНаСервереОбработкаОповещенияПриЧтенииНаСервереПриОткрытииОбработкаПолученияСпискаНавигационныхСсылокПередЗакрытиемОбработкаПолученияНавигационнойСсылкиПриЗагрузкеДанныхИзНастроекНаСервереПередЗаписьюПриСозданииНаСервереПередЗаписьюНаСервереПриЗаписиНаСервереПриЗакрытииОбработкаПроверкиЗаполненияНаСервере</Event>
-	</Events>
 </Form>

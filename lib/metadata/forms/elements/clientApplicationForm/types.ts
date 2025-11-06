@@ -82,6 +82,7 @@ export const ZClientApplicationForm = z.object({
   uUID: z.uuid().optional(),
   width: z.number().optional(),
   slaveItemsWidth: SE.ZChildFormItemsWidth.optional(),
+  useForFoldersAndItems: SE.ZFoldersAndItemsUse.optional(),
   events: z
     .object({
       collaborationSystemUsersAutoComplete: z.string().optional(),
@@ -158,9 +159,7 @@ export const ZClientApplicationFormXML = z.object({
   "_xmlns:xs": z.string().optional(),
   "_xmlns:xsi": z.string().optional(),
   _version: z.string().optional(),
-  CommandSet: ZCommandSetXML.optional(),
   Attributes: ZAttributesXML.optional(),
-  AutoCommandBar: ZFormGroupXML.optional(),
   AutoFillCheck: z.boolean().optional(),
   AutoSaveDataInSettings: SE.ZAutoSaveFormDataInSettings.optional(),
   AutoTitle: z.boolean().optional(),
@@ -199,9 +198,12 @@ export const ZClientApplicationFormXML = z.object({
   VerticalSpacing: SE.ZFormItemSpacing.optional(),
   Width: z.number().optional(),
   WindowOptionsKey: z.string().optional(),
-  // ConditionalAppearance: ZУсловноеОформлениеКомпоновкиДанныхXML.optional(),
-  ChildItems: ZChildItemsXML.optional(),
+  // ConditionalAppearance: ZУсловноеОформлениеКомпоновкиДанныхXML.optional(),\  CommandSet: ZCommandSetXML.optional(),
+  CommandSet: ZCommandSetXML.optional(),
+  UseForFoldersAndItems: SE.ZFoldersAndItemsUse.optional(),
+  AutoCommandBar: ZFormGroupXML.optional(),
   Events: ZEventsXML.optional(),
+  ChildItems: ZChildItemsXML.optional(),
 })
 
 export type TClientApplicationForm = z.infer<typeof ZClientApplicationForm>

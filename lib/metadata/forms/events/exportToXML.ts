@@ -5,7 +5,9 @@ function toPascalCase(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-export const exportEventsToXML = (data: TEvents | undefined): TEventsXML | undefined => {
+export const exportEventsToXML = (
+  data: TEvents | undefined
+): TEventsXML | undefined => {
   if (!data || Object.keys(data).length === 0) return undefined
 
   const events: TEventXML[] = Object.entries(data)
@@ -18,7 +20,6 @@ export const exportEventsToXML = (data: TEvents | undefined): TEventsXML | undef
   if (events.length === 0) return undefined
 
   return {
-    Event: events.length === 1 ? events[0] : events,
+    Event: events,
   }
 }
-

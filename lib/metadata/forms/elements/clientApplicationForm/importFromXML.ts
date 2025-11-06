@@ -64,6 +64,7 @@ export const importClientApplicationFormFromXML = (
     uUID: xml.UUID,
     // conditionalAppearance: xml.ConditionalAppearance,
     width: xml.Width,
+    useForFoldersAndItems: xml.UseForFoldersAndItems,
     slaveItemsWidth: xml.SlaveItemsWidth,
     events: importEventsFromXML(xml.Events),
   }

@@ -67,6 +67,7 @@ export const exportClientApplicationFormToXML = (
     VerticalSpacing: data.verticalSpacing,
     Width: data.width,
     WindowOptionsKey: data.windowOptionsKey,
+    UseForFoldersAndItems: data.useForFoldersAndItems,
     // ConditionalAppearance: data.conditionalAppearance,
     ChildItems: exportChildItemsToXML(data.childItems),
     Events: exportEventsToXML(data.events),
