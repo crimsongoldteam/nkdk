@@ -9,6 +9,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZPages = ZFormGroup.extend({
@@ -18,6 +19,7 @@ export const ZPages = ZFormGroup.extend({
   currentPagesState: SE.ZFormPagesState.optional(),
   currentRowUse: SE.ZCurrentRowUse.optional(),
   pagesRepresentation: SE.ZFormPagesRepresentation.optional(),
+  userVisible: ZUserVisible.optional(),
   events: z.object({
     onCurrentPageChange: z.string().optional(),
   }).optional(),
@@ -27,6 +29,7 @@ export const ZPagesXML = z.object({
   _name: z.string(),
   _id: z.string(),
   Visible: z.boolean().optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   Enabled: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),
   EnableContentChange: z.boolean().optional(),

@@ -9,6 +9,7 @@ import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZFormField = ZBaseElement.extend({
@@ -55,6 +56,7 @@ export const ZFormField = ZBaseElement.extend({
   toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   type: SE.ZFormFieldType.optional(),
   typeRestriction: ZTypeDescription.optional(),
+  userVisible: ZUserVisible.optional(),
   verticalAlign: SE.ZItemVerticalAlign.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   visible: z.boolean().optional(),
@@ -111,6 +113,7 @@ export const ZFormFieldXML = z.object({
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   Type: SE.ZFormFieldType.optional(),
   TypeRestriction: ZTypeDescriptionXML.optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   VerticalAlign: SE.ZItemVerticalAlign.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   Visible: z.boolean().optional(),

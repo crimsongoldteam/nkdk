@@ -10,6 +10,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZHTMLDocumentField = ZFormField.extend({
@@ -22,6 +23,7 @@ export const ZHTMLDocumentField = ZFormField.extend({
   maxWidth: z.number().optional(),
   output: SE.ZUseOutput.optional(),
   userAgentInformation: z.string().optional(),
+  userVisible: ZUserVisible.optional(),
   verticalStretch: z.boolean().optional(),
   width: z.number().optional(),
   events: z.object({
@@ -40,6 +42,7 @@ export const ZHTMLDocumentFieldXML = z.object({
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   DataPath: z.string().optional(),
   Visible: z.boolean().optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   Enabled: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),
   SkipOnInput: z.boolean().optional(),

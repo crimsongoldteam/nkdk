@@ -5,6 +5,7 @@ import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
+import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TTableXML, TTable } from "./types"
 import { ZElementType } from "../types"
@@ -85,6 +86,7 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     toolTip: importI8nTextFromXML(xml.ToolTip),
     toolTipRepresentation: xml.ToolTipRepresentation,
     useAlternationRowColor: xml.UseAlternationRowColor,
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalLines: xml.VerticalLines,
     verticalScrollBar: xml.VerticalScrollBar,

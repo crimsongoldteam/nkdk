@@ -4,6 +4,7 @@ import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { TUsualGroupXML, TUsualGroup } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -28,6 +29,7 @@ export const exportUsualGroupToXML = (data: TUsualGroup | undefined): TUsualGrou
     ToolTip: exportI8nTextToXML(data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
+    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,
@@ -44,6 +46,8 @@ export const exportUsualGroupToXML = (data: TUsualGroup | undefined): TUsualGrou
     _DisplayImportance: data.displayImportance,
     Format: exportI8nTextToXML(data.format),
     Group: data.group,
+    GroupHorizontalAlign: data.groupHorizontalAlign,
+    GroupVerticalAlign: data.groupVerticalAlign,
     HiddenRepresentationTitleBackColor: exportColorToXML(data.hiddenRepresentationTitleBackColor),
     HorizontalSpacing: data.horizontalSpacing,
     ItemsAndTitlesAlign: data.itemsAndTitlesAlign,

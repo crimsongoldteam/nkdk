@@ -8,10 +8,12 @@ import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZCommandBar = ZFormGroup.extend({
   displayImportance: SE.ZDisplayImportance.optional(),
   horizontalAlign: SE.ZItemHorizontalLocation.optional(),
+  userVisible: ZUserVisible.optional(),
 })
 
 export const ZCommandBarXML = z.object({
@@ -19,6 +21,7 @@ export const ZCommandBarXML = z.object({
   _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   Visible: z.boolean().optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   Enabled: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),
   EnableContentChange: z.boolean().optional(),

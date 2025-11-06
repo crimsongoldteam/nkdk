@@ -4,6 +4,7 @@ import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/impor
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { TSearchStringAdditionXML, TSearchStringAddition } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
@@ -24,6 +25,7 @@ export const importSearchStringAdditionFromXML = (xml: TSearchStringAdditionXML 
     toolTip: importI8nTextFromXML(xml.ToolTip),
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     visible: xml.Visible,
     childItems: importChildItemsFromXML(xml.ChildItems),

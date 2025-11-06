@@ -30,8 +30,6 @@ describe("exportCommandSetToXML", () => {
 	</CommandSet>
     `
 
-    const expectedResult = ["WriteAndClose", "Copy", "Delete"]
-
     const xml = xmlImport<{ CommandSet: TCommandSetXML }>(
       mockXml,
       z.object({ CommandSet: ZCommandSetXML })
@@ -39,8 +37,11 @@ describe("exportCommandSetToXML", () => {
     const imported = importCommandSetFromXML(xml.CommandSet)
     const exported = exportCommandSetToXML(imported)
 
-    expect(imported).toEqual(expectedResult)
-    expect(exported).toBeDefined()
-    expect(exported?.ExcludedCommand).toEqual(expectedResult)
+    const resultXml = xmlExport(
+      { CommandSet: exported },
+      z.object({ CommandSet: ZCommandSetXML }),
+      false
+    )
+    expect(resultXml).toEqual(mockXml)
   })
 })

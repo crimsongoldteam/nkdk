@@ -10,6 +10,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZPdfDocumentField = ZFormField.extend({
@@ -25,6 +26,7 @@ export const ZPdfDocumentField = ZFormField.extend({
   output: SE.ZUseOutput.optional(),
   scale: z.number().optional(),
   usedFileName: z.string().optional(),
+  userVisible: ZUserVisible.optional(),
   verticalStretch: z.boolean().optional(),
   viewStatusLocation: SE.ZViewStatusLocation.optional(),
   width: z.number().optional(),
@@ -92,6 +94,7 @@ export const ZPdfDocumentFieldXML = z.object({
   Type: SE.ZFormFieldType.optional(),
   TypeRestriction: ZTypeDescriptionXML.optional(),
   UsedFileName: z.string().optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   VerticalAlign: SE.ZItemVerticalAlign.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   VerticalStretch: z.boolean().optional(),

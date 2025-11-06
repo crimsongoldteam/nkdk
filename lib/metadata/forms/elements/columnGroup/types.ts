@@ -9,6 +9,7 @@ import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZColumnGroup = ZFormGroup.extend({
   fixingInTable: SE.ZFixingInTable.optional(),
@@ -20,12 +21,14 @@ export const ZColumnGroup = ZFormGroup.extend({
   showInHeader: z.boolean().optional(),
   showTitle: z.boolean().optional(),
   titleBackColor: ZColor.optional(),
+  userVisible: ZUserVisible.optional(),
 })
 
 export const ZColumnGroupXML = z.object({
   _name: z.string(),
   _id: z.string(),
   Visible: z.boolean().optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   Enabled: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),
   EnableContentChange: z.boolean().optional(),

@@ -2,6 +2,7 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { TFormDecorationXML, TFormDecoration } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -31,6 +32,7 @@ export const exportFormDecorationToXML = (data: TFormDecoration | undefined): TF
     ToolTip: exportI8nTextToXML(data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
+    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,

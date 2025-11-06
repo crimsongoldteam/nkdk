@@ -5,6 +5,7 @@ import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
+import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TTableXML, TTable } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
@@ -84,6 +85,7 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
     ToolTip: exportI8nTextToXML(data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,
     UseAlternationRowColor: data.useAlternationRowColor,
+    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalLines: data.verticalLines,
     VerticalScrollBar: data.verticalScrollBar,

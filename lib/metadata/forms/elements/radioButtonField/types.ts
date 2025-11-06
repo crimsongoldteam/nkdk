@@ -11,6 +11,7 @@ import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChoiceList, ZChoiceListXML } from "~/lib/metadata/commonObjects/choiceList/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZRadioButtonField = ZFormField.extend({
@@ -25,6 +26,7 @@ export const ZRadioButtonField = ZFormField.extend({
   itemWidth: z.number().optional(),
   radioButtonType: SE.ZRadioButtonType.optional(),
   textColor: ZColor.optional(),
+  userVisible: ZUserVisible.optional(),
   events: z.object({
     onChange: z.string().optional(),
   }).optional(),
@@ -36,6 +38,7 @@ export const ZRadioButtonFieldXML = z.object({
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   DataPath: z.string().optional(),
   Visible: z.boolean().optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   Enabled: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),
   SkipOnInput: z.boolean().optional(),

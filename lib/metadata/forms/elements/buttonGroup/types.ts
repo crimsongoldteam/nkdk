@@ -8,9 +8,11 @@ import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZButtonGroup = ZFormGroup.extend({
   representation: SE.ZButtonGroupRepresentation.optional(),
+  userVisible: ZUserVisible.optional(),
 })
 
 export const ZButtonGroupXML = z.object({
@@ -33,6 +35,7 @@ export const ZButtonGroupXML = z.object({
   ToolTip: ZI8nTextXML.optional(),
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   Type: SE.ZFormGroupType.optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   VerticalStretch: z.boolean().optional(),
   Visible: z.boolean().optional(),

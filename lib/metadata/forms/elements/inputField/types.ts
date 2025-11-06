@@ -13,6 +13,7 @@ import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChoiceList, ZChoiceListXML } from "~/lib/metadata/commonObjects/choiceList/types"
 import { ZTypeLink, ZTypeLinkXML } from "~/lib/metadata/commonObjects/typeLink/types"
 import { ZChoiceParameterLinks, ZChoiceParameterLinksXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZInputField = ZFormField.extend({
@@ -90,6 +91,7 @@ export const ZInputField = ZFormField.extend({
   textEdit: z.boolean().optional(),
   typeDomainEnabled: z.boolean().optional(),
   typeLink: ZTypeLink.optional(),
+  userVisible: ZUserVisible.optional(),
   verticalStretch: z.boolean().optional(),
   width: z.number().optional(),
   wrap: z.boolean().optional(),
@@ -120,6 +122,7 @@ export const ZInputFieldXML = z.object({
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   DataPath: z.string().optional(),
   Visible: z.boolean().optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   Enabled: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),
   SkipOnInput: z.boolean().optional(),

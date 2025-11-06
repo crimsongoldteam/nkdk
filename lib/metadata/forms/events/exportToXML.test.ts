@@ -1,17 +1,15 @@
 import { expect, it, describe } from "vitest"
 import { z } from "zod"
-import { xmlExport, xmlImport } from "~/lib"
+import { xmlExport } from "~/lib"
 import { exportEventsToXML } from "./exportToXML"
 import { ZEventsXML } from "./types"
 
 describe("exportEventsToXML", () => {
   it("should export events", () => {
-    const expectedResult = `
-    <Events>
-      <Event name="Click">РаспознаваниеДокументаНадписьНажатие</Event>
-      <Event name="OnChange">ОбработкаИзменения</Event>
-    </Events>
-    `
+    const expectedResult = `<Events>
+	<Event name="Click">РаспознаваниеДокументаНадписьНажатие</Event>
+	<Event name="OnChange">ОбработкаИзменения</Event>
+</Events>`
 
     const mockData = {
       click: "РаспознаваниеДокументаНадписьНажатие",

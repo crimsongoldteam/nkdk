@@ -10,6 +10,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZGanttChartField = ZFormField.extend({
@@ -22,6 +23,7 @@ export const ZGanttChartField = ZFormField.extend({
   maxHeight: z.number().optional(),
   maxWidth: z.number().optional(),
   tableLocation: SE.ZGanttChartTableLocation.optional(),
+  userVisible: ZUserVisible.optional(),
   valuesSelectionMode: SE.ZGanttChartValuesSelectionMode.optional(),
   verticalLines: z.boolean().optional(),
   verticalStretch: z.boolean().optional(),
@@ -93,6 +95,7 @@ export const ZGanttChartFieldXML = z.object({
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   Type: SE.ZFormFieldType.optional(),
   TypeRestriction: ZTypeDescriptionXML.optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   ValuesSelectionMode: SE.ZGanttChartValuesSelectionMode.optional(),
   VerticalAlign: SE.ZItemVerticalAlign.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),

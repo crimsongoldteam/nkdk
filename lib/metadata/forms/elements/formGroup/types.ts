@@ -7,6 +7,7 @@ import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZFormGroup = ZBaseElement.extend({
   enableContentChange: z.boolean().optional(),
@@ -25,6 +26,7 @@ export const ZFormGroup = ZBaseElement.extend({
   toolTip: ZI8nText.optional(),
   toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   type: SE.ZFormGroupType.optional(),
+  userVisible: ZUserVisible.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   verticalStretch: z.boolean().optional(),
   visible: z.boolean().optional(),
@@ -53,6 +55,7 @@ export const ZFormGroupXML = z.object({
   ToolTip: ZI8nTextXML.optional(),
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   Type: SE.ZFormGroupType.optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   VerticalStretch: z.boolean().optional(),
   Visible: z.boolean().optional(),

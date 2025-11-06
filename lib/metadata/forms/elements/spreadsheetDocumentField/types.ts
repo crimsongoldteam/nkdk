@@ -10,6 +10,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZSpreadSheetDocumentField = ZFormField.extend({
@@ -37,6 +38,7 @@ export const ZSpreadSheetDocumentField = ZFormField.extend({
   showRowAndColumnNames: z.boolean().optional(),
   statePresentation: SE.ZStatePresentation.optional(),
   usedFileName: z.string().optional(),
+  userVisible: ZUserVisible.optional(),
   verticalScrollBar: SE.ZScrollBarUse.optional(),
   verticalStretch: z.boolean().optional(),
   viewScalingMode: SE.ZViewScalingMode.optional(),
@@ -65,6 +67,7 @@ export const ZSpreadSheetDocumentFieldXML = z.object({
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   DataPath: z.string().optional(),
   Visible: z.boolean().optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   Enabled: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),
   SkipOnInput: z.boolean().optional(),

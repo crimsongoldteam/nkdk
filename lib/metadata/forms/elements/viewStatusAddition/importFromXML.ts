@@ -5,6 +5,7 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { TViewStatusAdditionXML, TViewStatusAddition } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
@@ -25,6 +26,7 @@ export const importViewStatusAdditionFromXML = (xml: TViewStatusAdditionXML | un
     toolTip: importI8nTextFromXML(xml.ToolTip),
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     visible: xml.Visible,
     childItems: importChildItemsFromXML(xml.ChildItems),

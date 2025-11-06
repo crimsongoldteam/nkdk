@@ -6,6 +6,7 @@ import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/typ
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZButton = ZBaseElement.extend({
   autoMaxHeight: z.boolean().optional(),
@@ -14,6 +15,7 @@ export const ZButton = ZBaseElement.extend({
   borderColor: ZColor.optional(),
   commandName: z.union([z.string(), z.number()]).optional(),
   commandUniqueness: z.boolean().optional(),
+  dataPath: z.string().optional(),
   defaultButton: z.boolean().optional(),
   defaultItem: z.boolean().optional(),
   displayImportance: SE.ZDisplayImportance.optional(),
@@ -41,6 +43,7 @@ export const ZButton = ZBaseElement.extend({
   titleHeight: z.number().optional(),
   toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   type: SE.ZFormButtonType.optional(),
+  userVisible: ZUserVisible.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   verticalStretch: z.boolean().optional(),
   visible: z.boolean().optional(),
@@ -53,6 +56,7 @@ export const ZButtonXML = z.object({
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   Type: SE.ZFormButtonType.optional(),
   Visible: z.boolean().optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   TitleHeight: z.number().optional(),
   Representation: SE.ZButtonRepresentation.optional(),
   DefaultButton: z.boolean().optional(),
@@ -83,6 +87,7 @@ export const ZButtonXML = z.object({
   get ExtendedTooltip() {
     return ZFormDecorationXML.optional()
   },
+  DataPath: z.string().optional(),
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   OnlyInAllActions: z.boolean().optional(),
   Shortcut: z.string().optional(),

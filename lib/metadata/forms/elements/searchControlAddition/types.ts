@@ -9,6 +9,7 @@ import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZSearchControlAddition = ZFormItemAddition.extend({
   autoMaxWidth: z.boolean().optional(),
@@ -18,6 +19,7 @@ export const ZSearchControlAddition = ZFormItemAddition.extend({
   horizontalStretch: z.boolean().optional(),
   maxWidth: z.number().optional(),
   textColor: ZColor.optional(),
+  userVisible: ZUserVisible.optional(),
   width: z.number().optional(),
 })
 
@@ -44,6 +46,7 @@ export const ZSearchControlAdditionXML = z.object({
   ToolTip: ZI8nTextXML.optional(),
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   Type: SE.ZFormItemAdditionType.optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   Visible: z.boolean().optional(),
   Width: z.number().optional(),

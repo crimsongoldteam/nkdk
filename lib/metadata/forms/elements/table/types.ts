@@ -9,6 +9,7 @@ import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZTable = ZBaseElement.extend({
@@ -86,6 +87,7 @@ export const ZTable = ZBaseElement.extend({
   toolTip: ZI8nText.optional(),
   toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   useAlternationRowColor: z.boolean().optional(),
+  userVisible: ZUserVisible.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   verticalLines: z.boolean().optional(),
   verticalScrollBar: SE.ZScrollBarUse.optional(),
@@ -128,6 +130,7 @@ export const ZTableXML = z.object({
   _name: z.string(),
   _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   TitleLocation: SE.ZFormItemTitleLocation.optional(),
   TitleHeight: z.number().optional(),
   CommandBarLocation: SE.ZFormItemCommandBarLabelLocation.optional(),

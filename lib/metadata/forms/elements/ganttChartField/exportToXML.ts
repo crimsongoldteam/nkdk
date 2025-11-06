@@ -6,6 +6,7 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TGanttChartFieldXML, TGanttChartField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
@@ -54,6 +55,7 @@ export const exportGanttChartFieldToXML = (data: TGanttChartField | undefined): 
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
     TypeRestriction: exportTypeDescriptionToXML(data.typeRestriction),
+    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlign: data.verticalAlign,
     VerticalAlignInGroup: data.verticalAlignInGroup,
     Visible: data.visible,

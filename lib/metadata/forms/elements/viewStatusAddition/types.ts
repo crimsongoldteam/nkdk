@@ -10,6 +10,7 @@ import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZViewStatusAddition = ZFormItemAddition.extend({
   autoMaxWidth: z.boolean().optional(),
@@ -24,6 +25,7 @@ export const ZViewStatusAddition = ZFormItemAddition.extend({
   textColor: ZColor.optional(),
   titleFont: ZFont.optional(),
   titleTextColor: ZColor.optional(),
+  userVisible: ZUserVisible.optional(),
   width: z.number().optional(),
 })
 
@@ -55,6 +57,7 @@ export const ZViewStatusAdditionXML = z.object({
   ToolTip: ZI8nTextXML.optional(),
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   Type: SE.ZFormItemAdditionType.optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   Visible: z.boolean().optional(),
   Width: z.number().optional(),

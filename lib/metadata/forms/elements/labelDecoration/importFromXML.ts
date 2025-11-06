@@ -4,6 +4,7 @@ import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/impor
 import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TLabelDecorationXML, TLabelDecoration } from "./types"
 import { ZElementType } from "../types"
@@ -35,6 +36,7 @@ export const importLabelDecorationFromXML = (xml: TLabelDecorationXML | undefine
     toolTip: importI8nTextFromXML(xml.ToolTip),
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,
@@ -42,6 +44,7 @@ export const importLabelDecorationFromXML = (xml: TLabelDecorationXML | undefine
     backColor: importColorFromXML(xml.BackColor),
     border: importBorderFromXML(xml.Border),
     borderColor: importColorFromXML(xml.BorderColor),
+    groupVerticalAlign: xml.GroupVerticalAlign,
     horizontalAlign: xml.HorizontalAlign,
     hyperlink: xml.Hyperlink,
     titleHeight: xml.TitleHeight,

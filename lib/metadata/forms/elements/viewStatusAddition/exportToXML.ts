@@ -5,6 +5,7 @@ import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToX
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { TViewStatusAdditionXML, TViewStatusAddition } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -24,6 +25,7 @@ export const exportViewStatusAdditionToXML = (data: TViewStatusAddition | undefi
     ToolTip: exportI8nTextToXML(data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
+    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     Visible: data.visible,
     ChildItems: exportChildItemsToXML(data.childItems),

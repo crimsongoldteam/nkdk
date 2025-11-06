@@ -3,6 +3,7 @@ import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { TButtonXML, TButton } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -19,6 +20,7 @@ export const exportButtonToXML = (data: TButton | undefined): TButtonXML | undef
     BorderColor: exportColorToXML(data.borderColor),
     CommandName: data.commandName,
     CommandUniqueness: data.commandUniqueness,
+    DataPath: data.dataPath,
     DefaultButton: data.defaultButton,
     DefaultItem: data.defaultItem,
     _DisplayImportance: data.displayImportance,
@@ -44,6 +46,7 @@ export const exportButtonToXML = (data: TButton | undefined): TButtonXML | undef
     TitleHeight: data.titleHeight,
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
+    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,

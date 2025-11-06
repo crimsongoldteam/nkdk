@@ -4,6 +4,7 @@ import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI
 import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TLabelDecorationXML, TLabelDecoration } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
@@ -34,6 +35,7 @@ export const exportLabelDecorationToXML = (data: TLabelDecoration | undefined): 
     ToolTip: exportI8nTextToXML(data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
+    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,
@@ -41,6 +43,7 @@ export const exportLabelDecorationToXML = (data: TLabelDecoration | undefined): 
     BackColor: exportColorToXML(data.backColor),
     Border: exportBorderToXML(data.border),
     BorderColor: exportColorToXML(data.borderColor),
+    GroupVerticalAlign: data.groupVerticalAlign,
     HorizontalAlign: data.horizontalAlign,
     Hyperlink: data.hyperlink,
     TitleHeight: data.titleHeight,

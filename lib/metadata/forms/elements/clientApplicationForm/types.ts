@@ -6,7 +6,10 @@ import {
 } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
-import { ZUse, ZUseXML } from "~/lib/metadata/commonObjects/use/types"
+import {
+  ZUserVisible,
+  ZUserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
 import {
   ZTypeDescription,
   ZTypeDescriptionXML,
@@ -25,7 +28,7 @@ export const ZAttribute = z.object({
   type: ZTypeDescription.optional(),
   mainAttribute: z.boolean().optional(),
   storedData: z.boolean().optional(),
-  use: ZUse.optional(),
+  use: ZUserVisible.optional(),
 })
 
 // export const ZAttributeEnterprise = z.union([
@@ -132,7 +135,7 @@ export const ZAttributeXML = z.object({
     Type: ZTypeDescriptionXML.optional(),
     MainAttribute: z.boolean().optional(),
     StoredData: z.boolean().optional(),
-    Use: ZUseXML.optional(),
+    Use: ZUserVisibleXML.optional(),
   }),
 })
 

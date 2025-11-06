@@ -6,6 +6,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZFormItemAddition = ZBaseElement.extend({
   get contextMenu() {
@@ -21,6 +22,7 @@ export const ZFormItemAddition = ZBaseElement.extend({
   toolTip: ZI8nText.optional(),
   toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   type: SE.ZFormItemAdditionType.optional(),
+  userVisible: ZUserVisible.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   visible: z.boolean().optional(),
   get childItems() : TChildItems {
@@ -44,6 +46,7 @@ export const ZFormItemAdditionXML = z.object({
   ToolTip: ZI8nTextXML.optional(),
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   Type: SE.ZFormItemAdditionType.optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   Visible: z.boolean().optional(),
   get ChildItems() {

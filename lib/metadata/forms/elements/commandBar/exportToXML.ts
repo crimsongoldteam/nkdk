@@ -3,6 +3,7 @@ import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { TCommandBarXML, TCommandBar } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -27,6 +28,7 @@ export const exportCommandBarToXML = (data: TCommandBar | undefined): TCommandBa
     ToolTip: exportI8nTextToXML(data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
+    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,

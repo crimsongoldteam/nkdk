@@ -1,9 +1,11 @@
-import { TUse, TUseXML } from "./types"
+import { TUserVisible, TUserVisibleXML } from "./types"
 
-export default function importUseFromXML(xml: TUseXML | undefined): TUse | undefined {
+export default function importUseFromXML(
+  xml: TUserVisibleXML | undefined
+): TUserVisible | undefined {
   if (!xml) return undefined
 
-  const result: TUse = {
+  const result: TUserVisible = {
     common: xml.Common,
     values: xml.Value.map((item) => ({
       name: item._name.replace(/^Role\./, ""),

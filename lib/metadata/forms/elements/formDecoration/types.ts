@@ -5,6 +5,7 @@ import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZFormDecoration = ZBaseElement.extend({
   autoMaxHeight: z.boolean().optional(),
@@ -30,6 +31,7 @@ export const ZFormDecoration = ZBaseElement.extend({
   toolTip: ZI8nText.optional(),
   toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   type: SE.ZFormDecorationType.optional(),
+  userVisible: ZUserVisible.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   verticalStretch: z.boolean().optional(),
   visible: z.boolean().optional(),
@@ -62,6 +64,7 @@ export const ZFormDecorationXML = z.object({
   ToolTip: ZI8nTextXML.optional(),
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   Type: SE.ZFormDecorationType.optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   VerticalStretch: z.boolean().optional(),
   Visible: z.boolean().optional(),

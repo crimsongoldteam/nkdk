@@ -9,6 +9,7 @@ import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZPage = ZFormGroup.extend({
   backColor: ZColor.optional(),
@@ -23,6 +24,7 @@ export const ZPage = ZFormGroup.extend({
   showTitle: z.boolean().optional(),
   slaveItemsWidth: SE.ZChildFormItemsWidth.optional(),
   titleDataPath: z.string().optional(),
+  userVisible: ZUserVisible.optional(),
   verticalAlign: SE.ZItemVerticalAlign.optional(),
   verticalScrollOnReduceSize: z.boolean().optional(),
   verticalSpacing: SE.ZFormItemSpacing.optional(),
@@ -32,6 +34,7 @@ export const ZPageXML = z.object({
   _name: z.string(),
   _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   Enabled: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),
   EnableContentChange: z.boolean().optional(),

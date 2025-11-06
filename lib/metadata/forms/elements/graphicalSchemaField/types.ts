@@ -10,6 +10,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZGraphicalSchemaField = ZFormField.extend({
@@ -22,6 +23,7 @@ export const ZGraphicalSchemaField = ZFormField.extend({
   maxHeight: z.number().optional(),
   maxWidth: z.number().optional(),
   output: SE.ZUseOutput.optional(),
+  userVisible: ZUserVisible.optional(),
   verticalStretch: z.boolean().optional(),
   width: z.number().optional(),
   events: z.object({
@@ -89,6 +91,7 @@ export const ZGraphicalSchemaFieldXML = z.object({
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   Type: SE.ZFormFieldType.optional(),
   TypeRestriction: ZTypeDescriptionXML.optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   VerticalAlign: SE.ZItemVerticalAlign.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   VerticalStretch: z.boolean().optional(),

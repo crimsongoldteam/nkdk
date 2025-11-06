@@ -9,6 +9,7 @@ import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZPopup = ZFormGroup.extend({
   backColor: ZColor.optional(),
@@ -17,6 +18,7 @@ export const ZPopup = ZFormGroup.extend({
   representation: SE.ZButtonRepresentation.optional(),
   shape: SE.ZButtonShape.optional(),
   shapeRepresentation: SE.ZButtonShapeRepresentation.optional(),
+  userVisible: ZUserVisible.optional(),
 })
 
 export const ZPopupXML = z.object({
@@ -44,6 +46,7 @@ export const ZPopupXML = z.object({
   TitleTextColor: ZColorXML.optional(),
   ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
   Type: SE.ZFormGroupType.optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   VerticalStretch: z.boolean().optional(),
   Visible: z.boolean().optional(),

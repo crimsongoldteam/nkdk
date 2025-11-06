@@ -8,6 +8,7 @@ import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
 import {  ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZPictureDecoration = ZFormDecoration.extend({
@@ -21,6 +22,7 @@ export const ZPictureDecoration = ZFormDecoration.extend({
   picture: ZPicture.optional(),
   pictureSize: SE.ZPictureSize.optional(),
   scale: z.number().optional(),
+  userVisible: ZUserVisible.optional(),
   zoomable: z.boolean().optional(),
   events: z.object({
     click: z.string().optional(),
@@ -36,6 +38,7 @@ export const ZPictureDecorationXML = z.object({
   _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   Visible: z.boolean().optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   Enabled: z.boolean().optional(),
   Width: z.number().optional(),
   AutoMaxWidth: z.boolean().optional(),

@@ -9,6 +9,7 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZUsualGroup = ZFormGroup.extend({
   get associatedTable() {
@@ -24,6 +25,8 @@ export const ZUsualGroup = ZFormGroup.extend({
   displayImportance: SE.ZDisplayImportance.optional(),
   format: ZI8nText.optional(),
   group: SE.ZChildFormItemsGroup.optional(),
+  groupHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
+  groupVerticalAlign: SE.ZItemVerticalAlign.optional(),
   hiddenRepresentationTitleBackColor: ZColor.optional(),
   horizontalSpacing: SE.ZFormItemSpacing.optional(),
   itemsAndTitlesAlign: SE.ZItemsAndTitlesAlignVariant.optional(),
@@ -34,6 +37,7 @@ export const ZUsualGroup = ZFormGroup.extend({
   throughAlign: SE.ZThroughAlign.optional(),
   titleDataPath: z.string().optional(),
   united: z.boolean().optional(),
+  userVisible: ZUserVisible.optional(),
   verticalAlign: SE.ZItemVerticalAlign.optional(),
   verticalSpacing: SE.ZFormItemSpacing.optional(),
 })
@@ -43,6 +47,7 @@ export const ZUsualGroupXML = z.object({
   _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   Visible: z.boolean().optional(),
+  UserVisible: ZUserVisibleXML.optional(),
   Enabled: z.boolean().optional(),
   ReadOnly: z.boolean().optional(),
   EnableContentChange: z.boolean().optional(),
@@ -56,6 +61,8 @@ export const ZUsualGroupXML = z.object({
   Height: z.number().optional(),
   HorizontalStretch: z.boolean().optional(),
   VerticalStretch: z.boolean().optional(),
+  GroupHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
+  GroupVerticalAlign: SE.ZItemVerticalAlign.optional(),
   Group: SE.ZChildFormItemsGroup.optional(),
   HorizontalSpacing: SE.ZFormItemSpacing.optional(),
   VerticalSpacing: SE.ZFormItemSpacing.optional(),

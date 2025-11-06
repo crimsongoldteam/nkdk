@@ -4,6 +4,7 @@ import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { TSearchControlAdditionXML, TSearchControlAddition } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
@@ -23,6 +24,7 @@ export const exportSearchControlAdditionToXML = (data: TSearchControlAddition | 
     ToolTip: exportI8nTextToXML(data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
+    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     Visible: data.visible,
     ChildItems: exportChildItemsToXML(data.childItems),

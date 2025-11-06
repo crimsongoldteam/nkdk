@@ -4,6 +4,7 @@ import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TPagesXML, TPages } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
@@ -29,6 +30,7 @@ export const exportPagesToXML = (data: TPages | undefined): TPagesXML | undefine
     ToolTip: exportI8nTextToXML(data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
+    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,

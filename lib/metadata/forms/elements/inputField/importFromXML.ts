@@ -9,6 +9,7 @@ import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importChoiceListFromXML } from "~/lib/metadata/commonObjects/choiceList/importFromXML"
 import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
+import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TInputFieldXML, TInputField } from "./types"
 import { ZElementType } from "../types"
@@ -58,6 +59,7 @@ export const importInputFieldFromXML = (xml: TInputFieldXML | undefined): TInput
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
     typeRestriction: importTypeDescriptionFromXML(xml.TypeRestriction),
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
     verticalAlign: xml.VerticalAlign,
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     visible: xml.Visible,

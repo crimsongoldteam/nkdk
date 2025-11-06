@@ -6,6 +6,7 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TCheckBoxFieldXML, TCheckBoxField } from "./types"
 import { ZElementType } from "../types"
@@ -55,6 +56,7 @@ export const importCheckBoxFieldFromXML = (xml: TCheckBoxFieldXML | undefined): 
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
     typeRestriction: importTypeDescriptionFromXML(xml.TypeRestriction),
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
     verticalAlign: xml.VerticalAlign,
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     visible: xml.Visible,

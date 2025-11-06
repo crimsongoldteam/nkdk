@@ -7,6 +7,7 @@ import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
 import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { exportChoiceListToXML } from "~/lib/metadata/commonObjects/choiceList/exportToXML"
+import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TRadioButtonFieldXML, TRadioButtonField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
@@ -55,6 +56,7 @@ export const exportRadioButtonFieldToXML = (data: TRadioButtonField | undefined)
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
     TypeRestriction: exportTypeDescriptionToXML(data.typeRestriction),
+    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlign: data.verticalAlign,
     VerticalAlignInGroup: data.verticalAlignInGroup,
     Visible: data.visible,

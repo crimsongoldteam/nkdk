@@ -1,7 +1,7 @@
 import { z } from "zod"
 import { ZBoolEnterprise } from "../../types"
 
-export const ZUseXML = z.object({
+export const ZUserVisibleXML = z.object({
   Common: z.boolean(),
   Value: z.array(
     z.object({
@@ -11,7 +11,7 @@ export const ZUseXML = z.object({
   ),
 })
 
-export const ZUse = z.object({
+export const ZUserVisible = z.object({
   common: z.boolean(),
   values: z.array(
     z.object({
@@ -21,11 +21,11 @@ export const ZUse = z.object({
   ),
 })
 
-export const ZUseEnterprise = z.object({
+export const ZUserVisibleEnterprise = z.object({
   РазрешитьИспользование: z.record(z.string(), ZBoolEnterprise).optional(),
   ЗапретитьИспользование: z.record(z.string(), ZBoolEnterprise).optional(),
 })
 
-export type TUseXML = z.infer<typeof ZUseXML>
-export type TUse = z.infer<typeof ZUse>
-export type TUseEnterprise = z.infer<typeof ZUseEnterprise>
+export type TUserVisibleXML = z.infer<typeof ZUserVisibleXML>
+export type TUserVisible = z.infer<typeof ZUserVisible>
+export type TUserVisibleEnterprise = z.infer<typeof ZUserVisibleEnterprise>

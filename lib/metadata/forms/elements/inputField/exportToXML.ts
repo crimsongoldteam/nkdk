@@ -9,6 +9,7 @@ import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { exportChoiceListToXML } from "~/lib/metadata/commonObjects/choiceList/exportToXML"
 import { exportTypeLinkToXML } from "~/lib/metadata/commonObjects/typeLink/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
+import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TInputFieldXML, TInputField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
@@ -57,6 +58,7 @@ export const exportInputFieldToXML = (data: TInputField | undefined): TInputFiel
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
     TypeRestriction: exportTypeDescriptionToXML(data.typeRestriction),
+    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlign: data.verticalAlign,
     VerticalAlignInGroup: data.verticalAlignInGroup,
     Visible: data.visible,

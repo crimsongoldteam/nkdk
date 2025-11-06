@@ -5,6 +5,7 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TPictureDecorationXML, TPictureDecoration } from "./types"
 import { ZElementType } from "../types"
@@ -36,6 +37,7 @@ export const importPictureDecorationFromXML = (xml: TPictureDecorationXML | unde
     toolTip: importI8nTextFromXML(xml.ToolTip),
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,

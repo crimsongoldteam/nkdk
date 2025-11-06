@@ -7,6 +7,7 @@ import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importFormGroupFromXML } from "../formGroup/importFromXML"
 import { importChoiceListFromXML } from "~/lib/metadata/commonObjects/choiceList/importFromXML"
+import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TRadioButtonFieldXML, TRadioButtonField } from "./types"
 import { ZElementType } from "../types"
@@ -56,6 +57,7 @@ export const importRadioButtonFieldFromXML = (xml: TRadioButtonFieldXML | undefi
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
     typeRestriction: importTypeDescriptionFromXML(xml.TypeRestriction),
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
     verticalAlign: xml.VerticalAlign,
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     visible: xml.Visible,

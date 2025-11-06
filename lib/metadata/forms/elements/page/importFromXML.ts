@@ -4,6 +4,7 @@ import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/impor
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { TPageXML, TPage } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
@@ -29,6 +30,7 @@ export const importPageFromXML = (xml: TPageXML | undefined): TPage | undefined 
     toolTip: importI8nTextFromXML(xml.ToolTip),
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,
