@@ -5,16 +5,16 @@ export const exportCommandSetToXML = (
 ): TCommandSetXML | undefined => {
   if (!data || data.length === 0) return undefined
 
-  // Для одного элемента возвращаем строку, для нескольких - массив
-  // XML builder с oneListGroup: true объединяет элементы с одинаковым именем,
-  // но это нормально для импорта, так как парсер правильно обрабатывает несколько элементов
   if (data.length === 1) {
     return {
       ExcludedCommand: data[0],
     }
   }
 
-  return {
-    ExcludedCommand: data,
+  const result: { ExcludedCommand: string }[] = []
+  for (const command of data) {
+    result.push({ ExcludedCommand: command })
   }
+
+  return result
 }

@@ -22,13 +22,11 @@ describe("exportCommandSetToXML", () => {
   })
 
   it("should export and import multiple command sets correctly (round-trip)", () => {
-    const mockXml = `
-    <CommandSet>
-		<ExcludedCommand>WriteAndClose</ExcludedCommand>
-		<ExcludedCommand>Copy</ExcludedCommand>
-		<ExcludedCommand>Delete</ExcludedCommand>
-	</CommandSet>
-    `
+    const mockXml = `<CommandSet>
+	<ExcludedCommand>WriteAndClose</ExcludedCommand>
+	<ExcludedCommand>Copy</ExcludedCommand>
+	<ExcludedCommand>Delete</ExcludedCommand>
+</CommandSet>`
 
     const xml = xmlImport<{ CommandSet: TCommandSetXML }>(
       mockXml,
