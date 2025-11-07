@@ -18,7 +18,7 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
    _id: data.id ?? "",
    _name: data.name ?? "",
     AutoAddIncomplete: data.autoAddIncomplete,
-    AutoCommandBar: data.autoCommandBar,
+    AutoCommandBar: exportFormGroupToXML(data.autoCommandBar),
     AutoInsertNewRow: data.autoInsertNewRow,
     AutoMarkIncomplete: data.autoMarkIncomplete,
     AutoMaxHeight: data.autoMaxHeight,

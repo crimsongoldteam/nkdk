@@ -1,14 +1,15 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { TChildItems } from "../childItems/typesExt"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import { ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZFontXML } from "~/lib/metadata/commonObjects/font/types"
+import { ZFormGroup } from "../formGroup/types"
+import { ZFormDecorationXML } from "../formDecoration/types"
+import { ZChildItemsXML } from "../childItems/types"
+import {
+  ZUserVisible,
+  ZUserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZCommandBar = ZFormGroup.extend({
   autoFill: z.boolean().optional(),

@@ -20,7 +20,7 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     name: xml._name,
     elementType: ZElementType.enum.Table,
     autoAddIncomplete: xml.AutoAddIncomplete,
-    autoCommandBar: xml.AutoCommandBar,
+    autoCommandBar: importFormGroupFromXML(xml.AutoCommandBar),
     autoInsertNewRow: xml.AutoInsertNewRow,
     autoMarkIncomplete: xml.AutoMarkIncomplete,
     autoMaxHeight: xml.AutoMaxHeight,

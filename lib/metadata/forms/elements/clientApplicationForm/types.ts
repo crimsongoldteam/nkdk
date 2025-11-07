@@ -46,7 +46,9 @@ export const ZClientApplicationForm = z.object({
   commandSet: ZCommandSet.optional(),
   elementType: ZElementType.enum.ClientApplicationForm,
   attributes: z.array(ZAttribute).optional(),
-  autoCommandBar: ZCommandBar.optional(),
+  get autoCommandBar() {
+    return ZCommandBar.optional()
+  },
   autoTitle: z.boolean().optional(),
   autoSaveDataInSettings: SE.ZAutoSaveFormDataInSettings.optional(),
   autoURL: z.boolean().optional(),
@@ -66,7 +68,9 @@ export const ZClientApplicationForm = z.object({
   usedFormServer: SE.ZUsedServer.optional(),
   purposeUseKey: z.string().optional(),
   windowOptionsKey: z.string().optional(),
-  commandBar: ZFormGroup.optional(),
+  get commandBar() {
+    return ZCommandBar.optional()
+  },
   scale: z.number().optional(),
   modalMode: z.boolean().optional(),
   modified: z.boolean().optional(),
@@ -205,7 +209,9 @@ export const ZClientApplicationFormXML = z.object({
   // ConditionalAppearance: ZУсловноеОформлениеКомпоновкиДанныхXML.optional(),\  CommandSet: ZCommandSetXML.optional(),
   CommandSet: ZCommandSetXML.optional(),
   UseForFoldersAndItems: SE.ZFoldersAndItemsUse.optional(),
-  AutoCommandBar: ZCommandBarXML.optional(),
+  get AutoCommandBar() {
+    return ZCommandBarXML.optional()
+  },
   Events: ZEventsXML.optional(),
   ChildItems: ZChildItemsXML.optional(),
 })

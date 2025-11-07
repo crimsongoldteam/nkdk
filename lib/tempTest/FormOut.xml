@@ -2057,6 +2057,7 @@
 															</ButtonGroup>
 														</ChildItems>
 													</ContextMenu>
+													<AutoCommandBar name="ФайлыКоманднаяПанель" id="82"/>
 													<ExtendedTooltip name="ФайлыExtendedTooltip" id="1136"/>
 													<ChildItems>
 														<ColumnGroup name="ГруппаДанныеФайла" id="1714">
@@ -3163,6 +3164,7 @@
 															</Title>
 															<ViewStatusLocation>None</ViewStatusLocation>
 															<ContextMenu name="СписокПредметовПерепискиКонтекстноеМеню" id="3444"/>
+															<AutoCommandBar name="СписокПредметовПерепискиКоманднаяПанель" id="3443"/>
 															<ExtendedTooltip name="СписокПредметовПерепискиРасширеннаяПодсказка" id="3445"/>
 															<ChildItems>
 																<InputField name="СписокПредметовПерепискиЗначение" id="3449">
@@ -3384,6 +3386,7 @@
 															</CommandSet>
 															<ViewStatusLocation>None</ViewStatusLocation>
 															<ContextMenu name="СписокВОтветНаКонтекстноеМеню" id="3150"/>
+															<AutoCommandBar name="СписокВОтветНаКоманднаяПанель" id="3149"/>
 															<ExtendedTooltip name="СписокВОтветНаРасширеннаяПодсказка" id="3151"/>
 															<ChildItems>
 																<InputField name="СписокВОтветНаЗначение" id="3161">
@@ -4213,6 +4216,7 @@
 																	</Button>
 																</ChildItems>
 															</ContextMenu>
+															<AutoCommandBar name="СтороныКоманднаяПанель" id="2164"/>
 															<ExtendedTooltip name="СтороныРасширеннаяПодсказка" id="2165"/>
 															<AutoInsertNewRow>true</AutoInsertNewRow>
 															<ChildItems>
@@ -5846,6 +5850,15 @@
 											</ButtonGroup>
 										</ChildItems>
 									</ContextMenu>
+									<AutoCommandBar name="КонтрагентыКоманднаяПанель" id="2254">
+										<ChildItems>
+											<Button name="ОдинКонтрагент" id="2282">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ОдинКонтрагент</CommandName>
+												<ExtendedTooltip name="ОдинКонтрагентExtendedTooltip" id="2283"/>
+											</Button>
+										</ChildItems>
+									</AutoCommandBar>
 									<ExtendedTooltip name="КонтрагентыРасширеннаяПодсказка" id="2255"/>
 									<AutoInsertNewRow>true</AutoInsertNewRow>
 									<ChildItems>
@@ -6221,6 +6234,115 @@
 											</Button>
 										</ChildItems>
 									</ContextMenu>
+									<AutoCommandBar name="СоставКомплектаКоманднаяПанель" id="499">
+										<ChildItems>
+											<Popup name="СоставКомплектаПодобрать" id="663">
+												<Title>
+													<v8:item>
+														<v8:lang>ru</v8:lang>
+														<v8:content>Подобрать</v8:content>
+													</v8:item>
+												</Title>
+												<ToolTip>
+													<v8:item>
+														<v8:lang>ru</v8:lang>
+														<v8:content>Состав комплекта подобрать</v8:content>
+													</v8:item>
+												</ToolTip>
+												<ExtendedTooltip name="СоставКомплектаПодобратьExtendedTooltip" id="1232"/>
+												<ChildItems>
+													<Button name="СоставКомплектаПодобратьДокументыПредприятия" id="664">
+														<Type>CommandBarButton</Type>
+														<CommandName>Form.Command.СоставКомплектаПодобратьДокументыПредприятия</CommandName>
+														<ExtendedTooltip name="СоставКомплектаПодобратьДокументыПредприятияРасширеннаяПодсказка" id="1233"/>
+													</Button>
+													<Button name="СоставКомплектаПодобратьФайлы" id="667">
+														<Type>CommandBarButton</Type>
+														<CommandName>Form.Command.СоставКомплектаПодобратьФайлы</CommandName>
+														<ExtendedTooltip name="СоставКомплектаПодобратьФайлыExtendedTooltip" id="1236"/>
+													</Button>
+												</ChildItems>
+											</Popup>
+											<Button name="ЭлементКомплектаОткрытьКарточку" id="527">
+												<Type>CommandBarButton</Type>
+												<Representation>Text</Representation>
+												<CommandName>Form.Command.ЭлементКомплектаОткрытьКарточку</CommandName>
+												<ExtendedTooltip name="ЭлементКомплектаОткрытьКарточкуExtendedTooltip" id="1237"/>
+											</Button>
+											<Button name="ЭлементКомплектаУдалить" id="526">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ЭлементКомплектаУдалить</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="ЭлементКомплектаУдалитьExtendedTooltip" id="1231"/>
+											</Button>
+											<Button name="ЭлементКомплектаПросмотретьФайл" id="528">
+												<Type>CommandBarButton</Type>
+												<Representation>Text</Representation>
+												<CommandName>Form.Command.ЭлементКомплектаПросмотретьФайл</CommandName>
+												<ExtendedTooltip name="ЭлементКомплектаПросмотретьФайлExtendedTooltip" id="1238"/>
+											</Button>
+											<Button name="ЭлементКомплектаРедактировать" id="529">
+												<Type>CommandBarButton</Type>
+												<Representation>Text</Representation>
+												<CommandName>Form.Command.ЭлементКомплектаРедактировать</CommandName>
+												<ExtendedTooltip name="ЭлементКомплектаРедактироватьExtendedTooltip" id="1239"/>
+											</Button>
+											<Button name="ЭлементКомплектаЗакончитьРедактирование" id="530">
+												<Type>CommandBarButton</Type>
+												<Representation>Text</Representation>
+												<CommandName>Form.Command.ЭлементКомплектаЗакончитьРедактирование</CommandName>
+												<ExtendedTooltip name="ЭлементКомплектаЗакончитьРедактированиеExtendedTooltip" id="1240"/>
+											</Button>
+											<Button name="ЭлементКомплектаЗанятьФайл" id="531">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ЭлементКомплектаЗанятьФайл</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="ЭлементКомплектаЗанятьФайлExtendedTooltip" id="1241"/>
+											</Button>
+											<Button name="ЭлементКомплектаСохранитьИзмененияФайла" id="532">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ЭлементКомплектаСохранитьИзмененияФайла</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="ЭлементКомплектаСохранитьИзмененияФайлаExtendedTooltip" id="1242"/>
+											</Button>
+											<Button name="ЭлементКомплектаСохранитьФайлКак" id="533">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ЭлементКомплектаСохранитьФайлКак</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="ЭлементКомплектаСохранитьФайлКакExtendedTooltip" id="1243"/>
+											</Button>
+											<Button name="ЭлементКомплектаОтменитьРедактированиеФайла" id="534">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ЭлементКомплектаОтменитьРедактированиеФайла</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="ЭлементКомплектаОтменитьРедактированиеФайлаExtendedTooltip" id="1244"/>
+											</Button>
+											<Button name="ЭлементКомплектаОбновитьИзФайлаНаДиске" id="535">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ЭлементКомплектаОбновитьИзФайлаНаДиске</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="ЭлементКомплектаОбновитьИзФайлаНаДискеExtendedTooltip" id="1245"/>
+											</Button>
+											<Button name="ЭлементКомплектаОтправить" id="536">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ОтправитьОбъектыКомплекта</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="ЭлементКомплектаОтправитьРасширеннаяПодсказка" id="1246"/>
+											</Button>
+											<Button name="ЭлементКомплектаИзменитьКомментарий" id="537">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ЭлементКомплектаИзменитьКомментарий</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="ЭлементКомплектаИзменитьКомментарийExtendedTooltip" id="1247"/>
+											</Button>
+											<Button name="СоставКомплектаОбновить" id="538">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.СоставКомплектаОбновить</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="СоставКомплектаОбновитьExtendedTooltip" id="1248"/>
+											</Button>
+										</ChildItems>
+									</AutoCommandBar>
 									<ExtendedTooltip name="СоставКомплектаExtendedTooltip" id="1249"/>
 									<AutoInsertNewRow>true</AutoInsertNewRow>
 									<ChildItems>
@@ -6677,6 +6799,375 @@
 															</ButtonGroup>
 														</ChildItems>
 													</ContextMenu>
+													<AutoCommandBar name="ФайлыСозданиеКоманднаяПанель" id="826">
+														<ChildItems>
+															<Button name="СоздатьФайлСоздание" id="874">
+																<Type>CommandBarButton</Type>
+																<Representation>Text</Representation>
+																<SkipOnInput>false</SkipOnInput>
+																<CommandName>Form.Command.ДобавитьФайл</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>ru</v8:lang>
+																		<v8:content>Добавить</v8:content>
+																	</v8:item>
+																</Title>
+																<ExtendedTooltip name="СоздатьФайлСозданиеExtendedTooltip" id="1284"/>
+															</Button>
+															<Button name="ВставитьКартинкуИзБуфераСоздание" id="2058">
+																<Type>CommandBarButton</Type>
+																<CommandName>Form.Command.ВставитьКартинкуИзБуфера</CommandName>
+																<ExtendedTooltip name="ВставитьКартинкуИзБуфераСозданиеРасширеннаяПодсказка" id="2059"/>
+															</Button>
+															<Button name="ДобавитьСканСМобильногоСоздание" id="2956">
+																<Type>CommandBarButton</Type>
+																<CommandName>Form.Command.ДобавитьСканСМобильного</CommandName>
+																<ExtendedTooltip name="ДобавитьСканСМобильногоСозданиеРасширеннаяПодсказка" id="2957"/>
+															</Button>
+															<Button name="ОткрытьФайлСоздание" id="875">
+																<Type>CommandBarButton</Type>
+																<Representation>Text</Representation>
+																<SkipOnInput>false</SkipOnInput>
+																<CommandName>Form.Command.ОткрытьФайл</CommandName>
+																<ExtendedTooltip name="ОткрытьФайлСозданиеExtendedTooltip" id="1285"/>
+															</Button>
+															<Button name="РедактироватьСоздание" id="876">
+																<Type>CommandBarButton</Type>
+																<Representation>Text</Representation>
+																<SkipOnInput>false</SkipOnInput>
+																<CommandName>Form.Command.Редактировать</CommandName>
+																<ExtendedTooltip name="РедактироватьСозданиеExtendedTooltip" id="1286"/>
+															</Button>
+															<Button name="ЗакончитьРедактированиеСоздание" id="877">
+																<Type>CommandBarButton</Type>
+																<Representation>Text</Representation>
+																<SkipOnInput>false</SkipOnInput>
+																<CommandName>Form.Command.ЗакончитьРедактирование</CommandName>
+																<ExtendedTooltip name="ЗакончитьРедактированиеСозданиеExtendedTooltip" id="1287"/>
+															</Button>
+															<Button name="ОсвободитьСоздание" id="883">
+																<Type>CommandBarButton</Type>
+																<SkipOnInput>false</SkipOnInput>
+																<CommandName>Form.Command.Освободить</CommandName>
+																<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																<ExtendedTooltip name="ОсвободитьСозданиеExtendedTooltip" id="1293"/>
+															</Button>
+															<Button name="ОбновитьИзФайлаНаДискеСоздание" id="884">
+																<Type>CommandBarButton</Type>
+																<SkipOnInput>false</SkipOnInput>
+																<CommandName>Form.Command.ОбновитьИзФайлаНаДиске</CommandName>
+																<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																<ExtendedTooltip name="ОбновитьИзФайлаНаДискеСозданиеExtendedTooltip" id="1296"/>
+															</Button>
+															<Button name="НапечататьСоздание" id="1493">
+																<Type>CommandBarButton</Type>
+																<CommandName>Form.Command.Напечатать</CommandName>
+																<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																<ExtendedTooltip name="НапечататьСозданиеРасширеннаяПодсказка" id="1494"/>
+															</Button>
+															<Button name="ИзменитьСоздание" id="878">
+																<Type>CommandBarButton</Type>
+																<SkipOnInput>false</SkipOnInput>
+																<CommandName>Form.Item.ФайлыСоздание.StandardCommand.Change</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>ru</v8:lang>
+																		<v8:content>Открыть карточку</v8:content>
+																	</v8:item>
+																</Title>
+																<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																<ExtendedTooltip name="ИзменитьСозданиеExtendedTooltip" id="1288"/>
+															</Button>
+															<Button name="УдалитьСоздание" id="880">
+																<Type>CommandBarButton</Type>
+																<SkipOnInput>false</SkipOnInput>
+																<CommandName>Form.Item.ФайлыСоздание.StandardCommand.Delete</CommandName>
+																<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																<ExtendedTooltip name="УдалитьСозданиеExtendedTooltip" id="1290"/>
+															</Button>
+															<Button name="СохранитьКакСоздание" id="881">
+																<Type>CommandBarButton</Type>
+																<SkipOnInput>false</SkipOnInput>
+																<CommandName>Form.Command.СохранитьКак</CommandName>
+																<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																<ExtendedTooltip name="СохранитьКакСозданиеExtendedTooltip" id="1291"/>
+															</Button>
+															<Button name="ФайлыЗаполнитьФайлДаннымиДокументаСоздание" id="1053">
+																<Type>CommandBarButton</Type>
+																<CommandName>Form.Command.ЗаполнитьФайлДаннымиДокумента</CommandName>
+																<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																<ExtendedTooltip name="ФайлыЗаполнитьФайлДаннымиДокументаСозданиеExtendedTooltip" id="1306"/>
+															</Button>
+															<Button name="ВставитьРегистрационныйШтампИШтрихкодСоздание" id="3693">
+																<Type>CommandBarButton</Type>
+																<CommandName>Form.Command.ВставитьРегистрационныйШтампИШтрихкод</CommandName>
+																<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																<ExtendedTooltip name="ВставитьРегистрационныйШтампИШтрихкодСозданиеРасширеннаяПодсказка" id="3696"/>
+															</Button>
+															<Popup name="ФормаДополнительноСоздание" id="1835">
+																<Title>
+																	<v8:item>
+																		<v8:lang>ru</v8:lang>
+																		<v8:content>Дополнительно</v8:content>
+																	</v8:item>
+																</Title>
+																<ExtendedTooltip name="ФормаДополнительноСозданиеРасширеннаяПодсказка" id="1836"/>
+																<ChildItems>
+																	<Button name="ЗанятьСоздание" id="879">
+																		<Type>CommandBarButton</Type>
+																		<SkipOnInput>false</SkipOnInput>
+																		<CommandName>Form.Command.Занять</CommandName>
+																		<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																		<ExtendedTooltip name="ЗанятьСозданиеExtendedTooltip" id="1289"/>
+																	</Button>
+																	<Button name="СохранитьИзмененияСоздание" id="882">
+																		<Type>CommandBarButton</Type>
+																		<SkipOnInput>false</SkipOnInput>
+																		<CommandName>Form.Command.СохранитьИзменения</CommandName>
+																		<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																		<ExtendedTooltip name="СохранитьИзмененияСозданиеExtendedTooltip" id="1292"/>
+																	</Button>
+																	<Button name="ПерезаполнитьФайлыИзШаблонаСоздание" id="3928">
+																		<Type>CommandBarButton</Type>
+																		<CommandName>Form.Command.ПерезаполнитьФайлыИзШаблона</CommandName>
+																		<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																		<ExtendedTooltip name="ПерезаполнитьФайлыИзШаблонаСозданиеРасширеннаяПодсказка" id="3929"/>
+																	</Button>
+																	<ButtonGroup name="ФормаДополнительноПрочееСоздание" id="1837">
+																		<ExtendedTooltip name="ФормаДополнительноПрочееСозданиеРасширеннаяПодсказка" id="1838"/>
+																		<ChildItems>
+																			<Button name="ВывестиСписокСоздание" id="895">
+																				<Type>CommandBarButton</Type>
+																				<SkipOnInput>false</SkipOnInput>
+																				<CommandName>Form.Item.ФайлыСоздание.StandardCommand.OutputList</CommandName>
+																				<ExtendedTooltip name="ВывестиСписокСозданиеExtendedTooltip" id="1308"/>
+																			</Button>
+																			<Button name="СохранитьВсеСоздание" id="1519">
+																				<Type>CommandBarButton</Type>
+																				<CommandName>CommonCommand.СохранитьВсе</CommandName>
+																				<DataPath>Объект.Ref</DataPath>
+																				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																				<ExtendedTooltip name="СохранитьВсеСозданиеРасширеннаяПодсказка" id="1520"/>
+																			</Button>
+																			<Button name="НапечататьВсеСоздание" id="1521">
+																				<Type>CommandBarButton</Type>
+																				<CommandName>CommonCommand.НапечататьВсе</CommandName>
+																				<DataPath>Объект.Ref</DataPath>
+																				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																				<ExtendedTooltip name="НапечататьВсеСозданиеРасширеннаяПодсказка" id="1522"/>
+																			</Button>
+																		</ChildItems>
+																	</ButtonGroup>
+																</ChildItems>
+															</Popup>
+															<Popup name="ФормаЭПИШифрованиеСоздание" id="886">
+																<Title>
+																	<v8:item>
+																		<v8:lang>ru</v8:lang>
+																		<v8:content>ЭП и шифрование</v8:content>
+																	</v8:item>
+																</Title>
+																<ToolTip>
+																	<v8:item>
+																		<v8:lang>ru</v8:lang>
+																		<v8:content>ЭП и шифрование</v8:content>
+																	</v8:item>
+																</ToolTip>
+																<ExtendedTooltip name="ФормаЭПИШифрованиеСозданиеРасширеннаяПодсказка" id="1298"/>
+																<ChildItems>
+																	<ButtonGroup name="ЭПСоздание" id="887">
+																		<Title>
+																			<v8:item>
+																				<v8:lang>ru</v8:lang>
+																				<v8:content>ЭП</v8:content>
+																			</v8:item>
+																		</Title>
+																		<ToolTip>
+																			<v8:item>
+																				<v8:lang>ru</v8:lang>
+																				<v8:content>ЭП</v8:content>
+																			</v8:item>
+																		</ToolTip>
+																		<ExtendedTooltip name="ЭПСозданиеРасширеннаяПодсказка" id="1299"/>
+																		<ChildItems>
+																			<Button name="ФайлыПодписатьФайлСоздание" id="888">
+																				<Type>CommandBarButton</Type>
+																				<CommandName>Form.Command.ПодписатьФайл</CommandName>
+																				<Picture>
+																					<xr:Ref>CommonPicture.ПодписанЭП</xr:Ref>
+																					<xr:LoadTransparent>false</xr:LoadTransparent>
+																				</Picture>
+																				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																				<ExtendedTooltip name="ФайлыПодписатьФайлСозданиеExtendedTooltip" id="1300"/>
+																			</Button>
+																			<Button name="ФайлыДобавитьЭПИзФайлаСоздание" id="889">
+																				<Type>CommandBarButton</Type>
+																				<CommandName>Form.Command.ДобавитьЭПИзФайла</CommandName>
+																				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																				<ExtendedTooltip name="ФайлыДобавитьЭПИзФайлаСозданиеРасширеннаяПодсказка" id="1301"/>
+																			</Button>
+																			<Button name="ФайлыСохранитьВместеСЭПСоздание" id="890">
+																				<Type>CommandBarButton</Type>
+																				<CommandName>Form.Command.СохранитьВместеСЭП</CommandName>
+																				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																				<ExtendedTooltip name="ФайлыСохранитьВместеСЭПСозданиеРасширеннаяПодсказка" id="1302"/>
+																			</Button>
+																		</ChildItems>
+																	</ButtonGroup>
+																	<ButtonGroup name="ШифрованиеСоздание" id="891">
+																		<Title>
+																			<v8:item>
+																				<v8:lang>ru</v8:lang>
+																				<v8:content>Шифрование</v8:content>
+																			</v8:item>
+																		</Title>
+																		<ToolTip>
+																			<v8:item>
+																				<v8:lang>ru</v8:lang>
+																				<v8:content>Шифрование</v8:content>
+																			</v8:item>
+																		</ToolTip>
+																		<ExtendedTooltip name="ШифрованиеСозданиеExtendedTooltip" id="1303"/>
+																		<ChildItems>
+																			<Button name="ФайлыЗашифроватьСоздание" id="892">
+																				<Type>CommandBarButton</Type>
+																				<CommandName>Form.Command.Зашифровать</CommandName>
+																				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																				<ExtendedTooltip name="ФайлыЗашифроватьСозданиеExtendedTooltip" id="1304"/>
+																			</Button>
+																			<Button name="ФайлыРасшифроватьСоздание" id="893">
+																				<Type>CommandBarButton</Type>
+																				<CommandName>Form.Command.Расшифровать</CommandName>
+																				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																				<ExtendedTooltip name="ФайлыРасшифроватьСозданиеExtendedTooltip" id="1305"/>
+																			</Button>
+																		</ChildItems>
+																	</ButtonGroup>
+																	<ButtonGroup name="ФайлыСозданиеВизуализация" id="3084">
+																		<Title>
+																			<v8:item>
+																				<v8:lang>ru</v8:lang>
+																				<v8:content>Файлы создание визуализация</v8:content>
+																			</v8:item>
+																		</Title>
+																		<ExtendedTooltip name="ФайлыСозданиеВизуализацияРасширеннаяПодсказка" id="3085"/>
+																		<ChildItems>
+																			<Button name="РедактироватьВизуализациюЭПСоздание" id="3086">
+																				<Type>CommandBarButton</Type>
+																				<CommandName>Form.Command.РедактироватьВизуализациюЭП</CommandName>
+																				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																				<ExtendedTooltip name="РедактироватьВизуализациюЭПСозданиеРасширеннаяПодсказка" id="3087"/>
+																			</Button>
+																			<Button name="ЗакончитьРедактированиеВизуализацииЭПСоздание" id="3088">
+																				<Type>CommandBarButton</Type>
+																				<CommandName>Form.Command.ЗакончитьРедактированиеВизуализацииЭП</CommandName>
+																				<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																				<ExtendedTooltip name="ЗакончитьРедактированиеВизуализацииЭПСозданиеРасширеннаяПодсказка" id="3089"/>
+																			</Button>
+																		</ChildItems>
+																	</ButtonGroup>
+																</ChildItems>
+															</Popup>
+															<Button name="ФайлыРаспознатьСоздание" id="885">
+																<Type>CommandBarButton</Type>
+																<CommandName>Form.Command.Распознать</CommandName>
+																<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																<ExtendedTooltip name="ФайлыРаспознатьСозданиеExtendedTooltip" id="1297"/>
+															</Button>
+															<Popup name="ФормаШтрихкодыСоздание" id="1839">
+																<Title>
+																	<v8:item>
+																		<v8:lang>ru</v8:lang>
+																		<v8:content>Штрихкоды</v8:content>
+																	</v8:item>
+																</Title>
+																<Picture>
+																	<xr:Ref>CommonPicture.Штрихкод</xr:Ref>
+																	<xr:LoadTransparent>false</xr:LoadTransparent>
+																</Picture>
+																<ExtendedTooltip name="ФормаШтрихкодыСозданиеРасширеннаяПодсказка" id="1840"/>
+																<ChildItems>
+																	<Button name="ФайлыВставитьШтрихкодСоздание" id="924">
+																		<Type>CommandBarButton</Type>
+																		<CommandName>Form.Command.ВставитьШтрихкод</CommandName>
+																		<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																		<ExtendedTooltip name="ФайлыВставитьШтрихкодСозданиеExtendedTooltip" id="1295"/>
+																	</Button>
+																	<Button name="ФайлыВставитьРегистрационныйНомерСоздание" id="923">
+																		<Type>CommandBarButton</Type>
+																		<CommandName>Form.Command.ВставитьРегистрационныйШтамп</CommandName>
+																		<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																		<ExtendedTooltip name="ФайлыВставитьРегистрационныйНомерСозданиеExtendedTooltip" id="1294"/>
+																	</Button>
+																</ChildItems>
+															</Popup>
+															<ButtonGroup name="ГруппаКопированиеСоздание" id="3493">
+																<Title>
+																	<v8:item>
+																		<v8:lang>ru</v8:lang>
+																		<v8:content>Группа копирование создание</v8:content>
+																	</v8:item>
+																</Title>
+																<ExtendedTooltip name="ГруппаКопированиеСозданиеРасширеннаяПодсказка" id="3494"/>
+																<ChildItems>
+																	<Button name="ФайлыСозданиеСкопироватьСтроки" id="3495">
+																		<Type>CommandBarButton</Type>
+																		<CommandName>Form.Command.СкопироватьСтроки</CommandName>
+																		<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																		<ExtendedTooltip name="ФайлыСозданиеСкопироватьСтрокиРасширеннаяПодсказка" id="3496"/>
+																	</Button>
+																	<Button name="ФайлыСозданиеВставитьСтроки" id="3497">
+																		<Type>CommandBarButton</Type>
+																		<CommandName>Form.Command.ВставитьСтроки</CommandName>
+																		<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																		<ExtendedTooltip name="ФайлыСозданиеВставитьСтрокиРасширеннаяПодсказка" id="3498"/>
+																	</Button>
+																</ChildItems>
+															</ButtonGroup>
+															<ButtonGroup name="ФайлыСозданиеГруппаСортировка" id="3533">
+																<Title>
+																	<v8:item>
+																		<v8:lang>ru</v8:lang>
+																		<v8:content>Файлы создание группа сортировка</v8:content>
+																	</v8:item>
+																</Title>
+																<ExtendedTooltip name="ФайлыСозданиеГруппаСортировкаРасширеннаяПодсказка" id="3534"/>
+																<ChildItems>
+																	<Button name="ФайлыСозданиеВложенияПереместитьВверх" id="3535">
+																		<Type>CommandBarButton</Type>
+																		<CommandName>Form.Command.ВложенияПереместитьВверх</CommandName>
+																		<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																		<ExtendedTooltip name="ФайлыСозданиеВложенияПереместитьВверхРасширеннаяПодсказка" id="3536"/>
+																	</Button>
+																	<Button name="ФайлыСозданиеВложенияПереместитьВниз" id="3537">
+																		<Type>CommandBarButton</Type>
+																		<CommandName>Form.Command.ВложенияПереместитьВниз</CommandName>
+																		<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																		<ExtendedTooltip name="ФайлыСозданиеВложенияПереместитьВнизРасширеннаяПодсказка" id="3538"/>
+																	</Button>
+																	<Button name="ФайлыСозданиеВложенияСортироватьПоИмени" id="3539">
+																		<Type>CommandBarButton</Type>
+																		<CommandName>Form.Command.ВложенияСортироватьПоИмени</CommandName>
+																		<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																		<ExtendedTooltip name="ФайлыСозданиеВложенияСортироватьПоИмениРасширеннаяПодсказка" id="3540"/>
+																	</Button>
+																</ChildItems>
+															</ButtonGroup>
+															<Button name="ФайлыСозданиеПоказыватьУдаленныеФайлы" id="1054">
+																<Type>CommandBarButton</Type>
+																<CommandName>Form.Command.ПоказыватьУдаленныеФайлы</CommandName>
+																<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																<ExtendedTooltip name="ФайлыСозданиеПоказыватьУдаленныеФайлыExtendedTooltip" id="1310"/>
+															</Button>
+															<Button name="ОбновитьСоздание" id="896">
+																<Type>CommandBarButton</Type>
+																<SkipOnInput>false</SkipOnInput>
+																<CommandName>Form.Command.ОбновитьСписокФайлов</CommandName>
+																<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+																<ExtendedTooltip name="ОбновитьСозданиеExtendedTooltip" id="1309"/>
+															</Button>
+														</ChildItems>
+													</AutoCommandBar>
 													<ExtendedTooltip name="ФайлыСозданиеExtendedTooltip" id="1311"/>
 													<ChildItems>
 														<ColumnGroup name="КартинкаИНаименованиеСоздание" id="831">
@@ -7012,6 +7503,50 @@
 															</Button>
 														</ChildItems>
 													</ContextMenu>
+													<AutoCommandBar name="ФайлыДобавленныеКоманднаяПанель" id="189">
+														<ChildItems>
+															<Button name="СоздатьДобавленныйФайл" id="677">
+																<Type>CommandBarButton</Type>
+																<SkipOnInput>false</SkipOnInput>
+																<CommandName>Form.Command.ДобавитьФайл</CommandName>
+																<Title>
+																	<v8:item>
+																		<v8:lang>ru</v8:lang>
+																		<v8:content>Добавить</v8:content>
+																	</v8:item>
+																</Title>
+																<ExtendedTooltip name="СоздатьДобавленныйФайлExtendedTooltip" id="1330"/>
+															</Button>
+															<Button name="ФайлыДобавленныеВставитьКартинкуИзБуфера" id="2375">
+																<Type>CommandBarButton</Type>
+																<CommandName>Form.Command.ВставитьКартинкуИзБуфера</CommandName>
+																<ExtendedTooltip name="ФайлыДобавленныеВставитьКартинкуИзБуфераРасширеннаяПодсказка" id="2376"/>
+															</Button>
+															<Button name="ФайлыДобавленныеДобавитьСканСМобильного" id="2958">
+																<Type>CommandBarButton</Type>
+																<CommandName>Form.Command.ДобавитьСканСМобильного</CommandName>
+																<ExtendedTooltip name="ФайлыДобавленныеДобавитьСканСМобильногоРасширеннаяПодсказка" id="2959"/>
+															</Button>
+															<Button name="ФайлыДобавленныеПросмотретьИзСписка" id="197">
+																<Type>CommandBarButton</Type>
+																<SkipOnInput>false</SkipOnInput>
+																<CommandName>Form.Command.ПросмотретьИзСписка</CommandName>
+																<ExtendedTooltip name="ФайлыДобавленныеПросмотретьИзСпискаExtendedTooltip" id="1331"/>
+															</Button>
+															<Button name="РедактироватьДобавленныйФайл" id="417">
+																<Type>CommandBarButton</Type>
+																<Visible>false</Visible>
+																<SkipOnInput>false</SkipOnInput>
+																<CommandName>Form.Command.Редактировать</CommandName>
+																<ExtendedTooltip name="РедактироватьДобавленныйФайлExtendedTooltip" id="1332"/>
+															</Button>
+															<Button name="ФайлыДобавленныеУдалить" id="255">
+																<Type>CommandBarButton</Type>
+																<CommandName>Form.Item.ФайлыДобавленные.StandardCommand.Delete</CommandName>
+																<ExtendedTooltip name="ФайлыДобавленныеУдалитьExtendedTooltip" id="1333"/>
+															</Button>
+														</ChildItems>
+													</AutoCommandBar>
 													<ExtendedTooltip name="ФайлыДобавленныеExtendedTooltip" id="1334"/>
 													<ChildItems>
 														<ColumnGroup name="КартинкаИИмя" id="196">
@@ -7175,6 +7710,7 @@
 													</Button>
 												</ChildItems>
 											</ContextMenu>
+											<AutoCommandBar name="ТоварыКоманднаяПанель" id="2085"/>
 											<ExtendedTooltip name="ТоварыРасширеннаяПодсказка" id="2086"/>
 											<AutoInsertNewRow>true</AutoInsertNewRow>
 											<ChildItems>
@@ -7353,6 +7889,7 @@
 													<ViewStatusLocation>None</ViewStatusLocation>
 													<SearchControlLocation>None</SearchControlLocation>
 													<ContextMenu name="ВсеТоварыКонтекстноеМеню" id="2131"/>
+													<AutoCommandBar name="ВсеТоварыКоманднаяПанель" id="2132"/>
 													<ExtendedTooltip name="ВсеТоварыРасширеннаяПодсказка" id="2133"/>
 													<ChildItems>
 														<ColumnGroup name="ВсеТоварыГруппа" id="2149">
@@ -7467,6 +8004,7 @@
 												<ExcludedCommand>SortListDesc</ExcludedCommand>
 											</CommandSet>
 											<ContextMenu name="ВопросыКонтекстноеМеню" id="2546"/>
+											<AutoCommandBar name="ВопросыКоманднаяПанель" id="2547"/>
 											<ExtendedTooltip name="ВопросыРасширеннаяПодсказка" id="2548"/>
 											<AutoInsertNewRow>true</AutoInsertNewRow>
 											<ChildItems>
@@ -8172,6 +8710,30 @@
 									<MaxHeight>10</MaxHeight>
 									<DataPath>ИсторияСостоянийМЭДО</DataPath>
 									<ContextMenu name="ИсторияСостоянийМЭДОКонтекстноеМеню" id="3790"/>
+									<AutoCommandBar name="ИсторияСостоянийМЭДОКоманднаяПанель" id="3789">
+										<ChildItems>
+											<Button name="ИсторияСостоянийМЭДООтправитьПоМЭДО" id="3833">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ОтправитьПоМЭДО</CommandName>
+												<ExtendedTooltip name="ИсторияСостоянийМЭДООтправитьПоМЭДОРасширеннаяПодсказка" id="3834"/>
+											</Button>
+											<Button name="ИсторияСостоянийМЭДОСоздатьОтветноеУведомлениеМЭДО" id="3837">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.СоздатьОтветноеУведомлениеМЭДО</CommandName>
+												<ExtendedTooltip name="ИсторияСостоянийМЭДОСоздатьОтветноеУведомлениеМЭДОРасширеннаяПодсказка" id="3838"/>
+											</Button>
+											<Button name="ИсторияСостоянийМЭДОВывестиСписок" id="3835">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Item.ИсторияСостоянийМЭДО.StandardCommand.OutputList</CommandName>
+												<ExtendedTooltip name="ИсторияСостоянийМЭДОВывестиСписокРасширеннаяПодсказка" id="3836"/>
+											</Button>
+											<Button name="ИсторияСостоянийМЭДООбновитьИсториюСостоянийМЭДО" id="3913">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ОбновитьИсториюСостоянийМЭДО</CommandName>
+												<ExtendedTooltip name="ИсторияСостоянийМЭДООбновитьИсториюСостоянийМЭДОРасширеннаяПодсказка" id="3914"/>
+											</Button>
+										</ChildItems>
+									</AutoCommandBar>
 									<ExtendedTooltip name="ИсторияСостоянийМЭДОРасширеннаяПодсказка" id="3791"/>
 									<ChildItems>
 										<InputField name="ИсторияСостоянийМЭДОПериод" id="3907">
@@ -8629,6 +9191,7 @@
 											</Button>
 										</ChildItems>
 									</ContextMenu>
+									<AutoCommandBar name="ДействияКоманднаяПанель" id="2821"/>
 									<ExtendedTooltip name="ДействияРасширеннаяПодсказка" id="2822"/>
 									<AutoInsertNewRow>true</AutoInsertNewRow>
 									<ChildItems>
@@ -8963,6 +9526,7 @@
 									<ViewStatusLocation>None</ViewStatusLocation>
 									<SearchControlLocation>None</SearchControlLocation>
 									<ContextMenu name="СубъектыПерсональныхДанныхКонтекстноеМеню" id="222"/>
+									<AutoCommandBar name="СубъектыПерсональныхДанныхКоманднаяПанель" id="223"/>
 									<ExtendedTooltip name="СубъектыПерсональныхДанныхExtendedTooltip" id="1393"/>
 									<AutoInsertNewRow>true</AutoInsertNewRow>
 									<ChildItems>
@@ -9168,6 +9732,7 @@
 															</ButtonGroup>
 														</ChildItems>
 													</ContextMenu>
+													<AutoCommandBar name="ДеревоСвязейКоманднаяПанель" id="803"/>
 													<ExtendedTooltip name="ДеревоСвязейExtendedTooltip" id="1408"/>
 													<AutoInsertNewRow>true</AutoInsertNewRow>
 													<ChildItems>
@@ -9637,6 +10202,51 @@
 											</ButtonGroup>
 										</ChildItems>
 									</ContextMenu>
+									<AutoCommandBar name="ЭлектронныеПодписиКоманднаяПанель" id="262">
+										<ChildItems>
+											<Button name="ТаблицаПодписейОткрытьПодпись" id="273">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ОткрытьПодпись</CommandName>
+												<ExtendedTooltip name="ТаблицаПодписейОткрытьПодписьExtendedTooltip" id="1419"/>
+											</Button>
+											<Button name="ТаблицаПодписейПроверить" id="274">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.Проверить</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="ТаблицаПодписейПроверитьExtendedTooltip" id="1420"/>
+											</Button>
+											<Button name="ТаблицаПодписейПроверитьВсе" id="275">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ПроверитьВсе</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="ТаблицаПодписейПроверитьВсеExtendedTooltip" id="1421"/>
+											</Button>
+											<Button name="ТаблицаПодписейСохранить" id="276">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.СохранитьПодпись</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="ТаблицаПодписейСохранитьExtendedTooltip" id="1422"/>
+											</Button>
+											<Button name="ТаблицаПодписейУдалить" id="277">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.УдалитьПодпись</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="ТаблицаПодписейУдалитьExtendedTooltip" id="1423"/>
+											</Button>
+											<Button name="ТаблицаПодписейОбновить" id="1823">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ОбновитьСписокПодписей</CommandName>
+												<Title>
+													<v8:item>
+														<v8:lang>ru</v8:lang>
+														<v8:content>Обновить</v8:content>
+													</v8:item>
+												</Title>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="ТаблицаПодписейОбновитьРасширеннаяПодсказка" id="1824"/>
+											</Button>
+										</ChildItems>
+									</AutoCommandBar>
 									<ExtendedTooltip name="ЭлектронныеПодписиРасширеннаяПодсказка" id="1424"/>
 									<ChildItems>
 										<InputField name="ТаблицаПодписейАвторПодписиИСтатус" id="1720">
@@ -9750,6 +10360,41 @@
 													</ButtonGroup>
 												</ChildItems>
 											</ContextMenu>
+											<AutoCommandBar name="СписокКатегорийДанныхКоманднаяПанель" id="306">
+												<ChildItems>
+													<Button name="СписокКатегорийДанныхОткрытьФормуПодбораКатегорий" id="331">
+														<Type>CommandBarButton</Type>
+														<Representation>PictureAndText</Representation>
+														<CommandName>Form.Command.ОткрытьФормуПодбораКатегорий</CommandName>
+														<Picture>
+															<xr:Ref>CommonPicture.Категории</xr:Ref>
+															<xr:LoadTransparent>false</xr:LoadTransparent>
+														</Picture>
+														<ExtendedTooltip name="СписокКатегорийДанныхОткрытьФормуПодбораКатегорийExtendedTooltip" id="1431"/>
+													</Button>
+													<Button name="СписокКатегорийДанныхОткрытьСписокОбъектовСВыбраннымиКатегориями" id="374">
+														<Type>CommandBarButton</Type>
+														<CommandName>Form.Command.ОткрытьСписокОбъектовСВыбраннымиКатегориями</CommandName>
+														<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+														<ExtendedTooltip name="СписокКатегорийДанныхОткрытьСписокОбъектовСВыбраннымиКатегориямиExtendedTooltip" id="1434"/>
+													</Button>
+													<ButtonGroup name="СписокКатегорийДанныхСтандартныеКоманды" id="1571">
+														<Title>
+															<v8:item>
+																<v8:lang>ru</v8:lang>
+																<v8:content>Список категорий данных стандартные команды</v8:content>
+															</v8:item>
+														</Title>
+														<ToolTip>
+															<v8:item>
+																<v8:lang>ru</v8:lang>
+																<v8:content>Список категорий данных стандартные команды</v8:content>
+															</v8:item>
+														</ToolTip>
+														<ExtendedTooltip name="СписокКатегорийДанныхСтандартныеКомандыРасширеннаяПодсказка" id="1572"/>
+													</ButtonGroup>
+												</ChildItems>
+											</AutoCommandBar>
 											<ExtendedTooltip name="СписокКатегорийДанныхExtendedTooltip" id="1435"/>
 											<AutoInsertNewRow>true</AutoInsertNewRow>
 											<ChildItems>
@@ -10058,6 +10703,48 @@
 									<ViewStatusLocation>None</ViewStatusLocation>
 									<SearchControlLocation>None</SearchControlLocation>
 									<ContextMenu name="РабочаяГруппаТаблицаКонтекстноеМеню" id="472"/>
+									<AutoCommandBar name="РабочаяГруппаТаблицаКоманднаяПанель" id="473">
+										<ChildItems>
+											<Button name="ПодобратьУчастниковРабочейГруппы" id="483">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ПодобратьУчастниковРабочейГруппы</CommandName>
+												<ExtendedTooltip name="ПодобратьУчастниковРабочейГруппыExtendedTooltip" id="1453"/>
+											</Button>
+											<Button name="РабочаяГруппаТаблицаДобавить" id="680">
+												<Type>CommandBarButton</Type>
+												<Representation>PictureAndText</Representation>
+												<CommandName>Form.Item.РабочаяГруппаТаблица.StandardCommand.Add</CommandName>
+												<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="РабочаяГруппаТаблицаДобавитьExtendedTooltip" id="1454"/>
+											</Button>
+											<Button name="РабочаяГруппаТаблицаУдалить" id="681">
+												<Type>CommandBarButton</Type>
+												<Representation>PictureAndText</Representation>
+												<CommandName>Form.Item.РабочаяГруппаТаблица.StandardCommand.Delete</CommandName>
+												<LocationInCommandBar>InCommandBarAndInAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="РабочаяГруппаТаблицаУдалитьExtendedTooltip" id="1455"/>
+											</Button>
+											<Button name="РабочаяГруппаТаблицаРабочаяГруппаОбновить" id="679">
+												<Type>CommandBarButton</Type>
+												<Representation>Text</Representation>
+												<CommandName>Form.Command.РабочаяГруппаОбновить</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="РабочаяГруппаТаблицаРабочаяГруппаОбновитьExtendedTooltip" id="1456"/>
+											</Button>
+											<Button name="РабочаяГруппаТаблицаВывестиСписок" id="682">
+												<Type>CommandBarButton</Type>
+												<Visible>false</Visible>
+												<CommandName>Form.Item.РабочаяГруппаТаблица.StandardCommand.OutputList</CommandName>
+												<ExtendedTooltip name="РабочаяГруппаТаблицаВывестиСписокExtendedTooltip" id="1457"/>
+											</Button>
+											<Button name="ПерезаполнитьРабочуюГруппуДокумента" id="485">
+												<Type>CommandBarButton</Type>
+												<CommandName>Form.Command.ПерезаполнитьРабочуюГруппуДокумента</CommandName>
+												<LocationInCommandBar>InAdditionalSubmenu</LocationInCommandBar>
+												<ExtendedTooltip name="ПерезаполнитьРабочуюГруппуДокументаExtendedTooltip" id="1458"/>
+											</Button>
+										</ChildItems>
+									</AutoCommandBar>
 									<ExtendedTooltip name="РабочаяГруппаТаблицаExtendedTooltip" id="1459"/>
 									<AutoInsertNewRow>true</AutoInsertNewRow>
 									<ChildItems>

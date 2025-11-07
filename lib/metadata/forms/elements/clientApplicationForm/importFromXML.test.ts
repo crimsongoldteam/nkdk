@@ -29,10 +29,41 @@ describe("importClientApplicationFormFromXML", () => {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
-        elementType: ZElementType.enum.FormGroup,
+        elementType: ZElementType.enum.CommandBar,
         childItems: [],
       },
       title: { items: { ru: "Поле" } },
+      childItems: [],
+      attributes: [],
+    }
+
+    const xmlData = xmlImport<{ Form: TClientApplicationFormXML }>(
+      mockXml,
+      z.object({ Form: ZClientApplicationFormXML })
+    )
+    const element = importClientApplicationFormFromXML(xmlData.Form)
+
+    expect(element).toEqual(mockElement)
+  })
+
+  it("should import command bar from XML", () => {
+    const mockXml = `<?xml version="1.0" encoding="UTF-8"?>
+    <Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+      <AutoCommandBar name="ФормаКоманднаяПанель" id="-1">
+        <AutoFill>false</AutoFill>
+      </AutoCommandBar>
+    </Form>`
+
+    const mockElement: TClientApplicationForm = {
+      autoCommandBar: {
+        id: "-1",
+        name: "ФормаКоманднаяПанель",
+        elementType: ZElementType.enum.CommandBar,
+        autoFill: false,
+        childItems: [],
+      },
+
+      elementType: ZElementType.enum.ClientApplicationForm,
       childItems: [],
       attributes: [],
     }
@@ -59,7 +90,7 @@ describe("importClientApplicationFormFromXML", () => {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
-        elementType: ZElementType.enum.FormGroup,
+        elementType: ZElementType.enum.CommandBar,
         childItems: [],
       },
       elementType: ZElementType.enum.ClientApplicationForm,
@@ -101,7 +132,7 @@ describe("importClientApplicationFormFromXML", () => {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
-        elementType: ZElementType.enum.FormGroup,
+        elementType: ZElementType.enum.CommandBar,
         childItems: [],
       },
       elementType: ZElementType.enum.ClientApplicationForm,
@@ -144,6 +175,8 @@ describe("importClientApplicationFormFromXML", () => {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
+        elementType: ZElementType.enum.CommandBar,
+        childItems: [],
       },
       elementType: ZElementType.enum.ClientApplicationForm,
       childItems: [
