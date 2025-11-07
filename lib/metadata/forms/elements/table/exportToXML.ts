@@ -2,7 +2,7 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
@@ -18,7 +18,7 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
    _id: data.id ?? "",
    _name: data.name ?? "",
     AutoAddIncomplete: data.autoAddIncomplete,
-    AutoCommandBar: exportFormGroupToXML(data.autoCommandBar),
+    AutoCommandBar: exportCommandBarToXML(data.autoCommandBar),
     AutoInsertNewRow: data.autoInsertNewRow,
     AutoMarkIncomplete: data.autoMarkIncomplete,
     AutoMaxHeight: data.autoMaxHeight,
@@ -30,10 +30,10 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
     ChangeRowOrder: data.changeRowOrder,
     ChangeRowSet: data.changeRowSet,
     ChoiceMode: data.choiceMode,
-    CommandBar: exportFormGroupToXML(data.commandBar),
+    CommandBar: exportCommandBarToXML(data.commandBar),
     CommandBarLocation: data.commandBarLocation,
     CommandSet: data.commandSet,
-    ContextMenu: exportFormGroupToXML(data.contextMenu),
+    ContextMenu: exportCommandBarToXML(data.contextMenu),
     CurrentRowUse: data.currentRowUse,
     DataPath: data.dataPath,
     DefaultItem: data.defaultItem,

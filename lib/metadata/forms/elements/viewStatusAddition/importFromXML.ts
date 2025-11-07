@@ -3,7 +3,7 @@ import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromX
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { TViewStatusAdditionXML, TViewStatusAddition } from "./types"
@@ -17,7 +17,7 @@ export const importViewStatusAdditionFromXML = (xml: TViewStatusAdditionXML | un
     id: xml._id,
     name: xml._name,
     elementType: ZElementType.enum.ViewStatusAddition,
-    contextMenu: importFormGroupFromXML(xml.ContextMenu),
+    contextMenu: importCommandBarFromXML(xml.ContextMenu),
     displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
     extendedToolTip: importFormDecorationFromXML(xml.ExtendedToolTip),

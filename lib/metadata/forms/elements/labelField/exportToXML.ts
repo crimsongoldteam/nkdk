@@ -6,7 +6,7 @@ import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/export
 import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TLabelFieldXML, TLabelField } from "./types"
@@ -21,7 +21,7 @@ export const exportLabelFieldToXML = (data: TLabelField | undefined): TLabelFiel
    _name: data.name ?? "",
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,
-    ContextMenu: exportFormGroupToXML(data.contextMenu),
+    ContextMenu: exportCommandBarToXML(data.contextMenu),
     DataPath: data.dataPath,
     DefaultItem: data.defaultItem,
     _DisplayImportance: data.displayImportance,

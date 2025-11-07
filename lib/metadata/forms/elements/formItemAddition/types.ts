@@ -3,14 +3,14 @@ import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZFormItemAddition = ZBaseElement.extend({
   get contextMenu() {
-    return ZFormGroup.optional()
+    return ZCommandBar.optional()
   },
   displayImportance: SE.ZDisplayImportance.optional(),
   enabled: z.boolean().optional(),
@@ -35,7 +35,7 @@ export const ZFormItemAdditionXML = z.object({
   _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   get ContextMenu() {
-    return ZFormGroupXML.optional()
+    return ZCommandBarXML.optional()
   },
   Enabled: z.boolean().optional(),
   get ExtendedToolTip() {

@@ -3,7 +3,7 @@ import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TLabelDecorationXML, TLabelDecoration } from "./types"
@@ -18,7 +18,7 @@ export const exportLabelDecorationToXML = (data: TLabelDecoration | undefined): 
    _name: data.name ?? "",
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    ContextMenu: exportFormGroupToXML(data.contextMenu),
+    ContextMenu: exportCommandBarToXML(data.contextMenu),
     _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),

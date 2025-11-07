@@ -7,7 +7,7 @@ import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
 import {  ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
@@ -61,7 +61,7 @@ export const ZPictureDecorationXML = z.object({
   Picture: ZPictureXML.optional(),
   FileDragMode: SE.ZFileDragMode.optional(),
   get ContextMenu() {
-    return ZFormGroupXML.optional()
+    return ZCommandBarXML.optional()
   },
   get ExtendedTooltip() {
     return ZFormDecorationXML.optional()

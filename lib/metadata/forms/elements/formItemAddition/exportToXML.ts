@@ -1,6 +1,6 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { TFormItemAdditionXML, TFormItemAddition } from "./types"
@@ -13,7 +13,7 @@ export const exportFormItemAdditionToXML = (data: TFormItemAddition | undefined)
   return {
    _id: data.id ?? "",
    _name: data.name ?? "",
-    ContextMenu: exportFormGroupToXML(data.contextMenu),
+    ContextMenu: exportCommandBarToXML(data.contextMenu),
     _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
     ExtendedToolTip: exportFormDecorationToXML(data.extendedToolTip),

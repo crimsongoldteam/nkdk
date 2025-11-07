@@ -5,7 +5,7 @@ import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import {  ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
@@ -28,7 +28,7 @@ export const ZSearchControlAdditionXML = z.object({
   _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   get ContextMenu() {
-    return ZFormGroupXML.optional()
+    return ZCommandBarXML.optional()
   },
   AutoMaxWidth: z.boolean().optional(),
   BackColor: ZColorXML.optional(),

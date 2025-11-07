@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
 	<CommandBarLocation>None</CommandBarLocation>
 	<VerticalScroll>UseIfNecessary</VerticalScroll>
@@ -7,7 +7,9 @@
 		<ExcludedCommand>WriteAndClose</ExcludedCommand>
 	</CommandSet>
 	<UseForFoldersAndItems>Items</UseForFoldersAndItems>
-	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1"/>
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1">
+		<Autofill>false</Autofill>
+	</AutoCommandBar>
 	<Events>
 		<Event name="AfterWrite">ПослеЗаписи</Event>
 		<Event name="ChoiceProcessing">ОбработкаВыбора</Event>
@@ -1754,6 +1756,7 @@
 													<ViewStatusLocation>None</ViewStatusLocation>
 													<SearchControlLocation>None</SearchControlLocation>
 													<ContextMenu name="ФайлыКонтекстноеМеню" id="81">
+														<Autofill>false</Autofill>
 														<ChildItems>
 															<Button name="КонтекстноеМенюФайлыСоздать" id="183">
 																<Type>CommandBarButton</Type>
@@ -2057,7 +2060,10 @@
 															</ButtonGroup>
 														</ChildItems>
 													</ContextMenu>
-													<AutoCommandBar name="ФайлыКоманднаяПанель" id="82"/>
+													<AutoCommandBar name="ФайлыКоманднаяПанель" id="82">
+														<Autofill>false</Autofill>
+														<HorizontalAlign>Right</HorizontalAlign>
+													</AutoCommandBar>
 													<ExtendedTooltip name="ФайлыExtendedTooltip" id="1136"/>
 													<ChildItems>
 														<ColumnGroup name="ГруппаДанныеФайла" id="1714">
@@ -4187,6 +4193,7 @@
 															<FileDragMode>AsFile</FileDragMode>
 															<DataPath>Объект.Стороны</DataPath>
 															<ContextMenu name="СтороныКонтекстноеМеню" id="2163">
+																<Autofill>false</Autofill>
 																<ChildItems>
 																	<Button name="СтороныКонтекстноеМенюДобавить" id="2215">
 																		<Type>CommandBarButton</Type>
@@ -4216,7 +4223,9 @@
 																	</Button>
 																</ChildItems>
 															</ContextMenu>
-															<AutoCommandBar name="СтороныКоманднаяПанель" id="2164"/>
+															<AutoCommandBar name="СтороныКоманднаяПанель" id="2164">
+																<Autofill>false</Autofill>
+															</AutoCommandBar>
 															<ExtendedTooltip name="СтороныРасширеннаяПодсказка" id="2165"/>
 															<AutoInsertNewRow>true</AutoInsertNewRow>
 															<ChildItems>
@@ -5775,6 +5784,7 @@
 									<ViewStatusLocation>None</ViewStatusLocation>
 									<SearchControlLocation>None</SearchControlLocation>
 									<ContextMenu name="КонтрагентыКонтекстноеМеню" id="2253">
+										<Autofill>false</Autofill>
 										<ChildItems>
 											<Button name="КонтрагентыКонтекстноеМенюДобавить" id="3766">
 												<Type>CommandBarButton</Type>
@@ -6235,6 +6245,7 @@
 										</ChildItems>
 									</ContextMenu>
 									<AutoCommandBar name="СоставКомплектаКоманднаяПанель" id="499">
+										<Autofill>false</Autofill>
 										<ChildItems>
 											<Popup name="СоставКомплектаПодобрать" id="663">
 												<Title>
@@ -6504,6 +6515,7 @@
 													<ViewStatusLocation>None</ViewStatusLocation>
 													<SearchControlLocation>None</SearchControlLocation>
 													<ContextMenu name="ФайлыСозданиеКонтекстноеМеню" id="825">
+														<Autofill>false</Autofill>
 														<ChildItems>
 															<Button name="КонтекстноеМенюФайлыСоздатьСоздание" id="854">
 																<Type>CommandBarButton</Type>
@@ -6800,6 +6812,7 @@
 														</ChildItems>
 													</ContextMenu>
 													<AutoCommandBar name="ФайлыСозданиеКоманднаяПанель" id="826">
+														<Autofill>false</Autofill>
 														<ChildItems>
 															<Button name="СоздатьФайлСоздание" id="874">
 																<Type>CommandBarButton</Type>
@@ -7470,6 +7483,7 @@
 													<ViewStatusLocation>None</ViewStatusLocation>
 													<SearchControlLocation>None</SearchControlLocation>
 													<ContextMenu name="ФайлыДобавленныеКонтекстноеМеню" id="188">
+														<Autofill>false</Autofill>
 														<ChildItems>
 															<Button name="СоздатьДобавленныйФайлКонтекст" id="678">
 																<Type>CommandBarButton</Type>
@@ -7504,6 +7518,7 @@
 														</ChildItems>
 													</ContextMenu>
 													<AutoCommandBar name="ФайлыДобавленныеКоманднаяПанель" id="189">
+														<Autofill>false</Autofill>
 														<ChildItems>
 															<Button name="СоздатьДобавленныйФайл" id="677">
 																<Type>CommandBarButton</Type>
@@ -7710,7 +7725,9 @@
 													</Button>
 												</ChildItems>
 											</ContextMenu>
-											<AutoCommandBar name="ТоварыКоманднаяПанель" id="2085"/>
+											<AutoCommandBar name="ТоварыКоманднаяПанель" id="2085">
+												<Autofill>false</Autofill>
+											</AutoCommandBar>
 											<ExtendedTooltip name="ТоварыРасширеннаяПодсказка" id="2086"/>
 											<AutoInsertNewRow>true</AutoInsertNewRow>
 											<ChildItems>
@@ -7889,7 +7906,9 @@
 													<ViewStatusLocation>None</ViewStatusLocation>
 													<SearchControlLocation>None</SearchControlLocation>
 													<ContextMenu name="ВсеТоварыКонтекстноеМеню" id="2131"/>
-													<AutoCommandBar name="ВсеТоварыКоманднаяПанель" id="2132"/>
+													<AutoCommandBar name="ВсеТоварыКоманднаяПанель" id="2132">
+														<Autofill>false</Autofill>
+													</AutoCommandBar>
 													<ExtendedTooltip name="ВсеТоварыРасширеннаяПодсказка" id="2133"/>
 													<ChildItems>
 														<ColumnGroup name="ВсеТоварыГруппа" id="2149">
@@ -8711,6 +8730,7 @@
 									<DataPath>ИсторияСостоянийМЭДО</DataPath>
 									<ContextMenu name="ИсторияСостоянийМЭДОКонтекстноеМеню" id="3790"/>
 									<AutoCommandBar name="ИсторияСостоянийМЭДОКоманднаяПанель" id="3789">
+										<Autofill>false</Autofill>
 										<ChildItems>
 											<Button name="ИсторияСостоянийМЭДООтправитьПоМЭДО" id="3833">
 												<Type>CommandBarButton</Type>
@@ -9153,6 +9173,7 @@
 										<ExcludedCommand>MoveUp</ExcludedCommand>
 									</CommandSet>
 									<ContextMenu name="ДействияКонтекстноеМеню" id="2820">
+										<Autofill>false</Autofill>
 										<ChildItems>
 											<Button name="ДействияКонтекстноеМенюДобавить" id="3101">
 												<Type>CommandBarButton</Type>
@@ -9191,7 +9212,9 @@
 											</Button>
 										</ChildItems>
 									</ContextMenu>
-									<AutoCommandBar name="ДействияКоманднаяПанель" id="2821"/>
+									<AutoCommandBar name="ДействияКоманднаяПанель" id="2821">
+										<Autofill>false</Autofill>
+									</AutoCommandBar>
 									<ExtendedTooltip name="ДействияРасширеннаяПодсказка" id="2822"/>
 									<AutoInsertNewRow>true</AutoInsertNewRow>
 									<ChildItems>
@@ -9662,6 +9685,7 @@
 													<ViewStatusLocation>None</ViewStatusLocation>
 													<SearchControlLocation>None</SearchControlLocation>
 													<ContextMenu name="ДеревоСвязейКонтекстноеМеню" id="802">
+														<Autofill>false</Autofill>
 														<ChildItems>
 															<Button name="ДеревоСвязейКонтекстноеМенюКнопкаДобавить" id="817">
 																<Type>CommandBarButton</Type>
@@ -9732,7 +9756,9 @@
 															</ButtonGroup>
 														</ChildItems>
 													</ContextMenu>
-													<AutoCommandBar name="ДеревоСвязейКоманднаяПанель" id="803"/>
+													<AutoCommandBar name="ДеревоСвязейКоманднаяПанель" id="803">
+														<Autofill>false</Autofill>
+													</AutoCommandBar>
 													<ExtendedTooltip name="ДеревоСвязейExtendedTooltip" id="1408"/>
 													<AutoInsertNewRow>true</AutoInsertNewRow>
 													<ChildItems>
@@ -10147,6 +10173,7 @@
 									<SearchControlLocation>None</SearchControlLocation>
 									<RefreshRequest>PullFromTop</RefreshRequest>
 									<ContextMenu name="ЭлектронныеПодписиКонтекстноеМеню" id="261">
+										<Autofill>false</Autofill>
 										<ChildItems>
 											<Button name="ТаблицаПодписейКонтекстноеМенюОткрытьПодпись" id="294">
 												<Type>CommandBarButton</Type>
@@ -10203,6 +10230,7 @@
 										</ChildItems>
 									</ContextMenu>
 									<AutoCommandBar name="ЭлектронныеПодписиКоманднаяПанель" id="262">
+										<Autofill>false</Autofill>
 										<ChildItems>
 											<Button name="ТаблицаПодписейОткрытьПодпись" id="273">
 												<Type>CommandBarButton</Type>
@@ -10337,6 +10365,7 @@
 											<ViewStatusLocation>None</ViewStatusLocation>
 											<SearchControlLocation>None</SearchControlLocation>
 											<ContextMenu name="СписокКатегорийДанныхКонтекстноеМеню" id="305">
+												<Autofill>false</Autofill>
 												<ChildItems>
 													<Button name="СписокКатегорийДанныхКонтекстноеМенюОткрытьФормуПодбораКатегорий" id="1567">
 														<Type>CommandBarButton</Type>
@@ -10361,6 +10390,7 @@
 												</ChildItems>
 											</ContextMenu>
 											<AutoCommandBar name="СписокКатегорийДанныхКоманднаяПанель" id="306">
+												<Autofill>false</Autofill>
 												<ChildItems>
 													<Button name="СписокКатегорийДанныхОткрытьФормуПодбораКатегорий" id="331">
 														<Type>CommandBarButton</Type>
@@ -10704,6 +10734,7 @@
 									<SearchControlLocation>None</SearchControlLocation>
 									<ContextMenu name="РабочаяГруппаТаблицаКонтекстноеМеню" id="472"/>
 									<AutoCommandBar name="РабочаяГруппаТаблицаКоманднаяПанель" id="473">
+										<Autofill>false</Autofill>
 										<ChildItems>
 											<Button name="ПодобратьУчастниковРабочейГруппы" id="483">
 												<Type>CommandBarButton</Type>

@@ -2,7 +2,7 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { TSearchStringAdditionXML, TSearchStringAddition } from "./types"
@@ -16,7 +16,7 @@ export const importSearchStringAdditionFromXML = (xml: TSearchStringAdditionXML 
     id: xml._id,
     name: xml._name,
     elementType: ZElementType.enum.SearchStringAddition,
-    contextMenu: importFormGroupFromXML(xml.ContextMenu),
+    contextMenu: importCommandBarFromXML(xml.ContextMenu),
     displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
     extendedToolTip: importFormDecorationFromXML(xml.ExtendedToolTip),

@@ -4,14 +4,14 @@ import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/type
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZFormDecoration = ZBaseElement.extend({
   autoMaxHeight: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
   get contextMenu() {
-    return ZFormGroup.optional()
+    return ZCommandBar.optional()
   },
   displayImportance: SE.ZDisplayImportance.optional(),
   enabled: z.boolean().optional(),
@@ -45,7 +45,7 @@ export const ZFormDecorationXML = z.object({
   AutoMaxHeight: z.boolean().optional(),
   AutoMaxWidth: z.boolean().optional(),
   get ContextMenu() {
-    return ZFormGroupXML.optional()
+    return ZCommandBarXML.optional()
   },
   Enabled: z.boolean().optional(),
   get ExtendedTooltip() {

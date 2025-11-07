@@ -5,7 +5,7 @@ import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeD
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importChoiceListFromXML } from "~/lib/metadata/commonObjects/choiceList/importFromXML"
 import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
@@ -24,7 +24,7 @@ export const importInputFieldFromXML = (xml: TInputFieldXML | undefined): TInput
     elementType: ZElementType.enum.InputField,
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,
-    contextMenu: importFormGroupFromXML(xml.ContextMenu),
+    contextMenu: importCommandBarFromXML(xml.ContextMenu),
     dataPath: xml.DataPath,
     defaultItem: xml.DefaultItem,
     displayImportance: xml._DisplayImportance,

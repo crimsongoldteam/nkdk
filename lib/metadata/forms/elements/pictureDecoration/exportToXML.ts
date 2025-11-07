@@ -4,7 +4,7 @@ import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TPictureDecorationXML, TPictureDecoration } from "./types"
@@ -19,7 +19,7 @@ export const exportPictureDecorationToXML = (data: TPictureDecoration | undefine
    _name: data.name ?? "",
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    ContextMenu: exportFormGroupToXML(data.contextMenu),
+    ContextMenu: exportCommandBarToXML(data.contextMenu),
     _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),

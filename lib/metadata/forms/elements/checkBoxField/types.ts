@@ -9,7 +9,7 @@ import {  ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
@@ -41,7 +41,7 @@ export const ZCheckBoxFieldXML = z.object({
   CellHyperlink: z.boolean().optional(),
   CheckBoxType: SE.ZCheckBoxType.optional(),
   get ContextMenu() {
-    return ZFormGroupXML.optional()
+    return ZCommandBarXML.optional()
   },
   DataPath: z.string().optional(),
   DefaultItem: z.boolean().optional(),

@@ -5,7 +5,7 @@ import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeD
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TDendrogramFieldXML, TDendrogramField } from "./types"
@@ -21,7 +21,7 @@ export const importDendrogramFieldFromXML = (xml: TDendrogramFieldXML | undefine
     elementType: ZElementType.enum.DendrogramField,
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,
-    contextMenu: importFormGroupFromXML(xml.ContextMenu),
+    contextMenu: importCommandBarFromXML(xml.ContextMenu),
     dataPath: xml.DataPath,
     defaultItem: xml.DefaultItem,
     displayImportance: xml._DisplayImportance,

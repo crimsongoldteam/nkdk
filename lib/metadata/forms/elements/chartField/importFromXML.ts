@@ -5,7 +5,7 @@ import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeD
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TChartFieldXML, TChartField } from "./types"
@@ -21,7 +21,7 @@ export const importChartFieldFromXML = (xml: TChartFieldXML | undefined): TChart
     elementType: ZElementType.enum.ChartField,
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,
-    contextMenu: importFormGroupFromXML(xml.ContextMenu),
+    contextMenu: importCommandBarFromXML(xml.ContextMenu),
     dataPath: xml.DataPath,
     defaultItem: xml.DefaultItem,
     displayImportance: xml._DisplayImportance,

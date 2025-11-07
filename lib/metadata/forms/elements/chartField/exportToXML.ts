@@ -5,7 +5,7 @@ import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDes
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportTableToXML } from "../table/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TChartFieldXML, TChartField } from "./types"
@@ -20,7 +20,7 @@ export const exportChartFieldToXML = (data: TChartField | undefined): TChartFiel
    _name: data.name ?? "",
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,
-    ContextMenu: exportFormGroupToXML(data.contextMenu),
+    ContextMenu: exportCommandBarToXML(data.contextMenu),
     DataPath: data.dataPath,
     DefaultItem: data.defaultItem,
     _DisplayImportance: data.displayImportance,

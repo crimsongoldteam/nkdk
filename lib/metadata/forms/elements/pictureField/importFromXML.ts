@@ -6,7 +6,7 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importTableFromXML } from "../table/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TPictureFieldXML, TPictureField } from "./types"
@@ -22,7 +22,7 @@ export const importPictureFieldFromXML = (xml: TPictureFieldXML | undefined): TP
     elementType: ZElementType.enum.PictureField,
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,
-    contextMenu: importFormGroupFromXML(xml.ContextMenu),
+    contextMenu: importCommandBarFromXML(xml.ContextMenu),
     dataPath: xml.DataPath,
     defaultItem: xml.DefaultItem,
     displayImportance: xml._DisplayImportance,

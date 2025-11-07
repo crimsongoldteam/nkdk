@@ -8,7 +8,7 @@ import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
@@ -16,7 +16,7 @@ export const ZFormField = ZBaseElement.extend({
   autoCellHeight: z.boolean().optional(),
   cellHyperlink: z.boolean().optional(),
   get contextMenu() {
-    return ZFormGroup.optional()
+    return ZCommandBar.optional()
   },
   dataPath: z.string().optional(),
   defaultItem: z.boolean().optional(),
@@ -74,7 +74,7 @@ export const ZFormFieldXML = z.object({
   AutoCellHeight: z.boolean().optional(),
   CellHyperlink: z.boolean().optional(),
   get ContextMenu() {
-    return ZFormGroupXML.optional()
+    return ZCommandBarXML.optional()
   },
   DataPath: z.string().optional(),
   DefaultItem: z.boolean().optional(),

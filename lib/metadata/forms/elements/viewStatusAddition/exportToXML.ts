@@ -3,7 +3,7 @@ import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
 import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { TViewStatusAdditionXML, TViewStatusAddition } from "./types"
@@ -16,7 +16,7 @@ export const exportViewStatusAdditionToXML = (data: TViewStatusAddition | undefi
   return {
    _id: data.id ?? "",
    _name: data.name ?? "",
-    ContextMenu: exportFormGroupToXML(data.contextMenu),
+    ContextMenu: exportCommandBarToXML(data.contextMenu),
     _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
     ExtendedToolTip: exportFormDecorationToXML(data.extendedToolTip),

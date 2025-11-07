@@ -34,7 +34,7 @@ export const exportCommandBarToXML = (data: TCommandBar | undefined): TCommandBa
     Visible: data.visible,
     Width: data.width,
     ChildItems: exportChildItemsToXML(data.childItems),
-    AutoFill: data.autoFill,
+    Autofill: data.autofill,
     _DisplayImportance: data.displayImportance,
     HorizontalAlign: data.horizontalAlign,
   }

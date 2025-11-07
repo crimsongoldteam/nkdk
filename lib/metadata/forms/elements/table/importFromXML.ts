@@ -2,7 +2,7 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
@@ -20,7 +20,7 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     name: xml._name,
     elementType: ZElementType.enum.Table,
     autoAddIncomplete: xml.AutoAddIncomplete,
-    autoCommandBar: importFormGroupFromXML(xml.AutoCommandBar),
+    autoCommandBar: importCommandBarFromXML(xml.AutoCommandBar),
     autoInsertNewRow: xml.AutoInsertNewRow,
     autoMarkIncomplete: xml.AutoMarkIncomplete,
     autoMaxHeight: xml.AutoMaxHeight,
@@ -32,10 +32,10 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     changeRowOrder: xml.ChangeRowOrder,
     changeRowSet: xml.ChangeRowSet,
     choiceMode: xml.ChoiceMode,
-    commandBar: importFormGroupFromXML(xml.CommandBar),
+    commandBar: importCommandBarFromXML(xml.CommandBar),
     commandBarLocation: xml.CommandBarLocation,
     commandSet: xml.CommandSet,
-    contextMenu: importFormGroupFromXML(xml.ContextMenu),
+    contextMenu: importCommandBarFromXML(xml.ContextMenu),
     currentRowUse: xml.CurrentRowUse,
     dataPath: xml.DataPath,
     defaultItem: xml.DefaultItem,
