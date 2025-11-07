@@ -4,6 +4,7 @@ import { TClientApplicationFormXML, TClientApplicationForm } from "./types"
 import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { exportCommandSetToXML } from "~/lib/metadata/forms/commandSet/exportToXML"
+import exportAttributeToXML from "./attributes/exportToXML"
 
 export const exportClientApplicationFormToXML = (
   data: TClientApplicationForm | undefined
@@ -28,8 +29,13 @@ export const exportClientApplicationFormToXML = (
     "_xmlns:xr": "http://v8.1c.ru/8.3/xcf/readable",
     "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-    _version: "2.18",
+    _version: "2.20",
     AutoCommandBar: exportCommandBarToXML(data.autoCommandBar),
+    Title: exportI8nTextToXML(data.title),
+    ChildItems: exportChildItemsToXML(data.childItems),
+    Attributes: data.attributes && data.attributes.length > 0
+      ? data.attributes.map((attr) => exportAttributeToXML(attr)).filter((attr): attr is NonNullable<typeof attr> => attr !== undefined)
+      : undefined,
     CommandSet: exportCommandSetToXML(data.commandSet),
     AutoFillCheck: data.autoFillCheck,
     AutoSaveDataInSettings: data.autoSaveDataInSettings,
@@ -60,7 +66,6 @@ export const exportClientApplicationFormToXML = (
     ShowCloseButton: data.showCloseButton,
     ShowTitle: data.showTitle,
     SlaveItemsWidth: data.slaveItemsWidth,
-    Title: exportI8nTextToXML(data.title),
     UUID: data.uUID,
     UsedFormServer: data.usedFormServer,
     VerticalScroll: data.verticalScroll,
@@ -69,7 +74,6 @@ export const exportClientApplicationFormToXML = (
     WindowOptionsKey: data.windowOptionsKey,
     UseForFoldersAndItems: data.useForFoldersAndItems,
     // ConditionalAppearance: data.conditionalAppearance,
-    ChildItems: exportChildItemsToXML(data.childItems),
     Events: exportEventsToXML(data.events),
   }
 }

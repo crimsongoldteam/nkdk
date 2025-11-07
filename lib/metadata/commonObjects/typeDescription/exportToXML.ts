@@ -23,6 +23,9 @@ const mapType = (type: string): string => {
   if (type.startsWith("EnumRef.")) {
     return `cfg:${type}`
   }
+  if (type.startsWith("DataProcessorObject.") || type.startsWith("CatalogObject.") || type.startsWith("DocumentObject.") || type.startsWith("BusinessProcessObject.") || type.startsWith("TaskObject.")) {
+    return `cfg:${type}`
+  }
   return type
 }
 
