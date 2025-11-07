@@ -29,13 +29,18 @@ export const exportClientApplicationFormToXML = (
     "_xmlns:xr": "http://v8.1c.ru/8.3/xcf/readable",
     "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
-    _version: "2.20",
+    _version: "2.18",
     AutoCommandBar: exportCommandBarToXML(data.autoCommandBar),
     Title: exportI8nTextToXML(data.title),
     ChildItems: exportChildItemsToXML(data.childItems),
-    Attributes: data.attributes && data.attributes.length > 0
-      ? data.attributes.map((attr) => exportAttributeToXML(attr)).filter((attr): attr is NonNullable<typeof attr> => attr !== undefined)
-      : undefined,
+    Attributes:
+      data.attributes && data.attributes.length > 0
+        ? data.attributes
+            .map((attr) => exportAttributeToXML(attr))
+            .filter(
+              (attr): attr is NonNullable<typeof attr> => attr !== undefined
+            )
+        : undefined,
     CommandSet: exportCommandSetToXML(data.commandSet),
     AutoFillCheck: data.autoFillCheck,
     AutoSaveDataInSettings: data.autoSaveDataInSettings,

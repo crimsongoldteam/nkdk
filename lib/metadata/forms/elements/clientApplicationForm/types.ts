@@ -167,7 +167,6 @@ export const ZClientApplicationFormXML = z.object({
   "_xmlns:xs": z.string().optional(),
   "_xmlns:xsi": z.string().optional(),
   _version: z.string().optional(),
-  Attributes: ZAttributesXML.optional(),
   AutoFillCheck: z.boolean().optional(),
   AutoSaveDataInSettings: SE.ZAutoSaveFormDataInSettings.optional(),
   AutoTitle: z.boolean().optional(),
@@ -214,6 +213,7 @@ export const ZClientApplicationFormXML = z.object({
   },
   Events: ZEventsXML.optional(),
   ChildItems: ZChildItemsXML.optional(),
+  Attributes: ZAttributesXML.optional(),
 })
 
 export type TClientApplicationForm = z.infer<typeof ZClientApplicationForm>
