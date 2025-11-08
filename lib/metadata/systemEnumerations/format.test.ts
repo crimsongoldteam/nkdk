@@ -1,20 +1,23 @@
-// import { expect, it } from "vitest"
-// import { TChildFormItemsGroup, TChildFormItemsGroupEnterprise } from "./types"
+import { describe, expect, it } from "vitest"
+import {
+  TChildFormItemsGroup,
+  TChildFormItemsGroupEnterprise,
+  ZChildFormItemsGroup,
+  ZChildFormItemsGroupEnterprise,
+} from "./types"
+import { formatSystemEnumeration } from "./format"
 
-// it("should format to enterprise", () => {
-//   const inValue: TChildFormItemsGroupEnterprise = "Вертикальная"
-//   const outValue: TChildFormItemsGroup = "Vertical"
+describe("formatSystemEnumeration", () => {
+  it("should format to enterprise", () => {
+    const mockValue: TChildFormItemsGroup = "Vertical"
+    const expectedResult: TChildFormItemsGroupEnterprise = "Вертикальная"
 
-//   const result = ZChildFormItemsGroupCodec.encode(inValue)
+    const result = formatSystemEnumeration(
+      mockValue,
+      ZChildFormItemsGroup,
+      ZChildFormItemsGroupEnterprise
+    )
 
-//   expect(result).toBe(outValue)
-// })
-
-// it("should format from enterprise", () => {
-//   const inValue: TChildFormItemsGroup = "Vertical"
-//   const outValue: TChildFormItemsGroupEnterprise = "Вертикальная"
-
-//   const result = ZChildFormItemsGroupCodec.decode(inValue)
-
-//   expect(result).toBe(outValue)
-// })
+    expect(result).toBe(expectedResult)
+  })
+})
