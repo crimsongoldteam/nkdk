@@ -8,6 +8,7 @@ export default function xmlImport<T>(data: string, schema: z.ZodType<T>): T {
     preserveOrder: true,
     ignoreAttributes: false,
     attributeNamePrefix: "_",
+    attributesGroupName: "__attributes",
   })
   const parsedData = parser.parse(data)
 

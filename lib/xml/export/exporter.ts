@@ -15,6 +15,8 @@ export default function xmlExport<T>(
     suppressBooleanAttributes: false,
     indentBy: "\t",
     oneListGroup: true,
+    processEntities: false,
+    attributesGroupName: "__attributes",
   })
   const xml = builder.build(parsedData)
   const declaration = addDeclaration
