@@ -12,7 +12,10 @@ it("should format form attributes", () => {
       name: "ИмяАтрибута",
       id: "1",
       title: { items: { ru: "Атрибут" } },
-      type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
+      type: {
+        type: ["string"],
+        stringQualifiers: { length: 10, allowedLength: "Variable" },
+      },
     },
   ]
 
@@ -31,7 +34,10 @@ it("should format main attribute", () => {
       name: "ИмяАтрибута",
       id: "1",
       title: { items: { ru: "Атрибут" } },
-      type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
+      type: {
+        type: ["string"],
+        stringQualifiers: { length: 10, allowedLength: "Variable" },
+      },
       mainAttribute: true,
     },
   ]
@@ -51,7 +57,10 @@ it("should format stored data", () => {
       name: "ИмяАтрибута",
       id: "1",
       title: { items: { ru: "Атрибут" } },
-      type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
+      type: {
+        type: ["string"],
+        stringQualifiers: { length: 10, allowedLength: "Variable" },
+      },
       storedData: true,
     },
   ]
@@ -67,7 +76,10 @@ it("should format compact if title is undefined and mainAttribute is false and s
     {
       name: "ИмяАтрибута",
       id: "1",
-      type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
+      type: {
+        type: ["string"],
+        stringQualifiers: { length: 10, allowedLength: "Variable" },
+      },
     },
   ]
 

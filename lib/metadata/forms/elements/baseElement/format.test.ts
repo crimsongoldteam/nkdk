@@ -14,5 +14,5 @@ it("should format element", () => {
 
   const result = formatOtherElement(element as TBaseElement, {})
 
-  expect(result).toEqual(expectedResult)
+  expect(result.strings).toEqual(expectedResult)
 })

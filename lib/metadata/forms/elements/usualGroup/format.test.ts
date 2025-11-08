@@ -5,15 +5,23 @@ import "~/lib/metadata/forms/elements/inputField/registration"
 import { ZElementType } from "../types"
 import { TInputField } from "../inputField/types"
 
-describe("formatOneLineGroup", () => {
+describe("formatUsualGroup", () => {
   it("should format one-line group", () => {
     const mockElement: TUsualGroup = {
       name: "Группа",
       id: "1",
       elementType: ZElementType.enum.UsualGroup,
       childItems: [
-        { name: "Элемент1", id: "1", elementType: ZElementType.enum.InputField } as TInputField,
-        { name: "Элемент2", id: "2", elementType: ZElementType.enum.InputField } as TInputField,
+        {
+          name: "Элемент1",
+          id: "1",
+          elementType: ZElementType.enum.InputField,
+        } as TInputField,
+        {
+          name: "Элемент2",
+          id: "2",
+          elementType: ZElementType.enum.InputField,
+        } as TInputField,
       ],
     }
 
@@ -33,8 +41,16 @@ it("should format vertical group", () => {
     elementType: ZElementType.enum.UsualGroup,
     id: "1",
     childItems: [
-      { name: "Элемент1", id: "1", elementType: ZElementType.enum.InputField } as TInputField,
-      { name: "Элемент2", id: "2", elementType: ZElementType.enum.InputField } as TInputField,
+      {
+        name: "Элемент1",
+        id: "1",
+        elementType: ZElementType.enum.InputField,
+      } as TInputField,
+      {
+        name: "Элемент2",
+        id: "2",
+        elementType: ZElementType.enum.InputField,
+      } as TInputField,
     ],
   }
 

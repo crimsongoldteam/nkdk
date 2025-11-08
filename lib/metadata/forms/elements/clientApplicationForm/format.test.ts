@@ -2,6 +2,9 @@ import { expect, it } from "vitest"
 import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
 import { formatClientApplicationForm } from "./format"
 import { TClientApplicationForm, TInputField } from "~/lib"
+import "~/lib/metadata/forms/elements/elements"
+import "~/lib/metadata/forms/elements/exportToXML"
+import "~/lib/metadata/forms/elements/importFromXML"
 import { ZElementType } from "../types"
 
 const mockParams: IFormatterParams = {
@@ -19,7 +22,7 @@ it("should format form header", () => {
 
   const result = formatClientApplicationForm(form, mockParams)
 
-  expect(result).toEqual(["--- Форма ---"])
+  expect(result.strings).toEqual(["====== [ Форма ] ======"])
 })
 
 it("should format form items", () => {
@@ -37,7 +40,7 @@ it("should format form items", () => {
 
   const result = formatClientApplicationForm(form, mockParams)
 
-  expect(result).toEqual(["Поле: {ИмяПоля}"])
+  expect(result.strings).toEqual(["Поле: {ИмяПоля}"])
 })
 
 it("should format form attributes", () => {
@@ -55,7 +58,10 @@ it("should format form attributes", () => {
         name: "ИмяАтрибута",
         id: "1",
         title: { items: { ru: "Атрибут" } },
-        type: { type: ["string"], stringQualifiers: { length: 10, allowedLength: "Variable" } },
+        type: {
+          type: ["string"],
+          stringQualifiers: { length: 10, allowedLength: "Variable" },
+        },
       },
     ],
   }
