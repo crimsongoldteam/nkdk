@@ -96,27 +96,56 @@ function compress(arr: any[], options: any, jPath: string): any {
       else text += "" + tagObj[property]
     } else if (property === undefined) {
       continue
-    } else if (property && tagObj[property]) {
+    } else if (property) {
+      // Check for attributes first - they can be in different locations depending on parser config
+      // With preserveOrder: true and attributesGroupName: "@attributes", they're in tagObj[":@"]["@attributes"]
+      // Otherwise they might be in tagObj["@attributes"] or tagObj[":@"]
+      let attrs = tagObj["@attributes"]
+      if (!attrs && tagObj[":@"]) {
+        attrs = tagObj[":@"]["@attributes"] || tagObj[":@"]
+      }
       const isArray = options.isArray(property, newJpath, false)
-      let newOptions = { ...options }
-      newOptions.preserveOrder = isArray
-      let val = compress(tagObj[property], newOptions, newJpath)
-      // const isLeaf = this.isLeafTag(val, options)
-      if (tagObj[METADATA_SYMBOL] !== undefined) {
-        val[METADATA_SYMBOL] = tagObj[METADATA_SYMBOL] // copy over metadata
+
+      let val: any
+      if (tagObj[property]) {
+        let newOptions = { ...options }
+        newOptions.preserveOrder = isArray
+        val = compress(tagObj[property], newOptions, newJpath)
+        // const isLeaf = this.isLeafTag(val, options)
+        if (tagObj[METADATA_SYMBOL] !== undefined) {
+          val[METADATA_SYMBOL] = tagObj[METADATA_SYMBOL] // copy over metadata
+        }
+      } else {
+        // Element has no children, initialize as empty object if attributes exist
+        val = attrs ? {} : undefined
       }
 
-      if (tagObj[":@"]) {
-        assignAttributes(val, tagObj[":@"], newJpath, options)
-      } else if (
-        Object.keys(val).length === 1 &&
-        val[options.textNodeName] !== undefined &&
-        !options.alwaysCreateTextNode
-      ) {
-        val = val[options.textNodeName]
-      } else if (Object.keys(val).length === 0) {
-        if (options.alwaysCreateTextNode) val[options.textNodeName] = ""
-        else val = undefined
+      if (attrs) {
+        // Ensure val is an object to assign attributes to
+        if (
+          val === undefined ||
+          (typeof val === "object" &&
+            Object.keys(val).length === 0 &&
+            !Array.isArray(val))
+        ) {
+          val = {}
+        }
+        assignAttributes(val, attrs, newJpath, options)
+      }
+
+      if (!attrs) {
+        if (val && typeof val === "object" && !Array.isArray(val)) {
+          if (
+            Object.keys(val).length === 1 &&
+            val[options.textNodeName] !== undefined &&
+            !options.alwaysCreateTextNode
+          ) {
+            val = val[options.textNodeName]
+          } else if (Object.keys(val).length === 0) {
+            if (options.alwaysCreateTextNode) val[options.textNodeName] = ""
+            else val = undefined
+          }
+        }
       }
 
       if (options.preserveOrder) {
@@ -147,7 +176,7 @@ function propName(obj: any): string | undefined {
   const keys = Object.keys(obj)
   for (const element of keys) {
     const key = element
-    if (key !== ":@") return key
+    if (key !== ":@" && key !== "@attributes") return key
   }
   return undefined
 }

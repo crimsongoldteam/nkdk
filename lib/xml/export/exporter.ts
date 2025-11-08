@@ -19,6 +19,7 @@ export default function xmlExport<T>(
     // attributesGroupName: "@attributes",
   })
 
+  // @ts-ignore
   builder.options.attributesGroupName = "@attributes"
 
   const xml = builder.build(parsedData)
