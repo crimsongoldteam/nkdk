@@ -5,7 +5,7 @@ export const exportI8nTextToXML = (
 ): TI8nTextXML | undefined => {
   if (!data) return undefined
 
-  const items: Array<{ "v8:lang": string; "v8:content": string }> = []
+  const items: TI8nTextXML = []
 
   Object.entries(data.items).forEach(([lang, content]) => {
     items.push({ "v8:item": { "v8:lang": lang, "v8:content": content } })

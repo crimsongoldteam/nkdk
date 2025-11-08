@@ -1,8 +1,7 @@
 import { expect, it, describe } from "vitest"
 import { exportI8nTextToXML } from "./exportI8nTextToXML"
-import { importI8nTextFromXML } from "./importI8nTextFromXML"
-import { TI8nText, TI8nTextXML, ZI8nTextXML } from "./types"
-import { xmlExport, xmlImport } from "~/lib"
+import { TI8nText, ZI8nTextXML } from "./types"
+import { xmlExport } from "~/lib"
 import z from "zod"
 
 describe("exportI8nTextToXML", () => {
