@@ -1,10 +1,15 @@
 import { TBorder, TBorderXML } from "./types"
 import type { TControlBorderType } from "~/lib/metadata/systemEnumerations/types"
 
-export const importBorderFromXML = (xml: TBorderXML | { Border: TBorderXML } | undefined): TBorder | undefined => {
+export const importBorderFromXML = (
+  xml: TBorderXML | { Border: TBorderXML } | undefined
+): TBorder | undefined => {
   if (!xml) return undefined
 
-  const node: TBorderXML = ("Border" in (xml as any) ? (xml as any).Border : xml) as TBorderXML
+  const node: TBorderXML = (
+    "Border" in (xml as any) ? (xml as any).Border : xml
+  ) as TBorderXML
+  console.log("node:", JSON.stringify(node, null, 2))
 
   const style = node["v8ui:style"]
   const controlBorderType: TControlBorderType | undefined =
@@ -14,10 +19,16 @@ export const importBorderFromXML = (xml: TBorderXML | { Border: TBorderXML } | u
       ? (style["#text"] as TControlBorderType | undefined)
       : undefined
 
-  const result: TBorder = {
-    ref: node._ref,
-    width: node._width !== undefined ? Number(node._width) : undefined,
-    controlBorderType,
+  const result: TBorder = {}
+
+  if (node._ref !== undefined) {
+    result.ref = node._ref
+  }
+  if (node._width !== undefined) {
+    result.width = Number(node._width)
+  }
+  if (controlBorderType !== undefined) {
+    result.controlBorderType = controlBorderType
   }
 
   return result

@@ -1,4 +1,4 @@
-import { expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 import xmlImport from "~/lib/xml/import/importer"
 import { importBorderFromXML } from "./importFromXML"
 import type { TBorder, TBorderXML } from "./types"
@@ -6,33 +6,41 @@ import * as SE from "~/lib/metadata/systemEnumerations/types"
 import z from "zod"
 import { ZBorderXML } from "./types"
 
-it("should import Border by ref", () => {
-  const mockXml = `<Border ref="style:ControlBorder"/>`
+describe("importBorderFromXML", () => {
+  it("should import Border by ref", () => {
+    const mockXml = `<Border ref="style:ControlBorder"/>`
 
-  const expected: TBorder = {
-    ref: "style:ControlBorder",
-  }
+    const expected: TBorder = {
+      ref: "style:ControlBorder",
+    }
 
-  const xml = xmlImport<{ Border: TBorderXML }>(mockXml, z.object({ Border: ZBorderXML }))
+    const xml = xmlImport<{ Border: TBorderXML }>(
+      mockXml,
+      z.object({ Border: ZBorderXML })
+    )
 
-  const result = importBorderFromXML(xml.Border)
+    const result = importBorderFromXML(xml.Border)
 
-  expect(result).toEqual(expected)
-})
+    expect(result).toEqual(expected)
+  })
 
-it("should import Border with width and style", () => {
-  const mockXml = `<Border width="1">
+  it("should import Border with width and style", () => {
+    const mockXml = `<Border width="1">
     <v8ui:style xsi:type="v8ui:ControlBorderType">Indented</v8ui:style>
   </Border>`
 
-  const expected: TBorder = {
-    width: 1,
-    controlBorderType: SE.ZControlBorderType.enum.Indented,
-  }
+    const expected: TBorder = {
+      width: 1,
+      controlBorderType: SE.ZControlBorderType.enum.Indented,
+    }
 
-  const xml = xmlImport<{ Border: TBorderXML }>(mockXml, z.object({ Border: ZBorderXML }))
+    const xml = xmlImport<{ Border: TBorderXML }>(
+      mockXml,
+      z.object({ Border: ZBorderXML })
+    )
 
-  const result = importBorderFromXML(xml.Border)
+    const result = importBorderFromXML(xml.Border)
 
-  expect(result).toEqual(expected)
+    expect(result).toEqual(expected)
+  })
 })
