@@ -44,9 +44,14 @@ enum ElementType {
   FormGroup = "ГруппаФормы",
 }
 
-export const ZElementType = z.enum(Object.keys(ElementType) as [TElementType, ...TElementType[]])
+export const ZElementType = z.enum(
+  Object.keys(ElementType) as [TElementType, ...TElementType[]]
+)
 export const ZElementTypeEnterprise = z.enum(
-  Object.values(ElementType) as [TElementTypeEnterprise, ...TElementTypeEnterprise[]]
+  Object.values(ElementType) as [
+    TElementTypeEnterprise,
+    ...TElementTypeEnterprise[]
+  ]
 )
 
 export type TElementType = keyof typeof ElementType

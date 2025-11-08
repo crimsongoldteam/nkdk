@@ -6,7 +6,14 @@ export function formatCommands(commands: TCommand[]): string[] {
   const commandsEnterprise = commands.map((command) => formatCommand(command))
 
   return commandsEnterprise.map((command) =>
-    yaml.dump(command, { indent: 2, lineWidth: -1, noRefs: true, sortKeys: false }).trim()
+    yaml
+      .dump(command, {
+        indent: 2,
+        lineWidth: -1,
+        noRefs: true,
+        sortKeys: false,
+      })
+      .trim()
   )
 }
 
