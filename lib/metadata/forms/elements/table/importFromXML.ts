@@ -7,6 +7,9 @@ import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importCommandSetFromXML } from "~/lib/metadata/forms/commandSet/importFromXML"
+import { importSearchStringAdditionFromXML } from "~/lib/metadata/forms/elements/searchStringAddition/importFromXML"
+import { importViewStatusAdditionFromXML } from "~/lib/metadata/forms/elements/viewStatusAddition/importFromXML"
+import { importSearchControlAdditionFromXML } from "~/lib/metadata/forms/elements/searchControlAddition/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { TTableXML, TTable } from "./types"
 import { ZElementType } from "../types"
@@ -73,8 +76,10 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     rowSelectionMode: xml.RowSelectionMode,
     rowsPicture: xml.RowsPicture,
     searchControl: importFormItemAdditionFromXML(xml.SearchControl),
+    searchControlAddition: importSearchControlAdditionFromXML(xml.SearchControlAddition),
     searchControlLocation: xml.SearchControlLocation,
     searchOnInput: xml.SearchOnInput,
+    searchStringAddition: importSearchStringAdditionFromXML(xml.SearchStringAddition),
     searchStringLocation: xml.SearchStringLocation,
     searchStringRepresentation: importFormItemAdditionFromXML(xml.SearchStringRepresentation),
     selectionMode: xml.SelectionMode,
@@ -94,6 +99,7 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     verticalLines: xml.VerticalLines,
     verticalScrollBar: xml.VerticalScrollBar,
     verticalStretch: xml.VerticalStretch,
+    viewStatusAddition: importViewStatusAdditionFromXML(xml.ViewStatusAddition),
     viewStatusLocation: xml.ViewStatusLocation,
     viewStatusRepresentation: importFormItemAdditionFromXML(xml.ViewStatusRepresentation),
     visible: xml.Visible,

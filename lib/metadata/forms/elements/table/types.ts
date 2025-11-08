@@ -11,6 +11,9 @@ import { TChildItems } from "../childItems/typesExt"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZCommandSet, ZCommandSetXML } from "~/lib/metadata/forms/commandSet/types"
+import { ZSearchStringAddition, ZSearchStringAdditionXML } from "~/lib/metadata/forms/elements/searchStringAddition/types"
+import { ZViewStatusAddition, ZViewStatusAdditionXML } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
+import { ZSearchControlAddition, ZSearchControlAdditionXML } from "~/lib/metadata/forms/elements/searchControlAddition/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZTable = ZBaseElement.extend({
@@ -76,8 +79,14 @@ export const ZTable = ZBaseElement.extend({
   rowSelectionMode: SE.ZTableRowSelectionMode.optional(),
   rowsPicture: z.boolean().optional(),
   searchControl: ZFormItemAddition.optional(),
+  get searchControlAddition() {
+    return ZSearchControlAddition.optional()
+  },
   searchControlLocation: SE.ZSearchControlLocation.optional(),
   searchOnInput: SE.ZSearchInTableOnInput.optional(),
+  get searchStringAddition() {
+    return ZSearchStringAddition.optional()
+  },
   searchStringLocation: SE.ZSearchStringLocation.optional(),
   searchStringRepresentation: ZFormItemAddition.optional(),
   selectionMode: SE.ZTableSelectionMode.optional(),
@@ -97,6 +106,9 @@ export const ZTable = ZBaseElement.extend({
   verticalLines: z.boolean().optional(),
   verticalScrollBar: SE.ZScrollBarUse.optional(),
   verticalStretch: z.boolean().optional(),
+  get viewStatusAddition() {
+    return ZViewStatusAddition.optional()
+  },
   viewStatusLocation: SE.ZViewStatusLocation.optional(),
   viewStatusRepresentation: ZFormItemAddition.optional(),
   visible: z.boolean().optional(),
@@ -169,6 +181,7 @@ export const ZTableXML = z.object({
   VerticalScrollBar: SE.ZScrollBarUse.optional(),
   HorizontalLines: z.boolean().optional(),
   VerticalLines: z.boolean().optional(),
+  AutoInsertNewRow: z.boolean().optional(),
   UseAlternationRowColor: z.boolean().optional(),
   AutoAddIncomplete: z.boolean().optional(),
   AutoMarkIncomplete: z.boolean().optional(),
@@ -208,7 +221,9 @@ export const ZTableXML = z.object({
   get ExtendedTooltip() {
     return ZFormDecorationXML.optional()
   },
-  AutoInsertNewRow: z.boolean().optional(),
+  SearchStringAddition: ZSearchStringAdditionXML.optional(),
+  ViewStatusAddition: ZViewStatusAdditionXML.optional(),
+  SearchControlAddition: ZSearchControlAdditionXML.optional(),
   AutoMaxHeightInTableRows: z.boolean().optional(),
   get CommandBar() {
     return ZCommandBarXML.optional()

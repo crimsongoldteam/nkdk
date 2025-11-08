@@ -2061,10 +2061,19 @@
 														</ChildItems>
 													</ContextMenu>
 													<AutoCommandBar name="ФайлыКоманднаяПанель" id="82">
-														<Autofill>false</Autofill>
 														<HorizontalAlign>Right</HorizontalAlign>
+														<Autofill>false</Autofill>
 													</AutoCommandBar>
 													<ExtendedTooltip name="ФайлыExtendedTooltip" id="1136"/>
+													<SearchStringAddition name="ФайлыСтрокаПоиска" id="1588">
+														<ContextMenu name="ФайлыСтрокаПоискаКонтекстноеМеню" id="1589"/>
+													</SearchStringAddition>
+													<ViewStatusAddition name="ФайлыСостояниеПросмотра" id="1591">
+														<ContextMenu name="ФайлыСостояниеПросмотраКонтекстноеМеню" id="1592"/>
+													</ViewStatusAddition>
+													<SearchControlAddition name="ФайлыУправлениеПоиском" id="1594">
+														<ContextMenu name="ФайлыУправлениеПоискомКонтекстноеМеню" id="1595"/>
+													</SearchControlAddition>
 													<ChildItems>
 														<ColumnGroup name="ГруппаДанныеФайла" id="1714">
 															<Title>
@@ -2115,20 +2124,20 @@
 																			<ChildItems>
 																				<PictureField name="Картинка" id="84">
 																					<DataPath>Файлы.ИндексКартинки</DataPath>
+																					<ShowInHeader>false</ShowInHeader>
+																					<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																					<Width>2</Width>
+																					<Height>1</Height>
 																					<ValuesPicture>
 																						<xr:Ref>CommonPicture.КоллекцияПиктограммФайлов</xr:Ref>
 																						<xr:LoadTransparent>false</xr:LoadTransparent>
 																					</ValuesPicture>
-																					<FileDragMode>AsFile</FileDragMode>
-																					<ContextMenu name="КартинкаКонтекстноеМеню" id="85"/>
-																					<ExtendedTooltip name="КартинкаExtendedTooltip" id="1140"/>
 																					<Border width="1">
 																						<v8ui:style xsi:type="v8ui:ControlBorderType">WithoutBorder</v8ui:style>
 																					</Border>
-																					<FooterHorizontalAlign>Left</FooterHorizontalAlign>
-																					<Height>1</Height>
-																					<ShowInHeader>false</ShowInHeader>
+																					<FileDragMode>AsFile</FileDragMode>
+																					<ContextMenu name="КартинкаКонтекстноеМеню" id="85"/>
+																					<ExtendedTooltip name="КартинкаExtendedTooltip" id="1140"/>
 																				</PictureField>
 																				<InputField name="НаименованиеФайла" id="86">
 																					<DataPath>Файлы.Наименование</DataPath>
@@ -2138,36 +2147,36 @@
 																							<v8:content>Документ и файлы</v8:content>
 																						</v8:item>
 																					</Title>
+																					<AutoCellHeight>true</AutoCellHeight>
+																					<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																					<Width>5</Width>
 																					<Wrap>false</Wrap>
 																					<TextEdit>false</TextEdit>
 																					<BorderColor>style:BorderColor</BorderColor>
 																					<ContextMenu name="НаименованиеФайлаКонтекстноеМеню" id="87"/>
 																					<ExtendedTooltip name="НаименованиеФайлаExtendedTooltip" id="1141"/>
-																					<AutoCellHeight>true</AutoCellHeight>
-																					<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																				</InputField>
 																				<InputField name="ФайлыРольФайла" id="2988">
 																					<DataPath>Файлы.РольФайла</DataPath>
 																					<Visible>false</Visible>
-																					<ContextMenu name="ФайлыРольФайлаКонтекстноеМеню" id="2989"/>
-																					<ExtendedTooltip name="ФайлыРольФайлаРасширеннаяПодсказка" id="2990"/>
 																					<EditMode>EnterOnInput</EditMode>
 																					<ShowInHeader>false</ShowInHeader>
+																					<ContextMenu name="ФайлыРольФайлаКонтекстноеМеню" id="2989"/>
+																					<ExtendedTooltip name="ФайлыРольФайлаРасширеннаяПодсказка" id="2990"/>
 																				</InputField>
 																				<InputField name="Описание" id="127">
 																					<DataPath>Файлы.Описание</DataPath>
 																					<UserVisible>
 																						<xr:Common>false</xr:Common>
 																					</UserVisible>
+																					<AutoCellHeight>true</AutoCellHeight>
+																					<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																					<Width>5</Width>
 																					<Wrap>false</Wrap>
 																					<TextEdit>false</TextEdit>
 																					<BorderColor>style:BorderColor</BorderColor>
 																					<ContextMenu name="ОписаниеКонтекстноеМеню" id="128"/>
 																					<ExtendedTooltip name="ОписаниеExtendedTooltip" id="1142"/>
-																					<AutoCellHeight>true</AutoCellHeight>
-																					<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																				</InputField>
 																			</ChildItems>
 																		</ColumnGroup>
@@ -2216,26 +2225,26 @@
 																					<v8:content>Автор</v8:content>
 																				</v8:item>
 																			</Title>
+																			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																			<Width>1</Width>
 																			<Wrap>false</Wrap>
 																			<TextEdit>false</TextEdit>
 																			<BorderColor>style:BorderColor</BorderColor>
 																			<ContextMenu name="АвторКонтекстноеМеню" id="132"/>
 																			<ExtendedTooltip name="АвторExtendedTooltip" id="1144"/>
-																			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																		</InputField>
 																		<InputField name="Редактирует" id="133">
 																			<DataPath>Файлы.Редактирует</DataPath>
 																			<UserVisible>
 																				<xr:Common>false</xr:Common>
 																			</UserVisible>
+																			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																			<Width>1</Width>
 																			<Wrap>false</Wrap>
 																			<TextEdit>false</TextEdit>
 																			<BorderColor>style:BorderColor</BorderColor>
 																			<ContextMenu name="РедактируетКонтекстноеМеню" id="134"/>
 																			<ExtendedTooltip name="РедактируетExtendedTooltip" id="1145"/>
-																			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																		</InputField>
 																		<InputField name="ТекущаяВерсияРазмер" id="135">
 																			<DataPath>Файлы.ТекущаяВерсияРазмер</DataPath>
@@ -2290,6 +2299,7 @@
 																					<v8:content>Отредактирован</v8:content>
 																				</v8:item>
 																			</Title>
+																			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																			<ToolTip>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -2302,7 +2312,6 @@
 																			<BorderColor>style:BorderColor</BorderColor>
 																			<ContextMenu name="ТекущаяВерсияДатаСозданияКонтекстноеМеню" id="140"/>
 																			<ExtendedTooltip name="ТекущаяВерсияДатаСозданияExtendedTooltip" id="1148"/>
-																			<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																		</InputField>
 																		<CheckBoxField name="ХранитьВерсии" id="141">
 																			<CheckBoxType>Auto</CheckBoxType>
@@ -2795,18 +2804,18 @@
 															<DataPath>СтатусВзаимодействие</DataPath>
 															<TitleLocation>None</TitleLocation>
 															<Width>3</Width>
+															<Height>2</Height>
 															<Hyperlink>true</Hyperlink>
 															<ValuesPicture>
 																<xr:Ref>CommonPicture.СтатусыВзаимодействияСотрудниковЗеленый24</xr:Ref>
 																<xr:LoadTransparent>false</xr:LoadTransparent>
 															</ValuesPicture>
-															<FileDragMode>AsFile</FileDragMode>
-															<ContextMenu name="КартинкаВзаимодействиеКонтекстноеМеню" id="1807"/>
-															<ExtendedTooltip name="КартинкаВзаимодействиеExtendedTooltip" id="1808"/>
 															<Border width="1">
 																<v8ui:style xsi:type="v8ui:ControlBorderType">WithoutBorder</v8ui:style>
 															</Border>
-															<Height>2</Height>
+															<FileDragMode>AsFile</FileDragMode>
+															<ContextMenu name="КартинкаВзаимодействиеКонтекстноеМеню" id="1807"/>
+															<ExtendedTooltip name="КартинкаВзаимодействиеExtendedTooltip" id="1808"/>
 															<HorizontalStretch>false</HorizontalStretch>
 															<VerticalStretch>false</VerticalStretch>
 															<Events>
@@ -2817,18 +2826,18 @@
 															<DataPath>СтатусЭП</DataPath>
 															<TitleLocation>None</TitleLocation>
 															<Width>3</Width>
+															<Height>2</Height>
 															<Hyperlink>true</Hyperlink>
 															<ValuesPicture>
 																<xr:Ref>CommonPicture.СтатусыПроверкиЭП24</xr:Ref>
 																<xr:LoadTransparent>false</xr:LoadTransparent>
 															</ValuesPicture>
-															<FileDragMode>AsFile</FileDragMode>
-															<ContextMenu name="КартинкаЭПКонтекстноеМеню" id="1810"/>
-															<ExtendedTooltip name="КартинкаЭПРасширеннаяПодсказка" id="1811"/>
 															<Border width="1">
 																<v8ui:style xsi:type="v8ui:ControlBorderType">WithoutBorder</v8ui:style>
 															</Border>
-															<Height>2</Height>
+															<FileDragMode>AsFile</FileDragMode>
+															<ContextMenu name="КартинкаЭПКонтекстноеМеню" id="1810"/>
+															<ExtendedTooltip name="КартинкаЭПРасширеннаяПодсказка" id="1811"/>
 															<HorizontalStretch>false</HorizontalStretch>
 															<VerticalStretch>false</VerticalStretch>
 															<Events>
@@ -2839,18 +2848,18 @@
 															<DataPath>СтатусКатегории</DataPath>
 															<TitleLocation>None</TitleLocation>
 															<Width>3</Width>
+															<Height>2</Height>
 															<Hyperlink>true</Hyperlink>
 															<ValuesPicture>
 																<xr:Ref>CommonPicture.СтатусыКатегорий24</xr:Ref>
 																<xr:LoadTransparent>false</xr:LoadTransparent>
 															</ValuesPicture>
-															<FileDragMode>AsFile</FileDragMode>
-															<ContextMenu name="КартинкаКатегорииКонтекстноеМеню" id="1813"/>
-															<ExtendedTooltip name="КартинкаКатегорииExtendedTooltip" id="1814"/>
 															<Border width="1">
 																<v8ui:style xsi:type="v8ui:ControlBorderType">WithoutBorder</v8ui:style>
 															</Border>
-															<Height>2</Height>
+															<FileDragMode>AsFile</FileDragMode>
+															<ContextMenu name="КартинкаКатегорииКонтекстноеМеню" id="1813"/>
+															<ExtendedTooltip name="КартинкаКатегорииExtendedTooltip" id="1814"/>
 															<HorizontalStretch>false</HorizontalStretch>
 															<VerticalStretch>false</VerticalStretch>
 															<Events>
@@ -2861,18 +2870,18 @@
 															<DataPath>СтатусФорум</DataPath>
 															<TitleLocation>None</TitleLocation>
 															<Width>3</Width>
+															<Height>2</Height>
 															<Hyperlink>true</Hyperlink>
 															<ValuesPicture>
 																<xr:Ref>CommonPicture.СтатусыФорума24</xr:Ref>
 																<xr:LoadTransparent>false</xr:LoadTransparent>
 															</ValuesPicture>
-															<FileDragMode>AsFile</FileDragMode>
-															<ContextMenu name="КартинкаФорумКонтекстноеМеню" id="1950"/>
-															<ExtendedTooltip name="КартинкаФорумРасширеннаяПодсказка" id="1951"/>
 															<Border width="1">
 																<v8ui:style xsi:type="v8ui:ControlBorderType">WithoutBorder</v8ui:style>
 															</Border>
-															<Height>2</Height>
+															<FileDragMode>AsFile</FileDragMode>
+															<ContextMenu name="КартинкаФорумКонтекстноеМеню" id="1950"/>
+															<ExtendedTooltip name="КартинкаФорумРасширеннаяПодсказка" id="1951"/>
 															<HorizontalStretch>false</HorizontalStretch>
 															<VerticalStretch>false</VerticalStretch>
 															<Events>
@@ -2883,18 +2892,18 @@
 															<DataPath>СтатусКонтроля</DataPath>
 															<TitleLocation>None</TitleLocation>
 															<Width>3</Width>
+															<Height>2</Height>
 															<Hyperlink>true</Hyperlink>
 															<ValuesPicture>
 																<xr:Ref>CommonPicture.СостоянияКонтроляДляОбзора24</xr:Ref>
 																<xr:LoadTransparent>false</xr:LoadTransparent>
 															</ValuesPicture>
-															<FileDragMode>AsFile</FileDragMode>
-															<ContextMenu name="КартинкаКонтрольКонтекстноеМеню" id="1816"/>
-															<ExtendedTooltip name="КартинкаКонтрольРасширеннаяПодсказка" id="1817"/>
 															<Border width="1">
 																<v8ui:style xsi:type="v8ui:ControlBorderType">WithoutBorder</v8ui:style>
 															</Border>
-															<Height>2</Height>
+															<FileDragMode>AsFile</FileDragMode>
+															<ContextMenu name="КартинкаКонтрольКонтекстноеМеню" id="1816"/>
+															<ExtendedTooltip name="КартинкаКонтрольРасширеннаяПодсказка" id="1817"/>
 															<HorizontalStretch>false</HorizontalStretch>
 															<VerticalStretch>false</VerticalStretch>
 															<Events>
@@ -2905,17 +2914,17 @@
 															<DataPath>СостояниеДелаХранения</DataPath>
 															<TitleLocation>None</TitleLocation>
 															<Width>3</Width>
+															<Height>2</Height>
 															<ValuesPicture>
 																<xr:Ref>CommonPicture.СостоянияДелХраненияДокументов24</xr:Ref>
 																<xr:LoadTransparent>false</xr:LoadTransparent>
 															</ValuesPicture>
-															<FileDragMode>AsFile</FileDragMode>
-															<ContextMenu name="КартинкаСостояниеДелаКонтекстноеМеню" id="3712"/>
-															<ExtendedTooltip name="КартинкаСостояниеДелаРасширеннаяПодсказка" id="3713"/>
 															<Border width="1">
 																<v8ui:style xsi:type="v8ui:ControlBorderType">WithoutBorder</v8ui:style>
 															</Border>
-															<Height>2</Height>
+															<FileDragMode>AsFile</FileDragMode>
+															<ContextMenu name="КартинкаСостояниеДелаКонтекстноеМеню" id="3712"/>
+															<ExtendedTooltip name="КартинкаСостояниеДелаРасширеннаяПодсказка" id="3713"/>
 															<HorizontalStretch>false</HorizontalStretch>
 															<VerticalStretch>false</VerticalStretch>
 														</PictureField>
@@ -2927,18 +2936,18 @@
 															</UserVisible>
 															<TitleLocation>None</TitleLocation>
 															<Width>3</Width>
+															<Height>2</Height>
 															<Hyperlink>true</Hyperlink>
 															<ValuesPicture>
 																<xr:Ref>CommonPicture.СтатусыЭДО24</xr:Ref>
 																<xr:LoadTransparent>false</xr:LoadTransparent>
 															</ValuesPicture>
-															<FileDragMode>AsFile</FileDragMode>
-															<ContextMenu name="КартинкаЭДОКонтекстноеМеню" id="2422"/>
-															<ExtendedTooltip name="КартинкаЭДОРасширеннаяПодсказка" id="2423"/>
 															<Border width="1">
 																<v8ui:style xsi:type="v8ui:ControlBorderType">WithoutBorder</v8ui:style>
 															</Border>
-															<Height>2</Height>
+															<FileDragMode>AsFile</FileDragMode>
+															<ContextMenu name="КартинкаЭДОКонтекстноеМеню" id="2422"/>
+															<ExtendedTooltip name="КартинкаЭДОРасширеннаяПодсказка" id="2423"/>
 															<HorizontalStretch>false</HorizontalStretch>
 															<VerticalStretch>false</VerticalStretch>
 															<Events>
@@ -3051,6 +3060,7 @@
 													<ChildItems>
 														<InputField name="Заголовок" id="7">
 															<DataPath>Объект.Заголовок</DataPath>
+															<EditMode>EnterOnInput</EditMode>
 															<TitleLocation>None</TitleLocation>
 															<ToolTip>
 																<v8:item>
@@ -3067,12 +3077,12 @@
 															</InputHint>
 															<ContextMenu name="ЗаголовокКонтекстноеМеню" id="8"/>
 															<ExtendedTooltip name="ЗаголовокExtendedTooltip" id="1166"/>
-															<EditMode>EnterOnInput</EditMode>
 														</InputField>
 													</ChildItems>
 												</UsualGroup>
 												<InputField name="Содержание" id="9">
 													<DataPath>Объект.Содержание</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<TitleLocation>None</TitleLocation>
 													<ToolTip>
 														<v8:item>
@@ -3098,7 +3108,6 @@
 														</ChildItems>
 													</ContextMenu>
 													<ExtendedTooltip name="СодержаниеExtendedTooltip" id="1168"/>
-													<EditMode>EnterOnInput</EditMode>
 												</InputField>
 												<UsualGroup name="ГруппаПредметПерепискиНесколько" id="3473">
 													<Title>
@@ -3172,6 +3181,15 @@
 															<ContextMenu name="СписокПредметовПерепискиКонтекстноеМеню" id="3444"/>
 															<AutoCommandBar name="СписокПредметовПерепискиКоманднаяПанель" id="3443"/>
 															<ExtendedTooltip name="СписокПредметовПерепискиРасширеннаяПодсказка" id="3445"/>
+															<SearchStringAddition name="СписокПредметовПерепискиСтрокаПоиска" id="3447">
+																<ContextMenu name="СписокПредметовПерепискиСтрокаПоискаКонтекстноеМеню" id="3453"/>
+															</SearchStringAddition>
+															<ViewStatusAddition name="СписокПредметовПерепискиСостояниеПросмотра" id="3448">
+																<ContextMenu name="СписокПредметовПерепискиСостояниеПросмотраКонтекстноеМеню" id="3455"/>
+															</ViewStatusAddition>
+															<SearchControlAddition name="СписокПредметовПерепискиУправлениеПоиском" id="3446">
+																<ContextMenu name="СписокПредметовПерепискиУправлениеПоискомКонтекстноеМеню" id="3451"/>
+															</SearchControlAddition>
 															<ChildItems>
 																<InputField name="СписокПредметовПерепискиЗначение" id="3449">
 																	<DataPath>СписокПредметовПереписки.Value</DataPath>
@@ -3394,6 +3412,15 @@
 															<ContextMenu name="СписокВОтветНаКонтекстноеМеню" id="3150"/>
 															<AutoCommandBar name="СписокВОтветНаКоманднаяПанель" id="3149"/>
 															<ExtendedTooltip name="СписокВОтветНаРасширеннаяПодсказка" id="3151"/>
+															<SearchStringAddition name="СписокВОтветНаСтрокаПоиска" id="3152">
+																<ContextMenu name="СписокВОтветНаСтрокаПоискаКонтекстноеМеню" id="3153"/>
+															</SearchStringAddition>
+															<ViewStatusAddition name="СписокВОтветНаСостояниеПросмотра" id="3158">
+																<ContextMenu name="СписокВОтветНаСостояниеПросмотраКонтекстноеМеню" id="3159"/>
+															</ViewStatusAddition>
+															<SearchControlAddition name="СписокВОтветНаУправлениеПоиском" id="3155">
+																<ContextMenu name="СписокВОтветНаУправлениеПоискомКонтекстноеМеню" id="3156"/>
+															</SearchControlAddition>
 															<ChildItems>
 																<InputField name="СписокВОтветНаЗначение" id="3161">
 																	<DataPath>СписокВОтветНа.Value</DataPath>
@@ -4189,6 +4216,7 @@
 															<HeightInTableRows>3</HeightInTableRows>
 															<EnableStartDrag>true</EnableStartDrag>
 															<EnableDrag>true</EnableDrag>
+															<AutoInsertNewRow>true</AutoInsertNewRow>
 															<VerticalStretch>false</VerticalStretch>
 															<FileDragMode>AsFile</FileDragMode>
 															<DataPath>Объект.Стороны</DataPath>
@@ -4227,7 +4255,15 @@
 																<Autofill>false</Autofill>
 															</AutoCommandBar>
 															<ExtendedTooltip name="СтороныРасширеннаяПодсказка" id="2165"/>
-															<AutoInsertNewRow>true</AutoInsertNewRow>
+															<SearchStringAddition name="СтороныСтрокаПоиска" id="2166">
+																<ContextMenu name="СтороныСтрокаПоискаКонтекстноеМеню" id="2167"/>
+															</SearchStringAddition>
+															<ViewStatusAddition name="СтороныСостояниеПросмотра" id="2169">
+																<ContextMenu name="СтороныСостояниеПросмотраКонтекстноеМеню" id="2170"/>
+															</ViewStatusAddition>
+															<SearchControlAddition name="СтороныУправлениеПоиском" id="2172">
+																<ContextMenu name="СтороныУправлениеПоискомКонтекстноеМеню" id="2173"/>
+															</SearchControlAddition>
 															<ChildItems>
 																<ColumnGroup name="СтороныМК" id="3656">
 																	<Visible>false</Visible>
@@ -4280,6 +4316,7 @@
 																		</PictureField>
 																		<PictureField name="СтороныИндексКартинкиСтороны" id="2180">
 																			<DataPath>Объект.Стороны.ИндексКартинкиСтороны</DataPath>
+																			<ShowInHeader>false</ShowInHeader>
 																			<TitleLocation>None</TitleLocation>
 																			<Width>2</Width>
 																			<ValuesPicture>
@@ -4291,7 +4328,6 @@
 																			<ExtendedTooltip name="СтороныИндексКартинкиСтороныРасширеннаяПодсказка" id="2182"/>
 																			<AutoMaxWidth>false</AutoMaxWidth>
 																			<EditMode>EnterOnInput</EditMode>
-																			<ShowInHeader>false</ShowInHeader>
 																		</PictureField>
 																	</ChildItems>
 																</ColumnGroup>
@@ -4323,13 +4359,13 @@
 																			<ChildItems>
 																				<InputField name="СтороныСторона" id="2183">
 																					<DataPath>Объект.Стороны.Сторона</DataPath>
+																					<EditMode>EnterOnInput</EditMode>
+																					<ShowInHeader>false</ShowInHeader>
 																					<Width>15</Width>
 																					<CreateButton>true</CreateButton>
 																					<ChooseType>false</ChooseType>
 																					<ContextMenu name="СтороныСторонаКонтекстноеМеню" id="2184"/>
 																					<ExtendedTooltip name="СтороныСторонаРасширеннаяПодсказка" id="2185"/>
-																					<EditMode>EnterOnInput</EditMode>
-																					<ShowInHeader>false</ShowInHeader>
 																					<Events>
 																						<Event name="OnChange">СтороныСторонаПриИзменении</Event>
 																						<Event name="AutoComplete">СтороныСторонаАвтоПодбор</Event>
@@ -4340,6 +4376,7 @@
 																				</InputField>
 																				<PictureField name="СтороныЭтоНекорректныйКонтрагент" id="2426">
 																					<DataPath>Объект.Стороны.ЭтоНекорректныйКонтрагент</DataPath>
+																					<ShowInHeader>false</ShowInHeader>
 																					<ValuesPicture>
 																						<xr:Ref>CommonPicture.НекорректныйКонтрагент</xr:Ref>
 																						<xr:LoadTransparent>false</xr:LoadTransparent>
@@ -4349,16 +4386,15 @@
 																					<ExtendedTooltip name="СтороныЭтоНекорректныйКонтрагентРасширеннаяПодсказка" id="2428"/>
 																					<EditMode>EnterOnInput</EditMode>
 																					<ShowInFooter>false</ShowInFooter>
-																					<ShowInHeader>false</ShowInHeader>
 																				</PictureField>
 																			</ChildItems>
 																		</ColumnGroup>
 																		<InputField name="СтороныКонтактноеЛицо" id="2189">
 																			<DataPath>Объект.Стороны.КонтактноеЛицо</DataPath>
+																			<EditMode>EnterOnInput</EditMode>
 																			<Width>15</Width>
 																			<ContextMenu name="СтороныКонтактноеЛицоКонтекстноеМеню" id="2190"/>
 																			<ExtendedTooltip name="СтороныКонтактноеЛицоРасширеннаяПодсказка" id="2191"/>
-																			<EditMode>EnterOnInput</EditMode>
 																			<Events>
 																				<Event name="OnChange">СтороныКонтактноеЛицоПриИзменении</Event>
 																				<Event name="AutoComplete">СтороныКонтактноеЛицоАвтоПодбор</Event>
@@ -4386,18 +4422,18 @@
 																	<ChildItems>
 																		<InputField name="СтороныНаименование" id="2372">
 																			<DataPath>Объект.Стороны.Наименование</DataPath>
+																			<EditMode>EnterOnInput</EditMode>
 																			<Width>15</Width>
 																			<QuickChoice>true</QuickChoice>
 																			<ContextMenu name="СтороныНаименованиеКонтекстноеМеню" id="2373"/>
 																			<ExtendedTooltip name="СтороныНаименованиеРасширеннаяПодсказка" id="2374"/>
-																			<EditMode>EnterOnInput</EditMode>
 																		</InputField>
 																		<InputField name="СтороныПодписал" id="2186">
 																			<DataPath>Объект.Стороны.Подписал</DataPath>
+																			<EditMode>EnterOnInput</EditMode>
 																			<Width>15</Width>
 																			<ContextMenu name="СтороныПодписалКонтекстноеМеню" id="2187"/>
 																			<ExtendedTooltip name="СтороныПодписалРасширеннаяПодсказка" id="2188"/>
-																			<EditMode>EnterOnInput</EditMode>
 																			<Events>
 																				<Event name="OnChange">СтороныПодписалПриИзменении</Event>
 																				<Event name="AutoComplete">СтороныПодписалАвтоПодбор</Event>
@@ -4435,6 +4471,7 @@
 																		</CheckBoxField>
 																		<InputField name="СтороныДатаПодписи" id="2195">
 																			<DataPath>Объект.Стороны.ДатаПодписи</DataPath>
+																			<EditMode>EnterOnInput</EditMode>
 																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -4456,7 +4493,6 @@
 																					<v8:content>ДФ=dd.MM.yy</v8:content>
 																				</v8:item>
 																			</EditFormat>
-																			<EditMode>EnterOnInput</EditMode>
 																			<Format>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -4483,18 +4519,19 @@
 																	<ChildItems>
 																		<InputField name="СтороныКомментарий" id="2350">
 																			<DataPath>Объект.Стороны.Комментарий</DataPath>
+																			<EditMode>EnterOnInput</EditMode>
 																			<Width>15</Width>
 																			<AutoMaxWidth>false</AutoMaxWidth>
 																			<ChoiceButton>true</ChoiceButton>
 																			<ContextMenu name="СтороныКомментарийКонтекстноеМеню" id="2351"/>
 																			<ExtendedTooltip name="СтороныКомментарийРасширеннаяПодсказка" id="2352"/>
-																			<EditMode>EnterOnInput</EditMode>
 																			<Events>
 																				<Event name="StartChoice">СтороныКомментарийНачалоВыбора</Event>
 																			</Events>
 																		</InputField>
 																		<InputField name="СтороныУстановил" id="2365">
 																			<DataPath>Объект.Стороны.Установил</DataPath>
+																			<EditMode>EnterOnInput</EditMode>
 																			<UserVisible>
 																				<xr:Common>false</xr:Common>
 																			</UserVisible>
@@ -4502,7 +4539,6 @@
 																			<Width>15</Width>
 																			<ContextMenu name="СтороныУстановилКонтекстноеМеню" id="2366"/>
 																			<ExtendedTooltip name="СтороныУстановилРасширеннаяПодсказка" id="2367"/>
-																			<EditMode>EnterOnInput</EditMode>
 																		</InputField>
 																	</ChildItems>
 																</ColumnGroup>
@@ -4859,6 +4895,7 @@
 															<ChildItems>
 																<InputField name="РегистрационныйНомер" id="115">
 																	<DataPath>Объект.РегистрационныйНомер</DataPath>
+																	<EditMode>EnterOnInput</EditMode>
 																	<SkipOnInput>true</SkipOnInput>
 																	<Title>
 																		<v8:item>
@@ -4871,13 +4908,13 @@
 																	<Wrap>false</Wrap>
 																	<ContextMenu name="РегистрационныйНомерКонтекстноеМеню" id="116"/>
 																	<ExtendedTooltip name="РегистрационныйНомерExtendedTooltip" id="1162"/>
-																	<EditMode>EnterOnInput</EditMode>
 																	<Events>
 																		<Event name="OnChange">НомерПриИзменении</Event>
 																	</Events>
 																</InputField>
 																<InputField name="ДатаРегистрации" id="117">
 																	<DataPath>Объект.ДатаРегистрации</DataPath>
+																	<EditMode>EnterOnInput</EditMode>
 																	<SkipOnInput>true</SkipOnInput>
 																	<Title>
 																		<v8:item>
@@ -4903,7 +4940,6 @@
 																			<v8:content>ДФ=&apos;dd.MM.yyyy ЧЧ:мм&apos;</v8:content>
 																		</v8:item>
 																	</EditFormat>
-																	<EditMode>EnterOnInput</EditMode>
 																	<Events>
 																		<Event name="OnChange">ДатаРегистрацииПриИзменении</Event>
 																	</Events>
@@ -5004,11 +5040,11 @@
 															<ChildItems>
 																<InputField name="Папка" id="11">
 																	<DataPath>Объект.Папка</DataPath>
+																	<EditMode>EnterOnInput</EditMode>
 																	<AutoMaxWidth>false</AutoMaxWidth>
 																	<Wrap>false</Wrap>
 																	<ContextMenu name="ПапкаКонтекстноеМеню" id="12"/>
 																	<ExtendedTooltip name="ПапкаExtendedTooltip" id="1194"/>
-																	<EditMode>EnterOnInput</EditMode>
 																	<Events>
 																		<Event name="OnChange">ПапкаПриИзменении</Event>
 																	</Events>
@@ -5036,6 +5072,7 @@
 															<ChildItems>
 																<InputField name="СрокИсполнения" id="145">
 																	<DataPath>Объект.СрокИсполнения</DataPath>
+																	<EditMode>EnterOnInput</EditMode>
 																	<Title>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
@@ -5052,7 +5089,6 @@
 																	<Wrap>false</Wrap>
 																	<ContextMenu name="СрокИсполненияКонтекстноеМеню" id="146"/>
 																	<ExtendedTooltip name="СрокИсполненияExtendedTooltip" id="1184"/>
-																	<EditMode>EnterOnInput</EditMode>
 																	<Events>
 																		<Event name="OnChange">СрокИсполненияПриИзменении</Event>
 																	</Events>
@@ -5774,6 +5810,7 @@
 									<HeightInTableRows>1</HeightInTableRows>
 									<EnableStartDrag>true</EnableStartDrag>
 									<EnableDrag>true</EnableDrag>
+									<AutoInsertNewRow>true</AutoInsertNewRow>
 									<AutoMarkIncomplete>true</AutoMarkIncomplete>
 									<FileDragMode>AsFile</FileDragMode>
 									<DataPath>Объект.Контрагенты</DataPath>
@@ -5870,7 +5907,15 @@
 										</ChildItems>
 									</AutoCommandBar>
 									<ExtendedTooltip name="КонтрагентыРасширеннаяПодсказка" id="2255"/>
-									<AutoInsertNewRow>true</AutoInsertNewRow>
+									<SearchStringAddition name="КонтрагентыСтрокаПоиска" id="2256">
+										<ContextMenu name="КонтрагентыСтрокаПоискаКонтекстноеМеню" id="2257"/>
+									</SearchStringAddition>
+									<ViewStatusAddition name="КонтрагентыСостояниеПросмотра" id="2259">
+										<ContextMenu name="КонтрагентыСостояниеПросмотраКонтекстноеМеню" id="2260"/>
+									</ViewStatusAddition>
+									<SearchControlAddition name="КонтрагентыУправлениеПоиском" id="2262">
+										<ContextMenu name="КонтрагентыУправлениеПоискомКонтекстноеМеню" id="2263"/>
+									</SearchControlAddition>
 									<ChildItems>
 										<ColumnGroup name="КонтрагентыГруппаКолонокМК" id="3678">
 											<Visible>false</Visible>
@@ -5936,10 +5981,10 @@
 											<ChildItems>
 												<InputField name="КонтрагентыКонтрагент" id="2270">
 													<DataPath>Объект.Контрагенты.Контрагент</DataPath>
-													<ContextMenu name="КонтрагентыКонтрагентКонтекстноеМеню" id="2271"/>
-													<ExtendedTooltip name="КонтрагентыКонтрагентExtendedTooltip" id="2272"/>
 													<EditMode>EnterOnInput</EditMode>
 													<ShowInHeader>false</ShowInHeader>
+													<ContextMenu name="КонтрагентыКонтрагентКонтекстноеМеню" id="2271"/>
+													<ExtendedTooltip name="КонтрагентыКонтрагентExtendedTooltip" id="2272"/>
 													<Events>
 														<Event name="OnChange">КонтрагентыКонтрагентПриИзменении</Event>
 														<Event name="StartChoice">КонтрагентыКонтрагентНачалоВыбора</Event>
@@ -5948,6 +5993,7 @@
 												</InputField>
 												<PictureField name="КонтрагентыЭтоНекорректныйКонтрагент" id="2273">
 													<DataPath>Объект.Контрагенты.ЭтоНекорректныйКонтрагент</DataPath>
+													<ShowInHeader>false</ShowInHeader>
 													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -5966,12 +6012,12 @@
 													<CellHyperlink>true</CellHyperlink>
 													<EditMode>EnterOnInput</EditMode>
 													<HorizontalStretch>false</HorizontalStretch>
-													<ShowInHeader>false</ShowInHeader>
 												</PictureField>
 											</ChildItems>
 										</ColumnGroup>
 										<InputField name="КонтрагентыПодписалОтКонтрагента" id="2276">
 											<DataPath>Объект.Контрагенты.ПодписалОтКонтрагента</DataPath>
+											<EditMode>EnterOnInput</EditMode>
 											<Title>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
@@ -5987,13 +6033,13 @@
 													<xr:ValueChange>Clear</xr:ValueChange>
 												</xr:Link>
 											</ChoiceParameterLinks>
-											<EditMode>EnterOnInput</EditMode>
 											<Events>
 												<Event name="StartChoice">КонтрагентыПодписалОтКонтрагентаНачалоВыбора</Event>
 											</Events>
 										</InputField>
 										<InputField name="КонтрагентыКонтактноеЛицо" id="2279">
 											<DataPath>Объект.Контрагенты.КонтактноеЛицо</DataPath>
+											<EditMode>EnterOnInput</EditMode>
 											<Title>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
@@ -6010,7 +6056,6 @@
 													<xr:ValueChange>Clear</xr:ValueChange>
 												</xr:Link>
 											</ChoiceParameterLinks>
-											<EditMode>EnterOnInput</EditMode>
 											<Events>
 												<Event name="StartChoice">КонтрагентыКонтактноеЛицоНачалоВыбора</Event>
 											</Events>
@@ -6037,6 +6082,7 @@
 												</CheckBoxField>
 												<InputField name="КонтрагентыДатаОтправки" id="2708">
 													<DataPath>Объект.Контрагенты.ДатаОтправки</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Width>12</Width>
 													<HorizontalStretch>false</HorizontalStretch>
 													<ContextMenu name="КонтрагентыДатаОтправкиКонтекстноеМеню" id="2709"/>
@@ -6047,7 +6093,6 @@
 															<v8:content>ДФ=&quot;dd.MM.yyyy ЧЧ:мм&quot;</v8:content>
 														</v8:item>
 													</EditFormat>
-													<EditMode>EnterOnInput</EditMode>
 													<Format>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -6057,6 +6102,7 @@
 												</InputField>
 												<InputField name="КонтрагентыСпособОтправки" id="2711">
 													<DataPath>Объект.Контрагенты.СпособОтправки</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -6073,13 +6119,13 @@
 													<HorizontalStretch>false</HorizontalStretch>
 													<ContextMenu name="КонтрагентыСпособОтправкиКонтекстноеМеню" id="2712"/>
 													<ExtendedTooltip name="КонтрагентыСпособОтправкиРасширеннаяПодсказка" id="2713"/>
-													<EditMode>EnterOnInput</EditMode>
 													<Events>
 														<Event name="OnChange">КонтрагентыСпособОтправкиПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="КонтрагентыВходящийНомер" id="2714">
 													<DataPath>Объект.Контрагенты.ВходящийНомер</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -6090,10 +6136,10 @@
 													<HorizontalStretch>false</HorizontalStretch>
 													<ContextMenu name="КонтрагентыВходящийНомерКонтекстноеМеню" id="2715"/>
 													<ExtendedTooltip name="КонтрагентыВходящийНомерРасширеннаяПодсказка" id="2716"/>
-													<EditMode>EnterOnInput</EditMode>
 												</InputField>
 												<InputField name="КонтрагентыВходящаяДата" id="2717">
 													<DataPath>Объект.Контрагенты.ВходящаяДата</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -6104,7 +6150,6 @@
 													<HorizontalStretch>false</HorizontalStretch>
 													<ContextMenu name="КонтрагентыВходящаяДатаКонтекстноеМеню" id="2718"/>
 													<ExtendedTooltip name="КонтрагентыВходящаяДатаРасширеннаяПодсказка" id="2719"/>
-													<EditMode>EnterOnInput</EditMode>
 												</InputField>
 											</ChildItems>
 										</ColumnGroup>
@@ -6142,6 +6187,7 @@
 									<HeightInTableRows>1</HeightInTableRows>
 									<EnableDrag>true</EnableDrag>
 									<VerticalLines>false</VerticalLines>
+									<AutoInsertNewRow>true</AutoInsertNewRow>
 									<InitialTreeView>ExpandAllLevels</InitialTreeView>
 									<FileDragMode>AsFile</FileDragMode>
 									<DataPath>СоставКомплекта</DataPath>
@@ -6355,7 +6401,15 @@
 										</ChildItems>
 									</AutoCommandBar>
 									<ExtendedTooltip name="СоставКомплектаExtendedTooltip" id="1249"/>
-									<AutoInsertNewRow>true</AutoInsertNewRow>
+									<SearchStringAddition name="СоставКомплектаСтрокаПоиска" id="1606">
+										<ContextMenu name="СоставКомплектаСтрокаПоискаКонтекстноеМеню" id="1607"/>
+									</SearchStringAddition>
+									<ViewStatusAddition name="СоставКомплектаСостояниеПросмотра" id="1609">
+										<ContextMenu name="СоставКомплектаСостояниеПросмотраКонтекстноеМеню" id="1610"/>
+									</ViewStatusAddition>
+									<SearchControlAddition name="СоставКомплектаУправлениеПоиском" id="1612">
+										<ContextMenu name="СоставКомплектаУправлениеПоискомКонтекстноеМеню" id="1613"/>
+									</SearchControlAddition>
 									<ChildItems>
 										<PictureField name="СоставКомплектаОбработка" id="557">
 											<DataPath>СоставКомплекта.Задачи</DataPath>
@@ -6411,25 +6465,25 @@
 												</PictureField>
 												<InputField name="СоставКомплектаНаименование" id="541">
 													<DataPath>СоставКомплекта.Наименование</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="СоставКомплектаНаименованиеКонтекстноеМеню" id="542"/>
 													<ExtendedTooltip name="СоставКомплектаНаименованиеExtendedTooltip" id="1253"/>
-													<EditMode>EnterOnInput</EditMode>
 												</InputField>
 												<InputField name="СоставКомплектаСостояние" id="543">
 													<DataPath>СоставКомплекта.Состояние</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<TitleLocation>None</TitleLocation>
 													<ContextMenu name="СоставКомплектаСостояниеКонтекстноеМеню" id="544"/>
 													<ExtendedTooltip name="СоставКомплектаСостояниеExtendedTooltip" id="1254"/>
-													<EditMode>EnterOnInput</EditMode>
 												</InputField>
 											</ChildItems>
 										</ColumnGroup>
 										<InputField name="СоставКомплектаКомментарий" id="555">
 											<DataPath>СоставКомплекта.Комментарий</DataPath>
+											<EditMode>EnterOnInput</EditMode>
 											<ChoiceButton>true</ChoiceButton>
 											<ContextMenu name="СоставКомплектаКомментарийКонтекстноеМеню" id="556"/>
 											<ExtendedTooltip name="СоставКомплектаКомментарийExtendedTooltip" id="1255"/>
-											<EditMode>EnterOnInput</EditMode>
 											<Events>
 												<Event name="StartChoice">СоставКомплектаКомментарийНачалоВыбора</Event>
 											</Events>
@@ -7182,6 +7236,15 @@
 														</ChildItems>
 													</AutoCommandBar>
 													<ExtendedTooltip name="ФайлыСозданиеExtendedTooltip" id="1311"/>
+													<SearchStringAddition name="ФайлыСозданиеСтрокаПоиска" id="1615">
+														<ContextMenu name="ФайлыСозданиеСтрокаПоискаКонтекстноеМеню" id="1616"/>
+													</SearchStringAddition>
+													<ViewStatusAddition name="ФайлыСозданиеСостояниеПросмотра" id="1618">
+														<ContextMenu name="ФайлыСозданиеСостояниеПросмотраКонтекстноеМеню" id="1619"/>
+													</ViewStatusAddition>
+													<SearchControlAddition name="ФайлыСозданиеУправлениеПоиском" id="1621">
+														<ContextMenu name="ФайлыСозданиеУправлениеПоискомКонтекстноеМеню" id="1622"/>
+													</SearchControlAddition>
 													<ChildItems>
 														<ColumnGroup name="КартинкаИНаименованиеСоздание" id="831">
 															<Group>InCell</Group>
@@ -7189,20 +7252,20 @@
 															<ChildItems>
 																<PictureField name="КартинкаСоздание" id="901">
 																	<DataPath>Файлы.ИндексКартинки</DataPath>
+																	<ShowInHeader>false</ShowInHeader>
+																	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																	<Width>2</Width>
+																	<Height>1</Height>
 																	<ValuesPicture>
 																		<xr:Ref>CommonPicture.КоллекцияПиктограммФайлов</xr:Ref>
 																		<xr:LoadTransparent>false</xr:LoadTransparent>
 																	</ValuesPicture>
-																	<FileDragMode>AsFile</FileDragMode>
-																	<ContextMenu name="КартинкаСозданиеКонтекстноеМеню" id="902"/>
-																	<ExtendedTooltip name="КартинкаСозданиеРасширеннаяПодсказка" id="1315"/>
 																	<Border width="1">
 																		<v8ui:style xsi:type="v8ui:ControlBorderType">WithoutBorder</v8ui:style>
 																	</Border>
-																	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
-																	<Height>1</Height>
-																	<ShowInHeader>false</ShowInHeader>
+																	<FileDragMode>AsFile</FileDragMode>
+																	<ContextMenu name="КартинкаСозданиеКонтекстноеМеню" id="902"/>
+																	<ExtendedTooltip name="КартинкаСозданиеРасширеннаяПодсказка" id="1315"/>
 																</PictureField>
 																<InputField name="НаименованиеСоздание" id="903">
 																	<DataPath>Файлы.Наименование</DataPath>
@@ -7212,24 +7275,27 @@
 																			<v8:content>Файл</v8:content>
 																		</v8:item>
 																	</Title>
+																	<AutoCellHeight>true</AutoCellHeight>
+																	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																	<Width>1</Width>
 																	<TextEdit>false</TextEdit>
 																	<BorderColor>style:BorderColor</BorderColor>
 																	<ContextMenu name="НаименованиеСозданиеКонтекстноеМеню" id="904"/>
 																	<ExtendedTooltip name="НаименованиеСозданиеРасширеннаяПодсказка" id="1316"/>
-																	<AutoCellHeight>true</AutoCellHeight>
-																	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																</InputField>
 																<InputField name="ФайлыСозданиеРольФайла" id="3017">
 																	<DataPath>Файлы.РольФайла</DataPath>
 																	<Visible>false</Visible>
-																	<ContextMenu name="ФайлыСозданиеРольФайлаКонтекстноеМеню" id="3018"/>
-																	<ExtendedTooltip name="ФайлыСозданиеРольФайлаРасширеннаяПодсказка" id="3019"/>
 																	<EditMode>EnterOnInput</EditMode>
 																	<ShowInHeader>false</ShowInHeader>
+																	<ContextMenu name="ФайлыСозданиеРольФайлаКонтекстноеМеню" id="3018"/>
+																	<ExtendedTooltip name="ФайлыСозданиеРольФайлаРасширеннаяПодсказка" id="3019"/>
 																</InputField>
 																<InputField name="ОписаниеСоздание" id="905">
 																	<DataPath>Файлы.Описание</DataPath>
+																	<ShowInHeader>false</ShowInHeader>
+																	<AutoCellHeight>true</AutoCellHeight>
+																	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
 																	<Width>1</Width>
 																	<Height>1</Height>
 																	<Wrap>false</Wrap>
@@ -7237,9 +7303,6 @@
 																	<BorderColor>style:BorderColor</BorderColor>
 																	<ContextMenu name="ОписаниеСозданиеКонтекстноеМеню" id="906"/>
 																	<ExtendedTooltip name="ОписаниеСозданиеРасширеннаяПодсказка" id="1317"/>
-																	<AutoCellHeight>true</AutoCellHeight>
-																	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
-																	<ShowInHeader>false</ShowInHeader>
 																</InputField>
 															</ChildItems>
 														</ColumnGroup>
@@ -7563,6 +7626,15 @@
 														</ChildItems>
 													</AutoCommandBar>
 													<ExtendedTooltip name="ФайлыДобавленныеExtendedTooltip" id="1334"/>
+													<SearchStringAddition name="ФайлыДобавленныеСтрокаПоиска" id="1624">
+														<ContextMenu name="ФайлыДобавленныеСтрокаПоискаКонтекстноеМеню" id="1625"/>
+													</SearchStringAddition>
+													<ViewStatusAddition name="ФайлыДобавленныеСостояниеПросмотра" id="1627">
+														<ContextMenu name="ФайлыДобавленныеСостояниеПросмотраКонтекстноеМеню" id="1628"/>
+													</ViewStatusAddition>
+													<SearchControlAddition name="ФайлыДобавленныеУправлениеПоиском" id="1630">
+														<ContextMenu name="ФайлыДобавленныеУправлениеПоискомКонтекстноеМеню" id="1631"/>
+													</SearchControlAddition>
 													<ChildItems>
 														<ColumnGroup name="КартинкаИИмя" id="196">
 															<Title>
@@ -7582,6 +7654,7 @@
 															<ChildItems>
 																<PictureField name="ФайлыДобавленныеИндексКартинки" id="194">
 																	<DataPath>ФайлыДобавленные.ИндексКартинки</DataPath>
+																	<ShowInHeader>false</ShowInHeader>
 																	<ValuesPicture>
 																		<xr:Ref>CommonPicture.КоллекцияПиктограммФайлов</xr:Ref>
 																		<xr:LoadTransparent>false</xr:LoadTransparent>
@@ -7590,14 +7663,13 @@
 																	<ContextMenu name="ФайлыДобавленныеИндексКартинкиКонтекстноеМеню" id="195"/>
 																	<ExtendedTooltip name="ФайлыДобавленныеИндексКартинкиExtendedTooltip" id="1336"/>
 																	<EditMode>EnterOnInput</EditMode>
-																	<ShowInHeader>false</ShowInHeader>
 																</PictureField>
 																<InputField name="ФайлыДобавленныеНаименование" id="190">
 																	<DataPath>ФайлыДобавленные.Наименование</DataPath>
+																	<EditMode>EnterOnInput</EditMode>
 																	<Width>60</Width>
 																	<ContextMenu name="ФайлыДобавленныеНаименованиеКонтекстноеМеню" id="191"/>
 																	<ExtendedTooltip name="ФайлыДобавленныеНаименованиеExtendedTooltip" id="1337"/>
-																	<EditMode>EnterOnInput</EditMode>
 																</InputField>
 															</ChildItems>
 														</ColumnGroup>
@@ -7695,6 +7767,7 @@
 											<EnableStartDrag>true</EnableStartDrag>
 											<EnableDrag>true</EnableDrag>
 											<Footer>true</Footer>
+											<AutoInsertNewRow>true</AutoInsertNewRow>
 											<FileDragMode>AsFile</FileDragMode>
 											<DataPath>Объект.Товары</DataPath>
 											<CommandSet>
@@ -7729,7 +7802,15 @@
 												<Autofill>false</Autofill>
 											</AutoCommandBar>
 											<ExtendedTooltip name="ТоварыРасширеннаяПодсказка" id="2086"/>
-											<AutoInsertNewRow>true</AutoInsertNewRow>
+											<SearchStringAddition name="ТоварыСтрокаПоиска" id="2087">
+												<ContextMenu name="ТоварыСтрокаПоискаКонтекстноеМеню" id="2088"/>
+											</SearchStringAddition>
+											<ViewStatusAddition name="ТоварыСостояниеПросмотра" id="2090">
+												<ContextMenu name="ТоварыСостояниеПросмотраКонтекстноеМеню" id="2091"/>
+											</ViewStatusAddition>
+											<SearchControlAddition name="ТоварыУправлениеПоиском" id="2093">
+												<ContextMenu name="ТоварыУправлениеПоискомКонтекстноеМеню" id="2094"/>
+											</SearchControlAddition>
 											<ChildItems>
 												<LabelField name="ТоварыНомерСтроки" id="2096">
 													<DataPath>Объект.Товары.LineNumber</DataPath>
@@ -7740,25 +7821,26 @@
 												</LabelField>
 												<InputField name="ТоварыНоменклатура" id="2099">
 													<DataPath>Объект.Товары.Номенклатура</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="ТоварыНоменклатураКонтекстноеМеню" id="2100"/>
 													<ExtendedTooltip name="ТоварыНоменклатураРасширеннаяПодсказка" id="2101"/>
-													<EditMode>EnterOnInput</EditMode>
 													<Events>
 														<Event name="OnChange">ТоварыНоменклатураПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="ТоварыКоличество" id="2102">
 													<DataPath>Объект.Товары.Количество</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Width>10</Width>
 													<ContextMenu name="ТоварыКоличествоКонтекстноеМеню" id="2103"/>
 													<ExtendedTooltip name="ТоварыКоличествоРасширеннаяПодсказка" id="2104"/>
-													<EditMode>EnterOnInput</EditMode>
 													<Events>
 														<Event name="OnChange">ТоварыКоличествоПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="ТоварыЕдиницаИзмерения" id="2105">
 													<DataPath>Объект.Товары.ЕдиницаИзмерения</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -7772,27 +7854,26 @@
 													<QuickChoice>true</QuickChoice>
 													<ContextMenu name="ТоварыЕдиницаИзмеренияКонтекстноеМеню" id="2106"/>
 													<ExtendedTooltip name="ТоварыЕдиницаИзмеренияРасширеннаяПодсказка" id="2107"/>
-													<EditMode>EnterOnInput</EditMode>
 												</InputField>
 												<InputField name="ТоварыЦена" id="2108">
 													<DataPath>Объект.Товары.Цена</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Width>10</Width>
 													<ContextMenu name="ТоварыЦенаКонтекстноеМеню" id="2109"/>
 													<ExtendedTooltip name="ТоварыЦенаРасширеннаяПодсказка" id="2110"/>
-													<EditMode>EnterOnInput</EditMode>
 													<Events>
 														<Event name="OnChange">ТоварыЦенаПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="ТоварыСтавкаНДС" id="2111">
 													<DataPath>Объект.Товары.СтавкаНДС</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Width>9</Width>
 													<HorizontalStretch>false</HorizontalStretch>
 													<OpenButton>false</OpenButton>
 													<QuickChoice>true</QuickChoice>
 													<ContextMenu name="ТоварыСтавкаНДСКонтекстноеМеню" id="2112"/>
 													<ExtendedTooltip name="ТоварыСтавкаНДСРасширеннаяПодсказка" id="2113"/>
-													<EditMode>EnterOnInput</EditMode>
 													<Events>
 														<Event name="OnChange">ТоварыСтавкаНДСПриИзменении</Event>
 														<Event name="AutoComplete">ТоварыСтавкаНДСАвтоПодбор</Event>
@@ -7802,19 +7883,19 @@
 												</InputField>
 												<InputField name="ТоварыСуммаНДС" id="2114">
 													<DataPath>Объект.Товары.СуммаНДС</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<ReadOnly>true</ReadOnly>
 													<Width>10</Width>
 													<ContextMenu name="ТоварыСуммаНДСКонтекстноеМеню" id="2115"/>
 													<ExtendedTooltip name="ТоварыСуммаНДСРасширеннаяПодсказка" id="2116"/>
-													<EditMode>EnterOnInput</EditMode>
 													<FooterDataPath>Объект.Товары.TotalСуммаНДС</FooterDataPath>
 												</InputField>
 												<InputField name="ТоварыСумма" id="2117">
 													<DataPath>Объект.Товары.Сумма</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Width>10</Width>
 													<ContextMenu name="ТоварыСуммаКонтекстноеМеню" id="2118"/>
 													<ExtendedTooltip name="ТоварыСуммаРасширеннаяПодсказка" id="2119"/>
-													<EditMode>EnterOnInput</EditMode>
 													<FooterDataPath>Объект.Товары.TotalСумма</FooterDataPath>
 													<Events>
 														<Event name="OnChange">ТоварыСуммаПриИзменении</Event>
@@ -7910,6 +7991,15 @@
 														<Autofill>false</Autofill>
 													</AutoCommandBar>
 													<ExtendedTooltip name="ВсеТоварыРасширеннаяПодсказка" id="2133"/>
+													<SearchStringAddition name="ВсеТоварыСтрокаПоиска" id="2134">
+														<ContextMenu name="ВсеТоварыСтрокаПоискаКонтекстноеМеню" id="2135"/>
+													</SearchStringAddition>
+													<ViewStatusAddition name="ВсеТоварыСостояниеПросмотра" id="2137">
+														<ContextMenu name="ВсеТоварыСостояниеПросмотраКонтекстноеМеню" id="2138"/>
+													</ViewStatusAddition>
+													<SearchControlAddition name="ВсеТоварыУправлениеПоиском" id="2140">
+														<ContextMenu name="ВсеТоварыУправлениеПоискомКонтекстноеМеню" id="2141"/>
+													</SearchControlAddition>
 													<ChildItems>
 														<ColumnGroup name="ВсеТоварыГруппа" id="2149">
 															<Title>
@@ -8012,6 +8102,7 @@
 											<EnableStartDrag>true</EnableStartDrag>
 											<EnableDrag>true</EnableDrag>
 											<HeaderHeight>2</HeaderHeight>
+											<AutoInsertNewRow>true</AutoInsertNewRow>
 											<AutoMarkIncomplete>true</AutoMarkIncomplete>
 											<FileDragMode>AsFile</FileDragMode>
 											<DataPath>ВопросыОбращения</DataPath>
@@ -8025,10 +8116,19 @@
 											<ContextMenu name="ВопросыКонтекстноеМеню" id="2546"/>
 											<AutoCommandBar name="ВопросыКоманднаяПанель" id="2547"/>
 											<ExtendedTooltip name="ВопросыРасширеннаяПодсказка" id="2548"/>
-											<AutoInsertNewRow>true</AutoInsertNewRow>
+											<SearchStringAddition name="ВопросыСтрокаПоиска" id="2549">
+												<ContextMenu name="ВопросыСтрокаПоискаКонтекстноеМеню" id="2550"/>
+											</SearchStringAddition>
+											<ViewStatusAddition name="ВопросыСостояниеПросмотра" id="2552">
+												<ContextMenu name="ВопросыСостояниеПросмотраКонтекстноеМеню" id="2553"/>
+											</ViewStatusAddition>
+											<SearchControlAddition name="ВопросыУправлениеПоиском" id="2555">
+												<ContextMenu name="ВопросыУправлениеПоискомКонтекстноеМеню" id="2556"/>
+											</SearchControlAddition>
 											<ChildItems>
 												<InputField name="ВопросыКодВопроса" id="2726">
 													<DataPath>ВопросыОбращения.КодВопроса</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -8040,53 +8140,53 @@
 													<HorizontalStretch>true</HorizontalStretch>
 													<ContextMenu name="ВопросыКодВопросаКонтекстноеМеню" id="2727"/>
 													<ExtendedTooltip name="ВопросыКодВопросаРасширеннаяПодсказка" id="2728"/>
-													<EditMode>EnterOnInput</EditMode>
 													<Events>
 														<Event name="StartChoice">КодыВопросовКодВопросаНачалоВыбора</Event>
 													</Events>
 												</InputField>
 												<InputField name="ВопросыРаздел" id="2732">
 													<DataPath>ВопросыОбращения.Раздел</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Width>10</Width>
 													<ContextMenu name="ВопросыРазделКонтекстноеМеню" id="2733"/>
 													<ExtendedTooltip name="ВопросыРазделРасширеннаяПодсказка" id="2734"/>
-													<EditMode>EnterOnInput</EditMode>
 													<Events>
 														<Event name="OnChange">КодыВопросовРазделПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="ВопросыТематика" id="2741">
 													<DataPath>ВопросыОбращения.Тематика</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Width>10</Width>
 													<ContextMenu name="ВопросыТематикаКонтекстноеМеню" id="2742"/>
 													<ExtendedTooltip name="ВопросыТематикаРасширеннаяПодсказка" id="2743"/>
-													<EditMode>EnterOnInput</EditMode>
 													<Events>
 														<Event name="OnChange">КодыВопросовТематикаПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="ВопросыТема" id="2738">
 													<DataPath>ВопросыОбращения.Тема</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Width>10</Width>
 													<ContextMenu name="ВопросыТемаКонтекстноеМеню" id="2739"/>
 													<ExtendedTooltip name="ВопросыТемаРасширеннаяПодсказка" id="2740"/>
-													<EditMode>EnterOnInput</EditMode>
 													<Events>
 														<Event name="OnChange">КодыВопросовТемаПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="ВопросыВопрос" id="2720">
 													<DataPath>ВопросыОбращения.Вопрос</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Width>10</Width>
 													<ContextMenu name="ВопросыВопросКонтекстноеМеню" id="2721"/>
 													<ExtendedTooltip name="ВопросыВопросРасширеннаяПодсказка" id="2722"/>
-													<EditMode>EnterOnInput</EditMode>
 													<Events>
 														<Event name="OnChange">КодыВопросовВопросПриИзменении</Event>
 													</Events>
 												</InputField>
 												<InputField name="ВопросыРезультатРассмотрения" id="2735">
 													<DataPath>ВопросыОбращения.РезультатРассмотрения</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -8096,16 +8196,16 @@
 													<Width>15</Width>
 													<ContextMenu name="ВопросыРезультатРассмотренияКонтекстноеМеню" id="2736"/>
 													<ExtendedTooltip name="ВопросыРезультатРассмотренияРасширеннаяПодсказка" id="2737"/>
-													<EditMode>EnterOnInput</EditMode>
 												</InputField>
 												<InputField name="ВопросыДокумент" id="2762">
 													<DataPath>ВопросыОбращения.Документ</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="ВопросыДокументКонтекстноеМеню" id="2763"/>
 													<ExtendedTooltip name="ВопросыДокументРасширеннаяПодсказка" id="2764"/>
-													<EditMode>EnterOnInput</EditMode>
 												</InputField>
 												<InputField name="ВопросыДатаОтвета" id="2723">
 													<DataPath>ВопросыОбращения.ДатаОтвета</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Width>10</Width>
 													<ContextMenu name="ВопросыДатаОтветаКонтекстноеМеню" id="2724"/>
 													<ExtendedTooltip name="ВопросыДатаОтветаРасширеннаяПодсказка" id="2725"/>
@@ -8115,7 +8215,6 @@
 															<v8:content>ДЛФ=D</v8:content>
 														</v8:item>
 													</EditFormat>
-													<EditMode>EnterOnInput</EditMode>
 													<Format>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -8125,12 +8224,13 @@
 												</InputField>
 												<InputField name="ВопросыОрганДляПередачи" id="2729">
 													<DataPath>ВопросыОбращения.ОрганДляПередачи</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<ContextMenu name="ВопросыОрганДляПередачиКонтекстноеМеню" id="2730"/>
 													<ExtendedTooltip name="ВопросыОрганДляПередачиРасширеннаяПодсказка" id="2731"/>
-													<EditMode>EnterOnInput</EditMode>
 												</InputField>
 												<InputField name="ВопросыМнениеАвтораОРезультатах" id="2744">
 													<DataPath>ВопросыОбращения.МнениеАвтораОРезультатах</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<ToolTip>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -8139,10 +8239,10 @@
 													</ToolTip>
 													<ContextMenu name="ВопросыМнениеАвтораОРезультатахКонтекстноеМеню" id="2745"/>
 													<ExtendedTooltip name="ВопросыМнениеАвтораОРезультатахРасширеннаяПодсказка" id="2746"/>
-													<EditMode>EnterOnInput</EditMode>
 												</InputField>
 												<InputField name="ВопросыМнениеАвтораОМерах" id="2747">
 													<DataPath>ВопросыОбращения.МнениеАвтораОМерах</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<ToolTip>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -8154,7 +8254,6 @@
 													</ToolTip>
 													<ContextMenu name="ВопросыМнениеАвтораОМерахКонтекстноеМеню" id="2748"/>
 													<ExtendedTooltip name="ВопросыМнениеАвтораОМерахРасширеннаяПодсказка" id="2749"/>
-													<EditMode>EnterOnInput</EditMode>
 												</InputField>
 											</ChildItems>
 											<Events>
@@ -8463,6 +8562,7 @@
 																	<ChildItems>
 																		<InputField name="МнениеАвтораОРезультатах" id="2632">
 																			<DataPath>МнениеАвтораОРезультатах</DataPath>
+																			<EditMode>EnterOnInput</EditMode>
 																			<ToolTip>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
@@ -8477,7 +8577,6 @@
 																			<ChoiceButton>true</ChoiceButton>
 																			<ContextMenu name="МнениеАвтораОРезультатахКонтекстноеМеню" id="2633"/>
 																			<ExtendedTooltip name="МнениеАвтораОРезультатахРасширеннаяПодсказка" id="2634"/>
-																			<EditMode>EnterOnInput</EditMode>
 																			<Events>
 																				<Event name="OnChange">МнениеАвтораОРезультатахПриИзменении</Event>
 																				<Event name="StartChoice">МнениеАвтораОРезультатахНачалоВыбора</Event>
@@ -8755,6 +8854,15 @@
 										</ChildItems>
 									</AutoCommandBar>
 									<ExtendedTooltip name="ИсторияСостоянийМЭДОРасширеннаяПодсказка" id="3791"/>
+									<SearchStringAddition name="ИсторияСостоянийМЭДОСтрокаПоиска" id="3792">
+										<ContextMenu name="ИсторияСостоянийМЭДОСтрокаПоискаКонтекстноеМеню" id="3793"/>
+									</SearchStringAddition>
+									<ViewStatusAddition name="ИсторияСостоянийМЭДОСостояниеПросмотра" id="3798">
+										<ContextMenu name="ИсторияСостоянийМЭДОСостояниеПросмотраКонтекстноеМеню" id="3799"/>
+									</ViewStatusAddition>
+									<SearchControlAddition name="ИсторияСостоянийМЭДОУправлениеПоиском" id="3795">
+										<ContextMenu name="ИсторияСостоянийМЭДОУправлениеПоискомКонтекстноеМеню" id="3796"/>
+									</SearchControlAddition>
 									<ChildItems>
 										<InputField name="ИсторияСостоянийМЭДОПериод" id="3907">
 											<DataPath>ИсторияСостоянийМЭДО.Период</DataPath>
@@ -9166,6 +9274,7 @@
 								</UsualGroup>
 								<Table name="Действия" id="2819">
 									<Representation>Tree</Representation>
+									<AutoInsertNewRow>true</AutoInsertNewRow>
 									<DataPath>Действия</DataPath>
 									<CommandSet>
 										<ExcludedCommand>Copy</ExcludedCommand>
@@ -9216,7 +9325,15 @@
 										<Autofill>false</Autofill>
 									</AutoCommandBar>
 									<ExtendedTooltip name="ДействияРасширеннаяПодсказка" id="2822"/>
-									<AutoInsertNewRow>true</AutoInsertNewRow>
+									<SearchStringAddition name="ДействияСтрокаПоиска" id="2823">
+										<ContextMenu name="ДействияСтрокаПоискаКонтекстноеМеню" id="2824"/>
+									</SearchStringAddition>
+									<ViewStatusAddition name="ДействияСостояниеПросмотра" id="2826">
+										<ContextMenu name="ДействияСостояниеПросмотраКонтекстноеМеню" id="2827"/>
+									</ViewStatusAddition>
+									<SearchControlAddition name="ДействияУправлениеПоиском" id="2829">
+										<ContextMenu name="ДействияУправлениеПоискомКонтекстноеМеню" id="2830"/>
+									</SearchControlAddition>
 									<ChildItems>
 										<PictureField name="ДействияНомерКартинки" id="2867">
 											<DataPath>Действия.НомерКартинки</DataPath>
@@ -9235,32 +9352,32 @@
 										</PictureField>
 										<InputField name="ДействияПредставление" id="2849">
 											<DataPath>Действия.Представление</DataPath>
+											<EditMode>EnterOnInput</EditMode>
+											<AutoCellHeight>true</AutoCellHeight>
 											<Width>10</Width>
 											<ContextMenu name="ДействияПредставлениеКонтекстноеМеню" id="2850"/>
 											<ExtendedTooltip name="ДействияПредставлениеРасширеннаяПодсказка" id="2851"/>
-											<AutoCellHeight>true</AutoCellHeight>
-											<EditMode>EnterOnInput</EditMode>
 										</InputField>
 										<InputField name="ДействияПредставлениеСотрудники" id="2951">
 											<DataPath>Действия.ПредставлениеСотрудники</DataPath>
+											<EditMode>EnterOnInput</EditMode>
 											<Width>25</Width>
 											<ContextMenu name="ДействияПредставлениеСотрудникиКонтекстноеМеню" id="2952"/>
 											<ExtendedTooltip name="ДействияПредставлениеСотрудникиРасширеннаяПодсказка" id="2953"/>
-											<EditMode>EnterOnInput</EditMode>
 										</InputField>
 										<InputField name="ДействияСрокПредставление" id="2855">
 											<DataPath>Действия.СрокПредставление</DataPath>
+											<EditMode>EnterOnInput</EditMode>
 											<Width>15</Width>
 											<ContextMenu name="ДействияСрокПредставлениеКонтекстноеМеню" id="2856"/>
 											<ExtendedTooltip name="ДействияСрокПредставлениеРасширеннаяПодсказка" id="2857"/>
-											<EditMode>EnterOnInput</EditMode>
 										</InputField>
 										<InputField name="ДействияПредставлениеРезультата" id="2983">
 											<DataPath>Действия.ПредставлениеРезультата</DataPath>
+											<EditMode>EnterOnInput</EditMode>
 											<Width>15</Width>
 											<ContextMenu name="ДействияПредставлениеРезультатаКонтекстноеМеню" id="2984"/>
 											<ExtendedTooltip name="ДействияПредставлениеРезультатаРасширеннаяПодсказка" id="2985"/>
-											<EditMode>EnterOnInput</EditMode>
 										</InputField>
 										<ColumnGroup name="ДействияГруппаКомментарийИФайлы" id="3938">
 											<Title>
@@ -9293,6 +9410,7 @@
 												</PictureField>
 												<InputField name="ДействияРезультатТекстом" id="3932">
 													<DataPath>Действия.РезультатТекстом</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
@@ -9301,12 +9419,12 @@
 													</Title>
 													<ContextMenu name="ДействияРезультатТекстомКонтекстноеМеню" id="3933"/>
 													<ExtendedTooltip name="ДействияРезультатТекстомРасширеннаяПодсказка" id="3934"/>
-													<EditMode>EnterOnInput</EditMode>
 												</InputField>
 											</ChildItems>
 										</ColumnGroup>
 										<InputField name="ДействияДатаУстановкиСостояния" id="3025">
 											<DataPath>Действия.ДатаУстановкиСостояния</DataPath>
+											<EditMode>EnterOnInput</EditMode>
 											<Title>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
@@ -9323,7 +9441,6 @@
 													<v8:content>ДФ=&apos;dd.MM.yy HH:mm&apos;</v8:content>
 												</v8:item>
 											</EditFormat>
-											<EditMode>EnterOnInput</EditMode>
 											<Format>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
@@ -9537,6 +9654,7 @@
 									<EnableStartDrag>true</EnableStartDrag>
 									<EnableDrag>true</EnableDrag>
 									<Header>false</Header>
+									<AutoInsertNewRow>true</AutoInsertNewRow>
 									<FileDragMode>AsFile</FileDragMode>
 									<DataPath>Объект.СубъектыПерсональныхДанных</DataPath>
 									<Title>
@@ -9551,13 +9669,21 @@
 									<ContextMenu name="СубъектыПерсональныхДанныхКонтекстноеМеню" id="222"/>
 									<AutoCommandBar name="СубъектыПерсональныхДанныхКоманднаяПанель" id="223"/>
 									<ExtendedTooltip name="СубъектыПерсональныхДанныхExtendedTooltip" id="1393"/>
-									<AutoInsertNewRow>true</AutoInsertNewRow>
+									<SearchStringAddition name="СубъектыПерсональныхДанныхСтрокаПоиска" id="1651">
+										<ContextMenu name="СубъектыПерсональныхДанныхСтрокаПоискаКонтекстноеМеню" id="1652"/>
+									</SearchStringAddition>
+									<ViewStatusAddition name="СубъектыПерсональныхДанныхСостояниеПросмотра" id="1654">
+										<ContextMenu name="СубъектыПерсональныхДанныхСостояниеПросмотраКонтекстноеМеню" id="1655"/>
+									</ViewStatusAddition>
+									<SearchControlAddition name="СубъектыПерсональныхДанныхУправлениеПоиском" id="1657">
+										<ContextMenu name="СубъектыПерсональныхДанныхУправлениеПоискомКонтекстноеМеню" id="1658"/>
+									</SearchControlAddition>
 									<ChildItems>
 										<InputField name="ФизическоеЛицо" id="226">
 											<DataPath>Объект.СубъектыПерсональныхДанных.ФизическоеЛицо</DataPath>
+											<EditMode>EnterOnInput</EditMode>
 											<ContextMenu name="ФизическоеЛицоКонтекстноеМеню" id="227"/>
 											<ExtendedTooltip name="ФизическоеЛицоExtendedTooltip" id="1394"/>
-											<EditMode>EnterOnInput</EditMode>
 										</InputField>
 									</ChildItems>
 								</Table>
@@ -9678,6 +9804,7 @@
 													<EnableDrag>true</EnableDrag>
 													<Header>false</Header>
 													<HorizontalLines>false</HorizontalLines>
+													<AutoInsertNewRow>true</AutoInsertNewRow>
 													<InitialTreeView>ExpandAllLevels</InitialTreeView>
 													<FileDragMode>AsFile</FileDragMode>
 													<DataPath>ДеревоСвязей</DataPath>
@@ -9760,7 +9887,15 @@
 														<Autofill>false</Autofill>
 													</AutoCommandBar>
 													<ExtendedTooltip name="ДеревоСвязейExtendedTooltip" id="1408"/>
-													<AutoInsertNewRow>true</AutoInsertNewRow>
+													<SearchStringAddition name="ДеревоСвязейСтрокаПоиска" id="1660">
+														<ContextMenu name="ДеревоСвязейСтрокаПоискаКонтекстноеМеню" id="1661"/>
+													</SearchStringAddition>
+													<ViewStatusAddition name="ДеревоСвязейСостояниеПросмотра" id="1663">
+														<ContextMenu name="ДеревоСвязейСостояниеПросмотраКонтекстноеМеню" id="1664"/>
+													</ViewStatusAddition>
+													<SearchControlAddition name="ДеревоСвязейУправлениеПоиском" id="1666">
+														<ContextMenu name="ДеревоСвязейУправлениеПоискомКонтекстноеМеню" id="1667"/>
+													</SearchControlAddition>
 													<ChildItems>
 														<ColumnGroup name="ДеревоСвязейГруппаКартинкаПредставление" id="1476">
 															<Title>
@@ -9792,11 +9927,11 @@
 																</PictureField>
 																<InputField name="ДеревоСвязейПредставление" id="810">
 																	<DataPath>ДеревоСвязей.Представление</DataPath>
+																	<EditMode>EnterOnInput</EditMode>
+																	<AutoCellHeight>true</AutoCellHeight>
 																	<TitleLocation>None</TitleLocation>
 																	<ContextMenu name="ДеревоСвязейПредставлениеКонтекстноеМеню" id="811"/>
 																	<ExtendedTooltip name="ДеревоСвязейПредставлениеExtendedTooltip" id="1409"/>
-																	<AutoCellHeight>true</AutoCellHeight>
-																	<EditMode>EnterOnInput</EditMode>
 																</InputField>
 															</ChildItems>
 														</ColumnGroup>
@@ -10276,22 +10411,31 @@
 										</ChildItems>
 									</AutoCommandBar>
 									<ExtendedTooltip name="ЭлектронныеПодписиРасширеннаяПодсказка" id="1424"/>
+									<SearchStringAddition name="ЭлектронныеПодписиСтрокаПоиска" id="1669">
+										<ContextMenu name="ЭлектронныеПодписиСтрокаПоискаКонтекстноеМеню" id="1670"/>
+									</SearchStringAddition>
+									<ViewStatusAddition name="ЭлектронныеПодписиСостояниеПросмотра" id="1672">
+										<ContextMenu name="ЭлектронныеПодписиСостояниеПросмотраКонтекстноеМеню" id="1673"/>
+									</ViewStatusAddition>
+									<SearchControlAddition name="ЭлектронныеПодписиУправлениеПоиском" id="1675">
+										<ContextMenu name="ЭлектронныеПодписиУправлениеПоискомКонтекстноеМеню" id="1676"/>
+									</SearchControlAddition>
 									<ChildItems>
 										<InputField name="ТаблицаПодписейАвторПодписиИСтатус" id="1720">
 											<DataPath>ЭлектронныеПодписи.АвторПодписиИСтатус</DataPath>
+											<EditMode>EnterOnInput</EditMode>
+											<AutoCellHeight>true</AutoCellHeight>
 											<ContextMenu name="ТаблицаПодписейАвторПодписиИСтатусКонтекстноеМеню" id="1721"/>
 											<ExtendedTooltip name="ТаблицаПодписейАвторПодписиИСтатусРасширеннаяПодсказка" id="1722"/>
-											<AutoCellHeight>true</AutoCellHeight>
-											<EditMode>EnterOnInput</EditMode>
 										</InputField>
 										<InputField name="ТаблицаПодписейДатаПодписиИКомментарий" id="1723">
 											<DataPath>ЭлектронныеПодписи.ДатаПодписиИКомментарий</DataPath>
+											<EditMode>EnterOnInput</EditMode>
+											<AutoCellHeight>true</AutoCellHeight>
 											<Width>16</Width>
 											<HorizontalStretch>false</HorizontalStretch>
 											<ContextMenu name="ТаблицаПодписейДатаПодписиИКомментарийКонтекстноеМеню" id="1724"/>
 											<ExtendedTooltip name="ТаблицаПодписейДатаПодписиИКомментарийРасширеннаяПодсказка" id="1725"/>
-											<AutoCellHeight>true</AutoCellHeight>
-											<EditMode>EnterOnInput</EditMode>
 										</InputField>
 									</ChildItems>
 									<Events>
@@ -10347,6 +10491,7 @@
 											<EnableDrag>true</EnableDrag>
 											<Header>false</Header>
 											<HorizontalLines>false</HorizontalLines>
+											<AutoInsertNewRow>true</AutoInsertNewRow>
 											<FileDragMode>AsFile</FileDragMode>
 											<DataPath>СписокКатегорийДанных</DataPath>
 											<CommandSet>
@@ -10426,7 +10571,15 @@
 												</ChildItems>
 											</AutoCommandBar>
 											<ExtendedTooltip name="СписокКатегорийДанныхExtendedTooltip" id="1435"/>
-											<AutoInsertNewRow>true</AutoInsertNewRow>
+											<SearchStringAddition name="СписокКатегорийДанныхСтрокаПоиска" id="1678">
+												<ContextMenu name="СписокКатегорийДанныхСтрокаПоискаКонтекстноеМеню" id="1679"/>
+											</SearchStringAddition>
+											<ViewStatusAddition name="СписокКатегорийДанныхСостояниеПросмотра" id="1681">
+												<ContextMenu name="СписокКатегорийДанныхСостояниеПросмотраКонтекстноеМеню" id="1682"/>
+											</ViewStatusAddition>
+											<SearchControlAddition name="СписокКатегорийДанныхУправлениеПоиском" id="1684">
+												<ContextMenu name="СписокКатегорийДанныхУправлениеПоискомКонтекстноеМеню" id="1685"/>
+											</SearchControlAddition>
 											<ChildItems>
 												<InputField name="СписокКатегорийДанныхНаименование" id="307">
 													<DataPath>СписокКатегорийДанных.ПолноеНаименование</DataPath>
@@ -10715,6 +10868,7 @@
 									<EnableStartDrag>true</EnableStartDrag>
 									<EnableDrag>true</EnableDrag>
 									<HorizontalLines>false</HorizontalLines>
+									<AutoInsertNewRow>true</AutoInsertNewRow>
 									<FileDragMode>AsFile</FileDragMode>
 									<DataPath>РабочаяГруппаТаблица</DataPath>
 									<CommandSet>
@@ -10777,7 +10931,15 @@
 										</ChildItems>
 									</AutoCommandBar>
 									<ExtendedTooltip name="РабочаяГруппаТаблицаExtendedTooltip" id="1459"/>
-									<AutoInsertNewRow>true</AutoInsertNewRow>
+									<SearchStringAddition name="РабочаяГруппаТаблицаСтрокаПоиска" id="1687">
+										<ContextMenu name="РабочаяГруппаТаблицаСтрокаПоискаКонтекстноеМеню" id="1688"/>
+									</SearchStringAddition>
+									<ViewStatusAddition name="РабочаяГруппаТаблицаСостояниеПросмотра" id="1690">
+										<ContextMenu name="РабочаяГруппаТаблицаСостояниеПросмотраКонтекстноеМеню" id="1691"/>
+									</ViewStatusAddition>
+									<SearchControlAddition name="РабочаяГруппаТаблицаУправлениеПоиском" id="1693">
+										<ContextMenu name="РабочаяГруппаТаблицаУправлениеПоискомКонтекстноеМеню" id="1694"/>
+									</SearchControlAddition>
 									<ChildItems>
 										<ColumnGroup name="РабочаяГруппаТаблицаГруппаУчастник" id="474">
 											<Title>
@@ -10811,11 +10973,11 @@
 												</PictureField>
 												<InputField name="РабочаяГруппаТаблицаУчастник" id="490">
 													<DataPath>РабочаяГруппаТаблица.Участник</DataPath>
+													<EditMode>EnterOnInput</EditMode>
 													<Width>30</Width>
 													<HorizontalStretch>false</HorizontalStretch>
 													<ContextMenu name="РабочаяГруппаТаблицаУчастникКонтекстноеМеню" id="491"/>
 													<ExtendedTooltip name="РабочаяГруппаТаблицаУчастникExtendedTooltip" id="1462"/>
-													<EditMode>EnterOnInput</EditMode>
 													<Events>
 														<Event name="AutoComplete">РабочаяГруппаТаблицаУчастникАвтоПодбор</Event>
 														<Event name="StartChoice">РабочаяГруппаТаблицаУчастникНачалоВыбора</Event>

@@ -6,6 +6,9 @@ import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { exportSearchStringAdditionToXML } from "~/lib/metadata/forms/elements/searchStringAddition/exportToXML"
+import { exportViewStatusAdditionToXML } from "~/lib/metadata/forms/elements/viewStatusAddition/exportToXML"
+import { exportSearchControlAdditionToXML } from "~/lib/metadata/forms/elements/searchControlAddition/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { TTableXML, TTable } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
@@ -71,8 +74,10 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
     RowSelectionMode: data.rowSelectionMode,
     RowsPicture: data.rowsPicture,
     SearchControl: exportFormItemAdditionToXML(data.searchControl),
+    SearchControlAddition: exportSearchControlAdditionToXML(data.searchControlAddition),
     SearchControlLocation: data.searchControlLocation,
     SearchOnInput: data.searchOnInput,
+    SearchStringAddition: exportSearchStringAdditionToXML(data.searchStringAddition),
     SearchStringLocation: data.searchStringLocation,
     SearchStringRepresentation: exportFormItemAdditionToXML(data.searchStringRepresentation),
     SelectionMode: data.selectionMode,
@@ -92,6 +97,7 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
     VerticalLines: data.verticalLines,
     VerticalScrollBar: data.verticalScrollBar,
     VerticalStretch: data.verticalStretch,
+    ViewStatusAddition: exportViewStatusAdditionToXML(data.viewStatusAddition),
     ViewStatusLocation: data.viewStatusLocation,
     ViewStatusRepresentation: exportFormItemAdditionToXML(data.viewStatusRepresentation),
     Visible: data.visible,

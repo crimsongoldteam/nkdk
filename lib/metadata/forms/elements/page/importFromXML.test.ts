@@ -15,7 +15,7 @@ it("should import Page from XML", () => {
     </Title>
   </Page>`
 
-  const mockResult: TPage = {
+  const expectedResult: TPage = {
     name: "Страница",
     title: { items: { ru: "Заголовок группы" } },
     id: "1",
@@ -23,9 +23,12 @@ it("should import Page from XML", () => {
     elementType: ZElementType.enum.Page,
   }
 
-  const xmlData = xmlImport<{ Page: TPageXML }>(mockXml, z.object({ Page: ZPageXML }))
+  const xmlData = xmlImport<{ Page: TPageXML }>(
+    mockXml,
+    z.object({ Page: ZPageXML })
+  )
 
   const input = importPageFromXML(xmlData.Page)
 
-  expect(input).toEqual(mockResult)
+  expect(input).toEqual(expectedResult)
 })
