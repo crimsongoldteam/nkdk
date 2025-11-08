@@ -11,7 +11,10 @@ export const exportI8nTextToXML = (
     items.push({ "v8:item": { "v8:lang": lang, "v8:content": content } })
   })
 
-  const result = [{ __attributes: { formatted: data.formatted } }, ...items]
+  const result =
+    data.formatted !== undefined
+      ? [{ "@attributes": { formatted: data.formatted } }, ...items]
+      : items
 
   return result
 }

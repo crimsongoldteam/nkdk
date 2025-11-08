@@ -17,7 +17,7 @@ export const ZI8nTextItemXML = z.object({
 
 export const ZI8nTextXML = z.array(
   z.object({
-    __attributes: z
+    "@attributes": z
       .object({
         formatted: z.union([z.boolean(), z.stringbool()]).optional(),
       })

@@ -35,4 +35,29 @@ describe("exportI8nTextToXML", () => {
 
     expect(xml).toEqual(expectedResult)
   })
+
+  it("should export without formatted attribute", () => {
+    const expectedResult = `<Title>
+	<v8:item>
+		<v8:lang>ru</v8:lang>
+		<v8:content>Поле</v8:content>
+	</v8:item>
+</Title>`
+
+    const originalContent: TI8nText = {
+      items: {
+        ru: "Поле",
+      },
+    }
+
+    const exported = exportI8nTextToXML(originalContent)
+
+    const xml = xmlExport(
+      { Title: exported },
+      z.object({ Title: ZI8nTextXML }),
+      false
+    )
+
+    expect(xml).toEqual(expectedResult)
+  })
 })

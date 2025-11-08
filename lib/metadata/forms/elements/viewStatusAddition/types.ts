@@ -13,6 +13,25 @@ import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/typ
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZViewStatusAddition = ZFormItemAddition.extend({
+  get contextMenu() {
+    return ZCommandBar.optional()
+  },
+  displayImportance: SE.ZDisplayImportance.optional(),
+  enabled: z.boolean().optional(),
+  get extendedToolTip() {
+    return ZFormDecoration.optional()
+  },
+  horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
+  title: ZI8nText.optional(),
+  toolTip: ZI8nText.optional(),
+  toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
+  type: SE.ZFormItemAdditionType.optional(),
+  userVisible: ZUserVisible.optional(),
+  verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
+  visible: z.boolean().optional(),
+  get childItems() : TChildItems {
+    return ZChildItems
+  },
   autoMaxWidth: z.boolean().optional(),
   backColor: ZColor.optional(),
   border: ZBorder.optional(),
@@ -25,7 +44,6 @@ export const ZViewStatusAddition = ZFormItemAddition.extend({
   textColor: ZColor.optional(),
   titleFont: ZFont.optional(),
   titleTextColor: ZColor.optional(),
-  userVisible: ZUserVisible.optional(),
   width: z.number().optional(),
 })
 

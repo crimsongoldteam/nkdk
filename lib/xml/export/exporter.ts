@@ -16,8 +16,11 @@ export default function xmlExport<T>(
     indentBy: "\t",
     oneListGroup: true,
     processEntities: false,
-    attributesGroupName: "__attributes",
+    // attributesGroupName: "@attributes",
   })
+
+  builder.options.attributesGroupName = "@attributes"
+
   const xml = builder.build(parsedData)
   const declaration = addDeclaration
     ? '<?xml version="1.0" encoding="UTF-8"?>\n'

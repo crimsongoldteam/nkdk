@@ -11,10 +11,33 @@ import { TChildItems } from "../childItems/typesExt"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZCommandBar = ZFormGroup.extend({
+  enableContentChange: z.boolean().optional(),
+  enabled: z.boolean().optional(),
+  get extendedTooltip() {
+    return ZFormDecoration.optional()
+  },
+  height: z.number().optional(),
+  horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
+  horizontalStretch: z.boolean().optional(),
+  readOnly: z.boolean().optional(),
+  shortcut: z.string().optional(),
+  title: ZI8nText.optional(),
+  titleFont: ZFont.optional(),
+  titleTextColor: ZColor.optional(),
+  toolTip: ZI8nText.optional(),
+  toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
+  type: SE.ZFormGroupType.optional(),
+  userVisible: ZUserVisible.optional(),
+  verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
+  verticalStretch: z.boolean().optional(),
+  visible: z.boolean().optional(),
+  width: z.number().optional(),
+  get childItems() : TChildItems {
+    return ZChildItems
+  },
   autofill: z.boolean().optional(),
   displayImportance: SE.ZDisplayImportance.optional(),
   horizontalAlign: SE.ZItemHorizontalLocation.optional(),
-  userVisible: ZUserVisible.optional(),
 })
 
 export const ZCommandBarXML = z.object({

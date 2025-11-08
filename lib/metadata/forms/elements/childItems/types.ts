@@ -2,7 +2,10 @@ import z from "zod"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
-import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
+import {
+  ZFormItemAddition,
+  ZFormItemAdditionXML,
+} from "../formItemAddition/types"
 import { ZButton, ZButtonXML } from "../button/types"
 import { ZCalendarField, ZCalendarFieldXML } from "../calendarField/types"
 import { ZChartField, ZChartFieldXML } from "../chartField/types"
@@ -10,32 +13,71 @@ import { ZCheckBoxField, ZCheckBoxFieldXML } from "../checkBoxField/types"
 import { ZColumnGroup, ZColumnGroupXML } from "../columnGroup/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZDendrogramField, ZDendrogramFieldXML } from "../dendrogramField/types"
-import { ZFormattedDocumentField, ZFormattedDocumentFieldXML } from "../formattedDocumentField/types"
+import {
+  ZFormattedDocumentField,
+  ZFormattedDocumentFieldXML,
+} from "../formattedDocumentField/types"
 import { ZGanttChartField, ZGanttChartFieldXML } from "../ganttChartField/types"
-import { ZGeographicalSchemaField, ZGeographicalSchemaFieldXML } from "../geographicalSchemaField/types"
-import { ZGraphicalSchemaField, ZGraphicalSchemaFieldXML } from "../graphicalSchemaField/types"
-import { ZHTMLDocumentField, ZHTMLDocumentFieldXML } from "../htmlDocumentField/types"
+import {
+  ZGeographicalSchemaField,
+  ZGeographicalSchemaFieldXML,
+} from "../geographicalSchemaField/types"
+import {
+  ZGraphicalSchemaField,
+  ZGraphicalSchemaFieldXML,
+} from "../graphicalSchemaField/types"
+import {
+  ZHTMLDocumentField,
+  ZHTMLDocumentFieldXML,
+} from "../htmlDocumentField/types"
 import { ZInputField, ZInputFieldXML } from "../inputField/types"
 import { ZLabelDecoration, ZLabelDecorationXML } from "../labelDecoration/types"
 import { ZLabelField, ZLabelFieldXML } from "../labelField/types"
 import { ZPage, ZPageXML } from "../page/types"
 import { ZPages, ZPagesXML } from "../pages/types"
-import { ZPdfDocumentField, ZPdfDocumentFieldXML } from "../pdfDocumentField/types"
+import {
+  ZPdfDocumentField,
+  ZPdfDocumentFieldXML,
+} from "../pdfDocumentField/types"
 import { ZPeriodField, ZPeriodFieldXML } from "../periodField/types"
-import { ZPictureDecoration, ZPictureDecorationXML } from "../pictureDecoration/types"
+import {
+  ZPictureDecoration,
+  ZPictureDecorationXML,
+} from "../pictureDecoration/types"
 import { ZPictureField, ZPictureFieldXML } from "../pictureField/types"
 import { ZPlannerField, ZPlannerFieldXML } from "../plannerField/types"
 import { ZPopup, ZPopupXML } from "../popup/types"
-import { ZProgressBarField, ZProgressBarFieldXML } from "../progressBarField/types"
-import { ZRadioButtonField, ZRadioButtonFieldXML } from "../radioButtonField/types"
-import { ZSearchControlAddition, ZSearchControlAdditionXML } from "../searchControlAddition/types"
-import { ZSearchStringAddition, ZSearchStringAdditionXML } from "../searchStringAddition/types"
-import { ZSpreadSheetDocumentField, ZSpreadSheetDocumentFieldXML } from "../spreadSheetDocumentField/types"
+import {
+  ZProgressBarField,
+  ZProgressBarFieldXML,
+} from "../progressBarField/types"
+import {
+  ZRadioButtonField,
+  ZRadioButtonFieldXML,
+} from "../radioButtonField/types"
+import {
+  ZSearchControlAddition,
+  ZSearchControlAdditionXML,
+} from "../searchControlAddition/types"
+import {
+  ZSearchStringAddition,
+  ZSearchStringAdditionXML,
+} from "../searchStringAddition/types"
+import {
+  ZSpreadSheetDocumentField,
+  ZSpreadSheetDocumentFieldXML,
+} from "../spreadSheetDocumentField/types"
 import { ZTable, ZTableXML } from "../table/types"
-import { ZTextDocumentField, ZTextDocumentFieldXML } from "../textDocumentField/types"
+import {
+  ZTextDocumentField,
+  ZTextDocumentFieldXML,
+} from "../textDocumentField/types"
 import { ZTrackBarField, ZTrackBarFieldXML } from "../trackBarField/types"
 import { ZUsualGroup, ZUsualGroupXML } from "../usualGroup/types"
-import { ZViewStatusAddition, ZViewStatusAdditionXML } from "../viewStatusAddition/types"
+import {
+  ZViewStatusAddition,
+  ZViewStatusAdditionXML,
+} from "../viewStatusAddition/types"
 import { ZButtonGroup, ZButtonGroupXML } from "../buttonGroup/types"
 
 export const ZChildItems = z.array(
@@ -82,44 +124,120 @@ export const ZChildItems = z.array(
 )
 
 export const ZChildItemXML = z.object({
-  Button: ZButtonXML.optional(),
-  ButtonGroup: ZButtonGroupXML.optional(),
-  CalendarField: ZCalendarFieldXML.optional(),
-  ChartField: ZChartFieldXML.optional(),
-  CheckBoxField: ZCheckBoxFieldXML.optional(),
-  ColumnGroup: ZColumnGroupXML.optional(),
-  CommandBar: ZCommandBarXML.optional(),
-  DendrogramField: ZDendrogramFieldXML.optional(),
-  FormattedDocumentField: ZFormattedDocumentFieldXML.optional(),
-  FormDecoration: ZFormDecorationXML.optional(),
-  FormField: ZFormFieldXML.optional(),
-  FormItemAddition: ZFormItemAdditionXML.optional(),
-  GanttChartField: ZGanttChartFieldXML.optional(),
-  GeographicalSchemaField: ZGeographicalSchemaFieldXML.optional(),
-  GraphicalSchemaField: ZGraphicalSchemaFieldXML.optional(),
-  HTMLDocumentField: ZHTMLDocumentFieldXML.optional(),
-  InputField: ZInputFieldXML.optional(),
-  LabelDecoration: ZLabelDecorationXML.optional(),
-  LabelField: ZLabelFieldXML.optional(),
-  Page: ZPageXML.optional(),
-  Pages: ZPagesXML.optional(),
-  PdfDocumentField: ZPdfDocumentFieldXML.optional(),
-  PeriodField: ZPeriodFieldXML.optional(),
-  PictureDecoration: ZPictureDecorationXML.optional(),
-  PictureField: ZPictureFieldXML.optional(),
-  PlannerField: ZPlannerFieldXML.optional(),
-  Popup: ZPopupXML.optional(),
-  ProgressBarField: ZProgressBarFieldXML.optional(),
-  RadioButtonField: ZRadioButtonFieldXML.optional(),
-  SearchControlAddition: ZSearchControlAdditionXML.optional(),
-  SearchStringAddition: ZSearchStringAdditionXML.optional(),
-  SpreadSheetDocumentField: ZSpreadSheetDocumentFieldXML.optional(),
-  Table: ZTableXML.optional(),
-  TextDocumentField: ZTextDocumentFieldXML.optional(),
-  TrackBarField: ZTrackBarFieldXML.optional(),
-  UsualGroup: ZUsualGroupXML.optional(),
-  ViewStatusAddition: ZViewStatusAdditionXML.optional(),
-  FormGroup: ZFormGroupXML.optional(),
+  get Button() {
+    return ZButtonXML.optional()
+  },
+  get ButtonGroup() {
+    return ZButtonGroupXML.optional()
+  },
+  get CalendarField() {
+    return ZCalendarFieldXML.optional()
+  },
+  get ChartField() {
+    return ZChartFieldXML.optional()
+  },
+  get CheckBoxField() {
+    return ZCheckBoxFieldXML.optional()
+  },
+  get ColumnGroup() {
+    return ZColumnGroupXML.optional()
+  },
+  get CommandBar() {
+    return ZCommandBarXML.optional()
+  },
+  get DendrogramField() {
+    return ZDendrogramFieldXML.optional()
+  },
+  get FormattedDocumentField() {
+    return ZFormattedDocumentFieldXML.optional()
+  },
+  get FormDecoration() {
+    return ZFormDecorationXML.optional()
+  },
+  get FormField() {
+    return ZFormFieldXML.optional()
+  },
+  get FormItemAddition() {
+    return ZFormItemAdditionXML.optional()
+  },
+  get GanttChartField() {
+    return ZGanttChartFieldXML.optional()
+  },
+  get GeographicalSchemaField() {
+    return ZGeographicalSchemaFieldXML.optional()
+  },
+  get GraphicalSchemaField() {
+    return ZGraphicalSchemaFieldXML.optional()
+  },
+  get HTMLDocumentField() {
+    return ZHTMLDocumentFieldXML.optional()
+  },
+  get InputField() {
+    return ZInputFieldXML.optional()
+  },
+  get LabelDecoration() {
+    return ZLabelDecorationXML.optional()
+  },
+  get LabelField() {
+    return ZLabelFieldXML.optional()
+  },
+  get Page() {
+    return ZPageXML.optional()
+  },
+  get Pages() {
+    return ZPagesXML.optional()
+  },
+  get PdfDocumentField() {
+    return ZPdfDocumentFieldXML.optional()
+  },
+  get PeriodField() {
+    return ZPeriodFieldXML.optional()
+  },
+  get PictureDecoration() {
+    return ZPictureDecorationXML.optional()
+  },
+  get PictureField() {
+    return ZPictureFieldXML.optional()
+  },
+  get PlannerField() {
+    return ZPlannerFieldXML.optional()
+  },
+  get Popup() {
+    return ZPopupXML.optional()
+  },
+  get ProgressBarField() {
+    return ZProgressBarFieldXML.optional()
+  },
+  get RadioButtonField() {
+    return ZRadioButtonFieldXML.optional()
+  },
+  get SearchControlAddition() {
+    return ZSearchControlAdditionXML.optional()
+  },
+  get SearchStringAddition() {
+    return ZSearchStringAdditionXML.optional()
+  },
+  get SpreadSheetDocumentField() {
+    return ZSpreadSheetDocumentFieldXML.optional()
+  },
+  get Table() {
+    return ZTableXML.optional()
+  },
+  get TextDocumentField() {
+    return ZTextDocumentFieldXML.optional()
+  },
+  get TrackBarField() {
+    return ZTrackBarFieldXML.optional()
+  },
+  get UsualGroup() {
+    return ZUsualGroupXML.optional()
+  },
+  get ViewStatusAddition() {
+    return ZViewStatusAdditionXML.optional()
+  },
+  get FormGroup() {
+    return ZFormGroupXML.optional()
+  },
 })
 
 export const ZChildItemsXML = z.array(ZChildItemXML)

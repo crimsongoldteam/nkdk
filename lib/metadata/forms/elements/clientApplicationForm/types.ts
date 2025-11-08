@@ -5,7 +5,6 @@ import {
   ZI8nTextXML,
 } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import {
   ZUserVisible,
   ZUserVisibleXML,
@@ -175,7 +174,9 @@ export const ZClientApplicationFormXML = z.object({
   CloseOnChoice: z.boolean().optional(),
   CloseOnOwnerClose: z.boolean().optional(),
   CollapseItemsByImportance: SE.ZCollapseFormItemsByImportance.optional(),
-  CommandBar: ZCommandBarXML.optional(),
+  get CommandBar() {
+    return ZCommandBarXML.optional()
+  },
   CommandBarLocation: SE.ZFormCommandBarLabelLocation.optional(),
   // Commands: ZКомандыФормыXML.optional(),
   ConversationsRepresentation: SE.ZFormConversationsRepresentation.optional(),

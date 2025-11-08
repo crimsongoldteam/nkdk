@@ -12,6 +12,34 @@ import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/user
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
 export const ZPictureDecoration = ZFormDecoration.extend({
+  autoMaxHeight: z.boolean().optional(),
+  autoMaxWidth: z.boolean().optional(),
+  get contextMenu() {
+    return ZCommandBar.optional()
+  },
+  displayImportance: SE.ZDisplayImportance.optional(),
+  enabled: z.boolean().optional(),
+  get extendedTooltip() {
+    return ZFormDecoration.optional()
+  },
+  font: ZFont.optional(),
+  height: z.number().optional(),
+  horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
+  horizontalStretch: z.boolean().optional(),
+  maxHeight: z.number().optional(),
+  maxWidth: z.number().optional(),
+  shortcut: z.string().optional(),
+  skipOnInput: z.boolean().optional(),
+  textColor: ZColor.optional(),
+  title: ZI8nText.optional(),
+  toolTip: ZI8nText.optional(),
+  toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
+  type: SE.ZFormDecorationType.optional(),
+  userVisible: ZUserVisible.optional(),
+  verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
+  verticalStretch: z.boolean().optional(),
+  visible: z.boolean().optional(),
+  width: z.number().optional(),
   border: ZBorder.optional(),
   borderColor: ZColor.optional(),
   enableDrag: z.boolean().optional(),
@@ -22,7 +50,6 @@ export const ZPictureDecoration = ZFormDecoration.extend({
   picture: ZPicture.optional(),
   pictureSize: SE.ZPictureSize.optional(),
   scale: z.number().optional(),
-  userVisible: ZUserVisible.optional(),
   zoomable: z.boolean().optional(),
   events: z.object({
     click: z.string().optional(),

@@ -1,24 +1,41 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import {
-  ZI8nText,
-  ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types"
+import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import {
-  ZPicture,
-  ZPictureXML,
-} from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import { ZFormGroup } from "../formGroup/types"
-import { ZFormDecorationXML } from "../formDecoration/types"
-import { ZChildItemsXML } from "../childItems/types"
-import {
-  ZUserVisible,
-  ZUserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
+import {  ZBaseElementXML } from "../baseElement/types"
+import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { TChildItems } from "../childItems/typesExt"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZPage = ZFormGroup.extend({
+  enableContentChange: z.boolean().optional(),
+  enabled: z.boolean().optional(),
+  get extendedTooltip() {
+    return ZFormDecoration.optional()
+  },
+  height: z.number().optional(),
+  horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
+  horizontalStretch: z.boolean().optional(),
+  readOnly: z.boolean().optional(),
+  shortcut: z.string().optional(),
+  title: ZI8nText.optional(),
+  titleFont: ZFont.optional(),
+  titleTextColor: ZColor.optional(),
+  toolTip: ZI8nText.optional(),
+  toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
+  type: SE.ZFormGroupType.optional(),
+  userVisible: ZUserVisible.optional(),
+  verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
+  verticalStretch: z.boolean().optional(),
+  visible: z.boolean().optional(),
+  width: z.number().optional(),
+  get childItems() : TChildItems {
+    return ZChildItems
+  },
   backColor: ZColor.optional(),
   childItemsHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
   childItemsVerticalAlign: SE.ZItemVerticalAlign.optional(),
@@ -32,7 +49,6 @@ export const ZPage = ZFormGroup.extend({
   showTitle: z.boolean().optional(),
   slaveItemsWidth: SE.ZChildFormItemsWidth.optional(),
   titleDataPath: z.string().optional(),
-  userVisible: ZUserVisible.optional(),
   verticalAlign: SE.ZItemVerticalAlign.optional(),
   verticalScrollOnReduceSize: z.boolean().optional(),
   verticalSpacing: SE.ZFormItemSpacing.optional(),

@@ -11,8 +11,31 @@ import { TChildItems } from "../childItems/typesExt"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export const ZButtonGroup = ZFormGroup.extend({
-  representation: SE.ZButtonGroupRepresentation.optional(),
+  enableContentChange: z.boolean().optional(),
+  enabled: z.boolean().optional(),
+  get extendedTooltip() {
+    return ZFormDecoration.optional()
+  },
+  height: z.number().optional(),
+  horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
+  horizontalStretch: z.boolean().optional(),
+  readOnly: z.boolean().optional(),
+  shortcut: z.string().optional(),
+  title: ZI8nText.optional(),
+  titleFont: ZFont.optional(),
+  titleTextColor: ZColor.optional(),
+  toolTip: ZI8nText.optional(),
+  toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
+  type: SE.ZFormGroupType.optional(),
   userVisible: ZUserVisible.optional(),
+  verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
+  verticalStretch: z.boolean().optional(),
+  visible: z.boolean().optional(),
+  width: z.number().optional(),
+  get childItems() : TChildItems {
+    return ZChildItems
+  },
+  representation: SE.ZButtonGroupRepresentation.optional(),
 })
 
 export const ZButtonGroupXML = z.object({
