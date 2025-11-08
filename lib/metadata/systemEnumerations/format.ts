@@ -11,10 +11,12 @@ export function formatSystemEnumeration<
   TKey extends string,
   TEnterprise extends string
 >(
-  value: TKey,
+  value: TKey | undefined,
   keySchema: z.ZodEnum<any>,
   enterpriseSchema: z.ZodEnum<any>
-): TEnterprise {
+): TEnterprise | undefined {
+  if (!value) return undefined
+
   // Получаем ключи из keySchema.enum (это объект, где ключи и значения одинаковы)
   const keyEnum = keySchema.enum
   const keys = Object.keys(keyEnum) as TKey[]

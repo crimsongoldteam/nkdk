@@ -1,16 +1,11 @@
 import { TCommand, TCommandEnterprise } from "./types"
 import { formatI8nText } from "../../commonObjects/i8nText/formatI8nText"
 import {
-  TCurrentRowUse,
-  TCurrentRowUseEnterprise,
+  ZCurrentRowUse,
+  ZCurrentRowUseEnterprise,
 } from "../../systemEnumerations/types"
 import * as yaml from "js-yaml"
-
-const CurrentRowUseMap: Record<TCurrentRowUse, TCurrentRowUseEnterprise> = {
-  Auto: "Авто",
-  Use: "Использует",
-  DontUse: "НеИспользует",
-}
+import { formatSystemEnumeration } from "../../systemEnumerations/format"
 
 export function formatCommands(commands: TCommand[]): string[] {
   const commandsEnterprise = commands.map((command) => formatCommand(command))
@@ -36,9 +31,11 @@ function formatCommand(command: TCommand): TCommandEnterprise {
     СочетаниеКлавиш: command.shortcut,
     Действие: command.action,
     ОтображениеКнопки: command.representation,
-    ИспользованиеТекущейСтроки: command.currentRowUse
-      ? CurrentRowUseMap[command.currentRowUse]
-      : undefined,
+    ИспользованиеТекущейСтроки: formatSystemEnumeration(
+      command.currentRowUse,
+      ZCurrentRowUse,
+      ZCurrentRowUseEnterprise
+    ),
     ИзменяемыеДанные: command.modifiesSavedData,
   }
 
