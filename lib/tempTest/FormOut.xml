@@ -53,7 +53,7 @@
 				<LabelDecoration name="РаспознаваниеДокументаНадпись" id="4203">
 					<AutoMaxWidth>false</AutoMaxWidth>
 					<HorizontalStretch>true</HorizontalStretch>
-					<Title formatted="false">
+					<Title>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Документ находится на распознавании. Доступен только для просмотра.</v8:content>
@@ -100,7 +100,7 @@
 					<ExtendedTooltip name="ПереданВАрхивИлиУничтоженКартинкаРасширеннаяПодсказка" id="3944"/>
 				</PictureDecoration>
 				<LabelDecoration name="ПереданВАрхивИлиУничтоженНадпись" id="3945">
-					<Title formatted="false">
+					<Title>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Документ уничтожен</v8:content>
@@ -143,7 +143,7 @@
 					<Height>1</Height>
 					<HorizontalStretch>false</HorizontalStretch>
 					<SkipOnInput>false</SkipOnInput>
-					<Title formatted="false">
+					<Title>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Пометка удаления картинка</v8:content>
@@ -158,7 +158,7 @@
 					<ExtendedTooltip name="ПометкаУдаленияКартинкаРасширеннаяПодсказка" id="3565"/>
 				</PictureDecoration>
 				<LabelDecoration name="ПометкаУдаленияНадпись" id="3566">
-					<Title formatted="false">
+					<Title>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Документ помечен на удаление</v8:content>
@@ -185,7 +185,7 @@
 			<ExtendedTooltip name="ГруппаНеРедактируетсяРасширеннаяПодсказка" id="3553"/>
 			<ChildItems>
 				<PictureDecoration name="ДекорацияЗагруженИзВнешнейСистемы" id="3549">
-					<Title formatted="false">
+					<Title>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Загружен из внешней системы</v8:content>
@@ -960,7 +960,7 @@
 					<Height>1</Height>
 					<TextColor>style:ИнформационнаяНадпись</TextColor>
 					<Font ref="style:NormalTextFont" height="11" kind="StyleItem"/>
-					<Title formatted="false">
+					<Title>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Этот документ находится у вас на согласовании.</v8:content>
@@ -1017,7 +1017,7 @@
 					<HorizontalStretch>true</HorizontalStretch>
 					<TextColor>style:ИнформационнаяНадпись</TextColor>
 					<Font ref="style:NormalTextFont" height="11" kind="StyleItem"/>
-					<Title formatted="false">
+					<Title>
 						<v8:item>
 							<v8:lang>ru</v8:lang>
 							<v8:content>Документ ЭДО аннулирован</v8:content>
@@ -1285,7 +1285,7 @@
 																	<HorizontalStretch>true</HorizontalStretch>
 																	<TextColor>style:МК_ЦветТекстаПоляФормы</TextColor>
 																	<Font ref="style:МК_ШрифтПоляФормы" kind="StyleItem"/>
-																	<Title formatted="false">
+																	<Title>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
 																			<v8:content>Документ и файлы</v8:content>
@@ -2261,13 +2261,13 @@
 																			<EditFormat>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
-																					<v8:content>ЧЦ=10; ЧН=&apos; &apos;</v8:content>
+																					<v8:content>ЧЦ=10; ЧН=' '</v8:content>
 																				</v8:item>
 																			</EditFormat>
 																			<Format>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
-																					<v8:content>ЧЦ=10; ЧН=&apos; &apos;</v8:content>
+																					<v8:content>ЧЦ=10; ЧН=' '</v8:content>
 																				</v8:item>
 																			</Format>
 																		</InputField>
@@ -2427,7 +2427,7 @@
 														</PictureDecoration>
 														<LabelDecoration name="ДекорацияОтсутствуетОригинал" id="1523">
 															<TextColor>style:ОтметкаОтрицательногоВыполненияЗадачи</TextColor>
-															<Title formatted="false">
+															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
 																	<v8:content>В списке файлов отсутствует скан-копия оригинала документа.</v8:content>
@@ -2516,7 +2516,7 @@
 																			<Height>1</Height>
 																			<HorizontalStretch>false</HorizontalStretch>
 																			<VerticalStretch>false</VerticalStretch>
-																			<Title formatted="false">
+																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
 																					<v8:content>Декорация иконка урезан</v8:content>
@@ -2533,7 +2533,7 @@
 																			<AutoMaxWidth>false</AutoMaxWidth>
 																			<TextColor>style:FormTextColor</TextColor>
 																			<Font faceName="" scale="100" height="8" bold="true" italic="true" underline="true" strikeout="true" kind="Absolute"/>
-																			<Title formatted="false">
+																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
 																					<v8:content>Файл показан в сокращенном виде, т.к. содержит большой текст. Откройте файл для просмотра, чтобы увидеть полностью.</v8:content>
@@ -3265,7 +3265,7 @@
 													<ChildItems>
 														<LabelDecoration name="ДекорацияОрганизация" id="1041">
 															<Visible>false</Visible>
-															<Title formatted="false">
+															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
 																	<v8:content>Декорация организация</v8:content>
@@ -3608,7 +3608,7 @@
 																			<Width>2</Width>
 																			<AutoMaxWidth>false</AutoMaxWidth>
 																			<HorizontalStretch>false</HorizontalStretch>
-																			<Title formatted="false">
+																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
 																					<v8:content>Декорация индексы СПАРКРиски строка2 картинка зел</v8:content>
@@ -3637,7 +3637,7 @@
 																			<Width>2</Width>
 																			<AutoMaxWidth>false</AutoMaxWidth>
 																			<HorizontalStretch>false</HorizontalStretch>
-																			<Title formatted="false">
+																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
 																					<v8:content>Декорация индексы СПАРКРиски строка2 картинка зел</v8:content>
@@ -3666,7 +3666,7 @@
 																			<Width>2</Width>
 																			<AutoMaxWidth>false</AutoMaxWidth>
 																			<HorizontalStretch>false</HorizontalStretch>
-																			<Title formatted="false">
+																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
 																					<v8:content>Декорация индексы СПАРКРиски строка2 картинка зел</v8:content>
@@ -4092,7 +4092,7 @@
 																	<EditFormat>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
-																			<v8:content>ДФ=&quot;dd.MM.yyyy ЧЧ:мм&quot;</v8:content>
+																			<v8:content>ДФ="dd.MM.yyyy ЧЧ:мм"</v8:content>
 																		</v8:item>
 																	</EditFormat>
 																	<Events>
@@ -4161,7 +4161,7 @@
 															<ExtendedTooltip name="ГруппаДекарацияИПанельРасширеннаяПодсказка" id="2199"/>
 															<ChildItems>
 																<LabelDecoration name="ДекорацияСтороны" id="2200">
-																	<Title formatted="false">
+																	<Title>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
 																			<v8:content>Стороны:</v8:content>
@@ -4586,7 +4586,7 @@
 															<ChildItems>
 																<LabelDecoration name="ДекорацияПолучатель" id="2523">
 																	<Width>9</Width>
-																	<Title formatted="false">
+																	<Title>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
 																			<v8:content>Получатель:</v8:content>
@@ -4644,7 +4644,7 @@
 																	<ExtendedTooltip name="ГруппаАвансовыйОтчетНеПредоставленРасширеннаяПодсказка" id="2474"/>
 																	<ChildItems>
 																		<LabelDecoration name="ДекорацияАвансовыйОтчетНеПредоставлен" id="2479">
-																			<Title formatted="false">
+																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
 																					<v8:content>Авансовый отчет:</v8:content>
@@ -4654,7 +4654,7 @@
 																			<ExtendedTooltip name="ДекорацияАвансовыйОтчетНеПредоставленРасширеннаяПодсказка" id="2481"/>
 																		</LabelDecoration>
 																		<LabelDecoration name="ДекорацияАвансовыйОтчетНеПредоставленСсылка" id="2482">
-																			<Title formatted="false">
+																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
 																					<v8:content>не предоставлен</v8:content>
@@ -4688,7 +4688,7 @@
 																	<ExtendedTooltip name="ГруппаАвансовыйОтчетПредоставленРасширеннаяПодсказка" id="2476"/>
 																	<ChildItems>
 																		<LabelDecoration name="ДекорацияАвансовыйОтчетПредоставлен" id="2488">
-																			<Title formatted="false">
+																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
 																					<v8:content>Авансовый отчет:</v8:content>
@@ -4698,7 +4698,7 @@
 																			<ExtendedTooltip name="ДекорацияАвансовыйОтчетПредоставленРасширеннаяПодсказка" id="2490"/>
 																		</LabelDecoration>
 																		<LabelDecoration name="ДекорацияАвансовыйОтчетПредоставленСсылка" id="2491">
-																			<Title formatted="false">
+																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
 																					<v8:content>предоставлен</v8:content>
@@ -4733,7 +4733,7 @@
 																	<ExtendedTooltip name="ГруппаАвансовыйОтчетУказанРасширеннаяПодсказка" id="2478"/>
 																	<ChildItems>
 																		<LabelDecoration name="ДекорацияАвансовыйОтчетУказан" id="2526">
-																			<Title formatted="false">
+																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
 																					<v8:content>Авансовый отчет:</v8:content>
@@ -4780,7 +4780,7 @@
 																	<ExtendedTooltip name="ГруппаАвансовыйОтчетНеТребуетсяРасширеннаяПодсказка" id="2511"/>
 																	<ChildItems>
 																		<LabelDecoration name="ДекорацияАвансовыйОтчетНеТребуется" id="2512">
-																			<Title formatted="false">
+																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
 																					<v8:content>Авансовый отчет:</v8:content>
@@ -4790,7 +4790,7 @@
 																			<ExtendedTooltip name="ДекорацияАвансовыйОтчетНеТребуетсяРасширеннаяПодсказка" id="2514"/>
 																		</LabelDecoration>
 																		<LabelDecoration name="ДекорацияАвансовыйОтчетНеТребуетсяСсылка" id="2515">
-																			<Title formatted="false">
+																			<Title>
 																				<v8:item>
 																					<v8:lang>ru</v8:lang>
 																					<v8:content>не требуется</v8:content>
@@ -4926,7 +4926,7 @@
 																	<WarningOnEdit>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
-																			<v8:content>Редактирование поля &quot;Дата регистрации&quot; не рекомендуется</v8:content>
+																			<v8:content>Редактирование поля "Дата регистрации" не рекомендуется</v8:content>
 																		</v8:item>
 																	</WarningOnEdit>
 																	<Width>15</Width>
@@ -4937,7 +4937,7 @@
 																	<EditFormat>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
-																			<v8:content>ДФ=&apos;dd.MM.yyyy ЧЧ:мм&apos;</v8:content>
+																			<v8:content>ДФ='dd.MM.yyyy ЧЧ:мм'</v8:content>
 																		</v8:item>
 																	</EditFormat>
 																	<Events>
@@ -5095,7 +5095,7 @@
 																</InputField>
 																<LabelDecoration name="НадписьРабочихДней" id="2974">
 																	<Visible>false</Visible>
-																	<Title formatted="false">
+																	<Title>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
 																			<v8:content>Надпись рабочих дней</v8:content>
@@ -5221,7 +5221,7 @@
 																									<ChildItems>
 																										<LabelDecoration name="ЗаголовокСтатьяДДС" id="1916">
 																											<Width>9</Width>
-																											<Title formatted="false">
+																											<Title>
 																												<v8:item>
 																													<v8:lang>ru</v8:lang>
 																													<v8:content>Статья ДДС:</v8:content>
@@ -5243,7 +5243,7 @@
 																									<ChildItems>
 																										<LabelDecoration name="ЗаголовокСтатьиДДС" id="1919">
 																											<Width>9</Width>
-																											<Title formatted="false">
+																											<Title>
 																												<v8:item>
 																													<v8:lang>ru</v8:lang>
 																													<v8:content>Статьи ДДС:</v8:content>
@@ -5309,7 +5309,7 @@
 																					<ExtendedTooltip name="СтраницаСуммаНевернаРасширеннаяПодсказка" id="1935"/>
 																					<ChildItems>
 																						<LabelDecoration name="ДекорацияСуммаНеверна" id="1936">
-																							<Title formatted="false">
+																							<Title>
 																								<v8:item>
 																									<v8:lang>ru</v8:lang>
 																									<v8:content>Сумма по статьям ДДС неверна.</v8:content>
@@ -5319,7 +5319,7 @@
 																							<ExtendedTooltip name="ДекорацияСуммаНевернаРасширеннаяПодсказка" id="1938"/>
 																						</LabelDecoration>
 																						<LabelDecoration name="ДекорацияИзменитьСумму" id="1939">
-																							<Title formatted="false">
+																							<Title>
 																								<v8:item>
 																									<v8:lang>ru</v8:lang>
 																									<v8:content>Изменить...</v8:content>
@@ -5393,7 +5393,7 @@
 																</CheckBoxField>
 																<LabelDecoration name="ДекорацияГотовитсяКОтмене" id="3132">
 																	<Visible>false</Visible>
-																	<Title formatted="false">
+																	<Title>
 																		<v8:item>
 																			<v8:lang>ru</v8:lang>
 																			<v8:content>Готовится к отмене документом:</v8:content>
@@ -5462,7 +5462,7 @@
 															</ChildItems>
 														</UsualGroup>
 														<LabelDecoration name="ДелаетНедействующимиСтрока" id="3141">
-															<Title formatted="false">
+															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
 																	<v8:content>Делает недействующими</v8:content>
@@ -6090,13 +6090,13 @@
 													<EditFormat>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
-															<v8:content>ДФ=&quot;dd.MM.yyyy ЧЧ:мм&quot;</v8:content>
+															<v8:content>ДФ="dd.MM.yyyy ЧЧ:мм"</v8:content>
 														</v8:item>
 													</EditFormat>
 													<Format>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
-															<v8:content>ДФ=&quot;dd.MM.yyyy ЧЧ:мм&quot;</v8:content>
+															<v8:content>ДФ="dd.MM.yyyy ЧЧ:мм"</v8:content>
 														</v8:item>
 													</Format>
 												</InputField>
@@ -7481,7 +7481,7 @@
 														<PictureDecoration name="КартинкаОтсутствуетОригиналСоздание" id="1894">
 															<Width>2</Width>
 															<Height>1</Height>
-															<Title formatted="false">
+															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
 																	<v8:content>Картинка отсутствует оригинал создание</v8:content>
@@ -7497,7 +7497,7 @@
 														</PictureDecoration>
 														<LabelDecoration name="ДекорацияОтсутствуетОригиналСоздание" id="1897">
 															<TextColor>style:ОтметкаОтрицательногоВыполненияЗадачи</TextColor>
-															<Title formatted="false">
+															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
 																	<v8:content>В списке файлов отсутствует скан-копия оригинала документа.</v8:content>
@@ -8637,7 +8637,7 @@
 											<ToolTip>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
-													<v8:content>Документы с этим признаком будут выгружены в ССТУ через &quot;Регламентированный отчет по результатам рассмотрения обращений&quot;.</v8:content>
+													<v8:content>Документы с этим признаком будут выгружены в ССТУ через "Регламентированный отчет по результатам рассмотрения обращений".</v8:content>
 												</v8:item>
 											</ToolTip>
 											<ToolTipRepresentation>Button</ToolTipRepresentation>
@@ -8646,10 +8646,10 @@
 											</Events>
 										</CheckBoxField>
 										<LabelDecoration name="ДекорацияСостояниеССТУ" id="4019">
-											<Title formatted="false">
+											<Title>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
-													<v8:content>&lt;&lt;СостояниеССТУ&gt;&gt;</v8:content>
+													<v8:content><<СостояниеССТУ>></v8:content>
 												</v8:item>
 											</Title>
 											<ToolTip>
@@ -8872,13 +8872,13 @@
 											<EditFormat>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
-													<v8:content>ДФ=&apos;dd.MM.yyyy HH:mm&apos;</v8:content>
+													<v8:content>ДФ='dd.MM.yyyy HH:mm'</v8:content>
 												</v8:item>
 											</EditFormat>
 											<Format>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
-													<v8:content>ДФ=&apos;dd.MM.yyyy HH:mm&apos;</v8:content>
+													<v8:content>ДФ='dd.MM.yyyy HH:mm'</v8:content>
 												</v8:item>
 											</Format>
 										</InputField>
@@ -9029,7 +9029,7 @@
 													<Height>1</Height>
 													<HorizontalStretch>false</HorizontalStretch>
 													<VerticalStretch>false</VerticalStretch>
-													<Title formatted="false">
+													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
 															<v8:content>Не запущена</v8:content>
@@ -9247,7 +9247,7 @@
 													<Visible>false</Visible>
 													<Width>2</Width>
 													<Height>1</Height>
-													<Title formatted="false">
+													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
 															<v8:content>Декорация картинка очередь</v8:content>
@@ -9438,13 +9438,13 @@
 											<EditFormat>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
-													<v8:content>ДФ=&apos;dd.MM.yy HH:mm&apos;</v8:content>
+													<v8:content>ДФ='dd.MM.yy HH:mm'</v8:content>
 												</v8:item>
 											</EditFormat>
 											<Format>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
-													<v8:content>ДФ=&apos;dd.MM.yy HH:mm&apos;</v8:content>
+													<v8:content>ДФ='dd.MM.yy HH:mm'</v8:content>
 												</v8:item>
 											</Format>
 										</InputField>
@@ -9541,7 +9541,7 @@
 									<ExtendedTooltip name="ГруппаИнформацияОПрерыванииОбработкиРасширеннаяПодсказка" id="3958"/>
 									<ChildItems>
 										<LabelDecoration name="ДействияНадписьПричинаПрерыванияОбработки" id="3574">
-											<Title formatted="false">
+											<Title>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
 													<v8:content>Обработка прервана</v8:content>
@@ -9565,7 +9565,7 @@
 											<ExtendedTooltip name="ГруппаПрервалОбработкуРасширеннаяПодсказка" id="3960"/>
 											<ChildItems>
 												<LabelDecoration name="ДействияНадписьПрервал" id="3961">
-													<Title formatted="false">
+													<Title>
 														<v8:item>
 															<v8:lang>ru</v8:lang>
 															<v8:content>Прервал:</v8:content>
@@ -10016,7 +10016,7 @@
 															<Height>1</Height>
 															<HorizontalStretch>false</HorizontalStretch>
 															<VerticalStretch>false</VerticalStretch>
-															<Title formatted="false">
+															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
 																	<v8:content>Декорация иконка урезан</v8:content>
@@ -10033,7 +10033,7 @@
 															<AutoMaxWidth>false</AutoMaxWidth>
 															<TextColor>style:FormTextColor</TextColor>
 															<Font faceName="" scale="100" height="8" bold="true" italic="true" underline="true" strikeout="true" kind="Absolute"/>
-															<Title formatted="false">
+															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
 																	<v8:content>Файл показан в сокращенном виде, т.к. содержит большой текст. Откройте файл для просмотра чтобы увидеть полностью.</v8:content>
@@ -10653,7 +10653,7 @@
 														<PictureDecoration name="ДекорацияАКВыполненаКартинка" id="448">
 															<Width>2</Width>
 															<Height>1</Height>
-															<Title formatted="false">
+															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
 																	<v8:content>Декорация автоматическая категоризация выполнена картинка</v8:content>
@@ -10668,7 +10668,7 @@
 															<ExtendedTooltip name="ДекорацияАКВыполненаКартинкаExtendedTooltip" id="1440"/>
 														</PictureDecoration>
 														<LabelDecoration name="ДекорацияАКВыполненаТекст" id="450">
-															<Title formatted="false">
+															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
 																	<v8:content>Автоматические категории присвоены</v8:content>
@@ -10701,7 +10701,7 @@
 															<ExtendedTooltip name="ДекорацияАКНеВыполненаКартинкаExtendedTooltip" id="1443"/>
 														</PictureDecoration>
 														<LabelDecoration name="ДекорацияАКНеВыполненаТекст" id="455">
-															<Title formatted="false">
+															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
 																	<v8:content>Автоматические категории не присвоены</v8:content>
@@ -10760,7 +10760,7 @@
 															<ExtendedTooltip name="ДекорацияКатегорииПровереныКартинкаExtendedTooltip" id="1447"/>
 														</PictureDecoration>
 														<LabelDecoration name="ДекорацияКатегорииПровереныТекст" id="461">
-															<Title formatted="false">
+															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
 																	<v8:content>Категории проверены</v8:content>
@@ -10790,7 +10790,7 @@
 														<PictureDecoration name="ДекорацияКатегорииНеПровереныКартинка" id="464">
 															<Width>2</Width>
 															<Height>1</Height>
-															<Title formatted="false">
+															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
 																	<v8:content>Декорация категории не проверены картинка</v8:content>
@@ -10805,7 +10805,7 @@
 															<ExtendedTooltip name="ДекорацияКатегорииНеПровереныКартинкаExtendedTooltip" id="1450"/>
 														</PictureDecoration>
 														<LabelDecoration name="ДекорацияКатегорииНеПровереныТекст" id="466">
-															<Title formatted="false">
+															<Title>
 																<v8:item>
 																	<v8:lang>ru</v8:lang>
 																	<v8:content>Категории не проверены</v8:content>
@@ -10841,7 +10841,7 @@
 							<ChildItems>
 								<LabelDecoration name="ДекорацияЗапретРасширенияДоступа" id="2998">
 									<TextColor>style:ИнформационнаяНадпись</TextColor>
-									<Title formatted="false">
+									<Title>
 										<v8:item>
 											<v8:lang>ru</v8:lang>
 											<v8:content>Автоматическое расширение запрещено</v8:content>
@@ -10853,7 +10853,7 @@
 								<LabelDecoration name="ДекорацияРГОбновлена" id="3690">
 									<Visible>false</Visible>
 									<TextColor>style:ИнформационнаяНадпись</TextColor>
-									<Title formatted="false">
+									<Title>
 										<v8:item>
 											<v8:lang>ru</v8:lang>
 											<v8:content>Рабочая группа обновлена по автоподстановкам</v8:content>
@@ -11022,7 +11022,7 @@
 											<Format>
 												<v8:item>
 													<v8:lang>ru</v8:lang>
-													<v8:content>БЛ=&apos; &apos;; БИ=&apos; &apos;</v8:content>
+													<v8:content>БЛ=' '; БИ=' '</v8:content>
 												</v8:item>
 											</Format>
 											<ShowInHeader>false</ShowInHeader>

@@ -25,6 +25,41 @@ describe("formatFormAttributes", () => {
     expect(result).toEqual([expectedResult])
   })
 
+  it("should short format with title equal camelCase of name", () => {
+    const expectedResult = `Имя атрибута*: Строка`
+    const orignalContent: TAttribute[] = [
+      {
+        name: "ИмяАтрибута",
+        id: "1",
+        title: { items: { ru: "Имя атрибута*" } },
+        type: { type: ["string"] },
+      },
+    ]
+
+    const result = formatFormAttributes(orignalContent)
+
+    expect(result).toEqual([expectedResult])
+  })
+
+  it("should full format with title equal camelCase of name", () => {
+    const expectedResult = `Имя атрибута*: 
+  Тип: Строка(10)
+  ОсновнойАтрибут: Истина`
+    const orignalContent: TAttribute[] = [
+      {
+        name: "ИмяАтрибута",
+        id: "1",
+        title: { items: { ru: "Имя атрибута*" } },
+        type: { type: ["string"] },
+        mainAttribute: true,
+      },
+    ]
+
+    const result = formatFormAttributes(orignalContent)
+
+    expect(result).toEqual([expectedResult])
+  })
+
   it("should format main attribute", () => {
     const expectedResult = `ИмяАтрибута:
   Заголовок: Атрибут

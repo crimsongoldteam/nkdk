@@ -2,6 +2,15 @@ import { XMLParser } from "fast-xml-parser"
 import * as z from "zod"
 
 const METADATA_SYMBOL = Symbol.for("metadata")
+export const I8N_TEXT_FIELDS = [
+  "Title",
+  "FooterText",
+  "ToolTip",
+  "Format",
+  "EditFormat",
+  "WarningOnEdit",
+  "InputHint",
+]
 
 export default function xmlImport<T>(data: string, schema: z.ZodType<T>): T {
   const parser = new XMLParser({
@@ -21,7 +30,7 @@ export default function xmlImport<T>(data: string, schema: z.ZodType<T>): T {
       name === "Events" ||
       name === "UserVisible" ||
       name === "Use" ||
-      name === "Title"
+      I8N_TEXT_FIELDS.includes(name)
     )
   }
 

@@ -56,3 +56,19 @@ export const ZElementTypeEnterprise = z.enum(
 
 export type TElementType = keyof typeof ElementType
 export type TElementTypeEnterprise = `${ElementType}`
+
+export const ZElementRules = z.record(
+  z.string(),
+  z.object({
+    type: z.any(),
+    nameXML: z.string(),
+    typeXML: z.any(),
+    exportToXML: z.function().optional(),
+    importFromXML: z.function().optional(),
+    nameEnterprise: z.string(),
+    format: z.function().optional(),
+    forProperties: z.boolean(),
+  })
+)
+
+export type TElementRules = z.infer<typeof ZElementRules>

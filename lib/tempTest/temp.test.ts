@@ -7,8 +7,13 @@ import "../metadata/forms/elements/importFromXML"
 import "../metadata/forms/elements/exportToXML"
 import xmlExport from "../xml/export/exporter"
 import { exportClientApplicationFormToXML } from "../metadata/forms/elements/clientApplicationForm/exportToXML"
-import { TClientApplicationFormXML, ZClientApplicationFormXML } from ".."
+import {
+  IFormatterParams,
+  TClientApplicationFormXML,
+  ZClientApplicationFormXML,
+} from ".."
 import z from "zod"
+import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/format"
 
 const originalContent = readFileSync(join(__dirname, "Form.xml"), "utf-8")
 
@@ -21,11 +26,18 @@ it("should round-trip test", () => {
 
   const exportedForm = exportClientApplicationFormToXML(form)
 
+  const formattedForm = formatClientApplicationForm(form)
+
   const exportedXml = xmlExport(
     { Form: exportedForm },
     z.object({ Form: ZClientApplicationFormXML })
   )
 
   writeFileSync(join(__dirname, "FormOut.xml"), exportedXml, "utf-8")
+  writeFileSync(
+    join(__dirname, "FormFormatted.txt"),
+    formattedForm.strings.join("\n"),
+    "utf-8"
+  )
   expect(exportedXml).toEqual(originalContent)
 })
