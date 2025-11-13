@@ -22,12 +22,17 @@ export const clearElementRules = (): void => {
   rulesRegistry.clear()
 }
 
-export const getFormatPropertiesFunction = (
+export const formatProperty = (
   elementType: TElementType,
-  propertyName: string
-): (() => any) | undefined => {
+  propertyName: string,
+  value: any
+): any => {
   const rules = getElementRules(elementType)
 
   const rule = rules[propertyName]
-  return rule.inProperties() ? rule.format : undefined
+  if (!rule || !rule.inProperties()) {
+    return undefined
+  }
+
+  return rule.formatProperties ? rule.formatProperties(rule, value) : undefined
 }

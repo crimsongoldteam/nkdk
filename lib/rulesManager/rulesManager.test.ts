@@ -2,7 +2,7 @@ import { describe, it, beforeEach, expect, vi } from "vitest"
 import {
   clearElementRules,
   getElementRules,
-  getFormatPropertiesFunction,
+  formatProperty as formatProperty,
   registerElementRules,
 } from "./rulesManager"
 import { TElementRules } from "./types"
@@ -31,42 +31,43 @@ describe("RulesManager", () => {
   })
 
   it("should return format properties function", () => {
-    const formatFunction = vi.fn().mockReturnValue({})
+    const formatFunction = vi.fn().mockReturnValue("test")
     const rules: TElementRules = {
       autoTitle: {
         nameEnterprise: "Автозаголовок",
         type: "boolean",
-        format: formatFunction,
+        formatProperties: formatFunction,
         inProperties: () => true,
       },
     }
 
     registerElementRules(ZElementType.enum.InputField, rules)
 
-    const format = getFormatPropertiesFunction(
+    const format = formatProperty(
       ZElementType.enum.InputField,
-      "autoTitle"
+      "autoTitle",
+      "testValue"
     )
 
-    expect(format).toEqual(formatFunction)
+    expect(format).toEqual("test")
   })
 
   it("should return undefined if inProperties is false", () => {
-    const formatFunction = vi.fn().mockReturnValue({})
-
+    const formatFunction = vi.fn().mockReturnValue("test")
     const rules: TElementRules = {
       autoTitle: {
         nameEnterprise: "Автозаголовок",
         type: "boolean",
-        format: formatFunction,
+        formatProperties: formatFunction,
         inProperties: () => false,
       },
     }
     registerElementRules(ZElementType.enum.InputField, rules)
 
-    const format = getFormatPropertiesFunction(
+    const format = formatProperty(
       ZElementType.enum.InputField,
-      "autoTitle"
+      "autoTitle",
+      "testValue"
     )
 
     expect(format).toBeUndefined()
