@@ -2,7 +2,6 @@ import { formatElements } from "~/lib/format/formatFactory"
 import { IFormatterParams, IFormatElementResult } from "~/lib/format/types"
 import formatFormAttributes from "./attributes/format"
 import { TClientApplicationForm } from "./types"
-import { formatProperties } from "./formatProperties"
 
 export function formatClientApplicationForm(
   element: TClientApplicationForm,
@@ -34,7 +33,7 @@ export function formatClientApplicationForm(
   }
 
   result.strings.push(...formatSectionHeader("Свойства"))
-  result.strings.push(...formatProperties(element))
+  // result.strings.push(...formatProperties(element))
 
   return result
 }
