@@ -1,36 +1,31 @@
-import { format } from "path"
-import { describe, it } from "vitest"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { describe, it, beforeEach, expect } from "vitest"
+import {
+  clearElementRules,
+  getElementRules,
+  registerElementRules,
+} from "./rulesManager"
+import { TElementRules } from "./types"
 import { ZElementType } from "../metadata/forms/elements/types"
 
 describe("RulesManager", () => {
-  const rules = {
-    autoTitle: {
-      nameEnterprise: "Автозаголовок",
-      type: "boolean",
-      inProperties: () => true,
-    },
-    verticalScroll: {
-      nameEnterprise: "ВертикальнаяПрокрутка",
-      type: SE.ZVerticalFormScroll,
-      typeEnterprise: SE.ZVerticalFormScrollEnterprise,
-      inProperties: () => true,
-    },
-  }
+  beforeEach(() => {
+    clearElementRules()
+  })
 
-  it("should get rules for element", () => {})
-  registerElementRules(ZElementType.enum.InputField, rules)
+  it("should get rules for element", () => {
+    const rules: TElementRules = {
+      autoTitle: {
+        nameEnterprise: "Автозаголовок",
+        type: "boolean",
+        format: () => {},
+        inProperties: () => true,
+      },
+    }
 
-  const element = {
-    elementType: ZElementType.enum.InputField,
-    autoTitle: true,
-    verticalScroll: "Use",
-  }
+    registerElementRules(ZElementType.enum.InputField, rules)
 
-  const expectedResult = {
-    Автозаголовок: "Истина",
-    ВертикальнаяПрокрутка: "Использовать",
-  }
+    const result = getElementRules(ZElementType.enum.InputField)
 
-  const result = format(element)
+    expect(result).toEqual(rules)
+  })
 })
