@@ -21,3 +21,13 @@ export const getElementRules = (elementType: TElementType): TElementRules => {
 export const clearElementRules = (): void => {
   rulesRegistry.clear()
 }
+
+export const getFormatPropertiesFunction = (
+  elementType: TElementType,
+  propertyName: string
+): (() => any) | undefined => {
+  const rules = getElementRules(elementType)
+
+  const rule = rules[propertyName]
+  return rule.inProperties() ? rule.format : undefined
+}
