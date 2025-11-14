@@ -6,17 +6,39 @@ import {
   ZChildFormItemsGroupEnterprise,
 } from "./types"
 import { formatSystemEnumeration } from "./format"
+import { TElementRule } from "~/lib/rulesManager/types"
 
 describe("formatSystemEnumeration", () => {
   it("should format to enterprise", () => {
     const mockValue: TChildFormItemsGroup = "Vertical"
     const expectedResult: TChildFormItemsGroupEnterprise = "Вертикальная"
 
-    const result = formatSystemEnumeration(
-      mockValue,
-      ZChildFormItemsGroup,
-      ZChildFormItemsGroupEnterprise
-    )
+    const rule: TElementRule = {
+      nameEnterprise: "ChildFormItemsGroup",
+      type: ZChildFormItemsGroup,
+      typeEnterprise: ZChildFormItemsGroupEnterprise,
+      format: formatSystemEnumeration,
+      inProperties: () => true,
+    }
+
+    const result = formatSystemEnumeration(mockValue, rule)
+
+    expect(result).toBe(expectedResult)
+  })
+
+  it("should format with other case to enterprise", () => {
+    const mockValue = "vertical"
+    const expectedResult: TChildFormItemsGroupEnterprise = "Вертикальная"
+
+    const rule: TElementRule = {
+      nameEnterprise: "ChildFormItemsGroup",
+      type: ZChildFormItemsGroup,
+      typeEnterprise: ZChildFormItemsGroupEnterprise,
+      format: formatSystemEnumeration,
+      inProperties: () => true,
+    }
+
+    const result = formatSystemEnumeration(mockValue, rule)
 
     expect(result).toBe(expectedResult)
   })

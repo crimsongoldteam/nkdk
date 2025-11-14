@@ -2,6 +2,8 @@ import { formatElements } from "~/lib/format/formatFactory"
 import { IFormatterParams, IFormatElementResult } from "~/lib/format/types"
 import formatFormAttributes from "./attributes/format"
 import { TClientApplicationForm } from "./types"
+import { getAllElements } from "./getAllElements"
+import { formatProperties } from "./properties/formatProperties"
 
 export function formatClientApplicationForm(
   element: TClientApplicationForm,
@@ -15,6 +17,8 @@ export function formatClientApplicationForm(
   let header = element.title?.items.ru ?? ""
 
   result.strings.push(...formatSectionHeader(header))
+
+  const allElements = getAllElements(element)
 
   // for (const item of element.items) {
   //   const itemFormatted = formatElement(item, _params)
@@ -33,7 +37,7 @@ export function formatClientApplicationForm(
   }
 
   result.strings.push(...formatSectionHeader("Свойства"))
-  // result.strings.push(...formatProperties(element))
+  result.strings.push(...formatProperties(allElements))
 
   return result
 }

@@ -1,38 +1,21 @@
-import { z } from "zod"
+import { TElementRule } from "~/lib/rulesManager/types"
 
-/**
- * Форматирует значение системного перечисления из английского ключа в русское enterprise значение
- * @param value - значение ключа enum (например, "Vertical")
- * @param keySchema - zod схема для ключей enum
- * @param enterpriseSchema - zod схема для enterprise значений enum
- * @returns enterprise значение (например, "Вертикальная")
- */
-export function formatSystemEnumeration<
-  TKey extends string,
-  TEnterprise extends string
->(
-  value: TKey | undefined,
-  keySchema: z.ZodEnum<any>,
-  enterpriseSchema: z.ZodEnum<any>
-): TEnterprise | undefined {
+export const formatSystemEnumeration = (
+  value: string | undefined,
+  rule: TElementRule
+): string | undefined => {
   if (!value) return undefined
 
-  // Получаем ключи из keySchema.enum (это объект, где ключи и значения одинаковы)
-  const keyEnum = keySchema.enum
-  const keys = Object.keys(keyEnum) as TKey[]
+  const typeEnterprise = rule.typeEnterprise
+  const type = rule.type
 
-  // Получаем значения из enterpriseSchema.enum (это объект, где ключи и значения одинаковы)
-  const enterpriseEnum = enterpriseSchema.enum
-  const values = Object.values(enterpriseEnum) as TEnterprise[]
+  if (!typeEnterprise || !type)
+    throw new Error("Type enterprise or type not found")
 
-  // Находим индекс ключа в массиве ключей
-  const keyIndex = keys.indexOf(value)
+  const index = type.options.findIndex(
+    (option: string) => option.toLowerCase() === value.toLowerCase()
+  )
+  if (index === -1) throw new Error(`Value "${value}" not found in enum schema`)
 
-  if (keyIndex === -1) {
-    throw new Error(`Key "${value}" not found in enum schema`)
-  }
-
-  // Возвращаем соответствующее enterprise значение по тому же индексу
-  // Порядок должен совпадать, так как оба enum созданы из одного исходного enum объекта
-  return values[keyIndex]
+  return typeEnterprise.options[index]
 }

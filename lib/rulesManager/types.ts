@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-export type TFormatFunction = (rule: TElementRule, value: any) => any
+export type TFormatFunction = (value: any, rule: TElementRule) => any
 
 export const ZElementRule = z.object({
   nameEnterprise: z.string(),

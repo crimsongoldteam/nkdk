@@ -1,5 +1,7 @@
 import * as z from "zod"
-import { TElementRules } from "../types"
+import { TElementRules } from "~/lib/rulesManager/types"
+import { registerElementRules } from "~/lib/rulesManager/rulesManager"
+import { ZElementType } from "../types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
@@ -8,213 +10,153 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
-import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
-import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
-import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { exportTableToXML } from "../table/exportToXML"
-import { importTableFromXML } from "../table/importFromXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
-import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { formatSystemEnumeration } from "~/lib/metadata/systemEnumerations/format"
 
-
-export const ZPagesRules: TElementRules = {
+const rules: TElementRules = {
   "enableContentChange": {
     get type() { return z.boolean() },
-    nameXML: "EnableContentChange",
-    get typeXML() { return z.boolean() },
     nameEnterprise: "РазрешитьИзменениеСостава",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "enabled": {
     get type() { return z.boolean() },
-    nameXML: "Enabled",
-    get typeXML() { return z.boolean() },
     nameEnterprise: "Доступность",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "extendedTooltip": {
     get type() { return ZFormDecoration },
-    nameXML: "ExtendedTooltip",
-    get typeXML() { return ZFormDecorationXML },
     nameEnterprise: "РасширеннаяПодсказка",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "height": {
     get type() { return z.number() },
-    nameXML: "Height",
-    get typeXML() { return z.number() },
     nameEnterprise: "Высота",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "horizontalAlignInGroup": {
     get type() { return SE.ZItemHorizontalLocation },
-    nameXML: "HorizontalAlignInGroup",
-    get typeXML() { return SE.ZItemHorizontalLocation },
     nameEnterprise: "ГоризонтальноеПоложениеВГруппе",
-    format: undefined,
-    isProperties: ()=> true,
+    format: formatSystemEnumeration,
+    inProperties: ()=> true,
   },
   "horizontalStretch": {
     get type() { return z.boolean() },
-    nameXML: "HorizontalStretch",
-    get typeXML() { return z.boolean() },
     nameEnterprise: "РастягиватьПоГоризонтали",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "readOnly": {
     get type() { return z.boolean() },
-    nameXML: "ReadOnly",
-    get typeXML() { return z.boolean() },
     nameEnterprise: "ТолькоПросмотр",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "shortcut": {
     get type() { return z.string() },
-    nameXML: "Shortcut",
-    get typeXML() { return z.string() },
     nameEnterprise: "СочетаниеКлавиш",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "title": {
     get type() { return ZI8nText },
-    nameXML: "Title",
-    get typeXML() { return ZI8nTextXML },
     nameEnterprise: "Заголовок",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "titleFont": {
     get type() { return ZFont },
-    nameXML: "TitleFont",
-    get typeXML() { return ZFontXML },
     nameEnterprise: "ШрифтЗаголовка",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "titleTextColor": {
     get type() { return ZColor },
-    nameXML: "TitleTextColor",
-    get typeXML() { return ZColorXML },
     nameEnterprise: "ЦветТекстаЗаголовка",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "toolTip": {
     get type() { return ZI8nText },
-    nameXML: "ToolTip",
-    get typeXML() { return ZI8nTextXML },
     nameEnterprise: "Подсказка",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "toolTipRepresentation": {
     get type() { return SE.ZToolTipRepresentation },
-    nameXML: "ToolTipRepresentation",
-    get typeXML() { return SE.ZToolTipRepresentation },
     nameEnterprise: "ОтображениеПодсказки",
-    format: undefined,
-    isProperties: ()=> true,
+    format: formatSystemEnumeration,
+    inProperties: ()=> true,
   },
   "type": {
     get type() { return SE.ZFormGroupType },
-    nameXML: "Type",
-    get typeXML() { return SE.ZFormGroupType },
     nameEnterprise: "Вид",
-    format: undefined,
-    isProperties: ()=> true,
+    format: formatSystemEnumeration,
+    inProperties: ()=> true,
   },
   "userVisible": {
     get type() { return ZUserVisible },
-    nameXML: "UserVisible",
-    get typeXML() { return ZUserVisibleXML },
     nameEnterprise: "ПользовательскаяВидимость",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "verticalAlignInGroup": {
     get type() { return SE.ZItemVerticalAlign },
-    nameXML: "VerticalAlignInGroup",
-    get typeXML() { return SE.ZItemVerticalAlign },
     nameEnterprise: "ВертикальноеПоложениеВГруппе",
-    format: undefined,
-    isProperties: ()=> true,
+    format: formatSystemEnumeration,
+    inProperties: ()=> true,
   },
   "verticalStretch": {
     get type() { return z.boolean() },
-    nameXML: "VerticalStretch",
-    get typeXML() { return z.boolean() },
     nameEnterprise: "РастягиватьПоВертикали",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "visible": {
     get type() { return z.boolean() },
-    nameXML: "Visible",
-    get typeXML() { return z.boolean() },
     nameEnterprise: "Видимость",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "width": {
     get type() { return z.number() },
-    nameXML: "Width",
-    get typeXML() { return z.number() },
     nameEnterprise: "Ширина",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "childItems": {
     get type() { return ZЭлементыФормы },
-    nameXML: "ChildItems",
-    get typeXML() { return ZЭлементыФормыXML },
     nameEnterprise: "ПодчиненныеЭлементы",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "associatedTable": {
     get type() { return ZTable },
-    nameXML: "AssociatedTable",
-    get typeXML() { return ZTableXML },
     nameEnterprise: "ИспользуемаяТаблица",
     format: undefined,
-    isProperties: ()=> true,
+    inProperties: ()=> true,
   },
   "currentPagesState": {
     get type() { return SE.ZFormPagesState },
-    nameXML: "CurrentPagesState",
-    get typeXML() { return SE.ZFormPagesState },
     nameEnterprise: "ТекущееСостояниеСтраниц",
-    format: undefined,
-    isProperties: ()=> true,
+    format: formatSystemEnumeration,
+    inProperties: ()=> true,
   },
   "currentRowUse": {
     get type() { return SE.ZCurrentRowUse },
-    nameXML: "CurrentRowUse",
-    get typeXML() { return SE.ZCurrentRowUse },
     nameEnterprise: "ИспользованиеТекущейСтроки",
-    format: undefined,
-    isProperties: ()=> true,
+    format: formatSystemEnumeration,
+    inProperties: ()=> true,
   },
   "pagesRepresentation": {
     get type() { return SE.ZFormPagesRepresentation },
-    nameXML: "PagesRepresentation",
-    get typeXML() { return SE.ZFormPagesRepresentation },
     nameEnterprise: "ОтображениеСтраниц",
-    format: undefined,
-    isProperties: ()=> true,
+    format: formatSystemEnumeration,
+    inProperties: ()=> true,
   },
 }
+
+registerElementRules(ZElementType.enum.Pages, rules)
