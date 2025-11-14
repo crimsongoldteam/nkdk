@@ -1,5 +1,5 @@
 import { TElementType } from "../metadata/forms/elements/types"
-import { TElementRules } from "./types"
+import { TElementRule, TElementRules } from "./types"
 
 const rulesRegistry = new Map<TElementType, TElementRules>()
 
@@ -22,17 +22,12 @@ export const clearElementRules = (): void => {
   rulesRegistry.clear()
 }
 
-export const formatProperty = (
-  elementType: TElementType,
-  propertyName: string,
-  value: any
-): any => {
-  const rules = getElementRules(elementType)
-
-  const rule = rules[propertyName]
+export const formatProperty = (rule: TElementRule, value: any): any => {
   if (!rule || !rule.inProperties()) {
     return undefined
   }
 
-  return rule.formatProperties ? rule.formatProperties(rule, value) : undefined
+  return rule.formatProperties
+    ? rule.formatProperties(value, rule)
+    : value.toString()
 }

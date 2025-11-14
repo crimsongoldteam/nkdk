@@ -1,5 +1,8 @@
 import { TElementType } from "../metadata/forms/elements/types"
-import { formatProperty as formatProperty } from "../rulesManager/rulesManager"
+import {
+  formatProperty as formatProperty,
+  getElementRules,
+} from "../rulesManager/rulesManager"
 
 export const formatElementProperties = (
   elementType: TElementType,
@@ -11,10 +14,14 @@ export const formatElementProperties = (
 
   const result: Record<string, string> = {}
 
+  const rules = getElementRules(elementType)
+
   for (const [keyItem, valueItem] of Object.entries(value)) {
-    const resultItem = formatProperty(elementType, keyItem, valueItem)
+    const rule = rules[keyItem]
+    if (!rule) continue
+    const resultItem = formatProperty(rule, valueItem)
     if (!resultItem) continue
-    result[keyItem] = resultItem
+    result[rule.nameEnterprise] = resultItem
   }
 
   return result

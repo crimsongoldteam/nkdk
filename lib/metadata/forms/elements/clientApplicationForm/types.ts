@@ -213,7 +213,9 @@ export const ZClientApplicationFormXML = z.object({
     return ZCommandBarXML.optional()
   },
   Events: ZEventsXML.optional(),
-  ChildItems: ZChildItemsXML.optional(),
+  get ChildItems() {
+    return ZChildItemsXML.optional()
+  },
   Attributes: ZAttributesXML.optional(),
 })
 
