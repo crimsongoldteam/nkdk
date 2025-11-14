@@ -1,5 +1,5 @@
 import { TCommand, TCommandEnterprise } from "./types"
-import { formatI8nText } from "../../commonObjects/i8nText/formatI8nText"
+import { formatI8nText } from "../../commonObjects/i8nText/format"
 import {
   ZCurrentRowUse,
   ZCurrentRowUseEnterprise,

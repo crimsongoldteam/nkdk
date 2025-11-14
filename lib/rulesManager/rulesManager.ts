@@ -27,6 +27,10 @@ export const formatProperty = (rule: TElementRule, value: any): any => {
     return undefined
   }
 
+  if (value === undefined) {
+    return undefined
+  }
+
   return rule.formatProperties
     ? rule.formatProperties(value, rule)
     : value.toString()

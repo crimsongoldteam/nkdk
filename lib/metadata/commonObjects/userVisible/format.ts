@@ -1,24 +1,28 @@
 import { type TUserVisible, type TUserVisibleEnterprise } from "./types"
-import { formatBool } from "~/lib/format/formatBool"
+import { formatBoolean } from "~/lib/format/formatBool"
 import { TBoolEnterprise } from "~/lib/format/types"
+import { TElementRule } from "~/lib/rulesManager/types"
 
-export function formatUse(
-  use: TUserVisible | undefined
-): TUserVisibleEnterprise | undefined {
-  if (!use) return undefined
+export function formatUserVisible(
+  value: TUserVisible | undefined,
+  _rule: TElementRule
+): Record<string, any> | undefined {
+  if (!value) return undefined
 
   const values: Record<string, TBoolEnterprise> = {}
-  use.values.forEach((item) => {
-    values[item.name] = formatBool(item.value)!
+  value.values.forEach((item) => {
+    values[item.name] = formatBoolean(item.value)!
   })
 
-  if (use.common) {
-    return {
-      РазрешитьИспользование: values,
-    }
-  } else {
-    return {
-      ЗапретитьИспользование: values,
-    }
-  }
+  return values
+
+  // if (value.common) {
+  //   return {
+  //     РазрешитьИспользование: values,
+  //   }
+  // } else {
+  //   return {
+  //     ЗапретитьИспользование: values,
+  //   }
+  // }
 }

@@ -1,8 +1,8 @@
 import { TAttribute } from "../types"
-import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/formatI8nText"
+import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format"
 import { formatTypeDescription } from "~/lib/metadata/commonObjects/typeDescription/format"
-import { formatBool } from "~/lib/format/formatBool"
-import { formatUse } from "~/lib/metadata/commonObjects/userVisible/format"
+import { formatBoolean } from "~/lib/format/formatBool"
+import { formatUserVisible } from "~/lib/metadata/commonObjects/userVisible/format"
 import { noCase, capitalCase } from "change-case"
 import * as yaml from "js-yaml"
 
@@ -95,9 +95,9 @@ const transformAttribute = (
 ): Record<string, any> => {
   const title = formatI8nText(attribute.title)
   const type = formatTypeDescription(attribute.type)
-  const mainAttribute = formatBool(attribute.mainAttribute)
-  const storedData = formatBool(attribute.storedData)
-  const use = formatUse(attribute.use)
+  const mainAttribute = formatBoolean(attribute.mainAttribute)
+  const storedData = formatBoolean(attribute.storedData)
+  const use = formatUserVisible(attribute.use)
   let attributeData: Record<string, any> = {}
 
   // Не добавляем Заголовок, если title равен camelCase имени (будет использован в качестве имени)

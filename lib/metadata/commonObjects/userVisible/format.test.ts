@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import { TUserVisible } from "./types"
-import { formatUse } from "./format"
+import { formatUserVisible } from "./format"
 
 it("should format allow `use`", () => {
   const use: TUserVisible = {
@@ -18,7 +18,7 @@ it("should format allow `use`", () => {
     },
   }
 
-  const result = formatUse(use)
+  const result = formatUserVisible(use)
 
   expect(result).toEqual(expectedResult)
 })
@@ -39,7 +39,7 @@ it("should format disable `use`", () => {
     },
   }
 
-  const result = formatUse(use)
+  const result = formatUserVisible(use)
 
   expect(result).toEqual(expectedResult)
 })

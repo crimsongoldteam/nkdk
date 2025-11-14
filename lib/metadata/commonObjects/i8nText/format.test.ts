@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { formatI8nText } from "./formatI8nText"
+import { formatI8nText } from "./format"
 import { TI8nText } from "./types"
 
 describe("formatI8nText", () => {

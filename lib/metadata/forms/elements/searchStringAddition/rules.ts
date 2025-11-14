@@ -10,121 +10,129 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { formatUserVisible } from "~/lib/metadata/commonObjects/userVisible/format"
+import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format"
+import { formatBoolean } from "~/lib/format/formatBool"
 import { formatSystemEnumeration } from "~/lib/metadata/systemEnumerations/format"
 
 const rules: TElementRules = {
   "contextMenu": {
     get type() { return ZCommandBar },
     nameEnterprise: "КонтекстноеМеню",
-    format: undefined,
+    formatProperties: undefined,
     inProperties: ()=> true,
   },
   "displayImportance": {
     get type() { return SE.ZDisplayImportance },
     nameEnterprise: "ВажностьПриОтображении",
-    format: formatSystemEnumeration,
+    formatProperties: formatSystemEnumeration,
+    get typeEnterprise() { return SE.ZDisplayImportanceEnterprise },
     inProperties: ()=> true,
   },
   "enabled": {
     get type() { return z.boolean() },
     nameEnterprise: "Доступность",
-    format: undefined,
+    formatProperties: formatBoolean,
     inProperties: ()=> true,
   },
   "extendedToolTip": {
     get type() { return ZFormDecoration },
     nameEnterprise: "РасширеннаяПодсказка",
-    format: undefined,
+    formatProperties: undefined,
     inProperties: ()=> true,
   },
   "horizontalAlignInGroup": {
     get type() { return SE.ZItemHorizontalLocation },
     nameEnterprise: "ГоризонтальноеПоложениеВГруппе",
-    format: formatSystemEnumeration,
+    formatProperties: formatSystemEnumeration,
+    get typeEnterprise() { return SE.ZItemHorizontalLocationEnterprise },
     inProperties: ()=> true,
   },
   "title": {
     get type() { return ZI8nText },
     nameEnterprise: "Заголовок",
-    format: undefined,
+    formatProperties: formatI8nText,
     inProperties: ()=> true,
   },
   "toolTip": {
     get type() { return ZI8nText },
     nameEnterprise: "Подсказка",
-    format: undefined,
+    formatProperties: formatI8nText,
     inProperties: ()=> true,
   },
   "toolTipRepresentation": {
     get type() { return SE.ZToolTipRepresentation },
     nameEnterprise: "ОтображениеПодсказки",
-    format: formatSystemEnumeration,
+    formatProperties: formatSystemEnumeration,
+    get typeEnterprise() { return SE.ZToolTipRepresentationEnterprise },
     inProperties: ()=> true,
   },
   "type": {
     get type() { return SE.ZFormItemAdditionType },
     nameEnterprise: "Вид",
-    format: formatSystemEnumeration,
+    formatProperties: formatSystemEnumeration,
+    get typeEnterprise() { return SE.ZFormItemAdditionTypeEnterprise },
     inProperties: ()=> true,
   },
   "userVisible": {
     get type() { return ZUserVisible },
     nameEnterprise: "ПользовательскаяВидимость",
-    format: undefined,
+    formatProperties: formatUserVisible,
     inProperties: ()=> true,
   },
   "verticalAlignInGroup": {
     get type() { return SE.ZItemVerticalAlign },
     nameEnterprise: "ВертикальноеПоложениеВГруппе",
-    format: formatSystemEnumeration,
+    formatProperties: formatSystemEnumeration,
+    get typeEnterprise() { return SE.ZItemVerticalAlignEnterprise },
     inProperties: ()=> true,
   },
   "visible": {
     get type() { return z.boolean() },
     nameEnterprise: "Видимость",
-    format: undefined,
+    formatProperties: formatBoolean,
     inProperties: ()=> true,
   },
   "childItems": {
     get type() { return ZЭлементыФормы },
     nameEnterprise: "ПодчиненныеЭлементы",
-    format: undefined,
+    formatProperties: undefined,
     inProperties: ()=> true,
   },
   "backColor": {
     get type() { return ZColor },
     nameEnterprise: "ЦветФона",
-    format: undefined,
+    formatProperties: undefined,
     inProperties: ()=> true,
   },
   "borderColor": {
     get type() { return ZColor },
     nameEnterprise: "ЦветРамки",
-    format: undefined,
+    formatProperties: undefined,
     inProperties: ()=> true,
   },
   "font": {
     get type() { return ZFont },
     nameEnterprise: "Шрифт",
-    format: undefined,
+    formatProperties: undefined,
     inProperties: ()=> true,
   },
   "horizontalStretch": {
     get type() { return z.boolean() },
     nameEnterprise: "РастягиватьПоГоризонтали",
-    format: undefined,
+    formatProperties: formatBoolean,
     inProperties: ()=> true,
   },
   "textColor": {
     get type() { return ZColor },
     nameEnterprise: "ЦветТекста",
-    format: undefined,
+    formatProperties: undefined,
     inProperties: ()=> true,
   },
   "width": {
     get type() { return z.number() },
     nameEnterprise: "Ширина",
-    format: undefined,
+    formatProperties: undefined,
     inProperties: ()=> true,
   },
 }
