@@ -13,7 +13,7 @@ import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
-export const ZGraphicalSchemaField = ZFormField.extend({
+export const ZGraphicalSchemaField = z.object({
   autoCellHeight: z.boolean().optional(),
   cellHyperlink: z.boolean().optional(),
   get contextMenu() {

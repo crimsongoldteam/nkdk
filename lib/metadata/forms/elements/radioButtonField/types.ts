@@ -14,7 +14,7 @@ import { ZChoiceList, ZChoiceListXML } from "~/lib/metadata/commonObjects/choice
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
-export const ZRadioButtonField = ZFormField.extend({
+export const ZRadioButtonField = z.object({
   autoCellHeight: z.boolean().optional(),
   cellHyperlink: z.boolean().optional(),
   get contextMenu() {

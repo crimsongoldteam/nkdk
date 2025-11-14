@@ -12,7 +12,7 @@ import { TChildItems } from "../childItems/typesExt"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
-export const ZViewStatusAddition = ZFormItemAddition.extend({
+export const ZViewStatusAddition = z.object({
   get contextMenu() {
     return ZCommandBar.optional()
   },

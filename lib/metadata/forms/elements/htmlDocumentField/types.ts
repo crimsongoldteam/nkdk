@@ -13,7 +13,7 @@ import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
-export const ZHTMLDocumentField = ZFormField.extend({
+export const ZHTMLDocumentField = z.object({
   autoCellHeight: z.boolean().optional(),
   cellHyperlink: z.boolean().optional(),
   get contextMenu() {

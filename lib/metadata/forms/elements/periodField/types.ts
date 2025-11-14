@@ -14,7 +14,7 @@ import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
-export const ZPeriodField = ZFormField.extend({
+export const ZPeriodField = z.object({
   autoCellHeight: z.boolean().optional(),
   cellHyperlink: z.boolean().optional(),
   get contextMenu() {

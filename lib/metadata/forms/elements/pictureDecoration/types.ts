@@ -11,7 +11,7 @@ import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
-export const ZPictureDecoration = ZFormDecoration.extend({
+export const ZPictureDecoration = z.object({
   autoMaxHeight: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
   get contextMenu() {

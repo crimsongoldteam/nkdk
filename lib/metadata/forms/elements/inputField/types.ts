@@ -16,7 +16,7 @@ import { ZChoiceParameterLinks, ZChoiceParameterLinksXML } from "~/lib/metadata/
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
-export const ZInputField = ZFormField.extend({
+export const ZInputField = z.object({
   autoCellHeight: z.boolean().optional(),
   cellHyperlink: z.boolean().optional(),
   get contextMenu() {

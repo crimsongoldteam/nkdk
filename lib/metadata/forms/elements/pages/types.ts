@@ -12,7 +12,7 @@ import { TChildItems } from "../childItems/typesExt"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
-export const ZPages = ZFormGroup.extend({
+export const ZPages = z.object({
   enableContentChange: z.boolean().optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {

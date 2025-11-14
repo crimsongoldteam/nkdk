@@ -11,7 +11,7 @@ import { TChildItems } from "../childItems/typesExt"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
-export const ZSearchControlAddition = ZFormItemAddition.extend({
+export const ZSearchControlAddition = z.object({
   get contextMenu() {
     return ZCommandBar.optional()
   },

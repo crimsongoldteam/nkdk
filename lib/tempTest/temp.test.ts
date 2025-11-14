@@ -1,18 +1,12 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
-import { expect, it } from "vitest"
+import { it } from "vitest"
 import { importClientApplicationFormFromXML } from "../metadata/forms/elements/clientApplicationForm/importFromXML"
 import xmlImport from "../xml/import/importer"
 import "../metadata/forms/elements/importFromXML"
 import "../metadata/forms/elements/exportToXML"
 import "../metadata/forms/elements/rules"
-import xmlExport from "../xml/export/exporter"
-import { exportClientApplicationFormToXML } from "../metadata/forms/elements/clientApplicationForm/exportToXML"
-import {
-  IFormatterParams,
-  TClientApplicationFormXML,
-  ZClientApplicationFormXML,
-} from ".."
+import { TClientApplicationFormXML, ZClientApplicationFormXML } from ".."
 import z from "zod"
 import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/format"
 

@@ -16,7 +16,7 @@ import { ZViewStatusAddition, ZViewStatusAdditionXML } from "~/lib/metadata/form
 import { ZSearchControlAddition, ZSearchControlAdditionXML } from "~/lib/metadata/forms/elements/searchControlAddition/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 
-export const ZTable = ZBaseElement.extend({
+export const ZTable = z.object({
   autoAddIncomplete: z.boolean().optional(),
   get autoCommandBar() {
     return ZCommandBar.optional()

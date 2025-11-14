@@ -8,7 +8,7 @@ import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
-export const ZFormItemAddition = ZBaseElement.extend({
+export const ZFormItemAddition = z.object({
   get contextMenu() {
     return ZCommandBar.optional()
   },

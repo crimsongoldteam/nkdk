@@ -7,7 +7,7 @@ import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
-export const ZFormDecoration = ZBaseElement.extend({
+export const ZFormDecoration = z.object({
   autoMaxHeight: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
   get contextMenu() {

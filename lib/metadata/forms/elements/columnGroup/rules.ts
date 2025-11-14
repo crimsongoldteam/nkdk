@@ -3,247 +3,189 @@ import { TElementRules } from "~/lib/rulesManager/types"
 import { registerElementRules } from "~/lib/rulesManager/rulesManager"
 import { ZElementType } from "../types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor } from "~/lib/metadata/commonObjects/color/types"
-import { ZPicture } from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFont } from "~/lib/metadata/commonObjects/font/types"
-import { ZFormDecoration } from "../formDecoration/types"
-import { ZUserVisible } from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { formatSystemEnumeration } from "~/lib/metadata/systemEnumerations/format"
-import { ZChildItems } from "../childItems/types"
 
 const rules: TElementRules = {
-  enableContentChange: {
-    get type() {
-      return z.boolean()
-    },
+  "enableContentChange": {
+    get type() { return z.boolean() },
     nameEnterprise: "РазрешитьИзменениеСостава",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  enabled: {
-    get type() {
-      return z.boolean()
-    },
+  "enabled": {
+    get type() { return z.boolean() },
     nameEnterprise: "Доступность",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  extendedTooltip: {
-    get type() {
-      return ZFormDecoration
-    },
+  "extendedTooltip": {
+    get type() { return ZFormDecoration },
     nameEnterprise: "РасширеннаяПодсказка",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  height: {
-    get type() {
-      return z.number()
-    },
+  "height": {
+    get type() { return z.number() },
     nameEnterprise: "Высота",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  horizontalAlignInGroup: {
-    get type() {
-      return SE.ZItemHorizontalLocation
-    },
+  "horizontalAlignInGroup": {
+    get type() { return SE.ZItemHorizontalLocation },
     nameEnterprise: "ГоризонтальноеПоложениеВГруппе",
     format: formatSystemEnumeration,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  horizontalStretch: {
-    get type() {
-      return z.boolean()
-    },
+  "horizontalStretch": {
+    get type() { return z.boolean() },
     nameEnterprise: "РастягиватьПоГоризонтали",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  readOnly: {
-    get type() {
-      return z.boolean()
-    },
+  "readOnly": {
+    get type() { return z.boolean() },
     nameEnterprise: "ТолькоПросмотр",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  shortcut: {
-    get type() {
-      return z.string()
-    },
+  "shortcut": {
+    get type() { return z.string() },
     nameEnterprise: "СочетаниеКлавиш",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  title: {
-    get type() {
-      return ZI8nText
-    },
+  "title": {
+    get type() { return ZI8nText },
     nameEnterprise: "Заголовок",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  titleFont: {
-    get type() {
-      return ZFont
-    },
+  "titleFont": {
+    get type() { return ZFont },
     nameEnterprise: "ШрифтЗаголовка",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  titleTextColor: {
-    get type() {
-      return ZColor
-    },
+  "titleTextColor": {
+    get type() { return ZColor },
     nameEnterprise: "ЦветТекстаЗаголовка",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  toolTip: {
-    get type() {
-      return ZI8nText
-    },
+  "toolTip": {
+    get type() { return ZI8nText },
     nameEnterprise: "Подсказка",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  toolTipRepresentation: {
-    get type() {
-      return SE.ZToolTipRepresentation
-    },
+  "toolTipRepresentation": {
+    get type() { return SE.ZToolTipRepresentation },
     nameEnterprise: "ОтображениеПодсказки",
     format: formatSystemEnumeration,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  type: {
-    get type() {
-      return SE.ZFormGroupType
-    },
+  "type": {
+    get type() { return SE.ZFormGroupType },
     nameEnterprise: "Вид",
     format: formatSystemEnumeration,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  userVisible: {
-    get type() {
-      return ZUserVisible
-    },
+  "userVisible": {
+    get type() { return ZUserVisible },
     nameEnterprise: "ПользовательскаяВидимость",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  verticalAlignInGroup: {
-    get type() {
-      return SE.ZItemVerticalAlign
-    },
+  "verticalAlignInGroup": {
+    get type() { return SE.ZItemVerticalAlign },
     nameEnterprise: "ВертикальноеПоложениеВГруппе",
     format: formatSystemEnumeration,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  verticalStretch: {
-    get type() {
-      return z.boolean()
-    },
+  "verticalStretch": {
+    get type() { return z.boolean() },
     nameEnterprise: "РастягиватьПоВертикали",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  visible: {
-    get type() {
-      return z.boolean()
-    },
+  "visible": {
+    get type() { return z.boolean() },
     nameEnterprise: "Видимость",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  width: {
-    get type() {
-      return z.number()
-    },
+  "width": {
+    get type() { return z.number() },
     nameEnterprise: "Ширина",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  childItems: {
-    get type() {
-      return ZChildItems
-    },
+  "childItems": {
+    get type() { return ZЭлементыФормы },
     nameEnterprise: "ПодчиненныеЭлементы",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  fixingInTable: {
-    get type() {
-      return SE.ZFixingInTable
-    },
+  "fixingInTable": {
+    get type() { return SE.ZFixingInTable },
     nameEnterprise: "ФиксацияВТаблице",
     format: formatSystemEnumeration,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  group: {
-    get type() {
-      return SE.ZColumnsGroup
-    },
+  "group": {
+    get type() { return SE.ZColumnsGroup },
     nameEnterprise: "Группировка",
     format: formatSystemEnumeration,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  headerDataPath: {
-    get type() {
-      return z.string()
-    },
+  "headerDataPath": {
+    get type() { return z.string() },
     nameEnterprise: "ПутьКДаннымШапки",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  headerFormat: {
-    get type() {
-      return z.string()
-    },
+  "headerFormat": {
+    get type() { return z.string() },
     nameEnterprise: "ФорматШапки",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  headerHorizontalAlign: {
-    get type() {
-      return SE.ZItemHorizontalLocation
-    },
+  "headerHorizontalAlign": {
+    get type() { return SE.ZItemHorizontalLocation },
     nameEnterprise: "ГоризонтальноеПоложениеВШапке",
     format: formatSystemEnumeration,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  headerPicture: {
-    get type() {
-      return ZPicture
-    },
+  "headerPicture": {
+    get type() { return ZPicture },
     nameEnterprise: "КартинкаШапки",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  showInHeader: {
-    get type() {
-      return z.boolean()
-    },
+  "showInHeader": {
+    get type() { return z.boolean() },
     nameEnterprise: "ОтображатьВШапке",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  showTitle: {
-    get type() {
-      return z.boolean()
-    },
+  "showTitle": {
+    get type() { return z.boolean() },
     nameEnterprise: "ОтображатьЗаголовок",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  titleBackColor: {
-    get type() {
-      return ZColor
-    },
+  "titleBackColor": {
+    get type() { return ZColor },
     nameEnterprise: "ЦветФонаЗаголовка",
     format: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
 }
 
