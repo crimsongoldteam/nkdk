@@ -10,8 +10,12 @@ import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
 
 export const ZPictureDecoration = z.object({
+  elementType: ZElementType,
+  name: z.string(),
+  id: z.string().optional(),
   autoMaxHeight: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
   get contextMenu() {

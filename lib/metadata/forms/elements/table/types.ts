@@ -15,8 +15,12 @@ import { ZSearchStringAddition, ZSearchStringAdditionXML } from "~/lib/metadata/
 import { ZViewStatusAddition, ZViewStatusAdditionXML } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
 import { ZSearchControlAddition, ZSearchControlAdditionXML } from "~/lib/metadata/forms/elements/searchControlAddition/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
 
 export const ZTable = z.object({
+  elementType: ZElementType,
+  name: z.string(),
+  id: z.string().optional(),
   autoAddIncomplete: z.boolean().optional(),
   get autoCommandBar() {
     return ZCommandBar.optional()

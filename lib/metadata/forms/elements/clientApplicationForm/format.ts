@@ -20,12 +20,6 @@ export function formatClientApplicationForm(
 
   const allElements = getAllElements(element)
 
-  // for (const item of element.items) {
-  //   const itemFormatted = formatElement(item, _params)
-  //   result.strings.push(...itemFormatted.strings)
-  //   result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || itemFormatted.haveSimpleHorizontalGroup
-  // }
-
   const itemsResult = formatElements(element.childItems)
   result.strings.push(...itemsResult.strings)
   result.haveSimpleHorizontalGroup =

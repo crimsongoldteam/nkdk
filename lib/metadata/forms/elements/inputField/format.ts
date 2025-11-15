@@ -1,6 +1,10 @@
 import * as t from "~/lib/parser/lexer"
 import { type TInputField } from "./types"
-import { IFormatterParams, FormatFunction, IFormatElementResult } from "~/lib/format/types"
+import {
+  IFormatterParams,
+  FormatFunction,
+  IFormatElementResult,
+} from "~/lib/format/types"
 import { isMultiline } from "./helpers"
 import { formatElementName } from "~/lib/format/helpers"
 import { pascalCase } from "change-case"
@@ -19,7 +23,7 @@ export const formatInputField: FormatFunction<TInputField> = (
   if (hasTitle) {
     header += element.title?.items.ru
   } else {
-    header += formatElementName(element)
+    header += element.name
   }
 
   header += COLON
@@ -33,25 +37,42 @@ export const formatInputField: FormatFunction<TInputField> = (
     value += UNDERLINE.repeat(2) + modificators
   }
 
-  if (hasTitle && pascalCase(element.title?.items.ru ?? "").toLowerCase() !== element.name.toLowerCase()) {
-    header += " " + formatElementName(element)
+  let namePart = ""
+  if (
+    hasTitle &&
+    pascalCase(element.title?.items.ru ?? "").toLowerCase() !==
+      element.name.toLowerCase()
+  ) {
+    namePart = " " + formatElementName(element)
+  } else if (!hasTitle) {
+    namePart = " " + formatElementName(element)
   }
 
-  let result: IFormatElementResult = { strings: [header + value + name], haveSimpleHorizontalGroup: false }
+  let result: IFormatElementResult = {
+    strings: [header + value + namePart],
+    haveSimpleHorizontalGroup: false,
+  }
 
-  result.strings.push(...getMultilineString(element, header.length, value.length))
+  result.strings.push(
+    ...getMultilineString(element, header.length, value.length)
+  )
 
   return result
 }
 
-function getMultilineString(element: TInputField, headerLength: number, valueLength: number): string[] {
+function getMultilineString(
+  element: TInputField,
+  headerLength: number,
+  valueLength: number
+): string[] {
   if (!isMultiline(element)) {
     return []
   }
 
   const height = element.height!
 
-  let multilineStringTemplate = " ".repeat(headerLength) + UNDERLINE.repeat(valueLength)
+  let multilineStringTemplate =
+    " ".repeat(headerLength) + UNDERLINE.repeat(valueLength)
 
   const result: string[] = []
 

@@ -6,8 +6,12 @@ import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
 
 export const ZFormDecoration = z.object({
+  elementType: ZElementType,
+  name: z.string(),
+  id: z.string().optional(),
   autoMaxHeight: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
   get contextMenu() {

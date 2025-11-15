@@ -1,14 +1,26 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import {
+  ZI8nText,
+  ZI8nTextXML,
+} from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
+import {
+  ZPicture,
+  ZPictureXML,
+} from "~/lib/metadata/commonObjects/pictures/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  ZUserVisible,
+  ZUserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
 
 export const ZButton = z.object({
+  elementType: ZElementType,
+  name: z.string(),
+  id: z.string().optional(),
   autoMaxHeight: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
   backColor: ZColor.optional(),

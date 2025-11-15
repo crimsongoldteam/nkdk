@@ -15,8 +15,12 @@ import { ZTypeLink, ZTypeLinkXML } from "~/lib/metadata/commonObjects/typeLink/t
 import { ZChoiceParameterLinks, ZChoiceParameterLinksXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
 
 export const ZInputField = z.object({
+  elementType: ZElementType,
+  name: z.string(),
+  id: z.string().optional(),
   autoCellHeight: z.boolean().optional(),
   cellHyperlink: z.boolean().optional(),
   get contextMenu() {

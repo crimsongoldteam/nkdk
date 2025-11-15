@@ -13,8 +13,12 @@ import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
 
 export const ZPeriodField = z.object({
+  elementType: ZElementType,
+  name: z.string(),
+  id: z.string().optional(),
   autoCellHeight: z.boolean().optional(),
   cellHyperlink: z.boolean().optional(),
   get contextMenu() {
