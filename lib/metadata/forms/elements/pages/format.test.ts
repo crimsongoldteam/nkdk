@@ -3,10 +3,9 @@ import "~/lib/metadata/forms/elements/inputField/registration"
 import "~/lib/metadata/forms/elements/usualGroup/registration"
 import { ZElementType } from "../types"
 import { TInputField } from "../inputField/types"
-import { formatUsualGroup } from "../usualGroup/format"
-import { TUsualGroup } from "../usualGroup/types"
 import { TPages } from "./types"
 import { formatPages } from "./format"
+import { TPage } from "../page/types"
 
 describe("formatPages", () => {
   it("should format pages", () => {
@@ -16,27 +15,23 @@ describe("formatPages", () => {
       elementType: ZElementType.enum.Pages,
       childItems: [
         {
-          name: "Группа",
+          name: "Страница1",
           id: "1",
-          elementType: ZElementType.enum.UsualGroup,
+          elementType: ZElementType.enum.Page,
           childItems: [
             {
               name: "Элемент1",
               id: "1",
               elementType: ZElementType.enum.InputField,
             } as TInputField,
-            {
-              name: "Элемент2",
-              id: "2",
-              elementType: ZElementType.enum.InputField,
-            } as TInputField,
           ],
-        } as TUsualGroup,
+        } as TPage,
       ],
     } as TPages
 
     const expectedResult = `//{Страницы}
-  ?UsualGroup {Группа}`
+  /{Страница1}
+    {Элемент1}:`
 
     const result = formatPages(mockElement, {})
 

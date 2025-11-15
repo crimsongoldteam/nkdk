@@ -2,48 +2,28 @@ import { expect, it, describe } from "vitest"
 import "~/lib/metadata/forms/elements/inputField/registration"
 import { TInputField } from "../inputField/types"
 import { ZElementType } from "../types"
-import { formatUsualGroup } from "../usualGroup/format"
-import { TUsualGroup } from "../usualGroup/types"
-
-describe("formatOneLineGroup", () => {
-  it("should format one-line group", () => {
-    const mockElement: TUsualGroup = {
-      name: "Группа",
+import { formatPage } from "./format"
+import { TPage } from "./types"
+describe("formatPage", () => {
+  it("should format page", () => {
+    const mockElement: TPage = {
+      name: "Страница1",
       id: "1",
-      elementType: ZElementType.enum.UsualGroup,
+      elementType: ZElementType.enum.Page,
       childItems: [
-        { name: "Элемент1", id: "1", elementType: ZElementType.enum.InputField } as TInputField,
-        { name: "Элемент2", id: "2", elementType: ZElementType.enum.InputField } as TInputField,
+        {
+          name: "Элемент1",
+          id: "1",
+          elementType: ZElementType.enum.InputField,
+        } as TInputField,
       ],
     }
 
-    const expectedResult = `{Группа}
-Элемент1: {Элемент1} & Элемент2: {Элемент2}`
+    const expectedResult = `/{Страница1}
+  {Элемент1}:`
 
-    const result = formatUsualGroup(mockElement, {})
+    const result = formatPage(mockElement, {})
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
-})
-
-it("should format vertical group", () => {
-  const mockElement: TUsualGroup = {
-    name: "Группа",
-    group: "Vertical",
-    title: { items: { ru: "Заголовок группы" } },
-    elementType: ZElementType.enum.UsualGroup,
-    id: "1",
-    childItems: [
-      { name: "Элемент1", id: "1", elementType: ZElementType.enum.InputField } as TInputField,
-      { name: "Элемент2", id: "2", elementType: ZElementType.enum.InputField } as TInputField,
-    ],
-  }
-
-  const expectedResult = `#Заголовок группы {Группа}
-Элемент1: {Элемент1}
-Элемент2: {Элемент2}`
-
-  const result = formatUsualGroup(mockElement, {})
-
-  expect(result.strings.join("\n")).toEqual(expectedResult)
 })
