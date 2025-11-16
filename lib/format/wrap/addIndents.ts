@@ -1,6 +1,13 @@
 import { IFormatterParams } from "../types"
 
-export const addIndents = (lines: string[], params: IFormatterParams): string[] => {
+export const addIndents = (
+  lines: string[],
+  params: IFormatterParams
+): string[] => {
+  if (lines.length === 0) {
+    return []
+  }
+
   const indent = getIndent(params)
 
   const result: string[] = [formatFirstLine(lines[0], params)]

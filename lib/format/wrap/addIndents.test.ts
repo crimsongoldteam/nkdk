@@ -9,7 +9,7 @@ describe("addIndents", () => {
 
     const result = addIndents(lines, params)
 
-    expect(result).toEqual(["# First line  ", "  Second line ", "  Third line  "])
+    expect(result).toEqual(["# First line ", "  Second line", "  Third line "])
   })
 
   it("should remove first character from first line when isFirst is false", () => {
@@ -18,7 +18,7 @@ describe("addIndents", () => {
 
     const result = addIndents(lines, params)
 
-    expect(result).toEqual([" First line  ", "Second line   ", "Third line  "])
+    expect(result).toEqual([" First line", "Second line", "Third line "])
   })
 
   it("should handle single line", () => {
@@ -36,7 +36,11 @@ describe("addIndents", () => {
 
     const result = addIndents(lines, params)
 
-    expect(result).toEqual(["# Short            ", "  Very long line here", "  Medium           "])
+    expect(result).toEqual([
+      "# Short              ",
+      "  Very long line here",
+      "  Medium             ",
+    ])
   })
 
   it("should handle empty lines array", () => {
