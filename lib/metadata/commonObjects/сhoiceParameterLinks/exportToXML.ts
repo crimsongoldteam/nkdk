@@ -5,14 +5,17 @@ export const exportChoiceParameterLinksToXML = (
 ): TChoiceParameterLinksXML | undefined => {
   if (!links || links.length === 0) return undefined
 
-  const exportLink = (link: { name: string; dataPath: string; valueChange?: string }) => ({
+  const exportLink = (link: {
+    name: string
+    dataPath: string
+    valueChange?: string
+  }) => ({
     "xr:Name": link.name,
     "xr:DataPath": link.dataPath,
     "xr:ValueChange": link.valueChange,
   })
 
-  return {
-    "xr:Link": links.length === 1 ? exportLink(links[0]) : links.map(exportLink),
-  }
+  return links.map((link) => ({
+    "xr:Link": exportLink(link),
+  }))
 }
-

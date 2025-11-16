@@ -30,7 +30,7 @@ export default function xmlImport<T>(data: string, schema: z.ZodType<T>): T {
       name === "Events" ||
       name === "UserVisible" ||
       name === "Use" ||
-      name === "xr:Link" ||
+      name === "ChoiceParameterLinks" ||
       I8N_TEXT_FIELDS.includes(name)
     )
   }
