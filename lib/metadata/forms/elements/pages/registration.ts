@@ -6,5 +6,5 @@ import { formatPages } from "./format"
 import { registerIsOneLineElementCheck } from "~/lib/format/isOneLineElementCheckFactory"
 
 registerIsOneLineElementCheck(ZElementType.enum.Pages, () => false)
-registerFormat(formatPages, (element) => element.type === ZElementType.enum.Pages)
+registerFormat(formatPages, (element) => element.elementType === ZElementType.enum.Pages)
 registerImport(ZElementType.enum.Pages, importPagesFromXML)
