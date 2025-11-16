@@ -10,7 +10,10 @@ describe("importButtonFromXML", () => {
   it("should import button from XML", () => {
     const mockXml = `<Button name="КнопкаОК" id="1">
 					<Title>
-						<ru>ОК</ru>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>ОК</v8:content>
+						</v8:item>
 					</Title>
 				</Button>`
 
