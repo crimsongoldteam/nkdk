@@ -18,9 +18,14 @@ export const ZChoiceParameterLink = z.object({
   valueChange: z.string().optional(),
 })
 
-export const ZChoiceParameterLinksXML = z.object({
-  "xr:Link": z.union([ZChoiceParameterLinkXML, z.array(ZChoiceParameterLinkXML)]).optional(),
-})
+export const ZChoiceParameterLinksXML = z.array(
+  z.object({
+    "xr:Link": z.union([
+      ZChoiceParameterLinkXML,
+      z.array(ZChoiceParameterLinkXML),
+    ]),
+  })
+)
 
 export const ZChoiceParameterLinks = z.array(ZChoiceParameterLink).optional()
 

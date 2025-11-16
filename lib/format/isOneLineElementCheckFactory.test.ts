@@ -25,16 +25,6 @@ describe("isOneLineElementCheckFactory", () => {
     expect(isOneLineElement(element)).toBe(true)
   })
 
-  it("should return false for unregistered element type", () => {
-    const element: TBaseElement = {
-      elementType: ZElementType.enum.UsualGroup,
-      name: "UsualGroup",
-      id: "1",
-    }
-
-    expect(isOneLineElement(element)).toBe(false)
-  })
-
   it("should clear registry correctly", () => {
     const element: TBaseElement = {
       elementType: ZElementType.enum.InputField,

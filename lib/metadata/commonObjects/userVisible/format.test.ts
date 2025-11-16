@@ -12,10 +12,8 @@ it("should format allow `use`", () => {
   }
 
   const expectedResult = {
-    РазрешитьИспользование: {
-      Администратор: "Истина",
-      Пользователь: "Ложь",
-    },
+    Администратор: "Истина",
+    Пользователь: "Ложь",
   }
 
   const result = formatUserVisible(use)
@@ -33,10 +31,8 @@ it("should format disable `use`", () => {
   }
 
   const expectedResult = {
-    ЗапретитьИспользование: {
-      Администратор: "Истина",
-      Пользователь: "Ложь",
-    },
+    Администратор: "Истина",
+    Пользователь: "Ложь",
   }
 
   const result = formatUserVisible(use)

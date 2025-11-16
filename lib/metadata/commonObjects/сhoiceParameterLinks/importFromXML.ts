@@ -1,19 +1,23 @@
 import { TChoiceParameterLinks, TChoiceParameterLinksXML } from "./types"
 
-const extractDataPath = (dataPath: string | { "#text"?: string; "_xsi:type"?: string }): string => {
+const extractDataPath = (
+  dataPath: string | { "#text"?: string; "_xsi:type"?: string }
+): string => {
   if (typeof dataPath === "string") {
     return dataPath
   }
   return dataPath["#text"] ?? ""
 }
 
-export const importChoiceParameterLinksFromXML = (xml: TChoiceParameterLinksXML | undefined): TChoiceParameterLinks => {
-  if (!xml || !xml["xr:Link"]) return undefined
+export const importChoiceParameterLinksFromXML = (
+  xml: TChoiceParameterLinksXML | undefined
+): TChoiceParameterLinks => {
+  if (!xml || xml.length === 0) return undefined
 
-  const rawLinks = xml["xr:Link"]
-  const linksArray = Array.isArray(rawLinks) ? rawLinks : [rawLinks]
+  const linksArray = Array.isArray(xml) ? xml : [xml]
 
-  const links = linksArray.map((link) => {
+  const links = linksArray.map((linkContainer) => {
+    const link = linkContainer["xr:Link"]
     return {
       name: link["xr:Name"],
       dataPath: extractDataPath(link["xr:DataPath"]),
