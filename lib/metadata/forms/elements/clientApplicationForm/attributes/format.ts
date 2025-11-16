@@ -2,7 +2,10 @@ import { TAttribute } from "../types"
 import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format"
 import { formatTypeDescription } from "~/lib/metadata/commonObjects/typeDescription/format"
 import { formatBoolean } from "~/lib/format/formatBool"
-import { formatUserVisible } from "~/lib/metadata/commonObjects/userVisible/format"
+import {
+  formatUserVisible,
+  getUserVisibleKey,
+} from "~/lib/metadata/commonObjects/userVisible/format"
 import { noCase, capitalCase } from "change-case"
 import * as yaml from "js-yaml"
 
@@ -97,7 +100,6 @@ const transformAttribute = (
   const type = formatTypeDescription(attribute.type)
   const mainAttribute = formatBoolean(attribute.mainAttribute)
   const storedData = formatBoolean(attribute.storedData)
-  const use = formatUserVisible(attribute.use)
   let attributeData: Record<string, any> = {}
 
   // Не добавляем Заголовок, если title равен camelCase имени (будет использован в качестве имени)
@@ -116,8 +118,9 @@ const transformAttribute = (
     attributeData.СохраняемыеДанные = storedData
   }
 
-  if (use) {
-    attributeData = { ...attributeData, ...use }
+  if (attribute.use) {
+    const userVisibleKey = getUserVisibleKey(attribute.use)
+    attributeData[userVisibleKey] = formatUserVisible(attribute.use)
   }
 
   return attributeData

@@ -1,12 +1,10 @@
-import { type TUserVisible, type TUserVisibleEnterprise } from "./types"
+import { type TUserVisible } from "./types"
 import { formatBoolean } from "~/lib/format/formatBool"
 import { TBoolEnterprise } from "~/lib/format/types"
-import { TElementRule } from "~/lib/rulesManager/types"
 
-export function formatUserVisible(
-  value: TUserVisible | undefined,
-  _rule: TElementRule
-): Record<string, any> | undefined {
+export const formatUserVisible = (
+  value: TUserVisible | undefined
+): Record<string, any> | undefined => {
   if (!value) return undefined
 
   const values: Record<string, TBoolEnterprise> = {}
@@ -15,14 +13,13 @@ export function formatUserVisible(
   })
 
   return values
+}
 
-  // if (value.common) {
-  //   return {
-  //     РазрешитьИспользование: values,
-  //   }
-  // } else {
-  //   return {
-  //     ЗапретитьИспользование: values,
-  //   }
-  // }
+export const getUserVisibleKey = (value: TUserVisible | undefined): string => {
+  if (!value) throw new Error("User visible is undefined")
+
+  if (value.common) {
+    return "РазрешитьИспользование"
+  }
+  return "ЗапретитьИспользование"
 }
