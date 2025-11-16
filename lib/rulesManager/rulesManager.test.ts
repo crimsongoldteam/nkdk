@@ -43,11 +43,7 @@ describe("RulesManager", () => {
 
     registerElementRules(ZElementType.enum.InputField, rules)
 
-    const format = formatProperty(
-      ZElementType.enum.InputField,
-      "autoTitle",
-      "testValue"
-    )
+    const format = formatProperty(rules.autoTitle, "testValue")
 
     expect(format).toEqual("test")
   })
@@ -64,11 +60,7 @@ describe("RulesManager", () => {
     }
     registerElementRules(ZElementType.enum.InputField, rules)
 
-    const format = formatProperty(
-      ZElementType.enum.InputField,
-      "autoTitle",
-      "testValue"
-    )
+    const format = formatProperty(rules.autoTitle, "testValue")
 
     expect(format).toBeUndefined()
   })
