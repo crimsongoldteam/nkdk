@@ -40,7 +40,7 @@ describe("exportChoiceParameterLinksToXML", () => {
     const originalXml = `<ChoiceParameterLinks>
 	<xr:Link>
 		<xr:Name>Отбор.ИмяПредопределенныхДанных</xr:Name>
-		<xr:DataPath xsi:type="xs:string">Объект.PredefinedDataName</xr:DataPath>
+		<xr:DataPath>Объект.PredefinedDataName</xr:DataPath>
 		<xr:ValueChange>Clear</xr:ValueChange>
 	</xr:Link>
 	<xr:Link>

@@ -1,13 +1,22 @@
 import { TCommand, TCommandEnterprise } from "./types"
 import { formatI8nText } from "../../commonObjects/i8nText/format"
-import {
-  ZCurrentRowUse,
-  ZCurrentRowUseEnterprise,
-} from "../../systemEnumerations/types"
 import * as yaml from "js-yaml"
 import { formatSystemEnumeration } from "../../systemEnumerations/format"
+import { TElementRule } from "~/lib/rulesManager/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
 
-export function formatCommands(commands: TCommand[]): string[] {
+const ZCurrentRowUseRule: TElementRule = {
+  nameEnterprise: "ИспользованиеТекущейСтроки",
+  get type() {
+    return SE.ZCurrentRowUse
+  },
+  get typeEnterprise() {
+    return SE.ZCurrentRowUseEnterprise
+  },
+  inProperties: () => true,
+}
+
+export const formatCommands = (commands: TCommand[]): string[] => {
   const commandsEnterprise = commands.map((command) => formatCommand(command))
 
   return commandsEnterprise.map((command) =>
@@ -22,7 +31,7 @@ export function formatCommands(commands: TCommand[]): string[] {
   )
 }
 
-function formatCommand(command: TCommand): TCommandEnterprise {
+const formatCommand = (command: TCommand): TCommandEnterprise => {
   const result: TCommandEnterprise = {}
 
   result[command.name] = {
@@ -33,9 +42,8 @@ function formatCommand(command: TCommand): TCommandEnterprise {
     ОтображениеКнопки: command.representation,
     ИспользованиеТекущейСтроки: formatSystemEnumeration(
       command.currentRowUse,
-      ZCurrentRowUse,
-      ZCurrentRowUseEnterprise
-    ),
+      ZCurrentRowUseRule
+    ) as SE.TCurrentRowUseEnterprise | undefined,
     ИзменяемыеДанные: command.modifiesSavedData,
   }
 
