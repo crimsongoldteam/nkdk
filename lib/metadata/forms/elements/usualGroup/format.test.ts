@@ -25,7 +25,7 @@ describe("formatUsualGroup", () => {
       ],
     }
 
-    const expectedResult = `-{Группа}; {Элемент1}: ; {Элемент2}:`
+    const expectedResult = `-{Группа}; {Элемент1}: ; {Элемент2}: `
 
     const result = formatUsualGroup(mockElement, {})
 
@@ -55,8 +55,8 @@ it("should format vertical group", () => {
   }
 
   const expectedResult = `#Заголовок группы {Группа}
-  {Элемент1}:
-  {Элемент2}:`
+  {Элемент1}: 
+  {Элемент2}: `
 
   const result = formatUsualGroup(mockElement, {})
 
