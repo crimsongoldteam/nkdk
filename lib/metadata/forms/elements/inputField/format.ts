@@ -7,7 +7,6 @@ import {
 } from "~/lib/format/types"
 import { isMultiline } from "./helpers"
 import { formatElementName } from "~/lib/format/helpers"
-import { pascalCase } from "change-case"
 
 const UNDERLINE = t.Underscore.LABEL as string
 const COLON = t.Colon.LABEL as string
@@ -16,37 +15,20 @@ export const formatInputField: FormatFunction<TInputField> = (
   element: TInputField,
   _params: IFormatterParams
 ): IFormatElementResult => {
-  let header: string = ""
-
   const hasTitle = element.title?.items.ru !== undefined
 
-  if (hasTitle) {
-    header += element.title?.items.ru
-  } else {
-    header += element.name
-  }
+  let header = formatTitle(element, hasTitle)
 
-  header += COLON
+  header += COLON + " "
 
   let value = element.value ?? ""
-
-  header += value ? " " : ""
 
   const modificators = getModificators(element)
   if (modificators.length > 0) {
     value += UNDERLINE.repeat(2) + modificators
   }
 
-  let namePart = ""
-  if (
-    hasTitle &&
-    pascalCase(element.title?.items.ru ?? "").toLowerCase() !==
-      element.name.toLowerCase()
-  ) {
-    namePart = " " + formatElementName(element)
-  } else if (!hasTitle) {
-    namePart = " " + formatElementName(element)
-  }
+  let namePart = formatNamePart(element, hasTitle)
 
   let result: IFormatElementResult = {
     strings: [header + value + namePart],
@@ -58,6 +40,18 @@ export const formatInputField: FormatFunction<TInputField> = (
   )
 
   return result
+}
+
+const formatTitle = (element: TInputField, hasTitle: boolean): string => {
+  if (!hasTitle) return formatElementName(element)
+
+  return element.title?.items.ru ?? ""
+}
+
+const formatNamePart = (element: TInputField, hasTitle: boolean): string => {
+  if (!hasTitle) return ""
+
+  return " " + formatElementName(element)
 }
 
 function getMultilineString(

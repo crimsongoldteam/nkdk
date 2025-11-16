@@ -2,22 +2,11 @@ import { describe, expect, it } from "vitest"
 import { ZElementType } from "../../types"
 import { formatProperties } from "./formatProperties"
 import { TClientApplicationForm } from "../types"
+import "~/lib/metadata/forms/elements/importFromXML"
+import "~/lib/metadata/forms/elements/exportToXML"
+import "~/lib/metadata/forms/elements/rules"
 
 describe("formatProperties", () => {
-  it("should format properties", () => {
-    const form: TClientApplicationForm = {
-      elementType: ZElementType.enum.ClientApplicationForm,
-      childItems: [],
-      title: { items: { ru: "Заголовок" } },
-    }
-
-    const expectedResult = `Заголовок: Title`
-
-    const properties = formatProperties(form)
-
-    expect(properties).toEqual(expectedResult)
-  })
-
   it("should format properties with child items", () => {
     const form: TClientApplicationForm = {
       elementType: ZElementType.enum.ClientApplicationForm,
@@ -31,10 +20,12 @@ describe("formatProperties", () => {
       ],
     }
 
-    const expectedResult = `ПолеВвода:
-  ТолькоПросмотр: Истина`
+    const expectedResult = [
+      `ПолеВвода:
+  ТолькоПросмотр: Истина`,
+    ]
 
-    const properties = formatProperties(form)
+    const properties = formatProperties(form.childItems)
 
     expect(properties).toEqual(expectedResult)
   })

@@ -5,10 +5,10 @@ import { TClientApplicationForm } from "./types"
 import { getAllElements } from "./getAllElements"
 import { formatProperties } from "./properties/formatProperties"
 
-export function formatClientApplicationForm(
+export const formatClientApplicationForm = (
   element: TClientApplicationForm,
   _params: IFormatterParams
-): IFormatElementResult {
+): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
@@ -16,7 +16,9 @@ export function formatClientApplicationForm(
 
   let header = element.title?.items.ru ?? ""
 
-  result.strings.push(...formatSectionHeader(header))
+  if (header) {
+    result.strings.push(...formatSectionHeader(header))
+  }
 
   const allElements = getAllElements(element)
 
@@ -30,14 +32,14 @@ export function formatClientApplicationForm(
     result.strings.push(...formatFormAttributes(element.attributes))
   }
 
-  result.strings.push(...formatSectionHeader("Свойства"))
-  result.strings.push(...formatProperties(allElements))
+  if (allElements.length > 0) {
+    result.strings.push(...formatSectionHeader("Свойства"))
+    result.strings.push(...formatProperties(allElements))
+  }
 
   return result
 }
 
-const formatSectionHeader = (header: string | undefined): string[] => {
-  if (!header) return []
-
+const formatSectionHeader = (header: string): string[] => {
   return ["======" + " [ " + header + " ] " + "======"]
 }

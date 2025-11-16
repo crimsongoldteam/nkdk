@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest"
 import "~/lib/metadata/forms/elements/elements"
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
+import "~/lib/metadata/forms/elements/rules"
 import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
 import { formatClientApplicationForm } from "./format"
 import { TClientApplicationForm, TInputField } from "~/lib"
 import { ZElementType } from "../types"
+import "~/lib/metadata/forms/elements/inputField/registration"
 
 const mockParams: IFormatterParams = {
   wrapInGroup: WrapInGroupStrategy.None,

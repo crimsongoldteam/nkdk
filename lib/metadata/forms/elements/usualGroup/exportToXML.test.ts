@@ -14,9 +14,15 @@ describe("exportUsualGroupToXML", () => {
   it("should export usual group to XML with child items", () => {
     const mockElement: TUsualGroup = {
       name: "Группа",
-      title: { items: { "ru": "Заголовок группы" } },
+      title: { items: { ru: "Заголовок группы" } },
       id: "1",
-      childItems: [{ name: "ПолеВвода", id: "1", elementType: ZElementType.enum.InputField }],
+      childItems: [
+        {
+          name: "ПолеВвода",
+          id: "1",
+          elementType: ZElementType.enum.InputField,
+        },
+      ],
       elementType: ZElementType.enum.UsualGroup,
     }
 
@@ -33,7 +39,11 @@ describe("exportUsualGroupToXML", () => {
 </UsualGroup>`
 
     const result = { UsualGroup: exportUsualGroupToXML(mockElement) }
-    const xmlString = xmlExport(result, z.object({ UsualGroup: ZUsualGroupXML }), false)
+    const xmlString = xmlExport(
+      result,
+      z.object({ UsualGroup: ZUsualGroupXML }),
+      false
+    )
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -46,7 +56,7 @@ describe("exportUsualGroupToXML", () => {
 
   it("should export and import usual group with child items correctly (round-trip)", () => {
     const originalXml = `<UsualGroup name="Группа" id="1">
-  <Visible>false</Visible>
+	<Visible>false</Visible>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -58,10 +68,17 @@ describe("exportUsualGroupToXML", () => {
 	</ChildItems>
 </UsualGroup>`
 
-    const xml = xmlImport<{ UsualGroup: TUsualGroupXML }>(originalXml, z.object({ UsualGroup: ZUsualGroupXML }))
+    const xml = xmlImport<{ UsualGroup: TUsualGroupXML }>(
+      originalXml,
+      z.object({ UsualGroup: ZUsualGroupXML })
+    )
     const imported = importUsualGroupFromXML(xml.UsualGroup)
     const exported = exportUsualGroupToXML(imported)
-    const resultXml = xmlExport({ UsualGroup: exported }, z.object({ UsualGroup: ZUsualGroupXML }), false)
+    const resultXml = xmlExport(
+      { UsualGroup: exported },
+      z.object({ UsualGroup: ZUsualGroupXML }),
+      false
+    )
 
     expect(resultXml).toEqual(originalXml)
   })

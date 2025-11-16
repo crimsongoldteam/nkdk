@@ -84,6 +84,6 @@ describe("formatInputField", () => {
 
     const result = formatInputField(element, mockParams)
 
-    expect(result.strings).toEqual(["ИмяПоля: {ИмяПоля}"])
+    expect(result.strings).toEqual(["{ИмяПоля}: "])
   })
 })
