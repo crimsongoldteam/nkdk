@@ -7,11 +7,16 @@ describe("formatPictureDecoration", () => {
   it("should format picture decoration", () => {
     const element: TPictureDecoration = {
       elementType: ZElementType.enum.PictureDecoration,
+      picture: {
+        ref: "Печать",
+        type: "CommonPicture",
+        loadTransparent: false,
+      },
       name: "ИмяПоля",
       id: "1",
     }
 
-    const expectedResult = ["@Печать {ИмяПоля"]
+    const expectedResult = ["@Печать {ИмяПоля}"]
 
     const result = formatPictureDecoration(element as TPictureDecoration, {})
 
