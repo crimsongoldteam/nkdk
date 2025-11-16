@@ -1,0 +1,89 @@
+import { describe, expect, it } from "vitest"
+import { ZElementType } from "../types"
+import { TTable } from "./types"
+import { TInputField } from "../inputField/types"
+import { TColumnGroup } from "../columnGroup/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+
+describe("formatTable", () => {
+  it("should format one-column table", () => {
+    const mockElement: TTable = {
+      name: "Таблица",
+      id: "1",
+      elementType: ZElementType.enum.Table,
+      childItems: [
+        {
+          name: "Колонка1",
+          id: "1",
+          elementType: ZElementType.enum.InputField,
+        } as TInputField,
+      ],
+    }
+
+    const expectedResult = `| Колонка 1 |`
+
+    const result = formatTable(mockElement, {})
+
+    expect(result.strings.join("\n")).toEqual(expectedResult)
+  })
+  it("should format two-column table", () => {
+    const mockElement: TTable = {
+      name: "Таблица",
+      id: "1",
+      elementType: ZElementType.enum.Table,
+      childItems: [
+        {
+          name: "Колонка1",
+          id: "1",
+          elementType: ZElementType.enum.InputField,
+        } as TInputField,
+        {
+          name: "Колонка2",
+          id: "2",
+          elementType: ZElementType.enum.InputField,
+        } as TInputField,
+      ],
+    }
+
+    const expectedResult = `| Колонка 1 | Колонка 2 |`
+
+    const result = formatTable(mockElement, {})
+
+    expect(result.strings.join("\n")).toEqual(expectedResult)
+  })
+
+  it("should format table with horizontal group", () => {
+    const mockElement: TTable = {
+      name: "Таблица",
+      id: "1",
+      elementType: ZElementType.enum.Table,
+      childItems: [
+        {
+          name: "Группа1",
+          id: "1",
+          group: SE.ZColumnsGroup.enum.Horizontal,
+          elementType: ZElementType.enum.ColumnGroup,
+          childItems: [
+            {
+              name: "Колонка1",
+              id: "1",
+              elementType: ZElementType.enum.InputField,
+            } as TInputField,
+            {
+              name: "Колонка2",
+              id: "2",
+              elementType: ZElementType.enum.InputField,
+            } as TInputField,
+          ],
+        } as TColumnGroup,
+      ],
+    }
+
+    const expectedResult = `| Группа 1 ||
+| Колонка 1 | Колонка 2 |`
+
+    const result = formatTable(mockElement, {})
+
+    expect(result.strings.join("\n")).toEqual(expectedResult)
+  })
+})

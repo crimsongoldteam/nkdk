@@ -1,19 +1,39 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import {
+  ZI8nText,
+  ZI8nTextXML,
+} from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
-import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZCommandSet, ZCommandSetXML } from "~/lib/metadata/forms/commandSet/types"
-import { ZSearchStringAddition, ZSearchStringAdditionXML } from "~/lib/metadata/forms/elements/searchStringAddition/types"
-import { ZViewStatusAddition, ZViewStatusAdditionXML } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
-import { ZSearchControlAddition, ZSearchControlAdditionXML } from "~/lib/metadata/forms/elements/searchControlAddition/types"
+import {
+  ZFormItemAddition,
+  ZFormItemAdditionXML,
+} from "../formItemAddition/types"
+import {
+  ZUserVisible,
+  ZUserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  ZCommandSet,
+  ZCommandSetXML,
+} from "~/lib/metadata/forms/commandSet/types"
+import {
+  ZSearchStringAddition,
+  ZSearchStringAdditionXML,
+} from "~/lib/metadata/forms/elements/searchStringAddition/types"
+import {
+  ZViewStatusAddition,
+  ZViewStatusAdditionXML,
+} from "~/lib/metadata/forms/elements/viewStatusAddition/types"
+import {
+  ZSearchControlAddition,
+  ZSearchControlAdditionXML,
+} from "~/lib/metadata/forms/elements/searchControlAddition/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 
@@ -31,7 +51,8 @@ export const ZTable = z.object({
   autoMaxHeightInTableRows: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
   backColor: ZColor.optional(),
-  behaviorOnHorizontalCompression: SE.ZTableBehaviorOnHorizontalCompression.optional(),
+  behaviorOnHorizontalCompression:
+    SE.ZTableBehaviorOnHorizontalCompression.optional(),
   borderColor: ZColor.optional(),
   changeRowOrder: z.boolean().optional(),
   changeRowSet: z.boolean().optional(),
@@ -117,34 +138,36 @@ export const ZTable = z.object({
   viewStatusRepresentation: ZFormItemAddition.optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-  get childItems() : TChildItems {
+  get childItems(): TChildItems {
     return ZChildItems
   },
-  events: z.object({
-    selection: z.string().optional(),
-    valueChoice: z.string().optional(),
-    dragStart: z.string().optional(),
-    choiceProcessing: z.string().optional(),
-    newWriteProcessing: z.string().optional(),
-    refreshRequestProcessing: z.string().optional(),
-    dragEnd: z.string().optional(),
-    beforeAddRow: z.string().optional(),
-    beforeRowChange: z.string().optional(),
-    beforeEditEnd: z.string().optional(),
-    beforeExpand: z.string().optional(),
-    beforeCollapse: z.string().optional(),
-    beforeDeleteRow: z.string().optional(),
-    drag: z.string().optional(),
-    afterDeleteRow: z.string().optional(),
-    onActivateField: z.string().optional(),
-    onActivateRow: z.string().optional(),
-    onActivateCell: z.string().optional(),
-    onChange: z.string().optional(),
-    onStartEdit: z.string().optional(),
-    onEditEnd: z.string().optional(),
-    onCurrentParentChange: z.string().optional(),
-    dragCheck: z.string().optional(),
-  }).optional(),
+  events: z
+    .object({
+      selection: z.string().optional(),
+      valueChoice: z.string().optional(),
+      dragStart: z.string().optional(),
+      choiceProcessing: z.string().optional(),
+      newWriteProcessing: z.string().optional(),
+      refreshRequestProcessing: z.string().optional(),
+      dragEnd: z.string().optional(),
+      beforeAddRow: z.string().optional(),
+      beforeRowChange: z.string().optional(),
+      beforeEditEnd: z.string().optional(),
+      beforeExpand: z.string().optional(),
+      beforeCollapse: z.string().optional(),
+      beforeDeleteRow: z.string().optional(),
+      drag: z.string().optional(),
+      afterDeleteRow: z.string().optional(),
+      onActivateField: z.string().optional(),
+      onActivateRow: z.string().optional(),
+      onActivateCell: z.string().optional(),
+      onChange: z.string().optional(),
+      onStartEdit: z.string().optional(),
+      onEditEnd: z.string().optional(),
+      onCurrentParentChange: z.string().optional(),
+      dragCheck: z.string().optional(),
+    })
+    .optional(),
 })
 
 export const ZTableXML = z.object({
@@ -215,7 +238,8 @@ export const ZTableXML = z.object({
   SearchControlLocation: SE.ZSearchControlLocation.optional(),
   RefreshRequest: SE.ZRefreshRequestMethod.optional(),
   CurrentRowUse: SE.ZTableCurrentRowUse.optional(),
-  BehaviorOnHorizontalCompression: SE.ZTableBehaviorOnHorizontalCompression.optional(),
+  BehaviorOnHorizontalCompression:
+    SE.ZTableBehaviorOnHorizontalCompression.optional(),
   get ContextMenu() {
     return ZCommandBarXML.optional()
   },

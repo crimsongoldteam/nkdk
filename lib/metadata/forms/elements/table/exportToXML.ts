@@ -14,12 +14,14 @@ import { TTableXML, TTable } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
 
-export const exportTableToXML = (data: TTable | undefined): TTableXML | undefined => {
+export const exportTableToXML = (
+  data: TTable | undefined
+): TTableXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    _id: data.id ?? "",
+    _name: data.name ?? "",
     AutoAddIncomplete: data.autoAddIncomplete,
     AutoCommandBar: exportCommandBarToXML(data.autoCommandBar),
     AutoInsertNewRow: data.autoInsertNewRow,
@@ -35,7 +37,7 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
     ChoiceMode: data.choiceMode,
     CommandBar: exportCommandBarToXML(data.commandBar),
     CommandBarLocation: data.commandBarLocation,
-    CommandSet: data.commandSet,
+    // CommandSet: data.commandSet,
     ContextMenu: exportCommandBarToXML(data.contextMenu),
     CurrentRowUse: data.currentRowUse,
     DataPath: data.dataPath,
@@ -74,12 +76,18 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
     RowSelectionMode: data.rowSelectionMode,
     RowsPicture: data.rowsPicture,
     SearchControl: exportFormItemAdditionToXML(data.searchControl),
-    SearchControlAddition: exportSearchControlAdditionToXML(data.searchControlAddition),
+    SearchControlAddition: exportSearchControlAdditionToXML(
+      data.searchControlAddition
+    ),
     SearchControlLocation: data.searchControlLocation,
     SearchOnInput: data.searchOnInput,
-    SearchStringAddition: exportSearchStringAdditionToXML(data.searchStringAddition),
+    SearchStringAddition: exportSearchStringAdditionToXML(
+      data.searchStringAddition
+    ),
     SearchStringLocation: data.searchStringLocation,
-    SearchStringRepresentation: exportFormItemAdditionToXML(data.searchStringRepresentation),
+    SearchStringRepresentation: exportFormItemAdditionToXML(
+      data.searchStringRepresentation
+    ),
     SelectionMode: data.selectionMode,
     Shortcut: data.shortcut,
     SkipOnInput: data.skipOnInput,
@@ -99,11 +107,13 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
     VerticalStretch: data.verticalStretch,
     ViewStatusAddition: exportViewStatusAdditionToXML(data.viewStatusAddition),
     ViewStatusLocation: data.viewStatusLocation,
-    ViewStatusRepresentation: exportFormItemAdditionToXML(data.viewStatusRepresentation),
+    ViewStatusRepresentation: exportFormItemAdditionToXML(
+      data.viewStatusRepresentation
+    ),
     Visible: data.visible,
     Width: data.width,
     ChildItems: exportChildItemsToXML(data.childItems),
-    Events: exportEventsToXML(data.events)
+    Events: exportEventsToXML(data.events),
   }
 }
 
