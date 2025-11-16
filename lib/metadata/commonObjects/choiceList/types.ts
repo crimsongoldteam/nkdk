@@ -1,5 +1,8 @@
 import z from "zod"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import {
+  ZI8nText,
+  ZI8nTextXML,
+} from "~/lib/metadata/commonObjects/i8nText/types"
 
 export const ZChoiceList = z.object({
   items: z.array(
@@ -26,9 +29,11 @@ const ZChoiceListItemXML = z.object({
   "xr:Value": ZChoiceListItemValueXML,
 })
 
-export const ZChoiceListXML = z.object({
-  "xr:Item": z.array(ZChoiceListItemXML),
-})
+export const ZChoiceListXML = z.array(
+  z.object({
+    "xr:Item": ZChoiceListItemXML,
+  })
+)
 
 export type TChoiceList = z.infer<typeof ZChoiceList>
 export type TChoiceListXML = z.infer<typeof ZChoiceListXML>

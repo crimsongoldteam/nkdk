@@ -1,12 +1,14 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { TChoiceList, TChoiceListXML } from "./types"
 
-export const exportChoiceListToXML = (choiceList: TChoiceList | undefined): TChoiceListXML | undefined => {
+export const exportChoiceListToXML = (
+  choiceList: TChoiceList | undefined
+): TChoiceListXML | undefined => {
   if (!choiceList) return undefined
 
-  return {
-    "xr:Item": choiceList.items.map((item) => ({
-      "xr:Presentation": { "v8:item": [] },
+  return choiceList.items.map((item) => ({
+    "xr:Item": {
+      "xr:Presentation": undefined,
       "xr:CheckState": item.checkState,
       "xr:Value": {
         "_xsi:type": "FormChoiceListDesTimeValue",
@@ -16,7 +18,6 @@ export const exportChoiceListToXML = (choiceList: TChoiceList | undefined): TCho
           "#text": item.value,
         },
       },
-    })),
-  }
+    },
+  }))
 }
-

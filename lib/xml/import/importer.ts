@@ -10,6 +10,8 @@ export const I8N_TEXT_FIELDS = [
   "EditFormat",
   "WarningOnEdit",
   "InputHint",
+  "Presentation",
+  "xr:Presentation",
 ]
 
 export default function xmlImport<T>(data: string, schema: z.ZodType<T>): T {
@@ -31,6 +33,7 @@ export default function xmlImport<T>(data: string, schema: z.ZodType<T>): T {
       name === "UserVisible" ||
       name === "Use" ||
       name === "ChoiceParameterLinks" ||
+      name === "ChoiceList" ||
       I8N_TEXT_FIELDS.includes(name)
     )
   }

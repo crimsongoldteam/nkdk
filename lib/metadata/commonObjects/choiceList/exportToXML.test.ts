@@ -9,19 +9,21 @@ describe("exportChoiceListToXML", () => {
   it("should export choice list to XML", () => {
     const mockChoiceList: TChoiceList = {
       items: [
-        { presentation: { items: { ru: "Представление 1" } }, checkState: 0, value: "Значение 1" },
-        { presentation: { items: { ru: "Представление 2" } }, checkState: 1, value: "Значение 2" },
+        {
+          presentation: { items: { ru: "Представление 1" } },
+          checkState: 0,
+          value: "Значение 1",
+        },
+        {
+          presentation: { items: { ru: "Представление 2" } },
+          checkState: 1,
+          value: "Значение 2",
+        },
       ],
     }
 
     const expectedResult = `<ChoiceList>
 	<xr:Item>
-		<xr:Presentation>
-			<v8:item>
-				<v8:lang>ru</v8:lang>
-				<v8:content>Представление 1</v8:content>
-			</v8:item>
-		</xr:Presentation>
 		<xr:CheckState>0</xr:CheckState>
 		<xr:Value xsi:type="FormChoiceListDesTimeValue">
 			<Presentation>
@@ -34,12 +36,6 @@ describe("exportChoiceListToXML", () => {
 		</xr:Value>
 	</xr:Item>
 	<xr:Item>
-		<xr:Presentation>
-			<v8:item>
-				<v8:lang>ru</v8:lang>
-				<v8:content>Представление 2</v8:content>
-			</v8:item>
-		</xr:Presentation>
 		<xr:CheckState>1</xr:CheckState>
 		<xr:Value xsi:type="FormChoiceListDesTimeValue">
 			<Presentation>
@@ -54,7 +50,11 @@ describe("exportChoiceListToXML", () => {
 </ChoiceList>`
 
     const result = { ChoiceList: exportChoiceListToXML(mockChoiceList) }
-    const xmlString = xmlExport(result, z.object({ ChoiceList: ZChoiceListXML }), false)
+    const xmlString = xmlExport(
+      result,
+      z.object({ ChoiceList: ZChoiceListXML }),
+      false
+    )
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -68,7 +68,6 @@ describe("exportChoiceListToXML", () => {
   it("should export and import choice list correctly (round-trip)", () => {
     const originalXml = `<ChoiceList>
 	<xr:Item>
-		<xr:Presentation/>
 		<xr:CheckState>0</xr:CheckState>
 		<xr:Value xsi:type="FormChoiceListDesTimeValue">
 			<Presentation>
@@ -81,7 +80,6 @@ describe("exportChoiceListToXML", () => {
 		</xr:Value>
 	</xr:Item>
 	<xr:Item>
-		<xr:Presentation/>
 		<xr:CheckState>1</xr:CheckState>
 		<xr:Value xsi:type="FormChoiceListDesTimeValue">
 			<Presentation>
@@ -95,12 +93,18 @@ describe("exportChoiceListToXML", () => {
 	</xr:Item>
 </ChoiceList>`
 
-    const xml = xmlImport<{ ChoiceList: TChoiceListXML }>(originalXml, z.object({ ChoiceList: ZChoiceListXML }))
+    const xml = xmlImport<{ ChoiceList: TChoiceListXML }>(
+      originalXml,
+      z.object({ ChoiceList: ZChoiceListXML })
+    )
     const imported = importChoiceListFromXML(xml.ChoiceList)
     const exported = exportChoiceListToXML(imported)
-    const resultXml = xmlExport({ ChoiceList: exported }, z.object({ ChoiceList: ZChoiceListXML }), false)
+    const resultXml = xmlExport(
+      { ChoiceList: exported },
+      z.object({ ChoiceList: ZChoiceListXML }),
+      false
+    )
 
     expect(resultXml).toEqual(originalXml)
   })
 })
-

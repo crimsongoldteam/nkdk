@@ -16,13 +16,15 @@ export const importChoiceParameterLinksFromXML = (
 
   const linksArray = Array.isArray(xml) ? xml : [xml]
 
-  const links = linksArray.map((linkContainer) => {
-    const link = linkContainer["xr:Link"]
-    return {
+  const links = linksArray.flatMap((linkContainer) => {
+    const linkRaw = linkContainer["xr:Link"]
+    const linkArray = Array.isArray(linkRaw) ? linkRaw : [linkRaw]
+
+    return linkArray.map((link) => ({
       name: link["xr:Name"],
       dataPath: extractDataPath(link["xr:DataPath"]),
       valueChange: link["xr:ValueChange"],
-    }
+    }))
   })
 
   return links
