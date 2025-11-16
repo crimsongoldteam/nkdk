@@ -29,9 +29,9 @@ const ZTypeDescriptionXMLSpreadsheetDocument = z.object({
 
 const ZType = z.union([z.string(), ZTypeDescriptionXMLSpreadsheetDocument])
 
-export const ZTypeDescriptionXML = z
-  .object({
-    "v8:Type": z.union([ZType, z.array(ZType)]),
+export const ZTypeDescriptionXML = z.array(
+  z.object({
+    "v8:Type": z.union([ZType, z.array(ZType)]).optional(),
     "v8:StringQualifiers": z
       .object({
         "v8:Length": z.number(),
@@ -51,7 +51,8 @@ export const ZTypeDescriptionXML = z
       })
       .optional(),
   })
-  .optional()
+)
 
 export type TTypeDescription = z.infer<typeof ZTypeDescription>
 export type TTypeDescriptionXML = z.infer<typeof ZTypeDescriptionXML>
+export type TTypeDescriptionXMLItem = TTypeDescriptionXML[number]

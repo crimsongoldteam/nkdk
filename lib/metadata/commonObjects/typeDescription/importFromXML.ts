@@ -1,83 +1,113 @@
-import { TTypeDescription, TTypeDescriptionXML } from "./types"
+import {
+  TTypeDescription,
+  TTypeDescriptionXML,
+  TTypeDescriptionXMLItem,
+} from "./types"
 
-export const importTypeDescriptionFromXML = (xml: TTypeDescriptionXML | undefined): TTypeDescription | undefined => {
-  if (!xml) return undefined
-
-  const typeArray = Array.isArray(xml["v8:Type"]) ? xml["v8:Type"] : [xml["v8:Type"]]
-
-  const types = typeArray.map((type) => {
-    // Handle XML objects with #text property
-    if (typeof type === "object" && type !== null && "#text" in type) {
-      const textValue = type["#text"] as string
-      if (textValue.startsWith("xs:")) {
-        return textValue.substring(3)
-      }
-      if (textValue.startsWith("cfg:")) {
-        return textValue.substring(4)
-      }
-      if (textValue.startsWith("mxl:")) {
-        return textValue.substring(4)
-      }
-      return textValue
-    }
-
-    if (typeof type === "string" && type.startsWith("xs:")) {
-      return type.substring(3)
-    }
-    if (typeof type === "string" && type.startsWith("cfg:")) {
-      return type.substring(4)
-    }
-    return type
-  })
+export const importTypeDescriptionFromXML = (
+  xml: TTypeDescriptionXML | undefined
+): TTypeDescription | undefined => {
+  if (!xml || xml.length === 0) return undefined
 
   const result: TTypeDescription = {
-    type: types,
+    type: [],
+    stringQualifiers: undefined,
+    numberQualifiers: undefined,
+    dateQualifiers: undefined,
   }
 
-  const stringQualifiers = processStringQualifiers(xml)
-  if (stringQualifiers) {
-    result.stringQualifiers = stringQualifiers
-  }
+  for (const item of xml) {
+    const typeValue = item["v8:Type"]
+    result.type.push(...processType(typeValue))
 
-  const numberQualifiers = processNumberQualifiers(xml)
-  if (numberQualifiers) {
-    result.numberQualifiers = numberQualifiers
-  }
-
-  const dateQualifiers = processDateQualifiers(xml)
-  if (dateQualifiers) {
-    result.dateQualifiers = dateQualifiers
+    const stringQualifiers = processStringQualifiers(
+      item["v8:StringQualifiers"]
+    )
+    if (stringQualifiers !== undefined) {
+      result.stringQualifiers = stringQualifiers
+    }
+    const numberQualifiers = processNumberQualifiers(
+      item["v8:NumberQualifiers"]
+    )
+    if (numberQualifiers !== undefined) {
+      result.numberQualifiers = numberQualifiers
+    }
+    const dateQualifiers = processDateQualifiers(item["v8:DateQualifiers"])
+    if (dateQualifiers !== undefined) {
+      result.dateQualifiers = dateQualifiers
+    }
   }
 
   return result
 }
 
-function processStringQualifiers(xml?: TTypeDescriptionXML) {
-  if (!xml) return undefined
-  if (!xml["v8:StringQualifiers"]) return undefined
+export const processType = (
+  type:
+    | TTypeDescriptionXMLItem["v8:Type"]
+    | TTypeDescriptionXMLItem["v8:Type"][]
+): string[] => {
+  if (type === undefined) return []
 
+  let typeArray = Array.isArray(type) ? type : [type]
+
+  let result: string[] = []
+  for (const typeItem of typeArray) {
+    if (typeItem === undefined) continue
+    let textValue: string | undefined
+    if (typeof typeItem === "string") {
+      textValue = typeItem
+    } else if (typeof typeItem === "object" && "#text" in typeItem) {
+      textValue = typeItem["#text"] as string | undefined
+    }
+    if (textValue === undefined) continue
+
+    if (textValue.startsWith("xs:")) {
+      result.push(textValue.substring(3))
+    } else if (textValue.startsWith("cfg:")) {
+      result.push(textValue.substring(4))
+    } else if (textValue.startsWith("mxl:")) {
+      result.push(textValue.substring(4))
+    } else {
+      result.push(textValue)
+    }
+  }
+
+  return result
+}
+
+function processStringQualifiers(
+  xml?: TTypeDescriptionXMLItem["v8:StringQualifiers"]
+):
+  | {
+      length: number
+      allowedLength: "Variable" | "Fixed"
+    }
+  | undefined {
+  if (xml === undefined) return undefined
   return {
-    length: xml["v8:StringQualifiers"]["v8:Length"],
-    allowedLength: xml["v8:StringQualifiers"]["v8:AllowedLength"],
+    length: xml["v8:Length"],
+    allowedLength: xml["v8:AllowedLength"],
   }
 }
 
-function processNumberQualifiers(xml?: TTypeDescriptionXML) {
+function processNumberQualifiers(
+  xml?: TTypeDescriptionXMLItem["v8:NumberQualifiers"]
+) {
   if (!xml) return undefined
-  if (!xml["v8:NumberQualifiers"]) return undefined
 
   return {
-    digits: xml["v8:NumberQualifiers"]["v8:Digits"],
-    fractionDigits: xml["v8:NumberQualifiers"]["v8:FractionDigits"],
-    allowedSign: xml["v8:NumberQualifiers"]["v8:AllowedSign"],
+    digits: xml["v8:Digits"],
+    fractionDigits: xml["v8:FractionDigits"],
+    allowedSign: xml["v8:AllowedSign"],
   }
 }
 
-function processDateQualifiers(xml?: TTypeDescriptionXML) {
+function processDateQualifiers(
+  xml?: TTypeDescriptionXMLItem["v8:DateQualifiers"]
+) {
   if (!xml) return undefined
-  if (!xml["v8:DateQualifiers"]) return undefined
 
   return {
-    dateFractions: xml["v8:DateQualifiers"]["v8:DateFractions"],
+    dateFractions: xml["v8:DateFractions"],
   }
 }
