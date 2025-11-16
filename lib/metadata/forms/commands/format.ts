@@ -4,6 +4,7 @@ import * as yaml from "js-yaml"
 import { formatSystemEnumeration } from "../../systemEnumerations/format"
 import { TElementRule } from "~/lib/rulesManager/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { TConfigurationSettings } from "../../configurationSettings/types"
 
 const ZCurrentRowUseRule: TElementRule = {
   nameEnterprise: "ИспользованиеТекущейСтроки",
@@ -16,8 +17,13 @@ const ZCurrentRowUseRule: TElementRule = {
   inProperties: () => true,
 }
 
-export const formatCommands = (commands: TCommand[]): string[] => {
-  const commandsEnterprise = commands.map((command) => formatCommand(command))
+export const formatCommands = (
+  commands: TCommand[],
+  configurationSettings: TConfigurationSettings
+): string[] => {
+  const commandsEnterprise = commands.map((command) =>
+    formatCommand(command, configurationSettings)
+  )
 
   return commandsEnterprise.map((command) =>
     yaml
@@ -31,12 +37,15 @@ export const formatCommands = (commands: TCommand[]): string[] => {
   )
 }
 
-const formatCommand = (command: TCommand): TCommandEnterprise => {
+const formatCommand = (
+  command: TCommand,
+  configurationSettings: TConfigurationSettings
+): TCommandEnterprise => {
   const result: TCommandEnterprise = {}
 
   result[command.name] = {
-    Заголовок: formatI8nText(command.title),
-    Подсказка: formatI8nText(command.toolTip),
+    Заголовок: formatI8nText(command.title, configurationSettings),
+    Подсказка: formatI8nText(command.toolTip, configurationSettings),
     СочетаниеКлавиш: command.shortcut,
     Действие: command.action,
     ОтображениеКнопки: command.representation,

@@ -1,6 +1,11 @@
 import { expect, it, describe } from "vitest"
 import { TCommand } from "./types"
 import { formatCommands } from "./format"
+import { TConfigurationSettings } from "../../configurationSettings/types"
+
+const configurationSettings: TConfigurationSettings = {
+  defaultLanguage: "ru",
+}
 
 describe("formatCommands", () => {
   it("should format command", () => {
@@ -19,7 +24,7 @@ describe("formatCommands", () => {
   Действие: СоставКомплектаПодобратьФайлы
   ИспользованиеТекущейСтроки: НеИспользует`
 
-    const result = formatCommands([data])
+    const result = formatCommands([data], configurationSettings)
 
     expect(result).toEqual([expectedResult])
   })

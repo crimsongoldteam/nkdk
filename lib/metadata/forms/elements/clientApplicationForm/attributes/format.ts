@@ -8,20 +8,26 @@ import {
 } from "~/lib/metadata/commonObjects/userVisible/format"
 import { noCase, capitalCase } from "change-case"
 import * as yaml from "js-yaml"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
 export default function formatFormAttributes(
-  attributes: TAttribute[]
+  attributes: TAttribute[],
+  configurationSettings: TConfigurationSettings
 ): string[] {
   const result: string[] = []
 
   for (const attribute of attributes) {
-    const title = formatI8nText(attribute.title)
+    const title = formatI8nText(attribute.title, configurationSettings)
     const titleText = typeof title === "string" ? title : title?.ru
     const isTitleEqualToName = Boolean(
       titleText && isTitleEqualCamelCaseName(titleText, attribute.name)
     )
 
-    const data = transformAttribute(attribute, isTitleEqualToName)
+    const data = transformAttribute(
+      attribute,
+      configurationSettings,
+      isTitleEqualToName
+    )
     const keys = Object.keys(data)
 
     // Компактный формат: только тип, без title, mainAttribute, storedData
@@ -94,9 +100,10 @@ const isTitleEqualCamelCaseName = (title: string, name: string): boolean => {
 
 const transformAttribute = (
   attribute: TAttribute,
+  configurationSettings: TConfigurationSettings,
   skipTitle: boolean = false
 ): Record<string, any> => {
-  const title = formatI8nText(attribute.title)
+  const title = formatI8nText(attribute.title, configurationSettings)
   const type = formatTypeDescription(attribute.type)
   const mainAttribute = formatBoolean(attribute.mainAttribute)
   const storedData = formatBoolean(attribute.storedData)

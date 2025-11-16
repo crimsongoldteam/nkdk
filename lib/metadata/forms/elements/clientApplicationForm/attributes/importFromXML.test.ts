@@ -1,12 +1,13 @@
-import { expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 import importAttributeFromXML from "./importFromXML"
 import { TAttribute, TAttributeXML } from "../types"
 import { xmlImport } from "~/lib"
 import { ZAttributeXML, ZAttributesXML, TAttributesXML } from "../types"
 import z from "zod"
 
-it("should import attribute from XML", () => {
-  const mockXml = `<Attribute name="Поле" id="1">
+describe("importAttributeFromXML", () => {
+  it("should import attribute from XML", () => {
+    const mockXml = `<Attribute name="Поле" id="1">
 			<Title>
 				<v8:item>
 					<v8:lang>ru</v8:lang>
@@ -22,39 +23,42 @@ it("should import attribute from XML", () => {
 			</Type>
 		</Attribute>`
 
-  const mockResult: TAttribute = {
-    name: "Поле",
-    id: "1",
-    type: { type: ["string"], stringQualifiers: { length: 0, allowedLength: "Variable" } },
-    title: { items: { ru: "Заголовок поля" } },
-  }
+    const mockResult: TAttribute = {
+      name: "Поле",
+      id: "1",
+      type: {
+        type: ["string"],
+        stringQualifiers: { length: 0, allowedLength: "Variable" },
+      },
+      title: { items: { ru: "Заголовок поля" } },
+    }
 
-  const xmlData = xmlImport<TAttributeXML>(mockXml, ZAttributeXML)
+    const xmlData = xmlImport<TAttributeXML>(mockXml, ZAttributeXML)
 
-  const result = importAttributeFromXML(xmlData)
+    const result = importAttributeFromXML(xmlData)
 
-  expect(result).toEqual(mockResult)
-})
+    expect(result).toEqual(mockResult)
+  })
 
-it("should import attribute with empty type", () => {
-  const mockXml = `<Attribute name="Фамилия" id="1">
+  it("should import attribute with empty type", () => {
+    const mockXml = `<Attribute name="Фамилия" id="1">
  			<Type/>
 		</Attribute>`
 
-  const mockResult: TAttribute = {
-    name: "Фамилия",
-    id: "1",
-  }
+    const mockResult: TAttribute = {
+      name: "Фамилия",
+      id: "1",
+    }
 
-  const xmlData = xmlImport<TAttributeXML>(mockXml, ZAttributeXML)
+    const xmlData = xmlImport<TAttributeXML>(mockXml, ZAttributeXML)
 
-  const result = importAttributeFromXML(xmlData)
+    const result = importAttributeFromXML(xmlData)
 
-  expect(result).toEqual(mockResult)
-})
+    expect(result).toEqual(mockResult)
+  })
 
-it("should import stored and main attribute from XML", () => {
-  const mockXml = `<Attribute name="Фамилия" id="1">
+  it("should import stored and main attribute from XML", () => {
+    const mockXml = `<Attribute name="Фамилия" id="1">
  			<Type>
 				<v8:Type>xs:string</v8:Type>
 			</Type>
@@ -62,23 +66,23 @@ it("should import stored and main attribute from XML", () => {
       <StoredData>true</StoredData>
 		</Attribute>`
 
-  const mockResult: TAttribute = {
-    name: "Фамилия",
-    id: "1",
-    type: { type: ["string"] },
-    mainAttribute: true,
-    storedData: true,
-  }
+    const mockResult: TAttribute = {
+      name: "Фамилия",
+      id: "1",
+      type: { type: ["string"] },
+      mainAttribute: true,
+      storedData: true,
+    }
 
-  const xmlData = xmlImport<TAttributeXML>(mockXml, ZAttributeXML)
+    const xmlData = xmlImport<TAttributeXML>(mockXml, ZAttributeXML)
 
-  const result = importAttributeFromXML(xmlData)
+    const result = importAttributeFromXML(xmlData)
 
-  expect(result).toEqual(mockResult)
-})
+    expect(result).toEqual(mockResult)
+  })
 
-it("should ignore ConditionalAppearance from XML", () => {
-  const mockXml = `
+  it("should ignore ConditionalAppearance from XML", () => {
+    const mockXml = `
   <Attributes>
     <ConditionalAppearance>
       <dcsset:item>
@@ -86,9 +90,15 @@ it("should ignore ConditionalAppearance from XML", () => {
     </ConditionalAppearance>
   </Attributes>`
 
-  const xmlData = xmlImport<{ Attributes: TAttributesXML }>(mockXml, z.object({ Attributes: ZAttributesXML }))
+    const xmlData = xmlImport<{ Attributes: TAttributesXML }>(
+      mockXml,
+      z.object({ Attributes: ZAttributesXML })
+    )
 
-  const result = importAttributeFromXML(xmlData.Attributes[0] as TAttributeXML)
+    const result = importAttributeFromXML(
+      xmlData.Attributes[0] as TAttributeXML
+    )
 
-  expect(result).toBeUndefined()
+    expect(result).toBeUndefined()
+  })
 })

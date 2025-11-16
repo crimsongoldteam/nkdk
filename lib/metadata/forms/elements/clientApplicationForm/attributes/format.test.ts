@@ -1,6 +1,11 @@
 import { it, expect, describe } from "vitest"
 import { TAttribute } from "../types"
 import formatFormAttributes from "./format"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+
+const configurationSettings: TConfigurationSettings = {
+  defaultLanguage: "ru",
+}
 
 describe("formatFormAttributes", () => {
   it("should format form attributes", () => {
@@ -20,7 +25,7 @@ describe("formatFormAttributes", () => {
       },
     ]
 
-    const result = formatFormAttributes(orignalContent)
+    const result = formatFormAttributes(orignalContent, configurationSettings)
 
     expect(result).toEqual([expectedResult])
   })
@@ -36,7 +41,7 @@ describe("formatFormAttributes", () => {
       },
     ]
 
-    const result = formatFormAttributes(orignalContent)
+    const result = formatFormAttributes(orignalContent, configurationSettings)
 
     expect(result).toEqual([expectedResult])
   })
@@ -58,7 +63,7 @@ describe("formatFormAttributes", () => {
       },
     ]
 
-    const result = formatFormAttributes(orignalContent)
+    const result = formatFormAttributes(orignalContent, configurationSettings)
 
     expect(result).toEqual([expectedResult])
   })
@@ -81,7 +86,7 @@ describe("formatFormAttributes", () => {
       },
     ]
 
-    const result = formatFormAttributes(orignalContent)
+    const result = formatFormAttributes(orignalContent, configurationSettings)
 
     expect(result).toEqual([expectedResult])
   })
@@ -104,7 +109,7 @@ describe("formatFormAttributes", () => {
       },
     ]
 
-    const result = formatFormAttributes(orignalContent)
+    const result = formatFormAttributes(orignalContent, configurationSettings)
 
     expect(result).toEqual([expectedResult])
   })
@@ -122,7 +127,7 @@ describe("formatFormAttributes", () => {
       },
     ]
 
-    const result = formatFormAttributes(orignalContent)
+    const result = formatFormAttributes(orignalContent, configurationSettings)
 
     expect(result).toEqual([expectedResult])
   })
@@ -151,7 +156,7 @@ describe("formatFormAttributes", () => {
     Администратор: Истина
     Пользователь: Ложь`
 
-    const result = formatFormAttributes(orignalContent)
+    const result = formatFormAttributes(orignalContent, configurationSettings)
 
     expect(result).toEqual([expectedResult])
   })

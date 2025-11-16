@@ -1,4 +1,4 @@
-import { expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 import xmlImport from "~/lib/xml/import/importer"
 import { TTypeDescription, TTypeDescriptionXML } from "./types"
 import { importTypeDescriptionFromXML } from "./importFromXML"
