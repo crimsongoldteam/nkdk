@@ -1,6 +1,7 @@
 import { expect, it, describe } from "vitest"
 import "~/lib/metadata/forms/elements/inputField/registration"
 import "~/lib/metadata/forms/elements/usualGroup/registration"
+import "~/lib/metadata/forms/elements/page/registration"
 import { ZElementType } from "../types"
 import { TInputField } from "../inputField/types"
 import { TPages } from "./types"

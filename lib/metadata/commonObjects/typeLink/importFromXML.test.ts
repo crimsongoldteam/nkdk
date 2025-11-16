@@ -13,8 +13,8 @@ describe("importTypeLinkFromXML", () => {
 
   it("should import TypeLink with numeric LinkItem", () => {
     const xmlData = `<TypeLink>
-    <xr:DataPath>Реквизит1</xr:DataPath>
-    <xr:LinkItem>1</xr:LinkItem>
+\t<xr:DataPath>Реквизит1</xr:DataPath>
+\t<xr:LinkItem>1</xr:LinkItem>
 </TypeLink>`
 
     const expectedResult: TTypeLink = {
@@ -22,7 +22,10 @@ describe("importTypeLinkFromXML", () => {
       linkItem: 1,
     }
 
-    const xml = xmlImport<{ TypeLink: TTypeLinkXML }>(xmlData, z.object({ TypeLink: ZTypeLinkXML }))
+    const xml = xmlImport<{ TypeLink: TTypeLinkXML }>(
+      xmlData,
+      z.object({ TypeLink: ZTypeLinkXML })
+    )
 
     const result = importTypeLinkFromXML(xml.TypeLink)
 

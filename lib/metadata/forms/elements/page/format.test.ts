@@ -20,7 +20,7 @@ describe("formatPage", () => {
     }
 
     const expectedResult = `/{Страница1}
-  {Элемент1}:`
+  {Элемент1}: `
 
     const result = formatPage(mockElement, {})
 
