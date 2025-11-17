@@ -1,16 +1,16 @@
 import { CstElement, CstParser, EOF, Lexer } from "chevrotain"
-import * as t from "./sectionLexer"
-import { ICSTSections } from "./types"
+import * as t from "./regionsLexer"
+import { ICSTRegions } from "./types"
 
-export function parseSections(text: string): ICSTSections {
+export const parseRegions = (text: string): ICSTRegions => {
   const lexingResult = lexer.tokenize(text)
   const tokens = lexingResult.tokens
   parser.input = tokens
   const cst = parser.parse()
-  return cst as ICSTSections
+  return cst as ICSTRegions
 }
 
-export class SectionParser extends CstParser {
+export class RegionsParser extends CstParser {
   constructor() {
     super(t.allTokens)
     this.performSelfAnalysis()
@@ -29,7 +29,7 @@ export class SectionParser extends CstParser {
   private readonly line = this.RULE("line", () => {
     this.choice([
       () => {
-        this.SUBRULE(this.sectionHeader)
+        this.SUBRULE(this.header)
       },
       () => {
         this.SUBRULE(this.text)
@@ -44,7 +44,7 @@ export class SectionParser extends CstParser {
     this.SUBRULE(this.EOL)
   })
 
-  private readonly sectionHeader = this.RULE("sectionHeader", () => {
+  private readonly header = this.RULE("header", () => {
     this.CONSUME1(t.Dashes)
     this.MANY(() => {
       this.CONSUME2(t.Text)
@@ -75,6 +75,6 @@ export class SectionParser extends CstParser {
   }
 }
 
-const parser = new SectionParser()
+const parser = new RegionsParser()
 
 const lexer = new Lexer(t.lexerDefinition)

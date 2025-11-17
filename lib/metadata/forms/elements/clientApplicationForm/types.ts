@@ -20,6 +20,7 @@ import {
   ZCommandSetXML,
 } from "~/lib/metadata/forms/commandSet/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
+import { TChildItems } from "../childItems/typesExt"
 
 export const ZAttribute = z.object({
   name: z.string(),
@@ -78,7 +79,9 @@ export const ZClientApplicationForm = z.object({
   showCloseButton: z.boolean().optional(),
   conversationsRepresentation: SE.ZFormConversationsRepresentation.optional(),
   enterKeyBehavior: SE.ZEnterKeyBehaviorType.optional(),
-  childItems: ZChildItems,
+  get childItems(): TChildItems {
+    return ZChildItems
+  },
   commandBarLocation: SE.ZFormCommandBarLabelLocation.optional(),
   autoFillCheck: z.boolean().optional(),
   formWindowOpeningMode: SE.ZFormWindowOpeningMode.optional(),

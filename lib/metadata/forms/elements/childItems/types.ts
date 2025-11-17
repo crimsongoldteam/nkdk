@@ -81,7 +81,7 @@ import {
 import { ZButtonGroup, ZButtonGroupXML } from "../buttonGroup/types"
 
 export const ZChildItems = z.array(
-  z.discriminatedUnion("elementType", [
+  z.union([
     z.lazy(() => ZButton),
     z.lazy(() => ZButtonGroup),
     z.lazy(() => ZCalendarField),
@@ -120,7 +120,7 @@ export const ZChildItems = z.array(
     z.lazy(() => ZTrackBarField),
     z.lazy(() => ZUsualGroup),
     z.lazy(() => ZViewStatusAddition),
-  ])
+  ] as [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]])
 )
 
 export const ZChildItemXML = z.object({

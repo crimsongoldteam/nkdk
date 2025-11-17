@@ -1,19 +1,15 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import {
-  ZI8nText,
-  ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types"
+import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
+import {  ZBaseElementXML } from "../baseElement/types"
+import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { TChildItems } from "../childItems/typesExt"
-import {
-  ZUserVisible,
-  ZUserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 
@@ -42,7 +38,7 @@ export const ZPages = z.object({
   verticalStretch: z.boolean().optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-  get childItems() {
+  get childItems() : TChildItems {
     return ZChildItems
   },
   get associatedTable() {
@@ -51,11 +47,9 @@ export const ZPages = z.object({
   currentPagesState: SE.ZFormPagesState.optional(),
   currentRowUse: SE.ZCurrentRowUse.optional(),
   pagesRepresentation: SE.ZFormPagesRepresentation.optional(),
-  events: z
-    .object({
-      onCurrentPageChange: z.string().optional(),
-    })
-    .optional(),
+  events: z.object({
+    onCurrentPageChange: z.string().optional(),
+  }).optional(),
 })
 
 export const ZPagesXML = z.object({
