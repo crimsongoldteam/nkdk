@@ -1,13 +1,14 @@
 import { formatElements } from "~/lib/format/formatFactory"
-import { IFormatterParams, IFormatElementResult } from "~/lib/format/types"
+import { IFormatElementResult } from "~/lib/format/types"
 import formatFormAttributes from "./attributes/format"
 import { TClientApplicationForm } from "./types"
 import { getAllElements } from "./getAllElements"
 import { formatProperties } from "./properties/formatProperties"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
 export const formatClientApplicationForm = (
   element: TClientApplicationForm,
-  _params: IFormatterParams
+  configurationSettings: TConfigurationSettings
 ): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: [],
@@ -22,14 +23,16 @@ export const formatClientApplicationForm = (
 
   const allElements = getAllElements(element)
 
-  const itemsResult = formatElements(element.childItems)
+  const itemsResult = formatElements(element.childItems, configurationSettings)
   result.strings.push(...itemsResult.strings)
   result.haveSimpleHorizontalGroup =
     result.haveSimpleHorizontalGroup || itemsResult.haveSimpleHorizontalGroup
 
   if (element.attributes) {
     result.strings.push(...formatSectionHeader("Реквизиты"))
-    result.strings.push(...formatFormAttributes(element.attributes))
+    result.strings.push(
+      ...formatFormAttributes(element.attributes, configurationSettings)
+    )
   }
 
   if (allElements.length > 0) {

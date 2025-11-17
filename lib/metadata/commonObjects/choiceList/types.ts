@@ -18,8 +18,8 @@ const ZChoiceListItemValueXML = z.object({
   "_xsi:type": z.literal("FormChoiceListDesTimeValue"),
   Presentation: ZI8nTextXML.optional(),
   Value: z.object({
-    "_xsi:type": z.literal("xs:string"),
-    "#text": z.string(),
+    "_xsi:type": z.union([z.literal("xs:string"), z.literal("xs:boolean")]),
+    "#text": z.union([z.string(), z.boolean()]),
   }),
 })
 

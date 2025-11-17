@@ -5,9 +5,13 @@ import {
 } from "./types"
 
 export const importTypeDescriptionFromXML = (
-  xml: TTypeDescriptionXML | undefined
+  xml: TTypeDescriptionXML | TTypeDescriptionXML[number] | undefined
 ): TTypeDescription | undefined => {
-  if (!xml || xml.length === 0) return undefined
+  if (!xml) return undefined
+
+  // Если это один объект, преобразуем в массив
+  const xmlArray = Array.isArray(xml) ? xml : [xml]
+  if (xmlArray.length === 0) return undefined
 
   const result: TTypeDescription = {
     type: [],
@@ -16,7 +20,7 @@ export const importTypeDescriptionFromXML = (
     dateQualifiers: undefined,
   }
 
-  for (const item of xml) {
+  for (const item of xmlArray) {
     const typeValue = item["v8:Type"]
     result.type.push(...processType(typeValue))
 

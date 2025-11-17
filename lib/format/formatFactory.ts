@@ -3,11 +3,12 @@ import {
   CheckFormatFunction,
   FormatFunction,
   IFormatElementResult,
-  IFormatterParams,
   WrapInGroupStrategy,
 } from "./types"
 import { formatOtherElement } from "../metadata/forms/elements/baseElement/format"
 import { ZElementType } from "../metadata/forms/elements/types"
+import { TConfigurationSettings } from "../metadata/configurationSettings/types"
+import { TChildItems } from "../metadata/forms/elements/childItems/typesExt"
 
 type FormatRegistry = {
   format: FormatFunction<TBaseElement>
@@ -15,45 +16,63 @@ type FormatRegistry = {
 }[]
 
 const registry: FormatRegistry = []
-const defaultParams = { wrapInGroup: WrapInGroupStrategy.Auto, level: 0, isFirst: true }
 
 export const registerFormat = <T extends TBaseElement>(
   format: FormatFunction<T>,
   check: CheckFormatFunction<T>
 ): void => {
-  registry.push({ format: format as FormatFunction<TBaseElement>, check: check as CheckFormatFunction<TBaseElement> })
+  registry.push({
+    format: format as FormatFunction<TBaseElement>,
+    check: check as CheckFormatFunction<TBaseElement>,
+  })
 }
 
 export const formatElement = <T extends TBaseElement>(
   element: T,
-  params: IFormatterParams = defaultParams
+  configurationSettings: TConfigurationSettings
 ): IFormatElementResult => {
-  params = { ...defaultParams, ...params }
+  // params = { ...defaultParams, ...params }
 
-  const formatter = registry.find((f) => f.check(element)) as FormatRegistry[number]
-  if (!formatter) return formatOtherElement(element as unknown as TBaseElement, params)
+  const formatter = registry.find((f) =>
+    f.check(element)
+  ) as FormatRegistry[number]
+  if (!formatter)
+    return formatOtherElement(
+      element as unknown as TBaseElement,
+      configurationSettings
+    )
 
-  const result = formatter.format(element, params)
+  const result = formatter.format(element, configurationSettings)
   return result
 }
 
-export const formatElements = (items: TBaseElement[]): IFormatElementResult => {
-  let result: IFormatElementResult = { strings: [], haveSimpleHorizontalGroup: false }
+export const formatElements = (
+  items: TChildItems,
+  configurationSettings: TConfigurationSettings
+): IFormatElementResult => {
+  let result: IFormatElementResult = {
+    strings: [],
+    haveSimpleHorizontalGroup: false,
+  }
 
-  const separatedItems: readonly (typeof ZElementType.enum.Pages | typeof ZElementType.enum.UsualGroup)[] = [
-    ZElementType.enum.Pages,
-    ZElementType.enum.UsualGroup,
-  ]
+  const separatedItems: readonly (
+    | typeof ZElementType.enum.Pages
+    | typeof ZElementType.enum.UsualGroup
+  )[] = [ZElementType.enum.Pages, ZElementType.enum.UsualGroup]
 
   let prevItem: TBaseElement | null = null
   for (const item of items) {
     if (
       prevItem &&
       (separatedItems.includes(
-        item.elementType as typeof ZElementType.enum.Pages | typeof ZElementType.enum.UsualGroup
+        item.elementType as
+          | typeof ZElementType.enum.Pages
+          | typeof ZElementType.enum.UsualGroup
       ) ||
         separatedItems.includes(
-          prevItem.elementType as typeof ZElementType.enum.Pages | typeof ZElementType.enum.UsualGroup
+          prevItem.elementType as
+            | typeof ZElementType.enum.Pages
+            | typeof ZElementType.enum.UsualGroup
         ))
     ) {
       result.strings.push("")
@@ -61,9 +80,10 @@ export const formatElements = (items: TBaseElement[]): IFormatElementResult => {
 
     prevItem = item
 
-    const text = formatElement(item, defaultParams)
+    const text = formatElement(item, configurationSettings)
     result.strings.push(...text.strings)
-    result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
+    result.haveSimpleHorizontalGroup =
+      result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
   }
   return result
 }

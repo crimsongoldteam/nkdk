@@ -13,11 +13,13 @@ export const importChoiceListFromXML = (
     const presentation = importI8nTextFromXML(valueNode.Presentation)
 
     const value = valueNode.Value["#text"]
+    // Преобразуем boolean в string для совместимости
+    const valueString = typeof value === "boolean" ? String(value) : value
 
     return {
       presentation,
       checkState: checkStateRaw,
-      value,
+      value: valueString,
     }
   })
 

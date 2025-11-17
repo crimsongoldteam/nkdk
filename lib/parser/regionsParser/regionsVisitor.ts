@@ -43,9 +43,9 @@ export class RegionsVisitor extends BaseVisitor {
       isHeader: false,
     }
 
-    if (ctx.sectionHeader) {
+    if (ctx.header) {
       result.isHeader = true
-      const header = visitAll(this, ctx.sectionHeader) as unknown as string[]
+      const header = visitAll(this, ctx.header) as unknown as string[]
       result.title = header.join("")
     }
     if (ctx.text) {

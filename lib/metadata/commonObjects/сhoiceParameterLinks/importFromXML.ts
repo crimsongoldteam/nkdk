@@ -12,11 +12,26 @@ const extractDataPath = (
 export const importChoiceParameterLinksFromXML = (
   xml: TChoiceParameterLinksXML | undefined
 ): TChoiceParameterLinks => {
-  if (!xml || xml.length === 0) return undefined
+  if (!xml) return undefined
 
-  const linksArray = Array.isArray(xml) ? xml : [xml]
+  // Проверяем, является ли это структурой с app:item (ChoiceParameters)
+  if (!Array.isArray(xml)) {
+    if ("app:item" in xml) {
+      // Для app:item структуры мы не можем преобразовать в ChoiceParameterLink,
+      // так как у нас нет dataPath. Возвращаем undefined.
+      // Это может потребовать дополнительной обработки в будущем.
+      return undefined
+    }
+    // Если это не массив и не app:item, значит это объект с xr:Link
+    // Но по типу это не должно быть возможно, так что возвращаем undefined
+    return undefined
+  }
 
-  const links = linksArray.flatMap((linkContainer) => {
+  // Обработка структуры с xr:Link (ChoiceParameterLinks)
+  if (xml.length === 0) return undefined
+
+  const links = xml.flatMap((linkContainer) => {
+    if (!("xr:Link" in linkContainer)) return []
     const linkRaw = linkContainer["xr:Link"]
     const linkArray = Array.isArray(linkRaw) ? linkRaw : [linkRaw]
 
@@ -27,5 +42,5 @@ export const importChoiceParameterLinksFromXML = (
     }))
   })
 
-  return links
+  return links.length > 0 ? links : undefined
 }

@@ -6,10 +6,10 @@ import { parseRegions } from "./regionsParser"
 describe("regionsVisitor", () => {
   it("should group by regions", () => {
     const mock = `--- Раздел 1 ---
-    Содержимое раздела 1.1
-    Содержимое раздела 1.2
-    --- Раздел 2 ---
-    Содержимое раздела 2`
+Содержимое раздела 1.1
+Содержимое раздела 1.2
+--- Раздел 2 ---
+Содержимое раздела 2`
 
     const expectedResult = [
       {
@@ -31,7 +31,7 @@ describe("regionsVisitor", () => {
 
   it("should group by regions without first section header", () => {
     const mock = ` Содержимое раздела 1.1
-      Содержимое раздела 1.2
+Содержимое раздела 1.2
       --- Раздел 2 ---
       Содержимое раздела 2`
 

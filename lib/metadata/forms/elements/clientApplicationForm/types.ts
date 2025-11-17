@@ -134,12 +134,51 @@ export const ZConditionalAppearanceXML = z.object({
   ConditionalAppearance: z.object(),
 })
 
+const ZTypeDescriptionXMLItem = z.object({
+  "v8:Type": z
+    .union([
+      z.string(),
+      z.object({
+        "_xmlns:mxl": z.literal("http://v8.1c.ru/8.2/data/spreadsheet"),
+        "#text": z.literal("mxl:SpreadsheetDocument"),
+      }),
+      z.array(
+        z.union([
+          z.string(),
+          z.object({
+            "_xmlns:mxl": z.literal("http://v8.1c.ru/8.2/data/spreadsheet"),
+            "#text": z.literal("mxl:SpreadsheetDocument"),
+          }),
+        ])
+      ),
+    ])
+    .optional(),
+  "v8:StringQualifiers": z
+    .object({
+      "v8:Length": z.number(),
+      "v8:AllowedLength": z.enum(["Variable", "Fixed"]),
+    })
+    .optional(),
+  "v8:NumberQualifiers": z
+    .object({
+      "v8:Digits": z.number(),
+      "v8:FractionDigits": z.number(),
+      "v8:AllowedSign": z.enum(["Any", "Nonnegative"]).optional(),
+    })
+    .optional(),
+  "v8:DateQualifiers": z
+    .object({
+      "v8:DateFractions": z.enum(["Date", "Time", "DateTime"]).optional(),
+    })
+    .optional(),
+})
+
 export const ZAttributeXML = z.object({
   Attribute: z.object({
     _name: z.string(),
     _id: z.string(),
     Title: ZI8nTextXML.optional(),
-    Type: ZTypeDescriptionXML.optional(),
+    Type: z.union([ZTypeDescriptionXML, ZTypeDescriptionXMLItem]).optional(),
     MainAttribute: z.boolean().optional(),
     StoredData: z.boolean().optional(),
     Use: ZUserVisibleXML.optional(),

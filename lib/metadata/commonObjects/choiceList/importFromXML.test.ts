@@ -1,11 +1,12 @@
-import { expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
 import { importChoiceListFromXML } from "./importFromXML"
 import { xmlImport } from "~/lib"
-import { TChoiceListXML, ZChoiceListXML } from "./types"
+import { TChoiceList, TChoiceListXML, ZChoiceListXML } from "./types"
 import z from "zod"
 
-it("should import choice list from XML", () => {
-  const mockXml = `
+describe("importChoiceListFromXML", () => {
+  it("should import choice list from XML", () => {
+    const mockXml = `
 		<ChoiceList>
 			<xr:Item>
 				<xr:Presentation/>
@@ -35,13 +36,58 @@ it("should import choice list from XML", () => {
 			</xr:Item>
 		</ChoiceList>`
 
-  const xml = xmlImport<{ ChoiceList: TChoiceListXML }>(mockXml, z.object({ ChoiceList: ZChoiceListXML }))
-  const input = importChoiceListFromXML(xml.ChoiceList)
+    const xml = xmlImport<{ ChoiceList: TChoiceListXML }>(
+      mockXml,
+      z.object({ ChoiceList: ZChoiceListXML })
+    )
+    const input = importChoiceListFromXML(xml.ChoiceList)
 
-  expect(input).toEqual({
-    items: [
-      { presentation: { items: { ru: "Представление 1" } }, checkState: 0, value: "Значение 1" },
-      { presentation: { items: { ru: "Представление 2" } }, checkState: 1, value: "Значение 2" },
-    ],
+    expect(input).toEqual({
+      items: [
+        {
+          presentation: { items: { ru: "Представление 1" } },
+          checkState: 0,
+          value: "Значение 1",
+        },
+        {
+          presentation: { items: { ru: "Представление 2" } },
+          checkState: 1,
+          value: "Значение 2",
+        },
+      ],
+    })
+  })
+  it("should import ChoiceList with Type", () => {
+    const mockXml = `<ChoiceList>
+			<xr:Item>
+				<xr:Presentation/>
+				<xr:CheckState>0</xr:CheckState>
+				<xr:Value xsi:type="FormChoiceListDesTimeValue">
+					<Presentation/>
+					<Value xsi:type="xs:boolean">false</Value>
+				</xr:Value>
+			</xr:Item>
+		</ChoiceList>`
+
+    const expectedResult: TChoiceList = {
+      items: [
+        {
+          presentation: {
+            formatted: undefined,
+            items: {},
+          },
+          checkState: 0,
+          value: "false",
+        },
+      ],
+    }
+
+    const xml = xmlImport<{ ChoiceList: TChoiceListXML }>(
+      mockXml,
+      z.object({ ChoiceList: ZChoiceListXML })
+    )
+    const input = importChoiceListFromXML(xml.ChoiceList)
+
+    expect(input).toEqual(expectedResult)
   })
 })
