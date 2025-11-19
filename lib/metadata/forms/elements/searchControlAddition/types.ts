@@ -6,8 +6,7 @@ import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import {  ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { TChildItems } from "../childItems/typesExt"
+import { ZChildItems, ZChildItemsXML, TChildItems } from "../childItems/types"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
@@ -32,7 +31,7 @@ export const ZSearchControlAddition = z.object({
   userVisible: ZUserVisible.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   visible: z.boolean().optional(),
-  get childItems() : TChildItems {
+  get childItems() {
     return ZChildItems
   },
   autoMaxWidth: z.boolean().optional(),

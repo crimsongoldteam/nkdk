@@ -4,8 +4,7 @@ import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/type
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { TChildItems } from "../childItems/typesExt"
+import { ZChildItems, ZChildItemsXML, TChildItems } from "../childItems/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 
@@ -29,7 +28,7 @@ export const ZFormItemAddition = z.object({
   userVisible: ZUserVisible.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   visible: z.boolean().optional(),
-  get childItems() : TChildItems {
+  get childItems() {
     return ZChildItems
   },
 })

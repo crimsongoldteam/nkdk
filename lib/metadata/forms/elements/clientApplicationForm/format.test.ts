@@ -3,16 +3,14 @@ import "~/lib/metadata/forms/elements/elements"
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
 import "~/lib/metadata/forms/elements/rules"
-import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
 import { formatClientApplicationForm } from "./format"
 import { TClientApplicationForm, TInputField } from "~/lib"
 import { ZElementType } from "../types"
 import "~/lib/metadata/forms/elements/inputField/registration"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
-const mockParams: IFormatterParams = {
-  wrapInGroup: WrapInGroupStrategy.None,
-  level: 0,
-  isFirst: true,
+const configurationSettings: TConfigurationSettings = {
+  defaultLanguage: "ru",
 }
 
 describe("formatClientApplicationForm", () => {
@@ -23,7 +21,7 @@ describe("formatClientApplicationForm", () => {
       childItems: [],
     }
 
-    const result = formatClientApplicationForm(form, mockParams)
+    const result = formatClientApplicationForm(form, configurationSettings)
 
     expect(result.strings).toEqual(["====== [ Форма ] ======"])
   })
@@ -41,7 +39,7 @@ describe("formatClientApplicationForm", () => {
       childItems: [input],
     }
 
-    const result = formatClientApplicationForm(form, mockParams)
+    const result = formatClientApplicationForm(form, configurationSettings)
 
     expect(result.strings).toEqual(["Поле: {ИмяПоля}"])
   })
@@ -68,7 +66,7 @@ describe("formatClientApplicationForm", () => {
       ],
     }
 
-    const result = formatClientApplicationForm(form, mockParams)
+    const result = formatClientApplicationForm(form, configurationSettings)
 
     expect(result.strings.join("\n").trim()).toEqual(expectedResult)
   })

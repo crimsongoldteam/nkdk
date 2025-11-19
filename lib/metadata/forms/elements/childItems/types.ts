@@ -79,49 +79,52 @@ import {
   ZViewStatusAdditionXML,
 } from "../viewStatusAddition/types"
 import { ZButtonGroup, ZButtonGroupXML } from "../buttonGroup/types"
+import { TElementType } from "../types"
 
-export const ZChildItems = z.array(
-  z.union([
-    z.lazy(() => ZButton),
-    z.lazy(() => ZButtonGroup),
-    z.lazy(() => ZCalendarField),
-    z.lazy(() => ZChartField),
-    z.lazy(() => ZCheckBoxField),
-    z.lazy(() => ZColumnGroup),
-    z.lazy(() => ZCommandBar),
-    z.lazy(() => ZDendrogramField),
-    z.lazy(() => ZFormattedDocumentField),
-    z.lazy(() => ZFormDecoration),
-    z.lazy(() => ZFormField),
-    z.lazy(() => ZFormGroup),
-    z.lazy(() => ZFormItemAddition),
-    z.lazy(() => ZGanttChartField),
-    z.lazy(() => ZGeographicalSchemaField),
-    z.lazy(() => ZGraphicalSchemaField),
-    z.lazy(() => ZHTMLDocumentField),
-    z.lazy(() => ZInputField),
-    z.lazy(() => ZLabelDecoration),
-    z.lazy(() => ZLabelField),
-    z.lazy(() => ZPage),
-    z.lazy(() => ZPages),
-    z.lazy(() => ZPdfDocumentField),
-    z.lazy(() => ZPeriodField),
-    z.lazy(() => ZPictureDecoration),
-    z.lazy(() => ZPictureField),
-    z.lazy(() => ZPlannerField),
-    z.lazy(() => ZPopup),
-    z.lazy(() => ZProgressBarField),
-    z.lazy(() => ZRadioButtonField),
-    z.lazy(() => ZSearchControlAddition),
-    z.lazy(() => ZSearchStringAddition),
-    z.lazy(() => ZSpreadSheetDocumentField),
-    z.lazy(() => ZTable),
-    z.lazy(() => ZTextDocumentField),
-    z.lazy(() => ZTrackBarField),
-    z.lazy(() => ZUsualGroup),
-    z.lazy(() => ZViewStatusAddition),
-  ] as [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]])
-)
+// @ts-ignore
+export const ZChildItem: TChildItem = z.discriminatedUnion("elementType", [
+  ZButton,
+  ZButtonGroup,
+  ZCalendarField,
+  ZChartField,
+  ZCheckBoxField,
+  ZColumnGroup,
+  ZCommandBar,
+  ZDendrogramField,
+  ZFormattedDocumentField,
+  ZFormDecoration,
+  ZFormField,
+  ZFormGroup,
+  ZFormItemAddition,
+  ZGanttChartField,
+  ZGeographicalSchemaField,
+  ZGraphicalSchemaField,
+  ZHTMLDocumentField,
+  ZInputField,
+  ZLabelDecoration,
+  ZLabelField,
+  ZPage,
+  ZPages,
+  ZPdfDocumentField,
+  ZPeriodField,
+  ZPictureDecoration,
+  ZPictureField,
+  ZPlannerField,
+  ZPopup,
+  ZProgressBarField,
+  ZRadioButtonField,
+  ZSearchControlAddition,
+  ZSearchStringAddition,
+  ZSpreadSheetDocumentField,
+  ZTable,
+  ZTextDocumentField,
+  ZTrackBarField,
+  ZUsualGroup,
+  ZViewStatusAddition,
+])
+
+// @ts-ignore
+export const ZChildItems: TChildItems = z.array(ZChildItem)
 
 export const ZChildItemXML = z.object({
   get Button() {
@@ -242,7 +245,13 @@ export const ZChildItemXML = z.object({
 
 export const ZChildItemsXML = z.array(ZChildItemXML)
 
-// export type TChildItems = z.infer<typeof ZChildItems>
+interface TChildItem {
+  elementType: TElementType
+  name: string
+  id: string | undefined
+}
+
+export type TChildItems = TChildItem[]
 
 export type TChildItemXML = z.infer<typeof ZChildItemXML>
 export type TChildItemsXML = z.infer<typeof ZChildItemsXML>

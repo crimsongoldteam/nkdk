@@ -1,9 +1,8 @@
-import { ZChildItems, TChildItemsXML } from "./types"
+import { TChildItemsXML, TChildItems } from "./types"
 import { exportElementToXML } from "~/lib/xml/export/exporterFactory"
-import z from "zod"
 
 export const exportChildItemsToXML = (
-  data: z.infer<typeof ZChildItems> | undefined
+  data: TChildItems | undefined
 ): TChildItemsXML | undefined => {
   if (!data || data.length === 0) return undefined
 

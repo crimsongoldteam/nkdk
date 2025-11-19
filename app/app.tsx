@@ -16,7 +16,7 @@ import {
 import { ConfigProvider } from "antd"
 import { ZClientApplicationFormXML } from "~/lib"
 
-export default function App() {
+export const App = () => {
   const [form, setForm] = useState<TClientApplicationForm | null>(null)
 
   // Обновляем ref при изменении form
@@ -25,7 +25,10 @@ export default function App() {
     fetch("/lib/tempTest/Form.xml")
       .then((response) => response.text())
       .then((originalContent) => {
-        const importedXml = xmlImport<TClientApplicationFormXML>(originalContent, ZClientApplicationFormXML)
+        const importedXml = xmlImport<TClientApplicationFormXML>(
+          originalContent,
+          ZClientApplicationFormXML
+        )
         const importedForm = importClientApplicationFormFromXML(importedXml)
         setForm(importedForm)
       })
@@ -91,7 +94,13 @@ export default function App() {
         },
       }}
     >
-      {<main className="app-main">{form && <ClientFormApplication title={""} items={form.childItems} />}</main>}
+      {
+        <main className="app-main">
+          {form && (
+            <ClientFormApplication title={""} childItems={form.childItems} />
+          )}
+        </main>
+      }
     </ConfigProvider>
   )
 }

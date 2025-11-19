@@ -1,8 +1,12 @@
 import { TLabelDecoration } from "./types"
-import { IFormatterParams, FormatFunction, IFormatElementResult } from "~/lib/format/types"
+import {
+  IFormatterParams,
+  FormatElementFunction,
+  IFormatElementResult,
+} from "~/lib/format/types"
 import { formatElementName } from "~/lib/format/helpers"
 
-export const formatLabelDecoration: FormatFunction<TLabelDecoration> = (
+export const formatLabelDecoration: FormatElementFunction<TLabelDecoration> = (
   element: TLabelDecoration,
   _params: IFormatterParams
 ): IFormatElementResult => {

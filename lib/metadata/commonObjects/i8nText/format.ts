@@ -1,8 +1,9 @@
 import { TI8nText } from "./types"
 import { TI8nTextEnterprise } from "./types"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { TFormatFunction } from "~/lib/rulesManager/types"
 
-export const formatI8nText = (
+export const formatI8nText: TFormatFunction = (
   title: TI8nText | undefined,
   configurationSettings: TConfigurationSettings
 ): TI8nTextEnterprise | undefined => {

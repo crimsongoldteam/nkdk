@@ -8,14 +8,12 @@ import { TButtonGroupXML, TButtonGroup } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { ZElementType } from "../types"
 
-export const exportButtonGroupToXML = (
-  data: TButtonGroup | undefined
-): TButtonGroupXML | undefined => {
+export const exportButtonGroupToXML = (data: TButtonGroup | undefined): TButtonGroupXML | undefined => {
   if (!data) return undefined
-
+ 
   return {
-    _id: data.id ?? "",
-    _name: data.name ?? "",
+   _id: data.id ?? "",
+   _name: data.name ?? "",
     EnableContentChange: data.enableContentChange,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),

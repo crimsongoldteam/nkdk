@@ -8,7 +8,7 @@ describe("ClientFormApplication", () => {
   })
 
   it("should render with title", () => {
-    render(<ClientFormApplication title="Test Title" items={[]} />)
+    render(<ClientFormApplication title="Test Title" childItems={[]} />)
 
     expect(screen.getByText("Test Title")).toBeDefined()
   })

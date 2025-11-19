@@ -4,12 +4,12 @@ import { isOneLineGroup, isVerticalGroup } from "./helpers"
 import { formatOneLineGroup } from "./format/oneLineGroupFormat"
 import { type TUsualGroup } from "./types"
 import {
-  FormatFunction,
+  FormatElementFunction,
   IFormatElementResult,
   IFormatterParams,
 } from "~/lib/format/types"
 
-export const formatUsualGroup: FormatFunction<TUsualGroup> = (
+export const formatUsualGroup: FormatElementFunction<TUsualGroup> = (
   element: TUsualGroup,
   params: IFormatterParams
 ): IFormatElementResult => {

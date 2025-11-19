@@ -6,8 +6,7 @@ import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import {  ZBaseElementXML } from "../baseElement/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { TChildItems } from "../childItems/typesExt"
+import { ZChildItems, ZChildItemsXML, TChildItems } from "../childItems/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 
@@ -36,7 +35,7 @@ export const ZCommandBar = z.object({
   verticalStretch: z.boolean().optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-  get childItems() : TChildItems {
+  get childItems() {
     return ZChildItems
   },
   autofill: z.boolean().optional(),

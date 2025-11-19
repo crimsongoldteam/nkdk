@@ -1,6 +1,6 @@
 import { TPages } from "./types"
 import {
-  FormatFunction,
+  FormatElementFunction,
   IFormatElementResult,
   IFormatterParams,
 } from "~/lib/format/types"
@@ -11,7 +11,7 @@ import { addSimpleIndent } from "~/lib/format/wrap/addIndents"
 import { TBaseElement } from "../baseElement/types"
 const SLASH = (t.Slash.LABEL as string).repeat(2)
 
-export const formatPages: FormatFunction<TPages> = (
+export const formatPages: FormatElementFunction<TPages> = (
   element: TPages,
   _params: IFormatterParams
 ): IFormatElementResult => {

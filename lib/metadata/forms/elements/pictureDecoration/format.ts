@@ -1,8 +1,14 @@
 import { TPictureDecoration } from "./types"
-import { IFormatterParams, FormatFunction, IFormatElementResult } from "~/lib/format/types"
+import {
+  IFormatterParams,
+  FormatElementFunction,
+  IFormatElementResult,
+} from "~/lib/format/types"
 import { formatElementName } from "~/lib/format/helpers"
 
-export const formatPictureDecoration: FormatFunction<TPictureDecoration> = (
+export const formatPictureDecoration: FormatElementFunction<
+  TPictureDecoration
+> = (
   element: TPictureDecoration,
   _params: IFormatterParams
 ): IFormatElementResult => {

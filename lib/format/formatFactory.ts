@@ -1,28 +1,28 @@
 import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
 import {
   CheckFormatFunction,
-  FormatFunction,
+  FormatElementFunction,
   IFormatElementResult,
   WrapInGroupStrategy,
 } from "./types"
 import { formatOtherElement } from "../metadata/forms/elements/baseElement/format"
 import { ZElementType } from "../metadata/forms/elements/types"
 import { TConfigurationSettings } from "../metadata/configurationSettings/types"
-import { TChildItems } from "../metadata/forms/elements/childItems/typesExt"
+import { TChildItems } from "../metadata/forms/elements/childItems/types"
 
 type FormatRegistry = {
-  format: FormatFunction<TBaseElement>
+  format: FormatElementFunction
   check: CheckFormatFunction<TBaseElement>
 }[]
 
 const registry: FormatRegistry = []
 
 export const registerFormat = <T extends TBaseElement>(
-  format: FormatFunction<T>,
+  format: FormatElementFunction,
   check: CheckFormatFunction<T>
 ): void => {
   registry.push({
-    format: format as FormatFunction<TBaseElement>,
+    format: format,
     check: check as CheckFormatFunction<TBaseElement>,
   })
 }

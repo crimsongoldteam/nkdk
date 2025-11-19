@@ -2,7 +2,7 @@ import * as t from "~/lib/parser/lexer"
 import { type TInputField } from "./types"
 import {
   IFormatterParams,
-  FormatFunction,
+  FormatElementFunction,
   IFormatElementResult,
 } from "~/lib/format/types"
 import { isMultiline } from "./helpers"
@@ -11,9 +11,9 @@ import { formatElementName } from "~/lib/format/helpers"
 const UNDERLINE = t.Underscore.LABEL as string
 const COLON = t.Colon.LABEL as string
 
-export const formatInputField: FormatFunction<TInputField> = (
+export const formatInputField: FormatElementFunction<TInputField> = (
   element: TInputField,
-  _params: IFormatterParams
+  _configurationSettings: IFormatterParams
 ): IFormatElementResult => {
   const hasTitle = element.title?.items.ru !== undefined
 

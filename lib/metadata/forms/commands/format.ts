@@ -51,6 +51,7 @@ const formatCommand = (
     ОтображениеКнопки: command.representation,
     ИспользованиеТекущейСтроки: formatSystemEnumeration(
       command.currentRowUse,
+      configurationSettings,
       ZCurrentRowUseRule
     ) as SE.TCurrentRowUseEnterprise | undefined,
     ИзменяемыеДанные: command.modifiesSavedData,

@@ -22,8 +22,8 @@ export interface IFormatElementResult {
   haveSimpleHorizontalGroup: boolean
 }
 
-export type FormatFunction<T = TBaseElement> = (
-  element: T,
+export type FormatElementFunction = (
+  element: TBaseElement,
   configurationSettings: TConfigurationSettings
 ) => IFormatElementResult
 export type CheckFormatFunction<T = TBaseElement> = (element: T) => boolean

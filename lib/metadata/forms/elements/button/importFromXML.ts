@@ -8,11 +8,9 @@ import { TButtonXML, TButton } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
-export const importButtonFromXML = (
-  xml: TButtonXML | undefined
-): TButton | undefined => {
+export const importButtonFromXML = (xml: TButtonXML | undefined): TButton | undefined => {
   if (!xml) return undefined
-
+   
   return {
     id: xml._id,
     name: xml._name,

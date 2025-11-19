@@ -1,17 +1,27 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import {
+  ZI8nText,
+  ZI8nTextXML,
+} from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
+import {
+  ZTypeDescription,
+  ZTypeDescriptionXML,
+} from "~/lib/metadata/commonObjects/typeDescription/types"
+import {
+  ZPicture,
+  ZPictureXML,
+} from "~/lib/metadata/commonObjects/pictures/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
-import {  ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
-import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  ZUserVisible,
+  ZUserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 
@@ -89,14 +99,16 @@ export const ZPictureField = z.object({
   verticalStretch: z.boolean().optional(),
   width: z.number().optional(),
   zoomable: z.boolean().optional(),
-  events: z.object({
-    onChange: z.string().optional(),
-    click: z.string().optional(),
-    dragStart: z.string().optional(),
-    dragEnd: z.string().optional(),
-    drag: z.string().optional(),
-    dragCheck: z.string().optional(),
-  }).optional(),
+  events: z
+    .object({
+      onChange: z.string().optional(),
+      click: z.string().optional(),
+      dragStart: z.string().optional(),
+      dragEnd: z.string().optional(),
+      drag: z.string().optional(),
+      dragCheck: z.string().optional(),
+    })
+    .optional(),
 })
 
 export const ZPictureFieldXML = z.object({

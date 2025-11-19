@@ -1,9 +1,13 @@
-import { TElementRule } from "~/lib/rulesManager/types"
+import { TElementRule, TFormatFunction } from "~/lib/rulesManager/types"
+import { TConfigurationSettings } from "../configurationSettings/types"
 
-export const formatSystemEnumeration = (
+export const formatSystemEnumeration: TFormatFunction = (
   value: string | undefined,
-  rule: TElementRule
+  _configurationSettings: TConfigurationSettings,
+  rule?: TElementRule
 ): string | undefined => {
+  if (!rule) throw new Error("Rule not found")
+
   if (!value) return undefined
 
   const typeEnterprise = rule.typeEnterprise

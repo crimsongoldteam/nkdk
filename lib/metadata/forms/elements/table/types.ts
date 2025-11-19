@@ -6,8 +6,7 @@ import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { TChildItems } from "../childItems/typesExt"
+import { ZChildItems, ZChildItemsXML, TChildItems } from "../childItems/types"
 import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZCommandSet, ZCommandSetXML } from "~/lib/metadata/forms/commandSet/types"
@@ -117,7 +116,7 @@ export const ZTable = z.object({
   viewStatusRepresentation: ZFormItemAddition.optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-  get childItems() : TChildItems {
+  get childItems() {
     return ZChildItems
   },
   events: z.object({

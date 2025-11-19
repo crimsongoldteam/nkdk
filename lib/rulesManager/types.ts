@@ -1,6 +1,11 @@
 import { z } from "zod"
+import { TConfigurationSettings } from "../metadata/configurationSettings/types"
 
-export type TFormatFunction = (value: any, rule: TElementRule) => any
+export type TFormatFunction = (
+  value: any,
+  configurationSettings: TConfigurationSettings,
+  rule?: TElementRule
+) => any
 
 export const ZElementRule = z.object({
   nameEnterprise: z.string(),

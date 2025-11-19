@@ -1,6 +1,6 @@
 import { TTable } from "./types"
 import {
-  FormatFunction,
+  FormatElementFunction,
   IFormatElementResult,
   IFormatterParams,
 } from "~/lib/format/types"
@@ -43,7 +43,7 @@ const formatTableRow = (columns: (TInputField | TColumnGroup)[]): string => {
   return `${V_BAR} ${headers.join(` ${V_BAR} `)} ${V_BAR}`
 }
 
-export const formatTable: FormatFunction<TTable> = (
+export const formatTable: FormatElementFunction<TTable> = (
   element: TTable,
   _params: IFormatterParams
 ): IFormatElementResult => {

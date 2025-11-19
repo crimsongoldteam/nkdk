@@ -1,10 +1,11 @@
 import { TBaseElement } from "./types"
-import { IFormatterParams, FormatFunction, IFormatElementResult } from "~/lib/format/types"
+import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { formatElementName } from "~/lib/format/helpers"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
-export const formatOtherElement: FormatFunction<TBaseElement> = (
+export const formatOtherElement: FormatElementFunction = (
   element: TBaseElement,
-  _params: IFormatterParams
+  _configurationSettings: TConfigurationSettings
 ): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: ["?" + element.elementType + " " + formatElementName(element)],

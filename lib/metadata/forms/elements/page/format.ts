@@ -1,6 +1,6 @@
 import { TPage } from "./types"
 import {
-  FormatFunction,
+  FormatElementFunction,
   IFormatElementResult,
   IFormatterParams,
 } from "~/lib/format/types"
@@ -10,7 +10,7 @@ import { formatElementTitleAndName } from "~/lib/format/helpers"
 import { addSimpleIndent } from "~/lib/format/wrap/addIndents"
 import { TBaseElement, TNamedElementWithTitle } from "../baseElement/types"
 
-export const formatPage: FormatFunction<TPage> = (
+export const formatPage: FormatElementFunction<TPage> = (
   element: TPage,
   _params: IFormatterParams
 ): IFormatElementResult => {
