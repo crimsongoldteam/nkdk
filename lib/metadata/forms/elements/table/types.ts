@@ -116,7 +116,7 @@ export const ZTable = z.object({
   viewStatusRepresentation: ZFormItemAddition.optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-  get childItems() {
+  get childItems() : TChildItems {
     return ZChildItems
   },
   events: z.object({

@@ -7,6 +7,11 @@ import {
 } from "./types"
 import { formatSystemEnumeration } from "./format"
 import { TElementRule } from "~/lib/rulesManager/types"
+import { TConfigurationSettings } from "../configurationSettings/types"
+
+const configurationSettings: TConfigurationSettings = {
+  defaultLanguage: "ru",
+}
 
 describe("formatSystemEnumeration", () => {
   it("should format to enterprise", () => {
@@ -21,7 +26,11 @@ describe("formatSystemEnumeration", () => {
       inProperties: () => true,
     }
 
-    const result = formatSystemEnumeration(mockValue, rule)
+    const result = formatSystemEnumeration(
+      mockValue,
+      configurationSettings,
+      rule
+    )
 
     expect(result).toBe(expectedResult)
   })
@@ -38,7 +47,11 @@ describe("formatSystemEnumeration", () => {
       inProperties: () => true,
     }
 
-    const result = formatSystemEnumeration(mockValue, rule)
+    const result = formatSystemEnumeration(
+      mockValue,
+      configurationSettings,
+      rule
+    )
 
     expect(result).toBe(expectedResult)
   })

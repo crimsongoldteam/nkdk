@@ -1,16 +1,11 @@
 import { TPictureDecoration } from "./types"
-import {
-  IFormatterParams,
-  FormatElementFunction,
-  IFormatElementResult,
-} from "~/lib/format/types"
+import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { formatElementName } from "~/lib/format/helpers"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
-export const formatPictureDecoration: FormatElementFunction<
-  TPictureDecoration
-> = (
+export const formatPictureDecoration: FormatElementFunction = (
   element: TPictureDecoration,
-  _params: IFormatterParams
+  _configurationSettings: TConfigurationSettings
 ): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: ["@" + element.picture?.ref + " " + formatElementName(element)],

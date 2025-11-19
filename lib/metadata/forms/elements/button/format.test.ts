@@ -2,6 +2,11 @@ import { it, expect, describe } from "vitest"
 import { ZElementType } from "../types"
 import { TButton } from "./types"
 import { formatButton } from "./format"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+
+const configurationSettings: TConfigurationSettings = {
+  defaultLanguage: "ru",
+}
 
 describe("formatButton", () => {
   it("should format button", () => {
@@ -16,7 +21,7 @@ describe("formatButton", () => {
 
     const expectedResult = ["<Заголовок кнопки {ИмяКнопки}>"]
 
-    const result = formatButton(element as TButton, {})
+    const result = formatButton(element as TButton, configurationSettings)
 
     expect(result.strings).toEqual(expectedResult)
   })

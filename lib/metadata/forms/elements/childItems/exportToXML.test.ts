@@ -1,7 +1,7 @@
 import { expect, it, describe } from "vitest"
 import { ZElementType } from "../types"
 import { exportChildItemsToXML } from "./exportToXML"
-import { ZChildItems, ZChildItemsXML } from "./types"
+import { TChildItems, ZChildItemsXML } from "./types"
 import "~/lib/metadata/forms/elements/importFromXML"
 import "~/lib/metadata/forms/elements/exportToXML"
 import { xmlExport } from "~/lib"
@@ -9,7 +9,7 @@ import z from "zod"
 
 describe("exportChildItemsToXML", () => {
   it("should export child items to XML", () => {
-    const mockChildItems: z.infer<typeof ZChildItems> = [
+    const mockChildItems: TChildItems = [
       {
         name: "Input1",
         id: "1",

@@ -1,14 +1,11 @@
 import { TButton } from "./types"
-import {
-  IFormatterParams,
-  FormatElementFunction,
-  IFormatElementResult,
-} from "~/lib/format/types"
+import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { formatElementName } from "~/lib/format/helpers"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
-export const formatButton: FormatElementFunction<TButton> = (
+export const formatButton: FormatElementFunction = (
   element: TButton,
-  _params: IFormatterParams
+  _configurationSettings: TConfigurationSettings
 ): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: [

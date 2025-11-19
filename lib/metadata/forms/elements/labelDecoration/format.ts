@@ -1,14 +1,11 @@
 import { TLabelDecoration } from "./types"
-import {
-  IFormatterParams,
-  FormatElementFunction,
-  IFormatElementResult,
-} from "~/lib/format/types"
+import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { formatElementName } from "~/lib/format/helpers"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
-export const formatLabelDecoration: FormatElementFunction<TLabelDecoration> = (
+export const formatLabelDecoration: FormatElementFunction = (
   element: TLabelDecoration,
-  _params: IFormatterParams
+  _configurationSettings: TConfigurationSettings
 ): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: [element.title?.items.ru + " " + formatElementName(element)],

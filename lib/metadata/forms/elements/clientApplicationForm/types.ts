@@ -4,7 +4,7 @@ import {
   ZI8nText,
   ZI8nTextXML,
 } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types"
 import {
   ZUserVisible,
   ZUserVisibleXML,
@@ -20,7 +20,6 @@ import {
   ZCommandSetXML,
 } from "~/lib/metadata/forms/commandSet/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { TChildItems } from "../childItems/typesExt"
 
 export const ZAttribute = z.object({
   name: z.string(),

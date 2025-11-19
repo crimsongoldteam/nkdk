@@ -1,18 +1,15 @@
 import { TPage } from "./types"
-import {
-  FormatElementFunction,
-  IFormatElementResult,
-  IFormatterParams,
-} from "~/lib/format/types"
+import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { formatElements } from "~/lib/format/formatFactory"
 import * as t from "~/lib/parser/lexer"
 import { formatElementTitleAndName } from "~/lib/format/helpers"
 import { addSimpleIndent } from "~/lib/format/wrap/addIndents"
-import { TBaseElement, TNamedElementWithTitle } from "../baseElement/types"
+import { TNamedElementWithTitle } from "../baseElement/types"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
-export const formatPage: FormatElementFunction<TPage> = (
+export const formatPage: FormatElementFunction = (
   element: TPage,
-  _params: IFormatterParams
+  configurationSettings: TConfigurationSettings
 ): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: [],
@@ -22,9 +19,7 @@ export const formatPage: FormatElementFunction<TPage> = (
   const header = getHeader(element)
   result.strings.push(header)
 
-  const childResult = formatElements(
-    element.childItems as unknown as TBaseElement[]
-  )
+  const childResult = formatElements(element.childItems, configurationSettings)
   const indentedStrings = addSimpleIndent(childResult.strings)
   result.strings.push(...indentedStrings)
   result.haveSimpleHorizontalGroup =

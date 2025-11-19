@@ -32,7 +32,7 @@ export const ZViewStatusAddition = z.object({
   userVisible: ZUserVisible.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   visible: z.boolean().optional(),
-  get childItems() {
+  get childItems() : TChildItems {
     return ZChildItems
   },
   autoMaxWidth: z.boolean().optional(),
