@@ -1,4 +1,4 @@
-import * as SE from "~/lib/metadata/systemEnumerations/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types";
 
 export const ClientApplicationFormRules = {
   autoTitle: {
@@ -11,4 +11,4 @@ export const ClientApplicationFormRules = {
     type: SE.ZVerticalFormScroll,
     inProperties: () => true,
   },
-}
+};

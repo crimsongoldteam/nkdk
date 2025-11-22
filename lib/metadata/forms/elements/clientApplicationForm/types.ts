@@ -1,25 +1,25 @@
 import * as z from "zod"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
 import {
-  ZI8nText,
-  ZI8nTextXML,
+    ZI8nText,
+    ZI8nTextXML
 } from "~/lib/metadata/commonObjects/i8nText/types"
-import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types"
 import {
-  ZUserVisible,
-  ZUserVisibleXML,
+    ZTypeDescription,
+    ZTypeDescriptionXML
+} from "~/lib/metadata/commonObjects/typeDescription/types"
+import {
+    ZUserVisible,
+    ZUserVisibleXML
 } from "~/lib/metadata/commonObjects/userVisible/types"
 import {
-  ZTypeDescription,
-  ZTypeDescriptionXML,
-} from "~/lib/metadata/commonObjects/typeDescription/types"
-import { ZElementType } from "../types"
-import { ZEventsXML } from "../../events/types"
-import {
-  ZCommandSet,
-  ZCommandSetXML,
+    ZCommandSet,
+    ZCommandSetXML
 } from "~/lib/metadata/forms/commandSet/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZEventsXML } from "../../events/types"
+import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
+import { ZElementType } from "../types"
 
 export const ZAttribute = z.object({
   name: z.string(),

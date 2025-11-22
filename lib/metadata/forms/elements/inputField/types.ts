@@ -1,21 +1,40 @@
-import * as z from "zod"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZTable, ZTableXML } from "../table/types"
-import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZChoiceList, ZChoiceListXML } from "~/lib/metadata/commonObjects/choiceList/types"
-import { ZTypeLink, ZTypeLinkXML } from "~/lib/metadata/commonObjects/typeLink/types"
-import { ZChoiceParameterLinks, ZChoiceParameterLinksXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZEventsXML } from "~/lib/metadata/forms/events/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import * as z from "zod";
+import {
+  ZChoiceList,
+  ZChoiceListXML,
+} from "~/lib/metadata/commonObjects/choiceList/types";
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types";
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types";
+import {
+  ZI8nText,
+  ZI8nTextXML,
+} from "~/lib/metadata/commonObjects/i8nText/types";
+import {
+  ZPicture,
+  ZPictureXML,
+} from "~/lib/metadata/commonObjects/pictures/types";
+import {
+  ZTypeDescription,
+  ZTypeDescriptionXML,
+} from "~/lib/metadata/commonObjects/typeDescription/types";
+import {
+  ZTypeLink,
+  ZTypeLinkXML,
+} from "~/lib/metadata/commonObjects/typeLink/types";
+import {
+  ZUserVisible,
+  ZUserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types";
+import {
+  ZChoiceParameterLinks,
+  ZChoiceParameterLinksXML,
+} from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types";
+import { ZElementType } from "~/lib/metadata/forms/elements/types";
+import { ZEventsXML } from "~/lib/metadata/forms/events/types";
+import * as SE from "~/lib/metadata/systemEnumerations/types";
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types";
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
+import { ZTable, ZTableXML } from "../table/types";
 
 export const ZInputField = z.object({
   elementType: ZElementType,
@@ -24,7 +43,7 @@ export const ZInputField = z.object({
   autoCellHeight: z.boolean().optional(),
   cellHyperlink: z.boolean().optional(),
   get contextMenu() {
-    return ZCommandBar.optional()
+    return ZCommandBar.optional();
   },
   dataPath: z.string().optional(),
   defaultItem: z.boolean().optional(),
@@ -32,7 +51,7 @@ export const ZInputField = z.object({
   editMode: SE.ZColumnEditMode.optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {
-    return ZFormDecoration.optional()
+    return ZFormDecoration.optional();
   },
   fixingInTable: SE.ZFixingInTable.optional(),
   footerBackColor: ZColor.optional(),
@@ -52,7 +71,7 @@ export const ZInputField = z.object({
   showInHeader: z.boolean().optional(),
   skipOnInput: z.boolean().optional(),
   get table() {
-    return ZTable.optional()
+    return ZTable.optional();
   },
   title: ZI8nText.optional(),
   titleBackColor: ZColor.optional(),
@@ -148,25 +167,27 @@ export const ZInputField = z.object({
   width: z.number().optional(),
   wrap: z.boolean().optional(),
   value: z.string().optional(),
-  events: z.object({
-    onChange: z.string().optional(),
-    autoComplete: z.string().optional(),
-    multipleValuesAdd: z.string().optional(),
-    editTextChange: z.string().optional(),
-    startChoice: z.string().optional(),
-    startListChoice: z.string().optional(),
-    choiceProcessing: z.string().optional(),
-    multipleValueURLProcessing: z.string().optional(),
-    commandGenerateProcessing: z.string().optional(),
-    textEditEnd: z.string().optional(),
-    opening: z.string().optional(),
-    multipleValueOpening: z.string().optional(),
-    clearing: z.string().optional(),
-    tuning: z.string().optional(),
-    creating: z.string().optional(),
-    multipleValuesDelete: z.string().optional(),
-  }).optional(),
-})
+  events: z
+    .object({
+      onChange: z.string().optional(),
+      autoComplete: z.string().optional(),
+      multipleValuesAdd: z.string().optional(),
+      editTextChange: z.string().optional(),
+      startChoice: z.string().optional(),
+      startListChoice: z.string().optional(),
+      choiceProcessing: z.string().optional(),
+      multipleValueURLProcessing: z.string().optional(),
+      commandGenerateProcessing: z.string().optional(),
+      textEditEnd: z.string().optional(),
+      opening: z.string().optional(),
+      multipleValueOpening: z.string().optional(),
+      clearing: z.string().optional(),
+      tuning: z.string().optional(),
+      creating: z.string().optional(),
+      multipleValuesDelete: z.string().optional(),
+    })
+    .optional(),
+});
 
 export const ZInputFieldXML = z.object({
   _name: z.string(),
@@ -239,10 +260,10 @@ export const ZInputFieldXML = z.object({
   InputHint: ZI8nTextXML.optional(),
   ChoiceHistoryOnInput: SE.ZChoiceHistoryOnInput.optional(),
   get ContextMenu() {
-    return ZCommandBarXML.optional()
+    return ZCommandBarXML.optional();
   },
   get ExtendedTooltip() {
-    return ZFormDecorationXML.optional()
+    return ZFormDecorationXML.optional();
   },
   AllowInputEmptyMultipleValues: z.boolean().optional(),
   AllowMultipleValuesDuplicates: z.boolean().optional(),
@@ -289,7 +310,7 @@ export const ZInputFieldXML = z.object({
   ShowCheckBoxesInDropListWhenInputMultipleValues: z.boolean().optional(),
   ShowInFooter: z.boolean().optional(),
   get Table() {
-    return ZTableXML.optional()
+    return ZTableXML.optional();
   },
   TitleBackColor: ZColorXML.optional(),
   Type: SE.ZFormFieldType.optional(),
@@ -298,8 +319,8 @@ export const ZInputFieldXML = z.object({
   VerticalAlign: SE.ZItemVerticalAlign.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   Events: ZEventsXML.optional(),
-})
+});
 
-export type TInputField = z.infer<typeof ZInputField>
+export type TInputField = z.infer<typeof ZInputField>;
 
-export type TInputFieldXML = z.infer<typeof ZInputFieldXML>
+export type TInputFieldXML = z.infer<typeof ZInputFieldXML>;

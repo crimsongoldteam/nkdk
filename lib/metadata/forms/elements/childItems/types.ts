@@ -1,12 +1,6 @@
 import z from "zod"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
-import {
-  ZFormItemAddition,
-  ZFormItemAdditionXML,
-} from "../formItemAddition/types"
 import { ZButton, ZButtonXML } from "../button/types"
+import { ZButtonGroup, ZButtonGroupXML } from "../buttonGroup/types"
 import { ZCalendarField, ZCalendarFieldXML } from "../calendarField/types"
 import { ZChartField, ZChartFieldXML } from "../chartField/types"
 import { ZCheckBoxField, ZCheckBoxFieldXML } from "../checkBoxField/types"
@@ -14,21 +8,28 @@ import { ZColumnGroup, ZColumnGroupXML } from "../columnGroup/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZDendrogramField, ZDendrogramFieldXML } from "../dendrogramField/types"
 import {
-  ZFormattedDocumentField,
-  ZFormattedDocumentFieldXML,
+    ZFormattedDocumentField,
+    ZFormattedDocumentFieldXML
 } from "../formattedDocumentField/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZFormField, ZFormFieldXML } from "../formField/types"
+import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+import {
+    ZFormItemAddition,
+    ZFormItemAdditionXML
+} from "../formItemAddition/types"
 import { ZGanttChartField, ZGanttChartFieldXML } from "../ganttChartField/types"
 import {
-  ZGeographicalSchemaField,
-  ZGeographicalSchemaFieldXML,
+    ZGeographicalSchemaField,
+    ZGeographicalSchemaFieldXML
 } from "../geographicalSchemaField/types"
 import {
-  ZGraphicalSchemaField,
-  ZGraphicalSchemaFieldXML,
+    ZGraphicalSchemaField,
+    ZGraphicalSchemaFieldXML
 } from "../graphicalSchemaField/types"
 import {
-  ZHTMLDocumentField,
-  ZHTMLDocumentFieldXML,
+    ZHTMLDocumentField,
+    ZHTMLDocumentFieldXML
 } from "../htmlDocumentField/types"
 import { ZInputField, ZInputFieldXML } from "../inputField/types"
 import { ZLabelDecoration, ZLabelDecorationXML } from "../labelDecoration/types"
@@ -36,50 +37,49 @@ import { ZLabelField, ZLabelFieldXML } from "../labelField/types"
 import { ZPage, ZPageXML } from "../page/types"
 import { ZPages, ZPagesXML } from "../pages/types"
 import {
-  ZPdfDocumentField,
-  ZPdfDocumentFieldXML,
+    ZPdfDocumentField,
+    ZPdfDocumentFieldXML
 } from "../pdfDocumentField/types"
 import { ZPeriodField, ZPeriodFieldXML } from "../periodField/types"
 import {
-  ZPictureDecoration,
-  ZPictureDecorationXML,
+    ZPictureDecoration,
+    ZPictureDecorationXML
 } from "../pictureDecoration/types"
 import { ZPictureField, ZPictureFieldXML } from "../pictureField/types"
 import { ZPlannerField, ZPlannerFieldXML } from "../plannerField/types"
 import { ZPopup, ZPopupXML } from "../popup/types"
 import {
-  ZProgressBarField,
-  ZProgressBarFieldXML,
+    ZProgressBarField,
+    ZProgressBarFieldXML
 } from "../progressBarField/types"
 import {
-  ZRadioButtonField,
-  ZRadioButtonFieldXML,
+    ZRadioButtonField,
+    ZRadioButtonFieldXML
 } from "../radioButtonField/types"
 import {
-  ZSearchControlAddition,
-  ZSearchControlAdditionXML,
+    ZSearchControlAddition,
+    ZSearchControlAdditionXML
 } from "../searchControlAddition/types"
 import {
-  ZSearchStringAddition,
-  ZSearchStringAdditionXML,
+    ZSearchStringAddition,
+    ZSearchStringAdditionXML
 } from "../searchStringAddition/types"
 import {
-  ZSpreadSheetDocumentField,
-  ZSpreadSheetDocumentFieldXML,
+    ZSpreadSheetDocumentField,
+    ZSpreadSheetDocumentFieldXML
 } from "../spreadSheetDocumentField/types"
 import { ZTable, ZTableXML } from "../table/types"
 import {
-  ZTextDocumentField,
-  ZTextDocumentFieldXML,
+    ZTextDocumentField,
+    ZTextDocumentFieldXML
 } from "../textDocumentField/types"
 import { ZTrackBarField, ZTrackBarFieldXML } from "../trackBarField/types"
+import { TElementType } from "../types"
 import { ZUsualGroup, ZUsualGroupXML } from "../usualGroup/types"
 import {
-  ZViewStatusAddition,
-  ZViewStatusAdditionXML,
+    ZViewStatusAddition,
+    ZViewStatusAdditionXML
 } from "../viewStatusAddition/types"
-import { ZButtonGroup, ZButtonGroupXML } from "../buttonGroup/types"
-import { TElementType } from "../types"
 
 // @ts-ignore
 export const ZChildItem: TChildItem = z.discriminatedUnion("elementType", [

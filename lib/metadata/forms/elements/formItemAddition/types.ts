@@ -1,24 +1,29 @@
-import * as z from "zod"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZChildItems, ZChildItemsXML, TChildItems } from "../childItems/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import * as z from "zod";
+import {
+  ZI8nText,
+  ZI8nTextXML,
+} from "~/lib/metadata/commonObjects/i8nText/types";
+import {
+  ZUserVisible,
+  ZUserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types";
+import { ZElementType } from "~/lib/metadata/forms/elements/types";
+import * as SE from "~/lib/metadata/systemEnumerations/types";
+import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types";
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types";
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
 
 export const ZFormItemAddition = z.object({
   elementType: ZElementType,
   name: z.string(),
   id: z.string().optional(),
   get contextMenu() {
-    return ZCommandBar.optional()
+    return ZCommandBar.optional();
   },
   displayImportance: SE.ZDisplayImportance.optional(),
   enabled: z.boolean().optional(),
   get extendedToolTip() {
-    return ZFormDecoration.optional()
+    return ZFormDecoration.optional();
   },
   horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   title: ZI8nText.optional(),
@@ -28,21 +33,21 @@ export const ZFormItemAddition = z.object({
   userVisible: ZUserVisible.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   visible: z.boolean().optional(),
-  get childItems() : TChildItems {
-    return ZChildItems
+  get childItems(): TChildItems {
+    return ZChildItems;
   },
-})
+});
 
 export const ZFormItemAdditionXML = z.object({
   _name: z.string(),
   _id: z.string(),
   _DisplayImportance: SE.ZDisplayImportance.optional(),
   get ContextMenu() {
-    return ZCommandBarXML.optional()
+    return ZCommandBarXML.optional();
   },
   Enabled: z.boolean().optional(),
   get ExtendedToolTip() {
-    return ZFormDecorationXML.optional()
+    return ZFormDecorationXML.optional();
   },
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   Title: ZI8nTextXML.optional(),
@@ -53,10 +58,10 @@ export const ZFormItemAdditionXML = z.object({
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   Visible: z.boolean().optional(),
   get ChildItems() {
-    return ZChildItemsXML.optional()
+    return ZChildItemsXML.optional();
   },
-})
+});
 
-export type TFormItemAddition = z.infer<typeof ZFormItemAddition>
+export type TFormItemAddition = z.infer<typeof ZFormItemAddition>;
 
-export type TFormItemAdditionXML = z.infer<typeof ZFormItemAdditionXML>
+export type TFormItemAdditionXML = z.infer<typeof ZFormItemAdditionXML>;

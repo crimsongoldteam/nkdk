@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
-import { TInputField } from "./types"
-import { formatInputField } from "./format"
 import { ZElementType } from "../types"
+import { formatInputField } from "./format"
+import { TInputField } from "./types"
 
 const mockParams: IFormatterParams = {
   wrapInGroup: WrapInGroupStrategy.None,

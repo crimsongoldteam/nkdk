@@ -25,6 +25,7 @@
     "@vitest/coverage-v8": "^3.2.4",
     "concurrently": "^9.2.1",
     "jsdom": "^27.0.0",
+    "organize-imports-cli": "^0.10.0",
     "pointer-events-polyfill": "^0.4.4-pre",
     "resize-observer-polyfill": "^1.5.1",
     "terser": "^5.37.0",

@@ -1,15 +1,19 @@
-import * as z from "zod"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZTable, ZTableXML } from "../table/types"
-import { ZChildItems, ZChildItemsXML, TChildItems } from "../childItems/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import * as z from "zod";
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types";
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types";
+import {
+  ZI8nText,
+  ZI8nTextXML,
+} from "~/lib/metadata/commonObjects/i8nText/types";
+import {
+  ZUserVisible,
+  ZUserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types";
+import { ZElementType } from "~/lib/metadata/forms/elements/types";
+import * as SE from "~/lib/metadata/systemEnumerations/types";
+import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types";
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
+import { ZTable, ZTableXML } from "../table/types";
 
 export const ZUsualGroup = z.object({
   elementType: ZElementType,
@@ -18,7 +22,7 @@ export const ZUsualGroup = z.object({
   enableContentChange: z.boolean().optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {
-    return ZFormDecoration.optional()
+    return ZFormDecoration.optional();
   },
   height: z.number().optional(),
   horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
@@ -36,11 +40,11 @@ export const ZUsualGroup = z.object({
   verticalStretch: z.boolean().optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-  get childItems() : TChildItems {
-    return ZChildItems
+  get childItems(): TChildItems {
+    return ZChildItems;
   },
   get associatedTable() {
-    return ZTable.optional()
+    return ZTable.optional();
   },
   backColor: ZColor.optional(),
   behavior: SE.ZUsualGroupBehavior.optional(),
@@ -66,7 +70,7 @@ export const ZUsualGroup = z.object({
   united: z.boolean().optional(),
   verticalAlign: SE.ZItemVerticalAlign.optional(),
   verticalSpacing: SE.ZFormItemSpacing.optional(),
-})
+});
 
 export const ZUsualGroupXML = z.object({
   _name: z.string(),
@@ -105,10 +109,10 @@ export const ZUsualGroupXML = z.object({
   BackColor: ZColorXML.optional(),
   CurrentRowUse: SE.ZCurrentRowUse.optional(),
   get ExtendedTooltip() {
-    return ZFormDecorationXML.optional()
+    return ZFormDecorationXML.optional();
   },
   get AssociatedTable() {
-    return ZTableXML.optional()
+    return ZTableXML.optional();
   },
   ChildItemsHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
   ChildItemsVerticalAlign: SE.ZItemVerticalAlign.optional(),
@@ -120,10 +124,10 @@ export const ZUsualGroupXML = z.object({
   Type: SE.ZFormGroupType.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   get ChildItems() {
-    return ZChildItemsXML.optional()
+    return ZChildItemsXML.optional();
   },
-})
+});
 
-export type TUsualGroup = z.infer<typeof ZUsualGroup>
+export type TUsualGroup = z.infer<typeof ZUsualGroup>;
 
-export type TUsualGroupXML = z.infer<typeof ZUsualGroupXML>
+export type TUsualGroupXML = z.infer<typeof ZUsualGroupXML>;

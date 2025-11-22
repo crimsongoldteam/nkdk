@@ -1,15 +1,14 @@
 import * as z from "zod"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
+import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 
 export const ZLabelDecoration = z.object({
   elementType: ZElementType,

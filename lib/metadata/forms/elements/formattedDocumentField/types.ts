@@ -1,18 +1,28 @@
-import * as z from "zod"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZTable, ZTableXML } from "../table/types"
-import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZEventsXML } from "~/lib/metadata/forms/events/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import * as z from "zod";
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types";
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types";
+import {
+  ZI8nText,
+  ZI8nTextXML,
+} from "~/lib/metadata/commonObjects/i8nText/types";
+import {
+  ZPicture,
+  ZPictureXML,
+} from "~/lib/metadata/commonObjects/pictures/types";
+import {
+  ZTypeDescription,
+  ZTypeDescriptionXML,
+} from "~/lib/metadata/commonObjects/typeDescription/types";
+import {
+  ZUserVisible,
+  ZUserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types";
+import { ZElementType } from "~/lib/metadata/forms/elements/types";
+import { ZEventsXML } from "~/lib/metadata/forms/events/types";
+import * as SE from "~/lib/metadata/systemEnumerations/types";
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types";
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
+import { ZTable, ZTableXML } from "../table/types";
 
 export const ZFormattedDocumentField = z.object({
   elementType: ZElementType,
@@ -21,7 +31,7 @@ export const ZFormattedDocumentField = z.object({
   autoCellHeight: z.boolean().optional(),
   cellHyperlink: z.boolean().optional(),
   get contextMenu() {
-    return ZCommandBar.optional()
+    return ZCommandBar.optional();
   },
   dataPath: z.string().optional(),
   defaultItem: z.boolean().optional(),
@@ -29,7 +39,7 @@ export const ZFormattedDocumentField = z.object({
   editMode: SE.ZColumnEditMode.optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {
-    return ZFormDecoration.optional()
+    return ZFormDecoration.optional();
   },
   fixingInTable: SE.ZFixingInTable.optional(),
   footerBackColor: ZColor.optional(),
@@ -49,7 +59,7 @@ export const ZFormattedDocumentField = z.object({
   showInHeader: z.boolean().optional(),
   skipOnInput: z.boolean().optional(),
   get table() {
-    return ZTable.optional()
+    return ZTable.optional();
   },
   title: ZI8nText.optional(),
   titleBackColor: ZColor.optional(),
@@ -81,13 +91,15 @@ export const ZFormattedDocumentField = z.object({
   textColor: ZColor.optional(),
   verticalStretch: z.boolean().optional(),
   width: z.number().optional(),
-  events: z.object({
-    onChange: z.string().optional(),
-    beforeWrite: z.string().optional(),
-    beforePrint: z.string().optional(),
-    afterWrite: z.string().optional(),
-  }).optional(),
-})
+  events: z
+    .object({
+      onChange: z.string().optional(),
+      beforeWrite: z.string().optional(),
+      beforePrint: z.string().optional(),
+      afterWrite: z.string().optional(),
+    })
+    .optional(),
+});
 
 export const ZFormattedDocumentFieldXML = z.object({
   _name: z.string(),
@@ -100,14 +112,14 @@ export const ZFormattedDocumentFieldXML = z.object({
   BorderColor: ZColorXML.optional(),
   CellHyperlink: z.boolean().optional(),
   get ContextMenu() {
-    return ZCommandBarXML.optional()
+    return ZCommandBarXML.optional();
   },
   DataPath: z.string().optional(),
   DefaultItem: z.boolean().optional(),
   EditMode: SE.ZColumnEditMode.optional(),
   Enabled: z.boolean().optional(),
   get ExtendedTooltip() {
-    return ZFormDecorationXML.optional()
+    return ZFormDecorationXML.optional();
   },
   FixingInTable: SE.ZFixingInTable.optional(),
   Font: ZFontXML.optional(),
@@ -134,7 +146,7 @@ export const ZFormattedDocumentFieldXML = z.object({
   ShowInHeader: z.boolean().optional(),
   SkipOnInput: z.boolean().optional(),
   get Table() {
-    return ZTableXML.optional()
+    return ZTableXML.optional();
   },
   TextColor: ZColorXML.optional(),
   Title: ZI8nTextXML.optional(),
@@ -156,8 +168,10 @@ export const ZFormattedDocumentFieldXML = z.object({
   WarningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
   Width: z.number().optional(),
   Events: ZEventsXML.optional(),
-})
+});
 
-export type TFormattedDocumentField = z.infer<typeof ZFormattedDocumentField>
+export type TFormattedDocumentField = z.infer<typeof ZFormattedDocumentField>;
 
-export type TFormattedDocumentFieldXML = z.infer<typeof ZFormattedDocumentFieldXML>
+export type TFormattedDocumentFieldXML = z.infer<
+  typeof ZFormattedDocumentFieldXML
+>;

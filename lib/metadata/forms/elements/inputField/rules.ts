@@ -1,775 +1,1074 @@
-import * as z from "zod"
-import { TElementRules } from "~/lib/rulesManager/types"
-import { registerElementRules } from "~/lib/rulesManager/rulesManager"
-import { ZElementType } from "../types"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZTable, ZTableXML } from "../table/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZChoiceList, ZChoiceListXML } from "~/lib/metadata/commonObjects/choiceList/types"
-import { ZTypeLink, ZTypeLinkXML } from "~/lib/metadata/commonObjects/typeLink/types"
-import { ZChoiceParameterLinks, ZChoiceParameterLinksXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { formatUserVisible } from "~/lib/metadata/commonObjects/userVisible/format"
-import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format"
-import { formatBoolean } from "~/lib/format/formatBool"
-import { formatSystemEnumeration } from "~/lib/metadata/systemEnumerations/format"
+import * as z from "zod";
+import { formatBoolean } from "~/lib/format/formatBool";
+import { ZChoiceList } from "~/lib/metadata/commonObjects/choiceList/types";
+import { ZColor } from "~/lib/metadata/commonObjects/color/types";
+import { ZFont } from "~/lib/metadata/commonObjects/font/types";
+import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format";
+import { ZI8nText } from "~/lib/metadata/commonObjects/i8nText/types";
+import { ZPicture } from "~/lib/metadata/commonObjects/pictures/types";
+import { ZTypeDescription } from "~/lib/metadata/commonObjects/typeDescription/types";
+import { ZTypeLink } from "~/lib/metadata/commonObjects/typeLink/types";
+import { formatUserVisible } from "~/lib/metadata/commonObjects/userVisible/format";
+import { ZUserVisible } from "~/lib/metadata/commonObjects/userVisible/types";
+import { ZChoiceParameterLinks } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types";
+import { formatSystemEnumeration } from "~/lib/metadata/systemEnumerations/format";
+import * as SE from "~/lib/metadata/systemEnumerations/types";
+import { registerElementRules } from "~/lib/rulesManager/rulesManager";
+import { TElementRules } from "~/lib/rulesManager/types";
+import { ZCommandBar } from "../commandBar/types";
+import { ZFormDecoration } from "../formDecoration/types";
+import { ZTable } from "../table/types";
+import { ZElementType } from "../types";
 
 const rules: TElementRules = {
-  "autoCellHeight": {
-    get type() { return z.boolean() },
+  autoCellHeight: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "АвтоВысотаЯчейки",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "cellHyperlink": {
-    get type() { return z.boolean() },
+  cellHyperlink: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "ГиперссылкаЯчейки",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "contextMenu": {
-    get type() { return ZCommandBar },
+  contextMenu: {
+    get type() {
+      return ZCommandBar;
+    },
     nameEnterprise: "КонтекстноеМеню",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "dataPath": {
-    get type() { return z.string() },
+  dataPath: {
+    get type() {
+      return z.string();
+    },
     nameEnterprise: "ПутьКДанным",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "defaultItem": {
-    get type() { return z.boolean() },
+  defaultItem: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "АктивизироватьПоУмолчанию",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "displayImportance": {
-    get type() { return SE.ZDisplayImportance },
+  displayImportance: {
+    get type() {
+      return SE.ZDisplayImportance;
+    },
     nameEnterprise: "ВажностьПриОтображении",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZDisplayImportanceEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZDisplayImportanceEnterprise;
+    },
+    inProperties: () => true,
   },
-  "editMode": {
-    get type() { return SE.ZColumnEditMode },
+  editMode: {
+    get type() {
+      return SE.ZColumnEditMode;
+    },
     nameEnterprise: "РежимРедактирования",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZColumnEditModeEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZColumnEditModeEnterprise;
+    },
+    inProperties: () => true,
   },
-  "enabled": {
-    get type() { return z.boolean() },
+  enabled: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "Доступность",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "extendedTooltip": {
-    get type() { return ZFormDecoration },
+  extendedTooltip: {
+    get type() {
+      return ZFormDecoration;
+    },
     nameEnterprise: "РасширеннаяПодсказка",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "fixingInTable": {
-    get type() { return SE.ZFixingInTable },
+  fixingInTable: {
+    get type() {
+      return SE.ZFixingInTable;
+    },
     nameEnterprise: "ФиксацияВТаблице",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZFixingInTableEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZFixingInTableEnterprise;
+    },
+    inProperties: () => true,
   },
-  "footerBackColor": {
-    get type() { return ZColor },
+  footerBackColor: {
+    get type() {
+      return ZColor;
+    },
     nameEnterprise: "ЦветФонаПодвала",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "footerDataPath": {
-    get type() { return z.string() },
+  footerDataPath: {
+    get type() {
+      return z.string();
+    },
     nameEnterprise: "ПутьКДаннымПодвала",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "footerFont": {
-    get type() { return ZFont },
+  footerFont: {
+    get type() {
+      return ZFont;
+    },
     nameEnterprise: "ШрифтПодвала",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "footerHorizontalAlign": {
-    get type() { return SE.ZItemHorizontalLocation },
+  footerHorizontalAlign: {
+    get type() {
+      return SE.ZItemHorizontalLocation;
+    },
     nameEnterprise: "ГоризонтальноеПоложениеВПодвале",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZItemHorizontalLocationEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZItemHorizontalLocationEnterprise;
+    },
+    inProperties: () => true,
   },
-  "footerPicture": {
-    get type() { return ZPicture },
+  footerPicture: {
+    get type() {
+      return ZPicture;
+    },
     nameEnterprise: "КартинкаПодвала",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "footerText": {
-    get type() { return ZI8nText },
+  footerText: {
+    get type() {
+      return ZI8nText;
+    },
     nameEnterprise: "ТекстПодвала",
     formatProperties: formatI8nText,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "footerTextColor": {
-    get type() { return ZColor },
+  footerTextColor: {
+    get type() {
+      return ZColor;
+    },
     nameEnterprise: "ЦветТекстаПодвала",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "headerHorizontalAlign": {
-    get type() { return SE.ZItemHorizontalLocation },
+  headerHorizontalAlign: {
+    get type() {
+      return SE.ZItemHorizontalLocation;
+    },
     nameEnterprise: "ГоризонтальноеПоложениеВШапке",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZItemHorizontalLocationEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZItemHorizontalLocationEnterprise;
+    },
+    inProperties: () => true,
   },
-  "headerPicture": {
-    get type() { return ZPicture },
+  headerPicture: {
+    get type() {
+      return ZPicture;
+    },
     nameEnterprise: "КартинкаШапки",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "horizontalAlign": {
-    get type() { return SE.ZItemHorizontalLocation },
+  horizontalAlign: {
+    get type() {
+      return SE.ZItemHorizontalLocation;
+    },
     nameEnterprise: "ГоризонтальноеПоложение",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZItemHorizontalLocationEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZItemHorizontalLocationEnterprise;
+    },
+    inProperties: () => true,
   },
-  "horizontalAlignInGroup": {
-    get type() { return SE.ZItemHorizontalLocation },
+  horizontalAlignInGroup: {
+    get type() {
+      return SE.ZItemHorizontalLocation;
+    },
     nameEnterprise: "ГоризонтальноеПоложениеВГруппе",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZItemHorizontalLocationEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZItemHorizontalLocationEnterprise;
+    },
+    inProperties: () => true,
   },
-  "readOnly": {
-    get type() { return z.boolean() },
+  readOnly: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "ТолькоПросмотр",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "shortcut": {
-    get type() { return z.string() },
+  shortcut: {
+    get type() {
+      return z.string();
+    },
     nameEnterprise: "СочетаниеКлавиш",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "showInFooter": {
-    get type() { return z.boolean() },
+  showInFooter: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "ОтображатьВПодвале",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "showInHeader": {
-    get type() { return z.boolean() },
+  showInHeader: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "ОтображатьВШапке",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "skipOnInput": {
-    get type() { return z.boolean() },
+  skipOnInput: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "ПропускатьПриВводе",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "table": {
-    get type() { return ZTable },
+  table: {
+    get type() {
+      return ZTable;
+    },
     nameEnterprise: "Таблица",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "title": {
-    get type() { return ZI8nText },
+  title: {
+    get type() {
+      return ZI8nText;
+    },
     nameEnterprise: "Заголовок",
     formatProperties: formatI8nText,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "titleBackColor": {
-    get type() { return ZColor },
+  titleBackColor: {
+    get type() {
+      return ZColor;
+    },
     nameEnterprise: "ЦветФонаЗаголовка",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "titleFont": {
-    get type() { return ZFont },
+  titleFont: {
+    get type() {
+      return ZFont;
+    },
     nameEnterprise: "ШрифтЗаголовка",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "titleHeight": {
-    get type() { return z.number() },
+  titleHeight: {
+    get type() {
+      return z.number();
+    },
     nameEnterprise: "ВысотаЗаголовка",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "titleLocation": {
-    get type() { return SE.ZFormItemTitleLocation },
+  titleLocation: {
+    get type() {
+      return SE.ZFormItemTitleLocation;
+    },
     nameEnterprise: "ПоложениеЗаголовка",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZFormItemTitleLocationEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZFormItemTitleLocationEnterprise;
+    },
+    inProperties: () => true,
   },
-  "titleTextColor": {
-    get type() { return ZColor },
+  titleTextColor: {
+    get type() {
+      return ZColor;
+    },
     nameEnterprise: "ЦветТекстаЗаголовка",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "toolTip": {
-    get type() { return ZI8nText },
+  toolTip: {
+    get type() {
+      return ZI8nText;
+    },
     nameEnterprise: "Подсказка",
     formatProperties: formatI8nText,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "toolTipRepresentation": {
-    get type() { return SE.ZToolTipRepresentation },
+  toolTipRepresentation: {
+    get type() {
+      return SE.ZToolTipRepresentation;
+    },
     nameEnterprise: "ОтображениеПодсказки",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZToolTipRepresentationEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZToolTipRepresentationEnterprise;
+    },
+    inProperties: () => true,
   },
-  "type": {
-    get type() { return SE.ZFormFieldType },
+  type: {
+    get type() {
+      return SE.ZFormFieldType;
+    },
     nameEnterprise: "Вид",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZFormFieldTypeEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZFormFieldTypeEnterprise;
+    },
+    inProperties: () => true,
   },
-  "typeRestriction": {
-    get type() { return ZTypeDescription },
+  typeRestriction: {
+    get type() {
+      return ZTypeDescription;
+    },
     nameEnterprise: "ОграничениеТипа",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "userVisible": {
-    get type() { return ZUserVisible },
+  userVisible: {
+    get type() {
+      return ZUserVisible;
+    },
     nameEnterprise: "ПользовательскаяВидимость",
     formatProperties: formatUserVisible,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "verticalAlign": {
-    get type() { return SE.ZItemVerticalAlign },
+  verticalAlign: {
+    get type() {
+      return SE.ZItemVerticalAlign;
+    },
     nameEnterprise: "ВертикальноеПоложение",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZItemVerticalAlignEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZItemVerticalAlignEnterprise;
+    },
+    inProperties: () => true,
   },
-  "verticalAlignInGroup": {
-    get type() { return SE.ZItemVerticalAlign },
+  verticalAlignInGroup: {
+    get type() {
+      return SE.ZItemVerticalAlign;
+    },
     nameEnterprise: "ВертикальноеПоложениеВГруппе",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZItemVerticalAlignEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZItemVerticalAlignEnterprise;
+    },
+    inProperties: () => true,
   },
-  "visible": {
-    get type() { return z.boolean() },
+  visible: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "Видимость",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "warningOnEdit": {
-    get type() { return ZI8nText },
+  warningOnEdit: {
+    get type() {
+      return ZI8nText;
+    },
     nameEnterprise: "ПредупреждениеПриРедактировании",
     formatProperties: formatI8nText,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "warningOnEditRepresentation": {
-    get type() { return SE.ZWarningOnEditRepresentation },
+  warningOnEditRepresentation: {
+    get type() {
+      return SE.ZWarningOnEditRepresentation;
+    },
     nameEnterprise: "ОтображениеПредупрежденияПриРедактировании",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZWarningOnEditRepresentationEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZWarningOnEditRepresentationEnterprise;
+    },
+    inProperties: () => true,
   },
-  "allowInputEmptyMultipleValues": {
-    get type() { return z.boolean() },
+  allowInputEmptyMultipleValues: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "РазрешитьВводПустыхМножественныхЗначений",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "allowMultipleValuesDuplicates": {
-    get type() { return z.boolean() },
+  allowMultipleValuesDuplicates: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "РазрешитьДублированиеМножественныхЗначений",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "autoCapitalizationOnTextInput": {
-    get type() { return SE.ZAutoCapitalizationOnTextInput },
+  autoCapitalizationOnTextInput: {
+    get type() {
+      return SE.ZAutoCapitalizationOnTextInput;
+    },
     nameEnterprise: "АвтоИзменениеРегистраПриВводеТекста",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZAutoCapitalizationOnTextInputEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZAutoCapitalizationOnTextInputEnterprise;
+    },
+    inProperties: () => true,
   },
-  "autoChoiceIncomplete": {
-    get type() { return z.boolean() },
+  autoChoiceIncomplete: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "АвтоВыборНезаполненного",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "autoCorrectionOnTextInput": {
-    get type() { return SE.ZAutoCorrectionOnTextInput },
+  autoCorrectionOnTextInput: {
+    get type() {
+      return SE.ZAutoCorrectionOnTextInput;
+    },
     nameEnterprise: "АвтоИсправлениеПриВводеТекста",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZAutoCorrectionOnTextInputEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZAutoCorrectionOnTextInputEnterprise;
+    },
+    inProperties: () => true,
   },
-  "autoFillHint": {
-    get type() { return SE.ZInputFieldAutofillHint },
+  autoFillHint: {
+    get type() {
+      return SE.ZInputFieldAutofillHint;
+    },
     nameEnterprise: "ПодсказкаАвтозаполнения",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZInputFieldAutofillHintEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZInputFieldAutofillHintEnterprise;
+    },
+    inProperties: () => true,
   },
-  "autoMarkIncomplete": {
-    get type() { return z.boolean() },
+  autoMarkIncomplete: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "АвтоОтметкаНезаполненного",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "autoMaxHeight": {
-    get type() { return z.boolean() },
+  autoMaxHeight: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "АвтоМаксимальнаяВысота",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "autoMaxWidth": {
-    get type() { return z.boolean() },
+  autoMaxWidth: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "АвтоМаксимальнаяШирина",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "autoShowClearButton": {
-    get type() { return SE.ZAutoShowClearButtonMode },
+  autoShowClearButton: {
+    get type() {
+      return SE.ZAutoShowClearButtonMode;
+    },
     nameEnterprise: "АвтоОтображениеКнопкиОчистки",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZAutoShowClearButtonModeEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZAutoShowClearButtonModeEnterprise;
+    },
+    inProperties: () => true,
   },
-  "autoShowOpenButton": {
-    get type() { return SE.ZAutoShowOpenButtonMode },
+  autoShowOpenButton: {
+    get type() {
+      return SE.ZAutoShowOpenButtonMode;
+    },
     nameEnterprise: "АвтоОтображениеКнопкиОткрытия",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZAutoShowOpenButtonModeEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZAutoShowOpenButtonModeEnterprise;
+    },
+    inProperties: () => true,
   },
-  "availableTypes": {
-    get type() { return ZTypeDescription },
+  availableTypes: {
+    get type() {
+      return ZTypeDescription;
+    },
     nameEnterprise: "ДоступныеТипы",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "backColor": {
-    get type() { return ZColor },
+  backColor: {
+    get type() {
+      return ZColor;
+    },
     nameEnterprise: "ЦветФона",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "borderColor": {
-    get type() { return ZColor },
+  borderColor: {
+    get type() {
+      return ZColor;
+    },
     nameEnterprise: "ЦветРамки",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "choiceButton": {
-    get type() { return z.boolean() },
+  choiceButton: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "КнопкаВыбора",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "choiceButtonPicture": {
-    get type() { return ZPicture },
+  choiceButtonPicture: {
+    get type() {
+      return ZPicture;
+    },
     nameEnterprise: "КартинкаКнопкиВыбора",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "choiceButtonRepresentation": {
-    get type() { return SE.ZChoiceButtonRepresentation },
+  choiceButtonRepresentation: {
+    get type() {
+      return SE.ZChoiceButtonRepresentation;
+    },
     nameEnterprise: "ОтображениеКнопкиВыбора",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZChoiceButtonRepresentationEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZChoiceButtonRepresentationEnterprise;
+    },
+    inProperties: () => true,
   },
-  "choiceFoldersAndItems": {
-    get type() { return SE.ZFoldersAndItems },
+  choiceFoldersAndItems: {
+    get type() {
+      return SE.ZFoldersAndItems;
+    },
     nameEnterprise: "ВыборГруппИЭлементов",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZFoldersAndItemsEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZFoldersAndItemsEnterprise;
+    },
+    inProperties: () => true,
   },
-  "choiceForm": {
-    get type() { return z.string() },
+  choiceForm: {
+    get type() {
+      return z.string();
+    },
     nameEnterprise: "ФормаВыбора",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "choiceHistoryOnInput": {
-    get type() { return SE.ZChoiceHistoryOnInput },
+  choiceHistoryOnInput: {
+    get type() {
+      return SE.ZChoiceHistoryOnInput;
+    },
     nameEnterprise: "ИсторияВыбораПриВводе",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZChoiceHistoryOnInputEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZChoiceHistoryOnInputEnterprise;
+    },
+    inProperties: () => true,
   },
-  "choiceList": {
-    get type() { return ZChoiceList },
+  choiceList: {
+    get type() {
+      return ZChoiceList;
+    },
     nameEnterprise: "СписокВыбора",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "choiceListButton": {
-    get type() { return z.boolean() },
+  choiceListButton: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "КнопкаСпискаВыбора",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "choiceListHeight": {
-    get type() { return z.number() },
+  choiceListHeight: {
+    get type() {
+      return z.number();
+    },
     nameEnterprise: "ВысотаСпискаВыбора",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "choiceParameterLinks": {
-    get type() { return ZChoiceParameterLinks },
+  choiceParameterLinks: {
+    get type() {
+      return ZChoiceParameterLinks;
+    },
     nameEnterprise: "СвязиПараметровВыбора",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "choiceParameters": {
-    get type() { return ZChoiceParameterLinks },
+  choiceParameters: {
+    get type() {
+      return ZChoiceParameterLinks;
+    },
     nameEnterprise: "ПараметрыВыбора",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "chooseType": {
-    get type() { return z.boolean() },
+  chooseType: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "ВыбиратьТип",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "clearButton": {
-    get type() { return z.boolean() },
+  clearButton: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "КнопкаОчистки",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "createButton": {
-    get type() { return z.boolean() },
+  createButton: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "КнопкаСоздания",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "dropListButton": {
-    get type() { return z.boolean() },
+  dropListButton: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "КнопкаВыпадающегоСписка",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "dropListWidth": {
-    get type() { return z.number() },
+  dropListWidth: {
+    get type() {
+      return z.number();
+    },
     nameEnterprise: "ШиринаВыпадающегоСписка",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "editFormat": {
-    get type() { return ZI8nText },
+  editFormat: {
+    get type() {
+      return ZI8nText;
+    },
     nameEnterprise: "ФорматРедактирования",
     formatProperties: formatI8nText,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "editText": {
-    get type() { return z.string() },
+  editText: {
+    get type() {
+      return z.string();
+    },
     nameEnterprise: "ТекстРедактирования",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "editTextUpdate": {
-    get type() { return SE.ZEditTextUpdate },
+  editTextUpdate: {
+    get type() {
+      return SE.ZEditTextUpdate;
+    },
     nameEnterprise: "ОбновлениеТекстаРедактирования",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZEditTextUpdateEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZEditTextUpdateEnterprise;
+    },
+    inProperties: () => true,
   },
-  "extendedEdit": {
-    get type() { return z.boolean() },
+  extendedEdit: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "РасширенноеРедактирование",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "font": {
-    get type() { return ZFont },
+  font: {
+    get type() {
+      return ZFont;
+    },
     nameEnterprise: "Шрифт",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "format": {
-    get type() { return ZI8nText },
+  format: {
+    get type() {
+      return ZI8nText;
+    },
     nameEnterprise: "Формат",
     formatProperties: formatI8nText,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "height": {
-    get type() { return z.number() },
+  height: {
+    get type() {
+      return z.number();
+    },
     nameEnterprise: "Высота",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "heightControlVariant": {
-    get type() { return SE.ZItemHeightControlVariant },
+  heightControlVariant: {
+    get type() {
+      return SE.ZItemHeightControlVariant;
+    },
     nameEnterprise: "ВариантУправленияВысотой",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZItemHeightControlVariantEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZItemHeightControlVariantEnterprise;
+    },
+    inProperties: () => true,
   },
-  "horizontalStretch": {
-    get type() { return z.boolean() },
+  horizontalStretch: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "РастягиватьПоГоризонтали",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "incompleteChoiceMode": {
-    get type() { return SE.ZIncompleteChoiceMode },
+  incompleteChoiceMode: {
+    get type() {
+      return SE.ZIncompleteChoiceMode;
+    },
     nameEnterprise: "РежимВыбораНезаполненного",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZIncompleteChoiceModeEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZIncompleteChoiceModeEnterprise;
+    },
+    inProperties: () => true,
   },
-  "inputHint": {
-    get type() { return ZI8nText },
+  inputHint: {
+    get type() {
+      return ZI8nText;
+    },
     nameEnterprise: "ПодсказкаВвода",
     formatProperties: formatI8nText,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "listChoiceMode": {
-    get type() { return z.boolean() },
+  listChoiceMode: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "РежимВыбораИзСписка",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "markIncomplete": {
-    get type() { return z.boolean() },
+  markIncomplete: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "ОтметкаНезаполненного",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "markNegatives": {
-    get type() { return z.boolean() },
+  markNegatives: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "ВыделятьОтрицательные",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "mask": {
-    get type() { return z.string() },
+  mask: {
+    get type() {
+      return z.string();
+    },
     nameEnterprise: "Маска",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "maxHeight": {
-    get type() { return z.number() },
+  maxHeight: {
+    get type() {
+      return z.number();
+    },
     nameEnterprise: "МаксимальнаяВысота",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "maxValue": {
-    get type() { return z.number() },
+  maxValue: {
+    get type() {
+      return z.number();
+    },
     nameEnterprise: "МаксимальноеЗначение",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "maxWidth": {
-    get type() { return z.number() },
+  maxWidth: {
+    get type() {
+      return z.number();
+    },
     nameEnterprise: "МаксимальнаяШирина",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "minValue": {
-    get type() { return z.number() },
+  minValue: {
+    get type() {
+      return z.number();
+    },
     nameEnterprise: "МинимальноеЗначение",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "multiLine": {
-    get type() { return z.boolean() },
+  multiLine: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "МногострочныйРежим",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "multipleValuePictureDataPath": {
-    get type() { return z.string() },
+  multipleValuePictureDataPath: {
+    get type() {
+      return z.string();
+    },
     nameEnterprise: "ПутьКДаннымКартинкиМножественногоЗначения",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "multipleValuePictureShape": {
-    get type() { return SE.ZInputFieldMultipleValuePictureShape },
+  multipleValuePictureShape: {
+    get type() {
+      return SE.ZInputFieldMultipleValuePictureShape;
+    },
     nameEnterprise: "ФигураКартинкиМножественногоЗначения",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZInputFieldMultipleValuePictureShapeEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZInputFieldMultipleValuePictureShapeEnterprise;
+    },
+    inProperties: () => true,
   },
-  "multipleValuePictureSize": {
-    get type() { return SE.ZInputFieldMultipleValuePictureSize },
+  multipleValuePictureSize: {
+    get type() {
+      return SE.ZInputFieldMultipleValuePictureSize;
+    },
     nameEnterprise: "РазмерКартинкиМножественногоЗначения",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZInputFieldMultipleValuePictureSizeEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZInputFieldMultipleValuePictureSizeEnterprise;
+    },
+    inProperties: () => true,
   },
-  "multipleValuePresentationDataPath": {
-    get type() { return z.string() },
+  multipleValuePresentationDataPath: {
+    get type() {
+      return z.string();
+    },
     nameEnterprise: "ПутьКДаннымПредставленияМножественногоЗначения",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "multipleValuesBackColor": {
-    get type() { return ZColor },
+  multipleValuesBackColor: {
+    get type() {
+      return ZColor;
+    },
     nameEnterprise: "ЦветФонаМножественныхЗначений",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "multipleValuesExtendedEdit": {
-    get type() { return z.boolean() },
+  multipleValuesExtendedEdit: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "РасширенноеРедактированиеМножественныхЗначений",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "multipleValuesFont": {
-    get type() { return ZFont },
+  multipleValuesFont: {
+    get type() {
+      return ZFont;
+    },
     nameEnterprise: "ШрифтМножественныхЗначений",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "multipleValuesHyperlink": {
-    get type() { return z.boolean() },
+  multipleValuesHyperlink: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "ГиперссылкаМножественныхЗначений",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "multipleValuesPicture": {
-    get type() { return ZPicture },
+  multipleValuesPicture: {
+    get type() {
+      return ZPicture;
+    },
     nameEnterprise: "КартинкаМножественныхЗначений",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "multipleValuesTextColor": {
-    get type() { return ZColor },
+  multipleValuesTextColor: {
+    get type() {
+      return ZColor;
+    },
     nameEnterprise: "ЦветТекстаМножественныхЗначений",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "multipleValueValueDataPath": {
-    get type() { return z.string() },
+  multipleValueValueDataPath: {
+    get type() {
+      return z.string();
+    },
     nameEnterprise: "ПутьКДаннымЗначенияМножественногоЗначения",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "onScreenKeyboardReturnKeyText": {
-    get type() { return SE.ZOnScreenKeyboardReturnKeyText },
+  onScreenKeyboardReturnKeyText: {
+    get type() {
+      return SE.ZOnScreenKeyboardReturnKeyText;
+    },
     nameEnterprise: "ТекстКнопкиВводаЭкраннойКлавиатуры",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZOnScreenKeyboardReturnKeyTextEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZOnScreenKeyboardReturnKeyTextEnterprise;
+    },
+    inProperties: () => true,
   },
-  "openButton": {
-    get type() { return z.boolean() },
+  openButton: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "КнопкаОткрытия",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "passwordMode": {
-    get type() { return z.boolean() },
+  passwordMode: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "РежимПароля",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "quickChoice": {
-    get type() { return z.boolean() },
+  quickChoice: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "БыстрыйВыбор",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "selectedText": {
-    get type() { return z.string() },
+  selectedText: {
+    get type() {
+      return z.string();
+    },
     nameEnterprise: "ВыделенныйТекст",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "showCheckBoxesInDropListWhenInputMultipleValues": {
-    get type() { return z.boolean() },
-    nameEnterprise: "ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений",
+  showCheckBoxesInDropListWhenInputMultipleValues: {
+    get type() {
+      return z.boolean();
+    },
+    nameEnterprise:
+      "ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "specialTextInputMode": {
-    get type() { return SE.ZSpecialTextInputMode },
+  specialTextInputMode: {
+    get type() {
+      return SE.ZSpecialTextInputMode;
+    },
     nameEnterprise: "СпециальныйРежимВводаТекста",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZSpecialTextInputModeEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZSpecialTextInputModeEnterprise;
+    },
+    inProperties: () => true,
   },
-  "spellCheckingOnTextInput": {
-    get type() { return SE.ZSpellCheckingOnTextInput },
+  spellCheckingOnTextInput: {
+    get type() {
+      return SE.ZSpellCheckingOnTextInput;
+    },
     nameEnterprise: "ПроверкаПравописанияПриВводеТекста",
     formatProperties: formatSystemEnumeration,
-    get typeEnterprise() { return SE.ZSpellCheckingOnTextInputEnterprise },
-    inProperties: ()=> true,
+    get typeEnterprise() {
+      return SE.ZSpellCheckingOnTextInputEnterprise;
+    },
+    inProperties: () => true,
   },
-  "spinButton": {
-    get type() { return z.boolean() },
+  spinButton: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "КнопкаРегулирования",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "textColor": {
-    get type() { return ZColor },
+  textColor: {
+    get type() {
+      return ZColor;
+    },
     nameEnterprise: "ЦветТекста",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "textEdit": {
-    get type() { return z.boolean() },
+  textEdit: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "РедактированиеТекста",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "typeDomainEnabled": {
-    get type() { return z.boolean() },
+  typeDomainEnabled: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "РазрешитьСоставнойТип",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "typeLink": {
-    get type() { return ZTypeLink },
+  typeLink: {
+    get type() {
+      return ZTypeLink;
+    },
     nameEnterprise: "СвязьПоТипу",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "verticalStretch": {
-    get type() { return z.boolean() },
+  verticalStretch: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "РастягиватьПоВертикали",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "width": {
-    get type() { return z.number() },
+  width: {
+    get type() {
+      return z.number();
+    },
     nameEnterprise: "Ширина",
     formatProperties: undefined,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-  "wrap": {
-    get type() { return z.boolean() },
+  wrap: {
+    get type() {
+      return z.boolean();
+    },
     nameEnterprise: "АвтоПереносСтрок",
     formatProperties: formatBoolean,
-    inProperties: ()=> true,
+    inProperties: () => true,
   },
-}
+};
 
-registerElementRules(ZElementType.enum.InputField, rules)
+registerElementRules(ZElementType.enum.InputField, rules);

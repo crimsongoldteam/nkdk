@@ -1,14 +1,18 @@
-import * as z from "zod"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZChildItems, ZChildItemsXML, TChildItems } from "../childItems/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import * as z from "zod";
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types";
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types";
+import {
+  ZI8nText,
+  ZI8nTextXML,
+} from "~/lib/metadata/commonObjects/i8nText/types";
+import {
+  ZUserVisible,
+  ZUserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types";
+import { ZElementType } from "~/lib/metadata/forms/elements/types";
+import * as SE from "~/lib/metadata/systemEnumerations/types";
+import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types";
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
 
 export const ZButtonGroup = z.object({
   elementType: ZElementType,
@@ -17,7 +21,7 @@ export const ZButtonGroup = z.object({
   enableContentChange: z.boolean().optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {
-    return ZFormDecoration.optional()
+    return ZFormDecoration.optional();
   },
   height: z.number().optional(),
   horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
@@ -35,11 +39,11 @@ export const ZButtonGroup = z.object({
   verticalStretch: z.boolean().optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-  get childItems() : TChildItems {
-    return ZChildItems
+  get childItems(): TChildItems {
+    return ZChildItems;
   },
   representation: SE.ZButtonGroupRepresentation.optional(),
-})
+});
 
 export const ZButtonGroupXML = z.object({
   _name: z.string(),
@@ -47,7 +51,7 @@ export const ZButtonGroupXML = z.object({
   Title: ZI8nTextXML.optional(),
   ToolTip: ZI8nTextXML.optional(),
   get ExtendedTooltip() {
-    return ZFormDecorationXML.optional()
+    return ZFormDecorationXML.optional();
   },
   EnableContentChange: z.boolean().optional(),
   Enabled: z.boolean().optional(),
@@ -67,10 +71,10 @@ export const ZButtonGroupXML = z.object({
   Visible: z.boolean().optional(),
   Width: z.number().optional(),
   get ChildItems() {
-    return ZChildItemsXML.optional()
+    return ZChildItemsXML.optional();
   },
-})
+});
 
-export type TButtonGroup = z.infer<typeof ZButtonGroup>
+export type TButtonGroup = z.infer<typeof ZButtonGroup>;
 
-export type TButtonGroupXML = z.infer<typeof ZButtonGroupXML>
+export type TButtonGroupXML = z.infer<typeof ZButtonGroupXML>;

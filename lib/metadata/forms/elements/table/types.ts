@@ -1,20 +1,40 @@
-import * as z from "zod"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZChildItems, ZChildItemsXML, TChildItems } from "../childItems/types"
-import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZCommandSet, ZCommandSetXML } from "~/lib/metadata/forms/commandSet/types"
-import { ZSearchStringAddition, ZSearchStringAdditionXML } from "~/lib/metadata/forms/elements/searchStringAddition/types"
-import { ZViewStatusAddition, ZViewStatusAdditionXML } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
-import { ZSearchControlAddition, ZSearchControlAdditionXML } from "~/lib/metadata/forms/elements/searchControlAddition/types"
-import { ZEventsXML } from "~/lib/metadata/forms/events/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import * as z from "zod";
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types";
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types";
+import {
+  ZI8nText,
+  ZI8nTextXML,
+} from "~/lib/metadata/commonObjects/i8nText/types";
+import {
+  ZUserVisible,
+  ZUserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types";
+import {
+  ZCommandSet,
+  ZCommandSetXML,
+} from "~/lib/metadata/forms/commandSet/types";
+import {
+  ZSearchControlAddition,
+  ZSearchControlAdditionXML,
+} from "~/lib/metadata/forms/elements/searchControlAddition/types";
+import {
+  ZSearchStringAddition,
+  ZSearchStringAdditionXML,
+} from "~/lib/metadata/forms/elements/searchStringAddition/types";
+import { ZElementType } from "~/lib/metadata/forms/elements/types";
+import {
+  ZViewStatusAddition,
+  ZViewStatusAdditionXML,
+} from "~/lib/metadata/forms/elements/viewStatusAddition/types";
+import { ZEventsXML } from "~/lib/metadata/forms/events/types";
+import * as SE from "~/lib/metadata/systemEnumerations/types";
+import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types";
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types";
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
+import {
+  ZFormItemAddition,
+  ZFormItemAdditionXML,
+} from "../formItemAddition/types";
 
 export const ZTable = z.object({
   elementType: ZElementType,
@@ -22,7 +42,7 @@ export const ZTable = z.object({
   id: z.string().optional(),
   autoAddIncomplete: z.boolean().optional(),
   get autoCommandBar() {
-    return ZCommandBar.optional()
+    return ZCommandBar.optional();
   },
   autoInsertNewRow: z.boolean().optional(),
   autoMarkIncomplete: z.boolean().optional(),
@@ -30,18 +50,19 @@ export const ZTable = z.object({
   autoMaxHeightInTableRows: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
   backColor: ZColor.optional(),
-  behaviorOnHorizontalCompression: SE.ZTableBehaviorOnHorizontalCompression.optional(),
+  behaviorOnHorizontalCompression:
+    SE.ZTableBehaviorOnHorizontalCompression.optional(),
   borderColor: ZColor.optional(),
   changeRowOrder: z.boolean().optional(),
   changeRowSet: z.boolean().optional(),
   choiceMode: z.boolean().optional(),
   get commandBar() {
-    return ZCommandBar.optional()
+    return ZCommandBar.optional();
   },
   commandBarLocation: SE.ZFormItemCommandBarLabelLocation.optional(),
   commandSet: ZCommandSet.optional(),
   get contextMenu() {
-    return ZCommandBar.optional()
+    return ZCommandBar.optional();
   },
   currentRowUse: SE.ZTableCurrentRowUse.optional(),
   dataPath: z.string().optional(),
@@ -51,7 +72,7 @@ export const ZTable = z.object({
   enableDrag: z.boolean().optional(),
   enableStartDrag: z.boolean().optional(),
   get extendedTooltip() {
-    return ZFormDecoration.optional()
+    return ZFormDecoration.optional();
   },
   fileDragMode: SE.ZFileDragMode.optional(),
   font: ZFont.optional(),
@@ -83,12 +104,12 @@ export const ZTable = z.object({
   rowsPicture: z.boolean().optional(),
   searchControl: ZFormItemAddition.optional(),
   get searchControlAddition() {
-    return ZSearchControlAddition.optional()
+    return ZSearchControlAddition.optional();
   },
   searchControlLocation: SE.ZSearchControlLocation.optional(),
   searchOnInput: SE.ZSearchInTableOnInput.optional(),
   get searchStringAddition() {
-    return ZSearchStringAddition.optional()
+    return ZSearchStringAddition.optional();
   },
   searchStringLocation: SE.ZSearchStringLocation.optional(),
   searchStringRepresentation: ZFormItemAddition.optional(),
@@ -110,41 +131,43 @@ export const ZTable = z.object({
   verticalScrollBar: SE.ZScrollBarUse.optional(),
   verticalStretch: z.boolean().optional(),
   get viewStatusAddition() {
-    return ZViewStatusAddition.optional()
+    return ZViewStatusAddition.optional();
   },
   viewStatusLocation: SE.ZViewStatusLocation.optional(),
   viewStatusRepresentation: ZFormItemAddition.optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-  get childItems() : TChildItems {
-    return ZChildItems
+  get childItems(): TChildItems {
+    return ZChildItems;
   },
-  events: z.object({
-    selection: z.string().optional(),
-    valueChoice: z.string().optional(),
-    dragStart: z.string().optional(),
-    choiceProcessing: z.string().optional(),
-    newWriteProcessing: z.string().optional(),
-    refreshRequestProcessing: z.string().optional(),
-    dragEnd: z.string().optional(),
-    beforeAddRow: z.string().optional(),
-    beforeRowChange: z.string().optional(),
-    beforeEditEnd: z.string().optional(),
-    beforeExpand: z.string().optional(),
-    beforeCollapse: z.string().optional(),
-    beforeDeleteRow: z.string().optional(),
-    drag: z.string().optional(),
-    afterDeleteRow: z.string().optional(),
-    onActivateField: z.string().optional(),
-    onActivateRow: z.string().optional(),
-    onActivateCell: z.string().optional(),
-    onChange: z.string().optional(),
-    onStartEdit: z.string().optional(),
-    onEditEnd: z.string().optional(),
-    onCurrentParentChange: z.string().optional(),
-    dragCheck: z.string().optional(),
-  }).optional(),
-})
+  events: z
+    .object({
+      selection: z.string().optional(),
+      valueChoice: z.string().optional(),
+      dragStart: z.string().optional(),
+      choiceProcessing: z.string().optional(),
+      newWriteProcessing: z.string().optional(),
+      refreshRequestProcessing: z.string().optional(),
+      dragEnd: z.string().optional(),
+      beforeAddRow: z.string().optional(),
+      beforeRowChange: z.string().optional(),
+      beforeEditEnd: z.string().optional(),
+      beforeExpand: z.string().optional(),
+      beforeCollapse: z.string().optional(),
+      beforeDeleteRow: z.string().optional(),
+      drag: z.string().optional(),
+      afterDeleteRow: z.string().optional(),
+      onActivateField: z.string().optional(),
+      onActivateRow: z.string().optional(),
+      onActivateCell: z.string().optional(),
+      onChange: z.string().optional(),
+      onStartEdit: z.string().optional(),
+      onEditEnd: z.string().optional(),
+      onCurrentParentChange: z.string().optional(),
+      dragCheck: z.string().optional(),
+    })
+    .optional(),
+});
 
 export const ZTableXML = z.object({
   _name: z.string(),
@@ -214,22 +237,23 @@ export const ZTableXML = z.object({
   SearchControlLocation: SE.ZSearchControlLocation.optional(),
   RefreshRequest: SE.ZRefreshRequestMethod.optional(),
   CurrentRowUse: SE.ZTableCurrentRowUse.optional(),
-  BehaviorOnHorizontalCompression: SE.ZTableBehaviorOnHorizontalCompression.optional(),
+  BehaviorOnHorizontalCompression:
+    SE.ZTableBehaviorOnHorizontalCompression.optional(),
   get ContextMenu() {
-    return ZCommandBarXML.optional()
+    return ZCommandBarXML.optional();
   },
   get AutoCommandBar() {
-    return ZCommandBarXML.optional()
+    return ZCommandBarXML.optional();
   },
   get ExtendedTooltip() {
-    return ZFormDecorationXML.optional()
+    return ZFormDecorationXML.optional();
   },
   SearchStringAddition: ZSearchStringAdditionXML.optional(),
   ViewStatusAddition: ZViewStatusAdditionXML.optional(),
   SearchControlAddition: ZSearchControlAdditionXML.optional(),
   AutoMaxHeightInTableRows: z.boolean().optional(),
   get CommandBar() {
-    return ZCommandBarXML.optional()
+    return ZCommandBarXML.optional();
   },
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   MarkIncomplete: z.boolean().optional(),
@@ -240,11 +264,11 @@ export const ZTableXML = z.object({
   ViewStatusRepresentation: ZFormItemAdditionXML.optional(),
   Visible: z.boolean().optional(),
   get ChildItems() {
-    return ZChildItemsXML.optional()
+    return ZChildItemsXML.optional();
   },
   Events: ZEventsXML.optional(),
-})
+});
 
-export type TTable = z.infer<typeof ZTable>
+export type TTable = z.infer<typeof ZTable>;
 
-export type TTableXML = z.infer<typeof ZTableXML>
+export type TTableXML = z.infer<typeof ZTableXML>;
