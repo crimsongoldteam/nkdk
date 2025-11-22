@@ -1,5 +1,6 @@
 import * as yaml from "js-yaml"
 import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
+import { parseI8nText } from "~/lib/metadata/commonObjects/i8nText/parse"
 import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { TAttribute } from "../types"
@@ -20,18 +21,7 @@ export const parseAttributes = (
     if (data && typeof data === "object") {
       // Обработка Заголовок
       if ("Заголовок" in data) {
-        const titleValue = data.Заголовок
-        if (typeof titleValue === "string") {
-          attribute.title = {
-            items: {
-              [configurationSettings.defaultLanguage]: titleValue,
-            },
-          }
-        } else if (typeof titleValue === "object" && titleValue !== null) {
-          attribute.title = {
-            items: titleValue,
-          }
-        }
+        attribute.title = parseI8nText(data.Заголовок, configurationSettings)
       }
 
       // Обработка Тип
