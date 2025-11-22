@@ -1,6 +1,7 @@
 import * as yaml from "js-yaml"
 import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
 import { parseI8nText } from "~/lib/metadata/commonObjects/i8nText/parse"
+import { parseTypeDescription } from "~/lib/metadata/commonObjects/typeDescription/parse"
 import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { TAttribute } from "../types"
@@ -55,101 +56,4 @@ export const parseAttributes = (
   }
 
   return result
-}
-
-function parseTypeDescription(typeString: string): any {
-  // Базовые типы
-  const typeMap: Record<string, string> = {
-    Строка: "string",
-    Число: "number",
-    Дата: "date",
-    Время: "date",
-    ДатаВремя: "date",
-  }
-
-  // Простые типы
-  if (typeString in typeMap) {
-    const baseType = typeMap[typeString]
-    const result: any = {
-      type: [baseType],
-    }
-
-    if (typeString === "Время") {
-      result.dateQualifiers = { dateFractions: "Time" }
-    } else if (typeString === "ДатаВремя") {
-      result.dateQualifiers = { dateFractions: "DateTime" }
-    } else if (typeString === "Дата") {
-      result.dateQualifiers = { dateFractions: "Date" }
-    }
-
-    return result
-  }
-
-  // Строка с параметрами: Строка(100) или ФиксированнаяСтрока(100)
-  const stringMatch = typeString.match(
-    /^(ФиксированнаяСтрока|Строка)\((\d+)\)$/
-  )
-  if (stringMatch) {
-    const length = parseInt(stringMatch[2], 10)
-    const allowedLength =
-      stringMatch[1] === "ФиксированнаяСтрока" ? "Fixed" : "Variable"
-    return {
-      type: ["string"],
-      stringQualifiers: {
-        length,
-        allowedLength,
-      },
-    }
-  }
-
-  // Число с параметрами: Число(10, 2) или НеотрицательноеЧисло(10, 2)
-  const numberMatch = typeString.match(
-    /^(НеотрицательноеЧисло|Число)\((\d+),\s*(\d+)\)$/
-  )
-  if (numberMatch) {
-    const digits = parseInt(numberMatch[2], 10)
-    const fractionDigits = parseInt(numberMatch[3], 10)
-    const allowedSign =
-      numberMatch[1] === "НеотрицательноеЧисло" ? "Nonnegative" : undefined
-    return {
-      type: ["number"],
-      numberQualifiers: {
-        digits,
-        fractionDigits,
-        ...(allowedSign && { allowedSign }),
-      },
-    }
-  }
-
-  // Множественные типы через запятую
-  if (typeString.includes(", ")) {
-    const types = typeString
-      .split(", ")
-      .map((t) => parseTypeDescription(t.trim()))
-    if (types.length > 0) {
-      const result: any = {
-        type: [],
-      }
-      for (const typeDesc of types) {
-        if (typeDesc && typeDesc.type) {
-          result.type.push(...typeDesc.type)
-          if (typeDesc.stringQualifiers) {
-            result.stringQualifiers = typeDesc.stringQualifiers
-          }
-          if (typeDesc.numberQualifiers) {
-            result.numberQualifiers = typeDesc.numberQualifiers
-          }
-          if (typeDesc.dateQualifiers) {
-            result.dateQualifiers = typeDesc.dateQualifiers
-          }
-        }
-      }
-      return result
-    }
-  }
-
-  // Если не удалось распарсить, возвращаем как есть
-  return {
-    type: [typeString],
-  }
 }

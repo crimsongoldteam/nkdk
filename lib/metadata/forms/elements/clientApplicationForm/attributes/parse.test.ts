@@ -10,13 +10,18 @@ const configurationSettings: TConfigurationSettings = {
 describe("parseAttributes", () => {
   it("should parse attributes", () => {
     const orignalContent = `ИмяАтрибута:
-  Заголовок: Атрибут`
+  Заголовок: Атрибут
+  Тип: Строка(10)`
 
     const expectedResult: TAttribute[] = [
       {
         name: "ИмяАтрибута",
         id: "",
         title: { items: { ru: "Атрибут" } },
+        type: {
+          type: ["string"],
+          stringQualifiers: { length: 10, allowedLength: "Variable" },
+        },
       },
     ]
 
