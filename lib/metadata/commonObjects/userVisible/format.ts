@@ -1,6 +1,6 @@
-import { type TUserVisible } from "./types"
 import { formatBoolean } from "~/lib/format/formatBool"
-import { TBoolEnterprise } from "~/lib/format/types"
+import { TBoolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
+import { type TUserVisible } from "./types"
 
 export const formatUserVisible = (
   value: TUserVisible | undefined

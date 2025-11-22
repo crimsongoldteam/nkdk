@@ -1,6 +1,5 @@
-import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
-import { z } from "zod"
 import { TConfigurationSettings } from "../metadata/configurationSettings/types"
+import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
 
 export enum WrapInGroupStrategy {
   None,
@@ -13,9 +12,6 @@ export interface IFormatterParams {
   level?: number
   isFirst?: boolean
 }
-
-export const ZBoolEnterprise = z.enum(["Истина", "Ложь"])
-export type TBoolEnterprise = z.infer<typeof ZBoolEnterprise>
 
 export interface IFormatElementResult {
   strings: string[]
