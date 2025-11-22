@@ -5,7 +5,7 @@ import "~/lib/metadata/forms/elements/importFromXML"
 import "~/lib/metadata/forms/elements/rules"
 import { ZElementType } from "../../types"
 import { TClientApplicationForm } from "../types"
-import { formatProperties } from "./formatProperties"
+import { formatProperties } from "./format"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",

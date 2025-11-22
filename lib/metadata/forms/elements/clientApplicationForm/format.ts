@@ -3,7 +3,7 @@ import { IFormatElementResult } from "~/lib/format/types"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import formatFormAttributes from "./attributes/format"
 import { getAllElements } from "./getAllElements"
-import { formatProperties } from "./properties/formatProperties"
+import { formatProperties } from "./properties/format"
 import { TClientApplicationForm } from "./types"
 
 export const formatClientApplicationForm = (
