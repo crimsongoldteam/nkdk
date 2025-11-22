@@ -1,5 +1,5 @@
 import * as z from "zod"
-import { formatBoolean } from "~/lib/format/formatBool"
+import { formatBoolean } from "~/lib/metadata/commonObjects/boolean/format"
 import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format"
 import { ZI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
 import { formatUserVisible } from "~/lib/metadata/commonObjects/userVisible/format"

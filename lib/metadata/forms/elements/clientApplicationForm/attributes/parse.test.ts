@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { TAttribute } from "../types"
-import parseAttributes from "./parse"
+import { parseAttributes } from "./parse"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",

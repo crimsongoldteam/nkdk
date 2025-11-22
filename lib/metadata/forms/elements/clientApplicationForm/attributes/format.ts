@@ -1,14 +1,14 @@
-import { TAttribute } from "../types"
+import { capitalCase, noCase } from "change-case"
+import * as yaml from "js-yaml"
+import { formatBoolean } from "~/lib/metadata/commonObjects/boolean/format"
 import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format"
 import { formatTypeDescription } from "~/lib/metadata/commonObjects/typeDescription/format"
-import { formatBoolean } from "~/lib/format/formatBool"
 import {
   formatUserVisible,
   getUserVisibleKey,
 } from "~/lib/metadata/commonObjects/userVisible/format"
-import { noCase, capitalCase } from "change-case"
-import * as yaml from "js-yaml"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { TAttribute } from "../types"
 
 export default function formatFormAttributes(
   attributes: TAttribute[],

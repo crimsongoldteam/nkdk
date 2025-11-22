@@ -1,4 +1,4 @@
-import { formatBoolean } from "~/lib/format/formatBool"
+import { formatBoolean } from "~/lib/metadata/commonObjects/boolean/format"
 import { TBoolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { type TUserVisible } from "./types"
 

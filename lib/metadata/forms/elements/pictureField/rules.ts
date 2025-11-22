@@ -1,5 +1,5 @@
 import * as z from "zod"
-import { formatBoolean } from "~/lib/format/formatBool"
+import { formatBoolean } from "~/lib/metadata/commonObjects/boolean/format"
 import { ZBorder } from "~/lib/metadata/commonObjects/border/types"
 import { ZColor } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont } from "~/lib/metadata/commonObjects/font/types"

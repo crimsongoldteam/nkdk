@@ -1,12 +1,13 @@
 import * as yaml from "js-yaml"
+import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
+import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { TAttribute } from "../types"
-import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
 
-export default function parseAttributes(
+export const parseAttributes = (
   yamlContent: string,
   configurationSettings: TConfigurationSettings
-): TAttribute[] {
+): TAttribute[] => {
   const parsed = yaml.load(yamlContent) as Record<string, any>
   const result: TAttribute[] = []
 
@@ -48,11 +49,15 @@ export default function parseAttributes(
         attribute.storedData = parseBoolean(data.СохраняемыеДанные)
       }
 
-      // Обработка Использование (РазрешитьИспользование/ЗапретитьИспользование)
-      if ("РазрешитьИспользование" in data) {
-        attribute.use = parseUserVisible(data.РазрешитьИспользование, true)
-      } else if ("ЗапретитьИспользование" in data) {
-        attribute.use = parseUserVisible(data.ЗапретитьИспользование, false)
+      if (
+        "РазрешитьИспользование" in data ||
+        "ЗапретитьИспользование" in data
+      ) {
+        const userVisibleKey =
+          "РазрешитьИспользование" in data
+            ? "РазрешитьИспользование"
+            : "ЗапретитьИспользование"
+        attribute.use = parseUserVisible(data[userVisibleKey], userVisibleKey)
       }
     }
 
@@ -157,25 +162,4 @@ function parseTypeDescription(typeString: string): any {
   return {
     type: [typeString],
   }
-}
-
-function parseUserVisible(
-  values: Record<string, string> | undefined,
-  common: boolean
-): any {
-  if (!values) return undefined
-
-  const result = {
-    common,
-    values: [] as Array<{ name: string; value: boolean }>,
-  }
-
-  for (const [name, value] of Object.entries(values)) {
-    const boolValue = parseBoolean(value)
-    if (boolValue !== undefined) {
-      result.values.push({ name, value: boolValue })
-    }
-  }
-
-  return result.values.length > 0 ? result : undefined
 }
