@@ -1,10 +1,13 @@
 import * as z from "zod"
 import { formatBoolean } from "~/lib/metadata/commonObjects/boolean/format"
+import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
 import { ZColor } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont } from "~/lib/metadata/commonObjects/font/types"
 import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format"
+import { parseI8nText } from "~/lib/metadata/commonObjects/i8nText/parse"
 import { ZI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
 import { formatUserVisible } from "~/lib/metadata/commonObjects/userVisible/format"
+import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse"
 import { ZUserVisible } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZCommandSet } from "~/lib/metadata/forms/commandSet/types"
 import { ZSearchControlAddition } from "~/lib/metadata/forms/elements/searchControlAddition/types"
@@ -26,6 +29,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоВводНезаполненного",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   autoCommandBar: {
@@ -34,6 +38,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоКоманднаяПанель",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   autoInsertNewRow: {
@@ -42,6 +47,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоВводНовойСтроки",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   autoMarkIncomplete: {
@@ -50,6 +56,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоОтметкаНезаполненного",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   autoMaxHeight: {
@@ -58,6 +65,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоМаксимальнаяВысота",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   autoMaxHeightInTableRows: {
@@ -66,6 +74,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоМаксимальнаяВысотаВСтрокахТаблицы",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   autoMaxWidth: {
@@ -74,6 +83,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоМаксимальнаяШирина",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   backColor: {
@@ -82,6 +92,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветФона",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   behaviorOnHorizontalCompression: {
@@ -90,6 +101,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПоведениеПриСжатииПоГоризонтали",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZTableBehaviorOnHorizontalCompressionEnterprise
     },
@@ -101,6 +113,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветРамки",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   changeRowOrder: {
@@ -109,6 +122,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ИзменятьПорядокСтрок",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   changeRowSet: {
@@ -117,6 +131,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ИзменятьСоставСтрок",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   choiceMode: {
@@ -125,6 +140,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РежимВыбора",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   commandBar: {
@@ -133,6 +149,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КоманднаяПанель",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   commandBarLocation: {
@@ -141,6 +158,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПоложениеКоманднойПанели",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZFormItemCommandBarLabelLocationEnterprise
     },
@@ -152,6 +170,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Команда",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   contextMenu: {
@@ -160,6 +179,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КонтекстноеМеню",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   currentRowUse: {
@@ -168,6 +188,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ИспользованиеТекущейСтроки",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZTableCurrentRowUseEnterprise
     },
@@ -179,6 +200,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПутьКДанным",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   defaultItem: {
@@ -187,6 +209,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АктивизироватьПоУмолчанию",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   displayImportance: {
@@ -195,6 +218,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВажностьПриОтображении",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZDisplayImportanceEnterprise
     },
@@ -206,6 +230,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Доступность",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   enableDrag: {
@@ -214,6 +239,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РазрешитьПеретаскивание",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   enableStartDrag: {
@@ -222,6 +248,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РазрешитьНачалоПеретаскивания",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   extendedTooltip: {
@@ -230,6 +257,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РасширеннаяПодсказка",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   fileDragMode: {
@@ -238,6 +266,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "СпособПеретаскиванияФайлов",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZFileDragModeEnterprise
     },
@@ -249,6 +278,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Шрифт",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   footer: {
@@ -257,6 +287,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Подвал",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   footerHeight: {
@@ -265,6 +296,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВысотаПодвала",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   header: {
@@ -273,6 +305,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Шапка",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   headerHeight: {
@@ -281,6 +314,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВысотаШапки",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   height: {
@@ -289,6 +323,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Высота",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   heightControlVariant: {
@@ -297,6 +332,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВариантУправленияВысотой",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZTableHeightControlVariantEnterprise
     },
@@ -308,6 +344,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВысотаВСтрокахТаблицы",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   horizontalAlignInGroup: {
@@ -316,6 +353,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ГоризонтальноеПоложениеВГруппе",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemHorizontalLocationEnterprise
     },
@@ -327,6 +365,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ГоризонтальныеЛинии",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   horizontalScrollBar: {
@@ -335,6 +374,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ГоризонтальнаяПолосаПрокрутки",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZScrollBarUseEnterprise
     },
@@ -346,6 +386,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РастягиватьПоГоризонтали",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   initialListView: {
@@ -354,6 +395,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "НачальноеОтображениеСписка",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZInitialListViewEnterprise
     },
@@ -365,6 +407,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "НачальноеОтображениеДерева",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZInitialTreeViewEnterprise
     },
@@ -376,6 +419,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОтметкаНезаполненного",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   maxHeight: {
@@ -384,6 +428,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "МаксимальнаяВысота",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   maxHeightInTableRows: {
@@ -392,6 +437,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "МаксимальнаяВысотаВСтрокахТаблицы",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   maxWidth: {
@@ -400,6 +446,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "МаксимальнаяШирина",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   multipleChoice: {
@@ -408,6 +455,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "МножественныйВыбор",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   output: {
@@ -416,6 +464,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Вывод",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZUseOutputEnterprise
     },
@@ -427,6 +476,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ТолькоПросмотр",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   refreshRequest: {
@@ -435,6 +485,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЗапросОбновления",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZRefreshRequestMethodEnterprise
     },
@@ -446,6 +497,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Отображение",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZTableRepresentationEnterprise
     },
@@ -457,6 +509,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РежимВводаСтрок",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZTableRowInputModeEnterprise
     },
@@ -468,6 +521,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПутьКДаннымКартинкиСтроки",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   rowSelectionMode: {
@@ -476,6 +530,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РежимВыделенияСтроки",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZTableRowSelectionModeEnterprise
     },
@@ -487,6 +542,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КартинкаСтрок",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   searchControl: {
@@ -495,6 +551,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "УправлениеПоиском",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   searchControlAddition: {
@@ -503,6 +560,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "УправлениеПоиском",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   searchControlLocation: {
@@ -511,6 +569,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПоложениеУправленияПоиском",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZSearchControlLocationEnterprise
     },
@@ -522,6 +581,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПоискПриВводе",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZSearchInTableOnInputEnterprise
     },
@@ -533,6 +593,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПоложениеПоисковогоСтроки",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   searchStringLocation: {
@@ -541,6 +602,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПоложениеСтрокиПоиска",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZSearchStringLocationEnterprise
     },
@@ -552,6 +614,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОтображениеСтрокиПоиска",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   selectionMode: {
@@ -560,6 +623,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РежимВыделения",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZTableSelectionModeEnterprise
     },
@@ -571,6 +635,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "СочетаниеКлавиш",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   skipOnInput: {
@@ -579,6 +644,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПропускатьПриВводе",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   textColor: {
@@ -587,6 +653,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветТекста",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   title: {
@@ -595,6 +662,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Заголовок",
     formatProperties: formatI8nText,
+    parseProperties: parseI8nText,
     inProperties: () => true,
   },
   titleFont: {
@@ -603,6 +671,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ШрифтЗаголовка",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   titleHeight: {
@@ -611,6 +680,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВысотаЗаголовка",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   titleLocation: {
@@ -619,6 +689,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПоложениеЗаголовка",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZFormItemTitleLocationEnterprise
     },
@@ -630,6 +701,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветТекстаЗаголовка",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   toolTip: {
@@ -638,6 +710,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Подсказка",
     formatProperties: formatI8nText,
+    parseProperties: parseI8nText,
     inProperties: () => true,
   },
   toolTipRepresentation: {
@@ -646,6 +719,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОтображениеПодсказки",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZToolTipRepresentationEnterprise
     },
@@ -657,6 +731,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЧередованиеЦветовСтрок",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   userVisible: {
@@ -665,6 +740,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПользовательскаяВидимость",
     formatProperties: formatUserVisible,
+    parseProperties: parseUserVisible,
     inProperties: () => true,
   },
   verticalAlignInGroup: {
@@ -673,6 +749,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВертикальноеПоложениеВГруппе",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemVerticalAlignEnterprise
     },
@@ -684,6 +761,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВертикальныеЛинии",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   verticalScrollBar: {
@@ -692,6 +770,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВертикальнаяПолосаПрокрутки",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZScrollBarUseEnterprise
     },
@@ -703,6 +782,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РастягиватьПоВертикали",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   viewStatusAddition: {
@@ -711,6 +791,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПоложениеСостоянияПросмотра",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   viewStatusLocation: {
@@ -719,6 +800,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПоложениеСостоянияПросмотра",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZViewStatusLocationEnterprise
     },
@@ -730,6 +812,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОтображениеСостоянияПросмотра",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   visible: {
@@ -738,6 +821,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Видимость",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   width: {
@@ -746,6 +830,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Ширина",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   childItems: {
@@ -754,6 +839,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПодчиненныеЭлементы",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
 }

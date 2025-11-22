@@ -1,10 +1,13 @@
 import * as z from "zod"
 import { formatBoolean } from "~/lib/metadata/commonObjects/boolean/format"
+import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
 import { ZColor } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont } from "~/lib/metadata/commonObjects/font/types"
 import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format"
+import { parseI8nText } from "~/lib/metadata/commonObjects/i8nText/parse"
 import { ZI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
 import { formatUserVisible } from "~/lib/metadata/commonObjects/userVisible/format"
+import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse"
 import { ZUserVisible } from "~/lib/metadata/commonObjects/userVisible/types"
 import { formatSystemEnumeration } from "~/lib/metadata/systemEnumerations/format"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -21,6 +24,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РазрешитьИзменениеСостава",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   enabled: {
@@ -29,6 +33,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Доступность",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   extendedTooltip: {
@@ -37,6 +42,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РасширеннаяПодсказка",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   height: {
@@ -45,6 +51,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Высота",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   horizontalAlignInGroup: {
@@ -53,6 +60,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ГоризонтальноеПоложениеВГруппе",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemHorizontalLocationEnterprise
     },
@@ -64,6 +72,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РастягиватьПоГоризонтали",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   readOnly: {
@@ -72,6 +81,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ТолькоПросмотр",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   shortcut: {
@@ -80,6 +90,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "СочетаниеКлавиш",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   title: {
@@ -88,6 +99,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Заголовок",
     formatProperties: formatI8nText,
+    parseProperties: parseI8nText,
     inProperties: () => true,
   },
   titleFont: {
@@ -96,6 +108,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ШрифтЗаголовка",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   titleTextColor: {
@@ -104,6 +117,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветТекстаЗаголовка",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   toolTip: {
@@ -112,6 +126,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Подсказка",
     formatProperties: formatI8nText,
+    parseProperties: parseI8nText,
     inProperties: () => true,
   },
   toolTipRepresentation: {
@@ -120,6 +135,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОтображениеПодсказки",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZToolTipRepresentationEnterprise
     },
@@ -131,6 +147,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Вид",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZFormGroupTypeEnterprise
     },
@@ -142,6 +159,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПользовательскаяВидимость",
     formatProperties: formatUserVisible,
+    parseProperties: parseUserVisible,
     inProperties: () => true,
   },
   verticalAlignInGroup: {
@@ -150,6 +168,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВертикальноеПоложениеВГруппе",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemVerticalAlignEnterprise
     },
@@ -161,6 +180,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РастягиватьПоВертикали",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   visible: {
@@ -169,6 +189,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Видимость",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   width: {
@@ -177,6 +198,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Ширина",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   childItems: {
@@ -185,6 +207,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПодчиненныеЭлементы",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   associatedTable: {
@@ -193,6 +216,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ИспользуемаяТаблица",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   backColor: {
@@ -201,6 +225,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветФона",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   behavior: {
@@ -209,6 +234,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Поведение",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZUsualGroupBehaviorEnterprise
     },
@@ -220,6 +246,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ГоризонтальноеПоложениеПодчиненных",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemHorizontalLocationEnterprise
     },
@@ -231,6 +258,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВертикальноеПоложениеПодчиненных",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemVerticalAlignEnterprise
     },
@@ -242,6 +270,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЗаголовокСвернутогоОтображения",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   controlRepresentation: {
@@ -250,6 +279,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОтображениеУправления",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZUsualGroupControlRepresentationEnterprise
     },
@@ -261,6 +291,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ИспользованиеТекущейСтроки",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZCurrentRowUseEnterprise
     },
@@ -272,6 +303,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВажностьПриОтображении",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZDisplayImportanceEnterprise
     },
@@ -283,6 +315,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Формат",
     formatProperties: formatI8nText,
+    parseProperties: parseI8nText,
     inProperties: () => true,
   },
   group: {
@@ -291,6 +324,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Группировка",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZChildFormItemsGroupEnterprise
     },
@@ -302,6 +336,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ГоризонтальноеВыравниваниеГруппы",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemHorizontalLocationEnterprise
     },
@@ -313,6 +348,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВертикальноеВыравниваниеГруппы",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemVerticalAlignEnterprise
     },
@@ -324,6 +360,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветФонаЗаголовкаСкрытогоОтображения",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   horizontalSpacing: {
@@ -332,6 +369,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ГоризонтальныйИнтервал",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZFormItemSpacingEnterprise
     },
@@ -343,6 +381,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВыравниваниеЭлементовИЗаголовков",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemsAndTitlesAlignVariantEnterprise
     },
@@ -354,6 +393,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Отображение",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZUsualGroupRepresentationEnterprise
     },
@@ -365,6 +405,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОтображатьОтступСлева",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   showTitle: {
@@ -373,6 +414,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОтображатьЗаголовок",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   slaveItemsWidth: {
@@ -381,6 +423,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ШиринаПодчиненныхЭлементов",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZChildFormItemsWidthEnterprise
     },
@@ -392,6 +435,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "СквозноеВыравнивание",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZThroughAlignEnterprise
     },
@@ -403,6 +447,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПутьКДаннымЗаголовка",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   united: {
@@ -411,6 +456,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Объединенная",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   verticalAlign: {
@@ -419,6 +465,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВертикальноеПоложение",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemVerticalAlignEnterprise
     },
@@ -430,6 +477,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВертикальныйИнтервал",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZFormItemSpacingEnterprise
     },

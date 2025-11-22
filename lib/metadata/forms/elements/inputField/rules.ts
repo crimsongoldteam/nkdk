@@ -1,14 +1,17 @@
 import * as z from "zod"
 import { formatBoolean } from "~/lib/metadata/commonObjects/boolean/format"
+import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
 import { ZChoiceList } from "~/lib/metadata/commonObjects/choiceList/types"
 import { ZColor } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont } from "~/lib/metadata/commonObjects/font/types"
 import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format"
+import { parseI8nText } from "~/lib/metadata/commonObjects/i8nText/parse"
 import { ZI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZPicture } from "~/lib/metadata/commonObjects/pictures/types"
 import { ZTypeDescription } from "~/lib/metadata/commonObjects/typeDescription/types"
 import { ZTypeLink } from "~/lib/metadata/commonObjects/typeLink/types"
 import { formatUserVisible } from "~/lib/metadata/commonObjects/userVisible/format"
+import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse"
 import { ZUserVisible } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZChoiceParameterLinks } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types"
 import { formatSystemEnumeration } from "~/lib/metadata/systemEnumerations/format"
@@ -27,6 +30,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоВысотаЯчейки",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   cellHyperlink: {
@@ -35,6 +39,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ГиперссылкаЯчейки",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   contextMenu: {
@@ -43,6 +48,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КонтекстноеМеню",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   dataPath: {
@@ -51,6 +57,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПутьКДанным",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   defaultItem: {
@@ -59,6 +66,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АктивизироватьПоУмолчанию",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   displayImportance: {
@@ -67,6 +75,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВажностьПриОтображении",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZDisplayImportanceEnterprise
     },
@@ -78,6 +87,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РежимРедактирования",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZColumnEditModeEnterprise
     },
@@ -89,6 +99,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Доступность",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   extendedTooltip: {
@@ -97,6 +108,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РасширеннаяПодсказка",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   fixingInTable: {
@@ -105,6 +117,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ФиксацияВТаблице",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZFixingInTableEnterprise
     },
@@ -116,6 +129,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветФонаПодвала",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   footerDataPath: {
@@ -124,6 +138,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПутьКДаннымПодвала",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   footerFont: {
@@ -132,6 +147,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ШрифтПодвала",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   footerHorizontalAlign: {
@@ -140,6 +156,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ГоризонтальноеПоложениеВПодвале",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemHorizontalLocationEnterprise
     },
@@ -151,6 +168,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КартинкаПодвала",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   footerText: {
@@ -159,6 +177,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ТекстПодвала",
     formatProperties: formatI8nText,
+    parseProperties: parseI8nText,
     inProperties: () => true,
   },
   footerTextColor: {
@@ -167,6 +186,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветТекстаПодвала",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   headerHorizontalAlign: {
@@ -175,6 +195,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ГоризонтальноеПоложениеВШапке",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemHorizontalLocationEnterprise
     },
@@ -186,6 +207,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КартинкаШапки",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   horizontalAlign: {
@@ -194,6 +216,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ГоризонтальноеПоложение",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemHorizontalLocationEnterprise
     },
@@ -205,6 +228,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ГоризонтальноеПоложениеВГруппе",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemHorizontalLocationEnterprise
     },
@@ -216,6 +240,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ТолькоПросмотр",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   shortcut: {
@@ -224,6 +249,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "СочетаниеКлавиш",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   showInFooter: {
@@ -232,6 +258,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОтображатьВПодвале",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   showInHeader: {
@@ -240,6 +267,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОтображатьВШапке",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   skipOnInput: {
@@ -248,6 +276,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПропускатьПриВводе",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   table: {
@@ -256,6 +285,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Таблица",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   title: {
@@ -264,6 +294,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Заголовок",
     formatProperties: formatI8nText,
+    parseProperties: parseI8nText,
     inProperties: () => true,
   },
   titleBackColor: {
@@ -272,6 +303,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветФонаЗаголовка",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   titleFont: {
@@ -280,6 +312,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ШрифтЗаголовка",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   titleHeight: {
@@ -288,6 +321,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВысотаЗаголовка",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   titleLocation: {
@@ -296,6 +330,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПоложениеЗаголовка",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZFormItemTitleLocationEnterprise
     },
@@ -307,6 +342,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветТекстаЗаголовка",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   toolTip: {
@@ -315,6 +351,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Подсказка",
     formatProperties: formatI8nText,
+    parseProperties: parseI8nText,
     inProperties: () => true,
   },
   toolTipRepresentation: {
@@ -323,6 +360,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОтображениеПодсказки",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZToolTipRepresentationEnterprise
     },
@@ -334,6 +372,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Вид",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZFormFieldTypeEnterprise
     },
@@ -345,6 +384,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОграничениеТипа",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   userVisible: {
@@ -353,6 +393,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПользовательскаяВидимость",
     formatProperties: formatUserVisible,
+    parseProperties: parseUserVisible,
     inProperties: () => true,
   },
   verticalAlign: {
@@ -361,6 +402,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВертикальноеПоложение",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemVerticalAlignEnterprise
     },
@@ -372,6 +414,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВертикальноеПоложениеВГруппе",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemVerticalAlignEnterprise
     },
@@ -383,6 +426,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Видимость",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   warningOnEdit: {
@@ -391,6 +435,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПредупреждениеПриРедактировании",
     formatProperties: formatI8nText,
+    parseProperties: parseI8nText,
     inProperties: () => true,
   },
   warningOnEditRepresentation: {
@@ -399,6 +444,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОтображениеПредупрежденияПриРедактировании",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZWarningOnEditRepresentationEnterprise
     },
@@ -410,6 +456,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РазрешитьВводПустыхМножественныхЗначений",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   allowMultipleValuesDuplicates: {
@@ -418,6 +465,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РазрешитьДублированиеМножественныхЗначений",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   autoCapitalizationOnTextInput: {
@@ -426,6 +474,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоИзменениеРегистраПриВводеТекста",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZAutoCapitalizationOnTextInputEnterprise
     },
@@ -437,6 +486,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоВыборНезаполненного",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   autoCorrectionOnTextInput: {
@@ -445,6 +495,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоИсправлениеПриВводеТекста",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZAutoCorrectionOnTextInputEnterprise
     },
@@ -456,6 +507,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПодсказкаАвтозаполнения",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZInputFieldAutofillHintEnterprise
     },
@@ -467,6 +519,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоОтметкаНезаполненного",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   autoMaxHeight: {
@@ -475,6 +528,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоМаксимальнаяВысота",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   autoMaxWidth: {
@@ -483,6 +537,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоМаксимальнаяШирина",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   autoShowClearButton: {
@@ -491,6 +546,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоОтображениеКнопкиОчистки",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZAutoShowClearButtonModeEnterprise
     },
@@ -502,6 +558,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоОтображениеКнопкиОткрытия",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZAutoShowOpenButtonModeEnterprise
     },
@@ -513,6 +570,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ДоступныеТипы",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   backColor: {
@@ -521,6 +579,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветФона",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   borderColor: {
@@ -529,6 +588,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветРамки",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   choiceButton: {
@@ -537,6 +597,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КнопкаВыбора",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   choiceButtonPicture: {
@@ -545,6 +606,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КартинкаКнопкиВыбора",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   choiceButtonRepresentation: {
@@ -553,6 +615,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОтображениеКнопкиВыбора",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZChoiceButtonRepresentationEnterprise
     },
@@ -564,6 +627,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВыборГруппИЭлементов",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZFoldersAndItemsEnterprise
     },
@@ -575,6 +639,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ФормаВыбора",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   choiceHistoryOnInput: {
@@ -583,6 +648,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ИсторияВыбораПриВводе",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZChoiceHistoryOnInputEnterprise
     },
@@ -594,6 +660,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "СписокВыбора",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   choiceListButton: {
@@ -602,6 +669,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КнопкаСпискаВыбора",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   choiceListHeight: {
@@ -610,6 +678,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВысотаСпискаВыбора",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   choiceParameterLinks: {
@@ -618,6 +687,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "СвязиПараметровВыбора",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   choiceParameters: {
@@ -626,6 +696,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПараметрыВыбора",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   chooseType: {
@@ -634,6 +705,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВыбиратьТип",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   clearButton: {
@@ -642,6 +714,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КнопкаОчистки",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   createButton: {
@@ -650,6 +723,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КнопкаСоздания",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   dropListButton: {
@@ -658,6 +732,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КнопкаВыпадающегоСписка",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   dropListWidth: {
@@ -666,6 +741,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ШиринаВыпадающегоСписка",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   editFormat: {
@@ -674,6 +750,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ФорматРедактирования",
     formatProperties: formatI8nText,
+    parseProperties: parseI8nText,
     inProperties: () => true,
   },
   editText: {
@@ -682,6 +759,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ТекстРедактирования",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   editTextUpdate: {
@@ -690,6 +768,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОбновлениеТекстаРедактирования",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZEditTextUpdateEnterprise
     },
@@ -701,6 +780,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РасширенноеРедактирование",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   font: {
@@ -709,6 +789,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Шрифт",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   format: {
@@ -717,6 +798,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Формат",
     formatProperties: formatI8nText,
+    parseProperties: parseI8nText,
     inProperties: () => true,
   },
   height: {
@@ -725,6 +807,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Высота",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   heightControlVariant: {
@@ -733,6 +816,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВариантУправленияВысотой",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZItemHeightControlVariantEnterprise
     },
@@ -744,6 +828,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РастягиватьПоГоризонтали",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   incompleteChoiceMode: {
@@ -752,6 +837,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РежимВыбораНезаполненного",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZIncompleteChoiceModeEnterprise
     },
@@ -763,6 +849,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПодсказкаВвода",
     formatProperties: formatI8nText,
+    parseProperties: parseI8nText,
     inProperties: () => true,
   },
   listChoiceMode: {
@@ -771,6 +858,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РежимВыбораИзСписка",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   markIncomplete: {
@@ -779,6 +867,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ОтметкаНезаполненного",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   markNegatives: {
@@ -787,6 +876,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВыделятьОтрицательные",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   mask: {
@@ -795,6 +885,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Маска",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   maxHeight: {
@@ -803,6 +894,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "МаксимальнаяВысота",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   maxValue: {
@@ -811,6 +903,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "МаксимальноеЗначение",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   maxWidth: {
@@ -819,6 +912,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "МаксимальнаяШирина",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   minValue: {
@@ -827,6 +921,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "МинимальноеЗначение",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   multiLine: {
@@ -835,6 +930,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "МногострочныйРежим",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   multipleValuePictureDataPath: {
@@ -843,6 +939,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПутьКДаннымКартинкиМножественногоЗначения",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   multipleValuePictureShape: {
@@ -851,6 +948,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ФигураКартинкиМножественногоЗначения",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZInputFieldMultipleValuePictureShapeEnterprise
     },
@@ -862,6 +960,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РазмерКартинкиМножественногоЗначения",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZInputFieldMultipleValuePictureSizeEnterprise
     },
@@ -873,6 +972,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПутьКДаннымПредставленияМножественногоЗначения",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   multipleValuesBackColor: {
@@ -881,6 +981,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветФонаМножественныхЗначений",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   multipleValuesExtendedEdit: {
@@ -889,6 +990,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РасширенноеРедактированиеМножественныхЗначений",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   multipleValuesFont: {
@@ -897,6 +999,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ШрифтМножественныхЗначений",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   multipleValuesHyperlink: {
@@ -905,6 +1008,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ГиперссылкаМножественныхЗначений",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   multipleValuesPicture: {
@@ -913,6 +1017,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КартинкаМножественныхЗначений",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   multipleValuesTextColor: {
@@ -921,6 +1026,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветТекстаМножественныхЗначений",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   multipleValueValueDataPath: {
@@ -929,6 +1035,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПутьКДаннымЗначенияМножественногоЗначения",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   onScreenKeyboardReturnKeyText: {
@@ -937,6 +1044,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ТекстКнопкиВводаЭкраннойКлавиатуры",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZOnScreenKeyboardReturnKeyTextEnterprise
     },
@@ -948,6 +1056,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КнопкаОткрытия",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   passwordMode: {
@@ -956,6 +1065,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РежимПароля",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   quickChoice: {
@@ -964,6 +1074,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "БыстрыйВыбор",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   selectedText: {
@@ -972,6 +1083,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ВыделенныйТекст",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   showCheckBoxesInDropListWhenInputMultipleValues: {
@@ -981,6 +1093,7 @@ const rules: TElementRules = {
     nameEnterprise:
       "ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   specialTextInputMode: {
@@ -989,6 +1102,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "СпециальныйРежимВводаТекста",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZSpecialTextInputModeEnterprise
     },
@@ -1000,6 +1114,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ПроверкаПравописанияПриВводеТекста",
     formatProperties: formatSystemEnumeration,
+    parseProperties: parseSystemEnumeration,
     get typeEnterprise() {
       return SE.ZSpellCheckingOnTextInputEnterprise
     },
@@ -1011,6 +1126,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "КнопкаРегулирования",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   textColor: {
@@ -1019,6 +1135,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "ЦветТекста",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   textEdit: {
@@ -1027,6 +1144,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РедактированиеТекста",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   typeDomainEnabled: {
@@ -1035,6 +1153,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РазрешитьСоставнойТип",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   typeLink: {
@@ -1043,6 +1162,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "СвязьПоТипу",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   verticalStretch: {
@@ -1051,6 +1171,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "РастягиватьПоВертикали",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
   width: {
@@ -1059,6 +1180,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "Ширина",
     formatProperties: undefined,
+    parseProperties: undefined,
     inProperties: () => true,
   },
   wrap: {
@@ -1067,6 +1189,7 @@ const rules: TElementRules = {
     },
     nameEnterprise: "АвтоПереносСтрок",
     formatProperties: formatBoolean,
+    parseProperties: parseBoolean,
     inProperties: () => true,
   },
 }

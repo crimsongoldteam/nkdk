@@ -13,9 +13,7 @@ export const registerElementRules = (
 
 export const getElementRules = (elementType: TElementType): TElementRules => {
   const rules = rulesRegistry.get(elementType)
-  if (!rules) {
-    throw new Error(`Rules for element type ${elementType} not found`)
-  }
+  if (!rules) throw new Error(`Rules for element type ${elementType} not found`)
   return rules
 }
 
