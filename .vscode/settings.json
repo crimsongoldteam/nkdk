@@ -3,7 +3,8 @@
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
-    "source.organizeImports": "always"
+    "source.organizeImports": "always",
+    "source.addMissingImports": "always"
   },
   "prettier.semi": false,
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,

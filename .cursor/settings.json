@@ -6,7 +6,8 @@
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
-    "source.organizeImports": "true"
+    "source.organizeImports": "always",
+    "source.addMissingImports": "always"
   },
   "files.exclude": {
     "**/node_modules": true,
