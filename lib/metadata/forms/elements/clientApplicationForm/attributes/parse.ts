@@ -1,6 +1,7 @@
 import * as yaml from "js-yaml"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { TAttribute } from "../types"
+import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
 
 export default function parseAttributes(
   yamlContent: string,
@@ -59,16 +60,6 @@ export default function parseAttributes(
   }
 
   return result
-}
-
-function parseBoolean(
-  value: string | boolean | undefined
-): boolean | undefined {
-  if (value === undefined) return undefined
-  if (typeof value === "boolean") return value
-  if (value === "Истина") return true
-  if (value === "Ложь") return false
-  return undefined
 }
 
 function parseTypeDescription(typeString: string): any {
