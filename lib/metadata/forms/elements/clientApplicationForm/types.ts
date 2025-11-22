@@ -17,7 +17,8 @@ import {
 } from "~/lib/metadata/forms/commandSet/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZEventsXML } from "../../events/types"
-import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { TChildItems } from "../childItems/typesExt"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZElementType } from "../types"
 

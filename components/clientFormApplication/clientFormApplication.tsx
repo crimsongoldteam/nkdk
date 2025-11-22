@@ -1,7 +1,7 @@
-import React from "react"
 import { Divider, Space } from "antd"
+import React from "react"
+import { TChildItems } from "~/lib/metadata/forms/elements/childItems/typesExt"
 import { components } from "../components"
-import { TChildItems } from "~/lib/metadata/forms/elements/childItems/types"
 
 interface IClientFormApplicationHTMLProps {
   title?: string

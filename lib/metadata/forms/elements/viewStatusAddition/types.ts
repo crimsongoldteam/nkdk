@@ -12,7 +12,8 @@ import {
 } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { TChildItems } from "../childItems/typesExt"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 
@@ -36,7 +37,7 @@ export const ZViewStatusAddition = z.object({
   userVisible: ZUserVisible.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   visible: z.boolean().optional(),
-  get childItems(): TChildItems | undefined {
+  get childItems(): TChildItems {
     return ZChildItems
   },
   autoMaxWidth: z.boolean().optional(),

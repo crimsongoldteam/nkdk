@@ -1,5 +1,6 @@
-import { TChildItemsXML, TChildItems } from "./types"
 import { exportElementToXML } from "~/lib/xml/export/exporterFactory"
+import { TChildItemsXML } from "./types"
+import { TChildItems } from "./typesExt"
 
 export const exportChildItemsToXML = (
   data: TChildItems | undefined

@@ -74,15 +74,13 @@ import {
   ZTextDocumentFieldXML,
 } from "../textDocumentField/types"
 import { ZTrackBarField, ZTrackBarFieldXML } from "../trackBarField/types"
-import { TElementType } from "../types"
 import { ZUsualGroup, ZUsualGroupXML } from "../usualGroup/types"
 import {
   ZViewStatusAddition,
   ZViewStatusAdditionXML,
 } from "../viewStatusAddition/types"
 
-// @ts-ignore
-export const ZChildItem: TChildItem = z.discriminatedUnion("elementType", [
+export const ZChildItem = z.discriminatedUnion("elementType", [
   ZButton,
   ZButtonGroup,
   ZCalendarField,
@@ -123,8 +121,7 @@ export const ZChildItem: TChildItem = z.discriminatedUnion("elementType", [
   ZViewStatusAddition,
 ])
 
-// @ts-ignore
-export const ZChildItems: TChildItems = z.array(ZChildItem)
+export const ZChildItems = z.array(ZChildItem)
 
 export const ZChildItemXML = z.object({
   get Button() {
@@ -244,14 +241,6 @@ export const ZChildItemXML = z.object({
 })
 
 export const ZChildItemsXML = z.array(ZChildItemXML)
-
-interface TChildItem {
-  elementType: TElementType
-  name: string
-  id: string | undefined
-}
-
-export type TChildItems = TChildItem[]
 
 export type TChildItemXML = z.infer<typeof ZChildItemXML>
 export type TChildItemsXML = z.infer<typeof ZChildItemsXML>

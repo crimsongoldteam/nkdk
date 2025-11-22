@@ -1,11 +1,12 @@
-import { expect, it, describe } from "vitest"
+import { describe, expect, it } from "vitest"
+import z from "zod"
+import { xmlExport } from "~/lib"
+import "~/lib/metadata/forms/elements/exportToXML"
+import "~/lib/metadata/forms/elements/importFromXML"
 import { ZElementType } from "../types"
 import { exportChildItemsToXML } from "./exportToXML"
-import { TChildItems, ZChildItemsXML } from "./types"
-import "~/lib/metadata/forms/elements/importFromXML"
-import "~/lib/metadata/forms/elements/exportToXML"
-import { xmlExport } from "~/lib"
-import z from "zod"
+import { ZChildItemsXML } from "./types"
+import { TChildItems } from "./typesExt"
 
 describe("exportChildItemsToXML", () => {
   it("should export child items to XML", () => {

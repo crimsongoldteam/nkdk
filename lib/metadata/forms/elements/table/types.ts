@@ -28,7 +28,8 @@ import {
 } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { TChildItems } from "../childItems/typesExt"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import {
@@ -137,7 +138,7 @@ export const ZTable = z.object({
   viewStatusRepresentation: ZFormItemAddition.optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-  get childItems(): TChildItems | undefined {
+  get childItems(): TChildItems {
     return ZChildItems
   },
   events: z
