@@ -1,14 +1,19 @@
-import { TBaseElement } from "../../baseElement/types"
-import { formatElementProperties } from "~/lib/format/format"
 import * as yaml from "js-yaml"
+import { formatElementProperties } from "~/lib/format/format"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { TBaseElement } from "../../baseElement/types"
 
-export const formatProperties = (elements: TBaseElement[]): string[] => {
+export const formatProperties = (
+  elements: TBaseElement[],
+  configurationSettings: TConfigurationSettings
+): string[] => {
   const result: string[] = []
 
   for (const element of elements) {
     const formattedProperties = formatElementProperties(
       element.elementType,
-      element
+      element,
+      configurationSettings
     )
 
     if (!formattedProperties) continue

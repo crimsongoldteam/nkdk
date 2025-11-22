@@ -8,6 +8,8 @@ import {
 import { TElementRules } from "./types"
 import { ZElementType } from "../metadata/forms/elements/types"
 
+const configurationSettings = { defaultLanguage: "ru" }
+
 describe("RulesManager", () => {
   beforeEach(() => {
     clearElementRules()
@@ -43,7 +45,7 @@ describe("RulesManager", () => {
 
     registerElementRules(ZElementType.enum.InputField, rules)
 
-    const format = formatProperty(rules.autoTitle, "testValue")
+    const format = formatProperty(rules.autoTitle, "testValue", configurationSettings)
 
     expect(format).toEqual("test")
   })
@@ -60,7 +62,7 @@ describe("RulesManager", () => {
     }
     registerElementRules(ZElementType.enum.InputField, rules)
 
-    const format = formatProperty(rules.autoTitle, "testValue")
+    const format = formatProperty(rules.autoTitle, "testValue", configurationSettings)
 
     expect(format).toBeUndefined()
   })

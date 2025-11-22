@@ -1,12 +1,11 @@
+import { TConfigurationSettings } from "../metadata/configurationSettings/types"
 import { TElementType } from "../metadata/forms/elements/types"
-import {
-  formatProperty as formatProperty,
-  getElementRules,
-} from "../rulesManager/rulesManager"
+import { formatProperty, getElementRules } from "../rulesManager/rulesManager"
 
 export const formatElementProperties = (
   elementType: TElementType,
-  value: object | undefined
+  value: object | undefined,
+  configurationSettings: TConfigurationSettings
 ): object | undefined => {
   if (!value) {
     return undefined
@@ -35,7 +34,7 @@ export const formatElementProperties = (
     // if (keyItem === "representation") continue
     // if (keyItem === "behavior") continue
     // if (keyItem === "showTitle") continue
-    const resultItem = formatProperty(rule, valueItem)
+    const resultItem = formatProperty(rule, valueItem, configurationSettings)
     if (!resultItem) continue
     result[rule.nameEnterprise] = resultItem
   }

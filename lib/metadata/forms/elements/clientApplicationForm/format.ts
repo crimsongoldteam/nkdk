@@ -1,10 +1,10 @@
 import { formatElements } from "~/lib/format/formatFactory"
 import { IFormatElementResult } from "~/lib/format/types"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import formatFormAttributes from "./attributes/format"
-import { TClientApplicationForm } from "./types"
 import { getAllElements } from "./getAllElements"
 import { formatProperties } from "./properties/formatProperties"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { TClientApplicationForm } from "./types"
 
 export const formatClientApplicationForm = (
   element: TClientApplicationForm,
@@ -37,7 +37,7 @@ export const formatClientApplicationForm = (
 
   if (allElements.length > 0) {
     result.strings.push(...formatSectionHeader("Свойства"))
-    result.strings.push(...formatProperties(allElements))
+    result.strings.push(...formatProperties(allElements, configurationSettings))
   }
 
   return result

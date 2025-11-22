@@ -1,3 +1,4 @@
+import { TConfigurationSettings } from "../metadata/configurationSettings/types"
 import { TElementType } from "../metadata/forms/elements/types"
 import { TElementRule, TElementRules } from "./types"
 
@@ -22,7 +23,11 @@ export const clearElementRules = (): void => {
   rulesRegistry.clear()
 }
 
-export const formatProperty = (rule: TElementRule, value: any): any => {
+export const formatProperty = (
+  rule: TElementRule,
+  value: any,
+  configurationSettings: TConfigurationSettings
+): any => {
   if (!rule || !rule.inProperties()) {
     return undefined
   }
@@ -32,6 +37,6 @@ export const formatProperty = (rule: TElementRule, value: any): any => {
   }
 
   return rule.formatProperties
-    ? rule.formatProperties(value, rule)
+    ? rule.formatProperties(value, configurationSettings, rule)
     : value.toString()
 }
