@@ -1,28 +1,28 @@
-import * as z from "zod";
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types";
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types";
+import * as z from "zod"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import {
   ZI8nText,
   ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types";
+} from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   ZPicture,
   ZPictureXML,
-} from "~/lib/metadata/commonObjects/pictures/types";
+} from "~/lib/metadata/commonObjects/pictures/types"
 import {
   ZTypeDescription,
   ZTypeDescriptionXML,
-} from "~/lib/metadata/commonObjects/typeDescription/types";
+} from "~/lib/metadata/commonObjects/typeDescription/types"
 import {
   ZUserVisible,
   ZUserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types";
-import { ZElementType } from "~/lib/metadata/forms/elements/types";
-import { ZEventsXML } from "~/lib/metadata/forms/events/types";
-import * as SE from "~/lib/metadata/systemEnumerations/types";
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types";
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
-import { ZTable, ZTableXML } from "../table/types";
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZTable, ZTableXML } from "../table/types"
 
 export const ZSpreadSheetDocumentField = z.object({
   elementType: ZElementType,
@@ -31,7 +31,7 @@ export const ZSpreadSheetDocumentField = z.object({
   autoCellHeight: z.boolean().optional(),
   cellHyperlink: z.boolean().optional(),
   get contextMenu() {
-    return ZCommandBar.optional();
+    return ZCommandBar.optional()
   },
   dataPath: z.string().optional(),
   defaultItem: z.boolean().optional(),
@@ -39,7 +39,7 @@ export const ZSpreadSheetDocumentField = z.object({
   editMode: SE.ZColumnEditMode.optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {
-    return ZFormDecoration.optional();
+    return ZFormDecoration.optional()
   },
   fixingInTable: SE.ZFixingInTable.optional(),
   footerBackColor: ZColor.optional(),
@@ -59,7 +59,7 @@ export const ZSpreadSheetDocumentField = z.object({
   showInHeader: z.boolean().optional(),
   skipOnInput: z.boolean().optional(),
   get table() {
-    return ZTable.optional();
+    return ZTable.optional()
   },
   title: ZI8nText.optional(),
   titleBackColor: ZColor.optional(),
@@ -123,7 +123,7 @@ export const ZSpreadSheetDocumentField = z.object({
       dragCheck: z.string().optional(),
     })
     .optional(),
-});
+})
 
 export const ZSpreadSheetDocumentFieldXML = z.object({
   _name: z.string(),
@@ -166,10 +166,10 @@ export const ZSpreadSheetDocumentFieldXML = z.object({
   ShowRowAndColumnNames: z.boolean().optional(),
   ViewScalingMode: SE.ZViewScalingMode.optional(),
   get ContextMenu() {
-    return ZCommandBarXML.optional();
+    return ZCommandBarXML.optional()
   },
   get ExtendedTooltip() {
-    return ZFormDecorationXML.optional();
+    return ZFormDecorationXML.optional()
   },
   AutoCellHeight: z.boolean().optional(),
   BorderColor: ZColorXML.optional(),
@@ -195,7 +195,7 @@ export const ZSpreadSheetDocumentFieldXML = z.object({
   ShowInHeader: z.boolean().optional(),
   StatePresentation: SE.ZStatePresentation.optional(),
   get Table() {
-    return ZTableXML.optional();
+    return ZTableXML.optional()
   },
   TitleBackColor: ZColorXML.optional(),
   Type: SE.ZFormFieldType.optional(),
@@ -206,12 +206,12 @@ export const ZSpreadSheetDocumentFieldXML = z.object({
   VerticalScrollBar: SE.ZScrollBarUse.optional(),
   Width: z.number().optional(),
   Events: ZEventsXML.optional(),
-});
+})
 
 export type TSpreadSheetDocumentField = z.infer<
   typeof ZSpreadSheetDocumentField
->;
+>
 
 export type TSpreadSheetDocumentFieldXML = z.infer<
   typeof ZSpreadSheetDocumentFieldXML
->;
+>

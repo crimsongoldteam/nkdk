@@ -1,22 +1,22 @@
-import * as z from "zod";
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types";
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types";
+import * as z from "zod"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import {
   ZI8nText,
   ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types";
+} from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   ZPicture,
   ZPictureXML,
-} from "~/lib/metadata/commonObjects/pictures/types";
+} from "~/lib/metadata/commonObjects/pictures/types"
 import {
   ZUserVisible,
   ZUserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types";
-import { ZElementType } from "~/lib/metadata/forms/elements/types";
-import * as SE from "~/lib/metadata/systemEnumerations/types";
-import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types";
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 
 export const ZPopup = z.object({
   elementType: ZElementType,
@@ -25,7 +25,7 @@ export const ZPopup = z.object({
   enableContentChange: z.boolean().optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {
-    return ZFormDecoration.optional();
+    return ZFormDecoration.optional()
   },
   height: z.number().optional(),
   horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
@@ -44,7 +44,7 @@ export const ZPopup = z.object({
   visible: z.boolean().optional(),
   width: z.number().optional(),
   get childItems(): TChildItems {
-    return ZChildItems;
+    return ZChildItems
   },
   backColor: ZColor.optional(),
   borderColor: ZColor.optional(),
@@ -52,7 +52,7 @@ export const ZPopup = z.object({
   representation: SE.ZButtonRepresentation.optional(),
   shape: SE.ZButtonShape.optional(),
   shapeRepresentation: SE.ZButtonShapeRepresentation.optional(),
-});
+})
 
 export const ZPopupXML = z.object({
   _name: z.string(),
@@ -63,7 +63,7 @@ export const ZPopupXML = z.object({
   Picture: ZPictureXML.optional(),
   Representation: SE.ZButtonRepresentation.optional(),
   get ExtendedTooltip() {
-    return ZFormDecorationXML.optional();
+    return ZFormDecorationXML.optional()
   },
   BackColor: ZColorXML.optional(),
   BorderColor: ZColorXML.optional(),
@@ -85,10 +85,10 @@ export const ZPopupXML = z.object({
   Visible: z.boolean().optional(),
   Width: z.number().optional(),
   get ChildItems() {
-    return ZChildItemsXML.optional();
+    return ZChildItemsXML.optional()
   },
-});
+})
 
-export type TPopup = z.infer<typeof ZPopup>;
+export type TPopup = z.infer<typeof ZPopup>
 
-export type TPopupXML = z.infer<typeof ZPopupXML>;
+export type TPopupXML = z.infer<typeof ZPopupXML>

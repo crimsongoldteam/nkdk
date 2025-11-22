@@ -1,28 +1,28 @@
-import * as z from "zod";
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types";
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types";
+import * as z from "zod"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import {
   ZI8nText,
   ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types";
+} from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   ZPicture,
   ZPictureXML,
-} from "~/lib/metadata/commonObjects/pictures/types";
+} from "~/lib/metadata/commonObjects/pictures/types"
 import {
   ZTypeDescription,
   ZTypeDescriptionXML,
-} from "~/lib/metadata/commonObjects/typeDescription/types";
+} from "~/lib/metadata/commonObjects/typeDescription/types"
 import {
   ZUserVisible,
   ZUserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types";
-import { ZElementType } from "~/lib/metadata/forms/elements/types";
-import { ZEventsXML } from "~/lib/metadata/forms/events/types";
-import * as SE from "~/lib/metadata/systemEnumerations/types";
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types";
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
-import { ZTable, ZTableXML } from "../table/types";
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZTable, ZTableXML } from "../table/types"
 
 export const ZDendrogramField = z.object({
   elementType: ZElementType,
@@ -31,7 +31,7 @@ export const ZDendrogramField = z.object({
   autoCellHeight: z.boolean().optional(),
   cellHyperlink: z.boolean().optional(),
   get contextMenu() {
-    return ZCommandBar.optional();
+    return ZCommandBar.optional()
   },
   dataPath: z.string().optional(),
   defaultItem: z.boolean().optional(),
@@ -39,7 +39,7 @@ export const ZDendrogramField = z.object({
   editMode: SE.ZColumnEditMode.optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {
-    return ZFormDecoration.optional();
+    return ZFormDecoration.optional()
   },
   fixingInTable: SE.ZFixingInTable.optional(),
   footerBackColor: ZColor.optional(),
@@ -59,7 +59,7 @@ export const ZDendrogramField = z.object({
   showInHeader: z.boolean().optional(),
   skipOnInput: z.boolean().optional(),
   get table() {
-    return ZTable.optional();
+    return ZTable.optional()
   },
   title: ZI8nText.optional(),
   titleBackColor: ZColor.optional(),
@@ -92,7 +92,7 @@ export const ZDendrogramField = z.object({
       detailProcessing: z.string().optional(),
     })
     .optional(),
-});
+})
 
 export const ZDendrogramFieldXML = z.object({
   _name: z.string(),
@@ -103,14 +103,14 @@ export const ZDendrogramFieldXML = z.object({
   AutoMaxWidth: z.boolean().optional(),
   CellHyperlink: z.boolean().optional(),
   get ContextMenu() {
-    return ZCommandBarXML.optional();
+    return ZCommandBarXML.optional()
   },
   DataPath: z.string().optional(),
   DefaultItem: z.boolean().optional(),
   EditMode: SE.ZColumnEditMode.optional(),
   Enabled: z.boolean().optional(),
   get ExtendedTooltip() {
-    return ZFormDecorationXML.optional();
+    return ZFormDecorationXML.optional()
   },
   FixingInTable: SE.ZFixingInTable.optional(),
   FooterBackColor: ZColorXML.optional(),
@@ -134,7 +134,7 @@ export const ZDendrogramFieldXML = z.object({
   ShowInHeader: z.boolean().optional(),
   SkipOnInput: z.boolean().optional(),
   get Table() {
-    return ZTableXML.optional();
+    return ZTableXML.optional()
   },
   Title: ZI8nTextXML.optional(),
   TitleBackColor: ZColorXML.optional(),
@@ -155,8 +155,8 @@ export const ZDendrogramFieldXML = z.object({
   WarningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
   Width: z.number().optional(),
   Events: ZEventsXML.optional(),
-});
+})
 
-export type TDendrogramField = z.infer<typeof ZDendrogramField>;
+export type TDendrogramField = z.infer<typeof ZDendrogramField>
 
-export type TDendrogramFieldXML = z.infer<typeof ZDendrogramFieldXML>;
+export type TDendrogramFieldXML = z.infer<typeof ZDendrogramFieldXML>

@@ -1,22 +1,22 @@
-import * as z from "zod";
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types";
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types";
+import * as z from "zod"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import {
   ZI8nText,
   ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types";
+} from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   ZPicture,
   ZPictureXML,
-} from "~/lib/metadata/commonObjects/pictures/types";
+} from "~/lib/metadata/commonObjects/pictures/types"
 import {
   ZUserVisible,
   ZUserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types";
-import { ZElementType } from "~/lib/metadata/forms/elements/types";
-import * as SE from "~/lib/metadata/systemEnumerations/types";
-import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types";
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 
 export const ZColumnGroup = z.object({
   elementType: ZElementType,
@@ -25,7 +25,7 @@ export const ZColumnGroup = z.object({
   enableContentChange: z.boolean().optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {
-    return ZFormDecoration.optional();
+    return ZFormDecoration.optional()
   },
   height: z.number().optional(),
   horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
@@ -44,7 +44,7 @@ export const ZColumnGroup = z.object({
   visible: z.boolean().optional(),
   width: z.number().optional(),
   get childItems(): TChildItems {
-    return ZChildItems;
+    return ZChildItems
   },
   fixingInTable: SE.ZFixingInTable.optional(),
   group: SE.ZColumnsGroup.optional(),
@@ -55,7 +55,7 @@ export const ZColumnGroup = z.object({
   showInHeader: z.boolean().optional(),
   showTitle: z.boolean().optional(),
   titleBackColor: ZColor.optional(),
-});
+})
 
 export const ZColumnGroupXML = z.object({
   _name: z.string(),
@@ -83,7 +83,7 @@ export const ZColumnGroupXML = z.object({
   HeaderFormat: z.string().optional(),
   FixingInTable: SE.ZFixingInTable.optional(),
   get ExtendedTooltip() {
-    return ZFormDecorationXML.optional();
+    return ZFormDecorationXML.optional()
   },
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   Shortcut: z.string().optional(),
@@ -91,10 +91,10 @@ export const ZColumnGroupXML = z.object({
   Type: SE.ZFormGroupType.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   get ChildItems() {
-    return ZChildItemsXML.optional();
+    return ZChildItemsXML.optional()
   },
-});
+})
 
-export type TColumnGroup = z.infer<typeof ZColumnGroup>;
+export type TColumnGroup = z.infer<typeof ZColumnGroup>
 
-export type TColumnGroupXML = z.infer<typeof ZColumnGroupXML>;
+export type TColumnGroupXML = z.infer<typeof ZColumnGroupXML>

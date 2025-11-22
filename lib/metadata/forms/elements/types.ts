@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod"
 
 enum ElementType {
   BaseElement = "БазовыйЭлемент",
@@ -45,14 +45,14 @@ enum ElementType {
 }
 
 export const ZElementType = z.enum(
-  Object.keys(ElementType) as [TElementType, ...TElementType[]],
-);
+  Object.keys(ElementType) as [TElementType, ...TElementType[]]
+)
 export const ZElementTypeEnterprise = z.enum(
   Object.values(ElementType) as [
     TElementTypeEnterprise,
     ...TElementTypeEnterprise[],
-  ],
-);
+  ]
+)
 
-export type TElementType = keyof typeof ElementType;
-export type TElementTypeEnterprise = `${ElementType}`;
+export type TElementType = keyof typeof ElementType
+export type TElementTypeEnterprise = `${ElementType}`

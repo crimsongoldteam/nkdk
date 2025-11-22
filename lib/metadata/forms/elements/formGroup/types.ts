@@ -1,18 +1,18 @@
-import * as z from "zod";
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types";
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types";
+import * as z from "zod"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import {
   ZI8nText,
   ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types";
+} from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   ZUserVisible,
   ZUserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types";
-import { ZElementType } from "~/lib/metadata/forms/elements/types";
-import * as SE from "~/lib/metadata/systemEnumerations/types";
-import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types";
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 
 export const ZFormGroup = z.object({
   elementType: ZElementType,
@@ -21,7 +21,7 @@ export const ZFormGroup = z.object({
   enableContentChange: z.boolean().optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {
-    return ZFormDecoration.optional();
+    return ZFormDecoration.optional()
   },
   height: z.number().optional(),
   horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
@@ -40,9 +40,9 @@ export const ZFormGroup = z.object({
   visible: z.boolean().optional(),
   width: z.number().optional(),
   get childItems(): TChildItems {
-    return ZChildItems;
+    return ZChildItems
   },
-});
+})
 
 export const ZFormGroupXML = z.object({
   _name: z.string(),
@@ -50,7 +50,7 @@ export const ZFormGroupXML = z.object({
   EnableContentChange: z.boolean().optional(),
   Enabled: z.boolean().optional(),
   get ExtendedTooltip() {
-    return ZFormDecorationXML.optional();
+    return ZFormDecorationXML.optional()
   },
   Height: z.number().optional(),
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
@@ -69,10 +69,10 @@ export const ZFormGroupXML = z.object({
   Visible: z.boolean().optional(),
   Width: z.number().optional(),
   get ChildItems() {
-    return ZChildItemsXML.optional();
+    return ZChildItemsXML.optional()
   },
-});
+})
 
-export type TFormGroup = z.infer<typeof ZFormGroup>;
+export type TFormGroup = z.infer<typeof ZFormGroup>
 
-export type TFormGroupXML = z.infer<typeof ZFormGroupXML>;
+export type TFormGroupXML = z.infer<typeof ZFormGroupXML>

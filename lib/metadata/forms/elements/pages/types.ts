@@ -1,20 +1,20 @@
-import * as z from "zod";
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types";
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types";
+import * as z from "zod"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import {
   ZI8nText,
   ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types";
+} from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   ZUserVisible,
   ZUserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types";
-import { ZElementType } from "~/lib/metadata/forms/elements/types";
-import { ZEventsXML } from "~/lib/metadata/forms/events/types";
-import * as SE from "~/lib/metadata/systemEnumerations/types";
-import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types";
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
-import { ZTable, ZTableXML } from "../table/types";
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZTable, ZTableXML } from "../table/types"
 
 export const ZPages = z.object({
   elementType: ZElementType,
@@ -23,7 +23,7 @@ export const ZPages = z.object({
   enableContentChange: z.boolean().optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {
-    return ZFormDecoration.optional();
+    return ZFormDecoration.optional()
   },
   height: z.number().optional(),
   horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
@@ -42,10 +42,10 @@ export const ZPages = z.object({
   visible: z.boolean().optional(),
   width: z.number().optional(),
   get childItems(): TChildItems {
-    return ZChildItems;
+    return ZChildItems
   },
   get associatedTable() {
-    return ZTable.optional();
+    return ZTable.optional()
   },
   currentPagesState: SE.ZFormPagesState.optional(),
   currentRowUse: SE.ZCurrentRowUse.optional(),
@@ -55,7 +55,7 @@ export const ZPages = z.object({
       onCurrentPageChange: z.string().optional(),
     })
     .optional(),
-});
+})
 
 export const ZPagesXML = z.object({
   _name: z.string(),
@@ -78,21 +78,21 @@ export const ZPagesXML = z.object({
   PagesRepresentation: SE.ZFormPagesRepresentation.optional(),
   CurrentRowUse: SE.ZCurrentRowUse.optional(),
   get ExtendedTooltip() {
-    return ZFormDecorationXML.optional();
+    return ZFormDecorationXML.optional()
   },
   get AssociatedTable() {
-    return ZTableXML.optional();
+    return ZTableXML.optional()
   },
   CurrentPagesState: SE.ZFormPagesState.optional(),
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   Type: SE.ZFormGroupType.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   get ChildItems() {
-    return ZChildItemsXML.optional();
+    return ZChildItemsXML.optional()
   },
   Events: ZEventsXML.optional(),
-});
+})
 
-export type TPages = z.infer<typeof ZPages>;
+export type TPages = z.infer<typeof ZPages>
 
-export type TPagesXML = z.infer<typeof ZPagesXML>;
+export type TPagesXML = z.infer<typeof ZPagesXML>

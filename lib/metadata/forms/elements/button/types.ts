@@ -1,21 +1,21 @@
-import * as z from "zod";
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types";
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types";
+import * as z from "zod"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import {
   ZI8nText,
   ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types";
+} from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   ZPicture,
   ZPictureXML,
-} from "~/lib/metadata/commonObjects/pictures/types";
+} from "~/lib/metadata/commonObjects/pictures/types"
 import {
   ZUserVisible,
   ZUserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types";
-import { ZElementType } from "~/lib/metadata/forms/elements/types";
-import * as SE from "~/lib/metadata/systemEnumerations/types";
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 
 export const ZButton = z.object({
   elementType: ZElementType,
@@ -33,7 +33,7 @@ export const ZButton = z.object({
   displayImportance: SE.ZDisplayImportance.optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {
-    return ZFormDecoration.optional();
+    return ZFormDecoration.optional()
   },
   font: ZFont.optional(),
   height: z.number().optional(),
@@ -60,7 +60,7 @@ export const ZButton = z.object({
   verticalStretch: z.boolean().optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-});
+})
 
 export const ZButtonXML = z.object({
   _name: z.string(),
@@ -98,14 +98,14 @@ export const ZButtonXML = z.object({
   LocationInCommandBar: SE.ZButtonLocationInCommandBar.optional(),
   CommandUniqueness: z.boolean().optional(),
   get ExtendedTooltip() {
-    return ZFormDecorationXML.optional();
+    return ZFormDecorationXML.optional()
   },
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   OnlyInAllActions: z.boolean().optional(),
   Shortcut: z.string().optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
-});
+})
 
-export type TButton = z.infer<typeof ZButton>;
+export type TButton = z.infer<typeof ZButton>
 
-export type TButtonXML = z.infer<typeof ZButtonXML>;
+export type TButtonXML = z.infer<typeof ZButtonXML>

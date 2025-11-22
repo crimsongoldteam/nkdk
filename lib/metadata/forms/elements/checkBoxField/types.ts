@@ -1,28 +1,28 @@
-import * as z from "zod";
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types";
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types";
+import * as z from "zod"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
 import {
   ZI8nText,
   ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types";
+} from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   ZPicture,
   ZPictureXML,
-} from "~/lib/metadata/commonObjects/pictures/types";
+} from "~/lib/metadata/commonObjects/pictures/types"
 import {
   ZTypeDescription,
   ZTypeDescriptionXML,
-} from "~/lib/metadata/commonObjects/typeDescription/types";
+} from "~/lib/metadata/commonObjects/typeDescription/types"
 import {
   ZUserVisible,
   ZUserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types";
-import { ZElementType } from "~/lib/metadata/forms/elements/types";
-import { ZEventsXML } from "~/lib/metadata/forms/events/types";
-import * as SE from "~/lib/metadata/systemEnumerations/types";
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types";
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
-import { ZTable, ZTableXML } from "../table/types";
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { ZEventsXML } from "~/lib/metadata/forms/events/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZTable, ZTableXML } from "../table/types"
 
 export const ZCheckBoxField = z.object({
   elementType: ZElementType,
@@ -31,7 +31,7 @@ export const ZCheckBoxField = z.object({
   autoCellHeight: z.boolean().optional(),
   cellHyperlink: z.boolean().optional(),
   get contextMenu() {
-    return ZCommandBar.optional();
+    return ZCommandBar.optional()
   },
   dataPath: z.string().optional(),
   defaultItem: z.boolean().optional(),
@@ -39,7 +39,7 @@ export const ZCheckBoxField = z.object({
   editMode: SE.ZColumnEditMode.optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {
-    return ZFormDecoration.optional();
+    return ZFormDecoration.optional()
   },
   fixingInTable: SE.ZFixingInTable.optional(),
   footerBackColor: ZColor.optional(),
@@ -59,7 +59,7 @@ export const ZCheckBoxField = z.object({
   showInHeader: z.boolean().optional(),
   skipOnInput: z.boolean().optional(),
   get table() {
-    return ZTable.optional();
+    return ZTable.optional()
   },
   title: ZI8nText.optional(),
   titleBackColor: ZColor.optional(),
@@ -93,7 +93,7 @@ export const ZCheckBoxField = z.object({
       onChange: z.string().optional(),
     })
     .optional(),
-});
+})
 
 export const ZCheckBoxFieldXML = z.object({
   _name: z.string(),
@@ -105,7 +105,7 @@ export const ZCheckBoxFieldXML = z.object({
   CellHyperlink: z.boolean().optional(),
   CheckBoxType: SE.ZCheckBoxType.optional(),
   get ContextMenu() {
-    return ZCommandBarXML.optional();
+    return ZCommandBarXML.optional()
   },
   DataPath: z.string().optional(),
   DefaultItem: z.boolean().optional(),
@@ -114,7 +114,7 @@ export const ZCheckBoxFieldXML = z.object({
   Enabled: z.boolean().optional(),
   EqualItemsWidth: z.boolean().optional(),
   get ExtendedTooltip() {
-    return ZFormDecorationXML.optional();
+    return ZFormDecorationXML.optional()
   },
   FixingInTable: SE.ZFixingInTable.optional(),
   Font: ZFontXML.optional(),
@@ -138,7 +138,7 @@ export const ZCheckBoxFieldXML = z.object({
   ShowInHeader: z.boolean().optional(),
   SkipOnInput: z.boolean().optional(),
   get Table() {
-    return ZTableXML.optional();
+    return ZTableXML.optional()
   },
   TextColor: ZColorXML.optional(),
   ThreeState: z.boolean().optional(),
@@ -159,8 +159,8 @@ export const ZCheckBoxFieldXML = z.object({
   WarningOnEdit: ZI8nTextXML.optional(),
   WarningOnEditRepresentation: SE.ZWarningOnEditRepresentation.optional(),
   Events: ZEventsXML.optional(),
-});
+})
 
-export type TCheckBoxField = z.infer<typeof ZCheckBoxField>;
+export type TCheckBoxField = z.infer<typeof ZCheckBoxField>
 
-export type TCheckBoxFieldXML = z.infer<typeof ZCheckBoxFieldXML>;
+export type TCheckBoxFieldXML = z.infer<typeof ZCheckBoxFieldXML>
