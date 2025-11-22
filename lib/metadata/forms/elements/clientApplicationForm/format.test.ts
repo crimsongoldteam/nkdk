@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
+import { TClientApplicationForm, TInputField } from "~/lib"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import "~/lib/metadata/forms/elements/elements"
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
-import "~/lib/metadata/forms/elements/rules"
-import { formatClientApplicationForm } from "./format"
-import { TClientApplicationForm, TInputField } from "~/lib"
-import { ZElementType } from "../types"
 import "~/lib/metadata/forms/elements/inputField/registration"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import "~/lib/metadata/forms/elements/rules"
+import { ZElementType } from "../types"
+import { formatClientApplicationForm } from "./format"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -23,7 +23,7 @@ describe("formatClientApplicationForm", () => {
 
     const result = formatClientApplicationForm(form, configurationSettings)
 
-    expect(result.strings).toEqual(["====== [ Форма ] ======"])
+    expect(result.strings).toEqual(["--- Форма ---"])
   })
 
   it("should format form items", () => {
@@ -45,7 +45,7 @@ describe("formatClientApplicationForm", () => {
   })
 
   it("should format form attributes", () => {
-    const expectedResult = `====== [ Реквизиты ] ======
+    const expectedResult = `--- Реквизиты ---
 ИмяАтрибута:
   Заголовок: Атрибут
   Тип: Строка(10)`

@@ -55,7 +55,10 @@ describe("DO test", () => {
 
     // const exportedForm = exportClientApplicationFormToXML(form)
 
-    const formattedForm = formatClientApplicationForm(form, {})
+    const formattedForm = formatClientApplicationForm(
+      form,
+      configurationSettings
+    )
 
     const parsedForm = parse(formattedForm.strings.join("\n"))
 

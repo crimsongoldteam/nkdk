@@ -44,5 +44,5 @@ export const formatClientApplicationForm = (
 }
 
 const formatSectionHeader = (header: string): string[] => {
-  return ["======" + " [ " + header + " ] " + "======"]
+  return [`--- ${header} ---`]
 }

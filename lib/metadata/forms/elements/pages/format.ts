@@ -1,25 +1,30 @@
-import { TPages } from "./types"
-import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { formatElements } from "~/lib/format/formatFactory"
 import { formatElementName } from "~/lib/format/helpers"
-import * as t from "~/lib/parser/lexer"
+import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { addSimpleIndent } from "~/lib/format/wrap/addIndents"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import * as t from "~/lib/parser/lexer"
+import { TBaseElement } from "../baseElement/types"
+import { TPages } from "./types"
 const SLASH = (t.Slash.LABEL as string).repeat(2)
 
 export const formatPages: FormatElementFunction = (
-  element: TPages,
+  element: TBaseElement,
   configurationSettings: TConfigurationSettings
 ): IFormatElementResult => {
+  const pagesElement = element as TPages
   const result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
   }
 
-  const header = getHeader(element)
+  const header = getHeader(pagesElement)
   result.strings.push(header)
 
-  const childResult = formatElements(element.childItems, configurationSettings)
+  const childResult = formatElements(
+    pagesElement.childItems,
+    configurationSettings
+  )
 
   const indentedStrings = addSimpleIndent(childResult.strings)
 

@@ -1,10 +1,15 @@
 import { describe, expect, it } from "vitest"
-import { ZElementType } from "../../types"
-import { formatProperties } from "./formatProperties"
-import { TClientApplicationForm } from "../types"
-import "~/lib/metadata/forms/elements/importFromXML"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import "~/lib/metadata/forms/elements/exportToXML"
+import "~/lib/metadata/forms/elements/importFromXML"
 import "~/lib/metadata/forms/elements/rules"
+import { ZElementType } from "../../types"
+import { TClientApplicationForm } from "../types"
+import { formatProperties } from "./formatProperties"
+
+const configurationSettings: TConfigurationSettings = {
+  defaultLanguage: "ru",
+}
 
 describe("formatProperties", () => {
   it("should format properties with child items", () => {
@@ -25,7 +30,7 @@ describe("formatProperties", () => {
   ТолькоПросмотр: Истина`,
     ]
 
-    const properties = formatProperties(form.childItems)
+    const properties = formatProperties(form.childItems, configurationSettings)
 
     expect(properties).toEqual(expectedResult)
   })

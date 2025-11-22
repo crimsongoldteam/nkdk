@@ -25,7 +25,9 @@ export const formatInputField: FormatElementFunction = (
     value += UNDERLINE.repeat(2) + modificators
   }
 
-  let namePart = formatNamePart(element, hasTitle)
+  // Добавляем пробел перед именем только если есть значение или модификаторы
+  const hasValue = value.length > 0 || modificators.length > 0
+  let namePart = formatNamePart(element, hasTitle, hasValue)
 
   let result: IFormatElementResult = {
     strings: [header + value + namePart],
@@ -45,10 +47,11 @@ const formatTitle = (element: TInputField, hasTitle: boolean): string => {
   return element.title?.items.ru ?? ""
 }
 
-const formatNamePart = (element: TInputField, hasTitle: boolean): string => {
+const formatNamePart = (element: TInputField, hasTitle: boolean, hasValue: boolean): string => {
   if (!hasTitle) return ""
 
-  return " " + formatElementName(element)
+  // Добавляем пробел перед именем только если есть значение
+  return (hasValue ? " " : "") + formatElementName(element)
 }
 
 function getMultilineString(
