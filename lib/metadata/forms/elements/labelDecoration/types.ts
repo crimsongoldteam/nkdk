@@ -1,14 +1,20 @@
-import * as z from "zod"
-import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import { ZEventsXML } from "~/lib/metadata/forms/events/types"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import * as z from "zod";
+import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types";
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types";
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types";
+import {
+  ZI8nText,
+  ZI8nTextXML,
+} from "~/lib/metadata/commonObjects/i8nText/types";
+import {
+  ZUserVisible,
+  ZUserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types";
+import { ZElementType } from "~/lib/metadata/forms/elements/types";
+import { ZEventsXML } from "~/lib/metadata/forms/events/types";
+import * as SE from "~/lib/metadata/systemEnumerations/types";
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types";
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
 
 export const ZLabelDecoration = z.object({
   elementType: ZElementType,
@@ -17,12 +23,12 @@ export const ZLabelDecoration = z.object({
   autoMaxHeight: z.boolean().optional(),
   autoMaxWidth: z.boolean().optional(),
   get contextMenu() {
-    return ZCommandBar.optional()
+    return ZCommandBar.optional();
   },
   displayImportance: SE.ZDisplayImportance.optional(),
   enabled: z.boolean().optional(),
   get extendedTooltip() {
-    return ZFormDecoration.optional()
+    return ZFormDecoration.optional();
   },
   font: ZFont.optional(),
   height: z.number().optional(),
@@ -50,11 +56,13 @@ export const ZLabelDecoration = z.object({
   hyperlink: z.boolean().optional(),
   titleHeight: z.number().optional(),
   verticalAlign: SE.ZItemVerticalAlign.optional(),
-  events: z.object({
-    click: z.string().optional(),
-    uRLProcessing: z.string().optional(),
-  }).optional(),
-})
+  events: z
+    .object({
+      click: z.string().optional(),
+      uRLProcessing: z.string().optional(),
+    })
+    .optional(),
+});
 
 export const ZLabelDecorationXML = z.object({
   _name: z.string(),
@@ -86,18 +94,18 @@ export const ZLabelDecorationXML = z.object({
   BorderColor: ZColorXML.optional(),
   Border: ZBorderXML.optional(),
   get ContextMenu() {
-    return ZCommandBarXML.optional()
+    return ZCommandBarXML.optional();
   },
   get ExtendedTooltip() {
-    return ZFormDecorationXML.optional()
+    return ZFormDecorationXML.optional();
   },
   HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
   MaxHeight: z.number().optional(),
   Type: SE.ZFormDecorationType.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   Events: ZEventsXML.optional(),
-})
+});
 
-export type TLabelDecoration = z.infer<typeof ZLabelDecoration>
+export type TLabelDecoration = z.infer<typeof ZLabelDecoration>;
 
-export type TLabelDecorationXML = z.infer<typeof ZLabelDecorationXML>
+export type TLabelDecorationXML = z.infer<typeof ZLabelDecorationXML>;

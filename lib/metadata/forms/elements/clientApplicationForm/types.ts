@@ -1,25 +1,25 @@
-import * as z from "zod"
+import * as z from "zod";
 import {
-    ZI8nText,
-    ZI8nTextXML
-} from "~/lib/metadata/commonObjects/i8nText/types"
+  ZI8nText,
+  ZI8nTextXML,
+} from "~/lib/metadata/commonObjects/i8nText/types";
 import {
-    ZTypeDescription,
-    ZTypeDescriptionXML
-} from "~/lib/metadata/commonObjects/typeDescription/types"
+  ZTypeDescription,
+  ZTypeDescriptionXML,
+} from "~/lib/metadata/commonObjects/typeDescription/types";
 import {
-    ZUserVisible,
-    ZUserVisibleXML
-} from "~/lib/metadata/commonObjects/userVisible/types"
+  ZUserVisible,
+  ZUserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types";
 import {
-    ZCommandSet,
-    ZCommandSetXML
-} from "~/lib/metadata/forms/commandSet/types"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZEventsXML } from "../../events/types"
-import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZElementType } from "../types"
+  ZCommandSet,
+  ZCommandSetXML,
+} from "~/lib/metadata/forms/commandSet/types";
+import * as SE from "~/lib/metadata/systemEnumerations/types";
+import { ZEventsXML } from "../../events/types";
+import { TChildItems, ZChildItems, ZChildItemsXML } from "../childItems/types";
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types";
+import { ZElementType } from "../types";
 
 export const ZAttribute = z.object({
   name: z.string(),
@@ -29,7 +29,7 @@ export const ZAttribute = z.object({
   mainAttribute: z.boolean().optional(),
   storedData: z.boolean().optional(),
   use: ZUserVisible.optional(),
-})
+});
 
 // export const ZAttributeEnterprise = z.union([
 //   z.object({
@@ -46,7 +46,7 @@ export const ZClientApplicationForm = z.object({
   elementType: ZElementType.enum.ClientApplicationForm,
   attributes: z.array(ZAttribute).optional(),
   get autoCommandBar() {
-    return ZCommandBar.optional()
+    return ZCommandBar.optional();
   },
   autoTitle: z.boolean().optional(),
   autoSaveDataInSettings: SE.ZAutoSaveFormDataInSettings.optional(),
@@ -68,7 +68,7 @@ export const ZClientApplicationForm = z.object({
   purposeUseKey: z.string().optional(),
   windowOptionsKey: z.string().optional(),
   get commandBar() {
-    return ZCommandBar.optional()
+    return ZCommandBar.optional();
   },
   scale: z.number().optional(),
   modalMode: z.boolean().optional(),
@@ -79,7 +79,7 @@ export const ZClientApplicationForm = z.object({
   conversationsRepresentation: SE.ZFormConversationsRepresentation.optional(),
   enterKeyBehavior: SE.ZEnterKeyBehaviorType.optional(),
   get childItems(): TChildItems {
-    return ZChildItems
+    return ZChildItems;
   },
   commandBarLocation: SE.ZFormCommandBarLabelLocation.optional(),
   autoFillCheck: z.boolean().optional(),
@@ -122,16 +122,16 @@ export const ZClientApplicationForm = z.object({
       onSaveDataInSettingsAtServer: z.string().optional(),
     })
     .optional(),
-})
+});
 
 export const ZAutoCommandBarXML = z.object({
   _name: z.string(),
   _id: z.string(),
-})
+});
 
 export const ZConditionalAppearanceXML = z.object({
   ConditionalAppearance: z.object(),
-})
+});
 
 const ZTypeDescriptionXMLItem = z.object({
   "v8:Type": z
@@ -148,7 +148,7 @@ const ZTypeDescriptionXMLItem = z.object({
             "_xmlns:mxl": z.literal("http://v8.1c.ru/8.2/data/spreadsheet"),
             "#text": z.literal("mxl:SpreadsheetDocument"),
           }),
-        ])
+        ]),
       ),
     ])
     .optional(),
@@ -170,7 +170,7 @@ const ZTypeDescriptionXMLItem = z.object({
       "v8:DateFractions": z.enum(["Date", "Time", "DateTime"]).optional(),
     })
     .optional(),
-})
+});
 
 export const ZAttributeXML = z.object({
   Attribute: z.object({
@@ -182,11 +182,11 @@ export const ZAttributeXML = z.object({
     StoredData: z.boolean().optional(),
     Use: ZUserVisibleXML.optional(),
   }),
-})
+});
 
 export const ZAttributesXML = z.array(
-  z.union([ZAttributeXML, ZConditionalAppearanceXML])
-)
+  z.union([ZAttributeXML, ZConditionalAppearanceXML]),
+);
 
 export const ZClientApplicationFormXML = z.object({
   _xmlns: z.string().optional(),
@@ -216,7 +216,7 @@ export const ZClientApplicationFormXML = z.object({
   CloseOnOwnerClose: z.boolean().optional(),
   CollapseItemsByImportance: SE.ZCollapseFormItemsByImportance.optional(),
   get CommandBar() {
-    return ZCommandBarXML.optional()
+    return ZCommandBarXML.optional();
   },
   CommandBarLocation: SE.ZFormCommandBarLabelLocation.optional(),
   // Commands: ZКомандыФормыXML.optional(),
@@ -251,22 +251,22 @@ export const ZClientApplicationFormXML = z.object({
   CommandSet: ZCommandSetXML.optional(),
   UseForFoldersAndItems: SE.ZFoldersAndItemsUse.optional(),
   get AutoCommandBar() {
-    return ZCommandBarXML.optional()
+    return ZCommandBarXML.optional();
   },
   Events: ZEventsXML.optional(),
   get ChildItems() {
-    return ZChildItemsXML.optional()
+    return ZChildItemsXML.optional();
   },
   Attributes: ZAttributesXML.optional(),
-})
+});
 
-export type TClientApplicationForm = z.infer<typeof ZClientApplicationForm>
-export type TAttribute = z.infer<typeof ZAttribute>
+export type TClientApplicationForm = z.infer<typeof ZClientApplicationForm>;
+export type TAttribute = z.infer<typeof ZAttribute>;
 
-export type TAttributeXML = z.infer<typeof ZAttributeXML>
-export type TAttributesXML = z.infer<typeof ZAttributesXML>
+export type TAttributeXML = z.infer<typeof ZAttributeXML>;
+export type TAttributesXML = z.infer<typeof ZAttributesXML>;
 export type TClientApplicationFormXML = z.infer<
   typeof ZClientApplicationFormXML
->
+>;
 
 // export type TAttributeEnterprise = z.infer<typeof ZAttributeEnterprise>

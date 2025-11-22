@@ -1,85 +1,94 @@
-import z from "zod"
-import { ZButton, ZButtonXML } from "../button/types"
-import { ZButtonGroup, ZButtonGroupXML } from "../buttonGroup/types"
-import { ZCalendarField, ZCalendarFieldXML } from "../calendarField/types"
-import { ZChartField, ZChartFieldXML } from "../chartField/types"
-import { ZCheckBoxField, ZCheckBoxFieldXML } from "../checkBoxField/types"
-import { ZColumnGroup, ZColumnGroupXML } from "../columnGroup/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZDendrogramField, ZDendrogramFieldXML } from "../dendrogramField/types"
+import z from "zod";
+import { ZButton, ZButtonXML } from "../button/types";
+import { ZButtonGroup, ZButtonGroupXML } from "../buttonGroup/types";
+import { ZCalendarField, ZCalendarFieldXML } from "../calendarField/types";
+import { ZChartField, ZChartFieldXML } from "../chartField/types";
+import { ZCheckBoxField, ZCheckBoxFieldXML } from "../checkBoxField/types";
+import { ZColumnGroup, ZColumnGroupXML } from "../columnGroup/types";
+import { ZCommandBar, ZCommandBarXML } from "../commandBar/types";
 import {
-    ZFormattedDocumentField,
-    ZFormattedDocumentFieldXML
-} from "../formattedDocumentField/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
+  ZDendrogramField,
+  ZDendrogramFieldXML,
+} from "../dendrogramField/types";
 import {
-    ZFormItemAddition,
-    ZFormItemAdditionXML
-} from "../formItemAddition/types"
-import { ZGanttChartField, ZGanttChartFieldXML } from "../ganttChartField/types"
+  ZFormattedDocumentField,
+  ZFormattedDocumentFieldXML,
+} from "../formattedDocumentField/types";
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types";
+import { ZFormField, ZFormFieldXML } from "../formField/types";
+import { ZFormGroup, ZFormGroupXML } from "../formGroup/types";
 import {
-    ZGeographicalSchemaField,
-    ZGeographicalSchemaFieldXML
-} from "../geographicalSchemaField/types"
+  ZFormItemAddition,
+  ZFormItemAdditionXML,
+} from "../formItemAddition/types";
 import {
-    ZGraphicalSchemaField,
-    ZGraphicalSchemaFieldXML
-} from "../graphicalSchemaField/types"
+  ZGanttChartField,
+  ZGanttChartFieldXML,
+} from "../ganttChartField/types";
 import {
-    ZHTMLDocumentField,
-    ZHTMLDocumentFieldXML
-} from "../htmlDocumentField/types"
-import { ZInputField, ZInputFieldXML } from "../inputField/types"
-import { ZLabelDecoration, ZLabelDecorationXML } from "../labelDecoration/types"
-import { ZLabelField, ZLabelFieldXML } from "../labelField/types"
-import { ZPage, ZPageXML } from "../page/types"
-import { ZPages, ZPagesXML } from "../pages/types"
+  ZGeographicalSchemaField,
+  ZGeographicalSchemaFieldXML,
+} from "../geographicalSchemaField/types";
 import {
-    ZPdfDocumentField,
-    ZPdfDocumentFieldXML
-} from "../pdfDocumentField/types"
-import { ZPeriodField, ZPeriodFieldXML } from "../periodField/types"
+  ZGraphicalSchemaField,
+  ZGraphicalSchemaFieldXML,
+} from "../graphicalSchemaField/types";
 import {
-    ZPictureDecoration,
-    ZPictureDecorationXML
-} from "../pictureDecoration/types"
-import { ZPictureField, ZPictureFieldXML } from "../pictureField/types"
-import { ZPlannerField, ZPlannerFieldXML } from "../plannerField/types"
-import { ZPopup, ZPopupXML } from "../popup/types"
+  ZHTMLDocumentField,
+  ZHTMLDocumentFieldXML,
+} from "../htmlDocumentField/types";
+import { ZInputField, ZInputFieldXML } from "../inputField/types";
 import {
-    ZProgressBarField,
-    ZProgressBarFieldXML
-} from "../progressBarField/types"
+  ZLabelDecoration,
+  ZLabelDecorationXML,
+} from "../labelDecoration/types";
+import { ZLabelField, ZLabelFieldXML } from "../labelField/types";
+import { ZPage, ZPageXML } from "../page/types";
+import { ZPages, ZPagesXML } from "../pages/types";
 import {
-    ZRadioButtonField,
-    ZRadioButtonFieldXML
-} from "../radioButtonField/types"
+  ZPdfDocumentField,
+  ZPdfDocumentFieldXML,
+} from "../pdfDocumentField/types";
+import { ZPeriodField, ZPeriodFieldXML } from "../periodField/types";
 import {
-    ZSearchControlAddition,
-    ZSearchControlAdditionXML
-} from "../searchControlAddition/types"
+  ZPictureDecoration,
+  ZPictureDecorationXML,
+} from "../pictureDecoration/types";
+import { ZPictureField, ZPictureFieldXML } from "../pictureField/types";
+import { ZPlannerField, ZPlannerFieldXML } from "../plannerField/types";
+import { ZPopup, ZPopupXML } from "../popup/types";
 import {
-    ZSearchStringAddition,
-    ZSearchStringAdditionXML
-} from "../searchStringAddition/types"
+  ZProgressBarField,
+  ZProgressBarFieldXML,
+} from "../progressBarField/types";
 import {
-    ZSpreadSheetDocumentField,
-    ZSpreadSheetDocumentFieldXML
-} from "../spreadSheetDocumentField/types"
-import { ZTable, ZTableXML } from "../table/types"
+  ZRadioButtonField,
+  ZRadioButtonFieldXML,
+} from "../radioButtonField/types";
 import {
-    ZTextDocumentField,
-    ZTextDocumentFieldXML
-} from "../textDocumentField/types"
-import { ZTrackBarField, ZTrackBarFieldXML } from "../trackBarField/types"
-import { TElementType } from "../types"
-import { ZUsualGroup, ZUsualGroupXML } from "../usualGroup/types"
+  ZSearchControlAddition,
+  ZSearchControlAdditionXML,
+} from "../searchControlAddition/types";
 import {
-    ZViewStatusAddition,
-    ZViewStatusAdditionXML
-} from "../viewStatusAddition/types"
+  ZSearchStringAddition,
+  ZSearchStringAdditionXML,
+} from "../searchStringAddition/types";
+import {
+  ZSpreadSheetDocumentField,
+  ZSpreadSheetDocumentFieldXML,
+} from "../spreadSheetDocumentField/types";
+import { ZTable, ZTableXML } from "../table/types";
+import {
+  ZTextDocumentField,
+  ZTextDocumentFieldXML,
+} from "../textDocumentField/types";
+import { ZTrackBarField, ZTrackBarFieldXML } from "../trackBarField/types";
+import { TElementType } from "../types";
+import { ZUsualGroup, ZUsualGroupXML } from "../usualGroup/types";
+import {
+  ZViewStatusAddition,
+  ZViewStatusAdditionXML,
+} from "../viewStatusAddition/types";
 
 // @ts-ignore
 export const ZChildItem: TChildItem = z.discriminatedUnion("elementType", [
@@ -121,137 +130,137 @@ export const ZChildItem: TChildItem = z.discriminatedUnion("elementType", [
   ZTrackBarField,
   ZUsualGroup,
   ZViewStatusAddition,
-])
+]);
 
 // @ts-ignore
-export const ZChildItems: TChildItems = z.array(ZChildItem)
+export const ZChildItems: TChildItems = z.array(ZChildItem);
 
 export const ZChildItemXML = z.object({
   get Button() {
-    return ZButtonXML.optional()
+    return ZButtonXML.optional();
   },
   get ButtonGroup() {
-    return ZButtonGroupXML.optional()
+    return ZButtonGroupXML.optional();
   },
   get CalendarField() {
-    return ZCalendarFieldXML.optional()
+    return ZCalendarFieldXML.optional();
   },
   get ChartField() {
-    return ZChartFieldXML.optional()
+    return ZChartFieldXML.optional();
   },
   get CheckBoxField() {
-    return ZCheckBoxFieldXML.optional()
+    return ZCheckBoxFieldXML.optional();
   },
   get ColumnGroup() {
-    return ZColumnGroupXML.optional()
+    return ZColumnGroupXML.optional();
   },
   get CommandBar() {
-    return ZCommandBarXML.optional()
+    return ZCommandBarXML.optional();
   },
   get DendrogramField() {
-    return ZDendrogramFieldXML.optional()
+    return ZDendrogramFieldXML.optional();
   },
   get FormattedDocumentField() {
-    return ZFormattedDocumentFieldXML.optional()
+    return ZFormattedDocumentFieldXML.optional();
   },
   get FormDecoration() {
-    return ZFormDecorationXML.optional()
+    return ZFormDecorationXML.optional();
   },
   get FormField() {
-    return ZFormFieldXML.optional()
+    return ZFormFieldXML.optional();
   },
   get FormItemAddition() {
-    return ZFormItemAdditionXML.optional()
+    return ZFormItemAdditionXML.optional();
   },
   get GanttChartField() {
-    return ZGanttChartFieldXML.optional()
+    return ZGanttChartFieldXML.optional();
   },
   get GeographicalSchemaField() {
-    return ZGeographicalSchemaFieldXML.optional()
+    return ZGeographicalSchemaFieldXML.optional();
   },
   get GraphicalSchemaField() {
-    return ZGraphicalSchemaFieldXML.optional()
+    return ZGraphicalSchemaFieldXML.optional();
   },
   get HTMLDocumentField() {
-    return ZHTMLDocumentFieldXML.optional()
+    return ZHTMLDocumentFieldXML.optional();
   },
   get InputField() {
-    return ZInputFieldXML.optional()
+    return ZInputFieldXML.optional();
   },
   get LabelDecoration() {
-    return ZLabelDecorationXML.optional()
+    return ZLabelDecorationXML.optional();
   },
   get LabelField() {
-    return ZLabelFieldXML.optional()
+    return ZLabelFieldXML.optional();
   },
   get Page() {
-    return ZPageXML.optional()
+    return ZPageXML.optional();
   },
   get Pages() {
-    return ZPagesXML.optional()
+    return ZPagesXML.optional();
   },
   get PdfDocumentField() {
-    return ZPdfDocumentFieldXML.optional()
+    return ZPdfDocumentFieldXML.optional();
   },
   get PeriodField() {
-    return ZPeriodFieldXML.optional()
+    return ZPeriodFieldXML.optional();
   },
   get PictureDecoration() {
-    return ZPictureDecorationXML.optional()
+    return ZPictureDecorationXML.optional();
   },
   get PictureField() {
-    return ZPictureFieldXML.optional()
+    return ZPictureFieldXML.optional();
   },
   get PlannerField() {
-    return ZPlannerFieldXML.optional()
+    return ZPlannerFieldXML.optional();
   },
   get Popup() {
-    return ZPopupXML.optional()
+    return ZPopupXML.optional();
   },
   get ProgressBarField() {
-    return ZProgressBarFieldXML.optional()
+    return ZProgressBarFieldXML.optional();
   },
   get RadioButtonField() {
-    return ZRadioButtonFieldXML.optional()
+    return ZRadioButtonFieldXML.optional();
   },
   get SearchControlAddition() {
-    return ZSearchControlAdditionXML.optional()
+    return ZSearchControlAdditionXML.optional();
   },
   get SearchStringAddition() {
-    return ZSearchStringAdditionXML.optional()
+    return ZSearchStringAdditionXML.optional();
   },
   get SpreadSheetDocumentField() {
-    return ZSpreadSheetDocumentFieldXML.optional()
+    return ZSpreadSheetDocumentFieldXML.optional();
   },
   get Table() {
-    return ZTableXML.optional()
+    return ZTableXML.optional();
   },
   get TextDocumentField() {
-    return ZTextDocumentFieldXML.optional()
+    return ZTextDocumentFieldXML.optional();
   },
   get TrackBarField() {
-    return ZTrackBarFieldXML.optional()
+    return ZTrackBarFieldXML.optional();
   },
   get UsualGroup() {
-    return ZUsualGroupXML.optional()
+    return ZUsualGroupXML.optional();
   },
   get ViewStatusAddition() {
-    return ZViewStatusAdditionXML.optional()
+    return ZViewStatusAdditionXML.optional();
   },
   get FormGroup() {
-    return ZFormGroupXML.optional()
+    return ZFormGroupXML.optional();
   },
-})
+});
 
-export const ZChildItemsXML = z.array(ZChildItemXML)
+export const ZChildItemsXML = z.array(ZChildItemXML);
 
 interface TChildItem {
-  elementType: TElementType
-  name: string
-  id: string | undefined
+  elementType: TElementType;
+  name: string;
+  id: string | undefined;
 }
 
-export type TChildItems = TChildItem[]
+export type TChildItems = TChildItem[];
 
-export type TChildItemXML = z.infer<typeof ZChildItemXML>
-export type TChildItemsXML = z.infer<typeof ZChildItemsXML>
+export type TChildItemXML = z.infer<typeof ZChildItemXML>;
+export type TChildItemsXML = z.infer<typeof ZChildItemsXML>;
