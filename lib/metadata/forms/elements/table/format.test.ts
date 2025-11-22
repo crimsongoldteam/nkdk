@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest"
-import { ZElementType } from "../types"
-import { TTable } from "./types"
-import { TInputField } from "../inputField/types"
-import { TColumnGroup } from "../columnGroup/types"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { TColumnGroup } from "../columnGroup/types"
+import { TInputField } from "../inputField/types"
+import { ZElementType } from "../types"
 import { formatTable } from "./format"
 import "./registration"
+import { TTable } from "./types"
+
+const configurationSettings: TConfigurationSettings = {
+  defaultLanguage: "ru",
+}
 
 describe("formatTable", () => {
   it("should format one-column table", () => {
@@ -25,7 +30,7 @@ describe("formatTable", () => {
 
     const expectedResult = `| Колонка 1 |`
 
-    const result = formatTable(mockElement, {})
+    const result = formatTable(mockElement, configurationSettings)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -50,7 +55,7 @@ describe("formatTable", () => {
 
     const expectedResult = `| Колонка 1 | Колонка 2 |`
 
-    const result = formatTable(mockElement, {})
+    const result = formatTable(mockElement, configurationSettings)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -127,7 +132,7 @@ describe("formatTable", () => {
     const expectedResult = `| Колонка 1 |
 | Колонка 2 |`
 
-    const result = formatTable(mockElement, {})
+    const result = formatTable(mockElement, configurationSettings)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -167,7 +172,7 @@ describe("formatTable", () => {
 | Колонка 1 |
 | Колонка 2 |`
 
-    const result = formatTable(mockElement, {})
+    const result = formatTable(mockElement, configurationSettings)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })

@@ -5,8 +5,7 @@ import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
 import { ZElementType } from "../types"
 import { exportChildItemsToXML } from "./exportToXML"
-import { ZChildItemsXML } from "./types"
-import { TChildItems } from "./typesExt"
+import { TChildItems, ZChildItemsXML } from "./types"
 
 describe("exportChildItemsToXML", () => {
   it("should export child items to XML", () => {

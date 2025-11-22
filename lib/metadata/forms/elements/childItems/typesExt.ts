@@ -1,4 +1,4 @@
-import z from "~/node_modules/zod/v4/classic/external.cjs"
+import z from "zod"
 import { ZButton } from "../button/types"
 import { ZButtonGroup } from "../buttonGroup/types"
 import { ZCalendarField } from "../calendarField/types"
@@ -38,47 +38,47 @@ import { ZTrackBarField } from "../trackBarField/types"
 import { ZUsualGroup } from "../usualGroup/types"
 import { ZViewStatusAddition } from "../viewStatusAddition/types"
 
-const ZChildItemUnion = z.union([
-  ZButton,
-  ZButtonGroup,
-  ZCalendarField,
-  ZChartField,
-  ZCheckBoxField,
-  ZColumnGroup,
-  ZCommandBar,
-  ZDendrogramField,
-  ZFormattedDocumentField,
-  ZFormDecoration,
-  ZFormField,
-  ZFormGroup,
-  ZFormItemAddition,
-  ZGanttChartField,
-  ZGeographicalSchemaField,
-  ZGraphicalSchemaField,
-  ZHTMLDocumentField,
-  ZInputField,
-  ZLabelDecoration,
-  ZLabelField,
-  ZPage,
-  ZPages,
-  ZPdfDocumentField,
-  ZPeriodField,
-  ZPictureDecoration,
-  ZPictureField,
-  ZPlannerField,
-  ZPopup,
-  ZProgressBarField,
-  ZRadioButtonField,
-  ZSearchControlAddition,
-  ZSearchStringAddition,
-  ZSpreadSheetDocumentField,
-  ZTable,
-  ZTextDocumentField,
-  ZTrackBarField,
-  ZUsualGroup,
-  ZViewStatusAddition,
-])
-
-const ZChildItemsUnion = z.array(ZChildItemUnion)
-
-export type TChildItems = z.infer<typeof ZChildItemsUnion>
+export type ZodChildItemsType = z.ZodArray<
+  z.ZodDiscriminatedUnion<
+    [
+      typeof ZButton,
+      typeof ZButtonGroup,
+      typeof ZCalendarField,
+      typeof ZChartField,
+      typeof ZCheckBoxField,
+      typeof ZColumnGroup,
+      typeof ZCommandBar,
+      typeof ZDendrogramField,
+      typeof ZFormattedDocumentField,
+      typeof ZFormDecoration,
+      typeof ZFormField,
+      typeof ZFormGroup,
+      typeof ZFormItemAddition,
+      typeof ZGanttChartField,
+      typeof ZGeographicalSchemaField,
+      typeof ZGraphicalSchemaField,
+      typeof ZHTMLDocumentField,
+      typeof ZInputField,
+      typeof ZLabelDecoration,
+      typeof ZLabelField,
+      typeof ZPage,
+      typeof ZPages,
+      typeof ZPdfDocumentField,
+      typeof ZPeriodField,
+      typeof ZPictureDecoration,
+      typeof ZPictureField,
+      typeof ZPlannerField,
+      typeof ZPopup,
+      typeof ZProgressBarField,
+      typeof ZRadioButtonField,
+      typeof ZSearchControlAddition,
+      typeof ZSearchStringAddition,
+      typeof ZSpreadSheetDocumentField,
+      typeof ZTable,
+      typeof ZTextDocumentField,
+      typeof ZTrackBarField,
+      typeof ZUsualGroup,
+      typeof ZViewStatusAddition,
+    ]
+  >
+>

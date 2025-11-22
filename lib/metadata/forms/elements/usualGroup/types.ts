@@ -12,7 +12,7 @@ import {
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { TChildItems } from "../childItems/typesExt"
+import { ZodChildItemsType } from "../childItems/typesExt"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 
@@ -41,7 +41,7 @@ export const ZUsualGroup = z.object({
   verticalStretch: z.boolean().optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-  get childItems(): TChildItems {
+  get childItems(): ZodChildItemsType {
     return ZChildItems
   },
   get associatedTable() {

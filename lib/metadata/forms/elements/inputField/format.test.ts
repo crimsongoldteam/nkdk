@@ -1,13 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { ZElementType } from "../types"
 import { formatInputField } from "./format"
 import { TInputField } from "./types"
 
-const mockParams: IFormatterParams = {
-  wrapInGroup: WrapInGroupStrategy.None,
-  level: 0,
-  isFirst: true,
+const configurationSettings: TConfigurationSettings = {
+  defaultLanguage: "ru",
 }
 
 describe("formatInputField", () => {
@@ -20,7 +18,7 @@ describe("formatInputField", () => {
       value: "Значение",
     }
 
-    const result = formatInputField(element, mockParams)
+    const result = formatInputField(element, configurationSettings)
 
     expect(result.strings).toEqual(["Поле: Значение {ИмяПоля}"])
   })
@@ -33,7 +31,7 @@ describe("formatInputField", () => {
       title: { items: { ru: "Поле" } },
       value: "Значение",
     }
-    const result = formatInputField(element, mockParams)
+    const result = formatInputField(element, configurationSettings)
     expect(result.strings).toEqual(["Поле: Значение {ИмяПоля}"])
   })
 
@@ -48,7 +46,7 @@ describe("formatInputField", () => {
       multiLine: true,
     }
 
-    const result = formatInputField(element, mockParams)
+    const result = formatInputField(element, configurationSettings)
 
     expect(result.strings).toEqual([
       "Поле: Значение {ИмяПоля}",
@@ -70,7 +68,7 @@ describe("formatInputField", () => {
       spinButton: true,
     }
 
-    const result = formatInputField(element, mockParams)
+    const result = formatInputField(element, configurationSettings)
 
     expect(result.strings).toEqual(["Поле: Значение__ВСХОД {ИмяПоля}"])
   })
@@ -82,7 +80,7 @@ describe("formatInputField", () => {
       elementType: ZElementType.enum.InputField,
     }
 
-    const result = formatInputField(element, mockParams)
+    const result = formatInputField(element, configurationSettings)
 
     expect(result.strings).toEqual(["{ИмяПоля}: "])
   })

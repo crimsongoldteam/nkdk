@@ -18,7 +18,7 @@ import {
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZEventsXML } from "../../events/types"
 import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { TChildItems } from "../childItems/typesExt"
+import { ZodChildItemsType } from "../childItems/typesExt"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
 import { ZElementType } from "../types"
 
@@ -79,7 +79,7 @@ export const ZClientApplicationForm = z.object({
   showCloseButton: z.boolean().optional(),
   conversationsRepresentation: SE.ZFormConversationsRepresentation.optional(),
   enterKeyBehavior: SE.ZEnterKeyBehaviorType.optional(),
-  get childItems(): TChildItems | undefined {
+  get childItems(): ZodChildItemsType {
     return ZChildItems
   },
   commandBarLocation: SE.ZFormCommandBarLabelLocation.optional(),

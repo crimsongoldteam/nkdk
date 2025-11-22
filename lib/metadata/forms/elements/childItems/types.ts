@@ -244,3 +244,5 @@ export const ZChildItemsXML = z.array(ZChildItemXML)
 
 export type TChildItemXML = z.infer<typeof ZChildItemXML>
 export type TChildItemsXML = z.infer<typeof ZChildItemsXML>
+
+export type TChildItems = z.infer<typeof ZChildItems>

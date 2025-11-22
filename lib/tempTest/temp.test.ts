@@ -1,14 +1,19 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { describe, it } from "vitest"
-import { importClientApplicationFormFromXML } from "../metadata/forms/elements/clientApplicationForm/importFromXML"
-import xmlImport from "../xml/import/importer"
-import "../metadata/forms/elements/importFromXML"
-import "../metadata/forms/elements/exportToXML"
-import "../metadata/forms/elements/rules"
-import { TClientApplicationFormXML, ZClientApplicationFormXML } from ".."
 import z from "zod"
+import { TClientApplicationFormXML, ZClientApplicationFormXML } from ".."
+import { TConfigurationSettings } from "../metadata/configurationSettings/types"
 import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/format"
+import { importClientApplicationFormFromXML } from "../metadata/forms/elements/clientApplicationForm/importFromXML"
+import "../metadata/forms/elements/exportToXML"
+import "../metadata/forms/elements/importFromXML"
+import "../metadata/forms/elements/rules"
+import xmlImport from "../xml/import/importer"
+
+const configurationSettings: TConfigurationSettings = {
+  defaultLanguage: "ru",
+}
 
 const originalContent = readFileSync(join(__dirname, "Form.xml"), "utf-8")
 
@@ -22,7 +27,10 @@ describe("DO test", () => {
 
     // const exportedForm = exportClientApplicationFormToXML(form)
 
-    const formattedForm = formatClientApplicationForm(form, {})
+    const formattedForm = formatClientApplicationForm(
+      form,
+      configurationSettings
+    )
 
     // const exportedXml = xmlExport(
     //   { Form: exportedForm },

@@ -1,15 +1,15 @@
-import { TTable } from "./types"
 import {
   FormatElementFunction,
   IFormatElementResult,
   IFormatterParams,
 } from "~/lib/format/types"
-import * as t from "~/lib/parser/lexer"
-import { TInputField } from "../inputField/types"
-import { TColumnGroup } from "../columnGroup/types"
-import { ZElementType } from "../types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import * as t from "~/lib/parser/lexer"
 import { TBaseElement } from "../baseElement/types"
+import { TColumnGroup } from "../columnGroup/types"
+import { TInputField } from "../inputField/types"
+import { ZElementType } from "../types"
+import { TTable } from "./types"
 
 const V_BAR = t.VBar.LABEL as string
 
@@ -43,7 +43,7 @@ const formatTableRow = (columns: (TInputField | TColumnGroup)[]): string => {
   return `${V_BAR} ${headers.join(` ${V_BAR} `)} ${V_BAR}`
 }
 
-export const formatTable: FormatElementFunction<TTable> = (
+export const formatTable: FormatElementFunction = (
   element: TTable,
   _params: IFormatterParams
 ): IFormatElementResult => {

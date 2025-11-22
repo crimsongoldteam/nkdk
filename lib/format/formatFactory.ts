@@ -1,7 +1,7 @@
 import { TConfigurationSettings } from "../metadata/configurationSettings/types"
 import { formatOtherElement } from "../metadata/forms/elements/baseElement/format"
 import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
-import { TChildItems } from "../metadata/forms/elements/childItems/typesExt"
+import { TChildItems } from "../metadata/forms/elements/childItems/types"
 import { ZElementType } from "../metadata/forms/elements/types"
 import {
   CheckFormatFunction,

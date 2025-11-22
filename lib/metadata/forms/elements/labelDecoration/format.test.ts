@@ -1,7 +1,12 @@
-import { it, expect, describe } from "vitest"
+import { describe, expect, it } from "vitest"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { ZElementType } from "../types"
-import { TLabelDecoration } from "./types"
 import { formatLabelDecoration } from "./format"
+import { TLabelDecoration } from "./types"
+
+const configurationSettings: TConfigurationSettings = {
+  defaultLanguage: "ru",
+}
 
 describe("formatLabelDecoration", () => {
   it("should format label decoration", () => {
@@ -16,7 +21,10 @@ describe("formatLabelDecoration", () => {
 
     const expectedResult = ["Заголовок {ИмяПоля}"]
 
-    const result = formatLabelDecoration(element as TLabelDecoration, {})
+    const result = formatLabelDecoration(
+      element as TLabelDecoration,
+      configurationSettings
+    )
 
     expect(result.strings).toEqual(expectedResult)
   })
