@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
+import "~/lib/metadata/forms/elements/rules"
+import { TBaseElement } from "../../baseElement/types"
+import { TInputField } from "../../inputField/types"
 import { ZElementType } from "../../types"
-import { TClientApplicationForm } from "../types"
+import { parseProperties } from "./parse"
 
 describe("parseProperties", () => {
   it("should parse properties", () => {
@@ -9,19 +12,24 @@ describe("parseProperties", () => {
       ТолькоПросмотр: Истина`,
     ]
 
-    const expectedResult: TClientApplicationForm = {
-      elementType: ZElementType.enum.ClientApplicationForm,
-      childItems: [
-        {
-          name: "ПолеВвода",
-          id: "1",
-          elementType: ZElementType.enum.InputField,
-          readOnly: true,
-        },
-      ],
+    const elementsMap: Record<string, TBaseElement> = {
+      ПолеВвода: {
+        elementType: ZElementType.enum.InputField,
+        name: "ПолеВвода",
+        id: "1",
+      },
     }
 
-    const result = parseProperties(mockContent)
+    const expectedResult: Record<string, TBaseElement> = {
+      ПолеВвода: {
+        elementType: ZElementType.enum.InputField,
+        name: "ПолеВвода",
+        id: "1",
+        readOnly: true,
+      } as TInputField,
+    }
+
+    const result = parseProperties(mockContent, elementsMap)
 
     expect(result).toEqual(expectedResult)
   })

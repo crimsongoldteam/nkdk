@@ -24,8 +24,8 @@ export const clearElementRules = (): void => {
 }
 
 export const formatProperty = (
-  rule: TElementRule,
   value: any,
+  rule: TElementRule,
   configurationSettings: TConfigurationSettings
 ): any => {
   if (!rule || !rule.inProperties()) {
