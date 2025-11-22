@@ -39,7 +39,7 @@ export const ZButtonGroup = z.object({
   verticalStretch: z.boolean().optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-  get childItems(): TChildItems {
+  get childItems(): TChildItems | undefined {
     return ZChildItems
   },
   representation: SE.ZButtonGroupRepresentation.optional(),

@@ -78,7 +78,7 @@ export const ZClientApplicationForm = z.object({
   showCloseButton: z.boolean().optional(),
   conversationsRepresentation: SE.ZFormConversationsRepresentation.optional(),
   enterKeyBehavior: SE.ZEnterKeyBehaviorType.optional(),
-  get childItems(): TChildItems {
+  get childItems(): TChildItems | undefined {
     return ZChildItems
   },
   commandBarLocation: SE.ZFormCommandBarLabelLocation.optional(),

@@ -35,7 +35,7 @@ export const ZSearchStringAddition = z.object({
   userVisible: ZUserVisible.optional(),
   verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   visible: z.boolean().optional(),
-  get childItems(): TChildItems {
+  get childItems(): TChildItems | undefined {
     return ZChildItems
   },
   backColor: ZColor.optional(),

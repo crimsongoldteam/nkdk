@@ -1,23 +1,23 @@
-import * as z from "zod";
-import { formatBoolean } from "~/lib/format/formatBool";
-import { ZColor } from "~/lib/metadata/commonObjects/color/types";
-import { ZFont } from "~/lib/metadata/commonObjects/font/types";
-import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format";
-import { ZI8nText } from "~/lib/metadata/commonObjects/i8nText/types";
-import { formatUserVisible } from "~/lib/metadata/commonObjects/userVisible/format";
-import { ZUserVisible } from "~/lib/metadata/commonObjects/userVisible/types";
-import { formatSystemEnumeration } from "~/lib/metadata/systemEnumerations/format";
-import * as SE from "~/lib/metadata/systemEnumerations/types";
-import { registerElementRules } from "~/lib/rulesManager/rulesManager";
-import { TElementRules } from "~/lib/rulesManager/types";
-import { ZCommandBar } from "../commandBar/types";
-import { ZFormDecoration } from "../formDecoration/types";
-import { ZElementType } from "../types";
+import * as z from "zod"
+import { formatBoolean } from "~/lib/format/formatBool"
+import { ZColor } from "~/lib/metadata/commonObjects/color/types"
+import { ZFont } from "~/lib/metadata/commonObjects/font/types"
+import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format"
+import { ZI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
+import { formatUserVisible } from "~/lib/metadata/commonObjects/userVisible/format"
+import { ZUserVisible } from "~/lib/metadata/commonObjects/userVisible/types"
+import { formatSystemEnumeration } from "~/lib/metadata/systemEnumerations/format"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { registerElementRules } from "~/lib/rulesManager/rulesManager"
+import { TElementRules } from "~/lib/rulesManager/types"
+import { ZCommandBar } from "../commandBar/types"
+import { ZFormDecoration } from "../formDecoration/types"
+import { ZElementType } from "../types"
 
 const rules: TElementRules = {
   contextMenu: {
     get type() {
-      return ZCommandBar;
+      return ZCommandBar
     },
     nameEnterprise: "КонтекстноеМеню",
     formatProperties: undefined,
@@ -25,18 +25,18 @@ const rules: TElementRules = {
   },
   displayImportance: {
     get type() {
-      return SE.ZDisplayImportance;
+      return SE.ZDisplayImportance
     },
     nameEnterprise: "ВажностьПриОтображении",
     formatProperties: formatSystemEnumeration,
     get typeEnterprise() {
-      return SE.ZDisplayImportanceEnterprise;
+      return SE.ZDisplayImportanceEnterprise
     },
     inProperties: () => true,
   },
   enabled: {
     get type() {
-      return z.boolean();
+      return z.boolean()
     },
     nameEnterprise: "Доступность",
     formatProperties: formatBoolean,
@@ -44,7 +44,7 @@ const rules: TElementRules = {
   },
   extendedToolTip: {
     get type() {
-      return ZFormDecoration;
+      return ZFormDecoration
     },
     nameEnterprise: "РасширеннаяПодсказка",
     formatProperties: undefined,
@@ -52,18 +52,18 @@ const rules: TElementRules = {
   },
   horizontalAlignInGroup: {
     get type() {
-      return SE.ZItemHorizontalLocation;
+      return SE.ZItemHorizontalLocation
     },
     nameEnterprise: "ГоризонтальноеПоложениеВГруппе",
     formatProperties: formatSystemEnumeration,
     get typeEnterprise() {
-      return SE.ZItemHorizontalLocationEnterprise;
+      return SE.ZItemHorizontalLocationEnterprise
     },
     inProperties: () => true,
   },
   title: {
     get type() {
-      return ZI8nText;
+      return ZI8nText
     },
     nameEnterprise: "Заголовок",
     formatProperties: formatI8nText,
@@ -71,7 +71,7 @@ const rules: TElementRules = {
   },
   toolTip: {
     get type() {
-      return ZI8nText;
+      return ZI8nText
     },
     nameEnterprise: "Подсказка",
     formatProperties: formatI8nText,
@@ -79,29 +79,29 @@ const rules: TElementRules = {
   },
   toolTipRepresentation: {
     get type() {
-      return SE.ZToolTipRepresentation;
+      return SE.ZToolTipRepresentation
     },
     nameEnterprise: "ОтображениеПодсказки",
     formatProperties: formatSystemEnumeration,
     get typeEnterprise() {
-      return SE.ZToolTipRepresentationEnterprise;
+      return SE.ZToolTipRepresentationEnterprise
     },
     inProperties: () => true,
   },
   type: {
     get type() {
-      return SE.ZFormItemAdditionType;
+      return SE.ZFormItemAdditionType
     },
     nameEnterprise: "Вид",
     formatProperties: formatSystemEnumeration,
     get typeEnterprise() {
-      return SE.ZFormItemAdditionTypeEnterprise;
+      return SE.ZFormItemAdditionTypeEnterprise
     },
     inProperties: () => true,
   },
   userVisible: {
     get type() {
-      return ZUserVisible;
+      return ZUserVisible
     },
     nameEnterprise: "ПользовательскаяВидимость",
     formatProperties: formatUserVisible,
@@ -109,18 +109,18 @@ const rules: TElementRules = {
   },
   verticalAlignInGroup: {
     get type() {
-      return SE.ZItemVerticalAlign;
+      return SE.ZItemVerticalAlign
     },
     nameEnterprise: "ВертикальноеПоложениеВГруппе",
     formatProperties: formatSystemEnumeration,
     get typeEnterprise() {
-      return SE.ZItemVerticalAlignEnterprise;
+      return SE.ZItemVerticalAlignEnterprise
     },
     inProperties: () => true,
   },
   visible: {
     get type() {
-      return z.boolean();
+      return z.boolean()
     },
     nameEnterprise: "Видимость",
     formatProperties: formatBoolean,
@@ -128,7 +128,7 @@ const rules: TElementRules = {
   },
   childItems: {
     get type() {
-      return ZЭлементыФормы;
+      return ZЭлементыФормы
     },
     nameEnterprise: "ПодчиненныеЭлементы",
     formatProperties: undefined,
@@ -136,7 +136,7 @@ const rules: TElementRules = {
   },
   autoMaxWidth: {
     get type() {
-      return z.boolean();
+      return z.boolean()
     },
     nameEnterprise: "АвтоМаксимальнаяШирина",
     formatProperties: formatBoolean,
@@ -144,7 +144,7 @@ const rules: TElementRules = {
   },
   backColor: {
     get type() {
-      return ZColor;
+      return ZColor
     },
     nameEnterprise: "ЦветФона",
     formatProperties: undefined,
@@ -152,7 +152,7 @@ const rules: TElementRules = {
   },
   borderColor: {
     get type() {
-      return ZColor;
+      return ZColor
     },
     nameEnterprise: "ЦветРамки",
     formatProperties: undefined,
@@ -160,7 +160,7 @@ const rules: TElementRules = {
   },
   font: {
     get type() {
-      return ZFont;
+      return ZFont
     },
     nameEnterprise: "Шрифт",
     formatProperties: undefined,
@@ -168,7 +168,7 @@ const rules: TElementRules = {
   },
   horizontalStretch: {
     get type() {
-      return z.boolean();
+      return z.boolean()
     },
     nameEnterprise: "РастягиватьПоГоризонтали",
     formatProperties: formatBoolean,
@@ -176,7 +176,7 @@ const rules: TElementRules = {
   },
   maxWidth: {
     get type() {
-      return z.number();
+      return z.number()
     },
     nameEnterprise: "МаксимальнаяШирина",
     formatProperties: undefined,
@@ -184,7 +184,7 @@ const rules: TElementRules = {
   },
   textColor: {
     get type() {
-      return ZColor;
+      return ZColor
     },
     nameEnterprise: "ЦветТекста",
     formatProperties: undefined,
@@ -192,12 +192,12 @@ const rules: TElementRules = {
   },
   width: {
     get type() {
-      return z.number();
+      return z.number()
     },
     nameEnterprise: "Ширина",
     formatProperties: undefined,
     inProperties: () => true,
   },
-};
+}
 
-registerElementRules(ZElementType.enum.SearchControlAddition, rules);
+registerElementRules(ZElementType.enum.SearchControlAddition, rules)
