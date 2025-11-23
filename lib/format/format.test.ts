@@ -1,11 +1,11 @@
-import { describe, it, beforeEach, expect, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
+import { ZElementType } from "../metadata/forms/elements/types"
 import {
   clearElementRules,
-  formatProperty as formatProperty,
+  formatProperty,
   registerElementRules,
 } from "../rulesManager/rulesManager"
 import { TElementRules } from "../rulesManager/types"
-import { ZElementType } from "../metadata/forms/elements/types"
 
 const configurationSettings = { defaultLanguage: "ru" }
 
@@ -27,7 +27,11 @@ describe("format", () => {
 
     registerElementRules(ZElementType.enum.InputField, rules)
 
-    const format = formatProperty(rules.autoTitle, "testValue", configurationSettings)
+    const format = formatProperty(
+      "testValue",
+      rules.autoTitle,
+      configurationSettings
+    )
 
     expect(format).toEqual("test")
   })

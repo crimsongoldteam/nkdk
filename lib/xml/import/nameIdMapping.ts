@@ -3,9 +3,9 @@ import { TChildItem } from "~/lib/metadata/forms/elements/childItems/types"
 
 export type TNameIdMapping = Map<string, string>
 
-export function createNameIdMapping(
+export const createNameIdMapping = (
   form: TClientApplicationForm
-): TNameIdMapping {
+): TNameIdMapping => {
   const result: TNameIdMapping = new Map()
   form.childItems.forEach((item: TChildItem) => {
     if (!item.id) return
@@ -14,10 +14,10 @@ export function createNameIdMapping(
   return result
 }
 
-export function updateNameIdMapping(
+export const updateNameIdMapping = (
   nameIdMapping: TNameIdMapping,
   form: TClientApplicationForm
-): void {
+): void => {
   form.childItems.forEach((item: TChildItem) => {
     if (item.id) {
       nameIdMapping.set(item.id, item.name)
@@ -37,7 +37,7 @@ export function updateNameIdMapping(
   })
 }
 
-function getNextFreeId(nameIdMapping: TNameIdMapping): string {
+const getNextFreeId = (nameIdMapping: TNameIdMapping): string => {
   const keys = Array.from(nameIdMapping.keys())
   let id = 1
   while (keys.includes(id.toString())) {
