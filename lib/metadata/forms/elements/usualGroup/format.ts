@@ -1,20 +1,21 @@
+import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { TBaseElement } from "../baseElement/types"
 import { formatHorizontalGroup } from "./format/horizontalGroupFormat"
+import { formatOneLineGroup } from "./format/oneLineGroupFormat"
 import { formatVerticalGroup } from "./format/verticalGroupFormat"
 import { isOneLineGroup, isVerticalGroup } from "./helpers"
-import { formatOneLineGroup } from "./format/oneLineGroupFormat"
-import { type TUsualGroup } from "./types"
-import {
-  FormatElementFunction,
-  IFormatElementResult,
-  IFormatterParams,
-} from "~/lib/format/types"
+import { TUsualGroup } from "./types"
 
-export const formatUsualGroup: FormatElementFunction<TUsualGroup> = (
-  element: TUsualGroup,
-  params: IFormatterParams
+export const formatUsualGroup: FormatElementFunction = (
+  element: TBaseElement,
+  configurationSettings: TConfigurationSettings
 ): IFormatElementResult => {
-  if (isVerticalGroup(element)) return formatVerticalGroup(element, params)
-  if (isOneLineGroup(element)) return formatOneLineGroup(element)
+  const usualGroup = element as TUsualGroup
+  if (isVerticalGroup(usualGroup))
+    return formatVerticalGroup(usualGroup, configurationSettings)
+  if (isOneLineGroup(usualGroup))
+    return formatOneLineGroup(usualGroup, configurationSettings)
 
-  return formatHorizontalGroup(element, params)
+  return formatHorizontalGroup(usualGroup, configurationSettings)
 }

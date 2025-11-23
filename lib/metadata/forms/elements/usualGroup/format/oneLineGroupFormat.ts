@@ -1,11 +1,13 @@
-import { TUsualGroup } from "../types"
 import { formatElement } from "~/lib/format/formatFactory"
-import { IFormatElementResult, WrapInGroupStrategy } from "~/lib/format/types"
-import { formatElementTitleAndName } from "~/lib/format/helpers"
+import { formatElementName } from "~/lib/format/helpers"
+import { IFormatElementResult } from "~/lib/format/types"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { TBaseElement } from "../../baseElement/types"
+import { TUsualGroup } from "../types"
 
 export const formatOneLineGroup = (
-  element: TUsualGroup
+  element: TUsualGroup,
+  configurationSettings: TConfigurationSettings
 ): IFormatElementResult => {
   const separatorSymbol = ";"
   const separator = separatorSymbol + " "
@@ -24,17 +26,16 @@ export const formatOneLineGroup = (
 
   let isFirst = true
   for (const item of element.childItems) {
-    const itemResult = formatElement(item as TBaseElement, {
-      isFirst: isFirst,
-      wrapInGroup: WrapInGroupStrategy.Auto,
-      level: 0,
-    })
+    const itemResult = formatElement(
+      item as TBaseElement,
+      configurationSettings
+    )
     groupItems.push(itemResult.strings)
     isFirst = false
   }
 
   let resultLine =
-    "-" + formatElementTitleAndName(element) + "; " + groupItems.join(separator)
+    "%" + formatElementName(element) + " " + groupItems.join(separator)
 
   result.strings.push(resultLine)
 

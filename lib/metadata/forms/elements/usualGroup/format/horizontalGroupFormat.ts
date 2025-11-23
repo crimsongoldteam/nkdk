@@ -1,25 +1,36 @@
-import { TUsualGroup } from "../types"
-import * as t from "~/lib/parser/lexer"
-import { IFormatElementResult, IFormatterParams, WrapInGroupStrategy } from "~/lib/format/types"
 import { formatElement } from "~/lib/format/formatFactory"
 import { formatElementName } from "~/lib/format/helpers"
+import { IFormatElementResult } from "~/lib/format/types"
 import { addSimpleIndent } from "~/lib/format/wrap/addIndents"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import * as t from "~/lib/parser/lexer"
+import { TUsualGroup } from "../types"
 
 const FIRST_LINE_SEPARATOR = " " + (t.Hash.LABEL as string)
 const SEPARATOR = " " + "|"
 
-export const formatHorizontalGroup = (element: TUsualGroup, _params: IFormatterParams): IFormatElementResult => {
-  let result: IFormatElementResult = { strings: ["-" + formatElementName(element)], haveSimpleHorizontalGroup: false }
+export const formatHorizontalGroup = (
+  element: TUsualGroup,
+  configurationSettings: TConfigurationSettings
+): IFormatElementResult => {
+  let result: IFormatElementResult = {
+    strings: ["-" + formatElementName(element)],
+    haveSimpleHorizontalGroup: false,
+  }
 
-  let verticalGroups: string[][] = getVerticalItems(element)
+  let verticalGroups: string[][] = getVerticalItems(
+    element,
+    configurationSettings
+  )
   // let rows = mergeHorizontally(FIRST_LINE_SEPARATOR, SEPARATOR, ...verticalGroups)
 
   let haveSimpleHorizontalGroup = false
 
-  for (const group of verticalGroups) {
-    // result.strings.push(...group)
-    haveSimpleHorizontalGroup = haveSimpleHorizontalGroup || group.some((item) => item.includes("|"))
-  }
+  // for (const group of verticalGroups) {
+  //   // result.strings.push(...group)
+  //   haveSimpleHorizontalGroup =
+  //     haveSimpleHorizontalGroup || group.some((item) => item.includes("|"))
+  // }
 
   result.haveSimpleHorizontalGroup = haveSimpleHorizontalGroup
 
@@ -28,7 +39,11 @@ export const formatHorizontalGroup = (element: TUsualGroup, _params: IFormatterP
     return result
   }
 
-  let rows = mergeHorizontally(FIRST_LINE_SEPARATOR, SEPARATOR, ...verticalGroups)
+  let rows = mergeHorizontally(
+    FIRST_LINE_SEPARATOR,
+    SEPARATOR,
+    ...verticalGroups
+  )
   result.strings.push(...rows)
 
   result.haveSimpleHorizontalGroup = true
@@ -36,22 +51,25 @@ export const formatHorizontalGroup = (element: TUsualGroup, _params: IFormatterP
   return result
 }
 
-const getVerticalItems = (element: TUsualGroup): string[][] => {
+const getVerticalItems = (
+  element: TUsualGroup,
+  configurationSettings: TConfigurationSettings
+): string[][] => {
   let result: string[][] = []
   let isFirst = true
   for (const item of element.childItems) {
-    const formattedItem = formatElement(item, {
-      isFirst: isFirst,
-      level: 0,
-      wrapInGroup: WrapInGroupStrategy.Always,
-    })
+    const formattedItem = formatElement(item, configurationSettings)
     result.push(addSimpleIndent(formattedItem.strings))
     isFirst = false
   }
   return result
 }
 
-const mergeHorizontally = (firstLineSeparator: string, separator: string, ...arrays: string[][]): string[] => {
+const mergeHorizontally = (
+  firstLineSeparator: string,
+  separator: string,
+  ...arrays: string[][]
+): string[] => {
   const maxLength = Math.max(...arrays.map((arr) => arr.length))
 
   const arrayWidths = arrays.map((arr) => (arr.length > 0 ? arr[0].length : 0))
@@ -67,7 +85,10 @@ const mergeHorizontally = (firstLineSeparator: string, separator: string, ...arr
         mergedRow += currentSeparator
       }
 
-      const cell = rowIndex < arrays[colIndex].length ? arrays[colIndex][rowIndex] : " ".repeat(arrayWidths[colIndex])
+      const cell =
+        rowIndex < arrays[colIndex].length
+          ? arrays[colIndex][rowIndex]
+          : " ".repeat(arrayWidths[colIndex])
 
       mergedRow += cell
     }
