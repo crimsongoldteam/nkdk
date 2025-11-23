@@ -2,6 +2,7 @@ import * as yaml from "js-yaml"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { getElementRules } from "~/lib/rulesManager/rulesManager"
 import { TBaseElement } from "../../baseElement/types"
+import { TElementRule } from "~/lib/rulesManager/types"
 
 export const parseProperties = (
   yamlContent: string,
@@ -48,10 +49,21 @@ const parseElementProperties = (
     const rule = rules[key]
     if (!rule) throw new Error(`Rule for property "${key}" not found`)
 
-    const parsedValue = parseProperty(value, rule, configurationSettings)
+    const parsedValue = parseProperty(value, configurationSettings, rule)
     if (!parsedValue) throw new Error(`Failed to parse property "${key}"`)
     result[key] = parsedValue
   }
 
   return result
+}
+
+const parseProperty = (
+  value: any,
+  configurationSettings: TConfigurationSettings,
+  rule: TElementRule
+) => {
+  if (!rule) throw new Error("Rule not found")
+  return rule.parseProperties
+    ? rule.parseProperties(value, configurationSettings, rule)
+    : value
 }

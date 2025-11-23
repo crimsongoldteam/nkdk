@@ -15,6 +15,7 @@ import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse
 import { ZUserVisible } from "~/lib/metadata/commonObjects/userVisible/types"
 import { ZChoiceParameterLinks } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types"
 import { formatSystemEnumeration } from "~/lib/metadata/systemEnumerations/format"
+import { parseSystemEnumeration } from "~/lib/metadata/systemEnumerations/parse"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { registerElementRules } from "~/lib/rulesManager/rulesManager"
 import { TElementRules } from "~/lib/rulesManager/types"

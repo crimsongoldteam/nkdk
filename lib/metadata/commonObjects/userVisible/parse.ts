@@ -1,8 +1,9 @@
 import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
 import { TBoolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
+import { TParseFunction } from "~/lib/rulesManager/types"
 import { type TUserVisible } from "./types"
 
-export const parseUserVisible = (
+export const parseUserVisible: TParseFunction = (
   value: Record<string, TBoolEnterprise> | undefined,
   usageType: "РазрешитьИспользование" | "ЗапретитьИспользование" | boolean
 ): TUserVisible | undefined => {
@@ -26,4 +27,3 @@ export const parseUserVisible = (
     values,
   }
 }
-
