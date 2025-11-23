@@ -62,6 +62,10 @@ describe("parseTree", () => {
         },
       ],
     }
+
+    const result = parseTree(mock)
+
+    expect(result).toEqual(expectedResult)
   })
 
   it("should parse simplifyed horizontal group with content and properties", () => {
@@ -93,8 +97,10 @@ describe("parseTree", () => {
               elementType: ZElementType.enum.GroupContent,
               content: "Элемент2",
             },
+          ],
+        },
       ],
-
+    }
 
     const result = parseTree(mock)
 
@@ -106,26 +112,28 @@ describe("parseTree", () => {
 \t#{Группа2}
 \t\t{Элемент1}`
 
+    const expectedResult: TUsualGroup = {
+      elementType: ZElementType.enum.UsualGroup,
+      group: SE.ZColumnsGroup.enum.Horizontal,
+      name: "Группа1",
+      childItems: [
+        {
+          elementType: ZElementType.enum.UsualGroup,
+          name: "Группа2",
+          group: SE.ZColumnsGroup.enum.Vertical,
+          childItems: [
+            {
+              elementType: ZElementType.enum.GroupContent,
+              content: "Элемент1",
+            },
+          ],
+        },
+      ],
+    }
 
-  const expectedResult: TUsualGroup = {
-    elementType: ZElementType.enum.UsualGroup,
-    name: "Группа1",
-    childItems: [
-      {
-        elementType: ZElementType.enum.UsualGroup,
-        name: "Группа2",
-        childItems: [
-          {
-            elementType: ZElementType.enum.GroupContent,
-            content: "Элемент1",
-          },
-        ],
-      },
-    ],
- 
-  const result = parseTree(mock)
+    const result = parseTree(mock)
 
-  expect(result).toEqual(expectedResult)
+    expect(result).toEqual(expectedResult)
   })
 })
 
