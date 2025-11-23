@@ -19,6 +19,7 @@ import { TElementRules } from "~/lib/rulesManager/types"
 import { ZCommandBar } from "../commandBar/types"
 import { ZFormDecoration } from "../formDecoration/types"
 import { ZElementType } from "../types"
+import "./registration"
 
 const rules: TElementRules = {
   autoMaxHeight: {

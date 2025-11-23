@@ -22,6 +22,7 @@ import { ZCommandBar } from "../commandBar/types"
 import { ZFormDecoration } from "../formDecoration/types"
 import { ZFormItemAddition } from "../formItemAddition/types"
 import { ZElementType } from "../types"
+import "./registration"
 
 const rules: TElementRules = {
   autoAddIncomplete: {

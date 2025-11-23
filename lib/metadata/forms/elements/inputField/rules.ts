@@ -23,6 +23,7 @@ import { ZCommandBar } from "../commandBar/types"
 import { ZFormDecoration } from "../formDecoration/types"
 import { ZTable } from "../table/types"
 import { ZElementType } from "../types"
+import "./registration"
 
 const rules: TElementRules = {
   autoCellHeight: {
