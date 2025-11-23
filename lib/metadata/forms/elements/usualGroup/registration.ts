@@ -6,5 +6,5 @@ import { formatUsualGroup } from "./format"
 import { registerIsOneLineElementCheck } from "~/lib/format/isOneLineElementCheckFactory"
 
 registerIsOneLineElementCheck(ZElementType.enum.UsualGroup, () => false)
-registerFormat(formatUsualGroup, (element) => element.type === ZElementType.enum.UsualGroup)
+registerFormat(formatUsualGroup, (element) => element.elementType === ZElementType.enum.UsualGroup)
 registerImport(ZElementType.enum.UsualGroup, importUsualGroupFromXML)

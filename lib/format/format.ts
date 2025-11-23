@@ -34,7 +34,7 @@ export const formatElementProperties = (
     // if (keyItem === "representation") continue
     // if (keyItem === "behavior") continue
     // if (keyItem === "showTitle") continue
-    const resultItem = formatProperty(rule, valueItem, configurationSettings)
+    const resultItem = formatProperty(valueItem, rule, configurationSettings)
     if (!resultItem) continue
     result[rule.nameEnterprise] = resultItem
   }
