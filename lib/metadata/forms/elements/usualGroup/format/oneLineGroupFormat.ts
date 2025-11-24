@@ -24,14 +24,12 @@ export const formatOneLineGroup = (
 
   let groupItems: string[][] = []
 
-  let isFirst = true
   for (const item of element.childItems) {
     const itemResult = formatElement(
       item as TBaseElement,
       configurationSettings
     )
     groupItems.push(itemResult.strings)
-    isFirst = false
   }
 
   let resultLine =

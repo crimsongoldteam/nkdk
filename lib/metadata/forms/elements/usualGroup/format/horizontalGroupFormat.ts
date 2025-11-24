@@ -14,7 +14,7 @@ export const formatHorizontalGroup = (
   configurationSettings: TConfigurationSettings
 ): IFormatElementResult => {
   let result: IFormatElementResult = {
-    strings: ["-" + formatElementName(element)],
+    strings: ["%" + formatElementName(element)],
     haveSimpleHorizontalGroup: false,
   }
 
@@ -24,7 +24,7 @@ export const formatHorizontalGroup = (
   )
   // let rows = mergeHorizontally(FIRST_LINE_SEPARATOR, SEPARATOR, ...verticalGroups)
 
-  let haveSimpleHorizontalGroup = false
+  // let haveSimpleHorizontalGroup = false
 
   // for (const group of verticalGroups) {
   //   // result.strings.push(...group)
@@ -32,22 +32,10 @@ export const formatHorizontalGroup = (
   //     haveSimpleHorizontalGroup || group.some((item) => item.includes("|"))
   // }
 
-  result.haveSimpleHorizontalGroup = haveSimpleHorizontalGroup
+  // result.haveSimpleHorizontalGroup = haveSimpleHorizontalGroup
 
-  if (haveSimpleHorizontalGroup) {
-    result.strings.push(...verticalGroups.flat())
-    return result
-  }
-
-  let rows = mergeHorizontally(
-    FIRST_LINE_SEPARATOR,
-    SEPARATOR,
-    ...verticalGroups
-  )
-  result.strings.push(...rows)
-
-  result.haveSimpleHorizontalGroup = true
-
+  // if (haveSimpleHorizontalGroup) {
+  result.strings.push(...verticalGroups.flat())
   return result
 }
 
