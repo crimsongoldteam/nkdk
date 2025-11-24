@@ -59,6 +59,11 @@ export const detectElementType = (text: string): TElementType => {
     return ZElementType.enum.CheckBoxField
   }
 
+  // начинается с @ - картинка
+  if (firstChar === "@") {
+    return ZElementType.enum.PictureDecoration
+  }
+
   // содержит : - поле ввода
   if (trimmed.includes(":")) {
     return ZElementType.enum.InputField

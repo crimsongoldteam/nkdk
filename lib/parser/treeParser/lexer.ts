@@ -344,6 +344,13 @@ export const Dashes = createToken({
   categories: excludeTokens(FormHeaderText, TableCell),
 })
 
+export const EscapedText = createToken({
+  name: "EscapedText",
+  pattern: /"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'/,
+  label: "\"...\" или '...'",
+  categories: combineTokens,
+})
+
 export const Text = createToken({
   name: "Text",
   pattern: /[a-zA-Zа-яА-ЯёЁ№!%0-9][a-zA-Zа-яА-ЯёЁ№!%0-9\t ]*/,
@@ -427,6 +434,7 @@ export const inlineTypesTokens = [
 
 export const allTokens = [
   NewLine,
+  EscapedText,
   Dashes,
   Underscore,
   SwitchChecked,
@@ -464,6 +472,7 @@ export const allTokens = [
 
 export const propertiesTokens = [
   NewLine,
+  EscapedText,
   Dashes,
   Underscore,
   SwitchChecked,
