@@ -3,19 +3,6 @@ import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import { detectElementType } from "./detect"
 import { lexer } from "./lexer"
 
-// Правила определения элементов
-// начинается с # - вертикальная группа
-// начинается с // - страницы
-// начинается с / - страница
-// начинается с % - горизонтальная группа
-// содержит : - поле ввода
-// начинается с < - кнопка
-// начинается с < и содержит | - командная панель
-// содержит [] - флажок
-// содержит () - радиокнопка
-// содержит | - таблица
-// все остальное - надпись
-
 describe("detectElementType", () => {
   it("should detect input field containing :", () => {
     const mock = `text:`
