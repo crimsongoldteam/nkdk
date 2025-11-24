@@ -2,39 +2,50 @@ import { TElementType, ZElementType } from "~/lib/metadata/forms/elements/types"
 
 export const detectElementType = (text: string): TElementType => {
   const trimmed = text.trim()
+  const len = trimmed.length
 
-  // начинается с # - вертикальная группа
-  if (trimmed.startsWith("#")) {
-    return ZElementType.enum.UsualGroup
+  if (len === 0) {
+    return ZElementType.enum.LabelDecoration
   }
 
-  // начинается с // - страницы
-  if (trimmed.startsWith("//")) {
+  // Проверяем первый символ напрямую (быстрее чем startsWith)
+  const firstChar = trimmed[0]
+
+  // начинается с // - страницы (проверяем до /)
+  if (firstChar === "/" && len >= 2 && trimmed[1] === "/") {
     return ZElementType.enum.Pages
   }
 
+  // начинается с # - вертикальная группа
+  if (firstChar === "#") {
+    return ZElementType.enum.UsualGroup
+  }
+
   // начинается с / - страница
-  if (trimmed.startsWith("/")) {
+  if (firstChar === "/") {
     return ZElementType.enum.Page
   }
 
   // начинается с % - горизонтальная группа
-  if (trimmed.startsWith("%")) {
+  if (firstChar === "%") {
     return ZElementType.enum.UsualGroup
   }
 
+  // Кэшируем проверку наличия | (используется дважды)
+  const hasVBar = trimmed.includes("|")
+
   // начинается с < и содержит | - командная панель
-  if (trimmed.startsWith("<") && trimmed.includes("|")) {
+  if (firstChar === "<" && hasVBar) {
     return ZElementType.enum.CommandBar
   }
 
   // начинается с < - кнопка
-  if (trimmed.startsWith("<")) {
+  if (firstChar === "<") {
     return ZElementType.enum.Button
   }
 
   // содержит | - таблица
-  if (trimmed.includes("|")) {
+  if (hasVBar) {
     return ZElementType.enum.Table
   }
 
