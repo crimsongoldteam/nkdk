@@ -1,8 +1,12 @@
 import { readFileSync, writeFileSync } from "fs"
-import { join } from "path"
-import { describe, it } from "vitest"
+import { join, parse } from "path"
+import { describe, expect, it } from "vitest"
 import z from "zod"
-import { TClientApplicationFormXML, ZClientApplicationFormXML } from ".."
+import {
+  TClientApplicationFormXML,
+  xmlExport,
+  ZClientApplicationFormXML,
+} from ".."
 import { TConfigurationSettings } from "../metadata/configurationSettings/types"
 import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/format"
 import { importClientApplicationFormFromXML } from "../metadata/forms/elements/clientApplicationForm/importFromXML"
@@ -70,3 +74,16 @@ describe("DO test", () => {
     expect(exportedXml).toEqual(originalContent)
   })
 })
+
+// Правила определения элементов
+// начинается с # - вертикальная группа
+// начинается с // - страницы
+// начинается с / - страница
+// начинается с % - горизонтальная группа
+// содержит : - поле ввода
+// начинается с < - кнопка
+// начинается с < и содержит | - командная панель
+// содержит [] - флажок
+// содержит () - радиокнопка
+// содержит | - таблица
+// все остальное - надпись
