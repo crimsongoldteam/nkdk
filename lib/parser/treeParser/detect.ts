@@ -1,46 +1,70 @@
+import { IToken } from "chevrotain"
 import { TElementType, ZElementType } from "~/lib/metadata/forms/elements/types"
+import {
+  CheckboxChecked,
+  CheckboxUnchecked,
+  Colon,
+  Hash,
+  LAngle,
+  Picture,
+  RadioButtonChecked,
+  RadioButtonUnchecked,
+  Slash,
+  VBar,
+  Whitespace,
+} from "./lexer"
 
-export const detectElementType = (text: string): TElementType => {
-  const trimmed = text.trim()
-  const len = trimmed.length
+export const detectElementType = (tokens: IToken[]): TElementType => {
+  // Фильтруем пробелы для анализа
+  const significantTokens = tokens.filter(
+    (token) => token.tokenType !== Whitespace
+  )
 
-  if (len === 0) {
+  // Пустая строка или только пробелы
+  if (significantTokens.length === 0) {
     return ZElementType.enum.LabelDecoration
   }
 
-  // Проверяем первый символ напрямую (быстрее чем startsWith)
-  const firstChar = trimmed[0]
+  const firstToken = significantTokens[0]
+  const firstTokenType = firstToken.tokenType
 
-  // начинается с // - страницы (проверяем до /)
-  if (firstChar === "/" && len >= 2 && trimmed[1] === "/") {
+  // начинается с // - страницы (два Slash подряд)
+  if (
+    firstTokenType === Slash &&
+    significantTokens.length >= 2 &&
+    significantTokens[1].tokenType === Slash
+  ) {
     return ZElementType.enum.Pages
   }
 
   // начинается с # - вертикальная группа
-  if (firstChar === "#") {
+  if (firstTokenType === Hash) {
     return ZElementType.enum.UsualGroup
   }
 
   // начинается с / - страница
-  if (firstChar === "/") {
+  if (firstTokenType === Slash) {
     return ZElementType.enum.Page
   }
 
-  // начинается с % - горизонтальная группа
-  if (firstChar === "%") {
+  // начинается с % - горизонтальная группа (проверяем первый символ Text токена)
+  if (
+    firstTokenType.name === "Text" &&
+    firstToken.image.trim().startsWith("%")
+  ) {
     return ZElementType.enum.UsualGroup
   }
 
-  // Кэшируем проверку наличия | (используется дважды)
-  const hasVBar = trimmed.includes("|")
+  // Проверяем наличие VBar в токенах
+  const hasVBar = significantTokens.some((token) => token.tokenType === VBar)
 
   // начинается с < и содержит | - командная панель
-  if (firstChar === "<" && hasVBar) {
+  if (firstTokenType === LAngle && hasVBar) {
     return ZElementType.enum.CommandBar
   }
 
   // начинается с < - кнопка
-  if (firstChar === "<") {
+  if (firstTokenType === LAngle) {
     return ZElementType.enum.Button
   }
 
@@ -49,23 +73,34 @@ export const detectElementType = (text: string): TElementType => {
     return ZElementType.enum.Table
   }
 
-  // содержит () - радиокнопка
-  if (trimmed.includes("()")) {
+  // содержит () - радиокнопка (проверяем наличие RadioButtonChecked или RadioButtonUnchecked)
+  const hasRadioButton = significantTokens.some(
+    (token) =>
+      token.tokenType === RadioButtonChecked ||
+      token.tokenType === RadioButtonUnchecked
+  )
+  if (hasRadioButton) {
     return ZElementType.enum.RadioButtonField
   }
 
-  // содержит [] - флажок
-  if (trimmed.includes("[]")) {
+  // содержит [] - флажок (проверяем наличие CheckboxChecked или CheckboxUnchecked)
+  const hasCheckbox = significantTokens.some(
+    (token) =>
+      token.tokenType === CheckboxChecked ||
+      token.tokenType === CheckboxUnchecked
+  )
+  if (hasCheckbox) {
     return ZElementType.enum.CheckBoxField
   }
 
   // начинается с @ - картинка
-  if (firstChar === "@") {
+  if (firstTokenType === Picture) {
     return ZElementType.enum.PictureDecoration
   }
 
   // содержит : - поле ввода
-  if (trimmed.includes(":")) {
+  const hasColon = significantTokens.some((token) => token.tokenType === Colon)
+  if (hasColon) {
     return ZElementType.enum.InputField
   }
 
