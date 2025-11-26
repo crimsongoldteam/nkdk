@@ -4,13 +4,7 @@ import { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
 import { TInputField } from "~/lib/metadata/forms/elements/inputField/types"
 import { TLabelDecoration } from "~/lib/metadata/forms/elements/labelDecoration/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import {
-  Colon,
-  InputFieldType,
-  InputHeader,
-  InputValue,
-  LabelContent,
-} from "../lexer"
+import { Colon, InputHeader, InputValue, LabelContent } from "../lexer"
 import { DetectedTreeNode } from "../treeParser/detectTree"
 import { parseElement } from "./parse"
 
@@ -36,7 +30,6 @@ describe("parseElements", () => {
   it("should parse input field element", () => {
     const mock: DetectedTreeNode = {
       tokens: [
-        createTokenInstance(InputFieldType, "InputField", 0, 0, 0, 0, 0, 0),
         createTokenInstance(InputHeader, "text", 0, 0, 0, 0, 0, 0),
         createTokenInstance(Colon, ":", 0, 0, 0, 0, 0, 0),
         createTokenInstance(InputValue, "value", 0, 0, 0, 0, 0, 0),

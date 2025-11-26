@@ -1,35 +1,10 @@
-import { CstNode, CstParser, EMPTY_ALT, EOF, IToken } from "chevrotain"
+import { CstNode, CstParser, EMPTY_ALT, IToken } from "chevrotain"
 import * as t from "../lexer"
 
 export class Parser extends CstParser {
   constructor() {
     super(t.allTokens)
     this.performSelfAnalysis()
-  }
-
-  public parseForm(tokens: IToken[]): CstNode | undefined {
-    if (!tokens.length) {
-      return undefined
-    }
-    this.input = tokens
-    return this.form()
-  }
-
-  public parseGroupEditorContainer(): CstNode {
-    return this.editorContainer()
-  }
-
-  public parseTypeDescription(): CstNode {
-    return this.propertyValues()
-  }
-
-  public parseFields(tokens: IToken[]): CstNode[] {
-    if (!tokens.length) {
-      return [] as CstNode[]
-    }
-    this.input = tokens
-    const result = this.fields()
-    return result.children.field as CstNode[]
   }
 
   public parseLabelDecoration(tokens: IToken[]): CstNode {
@@ -41,127 +16,6 @@ export class Parser extends CstParser {
     this.input = tokens
     return this.inputField()
   }
-
-  // #region form
-
-  private readonly editorContainer = this.RULE("editorContainer", () => {
-    let isEnd = false
-    this.MANY({
-      GATE: () => {
-        return !isEnd
-      },
-      DEF: () => {
-        this.OR([
-          {
-            IGNORE_AMBIGUITIES: true,
-            ALT: () => {
-              isEnd = true
-              this.CONSUME3(EOF)
-            },
-          },
-
-          {
-            ALT: () => {
-              this.SUBRULE(this.row)
-            },
-          },
-        ])
-      },
-    })
-  })
-
-  private readonly form = this.RULE("form", () => {
-    let isFirst = true
-    let isEnd = false
-    this.MANY({
-      GATE: () => {
-        return !isEnd
-      },
-      DEF: () => {
-        this.OR([
-          {
-            IGNORE_AMBIGUITIES: true,
-            ALT: () => {
-              isEnd = true
-              this.CONSUME3(EOF)
-            },
-          },
-          {
-            GATE: () => {
-              return isFirst
-            },
-            ALT: () => {
-              this.SUBRULE1(this.formHeader)
-              isFirst = false
-            },
-          },
-          {
-            ALT: () => {
-              this.SUBRULE(this.row)
-              isFirst = false
-            },
-          },
-        ])
-      },
-    })
-  })
-
-  private readonly formHeader = this.RULE("formHeader", () => {
-    this.CONSUME1(t.Dashes)
-    this.MANY(() => {
-      this.CONSUME2(t.FormHeaderText)
-    })
-    this.CONSUME3(t.Dashes)
-
-    this.OPTION1(() => {
-      this.SUBRULE(this.properties)
-    })
-
-    this.SUBRULE(this.EOL)
-  })
-
-  private readonly row = this.RULE("row", () => {
-    this.binaryExpression(this.column, t.Plus)
-
-    this.SUBRULE(this.EOL)
-  })
-
-  private readonly column = this.RULE("column", () => {
-    this.SUBRULE(this.indents)
-    this.choice(
-      1,
-      () => {
-        this.SUBRULE(this.horizontalGroup)
-      },
-      () => {
-        this.SUBRULE(this.pageHeader)
-      },
-      () => {
-        this.SUBRULE(this.inline)
-      }
-    )
-  })
-
-  private readonly indents = this.RULE("indents", () => {
-    this.MANY(() => {
-      this.CONSUME(t.Whitespace)
-    })
-  })
-
-  private readonly EOL = this.RULE("EOL", () => {
-    this.OPTION({
-      GATE: () => {
-        return this.LA(1).tokenType != EOF
-      },
-      DEF: () => {
-        this.MANY(() => {
-          this.CONSUME(t.NewLine)
-        })
-      },
-    })
-  })
-
-  // #endregion
 
   // #region page
 
@@ -217,42 +71,6 @@ export class Parser extends CstParser {
   // #endregion
 
   // #region fields
-
-  private readonly fields = this.RULE("fields", () => {
-    this.MANY(() => {
-      this.SUBRULE(this.field)
-    })
-  })
-
-  private readonly field = this.RULE("field", () => {
-    this.choice(
-      1,
-      () => {
-        this.SUBRULE(this.propertyLine)
-      },
-      () => {
-        this.SUBRULE(this.labelDecoration)
-      },
-      () => {
-        this.SUBRULE(this.inputField)
-      },
-      () => {
-        this.SUBRULE(this.checkboxLeftField)
-      },
-      () => {
-        this.SUBRULE(this.checkboxRightField)
-      },
-      () => {
-        this.SUBRULE(this.radioButtonField)
-      },
-      () => {
-        this.SUBRULE(this.commandBar)
-      },
-      () => {
-        this.SUBRULE(this.table)
-      }
-    )
-  })
 
   private skipField(): void {
     let choices = t.inlineTypesTokens.map((item) => () => {
@@ -346,9 +164,7 @@ export class Parser extends CstParser {
   // #region inputField
 
   private readonly inputField = this.RULE("inputField", () => {
-    this.CONSUME(t.InputFieldType)
-
-    this.aligment("left")
+    // this.aligment("left")
 
     this.MANY1(() => {
       this.CONSUME(t.InputHeader)
