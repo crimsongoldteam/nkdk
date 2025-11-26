@@ -32,12 +32,18 @@ export const parseAttributes = (
 
       // Обработка ОсновнойАтрибут
       if ("ОсновнойАтрибут" in data) {
-        attribute.mainAttribute = parseBoolean(data.ОсновнойАтрибут)
+        attribute.mainAttribute = parseBoolean(
+          data.ОсновнойАтрибут,
+          configurationSettings
+        )
       }
 
       // Обработка СохраняемыеДанные
       if ("СохраняемыеДанные" in data) {
-        attribute.storedData = parseBoolean(data.СохраняемыеДанные)
+        attribute.storedData = parseBoolean(
+          data.СохраняемыеДанные,
+          configurationSettings
+        )
       }
 
       if (

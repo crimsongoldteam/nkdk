@@ -112,10 +112,10 @@ function escapeRegExp(string: string): string {
 // empty matcher
 // @ts-ignore
 function matchType(
-  text: any,
-  offset: any,
-  matchedTokens: any,
-  groups: any
+  _text: any,
+  _offset: any,
+  _matchedTokens: any,
+  _groups: any
 ): RegExpExecArray | null {
   return null
 }
@@ -486,6 +486,7 @@ export const propertiesTokens = [
   Dots,
   Dash,
   Text,
+  EscapedText,
   VBar,
   LCurly,
   RCurly,

@@ -1,5 +1,9 @@
-interface TreeNode {
+import { detectElementType } from "./detect"
+
+export interface TreeNode {
   content: string
+  // type: TElementType
+  // offest: number
   childItems?: TreeNode[]
 }
 
@@ -31,7 +35,11 @@ export const parseTree = (text: string): TreeNode[] => {
 
   for (let i = 0; i < lineInfos.length; i++) {
     const lineInfo = lineInfos[i]
-    const node: TreeNode = { content: lineInfo.content }
+    const node: TreeNode = {
+      content: lineInfo.content,
+      type: detectElementType(lineInfo.content),
+      offest: lineInfo.offest,
+    }
 
     // Находим правильного родителя для текущего узла
     while (
