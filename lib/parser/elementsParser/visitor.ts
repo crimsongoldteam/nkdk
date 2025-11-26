@@ -8,7 +8,10 @@
 //   IClientApplicationFormHeaderVisit,
 // } from "~/lib/metadata/forms/elements/clientApplicationForm/parseVisit"
 
-import { CstNode } from "chevrotain"
+import { CstChildrenDictionary, CstNode, IToken } from "chevrotain"
+import { TLabelDecoration } from "~/lib/metadata/forms/elements/labelDecoration/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { joinTokens } from "../visitorUtils"
 import { Parser } from "./parser"
 
 const BaseVisitor: new () => any = new Parser().getBaseCstVisitorConstructor()
@@ -20,6 +23,16 @@ export class Visitor extends BaseVisitor {
 
   public visit(ast: CstNode): any {
     return super.visit(ast)
+  }
+
+  labelDecoration(ctx: CstChildrenDictionary): TLabelDecoration {
+    const name = joinTokens(ctx.LabelContent as IToken[])
+
+    return {
+      elementType: ZElementType.enum.LabelDecoration,
+      name: name || "",
+      id: undefined,
+    } as TLabelDecoration
   }
 }
 

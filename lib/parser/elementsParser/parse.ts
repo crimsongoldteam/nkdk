@@ -1,13 +1,23 @@
+import { CstNode } from "chevrotain"
 import { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import { DetectedTreeNode } from "../treeParser/detectTree"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
 
 export const parseElement = (element: DetectedTreeNode): TBaseElement => {
-  const methodName = ("parse" + element.type) as keyof typeof elementsParser
-  const ast = elementsParser[methodName](element.tokens)
+  const ast = parseByElementType(element)
 
   const cst = visitor.visit(ast)
 
   return cst
+}
+
+const parseByElementType = (element: DetectedTreeNode): CstNode => {
+  switch (element.type) {
+    case ZElementType.enum.LabelDecoration:
+      return elementsParser.parseLabelDecoration(element.tokens)
+    default:
+      throw new Error(`Unknown element type: ${element.type}`)
+  }
 }

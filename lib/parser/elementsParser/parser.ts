@@ -32,6 +32,11 @@ export class Parser extends CstParser {
     return result.children.field as CstNode[]
   }
 
+  public parseLabelDecoration(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.labelDecoration()
+  }
+
   // #region form
 
   private readonly editorContainer = this.RULE("editorContainer", () => {
@@ -221,7 +226,7 @@ export class Parser extends CstParser {
         this.SUBRULE(this.propertyLine)
       },
       () => {
-        this.SUBRULE(this.labelField)
+        this.SUBRULE(this.labelDecoration)
       },
       () => {
         this.SUBRULE(this.inputField)
@@ -318,9 +323,7 @@ export class Parser extends CstParser {
 
   // #region labelField
 
-  private readonly labelField = this.RULE("labelField", () => {
-    this.CONSUME(t.LabelFieldType)
-
+  private readonly labelDecoration = this.RULE("labelDecoration", () => {
     this.aligment("left")
 
     this.MANY1(() => {
