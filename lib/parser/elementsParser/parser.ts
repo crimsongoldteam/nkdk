@@ -17,10 +17,74 @@ export class Parser extends CstParser {
     return this.inputField()
   }
 
+  public parseButton(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.button()
+  }
+
+  public parseCheckBoxField(tokens: IToken[]): CstNode {
+    this.input = tokens
+    // Проверяем, где находится чекбокс (слева или справа)
+    const hasCheckboxLeftFieldType = tokens.some(
+      (token) => token.tokenType === t.CheckboxLeftFieldType
+    )
+    if (hasCheckboxLeftFieldType) {
+      return this.checkboxLeftField()
+    }
+    return this.checkboxRightField()
+  }
+
+  public parseCommandBar(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.commandBar()
+  }
+
+  public parsePage(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.pageHeader()
+  }
+
+  public parsePages(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.pagesHeader()
+  }
+
+  public parseUsualGroup(tokens: IToken[]): CstNode {
+    this.input = tokens
+    // Проверяем, вертикальная или горизонтальная группа
+    const hasHash = tokens.some((token) => token.tokenType === t.Hash)
+    if (hasHash) {
+      return this.verticalGroupHeader()
+    }
+    return this.horizontalGroup()
+  }
+
+  public parseTable(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.table()
+  }
+
+  public parseRadioButtonField(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.radioButtonField()
+  }
+
   // #region page
 
   private readonly pageHeader = this.RULE("pageHeader", () => {
     this.CONSUME(t.Slash)
+    this.MANY(() => {
+      this.CONSUME(t.PageHeaderText)
+    })
+
+    this.OPTION1(() => {
+      this.SUBRULE(this.properties)
+    })
+  })
+
+  private readonly pagesHeader = this.RULE("pagesHeader", () => {
+    this.CONSUME1(t.Slash)
+    this.CONSUME2(t.Slash)
     this.MANY(() => {
       this.CONSUME(t.PageHeaderText)
     })
