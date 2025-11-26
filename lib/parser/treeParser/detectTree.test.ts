@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import { simlifyDetectedTreeNodes } from "~/lib/tests/simlifyToken"
-import { DetectedTreeNode, detectTreeNodes } from "./detectTree"
+import { detectTreeNodes } from "./detectTree"
 import { TreeNode } from "./parseTree"
 
 describe("detectTreeNodes", () => {
@@ -28,7 +28,7 @@ describe("detectTreeNodes", () => {
       { content: "#VerticalGroup", childItems: [{ content: "text" }] },
     ]
 
-    const expectedResult: DetectedTreeNode[] = [
+    const expectedResult = [
       {
         tokens: [
           { type: "Hash", value: "#" },
