@@ -8,9 +8,22 @@
 //   IClientApplicationFormHeaderVisit,
 // } from "~/lib/metadata/forms/elements/clientApplicationForm/parseVisit"
 
-// const BaseVisitor: new () => any = new Parser().getBaseCstVisitorConstructor()
+import { CstNode } from "chevrotain"
+import { Parser } from "./parser"
 
-// export class Visitor extends BaseVisitor {
+const BaseVisitor: new () => any = new Parser().getBaseCstVisitorConstructor()
+
+export class Visitor extends BaseVisitor {
+  constructor() {
+    super()
+  }
+
+  public visit(ast: CstNode): any {
+    return super.visit(ast)
+  }
+}
+
+export const visitor = new Visitor()
 //   // #region form
 
 //   form(ctx: CstChildrenDictionary): TClientApplicationForm {

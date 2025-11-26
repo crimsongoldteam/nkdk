@@ -1,5 +1,5 @@
 import { CstChildrenDictionary, CstElement, CstNode, IToken } from "chevrotain"
-import { Parser } from "./parser"
+import { Parser } from "./elementsParser/parser"
 import { GroupMap } from "./groupMap"
 import { EditorContainerNode, FormNode } from "./groupMapNodes"
 
@@ -66,7 +66,10 @@ export class GroupVisitor extends BaseVisitor {
   column(ctx: CstChildrenDictionary, params: any): void {
     const indent = this.visit(ctx.indents as CstNode[])
 
-    this.visit(ctx.inline as CstNode[], { indent: indent, hasSeparator: params.hasSeparator })
+    this.visit(ctx.inline as CstNode[], {
+      indent: indent,
+      hasSeparator: params.hasSeparator,
+    })
     this.visit(ctx.horizontalGroup as CstNode[], { indent: indent })
 
     if (ctx.pageHeader) {
@@ -79,7 +82,11 @@ export class GroupVisitor extends BaseVisitor {
     for (const item of ctx.inlineItem as CstNode[]) {
       inlineGroupTokens.push(this.visit(item) ?? ([] as IToken[]))
     }
-    this.groupMap.addTokens(inlineGroupTokens, params.indent, params.hasSeparator)
+    this.groupMap.addTokens(
+      inlineGroupTokens,
+      params.indent,
+      params.hasSeparator
+    )
   }
 
   inlineItem(ctx: CstChildrenDictionary): CstElement[] {
@@ -87,7 +94,10 @@ export class GroupVisitor extends BaseVisitor {
   }
 
   horizontalGroup(ctx: CstChildrenDictionary, params: any): void {
-    this.groupMap.addHorizontalGroup(ctx.verticalGroupHeader as CstNode[], params.indent)
+    this.groupMap.addHorizontalGroup(
+      ctx.verticalGroupHeader as CstNode[],
+      params.indent
+    )
   }
 
   indents(ctx: CstChildrenDictionary): number {

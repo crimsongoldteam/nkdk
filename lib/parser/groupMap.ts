@@ -1,17 +1,17 @@
 import { CstNode, IToken } from "chevrotain"
 import { Detector } from "./detector"
-import { Parser } from "./parser"
+import { Parser } from "./elementsParser/parser"
 import {
-  FormNode,
-  TreeNode,
-  ContentNode,
-  PagesNode,
-  PageNode,
-  HorizontalGroupNode,
-  VerticalGroupNode,
   ContainerNode,
-  OneLineGroupNode,
+  ContentNode,
   EditorContainerNode,
+  FormNode,
+  HorizontalGroupNode,
+  OneLineGroupNode,
+  PageNode,
+  PagesNode,
+  TreeNode,
+  VerticalGroupNode,
 } from "./groupMapNodes"
 import { FieldNode, PropertiesNode } from "./nodes"
 
@@ -65,14 +65,22 @@ export class GroupMap {
     let curIndent = indent + 1
 
     for (let node of nodes) {
-      const container = this.createVerticalGroupNode(horizontalGroup, curIndent, node)
+      const container = this.createVerticalGroupNode(
+        horizontalGroup,
+        curIndent,
+        node
+      )
       this.addToNextLine(container)
 
       curIndent = 0
     }
   }
 
-  public addTokens(tokensGroups: IToken[][], indent: number, hasSeparator: boolean): void {
+  public addTokens(
+    tokensGroups: IToken[][],
+    indent: number,
+    hasSeparator: boolean
+  ): void {
     const containerInfo = this.getContainerAtIndent(indent)
 
     if (tokensGroups.length > 1) {
@@ -105,7 +113,11 @@ export class GroupMap {
     tokens.forEach((token) => this.addTokenToContentNode(contentNode, token))
   }
 
-  private addOneLineGroup(containerInfo: ContainerInfo, tokensGroups: IToken[][], indent: number): void {
+  private addOneLineGroup(
+    containerInfo: ContainerInfo,
+    tokensGroups: IToken[][],
+    indent: number
+  ): void {
     const group = new OneLineGroupNode(indent, containerInfo.node)
 
     for (const tokenGroup of tokensGroups) {
@@ -162,7 +174,11 @@ export class GroupMap {
     return new PagesNode(containerInfo.node)
   }
 
-  private createPageNode(parent: PagesNode, indent: number, headerNode: CstNode): PageNode {
+  private createPageNode(
+    parent: PagesNode,
+    indent: number,
+    headerNode: CstNode
+  ): PageNode {
     return new PageNode(headerNode, indent, parent)
   }
 
@@ -170,7 +186,9 @@ export class GroupMap {
 
   // #region group
 
-  private getCreateHorizontalGroupNode(containerInfo: ContainerInfo): HorizontalGroupNode {
+  private getCreateHorizontalGroupNode(
+    containerInfo: ContainerInfo
+  ): HorizontalGroupNode {
     if (containerInfo.exact && this.isPageNode(containerInfo.node)) {
       return containerInfo.node.parent as HorizontalGroupNode
     }
@@ -178,14 +196,22 @@ export class GroupMap {
     return new HorizontalGroupNode(containerInfo.node)
   }
 
-  private createVerticalGroupNode(parent: HorizontalGroupNode, indent: number, headerNode: CstNode): VerticalGroupNode {
+  private createVerticalGroupNode(
+    parent: HorizontalGroupNode,
+    indent: number,
+    headerNode: CstNode
+  ): VerticalGroupNode {
     return new VerticalGroupNode(headerNode, indent, parent)
   }
 
   // #endregion
 
   private isContainerNode(item: TreeNode): boolean {
-    return this.isRootNode(item) || this.isPageNode(item) || this.isVerticalGroupNode(item)
+    return (
+      this.isRootNode(item) ||
+      this.isPageNode(item) ||
+      this.isVerticalGroupNode(item)
+    )
   }
 
   private isRootNode(item: TreeNode): boolean {
@@ -218,10 +244,15 @@ export class GroupMap {
     return this.root
   }
 
-  private getBaseFirstColumnContainer(item: ContainerNode): VerticalGroupNode | FormNode {
+  private getBaseFirstColumnContainer(
+    item: ContainerNode
+  ): VerticalGroupNode | FormNode {
     let currentItem: TreeNode = item
 
-    while (!this.isRootNode(currentItem) && !this.isVerticalGroupNode(currentItem)) {
+    while (
+      !this.isRootNode(currentItem) &&
+      !this.isVerticalGroupNode(currentItem)
+    ) {
       currentItem = currentItem.parent
     }
 
@@ -292,7 +323,10 @@ export class GroupMap {
     return result
   }
 
-  private processProperties(items: CstNode[] | undefined, propertiesCache: CstNode[]): void {
+  private processProperties(
+    items: CstNode[] | undefined,
+    propertiesCache: CstNode[]
+  ): void {
     if (!items) return
     const processedItems: CstNode[] = []
 

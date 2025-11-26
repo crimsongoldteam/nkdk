@@ -1,5 +1,5 @@
-import { CstNode, EMPTY_ALT, EOF, IToken, CstParser } from "chevrotain"
-import * as t from "./lexer"
+import { CstNode, CstParser, EMPTY_ALT, EOF, IToken } from "chevrotain"
+import * as t from "../lexer"
 
 export class Parser extends CstParser {
   constructor() {
@@ -176,16 +176,19 @@ export class Parser extends CstParser {
     })
   })
 
-  private readonly verticalGroupHeader = this.RULE("verticalGroupHeader", () => {
-    this.CONSUME(t.Hash)
-    this.MANY(() => {
-      this.CONSUME(t.GroupHeaderText)
-    })
+  private readonly verticalGroupHeader = this.RULE(
+    "verticalGroupHeader",
+    () => {
+      this.CONSUME(t.Hash)
+      this.MANY(() => {
+        this.CONSUME(t.GroupHeaderText)
+      })
 
-    this.OPTION1(() => {
-      this.SUBRULE(this.properties)
-    })
-  })
+      this.OPTION1(() => {
+        this.SUBRULE(this.properties)
+      })
+    }
+  )
 
   // #endregion
 
@@ -362,19 +365,25 @@ export class Parser extends CstParser {
 
     this.MANY({
       GATE: () => {
-        return this.LA(1).tokenType == t.LabelFieldType && this.LA(2).tokenType == t.Underscore
+        return (
+          this.LA(1).tokenType == t.LabelFieldType &&
+          this.LA(2).tokenType == t.Underscore
+        )
       },
       DEF: () => {
         this.SUBRULE(this.inputFieldMultiline)
       },
     })
   })
-  private readonly inputFieldMultiline = this.RULE("inputFieldMultiline", () => {
-    this.CONSUME(t.LabelFieldType)
-    this.AT_LEAST_ONE(() => {
-      this.CONSUME2(t.Underscore)
-    })
-  })
+  private readonly inputFieldMultiline = this.RULE(
+    "inputFieldMultiline",
+    () => {
+      this.CONSUME(t.LabelFieldType)
+      this.AT_LEAST_ONE(() => {
+        this.CONSUME2(t.Underscore)
+      })
+    }
+  )
   // #endregion
 
   // #region checkboxField
@@ -603,11 +612,14 @@ export class Parser extends CstParser {
     })
   })
 
-  private readonly propertyValueOption = this.RULE("propertyValueOption", () => {
-    this.MANY1(() => {
-      this.CONSUME(t.PropertiesValueOptionText)
-    })
-  })
+  private readonly propertyValueOption = this.RULE(
+    "propertyValueOption",
+    () => {
+      this.MANY1(() => {
+        this.CONSUME(t.PropertiesValueOptionText)
+      })
+    }
+  )
 
   // #endregion
 
@@ -651,3 +663,5 @@ export class Parser extends CstParser {
 
   // #endregion
 }
+
+export const elementsParser = new Parser()
