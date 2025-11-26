@@ -17,6 +17,8 @@ const parseByElementType = (element: DetectedTreeNode): CstNode => {
   switch (element.type) {
     case ZElementType.enum.LabelDecoration:
       return elementsParser.parseLabelDecoration(element.tokens)
+    case ZElementType.enum.InputField:
+      return elementsParser.parseInputField(element.tokens)
     default:
       throw new Error(`Unknown element type: ${element.type}`)
   }

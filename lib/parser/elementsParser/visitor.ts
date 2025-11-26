@@ -9,6 +9,7 @@
 // } from "~/lib/metadata/forms/elements/clientApplicationForm/parseVisit"
 
 import { CstChildrenDictionary, CstNode, IToken } from "chevrotain"
+import { TInputField } from "~/lib/metadata/forms/elements/inputField/types"
 import { TLabelDecoration } from "~/lib/metadata/forms/elements/labelDecoration/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import { joinTokens } from "../visitorUtils"
@@ -33,6 +34,19 @@ export class Visitor extends BaseVisitor {
       name: name || "",
       id: undefined,
     } as TLabelDecoration
+  }
+
+  inputField(ctx: CstChildrenDictionary): TInputField {
+    const name =
+      joinTokens(ctx.InputHeader as IToken[]) ||
+      joinTokens(ctx.InputValue as IToken[]) ||
+      ""
+
+    return {
+      elementType: ZElementType.enum.InputField,
+      name: name || "",
+      id: undefined,
+    } as TInputField
   }
 }
 

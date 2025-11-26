@@ -37,6 +37,11 @@ export class Parser extends CstParser {
     return this.labelDecoration()
   }
 
+  public parseInputField(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.inputField()
+  }
+
   // #region form
 
   private readonly editorContainer = this.RULE("editorContainer", () => {
