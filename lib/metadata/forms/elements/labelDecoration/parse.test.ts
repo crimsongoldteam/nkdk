@@ -10,6 +10,22 @@ const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
 }
 
+const parseLabelDecoration = (
+  mock: string,
+  expectedResult: TLabelDecoration
+) => {
+  const tokens = lexer.tokenize(mock).tokens
+
+  const node: DetectedTreeNode = {
+    tokens,
+    type: ZElementType.enum.LabelDecoration,
+    childItems: [],
+  }
+
+  const result = parseElement(node, configurationSettings)
+  expect(result).toEqual(expectedResult)
+}
+
 describe("parse LabelDecoration", () => {
   it("should parse label decoration", () => {
     const mock = "text"
@@ -23,16 +39,7 @@ describe("parse LabelDecoration", () => {
       id: undefined,
     }
 
-    const tokens = lexer.tokenize(mock).tokens
-
-    const node: DetectedTreeNode = {
-      tokens,
-      type: ZElementType.enum.LabelDecoration,
-      childItems: [],
-    }
-
-    const result = parseElement(node, configurationSettings)
-    expect(result).toEqual(expectedResult)
+    parseLabelDecoration(mock, expectedResult)
   })
 
   it("should parse label decoration with name", () => {
@@ -47,15 +54,18 @@ describe("parse LabelDecoration", () => {
       id: undefined,
     }
 
-    const tokens = lexer.tokenize(mock).tokens
+    parseLabelDecoration(mock, expectedResult)
+  })
 
-    const node: DetectedTreeNode = {
-      tokens,
-      type: ZElementType.enum.LabelDecoration,
-      childItems: [],
+  it("should parse label decoration without title", () => {
+    const mock = "{label}"
+
+    const expectedResult: TLabelDecoration = {
+      elementType: ZElementType.enum.LabelDecoration,
+      name: "label",
+      id: undefined,
     }
 
-    const result = parseElement(node, configurationSettings)
-    expect(result).toEqual(expectedResult)
+    parseLabelDecoration(mock, expectedResult)
   })
 })
