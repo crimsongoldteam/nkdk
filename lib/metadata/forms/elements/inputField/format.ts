@@ -1,9 +1,9 @@
-import * as t from "~/lib/parser/lexer"
-import { type TInputField } from "./types"
-import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
-import { isMultiline } from "./helpers"
 import { formatElementName } from "~/lib/format/helpers"
+import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import * as t from "~/lib/parser/treeParser/lexer"
+import { isMultiline } from "./helpers"
+import { type TInputField } from "./types"
 
 const UNDERLINE = t.Underscore.LABEL as string
 const COLON = t.Colon.LABEL as string
@@ -47,7 +47,11 @@ const formatTitle = (element: TInputField, hasTitle: boolean): string => {
   return element.title?.items.ru ?? ""
 }
 
-const formatNamePart = (element: TInputField, hasTitle: boolean, hasValue: boolean): string => {
+const formatNamePart = (
+  element: TInputField,
+  hasTitle: boolean,
+  hasValue: boolean
+): string => {
   if (!hasTitle) return ""
 
   // Добавляем пробел перед именем только если есть значение

@@ -515,7 +515,7 @@ export const propertiesTokens = [
   ElementName,
 ]
 
-const multiModeLexerDefinition: IMultiModeLexerDefinition = {
+export const multiModeLexerDefinition: IMultiModeLexerDefinition = {
   modes: {
     properties_mode: propertiesTokens,
     default_mode: allTokens,

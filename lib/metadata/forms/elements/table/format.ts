@@ -4,7 +4,7 @@ import {
   IFormatterParams,
 } from "~/lib/format/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import * as t from "~/lib/parser/lexer"
+import * as t from "~/lib/parser/treeParser/lexer"
 import { TBaseElement } from "../baseElement/types"
 import { TColumnGroup } from "../columnGroup/types"
 import { TInputField } from "../inputField/types"

@@ -6,7 +6,7 @@ import {
   ZUsualGroupBehavior,
   ZUsualGroupRepresentation,
 } from "~/lib/metadata/systemEnumerations/types"
-import * as t from "~/lib/parser/lexer"
+import * as t from "~/lib/parser/treeParser/lexer"
 import { TUsualGroup } from "../types"
 
 export const formatVerticalGroup = (
