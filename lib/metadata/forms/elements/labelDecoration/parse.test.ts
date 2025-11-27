@@ -10,10 +10,7 @@ const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
 }
 
-const parseLabelDecoration = (
-  mock: string,
-  expectedResult: TLabelDecoration
-) => {
+const parseLabelDecoration = (mock: string) => {
   const tokens = lexer.tokenize(mock).tokens
 
   const node: DetectedTreeNode = {
@@ -22,8 +19,7 @@ const parseLabelDecoration = (
     childItems: [],
   }
 
-  const result = parseElement(node, configurationSettings)
-  expect(result).toEqual(expectedResult)
+  return parseElement(node, configurationSettings)
 }
 
 describe("parse LabelDecoration", () => {
@@ -39,7 +35,8 @@ describe("parse LabelDecoration", () => {
       id: undefined,
     }
 
-    parseLabelDecoration(mock, expectedResult)
+    const result = parseLabelDecoration(mock)
+    expect(result).toEqual(expectedResult)
   })
 
   it("should parse label decoration with name", () => {
@@ -54,7 +51,8 @@ describe("parse LabelDecoration", () => {
       id: undefined,
     }
 
-    parseLabelDecoration(mock, expectedResult)
+    const result = parseLabelDecoration(mock)
+    expect(result).toEqual(expectedResult)
   })
 
   it("should parse label decoration without title", () => {
@@ -66,6 +64,7 @@ describe("parse LabelDecoration", () => {
       id: undefined,
     }
 
-    parseLabelDecoration(mock, expectedResult)
+    const result = parseLabelDecoration(mock)
+    expect(result).toEqual(expectedResult)
   })
 })
