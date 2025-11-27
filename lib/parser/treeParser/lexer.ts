@@ -53,6 +53,11 @@ export const RadioButtonValueDescription = createToken({
   pattern: Lexer.NA,
 })
 
+export const ElementName = createToken({
+  name: "ElementName",
+  pattern: Lexer.NA,
+})
+
 export const Button = createToken({ name: "Button", pattern: Lexer.NA })
 
 export const TableCell = createToken({ name: "TableCell", pattern: Lexer.NA })
@@ -99,6 +104,7 @@ export const combineTokens = [
   TableCell,
   TableCellContinue,
   RadioButtonValueDescription,
+  ElementName,
 ]
 
 // #endregion
@@ -506,6 +512,7 @@ export const propertiesTokens = [
   PropertiesNameText,
   PropertiesValueText,
   PropertiesValueOptionText,
+  ElementName,
 ]
 
 const multiModeLexerDefinition: IMultiModeLexerDefinition = {

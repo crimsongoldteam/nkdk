@@ -16,10 +16,8 @@ import {
   Button,
   CheckboxChecked,
   CheckboxHeader,
-  CheckboxLeftFieldType,
-  CheckboxRightFieldType,
   Colon,
-  CommandBarType,
+  ElementName,
   GroupHeaderText,
   Hash,
   InputHeader,
@@ -28,15 +26,14 @@ import {
   LAngle,
   PageHeaderText,
   RadioButtonChecked,
-  RadioButtonFieldType,
   RadioButtonHeader,
   RAngle,
   Slash,
   TableCell,
-  TableType,
   VBar,
-} from "../lexer"
+} from "~/lib/parser/treeParser/lexer"
 import { DetectedTreeNode } from "../treeParser/detectTree"
+import { RadioButtonFieldType, TableType } from "../treeParser/lexer"
 import { parseElement } from "./parse"
 
 describe("parseElements", () => {
@@ -56,6 +53,17 @@ describe("parseElements", () => {
     const result = parseElement(mock)
 
     expect(result).toEqual(expectedResult)
+  })
+
+  it("should parse label decoration element with name", () => {
+    const mock: DetectedTreeNode = {
+      tokens: [
+        createTokenInstance(LabelContent, "text", 0, 0, 0, 0, 0, 0),
+        createTokenInstance(ElementName, "label", 0, 0, 0, 0, 0, 0),
+      ],
+      type: ZElementType.enum.LabelDecoration,
+      childItems: [],
+    }
   })
 
   it("should parse input field element", () => {
@@ -101,7 +109,6 @@ describe("parseElements", () => {
   it("should parse checkbox field element (left)", () => {
     const mock: DetectedTreeNode = {
       tokens: [
-        createTokenInstance(CheckboxLeftFieldType, "", 0, 0, 0, 0, 0, 0),
         createTokenInstance(CheckboxChecked, "[X]", 0, 0, 0, 0, 0, 0),
         createTokenInstance(CheckboxHeader, "CheckboxText", 0, 0, 0, 0, 0, 0),
       ],
@@ -123,7 +130,6 @@ describe("parseElements", () => {
   it("should parse checkbox field element (right)", () => {
     const mock: DetectedTreeNode = {
       tokens: [
-        createTokenInstance(CheckboxRightFieldType, "", 0, 0, 0, 0, 0, 0),
         createTokenInstance(CheckboxHeader, "CheckboxText", 0, 0, 0, 0, 0, 0),
         createTokenInstance(CheckboxChecked, "[X]", 0, 0, 0, 0, 0, 0),
       ],
@@ -145,7 +151,6 @@ describe("parseElements", () => {
   it("should parse command bar element", () => {
     const mock: DetectedTreeNode = {
       tokens: [
-        createTokenInstance(CommandBarType, "", 0, 0, 0, 0, 0, 0),
         createTokenInstance(LAngle, "<", 0, 0, 0, 0, 0, 0),
         createTokenInstance(Button, "Button1", 0, 0, 0, 0, 0, 0),
         createTokenInstance(VBar, "|", 0, 0, 0, 0, 0, 0),

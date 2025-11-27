@@ -9,6 +9,7 @@
 // } from "~/lib/metadata/forms/elements/clientApplicationForm/parseVisit"
 
 import { CstChildrenDictionary, CstNode, IToken } from "chevrotain"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { TButton } from "~/lib/metadata/forms/elements/button/types"
 import { TCheckBoxField } from "~/lib/metadata/forms/elements/checkBoxField/types"
 import { TCommandBar } from "~/lib/metadata/forms/elements/commandBar/types"
@@ -26,20 +27,26 @@ import { Parser } from "./parser"
 const BaseVisitor: new () => any = new Parser().getBaseCstVisitorConstructor()
 
 export class Visitor extends BaseVisitor {
-  constructor() {
-    super()
-  }
+  public labelDecoration(
+    ctx: CstChildrenDictionary,
+    configurationSettings: TConfigurationSettings
+  ): TLabelDecoration {
+    const labelContent = joinTokens(ctx.LabelContent as IToken[]) || ""
+    const elementName = joinTokens(ctx.ElementName as IToken[])
 
-  public visit(ast: CstNode): any {
-    return super.visit(ast)
-  }
-
-  labelDecoration(ctx: CstChildrenDictionary): TLabelDecoration {
-    const name = joinTokens(ctx.LabelContent as IToken[])
+    const titleText = labelContent
+    const name = elementName || labelContent
 
     return {
       elementType: ZElementType.enum.LabelDecoration,
       name: name || "",
+      title: titleText
+        ? {
+            items: {
+              [configurationSettings.defaultLanguage]: titleText,
+            },
+          }
+        : undefined,
       id: undefined,
     } as TLabelDecoration
   }
