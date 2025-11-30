@@ -1,7 +1,6 @@
 import type { CstNode } from "chevrotain"
 import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import type { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import type { DetectedTreeNode } from "../treeParser/detectTree"
 import { ParseElementType } from "../types"
 import { elementsParser } from "./parser"
@@ -30,6 +29,8 @@ const parseByElementType = (element: DetectedTreeNode): CstNode => {
       return elementsParser.parseRightTitledCheckboxField(element.tokens)
     case ParseElementType.LeftTitledCheckboxField:
       return elementsParser.parseLeftTitledCheckboxField(element.tokens)
+    case ParseElementType.RadioButtonField:
+      return elementsParser.parseRadioButtonField(element.tokens)
     default:
       throw new Error(`Unknown element type: ${element.type}`)
   }

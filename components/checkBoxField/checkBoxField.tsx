@@ -1,18 +1,12 @@
-import React, { useState } from "react"
 import { Checkbox } from "antd"
-import { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
-
-interface ICheckBoxFieldHTMLProps {
-  name: string
-  title?: TI8nText
-}
-
-export function CheckBoxFieldComponent(props: Readonly<ICheckBoxFieldHTMLProps>): React.ReactNode {
-  const [title] = useState(props.title?.items.ru || "")
-  const [name] = useState(props.name)
+import type React from "react"
+import { useState } from "react"
+import type { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
+import type { TCheckBoxField } from "~/lib/metadata/forms/elements/checkBoxField/types"
+export function CheckBoxFieldComponent(props: Readonly<TCheckBoxField>): React.ReactNode {
   return (
-    <Checkbox id={`checkbox_${name}`} type="primary" onClick={() => {}}>
-      {title}
+    <Checkbox id={`checkbox_${props.name}`} type="primary" onClick={() => {}}>
+      {props.title?.items.ru}
     </Checkbox>
   )
 }

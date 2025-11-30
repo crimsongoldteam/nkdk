@@ -31,10 +31,16 @@ export class Parser extends CstParser {
     this.input = tokens
     return this.leftTitledCheckboxField()
   }
+
+  public parseRadioButtonField(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.radioButtonField()
+  }
+
   // #region labelField
 
   private readonly labelDecoration = this.RULE("labelDecoration", () => {
-    this.aligment("left")
+    // this.aligment("left")
 
     this.MANY1(() => {
       this.CONSUME(t.LabelContent)
@@ -44,7 +50,7 @@ export class Parser extends CstParser {
       this.SUBRULE(this.properties)
     })
 
-    this.aligment("right")
+    // this.aligment("right")
   })
 
   // #endregion
@@ -75,7 +81,7 @@ export class Parser extends CstParser {
       this.SUBRULE(this.properties)
     })
 
-    this.aligment("right")
+    // this.aligment("right")
   })
 
   // #endregion
@@ -83,7 +89,7 @@ export class Parser extends CstParser {
   // #region checkboxField
 
   private readonly rightTitledCheckboxField = this.RULE("rightTitledCheckboxField", () => {
-    // this.aligment("left")
+    this.aligment("left")
 
     this.choice(
       1,
@@ -118,14 +124,6 @@ export class Parser extends CstParser {
     this.MANY1(() => {
       this.CONSUME(t.CheckboxHeader)
     })
-  })
-    this.CONSUME(t.CheckboxRightFieldType)
-
-    this.aligment("left")
-
-    this.MANY1(() => {
-      this.CONSUME(t.CheckboxHeader)
-    })
 
     this.choice(
       1,
@@ -154,10 +152,8 @@ export class Parser extends CstParser {
 
   // #region radioButtonField
 
-  private readonly rightTitledRadioButtonField = this.RULE("rightTitledRadioButtonField", () => {
-    this.CONSUME(t.RadioButtonFieldType)
-
-    this.aligment("left")
+  private readonly radioButtonField = this.RULE("rightTitledRadioButtonField", () => {
+    // this.aligment("left")
 
     this.OPTION1(() => {
       this.MANY1(() => {
@@ -177,7 +173,7 @@ export class Parser extends CstParser {
     this.aligment("right")
   })
 
-  private readonly rightTitledRadioButtonItem = this.RULE("rightTitledRadioButtonItem", () => {
+  private readonly radioButtonItem = this.RULE("radioButtonItem", () => {
     this.choice(
       1,
       () => {
@@ -261,17 +257,15 @@ export class Parser extends CstParser {
 
   private aligment(direction: "left" | "right"): void {
     const idx1 = direction === "left" ? 6 : 8
-    const idx2 = idx1 + 1
-    const idx3 = idx2 + 1
     this.or(idx1, [
       {
         ALT: () => {
-          this.consume(idx2, t.LArrow, { LABEL: `${direction}ArrowLeft` })
+          this.CONSUME(t.LArrow, { LABEL: `${direction}ArrowLeft` })
         },
       },
       {
         ALT: () => {
-          this.consume(idx3, t.RArrow, { LABEL: `${direction}ArrowRight` })
+          this.CONSUME(t.RArrow, { LABEL: `${direction}ArrowRight` })
         },
       },
       { ALT: EMPTY_ALT },
@@ -287,13 +281,13 @@ export class Parser extends CstParser {
   }
 
   // https://github.com/bia-technologies/yaxunit-editor
-  private binaryExpression(operand: any, operator: any) {
-    this.SUBRULE1(operand)
-    this.MANY(() => {
-      this.CONSUME(operator)
-      this.SUBRULE2(operand)
-    })
-  }
+  // private binaryExpression(operand: any, operator: any) {
+  //   this.SUBRULE1(operand)
+  //   this.MANY(() => {
+  //     this.CONSUME(operator)
+  //     this.SUBRULE2(operand)
+  //   })
+  // }
 
   // #endregion
 }

@@ -3,6 +3,7 @@ import type { TConfigurationSettings } from "~/lib/metadata/configurationSetting
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import type { DetectedTreeNode } from "~/lib/parser/treeParser/detectTree"
 import { lexer } from "~/lib/parser/treeParser/lexer"
+import { ParseElementType } from "~/lib/parser/types"
 import { ZElementType } from "../types"
 import type { TButton } from "./types"
 
@@ -33,7 +34,7 @@ const parseButton = (mock: string) => {
 
   const node: DetectedTreeNode = {
     tokens,
-    type: ZElementType.enum.Button,
+    type: ParseElementType.Button,
     childItems: [],
   }
 

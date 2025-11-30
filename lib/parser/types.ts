@@ -7,8 +7,6 @@ export enum ParseElementType {
   CommandBar = "CommandBar",
   Table = "Table",
   RadioButtonField = "RadioButtonField",
-  LeftTitledRadioButtonField = "LeftTitledRadioButtonField",
-  RightTitledRadioButtonField = "RightTitledRadioButtonField",
   PictureDecoration = "PictureDecoration",
   Page = "Page",
   Pages = "Pages",

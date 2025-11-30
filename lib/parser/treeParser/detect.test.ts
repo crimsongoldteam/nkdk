@@ -128,15 +128,6 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.LeftTitledRadioButtonField)
-  })
-
-  it("should detect right titled radio button containing ()", () => {
-    const mock = `()Some Text`
-
-    const tokens = lexer.tokenize(mock).tokens
-    const result = detectElementType(tokens)
-
-    expect(result).toEqual(ParseElementType.RightTitledRadioButtonField)
+    expect(result).toEqual(ParseElementType.RadioButtonField)
   })
 })

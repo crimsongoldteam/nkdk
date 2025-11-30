@@ -75,25 +75,20 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
     return ParseElementType.UsualGroup
   }
 
-  const {
-    hasColon,
-    hasRightCheckbox,
-    hasRightRadioButton,
-    hasRadioButton,
-    hasTextBeforeLastRadioButton,
-  } = analyzeTokens(significantTokens, checkboxTokens, radioButtonTokens)
+  const { hasColon, hasRightCheckbox, hasRadioButton } = analyzeTokens(
+    significantTokens,
+    checkboxTokens,
+    radioButtonTokens
+  )
 
   return determineFieldType(
     hasVBar,
     hasColon,
     hasRightCheckbox,
-    hasRightRadioButton,
     hasRadioButton,
-    hasTextBeforeLastRadioButton,
     hasLeftArrow,
     firstTokenType,
-    checkboxTokens,
-    radioButtonTokens
+    checkboxTokens
   )
 }
 
@@ -120,15 +115,13 @@ export const analyzeTokens = (
 ): {
   hasColon: boolean
   hasRightCheckbox: boolean
-  hasRightRadioButton: boolean
   hasRadioButton: boolean
   hasTextBeforeLastRadioButton: boolean
 } => {
   let hasColon = false
   let hasRightCheckbox = false
-  let hasRightRadioButton = false
   let hasRadioButton = false
-  let hasTextBeforeLastRadioButton = false
+  const hasTextBeforeLastRadioButton = false
   let insideProperties = false
   let lastToken: IToken | undefined
   const tokensBeforeLast: IToken[] = []
@@ -163,16 +156,9 @@ export const analyzeTokens = (
     hasRightCheckbox = true
   }
 
-  if (lastToken && radioButtonTokens.includes(lastToken.tokenType)) {
-    hasRightRadioButton = true
-    // Проверяем, есть ли текст перед последней радиокнопкой
-    hasTextBeforeLastRadioButton = tokensBeforeLast.some((token) => token.tokenType.name === "Text")
-  }
-
   return {
     hasColon,
     hasRightCheckbox,
-    hasRightRadioButton,
     hasRadioButton,
     hasTextBeforeLastRadioButton,
   }
@@ -182,29 +168,16 @@ export const determineFieldType = (
   hasVBar: boolean,
   hasColon: boolean,
   hasRightCheckbox: boolean,
-  hasRightRadioButton: boolean,
   hasRadioButton: boolean,
-  hasTextBeforeLastRadioButton: boolean,
   hasLeftArrow: boolean,
   firstTokenType: IToken["tokenType"],
-  checkboxTokens: (typeof CheckboxChecked)[],
-  radioButtonTokens: (typeof RadioButtonChecked)[]
+  checkboxTokens: (typeof CheckboxChecked)[]
 ): ParseElementType => {
   if (hasVBar && !hasLeftArrow) {
     return ParseElementType.Table
   }
 
-  if (hasRightRadioButton) {
-    if (hasTextBeforeLastRadioButton) {
-      return ParseElementType.LeftTitledRadioButtonField
-    }
-    return ParseElementType.RadioButtonField
-  }
-
   if (hasRadioButton) {
-    if (radioButtonTokens.includes(firstTokenType as typeof RadioButtonChecked)) {
-      return ParseElementType.RightTitledRadioButtonField
-    }
     return ParseElementType.RadioButtonField
   }
 
