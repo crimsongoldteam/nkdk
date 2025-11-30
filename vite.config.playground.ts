@@ -1,5 +1,5 @@
-import { defineConfig } from "vite"
 import * as path from "path"
+import { defineConfig } from "vite"
 
 export default defineConfig((api) => {
   const isDev = api.mode === "development"

@@ -1,6 +1,6 @@
 import { Divider, Space } from "antd"
-import React from "react"
-import { TChildItems } from "~/lib/metadata/forms/elements/childItems/types"
+import type React from "react"
+import type { TChildItems } from "~/lib/metadata/forms/elements/childItems/types"
 import { components } from "../components"
 
 interface IClientFormApplicationHTMLProps {
@@ -19,12 +19,9 @@ export function ClientFormApplication(
       <Divider />
       <Space direction="vertical" size="middle">
         {childItems.map((item) => {
-          const Component =
-            components[item.elementType as keyof typeof components]
+          const Component = components[item.elementType as keyof typeof components]
           if (!Component) {
-            return (
-              <div key={item.name}>Компонент {item.elementType} не найден</div>
-            )
+            return <div key={item.name}>Компонент {item.elementType} не найден</div>
           }
           return <Component key={item.name} {...item} />
         })}

@@ -1,15 +1,29 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit",
-    "source.organizeImports": "always",
-    "source.addMissingImports": "always"
-  },
-  "prettier.semi": false,
+  "editor.defaultFormatter": "biomejs.biome",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
   "vitest.nodeExecutable": "/opt/homebrew/bin/node",
   "terminal.integrated.env.osx": {
     "PATH": "${env:PATH}:/opt/homebrew/bin"
+  },
+
+  "npm.packageManager": "pnpm",
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "typescript.suggest.autoImports": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports.biome": "always",
+    "source.addMissingImports.biome": "always",
+    "source.fixAll.biome": "explicit"
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/.git": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/yarn.lock": true
   }
 }

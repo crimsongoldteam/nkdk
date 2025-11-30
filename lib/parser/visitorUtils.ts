@@ -1,4 +1,4 @@
-import { CstElement, CstNode, IToken } from "chevrotain"
+import type { CstElement, CstNode, IToken } from "chevrotain"
 
 export function joinTokens(tokens: { image: string }[]): string | undefined {
   if (tokens === undefined) {

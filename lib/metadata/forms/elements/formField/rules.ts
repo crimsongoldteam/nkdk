@@ -15,7 +15,7 @@ import { formatSystemEnumeration } from "~/lib/metadata/systemEnumerations/forma
 import { parseSystemEnumeration } from "~/lib/metadata/systemEnumerations/parse"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { registerElementRules } from "~/lib/rulesManager/rulesManager"
-import { TElementRules } from "~/lib/rulesManager/types"
+import type { TElementRules } from "~/lib/rulesManager/types"
 import { ZCommandBar } from "../commandBar/types"
 import { ZFormDecoration } from "../formDecoration/types"
 import { ZTable } from "../table/types"

@@ -1,4 +1,4 @@
-import { CstNode, CstParser, EMPTY_ALT, IToken } from "chevrotain"
+import { type CstNode, CstParser, EMPTY_ALT, type IToken } from "chevrotain"
 import * as t from "../treeParser/lexer"
 
 export class Parser extends CstParser {
@@ -12,6 +12,10 @@ export class Parser extends CstParser {
     return this.labelDecoration()
   }
 
+  public parseInputField(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.inputField()
+  }
   // #region labelField
 
   private readonly labelDecoration = this.RULE("labelDecoration", () => {
@@ -34,12 +38,71 @@ export class Parser extends CstParser {
 
   // #endregion
 
+  // #region inputField
+
+  private readonly inputField = this.RULE("inputField", () => {
+    // this.aligment("left")
+
+    this.MANY1(() => {
+      this.CONSUME(t.InputHeader)
+    })
+    this.CONSUME(t.Colon)
+    this.MANY2(() => {
+      this.CONSUME(t.InputValue)
+    })
+
+    this.OPTION1(() => {
+      this.CONSUME(t.Underscore)
+      this.MANY3(() => {
+        this.CONSUME(t.InputModifiers)
+      })
+    })
+
+    this.OPTION2(() => {
+      this.SUBRULE(this.properties)
+    })
+
+    this.aligment("right")
+
+    // this.MANY({
+    //   GATE: () => {
+    //     return this.LA(1).tokenType == t.LabelFieldType && this.LA(2).tokenType == t.Underscore
+    //   },
+    //   DEF: () => {
+    //     this.SUBRULE(this.inputFieldMultiline)
+    //   },
+    // })
+  })
+  // private readonly inputFieldMultiline = this.RULE("inputFieldMultiline", () => {
+  //   this.CONSUME(t.LabelFieldType)
+  //   this.AT_LEAST_ONE(() => {
+  //     this.CONSUME2(t.Underscore)
+  //   })
+  // })
+  // #endregion
+
+  // #region properties
+
+  private readonly properties = this.RULE("properties", () => {
+    this.CONSUME(t.LCurly)
+
+    this.MANY1(() => {
+      this.CONSUME(t.PropertiesNameText)
+    })
+
+    this.OPTION2(() => {
+      this.CONSUME(t.RCurly)
+    })
+  })
+
+  // #endregion
+
   // #region etc
 
   private aligment(direction: "left" | "right"): void {
-    let idx1 = direction === "left" ? 6 : 8
-    let idx2 = idx1 + 1
-    let idx3 = idx2 + 1
+    const idx1 = direction === "left" ? 6 : 8
+    const idx2 = idx1 + 1
+    const idx3 = idx2 + 1
     this.or(idx1, [
       {
         ALT: () => {

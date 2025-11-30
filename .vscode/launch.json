@@ -2,12 +2,25 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch Chrome",
+      "request": "launch",
+      "type": "chrome",
+      "url": "http://localhost:3000/playground.html",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
       "type": "node",
       "request": "launch",
       "name": "Debug Current Test File",
       "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["exec", "vitest", "run", "${relativeFile}", "--no-coverage"],
+      "runtimeArgs": [
+        "exec",
+        "vitest",
+        "run",
+        "${relativeFile}",
+        "--no-coverage"
+      ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "autoAttachChildProcesses": true,
@@ -15,7 +28,10 @@
         "NODE_ENV": "test"
       },
       "sourceMaps": true,
-      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
     },
     {
       "type": "node",
@@ -31,7 +47,10 @@
         "NODE_ENV": "test"
       },
       "sourceMaps": true,
-      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
     },
     {
       "type": "node",
@@ -47,7 +66,10 @@
         "NODE_ENV": "test"
       },
       "sourceMaps": true,
-      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
     },
     {
       "type": "node",
@@ -55,7 +77,14 @@
       "name": "Debug Test by Name",
       "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["exec", "vitest", "run", "-t", "${input:testName}", "--no-coverage"],
+      "runtimeArgs": [
+        "exec",
+        "vitest",
+        "run",
+        "-t",
+        "${input:testName}",
+        "--no-coverage"
+      ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "autoAttachChildProcesses": true,
@@ -63,7 +92,10 @@
         "NODE_ENV": "test"
       },
       "sourceMaps": true,
-      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"]
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
     },
     {
       "type": "node",
@@ -71,7 +103,13 @@
       "name": "Debug Vitest (Inspector)",
       "skipFiles": ["<node_internals>/**"],
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["exec", "vitest", "--inspect-brk", "${relativeFile}", "--no-coverage"],
+      "runtimeArgs": [
+        "exec",
+        "vitest",
+        "--inspect-brk",
+        "${relativeFile}",
+        "--no-coverage"
+      ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "autoAttachChildProcesses": true,
@@ -79,7 +117,10 @@
         "NODE_ENV": "test"
       },
       "sourceMaps": true,
-      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ],
       "stopOnEntry": false
     }
   ],

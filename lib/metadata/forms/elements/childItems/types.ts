@@ -14,71 +14,38 @@ import {
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZFormField, ZFormFieldXML } from "../formField/types"
 import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
-import {
-  ZFormItemAddition,
-  ZFormItemAdditionXML,
-} from "../formItemAddition/types"
+import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
 import { ZGanttChartField, ZGanttChartFieldXML } from "../ganttChartField/types"
 import {
   ZGeographicalSchemaField,
   ZGeographicalSchemaFieldXML,
 } from "../geographicalSchemaField/types"
-import {
-  ZGraphicalSchemaField,
-  ZGraphicalSchemaFieldXML,
-} from "../graphicalSchemaField/types"
-import {
-  ZHTMLDocumentField,
-  ZHTMLDocumentFieldXML,
-} from "../htmlDocumentField/types"
+import { ZGraphicalSchemaField, ZGraphicalSchemaFieldXML } from "../graphicalSchemaField/types"
+import { ZHTMLDocumentField, ZHTMLDocumentFieldXML } from "../htmlDocumentField/types"
 import { ZInputField, ZInputFieldXML } from "../inputField/types"
 import { ZLabelDecoration, ZLabelDecorationXML } from "../labelDecoration/types"
 import { ZLabelField, ZLabelFieldXML } from "../labelField/types"
 import { ZPage, ZPageXML } from "../page/types"
 import { ZPages, ZPagesXML } from "../pages/types"
-import {
-  ZPdfDocumentField,
-  ZPdfDocumentFieldXML,
-} from "../pdfDocumentField/types"
+import { ZPdfDocumentField, ZPdfDocumentFieldXML } from "../pdfDocumentField/types"
 import { ZPeriodField, ZPeriodFieldXML } from "../periodField/types"
-import {
-  ZPictureDecoration,
-  ZPictureDecorationXML,
-} from "../pictureDecoration/types"
+import { ZPictureDecoration, ZPictureDecorationXML } from "../pictureDecoration/types"
 import { ZPictureField, ZPictureFieldXML } from "../pictureField/types"
 import { ZPlannerField, ZPlannerFieldXML } from "../plannerField/types"
 import { ZPopup, ZPopupXML } from "../popup/types"
-import {
-  ZProgressBarField,
-  ZProgressBarFieldXML,
-} from "../progressBarField/types"
-import {
-  ZRadioButtonField,
-  ZRadioButtonFieldXML,
-} from "../radioButtonField/types"
-import {
-  ZSearchControlAddition,
-  ZSearchControlAdditionXML,
-} from "../searchControlAddition/types"
-import {
-  ZSearchStringAddition,
-  ZSearchStringAdditionXML,
-} from "../searchStringAddition/types"
+import { ZProgressBarField, ZProgressBarFieldXML } from "../progressBarField/types"
+import { ZRadioButtonField, ZRadioButtonFieldXML } from "../radioButtonField/types"
+import { ZSearchControlAddition, ZSearchControlAdditionXML } from "../searchControlAddition/types"
+import { ZSearchStringAddition, ZSearchStringAdditionXML } from "../searchStringAddition/types"
 import {
   ZSpreadSheetDocumentField,
   ZSpreadSheetDocumentFieldXML,
 } from "../spreadSheetDocumentField/types"
 import { ZTable, ZTableXML } from "../table/types"
-import {
-  ZTextDocumentField,
-  ZTextDocumentFieldXML,
-} from "../textDocumentField/types"
+import { ZTextDocumentField, ZTextDocumentFieldXML } from "../textDocumentField/types"
 import { ZTrackBarField, ZTrackBarFieldXML } from "../trackBarField/types"
 import { ZUsualGroup, ZUsualGroupXML } from "../usualGroup/types"
-import {
-  ZViewStatusAddition,
-  ZViewStatusAdditionXML,
-} from "../viewStatusAddition/types"
+import { ZViewStatusAddition, ZViewStatusAdditionXML } from "../viewStatusAddition/types"
 
 export const ZChildItem = z.discriminatedUnion("elementType", [
   ZButton,

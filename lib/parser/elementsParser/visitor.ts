@@ -1,30 +1,21 @@
-// import { CstChildrenDictionary, CstNode } from "chevrotain"
-// import { Parser } from "./parser"
-// import inputFieldVisit from "~/lib/metadata/forms/elements/inputField/parseVisit"
-// import { TInputField } from "~/lib/metadata/forms/elements/inputField/types"
-// import { TClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
-// import clientApplicationFormVisit, {
-//   clientApplicationFormHeaderVisit,
-//   IClientApplicationFormHeaderVisit,
-// } from "~/lib/metadata/forms/elements/clientApplicationForm/parseVisit"
-
-import { CstChildrenDictionary, CstNode, IToken } from "chevrotain"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { TButton } from "~/lib/metadata/forms/elements/button/types"
-import { TCheckBoxField } from "~/lib/metadata/forms/elements/checkBoxField/types"
-import { TCommandBar } from "~/lib/metadata/forms/elements/commandBar/types"
-import { TInputField } from "~/lib/metadata/forms/elements/inputField/types"
-import { TLabelDecoration } from "~/lib/metadata/forms/elements/labelDecoration/types"
-import { TPage } from "~/lib/metadata/forms/elements/page/types"
-import { TPages } from "~/lib/metadata/forms/elements/pages/types"
-import { TRadioButtonField } from "~/lib/metadata/forms/elements/radioButtonField/types"
-import { TTable } from "~/lib/metadata/forms/elements/table/types"
+import type { CstChildrenDictionary, CstNode, IToken } from "chevrotain"
+import type { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
+import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import type { TButton } from "~/lib/metadata/forms/elements/button/types"
+import type { TCheckBoxField } from "~/lib/metadata/forms/elements/checkBoxField/types"
+import type { TCommandBar } from "~/lib/metadata/forms/elements/commandBar/types"
+import type { TInputField } from "~/lib/metadata/forms/elements/inputField/types"
+import type { TLabelDecoration } from "~/lib/metadata/forms/elements/labelDecoration/types"
+import type { TPage } from "~/lib/metadata/forms/elements/page/types"
+import type { TPages } from "~/lib/metadata/forms/elements/pages/types"
+import type { TRadioButtonField } from "~/lib/metadata/forms/elements/radioButtonField/types"
+import type { TTable } from "~/lib/metadata/forms/elements/table/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import { TUsualGroup } from "~/lib/metadata/forms/elements/usualGroup/types"
+import type { TUsualGroup } from "~/lib/metadata/forms/elements/usualGroup/types"
 import { joinTokens } from "../visitorUtils"
 import { Parser } from "./parser"
 
-const BaseVisitor: new () => any = new Parser().getBaseCstVisitorConstructor()
+const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
 export class Visitor extends BaseVisitor {
   public labelDecoration(
@@ -40,27 +31,24 @@ export class Visitor extends BaseVisitor {
     return {
       elementType: ZElementType.enum.LabelDecoration,
       name: name || "",
-      title: titleText
-        ? {
-            items: {
-              [configurationSettings.defaultLanguage]: titleText,
-            },
-          }
-        : undefined,
+      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       id: undefined,
     } as TLabelDecoration
   }
 
-  inputField(ctx: CstChildrenDictionary): TInputField {
-    const name =
-      joinTokens(ctx.InputHeader as IToken[]) ||
-      joinTokens(ctx.InputValue as IToken[]) ||
-      ""
+  inputField(
+    ctx: CstChildrenDictionary,
+    configurationSettings: TConfigurationSettings
+  ): TInputField {
+    const titleText = joinTokens(ctx.InputHeader as IToken[])
+
+    const name = this.visit(ctx.properties as CstNode[]) || titleText
 
     return {
       elementType: ZElementType.enum.InputField,
-      name: name || "",
+      name: name,
       id: undefined,
+      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
     } as TInputField
   }
 
@@ -100,11 +88,7 @@ export class Visitor extends BaseVisitor {
     let name = ""
     if (buttonGroup && Array.isArray(buttonGroup) && buttonGroup.length > 0) {
       const firstButton = buttonGroup[0]
-      if (
-        firstButton &&
-        "children" in firstButton &&
-        firstButton.children?.button
-      ) {
+      if (firstButton && "children" in firstButton && firstButton.children?.button) {
         const buttonNodes = firstButton.children.button
         if (Array.isArray(buttonNodes) && buttonNodes.length > 0) {
           const firstButtonNode = buttonNodes[0]
@@ -175,13 +159,8 @@ export class Visitor extends BaseVisitor {
       verticalGroupHeaders.length > 0
     ) {
       const firstHeader = verticalGroupHeaders[0]
-      if (
-        firstHeader &&
-        "children" in firstHeader &&
-        firstHeader.children?.GroupHeaderText
-      ) {
-        name =
-          joinTokens(firstHeader.children.GroupHeaderText as IToken[]) || ""
+      if (firstHeader && "children" in firstHeader && firstHeader.children?.GroupHeaderText) {
+        name = joinTokens(firstHeader.children.GroupHeaderText as IToken[]) || ""
       }
     }
 
@@ -198,19 +177,11 @@ export class Visitor extends BaseVisitor {
     let name = ""
     if (tableLines && Array.isArray(tableLines) && tableLines.length > 0) {
       const firstLine = tableLines[0]
-      if (
-        firstLine &&
-        "children" in firstLine &&
-        firstLine.children?.tableCell
-      ) {
+      if (firstLine && "children" in firstLine && firstLine.children?.tableCell) {
         const tableCells = firstLine.children.tableCell
         if (Array.isArray(tableCells) && tableCells.length > 0) {
           const firstCell = tableCells[0]
-          if (
-            firstCell &&
-            "children" in firstCell &&
-            firstCell.children?.tableDataCell
-          ) {
+          if (firstCell && "children" in firstCell && firstCell.children?.tableDataCell) {
             const dataCells = firstCell.children.tableDataCell
             if (Array.isArray(dataCells) && dataCells.length > 0) {
               const firstDataCell = dataCells[0]
@@ -239,6 +210,21 @@ export class Visitor extends BaseVisitor {
       name: name || "",
       id: undefined,
     } as TRadioButtonField
+  }
+
+  properties(ctx: CstChildrenDictionary): string | undefined {
+    const properties = joinTokens(ctx.PropertiesNameText as IToken[])
+    return properties
+  }
+
+  createTitle(titleText: string | undefined, defaultLanguage: string): TI8nText | undefined {
+    return titleText
+      ? {
+          items: {
+            [defaultLanguage]: titleText,
+          },
+        }
+      : undefined
   }
 }
 

@@ -1,7 +1,9 @@
+import type { IToken } from "chevrotain"
 import { detectElementType } from "./detect"
 
 export interface TreeNode {
   content: string
+  // tokens: IToken[]
   // type: TElementType
   // offest: number
   childItems?: TreeNode[]
@@ -37,15 +39,12 @@ export const parseTree = (text: string): TreeNode[] => {
     const lineInfo = lineInfos[i]
     const node: TreeNode = {
       content: lineInfo.content,
-      type: detectElementType(lineInfo.content),
-      offest: lineInfo.offest,
+      // type: detectElementType(lineInfo.content),
+      // offest: lineInfo.offest,
     }
 
     // Находим правильного родителя для текущего узла
-    while (
-      stack.length > 0 &&
-      stack[stack.length - 1].level >= lineInfo.level
-    ) {
+    while (stack.length > 0 && stack[stack.length - 1].level >= lineInfo.level) {
       stack.pop()
     }
 

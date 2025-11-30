@@ -1,6 +1,7 @@
-import React, { useState } from "react"
 import { Button } from "antd"
-import { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
+import type React from "react"
+import { useState } from "react"
+import type { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
 
 interface IButtonHTMLProps {
   name: string

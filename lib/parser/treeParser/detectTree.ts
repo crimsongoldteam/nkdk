@@ -1,8 +1,8 @@
-import { IToken } from "chevrotain"
-import { TElementType } from "~/lib/metadata/forms/elements/types"
+import type { IToken } from "chevrotain"
+import type { TElementType } from "~/lib/metadata/forms/elements/types"
 import { detectElementType } from "./detect"
 import { lexer } from "./lexer"
-import { TreeNode } from "./parseTree"
+import type { TreeNode } from "./parseTree"
 
 export interface DetectedTreeNode {
   tokens: IToken[]

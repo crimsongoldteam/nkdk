@@ -1,17 +1,18 @@
 import { createTokenInstance } from "chevrotain"
 import { describe, expect, it } from "vitest"
-import { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
-import { TButton } from "~/lib/metadata/forms/elements/button/types"
-import { TCheckBoxField } from "~/lib/metadata/forms/elements/checkBoxField/types"
-import { TCommandBar } from "~/lib/metadata/forms/elements/commandBar/types"
-import { TInputField } from "~/lib/metadata/forms/elements/inputField/types"
-import { TLabelDecoration } from "~/lib/metadata/forms/elements/labelDecoration/types"
-import { TPage } from "~/lib/metadata/forms/elements/page/types"
-import { TPages } from "~/lib/metadata/forms/elements/pages/types"
-import { TRadioButtonField } from "~/lib/metadata/forms/elements/radioButtonField/types"
-import { TTable } from "~/lib/metadata/forms/elements/table/types"
+import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import type { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
+import type { TButton } from "~/lib/metadata/forms/elements/button/types"
+import type { TCheckBoxField } from "~/lib/metadata/forms/elements/checkBoxField/types"
+import type { TCommandBar } from "~/lib/metadata/forms/elements/commandBar/types"
+import type { TInputField } from "~/lib/metadata/forms/elements/inputField/types"
+import type { TLabelDecoration } from "~/lib/metadata/forms/elements/labelDecoration/types"
+import type { TPage } from "~/lib/metadata/forms/elements/page/types"
+import type { TPages } from "~/lib/metadata/forms/elements/pages/types"
+import type { TRadioButtonField } from "~/lib/metadata/forms/elements/radioButtonField/types"
+import type { TTable } from "~/lib/metadata/forms/elements/table/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import { TUsualGroup } from "~/lib/metadata/forms/elements/usualGroup/types"
+import type { TUsualGroup } from "~/lib/metadata/forms/elements/usualGroup/types"
 import {
   Button,
   CheckboxChecked,
@@ -22,19 +23,23 @@ import {
   Hash,
   InputHeader,
   InputValue,
-  LabelContent,
   LAngle,
+  LabelContent,
   PageHeaderText,
+  RAngle,
   RadioButtonChecked,
   RadioButtonHeader,
-  RAngle,
   Slash,
   TableCell,
   VBar,
 } from "~/lib/parser/treeParser/lexer"
-import { DetectedTreeNode } from "../treeParser/detectTree"
+import type { DetectedTreeNode } from "../treeParser/detectTree"
 import { RadioButtonFieldType, TableType } from "../treeParser/lexer"
 import { parseElement } from "./parse"
+
+const configurationSettings: TConfigurationSettings = {
+  defaultLanguage: "ru",
+}
 
 describe("parseElements", () => {
   it("should parse label decoration element", () => {
@@ -50,7 +55,7 @@ describe("parseElements", () => {
       id: undefined,
     } as TLabelDecoration
 
-    const result = parseElement(mock)
+    const result = parseElement(mock, configurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -83,7 +88,7 @@ describe("parseElements", () => {
       id: undefined,
     } as TInputField
 
-    const result = parseElement(mock)
+    const result = parseElement(mock, configurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -101,7 +106,7 @@ describe("parseElements", () => {
       id: undefined,
     } as TButton
 
-    const result = parseElement(mock)
+    const result = parseElement(mock, configurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -122,7 +127,7 @@ describe("parseElements", () => {
       id: undefined,
     } as TCheckBoxField
 
-    const result = parseElement(mock)
+    const result = parseElement(mock, configurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -143,7 +148,7 @@ describe("parseElements", () => {
       id: undefined,
     } as TCheckBoxField
 
-    const result = parseElement(mock)
+    const result = parseElement(mock, configurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -167,7 +172,7 @@ describe("parseElements", () => {
       id: undefined,
     } as TCommandBar
 
-    const result = parseElement(mock)
+    const result = parseElement(mock, configurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -188,7 +193,7 @@ describe("parseElements", () => {
       id: undefined,
     } as TPage
 
-    const result = parseElement(mock)
+    const result = parseElement(mock, configurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -210,7 +215,7 @@ describe("parseElements", () => {
       id: undefined,
     } as TPages
 
-    const result = parseElement(mock)
+    const result = parseElement(mock, configurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -231,7 +236,7 @@ describe("parseElements", () => {
       id: undefined,
     } as TUsualGroup
 
-    const result = parseElement(mock)
+    const result = parseElement(mock, configurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -254,7 +259,7 @@ describe("parseElements", () => {
       id: undefined,
     } as TTable
 
-    const result = parseElement(mock)
+    const result = parseElement(mock, configurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -277,7 +282,7 @@ describe("parseElements", () => {
       id: undefined,
     } as TRadioButtonField
 
-    const result = parseElement(mock)
+    const result = parseElement(mock, configurationSettings)
 
     expect(result).toEqual(expectedResult)
   })

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import { simlifyDetectedTreeNodes } from "~/lib/tests/simlifyToken"
 import { detectTreeNodes } from "./detectTree"
-import { TreeNode } from "./parseTree"
+import type { TreeNode } from "./parseTree"
 
 describe("detectTreeNodes", () => {
   it("should detect label decoration for plain text", () => {
@@ -24,9 +24,7 @@ describe("detectTreeNodes", () => {
   })
 
   it("should detect usual group starting with #", () => {
-    const mock: TreeNode[] = [
-      { content: "#VerticalGroup", childItems: [{ content: "text" }] },
-    ]
+    const mock: TreeNode[] = [{ content: "#VerticalGroup", childItems: [{ content: "text" }] }]
 
     const expectedResult = [
       {

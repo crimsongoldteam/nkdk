@@ -1,15 +1,70 @@
-// import { expect, it } from "vitest"
-// import { parseString } from "~/lib/parser"
-// import * as t from "~/lib/metadata/forms/parser/lexer"
-// import { createTokenInstance } from "chevrotain"
+import { describe, expect, it } from "vitest"
+import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { parseElement } from "~/lib/parser/elementsParser/parse"
+import type { DetectedTreeNode } from "~/lib/parser/treeParser/detectTree"
+import { lexer } from "~/lib/parser/treeParser/lexer"
+import { ZElementType } from "../types"
+import type { TInputField } from "./types"
 
-// const initToken = createTokenInstance(t.InputFieldType, t.InputFieldType.name, 0, 0, 0, 0, 0, 0)
+const configurationSettings: TConfigurationSettings = {
+  defaultLanguage: "ru",
+}
 
-// it("should parse input field", () => {
-//   const text = "Поле: Значение"
+describe("parse InputField", () => {
+  it("should parse input field without name", () => {
+    const mock = "text:"
 
-//   const result = parseString(text, initToken)
+    const expectedResult: TInputField = {
+      elementType: ZElementType.enum.InputField,
+      name: "text",
+      title: {
+        items: { ru: "text" },
+      },
+      id: undefined,
+    }
 
-//   expect(result.length).toBeGreaterThan(0)
-//   expect(result[0].name).toBe("inputField")
-// })
+    const result = parseInputField(mock)
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should parse input field with name", () => {
+    const mock = "text: {name}"
+
+    const expectedResult: TInputField = {
+      elementType: ZElementType.enum.InputField,
+      title: {
+        items: { ru: "text" },
+      },
+      name: "name",
+      id: undefined,
+    }
+
+    const result = parseInputField(mock)
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should parse input field without title", () => {
+    const mock = ": {name}"
+
+    const expectedResult: TInputField = {
+      elementType: ZElementType.enum.InputField,
+      name: "name",
+      id: undefined,
+    }
+
+    const result = parseInputField(mock)
+    expect(result).toEqual(expectedResult)
+  })
+})
+
+const parseInputField = (mock: string) => {
+  const tokens = lexer.tokenize(mock).tokens
+
+  const node: DetectedTreeNode = {
+    tokens,
+    type: ZElementType.enum.InputField,
+    childItems: [],
+  }
+
+  return parseElement(node, configurationSettings)
+}

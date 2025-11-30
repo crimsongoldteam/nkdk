@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react"
+import { ConfigProvider } from "antd"
+import { useEffect, useState } from "react"
 import { ClientFormApplication } from "~/components/clientFormApplication/clientFormApplication"
-import "~/lib/metadata/forms/elements/usualGroup/registration"
+import {
+  importClientApplicationFormFromXML,
+  type TClientApplicationForm,
+  type TClientApplicationFormXML,
+  xmlImport,
+  ZClientApplicationFormXML,
+} from "~/lib"
+import "~/lib/metadata/forms/elements/button/registration"
 import "~/lib/metadata/forms/elements/inputField/registration"
+import "~/lib/metadata/forms/elements/labelDecoration/registration"
 import "~/lib/metadata/forms/elements/page/registration"
 import "~/lib/metadata/forms/elements/pages/registration"
 import "~/lib/metadata/forms/elements/pictureDecoration/registration"
-import "~/lib/metadata/forms/elements/labelDecoration/registration"
-import "~/lib/metadata/forms/elements/button/registration"
-import {
-  type TClientApplicationForm,
-  importClientApplicationFormFromXML,
-  TClientApplicationFormXML,
-  xmlImport,
-} from "~/lib"
-import { ConfigProvider } from "antd"
-import { ZClientApplicationFormXML } from "~/lib"
+import "~/lib/metadata/forms/elements/usualGroup/registration"
 
 export const App = () => {
   const [form, setForm] = useState<TClientApplicationForm | null>(null)
@@ -96,9 +96,7 @@ export const App = () => {
     >
       {
         <main className="app-main">
-          {form && (
-            <ClientFormApplication title={""} childItems={form.childItems} />
-          )}
+          {form && <ClientFormApplication title={""} childItems={form.childItems} />}
         </main>
       }
     </ConfigProvider>
