@@ -254,18 +254,19 @@ export class Parser extends CstParser {
   // #endregion
 
   // #region etc
-
   private aligment(direction: "left" | "right"): void {
     const idx1 = direction === "left" ? 6 : 8
+    const idx2 = idx1 + 1
+    const idx3 = idx2 + 1
     this.or(idx1, [
       {
         ALT: () => {
-          this.CONSUME(t.LArrow, { LABEL: `${direction}ArrowLeft` })
+          this.consume(idx2, t.LArrow, { LABEL: `${direction}ArrowLeft` })
         },
       },
       {
         ALT: () => {
-          this.CONSUME(t.RArrow, { LABEL: `${direction}ArrowRight` })
+          this.consume(idx3, t.RArrow, { LABEL: `${direction}ArrowRight` })
         },
       },
       { ALT: EMPTY_ALT },

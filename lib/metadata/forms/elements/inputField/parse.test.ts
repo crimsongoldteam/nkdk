@@ -3,6 +3,7 @@ import type { TConfigurationSettings } from "~/lib/metadata/configurationSetting
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import type { DetectedTreeNode } from "~/lib/parser/treeParser/detectTree"
 import { lexer } from "~/lib/parser/treeParser/lexer"
+import { ParseElementType } from "~/lib/parser/types"
 import { ZElementType } from "../types"
 import type { TInputField } from "./types"
 
@@ -76,8 +77,7 @@ const parseInputField = (mock: string) => {
 
   const node: DetectedTreeNode = {
     tokens,
-    type: ZElementType.enum.InputField,
-    childItems: [],
+    type: ParseElementType.InputField,
   }
 
   return parseElement(node, configurationSettings)

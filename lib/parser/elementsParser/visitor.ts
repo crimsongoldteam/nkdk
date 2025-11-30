@@ -12,6 +12,7 @@ import type { TRadioButtonField } from "~/lib/metadata/forms/elements/radioButto
 import type { TTable } from "~/lib/metadata/forms/elements/table/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import type { TUsualGroup } from "~/lib/metadata/forms/elements/usualGroup/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { joinTokens } from "../visitorUtils"
 import { Parser } from "./parser"
 
@@ -126,25 +127,46 @@ export class Visitor extends BaseVisitor {
   // #endregion
 
   // #region checkboxField
-  checkboxLeftField(ctx: CstChildrenDictionary): TCheckBoxField {
-    const name = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
+  rightTitledCheckboxField(
+    ctx: CstChildrenDictionary,
+    configurationSettings: TConfigurationSettings
+  ): TCheckBoxField {
+    const titleText = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
+
+    const name = this.visit(ctx.properties as CstNode[]) || titleText
+
+    const checkBoxType =
+      ctx.SwitchChecked || ctx.SwitchUnchecked ? SE.ZCheckBoxType.enum.Switch : undefined
+    return {
+      elementType: ZElementType.enum.CheckBoxField,
+      name: name || "",
+      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
+      headerHorizontalAlign: SE.ZItemHorizontalLocation.enum.Right,
+      id: undefined,
+      checkBoxType: checkBoxType || undefined,
+    } as TCheckBoxField
+  }
+
+  leftTitledCheckboxField(
+    ctx: CstChildrenDictionary,
+    configurationSettings: TConfigurationSettings
+  ): TCheckBoxField {
+    const titleText = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
+    const name = this.visit(ctx.properties as CstNode[]) || titleText
+
+    const checkBoxType =
+      ctx.SwitchChecked || ctx.SwitchUnchecked ? SE.ZCheckBoxType.enum.Switch : undefined
 
     return {
       elementType: ZElementType.enum.CheckBoxField,
       name: name || "",
+      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       id: undefined,
+      checkBoxType: checkBoxType || undefined,
     } as TCheckBoxField
   }
 
-  checkboxRightField(ctx: CstChildrenDictionary): TCheckBoxField {
-    const name = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
-
-    return {
-      elementType: ZElementType.enum.CheckBoxField,
-      name: name || "",
-      id: undefined,
-    } as TCheckBoxField
-  }
+  //#endregion
 
   commandBar(ctx: CstChildrenDictionary): TCommandBar {
     // Для commandBar имя берем из первой кнопки в buttonGroup
