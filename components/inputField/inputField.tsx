@@ -1,4 +1,5 @@
 import {
+  CaretDownOutlined,
   CloseOutlined,
   ColumnHeightOutlined,
   EllipsisOutlined,
@@ -12,16 +13,18 @@ import type { TInputField } from "~/lib/metadata/forms/elements/inputField/types
 export function InputField(props: Readonly<TInputField>): React.ReactNode {
   const [title] = useState(props.title?.items.ru || "")
   const [name] = useState(props.name)
-  const [clearButton] = useState(true)
-  const [openButton] = useState(true)
-  const [spinButton] = useState(true)
-  const [choiceButton] = useState(true)
+  const [dropListButton] = useState(props.dropListButton)
+  const [clearButton] = useState(props.clearButton)
+  const [openButton] = useState(props.openButton)
+  const [spinButton] = useState(props.spinButton)
+  const [choiceButton] = useState(props.choiceButton)
 
   return (
     <>
       <Typography.Text>{title}:</Typography.Text>
       <Space.Compact>
         <Input id={`input_${name}`} />
+        {dropListButton && <Button icon={<CaretDownOutlined />} />}
         {clearButton && <Button icon={<CloseOutlined />} />}
         {openButton && <Button icon={<SearchOutlined />} />}
         {spinButton && <Button icon={<ColumnHeightOutlined />} />}

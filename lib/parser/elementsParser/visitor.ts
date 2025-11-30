@@ -48,24 +48,35 @@ export class Visitor extends BaseVisitor {
 
     const modifiers = joinTokens(ctx.InputModifiers as IToken[])
 
+    const title = this.createTitle(titleText, configurationSettings.defaultLanguage)
+
+    const modificators = this.addInputModifiers(modifiers)
+
     const result = {
       elementType: ZElementType.enum.InputField,
       name: name,
       id: undefined,
-      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
+      title: title,
+      ...modificators,
     } as TInputField
-
-    this.addInputModifiers(modifiers, result)
-
     return result
   }
 
-  addInputModifiers(modifiers: string | undefined, elementData: TInputField): void {
+  addInputModifiers(
+    modifiers: string | undefined
+  ): Partial<
+    Pick<
+      TInputField,
+      "dropListButton" | "choiceButton" | "clearButton" | "spinButton" | "openButton"
+    >
+  > {
     if (modifiers === undefined) {
-      return
+      return {}
     }
 
-    const propertyMap: { [key: string]: keyof TInputField } = {
+    const propertyMap: {
+      [key: string]: "dropListButton" | "choiceButton" | "clearButton" | "spinButton" | "openButton"
+    } = {
       с: "dropListButton",
       в: "choiceButton",
       х: "clearButton",
@@ -75,12 +86,22 @@ export class Visitor extends BaseVisitor {
       o: "openButton",
     }
 
+    const result: Partial<
+      Pick<
+        TInputField,
+        "dropListButton" | "choiceButton" | "clearButton" | "spinButton" | "openButton"
+      >
+    > = {}
+
     for (const element of modifiers) {
       const key = element.toLowerCase()
-      if (propertyMap[key]) {
-        elementData[propertyMap[key] as keyof TInputField] = true as never
-      }
+      const value = propertyMap[key]
+      if (value === undefined) continue
+
+      result[value] = true
     }
+
+    return result
   }
 
   // #endregion

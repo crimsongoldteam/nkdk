@@ -57,7 +57,7 @@ describe("parse InputField", () => {
   })
 
   it("should parse input field with modificators", () => {
-    const mock = ": {name}_В"
+    const mock = ": _В {name}"
 
     const expectedResult: TInputField = {
       elementType: ZElementType.enum.InputField,
