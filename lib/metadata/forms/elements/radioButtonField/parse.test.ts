@@ -17,7 +17,7 @@ describe("parse RadioButtonField", () => {
 
     const expectedResult: TRadioButtonField = {
       elementType: ZElementType.enum.RadioButtonField,
-      name: "radio",
+      name: "",
       choiceList: {
         items: [
           {
