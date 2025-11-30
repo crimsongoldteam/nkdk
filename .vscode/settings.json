@@ -14,7 +14,7 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "always",
     "source.addMissingImports.biome": "always",
-    "source.fixAll.biome": "explicit"
+    "source.fixAll.biome": "always"
   },
   "files.exclude": {
     "**/node_modules": true,

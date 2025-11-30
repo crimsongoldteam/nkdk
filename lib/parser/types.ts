@@ -1,0 +1,16 @@
+export enum ParseElementType {
+  LabelDecoration = "LabelDecoration",
+  InputField = "InputField",
+  Button = "Button",
+  RightTitledCheckboxField = "RightTitledCheckboxField",
+  LeftTitledCheckboxField = "LeftTitledCheckboxField",
+  CommandBar = "CommandBar",
+  Table = "Table",
+  RadioButtonField = "RadioButtonField",
+  LeftTitledRadioButtonField = "LeftTitledRadioButtonField",
+  RightTitledRadioButtonField = "RightTitledRadioButtonField",
+  PictureDecoration = "PictureDecoration",
+  Page = "Page",
+  Pages = "Pages",
+  UsualGroup = "UsualGroup",
+}

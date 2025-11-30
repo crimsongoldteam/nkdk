@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { ParseElementType } from "../types"
 import { detectElementType } from "./detect"
 import { lexer } from "./lexer"
 
@@ -11,7 +11,7 @@ describe("detectElementType", () => {
 
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ZElementType.enum.InputField)
+    expect(result).toEqual(ParseElementType.InputField)
   })
 
   it("should detect vertical group starting with #", () => {
@@ -20,7 +20,7 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ZElementType.enum.UsualGroup)
+    expect(result).toEqual(ParseElementType.UsualGroup)
   })
 
   it("should detect pages starting with //", () => {
@@ -29,7 +29,7 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ZElementType.enum.Pages)
+    expect(result).toEqual(ParseElementType.Pages)
   })
 
   it("should detect page starting with /", () => {
@@ -38,7 +38,7 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ZElementType.enum.Page)
+    expect(result).toEqual(ParseElementType.Page)
   })
 
   it("should detect horizontal group starting with %", () => {
@@ -47,7 +47,7 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ZElementType.enum.UsualGroup)
+    expect(result).toEqual(ParseElementType.UsualGroup)
   })
 
   it("should detect command bar starting with < and containing |", () => {
@@ -56,7 +56,7 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ZElementType.enum.CommandBar)
+    expect(result).toEqual(ParseElementType.CommandBar)
   })
 
   it("should detect button starting with <", () => {
@@ -65,7 +65,7 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ZElementType.enum.Button)
+    expect(result).toEqual(ParseElementType.Button)
   })
 
   it("should detect table containing |", () => {
@@ -74,7 +74,7 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ZElementType.enum.Table)
+    expect(result).toEqual(ParseElementType.Table)
   })
 
   it("should detect label decoration for plain text", () => {
@@ -83,7 +83,7 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ZElementType.enum.LabelDecoration)
+    expect(result).toEqual(ParseElementType.LabelDecoration)
   })
 
   it("should handle empty string as label decoration", () => {
@@ -92,7 +92,7 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ZElementType.enum.LabelDecoration)
+    expect(result).toEqual(ParseElementType.LabelDecoration)
   })
 
   it("should handle whitespace-only string as label decoration", () => {
@@ -101,16 +101,7 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ZElementType.enum.LabelDecoration)
-  })
-
-  it("should detect left titled radio button containing ()", () => {
-    const mock = `RadioButton()`
-
-    const tokens = lexer.tokenize(mock).tokens
-    const result = detectElementType(tokens)
-
-    expect(result).toEqual(ZElementType.enum.RadioButtonField)
+    expect(result).toEqual(ParseElementType.LabelDecoration)
   })
 
   it("should detect left titled checkbox containing []", () => {
@@ -119,7 +110,7 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ZElementType.enum.CheckBoxField)
+    expect(result).toEqual(ParseElementType.LeftTitledCheckboxField)
   })
 
   it("should detect right titled checkbox containing []", () => {
@@ -128,7 +119,16 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ZElementType.enum.CheckBoxField)
+    expect(result).toEqual(ParseElementType.RightTitledCheckboxField)
+  })
+
+  it("should detect left titled radio button containing ()", () => {
+    const mock = `Radio button ()`
+
+    const tokens = lexer.tokenize(mock).tokens
+    const result = detectElementType(tokens)
+
+    expect(result).toEqual(ParseElementType.LeftTitledRadioButtonField)
   })
 
   it("should detect right titled radio button containing ()", () => {
@@ -137,6 +137,6 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ZElementType.enum.RadioButtonField)
+    expect(result).toEqual(ParseElementType.RightTitledRadioButtonField)
   })
 })

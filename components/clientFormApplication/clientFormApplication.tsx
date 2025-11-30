@@ -1,4 +1,4 @@
-import { Divider, Space } from "antd"
+import { Divider, Form, Space } from "antd"
 import type React from "react"
 import type { TChildItems } from "~/lib/metadata/forms/elements/childItems/types"
 import { components } from "../components"
@@ -11,21 +11,17 @@ interface IClientFormApplicationHTMLProps {
 export function ClientFormApplication(
   props: Readonly<IClientFormApplicationHTMLProps>
 ): React.ReactNode {
-  const { title, childItems } = props
+  const { childItems } = props
 
   return (
-    <div className="form">
-      <h2 className="text-2xl font-bold mb-4">{title}</h2>
-      <Divider />
-      <Space direction="vertical" size="middle">
-        {childItems.map((item) => {
-          const Component = components[item.elementType as keyof typeof components]
-          if (!Component) {
-            return <div key={item.name}>Компонент {item.elementType} не найден</div>
-          }
-          return <Component key={item.name} {...item} />
-        })}
-      </Space>
-    </div>
+    <Form layout="horizontal" labelWrap={true} labelAlign="left" labelCol={{ span: 4 }}>
+      {childItems.map((item) => {
+        const Component = components[item.elementType as keyof typeof components]
+        if (!Component) {
+          return <div key={item.name}>Компонент {item.elementType} не найден</div>
+        }
+        return <Component key={item.name} {...item} />
+      })}
+    </Form>
   )
 }

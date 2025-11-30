@@ -1,19 +1,15 @@
-import { Button } from "antd"
+import { Button, Form } from "antd"
 import type React from "react"
-import { useState } from "react"
-import type { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
+import type { TButton } from "~/lib/metadata/forms/elements/button/types"
 
-interface IButtonHTMLProps {
-  name: string
-  title?: TI8nText
-}
-
-export function ButtonComponent(props: Readonly<IButtonHTMLProps>): React.ReactNode {
-  const [title] = useState(props.title?.items.ru || "")
-  const [name] = useState(props.name)
+export function ButtonComponent(props: Readonly<TButton>): React.ReactNode {
+  const title = props.title?.items.ru || ""
+  const name = props.name
   return (
-    <Button id={`button_${name}`} onClick={() => {}}>
-      {title}
-    </Button>
+    <Form.Item>
+      <Button id={`button_${name}`} onClick={() => {}}>
+        {title}
+      </Button>
+    </Form.Item>
   )
 }

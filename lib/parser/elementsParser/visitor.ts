@@ -18,6 +18,7 @@ import { Parser } from "./parser"
 const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
 export class Visitor extends BaseVisitor {
+  // #region labelDecoration
   public labelDecoration(
     ctx: CstChildrenDictionary,
     configurationSettings: TConfigurationSettings
@@ -35,6 +36,7 @@ export class Visitor extends BaseVisitor {
       id: undefined,
     } as TLabelDecoration
   }
+  // #endregion
 
   // #region inputField
 
@@ -106,16 +108,24 @@ export class Visitor extends BaseVisitor {
 
   // #endregion
 
-  button(ctx: CstChildrenDictionary): TButton {
+  // #region button
+
+  button(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TButton {
     const name = joinTokens(ctx.Button as IToken[]) || ""
+    const titleText = joinTokens(ctx.Button as IToken[]) || ""
+
+    const title = this.createTitle(titleText, configurationSettings.defaultLanguage)
 
     return {
       elementType: ZElementType.enum.Button,
       name: name || "",
+      title: title,
       id: undefined,
     } as TButton
   }
+  // #endregion
 
+  // #region checkboxField
   checkboxLeftField(ctx: CstChildrenDictionary): TCheckBoxField {
     const name = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
 

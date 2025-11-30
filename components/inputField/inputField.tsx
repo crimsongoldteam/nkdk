@@ -5,7 +5,7 @@ import {
   EllipsisOutlined,
   SearchOutlined,
 } from "@ant-design/icons"
-import { Button, Input, Space, Typography } from "antd"
+import { Button, Form, Input, Space, Typography } from "antd"
 import type React from "react"
 import type { TInputField } from "~/lib/metadata/forms/elements/inputField/types"
 
@@ -19,8 +19,7 @@ export function InputField(props: Readonly<TInputField>): React.ReactNode {
   const choiceButton = props.choiceButton
 
   return (
-    <>
-      <Typography.Text>{title}:</Typography.Text>
+    <Form.Item label={title}>
       <Space.Compact>
         <Input id={`input_${name}`} />
         {dropListButton && <Button icon={<CaretDownOutlined />} />}
@@ -29,6 +28,6 @@ export function InputField(props: Readonly<TInputField>): React.ReactNode {
         {spinButton && <Button icon={<ColumnHeightOutlined />} />}
         {choiceButton && <Button icon={<EllipsisOutlined />} />}
       </Space.Compact>
-    </>
+    </Form.Item>
   )
 }

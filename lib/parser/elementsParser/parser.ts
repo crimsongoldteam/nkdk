@@ -16,6 +16,21 @@ export class Parser extends CstParser {
     this.input = tokens
     return this.inputField()
   }
+
+  public parseButton(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.button()
+  }
+
+  public parseRightTitledCheckboxField(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.rightTitledCheckboxField()
+  }
+
+  public parseLeftTitledCheckboxField(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.leftTitledCheckboxField()
+  }
   // #region labelField
 
   private readonly labelDecoration = this.RULE("labelDecoration", () => {
@@ -61,22 +76,169 @@ export class Parser extends CstParser {
     })
 
     this.aligment("right")
-
-    // this.MANY({
-    //   GATE: () => {
-    //     return this.LA(1).tokenType == t.LabelFieldType && this.LA(2).tokenType == t.Underscore
-    //   },
-    //   DEF: () => {
-    //     this.SUBRULE(this.inputFieldMultiline)
-    //   },
-    // })
   })
-  // private readonly inputFieldMultiline = this.RULE("inputFieldMultiline", () => {
-  //   this.CONSUME(t.LabelFieldType)
-  //   this.AT_LEAST_ONE(() => {
-  //     this.CONSUME2(t.Underscore)
-  //   })
-  // })
+
+  // #endregion
+
+  // #region checkboxField
+
+  private readonly rightTitledCheckboxField = this.RULE("rightTitledCheckboxField", () => {
+    // this.aligment("left")
+
+    this.choice(
+      1,
+      () => {
+        this.CONSUME(t.CheckboxChecked)
+      },
+      () => {
+        this.CONSUME(t.CheckboxUnchecked)
+      },
+      () => {
+        this.CONSUME(t.SwitchChecked)
+      },
+      () => {
+        this.CONSUME(t.SwitchUnchecked)
+      }
+    )
+
+    this.MANY(() => {
+      this.CONSUME(t.CheckboxHeader)
+    })
+
+    this.OPTION(() => {
+      this.SUBRULE(this.properties)
+    })
+
+    this.aligment("right")
+  })
+
+  private readonly leftTitledCheckboxField = this.RULE("leftTitledCheckboxField", () => {
+    this.aligment("left")
+
+    this.MANY1(() => {
+      this.CONSUME(t.CheckboxHeader)
+    })
+  })
+    this.CONSUME(t.CheckboxRightFieldType)
+
+    this.aligment("left")
+
+    this.MANY1(() => {
+      this.CONSUME(t.CheckboxHeader)
+    })
+
+    this.choice(
+      1,
+      () => {
+        this.CONSUME(t.CheckboxChecked)
+      },
+      () => {
+        this.CONSUME(t.CheckboxUnchecked)
+      },
+      () => {
+        this.CONSUME(t.SwitchChecked)
+      },
+      () => {
+        this.CONSUME(t.SwitchUnchecked)
+      }
+    )
+
+    this.OPTION3(() => {
+      this.SUBRULE(this.properties)
+    })
+
+    this.aligment("right")
+  })
+
+  // #endregion
+
+  // #region radioButtonField
+
+  private readonly rightTitledRadioButtonField = this.RULE("rightTitledRadioButtonField", () => {
+    this.CONSUME(t.RadioButtonFieldType)
+
+    this.aligment("left")
+
+    this.OPTION1(() => {
+      this.MANY1(() => {
+        this.CONSUME(t.RadioButtonHeader)
+      })
+      this.CONSUME(t.Colon)
+    })
+
+    this.AT_LEAST_ONE(() => {
+      this.SUBRULE(this.radioButtonItem)
+    })
+
+    this.OPTION2(() => {
+      this.SUBRULE(this.properties)
+    })
+
+    this.aligment("right")
+  })
+
+  private readonly rightTitledRadioButtonItem = this.RULE("rightTitledRadioButtonItem", () => {
+    this.choice(
+      1,
+      () => {
+        this.CONSUME(t.RadioButtonChecked)
+      },
+      () => {
+        this.CONSUME(t.RadioButtonUnchecked)
+      }
+    )
+
+    this.MANY(() => {
+      this.CONSUME(t.RadioButtonValueDescription)
+    })
+  })
+
+  // #endregion
+
+  // #region button
+
+  private readonly commandBar = this.RULE("commandBar", () => {
+    // this.aligment("left")
+
+    this.CONSUME1(t.LAngle)
+
+    this.MANY2(() => {
+      this.SUBRULE(this.button)
+    })
+
+    this.OPTION4(() => {
+      this.CONSUME3(t.RAngle)
+    })
+
+    this.OPTION5(() => {
+      this.SUBRULE3(this.properties)
+    })
+
+    this.aligment("right")
+  })
+
+  private readonly button = this.RULE("button", () => {
+    this.CONSUME1(t.LAngle)
+
+    this.OPTION1(() => {
+      this.CONSUME1(t.Picture, { LABEL: "leftPicture" })
+    })
+    this.MANY(() => {
+      this.CONSUME(t.Button)
+    })
+    this.OPTION2(() => {
+      this.CONSUME2(t.Picture, { LABEL: "rightPicture" })
+    })
+
+    this.OPTION4(() => {
+      this.CONSUME3(t.RAngle)
+    })
+
+    this.OPTION(() => {
+      this.SUBRULE(this.properties)
+    })
+  })
+
   // #endregion
 
   // #region properties
