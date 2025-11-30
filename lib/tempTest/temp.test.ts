@@ -2,12 +2,8 @@ import { readFileSync, writeFileSync } from "fs"
 import { join, parse } from "path"
 import { describe, expect, it } from "vitest"
 import z from "zod"
-import {
-  TClientApplicationFormXML,
-  xmlExport,
-  ZClientApplicationFormXML,
-} from ".."
-import { TConfigurationSettings } from "../metadata/configurationSettings/types"
+import { type TClientApplicationFormXML, xmlExport, ZClientApplicationFormXML } from ".."
+import type { TConfigurationSettings } from "../metadata/configurationSettings/types"
 import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/format"
 import { importClientApplicationFormFromXML } from "../metadata/forms/elements/clientApplicationForm/importFromXML"
 import "../metadata/forms/elements/exportToXML"
@@ -31,10 +27,7 @@ describe("DO test", () => {
 
     // const exportedForm = exportClientApplicationFormToXML(form)
 
-    const formattedForm = formatClientApplicationForm(
-      form,
-      configurationSettings
-    )
+    const formattedForm = formatClientApplicationForm(form, configurationSettings)
 
     // const exportedXml = xmlExport(
     //   { Form: exportedForm },
@@ -42,11 +35,7 @@ describe("DO test", () => {
     // )
 
     // writeFileSync(join(__dirname, "FormOut.xml"), exportedXml, "utf-8")
-    writeFileSync(
-      join(__dirname, "FormFormatted.txt"),
-      formattedForm.strings.join("\n"),
-      "utf-8"
-    )
+    writeFileSync(join(__dirname, "FormFormatted.txt"), formattedForm.strings.join("\n"), "utf-8")
     // expect(exportedXml).toEqual(originalContent)
   })
 
@@ -59,10 +48,7 @@ describe("DO test", () => {
 
     // const exportedForm = exportClientApplicationFormToXML(form)
 
-    const formattedForm = formatClientApplicationForm(
-      form,
-      configurationSettings
-    )
+    const formattedForm = formatClientApplicationForm(form, configurationSettings)
 
     const parsedForm = parse(formattedForm.strings.join("\n"))
 

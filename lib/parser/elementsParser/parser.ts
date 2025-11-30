@@ -153,7 +153,7 @@ export class Parser extends CstParser {
   // #region radioButtonField
 
   private readonly radioButtonField = this.RULE("rightTitledRadioButtonField", () => {
-    // this.aligment("left")
+    this.aligment("left")
 
     this.OPTION1(() => {
       this.MANY1(() => {
