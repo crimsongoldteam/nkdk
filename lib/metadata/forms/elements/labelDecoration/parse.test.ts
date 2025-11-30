@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
-import { DetectedTreeNode } from "~/lib/parser/treeParser/detectTree"
+import type { DetectedTreeNode } from "~/lib/parser/treeParser/detectTree"
 import { lexer } from "~/lib/parser/treeParser/lexer"
 import { ZElementType } from "../types"
-import { TLabelDecoration } from "./types"
+import type { TLabelDecoration } from "./types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -40,14 +40,14 @@ describe("parse LabelDecoration", () => {
   })
 
   it("should parse label decoration with name", () => {
-    const mock = "text {label}"
+    const mock = "text {name}"
 
     const expectedResult: TLabelDecoration = {
       elementType: ZElementType.enum.LabelDecoration,
       title: {
         items: { ru: "text" },
       },
-      name: "label",
+      name: "name",
       id: undefined,
     }
 

@@ -25,12 +25,8 @@ export class Parser extends CstParser {
       this.CONSUME(t.LabelContent)
     })
 
-    this.OPTION(() => {
-      this.CONSUME(t.LCurly)
-      this.MANY2(() => {
-        this.CONSUME(t.Text, { LABEL: "ElementName" })
-      })
-      this.CONSUME(t.RCurly)
+    this.OPTION2(() => {
+      this.SUBRULE(this.properties)
     })
 
     this.aligment("right")
@@ -46,7 +42,9 @@ export class Parser extends CstParser {
     this.MANY1(() => {
       this.CONSUME(t.InputHeader)
     })
+
     this.CONSUME(t.Colon)
+
     this.MANY2(() => {
       this.CONSUME(t.InputValue)
     })

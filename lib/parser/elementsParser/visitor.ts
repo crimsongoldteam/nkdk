@@ -23,10 +23,10 @@ export class Visitor extends BaseVisitor {
     configurationSettings: TConfigurationSettings
   ): TLabelDecoration {
     const labelContent = joinTokens(ctx.LabelContent as IToken[]) || ""
-    const elementName = joinTokens(ctx.ElementName as IToken[])
 
     const titleText = labelContent
-    const name = elementName || labelContent
+
+    const name = this.visit(ctx.properties as CstNode[]) || titleText
 
     return {
       elementType: ZElementType.enum.LabelDecoration,
@@ -36,6 +36,8 @@ export class Visitor extends BaseVisitor {
     } as TLabelDecoration
   }
 
+  // #region inputField
+
   inputField(
     ctx: CstChildrenDictionary,
     configurationSettings: TConfigurationSettings
@@ -44,13 +46,44 @@ export class Visitor extends BaseVisitor {
 
     const name = this.visit(ctx.properties as CstNode[]) || titleText
 
-    return {
+    const modifiers = joinTokens(ctx.InputModifiers as IToken[])
+
+    const result = {
       elementType: ZElementType.enum.InputField,
       name: name,
       id: undefined,
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
     } as TInputField
+
+    this.addInputModifiers(modifiers, result)
+
+    return result
   }
+
+  addInputModifiers(modifiers: string | undefined, elementData: TInputField): void {
+    if (modifiers === undefined) {
+      return
+    }
+
+    const propertyMap: { [key: string]: keyof TInputField } = {
+      с: "dropListButton",
+      в: "choiceButton",
+      х: "clearButton",
+      x: "clearButton",
+      д: "spinButton",
+      о: "openButton",
+      o: "openButton",
+    }
+
+    for (const element of modifiers) {
+      const key = element.toLowerCase()
+      if (propertyMap[key]) {
+        elementData[propertyMap[key] as keyof TInputField] = true as never
+      }
+    }
+  }
+
+  // #endregion
 
   button(ctx: CstChildrenDictionary): TButton {
     const name = joinTokens(ctx.Button as IToken[]) || ""

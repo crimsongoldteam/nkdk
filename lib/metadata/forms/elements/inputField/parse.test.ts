@@ -55,6 +55,20 @@ describe("parse InputField", () => {
     const result = parseInputField(mock)
     expect(result).toEqual(expectedResult)
   })
+
+  it("should parse input field with modificators", () => {
+    const mock = ": {name}_В"
+
+    const expectedResult: TInputField = {
+      elementType: ZElementType.enum.InputField,
+      name: "name",
+      id: undefined,
+      choiceButton: true,
+    }
+
+    const result = parseInputField(mock)
+    expect(result).toEqual(expectedResult)
+  })
 })
 
 const parseInputField = (mock: string) => {
