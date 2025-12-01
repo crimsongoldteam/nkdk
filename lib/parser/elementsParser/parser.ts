@@ -22,6 +22,11 @@ export class Parser extends CstParser {
     return this.button()
   }
 
+  public parseCommandBar(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.commandBar()
+  }
+
   public parseRightTitledCheckboxField(tokens: IToken[]): CstNode {
     this.input = tokens
     return this.rightTitledCheckboxField()
@@ -88,65 +93,71 @@ export class Parser extends CstParser {
 
   // #region checkboxField
 
-  private readonly rightTitledCheckboxField = this.RULE("rightTitledCheckboxField", () => {
-    this.aligment("left")
+  private readonly rightTitledCheckboxField = this.RULE(
+    "rightTitledCheckboxField",
+    () => {
+      this.aligment("left")
 
-    this.choice(
-      1,
-      () => {
-        this.CONSUME(t.CheckboxChecked)
-      },
-      () => {
-        this.CONSUME(t.CheckboxUnchecked)
-      },
-      () => {
-        this.CONSUME(t.SwitchChecked)
-      },
-      () => {
-        this.CONSUME(t.SwitchUnchecked)
-      }
-    )
+      this.choice(
+        1,
+        () => {
+          this.CONSUME(t.CheckboxChecked)
+        },
+        () => {
+          this.CONSUME(t.CheckboxUnchecked)
+        },
+        () => {
+          this.CONSUME(t.SwitchChecked)
+        },
+        () => {
+          this.CONSUME(t.SwitchUnchecked)
+        }
+      )
 
-    this.MANY(() => {
-      this.CONSUME(t.CheckboxHeader)
-    })
+      this.MANY(() => {
+        this.CONSUME(t.CheckboxHeader)
+      })
 
-    this.OPTION(() => {
-      this.SUBRULE(this.properties)
-    })
+      this.OPTION(() => {
+        this.SUBRULE(this.properties)
+      })
 
-    this.aligment("right")
-  })
+      this.aligment("right")
+    }
+  )
 
-  private readonly leftTitledCheckboxField = this.RULE("leftTitledCheckboxField", () => {
-    this.aligment("left")
+  private readonly leftTitledCheckboxField = this.RULE(
+    "leftTitledCheckboxField",
+    () => {
+      this.aligment("left")
 
-    this.MANY1(() => {
-      this.CONSUME(t.CheckboxHeader)
-    })
+      this.MANY1(() => {
+        this.CONSUME(t.CheckboxHeader)
+      })
 
-    this.choice(
-      1,
-      () => {
-        this.CONSUME(t.CheckboxChecked)
-      },
-      () => {
-        this.CONSUME(t.CheckboxUnchecked)
-      },
-      () => {
-        this.CONSUME(t.SwitchChecked)
-      },
-      () => {
-        this.CONSUME(t.SwitchUnchecked)
-      }
-    )
+      this.choice(
+        1,
+        () => {
+          this.CONSUME(t.CheckboxChecked)
+        },
+        () => {
+          this.CONSUME(t.CheckboxUnchecked)
+        },
+        () => {
+          this.CONSUME(t.SwitchChecked)
+        },
+        () => {
+          this.CONSUME(t.SwitchUnchecked)
+        }
+      )
 
-    this.OPTION3(() => {
-      this.SUBRULE(this.properties)
-    })
+      this.OPTION3(() => {
+        this.SUBRULE(this.properties)
+      })
 
-    this.aligment("right")
-  })
+      this.aligment("right")
+    }
+  )
 
   // #endregion
 
@@ -191,10 +202,10 @@ export class Parser extends CstParser {
 
   // #endregion
 
-  // #region button
+  // #region commandBar
 
   private readonly commandBar = this.RULE("commandBar", () => {
-    // this.aligment("left")
+    this.aligment("left")
 
     this.CONSUME1(t.LAngle)
 
@@ -212,6 +223,10 @@ export class Parser extends CstParser {
 
     this.aligment("right")
   })
+
+  // #endregion
+
+  // #region button
 
   private readonly button = this.RULE("button", () => {
     this.CONSUME1(t.LAngle)

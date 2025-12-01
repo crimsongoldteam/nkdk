@@ -1,5 +1,5 @@
 {
-  "editor.defaultFormatter": "biomejs.biome",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "typescript.tsserver.experimental.enableProjectDiagnostics": true,
   "vitest.nodeExecutable": "/opt/homebrew/bin/node",
   "terminal.integrated.env.osx": {
@@ -12,9 +12,9 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.organizeImports.biome": "explicit",
-    "source.addMissingImports.biome": "explicit",
-    "source.fixAll.biome": "explicit"
+    "source.organizeImports.prettier": "always",
+    "source.addMissingImports.prettier": "always",
+    "source.fixAll.prettier": "explicit"
   },
   "files.exclude": {
     "**/node_modules": true,

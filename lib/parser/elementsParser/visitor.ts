@@ -11,6 +11,7 @@ import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { joinTokens, visitAll } from "../visitorUtils"
 import { Parser } from "./parser"
+import { TCommandBar } from "~/lib/metadata/forms/elements/commandBar/types"
 
 const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
@@ -47,7 +48,10 @@ export class Visitor extends BaseVisitor {
 
     const modifiers = joinTokens(ctx.InputModifiers as IToken[])
 
-    const title = this.createTitle(titleText, configurationSettings.defaultLanguage)
+    const title = this.createTitle(
+      titleText,
+      configurationSettings.defaultLanguage
+    )
 
     const modificators = this.addInputModifiers(modifiers)
 
@@ -66,7 +70,11 @@ export class Visitor extends BaseVisitor {
   ): Partial<
     Pick<
       TInputField,
-      "dropListButton" | "choiceButton" | "clearButton" | "spinButton" | "openButton"
+      | "dropListButton"
+      | "choiceButton"
+      | "clearButton"
+      | "spinButton"
+      | "openButton"
     >
   > {
     if (modifiers === undefined) {
@@ -74,7 +82,12 @@ export class Visitor extends BaseVisitor {
     }
 
     const propertyMap: {
-      [key: string]: "dropListButton" | "choiceButton" | "clearButton" | "spinButton" | "openButton"
+      [key: string]:
+        | "dropListButton"
+        | "choiceButton"
+        | "clearButton"
+        | "spinButton"
+        | "openButton"
     } = {
       с: "dropListButton",
       в: "choiceButton",
@@ -88,7 +101,11 @@ export class Visitor extends BaseVisitor {
     const result: Partial<
       Pick<
         TInputField,
-        "dropListButton" | "choiceButton" | "clearButton" | "spinButton" | "openButton"
+        | "dropListButton"
+        | "choiceButton"
+        | "clearButton"
+        | "spinButton"
+        | "openButton"
       >
     > = {}
 
@@ -107,11 +124,17 @@ export class Visitor extends BaseVisitor {
 
   // #region button
 
-  button(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TButton {
+  button(
+    ctx: CstChildrenDictionary,
+    configurationSettings: TConfigurationSettings
+  ): TButton {
     const name = joinTokens(ctx.Button as IToken[]) || ""
     const titleText = joinTokens(ctx.Button as IToken[]) || ""
 
-    const title = this.createTitle(titleText, configurationSettings.defaultLanguage)
+    const title = this.createTitle(
+      titleText,
+      configurationSettings.defaultLanguage
+    )
 
     return {
       elementType: ZElementType.enum.Button,
@@ -132,7 +155,9 @@ export class Visitor extends BaseVisitor {
     const name = this.visit(ctx.properties as CstNode[]) || titleText
 
     const checkBoxType =
-      ctx.SwitchChecked || ctx.SwitchUnchecked ? SE.ZCheckBoxType.enum.Switch : undefined
+      ctx.SwitchChecked || ctx.SwitchUnchecked
+        ? SE.ZCheckBoxType.enum.Switch
+        : undefined
     return {
       elementType: ZElementType.enum.CheckBoxField,
       name: name || "",
@@ -151,7 +176,9 @@ export class Visitor extends BaseVisitor {
     const name = this.visit(ctx.properties as CstNode[]) || titleText
 
     const checkBoxType =
-      ctx.SwitchChecked || ctx.SwitchUnchecked ? SE.ZCheckBoxType.enum.Switch : undefined
+      ctx.SwitchChecked || ctx.SwitchUnchecked
+        ? SE.ZCheckBoxType.enum.Switch
+        : undefined
 
     return {
       elementType: ZElementType.enum.CheckBoxField,
@@ -182,12 +209,17 @@ export class Visitor extends BaseVisitor {
     const choiceList: TChoiceList = {
       items: items.map((item) => ({
         value: item.description,
-        presentation: { items: { [configurationSettings.defaultLanguage]: item.description } },
+        presentation: {
+          items: { [configurationSettings.defaultLanguage]: item.description },
+        },
         checkState: item.checked ? 1 : 2,
       })),
     }
 
-    const title = this.createTitle(titleText, configurationSettings.defaultLanguage)
+    const title = this.createTitle(
+      titleText,
+      configurationSettings.defaultLanguage
+    )
 
     return {
       elementType: ZElementType.enum.RadioButtonField,
@@ -200,39 +232,32 @@ export class Visitor extends BaseVisitor {
 
   radioButtonItem(ctx: CstChildrenDictionary): any {
     const checked = !!ctx.RadioButtonChecked
-    const description = joinTokens(ctx.RadioButtonValueDescription as IToken[]) ?? ""
+    const description =
+      joinTokens(ctx.RadioButtonValueDescription as IToken[]) ?? ""
     return { checked: checked, description: description }
   }
 
   // #endregion
 
-  //   commandBar(ctx: CstChildrenDictionary): TCommandBar {
-  //     // Для commandBar имя берем из первой кнопки в buttonGroup
-  //     const buttonGroup = ctx.buttonGroup
-  //     let name = ""
-  //     if (buttonGroup && Array.isArray(buttonGroup) && buttonGroup.length > 0) {
-  //       const firstButton = buttonGroup[0]
-  //       if (firstButton && "children" in firstButton && firstButton.children?.button) {
-  //         const buttonNodes = firstButton.children.button
-  //         if (Array.isArray(buttonNodes) && buttonNodes.length > 0) {
-  //           const firstButtonNode = buttonNodes[0]
-  //           if (firstButtonNode && "children" in firstButtonNode) {
-  //             const buttonCtx = firstButtonNode.children
-  //             name = joinTokens(buttonCtx.Button as IToken[]) || ""
-  //           }
-  //         }
-  //       }
-  //     }
-  //     if (!name) {
-  //       name = joinTokens(ctx.Button as IToken[]) || ""
-  //     }
+  // #region commandBar
 
-  //     return {
-  //       elementType: ZElementType.enum.CommandBar,
-  //       name: name || "",
-  //       id: undefined,
-  //     } as TCommandBar
-  //   }
+  commandBar(ctx: CstChildrenDictionary): TCommandBar {
+    const childItems = visitAll(
+      this,
+      ctx.button
+    ) as unknown as TCommandBar["childItems"]
+
+    const name = joinTokens(ctx.properties as IToken[])
+
+    return {
+      elementType: ZElementType.enum.CommandBar,
+      name: name,
+      id: undefined,
+      childItems: childItems,
+    } as TCommandBar
+  }
+
+  // #endregion
 
   //   buttonGroup(ctx: CstChildrenDictionary): any
   //   if (ctx.button && Array.isArray(ctx.button)
@@ -352,7 +377,10 @@ export class Visitor extends BaseVisitor {
     return properties
   }
 
-  createTitle(titleText: string | undefined, defaultLanguage: string): TI8nText | undefined {
+  createTitle(
+    titleText: string | undefined,
+    defaultLanguage: string
+  ): TI8nText | undefined {
     return titleText
       ? {
           items: {

@@ -78,6 +78,7 @@ const parseInputField = (mock: string) => {
   const node: DetectedTreeNode = {
     tokens,
     type: ParseElementType.InputField,
+    childItems: [],
   }
 
   return parseElement(node, configurationSettings)

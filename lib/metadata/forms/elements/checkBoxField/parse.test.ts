@@ -26,7 +26,10 @@ describe("parse CheckBoxField", () => {
       id: undefined,
     }
 
-    const result = parseCheckBoxField(mock, ParseElementType.RightTitledCheckboxField)
+    const result = parseCheckBoxField(
+      mock,
+      ParseElementType.RightTitledCheckboxField
+    )
     expect(result).toEqual(expectedResult)
   })
 
@@ -42,7 +45,10 @@ describe("parse CheckBoxField", () => {
       id: undefined,
     }
 
-    const result = parseCheckBoxField(mock, ParseElementType.LeftTitledCheckboxField)
+    const result = parseCheckBoxField(
+      mock,
+      ParseElementType.LeftTitledCheckboxField
+    )
     expect(result).toEqual(expectedResult)
   })
 
@@ -60,7 +66,10 @@ describe("parse CheckBoxField", () => {
       id: undefined,
     }
 
-    const result = parseCheckBoxField(mock, ParseElementType.RightTitledCheckboxField)
+    const result = parseCheckBoxField(
+      mock,
+      ParseElementType.RightTitledCheckboxField
+    )
     expect(result).toEqual(expectedResult)
   })
 
@@ -77,7 +86,10 @@ describe("parse CheckBoxField", () => {
       id: undefined,
     }
 
-    const result = parseCheckBoxField(mock, ParseElementType.LeftTitledCheckboxField)
+    const result = parseCheckBoxField(
+      mock,
+      ParseElementType.LeftTitledCheckboxField
+    )
     expect(result).toEqual(expectedResult)
   })
 })
