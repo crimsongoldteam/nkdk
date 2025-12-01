@@ -1,20 +1,16 @@
 import React from "react"
 import { Table } from "antd"
 import { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
+import { TTable } from "~/lib/metadata/forms/elements/table/types"
 
-interface ITableHTMLProps {
-  name: string
-  title?: TI8nText
-}
+export function TableComponent(props: Readonly<TTable>): React.ReactNode {
+  const { name, childItems } = props
 
-export function TableComponent(_props: Readonly<ITableHTMLProps>): React.ReactNode {
-  const columns = [
-    {
-      title: "Заголовок",
-      dataIndex: "name",
-      key: "name",
-    },
-  ]
+  const columns = childItems.map((item) => ({
+    title: item.name,
+    dataIndex: item.name,
+    key: item.name,
+  }))
 
   const dataSource = [
     {
@@ -23,5 +19,12 @@ export function TableComponent(_props: Readonly<ITableHTMLProps>): React.ReactNo
     },
   ]
 
-  return <Table columns={columns} dataSource={dataSource} pagination={false} />
+  return (
+    <Table
+      columns={columns}
+      dataSource={dataSource}
+      size="small"
+      pagination={false}
+    />
+  )
 }

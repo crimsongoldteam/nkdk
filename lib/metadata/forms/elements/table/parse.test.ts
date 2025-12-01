@@ -17,7 +17,7 @@ describe("parse Table", () => {
 
     const expectedResult: TTable = {
       elementType: ZElementType.enum.Table,
-      name: "text",
+      name: "name",
       id: undefined,
       childItems: [
         {

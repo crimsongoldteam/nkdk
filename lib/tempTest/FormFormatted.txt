@@ -947,7 +947,7 @@
   АвтоОтметкаНезаполненного: Истина
   ВысотаЗаголовка: '2'
   ВысотаШапки: '2'
-  Команда: '[object Object],[object Object],[object Object],[object Object],[object Object]'
+  Команда: EndEdit,MoveDown,MoveUp,SortListAsc,SortListDesc
   КонтекстноеМеню: '[object Object]'
   Отображение: Список
   ПоложениеПоисковогоСтроки: '[object Object]'
@@ -1065,7 +1065,7 @@
   ВертикальныеЛинии: Ложь
   Высота: '1'
   ГоризонтальныеЛинии: Ложь
-  Команда: '[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]'
+  Команда: CancelSearch,Copy,CopyToClipboard,CreateFolder,Delete,DynamicListStandardSettings,Find,FindByCurrentValue,HierarchicalList,LevelDown,LevelUp,List,ListSettings,LoadDynamicListSettings,MoveItem,OutputList,Refresh,SaveDynamicListSettings,SetDeletionMark,ShowMultipleSelection,Tree
   КонтекстноеМеню: '[object Object]'
   НачальноеОтображениеДерева: РаскрыватьВерхнийУровень
   НачальноеОтображениеСписка: Начало
@@ -2236,7 +2236,7 @@
 Действия:
   АвтоВводНовойСтроки: Истина
   АвтоКоманднаяПанель: '[object Object]'
-  Команда: '[object Object],[object Object],[object Object]'
+  Команда: Copy,MoveDown,MoveUp
   КонтекстноеМеню: '[object Object]'
   Отображение: Дерево
   ПоложениеПоисковогоСтроки: '[object Object]'
@@ -3240,7 +3240,7 @@
   АвтоКоманднаяПанель: '[object Object]'
   АвтоОтметкаНезаполненного: Истина
   ВысотаВСтрокахТаблицы: '1'
-  Команда: '[object Object]'
+  Команда: Copy
   КонтекстноеМеню: '[object Object]'
   ПоложениеПоисковогоСтроки: '[object Object]'
   ПоложениеСостоянияПросмотра: Нет
@@ -4115,7 +4115,7 @@
   АвтоКоманднаяПанель: '[object Object]'
   ВысотаВСтрокахТаблицы: '1'
   ГоризонтальныеЛинии: Ложь
-  Команда: '[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]'
+  Команда: CancelSearch,Change,Copy,EndEdit,Find,MoveDown,MoveUp,SelectAll,SortListAsc,SortListDesc
   КонтекстноеМеню: '[object Object]'
   Отображение: Список
   ПоложениеПоисковогоСтроки: '[object Object]'
@@ -4373,7 +4373,7 @@
   АвтоКоманднаяПанель: '[object Object]'
   ВертикальныеЛинии: Ложь
   ВысотаВСтрокахТаблицы: '1'
-  Команда: '[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]'
+  Команда: Add,Change,Copy,CopyToClipboard,Delete,EndEdit,HierarchicalList,List,MoveDown,MoveUp,OutputList,SelectAll,SortListAsc,SortListDesc,Tree
   КонтекстноеМеню: '[object Object]'
   НачальноеОтображениеДерева: РаскрыватьВсеУровни
   Отображение: Дерево
@@ -4482,7 +4482,7 @@
 СписокВОтветНа:
   АвтоКоманднаяПанель: '[object Object]'
   ВысотаВСтрокахТаблицы: '3'
-  Команда: '[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]'
+  Команда: CheckAll,Pickup,ShowRowRearrangement,SortListAsc,SortListDesc,UncheckAll
   КонтекстноеМеню: '[object Object]'
   Отображение: Список
   ПоложениеКоманднойПанели: Нет
@@ -4522,7 +4522,7 @@
   АвтоКоманднаяПанель: '[object Object]'
   ВысотаВСтрокахТаблицы: '1'
   ГоризонтальныеЛинии: Ложь
-  Команда: '[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]'
+  Команда: Add,CancelSearch,Change,Copy,EndEdit,Find,MoveDown,MoveUp,SortListAsc,SortListDesc
   КонтекстноеМеню: '[object Object]'
   Отображение: Список
   ПоложениеПоисковогоСтроки: '[object Object]'
@@ -4545,7 +4545,7 @@
   АвтоКоманднаяПанель: '[object Object]'
   ВысотаВСтрокахТаблицы: '3'
   Заголовок: Предметы переписки
-  Команда: '[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]'
+  Команда: CheckAll,Pickup,ShowRowRearrangement,SortListAsc,SortListDesc,UncheckAll
   КонтекстноеМеню: '[object Object]'
   Отображение: Список
   ПоложениеКоманднойПанели: Нет
@@ -4971,7 +4971,7 @@
   АвтоВводНовойСтроки: Истина
   АвтоКоманднаяПанель: '[object Object]'
   Высота: '1'
-  Команда: '[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]'
+  Команда: CancelSearch,Change,Copy,CopyToClipboard,EndEdit,Find,OutputList,SelectAll,ShowMultipleSelection,ShowRowRearrangement,SortListAsc,SortListDesc
   КонтекстноеМеню: '[object Object]'
   Подвал: Истина
   ПоложениеПоисковогоСтроки: '[object Object]'
@@ -5084,7 +5084,7 @@
   АвтоМаксимальнаяШирина: Ложь
   АктивизироватьПоУмолчанию: Истина
   ИзменятьПорядокСтрок: Ложь
-  Команда: '[object Object]'
+  Команда: Copy
   КонтекстноеМеню: '[object Object]'
   Отображение: Дерево
   ПоложениеКоманднойПанели: Нет
@@ -5126,7 +5126,7 @@
 ФайлыДобавленные:
   АвтоКоманднаяПанель: '[object Object]'
   ИзменятьПорядокСтрок: Ложь
-  Команда: '[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]'
+  Команда: Add,CancelSearch,Copy,CopyToClipboard,EndEdit,Find,SelectAll
   КонтекстноеМеню: '[object Object]'
   Отображение: Список
   ПоложениеПоисковогоСтроки: '[object Object]'
@@ -5224,7 +5224,7 @@
   АвтоКоманднаяПанель: '[object Object]'
   ВысотаВСтрокахТаблицы: '1'
   ИзменятьПорядокСтрок: Ложь
-  Команда: '[object Object],[object Object],[object Object]'
+  Команда: Copy,MoveDown,MoveUp
   КонтекстноеМеню: '[object Object]'
   Отображение: Дерево
   ПоложениеПоисковогоСтроки: '[object Object]'
@@ -5365,7 +5365,7 @@
   ВысотаВСтрокахТаблицы: '1'
   ЗапросОбновления: ПотянутьСверху
   ИзменятьПорядокСтрок: Ложь
-  Команда: '[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]'
+  Команда: Add,Change,Copy,Delete,EndEdit,HierarchicalList,List,MoveDown,MoveUp,OutputList,SortListAsc,SortListDesc,Tree
   КонтекстноеМеню: '[object Object]'
   НачальноеОтображениеДерева: РаскрыватьВсеУровни
   Отображение: Дерево

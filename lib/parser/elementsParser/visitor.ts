@@ -375,14 +375,113 @@ export class Visitor extends BaseVisitor {
     ctx: CstChildrenDictionary,
     configurationSettings: TConfigurationSettings
   ): TTable {
-    const result: TTable = {
-      elementType: ZElementType.enum.Table,
-      name: "table",
-      id: undefined,
-      childItems: [],
+    // Обрабатываем tableLine - это массив из AT_LEAST_ONE
+    // В Chevrotain AT_LEAST_ONE создает массив с именем правила
+    const tableLineValue = ctx.tableLine
+    const tableLineArray = tableLineValue
+      ? Array.isArray(tableLineValue)
+        ? tableLineValue
+        : [tableLineValue]
+      : []
+
+    const tableLines = visitAll(
+      this,
+      tableLineArray as CstNode[],
+      configurationSettings
+    ) as unknown as Array<{
+      cells: Array<{ name: string; properties?: string }>
+    }>
+
+    const childItems: TInputField[] = []
+    let tableName: string | undefined
+
+    // Обрабатываем первую строку таблицы (заголовки колонок)
+    if (tableLines.length > 0) {
+      const firstLine = tableLines[0]
+      for (const cell of firstLine.cells) {
+        if (cell.properties) {
+          // Если в ячейке есть properties, это имя таблицы
+          tableName = cell.properties
+        } else if (cell.name) {
+          // Иначе это колонка
+          childItems.push({
+            elementType: ZElementType.enum.InputField,
+            name: cell.name,
+            id: undefined,
+          } as TInputField)
+        }
+      }
     }
 
-    return result
+    return {
+      elementType: ZElementType.enum.Table,
+      name: tableName || "table",
+      id: undefined,
+      childItems: childItems,
+    } as TTable
+  }
+
+  tableLine(
+    ctx: CstChildrenDictionary,
+    configurationSettings: TConfigurationSettings
+  ): { cells: Array<{ name: string; properties?: string }> } {
+    // Обрабатываем ячейки из AT_LEAST_ONE_SEP
+    // В Chevrotain AT_LEAST_ONE_SEP создает массив с именем правила (tableCell)
+    const cells = visitAll(
+      this,
+      ctx.tableCell as CstNode[],
+      configurationSettings
+    ) as unknown as Array<{ name: string; properties?: string }>
+
+    return { cells }
+  }
+
+  tableCell(
+    ctx: CstChildrenDictionary,
+    configurationSettings: TConfigurationSettings
+  ): { name: string; properties?: string } {
+    const tableDataCellNodes = ctx.tableDataCell
+      ? (Array.isArray(ctx.tableDataCell)
+          ? ctx.tableDataCell
+          : [ctx.tableDataCell]
+        ).filter((item) => "children" in item)
+      : []
+
+    if (tableDataCellNodes.length === 0) {
+      return { name: "", properties: undefined }
+    }
+
+    const tableDataCell = this.visit(
+      tableDataCellNodes as CstNode[],
+      configurationSettings
+    ) as { name: string; properties?: string }
+
+    return tableDataCell
+  }
+
+  tableDataCell(
+    ctx: CstChildrenDictionary,
+    _configurationSettings: TConfigurationSettings
+  ): { name: string; properties?: string } {
+    // TableCellContinue с LABEL: "TableCell" попадает в тот же массив
+    const tableCellTokens = (ctx.TableCell as IToken[]) || []
+    const cellName = joinTokens(tableCellTokens) || ""
+
+    // Обрабатываем properties
+    const propertiesNode = ctx.properties
+      ? Array.isArray(ctx.properties)
+        ? ctx.properties[0]
+        : ctx.properties
+      : undefined
+    const properties =
+      propertiesNode && "children" in propertiesNode
+        ? this.visit([propertiesNode as CstNode])
+        : undefined
+
+    return {
+      name: cellName || "",
+      properties: properties as string | undefined,
+    }
   }
   // #endregion
 

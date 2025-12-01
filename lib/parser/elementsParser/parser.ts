@@ -275,7 +275,18 @@ export class Parser extends CstParser {
   })
 
   private readonly tableLine = this.RULE("tableLine", () => {
-    this.binaryExpression(this.tableCell, t.VBar)
+    this.CONSUME1(t.VBar)
+
+    this.AT_LEAST_ONE_SEP({
+      SEP: t.VBar,
+      DEF: () => {
+        this.SUBRULE(this.tableCell)
+      },
+    })
+
+    this.OPTION2(() => {
+      this.CONSUME2(t.VBar)
+    })
   })
 
   private readonly tableCell = this.RULE("tableCell", () => {
