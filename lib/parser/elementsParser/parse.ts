@@ -31,6 +31,8 @@ const parseByElementType = (element: DetectedTreeNode): CstNode => {
       return elementsParser.parseLeftTitledCheckboxField(element.tokens)
     case ParseElementType.RadioButtonField:
       return elementsParser.parseRadioButtonField(element.tokens)
+    case ParseElementType.CommandBar:
+      return elementsParser.parseCommandBar(element.tokens)
     default:
       throw new Error(`Unknown element type: ${element.type}`)
   }
