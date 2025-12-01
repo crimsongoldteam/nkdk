@@ -12,6 +12,7 @@ import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { joinTokens, visitAll } from "../visitorUtils"
 import { Parser } from "./parser"
 import { TCommandBar } from "~/lib/metadata/forms/elements/commandBar/types"
+import { TTable } from "~/lib/metadata/forms/elements/table/types"
 
 const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
@@ -369,39 +370,23 @@ export class Visitor extends BaseVisitor {
   //     } as TUsualGroup
   // }
 
-  // table(ctx: CstChildrenDictionary)
-  // : TTable
-  // {
-  //   // Для таблицы берем имя из первой строки
-  //   const tableLines = ctx.tableLine
-  //   let name = ""
-  //   if (tableLines && Array.isArray(tableLines) && tableLines.length > 0) {
-  //     const firstLine = tableLines[0]
-  //     if (firstLine && "children" in firstLine && firstLine.children?.tableCell) {
-  //       const tableCells = firstLine.children.tableCell
-  //       if (Array.isArray(tableCells) && tableCells.length > 0) {
-  //         const firstCell = tableCells[0]
-  //         if (firstCell && "children" in firstCell && firstCell.children?.tableDataCell) {
-  //           const dataCells = firstCell.children.tableDataCell
-  //           if (Array.isArray(dataCells) && dataCells.length > 0) {
-  //             const firstDataCell = dataCells[0]
-  //             if (firstDataCell && "children" in firstDataCell) {
-  //               const cellCtx = firstDataCell.children
-  //               name = joinTokens(cellCtx.TableCell as IToken[]) || ""
-  //             }
-  //           }
-  //         }
-  //       }
-  //     }
-  //   }
+  // #region table
+  table(
+    ctx: CstChildrenDictionary,
+    configurationSettings: TConfigurationSettings
+  ): TTable {
+    const result: TTable = {
+      elementType: ZElementType.enum.Table,
+      name: "table",
+      id: undefined,
+      childItems: [],
+    }
 
-  //   return {
-  //       elementType: ZElementType.enum.Table,
-  //       name: name || "",
-  //       id: undefined,
-  //     } as TTable
-  // }
+    return result
+  }
+  // #endregion
 
+  // #region properties
   properties(ctx: CstChildrenDictionary): string | undefined {
     const properties = joinTokens(ctx.PropertiesNameText as IToken[])
     return properties

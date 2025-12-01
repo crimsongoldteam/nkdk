@@ -33,6 +33,8 @@ const parseByElementType = (element: DetectedTreeNode): CstNode => {
       return elementsParser.parseRadioButtonField(element.tokens)
     case ParseElementType.CommandBar:
       return elementsParser.parseCommandBar(element.tokens)
+    case ParseElementType.Table:
+      return elementsParser.parseTable(element.tokens)
     default:
       throw new Error(`Unknown element type: ${element.type}`)
   }

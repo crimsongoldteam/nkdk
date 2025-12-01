@@ -42,6 +42,11 @@ export class Parser extends CstParser {
     return this.radioButtonField()
   }
 
+  public parseTable(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.table()
+  }
+
   // #region labelField
 
   private readonly labelDecoration = this.RULE("labelDecoration", () => {
@@ -261,6 +266,52 @@ export class Parser extends CstParser {
 
   // #endregion
 
+  // #region table
+
+  private readonly table = this.RULE("table", () => {
+    this.AT_LEAST_ONE(() => {
+      this.SUBRULE(this.tableLine)
+    })
+  })
+
+  private readonly tableLine = this.RULE("tableLine", () => {
+    this.binaryExpression(this.tableCell, t.VBar)
+  })
+
+  private readonly tableCell = this.RULE("tableCell", () => {
+    this.SUBRULE(this.tableDataCell)
+  })
+
+  private readonly tableDataCell = this.RULE("tableDataCell", () => {
+    // this.OPTION1(() => {
+    //   this.CONSUME(t.Dots)
+    // })
+
+    // this.OPTION2(() => {
+    //   this.choice(
+    //     1,
+    //     () => {
+    //       this.CONSUME(t.CheckboxChecked)
+    //     },
+    //     () => {
+    //       this.CONSUME(t.CheckboxUnchecked)
+    //     }
+    //   )
+    // })
+
+    this.OPTION3(() => {
+      this.CONSUME(t.TableCell)
+      this.MANY(() => {
+        this.CONSUME(t.TableCellContinue, { LABEL: "TableCell" })
+      })
+    })
+
+    this.OPTION4(() => {
+      this.SUBRULE(this.properties)
+    })
+  })
+  //#endregion
+
   // #region properties
 
   private readonly properties = this.RULE("properties", () => {
@@ -306,13 +357,13 @@ export class Parser extends CstParser {
   }
 
   // https://github.com/bia-technologies/yaxunit-editor
-  // private binaryExpression(operand: any, operator: any) {
-  //   this.SUBRULE1(operand)
-  //   this.MANY(() => {
-  //     this.CONSUME(operator)
-  //     this.SUBRULE2(operand)
-  //   })
-  // }
+  private binaryExpression(operand: any, operator: any) {
+    this.SUBRULE1(operand)
+    this.MANY(() => {
+      this.CONSUME(operator)
+      this.SUBRULE2(operand)
+    })
+  }
 
   // #endregion
 }

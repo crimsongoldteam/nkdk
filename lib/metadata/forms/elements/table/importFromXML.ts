@@ -15,9 +15,11 @@ import { TTableXML, TTable } from "./types"
 import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
-export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefined => {
+export const importTableFromXML = (
+  xml: TTableXML | undefined
+): TTable | undefined => {
   if (!xml) return undefined
-   
+
   return {
     id: xml._id,
     name: xml._name,
@@ -37,7 +39,7 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     choiceMode: xml.ChoiceMode,
     commandBar: importCommandBarFromXML(xml.CommandBar),
     commandBarLocation: xml.CommandBarLocation,
-    commandSet: xml.CommandSet,
+    commandSet: importCommandSetFromXML(xml.CommandSet),
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
     currentRowUse: xml.CurrentRowUse,
     dataPath: xml.DataPath,
@@ -76,12 +78,18 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     rowSelectionMode: xml.RowSelectionMode,
     rowsPicture: xml.RowsPicture,
     searchControl: importFormItemAdditionFromXML(xml.SearchControl),
-    searchControlAddition: importSearchControlAdditionFromXML(xml.SearchControlAddition),
+    searchControlAddition: importSearchControlAdditionFromXML(
+      xml.SearchControlAddition
+    ),
     searchControlLocation: xml.SearchControlLocation,
     searchOnInput: xml.SearchOnInput,
-    searchStringAddition: importSearchStringAdditionFromXML(xml.SearchStringAddition),
+    searchStringAddition: importSearchStringAdditionFromXML(
+      xml.SearchStringAddition
+    ),
     searchStringLocation: xml.SearchStringLocation,
-    searchStringRepresentation: importFormItemAdditionFromXML(xml.SearchStringRepresentation),
+    searchStringRepresentation: importFormItemAdditionFromXML(
+      xml.SearchStringRepresentation
+    ),
     selectionMode: xml.SelectionMode,
     shortcut: xml.Shortcut,
     skipOnInput: xml.SkipOnInput,
@@ -101,7 +109,9 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
     verticalStretch: xml.VerticalStretch,
     viewStatusAddition: importViewStatusAdditionFromXML(xml.ViewStatusAddition),
     viewStatusLocation: xml.ViewStatusLocation,
-    viewStatusRepresentation: importFormItemAdditionFromXML(xml.ViewStatusRepresentation),
+    viewStatusRepresentation: importFormItemAdditionFromXML(
+      xml.ViewStatusRepresentation
+    ),
     visible: xml.Visible,
     width: xml.Width,
     childItems: importChildItemsFromXML(xml.ChildItems),

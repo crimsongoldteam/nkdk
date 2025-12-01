@@ -1,4 +1,7 @@
-import { type TElementType, ZElementType } from "~/lib/metadata/forms/elements/types"
+import {
+  type TElementType,
+  ZElementType,
+} from "~/lib/metadata/forms/elements/types"
 import { ButtonComponent } from "./button/button"
 import { CheckBoxFieldComponent } from "./checkBoxField/checkBoxField"
 import { InputField } from "./inputField/inputField"
@@ -8,8 +11,11 @@ import { PictureDecorationComponent } from "./pictureDecoration/pictureDecoratio
 import { RadioButtonFieldComponent } from "./radioButtonField/radioButtonField"
 import { TableComponent } from "./table/table"
 import { UsualGroup } from "./usualGroup/usualGroup"
+import { CommandBarComponent } from "./commandBar/commandBar"
 
-export const components: Partial<Record<TElementType, React.ComponentType<any>>> = {
+export const components: Partial<
+  Record<TElementType, React.ComponentType<any>>
+> = {
   [ZElementType.enum.InputField]: InputField,
   [ZElementType.enum.UsualGroup]: UsualGroup,
   [ZElementType.enum.Button]: ButtonComponent,
@@ -19,4 +25,5 @@ export const components: Partial<Record<TElementType, React.ComponentType<any>>>
   [ZElementType.enum.PictureDecoration]: PictureDecorationComponent,
   [ZElementType.enum.Table]: TableComponent,
   [ZElementType.enum.RadioButtonField]: RadioButtonFieldComponent,
+  [ZElementType.enum.CommandBar]: CommandBarComponent,
 }

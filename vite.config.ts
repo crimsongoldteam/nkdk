@@ -18,4 +18,12 @@ export default defineConfig({
   define: {
     global: "globalThis",
   },
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, "index.html"),
+        playground: resolve(__dirname, "playground.html"),
+      },
+    },
+  },
 })
