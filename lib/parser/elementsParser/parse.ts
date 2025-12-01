@@ -14,7 +14,24 @@ export const parseElement = (
 
   const cst = visitor.visit(ast, configurationSettings)
 
+  // Обрабатываем childItems рекурсивно
+  addChildItemsToResult(cst, element, configurationSettings)
+
   return cst
+}
+
+const addChildItemsToResult = (
+  cst: TBaseElement,
+  element: DetectedTreeNode,
+  configurationSettings: TConfigurationSettings
+): void => {
+  // Добавляем childItems к результату, если элемент поддерживает их
+  if (!("childItems" in cst)) return
+
+  cst.childItems =
+    element.childItems?.map((child) =>
+      parseElement(child, configurationSettings)
+    ) || []
 }
 
 const parseByElementType = (element: DetectedTreeNode): CstNode => {
@@ -35,6 +52,10 @@ const parseByElementType = (element: DetectedTreeNode): CstNode => {
       return elementsParser.parseCommandBar(element.tokens)
     case ParseElementType.Table:
       return elementsParser.parseTable(element.tokens)
+    case ParseElementType.Pages:
+      return elementsParser.parsePages(element.tokens)
+    case ParseElementType.Page:
+      return elementsParser.parsePage(element.tokens)
     default:
       throw new Error(`Unknown element type: ${element.type}`)
   }

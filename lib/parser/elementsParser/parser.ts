@@ -47,6 +47,16 @@ export class Parser extends CstParser {
     return this.table()
   }
 
+  public parsePages(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.pages()
+  }
+
+  public parsePage(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.page()
+  }
+
   // #region labelField
 
   private readonly labelDecoration = this.RULE("labelDecoration", () => {
@@ -322,6 +332,30 @@ export class Parser extends CstParser {
     })
   })
   //#endregion
+
+  // #region pages
+
+  private readonly pages = this.RULE("pages", () => {
+    this.CONSUME1(t.Slash)
+    this.CONSUME2(t.Slash)
+    this.MANY(() => {
+      this.CONSUME(t.PageHeaderText)
+    })
+
+    this.OPTION1(() => {
+      this.SUBRULE(this.properties)
+    })
+  })
+
+  private readonly page = this.RULE("page", () => {
+    this.CONSUME1(t.Slash)
+    this.MANY(() => {
+      this.CONSUME(t.PageHeaderText)
+    })
+    this.OPTION1(() => {
+      this.SUBRULE(this.properties)
+    })
+  })
 
   // #region properties
 

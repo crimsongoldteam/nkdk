@@ -13,6 +13,8 @@ import { joinTokens, visitAll } from "../visitorUtils"
 import { Parser } from "./parser"
 import { TCommandBar } from "~/lib/metadata/forms/elements/commandBar/types"
 import { TTable } from "~/lib/metadata/forms/elements/table/types"
+import { TPages } from "~/lib/metadata/forms/elements/pages/types"
+import { TPage } from "~/lib/metadata/forms/elements/page/types"
 
 const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
@@ -483,6 +485,39 @@ export class Visitor extends BaseVisitor {
       properties: properties as string | undefined,
     }
   }
+  // #endregion
+
+  // #region pages
+  pages(
+    ctx: CstChildrenDictionary,
+    configurationSettings: TConfigurationSettings
+  ): TPages {
+    const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
+    const name = this.visit(ctx.properties as CstNode[]) || titleText
+    return {
+      elementType: ZElementType.enum.Pages,
+      name: name || titleText,
+      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
+      id: undefined,
+      childItems: [],
+    } as TPages
+  }
+
+  page(
+    ctx: CstChildrenDictionary,
+    configurationSettings: TConfigurationSettings
+  ): TPage {
+    const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
+    const name = this.visit(ctx.properties as CstNode[]) || titleText
+    return {
+      elementType: ZElementType.enum.Page,
+      name: name || titleText,
+      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
+      id: undefined,
+      childItems: [],
+    } as TPage
+  }
+
   // #endregion
 
   // #region properties

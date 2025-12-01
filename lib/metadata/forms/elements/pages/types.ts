@@ -12,10 +12,10 @@ import {
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import { ZEventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { ZodChildItemsType } from "../childItems/typesExt"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
+import { ZPage, ZPageXML } from "../page/types"
+import { ZodType } from "zod"
 
 export const ZPages = z.object({
   elementType: ZElementType,
@@ -42,8 +42,8 @@ export const ZPages = z.object({
   verticalStretch: z.boolean().optional(),
   visible: z.boolean().optional(),
   width: z.number().optional(),
-  get childItems(): ZodChildItemsType {
-    return ZChildItems
+  get childItems() {
+    return ZPage.array()
   },
   get associatedTable() {
     return ZTable.optional()
@@ -89,7 +89,7 @@ export const ZPagesXML = z.object({
   Type: SE.ZFormGroupType.optional(),
   VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
   get ChildItems() {
-    return ZChildItemsXML.optional()
+    return ZPageXML.array().optional()
   },
   Events: ZEventsXML.optional(),
 })

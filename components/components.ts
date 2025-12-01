@@ -12,6 +12,7 @@ import { RadioButtonFieldComponent } from "./radioButtonField/radioButtonField"
 import { TableComponent } from "./table/table"
 import { UsualGroup } from "./usualGroup/usualGroup"
 import { CommandBarComponent } from "./commandBar/commandBar"
+import { PageComponent } from "./pages/page"
 
 export const components: Partial<
   Record<TElementType, React.ComponentType<any>>
@@ -26,4 +27,5 @@ export const components: Partial<
   [ZElementType.enum.Table]: TableComponent,
   [ZElementType.enum.RadioButtonField]: RadioButtonFieldComponent,
   [ZElementType.enum.CommandBar]: CommandBarComponent,
+  [ZElementType.enum.Page]: PageComponent,
 }
