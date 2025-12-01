@@ -241,20 +241,50 @@ export class Visitor extends BaseVisitor {
 
   // #region commandBar
 
-  commandBar(ctx: CstChildrenDictionary): TCommandBar {
+  commandBar(
+    ctx: CstChildrenDictionary,
+    configurationSettings: TConfigurationSettings
+  ): TCommandBar {
     const childItems = visitAll(
       this,
-      ctx.button
+      ctx.commandBarButton,
+      configurationSettings
     ) as unknown as TCommandBar["childItems"]
 
-    const name = joinTokens(ctx.properties as IToken[])
+    // Добавляем id для кнопок
+    const childItemsWithId = childItems.map((item, index) => ({
+      ...item,
+      id: String(index + 1),
+    }))
+
+    const name = joinTokens(ctx.properties as IToken[]) || "CommandBar"
 
     return {
       elementType: ZElementType.enum.CommandBar,
       name: name,
-      id: undefined,
-      childItems: childItems,
+      id: "1",
+      childItems: childItemsWithId,
     } as TCommandBar
+  }
+
+  commandBarButton(
+    ctx: CstChildrenDictionary,
+    configurationSettings: TConfigurationSettings
+  ): TButton {
+    const name = joinTokens(ctx.Button as IToken[]) || ""
+    const titleText = joinTokens(ctx.Button as IToken[]) || ""
+
+    const title = this.createTitle(
+      titleText,
+      configurationSettings.defaultLanguage
+    )
+
+    return {
+      elementType: ZElementType.enum.Button,
+      name: name || "",
+      title: title,
+      id: undefined,
+    } as TButton
   }
 
   // #endregion

@@ -209,8 +209,11 @@ export class Parser extends CstParser {
 
     this.CONSUME1(t.LAngle)
 
-    this.MANY2(() => {
-      this.SUBRULE(this.button)
+    this.AT_LEAST_ONE_SEP({
+      SEP: t.VBar,
+      DEF: () => {
+        this.SUBRULE(this.commandBarButton)
+      },
     })
 
     this.OPTION4(() => {
@@ -222,6 +225,12 @@ export class Parser extends CstParser {
     })
 
     this.aligment("right")
+  })
+
+  private readonly commandBarButton = this.RULE("commandBarButton", () => {
+    this.MANY(() => {
+      this.CONSUME(t.Button)
+    })
   })
 
   // #endregion
