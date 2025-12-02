@@ -20,7 +20,7 @@ export function InputField(props: Readonly<TInputField>): React.ReactNode {
 
   return (
     <Form.Item label={title}>
-      <Space.Compact>
+      <Space.Compact style={{ width: "100%" }}>
         <Input id={`input_${name}`} />
         {dropListButton && <Button icon={<CaretDownOutlined />} />}
         {clearButton && <Button icon={<CloseOutlined />} />}

@@ -56,7 +56,7 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.UsualGroup)
+    expect(result).toEqual(ParseElementType.HorizontalGroup)
   })
 
   it("should detect command bar starting with < and containing |", () => {
