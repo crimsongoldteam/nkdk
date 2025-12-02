@@ -15,7 +15,6 @@ import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
 import { ZPage, ZPageXML } from "../page/types"
-import { ZodType } from "zod"
 
 export const ZPages = z.object({
   elementType: ZElementType,

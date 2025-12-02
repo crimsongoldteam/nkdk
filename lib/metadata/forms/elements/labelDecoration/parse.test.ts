@@ -5,6 +5,7 @@ import type { DetectedTreeNode } from "~/lib/parser/treeParser/detectTree"
 import { lexer } from "~/lib/parser/treeParser/lexer"
 import { ZElementType } from "../types"
 import type { TLabelDecoration } from "./types"
+import { ParseElementType } from "~/lib/parser/types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -15,7 +16,7 @@ const parseLabelDecoration = (mock: string) => {
 
   const node: DetectedTreeNode = {
     tokens,
-    type: ZElementType.enum.LabelDecoration,
+    type: ParseElementType.LabelDecoration,
     childItems: [],
   }
 

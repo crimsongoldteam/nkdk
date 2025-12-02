@@ -14,11 +14,14 @@ export function ClientFormApplication(
   const { childItems } = props
 
   return (
-    <Form layout="horizontal" labelWrap={true} labelAlign="left" labelCol={{ span: 4 }}>
+    <Form layout="horizontal" labelAlign="left">
       {childItems.map((item) => {
-        const Component = components[item.elementType as keyof typeof components]
+        const Component =
+          components[item.elementType as keyof typeof components]
         if (!Component) {
-          return <div key={item.name}>Компонент {item.elementType} не найден</div>
+          return (
+            <div key={item.name}>Компонент {item.elementType} не найден</div>
+          )
         }
         return <Component key={item.name} {...item} />
       })}

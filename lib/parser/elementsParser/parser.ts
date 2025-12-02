@@ -57,6 +57,11 @@ export class Parser extends CstParser {
     return this.page()
   }
 
+  public parseVerticalGroup(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.verticalGroup()
+  }
+
   // #region labelField
 
   private readonly labelDecoration = this.RULE("labelDecoration", () => {
@@ -352,6 +357,19 @@ export class Parser extends CstParser {
     this.MANY(() => {
       this.CONSUME(t.PageHeaderText)
     })
+    this.OPTION1(() => {
+      this.SUBRULE(this.properties)
+    })
+  })
+
+  // #region verticalGroup
+
+  private readonly verticalGroup = this.RULE("verticalGroup", () => {
+    this.CONSUME(t.Hash)
+    this.MANY(() => {
+      this.CONSUME(t.GroupHeaderText)
+    })
+
     this.OPTION1(() => {
       this.SUBRULE(this.properties)
     })

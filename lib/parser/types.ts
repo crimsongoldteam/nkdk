@@ -10,5 +10,5 @@ export enum ParseElementType {
   PictureDecoration = "PictureDecoration",
   Page = "Page",
   Pages = "Pages",
-  UsualGroup = "UsualGroup",
+  VerticalGroup = "VerticalGroup",
 }

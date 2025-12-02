@@ -15,6 +15,7 @@ import { TCommandBar } from "~/lib/metadata/forms/elements/commandBar/types"
 import { TTable } from "~/lib/metadata/forms/elements/table/types"
 import { TPages } from "~/lib/metadata/forms/elements/pages/types"
 import { TPage } from "~/lib/metadata/forms/elements/page/types"
+import { TUsualGroup } from "~/lib/metadata/forms/elements/usualGroup/types"
 
 const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
@@ -516,6 +517,24 @@ export class Visitor extends BaseVisitor {
       id: undefined,
       childItems: [],
     } as TPage
+  }
+
+  // #endregion
+
+  // #region verticalGroup
+  verticalGroup(
+    ctx: CstChildrenDictionary,
+    configurationSettings: TConfigurationSettings
+  ): TUsualGroup {
+    const titleText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
+    const name = this.visit(ctx.properties as CstNode[]) || titleText
+    return {
+      elementType: ZElementType.enum.UsualGroup,
+      name: name || titleText,
+      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
+      id: undefined,
+      childItems: [],
+    } as TUsualGroup
   }
 
   // #endregion
