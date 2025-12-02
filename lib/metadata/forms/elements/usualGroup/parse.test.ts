@@ -6,6 +6,7 @@ import { ZElementType } from "../types"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { TUsualGroup } from "./types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -27,6 +28,7 @@ describe("parse UsualGroup", () => {
 
     const expectedResult: TUsualGroup = {
       elementType: ZElementType.enum.UsualGroup,
+      group: SE.ZChildFormItemsGroup.enum.Vertical,
       name: "vertical",
       id: undefined,
       title: {

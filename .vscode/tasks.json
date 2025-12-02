@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "start dev server",
+      "type": "shell",
+      "command": "source ~/.zshrc 2>/dev/null; source ~/.zprofile 2>/dev/null; pnpm dev",
+      "isBackground": true,
+      "options": {
+        "shell": {
+          "executable": "/bin/zsh",
+          "args": ["-c"]
+        }
+      },
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": ".*Local:.*http://localhost:3000.*"
+        }
+      }
+    }
+  ]
+}

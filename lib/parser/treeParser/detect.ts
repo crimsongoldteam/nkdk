@@ -62,7 +62,7 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
 
   // начинается с # - вертикальная группа
   if (firstTokenType === Hash) {
-    return ParseElementType.UsualGroup
+    return ParseElementType.VerticalGroup
   }
 
   // начинается с / - страница

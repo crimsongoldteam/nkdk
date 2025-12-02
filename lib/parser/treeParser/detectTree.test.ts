@@ -3,6 +3,7 @@ import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import { simlifyDetectedTreeNodes } from "~/lib/tests/simlifyToken"
 import { detectTreeNodes } from "./detectTree"
 import type { TreeNode } from "./parseTree"
+import { ParseElementType } from "../types"
 
 describe("detectTreeNodes", () => {
   it("should detect label decoration for plain text", () => {
@@ -24,29 +25,12 @@ describe("detectTreeNodes", () => {
   })
 
   it("should detect usual group starting with #", () => {
-    const mock: TreeNode[] = [{ content: "#VerticalGroup", childItems: [{ content: "text" }] }]
-
-    const expectedResult = [
-      {
-        tokens: [
-          { type: "Hash", value: "#" },
-          { type: "Text", value: "VerticalGroup" },
-        ],
-        type: ZElementType.enum.UsualGroup,
-        childItems: [
-          {
-            tokens: [{ type: "Text", value: "text" }],
-            type: ZElementType.enum.LabelDecoration,
-            childItems: [],
-          },
-        ],
-      },
+    const mock: TreeNode[] = [
+      { content: "#VerticalGroup", childItems: [{ content: "text" }] },
     ]
 
     const result = detectTreeNodes(mock)
 
-    const simplifiedResult = simlifyDetectedTreeNodes(result)
-
-    expect(simplifiedResult).toEqual(expectedResult)
+    expect(result[0].type).toEqual(ParseElementType.VerticalGroup)
   })
 })

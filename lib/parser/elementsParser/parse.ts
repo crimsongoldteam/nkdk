@@ -57,6 +57,7 @@ const parseByElementType = (element: DetectedTreeNode): CstNode => {
     case ParseElementType.Page:
       return elementsParser.parsePage(element.tokens)
     case ParseElementType.VerticalGroup:
+    case ParseElementType.UsualGroup:
       return elementsParser.parseVerticalGroup(element.tokens)
     default:
       throw new Error(`Unknown element type: ${element.type}`)

@@ -530,6 +530,7 @@ export class Visitor extends BaseVisitor {
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
       elementType: ZElementType.enum.UsualGroup,
+      group: SE.ZChildFormItemsGroup.enum.Vertical,
       name: name || titleText,
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       id: undefined,

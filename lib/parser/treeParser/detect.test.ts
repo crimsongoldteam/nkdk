@@ -20,7 +20,7 @@ describe("detectElementType", () => {
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
 
-    expect(result).toEqual(ParseElementType.UsualGroup)
+    expect(result).toEqual(ParseElementType.VerticalGroup)
   })
 
   it("should detect pages starting with //", () => {

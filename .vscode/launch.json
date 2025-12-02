@@ -6,7 +6,15 @@
       "request": "launch",
       "type": "chrome",
       "url": "http://localhost:3000/playground.html",
-      "webRoot": "${workspaceFolder}"
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "start dev server",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${webRoot}/*",
+        "webpack:///src/*": "${webRoot}/*",
+        "webpack:///*": "*",
+        "webpack:///./~/*": "${webRoot}/*"
+      }
     },
     {
       "type": "node",
@@ -32,103 +40,6 @@
         "${workspaceFolder}/**",
         "!**/node_modules/**"
       ]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Current Test File (Watch)",
-      "skipFiles": ["<node_internals>/**"],
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["exec", "vitest", "${relativeFile}", "--no-coverage"],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "autoAttachChildProcesses": true,
-      "env": {
-        "NODE_ENV": "test"
-      },
-      "sourceMaps": true,
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug All Tests",
-      "skipFiles": ["<node_internals>/**"],
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["exec", "vitest", "run", "--no-coverage"],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "autoAttachChildProcesses": true,
-      "env": {
-        "NODE_ENV": "test"
-      },
-      "sourceMaps": true,
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Test by Name",
-      "skipFiles": ["<node_internals>/**"],
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": [
-        "exec",
-        "vitest",
-        "run",
-        "-t",
-        "${input:testName}",
-        "--no-coverage"
-      ],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "autoAttachChildProcesses": true,
-      "env": {
-        "NODE_ENV": "test"
-      },
-      "sourceMaps": true,
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ]
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Debug Vitest (Inspector)",
-      "skipFiles": ["<node_internals>/**"],
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": [
-        "exec",
-        "vitest",
-        "--inspect-brk",
-        "${relativeFile}",
-        "--no-coverage"
-      ],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "autoAttachChildProcesses": true,
-      "env": {
-        "NODE_ENV": "test"
-      },
-      "sourceMaps": true,
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ],
-      "stopOnEntry": false
-    }
-  ],
-  "inputs": [
-    {
-      "id": "testName",
-      "type": "promptString",
-      "description": "Enter test name to debug"
     }
   ]
 }
