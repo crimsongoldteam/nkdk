@@ -336,6 +336,13 @@ export const Hash = createToken({
   categories: excludeTokens(GroupHeaderText, PageHeaderText, InlineText),
 })
 
+export const Percent = createToken({
+  name: "Percent",
+  pattern: /%+[ \t]*/,
+  label: "%",
+  categories: excludeTokens(GroupHeaderText, PageHeaderText, InlineText),
+})
+
 export const Dash = createToken({
   name: "Dash",
   pattern: /-[ \t]*/,
@@ -455,6 +462,8 @@ export const allTokens = [
   RArrow,
   Dots,
   Dash,
+  Hash,
+  Percent,
   Text,
   VBar,
   LCurly,
@@ -467,7 +476,6 @@ export const allTokens = [
   Semicolon,
   Colon,
   Equals,
-  Hash,
   Ampersand,
   Plus,
   Slash,
@@ -491,6 +499,8 @@ export const propertiesTokens = [
   RArrow,
   Dots,
   Dash,
+  Hash,
+  Percent,
   Text,
   EscapedText,
   VBar,
@@ -504,7 +514,6 @@ export const propertiesTokens = [
   Semicolon,
   Colon,
   Equals,
-  Hash,
   Ampersand,
   Plus,
   Slash,

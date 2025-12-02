@@ -538,6 +538,29 @@ export class Visitor extends BaseVisitor {
     } as TUsualGroup
   }
 
+  horizontalGroup(
+    ctx: CstChildrenDictionary,
+    configurationSettings: TConfigurationSettings
+  ): TUsualGroup {
+    const titleText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
+    // Убираем символ % из начала названия, если он есть
+    const cleanTitleText = titleText.startsWith("%")
+      ? titleText.slice(1)
+      : titleText
+    const name = this.visit(ctx.properties as CstNode[]) || cleanTitleText
+    return {
+      elementType: ZElementType.enum.UsualGroup,
+      group: SE.ZChildFormItemsGroup.enum.Horizontal,
+      name: name || cleanTitleText,
+      title: this.createTitle(
+        cleanTitleText,
+        configurationSettings.defaultLanguage
+      ),
+      id: undefined,
+      childItems: [],
+    } as TUsualGroup
+  }
+
   // #endregion
 
   // #region properties

@@ -49,4 +49,41 @@ describe("parse UsualGroup", () => {
     const result = parseElement(mock, configurationSettings)
     expect(result).toEqual(expectedResult)
   })
+
+  it("should parse horizontal group", () => {
+    const mock: DetectedTreeNode = {
+      tokens: lexer.tokenize("%horizontal").tokens,
+      type: ParseElementType.HorizontalGroup,
+      childItems: [
+        {
+          tokens: lexer.tokenize("Element").tokens,
+          type: ParseElementType.LabelDecoration,
+          childItems: [],
+        },
+      ],
+    }
+
+    const expectedResult: TUsualGroup = {
+      elementType: ZElementType.enum.UsualGroup,
+      group: SE.ZChildFormItemsGroup.enum.Horizontal,
+      name: "horizontal",
+      id: undefined,
+      title: {
+        items: { ru: "horizontal" },
+      },
+
+      childItems: [
+        {
+          elementType: ZElementType.enum.LabelDecoration,
+          name: "Element",
+          id: undefined,
+          title: {
+            items: { ru: "Element" },
+          },
+        },
+      ],
+    }
+    const result = parseElement(mock, configurationSettings)
+    expect(result).toEqual(expectedResult)
+  })
 })

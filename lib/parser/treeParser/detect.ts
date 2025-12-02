@@ -9,6 +9,7 @@ import {
   LArrow,
   LCurly,
   Picture,
+  Percent,
   RArrow,
   RadioButtonChecked,
   RadioButtonUnchecked,
@@ -22,14 +23,21 @@ import {
 
 export const detectElementType = (tokens: IToken[]): ParseElementType => {
   // Фильтруем пробелы для анализа
-  const significantTokens = tokens.filter((token) => token.tokenType !== Whitespace)
+  const significantTokens = tokens.filter(
+    (token) => token.tokenType !== Whitespace
+  )
 
   // Пустая строка или только пробелы
   if (significantTokens.length === 0) {
     return ParseElementType.LabelDecoration
   }
 
-  const checkboxTokens = [CheckboxChecked, CheckboxUnchecked, SwitchChecked, SwitchUnchecked]
+  const checkboxTokens = [
+    CheckboxChecked,
+    CheckboxUnchecked,
+    SwitchChecked,
+    SwitchUnchecked,
+  ]
   const radioButtonTokens = [RadioButtonChecked, RadioButtonUnchecked]
 
   const { firstToken, hasLeftArrow } = processFirstToken(significantTokens)
@@ -71,8 +79,8 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
   }
 
   // начинается с % - горизонтальная группа (проверяем первый символ Text токена)
-  if (firstTokenType.name === "Text" && firstToken.image.trim().startsWith("%")) {
-    return ParseElementType.UsualGroup
+  if (firstTokenType === Percent) {
+    return ParseElementType.HorizontalGroup
   }
 
   const { hasColon, hasRightCheckbox, hasRadioButton } = analyzeTokens(
