@@ -96,7 +96,7 @@ export const App = () => {
     >
       {
         <main className="app-main">
-          {form && <ClientFormApplication title={""} childItems={form.childItems} />}
+          {form && <ClientFormApplication {...form} />}
         </main>
       }
     </ConfigProvider>

@@ -29,7 +29,9 @@ describe("lexer", () => {
   it("should tokenize double-quoted escaped text with newline escape sequence", () => {
     const mock = `"text\nwith\nnewlines"`
 
-    const expectedResult = [{ type: "EscapedText", value: "text\nwith\nnewlines" }]
+    const expectedResult = [
+      { type: "EscapedText", value: "text\nwith\nnewlines" },
+    ]
 
     const result = simplifyTokens(lexer.tokenize(mock).tokens)
 
@@ -49,7 +51,9 @@ describe("lexer", () => {
   it("should tokenize double-quoted escaped text with backslash escape sequence", () => {
     const mock = `"text\\\\with\\\\backslashes"`
 
-    const expectedResult = [{ type: "EscapedText", value: "text\\with\\backslashes" }]
+    const expectedResult = [
+      { type: "EscapedText", value: "text\\with\\backslashes" },
+    ]
 
     const result = simplifyTokens(lexer.tokenize(mock).tokens)
 
@@ -69,7 +73,9 @@ describe("lexer", () => {
   it("should tokenize double-quoted escaped text with escaped single quote", () => {
     const mock = `"text\\'with\\'single\\'quotes"`
 
-    const expectedResult = [{ type: "EscapedText", value: "text'with'single'quotes" }]
+    const expectedResult = [
+      { type: "EscapedText", value: "text'with'single'quotes" },
+    ]
 
     const result = simplifyTokens(lexer.tokenize(mock).tokens)
 
@@ -109,7 +115,9 @@ describe("lexer", () => {
   it("should tokenize double-quoted escaped text containing cyrillic characters", () => {
     const mock = `"текст с кириллицей: привет"`
 
-    const expectedResult = [{ type: "EscapedText", value: "текст с кириллицей: привет" }]
+    const expectedResult = [
+      { type: "EscapedText", value: "текст с кириллицей: привет" },
+    ]
 
     const result = simplifyTokens(lexer.tokenize(mock).tokens)
 
@@ -119,7 +127,9 @@ describe("lexer", () => {
   it("should tokenize double-quoted escaped text with cyrillic characters and escape sequences", () => {
     const mock = `"текст\\nс\\tкириллицей"`
 
-    const expectedResult = [{ type: "EscapedText", value: "текст\nс\tкириллицей" }]
+    const expectedResult = [
+      { type: "EscapedText", value: "текст\nс\tкириллицей" },
+    ]
 
     const result = simplifyTokens(lexer.tokenize(mock).tokens)
 
@@ -139,7 +149,9 @@ describe("lexer", () => {
   it("should tokenize single-quoted escaped text with escape sequences", () => {
     const mock = `'text\\n\\twith\\'single\\'quotes'`
 
-    const expectedResult = [{ type: "EscapedText", value: "text\n\twith'single'quotes" }]
+    const expectedResult = [
+      { type: "EscapedText", value: "text\n\twith'single'quotes" },
+    ]
 
     const result = simplifyTokens(lexer.tokenize(mock).tokens)
 
@@ -351,10 +363,16 @@ function processJavaScriptEscapes(str: string): string {
       if (escapes[char]) {
         result += escapes[char]
         i += 2
-      } else if (char === "u" && /^[0-9A-Fa-f]{4}$/.test(str.slice(i + 2, i + 6))) {
+      } else if (
+        char === "u" &&
+        /^[0-9A-Fa-f]{4}$/.test(str.slice(i + 2, i + 6))
+      ) {
         result += String.fromCharCode(parseInt(str.slice(i + 2, i + 6), 16))
         i += 6
-      } else if (char === "x" && /^[0-9A-Fa-f]{2}$/.test(str.slice(i + 2, i + 4))) {
+      } else if (
+        char === "x" &&
+        /^[0-9A-Fa-f]{2}$/.test(str.slice(i + 2, i + 4))
+      ) {
         result += String.fromCharCode(parseInt(str.slice(i + 2, i + 4), 16))
         i += 4
       } else {

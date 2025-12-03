@@ -2,7 +2,7 @@ import type { TConfigurationSettings } from "../metadata/configurationSettings/t
 import type { TClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/types"
 import { ZElementType } from "../metadata/forms/elements/types"
 import { parseElement } from "./elementsParser/parse"
-import { detectTreeNodes } from "./treeParser/detectTree"
+import { detectTreeNodes } from "./detector/detectTree"
 import { parseTree } from "./treeParser/parseTree"
 
 const configurationSettings: TConfigurationSettings = {

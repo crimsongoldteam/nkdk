@@ -3,7 +3,7 @@ import { formatElementName } from "~/lib/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { addSimpleIndent } from "~/lib/format/wrap/addIndents"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import * as t from "~/lib/parser/treeParser/lexer"
+import * as t from "~/lib/parser/lexer"
 import { TBaseElement } from "../baseElement/types"
 import { TPages } from "./types"
 const SLASH = (t.Slash.LABEL as string).repeat(2)

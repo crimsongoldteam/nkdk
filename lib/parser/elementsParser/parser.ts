@@ -1,5 +1,5 @@
 import { type CstNode, CstParser, EMPTY_ALT, type IToken } from "chevrotain"
-import * as t from "../treeParser/lexer"
+import * as t from "../lexer"
 
 export class Parser extends CstParser {
   constructor() {

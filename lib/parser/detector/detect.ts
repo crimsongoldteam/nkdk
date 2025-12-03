@@ -17,9 +17,10 @@ import {
   Slash,
   SwitchChecked,
   SwitchUnchecked,
+  Text,
   VBar,
   Whitespace,
-} from "./lexer"
+} from "../lexer"
 
 export const detectElementType = (tokens: IToken[]): ParseElementType => {
   // Фильтруем пробелы для анализа
@@ -80,6 +81,11 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
 
   // начинается с % - горизонтальная группа (проверяем первый символ Text токена)
   if (firstTokenType === Percent) {
+    return ParseElementType.HorizontalGroup
+  }
+
+  // начинается с % в Text токене - горизонтальная группа
+  if (firstTokenType === Text && firstToken.image?.startsWith("%")) {
     return ParseElementType.HorizontalGroup
   }
 

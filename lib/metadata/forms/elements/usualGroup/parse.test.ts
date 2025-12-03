@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { DetectedTreeNode } from "~/lib/parser/treeParser/detectTree"
-import { lexer } from "~/lib/parser/treeParser/lexer"
+import { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
+import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
 import { ZElementType } from "../types"
 import { parseElement } from "~/lib/parser/elementsParser/parse"

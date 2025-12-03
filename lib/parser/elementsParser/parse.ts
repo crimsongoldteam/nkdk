@@ -1,7 +1,7 @@
 import type { CstNode } from "chevrotain"
 import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import type { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
-import type { DetectedTreeNode } from "../treeParser/detectTree"
+import type { DetectedTreeNode } from "../detector/detectTree"
 import { ParseElementType } from "../types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"

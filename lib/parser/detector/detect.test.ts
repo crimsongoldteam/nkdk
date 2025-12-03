@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { ParseElementType } from "../types"
+import { lexer } from "../lexer"
 import { detectElementType } from "./detect"
-import { lexer } from "./lexer"
 
 describe("detectElementType", () => {
   it("should detect input field containing :", () => {

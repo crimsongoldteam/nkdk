@@ -1,7 +1,7 @@
 import { formatElementName } from "~/lib/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import * as t from "~/lib/parser/treeParser/lexer"
+import * as t from "~/lib/parser/lexer"
 import { isMultiline } from "./helpers"
 import { type TInputField } from "./types"
 

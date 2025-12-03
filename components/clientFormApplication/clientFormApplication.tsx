@@ -6,7 +6,7 @@ import { TClientApplicationForm } from "~/lib/metadata/forms/elements/clientAppl
 export function ClientFormApplication(
   props: Readonly<TClientApplicationForm>
 ): React.ReactNode {
-  const { childItems, title } = props
+  const { childItems } = props
 
   return (
     <Form

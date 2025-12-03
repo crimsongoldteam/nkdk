@@ -1,5 +1,5 @@
 import { Lexer } from "chevrotain"
-import { multiModeLexerDefinition } from "~/lib/parser/treeParser/lexer"
+import { multiModeLexerDefinition } from "~/lib/parser/lexer"
 import { TypeDescriptionParser } from "./parser/parser"
 import { TypeDescriptionVisitor } from "./parser/visitor"
 import { TTypeDescription } from "./types"

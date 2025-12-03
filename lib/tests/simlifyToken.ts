@@ -1,6 +1,6 @@
 import { IToken } from "chevrotain"
 import { TElementType } from "~/lib/metadata/forms/elements/types"
-import { DetectedTreeNode } from "../parser/treeParser/detectTree"
+import { DetectedTreeNode } from "../parser/detector/detectTree"
 
 export type TSimplifyToken = { type: string; value: string }
 

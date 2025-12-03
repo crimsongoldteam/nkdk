@@ -1,6 +1,3 @@
-import type { IToken } from "chevrotain"
-import { detectElementType } from "./detect"
-
 export interface TreeNode {
   content: string
   // tokens: IToken[]
@@ -44,7 +41,10 @@ export const parseTree = (text: string): TreeNode[] => {
     }
 
     // Находим правильного родителя для текущего узла
-    while (stack.length > 0 && stack[stack.length - 1].level >= lineInfo.level) {
+    while (
+      stack.length > 0 &&
+      stack[stack.length - 1].level >= lineInfo.level
+    ) {
       stack.pop()
     }
 

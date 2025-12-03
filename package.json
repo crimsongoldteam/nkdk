@@ -23,6 +23,7 @@
     "@types/vscode": "^1.100.0",
     "@vitejs/plugin-react": "^4.3.0",
     "@vitest/coverage-v8": "^3.2.4",
+    "baseline-browser-mapping": "^2.9.0",
     "concurrently": "^9.2.1",
     "jsdom": "^27.0.0",
     "organize-imports-cli": "^0.10.0",

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import { simlifyDetectedTreeNodes } from "~/lib/tests/simlifyToken"
 import { detectTreeNodes } from "./detectTree"
-import type { TreeNode } from "./parseTree"
+import type { TreeNode } from "../treeParser/parseTree"
 import { ParseElementType } from "../types"
 
 describe("detectTreeNodes", () => {
