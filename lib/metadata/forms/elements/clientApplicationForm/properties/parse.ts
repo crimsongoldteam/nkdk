@@ -1,4 +1,4 @@
-import * as yaml from "js-yaml"
+import { parse } from "yaml"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { getElementRules } from "~/lib/rulesManager/rulesManager"
 import { TElementRule } from "~/lib/rulesManager/types"
@@ -9,7 +9,7 @@ export const parseProperties = (
   elementsMap: Record<string, TBaseElement>,
   configurationSettings: TConfigurationSettings
 ): Record<string, TBaseElement> => {
-  const data = yaml.load(yamlContent) as Record<string, any>
+  const data = parse(yamlContent) as Record<string, any>
 
   const result: Record<string, TBaseElement> = { ...elementsMap }
 

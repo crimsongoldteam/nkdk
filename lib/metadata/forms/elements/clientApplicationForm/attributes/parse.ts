@@ -1,4 +1,4 @@
-import * as yaml from "js-yaml"
+import { parse } from "yaml"
 import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
 import { parseI8nText } from "~/lib/metadata/commonObjects/i8nText/parse"
 import { parseTypeDescription } from "~/lib/metadata/commonObjects/typeDescription/parse"
@@ -10,7 +10,7 @@ export const parseAttributes = (
   yamlContent: string,
   configurationSettings: TConfigurationSettings
 ): TAttribute[] => {
-  const parsed = yaml.load(yamlContent) as Record<string, any>
+  const parsed = parse(yamlContent) as Record<string, any>
   const result: TAttribute[] = []
 
   for (const [name, data] of Object.entries(parsed)) {

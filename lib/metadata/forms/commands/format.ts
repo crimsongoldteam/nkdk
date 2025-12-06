@@ -1,6 +1,6 @@
 import { TCommand, TCommandEnterprise } from "./types"
 import { formatI8nText } from "../../commonObjects/i8nText/format"
-import * as yaml from "js-yaml"
+import { stringify } from "yaml"
 import { formatSystemEnumeration } from "../../systemEnumerations/format"
 import { TElementRule } from "~/lib/rulesManager/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -26,14 +26,11 @@ export const formatCommands = (
   )
 
   return commandsEnterprise.map((command) =>
-    yaml
-      .dump(command, {
-        indent: 2,
-        lineWidth: -1,
-        noRefs: true,
-        sortKeys: false,
-      })
-      .trim()
+    stringify(command, {
+      indent: 2,
+      lineWidth: 0,
+      sortKeys: false,
+    }).trim()
   )
 }
 

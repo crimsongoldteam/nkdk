@@ -1,14 +1,11 @@
 import { TClientApplicationForm } from "./types"
-import * as yaml from "js-yaml"
+import { stringify } from "yaml"
 
 export function formatProperties(element: TClientApplicationForm): string {
-  const yamlString = yaml
-    .dump(element, {
-      indent: 2,
-      lineWidth: -1,
-      noRefs: true,
-      sortKeys: false,
-    })
-    .trim()
+  const yamlString = stringify(element, {
+    indent: 2,
+    lineWidth: 0,
+    sortKeys: false,
+  }).trim()
   return yamlString
 }

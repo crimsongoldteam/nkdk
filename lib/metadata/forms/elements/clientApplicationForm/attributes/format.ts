@@ -1,5 +1,5 @@
 import { capitalCase, noCase } from "change-case"
-import * as yaml from "js-yaml"
+import { stringify } from "yaml"
 import { formatBoolean } from "~/lib/metadata/commonObjects/boolean/format"
 import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format"
 import { formatTypeDescription } from "~/lib/metadata/commonObjects/typeDescription/format"
@@ -52,34 +52,28 @@ export default function formatFormAttributes(
     }
     // Формат с именем: title равен camelCase имени, но есть дополнительные поля - используем имя атрибута
     else if (isTitleEqualToName) {
-      const yamlString = yaml
-        .dump(
-          { [attribute.name]: data },
-          {
-            indent: 2,
-            lineWidth: -1,
-            noRefs: true,
-            sortKeys: false,
-          }
-        )
-        .trim()
+      const yamlString = stringify(
+        { [attribute.name]: data },
+        {
+          indent: 2,
+          lineWidth: 0,
+          sortKeys: false,
+        }
+      ).trim()
       // Добавляем пробел после двоеточия для соответствия ожидаемому формату
       const formattedString = yamlString.replace(/^([^:]+):/, "$1: ")
       result.push(formattedString)
     }
     // Полный формат: используем имя атрибута
     else {
-      const yamlString = yaml
-        .dump(
-          { [attribute.name]: data },
-          {
-            indent: 2,
-            lineWidth: -1,
-            noRefs: true,
-            sortKeys: false,
-          }
-        )
-        .trim()
+      const yamlString = stringify(
+        { [attribute.name]: data },
+        {
+          indent: 2,
+          lineWidth: 0,
+          sortKeys: false,
+        }
+      ).trim()
       result.push(yamlString)
     }
   }

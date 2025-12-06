@@ -12,7 +12,7 @@ describe("parseTree", () => {
     expect(result).toEqual(expectedResult)
   })
 
-  it("should parse one item", () => {
+  it("should parse two lines", () => {
     const mock = `text
 text2`
 
@@ -88,6 +88,36 @@ text2`
           { content: "text2" },
           { content: "text3", childItems: [{ content: "text4" }] },
         ],
+      },
+    ]
+
+    const result = parseTree(mock)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should parse one line group item", () => {
+    const mock = `%{} text1; text2`
+
+    const expectedResult = [
+      {
+        content: "%{}",
+        childItems: [{ content: "text1" }, { content: "text2" }],
+      },
+    ]
+
+    const result = parseTree(mock)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should parse one line group item", () => {
+    const mock = `%%%group header{GroupName} text1; text2`
+
+    const expectedResult = [
+      {
+        content: "%%%group header{GroupName}",
+        childItems: [{ content: "text1" }, { content: "text2" }],
       },
     ]
 

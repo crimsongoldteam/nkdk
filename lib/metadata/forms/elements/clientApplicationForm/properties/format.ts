@@ -1,4 +1,4 @@
-import * as yaml from "js-yaml"
+import { stringify } from "yaml"
 import { formatElementProperties } from "~/lib/format/format"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { TBaseElement } from "../../baseElement/types"
@@ -18,17 +18,14 @@ export const formatProperties = (
 
     if (!formattedProperties) continue
 
-    const yamlString = yaml
-      .dump(
-        { [element.name]: formattedProperties },
-        {
-          indent: 2,
-          lineWidth: -1,
-          noRefs: true,
-          sortKeys: false,
-        }
-      )
-      .trim()
+    const yamlString = stringify(
+      { [element.name]: formattedProperties },
+      {
+        indent: 2,
+        lineWidth: 0,
+        sortKeys: false,
+      }
+    ).trim()
     result.push(yamlString)
   }
 

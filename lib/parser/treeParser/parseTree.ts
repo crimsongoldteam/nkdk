@@ -1,8 +1,5 @@
 export interface TreeNode {
   content: string
-  // tokens: IToken[]
-  // type: TElementType
-  // offest: number
   childItems?: TreeNode[]
 }
 
@@ -34,36 +31,117 @@ export const parseTree = (text: string): TreeNode[] => {
 
   for (let i = 0; i < lineInfos.length; i++) {
     const lineInfo = lineInfos[i]
-    const node: TreeNode = {
-      content: lineInfo.content,
-      // type: detectElementType(lineInfo.content),
-      // offest: lineInfo.offest,
-    }
 
-    // Находим правильного родителя для текущего узла
-    while (
-      stack.length > 0 &&
-      stack[stack.length - 1].level >= lineInfo.level
-    ) {
-      stack.pop()
-    }
-
-    if (stack.length === 0) {
-      // Это корневой элемент
-      result.push(node)
-    } else {
-      // Это дочерний элемент
-      const parent = stack[stack.length - 1].node
-      if (!parent.childItems) {
-        parent.childItems = []
+    // Обработка специального случая: группа в одной строке (заголовок элементы; элементы)
+    const parsedGroup = parseGroupInOneLine(lineInfo.content)
+    if (parsedGroup) {
+      const node: TreeNode = {
+        content: parsedGroup.header,
+        childItems: parsedGroup.children.map((content) => ({ content })),
       }
-      parent.childItems.push(node)
-    }
 
-    stack.push({ node, level: lineInfo.level })
+      // Находим правильного родителя для текущего узла
+      while (
+        stack.length > 0 &&
+        stack[stack.length - 1].level >= lineInfo.level
+      ) {
+        stack.pop()
+      }
+
+      if (stack.length === 0) {
+        // Это корневой элемент
+        result.push(node)
+      } else {
+        // Это дочерний элемент
+        const parent = stack[stack.length - 1].node
+        if (!parent.childItems) {
+          parent.childItems = []
+        }
+        parent.childItems.push(node)
+      }
+
+      stack.push({ node, level: lineInfo.level })
+    } else {
+      const node: TreeNode = {
+        content: lineInfo.content,
+        // type: detectElementType(lineInfo.content),
+        // offest: lineInfo.offest,
+      }
+
+      // Находим правильного родителя для текущего узла
+      while (
+        stack.length > 0 &&
+        stack[stack.length - 1].level >= lineInfo.level
+      ) {
+        stack.pop()
+      }
+
+      if (stack.length === 0) {
+        // Это корневой элемент
+        result.push(node)
+      } else {
+        // Это дочерний элемент
+        const parent = stack[stack.length - 1].node
+        if (!parent.childItems) {
+          parent.childItems = []
+        }
+        parent.childItems.push(node)
+      }
+
+      stack.push({ node, level: lineInfo.level })
+    }
   }
 
   return result
+}
+
+const parseGroupInOneLine = (
+  content: string
+): { header: string; children: string[] } | null => {
+  // Проверяем, содержит ли строка точку с запятой (признак группы в одной строке)
+  if (!content.includes(";")) {
+    return null
+  }
+
+  // Ищем разделитель между заголовком и элементами
+  // Ищем последний пробел, после которого в оставшейся части есть точка с запятой
+  // Это позволяет корректно обрабатывать заголовки с пробелами
+  let spaceIndex = -1
+  for (let i = content.length - 1; i >= 0; i--) {
+    if (content[i] === " ") {
+      const afterSpace = content.substring(i + 1)
+      if (afterSpace.includes(";")) {
+        spaceIndex = i
+        break
+      }
+    }
+  }
+
+  // Если не нашли подходящий пробел, это не группа в одной строке
+  if (spaceIndex === -1) {
+    return null
+  }
+
+  const header = content.substring(0, spaceIndex).trim()
+  const elementsPart = content.substring(spaceIndex + 1).trim()
+
+  // Если заголовок пустой или нет элементов, это не группа
+  if (!header || !elementsPart) {
+    return null
+  }
+
+  // Разделяем элементы по точке с запятой
+  const children = elementsPart
+    .split(";")
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0)
+
+  // Если нет элементов после разбиения, это не группа
+  if (children.length === 0) {
+    return null
+  }
+
+  return { header, children }
 }
 
 const calculateLevel = (line: string): number => {
