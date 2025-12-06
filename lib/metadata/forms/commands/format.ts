@@ -29,7 +29,6 @@ export const formatCommands = (
     stringify(command, {
       indent: 2,
       lineWidth: 0,
-      sortKeys: false,
     }).trim()
   )
 }

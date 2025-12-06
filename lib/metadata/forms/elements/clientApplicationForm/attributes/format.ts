@@ -57,7 +57,6 @@ export default function formatFormAttributes(
         {
           indent: 2,
           lineWidth: 0,
-          sortKeys: false,
         }
       ).trim()
       // Добавляем пробел после двоеточия для соответствия ожидаемому формату
@@ -71,7 +70,6 @@ export default function formatFormAttributes(
         {
           indent: 2,
           lineWidth: 0,
-          sortKeys: false,
         }
       ).trim()
       result.push(yamlString)

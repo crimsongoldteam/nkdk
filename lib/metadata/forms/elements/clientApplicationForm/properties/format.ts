@@ -23,7 +23,6 @@ export const formatProperties = (
       {
         indent: 2,
         lineWidth: 0,
-        sortKeys: false,
       }
     ).trim()
     result.push(yamlString)
