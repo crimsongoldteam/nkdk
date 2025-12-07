@@ -25,10 +25,8 @@ const addChildItemsToResult = (
   element: DetectedTreeNode,
   configurationSettings: TConfigurationSettings
 ): void => {
-  // Добавляем childItems к результату, если элемент поддерживает их
   if (!("childItems" in cst)) return
 
-  // Для CommandBar childItems уже созданы из грамматики, не перезаписываем
   if (element.type === ParseElementType.CommandBar) return
 
   cst.childItems =
