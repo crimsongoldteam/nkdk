@@ -52,7 +52,7 @@ describe("parse UsualGroup", () => {
 
   it("should parse horizontal group", () => {
     const mock: DetectedTreeNode = {
-      tokens: lexer.tokenize("%horizontal").tokens,
+      tokens: lexer.tokenize("=horizontal").tokens,
       type: ParseElementType.HorizontalGroup,
       childItems: [
         {

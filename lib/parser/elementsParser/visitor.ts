@@ -543,19 +543,12 @@ export class Visitor extends BaseVisitor {
     configurationSettings: TConfigurationSettings
   ): TUsualGroup {
     const titleText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
-    // Убираем символ % из начала названия, если он есть
-    const cleanTitleText = titleText.startsWith("%")
-      ? titleText.slice(1)
-      : titleText
-    const name = this.visit(ctx.properties as CstNode[]) || cleanTitleText
+    const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
       elementType: ZElementType.enum.UsualGroup,
       group: SE.ZChildFormItemsGroup.enum.Horizontal,
-      name: name || cleanTitleText,
-      title: this.createTitle(
-        cleanTitleText,
-        configurationSettings.defaultLanguage
-      ),
+      name: name || titleText,
+      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       id: undefined,
       childItems: [],
     } as TUsualGroup

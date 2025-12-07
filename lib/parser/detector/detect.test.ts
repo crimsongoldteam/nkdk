@@ -23,8 +23,8 @@ describe("detectElementType", () => {
     expect(result).toEqual(ParseElementType.VerticalGroup)
   })
 
-  it("should detect horizontal group starting with %", () => {
-    const mock = `%HorizontalGroup`
+  it("should detect horizontal group starting with =", () => {
+    const mock = `=HorizontalGroup`
 
     const tokens = lexer.tokenize(mock).tokens
     const result = detectElementType(tokens)
@@ -48,15 +48,6 @@ describe("detectElementType", () => {
     const result = detectElementType(tokens)
 
     expect(result).toEqual(ParseElementType.Page)
-  })
-
-  it("should detect horizontal group starting with %", () => {
-    const mock = `%HorizontalGroup`
-
-    const tokens = lexer.tokenize(mock).tokens
-    const result = detectElementType(tokens)
-
-    expect(result).toEqual(ParseElementType.HorizontalGroup)
   })
 
   it("should detect command bar starting with < and containing |", () => {

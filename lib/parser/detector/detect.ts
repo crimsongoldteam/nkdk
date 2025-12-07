@@ -4,6 +4,7 @@ import {
   CheckboxChecked,
   CheckboxUnchecked,
   Colon,
+  Equals,
   Hash,
   LAngle,
   LArrow,
@@ -84,8 +85,18 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
     return ParseElementType.HorizontalGroup
   }
 
+  // начинается с = - горизонтальная группа
+  if (firstTokenType === Equals) {
+    return ParseElementType.HorizontalGroup
+  }
+
   // начинается с % в Text токене - горизонтальная группа
   if (firstTokenType === Text && firstToken.image?.startsWith("%")) {
+    return ParseElementType.HorizontalGroup
+  }
+
+  // начинается с = в Text токене - горизонтальная группа
+  if (firstTokenType === Text && firstToken.image?.startsWith("=")) {
     return ParseElementType.HorizontalGroup
   }
 

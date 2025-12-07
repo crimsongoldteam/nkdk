@@ -26,6 +26,13 @@
       "~/*": ["./*"]
     }
   },
-  "include": ["src", "components", "lib", "**/*.ts", "**/*.tsx"],
+  "include": [
+    "src",
+    "components",
+    "lib",
+    "**/*.ts",
+    "**/*.tsx",
+    "playground/components/monacoEditor"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

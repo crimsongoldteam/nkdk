@@ -11,7 +11,6 @@ interface MonacoEditorProps {
 export function MonacoEditor({ value = "", onChange }: MonacoEditorProps) {
   const [editorValue, setEditorValue] = useState(value)
 
-  // Синхронизируем внутреннее состояние с внешним value
   useEffect(() => {
     setEditorValue(value)
   }, [value])

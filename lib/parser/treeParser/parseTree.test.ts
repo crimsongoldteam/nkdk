@@ -96,8 +96,8 @@ text2`
     expect(result).toEqual(expectedResult)
   })
 
-  it("should parse one line group item", () => {
-    const mock = `%{} text1; text2`
+  it("should parse one line group item without header and name", () => {
+    const mock = `=; text1; text2`
 
     const expectedResult = [
       {
@@ -111,8 +111,8 @@ text2`
     expect(result).toEqual(expectedResult)
   })
 
-  it("should parse one line group item", () => {
-    const mock = `%%%group header{GroupName} text1; text2`
+  it("should parse one line group item with header and name", () => {
+    const mock = `=group header{GroupName}; text1; text2`
 
     const expectedResult = [
       {

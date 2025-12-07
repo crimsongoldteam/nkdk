@@ -1,7 +1,7 @@
 import { ConfigProvider, Splitter } from "antd"
 import { useState } from "react"
 import { ClientFormApplication } from "~/components/clientFormApplication/clientFormApplication"
-import { MonacoEditor } from "~/components/monacoEditor/monacoEditor"
+import { MonacoEditor } from "~/playground/components/monacoEditor/monacoEditor"
 import type { TClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import { parse } from "~/lib/parser/parser"
