@@ -9,6 +9,10 @@ export default defineConfig({
   server: {
     port: 3000,
     host: true,
+    fs: {
+      // Разрешаем доступ к node_modules для Monaco Editor worker'ов
+      allow: [".."],
+    },
   },
   resolve: {
     alias: {
@@ -25,5 +29,9 @@ export default defineConfig({
         playground: resolve(__dirname, "playground.html"),
       },
     },
+  },
+  optimizeDeps: {
+    // Исключаем Monaco Editor из предварительной оптимизации
+    exclude: ["monaco-editor"],
   },
 })

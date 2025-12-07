@@ -1,6 +1,7 @@
-import { ConfigProvider, Input, Splitter } from "antd"
+import { ConfigProvider, Splitter } from "antd"
 import { useState } from "react"
 import { ClientFormApplication } from "~/components/clientFormApplication/clientFormApplication"
+import { MonacoEditor } from "~/components/monacoEditor/monacoEditor"
 import type { TClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
 import { ZElementType } from "~/lib/metadata/forms/elements/types"
 import { parse } from "~/lib/parser/parser"
@@ -29,11 +30,9 @@ export const Playground = () => {
     >
       <Splitter style={{ width: "100%" }}>
         <Splitter.Panel>
-          <Input.TextArea
-            id="text-input"
-            style={{ height: "100%" }}
+          <MonacoEditor
             value={text}
-            onChange={(e) => changeText(e.target.value)}
+            onChange={(value) => changeText(value || "")}
           />
         </Splitter.Panel>
         <Splitter.Panel>
