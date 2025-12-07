@@ -87,8 +87,7 @@ const parseGroupInOneLine = (
       return null
     }
 
-    const header =
-      headerPart === "=" ? "%{}" : `%%%${headerPart.substring(1).trim()}`
+    const header = headerPart
 
     return { header, children }
   }
