@@ -25,6 +25,22 @@
           "endsPattern": ".*Local:.*http://localhost:3000.*"
         }
       }
+    },
+    {
+      "label": "compile extension",
+      "type": "shell",
+      "command": "source ~/.zshrc 2>/dev/null; source ~/.zprofile 2>/dev/null; cd extension && pnpm run compile",
+      "options": {
+        "shell": {
+          "executable": "/bin/zsh",
+          "args": ["-c"]
+        }
+      },
+      "problemMatcher": "$tsc",
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
     }
   ]
 }

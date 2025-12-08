@@ -1,0 +1,31 @@
+{
+  "name": "nakidka-vsc",
+  "displayName": "Nakidka for VS Code",
+  "description": "Расширение для работы с конфигурациями Nakidka",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.106.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "nkdk.loadConfigFromXml",
+        "title": "nkdk: Import configuration from xml"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/vscode": "^1.106.1",
+    "typescript": "~5.9.3"
+  }
+}
