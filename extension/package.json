@@ -4,7 +4,7 @@
   "description": "Расширение для работы с конфигурациями Nakidka",
   "version": "1.0.0",
   "engines": {
-    "vscode": "^1.106.0"
+    "vscode": "^1.100.0"
   },
   "categories": [
     "Other"
@@ -13,7 +13,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "nkdk.loadConfigFromXml",
+        "command": "nkdk.importConfigFromXml",
         "title": "nkdk: Import configuration from xml"
       }
     ]
