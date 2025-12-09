@@ -2,12 +2,12 @@ import { expect, it } from "vitest"
 import { Catalog } from "./types"
 import typia from "typia"
 
-it("should validate catalog type correctly", () => {
-  const catalog: Catalog = {
-    name: "Test Catalog",
+it("should validate catalog case insensitive", () => {
+  const catalog = {
+    Name: "123",
   }
 
-  const result = typia.assert<Catalog>(catalog)
+  const result = typia.assertEquals<Catalog>(catalog)
 
-  expect(result).toBeDefined()
+  expect(result).toEqual(catalog)
 })
