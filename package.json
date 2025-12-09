@@ -4,9 +4,7 @@
   "description": "Веб-приложение для расширения VS Code Nakidka",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "type-check": "tsc --noEmit",
     "test": "vitest run --no-deprecation",
     "test:ui": "vitest --ui",
@@ -14,6 +12,7 @@
     "prepare": "ts-patch install"
   },
   "devDependencies": {
+    "@ryoppippi/unplugin-typia": "^2.6.5",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
