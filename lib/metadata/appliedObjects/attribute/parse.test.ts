@@ -1,0 +1,32 @@
+import { describe, expect, it } from "vitest"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { TAttribute } from "../types"
+import { parseAttributes } from "./parse"
+
+const configurationSettings: TConfigurationSettings = {
+  defaultLanguage: "ru",
+}
+
+describe("parseAttributes", () => {
+  it("should parse attributes", () => {
+    const orignalContent = `ИмяАтрибута:
+  Заголовок: Атрибут
+  Тип: Строка(10)`
+
+    const expectedResult: TAttribute[] = [
+      {
+        name: "ИмяАтрибута",
+        id: "",
+        title: { items: { ru: "Атрибут" } },
+        type: {
+          type: ["string"],
+          stringQualifiers: { length: 10, allowedLength: "Variable" },
+        },
+      },
+    ]
+
+    const result = parseAttributes(orignalContent, configurationSettings)
+
+    expect(result).toEqual(expectedResult)
+  })
+})

@@ -1,39 +1,193 @@
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+
 export interface Catalog {
+  additionalIndexes?: ДополнительныеИндексы
+  attributes?: КоллекцияОбъектовМетаданных
   autonumbering?: boolean
   auxiliaryChoiceForm?: string
   auxiliaryFolderChoiceForm?: string
   auxiliaryFolderForm?: string
   auxiliaryListForm?: string
   auxiliaryObjectForm?: string
+  basedOn?: КоллекцияЗначенийСвойстваОбъектаМетаданных
+  characteristics?: ОписанияХарактеристик
   checkUnique?: boolean
-
+  choiceDataGetModeOnInputByString?: SE.ChoiceDataGetModeOnInputByString
+  choiceHistoryOnInput?: SE.ChoiceHistoryOnInput
+  choiceMode?: SE.ChoiceMode
+  codeAllowedLength?: SE.AllowedLength
   codeLength?: number
-
+  codeSeries?: SE.CharacteristicKindCodesSeries
+  codeType?: ТипКодаСправочника
+  commands?: КоллекцияОбъектовМетаданных
   comment?: string
-
+  createOnInput?: SE.CreateOnInput
+  dataHistory?: SE.DataHistoryUse
+  dataLockControlMode?: SE.DefaultDataLockControlMode
+  dataLockFields?: СписокПолей
   defaultChoiceForm?: string
   defaultFolderChoiceForm?: string
   defaultFolderForm?: string
   defaultListForm?: string
   defaultObjectForm?: string
+  defaultPresentation?: ОсновноеПредставлениеСправочника
   descriptionLength?: number
-
+  editType?: SE.EditType
   executeAfterWriteDataHistoryVersionProcessing?: boolean
   explanation?: string
+  extendedConfigurationObject?: УникальныйИдентификатор
   extendedListPresentation?: string
   extendedObjectPresentation?: string
   foldersOnTop?: boolean
+  fullTextSearch?: SE.UseFullTextSearch
+  fullTextSearchOnInputByString?: SE.FullTextSearchOnInputByString
   hierarchical?: boolean
+  hierarchyType?: SE.HierarchyType
   includeHelpInContents?: boolean
+  inputByString?: СписокПолей
   levelCount?: number
   limitLevelCount?: boolean
   listPresentation?: string
+  managerModule?: Неопределено
   name?: string
+  objectBelonging?: SE.ObjectBelonging
   objectPresentation?: string
-
+  owners?: КоллекцияЗначенийСвойстваОбъектаМетаданных
+  predefined?: Неопределено
+  predefinedDataUpdate?: SE.PredefinedDataUpdate
   quickChoice?: boolean
-
+  searchStringModeOnInputByString?: SE.SearchStringModeOnInputByString
+  standardAttributes?: ОписанияСтандартныхРеквизитов
+  subordinationUse?: SE.SubordinationUse
   synonym?: string
   updateDataHistoryImmediatelyAfterWrite?: boolean
   useStandardCommands?: boolean
+}
+
+export interface CatalogXML {
+  AdditionalIndexes?: ДополнительныеИндексыXML
+  Attributes?: КоллекцияОбъектовМетаданныхXML
+  Autonumbering?: boolean
+  AuxiliaryChoiceForm?: string
+  AuxiliaryFolderChoiceForm?: string
+  AuxiliaryFolderForm?: string
+  AuxiliaryListForm?: string
+  AuxiliaryObjectForm?: string
+  BasedOn?: КоллекцияЗначенийСвойстваОбъектаМетаданныхXML
+  Characteristics?: ОписанияХарактеристикXML
+  CheckUnique?: boolean
+  ChoiceDataGetModeOnInputByString?: SE.ChoiceDataGetModeOnInputByString
+  ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
+  ChoiceMode?: SE.ChoiceMode
+  CodeAllowedLength?: SE.AllowedLength
+  CodeLength?: number
+  CodeSeries?: SE.CharacteristicKindCodesSeries
+  CodeType?: ТипКодаСправочникаXML
+  Commands?: КоллекцияОбъектовМетаданныхXML
+  Comment?: string
+  CreateOnInput?: SE.CreateOnInput
+  DataHistory?: SE.DataHistoryUse
+  DataLockControlMode?: SE.DefaultDataLockControlMode
+  DataLockFields?: СписокПолейXML
+  DefaultChoiceForm?: string
+  DefaultFolderChoiceForm?: string
+  DefaultFolderForm?: string
+  DefaultListForm?: string
+  DefaultObjectForm?: string
+  DefaultPresentation?: ОсновноеПредставлениеСправочникаXML
+  DescriptionLength?: number
+  EditType?: SE.EditType
+  ExecuteAfterWriteDataHistoryVersionProcessing?: boolean
+  Explanation?: string
+  ExtendedConfigurationObject?: УникальныйИдентификаторXML
+  ExtendedListPresentation?: string
+  ExtendedObjectPresentation?: string
+  FoldersOnTop?: boolean
+  FullTextSearch?: SE.UseFullTextSearch
+  FullTextSearchOnInputByString?: SE.FullTextSearchOnInputByString
+  Hierarchical?: boolean
+  HierarchyType?: SE.HierarchyType
+  IncludeHelpInContents?: boolean
+  InputByString?: СписокПолейXML
+  LevelCount?: number
+  LimitLevelCount?: boolean
+  ListPresentation?: string
+  ManagerModule?: НеопределеноXML
+  Name?: string
+  ObjectBelonging?: SE.ObjectBelonging
+  ObjectPresentation?: string
+  Owners?: КоллекцияЗначенийСвойстваОбъектаМетаданныхXML
+  Predefined?: НеопределеноXML
+  PredefinedDataUpdate?: SE.PredefinedDataUpdate
+  QuickChoice?: boolean
+  SearchStringModeOnInputByString?: SE.SearchStringModeOnInputByString
+  StandardAttributes?: ОписанияСтандартныхРеквизитовXML
+  SubordinationUse?: SE.SubordinationUse
+  Synonym?: string
+  UpdateDataHistoryImmediatelyAfterWrite?: boolean
+  UseStandardCommands?: boolean
+}
+
+export interface CatalogEnterprise {
+  ДополнительныеИндексы?: ДополнительныеИндексыEnterprise
+  Реквизиты?: КоллекцияОбъектовМетаданныхEnterprise
+  Автонумерация?: boolean
+  ДополнительнаяФормаДляВыбора?: string
+  ДополнительнаяФормаДляВыбораГруппы?: string
+  ДополнительнаяФормаГруппы?: string
+  ДополнительнаяФормаСписка?: string
+  ДополнительнаяФормаОбъекта?: string
+  ВводитсяНаОсновании?: КоллекцияЗначенийСвойстваОбъектаМетаданныхEnterprise
+  Характеристики?: ОписанияХарактеристикEnterprise
+  КонтрольУникальности?: boolean
+  РежимПолученияДанныхВыбораПриВводеПоСтроке?: SE.ChoiceDataGetModeOnInputByStringEnterprise
+  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
+  СпособВыбора?: SE.ChoiceModeEnterprise
+  ДопустимаяДлинаКода?: SE.AllowedLengthEnterprise
+  ДлинаКода?: number
+  СерииКодов?: SE.CharacteristicKindCodesSeriesEnterprise
+  ТипКода?: ТипКодаСправочникаEnterprise
+  Команды?: КоллекцияОбъектовМетаданныхEnterprise
+  Комментарий?: string
+  СозданиеПриВводе?: SE.CreateOnInputEnterprise
+  ИсторияДанных?: SE.DataHistoryUseEnterprise
+  РежимУправленияБлокировкойДанных?: SE.DefaultDataLockControlModeEnterprise
+  ПоляБлокировкиДанных?: СписокПолейEnterprise
+  ОсновнаяФормаДляВыбора?: string
+  ОсновнаяФормаДляВыбораГруппы?: string
+  ОсновнаяФормаГруппы?: string
+  ОсновнаяФормаСписка?: string
+  ОсновнаяФормаОбъекта?: string
+  ОсновноеПредставление?: ОсновноеПредставлениеСправочникаEnterprise
+  ДлинаНаименования?: number
+  СпособРедактирования?: SE.EditTypeEnterprise
+  ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: boolean
+  Пояснение?: string
+  ОбъектРасширяемойКонфигурации?: УникальныйИдентификаторEnterprise
+  РасширенноеПредставлениеСписка?: string
+  РасширенноеПредставлениеОбъекта?: string
+  ГруппыСверху?: boolean
+  ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
+  ПолнотекстовыйПоискПриВводеПоСтроке?: SE.FullTextSearchOnInputByStringEnterprise
+  Иерархический?: boolean
+  ВидИерархии?: SE.HierarchyTypeEnterprise
+  ВключатьСправкуВСодержание?: boolean
+  ВводПоСтроке?: СписокПолейEnterprise
+  КоличествоУровней?: number
+  ОграничиватьКоличествоУровней?: boolean
+  ПредставлениеСписка?: string
+  МодульМенеджера?: НеопределеноEnterprise
+  Имя?: string
+  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
+  ПредставлениеОбъекта?: string
+  Владельцы?: КоллекцияЗначенийСвойстваОбъектаМетаданныхEnterprise
+  Предопределенные?: НеопределеноEnterprise
+  ОбновлениеПредопределенныхДанных?: SE.PredefinedDataUpdateEnterprise
+  БыстрыйВыбор?: boolean
+  СпособПоискаСтрокиПриВводеПоСтроке?: SE.SearchStringModeOnInputByStringEnterprise
+  СтандартныеРеквизиты?: ОписанияСтандартныхРеквизитовEnterprise
+  ИспользованиеПодчинения?: SE.SubordinationUseEnterprise
+  Синоним?: string
+  ОбновлятьИсториюДанныхСразуПослеЗаписи?: boolean
+  ИспользоватьСтандартныеКоманды?: boolean
 }
