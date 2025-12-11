@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-enum Chars {
+export enum Chars {
   CR = "ВК",
   VTab = "ВТаб",
   NBSp = "НПП",
@@ -15,7 +15,7 @@ export const ZCharsEnterprise = z.enum(Object.values(Chars) as [TCharsEnterprise
 export type TChars = keyof typeof Chars
 export type TCharsEnterprise = `${Chars}`
 
-enum PictureLib {
+export enum PictureLib {
   ActivateTask = "АктивироватьЗадачу",
   ActiveUsers = "АктивныеПользователи",
   BusinessProcess = "БизнесПроцесс",
@@ -323,7 +323,7 @@ export const ZPictureLibEnterprise = z.enum(Object.values(PictureLib) as [TPictu
 export type TPictureLib = keyof typeof PictureLib
 export type TPictureLibEnterprise = `${PictureLib}`
 
-enum StyleBorders {
+export enum StyleBorders {
   ControlBorder = "РамкаЭлементаУправления",
 }
 
@@ -333,7 +333,7 @@ export const ZStyleBordersEnterprise = z.enum(Object.values(StyleBorders) as [TS
 export type TStyleBorders = keyof typeof StyleBorders
 export type TStyleBordersEnterprise = `${StyleBorders}`
 
-enum StyleColors {
+export enum StyleColors {
   FieldAlternativeBackColor = "АльтернативныйЦветФонаПоля",
   ActivityColor = "ЦветАктивности",
   AccentColor = "ЦветАкцента",
@@ -370,7 +370,7 @@ export const ZStyleColorsEnterprise = z.enum(Object.values(StyleColors) as [TSty
 export type TStyleColors = keyof typeof StyleColors
 export type TStyleColorsEnterprise = `${StyleColors}`
 
-enum StyleFonts {
+export enum StyleFonts {
   LargeTextFont = "КрупныйШрифтТекста",
   SmallTextFont = "МелкийШрифтТекста",
   NormalTextFont = "ОбычныйШрифтТекста",
@@ -384,7 +384,7 @@ export const ZStyleFontsEnterprise = z.enum(Object.values(StyleFonts) as [TStyle
 export type TStyleFonts = keyof typeof StyleFonts
 export type TStyleFontsEnterprise = `${StyleFonts}`
 
-enum WebColors {
+export enum WebColors {
   Aquamarine = "Аквамарин",
   AliceBlue = "АкварельноСиний",
   AntiqueWhite = "АнтикБелый",
@@ -539,7 +539,7 @@ export const ZWebColorsEnterprise = z.enum(Object.values(WebColors) as [TWebColo
 export type TWebColors = keyof typeof WebColors
 export type TWebColorsEnterprise = `${WebColors}`
 
-enum WindowsColors {
+export enum WindowsColors {
   ActiveBorder = "ГраницаАктивногоОкна",
   InactiveBorder = "ГраницаНеактивногоОкна",
   ActiveTitleBar = "ЗаголовокАктивногоОкна",
@@ -573,7 +573,7 @@ export const ZWindowsColorsEnterprise = z.enum(Object.values(WindowsColors) as [
 export type TWindowsColors = keyof typeof WindowsColors
 export type TWindowsColorsEnterprise = `${WindowsColors}`
 
-enum WindowsFonts {
+export enum WindowsFonts {
   ANSIFixedFont = "ANSIШрифтМоноширинный",
   ANSIVariableFont = "ANSIШрифтПропорциональный",
   OEMFixedFont = "OEMШрифтМоноширинный",
@@ -587,7 +587,7 @@ export const ZWindowsFontsEnterprise = z.enum(Object.values(WindowsFonts) as [TW
 export type TWindowsFonts = keyof typeof WindowsFonts
 export type TWindowsFontsEnterprise = `${WindowsFonts}`
 
-enum StatePresentation {
+export enum StatePresentation {
   Visible = "Видимость",
   AdditionalShowMode = "ДополнительныйРежимОтображения",
   Picture = "Картинка",

@@ -1,74 +1,73 @@
 import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ElementType, Attributes } from "react"
-import { FieldList } from "../../commonObjects/field/types"
-import { PredefinedList } from "../../commonObjects/predifined/types"
-import { ZAttributesXML } from "../attribute/types"
+import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import {  ZBaseElementXML } from "../baseElement/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { ZodChildItemsType } from "../childItems/typesExt"
 
 export interface Catalog {
   elementType: ElementType
   name: string
   id?: string
-  attributes?: Attributes
-  autonumbering?: boolean
-  auxiliaryChoiceForm?: string
-  auxiliaryFolderChoiceForm?: string
-  auxiliaryFolderForm?: string
-  auxiliaryListForm?: string
-  auxiliaryObjectForm?: string
-  basedOn?: КоллекцияЗначенийСвойстваОбъектаМетаданных
-  checkUnique?: boolean
-  choiceDataGetModeOnInputByString?: SE.ChoiceDataGetModeOnInputByString
-  choiceHistoryOnInput?: SE.ChoiceHistoryOnInput
-  choiceMode?: SE.ChoiceMode
-  codeAllowedLength?: SE.AllowedLength
-  codeLength?: number
-  codeSeries?: SE.CharacteristicKindCodesSeries
-  codeType?: ТипКодаСправочника
-  commands?: CommandList
-  comment?: string
-  createOnInput?: SE.CreateOnInput
-  dataHistory?: SE.DataHistoryUse
-  dataLockControlMode?: SE.DefaultDataLockControlMode
-  dataLockFields?: FieldList
-  defaultChoiceForm?: string
-  defaultFolderChoiceForm?: string
-  defaultFolderForm?: string
-  defaultListForm?: string
-  defaultObjectForm?: string
-  defaultPresentation?: ОсновноеПредставлениеСправочника
-  descriptionLength?: number
-  editType?: SE.EditType
-  executeAfterWriteDataHistoryVersionProcessing?: boolean
-  explanation?: string
-  extendedListPresentation?: string
-  extendedObjectPresentation?: string
-  foldersOnTop?: boolean
-  fullTextSearch?: SE.UseFullTextSearch
-  fullTextSearchOnInputByString?: SE.FullTextSearchOnInputByString
-  hierarchical?: boolean
-  hierarchyType?: SE.HierarchyType
-  includeHelpInContents?: boolean
-  inputByString?: FieldList
-  levelCount?: number
-  limitLevelCount?: boolean
-  listPresentation?: string
-  objectBelonging?: SE.ObjectBelonging
-  objectPresentation?: I8nText
-  owners?: КоллекцияЗначенийСвойстваОбъектаМетаданных
-  predefined?: PredefinedList
-  predefinedDataUpdate?: SE.PredefinedDataUpdate
-  quickChoice?: boolean
-  searchStringModeOnInputByString?: SE.SearchStringModeOnInputByString
-  standardAttributes?: ОписанияСтандартныхРеквизитов
-  subordinationUse?: SE.SubordinationUse
-  synonym?: I8nText
-  tabularSections?: КоллекцияОбъектовМетаданных
-  updateDataHistoryImmediatelyAfterWrite?: boolean
-  userVisible?: UserVisible
-  useStandardCommands?: boolean
+  attributes?: Attributes,
+  autonumbering?: boolean,
+  auxiliaryChoiceForm?: string,
+  auxiliaryFolderChoiceForm?: string,
+  auxiliaryFolderForm?: string,
+  auxiliaryListForm?: string,
+  auxiliaryObjectForm?: string,
+  basedOn?: КоллекцияЗначенийСвойстваОбъектаМетаданных,
+  checkUnique?: boolean,
+  choiceDataGetModeOnInputByString?: SE.ChoiceDataGetModeOnInputByString,
+  choiceHistoryOnInput?: SE.ChoiceHistoryOnInput,
+  choiceMode?: SE.ChoiceMode,
+  codeAllowedLength?: SE.AllowedLength,
+  codeLength?: number,
+  codeSeries?: SE.CharacteristicKindCodesSeries,
+  codeType?: ТипКодаСправочника,
+  commands?: CommandList,
+  comment?: string,
+  createOnInput?: SE.CreateOnInput,
+  dataHistory?: SE.DataHistoryUse,
+  dataLockControlMode?: SE.DefaultDataLockControlMode,
+  dataLockFields?: FieldList,
+  defaultChoiceForm?: string,
+  defaultFolderChoiceForm?: string,
+  defaultFolderForm?: string,
+  defaultListForm?: string,
+  defaultObjectForm?: string,
+  defaultPresentation?: ОсновноеПредставлениеСправочника,
+  descriptionLength?: number,
+  editType?: SE.EditType,
+  executeAfterWriteDataHistoryVersionProcessing?: boolean,
+  explanation?: string,
+  extendedListPresentation?: string,
+  extendedObjectPresentation?: string,
+  foldersOnTop?: boolean,
+  fullTextSearch?: SE.UseFullTextSearch,
+  fullTextSearchOnInputByString?: SE.FullTextSearchOnInputByString,
+  hierarchical?: boolean,
+  hierarchyType?: SE.HierarchyType,
+  includeHelpInContents?: boolean,
+  inputByString?: FieldList,
+  levelCount?: number,
+  limitLevelCount?: boolean,
+  listPresentation?: string,
+  objectBelonging?: SE.ObjectBelonging,
+  objectPresentation?: I8nText,
+  owners?: КоллекцияЗначенийСвойстваОбъектаМетаданных,
+  predefined?: PredefinedList,
+  predefinedDataUpdate?: SE.PredefinedDataUpdate,
+  quickChoice?: boolean,
+  searchStringModeOnInputByString?: SE.SearchStringModeOnInputByString,
+  standardAttributes?: ОписанияСтандартныхРеквизитов,
+  subordinationUse?: SE.SubordinationUse,
+  synonym?: I8nText,
+  tabularSections?: КоллекцияОбъектовМетаданных,
+  updateDataHistoryImmediatelyAfterWrite?: boolean,
+  userVisible?: UserVisible,
+  useStandardCommands?: boolean,
 }
 
 export const ZCatalogXML = z.object({
@@ -83,8 +82,7 @@ export const ZCatalogXML = z.object({
   AuxiliaryObjectForm: z.string().optional(),
   BasedOn: ZКоллекцияЗначенийСвойстваОбъектаМетаданныхXML.optional(),
   CheckUnique: z.boolean().optional(),
-  ChoiceDataGetModeOnInputByString:
-    SE.ZChoiceDataGetModeOnInputByString.optional(),
+  ChoiceDataGetModeOnInputByString: SE.ZChoiceDataGetModeOnInputByString.optional(),
   ChoiceHistoryOnInput: SE.ZChoiceHistoryOnInput.optional(),
   ChoiceMode: SE.ZChoiceMode.optional(),
   CodeAllowedLength: SE.ZAllowedLength.optional(),
@@ -125,8 +123,7 @@ export const ZCatalogXML = z.object({
   Predefined: ZPredefinedListXML.optional(),
   PredefinedDataUpdate: SE.ZPredefinedDataUpdate.optional(),
   QuickChoice: z.boolean().optional(),
-  SearchStringModeOnInputByString:
-    SE.ZSearchStringModeOnInputByString.optional(),
+  SearchStringModeOnInputByString: SE.ZSearchStringModeOnInputByString.optional(),
   StandardAttributes: ZОписанияСтандартныхРеквизитовXML.optional(),
   SubordinationUse: SE.ZSubordinationUse.optional(),
   Synonym: ZI8nTextXML.optional(),
