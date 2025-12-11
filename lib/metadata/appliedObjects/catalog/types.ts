@@ -1,8 +1,13 @@
+import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import { ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 
 export interface Catalog {
-  additionalIndexes?: ДополнительныеИндексы
-  attributes?: КоллекцияОбъектовМетаданных
+  elementType: ElementType
+  name: string
+  id?: string
+  attributes?: Attributes
   autonumbering?: boolean
   auxiliaryChoiceForm?: string
   auxiliaryFolderChoiceForm?: string
@@ -10,7 +15,6 @@ export interface Catalog {
   auxiliaryListForm?: string
   auxiliaryObjectForm?: string
   basedOn?: КоллекцияЗначенийСвойстваОбъектаМетаданных
-  characteristics?: ОписанияХарактеристик
   checkUnique?: boolean
   choiceDataGetModeOnInputByString?: SE.ChoiceDataGetModeOnInputByString
   choiceHistoryOnInput?: SE.ChoiceHistoryOnInput
@@ -19,12 +23,12 @@ export interface Catalog {
   codeLength?: number
   codeSeries?: SE.CharacteristicKindCodesSeries
   codeType?: ТипКодаСправочника
-  commands?: КоллекцияОбъектовМетаданных
+  commands?: CommandList
   comment?: string
   createOnInput?: SE.CreateOnInput
   dataHistory?: SE.DataHistoryUse
   dataLockControlMode?: SE.DefaultDataLockControlMode
-  dataLockFields?: СписокПолей
+  dataLockFields?: FieldList
   defaultChoiceForm?: string
   defaultFolderChoiceForm?: string
   defaultFolderForm?: string
@@ -35,7 +39,6 @@ export interface Catalog {
   editType?: SE.EditType
   executeAfterWriteDataHistoryVersionProcessing?: boolean
   explanation?: string
-  extendedConfigurationObject?: УникальныйИдентификатор
   extendedListPresentation?: string
   extendedObjectPresentation?: string
   foldersOnTop?: boolean
@@ -44,150 +47,91 @@ export interface Catalog {
   hierarchical?: boolean
   hierarchyType?: SE.HierarchyType
   includeHelpInContents?: boolean
-  inputByString?: СписокПолей
+  inputByString?: FieldList
   levelCount?: number
   limitLevelCount?: boolean
   listPresentation?: string
-  managerModule?: Неопределено
-  name?: string
   objectBelonging?: SE.ObjectBelonging
-  objectPresentation?: string
+  objectPresentation?: I8nText
   owners?: КоллекцияЗначенийСвойстваОбъектаМетаданных
-  predefined?: Неопределено
+  predefined?: PredefinedList
   predefinedDataUpdate?: SE.PredefinedDataUpdate
   quickChoice?: boolean
   searchStringModeOnInputByString?: SE.SearchStringModeOnInputByString
   standardAttributes?: ОписанияСтандартныхРеквизитов
   subordinationUse?: SE.SubordinationUse
-  synonym?: string
+  synonym?: I8nText
+  tabularSections?: КоллекцияОбъектовМетаданных
   updateDataHistoryImmediatelyAfterWrite?: boolean
+  userVisible?: UserVisible
   useStandardCommands?: boolean
 }
 
-export interface CatalogXML {
-  AdditionalIndexes?: ДополнительныеИндексыXML
-  Attributes?: КоллекцияОбъектовМетаданныхXML
-  Autonumbering?: boolean
-  AuxiliaryChoiceForm?: string
-  AuxiliaryFolderChoiceForm?: string
-  AuxiliaryFolderForm?: string
-  AuxiliaryListForm?: string
-  AuxiliaryObjectForm?: string
-  BasedOn?: КоллекцияЗначенийСвойстваОбъектаМетаданныхXML
-  Characteristics?: ОписанияХарактеристикXML
-  CheckUnique?: boolean
-  ChoiceDataGetModeOnInputByString?: SE.ChoiceDataGetModeOnInputByString
-  ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
-  ChoiceMode?: SE.ChoiceMode
-  CodeAllowedLength?: SE.AllowedLength
-  CodeLength?: number
-  CodeSeries?: SE.CharacteristicKindCodesSeries
-  CodeType?: ТипКодаСправочникаXML
-  Commands?: КоллекцияОбъектовМетаданныхXML
-  Comment?: string
-  CreateOnInput?: SE.CreateOnInput
-  DataHistory?: SE.DataHistoryUse
-  DataLockControlMode?: SE.DefaultDataLockControlMode
-  DataLockFields?: СписокПолейXML
-  DefaultChoiceForm?: string
-  DefaultFolderChoiceForm?: string
-  DefaultFolderForm?: string
-  DefaultListForm?: string
-  DefaultObjectForm?: string
-  DefaultPresentation?: ОсновноеПредставлениеСправочникаXML
-  DescriptionLength?: number
-  EditType?: SE.EditType
-  ExecuteAfterWriteDataHistoryVersionProcessing?: boolean
-  Explanation?: string
-  ExtendedConfigurationObject?: УникальныйИдентификаторXML
-  ExtendedListPresentation?: string
-  ExtendedObjectPresentation?: string
-  FoldersOnTop?: boolean
-  FullTextSearch?: SE.UseFullTextSearch
-  FullTextSearchOnInputByString?: SE.FullTextSearchOnInputByString
-  Hierarchical?: boolean
-  HierarchyType?: SE.HierarchyType
-  IncludeHelpInContents?: boolean
-  InputByString?: СписокПолейXML
-  LevelCount?: number
-  LimitLevelCount?: boolean
-  ListPresentation?: string
-  ManagerModule?: НеопределеноXML
-  Name?: string
-  ObjectBelonging?: SE.ObjectBelonging
-  ObjectPresentation?: string
-  Owners?: КоллекцияЗначенийСвойстваОбъектаМетаданныхXML
-  Predefined?: НеопределеноXML
-  PredefinedDataUpdate?: SE.PredefinedDataUpdate
-  QuickChoice?: boolean
-  SearchStringModeOnInputByString?: SE.SearchStringModeOnInputByString
-  StandardAttributes?: ОписанияСтандартныхРеквизитовXML
-  SubordinationUse?: SE.SubordinationUse
-  Synonym?: string
-  UpdateDataHistoryImmediatelyAfterWrite?: boolean
-  UseStandardCommands?: boolean
-}
+export const ZCatalogXML = z.object({
+  _name: z.string(),
+  _id: z.string(),
+  Attributes: ZAttributesXML.optional(),
+  Autonumbering: z.boolean().optional(),
+  AuxiliaryChoiceForm: z.string().optional(),
+  AuxiliaryFolderChoiceForm: z.string().optional(),
+  AuxiliaryFolderForm: z.string().optional(),
+  AuxiliaryListForm: z.string().optional(),
+  AuxiliaryObjectForm: z.string().optional(),
+  BasedOn: ZКоллекцияЗначенийСвойстваОбъектаМетаданныхXML.optional(),
+  CheckUnique: z.boolean().optional(),
+  ChoiceDataGetModeOnInputByString:
+    SE.ZChoiceDataGetModeOnInputByString.optional(),
+  ChoiceHistoryOnInput: SE.ZChoiceHistoryOnInput.optional(),
+  ChoiceMode: SE.ZChoiceMode.optional(),
+  CodeAllowedLength: SE.ZAllowedLength.optional(),
+  CodeLength: z.number().optional(),
+  CodeSeries: SE.ZCharacteristicKindCodesSeries.optional(),
+  CodeType: ZТипКодаСправочникаXML.optional(),
+  Commands: ZCommandListXML.optional(),
+  Comment: z.string().optional(),
+  CreateOnInput: SE.ZCreateOnInput.optional(),
+  DataHistory: SE.ZDataHistoryUse.optional(),
+  DataLockControlMode: SE.ZDefaultDataLockControlMode.optional(),
+  DataLockFields: ZFieldListXML.optional(),
+  DefaultChoiceForm: z.string().optional(),
+  DefaultFolderChoiceForm: z.string().optional(),
+  DefaultFolderForm: z.string().optional(),
+  DefaultListForm: z.string().optional(),
+  DefaultObjectForm: z.string().optional(),
+  DefaultPresentation: ZОсновноеПредставлениеСправочникаXML.optional(),
+  DescriptionLength: z.number().optional(),
+  EditType: SE.ZEditType.optional(),
+  ExecuteAfterWriteDataHistoryVersionProcessing: z.boolean().optional(),
+  Explanation: z.string().optional(),
+  ExtendedListPresentation: z.string().optional(),
+  ExtendedObjectPresentation: z.string().optional(),
+  FoldersOnTop: z.boolean().optional(),
+  FullTextSearch: SE.ZUseFullTextSearch.optional(),
+  FullTextSearchOnInputByString: SE.ZFullTextSearchOnInputByString.optional(),
+  Hierarchical: z.boolean().optional(),
+  HierarchyType: SE.ZHierarchyType.optional(),
+  IncludeHelpInContents: z.boolean().optional(),
+  InputByString: ZFieldListXML.optional(),
+  LevelCount: z.number().optional(),
+  LimitLevelCount: z.boolean().optional(),
+  ListPresentation: z.string().optional(),
+  ObjectBelonging: SE.ZObjectBelonging.optional(),
+  ObjectPresentation: ZI8nTextXML.optional(),
+  Owners: ZКоллекцияЗначенийСвойстваОбъектаМетаданныхXML.optional(),
+  Predefined: ZPredefinedListXML.optional(),
+  PredefinedDataUpdate: SE.ZPredefinedDataUpdate.optional(),
+  QuickChoice: z.boolean().optional(),
+  SearchStringModeOnInputByString:
+    SE.ZSearchStringModeOnInputByString.optional(),
+  StandardAttributes: ZОписанияСтандартныхРеквизитовXML.optional(),
+  SubordinationUse: SE.ZSubordinationUse.optional(),
+  Synonym: ZI8nTextXML.optional(),
+  TabularSections: ZКоллекцияОбъектовМетаданныхXML.optional(),
+  UpdateDataHistoryImmediatelyAfterWrite: z.boolean().optional(),
+  UserVisible: ZUserVisibleXML.optional(),
+  UseStandardCommands: z.boolean().optional(),
+})
 
-export interface CatalogEnterprise {
-  ДополнительныеИндексы?: ДополнительныеИндексыEnterprise
-  Реквизиты?: КоллекцияОбъектовМетаданныхEnterprise
-  Автонумерация?: boolean
-  ДополнительнаяФормаДляВыбора?: string
-  ДополнительнаяФормаДляВыбораГруппы?: string
-  ДополнительнаяФормаГруппы?: string
-  ДополнительнаяФормаСписка?: string
-  ДополнительнаяФормаОбъекта?: string
-  ВводитсяНаОсновании?: КоллекцияЗначенийСвойстваОбъектаМетаданныхEnterprise
-  Характеристики?: ОписанияХарактеристикEnterprise
-  КонтрольУникальности?: boolean
-  РежимПолученияДанныхВыбораПриВводеПоСтроке?: SE.ChoiceDataGetModeOnInputByStringEnterprise
-  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
-  СпособВыбора?: SE.ChoiceModeEnterprise
-  ДопустимаяДлинаКода?: SE.AllowedLengthEnterprise
-  ДлинаКода?: number
-  СерииКодов?: SE.CharacteristicKindCodesSeriesEnterprise
-  ТипКода?: ТипКодаСправочникаEnterprise
-  Команды?: КоллекцияОбъектовМетаданныхEnterprise
-  Комментарий?: string
-  СозданиеПриВводе?: SE.CreateOnInputEnterprise
-  ИсторияДанных?: SE.DataHistoryUseEnterprise
-  РежимУправленияБлокировкойДанных?: SE.DefaultDataLockControlModeEnterprise
-  ПоляБлокировкиДанных?: СписокПолейEnterprise
-  ОсновнаяФормаДляВыбора?: string
-  ОсновнаяФормаДляВыбораГруппы?: string
-  ОсновнаяФормаГруппы?: string
-  ОсновнаяФормаСписка?: string
-  ОсновнаяФормаОбъекта?: string
-  ОсновноеПредставление?: ОсновноеПредставлениеСправочникаEnterprise
-  ДлинаНаименования?: number
-  СпособРедактирования?: SE.EditTypeEnterprise
-  ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: boolean
-  Пояснение?: string
-  ОбъектРасширяемойКонфигурации?: УникальныйИдентификаторEnterprise
-  РасширенноеПредставлениеСписка?: string
-  РасширенноеПредставлениеОбъекта?: string
-  ГруппыСверху?: boolean
-  ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
-  ПолнотекстовыйПоискПриВводеПоСтроке?: SE.FullTextSearchOnInputByStringEnterprise
-  Иерархический?: boolean
-  ВидИерархии?: SE.HierarchyTypeEnterprise
-  ВключатьСправкуВСодержание?: boolean
-  ВводПоСтроке?: СписокПолейEnterprise
-  КоличествоУровней?: number
-  ОграничиватьКоличествоУровней?: boolean
-  ПредставлениеСписка?: string
-  МодульМенеджера?: НеопределеноEnterprise
-  Имя?: string
-  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
-  ПредставлениеОбъекта?: string
-  Владельцы?: КоллекцияЗначенийСвойстваОбъектаМетаданныхEnterprise
-  Предопределенные?: НеопределеноEnterprise
-  ОбновлениеПредопределенныхДанных?: SE.PredefinedDataUpdateEnterprise
-  БыстрыйВыбор?: boolean
-  СпособПоискаСтрокиПриВводеПоСтроке?: SE.SearchStringModeOnInputByStringEnterprise
-  СтандартныеРеквизиты?: ОписанияСтандартныхРеквизитовEnterprise
-  ИспользованиеПодчинения?: SE.SubordinationUseEnterprise
-  Синоним?: string
-  ОбновлятьИсториюДанныхСразуПослеЗаписи?: boolean
-  ИспользоватьСтандартныеКоманды?: boolean
-}
+export type TCatalog = z.infer<typeof ZCatalog>
+
+export type TCatalogXML = z.infer<typeof ZCatalogXML>
