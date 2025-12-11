@@ -1,14 +1,12 @@
-import { z } from "zod"
+export interface ITypeLinkXML {
+  "xr:DataPath": string
+  "xr:LinkItem": number
+}
 
-export const ZTypeLinkXML = z.object({
-  "xr:DataPath": z.string(),
-  "xr:LinkItem": z.number(),
-})
+export interface ITypeLink {
+  dataPath: string
+  linkItem: string | number
+}
 
-export const ZTypeLink = z.object({
-  dataPath: z.string(),
-  linkItem: z.union([z.string(), z.number()]),
-})
-
-export type TTypeLinkXML = z.infer<typeof ZTypeLinkXML>
-export type TTypeLink = z.infer<typeof ZTypeLink>
+export type TTypeLinkXML = ITypeLinkXML
+export type TTypeLink = ITypeLink
