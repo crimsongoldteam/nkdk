@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { parseI8nText } from "./parse"
+import { I8nText } from "./types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -24,17 +25,19 @@ describe("parseI8nText", () => {
   })
 
   it("should parse object value", () => {
+    const expectedResult: I8nText = {
+      items: {
+        ru: "Поле",
+        en: "Field",
+      },
+    }
+
     const result = parseI8nText(
       { ru: "Поле", en: "Field" },
       configurationSettings
     )
 
-    expect(result).toEqual({
-      items: {
-        ru: "Поле",
-        en: "Field",
-      },
-    })
+    expect(result).toEqual(expectedResult)
   })
 
   it("should parse object value with single language", () => {
