@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest"
-import xmlExport from "~/lib/xml/export/exporter"
-import { TTypeDescription, ZTypeDescriptionXML } from "./types"
+import { xmlExport } from "~/lib/xml/export/exporter"
+import { TypeDescription } from "./types"
 import { exportTypeDescriptionToXML } from "./exportToXML"
-import z from "zod"
 
 describe("exportTypeDescriptionToXML", () => {
   it("should export string type to XML", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["string"],
       stringQualifiers: {
         length: 10,
@@ -23,17 +22,13 @@ describe("exportTypeDescriptionToXML", () => {
 </TypeDescription>`
 
     const result = exportTypeDescriptionToXML(mockTypeDescription)
-    const xmlString = xmlExport(
-      { TypeDescription: result },
-      z.object({ TypeDescription: ZTypeDescriptionXML }),
-      false
-    )
+    const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
   })
 
   it("should export number type to XML", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["decimal"],
       numberQualifiers: {
         digits: 10,
@@ -52,17 +47,13 @@ describe("exportTypeDescriptionToXML", () => {
 </TypeDescription>`
 
     const result = exportTypeDescriptionToXML(mockTypeDescription)
-    const xmlString = xmlExport(
-      { TypeDescription: result },
-      z.object({ TypeDescription: ZTypeDescriptionXML }),
-      false
-    )
+    const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
   })
 
   it("should export date type to XML", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["date"],
       dateQualifiers: {
         dateFractions: "Date",
@@ -77,17 +68,13 @@ describe("exportTypeDescriptionToXML", () => {
 </TypeDescription>`
 
     const result = exportTypeDescriptionToXML(mockTypeDescription)
-    const xmlString = xmlExport(
-      { TypeDescription: result },
-      z.object({ TypeDescription: ZTypeDescriptionXML }),
-      false
-    )
+    const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
   })
 
   it("should export complex type to XML", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["boolean", "EnumRef.Статусы"],
     }
 
@@ -97,11 +84,7 @@ describe("exportTypeDescriptionToXML", () => {
 </TypeDescription>`
 
     const result = exportTypeDescriptionToXML(mockTypeDescription)
-    const xmlString = xmlExport(
-      { TypeDescription: result },
-      z.object({ TypeDescription: ZTypeDescriptionXML }),
-      false
-    )
+    const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
   })

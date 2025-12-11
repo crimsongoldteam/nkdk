@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { importUserVisibleFromXML } from "./importFromXML"
 import { UserVisible, UserVisibleXML } from "./types"
-import { xmlImport } from "~/lib"
+import xmlImport from "~/lib/xml/import/importer"
 
 describe("importUserVisibleFromXML", () => {
   it("should import Use from XML", () => {

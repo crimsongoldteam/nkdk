@@ -1,58 +1,54 @@
-import * as z from "zod"
+export interface TypeDescriptionXMLSpreadsheetDocument {
+  "_xmlns:mxl": "http://v8.1c.ru/8.2/data/spreadsheet"
+  "#text": "mxl:SpreadsheetDocument"
+}
 
-export const ZTypeDescription = z.object({
-  type: z.array(z.string()),
-  stringQualifiers: z
-    .object({
-      length: z.number(),
-      allowedLength: z.enum(["Variable", "Fixed"]),
-    })
-    .optional(),
-  numberQualifiers: z
-    .object({
-      digits: z.number(),
-      fractionDigits: z.number(),
-      allowedSign: z.enum(["Any", "Nonnegative"]).optional(),
-    })
-    .optional(),
-  dateQualifiers: z
-    .object({
-      dateFractions: z.enum(["Date", "Time", "DateTime"]).optional(),
-    })
-    .optional(),
-})
+export type TypeDescriptionXMLType =
+  | string
+  | TypeDescriptionXMLSpreadsheetDocument
 
-const ZTypeDescriptionXMLSpreadsheetDocument = z.object({
-  "_xmlns:mxl": z.literal("http://v8.1c.ru/8.2/data/spreadsheet"),
-  "#text": z.literal("mxl:SpreadsheetDocument"),
-})
+export interface TypeDescriptionXMLStringQualifiers {
+  "v8:Length": number
+  "v8:AllowedLength": "Variable" | "Fixed"
+}
 
-const ZType = z.union([z.string(), ZTypeDescriptionXMLSpreadsheetDocument])
+export interface TypeDescriptionXMLNumberQualifiers {
+  "v8:Digits": number
+  "v8:FractionDigits": number
+  "v8:AllowedSign"?: "Any" | "Nonnegative"
+}
 
-export const ZTypeDescriptionXML = z.array(
-  z.object({
-    "v8:Type": z.union([ZType, z.array(ZType)]).optional(),
-    "v8:StringQualifiers": z
-      .object({
-        "v8:Length": z.number(),
-        "v8:AllowedLength": z.enum(["Variable", "Fixed"]),
-      })
-      .optional(),
-    "v8:NumberQualifiers": z
-      .object({
-        "v8:Digits": z.number(),
-        "v8:FractionDigits": z.number(),
-        "v8:AllowedSign": z.enum(["Any", "Nonnegative"]).optional(),
-      })
-      .optional(),
-    "v8:DateQualifiers": z
-      .object({
-        "v8:DateFractions": z.enum(["Date", "Time", "DateTime"]).optional(),
-      })
-      .optional(),
-  })
-)
+export interface TypeDescriptionXMLDateQualifiers {
+  "v8:DateFractions"?: "Date" | "Time" | "DateTime"
+}
 
-export type TTypeDescription = z.infer<typeof ZTypeDescription>
-export type TTypeDescriptionXML = z.infer<typeof ZTypeDescriptionXML>
-export type TTypeDescriptionXMLItem = TTypeDescriptionXML[number]
+export interface TypeDescriptionXMLItem {
+  "v8:Type"?: TypeDescriptionXMLType | TypeDescriptionXMLType[]
+  "v8:StringQualifiers"?: TypeDescriptionXMLStringQualifiers
+  "v8:NumberQualifiers"?: TypeDescriptionXMLNumberQualifiers
+  "v8:DateQualifiers"?: TypeDescriptionXMLDateQualifiers
+}
+
+export type TypeDescriptionXML = TypeDescriptionXMLItem[]
+
+export interface TypeDescriptionStringQualifiers {
+  length: number
+  allowedLength: "Variable" | "Fixed"
+}
+
+export interface TypeDescriptionNumberQualifiers {
+  digits: number
+  fractionDigits: number
+  allowedSign?: "Any" | "Nonnegative"
+}
+
+export interface TypeDescriptionDateQualifiers {
+  dateFractions?: "Date" | "Time" | "DateTime"
+}
+
+export interface TypeDescription {
+  type: string[]
+  stringQualifiers?: TypeDescriptionStringQualifiers
+  numberQualifiers?: TypeDescriptionNumberQualifiers
+  dateQualifiers?: TypeDescriptionDateQualifiers
+}

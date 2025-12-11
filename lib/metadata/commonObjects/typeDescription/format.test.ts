@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { TTypeDescription } from "./types"
+import { TypeDescription } from "./types"
 import { formatTypeDescription } from "./format"
 
 it("should format undefined type description", () => {
@@ -9,7 +9,7 @@ it("should format undefined type description", () => {
 
 describe("string type description", () => {
   it("should format string", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["string"],
       stringQualifiers: { length: 10, allowedLength: "Variable" },
     }
@@ -21,7 +21,7 @@ describe("string type description", () => {
   })
 
   it("should format unlimited string", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["string"],
       stringQualifiers: { length: 0, allowedLength: "Variable" },
     }
@@ -33,7 +33,7 @@ describe("string type description", () => {
   })
 
   it("should format fixed string", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["string"],
       stringQualifiers: { length: 100, allowedLength: "Fixed" },
     }
@@ -47,7 +47,7 @@ describe("string type description", () => {
 
 describe("number type description", () => {
   it("should format number", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["number"],
       numberQualifiers: { digits: 10, fractionDigits: 2 },
     }
@@ -59,7 +59,7 @@ describe("number type description", () => {
   })
 
   it("should format non-negative number", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["number"],
       numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Nonnegative" },
     }
@@ -73,7 +73,7 @@ describe("number type description", () => {
 
 describe("date type description", () => {
   it("should format date", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["date"],
       dateQualifiers: { dateFractions: "Date" },
     }
@@ -86,7 +86,7 @@ describe("date type description", () => {
   })
 
   it("should format time", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["date"],
       dateQualifiers: { dateFractions: "Time" },
     }
@@ -99,7 +99,7 @@ describe("date type description", () => {
   })
 
   it("should format date and time", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["date"],
       dateQualifiers: { dateFractions: "DateTime" },
     }
@@ -112,7 +112,7 @@ describe("date type description", () => {
   })
 
   it("should format date", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["date"],
       dateQualifiers: { dateFractions: "Date" },
     }
@@ -127,7 +127,7 @@ describe("date type description", () => {
 
 describe("composite type description", () => {
   it("should format composite", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["тип1", "тип2"],
     }
 
@@ -139,7 +139,7 @@ describe("composite type description", () => {
   })
 
   it("should format parametrical types composite", () => {
-    const mockTypeDescription: TTypeDescription = {
+    const mockTypeDescription: TypeDescription = {
       type: ["string", "number"],
       stringQualifiers: { length: 10, allowedLength: "Variable" },
       numberQualifiers: { digits: 10, fractionDigits: 2 },

@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest"
-import xmlImport from "~/lib/xml/import/importer"
-import { TTypeDescription, TTypeDescriptionXML } from "./types"
+import { xmlImport } from "~/lib/xml/import/importer"
+import { TypeDescription, TypeDescriptionXML } from "./types"
 import { importTypeDescriptionFromXML } from "./importFromXML"
-import { ZTypeDescriptionXML } from "./types"
-import z from "zod"
 
 describe("importTypeDescriptionFromXML", () => {
   it("should import string type from XML", () => {
@@ -15,15 +13,12 @@ describe("importTypeDescriptionFromXML", () => {
     </v8:StringQualifiers>
     </TypeDescription>`
 
-    const mockResult: TTypeDescription = {
+    const mockResult: TypeDescription = {
       type: ["string"],
       stringQualifiers: { length: 10, allowedLength: "Variable" },
     }
 
-    const xmlData = xmlImport<{ TypeDescription?: TTypeDescriptionXML }>(
-      mockXml,
-      z.object({ TypeDescription: ZTypeDescriptionXML })
-    )
+    const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
 
     const result = importTypeDescriptionFromXML(xmlData.TypeDescription)
 
@@ -40,7 +35,7 @@ describe("importTypeDescriptionFromXML", () => {
   </v8:NumberQualifiers> 
 </TypeDescription>`
 
-    const mockResult: TTypeDescription = {
+    const mockResult: TypeDescription = {
       type: ["decimal"],
       numberQualifiers: {
         digits: 10,
@@ -49,10 +44,7 @@ describe("importTypeDescriptionFromXML", () => {
       },
     }
 
-    const xmlData = xmlImport<{ TypeDescription?: TTypeDescriptionXML }>(
-      mockXml,
-      z.object({ TypeDescription: ZTypeDescriptionXML })
-    )
+    const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
 
     const result = importTypeDescriptionFromXML(xmlData.TypeDescription)
 
@@ -67,15 +59,12 @@ describe("importTypeDescriptionFromXML", () => {
       </v8:DateQualifiers>
       </TypeDescription>`
 
-    const mockResult: TTypeDescription = {
+    const mockResult: TypeDescription = {
       type: ["date"],
       dateQualifiers: { dateFractions: "Date" },
     }
 
-    const xmlData = xmlImport<{ TypeDescription?: TTypeDescriptionXML }>(
-      mockXml,
-      z.object({ TypeDescription: ZTypeDescriptionXML })
-    )
+    const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
 
     const result = importTypeDescriptionFromXML(xmlData.TypeDescription)
 
@@ -88,14 +77,11 @@ describe("importTypeDescriptionFromXML", () => {
     <v8:Type>cfg:EnumRef.Статусы</v8:Type>
     </TypeDescription>`
 
-    const mockResult: TTypeDescription = {
+    const mockResult: TypeDescription = {
       type: ["boolean", "EnumRef.Статусы"],
     }
 
-    const xmlData = xmlImport<{ TypeDescription?: TTypeDescriptionXML }>(
-      mockXml,
-      z.object({ TypeDescription: ZTypeDescriptionXML })
-    )
+    const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
 
     const result = importTypeDescriptionFromXML(xmlData.TypeDescription)
 
@@ -109,7 +95,7 @@ describe("importTypeDescriptionFromXML", () => {
     <v8:Type>cfg:CatalogRef.Пользователи</v8:Type>
     </TypeDescription>`
 
-    const mockResult: TTypeDescription = {
+    const mockResult: TypeDescription = {
       type: [
         "CatalogRef.Сотрудники",
         "CatalogRef.Контрагенты",
@@ -117,10 +103,7 @@ describe("importTypeDescriptionFromXML", () => {
       ],
     }
 
-    const xmlData = xmlImport<{ TypeDescription?: TTypeDescriptionXML }>(
-      mockXml,
-      z.object({ TypeDescription: ZTypeDescriptionXML })
-    )
+    const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
 
     const result = importTypeDescriptionFromXML(xmlData.TypeDescription)
 
@@ -132,14 +115,11 @@ describe("importTypeDescriptionFromXML", () => {
     <v8:Type xmlns:mxl="http://v8.1c.ru/8.2/data/spreadsheet">mxl:SpreadsheetDocument</v8:Type>
     </TypeDescription>`
 
-    const mockResult: TTypeDescription = {
+    const mockResult: TypeDescription = {
       type: ["SpreadsheetDocument"],
     }
 
-    const xmlData = xmlImport<{ TypeDescription?: TTypeDescriptionXML }>(
-      mockXml,
-      z.object({ TypeDescription: ZTypeDescriptionXML })
-    )
+    const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
 
     const result = importTypeDescriptionFromXML(xmlData.TypeDescription)
 
@@ -150,10 +130,7 @@ describe("importTypeDescriptionFromXML", () => {
     const mockXml = `<TypeDescription>
   </TypeDescription>`
 
-    const xmlData = xmlImport<{ TypeDescription?: TTypeDescriptionXML }>(
-      mockXml,
-      z.object({ TypeDescription: ZTypeDescriptionXML.optional() })
-    )
+    const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
 
     const result = importTypeDescriptionFromXML(xmlData.TypeDescription)
 

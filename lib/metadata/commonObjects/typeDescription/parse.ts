@@ -2,11 +2,11 @@ import { Lexer } from "chevrotain"
 import { multiModeLexerDefinition } from "~/lib/parser/lexer"
 import { TypeDescriptionParser } from "./parser/parser"
 import { TypeDescriptionVisitor } from "./parser/visitor"
-import { TTypeDescription } from "./types"
+import { TypeDescription } from "./types"
 
 export const parseTypeDescription = (
   value: string | undefined
-): TTypeDescription | undefined => {
+): TypeDescription | undefined => {
   if (value === undefined || value.trim() === "") {
     return undefined
   }
@@ -28,7 +28,7 @@ export const parseTypeDescription = (
   }
 
   const visitor = new TypeDescriptionVisitor()
-  const result = visitor.visit(cst) as TTypeDescription
+  const result = visitor.visit(cst) as TypeDescription
 
   return result
 }

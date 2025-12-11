@@ -1,19 +1,19 @@
 import {
-  TTypeDescription,
-  TTypeDescriptionXML,
-  TTypeDescriptionXMLItem,
+  TypeDescription,
+  TypeDescriptionXML,
+  TypeDescriptionXMLItem,
 } from "./types"
 
 export const importTypeDescriptionFromXML = (
-  xml: TTypeDescriptionXML | TTypeDescriptionXML[number] | undefined
-): TTypeDescription | undefined => {
+  xml: TypeDescriptionXML | TypeDescriptionXML[number] | undefined
+): TypeDescription | undefined => {
   if (!xml) return undefined
 
   // Если это один объект, преобразуем в массив
   const xmlArray = Array.isArray(xml) ? xml : [xml]
   if (xmlArray.length === 0) return undefined
 
-  const result: TTypeDescription = {
+  const result: TypeDescription = {
     type: [],
     stringQualifiers: undefined,
     numberQualifiers: undefined,
@@ -47,8 +47,8 @@ export const importTypeDescriptionFromXML = (
 
 export const processType = (
   type:
-    | TTypeDescriptionXMLItem["v8:Type"]
-    | TTypeDescriptionXMLItem["v8:Type"][]
+    | TypeDescriptionXMLItem["v8:Type"]
+    | TypeDescriptionXMLItem["v8:Type"][]
 ): string[] => {
   if (type === undefined) return []
 
@@ -80,7 +80,7 @@ export const processType = (
 }
 
 function processStringQualifiers(
-  xml?: TTypeDescriptionXMLItem["v8:StringQualifiers"]
+  xml?: TypeDescriptionXMLItem["v8:StringQualifiers"]
 ):
   | {
       length: number
@@ -95,7 +95,7 @@ function processStringQualifiers(
 }
 
 function processNumberQualifiers(
-  xml?: TTypeDescriptionXMLItem["v8:NumberQualifiers"]
+  xml?: TypeDescriptionXMLItem["v8:NumberQualifiers"]
 ) {
   if (!xml) return undefined
 
@@ -107,7 +107,7 @@ function processNumberQualifiers(
 }
 
 function processDateQualifiers(
-  xml?: TTypeDescriptionXMLItem["v8:DateQualifiers"]
+  xml?: TypeDescriptionXMLItem["v8:DateQualifiers"]
 ) {
   if (!xml) return undefined
 

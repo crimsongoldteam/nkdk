@@ -14,7 +14,8 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports.prettier": "always",
     "source.addMissingImports.prettier": "always",
-    "source.fixAll.prettier": "explicit"
+    "source.fixAll.prettier": "always",
+    "source.removeUnusedImports": "always"
   },
   "files.exclude": {
     "**/node_modules": true,

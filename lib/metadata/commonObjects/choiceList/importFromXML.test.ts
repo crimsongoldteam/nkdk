@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { importChoiceListFromXML } from "./importFromXML"
-import { xmlImport } from "~/lib"
-import { TChoiceList, TChoiceListXML, ZChoiceListXML } from "./types"
-import z from "zod"
+import { xmlImport } from "~/lib/xml/import/importer"
+import { ChoiceList, ChoiceListXML } from "./types"
 
 describe("importChoiceListFromXML", () => {
   it("should import choice list from XML", () => {
@@ -36,10 +35,7 @@ describe("importChoiceListFromXML", () => {
 			</xr:Item>
 		</ChoiceList>`
 
-    const xml = xmlImport<{ ChoiceList: TChoiceListXML }>(
-      mockXml,
-      z.object({ ChoiceList: ZChoiceListXML })
-    )
+    const xml = xmlImport<{ ChoiceList: ChoiceListXML }>(mockXml)
     const input = importChoiceListFromXML(xml.ChoiceList)
 
     expect(input).toEqual({
@@ -69,7 +65,7 @@ describe("importChoiceListFromXML", () => {
 			</xr:Item>
 		</ChoiceList>`
 
-    const expectedResult: TChoiceList = {
+    const expectedResult: ChoiceList = {
       items: [
         {
           presentation: {
@@ -82,10 +78,7 @@ describe("importChoiceListFromXML", () => {
       ],
     }
 
-    const xml = xmlImport<{ ChoiceList: TChoiceListXML }>(
-      mockXml,
-      z.object({ ChoiceList: ZChoiceListXML })
-    )
+    const xml = xmlImport<{ ChoiceList: ChoiceListXML }>(mockXml)
     const input = importChoiceListFromXML(xml.ChoiceList)
 
     expect(input).toEqual(expectedResult)

@@ -1,13 +1,13 @@
 import { expect, it, describe } from "vitest"
 import { exportChoiceListToXML } from "./exportToXML"
 import { importChoiceListFromXML } from "./importFromXML"
-import { TChoiceList, TChoiceListXML, ZChoiceListXML } from "./types"
-import { xmlExport, xmlImport } from "~/lib"
-import z from "zod"
+import { ChoiceList, ChoiceListXML } from "./types"
+import { xmlExport } from "~/lib/xml/export/exporter"
+import { xmlImport } from "~/lib/xml/import/importer"
 
 describe("exportChoiceListToXML", () => {
   it("should export choice list to XML", () => {
-    const mockChoiceList: TChoiceList = {
+    const mockChoiceList: ChoiceList = {
       items: [
         {
           presentation: { items: { ru: "Представление 1" } },
@@ -50,11 +50,7 @@ describe("exportChoiceListToXML", () => {
 </ChoiceList>`
 
     const result = { ChoiceList: exportChoiceListToXML(mockChoiceList) }
-    const xmlString = xmlExport(
-      result,
-      z.object({ ChoiceList: ZChoiceListXML }),
-      false
-    )
+    const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -93,17 +89,10 @@ describe("exportChoiceListToXML", () => {
 	</xr:Item>
 </ChoiceList>`
 
-    const xml = xmlImport<{ ChoiceList: TChoiceListXML }>(
-      originalXml,
-      z.object({ ChoiceList: ZChoiceListXML })
-    )
+    const xml = xmlImport<{ ChoiceList: ChoiceListXML }>(originalXml)
     const imported = importChoiceListFromXML(xml.ChoiceList)
     const exported = exportChoiceListToXML(imported)
-    const resultXml = xmlExport(
-      { ChoiceList: exported },
-      z.object({ ChoiceList: ZChoiceListXML }),
-      false
-    )
+    const resultXml = xmlExport({ ChoiceList: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
   })

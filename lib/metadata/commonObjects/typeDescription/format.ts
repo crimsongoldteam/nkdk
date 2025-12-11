@@ -1,6 +1,6 @@
-import { TTypeDescription } from "./types"
+import { TypeDescription } from "./types"
 
-export const formatTypeDescription = (typeDescription: TTypeDescription | undefined): string | undefined => {
+export const formatTypeDescription = (typeDescription: TypeDescription | undefined): string | undefined => {
   if (!typeDescription) {
     return undefined
   }
@@ -12,7 +12,7 @@ export const formatTypeDescription = (typeDescription: TTypeDescription | undefi
   return formatSingleType(typeDescription.type[0], typeDescription)
 }
 
-const formatStringQualifier = (stringQualifiers: NonNullable<TTypeDescription["stringQualifiers"]>): string => {
+const formatStringQualifier = (stringQualifiers: NonNullable<TypeDescription["stringQualifiers"]>): string => {
   const { length, allowedLength } = stringQualifiers
 
   if (allowedLength === "Fixed") {
@@ -26,7 +26,7 @@ const formatStringQualifier = (stringQualifiers: NonNullable<TTypeDescription["s
   return `Строка(${length})`
 }
 
-const formatNumberQualifier = (numberQualifiers: NonNullable<TTypeDescription["numberQualifiers"]>): string => {
+const formatNumberQualifier = (numberQualifiers: NonNullable<TypeDescription["numberQualifiers"]>): string => {
   const { digits, fractionDigits, allowedSign } = numberQualifiers
 
   if (allowedSign === "Nonnegative") {
@@ -36,7 +36,7 @@ const formatNumberQualifier = (numberQualifiers: NonNullable<TTypeDescription["n
   return `Число(${digits}, ${fractionDigits})`
 }
 
-const formatDateQualifier = (dateQualifiers: NonNullable<TTypeDescription["dateQualifiers"]>): string => {
+const formatDateQualifier = (dateQualifiers: NonNullable<TypeDescription["dateQualifiers"]>): string => {
   const { dateFractions } = dateQualifiers
 
   switch (dateFractions) {
@@ -50,7 +50,7 @@ const formatDateQualifier = (dateQualifiers: NonNullable<TTypeDescription["dateQ
   }
 }
 
-const formatSingleType = (type: string, typeDescription: TTypeDescription): string => {
+const formatSingleType = (type: string, typeDescription: TypeDescription): string => {
   const typeMap: Record<string, string> = {
     string: "Строка",
     number: "Число",

@@ -1,11 +1,11 @@
-import { TTypeDescription, TTypeDescriptionXML } from "./types"
+import { TypeDescription, TypeDescriptionXML } from "./types"
 
 export const exportTypeDescriptionToXML = (
-  typeDescription: TTypeDescription | undefined
-): TTypeDescriptionXML | undefined => {
+  typeDescription: TypeDescription | undefined
+): TypeDescriptionXML | undefined => {
   if (!typeDescription) return undefined
 
-  const result: TTypeDescriptionXML = typeDescription.type.map((type) => ({
+  const result: TypeDescriptionXML = typeDescription.type.map((type) => ({
     "v8:Type": mapType(type),
   }))
 
@@ -41,8 +41,8 @@ const mapType = (type: string): string => {
 }
 
 const addStringQualifiers = (
-  result: NonNullable<TTypeDescriptionXML>,
-  stringQualifiers: TTypeDescription["stringQualifiers"]
+  result: NonNullable<TypeDescriptionXML>,
+  stringQualifiers: TypeDescription["stringQualifiers"]
 ) => {
   if (!stringQualifiers) return
   result.push({
@@ -54,8 +54,8 @@ const addStringQualifiers = (
 }
 
 const addNumberQualifiers = (
-  result: NonNullable<TTypeDescriptionXML>,
-  numberQualifiers: TTypeDescription["numberQualifiers"]
+  result: NonNullable<TypeDescriptionXML>,
+  numberQualifiers: TypeDescription["numberQualifiers"]
 ) => {
   if (!numberQualifiers) return
   result.push({
@@ -68,8 +68,8 @@ const addNumberQualifiers = (
 }
 
 const addDateQualifiers = (
-  result: NonNullable<TTypeDescriptionXML>,
-  dateQualifiers: TTypeDescription["dateQualifiers"]
+  result: NonNullable<TypeDescriptionXML>,
+  dateQualifiers: TypeDescription["dateQualifiers"]
 ) => {
   if (!dateQualifiers) return
   result.push({

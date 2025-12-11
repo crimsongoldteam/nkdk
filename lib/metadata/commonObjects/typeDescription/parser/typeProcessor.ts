@@ -1,9 +1,9 @@
 import { cleanString } from "~/lib/helpers/cleanString"
 import { TAllowedLength } from "~/lib/metadata/systemEnumerations/types"
-import { TTypeDescription } from "../types"
+import { TypeDescription } from "../types"
 
-export const visitTypeProcessor = (types: any): TTypeDescription => {
-  const result: TTypeDescription = {
+export const visitTypeProcessor = (types: any): TypeDescription => {
+  const result: TypeDescription = {
     type: [],
     stringQualifiers: undefined,
     numberQualifiers: undefined,
@@ -71,7 +71,7 @@ const processType = (
   return { type: type, kind: undefined }
 }
 
-const processNumberType = (result: TTypeDescription, typeInfo: any, originalValue: string): void => {
+const processNumberType = (result: TypeDescription, typeInfo: any, originalValue: string): void => {
   let options = typeInfo.options
 
   result.numberQualifiers = { digits: 0, fractionDigits: 0 }
@@ -88,7 +88,7 @@ const processNumberType = (result: TTypeDescription, typeInfo: any, originalValu
   }
 }
 
-const processStringType = (result: TTypeDescription, typeInfo: any, originalValue: string): void => {
+const processStringType = (result: TypeDescription, typeInfo: any, originalValue: string): void => {
   let options = typeInfo.options
   result.stringQualifiers = { length: 0, allowedLength: "Variable" }
   if (options && options.length > 0) {
@@ -104,7 +104,7 @@ const processStringType = (result: TTypeDescription, typeInfo: any, originalValu
   }
 }
 
-const processDateType = (result: TTypeDescription, typeInfo: any, originalValue: string): void => {
+const processDateType = (result: TypeDescription, typeInfo: any, originalValue: string): void => {
   const value = originalValue?.toLowerCase()
   
   if (value === "время") {
@@ -144,9 +144,9 @@ const getAliase = (type: string): string | undefined => {
 
 const getTypeProcessor = (
   typeLowerCase: string
-): ((result: TTypeDescription, typeInfo: any, originalValue: string) => void) | undefined => {
+): ((result: TypeDescription, typeInfo: any, originalValue: string) => void) | undefined => {
   const typeProcessors: {
-    [key: string]: (result: TTypeDescription, typeInfo: any, originalValue: string) => void
+    [key: string]: (result: TypeDescription, typeInfo: any, originalValue: string) => void
   } = {
     Число: (result, typeInfo, originalValue) => processNumberType(result, typeInfo, originalValue),
     Строка: (result, typeInfo, originalValue) => processStringType(result, typeInfo, originalValue),

@@ -1,15 +1,14 @@
 import { expect, it } from "vitest"
 import { importColorFromXML } from "./importFromXML"
-import { TColor, TColorXML, ZColorXML } from "./types"
-import { xmlImport } from "~/lib"
-import z from "zod"
+import { Color, ColorXML } from "./types"
+import { xmlImport } from "~/lib/xml/import/importer"
 
 it("should import color from XML", () => {
   const mockXml = `<Color>style:NegativeTextColor</Color>`
 
-  const mockResult: TColor = "style:NegativeTextColor"
+  const mockResult: Color = "style:NegativeTextColor"
 
-  const xml = xmlImport<{ Color: TColorXML }>(mockXml, z.object({ Color: ZColorXML }))
+  const xml = xmlImport<{ Color: ColorXML }>(mockXml)
   const value = xml.Color
 
   const result = importColorFromXML(value)

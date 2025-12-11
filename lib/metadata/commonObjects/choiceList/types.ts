@@ -1,39 +1,32 @@
-import z from "zod"
-import {
-  ZI8nText,
-  ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types"
+import { I8nText, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 
-export const ZChoiceList = z.object({
-  items: z.array(
-    z.object({
-      presentation: ZI8nText.optional(),
-      checkState: z.number(),
-      value: z.string(),
-    })
-  ),
-})
+export interface ChoiceListItemValueXML {
+  "_xsi:type": "FormChoiceListDesTimeValue"
+  Presentation?: I8nTextXML
+  Value: {
+    "_xsi:type": "xs:string" | "xs:boolean"
+    "#text": string | boolean
+  }
+}
 
-const ZChoiceListItemValueXML = z.object({
-  "_xsi:type": z.literal("FormChoiceListDesTimeValue"),
-  Presentation: ZI8nTextXML.optional(),
-  Value: z.object({
-    "_xsi:type": z.union([z.literal("xs:string"), z.literal("xs:boolean")]),
-    "#text": z.union([z.string(), z.boolean()]),
-  }),
-})
+export interface ChoiceListItemXML {
+  "xr:Presentation"?: I8nTextXML
+  "xr:CheckState": number
+  "xr:Value": ChoiceListItemValueXML
+}
 
-const ZChoiceListItemXML = z.object({
-  "xr:Presentation": ZI8nTextXML.optional(),
-  "xr:CheckState": z.number(),
-  "xr:Value": ZChoiceListItemValueXML,
-})
+export interface ChoiceListXMLItem {
+  "xr:Item": ChoiceListItemXML
+}
 
-export const ZChoiceListXML = z.array(
-  z.object({
-    "xr:Item": ZChoiceListItemXML,
-  })
-)
+export type ChoiceListXML = ChoiceListXMLItem[]
 
-export type TChoiceList = z.infer<typeof ZChoiceList>
-export type TChoiceListXML = z.infer<typeof ZChoiceListXML>
+export interface ChoiceListItem {
+  presentation?: I8nText
+  checkState: number
+  value: string
+}
+
+export interface ChoiceList {
+  items: ChoiceListItem[]
+}

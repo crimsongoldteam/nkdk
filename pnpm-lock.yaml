@@ -65,9 +65,6 @@ importers:
       yaml:
         specifier: ^2.8.2
         version: 2.8.2
-      zod:
-        specifier: ^4.1.13
-        version: 4.1.13
     devDependencies:
       '@ryoppippi/unplugin-typia':
         specifier: ^2.6.5
@@ -2769,9 +2766,6 @@ packages:
     resolution: {integrity: sha512-4LCcse/U2MHZ63HAJVE+v71o7yOdIe4cZ70Wpf8D/IyjDKYQLV5GD46B+hSTjJsvV5PztjvHoU580EftxjDZFQ==}
     engines: {node: '>=12.20'}
 
-  zod@4.1.13:
-    resolution: {integrity: sha512-AvvthqfqrAhNH9dnfmrfKzX5upOdjUVJYFqNSlkmGf64gRaTzlPwz99IHYnVs28qYAybvAlBV+H7pn0saFY4Ig==}
-
 snapshots:
 
   '@acemir/cssom@0.9.26': {}
@@ -5456,5 +5450,3 @@ snapshots:
       yargs-parser: 21.1.1
 
   yocto-queue@1.2.2: {}
-
-  zod@4.1.13: {}
