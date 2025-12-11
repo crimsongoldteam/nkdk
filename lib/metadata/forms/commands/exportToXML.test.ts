@@ -1,8 +1,7 @@
 import { describe, it, expect } from "vitest"
-import { TCommand, TCommandXML, ZCommandXML } from "./types"
-import { xmlExport } from "~/lib"
+import { Command } from "./types"
+import { xmlExport } from "~/lib/xml/export/exporter"
 import exportCommandToXML from "./exportToXML"
-import z from "zod"
 
 describe("exportCommandToXML", () => {
   it("should return undefined for undefined input", () => {
@@ -12,7 +11,7 @@ describe("exportCommandToXML", () => {
   })
 
   it("should export command", () => {
-    const command: TCommand = {
+    const command: Command = {
       name: "СоставКомплектаПодобратьФайлы",
       id: "60",
       title: { items: { ru: "Файлы" } },
@@ -23,11 +22,7 @@ describe("exportCommandToXML", () => {
 
     const result = exportCommandToXML(command)
 
-    const xmlString = xmlExport<{ Command: TCommandXML }>(
-      { Command: result! },
-      z.object({ Command: ZCommandXML }),
-      false
-    )
+    const xmlString = xmlExport({ Command: result! }, false)
 
     const expectedResult = `<Command name="СоставКомплектаПодобратьФайлы" id="60">
 	<Title>

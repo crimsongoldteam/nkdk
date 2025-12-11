@@ -1,4 +1,4 @@
-import { TEventsXML, TEvents } from "./types"
+import { EventsXML, Events } from "./types"
 
 function toCamelCase(str: string): string {
   if (!str) return str
@@ -6,11 +6,11 @@ function toCamelCase(str: string): string {
 }
 
 export const importEventsFromXML = (
-  xml: TEventsXML | undefined
-): TEvents | undefined => {
+  xml: EventsXML | undefined
+): Events | undefined => {
   if (!xml || xml.length === 0) return undefined
 
-  const events: TEvents = {}
+  const events: Events = {}
 
   for (const event of xml) {
     const eventName = toCamelCase(event.Event._name)

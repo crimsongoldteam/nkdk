@@ -1,18 +1,12 @@
-import { z } from "zod"
+export interface EventXML {
+  _name: string
+  "#text"?: string
+}
 
-export const ZEventXML = z.object({
-  _name: z.string(),
-  "#text": z.string().optional(),
-})
+export interface EventsXMLItem {
+  Event: EventXML
+}
 
-export const ZEventsXML = z.array(
-  z.object({
-    Event: ZEventXML,
-  })
-)
+export type EventsXML = EventsXMLItem[]
 
-export type TEventsXML = z.infer<typeof ZEventsXML>
-
-export const ZEvents = z.record(z.string(), z.string())
-
-export type TEvents = z.infer<typeof ZEvents>
+export type Events = Record<string, string>

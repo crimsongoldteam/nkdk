@@ -1,4 +1,4 @@
-import { TEvents, TEventsXML } from "./types"
+import { Events, EventsXML } from "./types"
 
 function toPascalCase(str: string): string {
   if (!str) return str
@@ -6,11 +6,11 @@ function toPascalCase(str: string): string {
 }
 
 export const exportEventsToXML = (
-  data: TEvents | undefined
-): TEventsXML | undefined => {
+  data: Events | undefined
+): EventsXML | undefined => {
   if (!data || Object.keys(data).length === 0) return undefined
 
-  const events: TEventsXML = Object.entries(data).map(
+  const events: EventsXML = Object.entries(data).map(
     ([eventName, eventValue]) => {
       return {
         Event: {

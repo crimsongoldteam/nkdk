@@ -1,9 +1,9 @@
 import { expect, it, describe } from "vitest"
 import { exportChoiceParameterLinksToXML } from "./exportToXML"
 import { importChoiceParameterLinksFromXML } from "./importFromXML"
-import { TChoiceParameterLinksXML, ZChoiceParameterLinksXML } from "./types"
-import { xmlExport, xmlImport } from "~/lib"
-import z from "zod"
+import { ChoiceParameterLinksXML } from "./types"
+import { xmlExport } from "~/lib/xml/export/exporter"
+import { xmlImport } from "~/lib/xml/import/importer"
 
 describe("exportChoiceParameterLinksToXML", () => {
   it("should return undefined for undefined input", () => {
@@ -21,17 +21,12 @@ describe("exportChoiceParameterLinksToXML", () => {
 	</xr:Link>
 </ChoiceParameterLinks>`
 
-    const xml = xmlImport<{ ChoiceParameterLinks: TChoiceParameterLinksXML }>(
-      originalXml,
-      z.object({ ChoiceParameterLinks: ZChoiceParameterLinksXML })
+    const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
+      originalXml
     )
     const imported = importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks)
     const exported = exportChoiceParameterLinksToXML(imported)
-    const resultXml = xmlExport(
-      { ChoiceParameterLinks: exported },
-      z.object({ ChoiceParameterLinks: ZChoiceParameterLinksXML }),
-      false
-    )
+    const resultXml = xmlExport({ ChoiceParameterLinks: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
   })
@@ -49,17 +44,12 @@ describe("exportChoiceParameterLinksToXML", () => {
 	</xr:Link>
 </ChoiceParameterLinks>`
 
-    const xml = xmlImport<{ ChoiceParameterLinks: TChoiceParameterLinksXML }>(
-      originalXml,
-      z.object({ ChoiceParameterLinks: ZChoiceParameterLinksXML })
+    const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
+      originalXml
     )
     const imported = importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks)
     const exported = exportChoiceParameterLinksToXML(imported)
-    const resultXml = xmlExport(
-      { ChoiceParameterLinks: exported },
-      z.object({ ChoiceParameterLinks: ZChoiceParameterLinksXML }),
-      false
-    )
+    const resultXml = xmlExport({ ChoiceParameterLinks: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
   })

@@ -1,9 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { importChoiceParameterLinksFromXML } from "./importFromXML"
-import { xmlImport } from "~/lib"
-import { TChoiceParameterLinksXML } from "./types"
-import z from "zod"
-import { ZChoiceParameterLinksXML } from "./types"
+import { xmlImport } from "~/lib/xml/import/importer"
+import { ChoiceParameterLinksXML } from "./types"
 
 describe("importChoiceParameterLinksFromXML", () => {
   it("should return undefined for undefined input", () => {
@@ -29,9 +27,8 @@ describe("importChoiceParameterLinksFromXML", () => {
       },
     ]
 
-    const xml = xmlImport<{ ChoiceParameterLinks: TChoiceParameterLinksXML }>(
-      xmlData,
-      z.object({ ChoiceParameterLinks: ZChoiceParameterLinksXML })
+    const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
+      xmlData
     )
     const result = importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks)
 
@@ -64,9 +61,8 @@ describe("importChoiceParameterLinksFromXML", () => {
       },
     ]
 
-    const xml = xmlImport<{ ChoiceParameterLinks: TChoiceParameterLinksXML }>(
-      xmlData,
-      z.object({ ChoiceParameterLinks: ZChoiceParameterLinksXML })
+    const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
+      xmlData
     )
     const result = importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks)
 
@@ -89,9 +85,8 @@ describe("importChoiceParameterLinksFromXML", () => {
       },
     ]
 
-    const xml = xmlImport<{ ChoiceParameterLinks: TChoiceParameterLinksXML }>(
-      xmlData,
-      z.object({ ChoiceParameterLinks: ZChoiceParameterLinksXML })
+    const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
+      xmlData
     )
     const result = importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks)
 

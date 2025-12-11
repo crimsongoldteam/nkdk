@@ -1,12 +1,12 @@
-import { TCommand, TCommandXML } from "./types"
+import { Command, CommandXML } from "./types"
 import { exportI8nTextToXML } from "../../commonObjects/i8nText/exportI8nTextToXML"
 
 export default function exportCommandToXML(
-  command: TCommand | undefined
-): TCommandXML | undefined {
+  command: Command | undefined
+): CommandXML | undefined {
   if (!command) return undefined
 
-  const result: TCommandXML = {
+  const result: CommandXML = {
     _name: command.name,
     _id: command.id,
   }

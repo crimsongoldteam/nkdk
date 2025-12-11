@@ -1,8 +1,7 @@
 import { describe, it, expect } from "vitest"
-import { TCommand, TCommandXML, ZCommandXML } from "./types"
-import { xmlImport } from "~/lib"
+import { Command, CommandXML } from "./types"
+import { xmlImport } from "~/lib/xml/import/importer"
 import importCommandFromXML from "./importFromXML"
-import z from "zod"
 
 describe("importCommandFromXML", () => {
   it("should return undefined for undefined input", () => {
@@ -29,7 +28,7 @@ describe("importCommandFromXML", () => {
 			<CurrentRowUse>DontUse</CurrentRowUse>
 		</Command>`
 
-    const expectedResult: TCommand = {
+    const expectedResult: Command = {
       name: "СоставКомплектаПодобратьФайлы",
       id: "60",
       title: { items: { ru: "Файлы" } },
@@ -38,7 +37,7 @@ describe("importCommandFromXML", () => {
       currentRowUse: "DontUse",
     }
 
-    const xmlData = xmlImport<{ Command: TCommandXML }>(mockXml, z.object({ Command: ZCommandXML }))
+    const xmlData = xmlImport<{ Command: CommandXML }>(mockXml)
 
     const result = importCommandFromXML(xmlData.Command)
 

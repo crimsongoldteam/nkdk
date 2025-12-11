@@ -1,4 +1,4 @@
-import { TCommand, TCommandEnterprise } from "./types"
+import { Command, CommandEnterprise } from "./types"
 import { formatI8nText } from "../../commonObjects/i8nText/format"
 import { stringify } from "yaml"
 import { formatSystemEnumeration } from "../../systemEnumerations/format"
@@ -18,7 +18,7 @@ const ZCurrentRowUseRule: TElementRule = {
 }
 
 export const formatCommands = (
-  commands: TCommand[],
+  commands: Command[],
   configurationSettings: TConfigurationSettings
 ): string[] => {
   const commandsEnterprise = commands.map((command) =>
@@ -34,10 +34,10 @@ export const formatCommands = (
 }
 
 const formatCommand = (
-  command: TCommand,
+  command: Command,
   configurationSettings: TConfigurationSettings
-): TCommandEnterprise => {
-  const result: TCommandEnterprise = {}
+): CommandEnterprise => {
+  const result: CommandEnterprise = {}
 
   result[command.name] = {
     Заголовок: formatI8nText(command.title, configurationSettings),

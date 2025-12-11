@@ -1,4 +1,4 @@
-import { TChoiceParameterLinks, TChoiceParameterLinksXML } from "./types"
+import { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
 
 const extractDataPath = (
   dataPath: string | { "#text"?: string; "_xsi:type"?: string }
@@ -10,8 +10,8 @@ const extractDataPath = (
 }
 
 export const importChoiceParameterLinksFromXML = (
-  xml: TChoiceParameterLinksXML | undefined
-): TChoiceParameterLinks => {
+  xml: ChoiceParameterLinksXML | undefined
+): ChoiceParameterLinks => {
   if (!xml) return undefined
 
   // Проверяем, является ли это структурой с app:item (ChoiceParameters)

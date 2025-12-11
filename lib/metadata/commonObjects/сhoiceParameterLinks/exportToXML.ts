@@ -1,8 +1,8 @@
-import { TChoiceParameterLinks, TChoiceParameterLinksXML } from "./types"
+import { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
 
 export const exportChoiceParameterLinksToXML = (
-  links: TChoiceParameterLinks
-): TChoiceParameterLinksXML | undefined => {
+  links: ChoiceParameterLinks
+): ChoiceParameterLinksXML | undefined => {
   if (!links || links.length === 0) return undefined
 
   const exportLink = (link: {

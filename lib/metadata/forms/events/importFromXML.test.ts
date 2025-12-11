@@ -1,8 +1,7 @@
 import { expect, it, describe } from "vitest"
-import { z } from "zod"
-import { xmlImport } from "~/lib"
+import { xmlImport } from "~/lib/xml/import/importer"
 import { importEventsFromXML } from "./importFromXML"
-import { TEventsXML, ZEventsXML } from "./types"
+import { EventsXML } from "./types"
 
 describe("importEventsFromXML", () => {
   it("should import events", () => {
@@ -18,10 +17,7 @@ describe("importEventsFromXML", () => {
       onChange: "ОбработкаИзменения",
     }
 
-    const xml = xmlImport<{ Events: TEventsXML }>(
-      mockXml,
-      z.object({ Events: ZEventsXML })
-    )
+    const xml = xmlImport<{ Events: EventsXML }>(mockXml)
     const result = importEventsFromXML(xml.Events)
 
     expect(result).toEqual(expectedResult)

@@ -215,3 +215,5 @@ function assignAttributes(
     }
   }
 }
+
+export default xmlImport

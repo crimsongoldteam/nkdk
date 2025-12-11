@@ -1,8 +1,7 @@
 import { expect, it, describe } from "vitest"
-import { z } from "zod"
-import { xmlExport } from "~/lib"
+import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportEventsToXML } from "./exportToXML"
-import { TEvents, ZEventsXML } from "./types"
+import { Events } from "./types"
 
 describe("exportEventsToXML", () => {
   it("should export events", () => {
@@ -16,12 +15,8 @@ describe("exportEventsToXML", () => {
       onChange: "ОбработкаИзменения",
     }
 
-    const result = exportEventsToXML(mockData as TEvents)
-    const resultXml = xmlExport(
-      { Events: result },
-      z.object({ Events: ZEventsXML }),
-      false
-    )
+    const result = exportEventsToXML(mockData as Events)
+    const resultXml = xmlExport({ Events: result }, false)
 
     expect(resultXml).toEqual(expectedResult)
   })

@@ -1,10 +1,12 @@
-import { TCommand, TCommandXML } from "./types"
+import { Command, CommandXML } from "./types"
 import { importI8nTextFromXML } from "../../commonObjects/i8nText/importI8nTextFromXML"
 
-export default function importCommandFromXML(xml: TCommandXML | undefined): TCommand | undefined {
+export default function importCommandFromXML(
+  xml: CommandXML | undefined
+): Command | undefined {
   if (!xml) return undefined
 
-  const result: TCommand = {
+  const result: Command = {
     name: xml._name,
     id: xml._id,
     title: importI8nTextFromXML(xml.Title),
