@@ -1,13 +1,11 @@
-import { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
-import { TI8nTextXML } from "./types"
+import { I8nText, I8nTextXML } from "./types"
 
 export const importI8nTextFromXML = (
-  xml: TI8nTextXML | undefined
-): TI8nText | undefined => {
+  xml: I8nTextXML | undefined
+): I8nText | undefined => {
   if (!xml) return undefined
 
-  const result: TI8nText = {
-    formatted: undefined,
+  const result: I8nText = {
     items: {},
   }
 

@@ -1,12 +1,9 @@
 import { XMLBuilder } from "fast-xml-parser"
-import * as z from "zod"
 
-export default function xmlExport<T>(
-  data: T,
-  schema: z.ZodType<T>,
+export const xmlExport = (
+  data: Record<string, any>,
   addDeclaration: boolean = true
-): string {
-  const parsedData = schema.parse(data)
+): string => {
   const builder = new XMLBuilder({
     attributeNamePrefix: "_",
     ignoreAttributes: false,
@@ -22,7 +19,7 @@ export default function xmlExport<T>(
   // @ts-ignore
   builder.options.attributesGroupName = "@attributes"
 
-  const xml = builder.build(parsedData)
+  const xml = builder.build(data)
   const declaration = addDeclaration
     ? '<?xml version="1.0" encoding="UTF-8"?>\n'
     : ""

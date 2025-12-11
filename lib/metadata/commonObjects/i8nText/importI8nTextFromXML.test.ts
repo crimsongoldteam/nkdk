@@ -1,8 +1,7 @@
 import { expect, it, describe } from "vitest"
 import { importI8nTextFromXML } from "./importI8nTextFromXML"
-import { TI8nText, TI8nTextXML, ZI8nTextXML } from "./types"
+import { I8nText, I8nTextXML } from "./types"
 import { xmlImport } from "~/lib"
-import z from "zod"
 
 describe("importI8nTextFromXML", () => {
   it("should import I8nText from XML with one language", () => {
@@ -12,16 +11,13 @@ describe("importI8nTextFromXML", () => {
 		<v8:content>Поле</v8:content>
 	</v8:item></Title>`
 
-    const expectedResult: TI8nText = {
+    const expectedResult: I8nText = {
       items: {
         ru: "Поле",
       },
     }
 
-    const importedXml = xmlImport<{ Title: TI8nTextXML }>(
-      xml,
-      z.object({ Title: ZI8nTextXML })
-    )
+    const importedXml = xmlImport<{ Title: I8nTextXML }>(xml)
     const result = importI8nTextFromXML(importedXml.Title)
 
     expect(result).toEqual(expectedResult)
@@ -39,17 +35,14 @@ describe("importI8nTextFromXML", () => {
 	</v8:item>
 </Title>`
 
-    const expectedResult: TI8nText = {
+    const expectedResult: I8nText = {
       items: {
         ru: "Поле",
         en: "Field",
       },
     }
 
-    const importedXml = xmlImport<{ Title: TI8nTextXML }>(
-      xml,
-      z.object({ Title: ZI8nTextXML })
-    )
+    const importedXml = xmlImport<{ Title: I8nTextXML }>(xml)
     const result = importI8nTextFromXML(importedXml.Title)
 
     expect(result).toEqual(expectedResult)

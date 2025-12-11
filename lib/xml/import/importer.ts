@@ -1,5 +1,4 @@
 import { XMLParser } from "fast-xml-parser"
-import * as z from "zod"
 
 const METADATA_SYMBOL = Symbol.for("metadata")
 export const I8N_TEXT_FIELDS = [
@@ -14,7 +13,7 @@ export const I8N_TEXT_FIELDS = [
   "xr:Presentation",
 ]
 
-export default function xmlImport<T>(data: string, schema: z.ZodType<T>): T {
+export default function xmlImport<T>(data: string): T {
   const parser = new XMLParser({
     preserveOrder: true,
     ignoreAttributes: false,

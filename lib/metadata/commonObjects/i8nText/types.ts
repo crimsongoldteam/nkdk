@@ -1,32 +1,27 @@
-import { z } from "zod"
+export interface I8nText {
+  formatted?: boolean
+  items: Record<string, string>
+}
 
-export const ZI8nText = z.object({
-  formatted: z.boolean().optional(),
-  items: z.record(z.string(), z.string()),
-})
+export type I8nTextEnterprise = string | Record<string, string>
 
-export const ZI8nTextEnterprise = z.union([
-  z.string(),
-  z.record(z.string(), z.string()),
-])
+export interface I8nTextLanguageXML {
+  "v8:lang": string
+  "v8:content": string
+}
 
-export const ZI8nTextItemXML = z.object({
-  "v8:lang": z.string(),
-  "v8:content": z.string(),
-})
+export interface I8nTextItemXML {
+  "@attributes"?: { formatted?: boolean }
+  "v8:item"?: I8nTextLanguageXML
+}
+export type I8nTextXML = I8nTextItemXML[]
 
-export const ZI8nTextXML = z.array(
-  z.object({
-    "@attributes": z
-      .object({
-        formatted: z.union([z.boolean(), z.stringbool()]).optional(),
-      })
-      .optional(),
-
-    "v8:item": ZI8nTextItemXML.optional(),
-  })
-)
-
-export type TI8nText = z.infer<typeof ZI8nText>
-export type TI8nTextEnterprise = z.infer<typeof ZI8nTextEnterprise>
-export type TI8nTextXML = z.infer<typeof ZI8nTextXML>
+// Re-export zod schemas and types from schemas.ts
+export {
+  ZI8nText,
+  ZI8nTextXML,
+  ZI8nTextEnterprise,
+  type TI8nText,
+  type TI8nTextXML,
+  type TI8nTextEnterprise,
+} from "./schemas"

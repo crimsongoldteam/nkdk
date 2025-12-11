@@ -1,12 +1,11 @@
-import { TI8nText } from "./types"
-import { TI8nTextEnterprise } from "./types"
+import { I8nText, I8nTextEnterprise } from "./types"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { TFormatFunction } from "~/lib/rulesManager/types"
 
 export const formatI8nText: TFormatFunction = (
-  title: TI8nText | undefined,
+  title: I8nText | undefined,
   configurationSettings: TConfigurationSettings
-): TI8nTextEnterprise | undefined => {
+): I8nTextEnterprise | undefined => {
   if (!title) return undefined
 
   const defaultLanguage = configurationSettings.defaultLanguage

@@ -2,6 +2,10 @@ import * as z from "zod"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { ElementType, Attributes } from "react"
+import { FieldList } from "../../commonObjects/field/types"
+import { PredefinedList } from "../../commonObjects/predifined/types"
+import { ZAttributesXML } from "../attribute/types"
 
 export interface Catalog {
   elementType: ElementType

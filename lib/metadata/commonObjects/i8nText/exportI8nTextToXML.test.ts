@@ -1,8 +1,7 @@
 import { expect, it, describe } from "vitest"
 import { exportI8nTextToXML } from "./exportI8nTextToXML"
-import { TI8nText, ZI8nTextXML } from "./types"
-import { xmlExport } from "~/lib"
-import z from "zod"
+import { xmlExport } from "~/lib/xml/export/exporter"
+import { I8nText } from "./types"
 
 describe("exportI8nTextToXML", () => {
   it("should export I8nText to XML", () => {
@@ -17,7 +16,7 @@ describe("exportI8nTextToXML", () => {
 	</v8:item>
 </Title>`
 
-    const originalContent: TI8nText = {
+    const originalContent: I8nText = {
       formatted: false,
       items: {
         ru: "Поле",
@@ -27,11 +26,7 @@ describe("exportI8nTextToXML", () => {
 
     const exported = exportI8nTextToXML(originalContent)
 
-    const xml = xmlExport(
-      { Title: exported },
-      z.object({ Title: ZI8nTextXML }),
-      false
-    )
+    const xml = xmlExport({ Title: exported }, false)
 
     expect(xml).toEqual(expectedResult)
   })
@@ -44,7 +39,7 @@ describe("exportI8nTextToXML", () => {
 	</v8:item>
 </Title>`
 
-    const originalContent: TI8nText = {
+    const originalContent: I8nText = {
       items: {
         ru: "Поле",
       },
@@ -52,11 +47,7 @@ describe("exportI8nTextToXML", () => {
 
     const exported = exportI8nTextToXML(originalContent)
 
-    const xml = xmlExport(
-      { Title: exported },
-      z.object({ Title: ZI8nTextXML }),
-      false
-    )
+    const xml = xmlExport({ Title: exported }, false)
 
     expect(xml).toEqual(expectedResult)
   })

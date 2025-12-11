@@ -1,10 +1,10 @@
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { TI8nText, TI8nTextEnterprise } from "./types"
+import { I8nText, I8nTextEnterprise } from "./types"
 
 export const parseI8nText = (
-  value: TI8nTextEnterprise | undefined,
+  value: I8nTextEnterprise | undefined,
   configurationSettings: TConfigurationSettings
-): TI8nText | undefined => {
+): I8nText | undefined => {
   if (value === undefined) return undefined
 
   if (typeof value === "string") {
