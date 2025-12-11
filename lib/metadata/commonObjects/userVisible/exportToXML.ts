@@ -1,11 +1,11 @@
-import { TUserVisible, TUserVisibleXML } from "./types"
+import { UserVisible, UserVisibleXML } from "./types"
 
 export const exportUserVisibleToXML = (
-  userVisible: TUserVisible | undefined
-): TUserVisibleXML | undefined => {
+  userVisible: UserVisible | undefined
+): UserVisibleXML | undefined => {
   if (!userVisible) return undefined
 
-  const result: TUserVisibleXML = []
+  const result: UserVisibleXML = []
 
   result.push({
     "xr:Common": userVisible.common,

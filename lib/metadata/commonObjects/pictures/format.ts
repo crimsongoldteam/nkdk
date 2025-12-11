@@ -1,8 +1,8 @@
 import { TPictureLib } from "~/lib/metadata/systemSets/types"
-import { type TPicture } from "./types"
+import { type Picture } from "./types"
 import * as SystemSets from "~/lib/metadata/systemSets/types"
 
-export function formatPicture(picture: TPicture): string {
+export function formatPicture(picture: Picture): string {
   if (picture.type === "StandardPicture") {
     // Получаем индексы массивов значений из enum'ов
     const standardValues = SystemSets.ZPictureLib.options

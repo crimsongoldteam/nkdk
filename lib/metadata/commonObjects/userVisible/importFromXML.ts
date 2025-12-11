@@ -1,11 +1,11 @@
-import { TUserVisible, TUserVisibleXML } from "./types"
+import { UserVisible, UserVisibleXML } from "./types"
 
 export const importUserVisibleFromXML = (
-  xml: TUserVisibleXML | undefined
-): TUserVisible | undefined => {
+  xml: UserVisibleXML | undefined
+): UserVisible | undefined => {
   if (!xml) return undefined
 
-  const result: TUserVisible = {
+  const result: UserVisible = {
     common: false,
     values: [],
   }

@@ -1,9 +1,9 @@
 import { formatBoolean } from "~/lib/metadata/commonObjects/boolean/format"
 import { TBoolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
-import { type TUserVisible } from "./types"
+import { type UserVisible } from "./types"
 
 export const formatUserVisible = (
-  value: TUserVisible | undefined
+  value: UserVisible | undefined
 ): Record<string, any> | undefined => {
   if (!value) return undefined
 
@@ -15,7 +15,7 @@ export const formatUserVisible = (
   return values
 }
 
-export const getUserVisibleKey = (value: TUserVisible | undefined): string => {
+export const getUserVisibleKey = (value: UserVisible | undefined): string => {
   if (!value) throw new Error("User visible is undefined")
 
   if (value.common) {

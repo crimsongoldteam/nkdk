@@ -1,9 +1,9 @@
 import { expect, it } from "vitest"
-import { TUserVisible } from "./types"
+import { UserVisible } from "./types"
 import { formatUserVisible } from "./format"
 
 it("should format allow `use`", () => {
-  const use: TUserVisible = {
+  const use: UserVisible = {
     common: true,
     values: [
       { name: "Администратор", value: true },
@@ -22,7 +22,7 @@ it("should format allow `use`", () => {
 })
 
 it("should format disable `use`", () => {
-  const use: TUserVisible = {
+  const use: UserVisible = {
     common: false,
     values: [
       { name: "Администратор", value: true },

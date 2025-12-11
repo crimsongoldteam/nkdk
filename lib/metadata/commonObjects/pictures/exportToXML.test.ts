@@ -1,13 +1,13 @@
 import { expect, it, describe } from "vitest"
 import { exportPictureToXML } from "./exportToXML"
 import { importPictureFromXML } from "./importFromXML"
-import { TPicture, TPictureXML, ZPictureXML } from "./types"
-import { xmlExport, xmlImport } from "~/lib"
-import z from "zod"
+import { Picture, PictureXML } from "./types"
+import { xmlExport } from "~/lib/xml/export/exporter"
+import { xmlImport } from "~/lib/xml/import/importer"
 
 describe("exportPictureToXML", () => {
   it("should export standard picture to XML", () => {
-    const mockPicture: TPicture = {
+    const mockPicture: Picture = {
       ref: "BusinessProcess",
       type: "StandardPicture",
       loadTransparent: true,
@@ -19,17 +19,13 @@ describe("exportPictureToXML", () => {
 </Picture>`
 
     const result = { Picture: exportPictureToXML(mockPicture) }
-    const xmlString = xmlExport(
-      result,
-      z.object({ Picture: ZPictureXML }),
-      false
-    )
+    const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should export common picture to XML", () => {
-    const mockPicture: TPicture = {
+    const mockPicture: Picture = {
       ref: "ОбщаяКартинка1",
       type: "CommonPicture",
       loadTransparent: true,
@@ -41,11 +37,7 @@ describe("exportPictureToXML", () => {
 </Picture>`
 
     const result = { Picture: exportPictureToXML(mockPicture) }
-    const xmlString = xmlExport(
-      result,
-      z.object({ Picture: ZPictureXML }),
-      false
-    )
+    const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -62,17 +54,10 @@ describe("exportPictureToXML", () => {
 \t<xr:LoadTransparent>true</xr:LoadTransparent>
 </Picture>`
 
-    const xml = xmlImport<{ Picture: TPictureXML }>(
-      originalXml,
-      z.object({ Picture: ZPictureXML })
-    )
+    const xml = xmlImport<{ Picture: PictureXML }>(originalXml)
     const imported = importPictureFromXML(xml.Picture)
     const exported = exportPictureToXML(imported)
-    const resultXml = xmlExport(
-      { Picture: exported },
-      z.object({ Picture: ZPictureXML }),
-      false
-    )
+    const resultXml = xmlExport({ Picture: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
   })
@@ -83,17 +68,10 @@ describe("exportPictureToXML", () => {
 \t<xr:LoadTransparent>true</xr:LoadTransparent>
 </Picture>`
 
-    const xml = xmlImport<{ Picture: TPictureXML }>(
-      originalXml,
-      z.object({ Picture: ZPictureXML })
-    )
+    const xml = xmlImport<{ Picture: PictureXML }>(originalXml)
     const imported = importPictureFromXML(xml.Picture)
     const exported = exportPictureToXML(imported)
-    const resultXml = xmlExport(
-      { Picture: exported },
-      z.object({ Picture: ZPictureXML }),
-      false
-    )
+    const resultXml = xmlExport({ Picture: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
   })

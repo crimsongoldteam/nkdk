@@ -13,7 +13,7 @@ export const I8N_TEXT_FIELDS = [
   "xr:Presentation",
 ]
 
-export default function xmlImport<T>(data: string): T {
+export const xmlImport = <T>(data: string): T => {
   const parser = new XMLParser({
     preserveOrder: true,
     ignoreAttributes: false,

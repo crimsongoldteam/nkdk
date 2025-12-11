@@ -1,18 +1,14 @@
-import { z } from "zod"
-import { ZPictureLib, ZPictureLibEnterprise } from "../../systemSets/types"
+import { TPictureLib, TPictureLibEnterprise } from "../../systemSets/types"
 
-export const ZPictureXML = z.object({
-  "xr:Ref": z.string(),
-  "xr:LoadTransparent": z.boolean(),
-})
+export interface PictureXML {
+  "xr:Ref": string
+  "xr:LoadTransparent": boolean
+}
 
-export const ZPicture = z.object({
-  ref: z.union([z.string(), ZPictureLib]),
-  type: z.enum(["StandardPicture", "CommonPicture"]),
-  loadTransparent: z.boolean(),
-})
+export interface Picture {
+  ref: string | TPictureLib
+  type: "StandardPicture" | "CommonPicture"
+  loadTransparent: boolean
+}
 
-export const ZPictureEnterprise = z.union([z.string(), ZPictureLibEnterprise])
-
-export type TPictureXML = z.infer<typeof ZPictureXML>
-export type TPicture = z.infer<typeof ZPicture>
+export type PictureEnterprise = string | TPictureLibEnterprise

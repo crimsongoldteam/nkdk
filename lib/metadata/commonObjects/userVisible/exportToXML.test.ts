@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import { exportUserVisibleToXML } from "./exportToXML"
 import { importUserVisibleFromXML } from "./importFromXML"
-import { TUserVisible, TUserVisibleXML, ZUserVisibleXML } from "./types"
-import { xmlExport, xmlImport } from "~/lib"
-import z from "zod"
+import { UserVisible, UserVisibleXML } from "./types"
+import { xmlExport } from "~/lib/xml/export/exporter"
+import { xmlImport } from "~/lib/xml/import/importer"
 
 describe("exportUserVisibleToXML", () => {
   it("should export UserVisible to XML", () => {
-    const mockUserVisible: TUserVisible = {
+    const mockUserVisible: UserVisible = {
       common: true,
       values: [
         {
@@ -28,17 +28,13 @@ describe("exportUserVisibleToXML", () => {
 </UserVisible>`
 
     const exported = exportUserVisibleToXML(mockUserVisible)
-    const xmlString = xmlExport(
-      { UserVisible: exported },
-      z.object({ UserVisible: ZUserVisibleXML }),
-      false
-    )
+    const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should export UserVisible to XML with empty values", () => {
-    const mockUserVisible: TUserVisible = {
+    const mockUserVisible: UserVisible = {
       common: false,
       values: [],
     }
@@ -48,11 +44,7 @@ describe("exportUserVisibleToXML", () => {
 </UserVisible>`
 
     const exported = exportUserVisibleToXML(mockUserVisible)
-    const xmlString = xmlExport(
-      { UserVisible: exported },
-      z.object({ UserVisible: ZUserVisibleXML }),
-      false
-    )
+    const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -64,7 +56,7 @@ describe("exportUserVisibleToXML", () => {
   })
 
   it("should handle single value in UserVisible", () => {
-    const mockUserVisible: TUserVisible = {
+    const mockUserVisible: UserVisible = {
       common: true,
       values: [
         {
@@ -80,11 +72,7 @@ describe("exportUserVisibleToXML", () => {
 </UserVisible>`
 
     const exported = exportUserVisibleToXML(mockUserVisible)
-    const xmlString = xmlExport(
-      { UserVisible: exported },
-      z.object({ UserVisible: ZUserVisibleXML }),
-      false
-    )
+    const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -96,17 +84,10 @@ describe("exportUserVisibleToXML", () => {
 	<xr:Value name="Role.Пользователь">false</xr:Value>
 </UserVisible>`
 
-    const xml = xmlImport<{ UserVisible: TUserVisibleXML }>(
-      originalXml,
-      z.object({ UserVisible: ZUserVisibleXML })
-    )
+    const xml = xmlImport<{ UserVisible: UserVisibleXML }>(originalXml)
     const imported = importUserVisibleFromXML(xml.UserVisible)
     const exported = exportUserVisibleToXML(imported)
-    const resultXml = xmlExport(
-      { UserVisible: exported },
-      z.object({ UserVisible: ZUserVisibleXML }),
-      false
-    )
+    const resultXml = xmlExport({ UserVisible: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
   })

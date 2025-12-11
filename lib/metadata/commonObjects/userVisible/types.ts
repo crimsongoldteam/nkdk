@@ -1,6 +1,34 @@
 import { z } from "zod"
-import { ZBoolEnterprise } from "../../types"
+import { TBoolEnterprise, ZBoolEnterprise } from "../boolean/types"
 
+export interface UserVisibleItemXML {
+  _name: string
+  "#text": boolean
+}
+
+export interface UserVisibleXMLItem {
+  "xr:Common"?: boolean
+  "xr:Value"?: UserVisibleItemXML
+}
+
+export type UserVisibleXML = UserVisibleXMLItem[]
+
+export interface UserVisibleValue {
+  name: string
+  value: boolean
+}
+
+export interface UserVisible {
+  common: boolean
+  values: UserVisibleValue[]
+}
+
+export interface UserVisibleEnterprise {
+  РазрешитьИспользование?: Record<string, TBoolEnterprise>
+  ЗапретитьИспользование?: Record<string, TBoolEnterprise>
+}
+
+// Zod схемы для обратной совместимости с другими модулями
 const ZUserVisibleItemXML = z.object({
   _name: z.string(),
   "#text": z.boolean(),
@@ -27,7 +55,3 @@ export const ZUserVisibleEnterprise = z.object({
   РазрешитьИспользование: z.record(z.string(), ZBoolEnterprise).optional(),
   ЗапретитьИспользование: z.record(z.string(), ZBoolEnterprise).optional(),
 })
-
-export type TUserVisibleXML = z.infer<typeof ZUserVisibleXML>
-export type TUserVisible = z.infer<typeof ZUserVisible>
-export type TUserVisibleEnterprise = z.infer<typeof ZUserVisibleEnterprise>

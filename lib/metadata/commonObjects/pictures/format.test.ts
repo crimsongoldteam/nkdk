@@ -1,9 +1,9 @@
 import { expect, it } from "vitest"
-import { TPicture } from "./types"
+import { Picture } from "./types"
 import { formatPicture } from "./format"
 
 it("should format standard picture", () => {
-  const data: TPicture = {
+  const data: Picture = {
     ref: "BusinessProcess",
     type: "StandardPicture",
     loadTransparent: true,
@@ -17,7 +17,7 @@ it("should format standard picture", () => {
 })
 
 it("should format standard picture Print", () => {
-  const data: TPicture = {
+  const data: Picture = {
     ref: "Print",
     type: "StandardPicture",
     loadTransparent: true,
@@ -31,7 +31,7 @@ it("should format standard picture Print", () => {
 })
 
 it("should format common picture", () => {
-  const data: TPicture = {
+  const data: Picture = {
     ref: "ОбщаяКартинка1",
     type: "CommonPicture",
     loadTransparent: true,

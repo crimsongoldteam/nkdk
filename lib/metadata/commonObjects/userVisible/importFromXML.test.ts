@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { importUserVisibleFromXML } from "./importFromXML"
-import { TUserVisible, TUserVisibleXML, ZUserVisibleXML } from "./types"
-import z from "zod"
+import { UserVisible, UserVisibleXML } from "./types"
 import { xmlImport } from "~/lib"
 
 describe("importUserVisibleFromXML", () => {
@@ -12,7 +11,7 @@ describe("importUserVisibleFromXML", () => {
       <xr:Value name="Role.Пользователь">false</xr:Value>
     </UserVisible>`
 
-    const expectedResult: TUserVisible = {
+    const expectedResult: UserVisible = {
       common: true,
       values: [
         {
@@ -26,10 +25,7 @@ describe("importUserVisibleFromXML", () => {
       ],
     }
 
-    const xml = xmlImport<{ UserVisible: TUserVisibleXML }>(
-      mockXml,
-      z.object({ UserVisible: ZUserVisibleXML })
-    )
+    const xml = xmlImport<{ UserVisible: UserVisibleXML }>(mockXml)
 
     const result = importUserVisibleFromXML(xml.UserVisible)
 
@@ -41,15 +37,12 @@ describe("importUserVisibleFromXML", () => {
       <xr:Common>false</xr:Common>
     </UserVisible>`
 
-    const expectedResult: TUserVisible = {
+    const expectedResult: UserVisible = {
       common: false,
       values: [],
     }
 
-    const xml = xmlImport<{ UserVisible: TUserVisibleXML }>(
-      mockXml,
-      z.object({ UserVisible: ZUserVisibleXML })
-    )
+    const xml = xmlImport<{ UserVisible: UserVisibleXML }>(mockXml)
 
     const result = importUserVisibleFromXML(xml.UserVisible)
 
@@ -68,7 +61,7 @@ describe("importUserVisibleFromXML", () => {
       <xr:Value name="Role.Менеджер">true</xr:Value>
     </UserVisible>`
 
-    const expectedResult: TUserVisible = {
+    const expectedResult: UserVisible = {
       common: true,
       values: [
         {
@@ -78,10 +71,7 @@ describe("importUserVisibleFromXML", () => {
       ],
     }
 
-    const xml = xmlImport<{ UserVisible: TUserVisibleXML }>(
-      mockXml,
-      z.object({ UserVisible: ZUserVisibleXML })
-    )
+    const xml = xmlImport<{ UserVisible: UserVisibleXML }>(mockXml)
 
     const result = importUserVisibleFromXML(xml.UserVisible)
 
