@@ -1,10 +1,9 @@
 import { expect, it, describe } from "vitest"
 import { exportBorderToXML } from "./exportToXML"
 import { importBorderFromXML } from "./importFromXML"
-import { TBorder, TBorderXML, ZBorderXML } from "./types"
+import { TBorder, TBorderXML } from "./types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { xmlExport, xmlImport } from "~/lib"
-import z from "zod"
 
 describe("exportBorderToXML", () => {
   it("should export border by ref", () => {
@@ -15,7 +14,7 @@ describe("exportBorderToXML", () => {
     const expectedResult = `<Border ref="style:ControlBorder"/>`
 
     const result = { Border: exportBorderToXML(mockBorder) }
-    const xmlString = xmlExport(result, z.object({ Border: ZBorderXML }), false)
+    const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -31,7 +30,7 @@ describe("exportBorderToXML", () => {
 </Border>`
 
     const result = { Border: exportBorderToXML(mockBorder) }
-    const xmlString = xmlExport(result, z.object({ Border: ZBorderXML }), false)
+    const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -45,10 +44,10 @@ describe("exportBorderToXML", () => {
   it("should export and import border by ref correctly (round-trip)", () => {
     const originalXml = `<Border ref="style:ControlBorder"/>`
 
-    const xml = xmlImport<{ Border: TBorderXML }>(originalXml, z.object({ Border: ZBorderXML }))
+    const xml = xmlImport<{ Border: TBorderXML }>(originalXml)
     const imported = importBorderFromXML(xml.Border)
     const exported = exportBorderToXML(imported)
-    const resultXml = xmlExport({ Border: exported }, z.object({ Border: ZBorderXML }), false)
+    const resultXml = xmlExport({ Border: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
   })
@@ -58,12 +57,11 @@ describe("exportBorderToXML", () => {
 	<v8ui:style xsi:type="v8ui:ControlBorderType">Indented</v8ui:style>
 </Border>`
 
-    const xml = xmlImport<{ Border: TBorderXML }>(originalXml, z.object({ Border: ZBorderXML }))
+    const xml = xmlImport<{ Border: TBorderXML }>(originalXml)
     const imported = importBorderFromXML(xml.Border)
     const exported = exportBorderToXML(imported)
-    const resultXml = xmlExport({ Border: exported }, z.object({ Border: ZBorderXML }), false)
+    const resultXml = xmlExport({ Border: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
   })
 })
-

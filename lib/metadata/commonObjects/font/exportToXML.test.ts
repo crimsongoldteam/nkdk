@@ -1,15 +1,14 @@
 import { expect, it, describe } from "vitest"
 import { exportFontToXML } from "./exportToXML"
 import { importFontFromXML } from "./importFromXML"
-import { TFont, TFontXML, ZFontXML } from "./types"
 import { xmlExport, xmlImport } from "~/lib"
-import z from "zod"
+import { Font, FontXML } from "./types"
 
 describe("exportFontToXML", () => {
   it("should export font to XML", () => {
     const expectedResult = `<Font ref="sys:ANSIVariableFont" height="12" bold="true" italic="true" underline="true" strikeout="true" kind="WindowsFont"/>`
 
-    const mockFont: TFont = {
+    const mockFont: Font = {
       ref: "sys:ANSIVariableFont",
       height: 12,
       bold: true,
@@ -20,7 +19,7 @@ describe("exportFontToXML", () => {
     }
 
     const result = { Font: exportFontToXML(mockFont) }
-    const xmlString = xmlExport(result, z.object({ Font: ZFontXML }), false)
+    const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -34,10 +33,10 @@ describe("exportFontToXML", () => {
   it("should export and import font correctly (round-trip)", () => {
     const originalXml = `<Font ref="sys:ANSIVariableFont" height="12" bold="true" italic="true" underline="true" strikeout="true" kind="WindowsFont"/>`
 
-    const xml = xmlImport<{ Font: TFontXML }>(originalXml, z.object({ Font: ZFontXML }))
+    const xml = xmlImport<{ Font: FontXML }>(originalXml)
     const imported = importFontFromXML(xml.Font)
     const exported = exportFontToXML(imported)
-    const resultXml = xmlExport({ Font: exported }, z.object({ Font: ZFontXML }), false)
+    const resultXml = xmlExport({ Font: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
   })

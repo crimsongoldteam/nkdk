@@ -1,5 +1,5 @@
 import { expect, it, describe } from "vitest"
-import { TCommand } from "./types"
+import { Command } from "./types"
 import { formatCommands } from "./format"
 import { TConfigurationSettings } from "../../configurationSettings/types"
 
@@ -9,7 +9,7 @@ const configurationSettings: TConfigurationSettings = {
 
 describe("formatCommands", () => {
   it("should format command", () => {
-    const data: TCommand = {
+    const data: Command = {
       name: "СоставКомплектаПодобратьФайлы",
       id: "60",
       title: { items: { ru: "Файлы" } },

@@ -1,11 +1,11 @@
-import { TCommandSet, TCommandSetXML } from "./types"
+import { CommandSet, CommandSetXML } from "./types"
 
 export const importCommandSetFromXML = (
-  xml: TCommandSetXML | undefined
-): TCommandSet | undefined => {
+  xml: CommandSetXML | undefined
+): CommandSet | undefined => {
   if (!xml) return undefined
 
-  const result: TCommandSet = []
+  const result: CommandSet = []
   for (const command of xml) {
     result.push(command.ExcludedCommand)
   }

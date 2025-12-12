@@ -1,8 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { importTypeLinkFromXML } from "./importFromXML"
-import { TTypeLink, TTypeLinkXML, ZTypeLinkXML } from "./types"
+import { TypeLink, TypeLinkXML } from "./types"
 import { xmlImport } from "~/lib"
-import z from "zod"
 
 describe("importTypeLinkFromXML", () => {
   it("should return undefined for undefined input", () => {
@@ -17,15 +16,12 @@ describe("importTypeLinkFromXML", () => {
 \t<xr:LinkItem>1</xr:LinkItem>
 </TypeLink>`
 
-    const expectedResult: TTypeLink = {
+    const expectedResult: TypeLink = {
       dataPath: "Реквизит1",
       linkItem: 1,
     }
 
-    const xml = xmlImport<{ TypeLink: TTypeLinkXML }>(
-      xmlData,
-      z.object({ TypeLink: ZTypeLinkXML })
-    )
+    const xml = xmlImport<{ TypeLink: TypeLinkXML }>(xmlData)
 
     const result = importTypeLinkFromXML(xml.TypeLink)
 

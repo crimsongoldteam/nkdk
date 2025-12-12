@@ -5,8 +5,11 @@ import * as SystemSets from "~/lib/metadata/systemSets/types"
 export function formatPicture(picture: Picture): string {
   if (picture.type === "StandardPicture") {
     // Получаем индексы массивов значений из enum'ов
-    const standardValues = SystemSets.ZPictureLib.options
-    const enterpriseValues = SystemSets.ZPictureLibEnterprise.options
+    // В zod есть свойство .options для получения значений enum
+    const standardValues = (SystemSets.ZPictureLib as any)
+      .options as TPictureLib[]
+    const enterpriseValues = (SystemSets.ZPictureLibEnterprise as any)
+      .options as string[]
 
     // Находим индекс стандартной картинки
     const index = standardValues.indexOf(picture.ref as TPictureLib)

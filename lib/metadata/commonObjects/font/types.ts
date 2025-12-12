@@ -1,4 +1,4 @@
-export interface IFontXML {
+export interface FontXML {
   _ref?: string
   _faceName?: string
   _scale?: number
@@ -10,7 +10,7 @@ export interface IFontXML {
   _kind: string
 }
 
-export interface IFont {
+export interface Font {
   ref?: string
   faceName?: string
   scale?: number
@@ -21,6 +21,3 @@ export interface IFont {
   strikeout?: boolean
   kind: string
 }
-
-export type TFont = IFont
-export type TFontXML = IFontXML

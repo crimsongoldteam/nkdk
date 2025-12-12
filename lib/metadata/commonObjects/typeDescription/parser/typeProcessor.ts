@@ -1,6 +1,6 @@
 import { cleanString } from "~/lib/helpers/cleanString"
-import { TAllowedLength } from "~/lib/metadata/systemEnumerations/types"
 import { TypeDescription } from "../types"
+import { AllowedLength } from "~/lib/metadata/systemEnumerations/types"
 
 export const visitTypeProcessor = (types: any): TypeDescription => {
   const result: TypeDescription = {
@@ -16,7 +16,7 @@ export const visitTypeProcessor = (types: any): TypeDescription => {
     let { type, kind } = processType(value)
 
     let aliase = getAliase(type)
-    
+
     // Если нет алиаса, значит это произвольный тип (например, "тип1", "тип2")
     if (!aliase) {
       result.type.push(value)
@@ -30,17 +30,15 @@ export const visitTypeProcessor = (types: any): TypeDescription => {
 
     // Для базовых типов используем английские названия
     const baseTypeMap: Record<string, string> = {
-      "Число": "number",
-      "Строка": "string",
-      "Дата": "date",
+      Число: "number",
+      Строка: "string",
+      Дата: "date",
     }
-    
+
     const baseType = baseTypeMap[aliase]
-    
+
     // Если это базовый тип, используем английское название, иначе используем алиас с kind
-    const resultType = baseType 
-      ? baseType 
-      : (kind ? `${aliase}.${kind}` : aliase)
+    const resultType = baseType ? baseType : kind ? `${aliase}.${kind}` : aliase
 
     result.type.push(resultType)
 
@@ -71,7 +69,11 @@ const processType = (
   return { type: type, kind: undefined }
 }
 
-const processNumberType = (result: TypeDescription, typeInfo: any, originalValue: string): void => {
+const processNumberType = (
+  result: TypeDescription,
+  typeInfo: any,
+  originalValue: string
+): void => {
   let options = typeInfo.options
 
   result.numberQualifiers = { digits: 0, fractionDigits: 0 }
@@ -81,32 +83,40 @@ const processNumberType = (result: TypeDescription, typeInfo: any, originalValue
   if (options && options.length > 1) {
     result.numberQualifiers!.fractionDigits = parseInt(options[1])
   }
-  
+
   // Проверяем, является ли это неотрицательным числом
   if (originalValue.toLowerCase().startsWith("неотрицательноечисло")) {
     result.numberQualifiers!.allowedSign = "Nonnegative"
   }
 }
 
-const processStringType = (result: TypeDescription, typeInfo: any, originalValue: string): void => {
+const processStringType = (
+  result: TypeDescription,
+  typeInfo: any,
+  originalValue: string
+): void => {
   let options = typeInfo.options
   result.stringQualifiers = { length: 0, allowedLength: "Variable" }
   if (options && options.length > 0) {
     result.stringQualifiers.length = parseInt(options[0])
   }
   if (options && options.length > 1) {
-    result.stringQualifiers.allowedLength = options[1] as TAllowedLength
+    result.stringQualifiers.allowedLength = options[1] as AllowedLength
   }
-  
+
   // Проверяем, является ли это фиксированной строкой
   if (originalValue.toLowerCase().startsWith("фиксированнаястрока")) {
     result.stringQualifiers.allowedLength = "Fixed"
   }
 }
 
-const processDateType = (result: TypeDescription, typeInfo: any, originalValue: string): void => {
+const processDateType = (
+  result: TypeDescription,
+  typeInfo: any,
+  originalValue: string
+): void => {
   const value = originalValue?.toLowerCase()
-  
+
   if (value === "время") {
     result.dateQualifiers = { dateFractions: "Time" }
   } else if (value === "датавремя") {
@@ -118,7 +128,7 @@ const processDateType = (result: TypeDescription, typeInfo: any, originalValue: 
 
 const getAliase = (type: string): string | undefined => {
   const typeLower = type.toLowerCase()
-  
+
   const pairs: { [key: string]: string } = {
     справочник: "Справочник",
     справочники: "Справочник",
@@ -144,13 +154,22 @@ const getAliase = (type: string): string | undefined => {
 
 const getTypeProcessor = (
   typeLowerCase: string
-): ((result: TypeDescription, typeInfo: any, originalValue: string) => void) | undefined => {
+):
+  | ((result: TypeDescription, typeInfo: any, originalValue: string) => void)
+  | undefined => {
   const typeProcessors: {
-    [key: string]: (result: TypeDescription, typeInfo: any, originalValue: string) => void
+    [key: string]: (
+      result: TypeDescription,
+      typeInfo: any,
+      originalValue: string
+    ) => void
   } = {
-    Число: (result, typeInfo, originalValue) => processNumberType(result, typeInfo, originalValue),
-    Строка: (result, typeInfo, originalValue) => processStringType(result, typeInfo, originalValue),
-    Дата: (result, typeInfo, originalValue) => processDateType(result, typeInfo, originalValue),
+    Число: (result, typeInfo, originalValue) =>
+      processNumberType(result, typeInfo, originalValue),
+    Строка: (result, typeInfo, originalValue) =>
+      processStringType(result, typeInfo, originalValue),
+    Дата: (result, typeInfo, originalValue) =>
+      processDateType(result, typeInfo, originalValue),
   }
 
   return typeProcessors[typeLowerCase]

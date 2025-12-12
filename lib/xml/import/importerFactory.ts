@@ -1,8 +1,11 @@
-import { TChildItemXML } from "~/lib/metadata/forms/elements/childItems/types"
+import { ChildItemXML } from "~/lib/metadata/forms/elements/childItems/types"
 import { ImportFunction } from "./types"
 import { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
 
-const importRegistry: Map<string, ImportFunction<TBaseElement | undefined>> = new Map()
+const importRegistry: Map<
+  string,
+  ImportFunction<TBaseElement | undefined>
+> = new Map()
 
 export const registerImport = <T extends TBaseElement | undefined>(
   key: string,
@@ -15,16 +18,21 @@ export const registerImport = <T extends TBaseElement | undefined>(
   importRegistry.set(key.toLowerCase(), importFunction)
 }
 
-export const importElementFromXML = <T extends TBaseElement | undefined>(data: TChildItemXML): T => {
+export const importElementFromXML = <T extends TBaseElement | undefined>(
+  data: ChildItemXML
+): T => {
   const key = Object.keys(data)[0] as string | undefined
 
   if (!key) {
     throw new Error("Empty child item object: no keys found")
   }
 
-  const importFunction = importRegistry.get(key.toLowerCase()) as ImportFunction<T>
+  const importFunction = importRegistry.get(
+    key.toLowerCase()
+  ) as ImportFunction<T>
 
-  if (!importFunction) throw new Error(`Import function for key ${key} not found`)
+  if (!importFunction)
+    throw new Error(`Import function for key ${key} not found`)
 
   return importFunction(data[key as keyof typeof data])
 }

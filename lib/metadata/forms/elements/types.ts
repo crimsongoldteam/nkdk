@@ -1,6 +1,4 @@
-import { z } from "zod"
-
-enum ElementType {
+export enum ElementType {
   BaseElement = "БазовыйЭлемент",
   Form = "УправляемаяФорма",
   Button = "Кнопка",
@@ -43,16 +41,3 @@ enum ElementType {
   FormItemAddition = "ДополнениеЭлементаФормы",
   FormGroup = "ГруппаФормы",
 }
-
-export const ZElementType = z.enum(
-  Object.keys(ElementType) as [TElementType, ...TElementType[]]
-)
-export const ZElementTypeEnterprise = z.enum(
-  Object.values(ElementType) as [
-    TElementTypeEnterprise,
-    ...TElementTypeEnterprise[],
-  ]
-)
-
-export type TElementType = keyof typeof ElementType
-export type TElementTypeEnterprise = `${ElementType}`

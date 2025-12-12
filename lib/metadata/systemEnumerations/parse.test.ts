@@ -3,12 +3,7 @@ import { TElementRule } from "~/lib/rulesManager/types"
 import { TConfigurationSettings } from "../configurationSettings/types"
 import { formatSystemEnumeration } from "./format"
 import { parseSystemEnumeration } from "./parse"
-import {
-  TChildFormItemsGroup,
-  TChildFormItemsGroupEnterprise,
-  ZChildFormItemsGroup,
-  ZChildFormItemsGroupEnterprise,
-} from "./types"
+import { ChildFormItemsGroup, ChildFormItemsGroupEnterprise } from "./types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -16,13 +11,13 @@ const configurationSettings: TConfigurationSettings = {
 
 describe("parseSystemEnumeration", () => {
   it("should parse from enterprise to normal", () => {
-    const mockValue: TChildFormItemsGroupEnterprise = "Вертикальная"
-    const expectedResult: TChildFormItemsGroup = "Vertical"
+    const mockValue: string = ChildFormItemsGroupEnterprise.Вертикальная
+    const expectedResult: ChildFormItemsGroup = ChildFormItemsGroup.Vertical
 
     const rule: TElementRule = {
       nameEnterprise: "ChildFormItemsGroup",
-      type: ZChildFormItemsGroup,
-      typeEnterprise: ZChildFormItemsGroupEnterprise,
+      type: ChildFormItemsGroup,
+      typeEnterprise: ChildFormItemsGroupEnterprise,
       inProperties: () => true,
     }
 
@@ -37,12 +32,12 @@ describe("parseSystemEnumeration", () => {
 
   it("should parse with other case from enterprise to normal", () => {
     const mockValue = "вертикальная"
-    const expectedResult: TChildFormItemsGroup = "Vertical"
+    const expectedResult: ChildFormItemsGroup = ChildFormItemsGroup.Vertical
 
     const rule: TElementRule = {
       nameEnterprise: "ChildFormItemsGroup",
-      type: ZChildFormItemsGroup,
-      typeEnterprise: ZChildFormItemsGroupEnterprise,
+      type: ChildFormItemsGroup,
+      typeEnterprise: ChildFormItemsGroupEnterprise,
       inProperties: () => true,
     }
 
@@ -58,8 +53,8 @@ describe("parseSystemEnumeration", () => {
   it("should return undefined when value is undefined", () => {
     const rule: TElementRule = {
       nameEnterprise: "ChildFormItemsGroup",
-      type: ZChildFormItemsGroup,
-      typeEnterprise: ZChildFormItemsGroupEnterprise,
+      type: ChildFormItemsGroup,
+      typeEnterprise: ChildFormItemsGroupEnterprise,
       inProperties: () => true,
     }
 
@@ -73,12 +68,12 @@ describe("parseSystemEnumeration", () => {
   })
 
   it("should be inverse of formatSystemEnumeration", () => {
-    const originalValue: TChildFormItemsGroup = "Vertical"
+    const originalValue: ChildFormItemsGroup = ChildFormItemsGroup.Vertical
 
     const rule: TElementRule = {
       nameEnterprise: "ChildFormItemsGroup",
-      type: ZChildFormItemsGroup,
-      typeEnterprise: ZChildFormItemsGroupEnterprise,
+      type: ChildFormItemsGroup,
+      typeEnterprise: ChildFormItemsGroupEnterprise,
       format: formatSystemEnumeration,
       inProperties: () => true,
     }

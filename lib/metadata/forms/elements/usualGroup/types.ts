@@ -1,134 +1,113 @@
-import * as z from "zod"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {
-  ZI8nText,
-  ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types"
-import {
-  ZUserVisible,
-  ZUserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { ZodChildItemsType } from "../childItems/typesExt"
+import {  ZBaseElementXML } from "../baseElement/types"
+import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
 import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
 import { ZTable, ZTableXML } from "../table/types"
+import { ZChildItems, ZChildItemsXML, TChildItems } from "../childItems/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { ZodChildItemsType } from "../childItems/typesExt"
 
-export const ZUsualGroup = z.object({
-  elementType: ZElementType,
-  name: z.string(),
-  id: z.string().optional(),
-  enableContentChange: z.boolean().optional(),
-  enabled: z.boolean().optional(),
-  get extendedTooltip() {
-    return ZFormDecoration.optional()
-  },
-  height: z.number().optional(),
-  horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
-  horizontalStretch: z.boolean().optional(),
-  readOnly: z.boolean().optional(),
-  shortcut: z.string().optional(),
-  title: ZI8nText.optional(),
-  titleFont: ZFont.optional(),
-  titleTextColor: ZColor.optional(),
-  toolTip: ZI8nText.optional(),
-  toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
-  type: SE.ZFormGroupType.optional(),
-  userVisible: ZUserVisible.optional(),
-  verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
-  verticalStretch: z.boolean().optional(),
-  visible: z.boolean().optional(),
-  width: z.number().optional(),
-  get childItems(): ZodChildItemsType {
-    return ZChildItems
-  },
-  get associatedTable() {
-    return ZTable.optional()
-  },
-  backColor: ZColor.optional(),
-  behavior: SE.ZUsualGroupBehavior.optional(),
-  childItemsHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
-  childItemsVerticalAlign: SE.ZItemVerticalAlign.optional(),
-  collapsedRepresentationTitle: z.string().optional(),
-  controlRepresentation: SE.ZUsualGroupControlRepresentation.optional(),
-  currentRowUse: SE.ZCurrentRowUse.optional(),
-  displayImportance: SE.ZDisplayImportance.optional(),
-  format: ZI8nText.optional(),
-  group: SE.ZChildFormItemsGroup.optional(),
-  groupHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
-  groupVerticalAlign: SE.ZItemVerticalAlign.optional(),
-  hiddenRepresentationTitleBackColor: ZColor.optional(),
-  horizontalSpacing: SE.ZFormItemSpacing.optional(),
-  itemsAndTitlesAlign: SE.ZItemsAndTitlesAlignVariant.optional(),
-  representation: SE.ZUsualGroupRepresentation.optional(),
-  showLeftMargin: z.boolean().optional(),
-  showTitle: z.boolean().optional(),
-  slaveItemsWidth: SE.ZChildFormItemsWidth.optional(),
-  throughAlign: SE.ZThroughAlign.optional(),
-  titleDataPath: z.string().optional(),
-  united: z.boolean().optional(),
-  verticalAlign: SE.ZItemVerticalAlign.optional(),
-  verticalSpacing: SE.ZFormItemSpacing.optional(),
-})
+export interface UsualGroup {
+  elementType: ElementType
+  name: string
+  id?: string
+  enableContentChange?: boolean,
+  enabled?: boolean,
+  extendedTooltip?: FormDecoration,
+  height?: number,
+  horizontalAlignInGroup?: SE.ItemHorizontalLocation,
+  horizontalStretch?: boolean,
+  readOnly?: boolean,
+  shortcut?: string,
+  title?: I8nText,
+  titleFont?: Font,
+  titleTextColor?: Color,
+  toolTip?: I8nText,
+  toolTipRepresentation?: SE.ToolTipRepresentation,
+  type?: SE.FormGroupType,
+  userVisible?: UserVisible,
+  verticalAlignInGroup?: SE.ItemVerticalAlign,
+  verticalStretch?: boolean,
+  visible?: boolean,
+  width?: number,
+  childItems?: ЭлементыФормы,
+  associatedTable?: Table,
+  backColor?: Color,
+  behavior?: SE.UsualGroupBehavior,
+  childItemsHorizontalAlign?: SE.ItemHorizontalLocation,
+  childItemsVerticalAlign?: SE.ItemVerticalAlign,
+  collapsedRepresentationTitle?: string,
+  controlRepresentation?: SE.UsualGroupControlRepresentation,
+  currentRowUse?: SE.CurrentRowUse,
+  displayImportance?: SE.DisplayImportance,
+  format?: I8nText,
+  group?: SE.ChildFormItemsGroup,
+  groupHorizontalAlign?: SE.ItemHorizontalLocation,
+  groupVerticalAlign?: SE.ItemVerticalAlign,
+  hiddenRepresentationTitleBackColor?: Color,
+  horizontalSpacing?: SE.FormItemSpacing,
+  itemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant,
+  representation?: SE.UsualGroupRepresentation,
+  showLeftMargin?: boolean,
+  showTitle?: boolean,
+  slaveItemsWidth?: SE.ChildFormItemsWidth,
+  throughAlign?: SE.ThroughAlign,
+  titleDataPath?: string,
+  united?: boolean,
+  verticalAlign?: SE.ItemVerticalAlign,
+  verticalSpacing?: SE.FormItemSpacing,
+}
 
-export const ZUsualGroupXML = z.object({
+export interface UsualGroupXML {
   _name: z.string(),
   _id: z.string(),
-  _DisplayImportance: SE.ZDisplayImportance.optional(),
-  Visible: z.boolean().optional(),
-  UserVisible: ZUserVisibleXML.optional(),
-  Enabled: z.boolean().optional(),
-  ReadOnly: z.boolean().optional(),
-  EnableContentChange: z.boolean().optional(),
-  Title: ZI8nTextXML.optional(),
-  TitleTextColor: ZColorXML.optional(),
-  TitleFont: ZFontXML.optional(),
-  ToolTip: ZI8nTextXML.optional(),
-  ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
-  Shortcut: z.string().optional(),
-  Width: z.number().optional(),
-  Height: z.number().optional(),
-  HorizontalStretch: z.boolean().optional(),
-  VerticalStretch: z.boolean().optional(),
-  GroupHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
-  GroupVerticalAlign: SE.ZItemVerticalAlign.optional(),
-  Group: SE.ZChildFormItemsGroup.optional(),
-  HorizontalSpacing: SE.ZFormItemSpacing.optional(),
-  VerticalSpacing: SE.ZFormItemSpacing.optional(),
-  VerticalAlign: SE.ZItemVerticalAlign.optional(),
-  Behavior: SE.ZUsualGroupBehavior.optional(),
-  CollapsedRepresentationTitle: z.string().optional(),
-  ControlRepresentation: SE.ZUsualGroupControlRepresentation.optional(),
-  Representation: SE.ZUsualGroupRepresentation.optional(),
-  ShowLeftMargin: z.boolean().optional(),
-  United: z.boolean().optional(),
-  Format: ZI8nTextXML.optional(),
-  ShowTitle: z.boolean().optional(),
-  TitleDataPath: z.string().optional(),
-  BackColor: ZColorXML.optional(),
-  CurrentRowUse: SE.ZCurrentRowUse.optional(),
-  get ExtendedTooltip() {
-    return ZFormDecorationXML.optional()
-  },
-  get AssociatedTable() {
-    return ZTableXML.optional()
-  },
-  ChildItemsHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
-  ChildItemsVerticalAlign: SE.ZItemVerticalAlign.optional(),
-  HiddenRepresentationTitleBackColor: ZColorXML.optional(),
-  HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
-  ItemsAndTitlesAlign: SE.ZItemsAndTitlesAlignVariant.optional(),
-  SlaveItemsWidth: SE.ZChildFormItemsWidth.optional(),
-  ThroughAlign: SE.ZThroughAlign.optional(),
-  Type: SE.ZFormGroupType.optional(),
-  VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
-  get ChildItems() {
-    return ZChildItemsXML.optional()
-  },
-})
-
-export type TUsualGroup = z.infer<typeof ZUsualGroup>
-
-export type TUsualGroupXML = z.infer<typeof ZUsualGroupXML>
+  _DisplayImportance: SE.DisplayImportance,
+  Visible: boolean,
+  UserVisible: UserVisible,
+  Enabled: boolean,
+  ReadOnly: boolean,
+  EnableContentChange: boolean,
+  Title: I8nText,
+  TitleTextColor: Color,
+  TitleFont: Font,
+  ToolTip: I8nText,
+  ToolTipRepresentation: SE.ToolTipRepresentation,
+  Shortcut: string,
+  Width: number,
+  Height: number,
+  HorizontalStretch: boolean,
+  VerticalStretch: boolean,
+  GroupHorizontalAlign: SE.ItemHorizontalLocation,
+  GroupVerticalAlign: SE.ItemVerticalAlign,
+  Group: SE.ChildFormItemsGroup,
+  HorizontalSpacing: SE.FormItemSpacing,
+  VerticalSpacing: SE.FormItemSpacing,
+  VerticalAlign: SE.ItemVerticalAlign,
+  Behavior: SE.UsualGroupBehavior,
+  CollapsedRepresentationTitle: string,
+  ControlRepresentation: SE.UsualGroupControlRepresentation,
+  Representation: SE.UsualGroupRepresentation,
+  ShowLeftMargin: boolean,
+  United: boolean,
+  Format: I8nText,
+  ShowTitle: boolean,
+  TitleDataPath: string,
+  BackColor: Color,
+  CurrentRowUse: SE.CurrentRowUse,
+  ExtendedTooltip: FormDecoration,
+  AssociatedTable: Table,
+  ChildItemsHorizontalAlign: SE.ItemHorizontalLocation,
+  ChildItemsVerticalAlign: SE.ItemVerticalAlign,
+  HiddenRepresentationTitleBackColor: Color,
+  HorizontalAlignInGroup: SE.ItemHorizontalLocation,
+  ItemsAndTitlesAlign: SE.ItemsAndTitlesAlignVariant,
+  SlaveItemsWidth: SE.ChildFormItemsWidth,
+  ThroughAlign: SE.ThroughAlign,
+  Type: SE.FormGroupType,
+  VerticalAlignInGroup: SE.ItemVerticalAlign,
+  ChildItems: ЭлементыФормы,
+}

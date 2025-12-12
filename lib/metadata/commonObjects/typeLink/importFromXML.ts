@@ -1,9 +1,11 @@
-import { TTypeLink, TTypeLinkXML } from "./types"
+import { TypeLink, TypeLinkXML } from "./types"
 
-export const importTypeLinkFromXML = (xml: TTypeLinkXML | undefined): TTypeLink | undefined => {
+export const importTypeLinkFromXML = (
+  xml: TypeLinkXML | undefined
+): TypeLink | undefined => {
   if (!xml) return undefined
 
-  const result: TTypeLink = {
+  const result: TypeLink = {
     dataPath: xml["xr:DataPath"],
     linkItem: xml["xr:LinkItem"],
   }

@@ -1,12 +1,9 @@
-export interface ITypeLinkXML {
+export interface TypeLinkXML {
   "xr:DataPath": string
   "xr:LinkItem": number
 }
 
-export interface ITypeLink {
+export interface TypeLink {
   dataPath: string
   linkItem: string | number
 }
-
-export type TTypeLinkXML = ITypeLinkXML
-export type TTypeLink = ITypeLink

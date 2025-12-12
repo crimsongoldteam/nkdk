@@ -1,6 +1,6 @@
-export interface IExcludedCommandXML {
+export interface ExcludedCommandXML {
   ExcludedCommand: string
 }
 
-export type TCommandSet = string[]
-export type TCommandSetXML = IExcludedCommandXML[]
+export type CommandSet = string[]
+export type CommandSetXML = ExcludedCommandXML[]

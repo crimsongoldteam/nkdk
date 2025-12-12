@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest"
 import { createNameIdMapping, updateNameIdMapping } from "./nameIdMapping"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import { TClientApplicationForm } from "~/lib"
+import { ClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
+import { ElementType } from "~/lib/metadata/forms/elements/types"
 
 describe("nameMapping", () => {
   describe("createNameIdMapping", () => {
     it("should create empty mapping for empty form", () => {
-      const form: TClientApplicationForm = {
-        elementType: ZElementType.enum.ClientApplicationForm,
+      const form: ClientApplicationForm = {
+        elementType: ElementType.ClientApplicationForm,
         childItems: [],
       }
 
@@ -17,18 +17,18 @@ describe("nameMapping", () => {
     })
 
     it("should create mapping for elements with id", () => {
-      const form: TClientApplicationForm = {
-        elementType: ZElementType.enum.ClientApplicationForm,
+      const form: ClientApplicationForm = {
+        elementType: ElementType.ClientApplicationForm,
         childItems: [
           {
             name: "field1",
             id: "1",
-            elementType: ZElementType.enum.InputField,
+            elementType: ElementType.InputField,
           },
           {
             name: "field2",
             id: "2",
-            elementType: ZElementType.enum.InputField,
+            elementType: ElementType.InputField,
           },
         ],
       }
@@ -48,18 +48,18 @@ describe("nameMapping", () => {
         ["2", "field2"],
       ])
 
-      const form: TClientApplicationForm = {
-        elementType: ZElementType.enum.ClientApplicationForm,
+      const form: ClientApplicationForm = {
+        elementType: ElementType.ClientApplicationForm,
         childItems: [
           {
             name: "field2",
             id: "2",
-            elementType: ZElementType.enum.InputField,
+            elementType: ElementType.InputField,
           },
           {
             name: "field1",
             id: "1",
-            elementType: ZElementType.enum.InputField,
+            elementType: ElementType.InputField,
           },
         ],
       }
@@ -72,18 +72,18 @@ describe("nameMapping", () => {
 
     it("should assign next available id", () => {
       const mapping = new Map([["1", "field1"]])
-      const form: TClientApplicationForm = {
-        elementType: ZElementType.enum.ClientApplicationForm,
+      const form: ClientApplicationForm = {
+        elementType: ElementType.ClientApplicationForm,
         childItems: [
           {
             name: "field1",
             id: "1",
-            elementType: ZElementType.enum.InputField,
+            elementType: ElementType.InputField,
           },
           {
             name: "field2",
             id: "2",
-            elementType: ZElementType.enum.InputField,
+            elementType: ElementType.InputField,
           },
         ],
       }

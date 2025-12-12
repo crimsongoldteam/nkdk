@@ -1,8 +1,10 @@
-import { TFont, TFontXML } from "./types"
+import { Font, FontXML } from "./types"
 
-export const exportFontToXML = (font: TFont | undefined): TFontXML | undefined => {
+export const exportFontToXML = (
+  font: Font | undefined
+): FontXML | undefined => {
   if (!font) return undefined
-  const result: TFontXML = {
+  const result: FontXML = {
     _ref: font.ref,
     _faceName: font.faceName,
     _scale: font.scale,

@@ -1,27 +1,3 @@
-import * as z from "zod"
-import {
-  ZI8nText,
-  ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types"
-import {
-  ZTypeDescription,
-  ZTypeDescriptionXML,
-} from "~/lib/metadata/commonObjects/typeDescription/types"
-import {
-  ZUserVisible,
-  ZUserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
-import {
-  ZCommandSet,
-  ZCommandSetXML,
-} from "~/lib/metadata/forms/commandSet/types"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZEventsXML } from "../../events/types"
-import { ZChildItems, ZChildItemsXML } from "../childItems/types"
-import { ZodChildItemsType } from "../childItems/typesExt"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZElementType } from "../types"
-
 export const ZAttribute = z.object({
   name: z.string(),
   id: z.string(),
@@ -42,7 +18,7 @@ export const ZAttribute = z.object({
 //   ZUseEnterprise,
 // ])
 
-export const ZClientApplicationForm = z.object({
+export interface ClientApplicationForm {
   commandSet: ZCommandSet.optional(),
   elementType: ZElementType.enum.ClientApplicationForm,
   attributes: z.array(ZAttribute).optional(),

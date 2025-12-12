@@ -1,13 +1,12 @@
 import { expect, it, describe } from "vitest"
 import { exportTypeLinkToXML } from "./exportToXML"
 import { importTypeLinkFromXML } from "./importFromXML"
-import { TTypeLink, TTypeLinkXML, ZTypeLinkXML } from "./types"
 import { xmlExport, xmlImport } from "~/lib"
-import z from "zod"
+import { TypeLink, TypeLinkXML } from "./types"
 
 describe("exportTypeLinkToXML", () => {
   it("should export type link to XML", () => {
-    const mockTypeLink: TTypeLink = {
+    const mockTypeLink: TypeLink = {
       dataPath: "Ссылка",
       linkItem: 0,
     }
@@ -18,11 +17,7 @@ describe("exportTypeLinkToXML", () => {
 </TypeLink>`
 
     const result = { TypeLink: exportTypeLinkToXML(mockTypeLink) }
-    const xmlString = xmlExport(
-      result,
-      z.object({ TypeLink: ZTypeLinkXML }),
-      false
-    )
+    const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -39,17 +34,10 @@ describe("exportTypeLinkToXML", () => {
 \t<xr:LinkItem>0</xr:LinkItem>
 </TypeLink>`
 
-    const xml = xmlImport<{ TypeLink: TTypeLinkXML }>(
-      originalXml,
-      z.object({ TypeLink: ZTypeLinkXML })
-    )
+    const xml = xmlImport<{ TypeLink: TypeLinkXML }>(originalXml)
     const imported = importTypeLinkFromXML(xml.TypeLink)
     const exported = exportTypeLinkToXML(imported)
-    const resultXml = xmlExport(
-      { TypeLink: exported },
-      z.object({ TypeLink: ZTypeLinkXML }),
-      false
-    )
+    const resultXml = xmlExport({ TypeLink: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
   })

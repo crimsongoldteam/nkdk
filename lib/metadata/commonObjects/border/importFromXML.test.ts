@@ -3,8 +3,6 @@ import xmlImport from "~/lib/xml/import/importer"
 import { importBorderFromXML } from "./importFromXML"
 import type { TBorder, TBorderXML } from "./types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import z from "zod"
-import { ZBorderXML } from "./types"
 
 describe("importBorderFromXML", () => {
   it("should import Border by ref", () => {
@@ -14,10 +12,7 @@ describe("importBorderFromXML", () => {
       ref: "style:ControlBorder",
     }
 
-    const xml = xmlImport<{ Border: TBorderXML }>(
-      mockXml,
-      z.object({ Border: ZBorderXML })
-    )
+    const xml = xmlImport<{ Border: TBorderXML }>(mockXml)
 
     const result = importBorderFromXML(xml.Border)
 
@@ -34,10 +29,7 @@ describe("importBorderFromXML", () => {
       controlBorderType: SE.ZControlBorderType.enum.Indented,
     }
 
-    const xml = xmlImport<{ Border: TBorderXML }>(
-      mockXml,
-      z.object({ Border: ZBorderXML })
-    )
+    const xml = xmlImport<{ Border: TBorderXML }>(mockXml)
 
     const result = importBorderFromXML(xml.Border)
 

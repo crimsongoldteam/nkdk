@@ -1,85 +1,68 @@
-import * as z from "zod"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {
-  ZI8nText,
-  ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types"
-import {
-  ZUserVisible,
-  ZUserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZBaseElement, ZBaseElementXML } from "../baseElement/types"
 import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { ZodChildItemsType } from "../childItems/typesExt"
 
-export const ZFormDecoration = z.object({
-  elementType: ZElementType,
-  name: z.string(),
-  id: z.string().optional(),
-  autoMaxHeight: z.boolean().optional(),
-  autoMaxWidth: z.boolean().optional(),
-  get contextMenu() {
-    return ZCommandBar.optional()
-  },
-  displayImportance: SE.ZDisplayImportance.optional(),
-  enabled: z.boolean().optional(),
-  get extendedTooltip() {
-    return ZFormDecoration.optional()
-  },
-  font: ZFont.optional(),
-  height: z.number().optional(),
-  horizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
-  horizontalStretch: z.boolean().optional(),
-  maxHeight: z.number().optional(),
-  maxWidth: z.number().optional(),
-  shortcut: z.string().optional(),
-  skipOnInput: z.boolean().optional(),
-  textColor: ZColor.optional(),
-  title: ZI8nText.optional(),
-  toolTip: ZI8nText.optional(),
-  toolTipRepresentation: SE.ZToolTipRepresentation.optional(),
-  type: SE.ZFormDecorationType.optional(),
-  userVisible: ZUserVisible.optional(),
-  verticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
-  verticalStretch: z.boolean().optional(),
-  visible: z.boolean().optional(),
-  width: z.number().optional(),
-})
+export interface FormDecoration {
+  elementType: ElementType
+  name: string
+  id?: string
+  autoMaxHeight?: boolean,
+  autoMaxWidth?: boolean,
+  contextMenu?: CommandBar,
+  displayImportance?: SE.DisplayImportance,
+  enabled?: boolean,
+  extendedTooltip?: FormDecoration,
+  font?: Font,
+  height?: number,
+  horizontalAlignInGroup?: SE.ItemHorizontalLocation,
+  horizontalStretch?: boolean,
+  maxHeight?: number,
+  maxWidth?: number,
+  shortcut?: string,
+  skipOnInput?: boolean,
+  textColor?: Color,
+  title?: I8nText,
+  toolTip?: I8nText,
+  toolTipRepresentation?: SE.ToolTipRepresentation,
+  type?: SE.FormDecorationType,
+  userVisible?: UserVisible,
+  verticalAlignInGroup?: SE.ItemVerticalAlign,
+  verticalStretch?: boolean,
+  visible?: boolean,
+  width?: number,
+}
 
-export const ZFormDecorationXML = z.object({
+export interface FormDecorationXML {
   _name: z.string(),
   _id: z.string(),
-  _DisplayImportance: SE.ZDisplayImportance.optional(),
-  AutoMaxHeight: z.boolean().optional(),
-  AutoMaxWidth: z.boolean().optional(),
-  get ContextMenu() {
-    return ZCommandBarXML.optional()
-  },
-  Enabled: z.boolean().optional(),
-  get ExtendedTooltip() {
-    return ZFormDecorationXML.optional()
-  },
-  Font: ZFontXML.optional(),
-  Height: z.number().optional(),
-  HorizontalAlignInGroup: SE.ZItemHorizontalLocation.optional(),
-  HorizontalStretch: z.boolean().optional(),
-  MaxHeight: z.number().optional(),
-  MaxWidth: z.number().optional(),
-  Shortcut: z.string().optional(),
-  SkipOnInput: z.boolean().optional(),
-  TextColor: ZColorXML.optional(),
-  Title: ZI8nTextXML.optional(),
-  ToolTip: ZI8nTextXML.optional(),
-  ToolTipRepresentation: SE.ZToolTipRepresentation.optional(),
-  Type: SE.ZFormDecorationType.optional(),
-  UserVisible: ZUserVisibleXML.optional(),
-  VerticalAlignInGroup: SE.ZItemVerticalAlign.optional(),
-  VerticalStretch: z.boolean().optional(),
-  Visible: z.boolean().optional(),
-  Width: z.number().optional(),
-})
-
-export type TFormDecoration = z.infer<typeof ZFormDecoration>
-
-export type TFormDecorationXML = z.infer<typeof ZFormDecorationXML>
+  _DisplayImportance: SE.DisplayImportance,
+  AutoMaxHeight: boolean,
+  AutoMaxWidth: boolean,
+  ContextMenu: CommandBar,
+  Enabled: boolean,
+  ExtendedTooltip: FormDecoration,
+  Font: Font,
+  Height: number,
+  HorizontalAlignInGroup: SE.ItemHorizontalLocation,
+  HorizontalStretch: boolean,
+  MaxHeight: number,
+  MaxWidth: number,
+  Shortcut: string,
+  SkipOnInput: boolean,
+  TextColor: Color,
+  Title: I8nText,
+  ToolTip: I8nText,
+  ToolTipRepresentation: SE.ToolTipRepresentation,
+  Type: SE.FormDecorationType,
+  UserVisible: UserVisible,
+  VerticalAlignInGroup: SE.ItemVerticalAlign,
+  VerticalStretch: boolean,
+  Visible: boolean,
+  Width: number,
+}

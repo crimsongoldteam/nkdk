@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest"
 import z from "zod"
 import xmlImport from "~/lib/xml/import/importer"
 import { importCommandSetFromXML } from "./importFromXML"
-import { TCommandSet, TCommandSetXML, ZCommandSetXML } from "./types"
+import { CommandSet, CommandSetXML, ZCommandSetXML } from "./types"
 
 describe("importCommandSetFromXML", () => {
   it("should import single command set", () => {
@@ -10,9 +10,9 @@ describe("importCommandSetFromXML", () => {
 		<ExcludedCommand>WriteAndClose</ExcludedCommand>
 	</CommandSet>`
 
-    const expectedResult: TCommandSet = ["WriteAndClose"]
+    const expectedResult: CommandSet = ["WriteAndClose"]
 
-    const xml = xmlImport<{ CommandSet: TCommandSetXML }>(
+    const xml = xmlImport<{ CommandSet: CommandSetXML }>(
       mockXml,
       z.object({ CommandSet: ZCommandSetXML })
     )
@@ -29,9 +29,9 @@ describe("importCommandSetFromXML", () => {
 		<ExcludedCommand>Delete</ExcludedCommand>
 	</CommandSet>`
 
-    const expectedResult: TCommandSet = ["WriteAndClose", "Copy", "Delete"]
+    const expectedResult: CommandSet = ["WriteAndClose", "Copy", "Delete"]
 
-    const xml = xmlImport<{ CommandSet: TCommandSetXML }>(
+    const xml = xmlImport<{ CommandSet: CommandSetXML }>(
       mockXml,
       z.object({ CommandSet: ZCommandSetXML })
     )

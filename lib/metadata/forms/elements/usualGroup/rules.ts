@@ -1,489 +1,359 @@
-import * as z from "zod"
+
+import { TElementRules } from "~/lib/rulesManager/types"
+import { registerElementRules } from "~/lib/rulesManager/rulesManager"
+import { ZElementType } from "../types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
+import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
+import { ZTable, ZTableXML } from "../table/types"
+import { ZChildItems, ZChildItemsXML } from "../childItems/types"
+import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { formatUserVisible } from "~/lib/metadata/commonObjects/userVisible/format"
+import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format"
 import { formatBoolean } from "~/lib/metadata/commonObjects/boolean/format"
 import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
-import { ZColor } from "~/lib/metadata/commonObjects/color/types"
-import { ZFont } from "~/lib/metadata/commonObjects/font/types"
-import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format"
 import { parseI8nText } from "~/lib/metadata/commonObjects/i8nText/parse"
-import { ZI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
-import { formatUserVisible } from "~/lib/metadata/commonObjects/userVisible/format"
 import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse"
-import { ZUserVisible } from "~/lib/metadata/commonObjects/userVisible/types"
-import { formatSystemEnumeration } from "~/lib/metadata/systemEnumerations/format"
 import { parseSystemEnumeration } from "~/lib/metadata/systemEnumerations/parse"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { registerElementRules } from "~/lib/rulesManager/rulesManager"
-import { TElementRules } from "~/lib/rulesManager/types"
-import { ZFormDecoration } from "../formDecoration/types"
-import { ZTable } from "../table/types"
-import { ZElementType } from "../types"
-import "./registration"
+import { formatSystemEnumeration } from "~/lib/metadata/systemEnumerations/format"
 
 const rules: TElementRules = {
-  enableContentChange: {
-    get type() {
-      return z.boolean()
-    },
+  "enableContentChange": {
+    get type() { return z.boolean() },
     nameEnterprise: "РазрешитьИзменениеСостава",
     formatProperties: formatBoolean,
     parseProperties: parseBoolean,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  enabled: {
-    get type() {
-      return z.boolean()
-    },
+  "enabled": {
+    get type() { return z.boolean() },
     nameEnterprise: "Доступность",
     formatProperties: formatBoolean,
     parseProperties: parseBoolean,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  extendedTooltip: {
-    get type() {
-      return ZFormDecoration
-    },
+  "extendedTooltip": {
+    get type() { return ZFormDecoration },
     nameEnterprise: "РасширеннаяПодсказка",
     formatProperties: undefined,
     parseProperties: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  height: {
-    get type() {
-      return z.number()
-    },
+  "height": {
+    get type() { return z.number() },
     nameEnterprise: "Высота",
     formatProperties: undefined,
     parseProperties: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  horizontalAlignInGroup: {
-    get type() {
-      return SE.ZItemHorizontalLocation
-    },
+  "horizontalAlignInGroup": {
+    get type() { return SE.ZItemHorizontalLocation },
     nameEnterprise: "ГоризонтальноеПоложениеВГруппе",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZItemHorizontalLocationEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZItemHorizontalLocationEnterprise },
+    inProperties: ()=> true,
   },
-  horizontalStretch: {
-    get type() {
-      return z.boolean()
-    },
+  "horizontalStretch": {
+    get type() { return z.boolean() },
     nameEnterprise: "РастягиватьПоГоризонтали",
     formatProperties: formatBoolean,
     parseProperties: parseBoolean,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  readOnly: {
-    get type() {
-      return z.boolean()
-    },
+  "readOnly": {
+    get type() { return z.boolean() },
     nameEnterprise: "ТолькоПросмотр",
     formatProperties: formatBoolean,
     parseProperties: parseBoolean,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  shortcut: {
-    get type() {
-      return z.string()
-    },
+  "shortcut": {
+    get type() { return z.string() },
     nameEnterprise: "СочетаниеКлавиш",
     formatProperties: undefined,
     parseProperties: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  title: {
-    get type() {
-      return ZI8nText
-    },
+  "title": {
+    get type() { return ZI8nText },
     nameEnterprise: "Заголовок",
     formatProperties: formatI8nText,
     parseProperties: parseI8nText,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  titleFont: {
-    get type() {
-      return ZFont
-    },
+  "titleFont": {
+    get type() { return ZFont },
     nameEnterprise: "ШрифтЗаголовка",
     formatProperties: undefined,
     parseProperties: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  titleTextColor: {
-    get type() {
-      return ZColor
-    },
+  "titleTextColor": {
+    get type() { return ZColor },
     nameEnterprise: "ЦветТекстаЗаголовка",
     formatProperties: undefined,
     parseProperties: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  toolTip: {
-    get type() {
-      return ZI8nText
-    },
+  "toolTip": {
+    get type() { return ZI8nText },
     nameEnterprise: "Подсказка",
     formatProperties: formatI8nText,
     parseProperties: parseI8nText,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  toolTipRepresentation: {
-    get type() {
-      return SE.ZToolTipRepresentation
-    },
+  "toolTipRepresentation": {
+    get type() { return SE.ZToolTipRepresentation },
     nameEnterprise: "ОтображениеПодсказки",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZToolTipRepresentationEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZToolTipRepresentationEnterprise },
+    inProperties: ()=> true,
   },
-  type: {
-    get type() {
-      return SE.ZFormGroupType
-    },
+  "type": {
+    get type() { return SE.ZFormGroupType },
     nameEnterprise: "Вид",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZFormGroupTypeEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZFormGroupTypeEnterprise },
+    inProperties: ()=> true,
   },
-  userVisible: {
-    get type() {
-      return ZUserVisible
-    },
+  "userVisible": {
+    get type() { return ZUserVisible },
     nameEnterprise: "ПользовательскаяВидимость",
     formatProperties: formatUserVisible,
     parseProperties: parseUserVisible,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  verticalAlignInGroup: {
-    get type() {
-      return SE.ZItemVerticalAlign
-    },
+  "verticalAlignInGroup": {
+    get type() { return SE.ZItemVerticalAlign },
     nameEnterprise: "ВертикальноеПоложениеВГруппе",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZItemVerticalAlignEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZItemVerticalAlignEnterprise },
+    inProperties: ()=> true,
   },
-  verticalStretch: {
-    get type() {
-      return z.boolean()
-    },
+  "verticalStretch": {
+    get type() { return z.boolean() },
     nameEnterprise: "РастягиватьПоВертикали",
     formatProperties: formatBoolean,
     parseProperties: parseBoolean,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  visible: {
-    get type() {
-      return z.boolean()
-    },
+  "visible": {
+    get type() { return z.boolean() },
     nameEnterprise: "Видимость",
     formatProperties: formatBoolean,
     parseProperties: parseBoolean,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  width: {
-    get type() {
-      return z.number()
-    },
+  "width": {
+    get type() { return z.number() },
     nameEnterprise: "Ширина",
     formatProperties: undefined,
     parseProperties: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  childItems: {
-    get type() {
-      return ZЭлементыФормы
-    },
+  "childItems": {
+    get type() { return ZChildItems },
     nameEnterprise: "ПодчиненныеЭлементы",
     formatProperties: undefined,
     parseProperties: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  associatedTable: {
-    get type() {
-      return ZTable
-    },
+  "associatedTable": {
+    get type() { return ZTable },
     nameEnterprise: "ИспользуемаяТаблица",
     formatProperties: undefined,
     parseProperties: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  backColor: {
-    get type() {
-      return ZColor
-    },
+  "backColor": {
+    get type() { return ZColor },
     nameEnterprise: "ЦветФона",
     formatProperties: undefined,
     parseProperties: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  behavior: {
-    get type() {
-      return SE.ZUsualGroupBehavior
-    },
+  "behavior": {
+    get type() { return SE.ZUsualGroupBehavior },
     nameEnterprise: "Поведение",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZUsualGroupBehaviorEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZUsualGroupBehaviorEnterprise },
+    inProperties: ()=> true,
   },
-  childItemsHorizontalAlign: {
-    get type() {
-      return SE.ZItemHorizontalLocation
-    },
+  "childItemsHorizontalAlign": {
+    get type() { return SE.ZItemHorizontalLocation },
     nameEnterprise: "ГоризонтальноеПоложениеПодчиненных",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZItemHorizontalLocationEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZItemHorizontalLocationEnterprise },
+    inProperties: ()=> true,
   },
-  childItemsVerticalAlign: {
-    get type() {
-      return SE.ZItemVerticalAlign
-    },
+  "childItemsVerticalAlign": {
+    get type() { return SE.ZItemVerticalAlign },
     nameEnterprise: "ВертикальноеПоложениеПодчиненных",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZItemVerticalAlignEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZItemVerticalAlignEnterprise },
+    inProperties: ()=> true,
   },
-  collapsedRepresentationTitle: {
-    get type() {
-      return z.string()
-    },
+  "collapsedRepresentationTitle": {
+    get type() { return z.string() },
     nameEnterprise: "ЗаголовокСвернутогоОтображения",
     formatProperties: undefined,
     parseProperties: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  controlRepresentation: {
-    get type() {
-      return SE.ZUsualGroupControlRepresentation
-    },
+  "controlRepresentation": {
+    get type() { return SE.ZUsualGroupControlRepresentation },
     nameEnterprise: "ОтображениеУправления",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZUsualGroupControlRepresentationEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZUsualGroupControlRepresentationEnterprise },
+    inProperties: ()=> true,
   },
-  currentRowUse: {
-    get type() {
-      return SE.ZCurrentRowUse
-    },
+  "currentRowUse": {
+    get type() { return SE.ZCurrentRowUse },
     nameEnterprise: "ИспользованиеТекущейСтроки",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZCurrentRowUseEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZCurrentRowUseEnterprise },
+    inProperties: ()=> true,
   },
-  displayImportance: {
-    get type() {
-      return SE.ZDisplayImportance
-    },
+  "displayImportance": {
+    get type() { return SE.ZDisplayImportance },
     nameEnterprise: "ВажностьПриОтображении",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZDisplayImportanceEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZDisplayImportanceEnterprise },
+    inProperties: ()=> true,
   },
-  format: {
-    get type() {
-      return ZI8nText
-    },
+  "format": {
+    get type() { return ZI8nText },
     nameEnterprise: "Формат",
     formatProperties: formatI8nText,
     parseProperties: parseI8nText,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  group: {
-    get type() {
-      return SE.ZChildFormItemsGroup
-    },
+  "group": {
+    get type() { return SE.ZChildFormItemsGroup },
     nameEnterprise: "Группировка",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZChildFormItemsGroupEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZChildFormItemsGroupEnterprise },
+    inProperties: ()=> true,
   },
-  groupHorizontalAlign: {
-    get type() {
-      return SE.ZItemHorizontalLocation
-    },
+  "groupHorizontalAlign": {
+    get type() { return SE.ZItemHorizontalLocation },
     nameEnterprise: "ГоризонтальноеВыравниваниеГруппы",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZItemHorizontalLocationEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZItemHorizontalLocationEnterprise },
+    inProperties: ()=> true,
   },
-  groupVerticalAlign: {
-    get type() {
-      return SE.ZItemVerticalAlign
-    },
+  "groupVerticalAlign": {
+    get type() { return SE.ZItemVerticalAlign },
     nameEnterprise: "ВертикальноеВыравниваниеГруппы",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZItemVerticalAlignEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZItemVerticalAlignEnterprise },
+    inProperties: ()=> true,
   },
-  hiddenRepresentationTitleBackColor: {
-    get type() {
-      return ZColor
-    },
+  "hiddenRepresentationTitleBackColor": {
+    get type() { return ZColor },
     nameEnterprise: "ЦветФонаЗаголовкаСкрытогоОтображения",
     formatProperties: undefined,
     parseProperties: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  horizontalSpacing: {
-    get type() {
-      return SE.ZFormItemSpacing
-    },
+  "horizontalSpacing": {
+    get type() { return SE.ZFormItemSpacing },
     nameEnterprise: "ГоризонтальныйИнтервал",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZFormItemSpacingEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZFormItemSpacingEnterprise },
+    inProperties: ()=> true,
   },
-  itemsAndTitlesAlign: {
-    get type() {
-      return SE.ZItemsAndTitlesAlignVariant
-    },
+  "itemsAndTitlesAlign": {
+    get type() { return SE.ZItemsAndTitlesAlignVariant },
     nameEnterprise: "ВыравниваниеЭлементовИЗаголовков",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZItemsAndTitlesAlignVariantEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZItemsAndTitlesAlignVariantEnterprise },
+    inProperties: ()=> true,
   },
-  representation: {
-    get type() {
-      return SE.ZUsualGroupRepresentation
-    },
+  "representation": {
+    get type() { return SE.ZUsualGroupRepresentation },
     nameEnterprise: "Отображение",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZUsualGroupRepresentationEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZUsualGroupRepresentationEnterprise },
+    inProperties: ()=> true,
   },
-  showLeftMargin: {
-    get type() {
-      return z.boolean()
-    },
+  "showLeftMargin": {
+    get type() { return z.boolean() },
     nameEnterprise: "ОтображатьОтступСлева",
     formatProperties: formatBoolean,
     parseProperties: parseBoolean,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  showTitle: {
-    get type() {
-      return z.boolean()
-    },
+  "showTitle": {
+    get type() { return z.boolean() },
     nameEnterprise: "ОтображатьЗаголовок",
     formatProperties: formatBoolean,
     parseProperties: parseBoolean,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  slaveItemsWidth: {
-    get type() {
-      return SE.ZChildFormItemsWidth
-    },
+  "slaveItemsWidth": {
+    get type() { return SE.ZChildFormItemsWidth },
     nameEnterprise: "ШиринаПодчиненныхЭлементов",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZChildFormItemsWidthEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZChildFormItemsWidthEnterprise },
+    inProperties: ()=> true,
   },
-  throughAlign: {
-    get type() {
-      return SE.ZThroughAlign
-    },
+  "throughAlign": {
+    get type() { return SE.ZThroughAlign },
     nameEnterprise: "СквозноеВыравнивание",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZThroughAlignEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZThroughAlignEnterprise },
+    inProperties: ()=> true,
   },
-  titleDataPath: {
-    get type() {
-      return z.string()
-    },
+  "titleDataPath": {
+    get type() { return z.string() },
     nameEnterprise: "ПутьКДаннымЗаголовка",
     formatProperties: undefined,
     parseProperties: undefined,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  united: {
-    get type() {
-      return z.boolean()
-    },
+  "united": {
+    get type() { return z.boolean() },
     nameEnterprise: "Объединенная",
     formatProperties: formatBoolean,
     parseProperties: parseBoolean,
-    inProperties: () => true,
+    inProperties: ()=> true,
   },
-  verticalAlign: {
-    get type() {
-      return SE.ZItemVerticalAlign
-    },
+  "verticalAlign": {
+    get type() { return SE.ZItemVerticalAlign },
     nameEnterprise: "ВертикальноеПоложение",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZItemVerticalAlignEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZItemVerticalAlignEnterprise },
+    inProperties: ()=> true,
   },
-  verticalSpacing: {
-    get type() {
-      return SE.ZFormItemSpacing
-    },
+  "verticalSpacing": {
+    get type() { return SE.ZFormItemSpacing },
     nameEnterprise: "ВертикальныйИнтервал",
     formatProperties: formatSystemEnumeration,
     parseProperties: parseSystemEnumeration,
-    get typeEnterprise() {
-      return SE.ZFormItemSpacingEnterprise
-    },
-    inProperties: () => true,
+    get typeEnterprise() { return SE.ZFormItemSpacingEnterprise },
+    inProperties: ()=> true,
   },
 }
 

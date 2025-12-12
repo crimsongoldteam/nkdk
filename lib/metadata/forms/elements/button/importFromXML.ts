@@ -1,17 +1,16 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { TButtonXML, TButton } from "./types"
 import { ZElementType } from "../types"
-import { TButton, TButtonXML } from "./types"
+import { registerImport } from "~/lib/xml/import/importerFactory"
 
-export const importButtonFromXML = (
-  xml: TButtonXML | undefined
-): TButton | undefined => {
+export const importButtonFromXML = (xml: TButtonXML | undefined): TButton | undefined => {
   if (!xml) return undefined
-
+   
   return {
     id: xml._id,
     name: xml._name,
@@ -36,7 +35,7 @@ export const importButtonFromXML = (
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
     onlyInAllActions: xml.OnlyInAllActions,
-    //picture: importPictureFromXML(xml.Picture),
+    picture: importPictureFromXML(xml.Picture),
     pictureLocation: xml.PictureLocation,
     representation: xml.Representation,
     shape: xml.Shape,

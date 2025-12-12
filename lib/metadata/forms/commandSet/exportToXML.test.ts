@@ -1,23 +1,18 @@
 import { describe, it, expect } from "vitest"
-import { TCommandSet, TCommandSetXML, ZCommandSetXML } from "./types"
+import { CommandSet, CommandSetXML } from "./types"
 import { xmlExport, xmlImport } from "~/lib"
 import { exportCommandSetToXML } from "./exportToXML"
 import { importCommandSetFromXML } from "./importFromXML"
-import z from "zod"
 
 describe("exportCommandSetToXML", () => {
   it("should export command set", () => {
-    const mockData: TCommandSet = ["WriteAndClose"]
+    const mockData: CommandSet = ["WriteAndClose"]
     const expectedResult = `<CommandSet>
 	<ExcludedCommand>WriteAndClose</ExcludedCommand>
 </CommandSet>`
 
     const exported = exportCommandSetToXML(mockData)
-    const resultXml = xmlExport(
-      { CommandSet: exported },
-      z.object({ CommandSet: ZCommandSetXML }),
-      false
-    )
+    const resultXml = xmlExport({ CommandSet: exported }, false)
     expect(resultXml).toEqual(expectedResult)
   })
 
@@ -28,18 +23,11 @@ describe("exportCommandSetToXML", () => {
 	<ExcludedCommand>Delete</ExcludedCommand>
 </CommandSet>`
 
-    const xml = xmlImport<{ CommandSet: TCommandSetXML }>(
-      mockXml,
-      z.object({ CommandSet: ZCommandSetXML })
-    )
+    const xml = xmlImport<{ CommandSet: CommandSetXML }>(mockXml)
     const imported = importCommandSetFromXML(xml.CommandSet)
     const exported = exportCommandSetToXML(imported)
 
-    const resultXml = xmlExport(
-      { CommandSet: exported },
-      z.object({ CommandSet: ZCommandSetXML }),
-      false
-    )
+    const resultXml = xmlExport({ CommandSet: exported }, false)
     expect(resultXml).toEqual(mockXml)
   })
 })
