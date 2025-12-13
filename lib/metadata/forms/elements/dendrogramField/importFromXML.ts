@@ -15,10 +15,10 @@ import { DendrogramField, DendrogramFieldXML } from "./types"
 
 export const importDendrogramFieldFromXML = (xml: DendrogramFieldXML | undefined): DendrogramField | undefined => {
   if (!xml) return undefined
-   
+
   return {
-...importFormFieldFromXML(xml)!,
-elementType: FormElementType.DendrogramField,
+    ...importFormFieldFromXML(xml)!,
+    elementType: FormElementType.DendrogramField,
 
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,

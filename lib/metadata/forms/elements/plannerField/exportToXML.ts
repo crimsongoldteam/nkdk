@@ -14,10 +14,10 @@ import { FormElementType } from "../types"
 import { PlannerField, PlannerFieldXML } from "./types"
 
 export const exportPlannerFieldToXML = (data: PlannerField | undefined): PlannerFieldXML | undefined => {
-    if (!data) return undefined
-     
-    return {
-...exportFormFieldToXML(data)!,
+  if (!data) return undefined
+
+  return {
+    ...exportFormFieldToXML(data)!,
 
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,

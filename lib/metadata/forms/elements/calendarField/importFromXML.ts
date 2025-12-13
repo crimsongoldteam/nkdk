@@ -16,10 +16,10 @@ import { CalendarField, CalendarFieldXML } from "./types"
 
 export const importCalendarFieldFromXML = (xml: CalendarFieldXML | undefined): CalendarField | undefined => {
   if (!xml) return undefined
-   
+
   return {
-...importFormFieldFromXML(xml)!,
-elementType: FormElementType.CalendarField,
+    ...importFormFieldFromXML(xml)!,
+    elementType: FormElementType.CalendarField,
 
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,

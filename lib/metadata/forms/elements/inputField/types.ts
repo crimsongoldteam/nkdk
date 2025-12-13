@@ -1,307 +1,300 @@
-import { Color, ColorXML, ColorEnterprise } from "~/lib/metadata/commonObjects/color/types";
-import { I8nText, I8nTextXML, I8nTextEnterprise } from "~/lib/metadata/commonObjects/i8nText/types";
-import { Picture, PictureXML, PictureEnterprise } from "~/lib/metadata/commonObjects/pictures/types";
-import { UserVisible, UserVisibleXML, UserVisibleEnterprise } from "~/lib/metadata/commonObjects/userVisible/types";
-import * as SE from "~/lib/metadata/systemEnumerations/types";
-import { FormGroup, FormGroupXML, FormGroupEnterprise } from "../formGroup/types";
-import { Table, TableXML, TableEnterprise } from "../table/types";
-import { CommandBar, CommandBarXML, CommandBarEnterprise } from "../commandBar/types";
-import { BaseElement, BaseElementXML, BaseElementEnterprise } from "../baseElement/types";
-import { Font, FontXML, FontEnterprise } from "~/lib/metadata/commonObjects/font/types";
-import { TypeDescription, TypeDescriptionXML, TypeDescriptionEnterprise } from "~/lib/metadata/commonObjects/typeDescription/types";
-import { Border, BorderXML, BorderEnterprise } from "~/lib/metadata/commonObjects/border/types";
-import { FormField, FormFieldXML, FormFieldEnterprise } from "../formField/types";
-import { FormDecoration, FormDecorationEnterprise, FormDecorationXML } from "../formDecoration/types"
-import { ChoiceList, ChoiceListXML, ChoiceListEnterprise } from "~/lib/metadata/commonObjects/choiceList/types"
-import { FormItemAddition, FormItemAdditionXML, FormItemAdditionEnterprise } from "../formItemAddition/types"
-import { TypeLink, TypeLinkXML, TypeLinkEnterprise } from "~/lib/metadata/commonObjects/typeLink/types"
-import { ChoiceParameterLinks, ChoiceParameterLinksXML, ChoiceParameterLinksEnterprise } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types"
-import { SearchStringAddition, SearchStringAdditionXML, SearchStringAdditionEnterprise } from "~/lib/metadata/forms/elements/searchStringAddition/types"
-import { ViewStatusAddition, ViewStatusAdditionXML, ViewStatusAdditionEnterprise } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
-import { SearchControlAddition, SearchControlAdditionXML, SearchControlAdditionEnterprise } from "~/lib/metadata/forms/elements/searchControlAddition/types"
-import { CommandSet, CommandSetXML, CommandSetEnterprise } from "~/lib/metadata/forms/commandSet/types"
-import { EventsXML } from "~/lib/metadata/forms/events/types";
-import { ChildItems, ChildItemsXML } from "../childItems/types";
-
+import { ChoiceList, ChoiceListEnterprise, ChoiceListXML } from "~/lib/metadata/commonObjects/choiceList/types"
+import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import { Picture, PictureEnterprise, PictureXML } from "~/lib/metadata/commonObjects/pictures/types"
+import {
+  TypeDescription,
+  TypeDescriptionEnterprise,
+  TypeDescriptionXML,
+} from "~/lib/metadata/commonObjects/typeDescription/types"
+import { TypeLink, TypeLinkEnterprise, TypeLinkXML } from "~/lib/metadata/commonObjects/typeLink/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  ChoiceParameterLinks,
+  ChoiceParameterLinksEnterprise,
+  ChoiceParameterLinksXML,
+} from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types"
+import { EventsXML } from "~/lib/metadata/forms/events/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
 export interface InputField extends FormField {
-
-  allowInputEmptyMultipleValues?: boolean,
-  allowMultipleValuesDuplicates?: boolean,
-  autoCapitalizationOnTextInput?: SE.AutoCapitalizationOnTextInput,
-  autoChoiceIncomplete?: boolean,
-  autoCorrectionOnTextInput?: SE.AutoCorrectionOnTextInput,
-  autoFillHint?: SE.InputFieldAutofillHint,
-  autoMarkIncomplete?: boolean,
-  autoMaxHeight?: boolean,
-  autoMaxWidth?: boolean,
-  autoShowClearButton?: SE.AutoShowClearButtonMode,
-  autoShowOpenButton?: SE.AutoShowOpenButtonMode,
-  availableTypes?: TypeDescription,
-  backColor?: Color,
-  borderColor?: Color,
-  choiceButton?: boolean,
-  choiceButtonPicture?: Picture,
-  choiceButtonRepresentation?: SE.ChoiceButtonRepresentation,
-  choiceFoldersAndItems?: SE.FoldersAndItems,
-  choiceForm?: string,
-  choiceHistoryOnInput?: SE.ChoiceHistoryOnInput,
-  choiceList?: ChoiceList,
-  choiceListButton?: boolean,
-  choiceListHeight?: number,
-  choiceParameterLinks?: ChoiceParameterLinks,
-  choiceParameters?: ChoiceParameterLinks,
-  chooseType?: boolean,
-  clearButton?: boolean,
-  createButton?: boolean,
-  dropListButton?: boolean,
-  dropListWidth?: number,
-  editFormat?: I8nText,
-  editText?: string,
-  editTextUpdate?: SE.EditTextUpdate,
-  extendedEdit?: boolean,
-  font?: Font,
-  format?: I8nText,
-  height?: number,
-  heightControlVariant?: SE.ItemHeightControlVariant,
-  horizontalStretch?: boolean,
-  incompleteChoiceMode?: SE.IncompleteChoiceMode,
-  inputHint?: I8nText,
-  listChoiceMode?: boolean,
-  markIncomplete?: boolean,
-  markNegatives?: boolean,
-  mask?: string,
-  maxHeight?: number,
-  maxValue?: number,
-  maxWidth?: number,
-  minValue?: number,
-  multiLine?: boolean,
-  multipleValuePictureDataPath?: string,
-  multipleValuePictureShape?: SE.InputFieldMultipleValuePictureShape,
-  multipleValuePictureSize?: SE.InputFieldMultipleValuePictureSize,
-  multipleValuePresentationDataPath?: string,
-  multipleValuesBackColor?: Color,
-  multipleValuesExtendedEdit?: boolean,
-  multipleValuesFont?: Font,
-  multipleValuesHyperlink?: boolean,
-  multipleValuesPicture?: Picture,
-  multipleValuesTextColor?: Color,
-  multipleValueValueDataPath?: string,
-  onScreenKeyboardReturnKeyText?: SE.OnScreenKeyboardReturnKeyText,
-  openButton?: boolean,
-  passwordMode?: boolean,
-  quickChoice?: boolean,
-  selectedText?: string,
-  showCheckBoxesInDropListWhenInputMultipleValues?: boolean,
-  specialTextInputMode?: SE.SpecialTextInputMode,
-  spellCheckingOnTextInput?: SE.SpellCheckingOnTextInput,
-  spinButton?: boolean,
-  textColor?: Color,
-  textEdit?: boolean,
-  typeDomainEnabled?: boolean,
-  typeLink?: TypeLink,
-  userVisible?: UserVisible,
-  verticalStretch?: boolean,
-  width?: number,
-  wrap?: boolean,
+  allowInputEmptyMultipleValues?: boolean
+  allowMultipleValuesDuplicates?: boolean
+  autoCapitalizationOnTextInput?: SE.AutoCapitalizationOnTextInput
+  autoChoiceIncomplete?: boolean
+  autoCorrectionOnTextInput?: SE.AutoCorrectionOnTextInput
+  autoFillHint?: SE.InputFieldAutofillHint
+  autoMarkIncomplete?: boolean
+  autoMaxHeight?: boolean
+  autoMaxWidth?: boolean
+  autoShowClearButton?: SE.AutoShowClearButtonMode
+  autoShowOpenButton?: SE.AutoShowOpenButtonMode
+  availableTypes?: TypeDescription
+  backColor?: Color
+  borderColor?: Color
+  choiceButton?: boolean
+  choiceButtonPicture?: Picture
+  choiceButtonRepresentation?: SE.ChoiceButtonRepresentation
+  choiceFoldersAndItems?: SE.FoldersAndItems
+  choiceForm?: string
+  choiceHistoryOnInput?: SE.ChoiceHistoryOnInput
+  choiceList?: ChoiceList
+  choiceListButton?: boolean
+  choiceListHeight?: number
+  choiceParameterLinks?: ChoiceParameterLinks
+  choiceParameters?: ChoiceParameterLinks
+  chooseType?: boolean
+  clearButton?: boolean
+  createButton?: boolean
+  dropListButton?: boolean
+  dropListWidth?: number
+  editFormat?: I8nText
+  editText?: string
+  editTextUpdate?: SE.EditTextUpdate
+  extendedEdit?: boolean
+  font?: Font
+  format?: I8nText
+  height?: number
+  heightControlVariant?: SE.ItemHeightControlVariant
+  horizontalStretch?: boolean
+  incompleteChoiceMode?: SE.IncompleteChoiceMode
+  inputHint?: I8nText
+  listChoiceMode?: boolean
+  markIncomplete?: boolean
+  markNegatives?: boolean
+  mask?: string
+  maxHeight?: number
+  maxValue?: number
+  maxWidth?: number
+  minValue?: number
+  multiLine?: boolean
+  multipleValuePictureDataPath?: string
+  multipleValuePictureShape?: SE.InputFieldMultipleValuePictureShape
+  multipleValuePictureSize?: SE.InputFieldMultipleValuePictureSize
+  multipleValuePresentationDataPath?: string
+  multipleValuesBackColor?: Color
+  multipleValuesExtendedEdit?: boolean
+  multipleValuesFont?: Font
+  multipleValuesHyperlink?: boolean
+  multipleValuesPicture?: Picture
+  multipleValuesTextColor?: Color
+  multipleValueValueDataPath?: string
+  onScreenKeyboardReturnKeyText?: SE.OnScreenKeyboardReturnKeyText
+  openButton?: boolean
+  passwordMode?: boolean
+  quickChoice?: boolean
+  selectedText?: string
+  showCheckBoxesInDropListWhenInputMultipleValues?: boolean
+  specialTextInputMode?: SE.SpecialTextInputMode
+  spellCheckingOnTextInput?: SE.SpellCheckingOnTextInput
+  spinButton?: boolean
+  textColor?: Color
+  textEdit?: boolean
+  typeDomainEnabled?: boolean
+  typeLink?: TypeLink
+  userVisible?: UserVisible
+  verticalStretch?: boolean
+  width?: number
+  wrap?: boolean
   events?: {
-    onChange?: string,
-    autoComplete?: string,
-    multipleValuesAdd?: string,
-    editTextChange?: string,
-    startChoice?: string,
-    startListChoice?: string,
-    choiceProcessing?: string,
-    multipleValueURLProcessing?: string,
-    commandGenerateProcessing?: string,
-    textEditEnd?: string,
-    opening?: string,
-    multipleValueOpening?: string,
-    clearing?: string,
-    tuning?: string,
-    creating?: string,
-    multipleValuesDelete?: string,
-  },
+    onChange?: string
+    autoComplete?: string
+    multipleValuesAdd?: string
+    editTextChange?: string
+    startChoice?: string
+    startListChoice?: string
+    choiceProcessing?: string
+    multipleValueURLProcessing?: string
+    commandGenerateProcessing?: string
+    textEditEnd?: string
+    opening?: string
+    multipleValueOpening?: string
+    clearing?: string
+    tuning?: string
+    creating?: string
+    multipleValuesDelete?: string
+  }
 }
 
 export interface InputFieldXML extends FormFieldXML {
-  
-  AllowInputEmptyMultipleValues?: boolean,
-  AllowMultipleValuesDuplicates?: boolean,
-  AutoCapitalizationOnTextInput?: SE.AutoCapitalizationOnTextInput,
-  AutoChoiceIncomplete?: boolean,
-  AutoCorrectionOnTextInput?: SE.AutoCorrectionOnTextInput,
-  AutoFillHint?: SE.InputFieldAutofillHint,
-  AutoMarkIncomplete?: boolean,
-  AutoMaxHeight?: boolean,
-  AutoMaxWidth?: boolean,
-  AutoShowClearButton?: SE.AutoShowClearButtonMode,
-  AutoShowOpenButton?: SE.AutoShowOpenButtonMode,
-  AvailableTypes?: TypeDescriptionXML,
-  BackColor?: ColorXML,
-  BorderColor?: ColorXML,
-  ChoiceButton?: boolean,
-  ChoiceButtonPicture?: PictureXML,
-  ChoiceButtonRepresentation?: SE.ChoiceButtonRepresentation,
-  ChoiceFoldersAndItems?: SE.FoldersAndItems,
-  ChoiceForm?: string,
-  ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput,
-  ChoiceList?: ChoiceListXML,
-  ChoiceListButton?: boolean,
-  ChoiceListHeight?: number,
-  ChoiceParameterLinks?: ChoiceParameterLinksXML,
-  ChoiceParameters?: ChoiceParameterLinksXML,
-  ChooseType?: boolean,
-  ClearButton?: boolean,
-  CreateButton?: boolean,
-  DropListButton?: boolean,
-  DropListWidth?: number,
-  EditFormat?: I8nTextXML,
-  EditText?: string,
-  EditTextUpdate?: SE.EditTextUpdate,
-  ExtendedEdit?: boolean,
-  Font?: FontXML,
-  Format?: I8nTextXML,
-  Height?: number,
-  HeightControlVariant?: SE.ItemHeightControlVariant,
-  HorizontalStretch?: boolean,
-  IncompleteChoiceMode?: SE.IncompleteChoiceMode,
-  InputHint?: I8nTextXML,
-  ListChoiceMode?: boolean,
-  MarkIncomplete?: boolean,
-  MarkNegatives?: boolean,
-  Mask?: string,
-  MaxHeight?: number,
-  MaxValue?: number,
-  MaxWidth?: number,
-  MinValue?: number,
-  MultiLine?: boolean,
-  MultipleValuePictureDataPath?: string,
-  MultipleValuePictureShape?: SE.InputFieldMultipleValuePictureShape,
-  MultipleValuePictureSize?: SE.InputFieldMultipleValuePictureSize,
-  MultipleValuePresentationDataPath?: string,
-  MultipleValuesBackColor?: ColorXML,
-  MultipleValuesExtendedEdit?: boolean,
-  MultipleValuesFont?: FontXML,
-  MultipleValuesHyperlink?: boolean,
-  MultipleValuesPicture?: PictureXML,
-  MultipleValuesTextColor?: ColorXML,
-  MultipleValueValueDataPath?: string,
-  OnScreenKeyboardReturnKeyText?: SE.OnScreenKeyboardReturnKeyText,
-  OpenButton?: boolean,
-  PasswordMode?: boolean,
-  QuickChoice?: boolean,
-  SelectedText?: string,
-  ShowCheckBoxesInDropListWhenInputMultipleValues?: boolean,
-  SpecialTextInputMode?: SE.SpecialTextInputMode,
-  SpellCheckingOnTextInput?: SE.SpellCheckingOnTextInput,
-  SpinButton?: boolean,
-  TextColor?: ColorXML,
-  TextEdit?: boolean,
-  TypeDomainEnabled?: boolean,
-  TypeLink?: TypeLinkXML,
-  UserVisible?: UserVisibleXML,
-  VerticalStretch?: boolean,
-  Width?: number,
-  Wrap?: boolean,
-  Events?: EventsXML,
+  AllowInputEmptyMultipleValues?: boolean
+  AllowMultipleValuesDuplicates?: boolean
+  AutoCapitalizationOnTextInput?: SE.AutoCapitalizationOnTextInput
+  AutoChoiceIncomplete?: boolean
+  AutoCorrectionOnTextInput?: SE.AutoCorrectionOnTextInput
+  AutoFillHint?: SE.InputFieldAutofillHint
+  AutoMarkIncomplete?: boolean
+  AutoMaxHeight?: boolean
+  AutoMaxWidth?: boolean
+  AutoShowClearButton?: SE.AutoShowClearButtonMode
+  AutoShowOpenButton?: SE.AutoShowOpenButtonMode
+  AvailableTypes?: TypeDescriptionXML
+  BackColor?: ColorXML
+  BorderColor?: ColorXML
+  ChoiceButton?: boolean
+  ChoiceButtonPicture?: PictureXML
+  ChoiceButtonRepresentation?: SE.ChoiceButtonRepresentation
+  ChoiceFoldersAndItems?: SE.FoldersAndItems
+  ChoiceForm?: string
+  ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
+  ChoiceList?: ChoiceListXML
+  ChoiceListButton?: boolean
+  ChoiceListHeight?: number
+  ChoiceParameterLinks?: ChoiceParameterLinksXML
+  ChoiceParameters?: ChoiceParameterLinksXML
+  ChooseType?: boolean
+  ClearButton?: boolean
+  CreateButton?: boolean
+  DropListButton?: boolean
+  DropListWidth?: number
+  EditFormat?: I8nTextXML
+  EditText?: string
+  EditTextUpdate?: SE.EditTextUpdate
+  ExtendedEdit?: boolean
+  Font?: FontXML
+  Format?: I8nTextXML
+  Height?: number
+  HeightControlVariant?: SE.ItemHeightControlVariant
+  HorizontalStretch?: boolean
+  IncompleteChoiceMode?: SE.IncompleteChoiceMode
+  InputHint?: I8nTextXML
+  ListChoiceMode?: boolean
+  MarkIncomplete?: boolean
+  MarkNegatives?: boolean
+  Mask?: string
+  MaxHeight?: number
+  MaxValue?: number
+  MaxWidth?: number
+  MinValue?: number
+  MultiLine?: boolean
+  MultipleValuePictureDataPath?: string
+  MultipleValuePictureShape?: SE.InputFieldMultipleValuePictureShape
+  MultipleValuePictureSize?: SE.InputFieldMultipleValuePictureSize
+  MultipleValuePresentationDataPath?: string
+  MultipleValuesBackColor?: ColorXML
+  MultipleValuesExtendedEdit?: boolean
+  MultipleValuesFont?: FontXML
+  MultipleValuesHyperlink?: boolean
+  MultipleValuesPicture?: PictureXML
+  MultipleValuesTextColor?: ColorXML
+  MultipleValueValueDataPath?: string
+  OnScreenKeyboardReturnKeyText?: SE.OnScreenKeyboardReturnKeyText
+  OpenButton?: boolean
+  PasswordMode?: boolean
+  QuickChoice?: boolean
+  SelectedText?: string
+  ShowCheckBoxesInDropListWhenInputMultipleValues?: boolean
+  SpecialTextInputMode?: SE.SpecialTextInputMode
+  SpellCheckingOnTextInput?: SE.SpellCheckingOnTextInput
+  SpinButton?: boolean
+  TextColor?: ColorXML
+  TextEdit?: boolean
+  TypeDomainEnabled?: boolean
+  TypeLink?: TypeLinkXML
+  UserVisible?: UserVisibleXML
+  VerticalStretch?: boolean
+  Width?: number
+  Wrap?: boolean
+  Events?: EventsXML
 }
 
 export interface InputFieldEnterprise extends FormFieldEnterprise {
-  РазрешитьВводПустыхМножественныхЗначений?: boolean,
-  РазрешитьДублированиеМножественныхЗначений?: boolean,
-  АвтоИзменениеРегистраПриВводеТекста?: SE.AutoCapitalizationOnTextInputEnterprise,
-  АвтоВыборНезаполненного?: boolean,
-  АвтоИсправлениеПриВводеТекста?: SE.AutoCorrectionOnTextInputEnterprise,
-  ПодсказкаАвтозаполнения?: SE.InputFieldAutofillHintEnterprise,
-  АвтоОтметкаНезаполненного?: boolean,
-  АвтоМаксимальнаяВысота?: boolean,
-  АвтоМаксимальнаяШирина?: boolean,
-  АвтоОтображениеКнопкиОчистки?: SE.AutoShowClearButtonModeEnterprise,
-  АвтоОтображениеКнопкиОткрытия?: SE.AutoShowOpenButtonModeEnterprise,
-  ДоступныеТипы?: TypeDescriptionEnterprise,
-  ЦветФона?: ColorEnterprise,
-  ЦветРамки?: ColorEnterprise,
-  КнопкаВыбора?: boolean,
-  КартинкаКнопкиВыбора?: PictureEnterprise,
-  ОтображениеКнопкиВыбора?: SE.ChoiceButtonRepresentationEnterprise,
-  ВыборГруппИЭлементов?: SE.FoldersAndItemsEnterprise,
-  ФормаВыбора?: string,
-  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise,
-  СписокВыбора?: ChoiceListEnterprise,
-  КнопкаСпискаВыбора?: boolean,
-  ВысотаСпискаВыбора?: number,
-  СвязиПараметровВыбора?: ChoiceParameterLinksEnterprise,
-  ПараметрыВыбора?: ChoiceParameterLinksEnterprise,
-  ВыбиратьТип?: boolean,
-  КнопкаОчистки?: boolean,
-  КнопкаСоздания?: boolean,
-  КнопкаВыпадающегоСписка?: boolean,
-  ШиринаВыпадающегоСписка?: number,
-  ФорматРедактирования?: I8nTextEnterprise,
-  ТекстРедактирования?: string,
-  ОбновлениеТекстаРедактирования?: SE.EditTextUpdateEnterprise,
-  РасширенноеРедактирование?: boolean,
-  Шрифт?: FontEnterprise,
-  Формат?: I8nTextEnterprise,
-  Высота?: number,
-  ВариантУправленияВысотой?: SE.ItemHeightControlVariantEnterprise,
-  РастягиватьПоГоризонтали?: boolean,
-  РежимВыбораНезаполненного?: SE.IncompleteChoiceModeEnterprise,
-  ПодсказкаВвода?: I8nTextEnterprise,
-  РежимВыбораИзСписка?: boolean,
-  ОтметкаНезаполненного?: boolean,
-  ВыделятьОтрицательные?: boolean,
-  Маска?: string,
-  МаксимальнаяВысота?: number,
-  МаксимальноеЗначение?: number,
-  МаксимальнаяШирина?: number,
-  МинимальноеЗначение?: number,
-  МногострочныйРежим?: boolean,
-  ПутьКДаннымКартинкиМножественногоЗначения?: string,
-  ФигураКартинкиМножественногоЗначения?: SE.InputFieldMultipleValuePictureShapeEnterprise,
-  РазмерКартинкиМножественногоЗначения?: SE.InputFieldMultipleValuePictureSizeEnterprise,
-  ПутьКДаннымПредставленияМножественногоЗначения?: string,
-  ЦветФонаМножественныхЗначений?: ColorEnterprise,
-  РасширенноеРедактированиеМножественныхЗначений?: boolean,
-  ШрифтМножественныхЗначений?: FontEnterprise,
-  ГиперссылкаМножественныхЗначений?: boolean,
-  КартинкаМножественныхЗначений?: PictureEnterprise,
-  ЦветТекстаМножественныхЗначений?: ColorEnterprise,
-  ПутьКДаннымЗначенияМножественногоЗначения?: string,
-  ТекстКнопкиВводаЭкраннойКлавиатуры?: SE.OnScreenKeyboardReturnKeyTextEnterprise,
-  КнопкаОткрытия?: boolean,
-  РежимПароля?: boolean,
-  БыстрыйВыбор?: boolean,
-  ВыделенныйТекст?: string,
-  ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений?: boolean,
-  СпециальныйРежимВводаТекста?: SE.SpecialTextInputModeEnterprise,
-  ПроверкаПравописанияПриВводеТекста?: SE.SpellCheckingOnTextInputEnterprise,
-  КнопкаРегулирования?: boolean,
-  ЦветТекста?: ColorEnterprise,
-  РедактированиеТекста?: boolean,
-  РазрешитьСоставнойТип?: boolean,
-  СвязьПоТипу?: TypeLinkEnterprise,
-  ПользовательскаяВидимость?: UserVisibleEnterprise,
-  РастягиватьПоВертикали?: boolean,
-  Ширина?: number,
-  АвтоПереносСтрок?: boolean,
+  РазрешитьВводПустыхМножественныхЗначений?: boolean
+  РазрешитьДублированиеМножественныхЗначений?: boolean
+  АвтоИзменениеРегистраПриВводеТекста?: SE.AutoCapitalizationOnTextInputEnterprise
+  АвтоВыборНезаполненного?: boolean
+  АвтоИсправлениеПриВводеТекста?: SE.AutoCorrectionOnTextInputEnterprise
+  ПодсказкаАвтозаполнения?: SE.InputFieldAutofillHintEnterprise
+  АвтоОтметкаНезаполненного?: boolean
+  АвтоМаксимальнаяВысота?: boolean
+  АвтоМаксимальнаяШирина?: boolean
+  АвтоОтображениеКнопкиОчистки?: SE.AutoShowClearButtonModeEnterprise
+  АвтоОтображениеКнопкиОткрытия?: SE.AutoShowOpenButtonModeEnterprise
+  ДоступныеТипы?: TypeDescriptionEnterprise
+  ЦветФона?: ColorEnterprise
+  ЦветРамки?: ColorEnterprise
+  КнопкаВыбора?: boolean
+  КартинкаКнопкиВыбора?: PictureEnterprise
+  ОтображениеКнопкиВыбора?: SE.ChoiceButtonRepresentationEnterprise
+  ВыборГруппИЭлементов?: SE.FoldersAndItemsEnterprise
+  ФормаВыбора?: string
+  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
+  СписокВыбора?: ChoiceListEnterprise
+  КнопкаСпискаВыбора?: boolean
+  ВысотаСпискаВыбора?: number
+  СвязиПараметровВыбора?: ChoiceParameterLinksEnterprise
+  ПараметрыВыбора?: ChoiceParameterLinksEnterprise
+  ВыбиратьТип?: boolean
+  КнопкаОчистки?: boolean
+  КнопкаСоздания?: boolean
+  КнопкаВыпадающегоСписка?: boolean
+  ШиринаВыпадающегоСписка?: number
+  ФорматРедактирования?: I8nTextEnterprise
+  ТекстРедактирования?: string
+  ОбновлениеТекстаРедактирования?: SE.EditTextUpdateEnterprise
+  РасширенноеРедактирование?: boolean
+  Шрифт?: FontEnterprise
+  Формат?: I8nTextEnterprise
+  Высота?: number
+  ВариантУправленияВысотой?: SE.ItemHeightControlVariantEnterprise
+  РастягиватьПоГоризонтали?: boolean
+  РежимВыбораНезаполненного?: SE.IncompleteChoiceModeEnterprise
+  ПодсказкаВвода?: I8nTextEnterprise
+  РежимВыбораИзСписка?: boolean
+  ОтметкаНезаполненного?: boolean
+  ВыделятьОтрицательные?: boolean
+  Маска?: string
+  МаксимальнаяВысота?: number
+  МаксимальноеЗначение?: number
+  МаксимальнаяШирина?: number
+  МинимальноеЗначение?: number
+  МногострочныйРежим?: boolean
+  ПутьКДаннымКартинкиМножественногоЗначения?: string
+  ФигураКартинкиМножественногоЗначения?: SE.InputFieldMultipleValuePictureShapeEnterprise
+  РазмерКартинкиМножественногоЗначения?: SE.InputFieldMultipleValuePictureSizeEnterprise
+  ПутьКДаннымПредставленияМножественногоЗначения?: string
+  ЦветФонаМножественныхЗначений?: ColorEnterprise
+  РасширенноеРедактированиеМножественныхЗначений?: boolean
+  ШрифтМножественныхЗначений?: FontEnterprise
+  ГиперссылкаМножественныхЗначений?: boolean
+  КартинкаМножественныхЗначений?: PictureEnterprise
+  ЦветТекстаМножественныхЗначений?: ColorEnterprise
+  ПутьКДаннымЗначенияМножественногоЗначения?: string
+  ТекстКнопкиВводаЭкраннойКлавиатуры?: SE.OnScreenKeyboardReturnKeyTextEnterprise
+  КнопкаОткрытия?: boolean
+  РежимПароля?: boolean
+  БыстрыйВыбор?: boolean
+  ВыделенныйТекст?: string
+  ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений?: boolean
+  СпециальныйРежимВводаТекста?: SE.SpecialTextInputModeEnterprise
+  ПроверкаПравописанияПриВводеТекста?: SE.SpellCheckingOnTextInputEnterprise
+  КнопкаРегулирования?: boolean
+  ЦветТекста?: ColorEnterprise
+  РедактированиеТекста?: boolean
+  РазрешитьСоставнойТип?: boolean
+  СвязьПоТипу?: TypeLinkEnterprise
+  ПользовательскаяВидимость?: UserVisibleEnterprise
+  РастягиватьПоВертикали?: boolean
+  Ширина?: number
+  АвтоПереносСтрок?: boolean
   События?: {
-    ПриИзменении?: string,
-    АвтоПодбор?: string,
-    ДобавлениеМножественныхЗначений?: string,
-    ИзменениеТекстаРедактирования?: string,
-    НачалоВыбора?: string,
-    НачалоВыбораИзСписка?: string,
-    ОбработкаВыбора?: string,
-    ОбработкаНавигационнойСсылкиМножественногоЗначения?: string,
-    ОбработкаФормированияКоманд?: string,
-    ОкончаниеВводаТекста?: string,
-    Открытие?: string,
-    ОткрытиеМножественногоЗначения?: string,
-    Очистка?: string,
-    Регулирование?: string,
-    Создание?: string,
-    УдалениеМножественныхЗначений?: string,
-  },
+    ПриИзменении?: string
+    АвтоПодбор?: string
+    ДобавлениеМножественныхЗначений?: string
+    ИзменениеТекстаРедактирования?: string
+    НачалоВыбора?: string
+    НачалоВыбораИзСписка?: string
+    ОбработкаВыбора?: string
+    ОбработкаНавигационнойСсылкиМножественногоЗначения?: string
+    ОбработкаФормированияКоманд?: string
+    ОкончаниеВводаТекста?: string
+    Открытие?: string
+    ОткрытиеМножественногоЗначения?: string
+    Очистка?: string
+    Регулирование?: string
+    Создание?: string
+    УдалениеМножественныхЗначений?: string
+  }
 }

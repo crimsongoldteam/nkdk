@@ -11,10 +11,10 @@ import { FormElementType } from "../types"
 import { Page, PageXML } from "./types"
 
 export const exportPageToXML = (data: Page | undefined): PageXML | undefined => {
-    if (!data) return undefined
-     
-    return {
-...exportFormGroupToXML(data)!,
+  if (!data) return undefined
+
+  return {
+    ...exportFormGroupToXML(data)!,
 
     EnableContentChange: data.enableContentChange,
     Enabled: data.enabled,

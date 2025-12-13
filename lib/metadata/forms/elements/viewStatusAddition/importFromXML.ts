@@ -11,12 +11,14 @@ import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML
 import { FormElementType } from "../types"
 import { ViewStatusAddition, ViewStatusAdditionXML } from "./types"
 
-export const importViewStatusAdditionFromXML = (xml: ViewStatusAdditionXML | undefined): ViewStatusAddition | undefined => {
+export const importViewStatusAdditionFromXML = (
+  xml: ViewStatusAdditionXML | undefined
+): ViewStatusAddition | undefined => {
   if (!xml) return undefined
-   
+
   return {
-...importFormItemAdditionFromXML(xml)!,
-elementType: FormElementType.ViewStatusAddition,
+    ...importFormItemAdditionFromXML(xml)!,
+    elementType: FormElementType.ViewStatusAddition,
 
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
     displayImportance: xml._DisplayImportance,

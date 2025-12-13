@@ -15,10 +15,10 @@ import { FormElementType } from "../types"
 import { LabelField, LabelFieldXML } from "./types"
 
 export const exportLabelFieldToXML = (data: LabelField | undefined): LabelFieldXML | undefined => {
-    if (!data) return undefined
-     
-    return {
-...exportFormFieldToXML(data)!,
+  if (!data) return undefined
+
+  return {
+    ...exportFormFieldToXML(data)!,
 
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,

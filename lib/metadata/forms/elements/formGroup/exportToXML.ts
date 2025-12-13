@@ -10,10 +10,10 @@ import { FormElementType } from "../types"
 import { FormGroup, FormGroupXML } from "./types"
 
 export const exportFormGroupToXML = (data: FormGroup | undefined): FormGroupXML | undefined => {
-    if (!data) return undefined
-     
-    return {
-...exportBaseElementToXML(data)!,
+  if (!data) return undefined
+
+  return {
+    ...exportBaseElementToXML(data)!,
 
     EnableContentChange: data.enableContentChange,
     Enabled: data.enabled,

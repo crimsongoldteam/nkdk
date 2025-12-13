@@ -1,103 +1,100 @@
-import { Border, BorderEnterprise, BorderXML } from "~/lib/metadata/commonObjects/border/types";
-import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types";
-import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types";
-import { Picture, PictureEnterprise, PictureXML } from "~/lib/metadata/commonObjects/pictures/types";
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types";
-import { EventsXML } from "~/lib/metadata/forms/events/types";
-import * as SE from "~/lib/metadata/systemEnumerations/types";
-import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types";
-
+import { Border, BorderEnterprise, BorderXML } from "~/lib/metadata/commonObjects/border/types"
+import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
+import { Picture, PictureEnterprise, PictureXML } from "~/lib/metadata/commonObjects/pictures/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { EventsXML } from "~/lib/metadata/forms/events/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
 export interface PictureField extends FormField {
-
-  autoMaxHeight?: boolean,
-  autoMaxWidth?: boolean,
-  border?: Border,
-  borderColor?: Color,
-  enableDrag?: boolean,
-  enableStartDrag?: boolean,
-  fileDragMode?: SE.FileDragMode,
-  font?: Font,
-  height?: number,
-  horizontalStretch?: boolean,
-  hyperlink?: boolean,
-  maxHeight?: number,
-  maxWidth?: number,
-  nonselectedPictureText?: string,
-  pictureSize?: SE.PictureSize,
-  scale?: number,
-  textColor?: Color,
-  userVisible?: UserVisible,
-  valuesPicture?: Picture,
-  verticalStretch?: boolean,
-  width?: number,
-  zoomable?: boolean,
+  autoMaxHeight?: boolean
+  autoMaxWidth?: boolean
+  border?: Border
+  borderColor?: Color
+  enableDrag?: boolean
+  enableStartDrag?: boolean
+  fileDragMode?: SE.FileDragMode
+  font?: Font
+  height?: number
+  horizontalStretch?: boolean
+  hyperlink?: boolean
+  maxHeight?: number
+  maxWidth?: number
+  nonselectedPictureText?: string
+  pictureSize?: SE.PictureSize
+  scale?: number
+  textColor?: Color
+  userVisible?: UserVisible
+  valuesPicture?: Picture
+  verticalStretch?: boolean
+  width?: number
+  zoomable?: boolean
   events?: {
-    onChange?: string,
-    click?: string,
-    dragStart?: string,
-    dragEnd?: string,
-    drag?: string,
-    dragCheck?: string,
-  },
+    onChange?: string
+    click?: string
+    dragStart?: string
+    dragEnd?: string
+    drag?: string
+    dragCheck?: string
+  }
 }
 
 export interface PictureFieldXML extends FormFieldXML {
-  
-  AutoMaxHeight?: boolean,
-  AutoMaxWidth?: boolean,
-  Border?: BorderXML,
-  BorderColor?: ColorXML,
-  EnableDrag?: boolean,
-  EnableStartDrag?: boolean,
-  FileDragMode?: SE.FileDragMode,
-  Font?: FontXML,
-  Height?: number,
-  HorizontalStretch?: boolean,
-  Hyperlink?: boolean,
-  MaxHeight?: number,
-  MaxWidth?: number,
-  NonselectedPictureText?: string,
-  PictureSize?: SE.PictureSize,
-  Scale?: number,
-  TextColor?: ColorXML,
-  UserVisible?: UserVisibleXML,
-  ValuesPicture?: PictureXML,
-  VerticalStretch?: boolean,
-  Width?: number,
-  Zoomable?: boolean,
-  Events?: EventsXML,
+  AutoMaxHeight?: boolean
+  AutoMaxWidth?: boolean
+  Border?: BorderXML
+  BorderColor?: ColorXML
+  EnableDrag?: boolean
+  EnableStartDrag?: boolean
+  FileDragMode?: SE.FileDragMode
+  Font?: FontXML
+  Height?: number
+  HorizontalStretch?: boolean
+  Hyperlink?: boolean
+  MaxHeight?: number
+  MaxWidth?: number
+  NonselectedPictureText?: string
+  PictureSize?: SE.PictureSize
+  Scale?: number
+  TextColor?: ColorXML
+  UserVisible?: UserVisibleXML
+  ValuesPicture?: PictureXML
+  VerticalStretch?: boolean
+  Width?: number
+  Zoomable?: boolean
+  Events?: EventsXML
 }
 
 export interface PictureFieldEnterprise extends FormFieldEnterprise {
-  АвтоМаксимальнаяВысота?: boolean,
-  АвтоМаксимальнаяШирина?: boolean,
-  Рамка?: BorderEnterprise,
-  ЦветРамки?: ColorEnterprise,
-  РазрешитьПеретаскивание?: boolean,
-  РазрешитьНачалоПеретаскивания?: boolean,
-  СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise,
-  Шрифт?: FontEnterprise,
-  Высота?: number,
-  РастягиватьПоГоризонтали?: boolean,
-  Гиперссылка?: boolean,
-  МаксимальнаяВысота?: number,
-  МаксимальнаяШирина?: number,
-  ТекстНевыбраннойКартинки?: string,
-  РазмерКартинки?: SE.PictureSizeEnterprise,
-  Масштаб?: number,
-  ЦветТекста?: ColorEnterprise,
-  ПользовательскаяВидимость?: UserVisibleEnterprise,
-  КартинкаЗначений?: PictureEnterprise,
-  РастягиватьПоВертикали?: boolean,
-  Ширина?: number,
-  Масштабировать?: boolean,
+  АвтоМаксимальнаяВысота?: boolean
+  АвтоМаксимальнаяШирина?: boolean
+  Рамка?: BorderEnterprise
+  ЦветРамки?: ColorEnterprise
+  РазрешитьПеретаскивание?: boolean
+  РазрешитьНачалоПеретаскивания?: boolean
+  СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise
+  Шрифт?: FontEnterprise
+  Высота?: number
+  РастягиватьПоГоризонтали?: boolean
+  Гиперссылка?: boolean
+  МаксимальнаяВысота?: number
+  МаксимальнаяШирина?: number
+  ТекстНевыбраннойКартинки?: string
+  РазмерКартинки?: SE.PictureSizeEnterprise
+  Масштаб?: number
+  ЦветТекста?: ColorEnterprise
+  ПользовательскаяВидимость?: UserVisibleEnterprise
+  КартинкаЗначений?: PictureEnterprise
+  РастягиватьПоВертикали?: boolean
+  Ширина?: number
+  Масштабировать?: boolean
   События?: {
-    ПриИзменении?: string,
-    Нажатие?: string,
-    НачалоПеретаскивания?: string,
-    ОкончаниеПеретаскивания?: string,
-    Перетаскивание?: string,
-    ПроверкаПеретаскивания?: string,
-  },
+    ПриИзменении?: string
+    Нажатие?: string
+    НачалоПеретаскивания?: string
+    ОкончаниеПеретаскивания?: string
+    Перетаскивание?: string
+    ПроверкаПеретаскивания?: string
+  }
 }

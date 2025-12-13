@@ -14,10 +14,10 @@ import { FormElementType } from "../types"
 import { CheckBoxField, CheckBoxFieldXML } from "./types"
 
 export const exportCheckBoxFieldToXML = (data: CheckBoxField | undefined): CheckBoxFieldXML | undefined => {
-    if (!data) return undefined
-     
-    return {
-...exportFormFieldToXML(data)!,
+  if (!data) return undefined
+
+  return {
+    ...exportFormFieldToXML(data)!,
 
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,

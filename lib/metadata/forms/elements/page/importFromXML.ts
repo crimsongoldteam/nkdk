@@ -12,10 +12,10 @@ import { Page, PageXML } from "./types"
 
 export const importPageFromXML = (xml: PageXML | undefined): Page | undefined => {
   if (!xml) return undefined
-   
+
   return {
-...importFormGroupFromXML(xml)!,
-elementType: FormElementType.Page,
+    ...importFormGroupFromXML(xml)!,
+    elementType: FormElementType.Page,
 
     enableContentChange: xml.EnableContentChange,
     enabled: xml.Enabled,

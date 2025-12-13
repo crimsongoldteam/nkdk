@@ -16,10 +16,10 @@ import { LabelField, LabelFieldXML } from "./types"
 
 export const importLabelFieldFromXML = (xml: LabelFieldXML | undefined): LabelField | undefined => {
   if (!xml) return undefined
-   
+
   return {
-...importFormFieldFromXML(xml)!,
-elementType: FormElementType.LabelField,
+    ...importFormFieldFromXML(xml)!,
+    elementType: FormElementType.LabelField,
 
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,

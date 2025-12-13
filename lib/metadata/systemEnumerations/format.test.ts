@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
+import { TConfigurationSettings } from "../configurationSettings/types"
 import { formatSystemEnumeration } from "./format"
-import { ChildFormItemsGroup, ChildFormItemsGroupEnterprise } from "./types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -8,15 +8,10 @@ const configurationSettings: TConfigurationSettings = {
 
 describe("formatSystemEnumeration", () => {
   it("should format to enterprise", () => {
-    const mockValue: ChildFormItemsGroup = ChildFormItemsGroup.Vertical
-    const expectedResult: ChildFormItemsGroupEnterprise = ChildFormItemsGroupEnterprise.Vertical
+    const mockValue = "Vertical"
+    const expectedResult = "Вертикальная"
 
-    const result = formatSystemEnumeration(
-      mockValue,
-      configurationSettings,
-      ChildFormItemsGroup,
-      ChildFormItemsGroupEnterprise
-    )
+    const result = formatSystemEnumeration(mockValue, configurationSettings)
 
     expect(result).toBe(expectedResult)
   })

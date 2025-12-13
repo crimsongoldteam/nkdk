@@ -14,10 +14,10 @@ import { FormElementType } from "../types"
 import { DendrogramField, DendrogramFieldXML } from "./types"
 
 export const exportDendrogramFieldToXML = (data: DendrogramField | undefined): DendrogramFieldXML | undefined => {
-    if (!data) return undefined
-     
-    return {
-...exportFormFieldToXML(data)!,
+  if (!data) return undefined
+
+  return {
+    ...exportFormFieldToXML(data)!,
 
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,

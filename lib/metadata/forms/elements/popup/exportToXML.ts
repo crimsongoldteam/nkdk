@@ -11,10 +11,10 @@ import { FormElementType } from "../types"
 import { Popup, PopupXML } from "./types"
 
 export const exportPopupToXML = (data: Popup | undefined): PopupXML | undefined => {
-    if (!data) return undefined
-     
-    return {
-...exportFormGroupToXML(data)!,
+  if (!data) return undefined
+
+  return {
+    ...exportFormGroupToXML(data)!,
 
     EnableContentChange: data.enableContentChange,
     Enabled: data.enabled,

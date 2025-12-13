@@ -15,10 +15,10 @@ import { FormField, FormFieldXML } from "./types"
 
 export const importFormFieldFromXML = (xml: FormFieldXML | undefined): FormField | undefined => {
   if (!xml) return undefined
-   
+
   return {
-...importBaseElementFromXML(xml)!,
-elementType: FormElementType.FormField,
+    ...importBaseElementFromXML(xml)!,
+    elementType: FormElementType.FormField,
 
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,

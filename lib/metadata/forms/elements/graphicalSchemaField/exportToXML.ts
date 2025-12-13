@@ -13,11 +13,13 @@ import { exportTableToXML } from "../table/exportToXML"
 import { FormElementType } from "../types"
 import { GraphicalSchemaField, GraphicalSchemaFieldXML } from "./types"
 
-export const exportGraphicalSchemaFieldToXML = (data: GraphicalSchemaField | undefined): GraphicalSchemaFieldXML | undefined => {
-    if (!data) return undefined
-     
-    return {
-...exportFormFieldToXML(data)!,
+export const exportGraphicalSchemaFieldToXML = (
+  data: GraphicalSchemaField | undefined
+): GraphicalSchemaFieldXML | undefined => {
+  if (!data) return undefined
+
+  return {
+    ...exportFormFieldToXML(data)!,
 
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,

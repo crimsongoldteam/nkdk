@@ -68,12 +68,19 @@ describe("parseSystemEnumeration", () => {
   })
 
   it("should be inverse of formatSystemEnumeration", () => {
-    const originalValue: ChildFormItemsGroup = ChildFormItemsGroup.Vertical
+    const originalValue = "Vertical"
+
+    const type = {
+      options: ["Vertical", "Horizontal", "AlwaysHorizontal", "HorizontalIfPossible"] as const,
+    }
+    const typeEnterprise = {
+      options: ["Вертикальная", "Горизонтальная", "ГоризонтальнаяВсегда", "ГоризонтальнаяЕслиВозможно"] as const,
+    }
 
     const rule: TElementRule = {
       nameEnterprise: "ChildFormItemsGroup",
-      type: ChildFormItemsGroup,
-      typeEnterprise: ChildFormItemsGroupEnterprise,
+      type: type,
+      typeEnterprise: typeEnterprise,
       format: formatSystemEnumeration,
       inProperties: () => true,
     }
@@ -81,7 +88,8 @@ describe("parseSystemEnumeration", () => {
     const formatted = formatSystemEnumeration(
       originalValue,
       configurationSettings,
-      rule
+      type,
+      typeEnterprise
     )
     const parsed = parseSystemEnumeration(
       formatted,

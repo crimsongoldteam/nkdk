@@ -10,11 +10,13 @@ import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
 import { FormElementType } from "../types"
 import { SearchStringAddition, SearchStringAdditionXML } from "./types"
 
-export const exportSearchStringAdditionToXML = (data: SearchStringAddition | undefined): SearchStringAdditionXML | undefined => {
-    if (!data) return undefined
-     
-    return {
-...exportFormItemAdditionToXML(data)!,
+export const exportSearchStringAdditionToXML = (
+  data: SearchStringAddition | undefined
+): SearchStringAdditionXML | undefined => {
+  if (!data) return undefined
+
+  return {
+    ...exportFormItemAdditionToXML(data)!,
 
     ContextMenu: exportCommandBarToXML(data.contextMenu),
     _DisplayImportance: data.displayImportance,

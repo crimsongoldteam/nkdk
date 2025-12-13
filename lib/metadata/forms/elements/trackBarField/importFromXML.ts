@@ -15,10 +15,10 @@ import { TrackBarField, TrackBarFieldXML } from "./types"
 
 export const importTrackBarFieldFromXML = (xml: TrackBarFieldXML | undefined): TrackBarField | undefined => {
   if (!xml) return undefined
-   
+
   return {
-...importFormFieldFromXML(xml)!,
-elementType: FormElementType.TrackBarField,
+    ...importFormFieldFromXML(xml)!,
+    elementType: FormElementType.TrackBarField,
 
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,

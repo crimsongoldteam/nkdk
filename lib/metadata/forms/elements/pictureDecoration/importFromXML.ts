@@ -11,12 +11,14 @@ import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { FormElementType } from "../types"
 import { PictureDecoration, PictureDecorationXML } from "./types"
 
-export const importPictureDecorationFromXML = (xml: PictureDecorationXML | undefined): PictureDecoration | undefined => {
+export const importPictureDecorationFromXML = (
+  xml: PictureDecorationXML | undefined
+): PictureDecoration | undefined => {
   if (!xml) return undefined
-   
+
   return {
-...importFormDecorationFromXML(xml)!,
-elementType: FormElementType.PictureDecoration,
+    ...importFormDecorationFromXML(xml)!,
+    elementType: FormElementType.PictureDecoration,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,

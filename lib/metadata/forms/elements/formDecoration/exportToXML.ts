@@ -9,10 +9,10 @@ import { FormElementType } from "../types"
 import { FormDecoration, FormDecorationXML } from "./types"
 
 export const exportFormDecorationToXML = (data: FormDecoration | undefined): FormDecorationXML | undefined => {
-    if (!data) return undefined
-     
-    return {
-...exportBaseElementToXML(data)!,
+  if (!data) return undefined
+
+  return {
+    ...exportBaseElementToXML(data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,

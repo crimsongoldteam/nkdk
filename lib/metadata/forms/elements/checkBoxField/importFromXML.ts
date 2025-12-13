@@ -15,10 +15,10 @@ import { CheckBoxField, CheckBoxFieldXML } from "./types"
 
 export const importCheckBoxFieldFromXML = (xml: CheckBoxFieldXML | undefined): CheckBoxField | undefined => {
   if (!xml) return undefined
-   
+
   return {
-...importFormFieldFromXML(xml)!,
-elementType: FormElementType.CheckBoxField,
+    ...importFormFieldFromXML(xml)!,
+    elementType: FormElementType.CheckBoxField,
 
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,

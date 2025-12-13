@@ -14,10 +14,10 @@ import { FormElementType } from "../types"
 import { TextDocumentField, TextDocumentFieldXML } from "./types"
 
 export const exportTextDocumentFieldToXML = (data: TextDocumentField | undefined): TextDocumentFieldXML | undefined => {
-    if (!data) return undefined
-     
-    return {
-...exportFormFieldToXML(data)!,
+  if (!data) return undefined
+
+  return {
+    ...exportFormFieldToXML(data)!,
 
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,

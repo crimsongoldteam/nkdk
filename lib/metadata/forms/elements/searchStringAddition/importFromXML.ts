@@ -10,12 +10,14 @@ import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML
 import { FormElementType } from "../types"
 import { SearchStringAddition, SearchStringAdditionXML } from "./types"
 
-export const importSearchStringAdditionFromXML = (xml: SearchStringAdditionXML | undefined): SearchStringAddition | undefined => {
+export const importSearchStringAdditionFromXML = (
+  xml: SearchStringAdditionXML | undefined
+): SearchStringAddition | undefined => {
   if (!xml) return undefined
-   
+
   return {
-...importFormItemAdditionFromXML(xml)!,
-elementType: FormElementType.SearchStringAddition,
+    ...importFormItemAdditionFromXML(xml)!,
+    elementType: FormElementType.SearchStringAddition,
 
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
     displayImportance: xml._DisplayImportance,

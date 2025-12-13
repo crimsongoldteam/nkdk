@@ -2,20 +2,8 @@ import { Command, CommandEnterprise } from "./types"
 import { formatI8nText } from "../../commonObjects/i8nText/format"
 import { stringify } from "yaml"
 import { formatSystemEnumeration } from "../../systemEnumerations/format"
-import { TElementRule } from "~/lib/rulesManager/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { TConfigurationSettings } from "../../configurationSettings/types"
-
-const ZCurrentRowUseRule: TElementRule = {
-  nameEnterprise: "ИспользованиеТекущейСтроки",
-  get type() {
-    return SE.ZCurrentRowUse
-  },
-  get typeEnterprise() {
-    return SE.ZCurrentRowUseEnterprise
-  },
-  inProperties: () => true,
-}
 
 export const formatCommands = (
   commands: Command[],
@@ -48,8 +36,9 @@ const formatCommand = (
     ИспользованиеТекущейСтроки: formatSystemEnumeration(
       command.currentRowUse,
       configurationSettings,
-      ZCurrentRowUseRule
-    ) as SE.TCurrentRowUseEnterprise | undefined,
+      { options: ["Auto", "Use", "DontUse"] },
+      { options: ["Авто", "Использует", "НеИспользует"] }
+    ) as SE.CurrentRowUseEnterprise | undefined,
     ИзменяемыеДанные: command.modifiesSavedData,
   }
 
