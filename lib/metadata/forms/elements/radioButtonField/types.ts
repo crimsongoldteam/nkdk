@@ -1,138 +1,59 @@
+import { ChoiceList, ChoiceListEnterprise, ChoiceListXML } from "~/lib/metadata/commonObjects/choiceList/types"
+import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZTable, ZTableXML } from "../table/types"
-import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZChoiceList, ZChoiceListXML } from "~/lib/metadata/commonObjects/choiceList/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZEventsXML } from "~/lib/metadata/forms/events/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import { ZodChildItemsType } from "../childItems/typesExt"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
-export interface RadioButtonField {
-  elementType: ElementType
-  name: string
-  id?: string
-  autoCellHeight?: boolean,
-  cellHyperlink?: boolean,
-  contextMenu?: CommandBar,
-  dataPath?: string,
-  defaultItem?: boolean,
-  displayImportance?: SE.DisplayImportance,
-  editMode?: SE.ColumnEditMode,
-  enabled?: boolean,
-  extendedTooltip?: FormDecoration,
-  fixingInTable?: SE.FixingInTable,
-  footerBackColor?: Color,
-  footerDataPath?: string,
-  footerFont?: Font,
-  footerHorizontalAlign?: SE.ItemHorizontalLocation,
-  footerPicture?: Picture,
-  footerText?: I8nText,
-  footerTextColor?: Color,
-  headerHorizontalAlign?: SE.ItemHorizontalLocation,
-  headerPicture?: Picture,
-  horizontalAlign?: SE.ItemHorizontalLocation,
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation,
-  readOnly?: boolean,
-  shortcut?: string,
-  showInFooter?: boolean,
-  showInHeader?: boolean,
-  skipOnInput?: boolean,
-  table?: Table,
-  title?: I8nText,
-  titleBackColor?: Color,
-  titleFont?: Font,
-  titleHeight?: number,
-  titleLocation?: SE.FormItemTitleLocation,
-  titleTextColor?: Color,
-  toolTip?: I8nText,
-  toolTipRepresentation?: SE.ToolTipRepresentation,
-  type?: SE.FormFieldType,
-  typeRestriction?: TypeDescription,
-  userVisible?: UserVisible,
-  verticalAlign?: SE.ItemVerticalAlign,
-  verticalAlignInGroup?: SE.ItemVerticalAlign,
-  visible?: boolean,
-  warningOnEdit?: I8nText,
-  warningOnEditRepresentation?: SE.WarningOnEditRepresentation,
-  backColor?: Color,
-  borderColor?: Color,
-  choiceList?: ChoiceList,
-  columnsCount?: number,
-  equalColumnsWidth?: boolean,
-  font?: Font,
-  itemHeight?: number,
-  itemTitleHeight?: number,
-  itemWidth?: number,
-  radioButtonType?: SE.RadioButtonType,
-  textColor?: Color,
+export interface RadioButtonField extends FormField {
+  backColor?: Color
+  borderColor?: Color
+  choiceList?: ChoiceList
+  columnsCount?: number
+  equalColumnsWidth?: boolean
+  font?: Font
+  itemHeight?: number
+  itemTitleHeight?: number
+  itemWidth?: number
+  radioButtonType?: SE.RadioButtonType
+  textColor?: Color
+  userVisible?: UserVisible
   events?: {
-    onChange?: string,
-  },
+    onChange?: string
+  }
 }
 
-export interface RadioButtonFieldXML {
-  _name: z.string(),
-  _id: z.string(),
-  _DisplayImportance: SE.DisplayImportance,
-  DataPath: string,
-  Visible: boolean,
-  UserVisible: UserVisible,
-  Enabled: boolean,
-  ReadOnly: boolean,
-  SkipOnInput: boolean,
-  Title: I8nText,
-  TitleTextColor: Color,
-  TitleFont: Font,
-  TitleLocation: SE.FormItemTitleLocation,
-  TitleHeight: number,
-  ToolTip: I8nText,
-  ToolTipRepresentation: SE.ToolTipRepresentation,
-  WarningOnEditRepresentation: SE.WarningOnEditRepresentation,
-  WarningOnEdit: I8nText,
-  Shortcut: string,
-  HorizontalAlign: SE.ItemHorizontalLocation,
-  VerticalAlign: SE.ItemVerticalAlign,
-  RadioButtonType: SE.RadioButtonType,
-  ItemTitleHeight: number,
-  ColumnsCount: number,
-  Font: Font,
-  TextColor: Color,
-  ContextMenu: CommandBar,
-  ExtendedTooltip: FormDecoration,
-  AutoCellHeight: boolean,
-  BackColor: Color,
-  BorderColor: Color,
-  CellHyperlink: boolean,
-  ChoiceList: ChoiceList,
-  DefaultItem: boolean,
-  EditMode: SE.ColumnEditMode,
-  EqualColumnsWidth: boolean,
-  FixingInTable: SE.FixingInTable,
-  FooterBackColor: Color,
-  FooterDataPath: string,
-  FooterFont: Font,
-  FooterHorizontalAlign: SE.ItemHorizontalLocation,
-  FooterPicture: Picture,
-  FooterText: I8nText,
-  FooterTextColor: Color,
-  HeaderHorizontalAlign: SE.ItemHorizontalLocation,
-  HeaderPicture: Picture,
-  HorizontalAlignInGroup: SE.ItemHorizontalLocation,
-  ItemHeight: number,
-  ItemWidth: number,
-  ShowInFooter: boolean,
-  ShowInHeader: boolean,
-  Table: Table,
-  TitleBackColor: Color,
-  Type: SE.FormFieldType,
-  TypeRestriction: TypeDescription,
-  VerticalAlignInGroup: SE.ItemVerticalAlign,
+export interface RadioButtonFieldXML extends FormFieldXML {
+  BackColor?: ColorXML
+  BorderColor?: ColorXML
+  ChoiceList?: ChoiceListXML
+  ColumnsCount?: number
+  EqualColumnsWidth?: boolean
+  Font?: FontXML
+  ItemHeight?: number
+  ItemTitleHeight?: number
+  ItemWidth?: number
+  RadioButtonType?: SE.RadioButtonType
+  TextColor?: ColorXML
+  UserVisible?: UserVisibleXML
+  Events?: EventsXML
+}
+
+export interface RadioButtonFieldEnterprise extends FormFieldEnterprise {
+  ЦветФона?: ColorEnterprise
+  ЦветРамки?: ColorEnterprise
+  СписокВыбора?: ChoiceListEnterprise
+  КоличествоКолонок?: number
+  ОдинаковаяШиринаКолонок?: boolean
+  Шрифт?: FontEnterprise
+  ВысотаЭлемента?: number
+  ВысотаЗаголовкаЭлемента?: number
+  ШиринаЭлемента?: number
+  ВидПереключателя?: SE.RadioButtonTypeEnterprise
+  ЦветТекста?: ColorEnterprise
+  ПользовательскаяВидимость?: UserVisibleEnterprise
+  События?: {
+    ПриИзменении?: string
+  }
 }

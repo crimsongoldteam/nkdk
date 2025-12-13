@@ -1,6 +1,6 @@
 import {
   type TElementType,
-  ZElementType,
+  FormElementType,
 } from "~/lib/metadata/forms/elements/types"
 import { ButtonComponent } from "./button/button"
 import { CheckBoxFieldComponent } from "./checkBoxField/checkBoxField"
@@ -17,15 +17,15 @@ import { PageComponent } from "./pages/page"
 export const components: Partial<
   Record<TElementType, React.ComponentType<any>>
 > = {
-  [ZElementType.enum.InputField]: InputField,
-  [ZElementType.enum.Button]: ButtonComponent,
-  [ZElementType.enum.Pages]: PagesComponent,
-  [ZElementType.enum.CheckBoxField]: CheckBoxFieldComponent,
-  [ZElementType.enum.LabelDecoration]: LabelDecorationComponent,
-  [ZElementType.enum.PictureDecoration]: PictureDecorationComponent,
-  [ZElementType.enum.Table]: TableComponent,
-  [ZElementType.enum.RadioButtonField]: RadioButtonFieldComponent,
-  [ZElementType.enum.CommandBar]: CommandBarComponent,
-  [ZElementType.enum.Page]: PageComponent,
-  [ZElementType.enum.UsualGroup]: UsualGroupComponent,
+  [FormElementType.InputField]: InputField,
+  [FormElementType.Button]: ButtonComponent,
+  [FormElementType.Pages]: PagesComponent,
+  [FormElementType.CheckBoxField]: CheckBoxFieldComponent,
+  [FormElementType.LabelDecoration]: LabelDecorationComponent,
+  [FormElementType.PictureDecoration]: PictureDecorationComponent,
+  [FormElementType.Table]: TableComponent,
+  [FormElementType.RadioButtonField]: RadioButtonFieldComponent,
+  [FormElementType.CommandBar]: CommandBarComponent,
+  [FormElementType.Page]: PageComponent,
+  [FormElementType.UsualGroup]: UsualGroupComponent,
 }

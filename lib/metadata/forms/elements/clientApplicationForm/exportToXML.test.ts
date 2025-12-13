@@ -1,22 +1,18 @@
 import { describe, expect, it } from "vitest"
-import {
-  exportClientApplicationFormToXML,
-  TClientApplicationForm,
-  xmlExport,
-  ZClientApplicationFormXML,
-} from "~/lib"
-import { ZElementType } from "../types"
-import "~/lib/metadata/forms/elements/exportToXML"
-import z from "zod"
+import { xmlExport } from "~/lib"
+import { ZClientApplicationFormXML } from "~/lib/metadata/appliedObjects/attribute/types"
+import { FormElementType } from "../types"
+import { exportClientApplicationFormToXML } from "./exportToXML"
+import { ClientApplicationForm } from "./types"
 
 describe("exportClientApplicationFormToXML", () => {
   it("should export title to XML", () => {
-    const mockElement: TClientApplicationForm = {
-      elementType: ZElementType.enum.ClientApplicationForm,
+    const mockElement: ClientApplicationForm = {
+      elementType: FormElementType.ClientApplicationForm,
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
-        elementType: ZElementType.enum.CommandBar,
+        elementType: FormElementType.CommandBar,
         childItems: [],
       },
       title: { items: { ru: "Поле" } },
@@ -36,24 +32,21 @@ describe("exportClientApplicationFormToXML", () => {
 </Form>`
 
     const exported = exportClientApplicationFormToXML(mockElement)
-    const xmlString = xmlExport(
-      { Form: exported },
-      z.object({ Form: ZClientApplicationFormXML })
-    )
+    const xmlString = xmlExport({ Form: exported }, z.object({ Form: ZClientApplicationFormXML }))
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should export command bar to XML", () => {
-    const mockElement: TClientApplicationForm = {
+    const mockElement: ClientApplicationForm = {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
-        elementType: ZElementType.enum.CommandBar,
+        elementType: FormElementType.CommandBar,
         autofill: false,
         childItems: [],
       },
-      elementType: ZElementType.enum.ClientApplicationForm,
+      elementType: FormElementType.ClientApplicationForm,
       childItems: [],
       attributes: [],
     }
@@ -66,28 +59,25 @@ describe("exportClientApplicationFormToXML", () => {
 </Form>`
 
     const exported = exportClientApplicationFormToXML(mockElement)
-    const xmlString = xmlExport(
-      { Form: exported },
-      z.object({ Form: ZClientApplicationFormXML })
-    )
+    const xmlString = xmlExport({ Form: exported }, z.object({ Form: ZClientApplicationFormXML }))
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should export items to XML", () => {
-    const mockElement: TClientApplicationForm = {
+    const mockElement: ClientApplicationForm = {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
-        elementType: ZElementType.enum.CommandBar,
+        elementType: FormElementType.CommandBar,
         childItems: [],
       },
-      elementType: ZElementType.enum.ClientApplicationForm,
+      elementType: FormElementType.ClientApplicationForm,
       childItems: [
         {
           name: "ПолеВвода",
           id: "1",
-          elementType: ZElementType.enum.InputField,
+          elementType: FormElementType.InputField,
         },
       ],
       attributes: [],
@@ -102,23 +92,20 @@ describe("exportClientApplicationFormToXML", () => {
 </Form>`
 
     const exported = exportClientApplicationFormToXML(mockElement)
-    const xmlString = xmlExport(
-      { Form: exported },
-      z.object({ Form: ZClientApplicationFormXML })
-    )
+    const xmlString = xmlExport({ Form: exported })
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should export attributes to XML", () => {
-    const mockElement: TClientApplicationForm = {
+    const mockElement: ClientApplicationForm = {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
-        elementType: ZElementType.enum.CommandBar,
+        elementType: FormElementType.CommandBar,
         childItems: [],
       },
-      elementType: ZElementType.enum.ClientApplicationForm,
+      elementType: FormElementType.ClientApplicationForm,
       childItems: [],
       attributes: [
         {
@@ -144,34 +131,31 @@ describe("exportClientApplicationFormToXML", () => {
 </Form>`
 
     const exported = exportClientApplicationFormToXML(mockElement)
-    const xmlString = xmlExport(
-      { Form: exported },
-      z.object({ Form: ZClientApplicationFormXML })
-    )
+    const xmlString = xmlExport({ Form: exported }, z.object({ Form: ClientApplicationFormXML }))
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should export usual group child items to XML", () => {
-    const mockElement: TClientApplicationForm = {
+    const mockElement: ClientApplicationForm = {
       attributes: [],
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
-        elementType: ZElementType.enum.CommandBar,
+        elementType: FormElementType.CommandBar,
         childItems: [],
       },
-      elementType: ZElementType.enum.ClientApplicationForm,
+      elementType: FormElementType.ClientApplicationForm,
       childItems: [
         {
           name: "Группа",
           id: "1",
-          elementType: ZElementType.enum.UsualGroup,
+          elementType: FormElementType.UsualGroup,
           childItems: [
             {
               name: "ПолеВвода",
               id: "1",
-              elementType: ZElementType.enum.InputField,
+              elementType: FormElementType.InputField,
             },
           ],
         },
@@ -191,10 +175,7 @@ describe("exportClientApplicationFormToXML", () => {
 </Form>`
 
     const exported = exportClientApplicationFormToXML(mockElement)
-    const xmlString = xmlExport(
-      { Form: exported },
-      z.object({ Form: ZClientApplicationFormXML })
-    )
+    const xmlString = xmlExport({ Form: exported }, z.object({ Form: ZClientApplicationFormXML }))
 
     expect(xmlString).toEqual(expectedResult)
   })

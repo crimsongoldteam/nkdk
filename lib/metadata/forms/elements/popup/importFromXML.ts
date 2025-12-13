@@ -1,21 +1,22 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { TPopupXML, TPopup } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { FormElementType } from "../types"
+import { Popup, PopupXML } from "./types"
 
-export const importPopupFromXML = (xml: TPopupXML | undefined): TPopup | undefined => {
+export const importPopupFromXML = (xml: PopupXML | undefined): Popup | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.Popup,
+    ...importFormGroupFromXML(xml)!,
+    elementType: FormElementType.Popup,
+
     enableContentChange: xml.EnableContentChange,
     enabled: xml.Enabled,
     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),
@@ -45,4 +46,4 @@ export const importPopupFromXML = (xml: TPopupXML | undefined): TPopup | undefin
   }
 }
 
-registerImport(ZElementType.enum.Popup, importPopupFromXML)
+registerImport(FormElementType.Popup, importPopupFromXML)

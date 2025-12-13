@@ -1,21 +1,22 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { TColumnGroupXML, TColumnGroup } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { FormElementType } from "../types"
+import { ColumnGroup, ColumnGroupXML } from "./types"
 
-export const importColumnGroupFromXML = (xml: TColumnGroupXML | undefined): TColumnGroup | undefined => {
+export const importColumnGroupFromXML = (xml: ColumnGroupXML | undefined): ColumnGroup | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.ColumnGroup,
+    ...importFormGroupFromXML(xml)!,
+    elementType: FormElementType.ColumnGroup,
+
     enableContentChange: xml.EnableContentChange,
     enabled: xml.Enabled,
     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),
@@ -48,4 +49,4 @@ export const importColumnGroupFromXML = (xml: TColumnGroupXML | undefined): TCol
   }
 }
 
-registerImport(ZElementType.enum.ColumnGroup, importColumnGroupFromXML)
+registerImport(FormElementType.ColumnGroup, importColumnGroupFromXML)

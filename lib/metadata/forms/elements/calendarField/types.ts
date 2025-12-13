@@ -1,159 +1,103 @@
-import { ElementType } from "react"
-import { Color } from "vscode"
-import { I8nText } from "~/lib/metadata/commonObjects/i8nText/types"
-import { Picture } from "~/lib/metadata/commonObjects/pictures/types"
-import { TypeDescription } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { UserVisible } from "~/lib/metadata/commonObjects/userVisible/types"
+import { Border, BorderEnterprise, BorderXML } from "~/lib/metadata/commonObjects/border/types"
+import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { CommandBar } from "../commandBar/types"
-import { FormDecoration } from "../formDecoration/types"
-import { Table } from "../table/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
-export interface CalendarField {
-  elementType: ElementType
-  name: string
-  id?: string
-  autoCellHeight?: boolean,
-  cellHyperlink?: boolean,
-  contextMenu?: CommandBar,
-  dataPath?: string,
-  defaultItem?: boolean,
-  displayImportance?: SE.DisplayImportance,
-  editMode?: SE.ColumnEditMode,
-  enabled?: boolean,
-  extendedTooltip?: FormDecoration,
-  fixingInTable?: SE.FixingInTable,
-  footerBackColor?: Color,
-  footerDataPath?: string,
-  footerFont?: Font,
-  footerHorizontalAlign?: SE.ItemHorizontalLocation,
-  footerPicture?: Picture,
-  footerText?: I8nText,
-  footerTextColor?: Color,
-  headerHorizontalAlign?: SE.ItemHorizontalLocation,
-  headerPicture?: Picture,
-  horizontalAlign?: SE.ItemHorizontalLocation,
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation,
-  readOnly?: boolean,
-  shortcut?: string,
-  showInFooter?: boolean,
-  showInHeader?: boolean,
-  skipOnInput?: boolean,
-  table?: Table,
-  title?: I8nText,
-  titleBackColor?: Color,
-  titleFont?: Font,
-  titleHeight?: number,
-  titleLocation?: SE.FormItemTitleLocation,
-  titleTextColor?: Color,
-  toolTip?: I8nText,
-  toolTipRepresentation?: SE.ToolTipRepresentation,
-  type?: SE.FormFieldType,
-  typeRestriction?: TypeDescription,
-  userVisible?: UserVisible,
-  verticalAlign?: SE.ItemVerticalAlign,
-  verticalAlignInGroup?: SE.ItemVerticalAlign,
-  visible?: boolean,
-  warningOnEdit?: I8nText,
-  warningOnEditRepresentation?: SE.WarningOnEditRepresentation,
-  autoMaxHeight?: boolean,
-  autoMaxWidth?: boolean,
-  beginOfRepresentationPeriod?: string,
-  border?: Border,
-  borderColor?: Color,
-  calendarNavigation?: boolean,
-  enableDrag?: boolean,
-  enableStartDrag?: boolean,
-  endOfRepresentationPeriod?: string,
-  font?: Font,
-  height?: number,
-  heightInMonths?: number,
-  horizontalStretch?: boolean,
-  maxHeight?: number,
-  maxWidth?: number,
-  selectionMode?: SE.DateSelectionMode,
-  showCurrentDate?: boolean,
-  showMonthsPanel?: boolean,
-  verticalStretch?: boolean,
-  width?: number,
-  widthInMonths?: number,
+export interface CalendarField extends FormField {
+  autoMaxHeight?: boolean
+  autoMaxWidth?: boolean
+  beginOfRepresentationPeriod?: string
+  border?: Border
+  borderColor?: Color
+  calendarNavigation?: boolean
+  enableDrag?: boolean
+  enableStartDrag?: boolean
+  endOfRepresentationPeriod?: string
+  font?: Font
+  height?: number
+  heightInMonths?: number
+  horizontalStretch?: boolean
+  maxHeight?: number
+  maxWidth?: number
+  selectionMode?: SE.DateSelectionMode
+  showCurrentDate?: boolean
+  showMonthsPanel?: boolean
+  userVisible?: UserVisible
+  verticalStretch?: boolean
+  width?: number
+  widthInMonths?: number
   events?: {
-    onChange?: string,
-    selection?: string,
-    dragStart?: string,
-    dragEnd?: string,
-    drag?: string,
-    onActivateDate?: string,
-    onPeriodOutput?: string,
-    dragCheck?: string,
-  },
+    onChange?: string
+    selection?: string
+    dragStart?: string
+    dragEnd?: string
+    drag?: string
+    onActivateDate?: string
+    onPeriodOutput?: string
+    dragCheck?: string
+  }
 }
 
-export interface CalendarFieldXML {
-  _name: z.string(),
-  _id: z.string(),
-  _DisplayImportance: SE.DisplayImportance,
-  AutoCellHeight: boolean,
-  AutoMaxHeight: boolean,
-  AutoMaxWidth: boolean,
-  BeginOfRepresentationPeriod: string,
-  Border: Border,
-  BorderColor: Color,
-  CalendarNavigation: boolean,
-  CellHyperlink: boolean,
-  ContextMenu: CommandBar,
-  DataPath: string,
-  DefaultItem: boolean,
-  EditMode: SE.ColumnEditMode,
-  Enabled: boolean,
-  EnableDrag: boolean,
-  EnableStartDrag: boolean,
-  EndOfRepresentationPeriod: string,
-  ExtendedTooltip: FormDecoration,
-  FixingInTable: SE.FixingInTable,
-  Font: Font,
-  FooterBackColor: Color,
-  FooterDataPath: string,
-  FooterFont: Font,
-  FooterHorizontalAlign: SE.ItemHorizontalLocation,
-  FooterPicture: Picture,
-  FooterText: I8nText,
-  FooterTextColor: Color,
-  HeaderHorizontalAlign: SE.ItemHorizontalLocation,
-  HeaderPicture: Picture,
-  Height: number,
-  HeightInMonths: number,
-  HorizontalAlign: SE.ItemHorizontalLocation,
-  HorizontalAlignInGroup: SE.ItemHorizontalLocation,
-  HorizontalStretch: boolean,
-  MaxHeight: number,
-  MaxWidth: number,
-  ReadOnly: boolean,
-  SelectionMode: SE.DateSelectionMode,
-  Shortcut: string,
-  ShowCurrentDate: boolean,
-  ShowInFooter: boolean,
-  ShowInHeader: boolean,
-  ShowMonthsPanel: boolean,
-  SkipOnInput: boolean,
-  Table: Table,
-  Title: I8nText,
-  TitleBackColor: Color,
-  TitleFont: Font,
-  TitleHeight: number,
-  TitleLocation: SE.FormItemTitleLocation,
-  TitleTextColor: Color,
-  ToolTip: I8nText,
-  ToolTipRepresentation: SE.ToolTipRepresentation,
-  Type: SE.FormFieldType,
-  TypeRestriction: TypeDescription,
-  UserVisible: UserVisible,
-  VerticalAlign: SE.ItemVerticalAlign,
-  VerticalAlignInGroup: SE.ItemVerticalAlign,
-  VerticalStretch: boolean,
-  Visible: boolean,
-  WarningOnEdit: I8nText,
-  WarningOnEditRepresentation: SE.WarningOnEditRepresentation,
-  Width: number,
-  WidthInMonths: number,
+export interface CalendarFieldXML extends FormFieldXML {
+  AutoMaxHeight?: boolean
+  AutoMaxWidth?: boolean
+  BeginOfRepresentationPeriod?: string
+  Border?: BorderXML
+  BorderColor?: ColorXML
+  CalendarNavigation?: boolean
+  EnableDrag?: boolean
+  EnableStartDrag?: boolean
+  EndOfRepresentationPeriod?: string
+  Font?: FontXML
+  Height?: number
+  HeightInMonths?: number
+  HorizontalStretch?: boolean
+  MaxHeight?: number
+  MaxWidth?: number
+  SelectionMode?: SE.DateSelectionMode
+  ShowCurrentDate?: boolean
+  ShowMonthsPanel?: boolean
+  UserVisible?: UserVisibleXML
+  VerticalStretch?: boolean
+  Width?: number
+  WidthInMonths?: number
+  Events?: EventsXML
+}
+
+export interface CalendarFieldEnterprise extends FormFieldEnterprise {
+  АвтоМаксимальнаяВысота?: boolean
+  АвтоМаксимальнаяШирина?: boolean
+  НачалоПериодаОтображения?: string
+  Рамка?: BorderEnterprise
+  ЦветРамки?: ColorEnterprise
+  ПеремещениеПоКалендарю?: boolean
+  РазрешитьПеретаскивание?: boolean
+  РазрешитьНачалоПеретаскивания?: boolean
+  КонецПериодаОтображения?: string
+  Шрифт?: FontEnterprise
+  Высота?: number
+  ВысотаВМесяцах?: number
+  РастягиватьПоГоризонтали?: boolean
+  МаксимальнаяВысота?: number
+  МаксимальнаяШирина?: number
+  РежимВыделения?: SE.DateSelectionModeEnterprise
+  ОтображатьТекущуюДату?: boolean
+  ОтображатьПанельМесяцев?: boolean
+  ПользовательскаяВидимость?: UserVisibleEnterprise
+  РастягиватьПоВертикали?: boolean
+  Ширина?: number
+  ШиринаВМесяцах?: number
+  События?: {
+    ПриИзменении?: string
+    Выбор?: string
+    НачалоПеретаскивания?: string
+    ОкончаниеПеретаскивания?: string
+    Перетаскивание?: string
+    ПриАктивизацииДаты?: string
+    ПриВыводеПериода?: string
+    ПроверкаПеретаскивания?: string
+  }
 }

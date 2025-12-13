@@ -1,21 +1,22 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importTableFromXML } from "../table/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { TUsualGroupXML, TUsualGroup } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { importTableFromXML } from "../table/importFromXML"
+import { FormElementType } from "../types"
+import { UsualGroup, UsualGroupXML } from "./types"
 
-export const importUsualGroupFromXML = (xml: TUsualGroupXML | undefined): TUsualGroup | undefined => {
+export const importUsualGroupFromXML = (xml: UsualGroupXML | undefined): UsualGroup | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.UsualGroup,
+    ...importFormGroupFromXML(xml)!,
+    elementType: FormElementType.UsualGroup,
+
     enableContentChange: xml.EnableContentChange,
     enabled: xml.Enabled,
     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),
@@ -64,4 +65,4 @@ export const importUsualGroupFromXML = (xml: TUsualGroupXML | undefined): TUsual
   }
 }
 
-registerImport(ZElementType.enum.UsualGroup, importUsualGroupFromXML)
+registerImport(FormElementType.UsualGroup, importUsualGroupFromXML)

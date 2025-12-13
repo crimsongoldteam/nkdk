@@ -3,7 +3,7 @@ import z from "zod"
 import { xmlExport } from "~/lib"
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { exportChildItemsToXML } from "./exportToXML"
 import { TChildItems, ZChildItemsXML } from "./types"
 
@@ -13,17 +13,17 @@ describe("exportChildItemsToXML", () => {
       {
         name: "Input1",
         id: "1",
-        elementType: ZElementType.enum.InputField,
+        elementType: FormElementType.InputField,
       },
       {
         name: "Button2",
         id: "2",
-        elementType: ZElementType.enum.Button,
+        elementType: FormElementType.Button,
       },
       {
         name: "Input3",
         id: "3",
-        elementType: ZElementType.enum.InputField,
+        elementType: FormElementType.InputField,
       },
     ]
 

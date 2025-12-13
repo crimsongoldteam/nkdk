@@ -1,25 +1,26 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
-import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { exportSearchControlAdditionToXML } from "~/lib/metadata/forms/elements/searchControlAddition/exportToXML"
 import { exportSearchStringAdditionToXML } from "~/lib/metadata/forms/elements/searchStringAddition/exportToXML"
 import { exportViewStatusAdditionToXML } from "~/lib/metadata/forms/elements/viewStatusAddition/exportToXML"
-import { exportSearchControlAdditionToXML } from "~/lib/metadata/forms/elements/searchControlAddition/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
-import { TTableXML, TTable } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { ZElementType } from "../types"
+import { exportBaseElementToXML } from "../baseElement/exportToXML"
+import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
+import { FormElementType } from "../types"
+import { Table, TableXML } from "./types"
 
-export const exportTableToXML = (data: TTable | undefined): TTableXML | undefined => {
+export const exportTableToXML = (data: Table | undefined): TableXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    ...exportBaseElementToXML(data)!,
+
     AutoAddIncomplete: data.autoAddIncomplete,
     AutoCommandBar: exportCommandBarToXML(data.autoCommandBar),
     AutoInsertNewRow: data.autoInsertNewRow,
@@ -103,8 +104,8 @@ export const exportTableToXML = (data: TTable | undefined): TTableXML | undefine
     Visible: data.visible,
     Width: data.width,
     ChildItems: exportChildItemsToXML(data.childItems),
-    Events: exportEventsToXML(data.events)
+    Events: exportEventsToXML(data.events),
   }
 }
 
-registerExport(ZElementType.enum.Table, exportTableToXML)
+registerExport(FormElementType.Table, exportTableToXML)

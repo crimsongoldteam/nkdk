@@ -1,13 +1,13 @@
-import { expect, it, describe } from "vitest"
+import { describe, expect, it } from "vitest"
+import { xmlExport, xmlImport } from "~/lib"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { exportBorderToXML } from "./exportToXML"
 import { importBorderFromXML } from "./importFromXML"
-import { TBorder, TBorderXML } from "./types"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { xmlExport, xmlImport } from "~/lib"
+import { Border, BorderXML } from "./types"
 
 describe("exportBorderToXML", () => {
   it("should export border by ref", () => {
-    const mockBorder: TBorder = {
+    const mockBorder: Border = {
       ref: "style:ControlBorder",
     }
 
@@ -20,9 +20,9 @@ describe("exportBorderToXML", () => {
   })
 
   it("should export border with width and style", () => {
-    const mockBorder: TBorder = {
+    const mockBorder: Border = {
       width: 1,
-      controlBorderType: SE.ZControlBorderType.enum.Indented,
+      controlBorderType: SE.ControlBorderType.Indented,
     }
 
     const expectedResult = `<Border width="1">
@@ -44,7 +44,7 @@ describe("exportBorderToXML", () => {
   it("should export and import border by ref correctly (round-trip)", () => {
     const originalXml = `<Border ref="style:ControlBorder"/>`
 
-    const xml = xmlImport<{ Border: TBorderXML }>(originalXml)
+    const xml = xmlImport<{ Border: BorderXML }>(originalXml)
     const imported = importBorderFromXML(xml.Border)
     const exported = exportBorderToXML(imported)
     const resultXml = xmlExport({ Border: exported }, false)
@@ -57,7 +57,7 @@ describe("exportBorderToXML", () => {
 	<v8ui:style xsi:type="v8ui:ControlBorderType">Indented</v8ui:style>
 </Border>`
 
-    const xml = xmlImport<{ Border: TBorderXML }>(originalXml)
+    const xml = xmlImport<{ Border: BorderXML }>(originalXml)
     const imported = importBorderFromXML(xml.Border)
     const exported = exportBorderToXML(imported)
     const resultXml = xmlExport({ Border: exported }, false)

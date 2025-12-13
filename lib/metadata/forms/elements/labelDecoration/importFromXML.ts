@@ -1,22 +1,22 @@
+import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { TLabelDecorationXML, TLabelDecoration } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { FormElementType } from "../types"
+import { LabelDecoration, LabelDecorationXML } from "./types"
 
-export const importLabelDecorationFromXML = (xml: TLabelDecorationXML | undefined): TLabelDecoration | undefined => {
+export const importLabelDecorationFromXML = (xml: LabelDecorationXML | undefined): LabelDecoration | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.LabelDecoration,
+    ...importFormDecorationFromXML(xml)!,
+    elementType: FormElementType.LabelDecoration,
+
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
@@ -53,4 +53,4 @@ export const importLabelDecorationFromXML = (xml: TLabelDecorationXML | undefine
   }
 }
 
-registerImport(ZElementType.enum.LabelDecoration, importLabelDecorationFromXML)
+registerImport(FormElementType.LabelDecoration, importLabelDecorationFromXML)

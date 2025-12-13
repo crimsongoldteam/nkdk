@@ -1,18 +1,18 @@
 import { describe, expect, it } from "vitest"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
 import xmlImport from "~/lib/xml/import/importer"
 import { importBorderFromXML } from "./importFromXML"
-import type { TBorder, TBorderXML } from "./types"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { Border, BorderXML } from "./types"
 
 describe("importBorderFromXML", () => {
   it("should import Border by ref", () => {
     const mockXml = `<Border ref="style:ControlBorder"/>`
 
-    const expected: TBorder = {
+    const expected: Border = {
       ref: "style:ControlBorder",
     }
 
-    const xml = xmlImport<{ Border: TBorderXML }>(mockXml)
+    const xml = xmlImport<{ Border: BorderXML }>(mockXml)
 
     const result = importBorderFromXML(xml.Border)
 
@@ -24,12 +24,12 @@ describe("importBorderFromXML", () => {
     <v8ui:style xsi:type="v8ui:ControlBorderType">Indented</v8ui:style>
   </Border>`
 
-    const expected: TBorder = {
+    const expected: Border = {
       width: 1,
-      controlBorderType: SE.ZControlBorderType.enum.Indented,
+      controlBorderType: SE.ControlBorderType.Indented,
     }
 
-    const xml = xmlImport<{ Border: TBorderXML }>(mockXml)
+    const xml = xmlImport<{ Border: BorderXML }>(mockXml)
 
     const result = importBorderFromXML(xml.Border)
 

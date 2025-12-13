@@ -1,18 +1,16 @@
 import { describe, expect, it } from "vitest"
+import { xmlExport, xmlImport } from "~/lib"
 import "~/lib/metadata/forms/elements/elements"
-import "~/lib/metadata/forms/elements/importFromXML"
 import "~/lib/metadata/forms/elements/exportToXML"
-import z from "zod"
-import { ZElementType } from "../types"
+import "~/lib/metadata/forms/elements/importFromXML"
+import { FormElementType } from "../types"
 import { exportUsualGroupToXML } from "./exportToXML"
 import { importUsualGroupFromXML } from "./importFromXML"
-import { TUsualGroup, ZUsualGroupXML, TUsualGroupXML } from "./types"
-import xmlExport from "~/lib/xml/export/exporter"
-import xmlImport from "~/lib/xml/import/importer"
+import { UsualGroup, UsualGroupXML } from "./types"
 
 describe("exportUsualGroupToXML", () => {
   it("should export usual group to XML with child items", () => {
-    const mockElement: TUsualGroup = {
+    const mockElement: UsualGroup = {
       name: "Группа",
       title: { items: { ru: "Заголовок группы" } },
       id: "1",
@@ -20,10 +18,10 @@ describe("exportUsualGroupToXML", () => {
         {
           name: "ПолеВвода",
           id: "1",
-          elementType: ZElementType.enum.InputField,
+          elementType: FormElementType.InputField,
         },
       ],
-      elementType: ZElementType.enum.UsualGroup,
+      elementType: FormElementType.UsualGroup,
     }
 
     const expectedResult = `<UsualGroup name="Группа" id="1">
@@ -39,11 +37,7 @@ describe("exportUsualGroupToXML", () => {
 </UsualGroup>`
 
     const result = { UsualGroup: exportUsualGroupToXML(mockElement) }
-    const xmlString = xmlExport(
-      result,
-      z.object({ UsualGroup: ZUsualGroupXML }),
-      false
-    )
+    const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -68,17 +62,10 @@ describe("exportUsualGroupToXML", () => {
 	</ChildItems>
 </UsualGroup>`
 
-    const xml = xmlImport<{ UsualGroup: TUsualGroupXML }>(
-      originalXml,
-      z.object({ UsualGroup: ZUsualGroupXML })
-    )
+    const xml = xmlImport<{ UsualGroup: UsualGroupXML }>(originalXml)
     const imported = importUsualGroupFromXML(xml.UsualGroup)
     const exported = exportUsualGroupToXML(imported)
-    const resultXml = xmlExport(
-      { UsualGroup: exported },
-      z.object({ UsualGroup: ZUsualGroupXML }),
-      false
-    )
+    const resultXml = xmlExport({ UsualGroup: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
   })

@@ -1,23 +1,24 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
-import { exportTableToXML } from "../table/exportToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
-import { TFormFieldXML, TFormField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { ZElementType } from "../types"
+import { exportBaseElementToXML } from "../baseElement/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { exportTableToXML } from "../table/exportToXML"
+import { FormElementType } from "../types"
+import { FormField, FormFieldXML } from "./types"
 
-export const exportFormFieldToXML = (data: TFormField | undefined): TFormFieldXML | undefined => {
+export const exportFormFieldToXML = (data: FormField | undefined): FormFieldXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    ...exportBaseElementToXML(data)!,
+
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,
     ContextMenu: exportCommandBarToXML(data.contextMenu),
@@ -61,8 +62,8 @@ export const exportFormFieldToXML = (data: TFormField | undefined): TFormFieldXM
     Visible: data.visible,
     WarningOnEdit: exportI8nTextToXML(data.warningOnEdit),
     WarningOnEditRepresentation: data.warningOnEditRepresentation,
-    Events: exportEventsToXML(data.events)
+    Events: exportEventsToXML(data.events),
   }
 }
 
-registerExport(ZElementType.enum.FormField, exportFormFieldToXML)
+registerExport(FormElementType.FormField, exportFormFieldToXML)

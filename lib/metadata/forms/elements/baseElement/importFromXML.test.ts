@@ -1,23 +1,21 @@
 import { expect, it } from "vitest"
-import { TBaseElement, TBaseElementXML, ZBaseElementXML } from "./types"
-import { ZElementType } from "../types"
-import { importBaseElementFromXML } from "./importFromXML"
 import { xmlImport } from "~/lib"
-import z from "zod"
+import { FormElementType } from "../types"
+import { importBaseElementFromXML } from "./importFromXML"
+import { BaseElement, BaseElementXML } from "./types"
 
 it("should decode element from XML", () => {
   const mockXml = `<BaseElement name="ИмяПоля" id="16">`
 
-  const mockResult: TBaseElement = {
+  const mockResult: BaseElement = {
     name: "ИмяПоля",
-    elementType: ZElementType.enum.BaseElement,
+    elementType: FormElementType.BaseElement,
     id: "16",
   }
 
-  const xml = xmlImport<{ BaseElement: TBaseElementXML }>(mockXml, z.object({ BaseElement: ZBaseElementXML }))
-  const value = xml.BaseElement
+  const xml = xmlImport<BaseElementXML>(mockXml)
 
-  const result = importBaseElementFromXML(value)
+  const result = importBaseElementFromXML(xml)
 
   expect(result).toEqual(mockResult)
 })

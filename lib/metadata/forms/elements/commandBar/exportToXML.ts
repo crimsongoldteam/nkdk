@@ -1,19 +1,20 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { TCommandBarXML, TCommandBar } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { ZElementType } from "../types"
+import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { FormElementType } from "../types"
+import { CommandBar, CommandBarXML } from "./types"
 
-export const exportCommandBarToXML = (data: TCommandBar | undefined): TCommandBarXML | undefined => {
+export const exportCommandBarToXML = (data: CommandBar | undefined): CommandBarXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    ...exportFormGroupToXML(data)!,
+
     EnableContentChange: data.enableContentChange,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
@@ -40,4 +41,4 @@ export const exportCommandBarToXML = (data: TCommandBar | undefined): TCommandBa
   }
 }
 
-registerExport(ZElementType.enum.CommandBar, exportCommandBarToXML)
+registerExport(FormElementType.CommandBar, exportCommandBarToXML)

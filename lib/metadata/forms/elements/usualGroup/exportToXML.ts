@@ -1,20 +1,21 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { exportTableToXML } from "../table/exportToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { TUsualGroupXML, TUsualGroup } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { ZElementType } from "../types"
+import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportTableToXML } from "../table/exportToXML"
+import { FormElementType } from "../types"
+import { UsualGroup, UsualGroupXML } from "./types"
 
-export const exportUsualGroupToXML = (data: TUsualGroup | undefined): TUsualGroupXML | undefined => {
+export const exportUsualGroupToXML = (data: UsualGroup | undefined): UsualGroupXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    ...exportFormGroupToXML(data)!,
+
     EnableContentChange: data.enableContentChange,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
@@ -63,4 +64,4 @@ export const exportUsualGroupToXML = (data: TUsualGroup | undefined): TUsualGrou
   }
 }
 
-registerExport(ZElementType.enum.UsualGroup, exportUsualGroupToXML)
+registerExport(FormElementType.UsualGroup, exportUsualGroupToXML)

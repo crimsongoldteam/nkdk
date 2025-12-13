@@ -1,7 +1,7 @@
 import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { parseRegions } from "~/lib/parser/regionsParser/regionsParser"
 import { RegionsVisitor } from "~/lib/parser/regionsParser/regionsVisitor"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { parseAttributes } from "./attributes/parse"
 import type { TClientApplicationForm } from "./types"
 
@@ -13,7 +13,7 @@ export const parseClientApplicationForm = (
   // const visitor = new RegionsVisitor()
   // const sections = visitor.lines(cst)
   // const result: TClientApplicationForm = {
-  //   elementType: ZElementType.enum.Form,
+  //   elementType: FormElementType.Form,
   //   childItems: [],
   // }
   // // Находим секцию "Реквизиты" и парсим атрибуты

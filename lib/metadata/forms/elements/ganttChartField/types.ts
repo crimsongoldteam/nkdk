@@ -1,148 +1,76 @@
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZTable, ZTableXML } from "../table/types"
-import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZEventsXML } from "~/lib/metadata/forms/events/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import { ZodChildItemsType } from "../childItems/typesExt"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
-export interface GanttChartField {
-  elementType: ElementType
-  name: string
-  id?: string
-  autoCellHeight?: boolean,
-  cellHyperlink?: boolean,
-  contextMenu?: CommandBar,
-  dataPath?: string,
-  defaultItem?: boolean,
-  displayImportance?: SE.DisplayImportance,
-  editMode?: SE.ColumnEditMode,
-  enabled?: boolean,
-  extendedTooltip?: FormDecoration,
-  fixingInTable?: SE.FixingInTable,
-  footerBackColor?: Color,
-  footerDataPath?: string,
-  footerFont?: Font,
-  footerHorizontalAlign?: SE.ItemHorizontalLocation,
-  footerPicture?: Picture,
-  footerText?: I8nText,
-  footerTextColor?: Color,
-  headerHorizontalAlign?: SE.ItemHorizontalLocation,
-  headerPicture?: Picture,
-  horizontalAlign?: SE.ItemHorizontalLocation,
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation,
-  readOnly?: boolean,
-  shortcut?: string,
-  showInFooter?: boolean,
-  showInHeader?: boolean,
-  skipOnInput?: boolean,
-  table?: Table,
-  title?: I8nText,
-  titleBackColor?: Color,
-  titleFont?: Font,
-  titleHeight?: number,
-  titleLocation?: SE.FormItemTitleLocation,
-  titleTextColor?: Color,
-  toolTip?: I8nText,
-  toolTipRepresentation?: SE.ToolTipRepresentation,
-  type?: SE.FormFieldType,
-  typeRestriction?: TypeDescription,
-  userVisible?: UserVisible,
-  verticalAlign?: SE.ItemVerticalAlign,
-  verticalAlignInGroup?: SE.ItemVerticalAlign,
-  visible?: boolean,
-  warningOnEdit?: I8nText,
-  warningOnEditRepresentation?: SE.WarningOnEditRepresentation,
-  autoMaxHeight?: boolean,
-  autoMaxWidth?: boolean,
-  height?: number,
-  horizontalLines?: boolean,
-  horizontalStretch?: boolean,
-  intervalsSelectionMode?: SE.GanttChartIntervalsSelectionMode,
-  maxHeight?: number,
-  maxWidth?: number,
-  tableLocation?: SE.GanttChartTableLocation,
-  valuesSelectionMode?: SE.GanttChartValuesSelectionMode,
-  verticalLines?: boolean,
-  verticalStretch?: boolean,
-  width?: number,
+export interface GanttChartField extends FormField {
+  autoMaxHeight?: boolean
+  autoMaxWidth?: boolean
+  height?: number
+  horizontalLines?: boolean
+  horizontalStretch?: boolean
+  intervalsSelectionMode?: SE.GanttChartIntervalsSelectionMode
+  maxHeight?: number
+  maxWidth?: number
+  tableLocation?: SE.GanttChartTableLocation
+  userVisible?: UserVisible
+  valuesSelectionMode?: SE.GanttChartValuesSelectionMode
+  verticalLines?: boolean
+  verticalStretch?: boolean
+  width?: number
   events?: {
-    onChange?: string,
-    selection?: string,
-    detailProcessing?: string,
-    beforeExpand?: string,
-    beforeCollapse?: string,
-    onActivateValue?: string,
-    onActivateInterval?: string,
-    onIntervalEditEnd?: string,
-  },
+    onChange?: string
+    selection?: string
+    detailProcessing?: string
+    beforeExpand?: string
+    beforeCollapse?: string
+    onActivateValue?: string
+    onActivateInterval?: string
+    onIntervalEditEnd?: string
+  }
 }
 
-export interface GanttChartFieldXML {
-  _name: z.string(),
-  _id: z.string(),
-  _DisplayImportance: SE.DisplayImportance,
-  AutoCellHeight: boolean,
-  AutoMaxHeight: boolean,
-  AutoMaxWidth: boolean,
-  CellHyperlink: boolean,
-  ContextMenu: CommandBar,
-  DataPath: string,
-  DefaultItem: boolean,
-  EditMode: SE.ColumnEditMode,
-  Enabled: boolean,
-  ExtendedTooltip: FormDecoration,
-  FixingInTable: SE.FixingInTable,
-  FooterBackColor: Color,
-  FooterDataPath: string,
-  FooterFont: Font,
-  FooterHorizontalAlign: SE.ItemHorizontalLocation,
-  FooterPicture: Picture,
-  FooterText: I8nText,
-  FooterTextColor: Color,
-  HeaderHorizontalAlign: SE.ItemHorizontalLocation,
-  HeaderPicture: Picture,
-  Height: number,
-  HorizontalAlign: SE.ItemHorizontalLocation,
-  HorizontalAlignInGroup: SE.ItemHorizontalLocation,
-  HorizontalLines: boolean,
-  HorizontalStretch: boolean,
-  IntervalsSelectionMode: SE.GanttChartIntervalsSelectionMode,
-  MaxHeight: number,
-  MaxWidth: number,
-  ReadOnly: boolean,
-  Shortcut: string,
-  ShowInFooter: boolean,
-  ShowInHeader: boolean,
-  SkipOnInput: boolean,
-  Table: Table,
-  TableLocation: SE.GanttChartTableLocation,
-  Title: I8nText,
-  TitleBackColor: Color,
-  TitleFont: Font,
-  TitleHeight: number,
-  TitleLocation: SE.FormItemTitleLocation,
-  TitleTextColor: Color,
-  ToolTip: I8nText,
-  ToolTipRepresentation: SE.ToolTipRepresentation,
-  Type: SE.FormFieldType,
-  TypeRestriction: TypeDescription,
-  UserVisible: UserVisible,
-  ValuesSelectionMode: SE.GanttChartValuesSelectionMode,
-  VerticalAlign: SE.ItemVerticalAlign,
-  VerticalAlignInGroup: SE.ItemVerticalAlign,
-  VerticalLines: boolean,
-  VerticalStretch: boolean,
-  Visible: boolean,
-  WarningOnEdit: I8nText,
-  WarningOnEditRepresentation: SE.WarningOnEditRepresentation,
-  Width: number,
+export interface GanttChartFieldXML extends FormFieldXML {
+  AutoMaxHeight?: boolean
+  AutoMaxWidth?: boolean
+  Height?: number
+  HorizontalLines?: boolean
+  HorizontalStretch?: boolean
+  IntervalsSelectionMode?: SE.GanttChartIntervalsSelectionMode
+  MaxHeight?: number
+  MaxWidth?: number
+  TableLocation?: SE.GanttChartTableLocation
+  UserVisible?: UserVisibleXML
+  ValuesSelectionMode?: SE.GanttChartValuesSelectionMode
+  VerticalLines?: boolean
+  VerticalStretch?: boolean
+  Width?: number
+  Events?: EventsXML
+}
+
+export interface GanttChartFieldEnterprise extends FormFieldEnterprise {
+  АвтоМаксимальнаяВысота?: boolean
+  АвтоМаксимальнаяШирина?: boolean
+  Высота?: number
+  ГоризонтальныеЛинии?: boolean
+  РастягиватьПоГоризонтали?: boolean
+  РежимВыделенияИнтервалов?: SE.GanttChartIntervalsSelectionModeEnterprise
+  МаксимальнаяВысота?: number
+  МаксимальнаяШирина?: number
+  ПоложениеТаблицы?: SE.GanttChartTableLocationEnterprise
+  ПользовательскаяВидимость?: UserVisibleEnterprise
+  РежимВыделенияЗначений?: SE.GanttChartValuesSelectionModeEnterprise
+  ВертикальныеЛинии?: boolean
+  РастягиватьПоВертикали?: boolean
+  Ширина?: number
+  События?: {
+    ПриИзменении?: string
+    Выбор?: string
+    ОбработкаРасшифровки?: string
+    ПередРазворачиванием?: string
+    ПередСворачиванием?: string
+    ПриАктивизацииЗначения?: string
+    ПриАктивизацииИнтервала?: string
+    ПриОкончанииРедактированияИнтервала?: string
+  }
 }

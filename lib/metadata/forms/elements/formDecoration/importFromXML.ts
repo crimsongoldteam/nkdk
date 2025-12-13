@@ -1,19 +1,20 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { TFormDecorationXML, TFormDecoration } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { FormElementType } from "../types"
+import { FormDecoration, FormDecorationXML } from "./types"
 
-export const importFormDecorationFromXML = (xml: TFormDecorationXML | undefined): TFormDecoration | undefined => {
+export const importFormDecorationFromXML = (xml: FormDecorationXML | undefined): FormDecoration | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.FormDecoration,
+    ...importBaseElementFromXML(xml)!,
+    elementType: FormElementType.FormDecoration,
+
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
@@ -41,4 +42,4 @@ export const importFormDecorationFromXML = (xml: TFormDecorationXML | undefined)
   }
 }
 
-registerImport(ZElementType.enum.FormDecoration, importFormDecorationFromXML)
+registerImport(FormElementType.FormDecoration, importFormDecorationFromXML)

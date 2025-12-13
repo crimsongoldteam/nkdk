@@ -5,7 +5,7 @@ import {
   clearIsOneLineElementCheckRegistry,
 } from "./isOneLineElementCheckFactory"
 import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
-import { ZElementType } from "../metadata/forms/elements/types"
+import { FormElementType } from "../metadata/forms/elements/types"
 
 describe("isOneLineElementCheckFactory", () => {
   beforeEach(() => {
@@ -14,26 +14,26 @@ describe("isOneLineElementCheckFactory", () => {
 
   it("should register and use check function for element type", () => {
     const element: TBaseElement = {
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
       name: "InputField",
       id: "1",
     }
 
     const checkFunction = (_element: TBaseElement) => true
-    registerIsOneLineElementCheck(ZElementType.enum.InputField, checkFunction)
+    registerIsOneLineElementCheck(FormElementType.InputField, checkFunction)
 
     expect(isOneLineElement(element)).toBe(true)
   })
 
   it("should clear registry correctly", () => {
     const element: TBaseElement = {
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
       name: "InputField",
       id: "1",
     }
 
     const checkFunction = () => true
-    registerIsOneLineElementCheck(ZElementType.enum.InputField, checkFunction)
+    registerIsOneLineElementCheck(FormElementType.InputField, checkFunction)
     expect(isOneLineElement(element)).toBe(true)
 
     clearIsOneLineElementCheckRegistry()
@@ -42,19 +42,19 @@ describe("isOneLineElementCheckFactory", () => {
 
   it("should work with multiple element types", () => {
     const inputField: TBaseElement = {
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
       name: "InputField",
       id: "2",
     }
 
     const group: TBaseElement = {
-      elementType: ZElementType.enum.UsualGroup,
+      elementType: FormElementType.UsualGroup,
       name: "UsualGroup",
       id: "1",
     }
 
-    registerIsOneLineElementCheck(ZElementType.enum.InputField, () => true)
-    registerIsOneLineElementCheck(ZElementType.enum.UsualGroup, () => false)
+    registerIsOneLineElementCheck(FormElementType.InputField, () => true)
+    registerIsOneLineElementCheck(FormElementType.UsualGroup, () => false)
 
     expect(isOneLineElement(inputField)).toBe(true)
     expect(isOneLineElement(group)).toBe(false)

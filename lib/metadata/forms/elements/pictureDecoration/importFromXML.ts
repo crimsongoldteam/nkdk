@@ -1,23 +1,25 @@
+import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
-import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { TPictureDecorationXML, TPictureDecoration } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { FormElementType } from "../types"
+import { PictureDecoration, PictureDecorationXML } from "./types"
 
-export const importPictureDecorationFromXML = (xml: TPictureDecorationXML | undefined): TPictureDecoration | undefined => {
+export const importPictureDecorationFromXML = (
+  xml: PictureDecorationXML | undefined
+): PictureDecoration | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.PictureDecoration,
+    ...importFormDecorationFromXML(xml)!,
+    elementType: FormElementType.PictureDecoration,
+
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
@@ -57,4 +59,4 @@ export const importPictureDecorationFromXML = (xml: TPictureDecorationXML | unde
   }
 }
 
-registerImport(ZElementType.enum.PictureDecoration, importPictureDecorationFromXML)
+registerImport(FormElementType.PictureDecoration, importPictureDecorationFromXML)

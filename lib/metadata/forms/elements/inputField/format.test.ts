@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { formatInputField } from "./format"
 import { TInputField } from "./types"
 
@@ -13,7 +13,7 @@ describe("formatInputField", () => {
     const element: TInputField = {
       name: "ИмяПоля",
       id: "1",
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
       value: "Значение",
     }
@@ -27,7 +27,7 @@ describe("formatInputField", () => {
     const element: TInputField = {
       name: "ИмяПоля",
       id: "1",
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
       value: "Значение",
     }
@@ -39,7 +39,7 @@ describe("formatInputField", () => {
     const element: TInputField = {
       name: "ИмяПоля",
       id: "1",
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
       value: "Значение",
       height: 2,
@@ -58,7 +58,7 @@ describe("formatInputField", () => {
     const element: TInputField = {
       name: "ИмяПоля",
       id: "1",
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
       value: "Значение",
       choiceButton: true,
@@ -77,7 +77,7 @@ describe("formatInputField", () => {
     const element: TInputField = {
       name: "ИмяПоля",
       id: "1",
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
     }
 
     const result = formatInputField(element, configurationSettings)

@@ -1,20 +1,21 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { TButtonXML, TButton } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { FormElementType } from "../types"
+import { Button, ButtonXML } from "./types"
 
-export const importButtonFromXML = (xml: TButtonXML | undefined): TButton | undefined => {
+export const importButtonFromXML = (xml: ButtonXML | undefined): Button | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.Button,
+    ...importBaseElementFromXML(xml)!,
+    elementType: FormElementType.Button,
+
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     backColor: importColorFromXML(xml.BackColor),
@@ -55,4 +56,4 @@ export const importButtonFromXML = (xml: TButtonXML | undefined): TButton | unde
   }
 }
 
-registerImport(ZElementType.enum.Button, importButtonFromXML)
+registerImport(FormElementType.Button, importButtonFromXML)

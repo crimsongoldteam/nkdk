@@ -1,18 +1,19 @@
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { TFormItemAdditionXML, TFormItemAddition } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { ZElementType } from "../types"
+import { exportBaseElementToXML } from "../baseElement/exportToXML"
+import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { FormElementType } from "../types"
+import { FormItemAddition, FormItemAdditionXML } from "./types"
 
-export const exportFormItemAdditionToXML = (data: TFormItemAddition | undefined): TFormItemAdditionXML | undefined => {
+export const exportFormItemAdditionToXML = (data: FormItemAddition | undefined): FormItemAdditionXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    ...exportBaseElementToXML(data)!,
+
     ContextMenu: exportCommandBarToXML(data.contextMenu),
     _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
@@ -29,4 +30,4 @@ export const exportFormItemAdditionToXML = (data: TFormItemAddition | undefined)
   }
 }
 
-registerExport(ZElementType.enum.FormItemAddition, exportFormItemAdditionToXML)
+registerExport(FormElementType.FormItemAddition, exportFormItemAdditionToXML)

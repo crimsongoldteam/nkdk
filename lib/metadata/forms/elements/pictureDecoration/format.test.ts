@@ -1,5 +1,5 @@
 import { it, expect, describe } from "vitest"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { TPictureDecoration } from "./types"
 import { formatPictureDecoration } from "./format"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
@@ -11,7 +11,7 @@ const configurationSettings: TConfigurationSettings = {
 describe("formatPictureDecoration", () => {
   it("should format picture decoration", () => {
     const element: TPictureDecoration = {
-      elementType: ZElementType.enum.PictureDecoration,
+      elementType: FormElementType.PictureDecoration,
       picture: {
         ref: "Печать",
         type: "CommonPicture",

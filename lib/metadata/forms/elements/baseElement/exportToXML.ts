@@ -1,6 +1,6 @@
-import { TBaseElement, TBaseElementXML } from "./types"
+import { BaseElement, BaseElementXML } from "./types"
 
-export const exportBaseElementToXML = (data: TBaseElement | undefined): TBaseElementXML | undefined => {
+export const exportBaseElementToXML = (data: BaseElement | undefined): BaseElementXML | undefined => {
   if (!data) return undefined
   return {
     _id: data.id ?? "",

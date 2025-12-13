@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import "~/lib/metadata/forms/elements/inputField/registration"
 import { TInputField } from "../inputField/types"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { formatPage } from "./format"
 import { TPage } from "./types"
 
@@ -15,12 +15,12 @@ describe("formatPage", () => {
     const mockElement: TPage = {
       name: "Страница1",
       id: "1",
-      elementType: ZElementType.enum.Page,
+      elementType: FormElementType.Page,
       childItems: [
         {
           name: "Элемент1",
           id: "1",
-          elementType: ZElementType.enum.InputField,
+          elementType: FormElementType.InputField,
         } as TInputField,
       ],
     }

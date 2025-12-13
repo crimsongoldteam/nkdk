@@ -1,6 +1,6 @@
-import { expect, it, describe } from "vitest"
-import { exportI8nTextToXML } from "./exportI8nTextToXML"
+import { describe, expect, it } from "vitest"
 import { xmlExport } from "~/lib/xml/export/exporter"
+import { exportI8nTextToXML } from "./exportToXML"
 import { I8nText } from "./types"
 
 describe("exportI8nTextToXML", () => {

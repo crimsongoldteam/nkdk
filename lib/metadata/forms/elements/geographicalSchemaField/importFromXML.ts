@@ -1,24 +1,27 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
-import { importTableFromXML } from "../table/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { TGeographicalSchemaFieldXML, TGeographicalSchemaField } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importTableFromXML } from "../table/importFromXML"
+import { FormElementType } from "../types"
+import { GeographicalSchemaField, GeographicalSchemaFieldXML } from "./types"
 
-export const importGeographicalSchemaFieldFromXML = (xml: TGeographicalSchemaFieldXML | undefined): TGeographicalSchemaField | undefined => {
+export const importGeographicalSchemaFieldFromXML = (
+  xml: GeographicalSchemaFieldXML | undefined
+): GeographicalSchemaField | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.GeographicalSchemaField,
+    ...importFormFieldFromXML(xml)!,
+    elementType: FormElementType.GeographicalSchemaField,
+
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
@@ -76,4 +79,4 @@ export const importGeographicalSchemaFieldFromXML = (xml: TGeographicalSchemaFie
   }
 }
 
-registerImport(ZElementType.enum.GeographicalSchemaField, importGeographicalSchemaFieldFromXML)
+registerImport(FormElementType.GeographicalSchemaField, importGeographicalSchemaFieldFromXML)

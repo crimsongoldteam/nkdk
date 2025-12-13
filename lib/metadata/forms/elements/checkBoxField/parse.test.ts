@@ -5,7 +5,7 @@ import { parseElement } from "~/lib/parser/elementsParser/parse"
 import type { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import type { TCheckBoxField } from "./types"
 
 const configurationSettings: TConfigurationSettings = {
@@ -17,7 +17,7 @@ describe("parse CheckBoxField", () => {
     const mock = "[]checkbox"
 
     const expectedResult: TCheckBoxField = {
-      elementType: ZElementType.enum.CheckBoxField,
+      elementType: FormElementType.CheckBoxField,
       headerHorizontalAlign: SE.ZItemHorizontalLocation.enum.Right,
       name: "checkbox",
       title: {
@@ -37,7 +37,7 @@ describe("parse CheckBoxField", () => {
     const mock = "checkbox[]"
 
     const expectedResult: TCheckBoxField = {
-      elementType: ZElementType.enum.CheckBoxField,
+      elementType: FormElementType.CheckBoxField,
       name: "checkbox",
       title: {
         items: { ru: "checkbox" },
@@ -56,7 +56,7 @@ describe("parse CheckBoxField", () => {
     const mock = "[|1]checkbox"
 
     const expectedResult: TCheckBoxField = {
-      elementType: ZElementType.enum.CheckBoxField,
+      elementType: FormElementType.CheckBoxField,
       headerHorizontalAlign: SE.ZItemHorizontalLocation.enum.Right,
       checkBoxType: SE.ZCheckBoxType.enum.Switch,
       name: "checkbox",
@@ -77,7 +77,7 @@ describe("parse CheckBoxField", () => {
     const mock = "checkbox[|1]"
 
     const expectedResult: TCheckBoxField = {
-      elementType: ZElementType.enum.CheckBoxField,
+      elementType: FormElementType.CheckBoxField,
       checkBoxType: SE.ZCheckBoxType.enum.Switch,
       name: "checkbox",
       title: {

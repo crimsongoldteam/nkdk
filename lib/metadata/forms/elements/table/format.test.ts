@@ -3,7 +3,7 @@ import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/typ
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { TColumnGroup } from "../columnGroup/types"
 import { TInputField } from "../inputField/types"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { formatTable } from "./format"
 import "./registration"
 import { TTable } from "./types"
@@ -17,13 +17,13 @@ describe("formatTable", () => {
     const mockElement: TTable = {
       name: "Таблица",
       id: "1",
-      elementType: ZElementType.enum.Table,
+      elementType: FormElementType.Table,
       childItems: [
         {
           name: "Колонка1",
           title: { items: { ru: "Колонка 1" } },
           id: "1",
-          elementType: ZElementType.enum.InputField,
+          elementType: FormElementType.InputField,
         } as TInputField,
       ],
     }
@@ -38,17 +38,17 @@ describe("formatTable", () => {
     const mockElement: TTable = {
       name: "Таблица",
       id: "1",
-      elementType: ZElementType.enum.Table,
+      elementType: FormElementType.Table,
       childItems: [
         {
           name: "Колонка1",
           id: "1",
-          elementType: ZElementType.enum.InputField,
+          elementType: FormElementType.InputField,
         } as TInputField,
         {
           name: "Колонка2",
           id: "2",
-          elementType: ZElementType.enum.InputField,
+          elementType: FormElementType.InputField,
         } as TInputField,
       ],
     }
@@ -64,26 +64,26 @@ describe("formatTable", () => {
     const mockElement: TTable = {
       name: "Таблица",
       id: "1",
-      elementType: ZElementType.enum.Table,
+      elementType: FormElementType.Table,
       childItems: [
         {
           name: "Группа1",
           title: { items: { ru: "Группа 1" } },
           id: "1",
           group: SE.ZColumnsGroup.enum.Horizontal,
-          elementType: ZElementType.enum.ColumnGroup,
+          elementType: FormElementType.ColumnGroup,
           childItems: [
             {
               name: "Колонка1",
               title: { items: { ru: "Колонка 1" } },
               id: "1",
-              elementType: ZElementType.enum.InputField,
+              elementType: FormElementType.InputField,
             } as TInputField,
             {
               name: "Колонка2",
               title: { items: { ru: "Колонка 2" } },
               id: "2",
-              elementType: ZElementType.enum.InputField,
+              elementType: FormElementType.InputField,
             } as TInputField,
           ],
         } as TColumnGroup,
@@ -102,7 +102,7 @@ describe("formatTable", () => {
     const mockElement: TTable = {
       name: "Таблица",
       id: "1",
-      elementType: ZElementType.enum.Table,
+      elementType: FormElementType.Table,
       childItems: [
         {
           name: "Группа1",
@@ -110,19 +110,19 @@ describe("formatTable", () => {
           id: "1",
           group: SE.ZColumnsGroup.enum.Vertical,
           showTitle: false,
-          elementType: ZElementType.enum.ColumnGroup,
+          elementType: FormElementType.ColumnGroup,
           childItems: [
             {
               name: "Колонка1",
               title: { items: { ru: "Колонка 1" } },
               id: "1",
-              elementType: ZElementType.enum.InputField,
+              elementType: FormElementType.InputField,
             } as TInputField,
             {
               name: "Колонка2",
               title: { items: { ru: "Колонка 2" } },
               id: "2",
-              elementType: ZElementType.enum.InputField,
+              elementType: FormElementType.InputField,
             } as TInputField,
           ],
         } as TColumnGroup,
@@ -141,7 +141,7 @@ describe("formatTable", () => {
     const mockElement: TTable = {
       name: "Таблица",
       id: "1",
-      elementType: ZElementType.enum.Table,
+      elementType: FormElementType.Table,
       childItems: [
         {
           name: "Группа1",
@@ -149,19 +149,19 @@ describe("formatTable", () => {
           id: "1",
           group: SE.ZColumnsGroup.enum.Vertical,
           showTitle: true,
-          elementType: ZElementType.enum.ColumnGroup,
+          elementType: FormElementType.ColumnGroup,
           childItems: [
             {
               name: "Колонка1",
               title: { items: { ru: "Колонка 1" } },
               id: "1",
-              elementType: ZElementType.enum.InputField,
+              elementType: FormElementType.InputField,
             } as TInputField,
             {
               name: "Колонка2",
               title: { items: { ru: "Колонка 2" } },
               id: "2",
-              elementType: ZElementType.enum.InputField,
+              elementType: FormElementType.InputField,
             } as TInputField,
           ],
         } as TColumnGroup,

@@ -1,11 +1,10 @@
-import { TBaseElement, TBaseElementXML } from "./types"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
+import { BaseElement, BaseElementXML } from "./types"
 
-export const importBaseElementFromXML = (xml: TBaseElementXML | undefined): TBaseElement | undefined => {
-  if (!xml) return undefined
+export const importBaseElementFromXML = (xml: BaseElementXML): BaseElement => {
   return {
     name: xml._name,
-    id: xml._id,
-    elementType: ZElementType.enum.BaseElement,
+    id: xml._id ?? "",
+    elementType: FormElementType.BaseElement,
   }
 }

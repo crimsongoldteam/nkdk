@@ -1,27 +1,27 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
-import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { importCommandSetFromXML } from "~/lib/metadata/forms/commandSet/importFromXML"
+import { importSearchControlAdditionFromXML } from "~/lib/metadata/forms/elements/searchControlAddition/importFromXML"
 import { importSearchStringAdditionFromXML } from "~/lib/metadata/forms/elements/searchStringAddition/importFromXML"
 import { importViewStatusAdditionFromXML } from "~/lib/metadata/forms/elements/viewStatusAddition/importFromXML"
-import { importSearchControlAdditionFromXML } from "~/lib/metadata/forms/elements/searchControlAddition/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { TTableXML, TTable } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
+import { FormElementType } from "../types"
+import { Table, TableXML } from "./types"
 
-export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefined => {
+export const importTableFromXML = (xml: TableXML | undefined): Table | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.Table,
+    ...importBaseElementFromXML(xml)!,
+    elementType: FormElementType.Table,
+
     autoAddIncomplete: xml.AutoAddIncomplete,
     autoCommandBar: importCommandBarFromXML(xml.AutoCommandBar),
     autoInsertNewRow: xml.AutoInsertNewRow,
@@ -109,4 +109,4 @@ export const importTableFromXML = (xml: TTableXML | undefined): TTable | undefin
   }
 }
 
-registerImport(ZElementType.enum.Table, importTableFromXML)
+registerImport(FormElementType.Table, importTableFromXML)

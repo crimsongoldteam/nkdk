@@ -1,20 +1,21 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { TColumnGroupXML, TColumnGroup } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { ZElementType } from "../types"
+import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { FormElementType } from "../types"
+import { ColumnGroup, ColumnGroupXML } from "./types"
 
-export const exportColumnGroupToXML = (data: TColumnGroup | undefined): TColumnGroupXML | undefined => {
+export const exportColumnGroupToXML = (data: ColumnGroup | undefined): ColumnGroupXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    ...exportFormGroupToXML(data)!,
+
     EnableContentChange: data.enableContentChange,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
@@ -47,4 +48,4 @@ export const exportColumnGroupToXML = (data: TColumnGroup | undefined): TColumnG
   }
 }
 
-registerExport(ZElementType.enum.ColumnGroup, exportColumnGroupToXML)
+registerExport(FormElementType.ColumnGroup, exportColumnGroupToXML)

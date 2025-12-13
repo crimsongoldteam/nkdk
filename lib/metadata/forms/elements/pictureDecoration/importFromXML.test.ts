@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import { importPictureDecorationFromXML } from "./importFromXML"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { TPictureDecoration, TPictureDecorationXML } from "./types"
 import { xmlImport } from "~/lib"
 import z from "zod"
@@ -16,7 +16,7 @@ it("should import name from XML", () => {
 
   const expectedResult: TPictureDecoration = {
     name: "ПереданВАрхивИлиУничтоженКартинка",
-    elementType: ZElementType.enum.PictureDecoration,
+    elementType: FormElementType.PictureDecoration,
     picture: {
       ref: "ИнформацияБЭД",
       type: "CommonPicture",

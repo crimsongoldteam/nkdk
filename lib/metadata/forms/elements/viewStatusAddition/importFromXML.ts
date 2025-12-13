@@ -1,22 +1,25 @@
+import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { TViewStatusAdditionXML, TViewStatusAddition } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
+import { FormElementType } from "../types"
+import { ViewStatusAddition, ViewStatusAdditionXML } from "./types"
 
-export const importViewStatusAdditionFromXML = (xml: TViewStatusAdditionXML | undefined): TViewStatusAddition | undefined => {
+export const importViewStatusAdditionFromXML = (
+  xml: ViewStatusAdditionXML | undefined
+): ViewStatusAddition | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.ViewStatusAddition,
+    ...importFormItemAdditionFromXML(xml)!,
+    elementType: FormElementType.ViewStatusAddition,
+
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
     displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
@@ -46,4 +49,4 @@ export const importViewStatusAdditionFromXML = (xml: TViewStatusAdditionXML | un
   }
 }
 
-registerImport(ZElementType.enum.ViewStatusAddition, importViewStatusAdditionFromXML)
+registerImport(FormElementType.ViewStatusAddition, importViewStatusAdditionFromXML)

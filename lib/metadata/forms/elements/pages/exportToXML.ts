@@ -1,21 +1,22 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { exportTableToXML } from "../table/exportToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
-import { TPagesXML, TPages } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { ZElementType } from "../types"
+import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { exportTableToXML } from "../table/exportToXML"
+import { FormElementType } from "../types"
+import { Pages, PagesXML } from "./types"
 
-export const exportPagesToXML = (data: TPages | undefined): TPagesXML | undefined => {
+export const exportPagesToXML = (data: Pages | undefined): PagesXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    ...exportFormGroupToXML(data)!,
+
     EnableContentChange: data.enableContentChange,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
@@ -40,8 +41,8 @@ export const exportPagesToXML = (data: TPages | undefined): TPagesXML | undefine
     CurrentPagesState: data.currentPagesState,
     CurrentRowUse: data.currentRowUse,
     PagesRepresentation: data.pagesRepresentation,
-    Events: exportEventsToXML(data.events)
+    Events: exportEventsToXML(data.events),
   }
 }
 
-registerExport(ZElementType.enum.Pages, exportPagesToXML)
+registerExport(FormElementType.Pages, exportPagesToXML)

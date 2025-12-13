@@ -1,7 +1,7 @@
-import { expect, it, describe } from "vitest"
-import { importI8nTextFromXML } from "./importI8nTextFromXML"
-import { I8nText, I8nTextXML } from "./types"
+import { describe, expect, it } from "vitest"
 import { xmlImport } from "~/lib"
+import { importI8nTextFromXML } from "./importFromXML"
+import { I8nText, I8nTextXML } from "./types"
 
 describe("importI8nTextFromXML", () => {
   it("should import I8nText from XML with one language", () => {

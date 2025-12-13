@@ -6,7 +6,7 @@ import {
   xmlImport,
   ZClientApplicationFormXML,
 } from "~/lib"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import "~/lib/metadata/forms/elements/importFromXML"
 import z from "zod"
 
@@ -25,11 +25,11 @@ describe("importClientApplicationFormFromXML", () => {
 </Form>`
 
     const mockElement: TClientApplicationForm = {
-      elementType: ZElementType.enum.ClientApplicationForm,
+      elementType: FormElementType.ClientApplicationForm,
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
-        elementType: ZElementType.enum.CommandBar,
+        elementType: FormElementType.CommandBar,
         childItems: [],
       },
       title: { items: { ru: "Поле" } },
@@ -58,12 +58,12 @@ describe("importClientApplicationFormFromXML", () => {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
-        elementType: ZElementType.enum.CommandBar,
+        elementType: FormElementType.CommandBar,
         autofill: false,
         childItems: [],
       },
 
-      elementType: ZElementType.enum.ClientApplicationForm,
+      elementType: FormElementType.ClientApplicationForm,
       childItems: [],
       attributes: [],
     }
@@ -90,15 +90,15 @@ describe("importClientApplicationFormFromXML", () => {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
-        elementType: ZElementType.enum.CommandBar,
+        elementType: FormElementType.CommandBar,
         childItems: [],
       },
-      elementType: ZElementType.enum.ClientApplicationForm,
+      elementType: FormElementType.ClientApplicationForm,
       childItems: [
         {
           name: "ПолеВвода",
           id: "1",
-          elementType: ZElementType.enum.InputField,
+          elementType: FormElementType.InputField,
         },
       ],
       attributes: [],
@@ -132,10 +132,10 @@ describe("importClientApplicationFormFromXML", () => {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
-        elementType: ZElementType.enum.CommandBar,
+        elementType: FormElementType.CommandBar,
         childItems: [],
       },
-      elementType: ZElementType.enum.ClientApplicationForm,
+      elementType: FormElementType.ClientApplicationForm,
       childItems: [],
       attributes: [
         {
@@ -175,20 +175,20 @@ describe("importClientApplicationFormFromXML", () => {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
-        elementType: ZElementType.enum.CommandBar,
+        elementType: FormElementType.CommandBar,
         childItems: [],
       },
-      elementType: ZElementType.enum.ClientApplicationForm,
+      elementType: FormElementType.ClientApplicationForm,
       childItems: [
         {
           name: "Группа",
           id: "1",
-          elementType: ZElementType.enum.UsualGroup,
+          elementType: FormElementType.UsualGroup,
           childItems: [
             {
               name: "ПолеВвода",
               id: "1",
-              elementType: ZElementType.enum.InputField,
+              elementType: FormElementType.InputField,
             },
           ],
         },

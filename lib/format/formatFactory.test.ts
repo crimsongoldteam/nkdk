@@ -1,6 +1,6 @@
 import { expect, vi, it, beforeEach } from "vitest"
 import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
-import { ZElementType } from "../metadata/forms/elements/types"
+import { FormElementType } from "../metadata/forms/elements/types"
 import {
   clearFormatRegistry,
   formatElement,
@@ -21,7 +21,7 @@ it("should register a format function", () => {
   const mockCheck = vi.fn().mockReturnValue(true)
 
   const mockData: TBaseElement = {
-    elementType: ZElementType.enum.InputField,
+    elementType: FormElementType.InputField,
     name: "InputField",
     id: "1",
   }

@@ -1,18 +1,19 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { TFormDecorationXML, TFormDecoration } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { ZElementType } from "../types"
+import { exportBaseElementToXML } from "../baseElement/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { FormElementType } from "../types"
+import { FormDecoration, FormDecorationXML } from "./types"
 
-export const exportFormDecorationToXML = (data: TFormDecoration | undefined): TFormDecorationXML | undefined => {
+export const exportFormDecorationToXML = (data: FormDecoration | undefined): FormDecorationXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    ...exportBaseElementToXML(data)!,
+
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
     ContextMenu: exportCommandBarToXML(data.contextMenu),
@@ -40,4 +41,4 @@ export const exportFormDecorationToXML = (data: TFormDecoration | undefined): TF
   }
 }
 
-registerExport(ZElementType.enum.FormDecoration, exportFormDecorationToXML)
+registerExport(FormElementType.FormDecoration, exportFormDecorationToXML)

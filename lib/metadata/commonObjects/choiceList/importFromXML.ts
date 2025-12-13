@@ -1,9 +1,7 @@
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { ChoiceList, ChoiceListXML } from "./types"
 
-export const importChoiceListFromXML = (
-  xml: ChoiceListXML | undefined
-): ChoiceList | undefined => {
+export const importChoiceListFromXML = (xml: ChoiceListXML | undefined): ChoiceList | undefined => {
   if (!xml || xml.length === 0) return undefined
 
   const items = xml.map((item) => {

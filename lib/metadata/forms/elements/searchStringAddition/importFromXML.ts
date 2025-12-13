@@ -1,21 +1,24 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { TSearchStringAdditionXML, TSearchStringAddition } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
+import { FormElementType } from "../types"
+import { SearchStringAddition, SearchStringAdditionXML } from "./types"
 
-export const importSearchStringAdditionFromXML = (xml: TSearchStringAdditionXML | undefined): TSearchStringAddition | undefined => {
+export const importSearchStringAdditionFromXML = (
+  xml: SearchStringAdditionXML | undefined
+): SearchStringAddition | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.SearchStringAddition,
+    ...importFormItemAdditionFromXML(xml)!,
+    elementType: FormElementType.SearchStringAddition,
+
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
     displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
@@ -38,4 +41,4 @@ export const importSearchStringAdditionFromXML = (xml: TSearchStringAdditionXML 
   }
 }
 
-registerImport(ZElementType.enum.SearchStringAddition, importSearchStringAdditionFromXML)
+registerImport(FormElementType.SearchStringAddition, importSearchStringAdditionFromXML)

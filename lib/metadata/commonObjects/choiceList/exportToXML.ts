@@ -1,9 +1,7 @@
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { ChoiceList, ChoiceListXML } from "./types"
 
-export const exportChoiceListToXML = (
-  choiceList: ChoiceList | undefined
-): ChoiceListXML | undefined => {
+export const exportChoiceListToXML = (choiceList: ChoiceList | undefined): ChoiceListXML | undefined => {
   if (!choiceList) return undefined
 
   return choiceList.items.map((item) => ({

@@ -1,152 +1,81 @@
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import { ZBorder, ZBorderXML } from "~/lib/metadata/commonObjects/border/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZTable, ZTableXML } from "../table/types"
-import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZEventsXML } from "~/lib/metadata/forms/events/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import { ZodChildItemsType } from "../childItems/typesExt"
+import { Border, BorderEnterprise, BorderXML } from "~/lib/metadata/commonObjects/border/types"
+import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { EventsXML } from "~/lib/metadata/forms/events/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
-export interface LabelField {
-  elementType: ElementType
-  name: string
-  id?: string
-  autoCellHeight?: boolean,
-  cellHyperlink?: boolean,
-  contextMenu?: CommandBar,
-  dataPath?: string,
-  defaultItem?: boolean,
-  displayImportance?: SE.DisplayImportance,
-  editMode?: SE.ColumnEditMode,
-  enabled?: boolean,
-  extendedTooltip?: FormDecoration,
-  fixingInTable?: SE.FixingInTable,
-  footerBackColor?: Color,
-  footerDataPath?: string,
-  footerFont?: Font,
-  footerHorizontalAlign?: SE.ItemHorizontalLocation,
-  footerPicture?: Picture,
-  footerText?: I8nText,
-  footerTextColor?: Color,
-  headerHorizontalAlign?: SE.ItemHorizontalLocation,
-  headerPicture?: Picture,
-  horizontalAlign?: SE.ItemHorizontalLocation,
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation,
-  readOnly?: boolean,
-  shortcut?: string,
-  showInFooter?: boolean,
-  showInHeader?: boolean,
-  skipOnInput?: boolean,
-  table?: Table,
-  title?: I8nText,
-  titleBackColor?: Color,
-  titleFont?: Font,
-  titleHeight?: number,
-  titleLocation?: SE.FormItemTitleLocation,
-  titleTextColor?: Color,
-  toolTip?: I8nText,
-  toolTipRepresentation?: SE.ToolTipRepresentation,
-  type?: SE.FormFieldType,
-  typeRestriction?: TypeDescription,
-  userVisible?: UserVisible,
-  verticalAlign?: SE.ItemVerticalAlign,
-  verticalAlignInGroup?: SE.ItemVerticalAlign,
-  visible?: boolean,
-  warningOnEdit?: I8nText,
-  warningOnEditRepresentation?: SE.WarningOnEditRepresentation,
-  autoMaxHeight?: boolean,
-  autoMaxWidth?: boolean,
-  backColor?: Color,
-  border?: Border,
-  borderColor?: Color,
-  font?: Font,
-  format?: I8nText,
-  height?: number,
-  horizontalStretch?: boolean,
-  hyperlink?: boolean,
-  markNegatives?: boolean,
-  maxHeight?: number,
-  maxWidth?: number,
-  passwordMode?: boolean,
-  textColor?: Color,
-  verticalStretch?: boolean,
-  width?: number,
+export interface LabelField extends FormField {
+  autoMaxHeight?: boolean
+  autoMaxWidth?: boolean
+  backColor?: Color
+  border?: Border
+  borderColor?: Color
+  font?: Font
+  format?: I8nText
+  height?: number
+  horizontalStretch?: boolean
+  hyperlink?: boolean
+  markNegatives?: boolean
+  maxHeight?: number
+  maxWidth?: number
+  passwordMode?: boolean
+  textColor?: Color
+  userVisible?: UserVisible
+  verticalStretch?: boolean
+  width?: number
   events?: {
-    onChange?: string,
-    click?: string,
-    uRLProcessing?: string,
-  },
+    onChange?: string
+    click?: string
+    uRLProcessing?: string
+  }
 }
 
-export interface LabelFieldXML {
-  _name: z.string(),
-  _id: z.string(),
-  _DisplayImportance: SE.DisplayImportance,
-  DataPath: string,
-  Visible: boolean,
-  UserVisible: UserVisible,
-  Enabled: boolean,
-  ReadOnly: boolean,
-  SkipOnInput: boolean,
-  Title: I8nText,
-  TitleTextColor: Color,
-  TitleFont: Font,
-  TitleLocation: SE.FormItemTitleLocation,
-  TitleHeight: number,
-  ToolTip: I8nText,
-  ToolTipRepresentation: SE.ToolTipRepresentation,
-  WarningOnEditRepresentation: SE.WarningOnEditRepresentation,
-  WarningOnEdit: I8nText,
-  Shortcut: string,
-  HorizontalAlign: SE.ItemHorizontalLocation,
-  Width: number,
-  AutoMaxWidth: boolean,
-  Height: number,
-  HorizontalStretch: boolean,
-  VerticalStretch: boolean,
-  PasswordMode: boolean,
-  Border: Border,
-  TextColor: Color,
-  BackColor: Color,
-  Font: Font,
-  ContextMenu: CommandBar,
-  ExtendedTooltip: FormDecoration,
-  AutoCellHeight: boolean,
-  AutoMaxHeight: boolean,
-  BorderColor: Color,
-  CellHyperlink: boolean,
-  DefaultItem: boolean,
-  EditMode: SE.ColumnEditMode,
-  FixingInTable: SE.FixingInTable,
-  FooterBackColor: Color,
-  FooterDataPath: string,
-  FooterFont: Font,
-  FooterHorizontalAlign: SE.ItemHorizontalLocation,
-  FooterPicture: Picture,
-  FooterText: I8nText,
-  FooterTextColor: Color,
-  Format: I8nText,
-  HeaderHorizontalAlign: SE.ItemHorizontalLocation,
-  HeaderPicture: Picture,
-  HorizontalAlignInGroup: SE.ItemHorizontalLocation,
-  Hyperlink: boolean,
-  MarkNegatives: boolean,
-  MaxHeight: number,
-  MaxWidth: number,
-  ShowInFooter: boolean,
-  ShowInHeader: boolean,
-  Table: Table,
-  TitleBackColor: Color,
-  Type: SE.FormFieldType,
-  TypeRestriction: TypeDescription,
-  VerticalAlign: SE.ItemVerticalAlign,
-  VerticalAlignInGroup: SE.ItemVerticalAlign,
+export interface LabelFieldXML extends FormFieldXML {
+  AutoMaxHeight?: boolean
+  AutoMaxWidth?: boolean
+  BackColor?: ColorXML
+  Border?: BorderXML
+  BorderColor?: ColorXML
+  Font?: FontXML
+  Format?: I8nTextXML
+  Height?: number
+  HorizontalStretch?: boolean
+  Hyperlink?: boolean
+  MarkNegatives?: boolean
+  MaxHeight?: number
+  MaxWidth?: number
+  PasswordMode?: boolean
+  TextColor?: ColorXML
+  UserVisible?: UserVisibleXML
+  VerticalStretch?: boolean
+  Width?: number
+  Events?: EventsXML
+}
+
+export interface LabelFieldEnterprise extends FormFieldEnterprise {
+  АвтоМаксимальнаяВысота?: boolean
+  АвтоМаксимальнаяШирина?: boolean
+  ЦветФона?: ColorEnterprise
+  Рамка?: BorderEnterprise
+  ЦветРамки?: ColorEnterprise
+  Шрифт?: FontEnterprise
+  Формат?: I8nTextEnterprise
+  Высота?: number
+  РастягиватьПоГоризонтали?: boolean
+  Гиперссылка?: boolean
+  ВыделятьОтрицательные?: boolean
+  МаксимальнаяВысота?: number
+  МаксимальнаяШирина?: number
+  РежимПароля?: boolean
+  ЦветТекста?: ColorEnterprise
+  ПользовательскаяВидимость?: UserVisibleEnterprise
+  РастягиватьПоВертикали?: boolean
+  Ширина?: number
+  События?: {
+    ПриИзменении?: string
+    Нажатие?: string
+    ОбработкаНавигационнойСсылки?: string
+  }
 }

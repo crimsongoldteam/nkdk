@@ -1,19 +1,20 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { TButtonGroupXML, TButtonGroup } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { ZElementType } from "../types"
+import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { exportFormGroupToXML } from "../formGroup/exportToXML"
+import { FormElementType } from "../types"
+import { ButtonGroup, ButtonGroupXML } from "./types"
 
-export const exportButtonGroupToXML = (data: TButtonGroup | undefined): TButtonGroupXML | undefined => {
+export const exportButtonGroupToXML = (data: ButtonGroup | undefined): ButtonGroupXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    ...exportFormGroupToXML(data)!,
+
     EnableContentChange: data.enableContentChange,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
@@ -38,4 +39,4 @@ export const exportButtonGroupToXML = (data: TButtonGroup | undefined): TButtonG
   }
 }
 
-registerExport(ZElementType.enum.ButtonGroup, exportButtonGroupToXML)
+registerExport(FormElementType.ButtonGroup, exportButtonGroupToXML)

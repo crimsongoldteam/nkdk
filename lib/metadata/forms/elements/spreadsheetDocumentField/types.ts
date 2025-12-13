@@ -1,184 +1,134 @@
+import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZTable, ZTableXML } from "../table/types"
-import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZEventsXML } from "~/lib/metadata/forms/events/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import { ZodChildItemsType } from "../childItems/typesExt"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
-export interface SpreadSheetDocumentField {
-  elementType: ElementType
-  name: string
-  id?: string
-  autoCellHeight?: boolean,
-  cellHyperlink?: boolean,
-  contextMenu?: CommandBar,
-  dataPath?: string,
-  defaultItem?: boolean,
-  displayImportance?: SE.DisplayImportance,
-  editMode?: SE.ColumnEditMode,
-  enabled?: boolean,
-  extendedTooltip?: FormDecoration,
-  fixingInTable?: SE.FixingInTable,
-  footerBackColor?: Color,
-  footerDataPath?: string,
-  footerFont?: Font,
-  footerHorizontalAlign?: SE.ItemHorizontalLocation,
-  footerPicture?: Picture,
-  footerText?: I8nText,
-  footerTextColor?: Color,
-  headerHorizontalAlign?: SE.ItemHorizontalLocation,
-  headerPicture?: Picture,
-  horizontalAlign?: SE.ItemHorizontalLocation,
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation,
-  readOnly?: boolean,
-  shortcut?: string,
-  showInFooter?: boolean,
-  showInHeader?: boolean,
-  skipOnInput?: boolean,
-  table?: Table,
-  title?: I8nText,
-  titleBackColor?: Color,
-  titleFont?: Font,
-  titleHeight?: number,
-  titleLocation?: SE.FormItemTitleLocation,
-  titleTextColor?: Color,
-  toolTip?: I8nText,
-  toolTipRepresentation?: SE.ToolTipRepresentation,
-  type?: SE.FormFieldType,
-  typeRestriction?: TypeDescription,
-  userVisible?: UserVisible,
-  verticalAlign?: SE.ItemVerticalAlign,
-  verticalAlignInGroup?: SE.ItemVerticalAlign,
-  visible?: boolean,
-  warningOnEdit?: I8nText,
-  warningOnEditRepresentation?: SE.WarningOnEditRepresentation,
-  autoMaxHeight?: boolean,
-  autoMaxWidth?: boolean,
-  blackAndWhiteView?: boolean,
-  borderColor?: Color,
-  drawingSelectionShowMode?: SE.DrawingSelectionShowMode,
-  edit?: boolean,
-  enableDrag?: boolean,
-  enableStartDrag?: boolean,
-  height?: number,
-  horizontalScrollBar?: SE.ScrollBarUse,
-  horizontalStretch?: boolean,
-  maxHeight?: number,
-  maxWidth?: number,
-  output?: SE.UseOutput,
-  pointerType?: SE.SpreadsheetDocumentPointerType,
-  protection?: boolean,
-  selectionShowMode?: SE.SelectionShowMode,
-  showCellNames?: boolean,
-  showGrid?: boolean,
-  showGroups?: boolean,
-  showHeaders?: boolean,
-  showRowAndColumnNames?: boolean,
-  statePresentation?: SE.StatePresentation,
-  usedFileName?: string,
-  verticalScrollBar?: SE.ScrollBarUse,
-  verticalStretch?: boolean,
-  viewScalingMode?: SE.ViewScalingMode,
-  width?: number,
+export interface SpreadSheetDocumentField extends FormField {
+  autoMaxHeight?: boolean
+  autoMaxWidth?: boolean
+  blackAndWhiteView?: boolean
+  borderColor?: Color
+  drawingSelectionShowMode?: SE.DrawingSelectionShowMode
+  edit?: boolean
+  enableDrag?: boolean
+  enableStartDrag?: boolean
+  height?: number
+  horizontalScrollBar?: SE.ScrollBarUse
+  horizontalStretch?: boolean
+  maxHeight?: number
+  maxWidth?: number
+  output?: SE.UseOutput
+  pointerType?: SE.SpreadsheetDocumentPointerType
+  protection?: boolean
+  selectionShowMode?: SE.SelectionShowMode
+  showCellNames?: boolean
+  showGrid?: boolean
+  showGroups?: boolean
+  showHeaders?: boolean
+  showRowAndColumnNames?: boolean
+  statePresentation?: SE.StatePresentation
+  usedFileName?: string
+  userVisible?: UserVisible
+  verticalScrollBar?: SE.ScrollBarUse
+  verticalStretch?: boolean
+  viewScalingMode?: SE.ViewScalingMode
+  width?: number
   events?: {
-    onChange?: string,
-    selection?: string,
-    dragStart?: string,
-    additionalDetailProcessing?: string,
-    uRLProcessing?: string,
-    detailProcessing?: string,
-    dragEnd?: string,
-    beforeWrite?: string,
-    beforePrint?: string,
-    drag?: string,
-    afterWrite?: string,
-    onActivate?: string,
-    onChangeAreaContentEvent?: string,
-    dragCheck?: string,
-  },
+    onChange?: string
+    selection?: string
+    dragStart?: string
+    additionalDetailProcessing?: string
+    uRLProcessing?: string
+    detailProcessing?: string
+    dragEnd?: string
+    beforeWrite?: string
+    beforePrint?: string
+    drag?: string
+    afterWrite?: string
+    onActivate?: string
+    onChangeAreaContentEvent?: string
+    dragCheck?: string
+  }
 }
 
-export interface SpreadSheetDocumentFieldXML {
-  _name: z.string(),
-  _id: z.string(),
-  _DisplayImportance: SE.DisplayImportance,
-  DataPath: string,
-  Visible: boolean,
-  UserVisible: UserVisible,
-  Enabled: boolean,
-  ReadOnly: boolean,
-  SkipOnInput: boolean,
-  Title: I8nText,
-  TitleTextColor: Color,
-  TitleFont: Font,
-  TitleLocation: SE.FormItemTitleLocation,
-  TitleHeight: number,
-  ToolTip: I8nText,
-  ToolTipRepresentation: SE.ToolTipRepresentation,
-  WarningOnEditRepresentation: SE.WarningOnEditRepresentation,
-  WarningOnEdit: I8nText,
-  Shortcut: string,
-  HorizontalAlign: SE.ItemHorizontalLocation,
-  AutoMaxWidth: boolean,
-  MaxWidth: number,
-  AutoMaxHeight: boolean,
-  HorizontalStretch: boolean,
-  VerticalStretch: boolean,
-  ShowGrid: boolean,
-  ShowHeaders: boolean,
-  BlackAndWhiteView: boolean,
-  Protection: boolean,
-  DrawingSelectionShowMode: SE.DrawingSelectionShowMode,
-  PointerType: SE.SpreadsheetDocumentPointerType,
-  Output: SE.UseOutput,
-  Edit: boolean,
-  ShowGroups: boolean,
-  EnableStartDrag: boolean,
-  EnableDrag: boolean,
-  ShowCellNames: boolean,
-  ShowRowAndColumnNames: boolean,
-  ViewScalingMode: SE.ViewScalingMode,
-  ContextMenu: CommandBar,
-  ExtendedTooltip: FormDecoration,
-  AutoCellHeight: boolean,
-  BorderColor: Color,
-  CellHyperlink: boolean,
-  DefaultItem: boolean,
-  EditMode: SE.ColumnEditMode,
-  FixingInTable: SE.FixingInTable,
-  FooterBackColor: Color,
-  FooterDataPath: string,
-  FooterFont: Font,
-  FooterHorizontalAlign: SE.ItemHorizontalLocation,
-  FooterPicture: Picture,
-  FooterText: I8nText,
-  FooterTextColor: Color,
-  HeaderHorizontalAlign: SE.ItemHorizontalLocation,
-  HeaderPicture: Picture,
-  Height: number,
-  HorizontalAlignInGroup: SE.ItemHorizontalLocation,
-  HorizontalScrollBar: SE.ScrollBarUse,
-  MaxHeight: number,
-  SelectionShowMode: SE.SelectionShowMode,
-  ShowInFooter: boolean,
-  ShowInHeader: boolean,
-  StatePresentation: SE.StatePresentation,
-  Table: Table,
-  TitleBackColor: Color,
-  Type: SE.FormFieldType,
-  TypeRestriction: TypeDescription,
-  UsedFileName: string,
-  VerticalAlign: SE.ItemVerticalAlign,
-  VerticalAlignInGroup: SE.ItemVerticalAlign,
-  VerticalScrollBar: SE.ScrollBarUse,
-  Width: number,
+export interface SpreadSheetDocumentFieldXML extends FormFieldXML {
+  AutoMaxHeight?: boolean
+  AutoMaxWidth?: boolean
+  BlackAndWhiteView?: boolean
+  BorderColor?: ColorXML
+  DrawingSelectionShowMode?: SE.DrawingSelectionShowMode
+  Edit?: boolean
+  EnableDrag?: boolean
+  EnableStartDrag?: boolean
+  Height?: number
+  HorizontalScrollBar?: SE.ScrollBarUse
+  HorizontalStretch?: boolean
+  MaxHeight?: number
+  MaxWidth?: number
+  Output?: SE.UseOutput
+  PointerType?: SE.SpreadsheetDocumentPointerType
+  Protection?: boolean
+  SelectionShowMode?: SE.SelectionShowMode
+  ShowCellNames?: boolean
+  ShowGrid?: boolean
+  ShowGroups?: boolean
+  ShowHeaders?: boolean
+  ShowRowAndColumnNames?: boolean
+  StatePresentation?: SE.StatePresentation
+  UsedFileName?: string
+  UserVisible?: UserVisibleXML
+  VerticalScrollBar?: SE.ScrollBarUse
+  VerticalStretch?: boolean
+  ViewScalingMode?: SE.ViewScalingMode
+  Width?: number
+  Events?: EventsXML
+}
+
+export interface SpreadSheetDocumentFieldEnterprise extends FormFieldEnterprise {
+  АвтоМаксимальнаяВысота?: boolean
+  АвтоМаксимальнаяШирина?: boolean
+  ЧерноБелыйПросмотр?: boolean
+  ЦветРамки?: ColorEnterprise
+  РежимОтображенияВыделенияРисунков?: SE.DrawingSelectionShowModeEnterprise
+  Редактирование?: boolean
+  РазрешитьПеретаскивание?: boolean
+  РазрешитьНачалоПеретаскивания?: boolean
+  Высота?: number
+  ГоризонтальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
+  РастягиватьПоГоризонтали?: boolean
+  МаксимальнаяВысота?: number
+  МаксимальнаяШирина?: number
+  Вывод?: SE.UseOutputEnterprise
+  ТипКурсоров?: SE.SpreadsheetDocumentPointerTypeEnterprise
+  Защита?: boolean
+  РежимОтображенияВыделения?: SE.SelectionShowModeEnterprise
+  ОтображатьИменаЯчеек?: boolean
+  ОтображатьСетку?: boolean
+  ОтображатьГруппировки?: boolean
+  ОтображатьЗаголовки?: boolean
+  ОтображатьИменаСтрокИКолонок?: boolean
+  ОтображениеСостояния?: SE.StatePresentationEnterprise
+  ИспользуемоеИмяФайла?: string
+  ПользовательскаяВидимость?: UserVisibleEnterprise
+  ВертикальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
+  РастягиватьПоВертикали?: boolean
+  РежимМасштабированияПросмотра?: SE.ViewScalingModeEnterprise
+  Ширина?: number
+  События?: {
+    ПриИзменении?: string
+    Выбор?: string
+    НачалоПеретаскивания?: string
+    ОбработкаДополнительнойРасшифровки?: string
+    ОбработкаНавигационнойСсылки?: string
+    ОбработкаРасшифровки?: string
+    ОкончаниеПеретаскивания?: string
+    ПередЗаписью?: string
+    ПередПечатью?: string
+    Перетаскивание?: string
+    ПослеЗаписи?: string
+    ПриАктивизации?: string
+    ПриИзмененииСодержимогоОбласти?: string
+    ПроверкаПеретаскивания?: string
+  }
 }

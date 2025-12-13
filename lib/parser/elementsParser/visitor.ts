@@ -4,27 +4,24 @@ import type { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
 import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import type { TButton } from "~/lib/metadata/forms/elements/button/types"
 import type { TCheckBoxField } from "~/lib/metadata/forms/elements/checkBoxField/types"
+import { TCommandBar } from "~/lib/metadata/forms/elements/commandBar/types"
 import type { TInputField } from "~/lib/metadata/forms/elements/inputField/types"
 import type { TLabelDecoration } from "~/lib/metadata/forms/elements/labelDecoration/types"
+import { TPage } from "~/lib/metadata/forms/elements/page/types"
+import { TPages } from "~/lib/metadata/forms/elements/pages/types"
 import type { TRadioButtonField } from "~/lib/metadata/forms/elements/radioButtonField/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { TTable } from "~/lib/metadata/forms/elements/table/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { TUsualGroup } from "~/lib/metadata/forms/elements/usualGroup/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { joinTokens, visitAll } from "../visitorUtils"
 import { Parser } from "./parser"
-import { TCommandBar } from "~/lib/metadata/forms/elements/commandBar/types"
-import { TTable } from "~/lib/metadata/forms/elements/table/types"
-import { TPages } from "~/lib/metadata/forms/elements/pages/types"
-import { TPage } from "~/lib/metadata/forms/elements/page/types"
-import { TUsualGroup } from "~/lib/metadata/forms/elements/usualGroup/types"
 
 const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
 export class Visitor extends BaseVisitor {
   // #region labelDecoration
-  public labelDecoration(
-    ctx: CstChildrenDictionary,
-    configurationSettings: TConfigurationSettings
-  ): TLabelDecoration {
+  public labelDecoration(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TLabelDecoration {
     const labelContent = joinTokens(ctx.LabelContent as IToken[]) || ""
 
     const titleText = labelContent
@@ -32,7 +29,7 @@ export class Visitor extends BaseVisitor {
     const name = this.visit(ctx.properties as CstNode[]) || titleText
 
     return {
-      elementType: ZElementType.enum.LabelDecoration,
+      elementType: FormElementType.LabelDecoration,
       name: name || "",
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       id: undefined,
@@ -42,25 +39,19 @@ export class Visitor extends BaseVisitor {
 
   // #region inputField
 
-  inputField(
-    ctx: CstChildrenDictionary,
-    configurationSettings: TConfigurationSettings
-  ): TInputField {
+  inputField(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TInputField {
     const titleText = joinTokens(ctx.InputHeader as IToken[])
 
     const name = this.visit(ctx.properties as CstNode[]) || titleText
 
     const modifiers = joinTokens(ctx.InputModifiers as IToken[])
 
-    const title = this.createTitle(
-      titleText,
-      configurationSettings.defaultLanguage
-    )
+    const title = this.createTitle(titleText, configurationSettings.defaultLanguage)
 
     const modificators = this.addInputModifiers(modifiers)
 
     const result = {
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
       name: name,
       id: undefined,
       title: title,
@@ -71,27 +62,13 @@ export class Visitor extends BaseVisitor {
 
   addInputModifiers(
     modifiers: string | undefined
-  ): Partial<
-    Pick<
-      TInputField,
-      | "dropListButton"
-      | "choiceButton"
-      | "clearButton"
-      | "spinButton"
-      | "openButton"
-    >
-  > {
+  ): Partial<Pick<TInputField, "dropListButton" | "choiceButton" | "clearButton" | "spinButton" | "openButton">> {
     if (modifiers === undefined) {
       return {}
     }
 
     const propertyMap: {
-      [key: string]:
-        | "dropListButton"
-        | "choiceButton"
-        | "clearButton"
-        | "spinButton"
-        | "openButton"
+      [key: string]: "dropListButton" | "choiceButton" | "clearButton" | "spinButton" | "openButton"
     } = {
       с: "dropListButton",
       в: "choiceButton",
@@ -103,14 +80,7 @@ export class Visitor extends BaseVisitor {
     }
 
     const result: Partial<
-      Pick<
-        TInputField,
-        | "dropListButton"
-        | "choiceButton"
-        | "clearButton"
-        | "spinButton"
-        | "openButton"
-      >
+      Pick<TInputField, "dropListButton" | "choiceButton" | "clearButton" | "spinButton" | "openButton">
     > = {}
 
     for (const element of modifiers) {
@@ -128,20 +98,14 @@ export class Visitor extends BaseVisitor {
 
   // #region button
 
-  button(
-    ctx: CstChildrenDictionary,
-    configurationSettings: TConfigurationSettings
-  ): TButton {
+  button(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TButton {
     const name = joinTokens(ctx.Button as IToken[]) || ""
     const titleText = joinTokens(ctx.Button as IToken[]) || ""
 
-    const title = this.createTitle(
-      titleText,
-      configurationSettings.defaultLanguage
-    )
+    const title = this.createTitle(titleText, configurationSettings.defaultLanguage)
 
     return {
-      elementType: ZElementType.enum.Button,
+      elementType: FormElementType.Button,
       name: name || "",
       title: title,
       id: undefined,
@@ -150,20 +114,14 @@ export class Visitor extends BaseVisitor {
   // #endregion
 
   // #region checkboxField
-  rightTitledCheckboxField(
-    ctx: CstChildrenDictionary,
-    configurationSettings: TConfigurationSettings
-  ): TCheckBoxField {
+  rightTitledCheckboxField(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TCheckBoxField {
     const titleText = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
 
     const name = this.visit(ctx.properties as CstNode[]) || titleText
 
-    const checkBoxType =
-      ctx.SwitchChecked || ctx.SwitchUnchecked
-        ? SE.ZCheckBoxType.enum.Switch
-        : undefined
+    const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? SE.ZCheckBoxType.enum.Switch : undefined
     return {
-      elementType: ZElementType.enum.CheckBoxField,
+      elementType: FormElementType.CheckBoxField,
       name: name || "",
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       headerHorizontalAlign: SE.ZItemHorizontalLocation.enum.Right,
@@ -172,20 +130,14 @@ export class Visitor extends BaseVisitor {
     } as TCheckBoxField
   }
 
-  leftTitledCheckboxField(
-    ctx: CstChildrenDictionary,
-    configurationSettings: TConfigurationSettings
-  ): TCheckBoxField {
+  leftTitledCheckboxField(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TCheckBoxField {
     const titleText = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
 
-    const checkBoxType =
-      ctx.SwitchChecked || ctx.SwitchUnchecked
-        ? SE.ZCheckBoxType.enum.Switch
-        : undefined
+    const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? SE.ZCheckBoxType.enum.Switch : undefined
 
     return {
-      elementType: ZElementType.enum.CheckBoxField,
+      elementType: FormElementType.CheckBoxField,
       name: name || "",
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       id: undefined,
@@ -197,10 +149,7 @@ export class Visitor extends BaseVisitor {
 
   //  #region radioButtonField
 
-  radioButtonField(
-    ctx: CstChildrenDictionary,
-    configurationSettings: TConfigurationSettings
-  ): TRadioButtonField {
+  radioButtonField(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TRadioButtonField {
     const titleText = joinTokens(ctx.RadioButtonHeader as IToken[]) || ""
 
     const name = this.visit(ctx.properties as CstNode[]) || titleText
@@ -220,13 +169,10 @@ export class Visitor extends BaseVisitor {
       })),
     }
 
-    const title = this.createTitle(
-      titleText,
-      configurationSettings.defaultLanguage
-    )
+    const title = this.createTitle(titleText, configurationSettings.defaultLanguage)
 
     return {
-      elementType: ZElementType.enum.RadioButtonField,
+      elementType: FormElementType.RadioButtonField,
       name: name || "",
       id: undefined,
       choiceList: choiceList,
@@ -236,8 +182,7 @@ export class Visitor extends BaseVisitor {
 
   radioButtonItem(ctx: CstChildrenDictionary): any {
     const checked = !!ctx.RadioButtonChecked
-    const description =
-      joinTokens(ctx.RadioButtonValueDescription as IToken[]) ?? ""
+    const description = joinTokens(ctx.RadioButtonValueDescription as IToken[]) ?? ""
     return { checked: checked, description: description }
   }
 
@@ -245,10 +190,7 @@ export class Visitor extends BaseVisitor {
 
   // #region commandBar
 
-  commandBar(
-    ctx: CstChildrenDictionary,
-    configurationSettings: TConfigurationSettings
-  ): TCommandBar {
+  commandBar(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TCommandBar {
     const childItems = visitAll(
       this,
       ctx.commandBarButton,
@@ -264,27 +206,21 @@ export class Visitor extends BaseVisitor {
     const name = joinTokens(ctx.properties as IToken[]) || "CommandBar"
 
     return {
-      elementType: ZElementType.enum.CommandBar,
+      elementType: FormElementType.CommandBar,
       name: name,
       id: "1",
       childItems: childItemsWithId,
     } as TCommandBar
   }
 
-  commandBarButton(
-    ctx: CstChildrenDictionary,
-    configurationSettings: TConfigurationSettings
-  ): TButton {
+  commandBarButton(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TButton {
     const name = joinTokens(ctx.Button as IToken[]) || ""
     const titleText = joinTokens(ctx.Button as IToken[]) || ""
 
-    const title = this.createTitle(
-      titleText,
-      configurationSettings.defaultLanguage
-    )
+    const title = this.createTitle(titleText, configurationSettings.defaultLanguage)
 
     return {
-      elementType: ZElementType.enum.Button,
+      elementType: FormElementType.Button,
       name: name || "",
       title: title,
       id: undefined,
@@ -319,7 +255,7 @@ export class Visitor extends BaseVisitor {
   //   const name = joinTokens(ctx.PageHeaderText as IToken[]) || ""
 
   //   return {
-  //       elementType: ZElementType.enum.Page,
+  //       elementType: FormElementType.Page,
   //       name: name || "",
   //       id: undefined,
   //     } as TPage
@@ -331,7 +267,7 @@ export class Visitor extends BaseVisitor {
   //   const name = joinTokens(ctx.PageHeaderText as IToken[]) || ""
 
   //   return {
-  //       elementType: ZElementType.enum.Pages,
+  //       elementType: FormElementType.Pages,
   //       name: name || "",
   //       id: undefined,
   //     } as TPages
@@ -343,7 +279,7 @@ export class Visitor extends BaseVisitor {
   //   const name = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
 
   //   return {
-  //       elementType: ZElementType.enum.UsualGroup,
+  //       elementType: FormElementType.UsualGroup,
   //       name: name || "",
   //       id: undefined,
   //     } as TUsualGroup
@@ -367,31 +303,20 @@ export class Visitor extends BaseVisitor {
   //   }
 
   //   return {
-  //       elementType: ZElementType.enum.UsualGroup,
+  //       elementType: FormElementType.UsualGroup,
   //       name: name || "",
   //       id: undefined,
   //     } as TUsualGroup
   // }
 
   // #region table
-  table(
-    ctx: CstChildrenDictionary,
-    configurationSettings: TConfigurationSettings
-  ): TTable {
+  table(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TTable {
     // Обрабатываем tableLine - это массив из AT_LEAST_ONE
     // В Chevrotain AT_LEAST_ONE создает массив с именем правила
     const tableLineValue = ctx.tableLine
-    const tableLineArray = tableLineValue
-      ? Array.isArray(tableLineValue)
-        ? tableLineValue
-        : [tableLineValue]
-      : []
+    const tableLineArray = tableLineValue ? (Array.isArray(tableLineValue) ? tableLineValue : [tableLineValue]) : []
 
-    const tableLines = visitAll(
-      this,
-      tableLineArray as CstNode[],
-      configurationSettings
-    ) as unknown as Array<{
+    const tableLines = visitAll(this, tableLineArray as CstNode[], configurationSettings) as unknown as Array<{
       cells: Array<{ name: string; properties?: string }>
     }>
 
@@ -408,7 +333,7 @@ export class Visitor extends BaseVisitor {
         } else if (cell.name) {
           // Иначе это колонка
           childItems.push({
-            elementType: ZElementType.enum.InputField,
+            elementType: FormElementType.InputField,
             name: cell.name,
             id: undefined,
           } as TInputField)
@@ -417,7 +342,7 @@ export class Visitor extends BaseVisitor {
     }
 
     return {
-      elementType: ZElementType.enum.Table,
+      elementType: FormElementType.Table,
       name: tableName || "table",
       id: undefined,
       childItems: childItems,
@@ -430,11 +355,10 @@ export class Visitor extends BaseVisitor {
   ): { cells: Array<{ name: string; properties?: string }> } {
     // Обрабатываем ячейки из AT_LEAST_ONE_SEP
     // В Chevrotain AT_LEAST_ONE_SEP создает массив с именем правила (tableCell)
-    const cells = visitAll(
-      this,
-      ctx.tableCell as CstNode[],
-      configurationSettings
-    ) as unknown as Array<{ name: string; properties?: string }>
+    const cells = visitAll(this, ctx.tableCell as CstNode[], configurationSettings) as unknown as Array<{
+      name: string
+      properties?: string
+    }>
 
     return { cells }
   }
@@ -444,20 +368,19 @@ export class Visitor extends BaseVisitor {
     configurationSettings: TConfigurationSettings
   ): { name: string; properties?: string } {
     const tableDataCellNodes = ctx.tableDataCell
-      ? (Array.isArray(ctx.tableDataCell)
-          ? ctx.tableDataCell
-          : [ctx.tableDataCell]
-        ).filter((item) => "children" in item)
+      ? (Array.isArray(ctx.tableDataCell) ? ctx.tableDataCell : [ctx.tableDataCell]).filter(
+          (item) => "children" in item
+        )
       : []
 
     if (tableDataCellNodes.length === 0) {
       return { name: "", properties: undefined }
     }
 
-    const tableDataCell = this.visit(
-      tableDataCellNodes as CstNode[],
-      configurationSettings
-    ) as { name: string; properties?: string }
+    const tableDataCell = this.visit(tableDataCellNodes as CstNode[], configurationSettings) as {
+      name: string
+      properties?: string
+    }
 
     return tableDataCell
   }
@@ -477,9 +400,7 @@ export class Visitor extends BaseVisitor {
         : ctx.properties
       : undefined
     const properties =
-      propertiesNode && "children" in propertiesNode
-        ? this.visit([propertiesNode as CstNode])
-        : undefined
+      propertiesNode && "children" in propertiesNode ? this.visit([propertiesNode as CstNode]) : undefined
 
     return {
       name: cellName || "",
@@ -489,14 +410,11 @@ export class Visitor extends BaseVisitor {
   // #endregion
 
   // #region pages
-  pages(
-    ctx: CstChildrenDictionary,
-    configurationSettings: TConfigurationSettings
-  ): TPages {
+  pages(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TPages {
     const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
-      elementType: ZElementType.enum.Pages,
+      elementType: FormElementType.Pages,
       name: name || titleText,
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       id: undefined,
@@ -504,14 +422,11 @@ export class Visitor extends BaseVisitor {
     } as TPages
   }
 
-  page(
-    ctx: CstChildrenDictionary,
-    configurationSettings: TConfigurationSettings
-  ): TPage {
+  page(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TPage {
     const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
-      elementType: ZElementType.enum.Page,
+      elementType: FormElementType.Page,
       name: name || titleText,
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       id: undefined,
@@ -522,14 +437,11 @@ export class Visitor extends BaseVisitor {
   // #endregion
 
   // #region verticalGroup
-  verticalGroup(
-    ctx: CstChildrenDictionary,
-    configurationSettings: TConfigurationSettings
-  ): TUsualGroup {
+  verticalGroup(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TUsualGroup {
     const titleText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
-      elementType: ZElementType.enum.UsualGroup,
+      elementType: FormElementType.UsualGroup,
       group: SE.ZChildFormItemsGroup.enum.Vertical,
       name: name || titleText,
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
@@ -538,14 +450,11 @@ export class Visitor extends BaseVisitor {
     } as TUsualGroup
   }
 
-  horizontalGroup(
-    ctx: CstChildrenDictionary,
-    configurationSettings: TConfigurationSettings
-  ): TUsualGroup {
+  horizontalGroup(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TUsualGroup {
     const titleText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
-      elementType: ZElementType.enum.UsualGroup,
+      elementType: FormElementType.UsualGroup,
       group: SE.ZChildFormItemsGroup.enum.Horizontal,
       name: name || titleText,
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
@@ -562,10 +471,7 @@ export class Visitor extends BaseVisitor {
     return properties
   }
 
-  createTitle(
-    titleText: string | undefined,
-    defaultLanguage: string
-  ): TI8nText | undefined {
+  createTitle(titleText: string | undefined, defaultLanguage: string): TI8nText | undefined {
     return titleText
       ? {
           items: {

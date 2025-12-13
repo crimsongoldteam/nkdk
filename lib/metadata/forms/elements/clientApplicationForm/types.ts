@@ -1,14 +1,28 @@
-export const ZAttribute = z.object({
-  name: z.string(),
-  id: z.string(),
-  title: ZI8nText.optional(),
-  type: ZTypeDescription.optional(),
-  mainAttribute: z.boolean().optional(),
-  storedData: z.boolean().optional(),
-  use: ZUserVisible.optional(),
-})
+import { I8nText, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import {
+  TypeDescription,
+  TypeDescriptionXML,
+  TypeDescriptionXMLItem,
+} from "~/lib/metadata/commonObjects/typeDescription/types"
+import { UserVisible, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { CommandSet, CommandSetXML } from "~/lib/metadata/forms/commandSet/types"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { EventsXML } from "../../events/types"
+import { ChildItems, ChildItemsXML } from "../childItems/types"
+import { CommandBar, CommandBarXML } from "../commandBar/types"
+import { FormElementType } from "../types"
 
-// export const ZAttributeEnterprise = z.union([
+export interface FormAttribute {
+  name: string
+  id: string
+  title?: I8nText
+  type?: TypeDescription
+  mainAttribute?: boolean
+  storedData?: boolean
+  use?: UserVisible
+}
+
+// export interface AttributeEnterprise = z.union([
 //   z.object({
 //     Заголовок: z.string().optional(),
 //     Тип: z.string().optional(),
@@ -18,232 +32,172 @@ export const ZAttribute = z.object({
 //   ZUseEnterprise,
 // ])
 
+export interface ClientApplicationFormEvents {
+  collaborationSystemUsersAutoComplete?: string
+  externalEvent?: string
+  activationProcessing?: string
+  choiceProcessing?: string
+  newWriteProcessing?: string
+  uRLProcessing?: string
+  notificationProcessing?: string
+  navigationProcessing?: string
+  uRLGetProcessing?: string
+  uRLListGetProcessing?: string
+  collaborationSystemUsersChoiceFormGetProcessing?: string
+  fillCheckProcessingAtServer?: string
+  addInDetachmentOnError?: string
+  beforeLoadDataFromSettingsAtServer?: string
+  beforeClose?: string
+  beforeReopenFromOtherServer?: string
+  onPasteFromClipboard?: string
+  onLoadDataFromSettingsAtServer?: string
+  onClose?: string
+  onMainServerAvailabilityChange?: string
+  onChangeDisplaySettings?: string
+  onOpen?: string
+  onReopenFromOtherServer?: string
+  onReopen?: string
+  onCreateAtServer?: string
+  onSaveDataInSettingsAtServer?: string
+}
+
 export interface ClientApplicationForm {
-  commandSet: ZCommandSet.optional(),
-  elementType: ZElementType.enum.ClientApplicationForm,
-  attributes: z.array(ZAttribute).optional(),
-  get autoCommandBar() {
-    return ZCommandBar.optional()
-  },
-  autoTitle: z.boolean().optional(),
-  autoSaveDataInSettings: SE.ZAutoSaveFormDataInSettings.optional(),
-  autoURL: z.boolean().optional(),
-  verticalScroll: SE.ZVerticalFormScroll.optional(),
-  childItemsVerticalAlign: SE.ZItemVerticalAlign.optional(),
-  verticalSpacing: SE.ZFormItemSpacing.optional(),
-  itemsAndTitlesAlign: SE.ZItemsAndTitlesAlignVariant.optional(),
-  height: z.number().optional(),
-  childItemsHorizontalAlign: SE.ZItemHorizontalLocation.optional(),
-  horizontalSpacing: SE.ZFormItemSpacing.optional(),
-  group: SE.ZChildFormItemsGroup.optional(),
-  enabled: z.boolean().optional(),
-  title: ZI8nText.optional(),
-  closeOnChoice: z.boolean().optional(),
-  closeOnOwnerClose: z.boolean().optional(),
-  formName: z.string().optional(),
-  usedFormServer: SE.ZUsedServer.optional(),
-  purposeUseKey: z.string().optional(),
-  windowOptionsKey: z.string().optional(),
-  get commandBar() {
-    return ZCommandBar.optional()
-  },
-  scale: z.number().optional(),
-  modalMode: z.boolean().optional(),
-  modified: z.boolean().optional(),
-  uRL: z.string().optional(),
-  showTitle: z.boolean().optional(),
-  showCloseButton: z.boolean().optional(),
-  conversationsRepresentation: SE.ZFormConversationsRepresentation.optional(),
-  enterKeyBehavior: SE.ZEnterKeyBehaviorType.optional(),
-  get childItems(): ZodChildItemsType {
-    return ZChildItems
-  },
-  commandBarLocation: SE.ZFormCommandBarLabelLocation.optional(),
-  autoFillCheck: z.boolean().optional(),
-  formWindowOpeningMode: SE.ZFormWindowOpeningMode.optional(),
-  collapseItemsByImportance: SE.ZCollapseFormItemsByImportance.optional(),
-  saveDataInSettings: SE.ZSaveFormDataInSettings.optional(),
-  savedInSettingsDataModified: z.boolean().optional(),
-  readOnly: z.boolean().optional(),
-  uUID: z.uuid().optional(),
-  width: z.number().optional(),
-  slaveItemsWidth: SE.ZChildFormItemsWidth.optional(),
-  useForFoldersAndItems: SE.ZFoldersAndItemsUse.optional(),
-  events: z
-    .object({
-      collaborationSystemUsersAutoComplete: z.string().optional(),
-      externalEvent: z.string().optional(),
-      activationProcessing: z.string().optional(),
-      choiceProcessing: z.string().optional(),
-      newWriteProcessing: z.string().optional(),
-      uRLProcessing: z.string().optional(),
-      notificationProcessing: z.string().optional(),
-      navigationProcessing: z.string().optional(),
-      uRLGetProcessing: z.string().optional(),
-      uRLListGetProcessing: z.string().optional(),
-      collaborationSystemUsersChoiceFormGetProcessing: z.string().optional(),
-      fillCheckProcessingAtServer: z.string().optional(),
-      addInDetachmentOnError: z.string().optional(),
-      beforeLoadDataFromSettingsAtServer: z.string().optional(),
-      beforeClose: z.string().optional(),
-      beforeReopenFromOtherServer: z.string().optional(),
-      onPasteFromClipboard: z.string().optional(),
-      onLoadDataFromSettingsAtServer: z.string().optional(),
-      onClose: z.string().optional(),
-      onMainServerAvailabilityChange: z.string().optional(),
-      onChangeDisplaySettings: z.string().optional(),
-      onOpen: z.string().optional(),
-      onReopenFromOtherServer: z.string().optional(),
-      onReopen: z.string().optional(),
-      onCreateAtServer: z.string().optional(),
-      onSaveDataInSettingsAtServer: z.string().optional(),
-    })
-    .optional(),
-})
+  commandSet?: CommandSet
+  elementType: FormElementType.ClientApplicationForm
+  attributes?: FormAttribute[]
+  autoCommandBar?: CommandBar
+  autoTitle?: boolean
+  autoSaveDataInSettings?: SE.AutoSaveFormDataInSettings
+  autoURL?: boolean
+  verticalScroll?: SE.VerticalFormScroll
+  childItemsVerticalAlign?: SE.ItemVerticalAlign
+  verticalSpacing?: SE.FormItemSpacing
+  itemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
+  height?: number
+  childItemsHorizontalAlign?: SE.ItemHorizontalLocation
+  horizontalSpacing?: SE.FormItemSpacing
+  group?: SE.ChildFormItemsGroup
+  enabled?: boolean
+  title?: I8nText
+  closeOnChoice?: boolean
+  closeOnOwnerClose?: boolean
+  formName?: string
+  usedFormServer?: SE.UsedServer
+  purposeUseKey?: string
+  windowOptionsKey?: string
+  commandBar?: CommandBar
+  scale?: number
+  modalMode?: boolean
+  modified?: boolean
+  uRL?: string
+  showTitle?: boolean
+  showCloseButton?: boolean
+  conversationsRepresentation?: SE.FormConversationsRepresentation
+  enterKeyBehavior?: SE.EnterKeyBehaviorType
+  childItems?: ChildItems
+  commandBarLocation?: SE.FormCommandBarLabelLocation
+  autoFillCheck?: boolean
+  formWindowOpeningMode?: SE.FormWindowOpeningMode
+  collapseItemsByImportance?: SE.CollapseFormItemsByImportance
+  saveDataInSettings?: SE.SaveFormDataInSettings
+  savedInSettingsDataModified?: boolean
+  readOnly?: boolean
+  uUID?: string
+  width?: number
+  slaveItemsWidth?: SE.ChildFormItemsWidth
+  useForFoldersAndItems?: SE.FoldersAndItemsUse
+  events?: ClientApplicationFormEvents
+}
 
-export const ZAutoCommandBarXML = z.object({
-  _name: z.string(),
-  _id: z.string(),
-})
+export interface AutoCommandBarXML {
+  _name: string
+  _id: string
+}
 
-export const ZConditionalAppearanceXML = z.object({
-  ConditionalAppearance: z.object(),
-})
+export interface ConditionalAppearanceXML {
+  ConditionalAppearance: Record<string, unknown>
+}
 
-const ZTypeDescriptionXMLItem = z.object({
-  "v8:Type": z
-    .union([
-      z.string(),
-      z.object({
-        "_xmlns:mxl": z.literal("http://v8.1c.ru/8.2/data/spreadsheet"),
-        "#text": z.literal("mxl:SpreadsheetDocument"),
-      }),
-      z.array(
-        z.union([
-          z.string(),
-          z.object({
-            "_xmlns:mxl": z.literal("http://v8.1c.ru/8.2/data/spreadsheet"),
-            "#text": z.literal("mxl:SpreadsheetDocument"),
-          }),
-        ])
-      ),
-    ])
-    .optional(),
-  "v8:StringQualifiers": z
-    .object({
-      "v8:Length": z.number(),
-      "v8:AllowedLength": z.enum(["Variable", "Fixed"]),
-    })
-    .optional(),
-  "v8:NumberQualifiers": z
-    .object({
-      "v8:Digits": z.number(),
-      "v8:FractionDigits": z.number(),
-      "v8:AllowedSign": z.enum(["Any", "Nonnegative"]).optional(),
-    })
-    .optional(),
-  "v8:DateQualifiers": z
-    .object({
-      "v8:DateFractions": z.enum(["Date", "Time", "DateTime"]).optional(),
-    })
-    .optional(),
-})
+export interface AttributeXMLItem {
+  _name: string
+  _id: string
+  Title?: I8nTextXML
+  Type?: TypeDescriptionXML | TypeDescriptionXMLItem
+  MainAttribute?: boolean
+  StoredData?: boolean
+  Use?: UserVisibleXML
+}
 
-export const ZAttributeXML = z.object({
-  Attribute: z.object({
-    _name: z.string(),
-    _id: z.string(),
-    Title: ZI8nTextXML.optional(),
-    Type: z.union([ZTypeDescriptionXML, ZTypeDescriptionXMLItem]).optional(),
-    MainAttribute: z.boolean().optional(),
-    StoredData: z.boolean().optional(),
-    Use: ZUserVisibleXML.optional(),
-  }),
-})
+export interface AttributeXML {
+  Attribute: AttributeXMLItem
+}
 
-export const ZAttributesXML = z.array(
-  z.union([ZAttributeXML, ZConditionalAppearanceXML])
-)
+export type AttributesXML = (AttributeXML | ConditionalAppearanceXML)[]
 
-export const ZClientApplicationFormXML = z.object({
-  _xmlns: z.string().optional(),
-  "_xmlns:app": z.string().optional(),
-  "_xmlns:cfg": z.string().optional(),
-  "_xmlns:dcscor": z.string().optional(),
-  "_xmlns:dcssch": z.string().optional(),
-  "_xmlns:dcsset": z.string().optional(),
-  "_xmlns:ent": z.string().optional(),
-  "_xmlns:lf": z.string().optional(),
-  "_xmlns:style": z.string().optional(),
-  "_xmlns:sys": z.string().optional(),
-  "_xmlns:v8": z.string().optional(),
-  "_xmlns:v8ui": z.string().optional(),
-  "_xmlns:web": z.string().optional(),
-  "_xmlns:win": z.string().optional(),
-  "_xmlns:xr": z.string().optional(),
-  "_xmlns:xs": z.string().optional(),
-  "_xmlns:xsi": z.string().optional(),
-  _version: z.string().optional(),
-  AutoFillCheck: z.boolean().optional(),
-  AutoSaveDataInSettings: SE.ZAutoSaveFormDataInSettings.optional(),
-  AutoTitle: z.boolean().optional(),
-  AutoURL: z.boolean().optional(),
-  ChildItemsVerticalAlign: SE.ZItemVerticalAlign.optional(),
-  CloseOnChoice: z.boolean().optional(),
-  CloseOnOwnerClose: z.boolean().optional(),
-  CollapseItemsByImportance: SE.ZCollapseFormItemsByImportance.optional(),
-  get CommandBar() {
-    return ZCommandBarXML.optional()
-  },
-  CommandBarLocation: SE.ZFormCommandBarLabelLocation.optional(),
+export interface ClientApplicationFormXML {
+  _xmlns?: string
+  "_xmlns:app"?: string
+  "_xmlns:cfg"?: string
+  "_xmlns:dcscor"?: string
+  "_xmlns:dcssch"?: string
+  "_xmlns:dcsset"?: string
+  "_xmlns:ent"?: string
+  "_xmlns:lf"?: string
+  "_xmlns:style"?: string
+  "_xmlns:sys"?: string
+  "_xmlns:v8"?: string
+  "_xmlns:v8ui"?: string
+  "_xmlns:web"?: string
+  "_xmlns:win"?: string
+  "_xmlns:xr"?: string
+  "_xmlns:xs"?: string
+  "_xmlns:xsi"?: string
+  _version?: string
+  AutoFillCheck?: boolean
+  AutoSaveDataInSettings?: SE.AutoSaveFormDataInSettings
+  AutoTitle?: boolean
+  AutoURL?: boolean
+  ChildItemsVerticalAlign?: SE.ItemVerticalAlign
+  CloseOnChoice?: boolean
+  CloseOnOwnerClose?: boolean
+  CollapseItemsByImportance?: SE.CollapseFormItemsByImportance
+  CommandBar?: CommandBarXML
+  CommandBarLocation?: SE.FormCommandBarLabelLocation
   // Commands: ZКомандыФормыXML.optional(),
-  ConversationsRepresentation: SE.ZFormConversationsRepresentation.optional(),
-  Enabled: z.boolean().optional(),
-  EnterKeyBehavior: SE.ZEnterKeyBehaviorType.optional(),
-  FormName: z.string().optional(),
-  FormWindowOpeningMode: SE.ZFormWindowOpeningMode.optional(),
-  Group: SE.ZChildFormItemsGroup.optional(),
-  Height: z.number().optional(),
-  HorizontalSpacing: SE.ZFormItemSpacing.optional(),
-  ItemsAndTitlesAlign: SE.ZItemsAndTitlesAlignVariant.optional(),
-  ModalMode: z.boolean().optional(),
-  Modified: z.boolean().optional(),
-  PurposeUseKey: z.string().optional(),
-  ReadOnly: z.boolean().optional(),
-  SaveDataInSettings: SE.ZSaveFormDataInSettings.optional(),
-  SavedInSettingsDataModified: z.boolean().optional(),
-  Scale: z.number().optional(),
-  ShowCloseButton: z.boolean().optional(),
-  ShowTitle: z.boolean().optional(),
-  SlaveItemsWidth: SE.ZChildFormItemsWidth.optional(),
-  Title: ZI8nTextXML.optional(),
-  URL: z.string().optional(),
-  UUID: z.uuid().optional(),
-  UsedFormServer: SE.ZUsedServer.optional(),
-  VerticalScroll: SE.ZVerticalFormScroll.optional(),
-  VerticalSpacing: SE.ZFormItemSpacing.optional(),
-  Width: z.number().optional(),
-  WindowOptionsKey: z.string().optional(),
-  // ConditionalAppearance: ZУсловноеОформлениеКомпоновкиДанныхXML.optional(),\  CommandSet: ZCommandSetXML.optional(),
-  CommandSet: ZCommandSetXML.optional(),
-  UseForFoldersAndItems: SE.ZFoldersAndItemsUse.optional(),
-  get AutoCommandBar() {
-    return ZCommandBarXML.optional()
-  },
-  Events: ZEventsXML.optional(),
-  get ChildItems() {
-    return ZChildItemsXML.optional()
-  },
-  Attributes: ZAttributesXML.optional(),
-})
-
-export type TClientApplicationForm = z.infer<typeof ZClientApplicationForm>
-export type TAttribute = z.infer<typeof ZAttribute>
-
-export type TAttributeXML = z.infer<typeof ZAttributeXML>
-export type TAttributesXML = z.infer<typeof ZAttributesXML>
-export type TClientApplicationFormXML = z.infer<
-  typeof ZClientApplicationFormXML
->
+  ConversationsRepresentation?: SE.FormConversationsRepresentation
+  Enabled?: boolean
+  EnterKeyBehavior?: SE.EnterKeyBehaviorType
+  FormName?: string
+  FormWindowOpeningMode?: SE.FormWindowOpeningMode
+  Group?: SE.ChildFormItemsGroup
+  Height?: number
+  HorizontalSpacing?: SE.FormItemSpacing
+  ItemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
+  ModalMode?: boolean
+  Modified?: boolean
+  PurposeUseKey?: string
+  ReadOnly?: boolean
+  SaveDataInSettings?: SE.SaveFormDataInSettings
+  SavedInSettingsDataModified?: boolean
+  Scale?: number
+  ShowCloseButton?: boolean
+  ShowTitle?: boolean
+  SlaveItemsWidth?: SE.ChildFormItemsWidth
+  Title?: I8nTextXML
+  URL?: string
+  UUID?: string
+  UsedFormServer?: SE.UsedServer
+  VerticalScroll?: SE.VerticalFormScroll
+  VerticalSpacing?: SE.FormItemSpacing
+  Width?: number
+  WindowOptionsKey?: string
+  // ConditionalAppearance: ZУсловноеОформлениеКомпоновкиДанныхXML.optional(),
+  CommandSet?: CommandSetXML
+  UseForFoldersAndItems?: SE.FoldersAndItemsUse
+  AutoCommandBar?: CommandBarXML
+  Events?: EventsXML
+  ChildItems?: ChildItemsXML
+  Attributes?: AttributesXML
+}
 
 // export type TAttributeEnterprise = z.infer<typeof ZAttributeEnterprise>

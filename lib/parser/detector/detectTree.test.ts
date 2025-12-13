@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { simlifyDetectedTreeNodes } from "~/lib/tests/simlifyToken"
 import { detectTreeNodes } from "./detectTree"
 import type { TreeNode } from "../treeParser/parseTree"
@@ -12,7 +12,7 @@ describe("detectTreeNodes", () => {
     const expectedResult = [
       {
         tokens: [{ type: "Text", value: "text" }],
-        type: ZElementType.enum.LabelDecoration,
+        type: FormElementType.LabelDecoration,
         childItems: [],
       },
     ]

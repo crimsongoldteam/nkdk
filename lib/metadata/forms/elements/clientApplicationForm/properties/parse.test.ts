@@ -3,7 +3,7 @@ import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/typ
 import "~/lib/metadata/forms/elements/rules"
 import { TBaseElement } from "../../baseElement/types"
 import { TInputField } from "../../inputField/types"
-import { ZElementType } from "../../types"
+import { FormElementType } from "../../types"
 import { parseProperties } from "./parse"
 
 const configurationSettings: TConfigurationSettings = {
@@ -17,7 +17,7 @@ describe("parseProperties", () => {
 
     const elementsMap: Record<string, TBaseElement> = {
       ПолеВвода: {
-        elementType: ZElementType.enum.InputField,
+        elementType: FormElementType.InputField,
         name: "ПолеВвода",
         id: "1",
       },
@@ -25,7 +25,7 @@ describe("parseProperties", () => {
 
     const expectedResult: Record<string, TBaseElement> = {
       ПолеВвода: {
-        elementType: ZElementType.enum.InputField,
+        elementType: FormElementType.InputField,
         name: "ПолеВвода",
         id: "1",
         readOnly: true,

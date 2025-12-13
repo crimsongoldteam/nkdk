@@ -1,25 +1,26 @@
+import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
-import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
-import { importTableFromXML } from "../table/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { TPeriodFieldXML, TPeriodField } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importTableFromXML } from "../table/importFromXML"
+import { FormElementType } from "../types"
+import { PeriodField, PeriodFieldXML } from "./types"
 
-export const importPeriodFieldFromXML = (xml: TPeriodFieldXML | undefined): TPeriodField | undefined => {
+export const importPeriodFieldFromXML = (xml: PeriodFieldXML | undefined): PeriodField | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.PeriodField,
+    ...importFormFieldFromXML(xml)!,
+    elementType: FormElementType.PeriodField,
+
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
@@ -78,4 +79,4 @@ export const importPeriodFieldFromXML = (xml: TPeriodFieldXML | undefined): TPer
   }
 }
 
-registerImport(ZElementType.enum.PeriodField, importPeriodFieldFromXML)
+registerImport(FormElementType.PeriodField, importPeriodFieldFromXML)

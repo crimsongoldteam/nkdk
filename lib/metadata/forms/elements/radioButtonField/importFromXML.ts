@@ -1,25 +1,26 @@
+import { importChoiceListFromXML } from "~/lib/metadata/commonObjects/choiceList/importFromXML"
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
-import { importTableFromXML } from "../table/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
-import { importChoiceListFromXML } from "~/lib/metadata/commonObjects/choiceList/importFromXML"
+import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { TRadioButtonFieldXML, TRadioButtonField } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importTableFromXML } from "../table/importFromXML"
+import { FormElementType } from "../types"
+import { RadioButtonField, RadioButtonFieldXML } from "./types"
 
-export const importRadioButtonFieldFromXML = (xml: TRadioButtonFieldXML | undefined): TRadioButtonField | undefined => {
+export const importRadioButtonFieldFromXML = (xml: RadioButtonFieldXML | undefined): RadioButtonField | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.RadioButtonField,
+    ...importFormFieldFromXML(xml)!,
+    elementType: FormElementType.RadioButtonField,
+
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
@@ -78,4 +79,4 @@ export const importRadioButtonFieldFromXML = (xml: TRadioButtonFieldXML | undefi
   }
 }
 
-registerImport(ZElementType.enum.RadioButtonField, importRadioButtonFieldFromXML)
+registerImport(FormElementType.RadioButtonField, importRadioButtonFieldFromXML)

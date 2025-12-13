@@ -3,7 +3,7 @@ import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { TPages } from "./types"
 import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
@@ -32,21 +32,21 @@ describe("parse Pages", () => {
     }
 
     const expectedResult: TPages = {
-      elementType: ZElementType.enum.Pages,
+      elementType: FormElementType.Pages,
       name: "pages",
       title: {
         items: { ru: "pages" },
       },
       childItems: [
         {
-          elementType: ZElementType.enum.Page,
+          elementType: FormElementType.Page,
           name: "Page",
           title: {
             items: { ru: "Page" },
           },
           childItems: [
             {
-              elementType: ZElementType.enum.LabelDecoration,
+              elementType: FormElementType.LabelDecoration,
               name: "Element",
               title: {
                 items: { ru: "Element" },

@@ -1,20 +1,21 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { TFormGroupXML, TFormGroup } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { FormElementType } from "../types"
+import { FormGroup, FormGroupXML } from "./types"
 
-export const importFormGroupFromXML = (xml: TFormGroupXML | undefined): TFormGroup | undefined => {
+export const importFormGroupFromXML = (xml: FormGroupXML | undefined): FormGroup | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.FormGroup,
+    ...importBaseElementFromXML(xml)!,
+    elementType: FormElementType.FormGroup,
+
     enableContentChange: xml.EnableContentChange,
     enabled: xml.Enabled,
     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),
@@ -38,4 +39,4 @@ export const importFormGroupFromXML = (xml: TFormGroupXML | undefined): TFormGro
   }
 }
 
-registerImport(ZElementType.enum.FormGroup, importFormGroupFromXML)
+registerImport(FormElementType.FormGroup, importFormGroupFromXML)

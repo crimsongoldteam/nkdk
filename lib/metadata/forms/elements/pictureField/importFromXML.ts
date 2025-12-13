@@ -1,25 +1,26 @@
+import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
-import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importFromXML"
-import { importTableFromXML } from "../table/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { TPictureFieldXML, TPictureField } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importTableFromXML } from "../table/importFromXML"
+import { FormElementType } from "../types"
+import { PictureField, PictureFieldXML } from "./types"
 
-export const importPictureFieldFromXML = (xml: TPictureFieldXML | undefined): TPictureField | undefined => {
+export const importPictureFieldFromXML = (xml: PictureFieldXML | undefined): PictureField | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.PictureField,
+    ...importFormFieldFromXML(xml)!,
+    elementType: FormElementType.PictureField,
+
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
@@ -88,4 +89,4 @@ export const importPictureFieldFromXML = (xml: TPictureFieldXML | undefined): TP
   }
 }
 
-registerImport(ZElementType.enum.PictureField, importPictureFieldFromXML)
+registerImport(FormElementType.PictureField, importPictureFieldFromXML)

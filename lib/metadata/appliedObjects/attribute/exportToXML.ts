@@ -1,7 +1,7 @@
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
-import { TAttribute, TAttributeXML } from "../types"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { TAttribute, TAttributeXML } from "../types"
 
 export default function exportAttributeToXML(attribute: TAttribute | undefined): TAttributeXML | undefined {
   if (!attribute) return undefined
@@ -18,4 +18,3 @@ export default function exportAttributeToXML(attribute: TAttribute | undefined):
     },
   }
 }
-

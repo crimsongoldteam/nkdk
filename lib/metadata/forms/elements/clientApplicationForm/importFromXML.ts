@@ -1,27 +1,18 @@
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
-import {
-  TClientApplicationFormXML,
-  TClientApplicationForm,
-  TAttribute,
-  TAttributeXML,
-} from "./types"
-import { ZElementType } from "../types"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
-import importAttributeFromXML from "./attributes/importFromXML"
-import { importEventsFromXML } from "../../events/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importCommandSetFromXML } from "~/lib/metadata/forms/commandSet/importFromXML"
+import { importEventsFromXML } from "../../events/importFromXML"
+import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { FormElementType } from "../types"
+import importAttributeFromXML from "./attributes/importFromXML"
+import { TAttribute, TAttributeXML, TClientApplicationForm, TClientApplicationFormXML } from "./types"
 
-export const importClientApplicationFormFromXML = (
-  xml: TClientApplicationFormXML
-): TClientApplicationForm => {
+export const importClientApplicationFormFromXML = (xml: TClientApplicationFormXML): TClientApplicationForm => {
   return {
-    elementType: ZElementType.enum.ClientApplicationForm,
+    elementType: FormElementType.ClientApplicationForm,
     attributes:
       xml.Attributes?.map((attribute) =>
-        "Attribute" in attribute
-          ? importAttributeFromXML(attribute as TAttributeXML)
-          : undefined
+        "Attribute" in attribute ? importAttributeFromXML(attribute as TAttributeXML) : undefined
       ).filter((attr): attr is TAttribute => attr !== undefined) ?? [],
     autoCommandBar: importCommandBarFromXML(xml.AutoCommandBar),
     commandSet: importCommandSetFromXML(xml.CommandSet),
@@ -70,4 +61,4 @@ export const importClientApplicationFormFromXML = (
   }
 }
 
-// registerImport(ZElementType.enum.ClientApplicationForm, importClientApplicationFormFromXML)
+// registerImport(FormElementType.ClientApplicationForm, importClientApplicationFormFromXML)

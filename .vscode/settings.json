@@ -12,10 +12,10 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.organizeImports.prettier": "always",
-    "source.addMissingImports.prettier": "always",
-    "source.fixAll.prettier": "always",
-    "source.removeUnusedImports": "always"
+    "source.organizeImports": "explicit",
+    "source.fixAll": "explicit",
+    "source.removeUnused": "explicit",
+    "source.addMissingImports": "explicit"
   },
   "files.exclude": {
     "**/node_modules": true,

@@ -1,21 +1,24 @@
+import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { TViewStatusAdditionXML, TViewStatusAddition } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { ZElementType } from "../types"
+import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
+import { FormElementType } from "../types"
+import { ViewStatusAddition, ViewStatusAdditionXML } from "./types"
 
-export const exportViewStatusAdditionToXML = (data: TViewStatusAddition | undefined): TViewStatusAdditionXML | undefined => {
+export const exportViewStatusAdditionToXML = (
+  data: ViewStatusAddition | undefined
+): ViewStatusAdditionXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    ...exportFormItemAdditionToXML(data)!,
+
     ContextMenu: exportCommandBarToXML(data.contextMenu),
     _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
@@ -45,4 +48,4 @@ export const exportViewStatusAdditionToXML = (data: TViewStatusAddition | undefi
   }
 }
 
-registerExport(ZElementType.enum.ViewStatusAddition, exportViewStatusAdditionToXML)
+registerExport(FormElementType.ViewStatusAddition, exportViewStatusAdditionToXML)

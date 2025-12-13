@@ -9,17 +9,17 @@ export interface ChoiceListItemValueXML {
   }
 }
 
-export interface ChoiceListItemXML {
+export interface ChoiceListLineItemXML {
   "xr:Presentation"?: I8nTextXML
   "xr:CheckState": number
   "xr:Value": ChoiceListItemValueXML
 }
 
-export interface ChoiceListXMLItem {
-  "xr:Item": ChoiceListItemXML
+export interface ChoiceListItemXML {
+  "xr:Item": ChoiceListLineItemXML
 }
 
-export type ChoiceListXML = ChoiceListXMLItem[]
+export type ChoiceListXML = ChoiceListItemXML[]
 
 export interface ChoiceListItem {
   presentation?: I8nText
@@ -30,3 +30,5 @@ export interface ChoiceListItem {
 export interface ChoiceList {
   items: ChoiceListItem[]
 }
+
+export type ChoiceListEnterprise = string

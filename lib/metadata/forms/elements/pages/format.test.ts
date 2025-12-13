@@ -2,7 +2,7 @@ import { expect, it, describe } from "vitest"
 import "~/lib/metadata/forms/elements/inputField/registration"
 import "~/lib/metadata/forms/elements/usualGroup/registration"
 import "~/lib/metadata/forms/elements/page/registration"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { TInputField } from "../inputField/types"
 import { TPages } from "./types"
 import { formatPages } from "./format"
@@ -13,17 +13,17 @@ describe("formatPages", () => {
     const mockElement = {
       name: "Страницы",
       id: "1",
-      elementType: ZElementType.enum.Pages,
+      elementType: FormElementType.Pages,
       childItems: [
         {
           name: "Страница1",
           id: "1",
-          elementType: ZElementType.enum.Page,
+          elementType: FormElementType.Page,
           childItems: [
             {
               name: "Элемент1",
               id: "1",
-              elementType: ZElementType.enum.InputField,
+              elementType: FormElementType.InputField,
             } as TInputField,
           ],
         } as TPage,

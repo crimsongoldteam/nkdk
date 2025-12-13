@@ -1,22 +1,22 @@
 import { describe, expect, it } from "vitest"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { TClientApplicationForm } from "./types"
 import { getAllElements } from "./getAllElements"
 
 describe("getAllElements", () => {
   it("should return all elements", () => {
     const form: TClientApplicationForm = {
-      elementType: ZElementType.enum.ClientApplicationForm,
+      elementType: FormElementType.ClientApplicationForm,
       childItems: [
         {
           name: "Группа",
           id: "1",
-          elementType: ZElementType.enum.UsualGroup,
+          elementType: FormElementType.UsualGroup,
           childItems: [
             {
               name: "ПолеВвода",
               id: "2",
-              elementType: ZElementType.enum.InputField,
+              elementType: FormElementType.InputField,
             },
           ],
         },

@@ -1,23 +1,24 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
-import { exportTableToXML } from "../table/exportToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
-import { TDendrogramFieldXML, TDendrogramField } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { ZElementType } from "../types"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { exportFormFieldToXML } from "../formField/exportToXML"
+import { exportTableToXML } from "../table/exportToXML"
+import { FormElementType } from "../types"
+import { DendrogramField, DendrogramFieldXML } from "./types"
 
-export const exportDendrogramFieldToXML = (data: TDendrogramField | undefined): TDendrogramFieldXML | undefined => {
+export const exportDendrogramFieldToXML = (data: DendrogramField | undefined): DendrogramFieldXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    ...exportFormFieldToXML(data)!,
+
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,
     ContextMenu: exportCommandBarToXML(data.contextMenu),
@@ -69,8 +70,8 @@ export const exportDendrogramFieldToXML = (data: TDendrogramField | undefined): 
     MaxWidth: data.maxWidth,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Events: exportEventsToXML(data.events)
+    Events: exportEventsToXML(data.events),
   }
 }
 
-registerExport(ZElementType.enum.DendrogramField, exportDendrogramFieldToXML)
+registerExport(FormElementType.DendrogramField, exportDendrogramFieldToXML)

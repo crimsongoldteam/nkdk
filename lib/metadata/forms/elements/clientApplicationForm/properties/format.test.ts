@@ -3,7 +3,7 @@ import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/typ
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
 import "~/lib/metadata/forms/elements/rules"
-import { ZElementType } from "../../types"
+import { FormElementType } from "../../types"
 import { TClientApplicationForm } from "../types"
 import { formatProperties } from "./format"
 
@@ -14,12 +14,12 @@ const configurationSettings: TConfigurationSettings = {
 describe("formatProperties", () => {
   it("should format properties with child items", () => {
     const form: TClientApplicationForm = {
-      elementType: ZElementType.enum.ClientApplicationForm,
+      elementType: FormElementType.ClientApplicationForm,
       childItems: [
         {
           name: "ПолеВвода",
           id: "1",
-          elementType: ZElementType.enum.InputField,
+          elementType: FormElementType.InputField,
           readOnly: true,
         },
       ],

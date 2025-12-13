@@ -21,3 +21,5 @@ export interface Font {
   strikeout?: boolean
   kind: string
 }
+
+export type FontEnterprise = string

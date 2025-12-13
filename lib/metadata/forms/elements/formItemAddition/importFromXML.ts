@@ -1,19 +1,20 @@
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { TFormItemAdditionXML, TFormItemAddition } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { FormElementType } from "../types"
+import { FormItemAddition, FormItemAdditionXML } from "./types"
 
-export const importFormItemAdditionFromXML = (xml: TFormItemAdditionXML | undefined): TFormItemAddition | undefined => {
+export const importFormItemAdditionFromXML = (xml: FormItemAdditionXML | undefined): FormItemAddition | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.FormItemAddition,
+    ...importBaseElementFromXML(xml)!,
+    elementType: FormElementType.FormItemAddition,
+
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
     displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
@@ -30,4 +31,4 @@ export const importFormItemAdditionFromXML = (xml: TFormItemAdditionXML | undefi
   }
 }
 
-registerImport(ZElementType.enum.FormItemAddition, importFormItemAdditionFromXML)
+registerImport(FormElementType.FormItemAddition, importFormItemAdditionFromXML)

@@ -3,13 +3,13 @@ import { useState } from "react"
 import { ClientFormApplication } from "~/components/clientFormApplication/clientFormApplication"
 import { MonacoEditor } from "~/playground/components/monacoEditor/monacoEditor"
 import type { TClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { parse } from "~/lib/parser/parser"
 
 export const Playground = () => {
   const [text, setText] = useState<string>("")
   const [form, setForm] = useState<TClientApplicationForm>({
-    elementType: ZElementType.enum.Form,
+    elementType: FormElementType.Form,
     childItems: [],
   })
 

@@ -6,60 +6,36 @@ import { CheckBoxField, CheckBoxFieldXML } from "../checkBoxField/types"
 import { ColumnGroup, ColumnGroupXML } from "../columnGroup/types"
 import { CommandBar, CommandBarXML } from "../commandBar/types"
 import { DendrogramField } from "../dendrogramField/types"
-import {
-  FormattedDocumentField,
-  FormattedDocumentFieldXML,
-} from "../formattedDocumentField/types"
+import { FormattedDocumentField, FormattedDocumentFieldXML } from "../formattedDocumentField/types"
 import { FormDecoration } from "../formDecoration/types"
 import { FormField, FormFieldXML } from "../formField/types"
 import { FormGroup } from "../formGroup/types"
-import {
-  FormItemAddition,
-  FormItemAdditionXML,
-} from "../formItemAddition/types"
+import { FormItemAddition, FormItemAdditionXML } from "../formItemAddition/types"
 import { GanttChartField } from "../ganttChartField/types"
-import {
-  GeographicalSchemaField,
-  GeographicalSchemaFieldXML,
-} from "../geographicalSchemaField/types"
-import {
-  GraphicalSchemaField,
-  GraphicalSchemaFieldXML,
-} from "../graphicalSchemaField/types"
+import { GeographicalSchemaField, GeographicalSchemaFieldXML } from "../geographicalSchemaField/types"
+import { GraphicalSchemaField, GraphicalSchemaFieldXML } from "../graphicalSchemaField/types"
 import { HTMLDocumentField } from "../htmlDocumentField/types"
 import { InputField, InputFieldXML } from "../inputField/types"
 import { LabelDecoration } from "../labelDecoration/types"
 import { LabelField, LabelFieldXML } from "../labelField/types"
 import { Page } from "../page/types"
 import { Pages } from "../pages/types"
-import {
-  PdfDocumentField,
-  PdfDocumentFieldXML,
-} from "../pdfDocumentField/types"
+import { PdfDocumentField, PdfDocumentFieldXML } from "../pdfDocumentField/types"
 import { PeriodField } from "../periodField/types"
 import { PictureDecoration } from "../pictureDecoration/types"
 import { PictureField, PictureFieldXML } from "../pictureField/types"
 import { PlannerField } from "../plannerField/types"
 import { Popup } from "../popup/types"
-import {
-  ProgressBarField,
-  ProgressBarFieldXML,
-} from "../progressBarField/types"
+import { ProgressBarField, ProgressBarFieldXML } from "../progressBarField/types"
 import { RadioButtonField } from "../radioButtonField/types"
 import { SearchControlAddition } from "../searchControlAddition/types"
-import {
-  SearchStringAddition,
-  SearchStringAdditionXML,
-} from "../searchStringAddition/types"
+import { SearchStringAddition, SearchStringAdditionXML } from "../searchStringAddition/types"
 import { SpreadSheetDocumentField } from "../spreadSheetDocumentField/types"
 import { Table, TableXML } from "../table/types"
 import { TextDocumentField } from "../textDocumentField/types"
 import { TrackBarField, TrackBarFieldXML } from "../trackBarField/types"
 import { UsualGroup } from "../usualGroup/types"
-import {
-  ViewStatusAddition,
-  ViewStatusAdditionXML,
-} from "../viewStatusAddition/types"
+import { ViewStatusAddition, ViewStatusAdditionXML } from "../viewStatusAddition/types"
 
 export type ChildItem =
   | Button

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { formatLabelDecoration } from "./format"
 import { TLabelDecoration } from "./types"
 
@@ -11,7 +11,7 @@ const configurationSettings: TConfigurationSettings = {
 describe("formatLabelDecoration", () => {
   it("should format label decoration", () => {
     const element: TLabelDecoration = {
-      elementType: ZElementType.enum.LabelDecoration,
+      elementType: FormElementType.LabelDecoration,
       name: "ИмяПоля",
       id: "1",
       title: {

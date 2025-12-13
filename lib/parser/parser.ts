@@ -1,6 +1,6 @@
 import type { TConfigurationSettings } from "../metadata/configurationSettings/types"
 import type { TClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/types"
-import { ZElementType } from "../metadata/forms/elements/types"
+import { FormElementType } from "../metadata/forms/elements/types"
 import { parseElement } from "./elementsParser/parse"
 import { detectTreeNodes } from "./detector/detectTree"
 import { parseTree } from "./treeParser/parseTree"
@@ -14,7 +14,7 @@ export const parse = (text: string): TClientApplicationForm => {
   const detectedNodes = detectTreeNodes(treeNodes)
 
   const result: TClientApplicationForm = {
-    elementType: ZElementType.enum.Form,
+    elementType: FormElementType.Form,
     childItems: [],
   }
 

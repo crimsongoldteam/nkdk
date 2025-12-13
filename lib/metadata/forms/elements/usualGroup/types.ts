@@ -1,113 +1,93 @@
+import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZTable, ZTableXML } from "../table/types"
-import { ZChildItems, ZChildItemsXML, TChildItems } from "../childItems/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import { ZodChildItemsType } from "../childItems/typesExt"
+import { FormGroup, FormGroupEnterprise, FormGroupXML } from "../formGroup/types"
+import { Table, TableEnterprise, TableXML } from "../table/types"
 
-export interface UsualGroup {
-  elementType: ElementType
-  name: string
-  id?: string
-  enableContentChange?: boolean,
-  enabled?: boolean,
-  extendedTooltip?: FormDecoration,
-  height?: number,
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation,
-  horizontalStretch?: boolean,
-  readOnly?: boolean,
-  shortcut?: string,
-  title?: I8nText,
-  titleFont?: Font,
-  titleTextColor?: Color,
-  toolTip?: I8nText,
-  toolTipRepresentation?: SE.ToolTipRepresentation,
-  type?: SE.FormGroupType,
-  userVisible?: UserVisible,
-  verticalAlignInGroup?: SE.ItemVerticalAlign,
-  verticalStretch?: boolean,
-  visible?: boolean,
-  width?: number,
-  childItems?: ЭлементыФормы,
-  associatedTable?: Table,
-  backColor?: Color,
-  behavior?: SE.UsualGroupBehavior,
-  childItemsHorizontalAlign?: SE.ItemHorizontalLocation,
-  childItemsVerticalAlign?: SE.ItemVerticalAlign,
-  collapsedRepresentationTitle?: string,
-  controlRepresentation?: SE.UsualGroupControlRepresentation,
-  currentRowUse?: SE.CurrentRowUse,
-  displayImportance?: SE.DisplayImportance,
-  format?: I8nText,
-  group?: SE.ChildFormItemsGroup,
-  groupHorizontalAlign?: SE.ItemHorizontalLocation,
-  groupVerticalAlign?: SE.ItemVerticalAlign,
-  hiddenRepresentationTitleBackColor?: Color,
-  horizontalSpacing?: SE.FormItemSpacing,
-  itemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant,
-  representation?: SE.UsualGroupRepresentation,
-  showLeftMargin?: boolean,
-  showTitle?: boolean,
-  slaveItemsWidth?: SE.ChildFormItemsWidth,
-  throughAlign?: SE.ThroughAlign,
-  titleDataPath?: string,
-  united?: boolean,
-  verticalAlign?: SE.ItemVerticalAlign,
-  verticalSpacing?: SE.FormItemSpacing,
+export interface UsualGroup extends FormGroup {
+  associatedTable?: Table
+  backColor?: Color
+  behavior?: SE.UsualGroupBehavior
+  childItemsHorizontalAlign?: SE.ItemHorizontalLocation
+  childItemsVerticalAlign?: SE.ItemVerticalAlign
+  collapsedRepresentationTitle?: string
+  controlRepresentation?: SE.UsualGroupControlRepresentation
+  currentRowUse?: SE.CurrentRowUse
+  displayImportance?: SE.DisplayImportance
+  format?: I8nText
+  group?: SE.ChildFormItemsGroup
+  groupHorizontalAlign?: SE.ItemHorizontalLocation
+  groupVerticalAlign?: SE.ItemVerticalAlign
+  hiddenRepresentationTitleBackColor?: Color
+  horizontalSpacing?: SE.FormItemSpacing
+  itemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
+  representation?: SE.UsualGroupRepresentation
+  showLeftMargin?: boolean
+  showTitle?: boolean
+  slaveItemsWidth?: SE.ChildFormItemsWidth
+  throughAlign?: SE.ThroughAlign
+  titleDataPath?: string
+  united?: boolean
+  userVisible?: UserVisible
+  verticalAlign?: SE.ItemVerticalAlign
+  verticalSpacing?: SE.FormItemSpacing
 }
 
-export interface UsualGroupXML {
-  _name: z.string(),
-  _id: z.string(),
-  _DisplayImportance: SE.DisplayImportance,
-  Visible: boolean,
-  UserVisible: UserVisible,
-  Enabled: boolean,
-  ReadOnly: boolean,
-  EnableContentChange: boolean,
-  Title: I8nText,
-  TitleTextColor: Color,
-  TitleFont: Font,
-  ToolTip: I8nText,
-  ToolTipRepresentation: SE.ToolTipRepresentation,
-  Shortcut: string,
-  Width: number,
-  Height: number,
-  HorizontalStretch: boolean,
-  VerticalStretch: boolean,
-  GroupHorizontalAlign: SE.ItemHorizontalLocation,
-  GroupVerticalAlign: SE.ItemVerticalAlign,
-  Group: SE.ChildFormItemsGroup,
-  HorizontalSpacing: SE.FormItemSpacing,
-  VerticalSpacing: SE.FormItemSpacing,
-  VerticalAlign: SE.ItemVerticalAlign,
-  Behavior: SE.UsualGroupBehavior,
-  CollapsedRepresentationTitle: string,
-  ControlRepresentation: SE.UsualGroupControlRepresentation,
-  Representation: SE.UsualGroupRepresentation,
-  ShowLeftMargin: boolean,
-  United: boolean,
-  Format: I8nText,
-  ShowTitle: boolean,
-  TitleDataPath: string,
-  BackColor: Color,
-  CurrentRowUse: SE.CurrentRowUse,
-  ExtendedTooltip: FormDecoration,
-  AssociatedTable: Table,
-  ChildItemsHorizontalAlign: SE.ItemHorizontalLocation,
-  ChildItemsVerticalAlign: SE.ItemVerticalAlign,
-  HiddenRepresentationTitleBackColor: Color,
-  HorizontalAlignInGroup: SE.ItemHorizontalLocation,
-  ItemsAndTitlesAlign: SE.ItemsAndTitlesAlignVariant,
-  SlaveItemsWidth: SE.ChildFormItemsWidth,
-  ThroughAlign: SE.ThroughAlign,
-  Type: SE.FormGroupType,
-  VerticalAlignInGroup: SE.ItemVerticalAlign,
-  ChildItems: ЭлементыФормы,
+export interface UsualGroupXML extends FormGroupXML {
+  AssociatedTable?: TableXML
+  BackColor?: ColorXML
+  Behavior?: SE.UsualGroupBehavior
+  ChildItemsHorizontalAlign?: SE.ItemHorizontalLocation
+  ChildItemsVerticalAlign?: SE.ItemVerticalAlign
+  CollapsedRepresentationTitle?: string
+  ControlRepresentation?: SE.UsualGroupControlRepresentation
+  CurrentRowUse?: SE.CurrentRowUse
+  _DisplayImportance?: SE.DisplayImportance
+  Format?: I8nTextXML
+  Group?: SE.ChildFormItemsGroup
+  GroupHorizontalAlign?: SE.ItemHorizontalLocation
+  GroupVerticalAlign?: SE.ItemVerticalAlign
+  HiddenRepresentationTitleBackColor?: ColorXML
+  HorizontalSpacing?: SE.FormItemSpacing
+  ItemsAndTitlesAlign?: SE.ItemsAndTitlesAlignVariant
+  Representation?: SE.UsualGroupRepresentation
+  ShowLeftMargin?: boolean
+  ShowTitle?: boolean
+  SlaveItemsWidth?: SE.ChildFormItemsWidth
+  ThroughAlign?: SE.ThroughAlign
+  TitleDataPath?: string
+  United?: boolean
+  UserVisible?: UserVisibleXML
+  VerticalAlign?: SE.ItemVerticalAlign
+  VerticalSpacing?: SE.FormItemSpacing
+}
+
+export interface UsualGroupEnterprise extends FormGroupEnterprise {
+  ИспользуемаяТаблица?: TableEnterprise
+  ЦветФона?: ColorEnterprise
+  Поведение?: SE.UsualGroupBehaviorEnterprise
+  ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationEnterprise
+  ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignEnterprise
+  ЗаголовокСвернутогоОтображения?: string
+  ОтображениеУправления?: SE.UsualGroupControlRepresentationEnterprise
+  ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
+  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
+  Формат?: I8nTextEnterprise
+  Группировка?: SE.ChildFormItemsGroupEnterprise
+  ГоризонтальноеВыравниваниеГруппы?: SE.ItemHorizontalLocationEnterprise
+  ВертикальноеВыравниваниеГруппы?: SE.ItemVerticalAlignEnterprise
+  ЦветФонаЗаголовкаСкрытогоОтображения?: ColorEnterprise
+  ГоризонтальныйИнтервал?: SE.FormItemSpacingEnterprise
+  ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantEnterprise
+  Отображение?: SE.UsualGroupRepresentationEnterprise
+  ОтображатьОтступСлева?: boolean
+  ОтображатьЗаголовок?: boolean
+  ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
+  СквозноеВыравнивание?: SE.ThroughAlignEnterprise
+  ПутьКДаннымЗаголовка?: string
+  Объединенная?: boolean
+  ПользовательскаяВидимость?: UserVisibleEnterprise
+  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
+  ВертикальныйИнтервал?: SE.FormItemSpacingEnterprise
 }

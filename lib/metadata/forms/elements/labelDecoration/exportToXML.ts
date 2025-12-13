@@ -1,21 +1,21 @@
+import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
-import { TLabelDecorationXML, TLabelDecoration } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { ZElementType } from "../types"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { FormElementType } from "../types"
+import { LabelDecoration, LabelDecorationXML } from "./types"
 
-export const exportLabelDecorationToXML = (data: TLabelDecoration | undefined): TLabelDecorationXML | undefined => {
+export const exportLabelDecorationToXML = (data: LabelDecoration | undefined): LabelDecorationXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    ...exportFormDecorationToXML(data)!,
+
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
     ContextMenu: exportCommandBarToXML(data.contextMenu),
@@ -48,8 +48,8 @@ export const exportLabelDecorationToXML = (data: TLabelDecoration | undefined): 
     Hyperlink: data.hyperlink,
     TitleHeight: data.titleHeight,
     VerticalAlign: data.verticalAlign,
-    Events: exportEventsToXML(data.events)
+    Events: exportEventsToXML(data.events),
   }
 }
 
-registerExport(ZElementType.enum.LabelDecoration, exportLabelDecorationToXML)
+registerExport(FormElementType.LabelDecoration, exportLabelDecorationToXML)

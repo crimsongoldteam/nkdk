@@ -4,7 +4,7 @@ import { parseElement } from "~/lib/parser/elementsParser/parse"
 import type { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import type { TInputField } from "./types"
 
 const configurationSettings: TConfigurationSettings = {
@@ -16,7 +16,7 @@ describe("parse InputField", () => {
     const mock = "text:"
 
     const expectedResult: TInputField = {
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
       name: "text",
       title: {
         items: { ru: "text" },
@@ -32,7 +32,7 @@ describe("parse InputField", () => {
     const mock = "text: {name}"
 
     const expectedResult: TInputField = {
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
       title: {
         items: { ru: "text" },
       },
@@ -48,7 +48,7 @@ describe("parse InputField", () => {
     const mock = ": {name}"
 
     const expectedResult: TInputField = {
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
       name: "name",
       id: undefined,
     }
@@ -61,7 +61,7 @@ describe("parse InputField", () => {
     const mock = ": _В {name}"
 
     const expectedResult: TInputField = {
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
       name: "name",
       id: undefined,
       choiceButton: true,

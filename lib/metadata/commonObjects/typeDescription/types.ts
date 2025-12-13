@@ -52,3 +52,5 @@ export interface TypeDescription {
   numberQualifiers?: TypeDescriptionNumberQualifiers
   dateQualifiers?: TypeDescriptionDateQualifiers
 }
+
+export type TypeDescriptionEnterprise = string

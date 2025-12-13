@@ -1,146 +1,73 @@
+import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZTable, ZTableXML } from "../table/types"
-import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZEventsXML } from "~/lib/metadata/forms/events/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import { ZodChildItemsType } from "../childItems/typesExt"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
-export interface FormattedDocumentField {
-  elementType: ElementType
-  name: string
-  id?: string
-  autoCellHeight?: boolean,
-  cellHyperlink?: boolean,
-  contextMenu?: CommandBar,
-  dataPath?: string,
-  defaultItem?: boolean,
-  displayImportance?: SE.DisplayImportance,
-  editMode?: SE.ColumnEditMode,
-  enabled?: boolean,
-  extendedTooltip?: FormDecoration,
-  fixingInTable?: SE.FixingInTable,
-  footerBackColor?: Color,
-  footerDataPath?: string,
-  footerFont?: Font,
-  footerHorizontalAlign?: SE.ItemHorizontalLocation,
-  footerPicture?: Picture,
-  footerText?: I8nText,
-  footerTextColor?: Color,
-  headerHorizontalAlign?: SE.ItemHorizontalLocation,
-  headerPicture?: Picture,
-  horizontalAlign?: SE.ItemHorizontalLocation,
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation,
-  readOnly?: boolean,
-  shortcut?: string,
-  showInFooter?: boolean,
-  showInHeader?: boolean,
-  skipOnInput?: boolean,
-  table?: Table,
-  title?: I8nText,
-  titleBackColor?: Color,
-  titleFont?: Font,
-  titleHeight?: number,
-  titleLocation?: SE.FormItemTitleLocation,
-  titleTextColor?: Color,
-  toolTip?: I8nText,
-  toolTipRepresentation?: SE.ToolTipRepresentation,
-  type?: SE.FormFieldType,
-  typeRestriction?: TypeDescription,
-  userVisible?: UserVisible,
-  verticalAlign?: SE.ItemVerticalAlign,
-  verticalAlignInGroup?: SE.ItemVerticalAlign,
-  visible?: boolean,
-  warningOnEdit?: I8nText,
-  warningOnEditRepresentation?: SE.WarningOnEditRepresentation,
-  autoMaxHeight?: boolean,
-  autoMaxWidth?: boolean,
-  backColor?: Color,
-  borderColor?: Color,
-  font?: Font,
-  height?: number,
-  horizontalStretch?: boolean,
-  maxHeight?: number,
-  maxWidth?: number,
-  output?: SE.UseOutput,
-  selectedText?: string,
-  textColor?: Color,
-  verticalStretch?: boolean,
-  width?: number,
+export interface FormattedDocumentField extends FormField {
+  autoMaxHeight?: boolean
+  autoMaxWidth?: boolean
+  backColor?: Color
+  borderColor?: Color
+  font?: Font
+  height?: number
+  horizontalStretch?: boolean
+  maxHeight?: number
+  maxWidth?: number
+  output?: SE.UseOutput
+  selectedText?: string
+  textColor?: Color
+  userVisible?: UserVisible
+  verticalStretch?: boolean
+  width?: number
   events?: {
-    onChange?: string,
-    beforeWrite?: string,
-    beforePrint?: string,
-    afterWrite?: string,
-  },
+    onChange?: string
+    beforeWrite?: string
+    beforePrint?: string
+    afterWrite?: string
+  }
 }
 
-export interface FormattedDocumentFieldXML {
-  _name: z.string(),
-  _id: z.string(),
-  _DisplayImportance: SE.DisplayImportance,
-  AutoCellHeight: boolean,
-  AutoMaxHeight: boolean,
-  AutoMaxWidth: boolean,
-  BackColor: Color,
-  BorderColor: Color,
-  CellHyperlink: boolean,
-  ContextMenu: CommandBar,
-  DataPath: string,
-  DefaultItem: boolean,
-  EditMode: SE.ColumnEditMode,
-  Enabled: boolean,
-  ExtendedTooltip: FormDecoration,
-  FixingInTable: SE.FixingInTable,
-  Font: Font,
-  FooterBackColor: Color,
-  FooterDataPath: string,
-  FooterFont: Font,
-  FooterHorizontalAlign: SE.ItemHorizontalLocation,
-  FooterPicture: Picture,
-  FooterText: I8nText,
-  FooterTextColor: Color,
-  HeaderHorizontalAlign: SE.ItemHorizontalLocation,
-  HeaderPicture: Picture,
-  Height: number,
-  HorizontalAlign: SE.ItemHorizontalLocation,
-  HorizontalAlignInGroup: SE.ItemHorizontalLocation,
-  HorizontalStretch: boolean,
-  MaxHeight: number,
-  MaxWidth: number,
-  Output: SE.UseOutput,
-  ReadOnly: boolean,
-  SelectedText: string,
-  Shortcut: string,
-  ShowInFooter: boolean,
-  ShowInHeader: boolean,
-  SkipOnInput: boolean,
-  Table: Table,
-  TextColor: Color,
-  Title: I8nText,
-  TitleBackColor: Color,
-  TitleFont: Font,
-  TitleHeight: number,
-  TitleLocation: SE.FormItemTitleLocation,
-  TitleTextColor: Color,
-  ToolTip: I8nText,
-  ToolTipRepresentation: SE.ToolTipRepresentation,
-  Type: SE.FormFieldType,
-  TypeRestriction: TypeDescription,
-  UserVisible: UserVisible,
-  VerticalAlign: SE.ItemVerticalAlign,
-  VerticalAlignInGroup: SE.ItemVerticalAlign,
-  VerticalStretch: boolean,
-  Visible: boolean,
-  WarningOnEdit: I8nText,
-  WarningOnEditRepresentation: SE.WarningOnEditRepresentation,
-  Width: number,
+export interface FormattedDocumentFieldXML extends FormFieldXML {
+  AutoMaxHeight?: boolean
+  AutoMaxWidth?: boolean
+  BackColor?: ColorXML
+  BorderColor?: ColorXML
+  Font?: FontXML
+  Height?: number
+  HorizontalStretch?: boolean
+  MaxHeight?: number
+  MaxWidth?: number
+  Output?: SE.UseOutput
+  SelectedText?: string
+  TextColor?: ColorXML
+  UserVisible?: UserVisibleXML
+  VerticalStretch?: boolean
+  Width?: number
+  Events?: EventsXML
+}
+
+export interface FormattedDocumentFieldEnterprise extends FormFieldEnterprise {
+  АвтоМаксимальнаяВысота?: boolean
+  АвтоМаксимальнаяШирина?: boolean
+  ЦветФона?: ColorEnterprise
+  ЦветРамки?: ColorEnterprise
+  Шрифт?: FontEnterprise
+  Высота?: number
+  РастягиватьПоГоризонтали?: boolean
+  МаксимальнаяВысота?: number
+  МаксимальнаяШирина?: number
+  Вывод?: SE.UseOutputEnterprise
+  ВыделенныйТекст?: string
+  ЦветТекста?: ColorEnterprise
+  ПользовательскаяВидимость?: UserVisibleEnterprise
+  РастягиватьПоВертикали?: boolean
+  Ширина?: number
+  События?: {
+    ПриИзменении?: string
+    ПередЗаписью?: string
+    ПередПечатью?: string
+    ПослеЗаписи?: string
+  }
 }

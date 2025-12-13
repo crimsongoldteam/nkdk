@@ -1,4 +1,4 @@
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { formatInputField } from "./format"
 import { registerIsOneLineElementCheck } from "~/lib/format/isOneLineElementCheckFactory"
 import { registerFormat } from "~/lib/format/formatFactory"
@@ -9,10 +9,10 @@ import { TInputField } from "./types"
 
 registerFormat<TInputField>(
   formatInputField,
-  (element: TInputField) => element.elementType === ZElementType.enum.InputField
+  (element: TInputField) => element.elementType === FormElementType.InputField
 )
 registerIsOneLineElementCheck<TInputField>(
-  ZElementType.enum.InputField,
+  FormElementType.InputField,
   (element: TInputField) => !isMultiline(element)
 )
-registerImport<TInputField | undefined>(ZElementType.enum.InputField, importInputFieldFromXML)
+registerImport<TInputField | undefined>(FormElementType.InputField, importInputFieldFromXML)

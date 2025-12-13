@@ -4,7 +4,7 @@ import { parseElement } from "~/lib/parser/elementsParser/parse"
 import type { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import type { TRadioButtonField } from "./types"
 
 const configurationSettings: TConfigurationSettings = {
@@ -16,7 +16,7 @@ describe("parse RadioButtonField", () => {
     const mock = "(v)option 1()option 2"
 
     const expectedResult: TRadioButtonField = {
-      elementType: ZElementType.enum.RadioButtonField,
+      elementType: FormElementType.RadioButtonField,
       name: "",
       choiceList: {
         items: [

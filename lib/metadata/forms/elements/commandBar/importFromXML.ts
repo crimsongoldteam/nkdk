@@ -1,20 +1,21 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { TCommandBarXML, TCommandBar } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importChildItemsFromXML } from "../childItems/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importFormGroupFromXML } from "../formGroup/importFromXML"
+import { FormElementType } from "../types"
+import { CommandBar, CommandBarXML } from "./types"
 
-export const importCommandBarFromXML = (xml: TCommandBarXML | undefined): TCommandBar | undefined => {
+export const importCommandBarFromXML = (xml: CommandBarXML | undefined): CommandBar | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.CommandBar,
+    ...importFormGroupFromXML(xml)!,
+    elementType: FormElementType.CommandBar,
+
     enableContentChange: xml.EnableContentChange,
     enabled: xml.Enabled,
     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),
@@ -41,4 +42,4 @@ export const importCommandBarFromXML = (xml: TCommandBarXML | undefined): TComma
   }
 }
 
-registerImport(ZElementType.enum.CommandBar, importCommandBarFromXML)
+registerImport(FormElementType.CommandBar, importCommandBarFromXML)

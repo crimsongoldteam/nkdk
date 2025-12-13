@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
+import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
-import { ZElementType } from "../types"
-import { parseElement } from "~/lib/parser/elementsParser/parse"
-import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { TUsualGroup } from "./types"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { FormElementType } from "../types"
+import { UsualGroup } from "./types"
+import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -26,9 +26,9 @@ describe("parse UsualGroup", () => {
       ],
     }
 
-    const expectedResult: TUsualGroup = {
-      elementType: ZElementType.enum.UsualGroup,
-      group: SE.ZChildFormItemsGroup.enum.Vertical,
+    const expectedResult: UsualGroup = {
+      elementType: FormElementType.UsualGroup,
+      group: SE.ChildFormItemsGroup.Vertical,
       name: "vertical",
       id: undefined,
       title: {
@@ -37,7 +37,7 @@ describe("parse UsualGroup", () => {
 
       childItems: [
         {
-          elementType: ZElementType.enum.LabelDecoration,
+          elementType: FormElementType.LabelDecoration,
           name: "Element",
           id: undefined,
           title: {
@@ -63,9 +63,9 @@ describe("parse UsualGroup", () => {
       ],
     }
 
-    const expectedResult: TUsualGroup = {
-      elementType: ZElementType.enum.UsualGroup,
-      group: SE.ZChildFormItemsGroup.enum.Horizontal,
+    const expectedResult: UsualGroup = {
+      elementType: FormElementType.UsualGroup,
+      group: SE.ChildFormItemsGroup.Horizontal,
       name: "horizontal",
       id: undefined,
       title: {
@@ -74,7 +74,7 @@ describe("parse UsualGroup", () => {
 
       childItems: [
         {
-          elementType: ZElementType.enum.LabelDecoration,
+          elementType: FormElementType.LabelDecoration,
           name: "Element",
           id: undefined,
           title: {

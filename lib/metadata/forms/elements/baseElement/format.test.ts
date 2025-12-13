@@ -1,8 +1,8 @@
-import { it, expect, describe } from "vitest"
-import { ZElementType } from "../types"
-import { TBaseElement } from "./types"
-import { formatOtherElement } from "./format"
+import { describe, expect, it } from "vitest"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { formatOtherElement } from "./format"
+import { BaseElement } from "./types"
+import { FormElementType } from "../types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -10,8 +10,8 @@ const configurationSettings: TConfigurationSettings = {
 
 describe("formatOtherElement", () => {
   it("should format element", () => {
-    const element: TBaseElement = {
-      elementType: ZElementType.enum.InputField,
+    const element: BaseElement = {
+      elementType: FormElementType.InputField,
       name: "ИмяПоля",
       id: "1",
     }

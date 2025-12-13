@@ -1,4 +1,4 @@
-export enum ElementType {
+export enum FormElementType {
   BaseElement = "БазовыйЭлемент",
   Form = "УправляемаяФорма",
   Button = "Кнопка",

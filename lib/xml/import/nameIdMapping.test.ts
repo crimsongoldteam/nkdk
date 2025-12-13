@@ -1,13 +1,13 @@
-import { describe, it, expect } from "vitest"
-import { createNameIdMapping, updateNameIdMapping } from "./nameIdMapping"
+import { describe, expect, it } from "vitest"
 import { ClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
-import { ElementType } from "~/lib/metadata/forms/elements/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { createNameIdMapping, updateNameIdMapping } from "./nameIdMapping"
 
 describe("nameMapping", () => {
   describe("createNameIdMapping", () => {
     it("should create empty mapping for empty form", () => {
       const form: ClientApplicationForm = {
-        elementType: ElementType.ClientApplicationForm,
+        elementType: FormElementType.ClientApplicationForm,
         childItems: [],
       }
 
@@ -18,17 +18,17 @@ describe("nameMapping", () => {
 
     it("should create mapping for elements with id", () => {
       const form: ClientApplicationForm = {
-        elementType: ElementType.ClientApplicationForm,
+        elementType: FormElementType.ClientApplicationForm,
         childItems: [
           {
             name: "field1",
             id: "1",
-            elementType: ElementType.InputField,
+            elementType: FormElementType.InputField,
           },
           {
             name: "field2",
             id: "2",
-            elementType: ElementType.InputField,
+            elementType: FormElementType.InputField,
           },
         ],
       }
@@ -49,17 +49,17 @@ describe("nameMapping", () => {
       ])
 
       const form: ClientApplicationForm = {
-        elementType: ElementType.ClientApplicationForm,
+        elementType: FormElementType.ClientApplicationForm,
         childItems: [
           {
             name: "field2",
             id: "2",
-            elementType: ElementType.InputField,
+            elementType: FormElementType.InputField,
           },
           {
             name: "field1",
             id: "1",
-            elementType: ElementType.InputField,
+            elementType: FormElementType.InputField,
           },
         ],
       }
@@ -73,17 +73,17 @@ describe("nameMapping", () => {
     it("should assign next available id", () => {
       const mapping = new Map([["1", "field1"]])
       const form: ClientApplicationForm = {
-        elementType: ElementType.ClientApplicationForm,
+        elementType: FormElementType.ClientApplicationForm,
         childItems: [
           {
             name: "field1",
             id: "1",
-            elementType: ElementType.InputField,
+            elementType: FormElementType.InputField,
           },
           {
             name: "field2",
             id: "2",
-            elementType: ElementType.InputField,
+            elementType: FormElementType.InputField,
           },
         ],
       }

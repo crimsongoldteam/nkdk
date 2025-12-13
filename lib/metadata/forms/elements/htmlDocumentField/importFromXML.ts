@@ -1,24 +1,27 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importI8nTextFromXML"
-import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
-import { importTableFromXML } from "../table/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { THTMLDocumentFieldXML, THTMLDocumentField } from "./types"
-import { ZElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
+import { importFormFieldFromXML } from "../formField/importFromXML"
+import { importTableFromXML } from "../table/importFromXML"
+import { FormElementType } from "../types"
+import { HTMLDocumentField, HTMLDocumentFieldXML } from "./types"
 
-export const importHTMLDocumentFieldFromXML = (xml: THTMLDocumentFieldXML | undefined): THTMLDocumentField | undefined => {
+export const importHTMLDocumentFieldFromXML = (
+  xml: HTMLDocumentFieldXML | undefined
+): HTMLDocumentField | undefined => {
   if (!xml) return undefined
-   
+
   return {
-    id: xml._id,
-    name: xml._name,
-    elementType: ZElementType.enum.HTMLDocumentField,
+    ...importFormFieldFromXML(xml)!,
+    elementType: FormElementType.HTMLDocumentField,
+
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
@@ -77,4 +80,4 @@ export const importHTMLDocumentFieldFromXML = (xml: THTMLDocumentFieldXML | unde
   }
 }
 
-registerImport(ZElementType.enum.HTMLDocumentField, importHTMLDocumentFieldFromXML)
+registerImport(FormElementType.HTMLDocumentField, importHTMLDocumentFieldFromXML)

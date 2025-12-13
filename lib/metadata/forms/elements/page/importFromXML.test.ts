@@ -4,7 +4,7 @@ import "~/lib/metadata/forms/elements/importFromXML"
 import "~/lib/metadata/forms/elements/exportToXML"
 import xmlImport from "~/lib/xml/import/importer"
 import { TPage, TPageXML, ZPageXML } from "./types"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { importPageFromXML } from "./importFromXML"
 import z from "zod"
 
@@ -24,7 +24,7 @@ describe("importPageFromXML", () => {
       title: { items: { ru: "Заголовок группы" } },
       id: "1",
       childItems: [],
-      elementType: ZElementType.enum.Page,
+      elementType: FormElementType.Page,
     }
 
     const xmlData = xmlImport<{ Page: TPageXML }>(

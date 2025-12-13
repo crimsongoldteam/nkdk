@@ -1,20 +1,23 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { TSearchControlAdditionXML, TSearchControlAddition } from "./types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { ZElementType } from "../types"
+import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
+import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
+import { FormElementType } from "../types"
+import { SearchControlAddition, SearchControlAdditionXML } from "./types"
 
-export const exportSearchControlAdditionToXML = (data: TSearchControlAddition | undefined): TSearchControlAdditionXML | undefined => {
+export const exportSearchControlAdditionToXML = (
+  data: SearchControlAddition | undefined
+): SearchControlAdditionXML | undefined => {
   if (!data) return undefined
- 
+
   return {
-   _id: data.id ?? "",
-   _name: data.name ?? "",
+    ...exportFormItemAdditionToXML(data)!,
+
     ContextMenu: exportCommandBarToXML(data.contextMenu),
     _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
@@ -39,4 +42,4 @@ export const exportSearchControlAdditionToXML = (data: TSearchControlAddition | 
   }
 }
 
-registerExport(ZElementType.enum.SearchControlAddition, exportSearchControlAdditionToXML)
+registerExport(FormElementType.SearchControlAddition, exportSearchControlAdditionToXML)

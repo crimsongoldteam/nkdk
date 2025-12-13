@@ -3,7 +3,7 @@ import { TUsualGroup } from "./types"
 import { importUsualGroupFromXML } from "./importFromXML"
 import { TUsualGroupXML } from "./types"
 import { xmlImport } from "~/lib"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import z from "zod"
 import { ZUsualGroupXML } from "./types"
 
@@ -23,7 +23,7 @@ describe("importUsualGroupFromXML", () => {
       title: { items: { ru: "Заголовок группы" } },
       id: "1",
       childItems: [],
-      elementType: ZElementType.enum.UsualGroup,
+      elementType: FormElementType.UsualGroup,
     }
 
     const xmlData = xmlImport<{ UsualGroup: TUsualGroupXML }>(mockXml, z.object({ UsualGroup: ZUsualGroupXML }))
@@ -51,8 +51,8 @@ describe("importUsualGroupFromXML", () => {
       name: "Группа",
       title: { items: { ru: "Заголовок группы" } },
       id: "1",
-      childItems: [{ name: "ПолеВвода", id: "1", elementType: ZElementType.enum.InputField }],
-      elementType: ZElementType.enum.UsualGroup,
+      childItems: [{ name: "ПолеВвода", id: "1", elementType: FormElementType.InputField }],
+      elementType: FormElementType.UsualGroup,
     }
 
     const xmlData = xmlImport<{ UsualGroup: TUsualGroupXML }>(mockXml, z.object({ UsualGroup: ZUsualGroupXML }))

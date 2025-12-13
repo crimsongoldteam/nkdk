@@ -1,21 +1,24 @@
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
-export interface IBorder {
+export interface Border {
   ref?: string
   width?: number
-  controlBorderType?: SE.TControlBorderType
+  controlBorderType?: SE.ControlBorderType
 }
 
-export interface IBorderStyleObject {
+export interface BorderStyleObject {
   "#text"?: string
   "_xsi:type"?: string
 }
 
-export interface IBorderXML {
+export interface BorderXML {
   _ref?: string
   _width?: number
-  "v8ui:style"?: string | IBorderStyleObject
+  "v8ui:style"?: string | BorderStyleObject
 }
 
-export type TBorder = IBorder
-export type TBorderXML = IBorderXML
+export interface BorderEnterprise {
+  Имя?: string
+  Ширина?: number
+  ТипРамки?: SE.ControlBorderTypeEnterprise
+}

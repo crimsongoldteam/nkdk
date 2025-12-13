@@ -1,9 +1,7 @@
+import { exportI8nTextToXML } from "../../commonObjects/i8nText/exportToXML"
 import { Command, CommandXML } from "./types"
-import { exportI8nTextToXML } from "../../commonObjects/i8nText/exportI8nTextToXML"
 
-export default function exportCommandToXML(
-  command: Command | undefined
-): CommandXML | undefined {
+export default function exportCommandToXML(command: Command | undefined): CommandXML | undefined {
   if (!command) return undefined
 
   const result: CommandXML = {

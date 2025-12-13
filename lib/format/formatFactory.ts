@@ -2,7 +2,7 @@ import { TConfigurationSettings } from "../metadata/configurationSettings/types"
 import { formatOtherElement } from "../metadata/forms/elements/baseElement/format"
 import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
 import { TChildItems } from "../metadata/forms/elements/childItems/types"
-import { ZElementType } from "../metadata/forms/elements/types"
+import { FormElementType } from "../metadata/forms/elements/types"
 import {
   CheckFormatFunction,
   FormatElementFunction,
@@ -55,9 +55,9 @@ export const formatElements = (
   }
 
   const separatedItems: readonly (
-    | typeof ZElementType.enum.Pages
-    | typeof ZElementType.enum.UsualGroup
-  )[] = [ZElementType.enum.Pages, ZElementType.enum.UsualGroup]
+    | typeof FormElementType.Pages
+    | typeof FormElementType.UsualGroup
+  )[] = [FormElementType.Pages, FormElementType.UsualGroup]
 
   let prevItem: TBaseElement | null = null
   for (const item of items) {
@@ -65,13 +65,13 @@ export const formatElements = (
       prevItem &&
       (separatedItems.includes(
         item.elementType as
-          | typeof ZElementType.enum.Pages
-          | typeof ZElementType.enum.UsualGroup
+          | typeof FormElementType.Pages
+          | typeof FormElementType.UsualGroup
       ) ||
         separatedItems.includes(
           prevItem.elementType as
-            | typeof ZElementType.enum.Pages
-            | typeof ZElementType.enum.UsualGroup
+            | typeof FormElementType.Pages
+            | typeof FormElementType.UsualGroup
         ))
     ) {
       result.strings.push("")

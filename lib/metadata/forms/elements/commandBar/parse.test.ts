@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { ZElementType } from "../types"
-import type { TCommandBar } from "./types"
-import { lexer } from "~/lib/parser/lexer"
-import type { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import type { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
+import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
+import { FormElementType } from "../types"
+import { CommandBar } from "./types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -15,13 +15,13 @@ describe("parse CommandBar", () => {
   it("should parse command bar with buttons", () => {
     const mock = `<Button1|Button2|Button3>`
 
-    const expectedResult: TCommandBar = {
+    const expectedResult: CommandBar = {
       name: "CommandBar",
       id: "1",
-      elementType: ZElementType.enum.CommandBar,
+      elementType: FormElementType.CommandBar,
       childItems: [
         {
-          elementType: ZElementType.enum.Button,
+          elementType: FormElementType.Button,
           name: "Button1",
           id: "1",
           title: {
@@ -29,7 +29,7 @@ describe("parse CommandBar", () => {
           },
         },
         {
-          elementType: ZElementType.enum.Button,
+          elementType: FormElementType.Button,
           name: "Button2",
           id: "2",
           title: {
@@ -37,7 +37,7 @@ describe("parse CommandBar", () => {
           },
         },
         {
-          elementType: ZElementType.enum.Button,
+          elementType: FormElementType.Button,
           name: "Button3",
           id: "3",
           title: {

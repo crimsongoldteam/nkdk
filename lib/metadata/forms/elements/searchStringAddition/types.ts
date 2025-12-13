@@ -1,61 +1,34 @@
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZChildItems, ZChildItemsXML, TChildItems } from "../childItems/types"
-import { ZFormItemAddition, ZFormItemAdditionXML } from "../formItemAddition/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import { ZodChildItemsType } from "../childItems/typesExt"
+import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormItemAddition, FormItemAdditionEnterprise, FormItemAdditionXML } from "../formItemAddition/types"
 
-export interface SearchStringAddition {
-  elementType: ElementType
-  name: string
-  id?: string
-  contextMenu?: CommandBar,
-  displayImportance?: SE.DisplayImportance,
-  enabled?: boolean,
-  extendedToolTip?: FormDecoration,
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation,
-  title?: I8nText,
-  toolTip?: I8nText,
-  toolTipRepresentation?: SE.ToolTipRepresentation,
-  type?: SE.FormItemAdditionType,
-  userVisible?: UserVisible,
-  verticalAlignInGroup?: SE.ItemVerticalAlign,
-  visible?: boolean,
-  childItems?: ЭлементыФормы,
-  backColor?: Color,
-  borderColor?: Color,
-  font?: Font,
-  horizontalStretch?: boolean,
-  textColor?: Color,
-  width?: number,
+export interface SearchStringAddition extends FormItemAddition {
+  backColor?: Color
+  borderColor?: Color
+  font?: Font
+  horizontalStretch?: boolean
+  textColor?: Color
+  userVisible?: UserVisible
+  width?: number
 }
 
-export interface SearchStringAdditionXML {
-  _name: z.string(),
-  _id: z.string(),
-  _DisplayImportance: SE.DisplayImportance,
-  Enabled: boolean,
-  ContextMenu: CommandBar,
-  BackColor: Color,
-  BorderColor: Color,
-  ExtendedToolTip: FormDecoration,
-  Font: Font,
-  HorizontalAlignInGroup: SE.ItemHorizontalLocation,
-  HorizontalStretch: boolean,
-  TextColor: Color,
-  Title: I8nText,
-  ToolTip: I8nText,
-  ToolTipRepresentation: SE.ToolTipRepresentation,
-  Type: SE.FormItemAdditionType,
-  UserVisible: UserVisible,
-  VerticalAlignInGroup: SE.ItemVerticalAlign,
-  Visible: boolean,
-  Width: number,
-  ChildItems: ЭлементыФормы,
+export interface SearchStringAdditionXML extends FormItemAdditionXML {
+  BackColor?: ColorXML
+  BorderColor?: ColorXML
+  Font?: FontXML
+  HorizontalStretch?: boolean
+  TextColor?: ColorXML
+  UserVisible?: UserVisibleXML
+  Width?: number
+}
+
+export interface SearchStringAdditionEnterprise extends FormItemAdditionEnterprise {
+  ЦветФона?: ColorEnterprise
+  ЦветРамки?: ColorEnterprise
+  Шрифт?: FontEnterprise
+  РастягиватьПоГоризонтали?: boolean
+  ЦветТекста?: ColorEnterprise
+  ПользовательскаяВидимость?: UserVisibleEnterprise
+  Ширина?: number
 }

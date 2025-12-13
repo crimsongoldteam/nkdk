@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
 import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { parseElement } from "~/lib/parser/elementsParser/parse"
 import type { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
+import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
-import { ZElementType } from "../types"
-import type { TButton } from "./types"
+import { FormElementType } from "../types"
+import { Button } from "./types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -15,8 +15,8 @@ describe("parseButton", () => {
   it("should parse button without name", () => {
     const mock = "<label>"
 
-    const expectedResult: TButton = {
-      elementType: ZElementType.enum.Button,
+    const expectedResult: Button = {
+      elementType: FormElementType.Button,
       name: "label",
       title: {
         items: { ru: "label" },

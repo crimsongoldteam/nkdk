@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest"
+import xmlImport from "~/lib/xml/import/importer"
+import { FormElementType } from "../types"
 import { importButtonFromXML } from "./importFromXML"
-import { ZElementType } from "../types"
-import { TButton, TButtonXML } from "./types"
-import { xmlImport } from "~/lib"
-import z from "zod"
-import { ZButtonXML } from "./types"
+import { Button, ButtonXML } from "./types"
 
 describe("importButtonFromXML", () => {
   it("should import button from XML", () => {
@@ -17,19 +15,16 @@ describe("importButtonFromXML", () => {
 					</Title>
 				</Button>`
 
-    const expectedResult: TButton = {
+    const expectedResult: Button = {
       name: "КнопкаОК",
-      elementType: ZElementType.enum.Button,
+      elementType: FormElementType.Button,
       title: {
         items: { ru: "ОК" },
       },
       id: "1",
     }
 
-    const xml = xmlImport<{ Button: TButtonXML }>(
-      mockXml,
-      z.object({ Button: ZButtonXML })
-    )
+    const xml = xmlImport<{ Button: ButtonXML }>(mockXml)
 
     const result = importButtonFromXML(xml.Button)
 

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { ZElementType } from "../metadata/forms/elements/types"
+import { FormElementType } from "../metadata/forms/elements/types"
 import {
   clearElementRules,
   formatProperty,
@@ -25,7 +25,7 @@ describe("format", () => {
       },
     }
 
-    registerElementRules(ZElementType.enum.InputField, rules)
+    registerElementRules(FormElementType.InputField, rules)
 
     const format = formatProperty(
       "testValue",

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { importInputFieldFromXML } from "./importFromXML"
 import { TInputField, TInputFieldXML, ZInputFieldXML } from "./types"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { xmlImport } from "~/lib"
 import z from "zod"
 
@@ -18,7 +18,7 @@ describe("importInputFieldFromXML", () => {
 
     const expectedResult: TInputField = {
       name: "ИмяПоля",
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
       id: "16",
     }

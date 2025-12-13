@@ -6,7 +6,7 @@ import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
 import "~/lib/metadata/forms/elements/inputField/registration"
 import "~/lib/metadata/forms/elements/rules"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { formatClientApplicationForm } from "./format"
 
 const configurationSettings: TConfigurationSettings = {
@@ -16,7 +16,7 @@ const configurationSettings: TConfigurationSettings = {
 describe("formatClientApplicationForm", () => {
   it("should format form header", () => {
     const form: TClientApplicationForm = {
-      elementType: ZElementType.enum.Form,
+      elementType: FormElementType.Form,
       title: { items: { ru: "Форма" } },
       childItems: [],
     }
@@ -30,12 +30,12 @@ describe("formatClientApplicationForm", () => {
     const input: TInputField = {
       name: "ИмяПоля",
       id: "1",
-      elementType: ZElementType.enum.InputField,
+      elementType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
     }
 
     const form: TClientApplicationForm = {
-      elementType: ZElementType.enum.Form,
+      elementType: FormElementType.Form,
       childItems: [input],
     }
 
@@ -51,7 +51,7 @@ describe("formatClientApplicationForm", () => {
   Тип: Строка(10)`
 
     const form: TClientApplicationForm = {
-      elementType: ZElementType.enum.Form,
+      elementType: FormElementType.Form,
       childItems: [],
       attributes: [
         {

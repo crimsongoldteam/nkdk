@@ -1,8 +1,8 @@
-import { it, expect, describe } from "vitest"
-import { ZElementType } from "../types"
-import { TButton } from "./types"
-import { formatButton } from "./format"
+import { describe, expect, it } from "vitest"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { FormElementType } from "../types"
+import { formatButton } from "./format"
+import { Button } from "./types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -10,8 +10,8 @@ const configurationSettings: TConfigurationSettings = {
 
 describe("formatButton", () => {
   it("should format button", () => {
-    const element: TButton = {
-      elementType: ZElementType.enum.Button,
+    const element: Button = {
+      elementType: FormElementType.Button,
       name: "ИмяКнопки",
       id: "1",
       title: {
@@ -21,7 +21,7 @@ describe("formatButton", () => {
 
     const expectedResult = ["<Заголовок кнопки {ИмяКнопки}>"]
 
-    const result = formatButton(element as TButton, configurationSettings)
+    const result = formatButton(element, configurationSettings)
 
     expect(result.strings).toEqual(expectedResult)
   })

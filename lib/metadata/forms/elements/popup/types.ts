@@ -1,75 +1,35 @@
+import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { Picture, PictureEnterprise, PictureXML } from "~/lib/metadata/commonObjects/pictures/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormGroup, ZFormGroupXML } from "../formGroup/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZChildItems, ZChildItemsXML, TChildItems } from "../childItems/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import { ZodChildItemsType } from "../childItems/typesExt"
+import { FormGroup, FormGroupEnterprise, FormGroupXML } from "../formGroup/types"
 
-export interface Popup {
-  elementType: ElementType
-  name: string
-  id?: string
-  enableContentChange?: boolean,
-  enabled?: boolean,
-  extendedTooltip?: FormDecoration,
-  height?: number,
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation,
-  horizontalStretch?: boolean,
-  readOnly?: boolean,
-  shortcut?: string,
-  title?: I8nText,
-  titleFont?: Font,
-  titleTextColor?: Color,
-  toolTip?: I8nText,
-  toolTipRepresentation?: SE.ToolTipRepresentation,
-  type?: SE.FormGroupType,
-  userVisible?: UserVisible,
-  verticalAlignInGroup?: SE.ItemVerticalAlign,
-  verticalStretch?: boolean,
-  visible?: boolean,
-  width?: number,
-  childItems?: ЭлементыФормы,
-  backColor?: Color,
-  borderColor?: Color,
-  picture?: Picture,
-  representation?: SE.ButtonRepresentation,
-  shape?: SE.ButtonShape,
-  shapeRepresentation?: SE.ButtonShapeRepresentation,
+export interface Popup extends FormGroup {
+  backColor?: Color
+  borderColor?: Color
+  picture?: Picture
+  representation?: SE.ButtonRepresentation
+  shape?: SE.ButtonShape
+  shapeRepresentation?: SE.ButtonShapeRepresentation
+  userVisible?: UserVisible
 }
 
-export interface PopupXML {
-  _name: z.string(),
-  _id: z.string(),
-  UserVisible: UserVisible,
-  Title: I8nText,
-  ToolTip: I8nText,
-  Picture: Picture,
-  Representation: SE.ButtonRepresentation,
-  ExtendedTooltip: FormDecoration,
-  BackColor: Color,
-  BorderColor: Color,
-  EnableContentChange: boolean,
-  Enabled: boolean,
-  Height: number,
-  HorizontalAlignInGroup: SE.ItemHorizontalLocation,
-  HorizontalStretch: boolean,
-  ReadOnly: boolean,
-  Shape: SE.ButtonShape,
-  ShapeRepresentation: SE.ButtonShapeRepresentation,
-  Shortcut: string,
-  TitleFont: Font,
-  TitleTextColor: Color,
-  ToolTipRepresentation: SE.ToolTipRepresentation,
-  Type: SE.FormGroupType,
-  VerticalAlignInGroup: SE.ItemVerticalAlign,
-  VerticalStretch: boolean,
-  Visible: boolean,
-  Width: number,
-  ChildItems: ЭлементыФормы,
+export interface PopupXML extends FormGroupXML {
+  BackColor?: ColorXML
+  BorderColor?: ColorXML
+  Picture?: PictureXML
+  Representation?: SE.ButtonRepresentation
+  Shape?: SE.ButtonShape
+  ShapeRepresentation?: SE.ButtonShapeRepresentation
+  UserVisible?: UserVisibleXML
+}
+
+export interface PopupEnterprise extends FormGroupEnterprise {
+  ЦветФона?: ColorEnterprise
+  ЦветРамки?: ColorEnterprise
+  Картинка?: PictureEnterprise
+  Отображение?: SE.ButtonRepresentationEnterprise
+  Фигура?: SE.ButtonShapeEnterprise
+  ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
+  ПользовательскаяВидимость?: UserVisibleEnterprise
 }

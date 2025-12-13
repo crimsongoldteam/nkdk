@@ -1,9 +1,11 @@
-import { TBorder, TBorderXML } from "./types"
+import { Border, BorderXML } from "./types"
 
-export const exportBorderToXML = (border: TBorder | undefined): TBorderXML | undefined => {
+export const exportBorderToXML = (
+  border: Border | undefined
+): BorderXML | undefined => {
   if (!border) return undefined
 
-  const result: TBorderXML = {}
+  const result: BorderXML = {}
 
   if (border.ref !== undefined) {
     result._ref = border.ref
@@ -22,4 +24,3 @@ export const exportBorderToXML = (border: TBorder | undefined): TBorderXML | und
 
   return result
 }
-

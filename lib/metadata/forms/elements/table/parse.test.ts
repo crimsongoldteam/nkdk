@@ -1,5 +1,5 @@
 import { lexer } from "~/lib/parser/lexer"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { TTable } from "./types"
 import { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { describe, it, expect } from "vitest"
@@ -16,22 +16,22 @@ describe("parse Table", () => {
     const mock = "| column 1 | column 2 | column 3 | {name}"
 
     const expectedResult: TTable = {
-      elementType: ZElementType.enum.Table,
+      elementType: FormElementType.Table,
       name: "name",
       id: undefined,
       childItems: [
         {
-          elementType: ZElementType.enum.InputField,
+          elementType: FormElementType.InputField,
           name: "column 1",
           id: undefined,
         },
         {
-          elementType: ZElementType.enum.InputField,
+          elementType: FormElementType.InputField,
           name: "column 2",
           id: undefined,
         },
         {
-          elementType: ZElementType.enum.InputField,
+          elementType: FormElementType.InputField,
           name: "column 3",
           id: undefined,
         },

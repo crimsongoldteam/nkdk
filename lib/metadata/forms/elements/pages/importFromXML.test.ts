@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import { xmlImport } from "~/lib"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { TPages, TPagesXML } from "./types"
 import { importPagesFromXML } from "./importFromXML"
 import z from "zod"
@@ -22,7 +22,7 @@ it("should import pages from XML", () => {
     title: { items: { ru: "Заголовок страниц" } },
     id: "1",
     childItems: [],
-    elementType: ZElementType.enum.Pages,
+    elementType: FormElementType.Pages,
   }
 
   const xmlData = xmlImport<{ Pages: TPagesXML }>(mockXml, z.object({ Pages: ZPagesXML }))

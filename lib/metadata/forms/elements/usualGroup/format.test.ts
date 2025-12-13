@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import "~/lib/metadata/forms/elements/inputField/registration"
 import { TInputField } from "../inputField/types"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { formatUsualGroup } from "./format"
 import { TUsualGroup } from "./types"
 
@@ -15,17 +15,17 @@ describe("formatUsualGroup", () => {
     const mockElement: TUsualGroup = {
       name: "Группа",
       id: "1",
-      elementType: ZElementType.enum.UsualGroup,
+      elementType: FormElementType.UsualGroup,
       childItems: [
         {
           name: "Элемент1",
           id: "1",
-          elementType: ZElementType.enum.InputField,
+          elementType: FormElementType.InputField,
         } as TInputField,
         {
           name: "Элемент2",
           id: "2",
-          elementType: ZElementType.enum.InputField,
+          elementType: FormElementType.InputField,
         } as TInputField,
       ],
     }
@@ -43,18 +43,18 @@ it("should format vertical group", () => {
     name: "Группа",
     group: "Vertical",
     title: { items: { ru: "Заголовок группы" } },
-    elementType: ZElementType.enum.UsualGroup,
+    elementType: FormElementType.UsualGroup,
     id: "1",
     childItems: [
       {
         name: "Элемент1",
         id: "1",
-        elementType: ZElementType.enum.InputField,
+        elementType: FormElementType.InputField,
       } as TInputField,
       {
         name: "Элемент2",
         id: "2",
-        elementType: ZElementType.enum.InputField,
+        elementType: FormElementType.InputField,
       } as TInputField,
     ],
   }

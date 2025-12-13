@@ -1,10 +1,10 @@
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportI8nTextToXML"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
-import { TClientApplicationFormXML, TClientApplicationForm } from "./types"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
-import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportCommandSetToXML } from "~/lib/metadata/forms/commandSet/exportToXML"
+import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
+import { exportChildItemsToXML } from "../childItems/exportToXML"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import exportAttributeToXML from "./attributes/exportToXML"
+import { TClientApplicationForm, TClientApplicationFormXML } from "./types"
 
 export const exportClientApplicationFormToXML = (
   data: TClientApplicationForm | undefined
@@ -37,9 +37,7 @@ export const exportClientApplicationFormToXML = (
       data.attributes && data.attributes.length > 0
         ? data.attributes
             .map((attr) => exportAttributeToXML(attr))
-            .filter(
-              (attr): attr is NonNullable<typeof attr> => attr !== undefined
-            )
+            .filter((attr): attr is NonNullable<typeof attr> => attr !== undefined)
         : undefined,
     CommandSet: exportCommandSetToXML(data.commandSet),
     AutoFillCheck: data.autoFillCheck,

@@ -3,7 +3,7 @@ import type { TConfigurationSettings } from "~/lib/metadata/configurationSetting
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import type { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { lexer } from "~/lib/parser/lexer"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import type { TLabelDecoration } from "./types"
 import { ParseElementType } from "~/lib/parser/types"
 
@@ -28,7 +28,7 @@ describe("parse LabelDecoration", () => {
     const mock = "text"
 
     const expectedResult: TLabelDecoration = {
-      elementType: ZElementType.enum.LabelDecoration,
+      elementType: FormElementType.LabelDecoration,
       name: "text",
       title: {
         items: { ru: "text" },
@@ -44,7 +44,7 @@ describe("parse LabelDecoration", () => {
     const mock = "text {name}"
 
     const expectedResult: TLabelDecoration = {
-      elementType: ZElementType.enum.LabelDecoration,
+      elementType: FormElementType.LabelDecoration,
       title: {
         items: { ru: "text" },
       },
@@ -60,7 +60,7 @@ describe("parse LabelDecoration", () => {
     const mock = "{label}"
 
     const expectedResult: TLabelDecoration = {
-      elementType: ZElementType.enum.LabelDecoration,
+      elementType: FormElementType.LabelDecoration,
       name: "label",
       id: undefined,
     }

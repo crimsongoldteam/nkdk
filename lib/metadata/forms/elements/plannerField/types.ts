@@ -1,163 +1,105 @@
-import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZTable, ZTableXML } from "../table/types"
-import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZEventsXML } from "~/lib/metadata/forms/events/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import { ZodChildItemsType } from "../childItems/typesExt"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { EventsXML } from "~/lib/metadata/forms/events/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
-export interface PlannerField {
-  elementType: ElementType
-  name: string
-  id?: string
-  autoCellHeight?: boolean,
-  cellHyperlink?: boolean,
-  contextMenu?: CommandBar,
-  dataPath?: string,
-  defaultItem?: boolean,
-  displayImportance?: SE.DisplayImportance,
-  editMode?: SE.ColumnEditMode,
-  enabled?: boolean,
-  extendedTooltip?: FormDecoration,
-  fixingInTable?: SE.FixingInTable,
-  footerBackColor?: Color,
-  footerDataPath?: string,
-  footerFont?: Font,
-  footerHorizontalAlign?: SE.ItemHorizontalLocation,
-  footerPicture?: Picture,
-  footerText?: I8nText,
-  footerTextColor?: Color,
-  headerHorizontalAlign?: SE.ItemHorizontalLocation,
-  headerPicture?: Picture,
-  horizontalAlign?: SE.ItemHorizontalLocation,
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation,
-  readOnly?: boolean,
-  shortcut?: string,
-  showInFooter?: boolean,
-  showInHeader?: boolean,
-  skipOnInput?: boolean,
-  table?: Table,
-  title?: I8nText,
-  titleBackColor?: Color,
-  titleFont?: Font,
-  titleHeight?: number,
-  titleLocation?: SE.FormItemTitleLocation,
-  titleTextColor?: Color,
-  toolTip?: I8nText,
-  toolTipRepresentation?: SE.ToolTipRepresentation,
-  type?: SE.FormFieldType,
-  typeRestriction?: TypeDescription,
-  userVisible?: UserVisible,
-  verticalAlign?: SE.ItemVerticalAlign,
-  verticalAlignInGroup?: SE.ItemVerticalAlign,
-  visible?: boolean,
-  warningOnEdit?: I8nText,
-  warningOnEditRepresentation?: SE.WarningOnEditRepresentation,
-  autoMaxHeight?: boolean,
-  autoMaxWidth?: boolean,
-  dimensionItemHyperlink?: boolean,
-  enableDrag?: boolean,
-  enableStartDrag?: boolean,
-  height?: number,
-  horizontalStretch?: boolean,
-  maxHeight?: number,
-  maxWidth?: number,
-  timeScaleItemHyperlink?: boolean,
-  verticalStretch?: boolean,
-  width?: number,
-  wrappedTimeScaleHeaderHyperlink?: boolean,
+export interface PlannerField extends FormField {
+  autoMaxHeight?: boolean
+  autoMaxWidth?: boolean
+  dimensionItemHyperlink?: boolean
+  enableDrag?: boolean
+  enableStartDrag?: boolean
+  height?: number
+  horizontalStretch?: boolean
+  maxHeight?: number
+  maxWidth?: number
+  timeScaleItemHyperlink?: boolean
+  userVisible?: UserVisible
+  verticalStretch?: boolean
+  width?: number
+  wrappedTimeScaleHeaderHyperlink?: boolean
   events?: {
-    onChange?: string,
-    selection?: string,
-    plannerActionClick?: string,
-    uRLClick?: string,
-    wrappedTimeScaleHeaderClick?: string,
-    dimensionItemClick?: string,
-    timeScaleItemClick?: string,
-    dragStart?: string,
-    commandGenerateProcessing?: string,
-    dragEnd?: string,
-    beforeStartQuickEdit?: string,
-    beforeStartEdit?: string,
-    beforePrint?: string,
-    beforeExpandDimensionItem?: string,
-    beforeCollapseDimensionItem?: string,
-    beforeCreate?: string,
-    beforeDelete?: string,
-    drag?: string,
-    onActivate?: string,
-    onEditEnd?: string,
-    onCurrentRepresentationPeriodChange?: string,
-    dragCheck?: string,
-    insideDragCheck?: string,
-  },
+    onChange?: string
+    selection?: string
+    plannerActionClick?: string
+    uRLClick?: string
+    wrappedTimeScaleHeaderClick?: string
+    dimensionItemClick?: string
+    timeScaleItemClick?: string
+    dragStart?: string
+    commandGenerateProcessing?: string
+    dragEnd?: string
+    beforeStartQuickEdit?: string
+    beforeStartEdit?: string
+    beforePrint?: string
+    beforeExpandDimensionItem?: string
+    beforeCollapseDimensionItem?: string
+    beforeCreate?: string
+    beforeDelete?: string
+    drag?: string
+    onActivate?: string
+    onEditEnd?: string
+    onCurrentRepresentationPeriodChange?: string
+    dragCheck?: string
+    insideDragCheck?: string
+  }
 }
 
-export interface PlannerFieldXML {
-  _name: z.string(),
-  _id: z.string(),
-  _DisplayImportance: SE.DisplayImportance,
-  AutoCellHeight: boolean,
-  AutoMaxHeight: boolean,
-  AutoMaxWidth: boolean,
-  CellHyperlink: boolean,
-  ContextMenu: CommandBar,
-  DataPath: string,
-  DefaultItem: boolean,
-  DimensionItemHyperlink: boolean,
-  EditMode: SE.ColumnEditMode,
-  Enabled: boolean,
-  EnableDrag: boolean,
-  EnableStartDrag: boolean,
-  ExtendedTooltip: FormDecoration,
-  FixingInTable: SE.FixingInTable,
-  FooterBackColor: Color,
-  FooterDataPath: string,
-  FooterFont: Font,
-  FooterHorizontalAlign: SE.ItemHorizontalLocation,
-  FooterPicture: Picture,
-  FooterText: I8nText,
-  FooterTextColor: Color,
-  HeaderHorizontalAlign: SE.ItemHorizontalLocation,
-  HeaderPicture: Picture,
-  Height: number,
-  HorizontalAlign: SE.ItemHorizontalLocation,
-  HorizontalAlignInGroup: SE.ItemHorizontalLocation,
-  HorizontalStretch: boolean,
-  MaxHeight: number,
-  MaxWidth: number,
-  ReadOnly: boolean,
-  Shortcut: string,
-  ShowInFooter: boolean,
-  ShowInHeader: boolean,
-  SkipOnInput: boolean,
-  Table: Table,
-  TimeScaleItemHyperlink: boolean,
-  Title: I8nText,
-  TitleBackColor: Color,
-  TitleFont: Font,
-  TitleHeight: number,
-  TitleLocation: SE.FormItemTitleLocation,
-  TitleTextColor: Color,
-  ToolTip: I8nText,
-  ToolTipRepresentation: SE.ToolTipRepresentation,
-  Type: SE.FormFieldType,
-  TypeRestriction: TypeDescription,
-  UserVisible: UserVisible,
-  VerticalAlign: SE.ItemVerticalAlign,
-  VerticalAlignInGroup: SE.ItemVerticalAlign,
-  VerticalStretch: boolean,
-  Visible: boolean,
-  WarningOnEdit: I8nText,
-  WarningOnEditRepresentation: SE.WarningOnEditRepresentation,
-  Width: number,
-  WrappedTimeScaleHeaderHyperlink: boolean,
+export interface PlannerFieldXML extends FormFieldXML {
+  AutoMaxHeight?: boolean
+  AutoMaxWidth?: boolean
+  DimensionItemHyperlink?: boolean
+  EnableDrag?: boolean
+  EnableStartDrag?: boolean
+  Height?: number
+  HorizontalStretch?: boolean
+  MaxHeight?: number
+  MaxWidth?: number
+  TimeScaleItemHyperlink?: boolean
+  UserVisible?: UserVisibleXML
+  VerticalStretch?: boolean
+  Width?: number
+  WrappedTimeScaleHeaderHyperlink?: boolean
+  Events?: EventsXML
+}
+
+export interface PlannerFieldEnterprise extends FormFieldEnterprise {
+  АвтоМаксимальнаяВысота?: boolean
+  АвтоМаксимальнаяШирина?: boolean
+  ГиперссылкаЭлементаИзмерения?: boolean
+  РазрешитьПеретаскивание?: boolean
+  РазрешитьНачалоПеретаскивания?: boolean
+  Высота?: number
+  РастягиватьПоГоризонтали?: boolean
+  МаксимальнаяВысота?: number
+  МаксимальнаяШирина?: number
+  ГиперссылкаЭлементаШкалыВремени?: boolean
+  ПользовательскаяВидимость?: UserVisibleEnterprise
+  РастягиватьПоВертикали?: boolean
+  Ширина?: number
+  ГиперссылкаПеренесенногоЗаголовкаШкалыВремени?: boolean
+  События?: {
+    ПриИзменении?: string
+    Выбор?: string
+    НажатиеНаДействиеПланировщика?: string
+    НажатиеНаНавигационнойСсылке?: string
+    НажатиеНаПеренесенномЗаголовкеШкалыВремени?: string
+    НажатиеНаЭлементеИзмерения?: string
+    НажатиеНаЭлементеШкалыВремени?: string
+    НачалоПеретаскивания?: string
+    ОбработкаФормированияКоманд?: string
+    ОкончаниеПеретаскивания?: string
+    ПередНачаломБыстрогоРедактирования?: string
+    ПередНачаломРедактирования?: string
+    ПередПечатью?: string
+    ПередРазворачиваниемЭлементаИзмерения?: string
+    ПередСворачиваниемЭлементаИзмерения?: string
+    ПередСозданием?: string
+    ПередУдалением?: string
+    Перетаскивание?: string
+    ПриАктивизации?: string
+    ПриОкончанииРедактирования?: string
+    ПриСменеТекущегоПериодаОтображения?: string
+    ПроверкаПеретаскивания?: string
+    ПроверкаПеретаскиванияВнутри?: string
+  }
 }

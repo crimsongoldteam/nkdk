@@ -1,137 +1,59 @@
+import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ZI8nText, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { ZColor, ZColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { ZTypeDescription, ZTypeDescriptionXML } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { ZPicture, ZPictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { ZFont, ZFontXML } from "~/lib/metadata/commonObjects/font/types"
-import {  ZBaseElementXML } from "../baseElement/types"
-import { ZFormDecoration, ZFormDecorationXML } from "../formDecoration/types"
-import { ZTable, ZTableXML } from "../table/types"
-import { ZFormField, ZFormFieldXML } from "../formField/types"
-import { ZCommandBar, ZCommandBarXML } from "../commandBar/types"
-import { ZUserVisible, ZUserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ZEventsXML } from "~/lib/metadata/forms/events/types"
-import { ZElementType } from "~/lib/metadata/forms/elements/types"
-import { ZodChildItemsType } from "../childItems/typesExt"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
-export interface CheckBoxField {
-  elementType: ElementType
-  name: string
-  id?: string
-  autoCellHeight?: boolean,
-  cellHyperlink?: boolean,
-  contextMenu?: CommandBar,
-  dataPath?: string,
-  defaultItem?: boolean,
-  displayImportance?: SE.DisplayImportance,
-  editMode?: SE.ColumnEditMode,
-  enabled?: boolean,
-  extendedTooltip?: FormDecoration,
-  fixingInTable?: SE.FixingInTable,
-  footerBackColor?: Color,
-  footerDataPath?: string,
-  footerFont?: Font,
-  footerHorizontalAlign?: SE.ItemHorizontalLocation,
-  footerPicture?: Picture,
-  footerText?: I8nText,
-  footerTextColor?: Color,
-  headerHorizontalAlign?: SE.ItemHorizontalLocation,
-  headerPicture?: Picture,
-  horizontalAlign?: SE.ItemHorizontalLocation,
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation,
-  readOnly?: boolean,
-  shortcut?: string,
-  showInFooter?: boolean,
-  showInHeader?: boolean,
-  skipOnInput?: boolean,
-  table?: Table,
-  title?: I8nText,
-  titleBackColor?: Color,
-  titleFont?: Font,
-  titleHeight?: number,
-  titleLocation?: SE.FormItemTitleLocation,
-  titleTextColor?: Color,
-  toolTip?: I8nText,
-  toolTipRepresentation?: SE.ToolTipRepresentation,
-  type?: SE.FormFieldType,
-  typeRestriction?: TypeDescription,
-  userVisible?: UserVisible,
-  verticalAlign?: SE.ItemVerticalAlign,
-  verticalAlignInGroup?: SE.ItemVerticalAlign,
-  visible?: boolean,
-  warningOnEdit?: I8nText,
-  warningOnEditRepresentation?: SE.WarningOnEditRepresentation,
-  backColor?: Color,
-  borderColor?: Color,
-  checkBoxType?: SE.CheckBoxType,
-  editFormat?: I8nText,
-  equalItemsWidth?: boolean,
-  font?: Font,
-  itemHeight?: number,
-  itemTitleHeight?: number,
-  itemWidth?: number,
-  textColor?: Color,
-  threeState?: boolean,
+export interface CheckBoxField extends FormField {
+  backColor?: Color
+  borderColor?: Color
+  checkBoxType?: SE.CheckBoxType
+  editFormat?: I8nText
+  equalItemsWidth?: boolean
+  font?: Font
+  itemHeight?: number
+  itemTitleHeight?: number
+  itemWidth?: number
+  textColor?: Color
+  threeState?: boolean
+  userVisible?: UserVisible
   events?: {
-    onChange?: string,
-  },
+    onChange?: string
+  }
 }
 
-export interface CheckBoxFieldXML {
-  _name: z.string(),
-  _id: z.string(),
-  _DisplayImportance: SE.DisplayImportance,
-  AutoCellHeight: boolean,
-  BackColor: Color,
-  BorderColor: Color,
-  CellHyperlink: boolean,
-  CheckBoxType: SE.CheckBoxType,
-  ContextMenu: CommandBar,
-  DataPath: string,
-  DefaultItem: boolean,
-  EditFormat: I8nText,
-  EditMode: SE.ColumnEditMode,
-  Enabled: boolean,
-  EqualItemsWidth: boolean,
-  ExtendedTooltip: FormDecoration,
-  FixingInTable: SE.FixingInTable,
-  Font: Font,
-  FooterBackColor: Color,
-  FooterDataPath: string,
-  FooterFont: Font,
-  FooterHorizontalAlign: SE.ItemHorizontalLocation,
-  FooterPicture: Picture,
-  FooterText: I8nText,
-  FooterTextColor: Color,
-  HeaderHorizontalAlign: SE.ItemHorizontalLocation,
-  HeaderPicture: Picture,
-  HorizontalAlign: SE.ItemHorizontalLocation,
-  HorizontalAlignInGroup: SE.ItemHorizontalLocation,
-  ItemHeight: number,
-  ItemTitleHeight: number,
-  ItemWidth: number,
-  ReadOnly: boolean,
-  Shortcut: string,
-  ShowInFooter: boolean,
-  ShowInHeader: boolean,
-  SkipOnInput: boolean,
-  Table: Table,
-  TextColor: Color,
-  ThreeState: boolean,
-  Title: I8nText,
-  TitleBackColor: Color,
-  TitleFont: Font,
-  TitleHeight: number,
-  TitleLocation: SE.FormItemTitleLocation,
-  TitleTextColor: Color,
-  ToolTip: I8nText,
-  ToolTipRepresentation: SE.ToolTipRepresentation,
-  Type: SE.FormFieldType,
-  TypeRestriction: TypeDescription,
-  UserVisible: UserVisible,
-  VerticalAlign: SE.ItemVerticalAlign,
-  VerticalAlignInGroup: SE.ItemVerticalAlign,
-  Visible: boolean,
-  WarningOnEdit: I8nText,
-  WarningOnEditRepresentation: SE.WarningOnEditRepresentation,
+export interface CheckBoxFieldXML extends FormFieldXML {
+  BackColor?: ColorXML
+  BorderColor?: ColorXML
+  CheckBoxType?: SE.CheckBoxType
+  EditFormat?: I8nTextXML
+  EqualItemsWidth?: boolean
+  Font?: FontXML
+  ItemHeight?: number
+  ItemTitleHeight?: number
+  ItemWidth?: number
+  TextColor?: ColorXML
+  ThreeState?: boolean
+  UserVisible?: UserVisibleXML
+  Events?: EventsXML
+}
+
+export interface CheckBoxFieldEnterprise extends FormFieldEnterprise {
+  ЦветФона?: ColorEnterprise
+  ЦветРамки?: ColorEnterprise
+  ВидФлажка?: SE.CheckBoxTypeEnterprise
+  ФорматРедактирования?: I8nTextEnterprise
+  ОдинаковаяШиринаЭлементов?: boolean
+  Шрифт?: FontEnterprise
+  ВысотаЭлемента?: number
+  ВысотаЗаголовкаЭлемента?: number
+  ШиринаЭлемента?: number
+  ЦветТекста?: ColorEnterprise
+  ТриСостояния?: boolean
+  ПользовательскаяВидимость?: UserVisibleEnterprise
+  События?: {
+    ПриИзменении?: string
+  }
 }

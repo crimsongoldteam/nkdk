@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { ZElementType } from "../types"
+import { FormElementType } from "../types"
 import { parseClientApplicationForm } from "./parse"
 import { TClientApplicationForm } from "./types"
 
@@ -16,7 +16,7 @@ describe("parseClientApplicationForm", () => {
   Тип: Строка(10)`
 
     const expectedResult: TClientApplicationForm = {
-      elementType: ZElementType.enum.Form,
+      elementType: FormElementType.Form,
       childItems: [],
       attributes: [
         {
