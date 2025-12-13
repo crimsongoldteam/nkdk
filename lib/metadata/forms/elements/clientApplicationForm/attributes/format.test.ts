@@ -1,5 +1,5 @@
 import { it, expect, describe } from "vitest"
-import { TAttribute } from "../types"
+import { FormAttribute } from "../types"
 import formatFormAttributes from "./format"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
@@ -13,7 +13,7 @@ describe("formatFormAttributes", () => {
   Заголовок: Атрибут
   Тип: Строка(10)`
 
-    const orignalContent: TAttribute[] = [
+    const orignalContent: FormAttribute[] = [
       {
         name: "ИмяАтрибута",
         id: "1",
@@ -32,7 +32,7 @@ describe("formatFormAttributes", () => {
 
   it("should short format with title equal camelCase of name", () => {
     const expectedResult = `ИмяАтрибута: Строка`
-    const orignalContent: TAttribute[] = [
+    const orignalContent: FormAttribute[] = [
       {
         name: "ИмяАтрибута",
         id: "1",
@@ -50,7 +50,7 @@ describe("formatFormAttributes", () => {
     const expectedResult = `ИмяАтрибута: 
   Тип: Строка(10)
   ОсновнойАтрибут: Истина`
-    const orignalContent: TAttribute[] = [
+    const orignalContent: FormAttribute[] = [
       {
         name: "ИмяАтрибута",
         id: "1",
@@ -73,7 +73,7 @@ describe("formatFormAttributes", () => {
   Заголовок: Атрибут
   Тип: Строка(10)
   ОсновнойАтрибут: Истина`
-    const orignalContent: TAttribute[] = [
+    const orignalContent: FormAttribute[] = [
       {
         name: "ИмяАтрибута",
         id: "1",
@@ -96,7 +96,7 @@ describe("formatFormAttributes", () => {
   Заголовок: Атрибут
   Тип: Строка(10)
   СохраняемыеДанные: Истина`
-    const orignalContent: TAttribute[] = [
+    const orignalContent: FormAttribute[] = [
       {
         name: "ИмяАтрибута",
         id: "1",
@@ -116,7 +116,7 @@ describe("formatFormAttributes", () => {
 
   it("should format compact if title is undefined and mainAttribute is false and storedData is false", () => {
     const expectedResult = `ИмяАтрибута: Строка(10)`
-    const orignalContent: TAttribute[] = [
+    const orignalContent: FormAttribute[] = [
       {
         name: "ИмяАтрибута",
         id: "1",
@@ -133,7 +133,7 @@ describe("formatFormAttributes", () => {
   })
 
   it("should format `use`", () => {
-    const orignalContent: TAttribute[] = [
+    const orignalContent: FormAttribute[] = [
       {
         name: "ИмяАтрибута",
         id: "1",

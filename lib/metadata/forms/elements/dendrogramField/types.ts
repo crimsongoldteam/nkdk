@@ -1,50 +1,53 @@
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { EventsXML } from "~/lib/metadata/forms/events/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types";
+import { EventsXML } from "~/lib/metadata/forms/events/types";
+import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types";
+
 
 export interface DendrogramField extends FormField {
-  autoMaxHeight?: boolean
-  autoMaxWidth?: boolean
-  height?: number
-  horizontalStretch?: boolean
-  maxHeight?: number
-  maxWidth?: number
-  userVisible?: UserVisible
-  verticalStretch?: boolean
-  width?: number
+
+  autoMaxHeight?: boolean,
+  autoMaxWidth?: boolean,
+  height?: number,
+  horizontalStretch?: boolean,
+  maxHeight?: number,
+  maxWidth?: number,
+  userVisible?: UserVisible,
+  verticalStretch?: boolean,
+  width?: number,
   events?: {
-    onChange?: string
-    selection?: string
-    detailProcessing?: string
-  }
+    onChange?: string,
+    selection?: string,
+    detailProcessing?: string,
+  },
 }
 
 export interface DendrogramFieldXML extends FormFieldXML {
-  AutoMaxHeight?: boolean
-  AutoMaxWidth?: boolean
-  Height?: number
-  HorizontalStretch?: boolean
-  MaxHeight?: number
-  MaxWidth?: number
-  UserVisible?: UserVisibleXML
-  VerticalStretch?: boolean
-  Width?: number
-  Events?: EventsXML
+  
+  AutoMaxHeight?: boolean,
+  AutoMaxWidth?: boolean,
+  Height?: number,
+  HorizontalStretch?: boolean,
+  MaxHeight?: number,
+  MaxWidth?: number,
+  UserVisible?: UserVisibleXML,
+  VerticalStretch?: boolean,
+  Width?: number,
+  Events?: EventsXML,
 }
 
 export interface DendrogramFieldEnterprise extends FormFieldEnterprise {
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяШирина?: boolean
-  Высота?: number
-  РастягиватьПоГоризонтали?: boolean
-  МаксимальнаяВысота?: number
-  МаксимальнаяШирина?: number
-  ПользовательскаяВидимость?: UserVisibleEnterprise
-  РастягиватьПоВертикали?: boolean
-  Ширина?: number
+  АвтоМаксимальнаяВысота?: boolean,
+  АвтоМаксимальнаяШирина?: boolean,
+  Высота?: number,
+  РастягиватьПоГоризонтали?: boolean,
+  МаксимальнаяВысота?: number,
+  МаксимальнаяШирина?: number,
+  ПользовательскаяВидимость?: UserVisibleEnterprise,
+  РастягиватьПоВертикали?: boolean,
+  Ширина?: number,
   События?: {
-    ПриИзменении?: string
-    Выбор?: string
-    ОбработкаРасшифровки?: string
-  }
+    ПриИзменении?: string,
+    Выбор?: string,
+    ОбработкаРасшифровки?: string,
+  },
 }

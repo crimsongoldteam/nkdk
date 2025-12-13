@@ -1,25 +1,15 @@
-import { TElementRule, TFormatFunction } from "~/lib/rulesManager/types"
+import { type } from "os"
 import { TConfigurationSettings } from "../configurationSettings/types"
 
-export const formatSystemEnumeration: TFormatFunction = (
+export const formatSystemEnumeration = (
   value: string | undefined,
-  _configurationSettings: TConfigurationSettings,
-  rule?: TElementRule
+  _configurationSettings: TConfigurationSettings
 ): string | undefined => {
-  if (!rule) throw new Error("Rule not found")
-
   if (!value) return undefined
 
-  const typeEnterprise = rule.typeEnterprise
-  const type = rule.type
+  const index = Object.keys(type).indexOf(value)
 
-  if (!typeEnterprise || !type)
-    throw new Error("Type enterprise or type not found")
-
-  const index = type.options.findIndex(
-    (option: string) => option.toLowerCase() === value.toLowerCase()
-  )
   if (index === -1) throw new Error(`Value "${value}" not found in enum schema`)
 
-  return typeEnterprise.options[index]
+  return Object.keys(typeEnterprise)[index]
 }

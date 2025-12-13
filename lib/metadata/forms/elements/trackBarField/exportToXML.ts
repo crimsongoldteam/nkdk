@@ -14,10 +14,10 @@ import { FormElementType } from "../types"
 import { TrackBarField, TrackBarFieldXML } from "./types"
 
 export const exportTrackBarFieldToXML = (data: TrackBarField | undefined): TrackBarFieldXML | undefined => {
-  if (!data) return undefined
-
-  return {
-    ...exportFormFieldToXML(data)!,
+    if (!data) return undefined
+     
+    return {
+...exportFormFieldToXML(data)!,
 
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,

@@ -11,10 +11,10 @@ import { FormGroup, FormGroupXML } from "./types"
 
 export const importFormGroupFromXML = (xml: FormGroupXML | undefined): FormGroup | undefined => {
   if (!xml) return undefined
-
+   
   return {
-    ...importBaseElementFromXML(xml)!,
-    elementType: FormElementType.FormGroup,
+...importBaseElementFromXML(xml)!,
+elementType: FormElementType.FormGroup,
 
     enableContentChange: xml.EnableContentChange,
     enabled: xml.Enabled,

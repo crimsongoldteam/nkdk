@@ -1,51 +1,72 @@
-import { Border, BorderEnterprise, BorderXML } from "~/lib/metadata/commonObjects/border/types"
-import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { EventsXML } from "~/lib/metadata/forms/events/types"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { Color, ColorXML, ColorEnterprise } from "~/lib/metadata/commonObjects/color/types";
+import { I8nText, I8nTextXML, I8nTextEnterprise } from "~/lib/metadata/commonObjects/i8nText/types";
+import { Picture, PictureXML, PictureEnterprise } from "~/lib/metadata/commonObjects/pictures/types";
+import { UserVisible, UserVisibleXML, UserVisibleEnterprise } from "~/lib/metadata/commonObjects/userVisible/types";
+import * as SE from "~/lib/metadata/systemEnumerations/types";
+import { FormGroup, FormGroupXML, FormGroupEnterprise } from "../formGroup/types";
+import { Table, TableXML, TableEnterprise } from "../table/types";
+import { CommandBar, CommandBarXML, CommandBarEnterprise } from "../commandBar/types";
+import { BaseElement, BaseElementXML, BaseElementEnterprise } from "../baseElement/types";
+import { Font, FontXML, FontEnterprise } from "~/lib/metadata/commonObjects/font/types";
+import { TypeDescription, TypeDescriptionXML, TypeDescriptionEnterprise } from "~/lib/metadata/commonObjects/typeDescription/types";
+import { Border, BorderXML, BorderEnterprise } from "~/lib/metadata/commonObjects/border/types";
+import { FormField, FormFieldXML, FormFieldEnterprise } from "../formField/types";
 import { FormDecoration, FormDecorationEnterprise, FormDecorationXML } from "../formDecoration/types"
+import { ChoiceList, ChoiceListXML, ChoiceListEnterprise } from "~/lib/metadata/commonObjects/choiceList/types"
+import { FormItemAddition, FormItemAdditionXML, FormItemAdditionEnterprise } from "../formItemAddition/types"
+import { TypeLink, TypeLinkXML, TypeLinkEnterprise } from "~/lib/metadata/commonObjects/typeLink/types"
+import { ChoiceParameterLinks, ChoiceParameterLinksXML, ChoiceParameterLinksEnterprise } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types"
+import { SearchStringAddition, SearchStringAdditionXML, SearchStringAdditionEnterprise } from "~/lib/metadata/forms/elements/searchStringAddition/types"
+import { ViewStatusAddition, ViewStatusAdditionXML, ViewStatusAdditionEnterprise } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
+import { SearchControlAddition, SearchControlAdditionXML, SearchControlAdditionEnterprise } from "~/lib/metadata/forms/elements/searchControlAddition/types"
+import { CommandSet, CommandSetXML, CommandSetEnterprise } from "~/lib/metadata/forms/commandSet/types"
+import { EventsXML } from "~/lib/metadata/forms/events/types";
+import { ChildItems, ChildItemsXML } from "../childItems/types";
+
 
 export interface LabelDecoration extends FormDecoration {
-  backColor?: Color
-  border?: Border
-  borderColor?: Color
-  groupVerticalAlign?: SE.ItemVerticalAlign
-  horizontalAlign?: SE.ItemHorizontalLocation
-  hyperlink?: boolean
-  titleHeight?: number
-  userVisible?: UserVisible
-  verticalAlign?: SE.ItemVerticalAlign
+
+  backColor?: Color,
+  border?: Border,
+  borderColor?: Color,
+  groupVerticalAlign?: SE.ItemVerticalAlign,
+  horizontalAlign?: SE.ItemHorizontalLocation,
+  hyperlink?: boolean,
+  titleHeight?: number,
+  userVisible?: UserVisible,
+  verticalAlign?: SE.ItemVerticalAlign,
   events?: {
-    click?: string
-    uRLProcessing?: string
-  }
+    click?: string,
+    uRLProcessing?: string,
+  },
 }
 
 export interface LabelDecorationXML extends FormDecorationXML {
-  BackColor?: ColorXML
-  Border?: BorderXML
-  BorderColor?: ColorXML
-  GroupVerticalAlign?: SE.ItemVerticalAlign
-  HorizontalAlign?: SE.ItemHorizontalLocation
-  Hyperlink?: boolean
-  TitleHeight?: number
-  UserVisible?: UserVisibleXML
-  VerticalAlign?: SE.ItemVerticalAlign
-  Events?: EventsXML
+  
+  BackColor?: ColorXML,
+  Border?: BorderXML,
+  BorderColor?: ColorXML,
+  GroupVerticalAlign?: SE.ItemVerticalAlign,
+  HorizontalAlign?: SE.ItemHorizontalLocation,
+  Hyperlink?: boolean,
+  TitleHeight?: number,
+  UserVisible?: UserVisibleXML,
+  VerticalAlign?: SE.ItemVerticalAlign,
+  Events?: EventsXML,
 }
 
 export interface LabelDecorationEnterprise extends FormDecorationEnterprise {
-  ЦветФона?: ColorEnterprise
-  Рамка?: BorderEnterprise
-  ЦветРамки?: ColorEnterprise
-  ВертикальноеВыравниваниеГруппы?: SE.ItemVerticalAlignEnterprise
-  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  Гиперссылка?: boolean
-  ВысотаЗаголовка?: number
-  ПользовательскаяВидимость?: UserVisibleEnterprise
-  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
+  ЦветФона?: ColorEnterprise,
+  Рамка?: BorderEnterprise,
+  ЦветРамки?: ColorEnterprise,
+  ВертикальноеВыравниваниеГруппы?: SE.ItemVerticalAlignEnterprise,
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise,
+  Гиперссылка?: boolean,
+  ВысотаЗаголовка?: number,
+  ПользовательскаяВидимость?: UserVisibleEnterprise,
+  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise,
   События?: {
-    Нажатие?: string
-    ОбработкаНавигационнойСсылки?: string
-  }
+    Нажатие?: string,
+    ОбработкаНавигационнойСсылки?: string,
+  },
 }

@@ -2,13 +2,13 @@ import { ConfigProvider, Splitter } from "antd"
 import { useState } from "react"
 import { ClientFormApplication } from "~/components/clientFormApplication/clientFormApplication"
 import { MonacoEditor } from "~/playground/components/monacoEditor/monacoEditor"
-import type { TClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
+import type { ClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
 import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { parse } from "~/lib/parser/parser"
 
 export const Playground = () => {
   const [text, setText] = useState<string>("")
-  const [form, setForm] = useState<TClientApplicationForm>({
+  const [form, setForm] = useState<ClientApplicationForm>({
     elementType: FormElementType.Form,
     childItems: [],
   })

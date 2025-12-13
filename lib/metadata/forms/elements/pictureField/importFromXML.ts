@@ -16,10 +16,10 @@ import { PictureField, PictureFieldXML } from "./types"
 
 export const importPictureFieldFromXML = (xml: PictureFieldXML | undefined): PictureField | undefined => {
   if (!xml) return undefined
-
+   
   return {
-    ...importFormFieldFromXML(xml)!,
-    elementType: FormElementType.PictureField,
+...importFormFieldFromXML(xml)!,
+elementType: FormElementType.PictureField,
 
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,

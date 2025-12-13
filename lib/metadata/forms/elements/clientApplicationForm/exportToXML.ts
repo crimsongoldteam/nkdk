@@ -4,11 +4,11 @@ import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import exportAttributeToXML from "./attributes/exportToXML"
-import { TClientApplicationForm, TClientApplicationFormXML } from "./types"
+import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
 export const exportClientApplicationFormToXML = (
-  data: TClientApplicationForm | undefined
-): TClientApplicationFormXML | undefined => {
+  data: ClientApplicationForm | undefined
+): ClientApplicationFormXML | undefined => {
   if (!data) return undefined
 
   return {

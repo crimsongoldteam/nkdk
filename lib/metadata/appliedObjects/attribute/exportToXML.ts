@@ -1,9 +1,9 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { TAttribute, TAttributeXML } from "../types"
+import { IAttribute, IAttributeXML } from "../types"
 
-export default function exportAttributeToXML(attribute: TAttribute | undefined): TAttributeXML | undefined {
+export default function exportAttributeToXML(attribute: IAttribute | undefined): IAttributeXML | undefined {
   if (!attribute) return undefined
 
   return {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { TClientApplicationForm, TInputField } from "~/lib"
+import { ClientApplicationForm, TInputField } from "~/lib"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import "~/lib/metadata/forms/elements/elements"
 import "~/lib/metadata/forms/elements/exportToXML"
@@ -15,7 +15,7 @@ const configurationSettings: TConfigurationSettings = {
 
 describe("formatClientApplicationForm", () => {
   it("should format form header", () => {
-    const form: TClientApplicationForm = {
+    const form: ClientApplicationForm = {
       elementType: FormElementType.Form,
       title: { items: { ru: "Форма" } },
       childItems: [],
@@ -34,7 +34,7 @@ describe("formatClientApplicationForm", () => {
       title: { items: { ru: "Поле" } },
     }
 
-    const form: TClientApplicationForm = {
+    const form: ClientApplicationForm = {
       elementType: FormElementType.Form,
       childItems: [input],
     }
@@ -50,7 +50,7 @@ describe("formatClientApplicationForm", () => {
   Заголовок: Атрибут
   Тип: Строка(10)`
 
-    const form: TClientApplicationForm = {
+    const form: ClientApplicationForm = {
       elementType: FormElementType.Form,
       childItems: [],
       attributes: [

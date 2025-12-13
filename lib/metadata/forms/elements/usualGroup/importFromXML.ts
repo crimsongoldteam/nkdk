@@ -12,10 +12,10 @@ import { UsualGroup, UsualGroupXML } from "./types"
 
 export const importUsualGroupFromXML = (xml: UsualGroupXML | undefined): UsualGroup | undefined => {
   if (!xml) return undefined
-
+   
   return {
-    ...importFormGroupFromXML(xml)!,
-    elementType: FormElementType.UsualGroup,
+...importFormGroupFromXML(xml)!,
+elementType: FormElementType.UsualGroup,
 
     enableContentChange: xml.EnableContentChange,
     enabled: xml.Enabled,

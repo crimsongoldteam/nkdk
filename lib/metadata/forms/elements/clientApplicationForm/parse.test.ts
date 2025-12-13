@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { FormElementType } from "../types"
 import { parseClientApplicationForm } from "./parse"
-import { TClientApplicationForm } from "./types"
+import { ClientApplicationForm } from "./types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -15,7 +15,7 @@ describe("parseClientApplicationForm", () => {
   Заголовок: Атрибут
   Тип: Строка(10)`
 
-    const expectedResult: TClientApplicationForm = {
+    const expectedResult: ClientApplicationForm = {
       elementType: FormElementType.Form,
       childItems: [],
       attributes: [

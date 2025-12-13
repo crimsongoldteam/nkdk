@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import importAttributeFromXML from "./importFromXML"
-import { TAttribute, TAttributeXML } from "../types"
+import { IAttribute, IAttributeXML, IAttributesXML } from "../types"
 import { xmlImport } from "~/lib"
-import { ZAttributeXML, ZAttributesXML, TAttributesXML } from "../types"
+import { ZAttributeXML, ZAttributesXML } from "../types"
 import z from "zod"
 
 describe("importAttributeFromXML", () => {
@@ -23,7 +23,7 @@ describe("importAttributeFromXML", () => {
 			</Type>
 		</Attribute>`
 
-    const mockResult: TAttribute = {
+    const mockResult: IAttribute = {
       name: "Поле",
       id: "1",
       type: {
@@ -33,7 +33,7 @@ describe("importAttributeFromXML", () => {
       title: { items: { ru: "Заголовок поля" } },
     }
 
-    const xmlData = xmlImport<TAttributeXML>(mockXml, ZAttributeXML)
+    const xmlData = xmlImport<IAttributeXML>(mockXml, ZAttributeXML)
 
     const result = importAttributeFromXML(xmlData)
 
@@ -45,12 +45,12 @@ describe("importAttributeFromXML", () => {
  			<Type/>
 		</Attribute>`
 
-    const mockResult: TAttribute = {
+    const mockResult: IAttribute = {
       name: "Фамилия",
       id: "1",
     }
 
-    const xmlData = xmlImport<TAttributeXML>(mockXml, ZAttributeXML)
+    const xmlData = xmlImport<IAttributeXML>(mockXml, ZAttributeXML)
 
     const result = importAttributeFromXML(xmlData)
 
@@ -66,7 +66,7 @@ describe("importAttributeFromXML", () => {
       <StoredData>true</StoredData>
 		</Attribute>`
 
-    const mockResult: TAttribute = {
+    const mockResult: IAttribute = {
       name: "Фамилия",
       id: "1",
       type: { type: ["string"] },
@@ -74,7 +74,7 @@ describe("importAttributeFromXML", () => {
       storedData: true,
     }
 
-    const xmlData = xmlImport<TAttributeXML>(mockXml, ZAttributeXML)
+    const xmlData = xmlImport<IAttributeXML>(mockXml, ZAttributeXML)
 
     const result = importAttributeFromXML(xmlData)
 
@@ -90,13 +90,13 @@ describe("importAttributeFromXML", () => {
     </ConditionalAppearance>
   </Attributes>`
 
-    const xmlData = xmlImport<{ Attributes: TAttributesXML }>(
+    const xmlData = xmlImport<{ Attributes: IAttributesXML }>(
       mockXml,
       z.object({ Attributes: ZAttributesXML })
     )
 
     const result = importAttributeFromXML(
-      xmlData.Attributes[0] as TAttributeXML
+      xmlData.Attributes[0] as IAttributeXML
     )
 
     expect(result).toBeUndefined()

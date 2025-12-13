@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { FormElementType } from "../types"
-import { TClientApplicationForm } from "./types"
+import { ClientApplicationForm } from "./types"
 import { getAllElements } from "./getAllElements"
 
 describe("getAllElements", () => {
   it("should return all elements", () => {
-    const form: TClientApplicationForm = {
+    const form: ClientApplicationForm = {
       elementType: FormElementType.ClientApplicationForm,
       childItems: [
         {

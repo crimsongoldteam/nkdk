@@ -1,35 +1,17 @@
 import * as z from "zod"
-import {
-  I8nText,
-  I8nTextXML,
-  ZI8nTextXML,
-} from "~/lib/metadata/commonObjects/i8nText/types"
+import { I8nText, I8nTextXML, ZI8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   TypeDescription,
   TypeDescriptionXML,
   TypeDescriptionXMLItem,
 } from "~/lib/metadata/commonObjects/typeDescription/types"
-import {
-  UserVisible,
-  UserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
-import {
-  CommandSet,
-  CommandSetXML,
-} from "~/lib/metadata/forms/commandSet/types"
+import { UserVisible, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { CommandSet, CommandSetXML } from "~/lib/metadata/forms/commandSet/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { EventsXML } from "../../forms/events/types"
-import {
-  TChildItems,
-  TChildItemsXML,
-  ZChildItemsXML,
-} from "../../forms/elements/childItems/types"
-import {
-  TCommandBar,
-  TCommandBarXML,
-  ZCommandBarXML,
-} from "../../forms/elements/commandBar/types"
+import { TChildItems, TChildItemsXML, ZChildItemsXML } from "../../forms/elements/childItems/types"
+import { TCommandBar, TCommandBarXML, ZCommandBarXML } from "../../forms/elements/commandBar/types"
 import { TElementType } from "../../forms/elements/types"
+import { EventsXML } from "../../forms/events/types"
 
 export interface IAttribute {
   name: string
@@ -219,13 +201,6 @@ export interface IClientApplicationFormXML {
   Attributes?: IAttributesXML
 }
 
-export type TClientApplicationForm = IClientApplicationForm
-export type TAttribute = IAttribute
-
-export type TAttributeXML = IAttributeXML
-export type TAttributesXML = IAttributesXML
-export type TClientApplicationFormXML = IClientApplicationFormXML
-
 // Zod schemas for XML validation
 const ZTypeDescriptionXMLItem = z.object({
   "v8:Type": z
@@ -313,9 +288,7 @@ export const ZConditionalAppearanceXML = z.object({
   ConditionalAppearance: z.object({}).passthrough(),
 })
 
-export const ZAttributesXML = z.array(
-  z.union([ZAttributeXML, ZConditionalAppearanceXML])
-)
+export const ZAttributesXML = z.array(z.union([ZAttributeXML, ZConditionalAppearanceXML]))
 
 export const ZAutoCommandBarXML = z.object({
   _name: z.string(),

@@ -1,13 +1,6 @@
 import { describe, expect, it } from "vitest"
-import {
-  TChildFormItemsGroup,
-  TChildFormItemsGroupEnterprise,
-  ZChildFormItemsGroup,
-  ZChildFormItemsGroupEnterprise,
-} from "./types"
 import { formatSystemEnumeration } from "./format"
-import { TElementRule } from "~/lib/rulesManager/types"
-import { TConfigurationSettings } from "../configurationSettings/types"
+import { ChildFormItemsGroup, ChildFormItemsGroupEnterprise } from "./types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -15,42 +8,14 @@ const configurationSettings: TConfigurationSettings = {
 
 describe("formatSystemEnumeration", () => {
   it("should format to enterprise", () => {
-    const mockValue: TChildFormItemsGroup = "Vertical"
-    const expectedResult: TChildFormItemsGroupEnterprise = "Вертикальная"
-
-    const rule: TElementRule = {
-      nameEnterprise: "ChildFormItemsGroup",
-      type: ZChildFormItemsGroup,
-      typeEnterprise: ZChildFormItemsGroupEnterprise,
-      format: formatSystemEnumeration,
-      inProperties: () => true,
-    }
+    const mockValue: ChildFormItemsGroup = ChildFormItemsGroup.Vertical
+    const expectedResult: ChildFormItemsGroupEnterprise = ChildFormItemsGroupEnterprise.Vertical
 
     const result = formatSystemEnumeration(
       mockValue,
       configurationSettings,
-      rule
-    )
-
-    expect(result).toBe(expectedResult)
-  })
-
-  it("should format with other case to enterprise", () => {
-    const mockValue = "vertical"
-    const expectedResult: TChildFormItemsGroupEnterprise = "Вертикальная"
-
-    const rule: TElementRule = {
-      nameEnterprise: "ChildFormItemsGroup",
-      type: ZChildFormItemsGroup,
-      typeEnterprise: ZChildFormItemsGroupEnterprise,
-      format: formatSystemEnumeration,
-      inProperties: () => true,
-    }
-
-    const result = formatSystemEnumeration(
-      mockValue,
-      configurationSettings,
-      rule
+      ChildFormItemsGroup,
+      ChildFormItemsGroupEnterprise
     )
 
     expect(result).toBe(expectedResult)

@@ -11,13 +11,11 @@ import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
 import { FormElementType } from "../types"
 import { ViewStatusAddition, ViewStatusAdditionXML } from "./types"
 
-export const exportViewStatusAdditionToXML = (
-  data: ViewStatusAddition | undefined
-): ViewStatusAdditionXML | undefined => {
-  if (!data) return undefined
-
-  return {
-    ...exportFormItemAdditionToXML(data)!,
+export const exportViewStatusAdditionToXML = (data: ViewStatusAddition | undefined): ViewStatusAdditionXML | undefined => {
+    if (!data) return undefined
+     
+    return {
+...exportFormItemAdditionToXML(data)!,
 
     ContextMenu: exportCommandBarToXML(data.contextMenu),
     _DisplayImportance: data.displayImportance,

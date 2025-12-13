@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import {
   importClientApplicationFormFromXML,
-  TClientApplicationForm,
-  TClientApplicationFormXML,
+  ClientApplicationForm,
+  ClientApplicationFormXML,
   xmlImport,
   ZClientApplicationFormXML,
 } from "~/lib"
@@ -24,7 +24,7 @@ describe("importClientApplicationFormFromXML", () => {
 	<ChildItems></ChildItems>
 </Form>`
 
-    const mockElement: TClientApplicationForm = {
+    const mockElement: ClientApplicationForm = {
       elementType: FormElementType.ClientApplicationForm,
       autoCommandBar: {
         id: "-1",
@@ -37,7 +37,7 @@ describe("importClientApplicationFormFromXML", () => {
       attributes: [],
     }
 
-    const xmlData = xmlImport<{ Form: TClientApplicationFormXML }>(
+    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(
       mockXml,
       z.object({ Form: ZClientApplicationFormXML })
     )
@@ -54,7 +54,7 @@ describe("importClientApplicationFormFromXML", () => {
       </AutoCommandBar>
     </Form>`
 
-    const mockElement: TClientApplicationForm = {
+    const mockElement: ClientApplicationForm = {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
@@ -68,7 +68,7 @@ describe("importClientApplicationFormFromXML", () => {
       attributes: [],
     }
 
-    const xmlData = xmlImport<{ Form: TClientApplicationFormXML }>(
+    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(
       mockXml,
       z.object({ Form: ZClientApplicationFormXML })
     )
@@ -86,7 +86,7 @@ describe("importClientApplicationFormFromXML", () => {
 	</ChildItems>
 </Form>`
 
-    const mockElement: TClientApplicationForm = {
+    const mockElement: ClientApplicationForm = {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
@@ -104,7 +104,7 @@ describe("importClientApplicationFormFromXML", () => {
       attributes: [],
     }
 
-    const xmlData = xmlImport<{ Form: TClientApplicationFormXML }>(
+    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(
       mockXml,
       z.object({ Form: ZClientApplicationFormXML })
     )
@@ -128,7 +128,7 @@ describe("importClientApplicationFormFromXML", () => {
   </Attributes>
 </Form>`
 
-    const mockElement: TClientApplicationForm = {
+    const mockElement: ClientApplicationForm = {
       autoCommandBar: {
         id: "-1",
         name: "ФормаКоманднаяПанель",
@@ -147,7 +147,7 @@ describe("importClientApplicationFormFromXML", () => {
       ],
     }
 
-    const xmlData = xmlImport<{ Form: TClientApplicationFormXML }>(
+    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(
       mockXml,
       z.object({ Form: ZClientApplicationFormXML })
     )
@@ -170,7 +170,7 @@ describe("importClientApplicationFormFromXML", () => {
       </ChildItems>
     </Form>`
 
-    const mockElement: TClientApplicationForm = {
+    const mockElement: ClientApplicationForm = {
       attributes: [],
       autoCommandBar: {
         id: "-1",
@@ -195,7 +195,7 @@ describe("importClientApplicationFormFromXML", () => {
       ],
     }
 
-    const xmlData = xmlImport<{ Form: TClientApplicationFormXML }>(
+    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(
       mockXml,
       z.object({ Form: ZClientApplicationFormXML })
     )

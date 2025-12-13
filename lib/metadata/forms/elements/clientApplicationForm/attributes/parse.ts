@@ -4,17 +4,17 @@ import { parseI8nText } from "~/lib/metadata/commonObjects/i8nText/parse"
 import { parseTypeDescription } from "~/lib/metadata/commonObjects/typeDescription/parse"
 import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { TAttribute } from "../types"
+import { FormAttribute } from "../types"
 
 export const parseAttributes = (
   yamlContent: string,
   configurationSettings: TConfigurationSettings
-): TAttribute[] => {
+): FormAttribute[] => {
   const parsed = parse(yamlContent) as Record<string, any>
-  const result: TAttribute[] = []
+  const result: FormAttribute[] = []
 
   for (const [name, data] of Object.entries(parsed)) {
-    const attribute: TAttribute = {
+    const attribute: FormAttribute = {
       name,
       id: "",
     }

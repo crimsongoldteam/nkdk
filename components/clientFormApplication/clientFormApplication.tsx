@@ -1,10 +1,10 @@
 import { Form } from "antd"
 import type React from "react"
 import { components } from "../components"
-import { TClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
+import { ClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
 
 export function ClientFormApplication(
-  props: Readonly<TClientApplicationForm>
+  props: Readonly<ClientApplicationForm>
 ): React.ReactNode {
   const { childItems } = props
 

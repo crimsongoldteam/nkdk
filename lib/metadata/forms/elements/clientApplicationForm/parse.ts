@@ -3,16 +3,16 @@ import { parseRegions } from "~/lib/parser/regionsParser/regionsParser"
 import { RegionsVisitor } from "~/lib/parser/regionsParser/regionsVisitor"
 import { FormElementType } from "../types"
 import { parseAttributes } from "./attributes/parse"
-import type { TClientApplicationForm } from "./types"
+import type { ClientApplicationForm } from "./types"
 
 export const parseClientApplicationForm = (
   text: string,
   configurationSettings: TConfigurationSettings
-): TClientApplicationForm => {
+): ClientApplicationForm => {
   // const cst = parseRegions(text)
   // const visitor = new RegionsVisitor()
   // const sections = visitor.lines(cst)
-  // const result: TClientApplicationForm = {
+  // const result: ClientApplicationForm = {
   //   elementType: FormElementType.Form,
   //   childItems: [],
   // }

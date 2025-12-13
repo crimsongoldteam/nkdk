@@ -4,7 +4,7 @@ import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
 import "~/lib/metadata/forms/elements/rules"
 import { FormElementType } from "../../types"
-import { TClientApplicationForm } from "../types"
+import { ClientApplicationForm } from "../types"
 import { formatProperties } from "./format"
 
 const configurationSettings: TConfigurationSettings = {
@@ -13,7 +13,7 @@ const configurationSettings: TConfigurationSettings = {
 
 describe("formatProperties", () => {
   it("should format properties with child items", () => {
-    const form: TClientApplicationForm = {
+    const form: ClientApplicationForm = {
       elementType: FormElementType.ClientApplicationForm,
       childItems: [
         {

@@ -14,10 +14,10 @@ import { FormElementType } from "../types"
 import { ProgressBarField, ProgressBarFieldXML } from "./types"
 
 export const exportProgressBarFieldToXML = (data: ProgressBarField | undefined): ProgressBarFieldXML | undefined => {
-  if (!data) return undefined
-
-  return {
-    ...exportFormFieldToXML(data)!,
+    if (!data) return undefined
+     
+    return {
+...exportFormFieldToXML(data)!,
 
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,

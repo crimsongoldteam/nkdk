@@ -1,6 +1,6 @@
 // import { expect, it } from "vitest"
 // import xmlImport from "~/lib/xml/import/importer"
-// import { TClientApplicationFormXML } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
+// import { ClientApplicationFormXML } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
 // import { formatClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/format"
 // import { exportClientApplicationFormToXML, importClientApplicationFormFromXML, xmlExport } from "~/lib"
 // import { parseText } from "~/lib/parser"
@@ -58,7 +58,7 @@
 // </Form>`
 
 // it("should took xml and return itself", async () => {
-//   const importedXml = xmlImport<TClientApplicationFormXML>(originalContent)
+//   const importedXml = xmlImport<ClientApplicationFormXML>(originalContent)
 //   const form = importClientApplicationFormFromXML(importedXml)
 
 //   const nameMapping = createNameIdMapping(form)

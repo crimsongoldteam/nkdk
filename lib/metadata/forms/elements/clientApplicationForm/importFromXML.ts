@@ -5,15 +5,15 @@ import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { FormElementType } from "../types"
 import importAttributeFromXML from "./attributes/importFromXML"
-import { TAttribute, TAttributeXML, TClientApplicationForm, TClientApplicationFormXML } from "./types"
+import { AttributeXML, ClientApplicationForm, ClientApplicationFormXML, FormAttribute } from "./types"
 
-export const importClientApplicationFormFromXML = (xml: TClientApplicationFormXML): TClientApplicationForm => {
+export const importClientApplicationFormFromXML = (xml: ClientApplicationFormXML): ClientApplicationForm => {
   return {
     elementType: FormElementType.ClientApplicationForm,
     attributes:
       xml.Attributes?.map((attribute) =>
-        "Attribute" in attribute ? importAttributeFromXML(attribute as TAttributeXML) : undefined
-      ).filter((attr): attr is TAttribute => attr !== undefined) ?? [],
+        "Attribute" in attribute ? importAttributeFromXML(attribute as AttributeXML) : undefined
+      ).filter((attr): attr is FormAttribute => attr !== undefined) ?? [],
     autoCommandBar: importCommandBarFromXML(xml.AutoCommandBar),
     commandSet: importCommandSetFromXML(xml.CommandSet),
     autoTitle: xml.AutoTitle,

@@ -11,10 +11,10 @@ import { ButtonGroup, ButtonGroupXML } from "./types"
 
 export const importButtonGroupFromXML = (xml: ButtonGroupXML | undefined): ButtonGroup | undefined => {
   if (!xml) return undefined
-
+   
   return {
-    ...importFormGroupFromXML(xml)!,
-    elementType: FormElementType.ButtonGroup,
+...importFormGroupFromXML(xml)!,
+elementType: FormElementType.ButtonGroup,
 
     enableContentChange: xml.EnableContentChange,
     enabled: xml.Enabled,

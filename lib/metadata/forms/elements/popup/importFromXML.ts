@@ -12,10 +12,10 @@ import { Popup, PopupXML } from "./types"
 
 export const importPopupFromXML = (xml: PopupXML | undefined): Popup | undefined => {
   if (!xml) return undefined
-
+   
   return {
-    ...importFormGroupFromXML(xml)!,
-    elementType: FormElementType.Popup,
+...importFormGroupFromXML(xml)!,
+elementType: FormElementType.Popup,
 
     enableContentChange: xml.EnableContentChange,
     enabled: xml.Enabled,

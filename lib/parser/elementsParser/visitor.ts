@@ -484,7 +484,7 @@ export class Visitor extends BaseVisitor {
 export const visitor = new Visitor()
 //   // #region form
 
-//   form(ctx: CstChildrenDictionary): TClientApplicationForm {
+//   form(ctx: CstChildrenDictionary): ClientApplicationForm {
 //     return clientApplicationFormVisit(this, ctx)
 //   }
 

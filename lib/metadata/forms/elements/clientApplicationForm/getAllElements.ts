@@ -1,8 +1,8 @@
-import { TClientApplicationForm } from "./types"
+import { ClientApplicationForm } from "./types"
 import { TBaseElement } from "../baseElement/types"
 
 export const getAllElements = (
-  form: TClientApplicationForm
+  form: ClientApplicationForm
 ): TBaseElement[] => {
   const elements: TBaseElement[] = []
   const queue: TBaseElement[] = []

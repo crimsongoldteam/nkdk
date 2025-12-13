@@ -1,8 +1,8 @@
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
-import { TAttribute, TAttributeXML } from "../types"
+import { AttributeXML, FormAttribute } from "../types"
 
-export default function importAttributeFromXML(xml: TAttributeXML): TAttribute | undefined {
+export default function importAttributeFromXML(xml: AttributeXML): FormAttribute | undefined {
   if (!xml.Attribute) {
     return undefined
   }

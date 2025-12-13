@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { TAttribute } from "../types"
+import { IAttribute } from "../types"
 import { parseAttributes } from "./parse"
 
 const configurationSettings: TConfigurationSettings = {
@@ -13,7 +13,7 @@ describe("parseAttributes", () => {
   Заголовок: Атрибут
   Тип: Строка(10)`
 
-    const expectedResult: TAttribute[] = [
+    const expectedResult: IAttribute[] = [
       {
         name: "ИмяАтрибута",
         id: "",

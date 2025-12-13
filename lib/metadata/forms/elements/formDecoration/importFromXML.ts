@@ -10,10 +10,10 @@ import { FormDecoration, FormDecorationXML } from "./types"
 
 export const importFormDecorationFromXML = (xml: FormDecorationXML | undefined): FormDecoration | undefined => {
   if (!xml) return undefined
-
+   
   return {
-    ...importBaseElementFromXML(xml)!,
-    elementType: FormElementType.FormDecoration,
+...importBaseElementFromXML(xml)!,
+elementType: FormElementType.FormDecoration,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,

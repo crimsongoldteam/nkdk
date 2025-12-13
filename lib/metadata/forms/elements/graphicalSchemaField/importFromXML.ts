@@ -13,14 +13,12 @@ import { importTableFromXML } from "../table/importFromXML"
 import { FormElementType } from "../types"
 import { GraphicalSchemaField, GraphicalSchemaFieldXML } from "./types"
 
-export const importGraphicalSchemaFieldFromXML = (
-  xml: GraphicalSchemaFieldXML | undefined
-): GraphicalSchemaField | undefined => {
+export const importGraphicalSchemaFieldFromXML = (xml: GraphicalSchemaFieldXML | undefined): GraphicalSchemaField | undefined => {
   if (!xml) return undefined
-
+   
   return {
-    ...importFormFieldFromXML(xml)!,
-    elementType: FormElementType.GraphicalSchemaField,
+...importFormFieldFromXML(xml)!,
+elementType: FormElementType.GraphicalSchemaField,
 
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,

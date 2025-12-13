@@ -1,10 +1,10 @@
-import { TClientApplicationForm } from "~/lib"
+import { ClientApplicationForm } from "~/lib"
 import { TChildItem } from "~/lib/metadata/forms/elements/childItems/types"
 
 export type TNameIdMapping = Map<string, string>
 
 export const createNameIdMapping = (
-  form: TClientApplicationForm
+  form: ClientApplicationForm
 ): TNameIdMapping => {
   const result: TNameIdMapping = new Map()
   form.childItems.forEach((item: TChildItem) => {
@@ -16,7 +16,7 @@ export const createNameIdMapping = (
 
 export const updateNameIdMapping = (
   nameIdMapping: TNameIdMapping,
-  form: TClientApplicationForm
+  form: ClientApplicationForm
 ): void => {
   form.childItems.forEach((item: TChildItem) => {
     if (item.id) {

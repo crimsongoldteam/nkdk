@@ -13,14 +13,12 @@ import { importTableFromXML } from "../table/importFromXML"
 import { FormElementType } from "../types"
 import { TextDocumentField, TextDocumentFieldXML } from "./types"
 
-export const importTextDocumentFieldFromXML = (
-  xml: TextDocumentFieldXML | undefined
-): TextDocumentField | undefined => {
+export const importTextDocumentFieldFromXML = (xml: TextDocumentFieldXML | undefined): TextDocumentField | undefined => {
   if (!xml) return undefined
-
+   
   return {
-    ...importFormFieldFromXML(xml)!,
-    elementType: FormElementType.TextDocumentField,
+...importFormFieldFromXML(xml)!,
+elementType: FormElementType.TextDocumentField,
 
     autoCellHeight: xml.AutoCellHeight,
     cellHyperlink: xml.CellHyperlink,

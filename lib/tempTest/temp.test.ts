@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from "fs"
 import { join, parse } from "path"
 import { describe, expect, it } from "vitest"
 import z from "zod"
-import { type TClientApplicationFormXML, xmlExport, ZClientApplicationFormXML } from ".."
+import { type ClientApplicationFormXML, xmlExport, ZClientApplicationFormXML } from ".."
 import type { TConfigurationSettings } from "../metadata/configurationSettings/types"
 import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/format"
 import { importClientApplicationFormFromXML } from "../metadata/forms/elements/clientApplicationForm/importFromXML"
@@ -19,7 +19,7 @@ const originalContent = readFileSync(join(__dirname, "Form.xml"), "utf-8")
 
 describe("DO test", () => {
   it("should round-trip DO XML", () => {
-    const importedXml = xmlImport<{ Form: TClientApplicationFormXML }>(
+    const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(
       originalContent,
       z.object({ Form: ZClientApplicationFormXML })
     )
@@ -40,7 +40,7 @@ describe("DO test", () => {
   })
 
   it("should round-trip DO with parsing", () => {
-    const importedXml = xmlImport<{ Form: TClientApplicationFormXML }>(
+    const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(
       originalContent,
       z.object({ Form: ZClientApplicationFormXML })
     )

@@ -1,5 +1,5 @@
 import type { TConfigurationSettings } from "../metadata/configurationSettings/types"
-import type { TClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/types"
+import type { ClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/types"
 import { FormElementType } from "../metadata/forms/elements/types"
 import { parseElement } from "./elementsParser/parse"
 import { detectTreeNodes } from "./detector/detectTree"
@@ -9,11 +9,11 @@ const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
 }
 
-export const parse = (text: string): TClientApplicationForm => {
+export const parse = (text: string): ClientApplicationForm => {
   const treeNodes = parseTree(text)
   const detectedNodes = detectTreeNodes(treeNodes)
 
-  const result: TClientApplicationForm = {
+  const result: ClientApplicationForm = {
     elementType: FormElementType.Form,
     childItems: [],
   }

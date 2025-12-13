@@ -4,10 +4,10 @@ import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/typ
 import formatFormAttributes from "./attributes/format"
 import { getAllElements } from "./getAllElements"
 import { formatProperties } from "./properties/format"
-import { TClientApplicationForm } from "./types"
+import { ClientApplicationForm } from "./types"
 
 export const formatClientApplicationForm = (
-  element: TClientApplicationForm,
+  element: ClientApplicationForm,
   configurationSettings: TConfigurationSettings
 ): IFormatElementResult => {
   const result: IFormatElementResult = {

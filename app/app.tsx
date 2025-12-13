@@ -3,8 +3,8 @@ import { useEffect, useState } from "react"
 import { ClientFormApplication } from "~/components/clientFormApplication/clientFormApplication"
 import {
   importClientApplicationFormFromXML,
-  type TClientApplicationForm,
-  type TClientApplicationFormXML,
+  type ClientApplicationForm,
+  type ClientApplicationFormXML,
   xmlImport,
   ZClientApplicationFormXML,
 } from "~/lib"
@@ -17,7 +17,7 @@ import "~/lib/metadata/forms/elements/pictureDecoration/registration"
 import "~/lib/metadata/forms/elements/usualGroup/registration"
 
 export const App = () => {
-  const [form, setForm] = useState<TClientApplicationForm | null>(null)
+  const [form, setForm] = useState<ClientApplicationForm | null>(null)
 
   // Обновляем ref при изменении form
   useEffect(() => {
@@ -25,7 +25,7 @@ export const App = () => {
     fetch("/lib/tempTest/Form.xml")
       .then((response) => response.text())
       .then((originalContent) => {
-        const importedXml = xmlImport<TClientApplicationFormXML>(
+        const importedXml = xmlImport<ClientApplicationFormXML>(
           originalContent,
           ZClientApplicationFormXML
         )
@@ -38,7 +38,7 @@ export const App = () => {
   //   const handleMessage = (event: MessageEvent) => {
   //     console.log("event", event)
   //     if (event.data && event.data.type === "parse-xml-form") {
-  //       const xmlData = xmlImport<TClientApplicationFormXML>(event.data.payload.xml)
+  //       const xmlData = xmlImport<ClientApplicationFormXML>(event.data.payload.xml)
   //       const form = importClientApplicationFormFromXML(xmlData)
   //       setNameMapping(createNameIdMapping(form))
 
