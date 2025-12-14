@@ -6,7 +6,7 @@ import { parseSystemEnumeration } from "./parse"
 describe("parseSystemEnumeration", () => {
   it("should parse from enterprise to normal", () => {
     const mockValue = "Вертикальная"
-    const expectedResult = SE.ChildFormItemsGroup.Vertical
+    const expectedResult = "Vertical"
 
     const result = parseSystemEnumeration(mockValue, SE.ChildFormItemsGroupFromEnterprise)
 

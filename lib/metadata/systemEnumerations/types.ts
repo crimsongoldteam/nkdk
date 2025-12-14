@@ -12,19 +12,8 @@ export const DynamicListSearchStringViewModeFromEnterprise = {
   ОтображатьПриИспользованииПолнотекстовогоПоиска: "ShowOnUsingFullTextSearch",
 } as const
 
-export const DynamicListSearchStringViewMode = {
-  Auto: "Auto",
-  DontShow: "DontShow",
-  Show: "Show",
-  ShowOnUsingFullTextSearch: "ShowOnUsingFullTextSearch",
-} as const
-
-export const DynamicListSearchStringViewModeEnterprise = {
-  Авто: "Авто",
-  НеОтображать: "НеОтображать",
-  Отображать: "Отображать",
-  ОтображатьПриИспользованииПолнотекстовогоПоиска: "ОтображатьПриИспользованииПолнотекстовогоПоиска",
-} as const
+export type DynamicListSearchStringViewMode = keyof typeof DynamicListSearchStringViewModeToEnterprise
+export type DynamicListSearchStringViewModeEnterprise = keyof typeof DynamicListSearchStringViewModeFromEnterprise
 
 export const XDTOFacetTypeToEnterprise = {
   Length: "Длина",
@@ -56,35 +45,8 @@ export const XDTOFacetTypeFromEnterprise = {
   РазрядовДробнойЧасти: "FractionDigits",
 } as const
 
-export const XDTOFacetType = {
-  Length: "Length",
-  MaxInclusive: "MaxInclusive",
-  MaxLength: "MaxLength",
-  MaxExclusive: "MaxExclusive",
-  MinInclusive: "MinInclusive",
-  MinLength: "MinLength",
-  MinExclusive: "MinExclusive",
-  Pattern: "Pattern",
-  Enumeration: "Enumeration",
-  Whitespace: "Whitespace",
-  TotalDigits: "TotalDigits",
-  FractionDigits: "FractionDigits",
-} as const
-
-export const XDTOFacetTypeEnterprise = {
-  Длина: "Длина",
-  МаксВключающее: "МаксВключающее",
-  МаксДлина: "МаксДлина",
-  МаксИсключающее: "МаксИсключающее",
-  МинВключающее: "МинВключающее",
-  МинДлина: "МинДлина",
-  МинИсключающее: "МинИсключающее",
-  Образец: "Образец",
-  Перечисление: "Перечисление",
-  ПробельныеСимволы: "ПробельныеСимволы",
-  РазрядовВсего: "РазрядовВсего",
-  РазрядовДробнойЧасти: "РазрядовДробнойЧасти",
-} as const
+export type XDTOFacetType = keyof typeof XDTOFacetTypeToEnterprise
+export type XDTOFacetTypeEnterprise = keyof typeof XDTOFacetTypeFromEnterprise
 
 export const XMLFormToEnterprise = {
   Attribute: "Атрибут",
@@ -98,17 +60,8 @@ export const XMLFormFromEnterprise = {
   Элемент: "Element",
 } as const
 
-export const XMLForm = {
-  Attribute: "Attribute",
-  Text: "Text",
-  Element: "Element",
-} as const
-
-export const XMLFormEnterprise = {
-  Атрибут: "Атрибут",
-  Текст: "Текст",
-  Элемент: "Элемент",
-} as const
+export type XMLForm = keyof typeof XMLFormToEnterprise
+export type XMLFormEnterprise = keyof typeof XMLFormFromEnterprise
 
 export const WSParameterDirectionToEnterprise = {
   In: "Входной",
@@ -122,17 +75,8 @@ export const WSParameterDirectionFromEnterprise = {
   Выходной: "Out",
 } as const
 
-export const WSParameterDirection = {
-  In: "In",
-  InOut: "InOut",
-  Out: "Out",
-} as const
-
-export const WSParameterDirectionEnterprise = {
-  Входной: "Входной",
-  ВходнойВыходной: "ВходнойВыходной",
-  Выходной: "Выходной",
-} as const
+export type WSParameterDirection = keyof typeof WSParameterDirectionToEnterprise
+export type WSParameterDirectionEnterprise = keyof typeof WSParameterDirectionFromEnterprise
 
 export const DOMBuilderActionToEnterprise = {
   InsertBefore: "ВставитьПеред",
@@ -150,21 +94,8 @@ export const DOMBuilderActionFromEnterprise = {
   ЗаменитьДочерние: "ReplaceChildren",
 } as const
 
-export const DOMBuilderAction = {
-  InsertBefore: "InsertBefore",
-  InsertAfter: "InsertAfter",
-  AppendAsChildren: "AppendAsChildren",
-  Replace: "Replace",
-  ReplaceChildren: "ReplaceChildren",
-} as const
-
-export const DOMBuilderActionEnterprise = {
-  ВставитьПеред: "ВставитьПеред",
-  ВставитьПосле: "ВставитьПосле",
-  ДобавитьКакДочерние: "ДобавитьКакДочерние",
-  Заменить: "Заменить",
-  ЗаменитьДочерние: "ЗаменитьДочерние",
-} as const
+export type DOMBuilderAction = keyof typeof DOMBuilderActionToEnterprise
+export type DOMBuilderActionEnterprise = keyof typeof DOMBuilderActionFromEnterprise
 
 export const DOMDocumentPositionToEnterprise = {
   ImplementationSpecific: "ЗависитОтРеализации",
@@ -184,23 +115,8 @@ export const DOMDocumentPositionFromEnterprise = {
   Содержится: "ContainedBy",
 } as const
 
-export const DOMDocumentPosition = {
-  ImplementationSpecific: "ImplementationSpecific",
-  Disconnected: "Disconnected",
-  Preceding: "Preceding",
-  Following: "Following",
-  Contains: "Contains",
-  ContainedBy: "ContainedBy",
-} as const
-
-export const DOMDocumentPositionEnterprise = {
-  ЗависитОтРеализации: "ЗависитОтРеализации",
-  Отсоединен: "Отсоединен",
-  Предшествует: "Предшествует",
-  Следует: "Следует",
-  Содержит: "Содержит",
-  Содержится: "Содержится",
-} as const
+export type DOMDocumentPosition = keyof typeof DOMDocumentPositionToEnterprise
+export type DOMDocumentPositionEnterprise = keyof typeof DOMDocumentPositionFromEnterprise
 
 export const DOMNodeFilterParametersToEnterprise = {
   ShowAttribute: "ОтображатьАтрибут",
@@ -234,37 +150,8 @@ export const DOMNodeFilterParametersFromEnterprise = {
   ОтображатьЭлемент: "ShowElement",
 } as const
 
-export const DOMNodeFilterParameters = {
-  ShowAttribute: "ShowAttribute",
-  ShowAll: "ShowAll",
-  ShowDocument: "ShowDocument",
-  ShowProcessingInstruction: "ShowProcessingInstruction",
-  ShowComment: "ShowComment",
-  ShowNotation: "ShowNotation",
-  ShowDocumentType: "ShowDocumentType",
-  ShowCDATASection: "ShowCDATASection",
-  ShowEntityReference: "ShowEntityReference",
-  ShowEntity: "ShowEntity",
-  ShowText: "ShowText",
-  ShowDocumentFragment: "ShowDocumentFragment",
-  ShowElement: "ShowElement",
-} as const
-
-export const DOMNodeFilterParametersEnterprise = {
-  ОтображатьАтрибут: "ОтображатьАтрибут",
-  ОтображатьВсе: "ОтображатьВсе",
-  ОтображатьДокумент: "ОтображатьДокумент",
-  ОтображатьИнструкциюОбработки: "ОтображатьИнструкциюОбработки",
-  ОтображатьКомментарий: "ОтображатьКомментарий",
-  ОтображатьНотацию: "ОтображатьНотацию",
-  ОтображатьОпределениеТипаДокумента: "ОтображатьОпределениеТипаДокумента",
-  ОтображатьСекцииCDATA: "ОтображатьСекцииCDATA",
-  ОтображатьСсылкуНаСущность: "ОтображатьСсылкуНаСущность",
-  ОтображатьСущность: "ОтображатьСущность",
-  ОтображатьТекст: "ОтображатьТекст",
-  ОтображатьФрагментДокумента: "ОтображатьФрагментДокумента",
-  ОтображатьЭлемент: "ОтображатьЭлемент",
-} as const
+export type DOMNodeFilterParameters = keyof typeof DOMNodeFilterParametersToEnterprise
+export type DOMNodeFilterParametersEnterprise = keyof typeof DOMNodeFilterParametersFromEnterprise
 
 export const DOMNodeTypeToEnterprise = {
   Attribute: "Атрибут",
@@ -298,37 +185,8 @@ export const DOMNodeTypeFromEnterprise = {
   Элемент: "Element",
 } as const
 
-export const DOMNodeType = {
-  Attribute: "Attribute",
-  Document: "Document",
-  ProcessingInstruction: "ProcessingInstruction",
-  Comment: "Comment",
-  Notation: "Notation",
-  DocumentType: "DocumentType",
-  XPathNamespace: "XPathNamespace",
-  CDATASection: "CDATASection",
-  EntityReference: "EntityReference",
-  Entity: "Entity",
-  Text: "Text",
-  DocumentFragment: "DocumentFragment",
-  Element: "Element",
-} as const
-
-export const DOMNodeTypeEnterprise = {
-  Атрибут: "Атрибут",
-  Документ: "Документ",
-  ИнструкцияОбработки: "ИнструкцияОбработки",
-  Комментарий: "Комментарий",
-  Нотация: "Нотация",
-  ОпределениеТипаДокумента: "ОпределениеТипаДокумента",
-  ПространствоИменXPath: "ПространствоИменXPath",
-  СекцияCDATA: "СекцияCDATA",
-  СсылкаНаСущность: "СсылкаНаСущность",
-  Сущность: "Сущность",
-  Текст: "Текст",
-  ФрагментДокумента: "ФрагментДокумента",
-  Элемент: "Элемент",
-} as const
+export type DOMNodeType = keyof typeof DOMNodeTypeToEnterprise
+export type DOMNodeTypeEnterprise = keyof typeof DOMNodeTypeFromEnterprise
 
 export const DOMXPathResultTypeToEnterprise = {
   Boolean: "Булево",
@@ -356,31 +214,8 @@ export const DOMXPathResultTypeFromEnterprise = {
   Число: "Number",
 } as const
 
-export const DOMXPathResultType = {
-  Boolean: "Boolean",
-  Any: "Any",
-  AnyUnorderedNode: "AnyUnorderedNode",
-  UnorderedNodeIterator: "UnorderedNodeIterator",
-  UnorderedNodeSnapshot: "UnorderedNodeSnapshot",
-  FirstOrderedNode: "FirstOrderedNode",
-  String: "String",
-  OrderedNodeIterator: "OrderedNodeIterator",
-  OrderedNodeSnapshot: "OrderedNodeSnapshot",
-  Number: "Number",
-} as const
-
-export const DOMXPathResultTypeEnterprise = {
-  Булево: "Булево",
-  Любой: "Любой",
-  ЛюбойНеупорядоченныйУзел: "ЛюбойНеупорядоченныйУзел",
-  НеупорядоченныйИтераторУзлов: "НеупорядоченныйИтераторУзлов",
-  НеупорядоченныйСнимокУзлов: "НеупорядоченныйСнимокУзлов",
-  ПервыйУпорядоченныйУзел: "ПервыйУпорядоченныйУзел",
-  Строка: "Строка",
-  УпорядоченныйИтераторУзлов: "УпорядоченныйИтераторУзлов",
-  УпорядоченныйСнимокУзлов: "УпорядоченныйСнимокУзлов",
-  Число: "Число",
-} as const
+export type DOMXPathResultType = keyof typeof DOMXPathResultTypeToEnterprise
+export type DOMXPathResultTypeEnterprise = keyof typeof DOMXPathResultTypeFromEnterprise
 
 export const HTMLContentCategoryToEnterprise = {
   AppletTags: "AppletТеги",
@@ -418,41 +253,8 @@ export const HTMLContentCategoryFromEnterprise = {
   ОбработчикиСобытий: "EventsHandlers",
 } as const
 
-export const HTMLContentCategory = {
-  AppletTags: "AppletTags",
-  AreaTags: "AreaTags",
-  EmbedTags: "EmbedTags",
-  FrameTags: "FrameTags",
-  IframeTags: "IframeTags",
-  ImportAttributes: "ImportAttributes",
-  JavaScriptTags: "JavaScriptTags",
-  LinkTags: "LinkTags",
-  NoembedTags: "NoembedTags",
-  ObjectTags: "ObjectTags",
-  SourceTags: "SourceTags",
-  StyleTags: "StyleTags",
-  W3IncludeAttributes: "W3IncludeAttributes",
-  All: "All",
-  EventsHandlers: "EventsHandlers",
-} as const
-
-export const HTMLContentCategoryEnterprise = {
-  AppletТеги: "AppletТеги",
-  AreaТеги: "AreaТеги",
-  EmbedТеги: "EmbedТеги",
-  FrameТеги: "FrameТеги",
-  IframeТеги: "IframeТеги",
-  ImportАтрибуты: "ImportАтрибуты",
-  JavaScriptТеги: "JavaScriptТеги",
-  LinkТеги: "LinkТеги",
-  NoembedТеги: "NoembedТеги",
-  ObjectТеги: "ObjectТеги",
-  SourceТеги: "SourceТеги",
-  StyleТеги: "StyleТеги",
-  W3IncludeАтрибуты: "W3IncludeАтрибуты",
-  Все: "Все",
-  ОбработчикиСобытий: "ОбработчикиСобытий",
-} as const
+export type HTMLContentCategory = keyof typeof HTMLContentCategoryToEnterprise
+export type HTMLContentCategoryEnterprise = keyof typeof HTMLContentCategoryFromEnterprise
 
 export const DataCompositionAccountingBalanceTypeToEnterprise = {
   Debit: "Дебет",
@@ -466,17 +268,9 @@ export const DataCompositionAccountingBalanceTypeFromEnterprise = {
   Нет: "None",
 } as const
 
-export const DataCompositionAccountingBalanceType = {
-  Debit: "Debit",
-  Credit: "Credit",
-  None: "None",
-} as const
-
-export const DataCompositionAccountingBalanceTypeEnterprise = {
-  Дебет: "Дебет",
-  Кредит: "Кредит",
-  Нет: "Нет",
-} as const
+export type DataCompositionAccountingBalanceType = keyof typeof DataCompositionAccountingBalanceTypeToEnterprise
+export type DataCompositionAccountingBalanceTypeEnterprise =
+  keyof typeof DataCompositionAccountingBalanceTypeFromEnterprise
 
 export const DataCompositionAreaTemplateTypeToEnterprise = {
   Header: "Заголовок",
@@ -496,23 +290,8 @@ export const DataCompositionAreaTemplateTypeFromEnterprise = {
   ПодвалИерархии: "HierarchicalFooter",
 } as const
 
-export const DataCompositionAreaTemplateType = {
-  Header: "Header",
-  HierarchicalHeader: "HierarchicalHeader",
-  OverallHeader: "OverallHeader",
-  OverallFooter: "OverallFooter",
-  Footer: "Footer",
-  HierarchicalFooter: "HierarchicalFooter",
-} as const
-
-export const DataCompositionAreaTemplateTypeEnterprise = {
-  Заголовок: "Заголовок",
-  ЗаголовокИерархии: "ЗаголовокИерархии",
-  ОбщийИтогЗаголовок: "ОбщийИтогЗаголовок",
-  ОбщийИтогПодвал: "ОбщийИтогПодвал",
-  Подвал: "Подвал",
-  ПодвалИерархии: "ПодвалИерархии",
-} as const
+export type DataCompositionAreaTemplateType = keyof typeof DataCompositionAreaTemplateTypeToEnterprise
+export type DataCompositionAreaTemplateTypeEnterprise = keyof typeof DataCompositionAreaTemplateTypeFromEnterprise
 
 export const DataCompositionAttributesPlacementToEnterprise = {
   Together: "Вместе",
@@ -528,19 +307,8 @@ export const DataCompositionAttributesPlacementFromEnterprise = {
   Отдельно: "Separately",
 } as const
 
-export const DataCompositionAttributesPlacement = {
-  Together: "Together",
-  WithOwnerField: "WithOwnerField",
-  SpecialPosition: "SpecialPosition",
-  Separately: "Separately",
-} as const
-
-export const DataCompositionAttributesPlacementEnterprise = {
-  Вместе: "Вместе",
-  ВместеСВладельцем: "ВместеСВладельцем",
-  ВСпециальнойПозиции: "ВСпециальнойПозиции",
-  Отдельно: "Отдельно",
-} as const
+export type DataCompositionAttributesPlacement = keyof typeof DataCompositionAttributesPlacementToEnterprise
+export type DataCompositionAttributesPlacementEnterprise = keyof typeof DataCompositionAttributesPlacementFromEnterprise
 
 export const DataCompositionBalanceTypeToEnterprise = {
   ClosingBalance: "КонечныйОстаток",
@@ -554,17 +322,8 @@ export const DataCompositionBalanceTypeFromEnterprise = {
   Нет: "None",
 } as const
 
-export const DataCompositionBalanceType = {
-  ClosingBalance: "ClosingBalance",
-  OpeningBalance: "OpeningBalance",
-  None: "None",
-} as const
-
-export const DataCompositionBalanceTypeEnterprise = {
-  КонечныйОстаток: "КонечныйОстаток",
-  НачальныйОстаток: "НачальныйОстаток",
-  Нет: "Нет",
-} as const
+export type DataCompositionBalanceType = keyof typeof DataCompositionBalanceTypeToEnterprise
+export type DataCompositionBalanceTypeEnterprise = keyof typeof DataCompositionBalanceTypeFromEnterprise
 
 export const DataCompositionChartLegendPlacementToEnterprise = {
   Top: "Верх",
@@ -582,21 +341,9 @@ export const DataCompositionChartLegendPlacementFromEnterprise = {
   Право: "Right",
 } as const
 
-export const DataCompositionChartLegendPlacement = {
-  Top: "Top",
-  Left: "Left",
-  None: "None",
-  Bottom: "Bottom",
-  Right: "Right",
-} as const
-
-export const DataCompositionChartLegendPlacementEnterprise = {
-  Верх: "Верх",
-  Лево: "Лево",
-  Нет: "Нет",
-  Низ: "Низ",
-  Право: "Право",
-} as const
+export type DataCompositionChartLegendPlacement = keyof typeof DataCompositionChartLegendPlacementToEnterprise
+export type DataCompositionChartLegendPlacementEnterprise =
+  keyof typeof DataCompositionChartLegendPlacementFromEnterprise
 
 export const DataCompositionComparisonTypeToEnterprise = {
   Greater: "Больше",
@@ -644,51 +391,8 @@ export const DataCompositionComparisonTypeFromEnterprise = {
   Содержит: "Contains",
 } as const
 
-export const DataCompositionComparisonType = {
-  Greater: "Greater",
-  GreaterOrEqual: "GreaterOrEqual",
-  InHierarchy: "InHierarchy",
-  InList: "InList",
-  InListByHierarchy: "InListByHierarchy",
-  Filled: "Filled",
-  Less: "Less",
-  LessOrEqual: "LessOrEqual",
-  BeginsWith: "BeginsWith",
-  NotInHierarchy: "NotInHierarchy",
-  NotInList: "NotInList",
-  NotInListByHierarchy: "NotInListByHierarchy",
-  NotFilled: "NotFilled",
-  NotBeginsWith: "NotBeginsWith",
-  NotLike: "NotLike",
-  NotEqual: "NotEqual",
-  NotContains: "NotContains",
-  Like: "Like",
-  Equal: "Equal",
-  Contains: "Contains",
-} as const
-
-export const DataCompositionComparisonTypeEnterprise = {
-  Больше: "Больше",
-  БольшеИлиРавно: "БольшеИлиРавно",
-  ВИерархии: "ВИерархии",
-  ВСписке: "ВСписке",
-  ВСпискеПоИерархии: "ВСпискеПоИерархии",
-  Заполнено: "Заполнено",
-  Меньше: "Меньше",
-  МеньшеИлиРавно: "МеньшеИлиРавно",
-  НачинаетсяС: "НачинаетсяС",
-  НеВИерархии: "НеВИерархии",
-  НеВСписке: "НеВСписке",
-  НеВСпискеПоИерархии: "НеВСпискеПоИерархии",
-  НеЗаполнено: "НеЗаполнено",
-  НеНачинаетсяС: "НеНачинаетсяС",
-  НеПодобно: "НеПодобно",
-  НеРавно: "НеРавно",
-  НеСодержит: "НеСодержит",
-  Подобно: "Подобно",
-  Равно: "Равно",
-  Содержит: "Содержит",
-} as const
+export type DataCompositionComparisonType = keyof typeof DataCompositionComparisonTypeToEnterprise
+export type DataCompositionComparisonTypeEnterprise = keyof typeof DataCompositionComparisonTypeFromEnterprise
 
 export const DataCompositionConditionalAppearanceUseToEnterprise = {
   Use: "Использовать",
@@ -700,15 +404,9 @@ export const DataCompositionConditionalAppearanceUseFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const DataCompositionConditionalAppearanceUse = {
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const DataCompositionConditionalAppearanceUseEnterprise = {
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type DataCompositionConditionalAppearanceUse = keyof typeof DataCompositionConditionalAppearanceUseToEnterprise
+export type DataCompositionConditionalAppearanceUseEnterprise =
+  keyof typeof DataCompositionConditionalAppearanceUseFromEnterprise
 
 export const DataCompositionDataSetsLinkTypeToEnterprise = {
   Outer: "Внешняя",
@@ -720,15 +418,8 @@ export const DataCompositionDataSetsLinkTypeFromEnterprise = {
   Внутренняя: "Inner",
 } as const
 
-export const DataCompositionDataSetsLinkType = {
-  Outer: "Outer",
-  Inner: "Inner",
-} as const
-
-export const DataCompositionDataSetsLinkTypeEnterprise = {
-  Внешняя: "Внешняя",
-  Внутренняя: "Внутренняя",
-} as const
+export type DataCompositionDataSetsLinkType = keyof typeof DataCompositionDataSetsLinkTypeToEnterprise
+export type DataCompositionDataSetsLinkTypeEnterprise = keyof typeof DataCompositionDataSetsLinkTypeFromEnterprise
 
 export const DataCompositionDetailsProcessingActionToEnterprise = {
   None: "Нет",
@@ -750,25 +441,9 @@ export const DataCompositionDetailsProcessingActionFromEnterprise = {
   Упорядочить: "Order",
 } as const
 
-export const DataCompositionDetailsProcessingAction = {
-  None: "None",
-  OpenValue: "OpenValue",
-  Filter: "Filter",
-  ApplyAppearance: "ApplyAppearance",
-  DrillDown: "DrillDown",
-  Group: "Group",
-  Order: "Order",
-} as const
-
-export const DataCompositionDetailsProcessingActionEnterprise = {
-  Нет: "Нет",
-  ОткрытьЗначение: "ОткрытьЗначение",
-  Отфильтровать: "Отфильтровать",
-  Оформить: "Оформить",
-  Расшифровать: "Расшифровать",
-  Сгруппировать: "Сгруппировать",
-  Упорядочить: "Упорядочить",
-} as const
+export type DataCompositionDetailsProcessingAction = keyof typeof DataCompositionDetailsProcessingActionToEnterprise
+export type DataCompositionDetailsProcessingActionEnterprise =
+  keyof typeof DataCompositionDetailsProcessingActionFromEnterprise
 
 export const DataCompositionFieldPlacementToEnterprise = {
   Auto: "Авто",
@@ -786,21 +461,8 @@ export const DataCompositionFieldPlacementFromEnterprise = {
   ОтдельнаяКолонка: "SpecialColumn",
 } as const
 
-export const DataCompositionFieldPlacement = {
-  Auto: "Auto",
-  Vertically: "Vertically",
-  Together: "Together",
-  Horizontally: "Horizontally",
-  SpecialColumn: "SpecialColumn",
-} as const
-
-export const DataCompositionFieldPlacementEnterprise = {
-  Авто: "Авто",
-  Вертикально: "Вертикально",
-  Вместе: "Вместе",
-  Горизонтально: "Горизонтально",
-  ОтдельнаяКолонка: "ОтдельнаяКолонка",
-} as const
+export type DataCompositionFieldPlacement = keyof typeof DataCompositionFieldPlacementToEnterprise
+export type DataCompositionFieldPlacementEnterprise = keyof typeof DataCompositionFieldPlacementFromEnterprise
 
 export const DataCompositionFieldsTitleTypeToEnterprise = {
   Auto: "Авто",
@@ -814,17 +476,8 @@ export const DataCompositionFieldsTitleTypeFromEnterprise = {
   Полный: "Full",
 } as const
 
-export const DataCompositionFieldsTitleType = {
-  Auto: "Auto",
-  Short: "Short",
-  Full: "Full",
-} as const
-
-export const DataCompositionFieldsTitleTypeEnterprise = {
-  Авто: "Авто",
-  Краткий: "Краткий",
-  Полный: "Полный",
-} as const
+export type DataCompositionFieldsTitleType = keyof typeof DataCompositionFieldsTitleTypeToEnterprise
+export type DataCompositionFieldsTitleTypeEnterprise = keyof typeof DataCompositionFieldsTitleTypeFromEnterprise
 
 export const DataCompositionFilterApplicationTypeToEnterprise = {
   Hierarchy: "Иерархия",
@@ -838,17 +491,9 @@ export const DataCompositionFilterApplicationTypeFromEnterprise = {
   Элементы: "Items",
 } as const
 
-export const DataCompositionFilterApplicationType = {
-  Hierarchy: "Hierarchy",
-  HierarchyOnly: "HierarchyOnly",
-  Items: "Items",
-} as const
-
-export const DataCompositionFilterApplicationTypeEnterprise = {
-  Иерархия: "Иерархия",
-  ТолькоИерархия: "ТолькоИерархия",
-  Элементы: "Элементы",
-} as const
+export type DataCompositionFilterApplicationType = keyof typeof DataCompositionFilterApplicationTypeToEnterprise
+export type DataCompositionFilterApplicationTypeEnterprise =
+  keyof typeof DataCompositionFilterApplicationTypeFromEnterprise
 
 export const DataCompositionFilterItemsGroupTypeToEnterprise = {
   AndGroup: "ГруппаИ",
@@ -862,17 +507,9 @@ export const DataCompositionFilterItemsGroupTypeFromEnterprise = {
   ГруппаНе: "NotGroup",
 } as const
 
-export const DataCompositionFilterItemsGroupType = {
-  AndGroup: "AndGroup",
-  OrGroup: "OrGroup",
-  NotGroup: "NotGroup",
-} as const
-
-export const DataCompositionFilterItemsGroupTypeEnterprise = {
-  ГруппаИ: "ГруппаИ",
-  ГруппаИли: "ГруппаИли",
-  ГруппаНе: "ГруппаНе",
-} as const
+export type DataCompositionFilterItemsGroupType = keyof typeof DataCompositionFilterItemsGroupTypeToEnterprise
+export type DataCompositionFilterItemsGroupTypeEnterprise =
+  keyof typeof DataCompositionFilterItemsGroupTypeFromEnterprise
 
 export const DataCompositionFixationToEnterprise = {
   Auto: "Авто",
@@ -884,15 +521,8 @@ export const DataCompositionFixationFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const DataCompositionFixation = {
-  Auto: "Auto",
-  DontUse: "DontUse",
-} as const
-
-export const DataCompositionFixationEnterprise = {
-  Авто: "Авто",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type DataCompositionFixation = keyof typeof DataCompositionFixationToEnterprise
+export type DataCompositionFixationEnterprise = keyof typeof DataCompositionFixationFromEnterprise
 
 export const DataCompositionGroupFieldsPlacementToEnterprise = {
   Together: "Вместе",
@@ -906,17 +536,9 @@ export const DataCompositionGroupFieldsPlacementFromEnterprise = {
   ОтдельноИТолькоВИтогах: "SeparatelyAndInTotalsOnly",
 } as const
 
-export const DataCompositionGroupFieldsPlacement = {
-  Together: "Together",
-  Separately: "Separately",
-  SeparatelyAndInTotalsOnly: "SeparatelyAndInTotalsOnly",
-} as const
-
-export const DataCompositionGroupFieldsPlacementEnterprise = {
-  Вместе: "Вместе",
-  Отдельно: "Отдельно",
-  ОтдельноИТолькоВИтогах: "ОтдельноИТолькоВИтогах",
-} as const
+export type DataCompositionGroupFieldsPlacement = keyof typeof DataCompositionGroupFieldsPlacementToEnterprise
+export type DataCompositionGroupFieldsPlacementEnterprise =
+  keyof typeof DataCompositionGroupFieldsPlacementFromEnterprise
 
 export const DataCompositionGroupPlacementToEnterprise = {
   End: "Конец",
@@ -932,19 +554,8 @@ export const DataCompositionGroupPlacementFromEnterprise = {
   Нет: "None",
 } as const
 
-export const DataCompositionGroupPlacement = {
-  End: "End",
-  Begin: "Begin",
-  BeginAndEnd: "BeginAndEnd",
-  None: "None",
-} as const
-
-export const DataCompositionGroupPlacementEnterprise = {
-  Конец: "Конец",
-  Начало: "Начало",
-  НачалоИКонец: "НачалоИКонец",
-  Нет: "Нет",
-} as const
+export type DataCompositionGroupPlacement = keyof typeof DataCompositionGroupPlacementToEnterprise
+export type DataCompositionGroupPlacementEnterprise = keyof typeof DataCompositionGroupPlacementFromEnterprise
 
 export const DataCompositionGroupTemplateTypeToEnterprise = {
   Auto: "Авто",
@@ -958,17 +569,8 @@ export const DataCompositionGroupTemplateTypeFromEnterprise = {
   Горизонтальный: "Horizontal",
 } as const
 
-export const DataCompositionGroupTemplateType = {
-  Auto: "Auto",
-  Vertical: "Vertical",
-  Horizontal: "Horizontal",
-} as const
-
-export const DataCompositionGroupTemplateTypeEnterprise = {
-  Авто: "Авто",
-  Вертикальный: "Вертикальный",
-  Горизонтальный: "Горизонтальный",
-} as const
+export type DataCompositionGroupTemplateType = keyof typeof DataCompositionGroupTemplateTypeToEnterprise
+export type DataCompositionGroupTemplateTypeEnterprise = keyof typeof DataCompositionGroupTemplateTypeFromEnterprise
 
 export const DataCompositionGroupTypeToEnterprise = {
   Hierarchy: "Иерархия",
@@ -982,17 +584,8 @@ export const DataCompositionGroupTypeFromEnterprise = {
   Элементы: "Items",
 } as const
 
-export const DataCompositionGroupType = {
-  Hierarchy: "Hierarchy",
-  HierarchyOnly: "HierarchyOnly",
-  Items: "Items",
-} as const
-
-export const DataCompositionGroupTypeEnterprise = {
-  Иерархия: "Иерархия",
-  ТолькоИерархия: "ТолькоИерархия",
-  Элементы: "Элементы",
-} as const
+export type DataCompositionGroupType = keyof typeof DataCompositionGroupTypeToEnterprise
+export type DataCompositionGroupTypeEnterprise = keyof typeof DataCompositionGroupTypeFromEnterprise
 
 export const DataCompositionGroupUseVariantToEnterprise = {
   Auto: "Авто",
@@ -1004,15 +597,8 @@ export const DataCompositionGroupUseVariantFromEnterprise = {
   ДополнительнаяИнформация: "AdditionalInformation",
 } as const
 
-export const DataCompositionGroupUseVariant = {
-  Auto: "Auto",
-  AdditionalInformation: "AdditionalInformation",
-} as const
-
-export const DataCompositionGroupUseVariantEnterprise = {
-  Авто: "Авто",
-  ДополнительнаяИнформация: "ДополнительнаяИнформация",
-} as const
+export type DataCompositionGroupUseVariant = keyof typeof DataCompositionGroupUseVariantToEnterprise
+export type DataCompositionGroupUseVariantEnterprise = keyof typeof DataCompositionGroupUseVariantFromEnterprise
 
 export const DataCompositionParameterUseToEnterprise = {
   Auto: "Авто",
@@ -1024,15 +610,8 @@ export const DataCompositionParameterUseFromEnterprise = {
   Всегда: "Always",
 } as const
 
-export const DataCompositionParameterUse = {
-  Auto: "Auto",
-  Always: "Always",
-} as const
-
-export const DataCompositionParameterUseEnterprise = {
-  Авто: "Авто",
-  Всегда: "Всегда",
-} as const
+export type DataCompositionParameterUse = keyof typeof DataCompositionParameterUseToEnterprise
+export type DataCompositionParameterUseEnterprise = keyof typeof DataCompositionParameterUseFromEnterprise
 
 export const DataCompositionPeriodAdditionTypeToEnterprise = {
   None: "БезДополнения",
@@ -1086,57 +665,8 @@ export const DataCompositionPeriodAdditionTypeFromEnterprise = {
   ЧасОтНачалаПериода: "HourSinceBeginOfPeriod",
 } as const
 
-export const DataCompositionPeriodAdditionType = {
-  None: "None",
-  Year: "Year",
-  YearSinceBeginOfPeriod: "YearSinceBeginOfPeriod",
-  YearSinceBeginOfPeriod445: "YearSinceBeginOfPeriod445",
-  TenDays: "TenDays",
-  Day: "Day",
-  DaySinceBeginOfPeriod: "DaySinceBeginOfPeriod",
-  Quarter: "Quarter",
-  QuarterSinceBeginOfPeriod: "QuarterSinceBeginOfPeriod",
-  QuarterSinceBeginOfPeriod445: "QuarterSinceBeginOfPeriod445",
-  Month: "Month",
-  MonthSinceBeginOfPeriod: "MonthSinceBeginOfPeriod",
-  MonthSinceBeginOfPeriod445: "MonthSinceBeginOfPeriod445",
-  Minute: "Minute",
-  MinuteSinceBeginOfPeriod: "MinuteSinceBeginOfPeriod",
-  Week: "Week",
-  WeekSinceBeginOfPeriod: "WeekSinceBeginOfPeriod",
-  HalfYear: "HalfYear",
-  HalfYearSinceBeginOfPeriod: "HalfYearSinceBeginOfPeriod",
-  HalfYearSinceBeginOfPeriod445: "HalfYearSinceBeginOfPeriod445",
-  Second: "Second",
-  Hour: "Hour",
-  HourSinceBeginOfPeriod: "HourSinceBeginOfPeriod",
-} as const
-
-export const DataCompositionPeriodAdditionTypeEnterprise = {
-  БезДополнения: "БезДополнения",
-  Год: "Год",
-  ГодОтНачалаПериода: "ГодОтНачалаПериода",
-  ГодОтНачалаПериода445: "ГодОтНачалаПериода445",
-  Декада: "Декада",
-  День: "День",
-  ДеньОтНачалаПериода: "ДеньОтНачалаПериода",
-  Квартал: "Квартал",
-  КварталОтНачалаПериода: "КварталОтНачалаПериода",
-  КварталОтНачалаПериода445: "КварталОтНачалаПериода445",
-  Месяц: "Месяц",
-  МесяцОтНачалаПериода: "МесяцОтНачалаПериода",
-  МесяцОтНачалаПериода445: "МесяцОтНачалаПериода445",
-  Минута: "Минута",
-  МинутаОтНачалаПериода: "МинутаОтНачалаПериода",
-  Неделя: "Неделя",
-  НеделяОтНачалаПериода: "НеделяОтНачалаПериода",
-  Полугодие: "Полугодие",
-  ПолугодиеОтНачалаПериода: "ПолугодиеОтНачалаПериода",
-  ПолугодиеОтНачалаПериода445: "ПолугодиеОтНачалаПериода445",
-  Секунда: "Секунда",
-  Час: "Час",
-  ЧасОтНачалаПериода: "ЧасОтНачалаПериода",
-} as const
+export type DataCompositionPeriodAdditionType = keyof typeof DataCompositionPeriodAdditionTypeToEnterprise
+export type DataCompositionPeriodAdditionTypeEnterprise = keyof typeof DataCompositionPeriodAdditionTypeFromEnterprise
 
 export const DataCompositionPeriodTypeToEnterprise = {
   Additional: "Дополнительный",
@@ -1148,15 +678,8 @@ export const DataCompositionPeriodTypeFromEnterprise = {
   Основной: "Main",
 } as const
 
-export const DataCompositionPeriodType = {
-  Additional: "Additional",
-  Main: "Main",
-} as const
-
-export const DataCompositionPeriodTypeEnterprise = {
-  Дополнительный: "Дополнительный",
-  Основной: "Основной",
-} as const
+export type DataCompositionPeriodType = keyof typeof DataCompositionPeriodTypeToEnterprise
+export type DataCompositionPeriodTypeEnterprise = keyof typeof DataCompositionPeriodTypeFromEnterprise
 
 export const DataCompositionPictureOutputTypeToEnterprise = {
   Auto: "Авто",
@@ -1172,19 +695,8 @@ export const DataCompositionPictureOutputTypeFromEnterprise = {
   НеВыводить: "DontOutput",
 } as const
 
-export const DataCompositionPictureOutputType = {
-  Auto: "Auto",
-  OutputByValue: "OutputByValue",
-  OutputByRef: "OutputByRef",
-  DontOutput: "DontOutput",
-} as const
-
-export const DataCompositionPictureOutputTypeEnterprise = {
-  Авто: "Авто",
-  ВыводитьПоЗначению: "ВыводитьПоЗначению",
-  ВыводитьПоСсылке: "ВыводитьПоСсылке",
-  НеВыводить: "НеВыводить",
-} as const
+export type DataCompositionPictureOutputType = keyof typeof DataCompositionPictureOutputTypeToEnterprise
+export type DataCompositionPictureOutputTypeEnterprise = keyof typeof DataCompositionPictureOutputTypeFromEnterprise
 
 export const DataCompositionResourcesAutoPositionToEnterprise = {
   DontUse: "НеИспользовать",
@@ -1196,15 +708,9 @@ export const DataCompositionResourcesAutoPositionFromEnterprise = {
   ПослеВсехПолей: "AfterAllFields",
 } as const
 
-export const DataCompositionResourcesAutoPosition = {
-  DontUse: "DontUse",
-  AfterAllFields: "AfterAllFields",
-} as const
-
-export const DataCompositionResourcesAutoPositionEnterprise = {
-  НеИспользовать: "НеИспользовать",
-  ПослеВсехПолей: "ПослеВсехПолей",
-} as const
+export type DataCompositionResourcesAutoPosition = keyof typeof DataCompositionResourcesAutoPositionToEnterprise
+export type DataCompositionResourcesAutoPositionEnterprise =
+  keyof typeof DataCompositionResourcesAutoPositionFromEnterprise
 
 export const DataCompositionResourcesPlacementToEnterprise = {
   Vertically: "Вертикально",
@@ -1216,15 +722,8 @@ export const DataCompositionResourcesPlacementFromEnterprise = {
   Горизонтально: "Horizontally",
 } as const
 
-export const DataCompositionResourcesPlacement = {
-  Vertically: "Vertically",
-  Horizontally: "Horizontally",
-} as const
-
-export const DataCompositionResourcesPlacementEnterprise = {
-  Вертикально: "Вертикально",
-  Горизонтально: "Горизонтально",
-} as const
+export type DataCompositionResourcesPlacement = keyof typeof DataCompositionResourcesPlacementToEnterprise
+export type DataCompositionResourcesPlacementEnterprise = keyof typeof DataCompositionResourcesPlacementFromEnterprise
 
 export const DataCompositionResourcesPlacementInChartToEnterprise = {
   Auto: "Авто",
@@ -1238,17 +737,9 @@ export const DataCompositionResourcesPlacementInChartFromEnterprise = {
   Точки: "Points",
 } as const
 
-export const DataCompositionResourcesPlacementInChart = {
-  Auto: "Auto",
-  Series: "Series",
-  Points: "Points",
-} as const
-
-export const DataCompositionResourcesPlacementInChartEnterprise = {
-  Авто: "Авто",
-  Серии: "Серии",
-  Точки: "Точки",
-} as const
+export type DataCompositionResourcesPlacementInChart = keyof typeof DataCompositionResourcesPlacementInChartToEnterprise
+export type DataCompositionResourcesPlacementInChartEnterprise =
+  keyof typeof DataCompositionResourcesPlacementInChartFromEnterprise
 
 export const DataCompositionResultItemTypeToEnterprise = {
   End: "Конец",
@@ -1262,17 +753,8 @@ export const DataCompositionResultItemTypeFromEnterprise = {
   НачалоИКонец: "BeginAndEnd",
 } as const
 
-export const DataCompositionResultItemType = {
-  End: "End",
-  Begin: "Begin",
-  BeginAndEnd: "BeginAndEnd",
-} as const
-
-export const DataCompositionResultItemTypeEnterprise = {
-  Конец: "Конец",
-  Начало: "Начало",
-  НачалоИКонец: "НачалоИКонец",
-} as const
+export type DataCompositionResultItemType = keyof typeof DataCompositionResultItemTypeToEnterprise
+export type DataCompositionResultItemTypeEnterprise = keyof typeof DataCompositionResultItemTypeFromEnterprise
 
 export const DataCompositionResultNestedItemsLayoutToEnterprise = {
   Vertically: "Вертикально",
@@ -1284,15 +766,9 @@ export const DataCompositionResultNestedItemsLayoutFromEnterprise = {
   Горизонтально: "Horizontally",
 } as const
 
-export const DataCompositionResultNestedItemsLayout = {
-  Vertically: "Vertically",
-  Horizontally: "Horizontally",
-} as const
-
-export const DataCompositionResultNestedItemsLayoutEnterprise = {
-  Вертикально: "Вертикально",
-  Горизонтально: "Горизонтально",
-} as const
+export type DataCompositionResultNestedItemsLayout = keyof typeof DataCompositionResultNestedItemsLayoutToEnterprise
+export type DataCompositionResultNestedItemsLayoutEnterprise =
+  keyof typeof DataCompositionResultNestedItemsLayoutFromEnterprise
 
 export const DataCompositionSettingsItemStateToEnterprise = {
   Enabled: "Включен",
@@ -1306,17 +782,8 @@ export const DataCompositionSettingsItemStateFromEnterprise = {
   УдаленПользователем: "DeletedByUser",
 } as const
 
-export const DataCompositionSettingsItemState = {
-  Enabled: "Enabled",
-  Disabled: "Disabled",
-  DeletedByUser: "DeletedByUser",
-} as const
-
-export const DataCompositionSettingsItemStateEnterprise = {
-  Включен: "Включен",
-  Отключен: "Отключен",
-  УдаленПользователем: "УдаленПользователем",
-} as const
+export type DataCompositionSettingsItemState = keyof typeof DataCompositionSettingsItemStateToEnterprise
+export type DataCompositionSettingsItemStateEnterprise = keyof typeof DataCompositionSettingsItemStateFromEnterprise
 
 export const DataCompositionSettingsItemViewModeToEnterprise = {
   Auto: "Авто",
@@ -1332,19 +799,9 @@ export const DataCompositionSettingsItemViewModeFromEnterprise = {
   Обычный: "Normal",
 } as const
 
-export const DataCompositionSettingsItemViewMode = {
-  Auto: "Auto",
-  QuickAccess: "QuickAccess",
-  Inaccessible: "Inaccessible",
-  Normal: "Normal",
-} as const
-
-export const DataCompositionSettingsItemViewModeEnterprise = {
-  Авто: "Авто",
-  БыстрыйДоступ: "БыстрыйДоступ",
-  Недоступный: "Недоступный",
-  Обычный: "Обычный",
-} as const
+export type DataCompositionSettingsItemViewMode = keyof typeof DataCompositionSettingsItemViewModeToEnterprise
+export type DataCompositionSettingsItemViewModeEnterprise =
+  keyof typeof DataCompositionSettingsItemViewModeFromEnterprise
 
 export const DataCompositionSettingsRefreshMethodToEnterprise = {
   Full: "Полное",
@@ -1356,15 +813,9 @@ export const DataCompositionSettingsRefreshMethodFromEnterprise = {
   ПроверятьДоступность: "CheckAvailability",
 } as const
 
-export const DataCompositionSettingsRefreshMethod = {
-  Full: "Full",
-  CheckAvailability: "CheckAvailability",
-} as const
-
-export const DataCompositionSettingsRefreshMethodEnterprise = {
-  Полное: "Полное",
-  ПроверятьДоступность: "ПроверятьДоступность",
-} as const
+export type DataCompositionSettingsRefreshMethod = keyof typeof DataCompositionSettingsRefreshMethodToEnterprise
+export type DataCompositionSettingsRefreshMethodEnterprise =
+  keyof typeof DataCompositionSettingsRefreshMethodFromEnterprise
 
 export const DataCompositionSettingsViewModeToEnterprise = {
   QuickAccess: "БыстрыйДоступ",
@@ -1376,15 +827,8 @@ export const DataCompositionSettingsViewModeFromEnterprise = {
   Все: "All",
 } as const
 
-export const DataCompositionSettingsViewMode = {
-  QuickAccess: "QuickAccess",
-  All: "All",
-} as const
-
-export const DataCompositionSettingsViewModeEnterprise = {
-  БыстрыйДоступ: "БыстрыйДоступ",
-  Все: "Все",
-} as const
+export type DataCompositionSettingsViewMode = keyof typeof DataCompositionSettingsViewModeToEnterprise
+export type DataCompositionSettingsViewModeEnterprise = keyof typeof DataCompositionSettingsViewModeFromEnterprise
 
 export const DataCompositionSortDirectionToEnterprise = {
   Asc: "Возр",
@@ -1396,15 +840,8 @@ export const DataCompositionSortDirectionFromEnterprise = {
   Убыв: "Desc",
 } as const
 
-export const DataCompositionSortDirection = {
-  Asc: "Asc",
-  Desc: "Desc",
-} as const
-
-export const DataCompositionSortDirectionEnterprise = {
-  Возр: "Возр",
-  Убыв: "Убыв",
-} as const
+export type DataCompositionSortDirection = keyof typeof DataCompositionSortDirectionToEnterprise
+export type DataCompositionSortDirectionEnterprise = keyof typeof DataCompositionSortDirectionFromEnterprise
 
 export const DataCompositionTextOutputTypeToEnterprise = {
   Auto: "Авто",
@@ -1418,17 +855,8 @@ export const DataCompositionTextOutputTypeFromEnterprise = {
   НеВыводить: "DontOutput",
 } as const
 
-export const DataCompositionTextOutputType = {
-  Auto: "Auto",
-  Output: "Output",
-  DontOutput: "DontOutput",
-} as const
-
-export const DataCompositionTextOutputTypeEnterprise = {
-  Авто: "Авто",
-  Выводить: "Выводить",
-  НеВыводить: "НеВыводить",
-} as const
+export type DataCompositionTextOutputType = keyof typeof DataCompositionTextOutputTypeToEnterprise
+export type DataCompositionTextOutputTypeEnterprise = keyof typeof DataCompositionTextOutputTypeFromEnterprise
 
 export const DataCompositionTextPlacementTypeToEnterprise = {
   Overflow: "Выступать",
@@ -1444,19 +872,8 @@ export const DataCompositionTextPlacementTypeFromEnterprise = {
   Переносить: "Wrap",
 } as const
 
-export const DataCompositionTextPlacementType = {
-  Overflow: "Overflow",
-  Block: "Block",
-  Cut: "Cut",
-  Wrap: "Wrap",
-} as const
-
-export const DataCompositionTextPlacementTypeEnterprise = {
-  Выступать: "Выступать",
-  Забивать: "Забивать",
-  Обрезать: "Обрезать",
-  Переносить: "Переносить",
-} as const
+export type DataCompositionTextPlacementType = keyof typeof DataCompositionTextPlacementTypeToEnterprise
+export type DataCompositionTextPlacementTypeEnterprise = keyof typeof DataCompositionTextPlacementTypeFromEnterprise
 
 export const DataCompositionTotalPlacementToEnterprise = {
   Auto: "Авто",
@@ -1474,21 +891,8 @@ export const DataCompositionTotalPlacementFromEnterprise = {
   Нет: "None",
 } as const
 
-export const DataCompositionTotalPlacement = {
-  Auto: "Auto",
-  End: "End",
-  Begin: "Begin",
-  BeginAndEnd: "BeginAndEnd",
-  None: "None",
-} as const
-
-export const DataCompositionTotalPlacementEnterprise = {
-  Авто: "Авто",
-  Конец: "Конец",
-  Начало: "Начало",
-  НачалоИКонец: "НачалоИКонец",
-  Нет: "Нет",
-} as const
+export type DataCompositionTotalPlacement = keyof typeof DataCompositionTotalPlacementToEnterprise
+export type DataCompositionTotalPlacementEnterprise = keyof typeof DataCompositionTotalPlacementFromEnterprise
 
 export const OnUnavailabilityDataCompositionSettingsActionToEnterprise = {
   DisableControl: "ИзменятьДоступностьПоля",
@@ -1500,15 +904,10 @@ export const OnUnavailabilityDataCompositionSettingsActionFromEnterprise = {
   СкрыватьСтраницу: "HidePage",
 } as const
 
-export const OnUnavailabilityDataCompositionSettingsAction = {
-  DisableControl: "DisableControl",
-  HidePage: "HidePage",
-} as const
-
-export const OnUnavailabilityDataCompositionSettingsActionEnterprise = {
-  ИзменятьДоступностьПоля: "ИзменятьДоступностьПоля",
-  СкрыватьСтраницу: "СкрыватьСтраницу",
-} as const
+export type OnUnavailabilityDataCompositionSettingsAction =
+  keyof typeof OnUnavailabilityDataCompositionSettingsActionToEnterprise
+export type OnUnavailabilityDataCompositionSettingsActionEnterprise =
+  keyof typeof OnUnavailabilityDataCompositionSettingsActionFromEnterprise
 
 export const ResultCompositionModeToEnterprise = {
   Auto: "Авто",
@@ -1522,17 +921,8 @@ export const ResultCompositionModeFromEnterprise = {
   Фоновый: "Background",
 } as const
 
-export const ResultCompositionMode = {
-  Auto: "Auto",
-  Directly: "Directly",
-  Background: "Background",
-} as const
-
-export const ResultCompositionModeEnterprise = {
-  Авто: "Авто",
-  Непосредственно: "Непосредственно",
-  Фоновый: "Фоновый",
-} as const
+export type ResultCompositionMode = keyof typeof ResultCompositionModeToEnterprise
+export type ResultCompositionModeEnterprise = keyof typeof ResultCompositionModeFromEnterprise
 
 export const SaveDataCompositionAppearanceToEnterprise = {
   Auto: "Авто",
@@ -1550,21 +940,8 @@ export const SaveDataCompositionAppearanceFromEnterprise = {
   ПоКлючуДляПользователя: "ByKeyForUser",
 } as const
 
-export const SaveDataCompositionAppearance = {
-  Auto: "Auto",
-  ForUser: "ForUser",
-  ForCurrentResult: "ForCurrentResult",
-  DontUse: "DontUse",
-  ByKeyForUser: "ByKeyForUser",
-} as const
-
-export const SaveDataCompositionAppearanceEnterprise = {
-  Авто: "Авто",
-  ДляПользователя: "ДляПользователя",
-  ДляТекущегоРезультата: "ДляТекущегоРезультата",
-  НеИспользовать: "НеИспользовать",
-  ПоКлючуДляПользователя: "ПоКлючуДляПользователя",
-} as const
+export type SaveDataCompositionAppearance = keyof typeof SaveDataCompositionAppearanceToEnterprise
+export type SaveDataCompositionAppearanceEnterprise = keyof typeof SaveDataCompositionAppearanceFromEnterprise
 
 export const XSAttributeUseCategoryToEnterprise = {
   Prohibited: "Запрещено",
@@ -1578,17 +955,8 @@ export const XSAttributeUseCategoryFromEnterprise = {
   Обязательно: "Required",
 } as const
 
-export const XSAttributeUseCategory = {
-  Prohibited: "Prohibited",
-  Optional: "Optional",
-  Required: "Required",
-} as const
-
-export const XSAttributeUseCategoryEnterprise = {
-  Запрещено: "Запрещено",
-  Необязательно: "Необязательно",
-  Обязательно: "Обязательно",
-} as const
+export type XSAttributeUseCategory = keyof typeof XSAttributeUseCategoryToEnterprise
+export type XSAttributeUseCategoryEnterprise = keyof typeof XSAttributeUseCategoryFromEnterprise
 
 export const XSComplexFinalToEnterprise = {
   All: "Все",
@@ -1602,17 +970,8 @@ export const XSComplexFinalFromEnterprise = {
   Расширение: "Extension",
 } as const
 
-export const XSComplexFinal = {
-  All: "All",
-  Restriction: "Restriction",
-  Extension: "Extension",
-} as const
-
-export const XSComplexFinalEnterprise = {
-  Все: "Все",
-  Ограничение: "Ограничение",
-  Расширение: "Расширение",
-} as const
+export type XSComplexFinal = keyof typeof XSComplexFinalToEnterprise
+export type XSComplexFinalEnterprise = keyof typeof XSComplexFinalFromEnterprise
 
 export const XSComponentTypeToEnterprise = {
   Annotation: "Аннотация",
@@ -1684,75 +1043,8 @@ export const XSComponentTypeFromEnterprise = {
   Фрагмент: "Particle",
 } as const
 
-export const XSComponentType = {
-  Annotation: "Annotation",
-  Include: "Include",
-  ModelGroup: "ModelGroup",
-  Documentation: "Documentation",
-  Import: "Import",
-  AppInfo: "AppInfo",
-  AttributeUse: "AttributeUse",
-  MaxInclusiveFacet: "MaxInclusiveFacet",
-  MaxExclusiveFacet: "MaxExclusiveFacet",
-  Wildcard: "Wildcard",
-  MinInclusiveFacet: "MinInclusiveFacet",
-  MinExclusiveFacet: "MinExclusiveFacet",
-  AttributeDeclaration: "AttributeDeclaration",
-  NotationDeclaration: "NotationDeclaration",
-  ElementDeclaration: "ElementDeclaration",
-  XPathDefinition: "XPathDefinition",
-  AttributeGroupDefinition: "AttributeGroupDefinition",
-  ModelGroupDefinition: "ModelGroupDefinition",
-  IdentityConstraintDefinition: "IdentityConstraintDefinition",
-  SimpleTypeDefinition: "SimpleTypeDefinition",
-  ComplexTypeDefinition: "ComplexTypeDefinition",
-  Redefine: "Redefine",
-  Schema: "Schema",
-  LengthFacet: "LengthFacet",
-  FractionDigitsFacet: "FractionDigitsFacet",
-  MaxLengthFacet: "MaxLengthFacet",
-  MinLengthFacet: "MinLengthFacet",
-  PatternFacet: "PatternFacet",
-  TotalDigitsFacet: "TotalDigitsFacet",
-  EnumerationFacet: "EnumerationFacet",
-  WhitespaceFacet: "WhitespaceFacet",
-  Particle: "Particle",
-} as const
-
-export const XSComponentTypeEnterprise = {
-  Аннотация: "Аннотация",
-  Включение: "Включение",
-  ГруппаМодели: "ГруппаМодели",
-  Документация: "Документация",
-  Импорт: "Импорт",
-  ИнформацияПриложения: "ИнформацияПриложения",
-  ИспользованиеАтрибута: "ИспользованиеАтрибута",
-  МаксимальноВключающийФасет: "МаксимальноВключающийФасет",
-  МаксимальноИсключающийФасет: "МаксимальноИсключающийФасет",
-  Маска: "Маска",
-  МинимальноВключающийФасет: "МинимальноВключающийФасет",
-  МинимальноИсключающийФасет: "МинимальноИсключающийФасет",
-  ОбъявлениеАтрибута: "ОбъявлениеАтрибута",
-  ОбъявлениеНотации: "ОбъявлениеНотации",
-  ОбъявлениеЭлемента: "ОбъявлениеЭлемента",
-  ОпределениеXPath: "ОпределениеXPath",
-  ОпределениеГруппыАтрибутов: "ОпределениеГруппыАтрибутов",
-  ОпределениеГруппыМодели: "ОпределениеГруппыМодели",
-  ОпределениеОграниченияИдентичности: "ОпределениеОграниченияИдентичности",
-  ОпределениеПростогоТипа: "ОпределениеПростогоТипа",
-  ОпределениеСоставногоТипа: "ОпределениеСоставногоТипа",
-  Переопределение: "Переопределение",
-  Схема: "Схема",
-  ФасетДлины: "ФасетДлины",
-  ФасетКоличестваРазрядовДробнойЧасти: "ФасетКоличестваРазрядовДробнойЧасти",
-  ФасетМаксимальнойДлины: "ФасетМаксимальнойДлины",
-  ФасетМинимальнойДлины: "ФасетМинимальнойДлины",
-  ФасетОбразца: "ФасетОбразца",
-  ФасетОбщегоКоличестваРазрядов: "ФасетОбщегоКоличестваРазрядов",
-  ФасетПеречисления: "ФасетПеречисления",
-  ФасетПробельныхСимволов: "ФасетПробельныхСимволов",
-  Фрагмент: "Фрагмент",
-} as const
+export type XSComponentType = keyof typeof XSComponentTypeToEnterprise
+export type XSComponentTypeEnterprise = keyof typeof XSComponentTypeFromEnterprise
 
 export const XSCompositorToEnterprise = {
   All: "Все",
@@ -1766,17 +1058,8 @@ export const XSCompositorFromEnterprise = {
   Последовательность: "Sequence",
 } as const
 
-export const XSCompositor = {
-  All: "All",
-  Choice: "Choice",
-  Sequence: "Sequence",
-} as const
-
-export const XSCompositorEnterprise = {
-  Все: "Все",
-  Выбор: "Выбор",
-  Последовательность: "Последовательность",
-} as const
+export type XSCompositor = keyof typeof XSCompositorToEnterprise
+export type XSCompositorEnterprise = keyof typeof XSCompositorFromEnterprise
 
 export const XSConstraintToEnterprise = {
   Default: "ПоУмолчанию",
@@ -1788,15 +1071,8 @@ export const XSConstraintFromEnterprise = {
   Фиксированное: "Fixed",
 } as const
 
-export const XSConstraint = {
-  Default: "Default",
-  Fixed: "Fixed",
-} as const
-
-export const XSConstraintEnterprise = {
-  ПоУмолчанию: "ПоУмолчанию",
-  Фиксированное: "Фиксированное",
-} as const
+export type XSConstraint = keyof typeof XSConstraintToEnterprise
+export type XSConstraintEnterprise = keyof typeof XSConstraintFromEnterprise
 
 export const XSContentModelToEnterprise = {
   Simple: "Простая",
@@ -1808,15 +1084,8 @@ export const XSContentModelFromEnterprise = {
   Составная: "Complex",
 } as const
 
-export const XSContentModel = {
-  Simple: "Simple",
-  Complex: "Complex",
-} as const
-
-export const XSContentModelEnterprise = {
-  Простая: "Простая",
-  Составная: "Составная",
-} as const
+export type XSContentModel = keyof typeof XSContentModelToEnterprise
+export type XSContentModelEnterprise = keyof typeof XSContentModelFromEnterprise
 
 export const XSDerivationMethodToEnterprise = {
   Restriction: "Ограничение",
@@ -1828,15 +1097,8 @@ export const XSDerivationMethodFromEnterprise = {
   Расширение: "Extension",
 } as const
 
-export const XSDerivationMethod = {
-  Restriction: "Restriction",
-  Extension: "Extension",
-} as const
-
-export const XSDerivationMethodEnterprise = {
-  Ограничение: "Ограничение",
-  Расширение: "Расширение",
-} as const
+export type XSDerivationMethod = keyof typeof XSDerivationMethodToEnterprise
+export type XSDerivationMethodEnterprise = keyof typeof XSDerivationMethodFromEnterprise
 
 export const XSDisallowedSubstitutionsToEnterprise = {
   All: "Все",
@@ -1852,19 +1114,8 @@ export const XSDisallowedSubstitutionsFromEnterprise = {
   Расширение: "Extension",
 } as const
 
-export const XSDisallowedSubstitutions = {
-  All: "All",
-  Restriction: "Restriction",
-  Substitution: "Substitution",
-  Extension: "Extension",
-} as const
-
-export const XSDisallowedSubstitutionsEnterprise = {
-  Все: "Все",
-  Ограничение: "Ограничение",
-  Подстановка: "Подстановка",
-  Расширение: "Расширение",
-} as const
+export type XSDisallowedSubstitutions = keyof typeof XSDisallowedSubstitutionsToEnterprise
+export type XSDisallowedSubstitutionsEnterprise = keyof typeof XSDisallowedSubstitutionsFromEnterprise
 
 export const XSFormToEnterprise = {
   Qualified: "Квалифицированная",
@@ -1876,15 +1127,8 @@ export const XSFormFromEnterprise = {
   Неквалифицированная: "Unqualified",
 } as const
 
-export const XSForm = {
-  Qualified: "Qualified",
-  Unqualified: "Unqualified",
-} as const
-
-export const XSFormEnterprise = {
-  Квалифицированная: "Квалифицированная",
-  Неквалифицированная: "Неквалифицированная",
-} as const
+export type XSForm = keyof typeof XSFormToEnterprise
+export type XSFormEnterprise = keyof typeof XSFormFromEnterprise
 
 export const XSIdentityConstraintCategoryToEnterprise = {
   Key: "Ключ",
@@ -1898,17 +1142,8 @@ export const XSIdentityConstraintCategoryFromEnterprise = {
   Уникальность: "Unique",
 } as const
 
-export const XSIdentityConstraintCategory = {
-  Key: "Key",
-  KeyRef: "KeyRef",
-  Unique: "Unique",
-} as const
-
-export const XSIdentityConstraintCategoryEnterprise = {
-  Ключ: "Ключ",
-  СсылкаНаКлюч: "СсылкаНаКлюч",
-  Уникальность: "Уникальность",
-} as const
+export type XSIdentityConstraintCategory = keyof typeof XSIdentityConstraintCategoryToEnterprise
+export type XSIdentityConstraintCategoryEnterprise = keyof typeof XSIdentityConstraintCategoryFromEnterprise
 
 export const XSNamespaceConstraintCategoryToEnterprise = {
   Not: "Кроме",
@@ -1922,17 +1157,8 @@ export const XSNamespaceConstraintCategoryFromEnterprise = {
   Набор: "Set",
 } as const
 
-export const XSNamespaceConstraintCategory = {
-  Not: "Not",
-  Any: "Any",
-  Set: "Set",
-} as const
-
-export const XSNamespaceConstraintCategoryEnterprise = {
-  Кроме: "Кроме",
-  Любое: "Любое",
-  Набор: "Набор",
-} as const
+export type XSNamespaceConstraintCategory = keyof typeof XSNamespaceConstraintCategoryToEnterprise
+export type XSNamespaceConstraintCategoryEnterprise = keyof typeof XSNamespaceConstraintCategoryFromEnterprise
 
 export const XSProcessContentsToEnterprise = {
   Skip: "Пропустить",
@@ -1946,17 +1172,8 @@ export const XSProcessContentsFromEnterprise = {
   Строгая: "Strict",
 } as const
 
-export const XSProcessContents = {
-  Skip: "Skip",
-  Lax: "Lax",
-  Strict: "Strict",
-} as const
-
-export const XSProcessContentsEnterprise = {
-  Пропустить: "Пропустить",
-  Слабая: "Слабая",
-  Строгая: "Строгая",
-} as const
+export type XSProcessContents = keyof typeof XSProcessContentsToEnterprise
+export type XSProcessContentsEnterprise = keyof typeof XSProcessContentsFromEnterprise
 
 export const XSProhibitedSubstitutionsToEnterprise = {
   All: "Все",
@@ -1970,17 +1187,8 @@ export const XSProhibitedSubstitutionsFromEnterprise = {
   Расширение: "Extension",
 } as const
 
-export const XSProhibitedSubstitutions = {
-  All: "All",
-  Restriction: "Restriction",
-  Extension: "Extension",
-} as const
-
-export const XSProhibitedSubstitutionsEnterprise = {
-  Все: "Все",
-  Ограничение: "Ограничение",
-  Расширение: "Расширение",
-} as const
+export type XSProhibitedSubstitutions = keyof typeof XSProhibitedSubstitutionsToEnterprise
+export type XSProhibitedSubstitutionsEnterprise = keyof typeof XSProhibitedSubstitutionsFromEnterprise
 
 export const XSSchemaFinalToEnterprise = {
   All: "Все",
@@ -1998,21 +1206,8 @@ export const XSSchemaFinalFromEnterprise = {
   Список: "List",
 } as const
 
-export const XSSchemaFinal = {
-  All: "All",
-  Union: "Union",
-  Restriction: "Restriction",
-  Extension: "Extension",
-  List: "List",
-} as const
-
-export const XSSchemaFinalEnterprise = {
-  Все: "Все",
-  Объединение: "Объединение",
-  Ограничение: "Ограничение",
-  Расширение: "Расширение",
-  Список: "Список",
-} as const
+export type XSSchemaFinal = keyof typeof XSSchemaFinalToEnterprise
+export type XSSchemaFinalEnterprise = keyof typeof XSSchemaFinalFromEnterprise
 
 export const XSSimpleFinalToEnterprise = {
   All: "Все",
@@ -2028,19 +1223,8 @@ export const XSSimpleFinalFromEnterprise = {
   Список: "List",
 } as const
 
-export const XSSimpleFinal = {
-  All: "All",
-  Union: "Union",
-  Restriction: "Restriction",
-  List: "List",
-} as const
-
-export const XSSimpleFinalEnterprise = {
-  Все: "Все",
-  Объединение: "Объединение",
-  Ограничение: "Ограничение",
-  Список: "Список",
-} as const
+export type XSSimpleFinal = keyof typeof XSSimpleFinalToEnterprise
+export type XSSimpleFinalEnterprise = keyof typeof XSSimpleFinalFromEnterprise
 
 export const XSSimpleTypeVarietyToEnterprise = {
   Atomic: "Атомарная",
@@ -2054,17 +1238,8 @@ export const XSSimpleTypeVarietyFromEnterprise = {
   Список: "List",
 } as const
 
-export const XSSimpleTypeVariety = {
-  Atomic: "Atomic",
-  Union: "Union",
-  List: "List",
-} as const
-
-export const XSSimpleTypeVarietyEnterprise = {
-  Атомарная: "Атомарная",
-  Объединение: "Объединение",
-  Список: "Список",
-} as const
+export type XSSimpleTypeVariety = keyof typeof XSSimpleTypeVarietyToEnterprise
+export type XSSimpleTypeVarietyEnterprise = keyof typeof XSSimpleTypeVarietyFromEnterprise
 
 export const XSSubstitutionGroupExclusionsToEnterprise = {
   All: "Все",
@@ -2078,17 +1253,8 @@ export const XSSubstitutionGroupExclusionsFromEnterprise = {
   Расширение: "Extension",
 } as const
 
-export const XSSubstitutionGroupExclusions = {
-  All: "All",
-  Restriction: "Restriction",
-  Extension: "Extension",
-} as const
-
-export const XSSubstitutionGroupExclusionsEnterprise = {
-  Все: "Все",
-  Ограничение: "Ограничение",
-  Расширение: "Расширение",
-} as const
+export type XSSubstitutionGroupExclusions = keyof typeof XSSubstitutionGroupExclusionsToEnterprise
+export type XSSubstitutionGroupExclusionsEnterprise = keyof typeof XSSubstitutionGroupExclusionsFromEnterprise
 
 export const XSWhitespaceHandlingToEnterprise = {
   Replace: "Заменять",
@@ -2102,17 +1268,8 @@ export const XSWhitespaceHandlingFromEnterprise = {
   Сохранять: "Preserve",
 } as const
 
-export const XSWhitespaceHandling = {
-  Replace: "Replace",
-  Collapse: "Collapse",
-  Preserve: "Preserve",
-} as const
-
-export const XSWhitespaceHandlingEnterprise = {
-  Заменять: "Заменять",
-  Сворачивать: "Сворачивать",
-  Сохранять: "Сохранять",
-} as const
+export type XSWhitespaceHandling = keyof typeof XSWhitespaceHandlingToEnterprise
+export type XSWhitespaceHandlingEnterprise = keyof typeof XSWhitespaceHandlingFromEnterprise
 
 export const XSXPathVarietyToEnterprise = {
   Field: "Поле",
@@ -2124,15 +1281,8 @@ export const XSXPathVarietyFromEnterprise = {
   Селектор: "Selector",
 } as const
 
-export const XSXPathVariety = {
-  Field: "Field",
-  Selector: "Selector",
-} as const
-
-export const XSXPathVarietyEnterprise = {
-  Поле: "Поле",
-  Селектор: "Селектор",
-} as const
+export type XSXPathVariety = keyof typeof XSXPathVarietyToEnterprise
+export type XSXPathVarietyEnterprise = keyof typeof XSXPathVarietyFromEnterprise
 
 export const EventLogDataStorageSplitPeriodToEnterprise = {
   Year: "Год",
@@ -2154,25 +1304,8 @@ export const EventLogDataStorageSplitPeriodFromEnterprise = {
   Час: "Hour",
 } as const
 
-export const EventLogDataStorageSplitPeriod = {
-  Year: "Year",
-  Day: "Day",
-  Quarter: "Quarter",
-  Month: "Month",
-  Week: "Week",
-  DontUse: "DontUse",
-  Hour: "Hour",
-} as const
-
-export const EventLogDataStorageSplitPeriodEnterprise = {
-  Год: "Год",
-  День: "День",
-  Квартал: "Квартал",
-  Месяц: "Месяц",
-  Неделя: "Неделя",
-  НеИспользовать: "НеИспользовать",
-  Час: "Час",
-} as const
+export type EventLogDataStorageSplitPeriod = keyof typeof EventLogDataStorageSplitPeriodToEnterprise
+export type EventLogDataStorageSplitPeriodEnterprise = keyof typeof EventLogDataStorageSplitPeriodFromEnterprise
 
 export const EventLogEntryTransactionModeToEnterprise = {
   Independent: "Независимая",
@@ -2184,15 +1317,8 @@ export const EventLogEntryTransactionModeFromEnterprise = {
   Транзакционная: "Transactional",
 } as const
 
-export const EventLogEntryTransactionMode = {
-  Independent: "Independent",
-  Transactional: "Transactional",
-} as const
-
-export const EventLogEntryTransactionModeEnterprise = {
-  Независимая: "Независимая",
-  Транзакционная: "Транзакционная",
-} as const
+export type EventLogEntryTransactionMode = keyof typeof EventLogEntryTransactionModeToEnterprise
+export type EventLogEntryTransactionModeEnterprise = keyof typeof EventLogEntryTransactionModeFromEnterprise
 
 export const EventLogEntryTransactionStatusToEnterprise = {
   Committed: "Зафиксирована",
@@ -2208,19 +1334,8 @@ export const EventLogEntryTransactionStatusFromEnterprise = {
   Отменена: "RolledBack",
 } as const
 
-export const EventLogEntryTransactionStatus = {
-  Committed: "Committed",
-  Unfinished: "Unfinished",
-  NotApplicable: "NotApplicable",
-  RolledBack: "RolledBack",
-} as const
-
-export const EventLogEntryTransactionStatusEnterprise = {
-  Зафиксирована: "Зафиксирована",
-  НеЗавершена: "НеЗавершена",
-  НетТранзакции: "НетТранзакции",
-  Отменена: "Отменена",
-} as const
+export type EventLogEntryTransactionStatus = keyof typeof EventLogEntryTransactionStatusToEnterprise
+export type EventLogEntryTransactionStatusEnterprise = keyof typeof EventLogEntryTransactionStatusFromEnterprise
 
 export const EventLogLevelToEnterprise = {
   Information: "Информация",
@@ -2236,19 +1351,8 @@ export const EventLogLevelFromEnterprise = {
   Примечание: "Note",
 } as const
 
-export const EventLogLevel = {
-  Information: "Information",
-  Error: "Error",
-  Warning: "Warning",
-  Note: "Note",
-} as const
-
-export const EventLogLevelEnterprise = {
-  Информация: "Информация",
-  Ошибка: "Ошибка",
-  Предупреждение: "Предупреждение",
-  Примечание: "Примечание",
-} as const
+export type EventLogLevel = keyof typeof EventLogLevelToEnterprise
+export type EventLogLevelEnterprise = keyof typeof EventLogLevelFromEnterprise
 
 export const DataLockControlModeToEnterprise = {
   Automatic: "Автоматический",
@@ -2260,15 +1364,8 @@ export const DataLockControlModeFromEnterprise = {
   Управляемый: "Managed",
 } as const
 
-export const DataLockControlMode = {
-  Automatic: "Automatic",
-  Managed: "Managed",
-} as const
-
-export const DataLockControlModeEnterprise = {
-  Автоматический: "Автоматический",
-  Управляемый: "Управляемый",
-} as const
+export type DataLockControlMode = keyof typeof DataLockControlModeToEnterprise
+export type DataLockControlModeEnterprise = keyof typeof DataLockControlModeFromEnterprise
 
 export const DataLockModeToEnterprise = {
   Exclusive: "Исключительный",
@@ -2280,15 +1377,8 @@ export const DataLockModeFromEnterprise = {
   Разделяемый: "Shared",
 } as const
 
-export const DataLockMode = {
-  Exclusive: "Exclusive",
-  Shared: "Shared",
-} as const
-
-export const DataLockModeEnterprise = {
-  Исключительный: "Исключительный",
-  Разделяемый: "Разделяемый",
-} as const
+export type DataLockMode = keyof typeof DataLockModeToEnterprise
+export type DataLockModeEnterprise = keyof typeof DataLockModeFromEnterprise
 
 export const AccountTypeToEnterprise = {
   ActivePassive: "АктивноПассивный",
@@ -2302,17 +1392,8 @@ export const AccountTypeFromEnterprise = {
   Пассивный: "Passive",
 } as const
 
-export const AccountType = {
-  ActivePassive: "ActivePassive",
-  Active: "Active",
-  Passive: "Passive",
-} as const
-
-export const AccountTypeEnterprise = {
-  АктивноПассивный: "АктивноПассивный",
-  Активный: "Активный",
-  Пассивный: "Пассивный",
-} as const
+export type AccountType = keyof typeof AccountTypeToEnterprise
+export type AccountTypeEnterprise = keyof typeof AccountTypeFromEnterprise
 
 export const AccountingRecordTypeToEnterprise = {
   Debit: "Дебет",
@@ -2324,15 +1405,8 @@ export const AccountingRecordTypeFromEnterprise = {
   Кредит: "Credit",
 } as const
 
-export const AccountingRecordType = {
-  Debit: "Debit",
-  Credit: "Credit",
-} as const
-
-export const AccountingRecordTypeEnterprise = {
-  Дебет: "Дебет",
-  Кредит: "Кредит",
-} as const
+export type AccountingRecordType = keyof typeof AccountingRecordTypeToEnterprise
+export type AccountingRecordTypeEnterprise = keyof typeof AccountingRecordTypeFromEnterprise
 
 export const AccumulationRecordTypeToEnterprise = {
   Receipt: "Приход",
@@ -2344,15 +1418,8 @@ export const AccumulationRecordTypeFromEnterprise = {
   Расход: "Expense",
 } as const
 
-export const AccumulationRecordType = {
-  Receipt: "Receipt",
-  Expense: "Expense",
-} as const
-
-export const AccumulationRecordTypeEnterprise = {
-  Приход: "Приход",
-  Расход: "Расход",
-} as const
+export type AccumulationRecordType = keyof typeof AccumulationRecordTypeToEnterprise
+export type AccumulationRecordTypeEnterprise = keyof typeof AccumulationRecordTypeFromEnterprise
 
 export const AccumulationRegisterAggregatePeriodicityToEnterprise = {
   Auto: "Авто",
@@ -2374,25 +1441,9 @@ export const AccumulationRegisterAggregatePeriodicityFromEnterprise = {
   Полугодие: "HalfYear",
 } as const
 
-export const AccumulationRegisterAggregatePeriodicity = {
-  Auto: "Auto",
-  Year: "Year",
-  Day: "Day",
-  Quarter: "Quarter",
-  Month: "Month",
-  Nonperiodical: "Nonperiodical",
-  HalfYear: "HalfYear",
-} as const
-
-export const AccumulationRegisterAggregatePeriodicityEnterprise = {
-  Авто: "Авто",
-  Год: "Год",
-  День: "День",
-  Квартал: "Квартал",
-  Месяц: "Месяц",
-  Непериодический: "Непериодический",
-  Полугодие: "Полугодие",
-} as const
+export type AccumulationRegisterAggregatePeriodicity = keyof typeof AccumulationRegisterAggregatePeriodicityToEnterprise
+export type AccumulationRegisterAggregatePeriodicityEnterprise =
+  keyof typeof AccumulationRegisterAggregatePeriodicityFromEnterprise
 
 export const AccumulationRegisterAggregateUseToEnterprise = {
   Auto: "Авто",
@@ -2404,15 +1455,8 @@ export const AccumulationRegisterAggregateUseFromEnterprise = {
   Всегда: "Always",
 } as const
 
-export const AccumulationRegisterAggregateUse = {
-  Auto: "Auto",
-  Always: "Always",
-} as const
-
-export const AccumulationRegisterAggregateUseEnterprise = {
-  Авто: "Авто",
-  Всегда: "Всегда",
-} as const
+export type AccumulationRegisterAggregateUse = keyof typeof AccumulationRegisterAggregateUseToEnterprise
+export type AccumulationRegisterAggregateUseEnterprise = keyof typeof AccumulationRegisterAggregateUseFromEnterprise
 
 export const AutoTimeModeToEnterprise = {
   DontUse: "НеИспользовать",
@@ -2430,21 +1474,8 @@ export const AutoTimeModeFromEnterprise = {
   ТекущееИлиПоследним: "CurrentOrLast",
 } as const
 
-export const AutoTimeMode = {
-  DontUse: "DontUse",
-  First: "First",
-  Last: "Last",
-  CurrentOrFirst: "CurrentOrFirst",
-  CurrentOrLast: "CurrentOrLast",
-} as const
-
-export const AutoTimeModeEnterprise = {
-  НеИспользовать: "НеИспользовать",
-  Первым: "Первым",
-  Последним: "Последним",
-  ТекущееИлиПервым: "ТекущееИлиПервым",
-  ТекущееИлиПоследним: "ТекущееИлиПоследним",
-} as const
+export type AutoTimeMode = keyof typeof AutoTimeModeToEnterprise
+export type AutoTimeModeEnterprise = keyof typeof AutoTimeModeFromEnterprise
 
 export const BusinessProcessRoutePointTypeToEnterprise = {
   SubBusinessProcess: "ВложенныйБизнесПроцесс",
@@ -2470,29 +1501,8 @@ export const BusinessProcessRoutePointTypeFromEnterprise = {
   Условие: "Condition",
 } as const
 
-export const BusinessProcessRoutePointType = {
-  SubBusinessProcess: "SubBusinessProcess",
-  Switch: "Switch",
-  Activity: "Activity",
-  End: "End",
-  Processing: "Processing",
-  Split: "Split",
-  Join: "Join",
-  Start: "Start",
-  Condition: "Condition",
-} as const
-
-export const BusinessProcessRoutePointTypeEnterprise = {
-  ВложенныйБизнесПроцесс: "ВложенныйБизнесПроцесс",
-  ВыборВарианта: "ВыборВарианта",
-  Действие: "Действие",
-  Завершение: "Завершение",
-  Обработка: "Обработка",
-  Разделение: "Разделение",
-  Слияние: "Слияние",
-  Старт: "Старт",
-  Условие: "Условие",
-} as const
+export type BusinessProcessRoutePointType = keyof typeof BusinessProcessRoutePointTypeToEnterprise
+export type BusinessProcessRoutePointTypeEnterprise = keyof typeof BusinessProcessRoutePointTypeFromEnterprise
 
 export const CalculationRegisterPeriodTypeToEnterprise = {
   BasePeriod: "БазовыйПериод",
@@ -2508,19 +1518,8 @@ export const CalculationRegisterPeriodTypeFromEnterprise = {
   ФактическийПериодДействия: "ActualActionPeriod",
 } as const
 
-export const CalculationRegisterPeriodType = {
-  BasePeriod: "BasePeriod",
-  ActionPeriod: "ActionPeriod",
-  RegistrationPeriod: "RegistrationPeriod",
-  ActualActionPeriod: "ActualActionPeriod",
-} as const
-
-export const CalculationRegisterPeriodTypeEnterprise = {
-  БазовыйПериод: "БазовыйПериод",
-  ПериодДействия: "ПериодДействия",
-  ПериодРегистрации: "ПериодРегистрации",
-  ФактическийПериодДействия: "ФактическийПериодДействия",
-} as const
+export type CalculationRegisterPeriodType = keyof typeof CalculationRegisterPeriodTypeToEnterprise
+export type CalculationRegisterPeriodTypeEnterprise = keyof typeof CalculationRegisterPeriodTypeFromEnterprise
 
 export const DocumentPostingModeToEnterprise = {
   Regular: "Неоперативный",
@@ -2532,15 +1531,8 @@ export const DocumentPostingModeFromEnterprise = {
   Оперативный: "RealTime",
 } as const
 
-export const DocumentPostingMode = {
-  Regular: "Regular",
-  RealTime: "RealTime",
-} as const
-
-export const DocumentPostingModeEnterprise = {
-  Неоперативный: "Неоперативный",
-  Оперативный: "Оперативный",
-} as const
+export type DocumentPostingMode = keyof typeof DocumentPostingModeToEnterprise
+export type DocumentPostingModeEnterprise = keyof typeof DocumentPostingModeFromEnterprise
 
 export const DocumentWriteModeToEnterprise = {
   Write: "Запись",
@@ -2554,17 +1546,8 @@ export const DocumentWriteModeFromEnterprise = {
   Проведение: "Posting",
 } as const
 
-export const DocumentWriteMode = {
-  Write: "Write",
-  UndoPosting: "UndoPosting",
-  Posting: "Posting",
-} as const
-
-export const DocumentWriteModeEnterprise = {
-  Запись: "Запись",
-  ОтменаПроведения: "ОтменаПроведения",
-  Проведение: "Проведение",
-} as const
+export type DocumentWriteMode = keyof typeof DocumentWriteModeToEnterprise
+export type DocumentWriteModeEnterprise = keyof typeof DocumentWriteModeFromEnterprise
 
 export const FoldersAndItemsUseToEnterprise = {
   Folders: "Группы",
@@ -2578,17 +1561,8 @@ export const FoldersAndItemsUseFromEnterprise = {
   Элементы: "Items",
 } as const
 
-export const FoldersAndItemsUse = {
-  Folders: "Folders",
-  FoldersAndItems: "FoldersAndItems",
-  Items: "Items",
-} as const
-
-export const FoldersAndItemsUseEnterprise = {
-  Группы: "Группы",
-  ГруппыИЭлементы: "ГруппыИЭлементы",
-  Элементы: "Элементы",
-} as const
+export type FoldersAndItemsUse = keyof typeof FoldersAndItemsUseToEnterprise
+export type FoldersAndItemsUseEnterprise = keyof typeof FoldersAndItemsUseFromEnterprise
 
 export const PostingModeUseToEnterprise = {
   Auto: "Авто",
@@ -2602,17 +1576,8 @@ export const PostingModeUseFromEnterprise = {
   Оперативный: "RealTime",
 } as const
 
-export const PostingModeUse = {
-  Auto: "Auto",
-  Regular: "Regular",
-  RealTime: "RealTime",
-} as const
-
-export const PostingModeUseEnterprise = {
-  Авто: "Авто",
-  Неоперативный: "Неоперативный",
-  Оперативный: "Оперативный",
-} as const
+export type PostingModeUse = keyof typeof PostingModeUseToEnterprise
+export type PostingModeUseEnterprise = keyof typeof PostingModeUseFromEnterprise
 
 export const SliceUseToEnterprise = {
   DontUse: "НеИспользовать",
@@ -2626,17 +1591,8 @@ export const SliceUseFromEnterprise = {
   Последние: "Last",
 } as const
 
-export const SliceUse = {
-  DontUse: "DontUse",
-  First: "First",
-  Last: "Last",
-} as const
-
-export const SliceUseEnterprise = {
-  НеИспользовать: "НеИспользовать",
-  Первые: "Первые",
-  Последние: "Последние",
-} as const
+export type SliceUse = keyof typeof SliceUseToEnterprise
+export type SliceUseEnterprise = keyof typeof SliceUseFromEnterprise
 
 export const BackgroundJobStateToEnterprise = {
   Active: "Активно",
@@ -2652,19 +1608,8 @@ export const BackgroundJobStateFromEnterprise = {
   Отменено: "Canceled",
 } as const
 
-export const BackgroundJobState = {
-  Active: "Active",
-  Completed: "Completed",
-  Failed: "Failed",
-  Canceled: "Canceled",
-} as const
-
-export const BackgroundJobStateEnterprise = {
-  Активно: "Активно",
-  Завершено: "Завершено",
-  ЗавершеноАварийно: "ЗавершеноАварийно",
-  Отменено: "Отменено",
-} as const
+export type BackgroundJobState = keyof typeof BackgroundJobStateToEnterprise
+export type BackgroundJobStateEnterprise = keyof typeof BackgroundJobStateFromEnterprise
 
 export const CryptoCertificateCheckModeToEnterprise = {
   IgnoreTimeValidity: "ИгнорироватьВремяДействия",
@@ -2680,19 +1625,8 @@ export const CryptoCertificateCheckModeFromEnterprise = {
   РазрешитьТестовыеСертификаты: "AllowTestCertificates",
 } as const
 
-export const CryptoCertificateCheckMode = {
-  IgnoreTimeValidity: "IgnoreTimeValidity",
-  IgnoreSignatureValidity: "IgnoreSignatureValidity",
-  IgnoreCertificateRevocationStatus: "IgnoreCertificateRevocationStatus",
-  AllowTestCertificates: "AllowTestCertificates",
-} as const
-
-export const CryptoCertificateCheckModeEnterprise = {
-  ИгнорироватьВремяДействия: "ИгнорироватьВремяДействия",
-  ИгнорироватьДействительностьПодписи: "ИгнорироватьДействительностьПодписи",
-  ИгнорироватьПроверкуВСпискеОтозванныхСертификатов: "ИгнорироватьПроверкуВСпискеОтозванныхСертификатов",
-  РазрешитьТестовыеСертификаты: "РазрешитьТестовыеСертификаты",
-} as const
+export type CryptoCertificateCheckMode = keyof typeof CryptoCertificateCheckModeToEnterprise
+export type CryptoCertificateCheckModeEnterprise = keyof typeof CryptoCertificateCheckModeFromEnterprise
 
 export const CryptoCertificateIncludeModeToEnterprise = {
   IncludeWholeChain: "ВключатьПолнуюЦепочку",
@@ -2708,19 +1642,8 @@ export const CryptoCertificateIncludeModeFromEnterprise = {
   НеВключать: "DontInclude",
 } as const
 
-export const CryptoCertificateIncludeMode = {
-  IncludeWholeChain: "IncludeWholeChain",
-  IncludeSubjectCertificate: "IncludeSubjectCertificate",
-  IncludeChainWithoutRoot: "IncludeChainWithoutRoot",
-  DontInclude: "DontInclude",
-} as const
-
-export const CryptoCertificateIncludeModeEnterprise = {
-  ВключатьПолнуюЦепочку: "ВключатьПолнуюЦепочку",
-  ВключатьСертификатСубъекта: "ВключатьСертификатСубъекта",
-  ВключатьЦепочкуБезКорневого: "ВключатьЦепочкуБезКорневого",
-  НеВключать: "НеВключать",
-} as const
+export type CryptoCertificateIncludeMode = keyof typeof CryptoCertificateIncludeModeToEnterprise
+export type CryptoCertificateIncludeModeEnterprise = keyof typeof CryptoCertificateIncludeModeFromEnterprise
 
 export const CryptoCertificateStorePlacementToEnterprise = {
   ComputerData: "ДанныеКомпьютера",
@@ -2734,17 +1657,8 @@ export const CryptoCertificateStorePlacementFromEnterprise = {
   ДанныеПриложения: "ApplicationData",
 } as const
 
-export const CryptoCertificateStorePlacement = {
-  ComputerData: "ComputerData",
-  OSUserData: "OSUserData",
-  ApplicationData: "ApplicationData",
-} as const
-
-export const CryptoCertificateStorePlacementEnterprise = {
-  ДанныеКомпьютера: "ДанныеКомпьютера",
-  ДанныеПользователяОС: "ДанныеПользователяОС",
-  ДанныеПриложения: "ДанныеПриложения",
-} as const
+export type CryptoCertificateStorePlacement = keyof typeof CryptoCertificateStorePlacementToEnterprise
+export type CryptoCertificateStorePlacementEnterprise = keyof typeof CryptoCertificateStorePlacementFromEnterprise
 
 export const CryptoCertificateStoreTypeToEnterprise = {
   RootCertificates: "КорневыеСертификаты",
@@ -2760,19 +1674,8 @@ export const CryptoCertificateStoreTypeFromEnterprise = {
   СертификатыУдостоверяющихЦентров: "CertificationAuthorityCertificates",
 } as const
 
-export const CryptoCertificateStoreType = {
-  RootCertificates: "RootCertificates",
-  PersonalCertificates: "PersonalCertificates",
-  RecipientCertificates: "RecipientCertificates",
-  CertificationAuthorityCertificates: "CertificationAuthorityCertificates",
-} as const
-
-export const CryptoCertificateStoreTypeEnterprise = {
-  КорневыеСертификаты: "КорневыеСертификаты",
-  ПерсональныеСертификаты: "ПерсональныеСертификаты",
-  СертификатыПолучателей: "СертификатыПолучателей",
-  СертификатыУдостоверяющихЦентров: "СертификатыУдостоверяющихЦентров",
-} as const
+export type CryptoCertificateStoreType = keyof typeof CryptoCertificateStoreTypeToEnterprise
+export type CryptoCertificateStoreTypeEnterprise = keyof typeof CryptoCertificateStoreTypeFromEnterprise
 
 export const CryptoInteractiveModeUseToEnterprise = {
   Use: "Использовать",
@@ -2784,15 +1687,8 @@ export const CryptoInteractiveModeUseFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const CryptoInteractiveModeUse = {
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const CryptoInteractiveModeUseEnterprise = {
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type CryptoInteractiveModeUse = keyof typeof CryptoInteractiveModeUseToEnterprise
+export type CryptoInteractiveModeUseEnterprise = keyof typeof CryptoInteractiveModeUseFromEnterprise
 
 export const FormattedDocumentFileTypeToEnterprise = {
   ANSITXT: "ANSITXT",
@@ -2808,19 +1704,8 @@ export const FormattedDocumentFileTypeFromEnterprise = {
   TXT: "TXT",
 } as const
 
-export const FormattedDocumentFileType = {
-  ANSITXT: "ANSITXT",
-  HTML: "HTML",
-  PDF: "PDF",
-  TXT: "TXT",
-} as const
-
-export const FormattedDocumentFileTypeEnterprise = {
-  ANSITXT: "ANSITXT",
-  HTML: "HTML",
-  PDF: "PDF",
-  TXT: "TXT",
-} as const
+export type FormattedDocumentFileType = keyof typeof FormattedDocumentFileTypeToEnterprise
+export type FormattedDocumentFileTypeEnterprise = keyof typeof FormattedDocumentFileTypeFromEnterprise
 
 export const FormattedDocumentParagraphTypeToEnterprise = {
   BulletedList: "МаркированныйСписок",
@@ -2834,17 +1719,8 @@ export const FormattedDocumentParagraphTypeFromEnterprise = {
   Обычный: "Usual",
 } as const
 
-export const FormattedDocumentParagraphType = {
-  BulletedList: "BulletedList",
-  NumberedList: "NumberedList",
-  Usual: "Usual",
-} as const
-
-export const FormattedDocumentParagraphTypeEnterprise = {
-  МаркированныйСписок: "МаркированныйСписок",
-  НумерованныйСписок: "НумерованныйСписок",
-  Обычный: "Обычный",
-} as const
+export type FormattedDocumentParagraphType = keyof typeof FormattedDocumentParagraphTypeToEnterprise
+export type FormattedDocumentParagraphTypeEnterprise = keyof typeof FormattedDocumentParagraphTypeFromEnterprise
 
 export const RowGotoDirectionToEnterprise = {
   Up: "Вверх",
@@ -2856,15 +1732,8 @@ export const RowGotoDirectionFromEnterprise = {
   Вниз: "Down",
 } as const
 
-export const RowGotoDirection = {
-  Up: "Up",
-  Down: "Down",
-} as const
-
-export const RowGotoDirectionEnterprise = {
-  Вверх: "Вверх",
-  Вниз: "Вниз",
-} as const
+export type RowGotoDirection = keyof typeof RowGotoDirectionToEnterprise
+export type RowGotoDirectionEnterprise = keyof typeof RowGotoDirectionFromEnterprise
 
 export const InternetMailAttachmentEncodingModeToEnterprise = {
   MIME: "MIME",
@@ -2876,15 +1745,8 @@ export const InternetMailAttachmentEncodingModeFromEnterprise = {
   UUEncode: "UUEncode",
 } as const
 
-export const InternetMailAttachmentEncodingMode = {
-  MIME: "MIME",
-  UUEncode: "UUEncode",
-} as const
-
-export const InternetMailAttachmentEncodingModeEnterprise = {
-  MIME: "MIME",
-  UUEncode: "UUEncode",
-} as const
+export type InternetMailAttachmentEncodingMode = keyof typeof InternetMailAttachmentEncodingModeToEnterprise
+export type InternetMailAttachmentEncodingModeEnterprise = keyof typeof InternetMailAttachmentEncodingModeFromEnterprise
 
 export const InternetMailMessageImportanceToEnterprise = {
   High: "Высокая",
@@ -2902,21 +1764,8 @@ export const InternetMailMessageImportanceFromEnterprise = {
   Обычная: "Normal",
 } as const
 
-export const InternetMailMessageImportance = {
-  High: "High",
-  Highest: "Highest",
-  Lowest: "Lowest",
-  Low: "Low",
-  Normal: "Normal",
-} as const
-
-export const InternetMailMessageImportanceEnterprise = {
-  Высокая: "Высокая",
-  Наивысшая: "Наивысшая",
-  Наименьшая: "Наименьшая",
-  Низкая: "Низкая",
-  Обычная: "Обычная",
-} as const
+export type InternetMailMessageImportance = keyof typeof InternetMailMessageImportanceToEnterprise
+export type InternetMailMessageImportanceEnterprise = keyof typeof InternetMailMessageImportanceFromEnterprise
 
 export const InternetMailMessageNonASCIISymbolsEncodingModeToEnterprise = {
   MIME: "MIME",
@@ -2930,17 +1779,10 @@ export const InternetMailMessageNonASCIISymbolsEncodingModeFromEnterprise = {
   БезКодирования: "None",
 } as const
 
-export const InternetMailMessageNonASCIISymbolsEncodingMode = {
-  MIME: "MIME",
-  QuotedPrintable: "QuotedPrintable",
-  None: "None",
-} as const
-
-export const InternetMailMessageNonASCIISymbolsEncodingModeEnterprise = {
-  MIME: "MIME",
-  QuotedPrintable: "QuotedPrintable",
-  БезКодирования: "БезКодирования",
-} as const
+export type InternetMailMessageNonASCIISymbolsEncodingMode =
+  keyof typeof InternetMailMessageNonASCIISymbolsEncodingModeToEnterprise
+export type InternetMailMessageNonASCIISymbolsEncodingModeEnterprise =
+  keyof typeof InternetMailMessageNonASCIISymbolsEncodingModeFromEnterprise
 
 export const InternetMailMessageParseStatusToEnterprise = {
   ErrorsDetected: "ОбнаруженыОшибки",
@@ -2952,15 +1794,8 @@ export const InternetMailMessageParseStatusFromEnterprise = {
   ОшибокНеОбнаружено: "ErrorsNotDetected",
 } as const
 
-export const InternetMailMessageParseStatus = {
-  ErrorsDetected: "ErrorsDetected",
-  ErrorsNotDetected: "ErrorsNotDetected",
-} as const
-
-export const InternetMailMessageParseStatusEnterprise = {
-  ОбнаруженыОшибки: "ОбнаруженыОшибки",
-  ОшибокНеОбнаружено: "ОшибокНеОбнаружено",
-} as const
+export type InternetMailMessageParseStatus = keyof typeof InternetMailMessageParseStatusToEnterprise
+export type InternetMailMessageParseStatusEnterprise = keyof typeof InternetMailMessageParseStatusFromEnterprise
 
 export const InternetMailProtocolToEnterprise = {
   IMAP: "IMAP",
@@ -2974,17 +1809,8 @@ export const InternetMailProtocolFromEnterprise = {
   SMTP: "SMTP",
 } as const
 
-export const InternetMailProtocol = {
-  IMAP: "IMAP",
-  POP3: "POP3",
-  SMTP: "SMTP",
-} as const
-
-export const InternetMailProtocolEnterprise = {
-  IMAP: "IMAP",
-  POP3: "POP3",
-  SMTP: "SMTP",
-} as const
+export type InternetMailProtocol = keyof typeof InternetMailProtocolToEnterprise
+export type InternetMailProtocolEnterprise = keyof typeof InternetMailProtocolFromEnterprise
 
 export const InternetMailTextProcessingToEnterprise = {
   DontProcess: "НеОбрабатывать",
@@ -2996,15 +1822,8 @@ export const InternetMailTextProcessingFromEnterprise = {
   Обрабатывать: "Process",
 } as const
 
-export const InternetMailTextProcessing = {
-  DontProcess: "DontProcess",
-  Process: "Process",
-} as const
-
-export const InternetMailTextProcessingEnterprise = {
-  НеОбрабатывать: "НеОбрабатывать",
-  Обрабатывать: "Обрабатывать",
-} as const
+export type InternetMailTextProcessing = keyof typeof InternetMailTextProcessingToEnterprise
+export type InternetMailTextProcessingEnterprise = keyof typeof InternetMailTextProcessingFromEnterprise
 
 export const InternetMailTextTypeToEnterprise = {
   HTML: "HTML",
@@ -3020,19 +1839,8 @@ export const InternetMailTextTypeFromEnterprise = {
   РазмеченныйТекст: "RichText",
 } as const
 
-export const InternetMailTextType = {
-  HTML: "HTML",
-  CustomText: "CustomText",
-  PlainText: "PlainText",
-  RichText: "RichText",
-} as const
-
-export const InternetMailTextTypeEnterprise = {
-  HTML: "HTML",
-  ПроизвольныйТекст: "ПроизвольныйТекст",
-  ПростойТекст: "ПростойТекст",
-  РазмеченныйТекст: "РазмеченныйТекст",
-} as const
+export type InternetMailTextType = keyof typeof InternetMailTextTypeToEnterprise
+export type InternetMailTextTypeEnterprise = keyof typeof InternetMailTextTypeFromEnterprise
 
 export const POP3AuthenticationModeToEnterprise = {
   APOP: "APOP",
@@ -3046,17 +1854,8 @@ export const POP3AuthenticationModeFromEnterprise = {
   Обычная: "General",
 } as const
 
-export const POP3AuthenticationMode = {
-  APOP: "APOP",
-  CramMD5: "CramMD5",
-  General: "General",
-} as const
-
-export const POP3AuthenticationModeEnterprise = {
-  APOP: "APOP",
-  CramMD5: "CramMD5",
-  Обычная: "Обычная",
-} as const
+export type POP3AuthenticationMode = keyof typeof POP3AuthenticationModeToEnterprise
+export type POP3AuthenticationModeEnterprise = keyof typeof POP3AuthenticationModeFromEnterprise
 
 export const SMTPAuthenticationModeToEnterprise = {
   CramMD5: "CramMD5",
@@ -3074,21 +1873,8 @@ export const SMTPAuthenticationModeFromEnterprise = {
   ПоУмолчанию: "Default",
 } as const
 
-export const SMTPAuthenticationMode = {
-  CramMD5: "CramMD5",
-  Login: "Login",
-  Plain: "Plain",
-  None: "None",
-  Default: "Default",
-} as const
-
-export const SMTPAuthenticationModeEnterprise = {
-  CramMD5: "CramMD5",
-  Login: "Login",
-  Plain: "Plain",
-  БезАутентификации: "БезАутентификации",
-  ПоУмолчанию: "ПоУмолчанию",
-} as const
+export type SMTPAuthenticationMode = keyof typeof SMTPAuthenticationModeToEnterprise
+export type SMTPAuthenticationModeEnterprise = keyof typeof SMTPAuthenticationModeFromEnterprise
 
 export const UseInternetMailTokenAuthenticationToEnterprise = {
   Auto: "Авто",
@@ -3102,17 +1888,8 @@ export const UseInternetMailTokenAuthenticationFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const UseInternetMailTokenAuthentication = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const UseInternetMailTokenAuthenticationEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type UseInternetMailTokenAuthentication = keyof typeof UseInternetMailTokenAuthenticationToEnterprise
+export type UseInternetMailTokenAuthenticationEnterprise = keyof typeof UseInternetMailTokenAuthenticationFromEnterprise
 
 export const QueryBuilderDimensionTypeToEnterprise = {
   Hierarchy: "Иерархия",
@@ -3126,17 +1903,8 @@ export const QueryBuilderDimensionTypeFromEnterprise = {
   Элементы: "Items",
 } as const
 
-export const QueryBuilderDimensionType = {
-  Hierarchy: "Hierarchy",
-  HierarchyOnly: "HierarchyOnly",
-  Items: "Items",
-} as const
-
-export const QueryBuilderDimensionTypeEnterprise = {
-  Иерархия: "Иерархия",
-  ТолькоИерархия: "ТолькоИерархия",
-  Элементы: "Элементы",
-} as const
+export type QueryBuilderDimensionType = keyof typeof QueryBuilderDimensionTypeToEnterprise
+export type QueryBuilderDimensionTypeEnterprise = keyof typeof QueryBuilderDimensionTypeFromEnterprise
 
 export const AddInConnectionTypeToEnterprise = {
   Isolated: "Изолированно",
@@ -3148,15 +1916,8 @@ export const AddInConnectionTypeFromEnterprise = {
   НеИзолированно: "NotIsolated",
 } as const
 
-export const AddInConnectionType = {
-  Isolated: "Isolated",
-  NotIsolated: "NotIsolated",
-} as const
-
-export const AddInConnectionTypeEnterprise = {
-  Изолированно: "Изолированно",
-  НеИзолированно: "НеИзолированно",
-} as const
+export type AddInConnectionType = keyof typeof AddInConnectionTypeToEnterprise
+export type AddInConnectionTypeEnterprise = keyof typeof AddInConnectionTypeFromEnterprise
 
 export const AddInTypeToEnterprise = {
   COM: "COM",
@@ -3168,15 +1929,8 @@ export const AddInTypeFromEnterprise = {
   Native: "Native",
 } as const
 
-export const AddInType = {
-  COM: "COM",
-  Native: "Native",
-} as const
-
-export const AddInTypeEnterprise = {
-  COM: "COM",
-  Native: "Native",
-} as const
+export type AddInType = keyof typeof AddInTypeToEnterprise
+export type AddInTypeEnterprise = keyof typeof AddInTypeFromEnterprise
 
 export const AllowedLengthToEnterprise = {
   Variable: "Переменная",
@@ -3188,15 +1942,8 @@ export const AllowedLengthFromEnterprise = {
   Фиксированная: "Fixed",
 } as const
 
-export const AllowedLength = {
-  Variable: "Variable",
-  Fixed: "Fixed",
-} as const
-
-export const AllowedLengthEnterprise = {
-  Переменная: "Переменная",
-  Фиксированная: "Фиксированная",
-} as const
+export type AllowedLength = keyof typeof AllowedLengthToEnterprise
+export type AllowedLengthEnterprise = keyof typeof AllowedLengthFromEnterprise
 
 export const AllowedSignToEnterprise = {
   Any: "Любой",
@@ -3208,15 +1955,8 @@ export const AllowedSignFromEnterprise = {
   Неотрицательный: "Nonnegative",
 } as const
 
-export const AllowedSign = {
-  Any: "Any",
-  Nonnegative: "Nonnegative",
-} as const
-
-export const AllowedSignEnterprise = {
-  Любой: "Любой",
-  Неотрицательный: "Неотрицательный",
-} as const
+export type AllowedSign = keyof typeof AllowedSignToEnterprise
+export type AllowedSignEnterprise = keyof typeof AllowedSignFromEnterprise
 
 export const ApplicationFormsOpenningModeToEnterprise = {
   Tabs: "Закладки",
@@ -3228,15 +1968,8 @@ export const ApplicationFormsOpenningModeFromEnterprise = {
   ОтдельныеОкна: "SingleWindows",
 } as const
 
-export const ApplicationFormsOpenningMode = {
-  Tabs: "Tabs",
-  SingleWindows: "SingleWindows",
-} as const
-
-export const ApplicationFormsOpenningModeEnterprise = {
-  Закладки: "Закладки",
-  ОтдельныеОкна: "ОтдельныеОкна",
-} as const
+export type ApplicationFormsOpenningMode = keyof typeof ApplicationFormsOpenningModeToEnterprise
+export type ApplicationFormsOpenningModeEnterprise = keyof typeof ApplicationFormsOpenningModeFromEnterprise
 
 export const BorderTypeToEnterprise = {
   Absolute: "Абсолютная",
@@ -3248,15 +1981,8 @@ export const BorderTypeFromEnterprise = {
   ЭлементСтиля: "StyleItem",
 } as const
 
-export const BorderType = {
-  Absolute: "Absolute",
-  StyleItem: "StyleItem",
-} as const
-
-export const BorderTypeEnterprise = {
-  Абсолютная: "Абсолютная",
-  ЭлементСтиля: "ЭлементСтиля",
-} as const
+export type BorderType = keyof typeof BorderTypeToEnterprise
+export type BorderTypeEnterprise = keyof typeof BorderTypeFromEnterprise
 
 export const BoundaryTypeToEnterprise = {
   Including: "Включая",
@@ -3268,15 +1994,8 @@ export const BoundaryTypeFromEnterprise = {
   Исключая: "Excluding",
 } as const
 
-export const BoundaryType = {
-  Including: "Including",
-  Excluding: "Excluding",
-} as const
-
-export const BoundaryTypeEnterprise = {
-  Включая: "Включая",
-  Исключая: "Исключая",
-} as const
+export type BoundaryType = keyof typeof BoundaryTypeToEnterprise
+export type BoundaryTypeEnterprise = keyof typeof BoundaryTypeFromEnterprise
 
 export const ByteOrderMarkUseToEnterprise = {
   Auto: "Авто",
@@ -3290,17 +2009,8 @@ export const ByteOrderMarkUseFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const ByteOrderMarkUse = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const ByteOrderMarkUseEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type ByteOrderMarkUse = keyof typeof ByteOrderMarkUseToEnterprise
+export type ByteOrderMarkUseEnterprise = keyof typeof ByteOrderMarkUseFromEnterprise
 
 export const ClientApplicationBaseFontVariantToEnterprise = {
   Large: "Крупный",
@@ -3312,15 +2022,8 @@ export const ClientApplicationBaseFontVariantFromEnterprise = {
   Обычный: "Normal",
 } as const
 
-export const ClientApplicationBaseFontVariant = {
-  Large: "Large",
-  Normal: "Normal",
-} as const
-
-export const ClientApplicationBaseFontVariantEnterprise = {
-  Крупный: "Крупный",
-  Обычный: "Обычный",
-} as const
+export type ClientApplicationBaseFontVariant = keyof typeof ClientApplicationBaseFontVariantToEnterprise
+export type ClientApplicationBaseFontVariantEnterprise = keyof typeof ClientApplicationBaseFontVariantFromEnterprise
 
 export const ClientApplicationFormScaleVariantToEnterprise = {
   Auto: "Авто",
@@ -3334,17 +2037,8 @@ export const ClientApplicationFormScaleVariantFromEnterprise = {
   Обычный: "Normal",
 } as const
 
-export const ClientApplicationFormScaleVariant = {
-  Auto: "Auto",
-  Compact: "Compact",
-  Normal: "Normal",
-} as const
-
-export const ClientApplicationFormScaleVariantEnterprise = {
-  Авто: "Авто",
-  Компактный: "Компактный",
-  Обычный: "Обычный",
-} as const
+export type ClientApplicationFormScaleVariant = keyof typeof ClientApplicationFormScaleVariantToEnterprise
+export type ClientApplicationFormScaleVariantEnterprise = keyof typeof ClientApplicationFormScaleVariantFromEnterprise
 
 export const ClientApplicationInterfaceVariantToEnterprise = {
   Version8_2: "Версия8_2",
@@ -3356,15 +2050,8 @@ export const ClientApplicationInterfaceVariantFromEnterprise = {
   Такси: "Taxi",
 } as const
 
-export const ClientApplicationInterfaceVariant = {
-  Version8_2: "Version8_2",
-  Taxi: "Taxi",
-} as const
-
-export const ClientApplicationInterfaceVariantEnterprise = {
-  Версия8_2: "Версия8_2",
-  Такси: "Такси",
-} as const
+export type ClientApplicationInterfaceVariant = keyof typeof ClientApplicationInterfaceVariantToEnterprise
+export type ClientApplicationInterfaceVariantEnterprise = keyof typeof ClientApplicationInterfaceVariantFromEnterprise
 
 export const ClientApplicationTypeToEnterprise = {
   WebClient: "ВебКлиент",
@@ -3384,23 +2071,8 @@ export const ClientApplicationTypeFromEnterprise = {
   ТонкийКлиент: "ThinClient",
 } as const
 
-export const ClientApplicationType = {
-  WebClient: "WebClient",
-  ExternalConnection: "ExternalConnection",
-  MobileAppClient: "MobileAppClient",
-  MobileClient: "MobileClient",
-  ThickClient: "ThickClient",
-  ThinClient: "ThinClient",
-} as const
-
-export const ClientApplicationTypeEnterprise = {
-  ВебКлиент: "ВебКлиент",
-  ВнешнееСоединение: "ВнешнееСоединение",
-  МобильноеПриложениеКлиент: "МобильноеПриложениеКлиент",
-  МобильныйКлиент: "МобильныйКлиент",
-  ТолстыйКлиент: "ТолстыйКлиент",
-  ТонкийКлиент: "ТонкийКлиент",
-} as const
+export type ClientApplicationType = keyof typeof ClientApplicationTypeToEnterprise
+export type ClientApplicationTypeEnterprise = keyof typeof ClientApplicationTypeFromEnterprise
 
 export const ClientConnectionSpeedToEnterprise = {
   Low: "Низкая",
@@ -3412,15 +2084,8 @@ export const ClientConnectionSpeedFromEnterprise = {
   Обычная: "Normal",
 } as const
 
-export const ClientConnectionSpeed = {
-  Low: "Low",
-  Normal: "Normal",
-} as const
-
-export const ClientConnectionSpeedEnterprise = {
-  Низкая: "Низкая",
-  Обычная: "Обычная",
-} as const
+export type ClientConnectionSpeed = keyof typeof ClientConnectionSpeedToEnterprise
+export type ClientConnectionSpeedEnterprise = keyof typeof ClientConnectionSpeedFromEnterprise
 
 export const ClientRunModeToEnterprise = {
   Auto: "Авто",
@@ -3434,17 +2099,8 @@ export const ClientRunModeFromEnterprise = {
   УправляемоеПриложение: "ManagedApplication",
 } as const
 
-export const ClientRunMode = {
-  Auto: "Auto",
-  OrdinaryApplication: "OrdinaryApplication",
-  ManagedApplication: "ManagedApplication",
-} as const
-
-export const ClientRunModeEnterprise = {
-  Авто: "Авто",
-  ОбычноеПриложение: "ОбычноеПриложение",
-  УправляемоеПриложение: "УправляемоеПриложение",
-} as const
+export type ClientRunMode = keyof typeof ClientRunModeToEnterprise
+export type ClientRunModeEnterprise = keyof typeof ClientRunModeFromEnterprise
 
 export const ColorTypeToEnterprise = {
   WebColor: "WebЦвет",
@@ -3462,21 +2118,8 @@ export const ColorTypeFromEnterprise = {
   ЭлементСтиля: "StyleItem",
 } as const
 
-export const ColorType = {
-  WebColor: "WebColor",
-  WindowsColor: "WindowsColor",
-  Absolute: "Absolute",
-  AutoColor: "AutoColor",
-  StyleItem: "StyleItem",
-} as const
-
-export const ColorTypeEnterprise = {
-  WebЦвет: "WebЦвет",
-  WindowsЦвет: "WindowsЦвет",
-  Абсолютный: "Абсолютный",
-  АвтоЦвет: "АвтоЦвет",
-  ЭлементСтиля: "ЭлементСтиля",
-} as const
+export type ColorType = keyof typeof ColorTypeToEnterprise
+export type ColorTypeEnterprise = keyof typeof ColorTypeFromEnterprise
 
 export const ComparisonTypeToEnterprise = {
   Greater: "Больше",
@@ -3520,47 +2163,8 @@ export const ComparisonTypeFromEnterprise = {
   Содержит: "Contains",
 } as const
 
-export const ComparisonType = {
-  Greater: "Greater",
-  GreaterOrEqual: "GreaterOrEqual",
-  InHierarchy: "InHierarchy",
-  InList: "InList",
-  InListByHierarchy: "InListByHierarchy",
-  Interval: "Interval",
-  IntervalIncludingBounds: "IntervalIncludingBounds",
-  IntervalIncludingLowerBound: "IntervalIncludingLowerBound",
-  IntervalIncludingUpperBound: "IntervalIncludingUpperBound",
-  Less: "Less",
-  LessOrEqual: "LessOrEqual",
-  NotInHierarchy: "NotInHierarchy",
-  NotInList: "NotInList",
-  NotInListByHierarchy: "NotInListByHierarchy",
-  NotEqual: "NotEqual",
-  NotContains: "NotContains",
-  Equal: "Equal",
-  Contains: "Contains",
-} as const
-
-export const ComparisonTypeEnterprise = {
-  Больше: "Больше",
-  БольшеИлиРавно: "БольшеИлиРавно",
-  ВИерархии: "ВИерархии",
-  ВСписке: "ВСписке",
-  ВСпискеПоИерархии: "ВСпискеПоИерархии",
-  Интервал: "Интервал",
-  ИнтервалВключаяГраницы: "ИнтервалВключаяГраницы",
-  ИнтервалВключаяНачало: "ИнтервалВключаяНачало",
-  ИнтервалВключаяОкончание: "ИнтервалВключаяОкончание",
-  Меньше: "Меньше",
-  МеньшеИлиРавно: "МеньшеИлиРавно",
-  НеВИерархии: "НеВИерархии",
-  НеВСписке: "НеВСписке",
-  НеВСпискеПоИерархии: "НеВСпискеПоИерархии",
-  НеРавно: "НеРавно",
-  НеСодержит: "НеСодержит",
-  Равно: "Равно",
-  Содержит: "Содержит",
-} as const
+export type ComparisonType = keyof typeof ComparisonTypeToEnterprise
+export type ComparisonTypeEnterprise = keyof typeof ComparisonTypeFromEnterprise
 
 export const CompositeWordsSeparationModeToEnterprise = {
   Auto: "Авто",
@@ -3574,17 +2178,8 @@ export const CompositeWordsSeparationModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const CompositeWordsSeparationMode = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const CompositeWordsSeparationModeEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type CompositeWordsSeparationMode = keyof typeof CompositeWordsSeparationModeToEnterprise
+export type CompositeWordsSeparationModeEnterprise = keyof typeof CompositeWordsSeparationModeFromEnterprise
 
 export const ConfigurationExtensionApplicationIssueSeverityToEnterprise = {
   Critical: "Критичная",
@@ -3598,17 +2193,10 @@ export const ConfigurationExtensionApplicationIssueSeverityFromEnterprise = {
   Обычная: "Moderate",
 } as const
 
-export const ConfigurationExtensionApplicationIssueSeverity = {
-  Critical: "Critical",
-  Low: "Low",
-  Moderate: "Moderate",
-} as const
-
-export const ConfigurationExtensionApplicationIssueSeverityEnterprise = {
-  Критичная: "Критичная",
-  Низкая: "Низкая",
-  Обычная: "Обычная",
-} as const
+export type ConfigurationExtensionApplicationIssueSeverity =
+  keyof typeof ConfigurationExtensionApplicationIssueSeverityToEnterprise
+export type ConfigurationExtensionApplicationIssueSeverityEnterprise =
+  keyof typeof ConfigurationExtensionApplicationIssueSeverityFromEnterprise
 
 export const ConfigurationExtensionScopeToEnterprise = {
   InfoBase: "ИнформационнаяБаза",
@@ -3620,15 +2208,8 @@ export const ConfigurationExtensionScopeFromEnterprise = {
   РазделениеДанных: "DataSeparation",
 } as const
 
-export const ConfigurationExtensionScope = {
-  InfoBase: "InfoBase",
-  DataSeparation: "DataSeparation",
-} as const
-
-export const ConfigurationExtensionScopeEnterprise = {
-  ИнформационнаяБаза: "ИнформационнаяБаза",
-  РазделениеДанных: "РазделениеДанных",
-} as const
+export type ConfigurationExtensionScope = keyof typeof ConfigurationExtensionScopeToEnterprise
+export type ConfigurationExtensionScopeEnterprise = keyof typeof ConfigurationExtensionScopeFromEnterprise
 
 export const ConfigurationExtensionsSourceToEnterprise = {
   Database: "БазаДанных",
@@ -3642,17 +2223,8 @@ export const ConfigurationExtensionsSourceFromEnterprise = {
   СеансОтключенные: "SessionDisabled",
 } as const
 
-export const ConfigurationExtensionsSource = {
-  Database: "Database",
-  SessionApplied: "SessionApplied",
-  SessionDisabled: "SessionDisabled",
-} as const
-
-export const ConfigurationExtensionsSourceEnterprise = {
-  БазаДанных: "БазаДанных",
-  СеансАктивные: "СеансАктивные",
-  СеансОтключенные: "СеансОтключенные",
-} as const
+export type ConfigurationExtensionsSource = keyof typeof ConfigurationExtensionsSourceToEnterprise
+export type ConfigurationExtensionsSourceEnterprise = keyof typeof ConfigurationExtensionsSourceFromEnterprise
 
 export const DataBaseConfigurationUpdateExecutionInformationItemTypeToEnterprise = {
   Information: "Информация",
@@ -3666,17 +2238,10 @@ export const DataBaseConfigurationUpdateExecutionInformationItemTypeFromEnterpri
   Предупреждение: "Warning",
 } as const
 
-export const DataBaseConfigurationUpdateExecutionInformationItemType = {
-  Information: "Information",
-  Error: "Error",
-  Warning: "Warning",
-} as const
-
-export const DataBaseConfigurationUpdateExecutionInformationItemTypeEnterprise = {
-  Информация: "Информация",
-  Ошибка: "Ошибка",
-  Предупреждение: "Предупреждение",
-} as const
+export type DataBaseConfigurationUpdateExecutionInformationItemType =
+  keyof typeof DataBaseConfigurationUpdateExecutionInformationItemTypeToEnterprise
+export type DataBaseConfigurationUpdateExecutionInformationItemTypeEnterprise =
+  keyof typeof DataBaseConfigurationUpdateExecutionInformationItemTypeFromEnterprise
 
 export const DataBaseConfigurationUpdateStateToEnterprise = {
   RefreshInProgress: "ВыполняетсяАктуализация",
@@ -3690,17 +2255,8 @@ export const DataBaseConfigurationUpdateStateFromEnterprise = {
   Неактивно: "NotActive",
 } as const
 
-export const DataBaseConfigurationUpdateState = {
-  RefreshInProgress: "RefreshInProgress",
-  ProcessingInProgress: "ProcessingInProgress",
-  NotActive: "NotActive",
-} as const
-
-export const DataBaseConfigurationUpdateStateEnterprise = {
-  ВыполняетсяАктуализация: "ВыполняетсяАктуализация",
-  ВыполняетсяОбработка: "ВыполняетсяОбработка",
-  Неактивно: "Неактивно",
-} as const
+export type DataBaseConfigurationUpdateState = keyof typeof DataBaseConfigurationUpdateStateToEnterprise
+export type DataBaseConfigurationUpdateStateEnterprise = keyof typeof DataBaseConfigurationUpdateStateFromEnterprise
 
 export const DatabaseTablespacesUseModeToEnterprise = {
   Use: "Использовать",
@@ -3712,15 +2268,8 @@ export const DatabaseTablespacesUseModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const DatabaseTablespacesUseMode = {
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const DatabaseTablespacesUseModeEnterprise = {
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type DatabaseTablespacesUseMode = keyof typeof DatabaseTablespacesUseModeToEnterprise
+export type DatabaseTablespacesUseModeEnterprise = keyof typeof DatabaseTablespacesUseModeFromEnterprise
 
 export const DateFractionsToEnterprise = {
   Time: "Время",
@@ -3734,17 +2283,8 @@ export const DateFractionsFromEnterprise = {
   ДатаВремя: "DateTime",
 } as const
 
-export const DateFractions = {
-  Time: "Time",
-  Date: "Date",
-  DateTime: "DateTime",
-} as const
-
-export const DateFractionsEnterprise = {
-  Время: "Время",
-  Дата: "Дата",
-  ДатаВремя: "ДатаВремя",
-} as const
+export type DateFractions = keyof typeof DateFractionsToEnterprise
+export type DateFractionsEnterprise = keyof typeof DateFractionsFromEnterprise
 
 export const DialogReturnCodeToEnterprise = {
   Yes: "Да",
@@ -3768,27 +2308,8 @@ export const DialogReturnCodeFromEnterprise = {
   Таймаут: "Timeout",
 } as const
 
-export const DialogReturnCode = {
-  Yes: "Yes",
-  No: "No",
-  OK: "OK",
-  Cancel: "Cancel",
-  Retry: "Retry",
-  Abort: "Abort",
-  Ignore: "Ignore",
-  Timeout: "Timeout",
-} as const
-
-export const DialogReturnCodeEnterprise = {
-  Да: "Да",
-  Нет: "Нет",
-  ОК: "ОК",
-  Отмена: "Отмена",
-  Повторить: "Повторить",
-  Прервать: "Прервать",
-  Пропустить: "Пропустить",
-  Таймаут: "Таймаут",
-} as const
+export type DialogReturnCode = keyof typeof DialogReturnCodeToEnterprise
+export type DialogReturnCodeEnterprise = keyof typeof DialogReturnCodeFromEnterprise
 
 export const DynamicListKeyTypeToEnterprise = {
   Auto: "Авто",
@@ -3804,19 +2325,8 @@ export const DynamicListKeyTypeFromEnterprise = {
   НомерСтроки: "RowNumber",
 } as const
 
-export const DynamicListKeyType = {
-  Auto: "Auto",
-  FieldValue: "FieldValue",
-  RowKey: "RowKey",
-  RowNumber: "RowNumber",
-} as const
-
-export const DynamicListKeyTypeEnterprise = {
-  Авто: "Авто",
-  ЗначениеПоля: "ЗначениеПоля",
-  КлючСтроки: "КлючСтроки",
-  НомерСтроки: "НомерСтроки",
-} as const
+export type DynamicListKeyType = keyof typeof DynamicListKeyTypeToEnterprise
+export type DynamicListKeyTypeEnterprise = keyof typeof DynamicListKeyTypeFromEnterprise
 
 export const EnterKeyBehaviorTypeToEnterprise = {
   DefaultButton: "КнопкаПоУмолчанию",
@@ -3828,15 +2338,8 @@ export const EnterKeyBehaviorTypeFromEnterprise = {
   ПереходПоЭлементамФормы: "ControlNavigation",
 } as const
 
-export const EnterKeyBehaviorType = {
-  DefaultButton: "DefaultButton",
-  ControlNavigation: "ControlNavigation",
-} as const
-
-export const EnterKeyBehaviorTypeEnterprise = {
-  КнопкаПоУмолчанию: "КнопкаПоУмолчанию",
-  ПереходПоЭлементамФормы: "ПереходПоЭлементамФормы",
-} as const
+export type EnterKeyBehaviorType = keyof typeof EnterKeyBehaviorTypeToEnterprise
+export type EnterKeyBehaviorTypeEnterprise = keyof typeof EnterKeyBehaviorTypeFromEnterprise
 
 export const ExternalDataSourceStateToEnterprise = {
   Disconnected: "Отключен",
@@ -3848,15 +2351,8 @@ export const ExternalDataSourceStateFromEnterprise = {
   Подключен: "Connected",
 } as const
 
-export const ExternalDataSourceState = {
-  Disconnected: "Disconnected",
-  Connected: "Connected",
-} as const
-
-export const ExternalDataSourceStateEnterprise = {
-  Отключен: "Отключен",
-  Подключен: "Подключен",
-} as const
+export type ExternalDataSourceState = keyof typeof ExternalDataSourceStateToEnterprise
+export type ExternalDataSourceStateEnterprise = keyof typeof ExternalDataSourceStateFromEnterprise
 
 export const FillCheckingToEnterprise = {
   ShowError: "ВыдаватьОшибку",
@@ -3868,15 +2364,8 @@ export const FillCheckingFromEnterprise = {
   НеПроверять: "DontCheck",
 } as const
 
-export const FillChecking = {
-  ShowError: "ShowError",
-  DontCheck: "DontCheck",
-} as const
-
-export const FillCheckingEnterprise = {
-  ВыдаватьОшибку: "ВыдаватьОшибку",
-  НеПроверять: "НеПроверять",
-} as const
+export type FillChecking = keyof typeof FillCheckingToEnterprise
+export type FillCheckingEnterprise = keyof typeof FillCheckingFromEnterprise
 
 export const FontTypeToEnterprise = {
   WindowsFont: "WindowsШрифт",
@@ -3892,19 +2381,8 @@ export const FontTypeFromEnterprise = {
   ЭлементСтиля: "StyleItem",
 } as const
 
-export const FontType = {
-  WindowsFont: "WindowsFont",
-  Absolute: "Absolute",
-  AutoFont: "AutoFont",
-  StyleItem: "StyleItem",
-} as const
-
-export const FontTypeEnterprise = {
-  WindowsШрифт: "WindowsШрифт",
-  Абсолютный: "Абсолютный",
-  АвтоШрифт: "АвтоШрифт",
-  ЭлементСтиля: "ЭлементСтиля",
-} as const
+export type FontType = keyof typeof FontTypeToEnterprise
+export type FontTypeEnterprise = keyof typeof FontTypeFromEnterprise
 
 export const FullTextSearchMetadataUseToEnterprise = {
   Use: "Использовать",
@@ -3916,15 +2394,8 @@ export const FullTextSearchMetadataUseFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const FullTextSearchMetadataUse = {
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const FullTextSearchMetadataUseEnterprise = {
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type FullTextSearchMetadataUse = keyof typeof FullTextSearchMetadataUseToEnterprise
+export type FullTextSearchMetadataUseEnterprise = keyof typeof FullTextSearchMetadataUseFromEnterprise
 
 export const FullTextSearchModeToEnterprise = {
   Disable: "Запретить",
@@ -3936,15 +2407,8 @@ export const FullTextSearchModeFromEnterprise = {
   Разрешить: "Enable",
 } as const
 
-export const FullTextSearchMode = {
-  Disable: "Disable",
-  Enable: "Enable",
-} as const
-
-export const FullTextSearchModeEnterprise = {
-  Запретить: "Запретить",
-  Разрешить: "Разрешить",
-} as const
+export type FullTextSearchMode = keyof typeof FullTextSearchModeToEnterprise
+export type FullTextSearchModeEnterprise = keyof typeof FullTextSearchModeFromEnterprise
 
 export const FullTextSearchRepresentationTypeToEnterprise = {
   HTMLText: "HTMLТекст",
@@ -3956,15 +2420,8 @@ export const FullTextSearchRepresentationTypeFromEnterprise = {
   XML: "XML",
 } as const
 
-export const FullTextSearchRepresentationType = {
-  HTMLText: "HTMLText",
-  XML: "XML",
-} as const
-
-export const FullTextSearchRepresentationTypeEnterprise = {
-  HTMLТекст: "HTMLТекст",
-  XML: "XML",
-} as const
+export type FullTextSearchRepresentationType = keyof typeof FullTextSearchRepresentationTypeToEnterprise
+export type FullTextSearchRepresentationTypeEnterprise = keyof typeof FullTextSearchRepresentationTypeFromEnterprise
 
 export const FullTextSearchVersionToEnterprise = {
   Version1: "Версия1",
@@ -3976,15 +2433,8 @@ export const FullTextSearchVersionFromEnterprise = {
   Версия2: "Version2",
 } as const
 
-export const FullTextSearchVersion = {
-  Version1: "Version1",
-  Version2: "Version2",
-} as const
-
-export const FullTextSearchVersionEnterprise = {
-  Версия1: "Версия1",
-  Версия2: "Версия2",
-} as const
+export type FullTextSearchVersion = keyof typeof FullTextSearchVersionToEnterprise
+export type FullTextSearchVersionEnterprise = keyof typeof FullTextSearchVersionFromEnterprise
 
 export const HashFunctionToEnterprise = {
   CRC32: "CRC32",
@@ -4004,23 +2454,8 @@ export const HashFunctionFromEnterprise = {
   SHA512: "SHA512",
 } as const
 
-export const HashFunction = {
-  CRC32: "CRC32",
-  MD5: "MD5",
-  PBKDF2SHA256: "PBKDF2SHA256",
-  SHA1: "SHA1",
-  SHA256: "SHA256",
-  SHA512: "SHA512",
-} as const
-
-export const HashFunctionEnterprise = {
-  CRC32: "CRC32",
-  MD5: "MD5",
-  PBKDF2SHA256: "PBKDF2SHA256",
-  SHA1: "SHA1",
-  SHA256: "SHA256",
-  SHA512: "SHA512",
-} as const
+export type HashFunction = keyof typeof HashFunctionToEnterprise
+export type HashFunctionEnterprise = keyof typeof HashFunctionFromEnterprise
 
 export const InterfaceCompatibilityModeToEnterprise = {
   Version8_2: "Версия8_2",
@@ -4036,19 +2471,8 @@ export const InterfaceCompatibilityModeFromEnterprise = {
   ТаксиРазрешитьВерсия8_2: "TaxiEnableVersion8_2",
 } as const
 
-export const InterfaceCompatibilityMode = {
-  Version8_2: "Version8_2",
-  Version8_2EnableTaxi: "Version8_2EnableTaxi",
-  Taxi: "Taxi",
-  TaxiEnableVersion8_2: "TaxiEnableVersion8_2",
-} as const
-
-export const InterfaceCompatibilityModeEnterprise = {
-  Версия8_2: "Версия8_2",
-  Версия8_2РазрешитьТакси: "Версия8_2РазрешитьТакси",
-  Такси: "Такси",
-  ТаксиРазрешитьВерсия8_2: "ТаксиРазрешитьВерсия8_2",
-} as const
+export type InterfaceCompatibilityMode = keyof typeof InterfaceCompatibilityModeToEnterprise
+export type InterfaceCompatibilityModeEnterprise = keyof typeof InterfaceCompatibilityModeFromEnterprise
 
 export const IntervalBoundVariantToEnterprise = {
   WithoutRestriction: "БезОграничения",
@@ -4072,27 +2496,8 @@ export const IntervalBoundVariantFromEnterprise = {
   Смещение: "BeforeAfter",
 } as const
 
-export const IntervalBoundVariant = {
-  WithoutRestriction: "WithoutRestriction",
-  Year: "Year",
-  Quarter: "Quarter",
-  SpecificDate: "SpecificDate",
-  Month: "Month",
-  Week: "Week",
-  WorkingDate: "WorkingDate",
-  BeforeAfter: "BeforeAfter",
-} as const
-
-export const IntervalBoundVariantEnterprise = {
-  БезОграничения: "БезОграничения",
-  Год: "Год",
-  Квартал: "Квартал",
-  КонкретнаяДата: "КонкретнаяДата",
-  Месяц: "Месяц",
-  Неделя: "Неделя",
-  РабочаяДата: "РабочаяДата",
-  Смещение: "Смещение",
-} as const
+export type IntervalBoundVariant = keyof typeof IntervalBoundVariantToEnterprise
+export type IntervalBoundVariantEnterprise = keyof typeof IntervalBoundVariantFromEnterprise
 
 export const KeyToEnterprise = {
   BackSpace: "BackSpace",
@@ -4118,29 +2523,8 @@ export const KeyFromEnterprise = {
   Нет: "None",
 } as const
 
-export const Key = {
-  BackSpace: "BackSpace",
-  Break: "Break",
-  NumAdd: "NumAdd",
-  NumDecimal: "NumDecimal",
-  NumDivide: "NumDivide",
-  NumMultiply: "NumMultiply",
-  NumSubtract: "NumSubtract",
-  Space: "Space",
-  None: "None",
-} as const
-
-export const KeyEnterprise = {
-  BackSpace: "BackSpace",
-  Break: "Break",
-  NumAdd: "NumAdd",
-  NumDecimal: "NumDecimal",
-  NumDivide: "NumDivide",
-  NumMultiply: "NumMultiply",
-  NumSubtract: "NumSubtract",
-  Space: "Space",
-  Нет: "Нет",
-} as const
+export type Key = keyof typeof KeyToEnterprise
+export type KeyEnterprise = keyof typeof KeyFromEnterprise
 
 export const LocationRelativeToGeofenceToEnterprise = {
   Inside: "Внутри",
@@ -4152,15 +2536,8 @@ export const LocationRelativeToGeofenceFromEnterprise = {
   Снаружи: "Outside",
 } as const
 
-export const LocationRelativeToGeofence = {
-  Inside: "Inside",
-  Outside: "Outside",
-} as const
-
-export const LocationRelativeToGeofenceEnterprise = {
-  Внутри: "Внутри",
-  Снаружи: "Снаружи",
-} as const
+export type LocationRelativeToGeofence = keyof typeof LocationRelativeToGeofenceToEnterprise
+export type LocationRelativeToGeofenceEnterprise = keyof typeof LocationRelativeToGeofenceFromEnterprise
 
 export const MessageStatusToEnterprise = {
   WithoutStatus: "БезСтатуса",
@@ -4180,23 +2557,8 @@ export const MessageStatusFromEnterprise = {
   ОченьВажное: "VeryImportant",
 } as const
 
-export const MessageStatus = {
-  WithoutStatus: "WithoutStatus",
-  Important: "Important",
-  Attention: "Attention",
-  Information: "Information",
-  Ordinary: "Ordinary",
-  VeryImportant: "VeryImportant",
-} as const
-
-export const MessageStatusEnterprise = {
-  БезСтатуса: "БезСтатуса",
-  Важное: "Важное",
-  Внимание: "Внимание",
-  Информация: "Информация",
-  Обычное: "Обычное",
-  ОченьВажное: "ОченьВажное",
-} as const
+export type MessageStatus = keyof typeof MessageStatusToEnterprise
+export type MessageStatusEnterprise = keyof typeof MessageStatusFromEnterprise
 
 export const MobileApplicationFunctionalitiesToEnterprise = {
   BluetoothPrinters: "BluetoothПринтеры",
@@ -4280,87 +2642,8 @@ export const MobileApplicationFunctionalitiesFromEnterprise = {
   УстановкаПриложений: "InstallPackages",
 } as const
 
-export const MobileApplicationFunctionalities = {
-  BluetoothPrinters: "BluetoothPrinters",
-  NFC: "NFC",
-  PushNotifications: "PushNotifications",
-  WiFiPrinters: "WiFiPrinters",
-  AutoSendSMS: "AutoSendSMS",
-  MusicLibrary: "MusicLibrary",
-  PictureAndVideoLibraries: "PictureAndVideoLibraries",
-  Biometrics: "Biometrics",
-  Videoconferences: "Videoconferences",
-  AudioPlaybackAndVibration: "AudioPlaybackAndVibration",
-  BackgroundAudioPlaybackAndVibration: "BackgroundAudioPlaybackAndVibration",
-  InAppPurchases: "InAppPurchases",
-  IncomingShareRequests: "IncomingShareRequests",
-  Geofences: "Geofences",
-  Location: "Location",
-  BackgroundLocation: "BackgroundLocation",
-  AllFilesAccess: "AllFilesAccess",
-  SMSLog: "SMSLog",
-  CallLog: "CallLog",
-  BackgroundAudioRecording: "BackgroundAudioRecording",
-  Calendars: "Calendars",
-  Camera: "Camera",
-  Contacts: "Contacts",
-  LocalNotifications: "LocalNotifications",
-  Microphone: "Microphone",
-  NumberDialing: "NumberDialing",
-  PersonalComputerFileExchange: "PersonalComputerFileExchange",
-  AllIncomingShareRequestsTypesProcessing: "AllIncomingShareRequestsTypesProcessing",
-  CallProcessing: "CallProcessing",
-  ReceiveSMS: "ReceiveSMS",
-  SpeechToText: "SpeechToText",
-  OSBackup: "OSBackup",
-  Ads: "Ads",
-  TextToSpeech: "TextToSpeech",
-  DocumentScanning: "DocumentScanning",
-  BarcodeScanning: "BarcodeScanning",
-  ApplicationUsageStatistics: "ApplicationUsageStatistics",
-  InstallPackages: "InstallPackages",
-} as const
-
-export const MobileApplicationFunctionalitiesEnterprise = {
-  BluetoothПринтеры: "BluetoothПринтеры",
-  NFC: "NFC",
-  PushУведомления: "PushУведомления",
-  WiFiПринтеры: "WiFiПринтеры",
-  АвтоматическаяОтправкаSMSСообщений: "АвтоматическаяОтправкаSMSСообщений",
-  БиблиотекаМузыки: "БиблиотекаМузыки",
-  БиблиотекиКартинокИВидео: "БиблиотекиКартинокИВидео",
-  Биометрия: "Биометрия",
-  Видеоконференции: "Видеоконференции",
-  ВоспроизведениеАудиоИВибрация: "ВоспроизведениеАудиоИВибрация",
-  ВоспроизведениеАудиоИВибрацияВФоновомРежиме: "ВоспроизведениеАудиоИВибрацияВФоновомРежиме",
-  ВстроенныеПокупки: "ВстроенныеПокупки",
-  ВходящиеЗапросыПоделиться: "ВходящиеЗапросыПоделиться",
-  Геозоны: "Геозоны",
-  Геопозиционирование: "Геопозиционирование",
-  ГеопозиционированиеВФоновомРежиме: "ГеопозиционированиеВФоновомРежиме",
-  ДоступКоВсемФайлам: "ДоступКоВсемФайлам",
-  ЖурналSMS: "ЖурналSMS",
-  ЖурналЗвонков: "ЖурналЗвонков",
-  ЗаписьАудиоВФоновомРежиме: "ЗаписьАудиоВФоновомРежиме",
-  Календари: "Календари",
-  Камера: "Камера",
-  Контакты: "Контакты",
-  ЛокальныеУведомления: "ЛокальныеУведомления",
-  Микрофон: "Микрофон",
-  НаборНомера: "НаборНомера",
-  ОбменФайламиСПерсональнымКомпьютером: "ОбменФайламиСПерсональнымКомпьютером",
-  ОбработкаВсехТиповВходящихЗапросовПоделиться: "ОбработкаВсехТиповВходящихЗапросовПоделиться",
-  ОбработкаЗвонков: "ОбработкаЗвонков",
-  ПолучениеSMS: "ПолучениеSMS",
-  РаспознаваниеРечи: "РаспознаваниеРечи",
-  РезервноеКопированиеСредствамиОС: "РезервноеКопированиеСредствамиОС",
-  Реклама: "Реклама",
-  СинтезРечи: "СинтезРечи",
-  СканированиеДокументов: "СканированиеДокументов",
-  СканированиеШтрихКодов: "СканированиеШтрихКодов",
-  СтатистикаИспользованияПриложения: "СтатистикаИспользованияПриложения",
-  УстановкаПриложений: "УстановкаПриложений",
-} as const
+export type MobileApplicationFunctionalities = keyof typeof MobileApplicationFunctionalitiesToEnterprise
+export type MobileApplicationFunctionalitiesEnterprise = keyof typeof MobileApplicationFunctionalitiesFromEnterprise
 
 export const NumericValueTypeToEnterprise = {
   Cardinal: "Количественное",
@@ -4372,15 +2655,8 @@ export const NumericValueTypeFromEnterprise = {
   Порядковое: "Ordinal",
 } as const
 
-export const NumericValueType = {
-  Cardinal: "Cardinal",
-  Ordinal: "Ordinal",
-} as const
-
-export const NumericValueTypeEnterprise = {
-  Количественное: "Количественное",
-  Порядковое: "Порядковое",
-} as const
+export type NumericValueType = keyof typeof NumericValueTypeToEnterprise
+export type NumericValueTypeEnterprise = keyof typeof NumericValueTypeFromEnterprise
 
 export const PasswordPolicyComplianceCheckResultToEnterprise = {
   DoesNotSatisfyMinLengthRequirements: "НеСоответствуетТребованиямМинимальнойДлины",
@@ -4396,20 +2672,9 @@ export const PasswordPolicyComplianceCheckResultFromEnterprise = {
   НеСоответствуетТребованиямСложности: "DoesNotSatisfyComplexityRequirements",
 } as const
 
-export const PasswordPolicyComplianceCheckResult = {
-  DoesNotSatisfyMinLengthRequirements: "DoesNotSatisfyMinLengthRequirements",
-  DoesNotSatisfyReuseLimitRequirements: "DoesNotSatisfyReuseLimitRequirements",
-  DoesNotSatisfyCompromiseCheckRequirements: "DoesNotSatisfyCompromiseCheckRequirements",
-  DoesNotSatisfyComplexityRequirements: "DoesNotSatisfyComplexityRequirements",
-} as const
-
-export const PasswordPolicyComplianceCheckResultEnterprise = {
-  НеСоответствуетТребованиямМинимальнойДлины: "НеСоответствуетТребованиямМинимальнойДлины",
-  НеСоответствуетТребованиямОграниченияПовторенияСредиПоследних:
-    "НеСоответствуетТребованиямОграниченияПовторенияСредиПоследних",
-  НеСоответствуетТребованиямПроверкиРаскрытия: "НеСоответствуетТребованиямПроверкиРаскрытия",
-  НеСоответствуетТребованиямСложности: "НеСоответствуетТребованиямСложности",
-} as const
+export type PasswordPolicyComplianceCheckResult = keyof typeof PasswordPolicyComplianceCheckResultToEnterprise
+export type PasswordPolicyComplianceCheckResultEnterprise =
+  keyof typeof PasswordPolicyComplianceCheckResultFromEnterprise
 
 export const PeriodSettingsVariantToEnterprise = {
   Interval: "Интервал",
@@ -4421,15 +2686,8 @@ export const PeriodSettingsVariantFromEnterprise = {
   Период: "Period",
 } as const
 
-export const PeriodSettingsVariant = {
-  Interval: "Interval",
-  Period: "Period",
-} as const
-
-export const PeriodSettingsVariantEnterprise = {
-  Интервал: "Интервал",
-  Период: "Период",
-} as const
+export type PeriodSettingsVariant = keyof typeof PeriodSettingsVariantToEnterprise
+export type PeriodSettingsVariantEnterprise = keyof typeof PeriodSettingsVariantFromEnterprise
 
 export const PeriodVariantToEnterprise = {
   Year: "Год",
@@ -4459,33 +2717,8 @@ export const PeriodVariantFromEnterprise = {
   ПроизвольныйИнтервал: "AnyInterval",
 } as const
 
-export const PeriodVariant = {
-  Year: "Year",
-  Day: "Day",
-  DayFromBegOfYear: "DayFromBegOfYear",
-  DayFromBegOfQuarter: "DayFromBegOfQuarter",
-  DayFromBegOfMonth: "DayFromBegOfMonth",
-  Quarter: "Quarter",
-  QuarterFromBegOfYear: "QuarterFromBegOfYear",
-  Month: "Month",
-  MonthFromBegOfYear: "MonthFromBegOfYear",
-  MonthFromBegOfQuarter: "MonthFromBegOfQuarter",
-  AnyInterval: "AnyInterval",
-} as const
-
-export const PeriodVariantEnterprise = {
-  Год: "Год",
-  День: "День",
-  ДеньСНачалаГода: "ДеньСНачалаГода",
-  ДеньСНачалаКвартала: "ДеньСНачалаКвартала",
-  ДеньСНачалаМесяца: "ДеньСНачалаМесяца",
-  Квартал: "Квартал",
-  КварталСНачалаГода: "КварталСНачалаГода",
-  Месяц: "Месяц",
-  МесяцСНачалаГода: "МесяцСНачалаГода",
-  МесяцСНачалаКвартала: "МесяцСНачалаКвартала",
-  ПроизвольныйИнтервал: "ПроизвольныйИнтервал",
-} as const
+export type PeriodVariant = keyof typeof PeriodVariantToEnterprise
+export type PeriodVariantEnterprise = keyof typeof PeriodVariantFromEnterprise
 
 export const PictureTypeToEnterprise = {
   Absolute: "Абсолютная",
@@ -4499,17 +2732,8 @@ export const PictureTypeFromEnterprise = {
   Пустая: "Empty",
 } as const
 
-export const PictureType = {
-  Absolute: "Absolute",
-  FromLib: "FromLib",
-  Empty: "Empty",
-} as const
-
-export const PictureTypeEnterprise = {
-  Абсолютная: "Абсолютная",
-  ИзБиблиотеки: "ИзБиблиотеки",
-  Пустая: "Пустая",
-} as const
+export type PictureType = keyof typeof PictureTypeToEnterprise
+export type PictureTypeEnterprise = keyof typeof PictureTypeFromEnterprise
 
 export const PlatformTypeToEnterprise = {
   Android_ARM: "Android_ARM",
@@ -4551,45 +2775,8 @@ export const PlatformTypeFromEnterprise = {
   WinRT_x86_64: "WinRT_x86_64",
 } as const
 
-export const PlatformType = {
-  Android_ARM: "Android_ARM",
-  Android_ARM_64: "Android_ARM_64",
-  Android_x86: "Android_x86",
-  Android_x86_64: "Android_x86_64",
-  iOS_ARM: "iOS_ARM",
-  iOS_ARM_64: "iOS_ARM_64",
-  Linux_ARM64: "Linux_ARM64",
-  Linux_E2K: "Linux_E2K",
-  Linux_x86: "Linux_x86",
-  Linux_x86_64: "Linux_x86_64",
-  MacOS_x86: "MacOS_x86",
-  MacOS_x86_64: "MacOS_x86_64",
-  Windows_x86: "Windows_x86",
-  Windows_x86_64: "Windows_x86_64",
-  WinRT_ARM: "WinRT_ARM",
-  WinRT_x86: "WinRT_x86",
-  WinRT_x86_64: "WinRT_x86_64",
-} as const
-
-export const PlatformTypeEnterprise = {
-  Android_ARM: "Android_ARM",
-  Android_ARM_64: "Android_ARM_64",
-  Android_x86: "Android_x86",
-  Android_x86_64: "Android_x86_64",
-  iOS_ARM: "iOS_ARM",
-  iOS_ARM_64: "iOS_ARM_64",
-  Linux_ARM64: "Linux_ARM64",
-  Linux_E2K: "Linux_E2K",
-  Linux_x86: "Linux_x86",
-  Linux_x86_64: "Linux_x86_64",
-  MacOS_x86: "MacOS_x86",
-  MacOS_x86_64: "MacOS_x86_64",
-  Windows_x86: "Windows_x86",
-  Windows_x86_64: "Windows_x86_64",
-  WinRT_ARM: "WinRT_ARM",
-  WinRT_x86: "WinRT_x86",
-  WinRT_x86_64: "WinRT_x86_64",
-} as const
+export type PlatformType = keyof typeof PlatformTypeToEnterprise
+export type PlatformTypeEnterprise = keyof typeof PlatformTypeFromEnterprise
 
 export const QuestionDialogModeToEnterprise = {
   YesNo: "ДаНет",
@@ -4609,23 +2796,8 @@ export const QuestionDialogModeFromEnterprise = {
   ПрерватьПовторитьПропустить: "AbortRetryIgnore",
 } as const
 
-export const QuestionDialogMode = {
-  YesNo: "YesNo",
-  YesNoCancel: "YesNoCancel",
-  OK: "OK",
-  OKCancel: "OKCancel",
-  RetryCancel: "RetryCancel",
-  AbortRetryIgnore: "AbortRetryIgnore",
-} as const
-
-export const QuestionDialogModeEnterprise = {
-  ДаНет: "ДаНет",
-  ДаНетОтмена: "ДаНетОтмена",
-  ОК: "ОК",
-  ОКОтмена: "ОКОтмена",
-  ПовторитьОтмена: "ПовторитьОтмена",
-  ПрерватьПовторитьПропустить: "ПрерватьПовторитьПропустить",
-} as const
+export type QuestionDialogMode = keyof typeof QuestionDialogModeToEnterprise
+export type QuestionDialogModeEnterprise = keyof typeof QuestionDialogModeFromEnterprise
 
 export const ReplacementModeToEnterprise = {
   Append: "Добавление",
@@ -4643,21 +2815,8 @@ export const ReplacementModeFromEnterprise = {
   Удаление: "Delete",
 } as const
 
-export const ReplacementMode = {
-  Append: "Append",
-  Replace: "Replace",
-  Update: "Update",
-  Merge: "Merge",
-  Delete: "Delete",
-} as const
-
-export const ReplacementModeEnterprise = {
-  Добавление: "Добавление",
-  Замещение: "Замещение",
-  Обновление: "Обновление",
-  Слияние: "Слияние",
-  Удаление: "Удаление",
-} as const
+export type ReplacementMode = keyof typeof ReplacementModeToEnterprise
+export type ReplacementModeEnterprise = keyof typeof ReplacementModeFromEnterprise
 
 export const RoundModeToEnterprise = {
   Round15as10: "Окр15как10",
@@ -4669,15 +2828,8 @@ export const RoundModeFromEnterprise = {
   Окр15как20: "Round15as20",
 } as const
 
-export const RoundMode = {
-  Round15as10: "Round15as10",
-  Round15as20: "Round15as20",
-} as const
-
-export const RoundModeEnterprise = {
-  Окр15как10: "Окр15как10",
-  Окр15как20: "Окр15как20",
-} as const
+export type RoundMode = keyof typeof RoundModeToEnterprise
+export type RoundModeEnterprise = keyof typeof RoundModeFromEnterprise
 
 export const SearchDirectionToEnterprise = {
   FromEnd: "СКонца",
@@ -4689,15 +2841,8 @@ export const SearchDirectionFromEnterprise = {
   СНачала: "FromBegin",
 } as const
 
-export const SearchDirection = {
-  FromEnd: "FromEnd",
-  FromBegin: "FromBegin",
-} as const
-
-export const SearchDirectionEnterprise = {
-  СКонца: "СКонца",
-  СНачала: "СНачала",
-} as const
+export type SearchDirection = keyof typeof SearchDirectionToEnterprise
+export type SearchDirectionEnterprise = keyof typeof SearchDirectionFromEnterprise
 
 export const SectionsPanelRepresentationToEnterprise = {
   Picture: "Картинка",
@@ -4715,21 +2860,8 @@ export const SectionsPanelRepresentationFromEnterprise = {
   Текст: "Text",
 } as const
 
-export const SectionsPanelRepresentation = {
-  Picture: "Picture",
-  PictureAndText: "PictureAndText",
-  PictureOnTopAndText: "PictureOnTopAndText",
-  PictureOnLeftAndText: "PictureOnLeftAndText",
-  Text: "Text",
-} as const
-
-export const SectionsPanelRepresentationEnterprise = {
-  Картинка: "Картинка",
-  КартинкаИТекст: "КартинкаИТекст",
-  КартинкаСверхуИТекст: "КартинкаСверхуИТекст",
-  КартинкаСлеваИТекст: "КартинкаСлеваИТекст",
-  Текст: "Текст",
-} as const
+export type SectionsPanelRepresentation = keyof typeof SectionsPanelRepresentationToEnterprise
+export type SectionsPanelRepresentationEnterprise = keyof typeof SectionsPanelRepresentationFromEnterprise
 
 export const SortDirectionToEnterprise = {
   Asc: "Возр",
@@ -4741,15 +2873,8 @@ export const SortDirectionFromEnterprise = {
   Убыв: "Desc",
 } as const
 
-export const SortDirection = {
-  Asc: "Asc",
-  Desc: "Desc",
-} as const
-
-export const SortDirectionEnterprise = {
-  Возр: "Возр",
-  Убыв: "Убыв",
-} as const
+export type SortDirection = keyof typeof SortDirectionToEnterprise
+export type SortDirectionEnterprise = keyof typeof SortDirectionFromEnterprise
 
 export const StandardBeginningDateVariantToEnterprise = {
   BeginningOfLastYear: "НачалоПрошлогоГода",
@@ -4801,55 +2926,8 @@ export const StandardBeginningDateVariantFromEnterprise = {
   ПроизвольнаяДата: "Custom",
 } as const
 
-export const StandardBeginningDateVariant = {
-  BeginningOfLastYear: "BeginningOfLastYear",
-  BeginningOfLastDay: "BeginningOfLastDay",
-  BeginningOfLastQuarter: "BeginningOfLastQuarter",
-  BeginningOfLastMonth: "BeginningOfLastMonth",
-  BeginningOfLastHalfYear: "BeginningOfLastHalfYear",
-  BeginningOfLastTenDays: "BeginningOfLastTenDays",
-  BeginningOfLastWeek: "BeginningOfLastWeek",
-  BeginningOfNextYear: "BeginningOfNextYear",
-  BeginningOfNextDay: "BeginningOfNextDay",
-  BeginningOfNextQuarter: "BeginningOfNextQuarter",
-  BeginningOfNextMonth: "BeginningOfNextMonth",
-  BeginningOfNextHalfYear: "BeginningOfNextHalfYear",
-  BeginningOfNextTenDays: "BeginningOfNextTenDays",
-  BeginningOfNextWeek: "BeginningOfNextWeek",
-  BeginningOfThisYear: "BeginningOfThisYear",
-  BeginningOfThisDay: "BeginningOfThisDay",
-  BeginningOfThisQuarter: "BeginningOfThisQuarter",
-  BeginningOfThisMonth: "BeginningOfThisMonth",
-  BeginningOfThisHalfYear: "BeginningOfThisHalfYear",
-  BeginningOfThisTenDays: "BeginningOfThisTenDays",
-  BeginningOfThisWeek: "BeginningOfThisWeek",
-  Custom: "Custom",
-} as const
-
-export const StandardBeginningDateVariantEnterprise = {
-  НачалоПрошлогоГода: "НачалоПрошлогоГода",
-  НачалоПрошлогоДня: "НачалоПрошлогоДня",
-  НачалоПрошлогоКвартала: "НачалоПрошлогоКвартала",
-  НачалоПрошлогоМесяца: "НачалоПрошлогоМесяца",
-  НачалоПрошлогоПолугодия: "НачалоПрошлогоПолугодия",
-  НачалоПрошлойДекады: "НачалоПрошлойДекады",
-  НачалоПрошлойНедели: "НачалоПрошлойНедели",
-  НачалоСледующегоГода: "НачалоСледующегоГода",
-  НачалоСледующегоДня: "НачалоСледующегоДня",
-  НачалоСледующегоКвартала: "НачалоСледующегоКвартала",
-  НачалоСледующегоМесяца: "НачалоСледующегоМесяца",
-  НачалоСледующегоПолугодия: "НачалоСледующегоПолугодия",
-  НачалоСледующейДекады: "НачалоСледующейДекады",
-  НачалоСледующейНедели: "НачалоСледующейНедели",
-  НачалоЭтогоГода: "НачалоЭтогоГода",
-  НачалоЭтогоДня: "НачалоЭтогоДня",
-  НачалоЭтогоКвартала: "НачалоЭтогоКвартала",
-  НачалоЭтогоМесяца: "НачалоЭтогоМесяца",
-  НачалоЭтогоПолугодия: "НачалоЭтогоПолугодия",
-  НачалоЭтойДекады: "НачалоЭтойДекады",
-  НачалоЭтойНедели: "НачалоЭтойНедели",
-  ПроизвольнаяДата: "ПроизвольнаяДата",
-} as const
+export type StandardBeginningDateVariant = keyof typeof StandardBeginningDateVariantToEnterprise
+export type StandardBeginningDateVariantEnterprise = keyof typeof StandardBeginningDateVariantFromEnterprise
 
 export const StandardGlobalSearchTypeToEnterprise = {
   AllFunctions: "ВсеФункции",
@@ -4881,35 +2959,8 @@ export const StandardGlobalSearchTypeFromEnterprise = {
   ФункцииДляТехническогоСпециалиста: "FunctionsForTechnicalSpecialist",
 } as const
 
-export const StandardGlobalSearchType = {
-  AllFunctions: "AllFunctions",
-  Expression: "Expression",
-  GlobalStandardCommands: "GlobalStandardCommands",
-  Data: "Data",
-  UserWorkFavorites: "UserWorkFavorites",
-  UserWorkHistory: "UserWorkHistory",
-  FunctionMenu: "FunctionMenu",
-  URL: "URL",
-  CollaborationSystemConversations: "CollaborationSystemConversations",
-  CollaborationSystemMessages: "CollaborationSystemMessages",
-  Help: "Help",
-  FunctionsForTechnicalSpecialist: "FunctionsForTechnicalSpecialist",
-} as const
-
-export const StandardGlobalSearchTypeEnterprise = {
-  ВсеФункции: "ВсеФункции",
-  Выражение: "Выражение",
-  ГлобальныеСтандартныеКоманды: "ГлобальныеСтандартныеКоманды",
-  Данные: "Данные",
-  ИзбранноеРаботыПользователя: "ИзбранноеРаботыПользователя",
-  ИсторияРаботыПользователя: "ИсторияРаботыПользователя",
-  МенюФункций: "МенюФункций",
-  НавигационнаяСсылка: "НавигационнаяСсылка",
-  ОбсужденияСистемыВзаимодействия: "ОбсужденияСистемыВзаимодействия",
-  СообщенияСистемыВзаимодействия: "СообщенияСистемыВзаимодействия",
-  Справка: "Справка",
-  ФункцииДляТехническогоСпециалиста: "ФункцииДляТехническогоСпециалиста",
-} as const
+export type StandardGlobalSearchType = keyof typeof StandardGlobalSearchTypeToEnterprise
+export type StandardGlobalSearchTypeEnterprise = keyof typeof StandardGlobalSearchTypeFromEnterprise
 
 export const StandardPeriodVariantToEnterprise = {
   Yesterday: "Вчера",
@@ -5015,109 +3066,8 @@ export const StandardPeriodVariantFromEnterprise = {
   ЭтотМесяц: "ThisMonth",
 } as const
 
-export const StandardPeriodVariant = {
-  Yesterday: "Yesterday",
-  TillEndOfThisYear: "TillEndOfThisYear",
-  TillEndOfThisQuarter: "TillEndOfThisQuarter",
-  TillEndOfThisMonth: "TillEndOfThisMonth",
-  TillEndOfThisHalfYear: "TillEndOfThisHalfYear",
-  TillEndOfThisTenDays: "TillEndOfThisTenDays",
-  TillEndOfThisWeek: "TillEndOfThisWeek",
-  Tomorrow: "Tomorrow",
-  Month: "Month",
-  Last7Days: "Last7Days",
-  Custom: "Custom",
-  LastTenDays: "LastTenDays",
-  LastTenDaysTillSameDayNumber: "LastTenDaysTillSameDayNumber",
-  LastWeek: "LastWeek",
-  LastWeekTillSameWeekDay: "LastWeekTillSameWeekDay",
-  LastHalfYear: "LastHalfYear",
-  LastHalfYearTillSameDate: "LastHalfYearTillSameDate",
-  LastYear: "LastYear",
-  LastYearTillSameDate: "LastYearTillSameDate",
-  LastQuarter: "LastQuarter",
-  LastQuarterTillSameDate: "LastQuarterTillSameDate",
-  LastMonth: "LastMonth",
-  LastMonthTillSameDate: "LastMonthTillSameDate",
-  Today: "Today",
-  NextTenDays: "NextTenDays",
-  NextTenDaysTillSameDayNumber: "NextTenDaysTillSameDayNumber",
-  NextWeek: "NextWeek",
-  NextWeekTillSameWeekDay: "NextWeekTillSameWeekDay",
-  NextHalfYear: "NextHalfYear",
-  NextHalfYearTillSameDate: "NextHalfYearTillSameDate",
-  Next7Days: "Next7Days",
-  NextYear: "NextYear",
-  NextYearTillSameDate: "NextYearTillSameDate",
-  NextQuarter: "NextQuarter",
-  NextQuarterTillSameDate: "NextQuarterTillSameDate",
-  NextMonth: "NextMonth",
-  NextMonthTillSameDate: "NextMonthTillSameDate",
-  FromBeginningOfThisYear: "FromBeginningOfThisYear",
-  FromBeginningOfThisQuarter: "FromBeginningOfThisQuarter",
-  FromBeginningOfThisMonth: "FromBeginningOfThisMonth",
-  FromBeginningOfThisHalfYear: "FromBeginningOfThisHalfYear",
-  FromBeginningOfThisTenDays: "FromBeginningOfThisTenDays",
-  FromBeginningOfThisWeek: "FromBeginningOfThisWeek",
-  ThisTenDays: "ThisTenDays",
-  ThisWeek: "ThisWeek",
-  ThisHalfYear: "ThisHalfYear",
-  ThisYear: "ThisYear",
-  ThisQuarter: "ThisQuarter",
-  ThisMonth: "ThisMonth",
-} as const
-
-export const StandardPeriodVariantEnterprise = {
-  Вчера: "Вчера",
-  ДоКонцаЭтогоГода: "ДоКонцаЭтогоГода",
-  ДоКонцаЭтогоКвартала: "ДоКонцаЭтогоКвартала",
-  ДоКонцаЭтогоМесяца: "ДоКонцаЭтогоМесяца",
-  ДоКонцаЭтогоПолугодия: "ДоКонцаЭтогоПолугодия",
-  ДоКонцаЭтойДекады: "ДоКонцаЭтойДекады",
-  ДоКонцаЭтойНедели: "ДоКонцаЭтойНедели",
-  Завтра: "Завтра",
-  Месяц: "Месяц",
-  Последние7Дней: "Последние7Дней",
-  ПроизвольныйПериод: "ПроизвольныйПериод",
-  ПрошлаяДекада: "ПрошлаяДекада",
-  ПрошлаяДекадаДоТакогоЖеНомераДня: "ПрошлаяДекадаДоТакогоЖеНомераДня",
-  ПрошлаяНеделя: "ПрошлаяНеделя",
-  ПрошлаяНеделяДоТакогоЖеДняНедели: "ПрошлаяНеделяДоТакогоЖеДняНедели",
-  ПрошлоеПолугодие: "ПрошлоеПолугодие",
-  ПрошлоеПолугодиеДоТакойЖеДаты: "ПрошлоеПолугодиеДоТакойЖеДаты",
-  ПрошлыйГод: "ПрошлыйГод",
-  ПрошлыйГодДоТакойЖеДаты: "ПрошлыйГодДоТакойЖеДаты",
-  ПрошлыйКвартал: "ПрошлыйКвартал",
-  ПрошлыйКварталДоТакойЖеДаты: "ПрошлыйКварталДоТакойЖеДаты",
-  ПрошлыйМесяц: "ПрошлыйМесяц",
-  ПрошлыйМесяцДоТакойЖеДаты: "ПрошлыйМесяцДоТакойЖеДаты",
-  Сегодня: "Сегодня",
-  СледующаяДекада: "СледующаяДекада",
-  СледующаяДекадаДоТакогоЖеНомераДня: "СледующаяДекадаДоТакогоЖеНомераДня",
-  СледующаяНеделя: "СледующаяНеделя",
-  СледующаяНеделяДоТакогоЖеДняНедели: "СледующаяНеделяДоТакогоЖеДняНедели",
-  СледующееПолугодие: "СледующееПолугодие",
-  СледующееПолугодиеДоТакойЖеДаты: "СледующееПолугодиеДоТакойЖеДаты",
-  Следующие7Дней: "Следующие7Дней",
-  СледующийГод: "СледующийГод",
-  СледующийГодДоТакойЖеДаты: "СледующийГодДоТакойЖеДаты",
-  СледующийКвартал: "СледующийКвартал",
-  СледующийКварталДоТакойЖеДаты: "СледующийКварталДоТакойЖеДаты",
-  СледующийМесяц: "СледующийМесяц",
-  СледующийМесяцДоТакойЖеДаты: "СледующийМесяцДоТакойЖеДаты",
-  СНачалаЭтогоГода: "СНачалаЭтогоГода",
-  СНачалаЭтогоКвартала: "СНачалаЭтогоКвартала",
-  СНачалаЭтогоМесяца: "СНачалаЭтогоМесяца",
-  СНачалаЭтогоПолугодия: "СНачалаЭтогоПолугодия",
-  СНачалаЭтойДекады: "СНачалаЭтойДекады",
-  СНачалаЭтойНедели: "СНачалаЭтойНедели",
-  ЭтаДекада: "ЭтаДекада",
-  ЭтаНеделя: "ЭтаНеделя",
-  ЭтоПолугодие: "ЭтоПолугодие",
-  ЭтотГод: "ЭтотГод",
-  ЭтотКвартал: "ЭтотКвартал",
-  ЭтотМесяц: "ЭтотМесяц",
-} as const
+export type StandardPeriodVariant = keyof typeof StandardPeriodVariantToEnterprise
+export type StandardPeriodVariantEnterprise = keyof typeof StandardPeriodVariantFromEnterprise
 
 export const StringEncodingMethodToEnterprise = {
   URLInURLEncoding: "URLВКодировкеURL",
@@ -5129,15 +3079,8 @@ export const StringEncodingMethodFromEnterprise = {
   КодировкаURL: "URLEncoding",
 } as const
 
-export const StringEncodingMethod = {
-  URLInURLEncoding: "URLInURLEncoding",
-  URLEncoding: "URLEncoding",
-} as const
-
-export const StringEncodingMethodEnterprise = {
-  URLВКодировкеURL: "URLВКодировкеURL",
-  КодировкаURL: "КодировкаURL",
-} as const
+export type StringEncodingMethod = keyof typeof StringEncodingMethodToEnterprise
+export type StringEncodingMethodEnterprise = keyof typeof StringEncodingMethodFromEnterprise
 
 export const TextEncodingToEnterprise = {
   ANSI: "ANSI",
@@ -5155,21 +3098,8 @@ export const TextEncodingFromEnterprise = {
   Системная: "System",
 } as const
 
-export const TextEncoding = {
-  ANSI: "ANSI",
-  OEM: "OEM",
-  UTF16: "UTF16",
-  UTF8: "UTF8",
-  System: "System",
-} as const
-
-export const TextEncodingEnterprise = {
-  ANSI: "ANSI",
-  OEM: "OEM",
-  UTF16: "UTF16",
-  UTF8: "UTF8",
-  Системная: "Системная",
-} as const
+export type TextEncoding = keyof typeof TextEncodingToEnterprise
+export type TextEncodingEnterprise = keyof typeof TextEncodingFromEnterprise
 
 export const TransactionsIsolationLevelToEnterprise = {
   Auto: "Авто",
@@ -5187,21 +3117,8 @@ export const TransactionsIsolationLevelFromEnterprise = {
   ЧтениеНезафиксированных: "ReadUncommitted",
 } as const
 
-export const TransactionsIsolationLevel = {
-  Auto: "Auto",
-  RepeatableRead: "RepeatableRead",
-  Serializable: "Serializable",
-  ReadCommitted: "ReadCommitted",
-  ReadUncommitted: "ReadUncommitted",
-} as const
-
-export const TransactionsIsolationLevelEnterprise = {
-  Авто: "Авто",
-  ПовторяемоеЧтение: "ПовторяемоеЧтение",
-  Упорядочиваемость: "Упорядочиваемость",
-  ЧтениеЗафиксированных: "ЧтениеЗафиксированных",
-  ЧтениеНезафиксированных: "ЧтениеНезафиксированных",
-} as const
+export type TransactionsIsolationLevel = keyof typeof TransactionsIsolationLevelToEnterprise
+export type TransactionsIsolationLevelEnterprise = keyof typeof TransactionsIsolationLevelFromEnterprise
 
 export const UUIDVersionToEnterprise = {
   Version1: "Версия1",
@@ -5217,19 +3134,8 @@ export const UUIDVersionFromEnterprise = {
   Версия5: "Version5",
 } as const
 
-export const UUIDVersion = {
-  Version1: "Version1",
-  Version3: "Version3",
-  Version4: "Version4",
-  Version5: "Version5",
-} as const
-
-export const UUIDVersionEnterprise = {
-  Версия1: "Версия1",
-  Версия3: "Версия3",
-  Версия4: "Версия4",
-  Версия5: "Версия5",
-} as const
+export type UUIDVersion = keyof typeof UUIDVersionToEnterprise
+export type UUIDVersionEnterprise = keyof typeof UUIDVersionFromEnterprise
 
 export const UpdateOnDataChangeToEnterprise = {
   Auto: "Авто",
@@ -5241,15 +3147,8 @@ export const UpdateOnDataChangeFromEnterprise = {
   НеОбновлять: "DontUpdate",
 } as const
 
-export const UpdateOnDataChange = {
-  Auto: "Auto",
-  DontUpdate: "DontUpdate",
-} as const
-
-export const UpdateOnDataChangeEnterprise = {
-  Авто: "Авто",
-  НеОбновлять: "НеОбновлять",
-} as const
+export type UpdateOnDataChange = keyof typeof UpdateOnDataChangeToEnterprise
+export type UpdateOnDataChangeEnterprise = keyof typeof UpdateOnDataChangeFromEnterprise
 
 export const UserPasswordHashAlgorithmTypeToEnterprise = {
   PBKDF2SHA256: "PBKDF2SHA256",
@@ -5265,19 +3164,8 @@ export const UserPasswordHashAlgorithmTypeFromEnterprise = {
   SHA512: "SHA512",
 } as const
 
-export const UserPasswordHashAlgorithmType = {
-  PBKDF2SHA256: "PBKDF2SHA256",
-  SHA1: "SHA1",
-  SHA256: "SHA256",
-  SHA512: "SHA512",
-} as const
-
-export const UserPasswordHashAlgorithmTypeEnterprise = {
-  PBKDF2SHA256: "PBKDF2SHA256",
-  SHA1: "SHA1",
-  SHA256: "SHA256",
-  SHA512: "SHA512",
-} as const
+export type UserPasswordHashAlgorithmType = keyof typeof UserPasswordHashAlgorithmTypeToEnterprise
+export type UserPasswordHashAlgorithmTypeEnterprise = keyof typeof UserPasswordHashAlgorithmTypeFromEnterprise
 
 export const WorkingDateModeToEnterprise = {
   UseCurrentDate: "ИспользоватьТекущуюДату",
@@ -5289,15 +3177,8 @@ export const WorkingDateModeFromEnterprise = {
   Назначать: "Assign",
 } as const
 
-export const WorkingDateMode = {
-  UseCurrentDate: "UseCurrentDate",
-  Assign: "Assign",
-} as const
-
-export const WorkingDateModeEnterprise = {
-  ИспользоватьТекущуюДату: "ИспользоватьТекущуюДату",
-  Назначать: "Назначать",
-} as const
+export type WorkingDateMode = keyof typeof WorkingDateModeToEnterprise
+export type WorkingDateModeEnterprise = keyof typeof WorkingDateModeFromEnterprise
 
 export const XBaseEncodingToEnterprise = {
   ANSI: "ANSI",
@@ -5309,15 +3190,8 @@ export const XBaseEncodingFromEnterprise = {
   OEM: "OEM",
 } as const
 
-export const XBaseEncoding = {
-  ANSI: "ANSI",
-  OEM: "OEM",
-} as const
-
-export const XBaseEncodingEnterprise = {
-  ANSI: "ANSI",
-  OEM: "OEM",
-} as const
+export type XBaseEncoding = keyof typeof XBaseEncodingToEnterprise
+export type XBaseEncodingEnterprise = keyof typeof XBaseEncodingFromEnterprise
 
 export const CalendarEventRecurrenceToEnterprise = {
   Weekly: "КаждуюНеделю",
@@ -5335,21 +3209,8 @@ export const CalendarEventRecurrenceFromEnterprise = {
   ОдинРаз: "Once",
 } as const
 
-export const CalendarEventRecurrence = {
-  Weekly: "Weekly",
-  Yearly: "Yearly",
-  Daily: "Daily",
-  Monthly: "Monthly",
-  Once: "Once",
-} as const
-
-export const CalendarEventRecurrenceEnterprise = {
-  КаждуюНеделю: "КаждуюНеделю",
-  КаждыйГод: "КаждыйГод",
-  КаждыйДень: "КаждыйДень",
-  КаждыйМесяц: "КаждыйМесяц",
-  ОдинРаз: "ОдинРаз",
-} as const
+export type CalendarEventRecurrence = keyof typeof CalendarEventRecurrenceToEnterprise
+export type CalendarEventRecurrenceEnterprise = keyof typeof CalendarEventRecurrenceFromEnterprise
 
 export const ContactDataAddressTypeToEnterprise = {
   Home: "Домашний",
@@ -5363,17 +3224,8 @@ export const ContactDataAddressTypeFromEnterprise = {
   Рабочий: "Work",
 } as const
 
-export const ContactDataAddressType = {
-  Home: "Home",
-  Other: "Other",
-  Work: "Work",
-} as const
-
-export const ContactDataAddressTypeEnterprise = {
-  Домашний: "Домашний",
-  Другой: "Другой",
-  Рабочий: "Рабочий",
-} as const
+export type ContactDataAddressType = keyof typeof ContactDataAddressTypeToEnterprise
+export type ContactDataAddressTypeEnterprise = keyof typeof ContactDataAddressTypeFromEnterprise
 
 export const ContactDataEmailAddressTypeToEnterprise = {
   Home: "Домашний",
@@ -5389,19 +3241,8 @@ export const ContactDataEmailAddressTypeFromEnterprise = {
   Рабочий: "Work",
 } as const
 
-export const ContactDataEmailAddressType = {
-  Home: "Home",
-  Other: "Other",
-  Mobile: "Mobile",
-  Work: "Work",
-} as const
-
-export const ContactDataEmailAddressTypeEnterprise = {
-  Домашний: "Домашний",
-  Другой: "Другой",
-  Мобильный: "Мобильный",
-  Рабочий: "Рабочий",
-} as const
+export type ContactDataEmailAddressType = keyof typeof ContactDataEmailAddressTypeToEnterprise
+export type ContactDataEmailAddressTypeEnterprise = keyof typeof ContactDataEmailAddressTypeFromEnterprise
 
 export const ContactDataInstantMessagingAddressTypeToEnterprise = {
   Home: "Домашний",
@@ -5415,17 +3256,9 @@ export const ContactDataInstantMessagingAddressTypeFromEnterprise = {
   Рабочий: "Work",
 } as const
 
-export const ContactDataInstantMessagingAddressType = {
-  Home: "Home",
-  Other: "Other",
-  Work: "Work",
-} as const
-
-export const ContactDataInstantMessagingAddressTypeEnterprise = {
-  Домашний: "Домашний",
-  Другой: "Другой",
-  Рабочий: "Рабочий",
-} as const
+export type ContactDataInstantMessagingAddressType = keyof typeof ContactDataInstantMessagingAddressTypeToEnterprise
+export type ContactDataInstantMessagingAddressTypeEnterprise =
+  keyof typeof ContactDataInstantMessagingAddressTypeFromEnterprise
 
 export const ContactDataPhoneNumberTypeToEnterprise = {
   iPhone: "iPhone",
@@ -5453,31 +3286,8 @@ export const ContactDataPhoneNumberTypeFromEnterprise = {
   РабочийФакс: "WorkFax",
 } as const
 
-export const ContactDataPhoneNumberType = {
-  iPhone: "iPhone",
-  Home: "Home",
-  HomeFax: "HomeFax",
-  Other: "Other",
-  OtherFax: "OtherFax",
-  Mobile: "Mobile",
-  Main: "Main",
-  Work: "Work",
-  WorkMobile: "WorkMobile",
-  WorkFax: "WorkFax",
-} as const
-
-export const ContactDataPhoneNumberTypeEnterprise = {
-  iPhone: "iPhone",
-  Домашний: "Домашний",
-  ДомашнийФакс: "ДомашнийФакс",
-  Другой: "Другой",
-  ДругойФакс: "ДругойФакс",
-  Мобильный: "Мобильный",
-  Основной: "Основной",
-  Рабочий: "Рабочий",
-  РабочийМобильный: "РабочийМобильный",
-  РабочийФакс: "РабочийФакс",
-} as const
+export type ContactDataPhoneNumberType = keyof typeof ContactDataPhoneNumberTypeToEnterprise
+export type ContactDataPhoneNumberTypeEnterprise = keyof typeof ContactDataPhoneNumberTypeFromEnterprise
 
 export const ContactDataRelationshipTypeToEnterprise = {
   Brother: "Брат",
@@ -5513,39 +3323,8 @@ export const ContactDataRelationshipTypeFromEnterprise = {
   Супруг: "Spouse",
 } as const
 
-export const ContactDataRelationshipType = {
-  Brother: "Brother",
-  DomesticPartner: "DomesticPartner",
-  Friend: "Friend",
-  Other: "Other",
-  Mother: "Mother",
-  Father: "Father",
-  Partner: "Partner",
-  Assistant: "Assistant",
-  Child: "Child",
-  Parent: "Parent",
-  Relative: "Relative",
-  Manager: "Manager",
-  Sister: "Sister",
-  Spouse: "Spouse",
-} as const
-
-export const ContactDataRelationshipTypeEnterprise = {
-  Брат: "Брат",
-  ГражданскийСупруг: "ГражданскийСупруг",
-  Друг: "Друг",
-  Другой: "Другой",
-  Мать: "Мать",
-  Отец: "Отец",
-  Партнер: "Партнер",
-  Помощник: "Помощник",
-  Ребенок: "Ребенок",
-  Родитель: "Родитель",
-  Родственник: "Родственник",
-  Руководитель: "Руководитель",
-  Сестра: "Сестра",
-  Супруг: "Супруг",
-} as const
+export type ContactDataRelationshipType = keyof typeof ContactDataRelationshipTypeToEnterprise
+export type ContactDataRelationshipTypeEnterprise = keyof typeof ContactDataRelationshipTypeFromEnterprise
 
 export const ContactDataURLTypeToEnterprise = {
   FTP: "FTP",
@@ -5567,25 +3346,8 @@ export const ContactDataURLTypeFromEnterprise = {
   Рабочий: "Work",
 } as const
 
-export const ContactDataURLType = {
-  FTP: "FTP",
-  Blog: "Blog",
-  Home: "Home",
-  HomePage: "HomePage",
-  Other: "Other",
-  Profile: "Profile",
-  Work: "Work",
-} as const
-
-export const ContactDataURLTypeEnterprise = {
-  FTP: "FTP",
-  Блог: "Блог",
-  Домашний: "Домашний",
-  ДомашняяСтраница: "ДомашняяСтраница",
-  Другой: "Другой",
-  Профиль: "Профиль",
-  Рабочий: "Рабочий",
-} as const
+export type ContactDataURLType = keyof typeof ContactDataURLTypeToEnterprise
+export type ContactDataURLTypeEnterprise = keyof typeof ContactDataURLTypeFromEnterprise
 
 export const CallLogCallTypeToEnterprise = {
   Incoming: "Входящий",
@@ -5599,17 +3361,8 @@ export const CallLogCallTypeFromEnterprise = {
   Пропущенный: "Missed",
 } as const
 
-export const CallLogCallType = {
-  Incoming: "Incoming",
-  Outgoing: "Outgoing",
-  Missed: "Missed",
-} as const
-
-export const CallLogCallTypeEnterprise = {
-  Входящий: "Входящий",
-  Исходящий: "Исходящий",
-  Пропущенный: "Пропущенный",
-} as const
+export type CallLogCallType = keyof typeof CallLogCallTypeToEnterprise
+export type CallLogCallTypeEnterprise = keyof typeof CallLogCallTypeFromEnterprise
 
 export const TelephonyToolsCallEventVariantToEnterprise = {
   EndIncoming: "ЗавершениеВходящего",
@@ -5627,21 +3380,8 @@ export const TelephonyToolsCallEventVariantFromEnterprise = {
   НачалоСигналаВходящего: "StartIncomingRinging",
 } as const
 
-export const TelephonyToolsCallEventVariant = {
-  EndIncoming: "EndIncoming",
-  EndOutgoing: "EndOutgoing",
-  StartIncoming: "StartIncoming",
-  StartOutgoing: "StartOutgoing",
-  StartIncomingRinging: "StartIncomingRinging",
-} as const
-
-export const TelephonyToolsCallEventVariantEnterprise = {
-  ЗавершениеВходящего: "ЗавершениеВходящего",
-  ЗавершениеИсходящего: "ЗавершениеИсходящего",
-  НачалоВходящего: "НачалоВходящего",
-  НачалоИсходящего: "НачалоИсходящего",
-  НачалоСигналаВходящего: "НачалоСигналаВходящего",
-} as const
+export type TelephonyToolsCallEventVariant = keyof typeof TelephonyToolsCallEventVariantToEnterprise
+export type TelephonyToolsCallEventVariantEnterprise = keyof typeof TelephonyToolsCallEventVariantFromEnterprise
 
 export const TelephonyToolsSMSTypeToEnterprise = {
   Queued: "ВОчереди",
@@ -5661,23 +3401,8 @@ export const TelephonyToolsSMSTypeFromEnterprise = {
   Черновик: "Draft",
 } as const
 
-export const TelephonyToolsSMSType = {
-  Queued: "Queued",
-  Incoming: "Incoming",
-  Outgoing: "Outgoing",
-  Sent: "Sent",
-  Failed: "Failed",
-  Draft: "Draft",
-} as const
-
-export const TelephonyToolsSMSTypeEnterprise = {
-  ВОчереди: "ВОчереди",
-  Входящее: "Входящее",
-  Исходящее: "Исходящее",
-  Отправленное: "Отправленное",
-  ОшибкаОтправки: "ОшибкаОтправки",
-  Черновик: "Черновик",
-} as const
+export type TelephonyToolsSMSType = keyof typeof TelephonyToolsSMSTypeToEnterprise
+export type TelephonyToolsSMSTypeEnterprise = keyof typeof TelephonyToolsSMSTypeFromEnterprise
 
 export const AudioRecordingChannelUseToEnterprise = {
   Mono: "Моно",
@@ -5689,15 +3414,8 @@ export const AudioRecordingChannelUseFromEnterprise = {
   Стерео: "Stereo",
 } as const
 
-export const AudioRecordingChannelUse = {
-  Mono: "Mono",
-  Stereo: "Stereo",
-} as const
-
-export const AudioRecordingChannelUseEnterprise = {
-  Моно: "Моно",
-  Стерео: "Стерео",
-} as const
+export type AudioRecordingChannelUse = keyof typeof AudioRecordingChannelUseToEnterprise
+export type AudioRecordingChannelUseEnterprise = keyof typeof AudioRecordingChannelUseFromEnterprise
 
 export const AudioRecordingFormatToEnterprise = {
   Mpeg4AAC: "Mpeg4AAC",
@@ -5709,15 +3427,8 @@ export const AudioRecordingFormatFromEnterprise = {
   WavPCM16bit: "WavPCM16bit",
 } as const
 
-export const AudioRecordingFormat = {
-  Mpeg4AAC: "Mpeg4AAC",
-  WavPCM16bit: "WavPCM16bit",
-} as const
-
-export const AudioRecordingFormatEnterprise = {
-  Mpeg4AAC: "Mpeg4AAC",
-  WavPCM16bit: "WavPCM16bit",
-} as const
+export type AudioRecordingFormat = keyof typeof AudioRecordingFormatToEnterprise
+export type AudioRecordingFormatEnterprise = keyof typeof AudioRecordingFormatFromEnterprise
 
 export const BarcodeTypeToEnterprise = {
   Aztec: "Aztec",
@@ -5763,49 +3474,8 @@ export const BarcodeTypeFromEnterprise = {
   Линейный: "Linear",
 } as const
 
-export const BarcodeType = {
-  Aztec: "Aztec",
-  Codabar: "Codabar",
-  Code128: "Code128",
-  Code39: "Code39",
-  Code93: "Code93",
-  DataMatrix: "DataMatrix",
-  EAN13: "EAN13",
-  EAN8: "EAN8",
-  ITF: "ITF",
-  MaxiCode: "MaxiCode",
-  PDF417: "PDF417",
-  QRCode: "QRCode",
-  RSS14: "RSS14",
-  RSSExpanded: "RSSExpanded",
-  UPCA: "UPCA",
-  UPCE: "UPCE",
-  All: "All",
-  Matrix: "Matrix",
-  Linear: "Linear",
-} as const
-
-export const BarcodeTypeEnterprise = {
-  Aztec: "Aztec",
-  Codabar: "Codabar",
-  Code128: "Code128",
-  Code39: "Code39",
-  Code93: "Code93",
-  DataMatrix: "DataMatrix",
-  EAN13: "EAN13",
-  EAN8: "EAN8",
-  ITF: "ITF",
-  MaxiCode: "MaxiCode",
-  PDF417: "PDF417",
-  QRCode: "QRCode",
-  RSS14: "RSS14",
-  RSSExpanded: "RSSExpanded",
-  UPCA: "UPCA",
-  UPCE: "UPCE",
-  Все: "Все",
-  Двухмерный: "Двухмерный",
-  Линейный: "Линейный",
-} as const
+export type BarcodeType = keyof typeof BarcodeTypeToEnterprise
+export type BarcodeTypeEnterprise = keyof typeof BarcodeTypeFromEnterprise
 
 export const CameraLightingTypeToEnterprise = {
   Auto: "Авто",
@@ -5819,17 +3489,8 @@ export const CameraLightingTypeFromEnterprise = {
   Выключена: "Disable",
 } as const
 
-export const CameraLightingType = {
-  Auto: "Auto",
-  Enable: "Enable",
-  Disable: "Disable",
-} as const
-
-export const CameraLightingTypeEnterprise = {
-  Авто: "Авто",
-  Включена: "Включена",
-  Выключена: "Выключена",
-} as const
+export type CameraLightingType = keyof typeof CameraLightingTypeToEnterprise
+export type CameraLightingTypeEnterprise = keyof typeof CameraLightingTypeFromEnterprise
 
 export const DeviceCameraTypeToEnterprise = {
   Auto: "Авто",
@@ -5843,17 +3504,8 @@ export const DeviceCameraTypeFromEnterprise = {
   Передняя: "Front",
 } as const
 
-export const DeviceCameraType = {
-  Auto: "Auto",
-  Rear: "Rear",
-  Front: "Front",
-} as const
-
-export const DeviceCameraTypeEnterprise = {
-  Авто: "Авто",
-  Задняя: "Задняя",
-  Передняя: "Передняя",
-} as const
+export type DeviceCameraType = keyof typeof DeviceCameraTypeToEnterprise
+export type DeviceCameraTypeEnterprise = keyof typeof DeviceCameraTypeFromEnterprise
 
 export const DocumentScanningCheckingQualityToEnterprise = {
   DontCheck: "НеПроверять",
@@ -5871,21 +3523,8 @@ export const DocumentScanningCheckingQualityFromEnterprise = {
   ТребоватьСреднееПредупреждатьНижеВысокого: "RequireMediumWarnBelowHigh",
 } as const
 
-export const DocumentScanningCheckingQuality = {
-  DontCheck: "DontCheck",
-  WarnBelowHigh: "WarnBelowHigh",
-  WarnBelowMedium: "WarnBelowMedium",
-  RequireHigh: "RequireHigh",
-  RequireMediumWarnBelowHigh: "RequireMediumWarnBelowHigh",
-} as const
-
-export const DocumentScanningCheckingQualityEnterprise = {
-  НеПроверять: "НеПроверять",
-  ПредупреждатьНижеВысокого: "ПредупреждатьНижеВысокого",
-  ПредупреждатьНижеСреднего: "ПредупреждатьНижеСреднего",
-  ТребоватьВысокое: "ТребоватьВысокое",
-  ТребоватьСреднееПредупреждатьНижеВысокого: "ТребоватьСреднееПредупреждатьНижеВысокого",
-} as const
+export type DocumentScanningCheckingQuality = keyof typeof DocumentScanningCheckingQualityToEnterprise
+export type DocumentScanningCheckingQualityEnterprise = keyof typeof DocumentScanningCheckingQualityFromEnterprise
 
 export const DocumentScanningOrientationDetectionModeToEnterprise = {
   Landscape: "Ландшафт",
@@ -5903,21 +3542,9 @@ export const DocumentScanningOrientationDetectionModeFromEnterprise = {
   Портрет: "Portrait",
 } as const
 
-export const DocumentScanningOrientationDetectionMode = {
-  Landscape: "Landscape",
-  ByHorizontalTextLines: "ByHorizontalTextLines",
-  ByFirstPageInSeries: "ByFirstPageInSeries",
-  ByDocumentPosition: "ByDocumentPosition",
-  Portrait: "Portrait",
-} as const
-
-export const DocumentScanningOrientationDetectionModeEnterprise = {
-  Ландшафт: "Ландшафт",
-  ПоГоризонтальнымСтрокамТекста: "ПоГоризонтальнымСтрокамТекста",
-  ПоПервойСтраницеСерии: "ПоПервойСтраницеСерии",
-  ПоРасположениюДокумента: "ПоРасположениюДокумента",
-  Портрет: "Портрет",
-} as const
+export type DocumentScanningOrientationDetectionMode = keyof typeof DocumentScanningOrientationDetectionModeToEnterprise
+export type DocumentScanningOrientationDetectionModeEnterprise =
+  keyof typeof DocumentScanningOrientationDetectionModeFromEnterprise
 
 export const DocumentScanningProcessingFilterToEnterprise = {
   None: "Нет",
@@ -5931,17 +3558,8 @@ export const DocumentScanningProcessingFilterFromEnterprise = {
   ТекстСКартинками: "TextWithPictures",
 } as const
 
-export const DocumentScanningProcessingFilter = {
-  None: "None",
-  Text: "Text",
-  TextWithPictures: "TextWithPictures",
-} as const
-
-export const DocumentScanningProcessingFilterEnterprise = {
-  Нет: "Нет",
-  Текст: "Текст",
-  ТекстСКартинками: "ТекстСКартинками",
-} as const
+export type DocumentScanningProcessingFilter = keyof typeof DocumentScanningProcessingFilterToEnterprise
+export type DocumentScanningProcessingFilterEnterprise = keyof typeof DocumentScanningProcessingFilterFromEnterprise
 
 export const MultimediaRecordingStopButtonPlacementToEnterprise = {
   Auto: "Авто",
@@ -5969,31 +3587,9 @@ export const MultimediaRecordingStopButtonPlacementFromEnterprise = {
   ПравоНиз: "RightBottom",
 } as const
 
-export const MultimediaRecordingStopButtonPlacement = {
-  Auto: "Auto",
-  Top: "Top",
-  Left: "Left",
-  LeftTop: "LeftTop",
-  LeftBottom: "LeftBottom",
-  None: "None",
-  Bottom: "Bottom",
-  Right: "Right",
-  RightTop: "RightTop",
-  RightBottom: "RightBottom",
-} as const
-
-export const MultimediaRecordingStopButtonPlacementEnterprise = {
-  Авто: "Авто",
-  Верх: "Верх",
-  Лево: "Лево",
-  ЛевоВерх: "ЛевоВерх",
-  ЛевоНиз: "ЛевоНиз",
-  Нет: "Нет",
-  Низ: "Низ",
-  Право: "Право",
-  ПравоВерх: "ПравоВерх",
-  ПравоНиз: "ПравоНиз",
-} as const
+export type MultimediaRecordingStopButtonPlacement = keyof typeof MultimediaRecordingStopButtonPlacementToEnterprise
+export type MultimediaRecordingStopButtonPlacementEnterprise =
+  keyof typeof MultimediaRecordingStopButtonPlacementFromEnterprise
 
 export const VideoQualityToEnterprise = {
   Auto: "Авто",
@@ -6007,17 +3603,8 @@ export const VideoQualityFromEnterprise = {
   Низкое: "Low",
 } as const
 
-export const VideoQuality = {
-  Auto: "Auto",
-  High: "High",
-  Low: "Low",
-} as const
-
-export const VideoQualityEnterprise = {
-  Авто: "Авто",
-  Высокое: "Высокое",
-  Низкое: "Низкое",
-} as const
+export type VideoQuality = keyof typeof VideoQualityToEnterprise
+export type VideoQualityEnterprise = keyof typeof VideoQualityFromEnterprise
 
 export const QuerySchemaAvailableTableParameterTypeToEnterprise = {
   Variant: "Вариант",
@@ -6037,23 +3624,9 @@ export const QuerySchemaAvailableTableParameterTypeFromEnterprise = {
   Условие: "Where",
 } as const
 
-export const QuerySchemaAvailableTableParameterType = {
-  Variant: "Variant",
-  Value: "Value",
-  Array: "Array",
-  Order: "Order",
-  FieldList: "FieldList",
-  Where: "Where",
-} as const
-
-export const QuerySchemaAvailableTableParameterTypeEnterprise = {
-  Вариант: "Вариант",
-  Значение: "Значение",
-  Массив: "Массив",
-  Порядок: "Порядок",
-  СписокПолей: "СписокПолей",
-  Условие: "Условие",
-} as const
+export type QuerySchemaAvailableTableParameterType = keyof typeof QuerySchemaAvailableTableParameterTypeToEnterprise
+export type QuerySchemaAvailableTableParameterTypeEnterprise =
+  keyof typeof QuerySchemaAvailableTableParameterTypeFromEnterprise
 
 export const QuerySchemaJoinTypeToEnterprise = {
   Inner: "Внутреннее",
@@ -6069,19 +3642,8 @@ export const QuerySchemaJoinTypeFromEnterprise = {
   ПравоеВнешнее: "RightOuter",
 } as const
 
-export const QuerySchemaJoinType = {
-  Inner: "Inner",
-  LeftOuter: "LeftOuter",
-  FullOuter: "FullOuter",
-  RightOuter: "RightOuter",
-} as const
-
-export const QuerySchemaJoinTypeEnterprise = {
-  Внутреннее: "Внутреннее",
-  ЛевоеВнешнее: "ЛевоеВнешнее",
-  ПолноеВнешнее: "ПолноеВнешнее",
-  ПравоеВнешнее: "ПравоеВнешнее",
-} as const
+export type QuerySchemaJoinType = keyof typeof QuerySchemaJoinTypeToEnterprise
+export type QuerySchemaJoinTypeEnterprise = keyof typeof QuerySchemaJoinTypeFromEnterprise
 
 export const QuerySchemaOrderDirectionToEnterprise = {
   Ascending: "ПоВозрастанию",
@@ -6097,19 +3659,8 @@ export const QuerySchemaOrderDirectionFromEnterprise = {
   ПоУбываниюИерархии: "HierarchyDescending",
 } as const
 
-export const QuerySchemaOrderDirection = {
-  Ascending: "Ascending",
-  HierarchyAscending: "HierarchyAscending",
-  Descending: "Descending",
-  HierarchyDescending: "HierarchyDescending",
-} as const
-
-export const QuerySchemaOrderDirectionEnterprise = {
-  ПоВозрастанию: "ПоВозрастанию",
-  ПоВозрастаниюИерархии: "ПоВозрастаниюИерархии",
-  ПоУбыванию: "ПоУбыванию",
-  ПоУбываниюИерархии: "ПоУбываниюИерархии",
-} as const
+export type QuerySchemaOrderDirection = keyof typeof QuerySchemaOrderDirectionToEnterprise
+export type QuerySchemaOrderDirectionEnterprise = keyof typeof QuerySchemaOrderDirectionFromEnterprise
 
 export const QuerySchemaPeriodAdditionTypeToEnterprise = {
   NoAddition: "БезДополнения",
@@ -6139,33 +3690,8 @@ export const QuerySchemaPeriodAdditionTypeFromEnterprise = {
   Час: "Hour",
 } as const
 
-export const QuerySchemaPeriodAdditionType = {
-  NoAddition: "NoAddition",
-  Year: "Year",
-  TenDays: "TenDays",
-  Day: "Day",
-  Quarter: "Quarter",
-  Month: "Month",
-  Minute: "Minute",
-  Week: "Week",
-  HalfYear: "HalfYear",
-  Second: "Second",
-  Hour: "Hour",
-} as const
-
-export const QuerySchemaPeriodAdditionTypeEnterprise = {
-  БезДополнения: "БезДополнения",
-  Год: "Год",
-  Декада: "Декада",
-  День: "День",
-  Квартал: "Квартал",
-  Месяц: "Месяц",
-  Минута: "Минута",
-  Неделя: "Неделя",
-  Полугодие: "Полугодие",
-  Секунда: "Секунда",
-  Час: "Час",
-} as const
+export type QuerySchemaPeriodAdditionType = keyof typeof QuerySchemaPeriodAdditionTypeToEnterprise
+export type QuerySchemaPeriodAdditionTypeEnterprise = keyof typeof QuerySchemaPeriodAdditionTypeFromEnterprise
 
 export const QuerySchemaTotalCalculationFieldTypeToEnterprise = {
   Hierarchy: "Иерархия",
@@ -6179,17 +3705,9 @@ export const QuerySchemaTotalCalculationFieldTypeFromEnterprise = {
   Элементы: "Items",
 } as const
 
-export const QuerySchemaTotalCalculationFieldType = {
-  Hierarchy: "Hierarchy",
-  HierarchyOnly: "HierarchyOnly",
-  Items: "Items",
-} as const
-
-export const QuerySchemaTotalCalculationFieldTypeEnterprise = {
-  Иерархия: "Иерархия",
-  ТолькоИерархия: "ТолькоИерархия",
-  Элементы: "Элементы",
-} as const
+export type QuerySchemaTotalCalculationFieldType = keyof typeof QuerySchemaTotalCalculationFieldTypeToEnterprise
+export type QuerySchemaTotalCalculationFieldTypeEnterprise =
+  keyof typeof QuerySchemaTotalCalculationFieldTypeFromEnterprise
 
 export const QuerySchemaUnionTypeToEnterprise = {
   Union: "Объединить",
@@ -6201,15 +3719,8 @@ export const QuerySchemaUnionTypeFromEnterprise = {
   ОбъединитьВсе: "UnionAll",
 } as const
 
-export const QuerySchemaUnionType = {
-  Union: "Union",
-  UnionAll: "UnionAll",
-} as const
-
-export const QuerySchemaUnionTypeEnterprise = {
-  Объединить: "Объединить",
-  ОбъединитьВсе: "ОбъединитьВсе",
-} as const
+export type QuerySchemaUnionType = keyof typeof QuerySchemaUnionTypeToEnterprise
+export type QuerySchemaUnionTypeEnterprise = keyof typeof QuerySchemaUnionTypeFromEnterprise
 
 export const NewPlannerItemsTextTypeToEnterprise = {
   String: "Строка",
@@ -6221,15 +3732,8 @@ export const NewPlannerItemsTextTypeFromEnterprise = {
   ФорматированнаяСтрока: "FormattedString",
 } as const
 
-export const NewPlannerItemsTextType = {
-  String: "String",
-  FormattedString: "FormattedString",
-} as const
-
-export const NewPlannerItemsTextTypeEnterprise = {
-  Строка: "Строка",
-  ФорматированнаяСтрока: "ФорматированнаяСтрока",
-} as const
+export type NewPlannerItemsTextType = keyof typeof NewPlannerItemsTextTypeToEnterprise
+export type NewPlannerItemsTextTypeEnterprise = keyof typeof NewPlannerItemsTextTypeFromEnterprise
 
 export const PlannerCommandSourceToEnterprise = {
   Action: "Действие",
@@ -6251,25 +3755,8 @@ export const PlannerCommandSourceFromEnterprise = {
   Элементы: "Items",
 } as const
 
-export const PlannerCommandSource = {
-  Action: "Action",
-  URL: "URL",
-  WrappedTimeScaleHeaderArea: "WrappedTimeScaleHeaderArea",
-  EmptyItemsArea: "EmptyItemsArea",
-  DimensionItem: "DimensionItem",
-  TimeScaleItem: "TimeScaleItem",
-  Items: "Items",
-} as const
-
-export const PlannerCommandSourceEnterprise = {
-  Действие: "Действие",
-  НавигационнаяСсылка: "НавигационнаяСсылка",
-  ОбластьПеренесенногоЗаголовкаШкалыВремени: "ОбластьПеренесенногоЗаголовкаШкалыВремени",
-  ПустаяОбластьЭлементов: "ПустаяОбластьЭлементов",
-  ЭлементИзмерения: "ЭлементИзмерения",
-  ЭлементШкалыВремени: "ЭлементШкалыВремени",
-  Элементы: "Элементы",
-} as const
+export type PlannerCommandSource = keyof typeof PlannerCommandSourceToEnterprise
+export type PlannerCommandSourceEnterprise = keyof typeof PlannerCommandSourceFromEnterprise
 
 export const PlannerInsideDragActionToEnterprise = {
   Select: "Выделение",
@@ -6285,19 +3772,8 @@ export const PlannerInsideDragActionFromEnterprise = {
   Создание: "Create",
 } as const
 
-export const PlannerInsideDragAction = {
-  Select: "Select",
-  Copy: "Copy",
-  Edit: "Edit",
-  Create: "Create",
-} as const
-
-export const PlannerInsideDragActionEnterprise = {
-  Выделение: "Выделение",
-  Копирование: "Копирование",
-  Редактирование: "Редактирование",
-  Создание: "Создание",
-} as const
+export type PlannerInsideDragAction = keyof typeof PlannerInsideDragActionToEnterprise
+export type PlannerInsideDragActionEnterprise = keyof typeof PlannerInsideDragActionFromEnterprise
 
 export const PlannerInsideDragBoundaryChangeVariantToEnterprise = {
   End: "Конец",
@@ -6311,17 +3787,9 @@ export const PlannerInsideDragBoundaryChangeVariantFromEnterprise = {
   НачалоИКонец: "BeginAndEnd",
 } as const
 
-export const PlannerInsideDragBoundaryChangeVariant = {
-  End: "End",
-  Begin: "Begin",
-  BeginAndEnd: "BeginAndEnd",
-} as const
-
-export const PlannerInsideDragBoundaryChangeVariantEnterprise = {
-  Конец: "Конец",
-  Начало: "Начало",
-  НачалоИКонец: "НачалоИКонец",
-} as const
+export type PlannerInsideDragBoundaryChangeVariant = keyof typeof PlannerInsideDragBoundaryChangeVariantToEnterprise
+export type PlannerInsideDragBoundaryChangeVariantEnterprise =
+  keyof typeof PlannerInsideDragBoundaryChangeVariantFromEnterprise
 
 export const PlannerItemActionLocationToEnterprise = {
   EndOfItem: "ВКонцеЭлемента",
@@ -6333,15 +3801,8 @@ export const PlannerItemActionLocationFromEnterprise = {
   ПослеТекста: "EndOfText",
 } as const
 
-export const PlannerItemActionLocation = {
-  EndOfItem: "EndOfItem",
-  EndOfText: "EndOfText",
-} as const
-
-export const PlannerItemActionLocationEnterprise = {
-  ВКонцеЭлемента: "ВКонцеЭлемента",
-  ПослеТекста: "ПослеТекста",
-} as const
+export type PlannerItemActionLocation = keyof typeof PlannerItemActionLocationToEnterprise
+export type PlannerItemActionLocationEnterprise = keyof typeof PlannerItemActionLocationFromEnterprise
 
 export const PlannerItemEnableEditModeToEnterprise = {
   DisableDragAndStretch: "ЗапретитьПеретаскиваниеИРастягивание",
@@ -6357,19 +3818,8 @@ export const PlannerItemEnableEditModeFromEnterprise = {
   РазрешитьРедактирование: "EnableEdit",
 } as const
 
-export const PlannerItemEnableEditMode = {
-  DisableDragAndStretch: "DisableDragAndStretch",
-  DisableStretch: "DisableStretch",
-  DisableEdit: "DisableEdit",
-  EnableEdit: "EnableEdit",
-} as const
-
-export const PlannerItemEnableEditModeEnterprise = {
-  ЗапретитьПеретаскиваниеИРастягивание: "ЗапретитьПеретаскиваниеИРастягивание",
-  ЗапретитьРастягивание: "ЗапретитьРастягивание",
-  ЗапретитьРедактирование: "ЗапретитьРедактирование",
-  РазрешитьРедактирование: "РазрешитьРедактирование",
-} as const
+export type PlannerItemEnableEditMode = keyof typeof PlannerItemEnableEditModeToEnterprise
+export type PlannerItemEnableEditModeEnterprise = keyof typeof PlannerItemEnableEditModeFromEnterprise
 
 export const PlannerItemsBehaviorOnLackOfSpaceToEnterprise = {
   ShowAllItems: "ОтображатьВсеЭлементы",
@@ -6381,15 +3831,8 @@ export const PlannerItemsBehaviorOnLackOfSpaceFromEnterprise = {
   СворачиватьЭлементы: "CollapseItems",
 } as const
 
-export const PlannerItemsBehaviorOnLackOfSpace = {
-  ShowAllItems: "ShowAllItems",
-  CollapseItems: "CollapseItems",
-} as const
-
-export const PlannerItemsBehaviorOnLackOfSpaceEnterprise = {
-  ОтображатьВсеЭлементы: "ОтображатьВсеЭлементы",
-  СворачиватьЭлементы: "СворачиватьЭлементы",
-} as const
+export type PlannerItemsBehaviorOnLackOfSpace = keyof typeof PlannerItemsBehaviorOnLackOfSpaceToEnterprise
+export type PlannerItemsBehaviorOnLackOfSpaceEnterprise = keyof typeof PlannerItemsBehaviorOnLackOfSpaceFromEnterprise
 
 export const PlannerItemsTimeRepresentationToEnterprise = {
   BeginTime: "ВремяНачала",
@@ -6403,17 +3846,8 @@ export const PlannerItemsTimeRepresentationFromEnterprise = {
   НеОтображать: "DontDisplay",
 } as const
 
-export const PlannerItemsTimeRepresentation = {
-  BeginTime: "BeginTime",
-  BeginAndEndTime: "BeginAndEndTime",
-  DontDisplay: "DontDisplay",
-} as const
-
-export const PlannerItemsTimeRepresentationEnterprise = {
-  ВремяНачала: "ВремяНачала",
-  ВремяНачалаИКонца: "ВремяНачалаИКонца",
-  НеОтображать: "НеОтображать",
-} as const
+export type PlannerItemsTimeRepresentation = keyof typeof PlannerItemsTimeRepresentationToEnterprise
+export type PlannerItemsTimeRepresentationEnterprise = keyof typeof PlannerItemsTimeRepresentationFromEnterprise
 
 export const PlannerStandardCommandToEnterprise = {
   QuickEditItem: "БыстроРедактироватьЭлемент",
@@ -6441,31 +3875,8 @@ export const PlannerStandardCommandFromEnterprise = {
   УдалитьЭлементы: "DeleteItems",
 } as const
 
-export const PlannerStandardCommand = {
-  QuickEditItem: "QuickEditItem",
-  SelectWrappedTimeScaleHeader: "SelectWrappedTimeScaleHeader",
-  SelectDimensionItem: "SelectDimensionItem",
-  SelectTimeScaleItem: "SelectTimeScaleItem",
-  ExecuteAction: "ExecuteAction",
-  CopyURL: "CopyURL",
-  GotoURL: "GotoURL",
-  EditItem: "EditItem",
-  CreateItem: "CreateItem",
-  DeleteItems: "DeleteItems",
-} as const
-
-export const PlannerStandardCommandEnterprise = {
-  БыстроРедактироватьЭлемент: "БыстроРедактироватьЭлемент",
-  ВыбратьПеренесенныйЗаголовокШкалыВремени: "ВыбратьПеренесенныйЗаголовокШкалыВремени",
-  ВыбратьЭлементИзмерения: "ВыбратьЭлементИзмерения",
-  ВыбратьЭлементШкалыВремени: "ВыбратьЭлементШкалыВремени",
-  ВыполнитьДействие: "ВыполнитьДействие",
-  КопироватьНавигационнуюСсылку: "КопироватьНавигационнуюСсылку",
-  ПерейтиПоНавигационнойСсылке: "ПерейтиПоНавигационнойСсылке",
-  РедактироватьЭлемент: "РедактироватьЭлемент",
-  СоздатьЭлемент: "СоздатьЭлемент",
-  УдалитьЭлементы: "УдалитьЭлементы",
-} as const
+export type PlannerStandardCommand = keyof typeof PlannerStandardCommandToEnterprise
+export type PlannerStandardCommandEnterprise = keyof typeof PlannerStandardCommandFromEnterprise
 
 export const JSONCharactersEscapeModeToEnterprise = {
   None: "Нет",
@@ -6479,17 +3890,8 @@ export const JSONCharactersEscapeModeFromEnterprise = {
   СимволыВнеBMP: "SymbolsNotInBMP",
 } as const
 
-export const JSONCharactersEscapeMode = {
-  None: "None",
-  NotASCIISymbols: "NotASCIISymbols",
-  SymbolsNotInBMP: "SymbolsNotInBMP",
-} as const
-
-export const JSONCharactersEscapeModeEnterprise = {
-  Нет: "Нет",
-  СимволыВнеASCII: "СимволыВнеASCII",
-  СимволыВнеBMP: "СимволыВнеBMP",
-} as const
+export type JSONCharactersEscapeMode = keyof typeof JSONCharactersEscapeModeToEnterprise
+export type JSONCharactersEscapeModeEnterprise = keyof typeof JSONCharactersEscapeModeFromEnterprise
 
 export const JSONDateFormatToEnterprise = {
   ISO: "ISO",
@@ -6503,17 +3905,8 @@ export const JSONDateFormatFromEnterprise = {
   Microsoft: "Microsoft",
 } as const
 
-export const JSONDateFormat = {
-  ISO: "ISO",
-  JavaScript: "JavaScript",
-  Microsoft: "Microsoft",
-} as const
-
-export const JSONDateFormatEnterprise = {
-  ISO: "ISO",
-  JavaScript: "JavaScript",
-  Microsoft: "Microsoft",
-} as const
+export type JSONDateFormat = keyof typeof JSONDateFormatToEnterprise
+export type JSONDateFormatEnterprise = keyof typeof JSONDateFormatFromEnterprise
 
 export const JSONDateWritingVariantToEnterprise = {
   LocalDate: "ЛокальнаяДата",
@@ -6527,17 +3920,8 @@ export const JSONDateWritingVariantFromEnterprise = {
   УниверсальнаяДата: "UniversalDate",
 } as const
 
-export const JSONDateWritingVariant = {
-  LocalDate: "LocalDate",
-  LocalDateWithOffset: "LocalDateWithOffset",
-  UniversalDate: "UniversalDate",
-} as const
-
-export const JSONDateWritingVariantEnterprise = {
-  ЛокальнаяДата: "ЛокальнаяДата",
-  ЛокальнаяДатаСоСмещением: "ЛокальнаяДатаСоСмещением",
-  УниверсальнаяДата: "УниверсальнаяДата",
-} as const
+export type JSONDateWritingVariant = keyof typeof JSONDateWritingVariantToEnterprise
+export type JSONDateWritingVariantEnterprise = keyof typeof JSONDateWritingVariantFromEnterprise
 
 export const JSONLineBreakToEnterprise = {
   Unix: "Unix",
@@ -6553,19 +3937,8 @@ export const JSONLineBreakFromEnterprise = {
   Нет: "None",
 } as const
 
-export const JSONLineBreak = {
-  Unix: "Unix",
-  Windows: "Windows",
-  Auto: "Auto",
-  None: "None",
-} as const
-
-export const JSONLineBreakEnterprise = {
-  Unix: "Unix",
-  Windows: "Windows",
-  Авто: "Авто",
-  Нет: "Нет",
-} as const
+export type JSONLineBreak = keyof typeof JSONLineBreakToEnterprise
+export type JSONLineBreakEnterprise = keyof typeof JSONLineBreakFromEnterprise
 
 export const JSONValueTypeToEnterprise = {
   Null: "Null",
@@ -6595,33 +3968,8 @@ export const JSONValueTypeFromEnterprise = {
   Число: "Number",
 } as const
 
-export const JSONValueType = {
-  Null: "Null",
-  Boolean: "Boolean",
-  PropertyName: "PropertyName",
-  Comment: "Comment",
-  ArrayEnd: "ArrayEnd",
-  ObjectEnd: "ObjectEnd",
-  ArrayStart: "ArrayStart",
-  ObjectStart: "ObjectStart",
-  None: "None",
-  String: "String",
-  Number: "Number",
-} as const
-
-export const JSONValueTypeEnterprise = {
-  Null: "Null",
-  Булево: "Булево",
-  ИмяСвойства: "ИмяСвойства",
-  Комментарий: "Комментарий",
-  КонецМассива: "КонецМассива",
-  КонецОбъекта: "КонецОбъекта",
-  НачалоМассива: "НачалоМассива",
-  НачалоОбъекта: "НачалоОбъекта",
-  Ничего: "Ничего",
-  Строка: "Строка",
-  Число: "Число",
-} as const
+export type JSONValueType = keyof typeof JSONValueTypeToEnterprise
+export type JSONValueTypeEnterprise = keyof typeof JSONValueTypeFromEnterprise
 
 export const DeliverableNotificationSendErrorTypeToEnterprise = {
   UnknownError: "НеизвестнаяОшибка",
@@ -6643,25 +3991,9 @@ export const DeliverableNotificationSendErrorTypeFromEnterprise = {
   ПревышенЛимитОтправкиУведомлений: "NotificationsLimitExceeded",
 } as const
 
-export const DeliverableNotificationSendErrorType = {
-  UnknownError: "UnknownError",
-  AuthenticationDataError: "AuthenticationDataError",
-  SubscriberIDError: "SubscriberIDError",
-  DeliverableNotificationServiceConnectionError: "DeliverableNotificationServiceConnectionError",
-  DeliverableNotificationServiceError: "DeliverableNotificationServiceError",
-  NotificationBodyError: "NotificationBodyError",
-  NotificationsLimitExceeded: "NotificationsLimitExceeded",
-} as const
-
-export const DeliverableNotificationSendErrorTypeEnterprise = {
-  НеизвестнаяОшибка: "НеизвестнаяОшибка",
-  ОшибкаДанныхАутентификации: "ОшибкаДанныхАутентификации",
-  ОшибкаИдентификатораПодписчика: "ОшибкаИдентификатораПодписчика",
-  ОшибкаПодключенияКСервисуДоставляемыхУведомлений: "ОшибкаПодключенияКСервисуДоставляемыхУведомлений",
-  ОшибкаСервисаДоставляемыхУведомлений: "ОшибкаСервисаДоставляемыхУведомлений",
-  ОшибкаТелаУведомления: "ОшибкаТелаУведомления",
-  ПревышенЛимитОтправкиУведомлений: "ПревышенЛимитОтправкиУведомлений",
-} as const
+export type DeliverableNotificationSendErrorType = keyof typeof DeliverableNotificationSendErrorTypeToEnterprise
+export type DeliverableNotificationSendErrorTypeEnterprise =
+  keyof typeof DeliverableNotificationSendErrorTypeFromEnterprise
 
 export const DeliverableNotificationSubscriberTypeToEnterprise = {
   APNS: "APNS",
@@ -6681,23 +4013,9 @@ export const DeliverableNotificationSubscriberTypeFromEnterprise = {
   WNS: "WNS",
 } as const
 
-export const DeliverableNotificationSubscriberType = {
-  APNS: "APNS",
-  FCM: "FCM",
-  GCM: "GCM",
-  HPK: "HPK",
-  RMS: "RMS",
-  WNS: "WNS",
-} as const
-
-export const DeliverableNotificationSubscriberTypeEnterprise = {
-  APNS: "APNS",
-  FCM: "FCM",
-  GCM: "GCM",
-  HPK: "HPK",
-  RMS: "RMS",
-  WNS: "WNS",
-} as const
+export type DeliverableNotificationSubscriberType = keyof typeof DeliverableNotificationSubscriberTypeToEnterprise
+export type DeliverableNotificationSubscriberTypeEnterprise =
+  keyof typeof DeliverableNotificationSubscriberTypeFromEnterprise
 
 export const SoundAlertToEnterprise = {
   None: "Нет",
@@ -6709,15 +4027,8 @@ export const SoundAlertFromEnterprise = {
   ПоУмолчанию: "Default",
 } as const
 
-export const SoundAlert = {
-  None: "None",
-  Default: "Default",
-} as const
-
-export const SoundAlertEnterprise = {
-  Нет: "Нет",
-  ПоУмолчанию: "ПоУмолчанию",
-} as const
+export type SoundAlert = keyof typeof SoundAlertToEnterprise
+export type SoundAlertEnterprise = keyof typeof SoundAlertFromEnterprise
 
 export const InAppPurchaseServiceToEnterprise = {
   AppleInAppPurchase: "AppleInAppPurchase",
@@ -6735,21 +4046,8 @@ export const InAppPurchaseServiceFromEnterprise = {
   WindowsInAppPurchase: "WindowsInAppPurchase",
 } as const
 
-export const InAppPurchaseService = {
-  AppleInAppPurchase: "AppleInAppPurchase",
-  GooglePlayInAppBilling: "GooglePlayInAppBilling",
-  HuaweiInAppPurchase: "HuaweiInAppPurchase",
-  RuStoreInAppPurchase: "RuStoreInAppPurchase",
-  WindowsInAppPurchase: "WindowsInAppPurchase",
-} as const
-
-export const InAppPurchaseServiceEnterprise = {
-  AppleInAppPurchase: "AppleInAppPurchase",
-  GooglePlayInAppBilling: "GooglePlayInAppBilling",
-  HuaweiInAppPurchase: "HuaweiInAppPurchase",
-  RuStoreInAppPurchase: "RuStoreInAppPurchase",
-  WindowsInAppPurchase: "WindowsInAppPurchase",
-} as const
+export type InAppPurchaseService = keyof typeof InAppPurchaseServiceToEnterprise
+export type InAppPurchaseServiceEnterprise = keyof typeof InAppPurchaseServiceFromEnterprise
 
 export const InAppPurchaseTypeToEnterprise = {
   ContentForSale: "КонтентДляПродажи",
@@ -6761,15 +4059,8 @@ export const InAppPurchaseTypeFromEnterprise = {
   Подписка: "Subscription",
 } as const
 
-export const InAppPurchaseType = {
-  ContentForSale: "ContentForSale",
-  Subscription: "Subscription",
-} as const
-
-export const InAppPurchaseTypeEnterprise = {
-  КонтентДляПродажи: "КонтентДляПродажи",
-  Подписка: "Подписка",
-} as const
+export type InAppPurchaseType = keyof typeof InAppPurchaseTypeToEnterprise
+export type InAppPurchaseTypeEnterprise = keyof typeof InAppPurchaseTypeFromEnterprise
 
 export const FTPSecureConnectionUsageLevelToEnterprise = {
   Auto: "Авто",
@@ -6787,21 +4078,8 @@ export const FTPSecureConnectionUsageLevelFromEnterprise = {
   ТребоватьДляУправления: "RequireForControl",
 } as const
 
-export const FTPSecureConnectionUsageLevel = {
-  Auto: "Auto",
-  UseIfPossible: "UseIfPossible",
-  DontUse: "DontUse",
-  Require: "Require",
-  RequireForControl: "RequireForControl",
-} as const
-
-export const FTPSecureConnectionUsageLevelEnterprise = {
-  Авто: "Авто",
-  ИспользоватьЕслиВозможно: "ИспользоватьЕслиВозможно",
-  НеИспользовать: "НеИспользовать",
-  Требовать: "Требовать",
-  ТребоватьДляУправления: "ТребоватьДляУправления",
-} as const
+export type FTPSecureConnectionUsageLevel = keyof typeof FTPSecureConnectionUsageLevelToEnterprise
+export type FTPSecureConnectionUsageLevelEnterprise = keyof typeof FTPSecureConnectionUsageLevelFromEnterprise
 
 export const InternetConnectionTypeToEnterprise = {
   WiFi: "WiFi",
@@ -6817,19 +4095,8 @@ export const InternetConnectionTypeFromEnterprise = {
   СотовыеДанные: "CellularData",
 } as const
 
-export const InternetConnectionType = {
-  WiFi: "WiFi",
-  LAN: "LAN",
-  NoConnection: "NoConnection",
-  CellularData: "CellularData",
-} as const
-
-export const InternetConnectionTypeEnterprise = {
-  WiFi: "WiFi",
-  ЛокальнаяСеть: "ЛокальнаяСеть",
-  НетСоединения: "НетСоединения",
-  СотовыеДанные: "СотовыеДанные",
-} as const
+export type InternetConnectionType = keyof typeof InternetConnectionTypeToEnterprise
+export type InternetConnectionTypeEnterprise = keyof typeof InternetConnectionTypeFromEnterprise
 
 export const MacOSCertificateSelectModeToEnterprise = {
   Auto: "Авто",
@@ -6841,15 +4108,8 @@ export const MacOSCertificateSelectModeFromEnterprise = {
   Выбирать: "Choose",
 } as const
 
-export const MacOSCertificateSelectMode = {
-  Auto: "Auto",
-  Choose: "Choose",
-} as const
-
-export const MacOSCertificateSelectModeEnterprise = {
-  Авто: "Авто",
-  Выбирать: "Выбирать",
-} as const
+export type MacOSCertificateSelectMode = keyof typeof MacOSCertificateSelectModeToEnterprise
+export type MacOSCertificateSelectModeEnterprise = keyof typeof MacOSCertificateSelectModeFromEnterprise
 
 export const OSCertificateSelectModeToEnterprise = {
   Auto: "Авто",
@@ -6861,15 +4121,8 @@ export const OSCertificateSelectModeFromEnterprise = {
   Выбирать: "Choose",
 } as const
 
-export const OSCertificateSelectMode = {
-  Auto: "Auto",
-  Choose: "Choose",
-} as const
-
-export const OSCertificateSelectModeEnterprise = {
-  Авто: "Авто",
-  Выбирать: "Выбирать",
-} as const
+export type OSCertificateSelectMode = keyof typeof OSCertificateSelectModeToEnterprise
+export type OSCertificateSelectModeEnterprise = keyof typeof OSCertificateSelectModeFromEnterprise
 
 export const RoamingUsageToEnterprise = {
   Used: "Используется",
@@ -6883,17 +4136,8 @@ export const RoamingUsageFromEnterprise = {
   НеИспользуется: "NotUsed",
 } as const
 
-export const RoamingUsage = {
-  Used: "Used",
-  Unknown: "Unknown",
-  NotUsed: "NotUsed",
-} as const
-
-export const RoamingUsageEnterprise = {
-  Используется: "Используется",
-  Неизвестно: "Неизвестно",
-  НеИспользуется: "НеИспользуется",
-} as const
+export type RoamingUsage = keyof typeof RoamingUsageToEnterprise
+export type RoamingUsageEnterprise = keyof typeof RoamingUsageFromEnterprise
 
 export const ServerTLSCertificateRevocationCheckModeToEnterprise = {
   Auto: "Авто",
@@ -6909,19 +4153,9 @@ export const ServerTLSCertificateRevocationCheckModeFromEnterprise = {
   Строгий: "Strict",
 } as const
 
-export const ServerTLSCertificateRevocationCheckMode = {
-  Auto: "Auto",
-  DontCheck: "DontCheck",
-  SoftFail: "SoftFail",
-  Strict: "Strict",
-} as const
-
-export const ServerTLSCertificateRevocationCheckModeEnterprise = {
-  Авто: "Авто",
-  НеПроверять: "НеПроверять",
-  Нестрогий: "Нестрогий",
-  Строгий: "Строгий",
-} as const
+export type ServerTLSCertificateRevocationCheckMode = keyof typeof ServerTLSCertificateRevocationCheckModeToEnterprise
+export type ServerTLSCertificateRevocationCheckModeEnterprise =
+  keyof typeof ServerTLSCertificateRevocationCheckModeFromEnterprise
 
 export const WindowsCertificateSelectModeToEnterprise = {
   Auto: "Авто",
@@ -6933,15 +4167,8 @@ export const WindowsCertificateSelectModeFromEnterprise = {
   Выбирать: "Choose",
 } as const
 
-export const WindowsCertificateSelectMode = {
-  Auto: "Auto",
-  Choose: "Choose",
-} as const
-
-export const WindowsCertificateSelectModeEnterprise = {
-  Авто: "Авто",
-  Выбирать: "Выбирать",
-} as const
+export type WindowsCertificateSelectMode = keyof typeof WindowsCertificateSelectModeToEnterprise
+export type WindowsCertificateSelectModeEnterprise = keyof typeof WindowsCertificateSelectModeFromEnterprise
 
 export const ByteOrderToEnterprise = {
   BigEndian: "BigEndian",
@@ -6953,15 +4180,8 @@ export const ByteOrderFromEnterprise = {
   LittleEndian: "LittleEndian",
 } as const
 
-export const ByteOrder = {
-  BigEndian: "BigEndian",
-  LittleEndian: "LittleEndian",
-} as const
-
-export const ByteOrderEnterprise = {
-  BigEndian: "BigEndian",
-  LittleEndian: "LittleEndian",
-} as const
+export type ByteOrder = keyof typeof ByteOrderToEnterprise
+export type ByteOrderEnterprise = keyof typeof ByteOrderFromEnterprise
 
 export const PositionInStreamToEnterprise = {
   End: "Конец",
@@ -6975,17 +4195,8 @@ export const PositionInStreamFromEnterprise = {
   Текущая: "Current",
 } as const
 
-export const PositionInStream = {
-  End: "End",
-  Begin: "Begin",
-  Current: "Current",
-} as const
-
-export const PositionInStreamEnterprise = {
-  Конец: "Конец",
-  Начало: "Начало",
-  Текущая: "Текущая",
-} as const
+export type PositionInStream = keyof typeof PositionInStreamToEnterprise
+export type PositionInStreamEnterprise = keyof typeof PositionInStreamFromEnterprise
 
 export const AdBannerRepresentationToEnterprise = {
   Top: "Верх",
@@ -6999,17 +4210,8 @@ export const AdBannerRepresentationFromEnterprise = {
   Низ: "Bottom",
 } as const
 
-export const AdBannerRepresentation = {
-  Top: "Top",
-  None: "None",
-  Bottom: "Bottom",
-} as const
-
-export const AdBannerRepresentationEnterprise = {
-  Верх: "Верх",
-  Нет: "Нет",
-  Низ: "Низ",
-} as const
+export type AdBannerRepresentation = keyof typeof AdBannerRepresentationToEnterprise
+export type AdBannerRepresentationEnterprise = keyof typeof AdBannerRepresentationFromEnterprise
 
 export const AdStatusToEnterprise = {
   ReadyToDisplay: "ГотоваКОтображению",
@@ -7025,19 +4227,8 @@ export const AdStatusFromEnterprise = {
   Отображается: "Displayed",
 } as const
 
-export const AdStatus = {
-  ReadyToDisplay: "ReadyToDisplay",
-  Downloading: "Downloading",
-  NotDownloaded: "NotDownloaded",
-  Displayed: "Displayed",
-} as const
-
-export const AdStatusEnterprise = {
-  ГотоваКОтображению: "ГотоваКОтображению",
-  Загружается: "Загружается",
-  НеЗагружена: "НеЗагружена",
-  Отображается: "Отображается",
-} as const
+export type AdStatus = keyof typeof AdStatusToEnterprise
+export type AdStatusEnterprise = keyof typeof AdStatusFromEnterprise
 
 export const DataLineChangeTypeToEnterprise = {
   Add: "Добавление",
@@ -7053,19 +4244,8 @@ export const DataLineChangeTypeFromEnterprise = {
   Удаление: "Delete",
 } as const
 
-export const DataLineChangeType = {
-  Add: "Add",
-  Update: "Update",
-  Move: "Move",
-  Delete: "Delete",
-} as const
-
-export const DataLineChangeTypeEnterprise = {
-  Добавление: "Добавление",
-  Изменение: "Изменение",
-  Перемещение: "Перемещение",
-  Удаление: "Удаление",
-} as const
+export type DataLineChangeType = keyof typeof DataLineChangeTypeToEnterprise
+export type DataLineChangeTypeEnterprise = keyof typeof DataLineChangeTypeFromEnterprise
 
 export const RepresentableDocumentBatchFileTypeToEnterprise = {
   DOCX: "DOCX",
@@ -7089,27 +4269,8 @@ export const RepresentableDocumentBatchFileTypeFromEnterprise = {
   XLSX: "XLSX",
 } as const
 
-export const RepresentableDocumentBatchFileType = {
-  DOCX: "DOCX",
-  HTML4: "HTML4",
-  HTML5: "HTML5",
-  ODS: "ODS",
-  PDF: "PDF",
-  TXT: "TXT",
-  XLS: "XLS",
-  XLSX: "XLSX",
-} as const
-
-export const RepresentableDocumentBatchFileTypeEnterprise = {
-  DOCX: "DOCX",
-  HTML4: "HTML4",
-  HTML5: "HTML5",
-  ODS: "ODS",
-  PDF: "PDF",
-  TXT: "TXT",
-  XLS: "XLS",
-  XLSX: "XLSX",
-} as const
+export type RepresentableDocumentBatchFileType = keyof typeof RepresentableDocumentBatchFileTypeToEnterprise
+export type RepresentableDocumentBatchFileTypeEnterprise = keyof typeof RepresentableDocumentBatchFileTypeFromEnterprise
 
 export const ClientApplicationAgentStateToEnterprise = {
   NotStarted: "НеЗапущен",
@@ -7123,17 +4284,8 @@ export const ClientApplicationAgentStateFromEnterprise = {
   Подключен: "Connected",
 } as const
 
-export const ClientApplicationAgentState = {
-  NotStarted: "NotStarted",
-  Disconnected: "Disconnected",
-  Connected: "Connected",
-} as const
-
-export const ClientApplicationAgentStateEnterprise = {
-  НеЗапущен: "НеЗапущен",
-  Отключен: "Отключен",
-  Подключен: "Подключен",
-} as const
+export type ClientApplicationAgentState = keyof typeof ClientApplicationAgentStateToEnterprise
+export type ClientApplicationAgentStateEnterprise = keyof typeof ClientApplicationAgentStateFromEnterprise
 
 export const DataCompositionDataRelevanceOutputTypeToEnterprise = {
   Auto: "Авто",
@@ -7147,17 +4299,9 @@ export const DataCompositionDataRelevanceOutputTypeFromEnterprise = {
   НеВыводить: "DontOutput",
 } as const
 
-export const DataCompositionDataRelevanceOutputType = {
-  Auto: "Auto",
-  Output: "Output",
-  DontOutput: "DontOutput",
-} as const
-
-export const DataCompositionDataRelevanceOutputTypeEnterprise = {
-  Авто: "Авто",
-  Выводить: "Выводить",
-  НеВыводить: "НеВыводить",
-} as const
+export type DataCompositionDataRelevanceOutputType = keyof typeof DataCompositionDataRelevanceOutputTypeToEnterprise
+export type DataCompositionDataRelevanceOutputTypeEnterprise =
+  keyof typeof DataCompositionDataRelevanceOutputTypeFromEnterprise
 
 export const DataCompositionDatabaseCopyOutputTypeToEnterprise = {
   Auto: "Авто",
@@ -7171,17 +4315,9 @@ export const DataCompositionDatabaseCopyOutputTypeFromEnterprise = {
   НеВыводить: "DontOutput",
 } as const
 
-export const DataCompositionDatabaseCopyOutputType = {
-  Auto: "Auto",
-  Output: "Output",
-  DontOutput: "DontOutput",
-} as const
-
-export const DataCompositionDatabaseCopyOutputTypeEnterprise = {
-  Авто: "Авто",
-  Выводить: "Выводить",
-  НеВыводить: "НеВыводить",
-} as const
+export type DataCompositionDatabaseCopyOutputType = keyof typeof DataCompositionDatabaseCopyOutputTypeToEnterprise
+export type DataCompositionDatabaseCopyOutputTypeEnterprise =
+  keyof typeof DataCompositionDatabaseCopyOutputTypeFromEnterprise
 
 export const DatabaseCopiesStandardReplicationVersionToEnterprise = {
   Version1: "Версия1",
@@ -7193,15 +4329,9 @@ export const DatabaseCopiesStandardReplicationVersionFromEnterprise = {
   Версия2: "Version2",
 } as const
 
-export const DatabaseCopiesStandardReplicationVersion = {
-  Version1: "Version1",
-  Version2: "Version2",
-} as const
-
-export const DatabaseCopiesStandardReplicationVersionEnterprise = {
-  Версия1: "Версия1",
-  Версия2: "Версия2",
-} as const
+export type DatabaseCopiesStandardReplicationVersion = keyof typeof DatabaseCopiesStandardReplicationVersionToEnterprise
+export type DatabaseCopiesStandardReplicationVersionEnterprise =
+  keyof typeof DatabaseCopiesStandardReplicationVersionFromEnterprise
 
 export const DatabaseCopiesUseToEnterprise = {
   Auto: "Авто",
@@ -7217,19 +4347,8 @@ export const DatabaseCopiesUseFromEnterprise = {
   НеИспользоватьКопии: "DontUseCopies",
 } as const
 
-export const DatabaseCopiesUse = {
-  Auto: "Auto",
-  PreferUseCopies: "PreferUseCopies",
-  UseCopiesOnly: "UseCopiesOnly",
-  DontUseCopies: "DontUseCopies",
-} as const
-
-export const DatabaseCopiesUseEnterprise = {
-  Авто: "Авто",
-  ИспользоватьПреимущественноКопии: "ИспользоватьПреимущественноКопии",
-  ИспользоватьТолькоКопии: "ИспользоватьТолькоКопии",
-  НеИспользоватьКопии: "НеИспользоватьКопии",
-} as const
+export type DatabaseCopiesUse = keyof typeof DatabaseCopiesUseToEnterprise
+export type DatabaseCopiesUseEnterprise = keyof typeof DatabaseCopiesUseFromEnterprise
 
 export const DatabaseCopyContentItemFieldUseToEnterprise = {
   Auto: "Авто",
@@ -7243,17 +4362,8 @@ export const DatabaseCopyContentItemFieldUseFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const DatabaseCopyContentItemFieldUse = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const DatabaseCopyContentItemFieldUseEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type DatabaseCopyContentItemFieldUse = keyof typeof DatabaseCopyContentItemFieldUseToEnterprise
+export type DatabaseCopyContentItemFieldUseEnterprise = keyof typeof DatabaseCopyContentItemFieldUseFromEnterprise
 
 export const DatabaseCopyDBMSTypeToEnterprise = {
   MSSQLServer: "MSSQLServer",
@@ -7267,17 +4377,8 @@ export const DatabaseCopyDBMSTypeFromEnterprise = {
   PostgreSQL: "PostgreSQL",
 } as const
 
-export const DatabaseCopyDBMSType = {
-  MSSQLServer: "MSSQLServer",
-  OracleDatabase: "OracleDatabase",
-  PostgreSQL: "PostgreSQL",
-} as const
-
-export const DatabaseCopyDBMSTypeEnterprise = {
-  MSSQLServer: "MSSQLServer",
-  OracleDatabase: "OracleDatabase",
-  PostgreSQL: "PostgreSQL",
-} as const
+export type DatabaseCopyDBMSType = keyof typeof DatabaseCopyDBMSTypeToEnterprise
+export type DatabaseCopyDBMSTypeEnterprise = keyof typeof DatabaseCopyDBMSTypeFromEnterprise
 
 export const DatabaseCopyReplicationTypeToEnterprise = {
   External: "Внешняя",
@@ -7289,15 +4390,8 @@ export const DatabaseCopyReplicationTypeFromEnterprise = {
   Стандартная: "Standard",
 } as const
 
-export const DatabaseCopyReplicationType = {
-  External: "External",
-  Standard: "Standard",
-} as const
-
-export const DatabaseCopyReplicationTypeEnterprise = {
-  Внешняя: "Внешняя",
-  Стандартная: "Стандартная",
-} as const
+export type DatabaseCopyReplicationType = keyof typeof DatabaseCopyReplicationTypeToEnterprise
+export type DatabaseCopyReplicationTypeEnterprise = keyof typeof DatabaseCopyReplicationTypeFromEnterprise
 
 export const DatabaseCopyStateToEnterprise = {
   TurnedOn: "Включена",
@@ -7311,17 +4405,8 @@ export const DatabaseCopyStateFromEnterprise = {
   Отключена: "TurnedOff",
 } as const
 
-export const DatabaseCopyState = {
-  TurnedOn: "TurnedOn",
-  TemporarilyTurnedOff: "TemporarilyTurnedOff",
-  TurnedOff: "TurnedOff",
-} as const
-
-export const DatabaseCopyStateEnterprise = {
-  Включена: "Включена",
-  ВременноОтключена: "ВременноОтключена",
-  Отключена: "Отключена",
-} as const
+export type DatabaseCopyState = keyof typeof DatabaseCopyStateToEnterprise
+export type DatabaseCopyStateEnterprise = keyof typeof DatabaseCopyStateFromEnterprise
 
 export const DatabaseCopyTurnedOffReasonToEnterprise = {
   InvalidCopyDatabaseUseVariant: "НедопустимыйВариантИспользованияБазыДанныхКопии",
@@ -7337,19 +4422,8 @@ export const DatabaseCopyTurnedOffReasonFromEnterprise = {
   ОшибкаСоединенияСБазойДанных: "DatabaseConnectionError",
 } as const
 
-export const DatabaseCopyTurnedOffReason = {
-  InvalidCopyDatabaseUseVariant: "InvalidCopyDatabaseUseVariant",
-  DataInconsistency: "DataInconsistency",
-  QueryExecutionError: "QueryExecutionError",
-  DatabaseConnectionError: "DatabaseConnectionError",
-} as const
-
-export const DatabaseCopyTurnedOffReasonEnterprise = {
-  НедопустимыйВариантИспользованияБазыДанныхКопии: "НедопустимыйВариантИспользованияБазыДанныхКопии",
-  НесоответствиеДанных: "НесоответствиеДанных",
-  ОшибкаВыполненияЗапроса: "ОшибкаВыполненияЗапроса",
-  ОшибкаСоединенияСБазойДанных: "ОшибкаСоединенияСБазойДанных",
-} as const
+export type DatabaseCopyTurnedOffReason = keyof typeof DatabaseCopyTurnedOffReasonToEnterprise
+export type DatabaseCopyTurnedOffReasonEnterprise = keyof typeof DatabaseCopyTurnedOffReasonFromEnterprise
 
 export const DatabaseCopyUpdateStateToEnterprise = {
   InitialUpdateInProgress: "ВыполняетсяНачальноеОбновление",
@@ -7369,23 +4443,8 @@ export const DatabaseCopyUpdateStateFromEnterprise = {
   Неактивно: "Inactive",
 } as const
 
-export const DatabaseCopyUpdateState = {
-  InitialUpdateInProgress: "InitialUpdateInProgress",
-  CurrentUpdateInProgress: "CurrentUpdateInProgress",
-  PortionUpdateCompletedSuccessfully: "PortionUpdateCompletedSuccessfully",
-  CompletedWithError: "CompletedWithError",
-  CompletedSuccessfully: "CompletedSuccessfully",
-  Inactive: "Inactive",
-} as const
-
-export const DatabaseCopyUpdateStateEnterprise = {
-  ВыполняетсяНачальноеОбновление: "ВыполняетсяНачальноеОбновление",
-  ВыполняетсяТекущееОбновление: "ВыполняетсяТекущееОбновление",
-  ЗавершеноОбновлениеПорцииУспешно: "ЗавершеноОбновлениеПорцииУспешно",
-  ЗавершеноСОшибкой: "ЗавершеноСОшибкой",
-  ЗавершеноУспешно: "ЗавершеноУспешно",
-  Неактивно: "Неактивно",
-} as const
+export type DatabaseCopyUpdateState = keyof typeof DatabaseCopyUpdateStateToEnterprise
+export type DatabaseCopyUpdateStateEnterprise = keyof typeof DatabaseCopyUpdateStateFromEnterprise
 
 export const RequiredDataRelevanceToEnterprise = {
   Auto: "Авто",
@@ -7399,17 +4458,8 @@ export const RequiredDataRelevanceFromEnterprise = {
   Любые: "Any",
 } as const
 
-export const RequiredDataRelevance = {
-  Auto: "Auto",
-  Relevant: "Relevant",
-  Any: "Any",
-} as const
-
-export const RequiredDataRelevanceEnterprise = {
-  Авто: "Авто",
-  Актуальные: "Актуальные",
-  Любые: "Любые",
-} as const
+export type RequiredDataRelevance = keyof typeof RequiredDataRelevanceToEnterprise
+export type RequiredDataRelevanceEnterprise = keyof typeof RequiredDataRelevanceFromEnterprise
 
 export const CollaborationSystemCommandSourceToEnterprise = {
   Attachment: "Вложение",
@@ -7429,23 +4479,8 @@ export const CollaborationSystemCommandSourceFromEnterprise = {
   Сообщение: "Message",
 } as const
 
-export const CollaborationSystemCommandSource = {
-  Attachment: "Attachment",
-  Action: "Action",
-  URL: "URL",
-  CurrentPageURL: "CurrentPageURL",
-  User: "User",
-  Message: "Message",
-} as const
-
-export const CollaborationSystemCommandSourceEnterprise = {
-  Вложение: "Вложение",
-  Действие: "Действие",
-  НавигационнаяСсылка: "НавигационнаяСсылка",
-  НавигационнаяСсылкаТекущейСтраницы: "НавигационнаяСсылкаТекущейСтраницы",
-  Пользователь: "Пользователь",
-  Сообщение: "Сообщение",
-} as const
+export type CollaborationSystemCommandSource = keyof typeof CollaborationSystemCommandSourceToEnterprise
+export type CollaborationSystemCommandSourceEnterprise = keyof typeof CollaborationSystemCommandSourceFromEnterprise
 
 export const CollaborationSystemDataDumpStatusToEnterprise = {
   Restoring: "Восстановление",
@@ -7463,21 +4498,8 @@ export const CollaborationSystemDataDumpStatusFromEnterprise = {
   Создание: "Creating",
 } as const
 
-export const CollaborationSystemDataDumpStatus = {
-  Restoring: "Restoring",
-  Done: "Done",
-  Loading: "Loading",
-  Error: "Error",
-  Creating: "Creating",
-} as const
-
-export const CollaborationSystemDataDumpStatusEnterprise = {
-  Восстановление: "Восстановление",
-  Готово: "Готово",
-  Загрузка: "Загрузка",
-  Ошибка: "Ошибка",
-  Создание: "Создание",
-} as const
+export type CollaborationSystemDataDumpStatus = keyof typeof CollaborationSystemDataDumpStatusToEnterprise
+export type CollaborationSystemDataDumpStatusEnterprise = keyof typeof CollaborationSystemDataDumpStatusFromEnterprise
 
 export const CollaborationSystemFromDataDumpRestoreStatusToEnterprise = {
   Error: "Ошибка",
@@ -7489,15 +4511,10 @@ export const CollaborationSystemFromDataDumpRestoreStatusFromEnterprise = {
   Успешно: "Success",
 } as const
 
-export const CollaborationSystemFromDataDumpRestoreStatus = {
-  Error: "Error",
-  Success: "Success",
-} as const
-
-export const CollaborationSystemFromDataDumpRestoreStatusEnterprise = {
-  Ошибка: "Ошибка",
-  Успешно: "Успешно",
-} as const
+export type CollaborationSystemFromDataDumpRestoreStatus =
+  keyof typeof CollaborationSystemFromDataDumpRestoreStatusToEnterprise
+export type CollaborationSystemFromDataDumpRestoreStatusEnterprise =
+  keyof typeof CollaborationSystemFromDataDumpRestoreStatusFromEnterprise
 
 export const CollaborationSystemMessageButtonPanelButtonActionToEnterprise = {
   RequestLocation: "ЗапроситьМестоположение",
@@ -7519,25 +4536,10 @@ export const CollaborationSystemMessageButtonPanelButtonActionFromEnterprise = {
   ПерейтиПоНавигационнойСсылке: "GotoURL",
 } as const
 
-export const CollaborationSystemMessageButtonPanelButtonAction = {
-  RequestLocation: "RequestLocation",
-  RequestPhone: "RequestPhone",
-  ProcessByBot: "ProcessByBot",
-  ProcessOnClient: "ProcessOnClient",
-  SendMessage: "SendMessage",
-  SendMessageWithData: "SendMessageWithData",
-  GotoURL: "GotoURL",
-} as const
-
-export const CollaborationSystemMessageButtonPanelButtonActionEnterprise = {
-  ЗапроситьМестоположение: "ЗапроситьМестоположение",
-  ЗапроситьТелефон: "ЗапроситьТелефон",
-  ОбработатьБотом: "ОбработатьБотом",
-  ОбработатьНаКлиенте: "ОбработатьНаКлиенте",
-  ОтправитьСообщение: "ОтправитьСообщение",
-  ОтправитьСообщениеСДанными: "ОтправитьСообщениеСДанными",
-  ПерейтиПоНавигационнойСсылке: "ПерейтиПоНавигационнойСсылке",
-} as const
+export type CollaborationSystemMessageButtonPanelButtonAction =
+  keyof typeof CollaborationSystemMessageButtonPanelButtonActionToEnterprise
+export type CollaborationSystemMessageButtonPanelButtonActionEnterprise =
+  keyof typeof CollaborationSystemMessageButtonPanelButtonActionFromEnterprise
 
 export const CollaborationSystemMessageButtonPanelButtonTypeToEnterprise = {
   Hyperlink: "Гиперссылка",
@@ -7549,15 +4551,10 @@ export const CollaborationSystemMessageButtonPanelButtonTypeFromEnterprise = {
   ОбычнаяКнопка: "UsualButton",
 } as const
 
-export const CollaborationSystemMessageButtonPanelButtonType = {
-  Hyperlink: "Hyperlink",
-  UsualButton: "UsualButton",
-} as const
-
-export const CollaborationSystemMessageButtonPanelButtonTypeEnterprise = {
-  Гиперссылка: "Гиперссылка",
-  ОбычнаяКнопка: "ОбычнаяКнопка",
-} as const
+export type CollaborationSystemMessageButtonPanelButtonType =
+  keyof typeof CollaborationSystemMessageButtonPanelButtonTypeToEnterprise
+export type CollaborationSystemMessageButtonPanelButtonTypeEnterprise =
+  keyof typeof CollaborationSystemMessageButtonPanelButtonTypeFromEnterprise
 
 export const CollaborationSystemNotificationRepresentationToEnterprise = {
   DontDisturb: "НеБеспокоить",
@@ -7569,15 +4566,10 @@ export const CollaborationSystemNotificationRepresentationFromEnterprise = {
   Обычное: "Normal",
 } as const
 
-export const CollaborationSystemNotificationRepresentation = {
-  DontDisturb: "DontDisturb",
-  Normal: "Normal",
-} as const
-
-export const CollaborationSystemNotificationRepresentationEnterprise = {
-  НеБеспокоить: "НеБеспокоить",
-  Обычное: "Обычное",
-} as const
+export type CollaborationSystemNotificationRepresentation =
+  keyof typeof CollaborationSystemNotificationRepresentationToEnterprise
+export type CollaborationSystemNotificationRepresentationEnterprise =
+  keyof typeof CollaborationSystemNotificationRepresentationFromEnterprise
 
 export const CollaborationSystemStandardCommandToEnterprise = {
   ExecuteAction: "ВыполнитьДействие",
@@ -7613,39 +4605,8 @@ export const CollaborationSystemStandardCommandFromEnterprise = {
   ЦитироватьСообщение: "QuoteMessage",
 } as const
 
-export const CollaborationSystemStandardCommand = {
-  ExecuteAction: "ExecuteAction",
-  CopyAttachment: "CopyAttachment",
-  CopyURL: "CopyURL",
-  CopyMessage: "CopyMessage",
-  OpenAttachment: "OpenAttachment",
-  GotoURL: "GotoURL",
-  ShareAttachment: "ShareAttachment",
-  ShareMessage: "ShareMessage",
-  ShowUserInfo: "ShowUserInfo",
-  GetMessageURL: "GetMessageURL",
-  EditMessage: "EditMessage",
-  SaveAttachment: "SaveAttachment",
-  DeleteMessage: "DeleteMessage",
-  QuoteMessage: "QuoteMessage",
-} as const
-
-export const CollaborationSystemStandardCommandEnterprise = {
-  ВыполнитьДействие: "ВыполнитьДействие",
-  КопироватьВложение: "КопироватьВложение",
-  КопироватьНавигационнуюСсылку: "КопироватьНавигационнуюСсылку",
-  КопироватьСообщение: "КопироватьСообщение",
-  ОткрытьВложение: "ОткрытьВложение",
-  ПерейтиПоНавигационнойСсылке: "ПерейтиПоНавигационнойСсылке",
-  ПоделитьсяВложением: "ПоделитьсяВложением",
-  ПоделитьсяСообщением: "ПоделитьсяСообщением",
-  ПоказатьИнформациюОПользователе: "ПоказатьИнформациюОПользователе",
-  ПолучитьНавигационнуюСсылкуСообщения: "ПолучитьНавигационнуюСсылкуСообщения",
-  РедактироватьСообщение: "РедактироватьСообщение",
-  СохранитьВложение: "СохранитьВложение",
-  УдалитьСообщение: "УдалитьСообщение",
-  ЦитироватьСообщение: "ЦитироватьСообщение",
-} as const
+export type CollaborationSystemStandardCommand = keyof typeof CollaborationSystemStandardCommandToEnterprise
+export type CollaborationSystemStandardCommandEnterprise = keyof typeof CollaborationSystemStandardCommandFromEnterprise
 
 export const CollaborationSystemUsersChoicePurposeToEnterprise = {
   MessageRecipient: "ПолучательСообщения",
@@ -7659,17 +4620,9 @@ export const CollaborationSystemUsersChoicePurposeFromEnterprise = {
   УчастникОбсуждения: "ConversationMember",
 } as const
 
-export const CollaborationSystemUsersChoicePurpose = {
-  MessageRecipient: "MessageRecipient",
-  VideoconferenceParticipant: "VideoconferenceParticipant",
-  ConversationMember: "ConversationMember",
-} as const
-
-export const CollaborationSystemUsersChoicePurposeEnterprise = {
-  ПолучательСообщения: "ПолучательСообщения",
-  УчастникВидеоконференции: "УчастникВидеоконференции",
-  УчастникОбсуждения: "УчастникОбсуждения",
-} as const
+export type CollaborationSystemUsersChoicePurpose = keyof typeof CollaborationSystemUsersChoicePurposeToEnterprise
+export type CollaborationSystemUsersChoicePurposeEnterprise =
+  keyof typeof CollaborationSystemUsersChoicePurposeFromEnterprise
 
 export const AdministrationActionOnResourceConsumptionLimitExcessToEnterprise = {
   TerminateSession: "ЗавершитьСеанс",
@@ -7685,19 +4638,10 @@ export const AdministrationActionOnResourceConsumptionLimitExcessFromEnterprise 
   УстановитьНизкийПриоритетПотока: "SetThreadLowPriority",
 } as const
 
-export const AdministrationActionOnResourceConsumptionLimitExcess = {
-  TerminateSession: "TerminateSession",
-  None: "None",
-  InterruptCurrentServerCall: "InterruptCurrentServerCall",
-  SetThreadLowPriority: "SetThreadLowPriority",
-} as const
-
-export const AdministrationActionOnResourceConsumptionLimitExcessEnterprise = {
-  ЗавершитьСеанс: "ЗавершитьСеанс",
-  Нет: "Нет",
-  ПрерватьТекущийСерверныйВызов: "ПрерватьТекущийСерверныйВызов",
-  УстановитьНизкийПриоритетПотока: "УстановитьНизкийПриоритетПотока",
-} as const
+export type AdministrationActionOnResourceConsumptionLimitExcess =
+  keyof typeof AdministrationActionOnResourceConsumptionLimitExcessToEnterprise
+export type AdministrationActionOnResourceConsumptionLimitExcessEnterprise =
+  keyof typeof AdministrationActionOnResourceConsumptionLimitExcessFromEnterprise
 
 export const AdministrationAssignmentRuleTypeToEnterprise = {
   Auto: "Авто",
@@ -7711,17 +4655,8 @@ export const AdministrationAssignmentRuleTypeFromEnterprise = {
   НеНазначать: "DontAssign",
 } as const
 
-export const AdministrationAssignmentRuleType = {
-  Auto: "Auto",
-  Assign: "Assign",
-  DontAssign: "DontAssign",
-} as const
-
-export const AdministrationAssignmentRuleTypeEnterprise = {
-  Авто: "Авто",
-  Назначать: "Назначать",
-  НеНазначать: "НеНазначать",
-} as const
+export type AdministrationAssignmentRuleType = keyof typeof AdministrationAssignmentRuleTypeToEnterprise
+export type AdministrationAssignmentRuleTypeEnterprise = keyof typeof AdministrationAssignmentRuleTypeFromEnterprise
 
 export const AdministrationConnectionSecurityLevelToEnterprise = {
   Secure: "Защищенное",
@@ -7735,17 +4670,9 @@ export const AdministrationConnectionSecurityLevelFromEnterprise = {
   Незащищенное: "Unsecure",
 } as const
 
-export const AdministrationConnectionSecurityLevel = {
-  Secure: "Secure",
-  SecureOnConnect: "SecureOnConnect",
-  Unsecure: "Unsecure",
-} as const
-
-export const AdministrationConnectionSecurityLevelEnterprise = {
-  Защищенное: "Защищенное",
-  ЗащищенноеПриУстановкеСоединения: "ЗащищенноеПриУстановкеСоединения",
-  Незащищенное: "Незащищенное",
-} as const
+export type AdministrationConnectionSecurityLevel = keyof typeof AdministrationConnectionSecurityLevelToEnterprise
+export type AdministrationConnectionSecurityLevelEnterprise =
+  keyof typeof AdministrationConnectionSecurityLevelFromEnterprise
 
 export const AdministrationInfoBaseDeletionModeToEnterprise = {
   DontPerformActionsWithDatabase: "НеВыполнятьДействийСБазойДанных",
@@ -7759,17 +4686,8 @@ export const AdministrationInfoBaseDeletionModeFromEnterprise = {
   УдалитьБазуДанных: "DeleteDatabase",
 } as const
 
-export const AdministrationInfoBaseDeletionMode = {
-  DontPerformActionsWithDatabase: "DontPerformActionsWithDatabase",
-  ClearDatabase: "ClearDatabase",
-  DeleteDatabase: "DeleteDatabase",
-} as const
-
-export const AdministrationInfoBaseDeletionModeEnterprise = {
-  НеВыполнятьДействийСБазойДанных: "НеВыполнятьДействийСБазойДанных",
-  ОчиститьБазуДанных: "ОчиститьБазуДанных",
-  УдалитьБазуДанных: "УдалитьБазуДанных",
-} as const
+export type AdministrationInfoBaseDeletionMode = keyof typeof AdministrationInfoBaseDeletionModeToEnterprise
+export type AdministrationInfoBaseDeletionModeEnterprise = keyof typeof AdministrationInfoBaseDeletionModeFromEnterprise
 
 export const AdministrationProcessChoicePriorityToEnterprise = {
   ByMemory: "ПоПамяти",
@@ -7781,15 +4699,9 @@ export const AdministrationProcessChoicePriorityFromEnterprise = {
   ПоПроизводительности: "ByPerformance",
 } as const
 
-export const AdministrationProcessChoicePriority = {
-  ByMemory: "ByMemory",
-  ByPerformance: "ByPerformance",
-} as const
-
-export const AdministrationProcessChoicePriorityEnterprise = {
-  ПоПамяти: "ПоПамяти",
-  ПоПроизводительности: "ПоПроизводительности",
-} as const
+export type AdministrationProcessChoicePriority = keyof typeof AdministrationProcessChoicePriorityToEnterprise
+export type AdministrationProcessChoicePriorityEnterprise =
+  keyof typeof AdministrationProcessChoicePriorityFromEnterprise
 
 export const AdministrationResourceConsumptionCounterFilterTypeToEnterprise = {
   All: "Все",
@@ -7803,17 +4715,10 @@ export const AdministrationResourceConsumptionCounterFilterTypeFromEnterprise = 
   ВсеКромеВыбранных: "AllButSelected",
 } as const
 
-export const AdministrationResourceConsumptionCounterFilterType = {
-  All: "All",
-  AllSelected: "AllSelected",
-  AllButSelected: "AllButSelected",
-} as const
-
-export const AdministrationResourceConsumptionCounterFilterTypeEnterprise = {
-  Все: "Все",
-  ВсеВыбранные: "ВсеВыбранные",
-  ВсеКромеВыбранных: "ВсеКромеВыбранных",
-} as const
+export type AdministrationResourceConsumptionCounterFilterType =
+  keyof typeof AdministrationResourceConsumptionCounterFilterTypeToEnterprise
+export type AdministrationResourceConsumptionCounterFilterTypeEnterprise =
+  keyof typeof AdministrationResourceConsumptionCounterFilterTypeFromEnterprise
 
 export const AdministrationResourceConsumptionCounterGroupTypeToEnterprise = {
   Users: "Пользователи",
@@ -7825,15 +4730,10 @@ export const AdministrationResourceConsumptionCounterGroupTypeFromEnterprise = {
   РазделениеДанных: "DataSeparation",
 } as const
 
-export const AdministrationResourceConsumptionCounterGroupType = {
-  Users: "Users",
-  DataSeparation: "DataSeparation",
-} as const
-
-export const AdministrationResourceConsumptionCounterGroupTypeEnterprise = {
-  Пользователи: "Пользователи",
-  РазделениеДанных: "РазделениеДанных",
-} as const
+export type AdministrationResourceConsumptionCounterGroupType =
+  keyof typeof AdministrationResourceConsumptionCounterGroupTypeToEnterprise
+export type AdministrationResourceConsumptionCounterGroupTypeEnterprise =
+  keyof typeof AdministrationResourceConsumptionCounterGroupTypeFromEnterprise
 
 export const AdministrationWorkProcessStatusToEnterprise = {
   Used: "Используется",
@@ -7847,17 +4747,8 @@ export const AdministrationWorkProcessStatusFromEnterprise = {
   Резервный: "Reserve",
 } as const
 
-export const AdministrationWorkProcessStatus = {
-  Used: "Used",
-  NotUsed: "NotUsed",
-  Reserve: "Reserve",
-} as const
-
-export const AdministrationWorkProcessStatusEnterprise = {
-  Используется: "Используется",
-  НеИспользуется: "НеИспользуется",
-  Резервный: "Резервный",
-} as const
+export type AdministrationWorkProcessStatus = keyof typeof AdministrationWorkProcessStatusToEnterprise
+export type AdministrationWorkProcessStatusEnterprise = keyof typeof AdministrationWorkProcessStatusFromEnterprise
 
 export const DuplexPrintingTypeToEnterprise = {
   UsePrinterSettings: "ИспользоватьНастройкиПринтера",
@@ -7873,19 +4764,8 @@ export const DuplexPrintingTypeFromEnterprise = {
   ПереворотВлево: "FlipPagesLeft",
 } as const
 
-export const DuplexPrintingType = {
-  UsePrinterSettings: "UsePrinterSettings",
-  None: "None",
-  FlipPagesUp: "FlipPagesUp",
-  FlipPagesLeft: "FlipPagesLeft",
-} as const
-
-export const DuplexPrintingTypeEnterprise = {
-  ИспользоватьНастройкиПринтера: "ИспользоватьНастройкиПринтера",
-  Нет: "Нет",
-  ПереворотВверх: "ПереворотВверх",
-  ПереворотВлево: "ПереворотВлево",
-} as const
+export type DuplexPrintingType = keyof typeof DuplexPrintingTypeToEnterprise
+export type DuplexPrintingTypeEnterprise = keyof typeof DuplexPrintingTypeFromEnterprise
 
 export const PageOrientationToEnterprise = {
   Landscape: "Ландшафт",
@@ -7897,15 +4777,8 @@ export const PageOrientationFromEnterprise = {
   Портрет: "Portrait",
 } as const
 
-export const PageOrientation = {
-  Landscape: "Landscape",
-  Portrait: "Portrait",
-} as const
-
-export const PageOrientationEnterprise = {
-  Ландшафт: "Ландшафт",
-  Портрет: "Портрет",
-} as const
+export type PageOrientation = keyof typeof PageOrientationToEnterprise
+export type PageOrientationEnterprise = keyof typeof PageOrientationFromEnterprise
 
 export const PagePlacementAlternationToEnterprise = {
   Auto: "Авто",
@@ -7921,19 +4794,8 @@ export const PagePlacementAlternationFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const PagePlacementAlternation = {
-  Auto: "Auto",
-  MirrorOnTop: "MirrorOnTop",
-  MirrorOnLeft: "MirrorOnLeft",
-  DontUse: "DontUse",
-} as const
-
-export const PagePlacementAlternationEnterprise = {
-  Авто: "Авто",
-  ЗеркальноСверху: "ЗеркальноСверху",
-  ЗеркальноСлева: "ЗеркальноСлева",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type PagePlacementAlternation = keyof typeof PagePlacementAlternationToEnterprise
+export type PagePlacementAlternationEnterprise = keyof typeof PagePlacementAlternationFromEnterprise
 
 export const PrintAccuracyToEnterprise = {
   Auto: "Авто",
@@ -7945,15 +4807,8 @@ export const PrintAccuracyFromEnterprise = {
   Точная: "Accurate",
 } as const
 
-export const PrintAccuracy = {
-  Auto: "Auto",
-  Accurate: "Accurate",
-} as const
-
-export const PrintAccuracyEnterprise = {
-  Авто: "Авто",
-  Точная: "Точная",
-} as const
+export type PrintAccuracy = keyof typeof PrintAccuracyToEnterprise
+export type PrintAccuracyEnterprise = keyof typeof PrintAccuracyFromEnterprise
 
 export const SpreadsheetDocumentAreaFillTypeToEnterprise = {
   Parameter: "Параметр",
@@ -7967,17 +4822,8 @@ export const SpreadsheetDocumentAreaFillTypeFromEnterprise = {
   Шаблон: "Template",
 } as const
 
-export const SpreadsheetDocumentAreaFillType = {
-  Parameter: "Parameter",
-  Text: "Text",
-  Template: "Template",
-} as const
-
-export const SpreadsheetDocumentAreaFillTypeEnterprise = {
-  Параметр: "Параметр",
-  Текст: "Текст",
-  Шаблон: "Шаблон",
-} as const
+export type SpreadsheetDocumentAreaFillType = keyof typeof SpreadsheetDocumentAreaFillTypeToEnterprise
+export type SpreadsheetDocumentAreaFillTypeEnterprise = keyof typeof SpreadsheetDocumentAreaFillTypeFromEnterprise
 
 export const SpreadsheetDocumentCellAreaTypeToEnterprise = {
   Columns: "Колонки",
@@ -7993,19 +4839,8 @@ export const SpreadsheetDocumentCellAreaTypeFromEnterprise = {
   Таблица: "Table",
 } as const
 
-export const SpreadsheetDocumentCellAreaType = {
-  Columns: "Columns",
-  Rectangle: "Rectangle",
-  Rows: "Rows",
-  Table: "Table",
-} as const
-
-export const SpreadsheetDocumentCellAreaTypeEnterprise = {
-  Колонки: "Колонки",
-  Прямоугольник: "Прямоугольник",
-  Строки: "Строки",
-  Таблица: "Таблица",
-} as const
+export type SpreadsheetDocumentCellAreaType = keyof typeof SpreadsheetDocumentCellAreaTypeToEnterprise
+export type SpreadsheetDocumentCellAreaTypeEnterprise = keyof typeof SpreadsheetDocumentCellAreaTypeFromEnterprise
 
 export const SpreadsheetDocumentCellLineTypeToEnterprise = {
   LargeDashed: "БольшойПунктир",
@@ -8027,25 +4862,8 @@ export const SpreadsheetDocumentCellLineTypeFromEnterprise = {
   ЧастыйПунктир: "ThickDashed",
 } as const
 
-export const SpreadsheetDocumentCellLineType = {
-  LargeDashed: "LargeDashed",
-  Double: "Double",
-  None: "None",
-  ThinDashed: "ThinDashed",
-  Solid: "Solid",
-  Dotted: "Dotted",
-  ThickDashed: "ThickDashed",
-} as const
-
-export const SpreadsheetDocumentCellLineTypeEnterprise = {
-  БольшойПунктир: "БольшойПунктир",
-  Двойная: "Двойная",
-  НетЛинии: "НетЛинии",
-  РедкийПунктир: "РедкийПунктир",
-  Сплошная: "Сплошная",
-  Точечная: "Точечная",
-  ЧастыйПунктир: "ЧастыйПунктир",
-} as const
+export type SpreadsheetDocumentCellLineType = keyof typeof SpreadsheetDocumentCellLineTypeToEnterprise
+export type SpreadsheetDocumentCellLineTypeEnterprise = keyof typeof SpreadsheetDocumentCellLineTypeFromEnterprise
 
 export const SpreadsheetDocumentDetailUseToEnterprise = {
   WithoutProcessing: "БезОбработки",
@@ -8059,17 +4877,8 @@ export const SpreadsheetDocumentDetailUseFromEnterprise = {
   Ячейка: "Cell",
 } as const
 
-export const SpreadsheetDocumentDetailUse = {
-  WithoutProcessing: "WithoutProcessing",
-  Row: "Row",
-  Cell: "Cell",
-} as const
-
-export const SpreadsheetDocumentDetailUseEnterprise = {
-  БезОбработки: "БезОбработки",
-  Строка: "Строка",
-  Ячейка: "Ячейка",
-} as const
+export type SpreadsheetDocumentDetailUse = keyof typeof SpreadsheetDocumentDetailUseToEnterprise
+export type SpreadsheetDocumentDetailUseEnterprise = keyof typeof SpreadsheetDocumentDetailUseFromEnterprise
 
 export const SpreadsheetDocumentDrawingLineTypeToEnterprise = {
   None: "НетЛинии",
@@ -8089,23 +4898,8 @@ export const SpreadsheetDocumentDrawingLineTypeFromEnterprise = {
   Точечная: "Dotted",
 } as const
 
-export const SpreadsheetDocumentDrawingLineType = {
-  None: "None",
-  Dashed: "Dashed",
-  DashDotted: "DashDotted",
-  DashDottedDotted: "DashDottedDotted",
-  Solid: "Solid",
-  Dotted: "Dotted",
-} as const
-
-export const SpreadsheetDocumentDrawingLineTypeEnterprise = {
-  НетЛинии: "НетЛинии",
-  Пунктир: "Пунктир",
-  ПунктирТочка: "ПунктирТочка",
-  ПунктирТочкаТочка: "ПунктирТочкаТочка",
-  Сплошная: "Сплошная",
-  Точечная: "Точечная",
-} as const
+export type SpreadsheetDocumentDrawingLineType = keyof typeof SpreadsheetDocumentDrawingLineTypeToEnterprise
+export type SpreadsheetDocumentDrawingLineTypeEnterprise = keyof typeof SpreadsheetDocumentDrawingLineTypeFromEnterprise
 
 export const SpreadsheetDocumentDrawingTypeToEnterprise = {
   GeographicalSchema: "ГеографическаяСхема",
@@ -8139,37 +4933,8 @@ export const SpreadsheetDocumentDrawingTypeFromEnterprise = {
   Эллипс: "Ellipse",
 } as const
 
-export const SpreadsheetDocumentDrawingType = {
-  GeographicalSchema: "GeographicalSchema",
-  Group: "Group",
-  Dendrogram: "Dendrogram",
-  Chart: "Chart",
-  GanttChart: "GanttChart",
-  Picture: "Picture",
-  Object: "Object",
-  Comment: "Comment",
-  Line: "Line",
-  Rectangle: "Rectangle",
-  PivotChart: "PivotChart",
-  Text: "Text",
-  Ellipse: "Ellipse",
-} as const
-
-export const SpreadsheetDocumentDrawingTypeEnterprise = {
-  ГеографическаяСхема: "ГеографическаяСхема",
-  Группа: "Группа",
-  Дендрограмма: "Дендрограмма",
-  Диаграмма: "Диаграмма",
-  ДиаграммаГанта: "ДиаграммаГанта",
-  Картинка: "Картинка",
-  Объект: "Объект",
-  Примечание: "Примечание",
-  Прямая: "Прямая",
-  Прямоугольник: "Прямоугольник",
-  СводнаяДиаграмма: "СводнаяДиаграмма",
-  Текст: "Текст",
-  Эллипс: "Эллипс",
-} as const
+export type SpreadsheetDocumentDrawingType = keyof typeof SpreadsheetDocumentDrawingTypeToEnterprise
+export type SpreadsheetDocumentDrawingTypeEnterprise = keyof typeof SpreadsheetDocumentDrawingTypeFromEnterprise
 
 export const SpreadsheetDocumentFileTypeToEnterprise = {
   ANSITXT: "ANSITXT",
@@ -8213,47 +4978,8 @@ export const SpreadsheetDocumentFileTypeFromEnterprise = {
   XLSX: "XLSX",
 } as const
 
-export const SpreadsheetDocumentFileType = {
-  ANSITXT: "ANSITXT",
-  DOCX: "DOCX",
-  HTML: "HTML",
-  HTML3: "HTML3",
-  HTML4: "HTML4",
-  HTML5: "HTML5",
-  MXL: "MXL",
-  MXL7: "MXL7",
-  ODS: "ODS",
-  PDF: "PDF",
-  PDF_A_1: "PDF_A_1",
-  PDF_A_2: "PDF_A_2",
-  PDF_A_3: "PDF_A_3",
-  TXT: "TXT",
-  XLS: "XLS",
-  XLS95: "XLS95",
-  XLS97: "XLS97",
-  XLSX: "XLSX",
-} as const
-
-export const SpreadsheetDocumentFileTypeEnterprise = {
-  ANSITXT: "ANSITXT",
-  DOCX: "DOCX",
-  HTML: "HTML",
-  HTML3: "HTML3",
-  HTML4: "HTML4",
-  HTML5: "HTML5",
-  MXL: "MXL",
-  MXL7: "MXL7",
-  ODS: "ODS",
-  PDF: "PDF",
-  PDF_A_1: "PDF_A_1",
-  PDF_A_2: "PDF_A_2",
-  PDF_A_3: "PDF_A_3",
-  TXT: "TXT",
-  XLS: "XLS",
-  XLS95: "XLS95",
-  XLS97: "XLS97",
-  XLSX: "XLSX",
-} as const
+export type SpreadsheetDocumentFileType = keyof typeof SpreadsheetDocumentFileTypeToEnterprise
+export type SpreadsheetDocumentFileTypeEnterprise = keyof typeof SpreadsheetDocumentFileTypeFromEnterprise
 
 export const SpreadsheetDocumentGroupHeaderPlacementToEnterprise = {
   Auto: "Авто",
@@ -8267,17 +4993,9 @@ export const SpreadsheetDocumentGroupHeaderPlacementFromEnterprise = {
   Начало: "Begin",
 } as const
 
-export const SpreadsheetDocumentGroupHeaderPlacement = {
-  Auto: "Auto",
-  End: "End",
-  Begin: "Begin",
-} as const
-
-export const SpreadsheetDocumentGroupHeaderPlacementEnterprise = {
-  Авто: "Авто",
-  Конец: "Конец",
-  Начало: "Начало",
-} as const
+export type SpreadsheetDocumentGroupHeaderPlacement = keyof typeof SpreadsheetDocumentGroupHeaderPlacementToEnterprise
+export type SpreadsheetDocumentGroupHeaderPlacementEnterprise =
+  keyof typeof SpreadsheetDocumentGroupHeaderPlacementFromEnterprise
 
 export const SpreadsheetDocumentPatternTypeToEnterprise = {
   WithoutPattern: "БезУзора",
@@ -8323,49 +5041,8 @@ export const SpreadsheetDocumentPatternTypeFromEnterprise = {
   Узор9: "Pattern9",
 } as const
 
-export const SpreadsheetDocumentPatternType = {
-  WithoutPattern: "WithoutPattern",
-  Solid: "Solid",
-  Pattern1: "Pattern1",
-  Pattern10: "Pattern10",
-  Pattern11: "Pattern11",
-  Pattern12: "Pattern12",
-  Pattern13: "Pattern13",
-  Pattern14: "Pattern14",
-  Pattern15: "Pattern15",
-  Pattern16: "Pattern16",
-  Pattern17: "Pattern17",
-  Pattern2: "Pattern2",
-  Pattern3: "Pattern3",
-  Pattern4: "Pattern4",
-  Pattern5: "Pattern5",
-  Pattern6: "Pattern6",
-  Pattern7: "Pattern7",
-  Pattern8: "Pattern8",
-  Pattern9: "Pattern9",
-} as const
-
-export const SpreadsheetDocumentPatternTypeEnterprise = {
-  БезУзора: "БезУзора",
-  Сплошной: "Сплошной",
-  Узор1: "Узор1",
-  Узор10: "Узор10",
-  Узор11: "Узор11",
-  Узор12: "Узор12",
-  Узор13: "Узор13",
-  Узор14: "Узор14",
-  Узор15: "Узор15",
-  Узор16: "Узор16",
-  Узор17: "Узор17",
-  Узор2: "Узор2",
-  Узор3: "Узор3",
-  Узор4: "Узор4",
-  Узор5: "Узор5",
-  Узор6: "Узор6",
-  Узор7: "Узор7",
-  Узор8: "Узор8",
-  Узор9: "Узор9",
-} as const
+export type SpreadsheetDocumentPatternType = keyof typeof SpreadsheetDocumentPatternTypeToEnterprise
+export type SpreadsheetDocumentPatternTypeEnterprise = keyof typeof SpreadsheetDocumentPatternTypeFromEnterprise
 
 export const SpreadsheetDocumentPointerTypeToEnterprise = {
   Regular: "Обычные",
@@ -8377,15 +5054,8 @@ export const SpreadsheetDocumentPointerTypeFromEnterprise = {
   Специальные: "Special",
 } as const
 
-export const SpreadsheetDocumentPointerType = {
-  Regular: "Regular",
-  Special: "Special",
-} as const
-
-export const SpreadsheetDocumentPointerTypeEnterprise = {
-  Обычные: "Обычные",
-  Специальные: "Специальные",
-} as const
+export type SpreadsheetDocumentPointerType = keyof typeof SpreadsheetDocumentPointerTypeToEnterprise
+export type SpreadsheetDocumentPointerTypeEnterprise = keyof typeof SpreadsheetDocumentPointerTypeFromEnterprise
 
 export const SpreadsheetDocumentSavedPicturesDensityToEnterprise = {
   High: "Высокая",
@@ -8401,19 +5071,9 @@ export const SpreadsheetDocumentSavedPicturesDensityFromEnterprise = {
   Средняя: "Medium",
 } as const
 
-export const SpreadsheetDocumentSavedPicturesDensity = {
-  High: "High",
-  Original: "Original",
-  Low: "Low",
-  Medium: "Medium",
-} as const
-
-export const SpreadsheetDocumentSavedPicturesDensityEnterprise = {
-  Высокая: "Высокая",
-  Исходная: "Исходная",
-  Низкая: "Низкая",
-  Средняя: "Средняя",
-} as const
+export type SpreadsheetDocumentSavedPicturesDensity = keyof typeof SpreadsheetDocumentSavedPicturesDensityToEnterprise
+export type SpreadsheetDocumentSavedPicturesDensityEnterprise =
+  keyof typeof SpreadsheetDocumentSavedPicturesDensityFromEnterprise
 
 export const SpreadsheetDocumentSelectionShowModeTypeToEnterprise = {
   Always: "Всегда",
@@ -8425,15 +5085,9 @@ export const SpreadsheetDocumentSelectionShowModeTypeFromEnterprise = {
   ПриАктивности: "WhenActive",
 } as const
 
-export const SpreadsheetDocumentSelectionShowModeType = {
-  Always: "Always",
-  WhenActive: "WhenActive",
-} as const
-
-export const SpreadsheetDocumentSelectionShowModeTypeEnterprise = {
-  Всегда: "Всегда",
-  ПриАктивности: "ПриАктивности",
-} as const
+export type SpreadsheetDocumentSelectionShowModeType = keyof typeof SpreadsheetDocumentSelectionShowModeTypeToEnterprise
+export type SpreadsheetDocumentSelectionShowModeTypeEnterprise =
+  keyof typeof SpreadsheetDocumentSelectionShowModeTypeFromEnterprise
 
 export const SpreadsheetDocumentShiftTypeToEnterprise = {
   WithoutShift: "БезСмещения",
@@ -8447,17 +5101,8 @@ export const SpreadsheetDocumentShiftTypeFromEnterprise = {
   ПоГоризонтали: "Horizontal",
 } as const
 
-export const SpreadsheetDocumentShiftType = {
-  WithoutShift: "WithoutShift",
-  Vertical: "Vertical",
-  Horizontal: "Horizontal",
-} as const
-
-export const SpreadsheetDocumentShiftTypeEnterprise = {
-  БезСмещения: "БезСмещения",
-  ПоВертикали: "ПоВертикали",
-  ПоГоризонтали: "ПоГоризонтали",
-} as const
+export type SpreadsheetDocumentShiftType = keyof typeof SpreadsheetDocumentShiftTypeToEnterprise
+export type SpreadsheetDocumentShiftTypeEnterprise = keyof typeof SpreadsheetDocumentShiftTypeFromEnterprise
 
 export const SpreadsheetDocumentStepDirectionTypeToEnterprise = {
   WithoutMove: "БезПерехода",
@@ -8471,17 +5116,9 @@ export const SpreadsheetDocumentStepDirectionTypeFromEnterprise = {
   ПоСтрокам: "ByRows",
 } as const
 
-export const SpreadsheetDocumentStepDirectionType = {
-  WithoutMove: "WithoutMove",
-  ByColumns: "ByColumns",
-  ByRows: "ByRows",
-} as const
-
-export const SpreadsheetDocumentStepDirectionTypeEnterprise = {
-  БезПерехода: "БезПерехода",
-  ПоКолонкам: "ПоКолонкам",
-  ПоСтрокам: "ПоСтрокам",
-} as const
+export type SpreadsheetDocumentStepDirectionType = keyof typeof SpreadsheetDocumentStepDirectionTypeToEnterprise
+export type SpreadsheetDocumentStepDirectionTypeEnterprise =
+  keyof typeof SpreadsheetDocumentStepDirectionTypeFromEnterprise
 
 export const SpreadsheetDocumentTextPlacementTypeToEnterprise = {
   Auto: "Авто",
@@ -8497,19 +5134,9 @@ export const SpreadsheetDocumentTextPlacementTypeFromEnterprise = {
   Переносить: "Wrap",
 } as const
 
-export const SpreadsheetDocumentTextPlacementType = {
-  Auto: "Auto",
-  Block: "Block",
-  Cut: "Cut",
-  Wrap: "Wrap",
-} as const
-
-export const SpreadsheetDocumentTextPlacementTypeEnterprise = {
-  Авто: "Авто",
-  Забивать: "Забивать",
-  Обрезать: "Обрезать",
-  Переносить: "Переносить",
-} as const
+export type SpreadsheetDocumentTextPlacementType = keyof typeof SpreadsheetDocumentTextPlacementTypeToEnterprise
+export type SpreadsheetDocumentTextPlacementTypeEnterprise =
+  keyof typeof SpreadsheetDocumentTextPlacementTypeFromEnterprise
 
 export const SpreadsheetDocumentValuesReadingModeToEnterprise = {
   Value: "Значение",
@@ -8521,15 +5148,9 @@ export const SpreadsheetDocumentValuesReadingModeFromEnterprise = {
   Текст: "Text",
 } as const
 
-export const SpreadsheetDocumentValuesReadingMode = {
-  Value: "Value",
-  Text: "Text",
-} as const
-
-export const SpreadsheetDocumentValuesReadingModeEnterprise = {
-  Значение: "Значение",
-  Текст: "Текст",
-} as const
+export type SpreadsheetDocumentValuesReadingMode = keyof typeof SpreadsheetDocumentValuesReadingModeToEnterprise
+export type SpreadsheetDocumentValuesReadingModeEnterprise =
+  keyof typeof SpreadsheetDocumentValuesReadingModeFromEnterprise
 
 export const TextPositionRelativeToPictureToEnterprise = {
   Auto: "Авто",
@@ -8549,23 +5170,8 @@ export const TextPositionRelativeToPictureFromEnterprise = {
   Справа: "Right",
 } as const
 
-export const TextPositionRelativeToPicture = {
-  Auto: "Auto",
-  OnTop: "OnTop",
-  Top: "Top",
-  Left: "Left",
-  Bottom: "Bottom",
-  Right: "Right",
-} as const
-
-export const TextPositionRelativeToPictureEnterprise = {
-  Авто: "Авто",
-  Поверх: "Поверх",
-  Сверху: "Сверху",
-  Слева: "Слева",
-  Снизу: "Снизу",
-  Справа: "Справа",
-} as const
+export type TextPositionRelativeToPicture = keyof typeof TextPositionRelativeToPictureToEnterprise
+export type TextPositionRelativeToPictureEnterprise = keyof typeof TextPositionRelativeToPictureFromEnterprise
 
 export const UseSpreadsheetDocumentWidthReductionToEnterprise = {
   Auto: "Авто",
@@ -8581,19 +5187,9 @@ export const UseSpreadsheetDocumentWidthReductionFromEnterprise = {
   СжиматьВсегда: "ReduceAlways",
 } as const
 
-export const UseSpreadsheetDocumentWidthReduction = {
-  Auto: "Auto",
-  DoNotReduceOnExcess: "DoNotReduceOnExcess",
-  ReduceToMinimumOnExcess: "ReduceToMinimumOnExcess",
-  ReduceAlways: "ReduceAlways",
-} as const
-
-export const UseSpreadsheetDocumentWidthReductionEnterprise = {
-  Авто: "Авто",
-  ПриПревышенииНеСжимать: "ПриПревышенииНеСжимать",
-  ПриПревышенииСжиматьДоМинимума: "ПриПревышенииСжиматьДоМинимума",
-  СжиматьВсегда: "СжиматьВсегда",
-} as const
+export type UseSpreadsheetDocumentWidthReduction = keyof typeof UseSpreadsheetDocumentWidthReductionToEnterprise
+export type UseSpreadsheetDocumentWidthReductionEnterprise =
+  keyof typeof UseSpreadsheetDocumentWidthReductionFromEnterprise
 
 export const PivotTableColumnTotalPositionToEnterprise = {
   Left: "Лево",
@@ -8605,15 +5201,8 @@ export const PivotTableColumnTotalPositionFromEnterprise = {
   Право: "Right",
 } as const
 
-export const PivotTableColumnTotalPosition = {
-  Left: "Left",
-  Right: "Right",
-} as const
-
-export const PivotTableColumnTotalPositionEnterprise = {
-  Лево: "Лево",
-  Право: "Право",
-} as const
+export type PivotTableColumnTotalPosition = keyof typeof PivotTableColumnTotalPositionToEnterprise
+export type PivotTableColumnTotalPositionEnterprise = keyof typeof PivotTableColumnTotalPositionFromEnterprise
 
 export const PivotTableLinesShowTypeToEnterprise = {
   Auto: "Авто",
@@ -8625,15 +5214,8 @@ export const PivotTableLinesShowTypeFromEnterprise = {
   Всегда: "Always",
 } as const
 
-export const PivotTableLinesShowType = {
-  Auto: "Auto",
-  Always: "Always",
-} as const
-
-export const PivotTableLinesShowTypeEnterprise = {
-  Авто: "Авто",
-  Всегда: "Всегда",
-} as const
+export type PivotTableLinesShowType = keyof typeof PivotTableLinesShowTypeToEnterprise
+export type PivotTableLinesShowTypeEnterprise = keyof typeof PivotTableLinesShowTypeFromEnterprise
 
 export const PivotTableRowTotalPositionToEnterprise = {
   Top: "Верх",
@@ -8645,15 +5227,8 @@ export const PivotTableRowTotalPositionFromEnterprise = {
   Низ: "Bottom",
 } as const
 
-export const PivotTableRowTotalPosition = {
-  Top: "Top",
-  Bottom: "Bottom",
-} as const
-
-export const PivotTableRowTotalPositionEnterprise = {
-  Верх: "Верх",
-  Низ: "Низ",
-} as const
+export type PivotTableRowTotalPosition = keyof typeof PivotTableRowTotalPositionToEnterprise
+export type PivotTableRowTotalPositionEnterprise = keyof typeof PivotTableRowTotalPositionFromEnterprise
 
 export const QueryRecordTypeToEnterprise = {
   DetailRecord: "ДетальнаяЗапись",
@@ -8669,19 +5244,8 @@ export const QueryRecordTypeFromEnterprise = {
   ОбщийИтог: "Overall",
 } as const
 
-export const QueryRecordType = {
-  DetailRecord: "DetailRecord",
-  GroupTotal: "GroupTotal",
-  TotalByHierarchy: "TotalByHierarchy",
-  Overall: "Overall",
-} as const
-
-export const QueryRecordTypeEnterprise = {
-  ДетальнаяЗапись: "ДетальнаяЗапись",
-  ИтогПоГруппировке: "ИтогПоГруппировке",
-  ИтогПоИерархии: "ИтогПоИерархии",
-  ОбщийИтог: "ОбщийИтог",
-} as const
+export type QueryRecordType = keyof typeof QueryRecordTypeToEnterprise
+export type QueryRecordTypeEnterprise = keyof typeof QueryRecordTypeFromEnterprise
 
 export const QueryResultIterationToEnterprise = {
   ByGroups: "ПоГруппировкам",
@@ -8695,17 +5259,8 @@ export const QueryResultIterationFromEnterprise = {
   Прямой: "Linear",
 } as const
 
-export const QueryResultIteration = {
-  ByGroups: "ByGroups",
-  ByGroupsWithHierarchy: "ByGroupsWithHierarchy",
-  Linear: "Linear",
-} as const
-
-export const QueryResultIterationEnterprise = {
-  ПоГруппировкам: "ПоГруппировкам",
-  ПоГруппировкамСИерархией: "ПоГруппировкамСИерархией",
-  Прямой: "Прямой",
-} as const
+export type QueryResultIteration = keyof typeof QueryResultIterationToEnterprise
+export type QueryResultIterationEnterprise = keyof typeof QueryResultIterationFromEnterprise
 
 export const ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodToEnterprise = {
   StronglyConnectedComponents: "КомпонентыСильнойСвязности",
@@ -8721,18 +5276,10 @@ export const ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMetho
   КомпонентыСлабойСвязности: "WeaklyConnectedComponents",
 } as const
 
-export const ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethod = {
-  StronglyConnectedComponents: "StronglyConnectedComponents",
-  StronglyConnectedComponentsWithNoInnerConnectionRequired: "StronglyConnectedComponentsWithNoInnerConnectionRequired",
-  WeaklyConnectedComponents: "WeaklyConnectedComponents",
-} as const
-
-export const ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodEnterprise = {
-  КомпонентыСильнойСвязности: "КомпонентыСильнойСвязности",
-  КомпонентыСильнойСвязностиБезТребованияСвязиВнутриКомпонент:
-    "КомпонентыСильнойСвязностиБезТребованияСвязиВнутриКомпонент",
-  КомпонентыСлабойСвязности: "КомпонентыСлабойСвязности",
-} as const
+export type ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethod =
+  keyof typeof ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodToEnterprise
+export type ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodEnterprise =
+  keyof typeof ConnectedComponentsOfSystemOfLinearEquationsCalculationGettingMethodFromEnterprise
 
 export const AdditionalUserVerificationMethodToEnterprise = {
   BiometricsOrPassword: "БиометрическаяИлиВводПароля",
@@ -8744,15 +5291,8 @@ export const AdditionalUserVerificationMethodFromEnterprise = {
   ТолькоБиометрическая: "BiometricsOnly",
 } as const
 
-export const AdditionalUserVerificationMethod = {
-  BiometricsOrPassword: "BiometricsOrPassword",
-  BiometricsOnly: "BiometricsOnly",
-} as const
-
-export const AdditionalUserVerificationMethodEnterprise = {
-  БиометрическаяИлиВводПароля: "БиометрическаяИлиВводПароля",
-  ТолькоБиометрическая: "ТолькоБиометрическая",
-} as const
+export type AdditionalUserVerificationMethod = keyof typeof AdditionalUserVerificationMethodToEnterprise
+export type AdditionalUserVerificationMethodEnterprise = keyof typeof AdditionalUserVerificationMethodFromEnterprise
 
 export const BiometricVerificationMethodToEnterprise = {
   None: "Нет",
@@ -8768,19 +5308,8 @@ export const BiometricVerificationMethodFromEnterprise = {
   РаспознаваниеРадужнойОболочкиГлаза: "IrisRecognition",
 } as const
 
-export const BiometricVerificationMethod = {
-  None: "None",
-  FaceRecognition: "FaceRecognition",
-  FingerprintRecognition: "FingerprintRecognition",
-  IrisRecognition: "IrisRecognition",
-} as const
-
-export const BiometricVerificationMethodEnterprise = {
-  Нет: "Нет",
-  РаспознаваниеЛица: "РаспознаваниеЛица",
-  РаспознаваниеОтпечаткаПальца: "РаспознаваниеОтпечаткаПальца",
-  РаспознаваниеРадужнойОболочкиГлаза: "РаспознаваниеРадужнойОболочкиГлаза",
-} as const
+export type BiometricVerificationMethod = keyof typeof BiometricVerificationMethodToEnterprise
+export type BiometricVerificationMethodEnterprise = keyof typeof BiometricVerificationMethodFromEnterprise
 
 export const SecureStorageAccessProtectionMethodToEnterprise = {
   None: "Нет",
@@ -8794,17 +5323,9 @@ export const SecureStorageAccessProtectionMethodFromEnterprise = {
   ТребуетсяРазблокировкаЭкрана: "ScreenUnlockRequired",
 } as const
 
-export const SecureStorageAccessProtectionMethod = {
-  None: "None",
-  AdditionalUserVerificationRequired: "AdditionalUserVerificationRequired",
-  ScreenUnlockRequired: "ScreenUnlockRequired",
-} as const
-
-export const SecureStorageAccessProtectionMethodEnterprise = {
-  Нет: "Нет",
-  ТребуетсяДополнительнаяПроверкаПользователя: "ТребуетсяДополнительнаяПроверкаПользователя",
-  ТребуетсяРазблокировкаЭкрана: "ТребуетсяРазблокировкаЭкрана",
-} as const
+export type SecureStorageAccessProtectionMethod = keyof typeof SecureStorageAccessProtectionMethodToEnterprise
+export type SecureStorageAccessProtectionMethodEnterprise =
+  keyof typeof SecureStorageAccessProtectionMethodFromEnterprise
 
 export const ErrorCategoryToEnterprise = {
   AllErrors: "ВсеОшибки",
@@ -8868,67 +5389,8 @@ export const ErrorCategoryFromEnterprise = {
   ПрочаяОшибка: "OtherError",
 } as const
 
-export const ErrorCategory = {
-  AllErrors: "AllErrors",
-  ExceptionRaisedFromScript: "ExceptionRaisedFromScript",
-  AccessViolation: "AccessViolation",
-  UnsupportedFormat: "UnsupportedFormat",
-  InvalidPassword: "InvalidPassword",
-  NoPermissionToUseFunctionality: "NoPermissionToUseFunctionality",
-  ExternalDataSourceError: "ExternalDataSourceError",
-  ScriptRuntimeError: "ScriptRuntimeError",
-  LocalFileAccessError: "LocalFileAccessError",
-  ScriptUseError: "ScriptUseError",
-  ScriptCompileError: "ScriptCompileError",
-  ConfigurationError: "ConfigurationError",
-  DatabaseCopyError: "DatabaseCopyError",
-  DataCompositionSettingsError: "DataCompositionSettingsError",
-  GotoURLError: "GotoURLError",
-  FullTextSearchError: "FullTextSearchError",
-  DocumentConversionError: "DocumentConversionError",
-  SignatureVerificationError: "SignatureVerificationError",
-  PrinterError: "PrinterError",
-  SpeechProcessingError: "SpeechProcessingError",
-  SessionError: "SessionError",
-  NetworkError: "NetworkError",
-  CollaborationSystemError: "CollaborationSystemError",
-  MultimediaToolsError: "MultimediaToolsError",
-  DatabaseTablespaceError: "DatabaseTablespaceError",
-  StoredDataError: "StoredDataError",
-  ForcedShutdown: "ForcedShutdown",
-  OtherError: "OtherError",
-} as const
-
-export const ErrorCategoryEnterprise = {
-  ВсеОшибки: "ВсеОшибки",
-  ИсключениеВызванноеИзВстроенногоЯзыка: "ИсключениеВызванноеИзВстроенногоЯзыка",
-  НарушениеПравДоступа: "НарушениеПравДоступа",
-  НеподдерживаемыйФормат: "НеподдерживаемыйФормат",
-  НеправильныйПароль: "НеправильныйПароль",
-  ОтсутствиеРазрешенияДляИспользованияФункциональности: "ОтсутствиеРазрешенияДляИспользованияФункциональности",
-  ОшибкаВнешнегоИсточникаДанных: "ОшибкаВнешнегоИсточникаДанных",
-  ОшибкаВоВремяВыполненияВстроенногоЯзыка: "ОшибкаВоВремяВыполненияВстроенногоЯзыка",
-  ОшибкаДоступаКЛокальномуФайлу: "ОшибкаДоступаКЛокальномуФайлу",
-  ОшибкаИспользованияВстроенногоЯзыка: "ОшибкаИспользованияВстроенногоЯзыка",
-  ОшибкаКомпиляцииВстроенногоЯзыка: "ОшибкаКомпиляцииВстроенногоЯзыка",
-  ОшибкаКонфигурации: "ОшибкаКонфигурации",
-  ОшибкаКопииБазыДанных: "ОшибкаКопииБазыДанных",
-  ОшибкаНастроекКомпоновкиДанных: "ОшибкаНастроекКомпоновкиДанных",
-  ОшибкаПереходаПоНавигационнойСсылке: "ОшибкаПереходаПоНавигационнойСсылке",
-  ОшибкаПолнотекстовогоПоиска: "ОшибкаПолнотекстовогоПоиска",
-  ОшибкаПреобразованияДокумента: "ОшибкаПреобразованияДокумента",
-  ОшибкаПроверкиПодписи: "ОшибкаПроверкиПодписи",
-  ОшибкаРаботыСПринтером: "ОшибкаРаботыСПринтером",
-  ОшибкаРаботыСРечью: "ОшибкаРаботыСРечью",
-  ОшибкаСеанса: "ОшибкаСеанса",
-  ОшибкаСети: "ОшибкаСети",
-  ОшибкаСистемыВзаимодействия: "ОшибкаСистемыВзаимодействия",
-  ОшибкаСредствМультимедиа: "ОшибкаСредствМультимедиа",
-  ОшибкаТабличногоПространстваБазыДанных: "ОшибкаТабличногоПространстваБазыДанных",
-  ОшибкаХранимыхДанных: "ОшибкаХранимыхДанных",
-  ПринудительноеЗавершениеРаботы: "ПринудительноеЗавершениеРаботы",
-  ПрочаяОшибка: "ПрочаяОшибка",
-} as const
+export type ErrorCategory = keyof typeof ErrorCategoryToEnterprise
+export type ErrorCategoryEnterprise = keyof typeof ErrorCategoryFromEnterprise
 
 export const ErrorMessageDisplayVariantToEnterprise = {
   Auto: "Авто",
@@ -8944,19 +5406,8 @@ export const ErrorMessageDisplayVariantFromEnterprise = {
   СообщениеОбОшибкеДляПользователя: "ErrorMessageForUser",
 } as const
 
-export const ErrorMessageDisplayVariant = {
-  Auto: "Auto",
-  BriefErrorDescription: "BriefErrorDescription",
-  DetailErrorDescription: "DetailErrorDescription",
-  ErrorMessageForUser: "ErrorMessageForUser",
-} as const
-
-export const ErrorMessageDisplayVariantEnterprise = {
-  Авто: "Авто",
-  КраткоеПредставлениеОшибки: "КраткоеПредставлениеОшибки",
-  ПодробноеПредставлениеОшибки: "ПодробноеПредставлениеОшибки",
-  СообщениеОбОшибкеДляПользователя: "СообщениеОбОшибкеДляПользователя",
-} as const
+export type ErrorMessageDisplayVariant = keyof typeof ErrorMessageDisplayVariantToEnterprise
+export type ErrorMessageDisplayVariantEnterprise = keyof typeof ErrorMessageDisplayVariantFromEnterprise
 
 export const ErrorReportingModeToEnterprise = {
   Auto: "Авто",
@@ -8972,19 +5423,8 @@ export const ErrorReportingModeFromEnterprise = {
   СпрашиватьПользователя: "AskUser",
 } as const
 
-export const ErrorReportingMode = {
-  Auto: "Auto",
-  DontSend: "DontSend",
-  Send: "Send",
-  AskUser: "AskUser",
-} as const
-
-export const ErrorReportingModeEnterprise = {
-  Авто: "Авто",
-  НеОтправлять: "НеОтправлять",
-  Отправлять: "Отправлять",
-  СпрашиватьПользователя: "СпрашиватьПользователя",
-} as const
+export type ErrorReportingMode = keyof typeof ErrorReportingModeToEnterprise
+export type ErrorReportingModeEnterprise = keyof typeof ErrorReportingModeFromEnterprise
 
 export const MobileClientSignatureVerificationMethodToEnterprise = {
   DoNotVerifySignature: "НеВыполнятьПроверкуПодписи",
@@ -8998,17 +5438,9 @@ export const MobileClientSignatureVerificationMethodFromEnterprise = {
   ПроверятьТочноеСоответствиеПодписиКонфигурации: "CheckConfigurationSignatureForExactMatch",
 } as const
 
-export const MobileClientSignatureVerificationMethod = {
-  DoNotVerifySignature: "DoNotVerifySignature",
-  CheckMobileClientUsageAbility: "CheckMobileClientUsageAbility",
-  CheckConfigurationSignatureForExactMatch: "CheckConfigurationSignatureForExactMatch",
-} as const
-
-export const MobileClientSignatureVerificationMethodEnterprise = {
-  НеВыполнятьПроверкуПодписи: "НеВыполнятьПроверкуПодписи",
-  ПроверятьВозможностьИспользованияМобильногоКлиента: "ПроверятьВозможностьИспользованияМобильногоКлиента",
-  ПроверятьТочноеСоответствиеПодписиКонфигурации: "ПроверятьТочноеСоответствиеПодписиКонфигурации",
-} as const
+export type MobileClientSignatureVerificationMethod = keyof typeof MobileClientSignatureVerificationMethodToEnterprise
+export type MobileClientSignatureVerificationMethodEnterprise =
+  keyof typeof MobileClientSignatureVerificationMethodFromEnterprise
 
 export const OnMainServerUnavalableBehaviorToEnterprise = {
   Auto: "Авто",
@@ -9022,17 +5454,8 @@ export const OnMainServerUnavalableBehaviorFromEnterprise = {
   ОтключитьДоступность: "MakeDisable",
 } as const
 
-export const OnMainServerUnavalableBehavior = {
-  Auto: "Auto",
-  DontChangeBehavior: "DontChangeBehavior",
-  MakeDisable: "MakeDisable",
-} as const
-
-export const OnMainServerUnavalableBehaviorEnterprise = {
-  Авто: "Авто",
-  НеИзменятьПоведение: "НеИзменятьПоведение",
-  ОтключитьДоступность: "ОтключитьДоступность",
-} as const
+export type OnMainServerUnavalableBehavior = keyof typeof OnMainServerUnavalableBehaviorToEnterprise
+export type OnMainServerUnavalableBehaviorEnterprise = keyof typeof OnMainServerUnavalableBehaviorFromEnterprise
 
 export const UsedServerToEnterprise = {
   Standalone: "Автономный",
@@ -9044,15 +5467,8 @@ export const UsedServerFromEnterprise = {
   Основной: "Main",
 } as const
 
-export const UsedServer = {
-  Standalone: "Standalone",
-  Main: "Main",
-} as const
-
-export const UsedServerEnterprise = {
-  Автономный: "Автономный",
-  Основной: "Основной",
-} as const
+export type UsedServer = keyof typeof UsedServerToEnterprise
+export type UsedServerEnterprise = keyof typeof UsedServerFromEnterprise
 
 export const PDFAttachmentRelationshipTypeToEnterprise = {
   Alternative: "Альтернатива",
@@ -9070,21 +5486,8 @@ export const PDFAttachmentRelationshipTypeFromEnterprise = {
   НеУстановлено: "Unspecified",
 } as const
 
-export const PDFAttachmentRelationshipType = {
-  Alternative: "Alternative",
-  Data: "Data",
-  Supplement: "Supplement",
-  Source: "Source",
-  Unspecified: "Unspecified",
-} as const
-
-export const PDFAttachmentRelationshipTypeEnterprise = {
-  Альтернатива: "Альтернатива",
-  Данные: "Данные",
-  Дополнение: "Дополнение",
-  Источник: "Источник",
-  НеУстановлено: "НеУстановлено",
-} as const
+export type PDFAttachmentRelationshipType = keyof typeof PDFAttachmentRelationshipTypeToEnterprise
+export type PDFAttachmentRelationshipTypeEnterprise = keyof typeof PDFAttachmentRelationshipTypeFromEnterprise
 
 export const PDFDocumentFileTypeToEnterprise = {
   PDF: "PDF",
@@ -9100,19 +5503,8 @@ export const PDFDocumentFileTypeFromEnterprise = {
   PDF_A_3: "PDF_A_3",
 } as const
 
-export const PDFDocumentFileType = {
-  PDF: "PDF",
-  PDF_A_1: "PDF_A_1",
-  PDF_A_2: "PDF_A_2",
-  PDF_A_3: "PDF_A_3",
-} as const
-
-export const PDFDocumentFileTypeEnterprise = {
-  PDF: "PDF",
-  PDF_A_1: "PDF_A_1",
-  PDF_A_2: "PDF_A_2",
-  PDF_A_3: "PDF_A_3",
-} as const
+export type PDFDocumentFileType = keyof typeof PDFDocumentFileTypeToEnterprise
+export type PDFDocumentFileTypeEnterprise = keyof typeof PDFDocumentFileTypeFromEnterprise
 
 export const PDFModificationAccessPermissionsToEnterprise = {
   FillingSigning: "ЗаполнениеПодписание",
@@ -9126,17 +5518,8 @@ export const PDFModificationAccessPermissionsFromEnterprise = {
   Нет: "None",
 } as const
 
-export const PDFModificationAccessPermissions = {
-  FillingSigning: "FillingSigning",
-  FillingSigningAnnotation: "FillingSigningAnnotation",
-  None: "None",
-} as const
-
-export const PDFModificationAccessPermissionsEnterprise = {
-  ЗаполнениеПодписание: "ЗаполнениеПодписание",
-  ЗаполнениеПодписаниеАннотирование: "ЗаполнениеПодписаниеАннотирование",
-  Нет: "Нет",
-} as const
+export type PDFModificationAccessPermissions = keyof typeof PDFModificationAccessPermissionsToEnterprise
+export type PDFModificationAccessPermissionsEnterprise = keyof typeof PDFModificationAccessPermissionsFromEnterprise
 
 export const PDFSignatureTypeToEnterprise = {
   Certifying: "Сертифицирующая",
@@ -9148,15 +5531,8 @@ export const PDFSignatureTypeFromEnterprise = {
   Утверждающая: "Approving",
 } as const
 
-export const PDFSignatureType = {
-  Certifying: "Certifying",
-  Approving: "Approving",
-} as const
-
-export const PDFSignatureTypeEnterprise = {
-  Сертифицирующая: "Сертифицирующая",
-  Утверждающая: "Утверждающая",
-} as const
+export type PDFSignatureType = keyof typeof PDFSignatureTypeToEnterprise
+export type PDFSignatureTypeEnterprise = keyof typeof PDFSignatureTypeFromEnterprise
 
 export const ProgressiveWebApplicationModeToEnterprise = {
   InBrowserWindow: "ВОкнеБраузера",
@@ -9168,15 +5544,8 @@ export const ProgressiveWebApplicationModeFromEnterprise = {
   ВОтдельномОкне: "InStandaloneWindow",
 } as const
 
-export const ProgressiveWebApplicationMode = {
-  InBrowserWindow: "InBrowserWindow",
-  InStandaloneWindow: "InStandaloneWindow",
-} as const
-
-export const ProgressiveWebApplicationModeEnterprise = {
-  ВОкнеБраузера: "ВОкнеБраузера",
-  ВОтдельномОкне: "ВОтдельномОкне",
-} as const
+export type ProgressiveWebApplicationMode = keyof typeof ProgressiveWebApplicationModeToEnterprise
+export type ProgressiveWebApplicationModeEnterprise = keyof typeof ProgressiveWebApplicationModeFromEnterprise
 
 export const AdditionalShowModeToEnterprise = {
   Irrelevance: "Неактуальность",
@@ -9188,15 +5557,8 @@ export const AdditionalShowModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const AdditionalShowMode = {
-  Irrelevance: "Irrelevance",
-  DontUse: "DontUse",
-} as const
-
-export const AdditionalShowModeEnterprise = {
-  Неактуальность: "Неактуальность",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type AdditionalShowMode = keyof typeof AdditionalShowModeToEnterprise
+export type AdditionalShowModeEnterprise = keyof typeof AdditionalShowModeFromEnterprise
 
 export const AppearanceAreaTypeToEnterprise = {
   Group: "Группировка",
@@ -9208,15 +5570,8 @@ export const AppearanceAreaTypeFromEnterprise = {
   Поле: "Field",
 } as const
 
-export const AppearanceAreaType = {
-  Group: "Group",
-  Field: "Field",
-} as const
-
-export const AppearanceAreaTypeEnterprise = {
-  Группировка: "Группировка",
-  Поле: "Поле",
-} as const
+export type AppearanceAreaType = keyof typeof AppearanceAreaTypeToEnterprise
+export type AppearanceAreaTypeEnterprise = keyof typeof AppearanceAreaTypeFromEnterprise
 
 export const ArrowStyleToEnterprise = {
   Filled: "Заполненная",
@@ -9230,17 +5585,8 @@ export const ArrowStyleFromEnterprise = {
   Нет: "None",
 } as const
 
-export const ArrowStyle = {
-  Filled: "Filled",
-  Blank: "Blank",
-  None: "None",
-} as const
-
-export const ArrowStyleEnterprise = {
-  Заполненная: "Заполненная",
-  Незаполненная: "Незаполненная",
-  Нет: "Нет",
-} as const
+export type ArrowStyle = keyof typeof ArrowStyleToEnterprise
+export type ArrowStyleEnterprise = keyof typeof ArrowStyleFromEnterprise
 
 export const AutoCapitalizationOnTextInputToEnterprise = {
   Auto: "Авто",
@@ -9258,21 +5604,8 @@ export const AutoCapitalizationOnTextInputFromEnterprise = {
   Слова: "Words",
 } as const
 
-export const AutoCapitalizationOnTextInput = {
-  Auto: "Auto",
-  AllCharacters: "AllCharacters",
-  None: "None",
-  Sentences: "Sentences",
-  Words: "Words",
-} as const
-
-export const AutoCapitalizationOnTextInputEnterprise = {
-  Авто: "Авто",
-  ВсеСимволы: "ВсеСимволы",
-  Нет: "Нет",
-  Предложения: "Предложения",
-  Слова: "Слова",
-} as const
+export type AutoCapitalizationOnTextInput = keyof typeof AutoCapitalizationOnTextInputToEnterprise
+export type AutoCapitalizationOnTextInputEnterprise = keyof typeof AutoCapitalizationOnTextInputFromEnterprise
 
 export const AutoCorrectionOnTextInputToEnterprise = {
   Auto: "Авто",
@@ -9286,17 +5619,8 @@ export const AutoCorrectionOnTextInputFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const AutoCorrectionOnTextInput = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const AutoCorrectionOnTextInputEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type AutoCorrectionOnTextInput = keyof typeof AutoCorrectionOnTextInputToEnterprise
+export type AutoCorrectionOnTextInputEnterprise = keyof typeof AutoCorrectionOnTextInputFromEnterprise
 
 export const AutoSaveFormDataInSettingsToEnterprise = {
   Use: "Использовать",
@@ -9308,15 +5632,8 @@ export const AutoSaveFormDataInSettingsFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const AutoSaveFormDataInSettings = {
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const AutoSaveFormDataInSettingsEnterprise = {
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type AutoSaveFormDataInSettings = keyof typeof AutoSaveFormDataInSettingsToEnterprise
+export type AutoSaveFormDataInSettingsEnterprise = keyof typeof AutoSaveFormDataInSettingsFromEnterprise
 
 export const AutoShowClearButtonModeToEnterprise = {
   Auto: "Авто",
@@ -9330,17 +5647,8 @@ export const AutoShowClearButtonModeFromEnterprise = {
   ТолькоДляЗаполненного: "FilledOnly",
 } as const
 
-export const AutoShowClearButtonMode = {
-  Auto: "Auto",
-  Always: "Always",
-  FilledOnly: "FilledOnly",
-} as const
-
-export const AutoShowClearButtonModeEnterprise = {
-  Авто: "Авто",
-  Всегда: "Всегда",
-  ТолькоДляЗаполненного: "ТолькоДляЗаполненного",
-} as const
+export type AutoShowClearButtonMode = keyof typeof AutoShowClearButtonModeToEnterprise
+export type AutoShowClearButtonModeEnterprise = keyof typeof AutoShowClearButtonModeFromEnterprise
 
 export const AutoShowOpenButtonModeToEnterprise = {
   Auto: "Авто",
@@ -9354,17 +5662,8 @@ export const AutoShowOpenButtonModeFromEnterprise = {
   ТолькоДляЗаполненного: "FilledOnly",
 } as const
 
-export const AutoShowOpenButtonMode = {
-  Auto: "Auto",
-  Always: "Always",
-  FilledOnly: "FilledOnly",
-} as const
-
-export const AutoShowOpenButtonModeEnterprise = {
-  Авто: "Авто",
-  Всегда: "Всегда",
-  ТолькоДляЗаполненного: "ТолькоДляЗаполненного",
-} as const
+export type AutoShowOpenButtonMode = keyof typeof AutoShowOpenButtonModeToEnterprise
+export type AutoShowOpenButtonModeEnterprise = keyof typeof AutoShowOpenButtonModeFromEnterprise
 
 export const AutoShowStateModeToEnterprise = {
   Auto: "Авто",
@@ -9380,19 +5679,8 @@ export const AutoShowStateModeFromEnterprise = {
   ОтображатьПриФормировании: "ShowOnComposition",
 } as const
 
-export const AutoShowStateMode = {
-  Auto: "Auto",
-  DontShow: "DontShow",
-  Show: "Show",
-  ShowOnComposition: "ShowOnComposition",
-} as const
-
-export const AutoShowStateModeEnterprise = {
-  Авто: "Авто",
-  НеОтображать: "НеОтображать",
-  Отображать: "Отображать",
-  ОтображатьПриФормировании: "ОтображатьПриФормировании",
-} as const
+export type AutoShowStateMode = keyof typeof AutoShowStateModeToEnterprise
+export type AutoShowStateModeEnterprise = keyof typeof AutoShowStateModeFromEnterprise
 
 export const AutonumerationInFormToEnterprise = {
   Auto: "Авто",
@@ -9404,15 +5692,8 @@ export const AutonumerationInFormFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const AutonumerationInForm = {
-  Auto: "Auto",
-  DontUse: "DontUse",
-} as const
-
-export const AutonumerationInFormEnterprise = {
-  Авто: "Авто",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type AutonumerationInForm = keyof typeof AutonumerationInFormToEnterprise
+export type AutonumerationInFormEnterprise = keyof typeof AutonumerationInFormFromEnterprise
 
 export const ButtonGroupRepresentationToEnterprise = {
   Auto: "Авто",
@@ -9426,17 +5707,8 @@ export const ButtonGroupRepresentationFromEnterprise = {
   Обычное: "Usual",
 } as const
 
-export const ButtonGroupRepresentation = {
-  Auto: "Auto",
-  Compact: "Compact",
-  Usual: "Usual",
-} as const
-
-export const ButtonGroupRepresentationEnterprise = {
-  Авто: "Авто",
-  Компактное: "Компактное",
-  Обычное: "Обычное",
-} as const
+export type ButtonGroupRepresentation = keyof typeof ButtonGroupRepresentationToEnterprise
+export type ButtonGroupRepresentationEnterprise = keyof typeof ButtonGroupRepresentationFromEnterprise
 
 export const ButtonLocationInCommandBarToEnterprise = {
   Auto: "Авто",
@@ -9452,19 +5724,8 @@ export const ButtonLocationInCommandBarFromEnterprise = {
   ВКоманднойПанелиИВДополнительномПодменю: "InCommandBarAndInAdditionalSubmenu",
 } as const
 
-export const ButtonLocationInCommandBar = {
-  Auto: "Auto",
-  InAdditionalSubmenu: "InAdditionalSubmenu",
-  InCommandBar: "InCommandBar",
-  InCommandBarAndInAdditionalSubmenu: "InCommandBarAndInAdditionalSubmenu",
-} as const
-
-export const ButtonLocationInCommandBarEnterprise = {
-  Авто: "Авто",
-  ВДополнительномПодменю: "ВДополнительномПодменю",
-  ВКоманднойПанели: "ВКоманднойПанели",
-  ВКоманднойПанелиИВДополнительномПодменю: "ВКоманднойПанелиИВДополнительномПодменю",
-} as const
+export type ButtonLocationInCommandBar = keyof typeof ButtonLocationInCommandBarToEnterprise
+export type ButtonLocationInCommandBarEnterprise = keyof typeof ButtonLocationInCommandBarFromEnterprise
 
 export const ButtonPictureLocationToEnterprise = {
   Left: "Лево",
@@ -9476,15 +5737,8 @@ export const ButtonPictureLocationFromEnterprise = {
   Право: "Right",
 } as const
 
-export const ButtonPictureLocation = {
-  Left: "Left",
-  Right: "Right",
-} as const
-
-export const ButtonPictureLocationEnterprise = {
-  Лево: "Лево",
-  Право: "Право",
-} as const
+export type ButtonPictureLocation = keyof typeof ButtonPictureLocationToEnterprise
+export type ButtonPictureLocationEnterprise = keyof typeof ButtonPictureLocationFromEnterprise
 
 export const ButtonRepresentationToEnterprise = {
   Auto: "Авто",
@@ -9500,19 +5754,8 @@ export const ButtonRepresentationFromEnterprise = {
   Текст: "Text",
 } as const
 
-export const ButtonRepresentation = {
-  Auto: "Auto",
-  Picture: "Picture",
-  PictureAndText: "PictureAndText",
-  Text: "Text",
-} as const
-
-export const ButtonRepresentationEnterprise = {
-  Авто: "Авто",
-  Картинка: "Картинка",
-  КартинкаИТекст: "КартинкаИТекст",
-  Текст: "Текст",
-} as const
+export type ButtonRepresentation = keyof typeof ButtonRepresentationToEnterprise
+export type ButtonRepresentationEnterprise = keyof typeof ButtonRepresentationFromEnterprise
 
 export const ButtonShapeToEnterprise = {
   Auto: "Авто",
@@ -9526,17 +5769,8 @@ export const ButtonShapeFromEnterprise = {
   Овал: "Oval",
 } as const
 
-export const ButtonShape = {
-  Auto: "Auto",
-  Usual: "Usual",
-  Oval: "Oval",
-} as const
-
-export const ButtonShapeEnterprise = {
-  Авто: "Авто",
-  Обычная: "Обычная",
-  Овал: "Овал",
-} as const
+export type ButtonShape = keyof typeof ButtonShapeToEnterprise
+export type ButtonShapeEnterprise = keyof typeof ButtonShapeFromEnterprise
 
 export const ButtonShapeRepresentationToEnterprise = {
   Auto: "Авто",
@@ -9552,19 +5786,8 @@ export const ButtonShapeRepresentationFromEnterprise = {
   ПриАктивности: "WhenActive",
 } as const
 
-export const ButtonShapeRepresentation = {
-  Auto: "Auto",
-  Always: "Always",
-  None: "None",
-  WhenActive: "WhenActive",
-} as const
-
-export const ButtonShapeRepresentationEnterprise = {
-  Авто: "Авто",
-  Всегда: "Всегда",
-  Нет: "Нет",
-  ПриАктивности: "ПриАктивности",
-} as const
+export type ButtonShapeRepresentation = keyof typeof ButtonShapeRepresentationToEnterprise
+export type ButtonShapeRepresentationEnterprise = keyof typeof ButtonShapeRepresentationFromEnterprise
 
 export const CheckBoxTypeToEnterprise = {
   Auto: "Авто",
@@ -9580,19 +5803,8 @@ export const CheckBoxTypeFromEnterprise = {
   Флажок: "CheckBox",
 } as const
 
-export const CheckBoxType = {
-  Auto: "Auto",
-  Switch: "Switch",
-  Tumbler: "Tumbler",
-  CheckBox: "CheckBox",
-} as const
-
-export const CheckBoxTypeEnterprise = {
-  Авто: "Авто",
-  Выключатель: "Выключатель",
-  Тумблер: "Тумблер",
-  Флажок: "Флажок",
-} as const
+export type CheckBoxType = keyof typeof CheckBoxTypeToEnterprise
+export type CheckBoxTypeEnterprise = keyof typeof CheckBoxTypeFromEnterprise
 
 export const ChildFormItemsGroupToEnterprise = {
   Vertical: "Вертикальная",
@@ -9608,19 +5820,8 @@ export const ChildFormItemsGroupFromEnterprise = {
   ГоризонтальнаяЕслиВозможно: "HorizontalIfPossible",
 } as const
 
-export const ChildFormItemsGroup = {
-  Vertical: "Vertical",
-  Horizontal: "Horizontal",
-  AlwaysHorizontal: "AlwaysHorizontal",
-  HorizontalIfPossible: "HorizontalIfPossible",
-} as const
-
-export const ChildFormItemsGroupEnterprise = {
-  Вертикальная: "Вертикальная",
-  Горизонтальная: "Горизонтальная",
-  ГоризонтальнаяВсегда: "ГоризонтальнаяВсегда",
-  ГоризонтальнаяЕслиВозможно: "ГоризонтальнаяЕслиВозможно",
-} as const
+export type ChildFormItemsGroup = keyof typeof ChildFormItemsGroupToEnterprise
+export type ChildFormItemsGroupEnterprise = keyof typeof ChildFormItemsGroupFromEnterprise
 
 export const ChildFormItemsWidthToEnterprise = {
   Auto: "Авто",
@@ -9640,23 +5841,8 @@ export const ChildFormItemsWidthFromEnterprise = {
   Одинаковая: "Equal",
 } as const
 
-export const ChildFormItemsWidth = {
-  Auto: "Auto",
-  LeftNarrowest: "LeftNarrowest",
-  LeftWidest: "LeftWidest",
-  LeftNarrow: "LeftNarrow",
-  LeftWide: "LeftWide",
-  Equal: "Equal",
-} as const
-
-export const ChildFormItemsWidthEnterprise = {
-  Авто: "Авто",
-  ЛевыйОченьУзкий: "ЛевыйОченьУзкий",
-  ЛевыйОченьШирокий: "ЛевыйОченьШирокий",
-  ЛевыйУзкий: "ЛевыйУзкий",
-  ЛевыйШирокий: "ЛевыйШирокий",
-  Одинаковая: "Одинаковая",
-} as const
+export type ChildFormItemsWidth = keyof typeof ChildFormItemsWidthToEnterprise
+export type ChildFormItemsWidthEnterprise = keyof typeof ChildFormItemsWidthFromEnterprise
 
 export const ChoiceButtonRepresentationToEnterprise = {
   Auto: "Авто",
@@ -9672,19 +5858,8 @@ export const ChoiceButtonRepresentationFromEnterprise = {
   ОтображатьВПолеВвода: "ShowInInputField",
 } as const
 
-export const ChoiceButtonRepresentation = {
-  Auto: "Auto",
-  ShowInDropList: "ShowInDropList",
-  ShowInDropListAndInInputField: "ShowInDropListAndInInputField",
-  ShowInInputField: "ShowInInputField",
-} as const
-
-export const ChoiceButtonRepresentationEnterprise = {
-  Авто: "Авто",
-  ОтображатьВВыпадающемСписке: "ОтображатьВВыпадающемСписке",
-  ОтображатьВВыпадающемСпискеИВПолеВвода: "ОтображатьВВыпадающемСпискеИВПолеВвода",
-  ОтображатьВПолеВвода: "ОтображатьВПолеВвода",
-} as const
+export type ChoiceButtonRepresentation = keyof typeof ChoiceButtonRepresentationToEnterprise
+export type ChoiceButtonRepresentationEnterprise = keyof typeof ChoiceButtonRepresentationFromEnterprise
 
 export const ChoiceHistoryOnInputToEnterprise = {
   Auto: "Авто",
@@ -9696,15 +5871,8 @@ export const ChoiceHistoryOnInputFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const ChoiceHistoryOnInput = {
-  Auto: "Auto",
-  DontUse: "DontUse",
-} as const
-
-export const ChoiceHistoryOnInputEnterprise = {
-  Авто: "Авто",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type ChoiceHistoryOnInput = keyof typeof ChoiceHistoryOnInputToEnterprise
+export type ChoiceHistoryOnInputEnterprise = keyof typeof ChoiceHistoryOnInputFromEnterprise
 
 export const ClipboardDataStandardFormatToEnterprise = {
   HTML: "HTML",
@@ -9718,17 +5886,8 @@ export const ClipboardDataStandardFormatFromEnterprise = {
   Текст: "Text",
 } as const
 
-export const ClipboardDataStandardFormat = {
-  HTML: "HTML",
-  Picture: "Picture",
-  Text: "Text",
-} as const
-
-export const ClipboardDataStandardFormatEnterprise = {
-  HTML: "HTML",
-  Картинка: "Картинка",
-  Текст: "Текст",
-} as const
+export type ClipboardDataStandardFormat = keyof typeof ClipboardDataStandardFormatToEnterprise
+export type ClipboardDataStandardFormatEnterprise = keyof typeof ClipboardDataStandardFormatFromEnterprise
 
 export const CollapseFormItemsByImportanceToEnterprise = {
   Auto: "Авто",
@@ -9742,17 +5901,8 @@ export const CollapseFormItemsByImportanceFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const CollapseFormItemsByImportance = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const CollapseFormItemsByImportanceEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type CollapseFormItemsByImportance = keyof typeof CollapseFormItemsByImportanceToEnterprise
+export type CollapseFormItemsByImportanceEnterprise = keyof typeof CollapseFormItemsByImportanceFromEnterprise
 
 export const ColorDepthToEnterprise = {
   BitPerPixel1: "БитНаПиксел1",
@@ -9770,21 +5920,8 @@ export const ColorDepthFromEnterprise = {
   БитНаПиксел8: "BitPerPixel8",
 } as const
 
-export const ColorDepth = {
-  BitPerPixel1: "BitPerPixel1",
-  BitPerPixel24: "BitPerPixel24",
-  BitPerPixel32: "BitPerPixel32",
-  BitPerPixel4: "BitPerPixel4",
-  BitPerPixel8: "BitPerPixel8",
-} as const
-
-export const ColorDepthEnterprise = {
-  БитНаПиксел1: "БитНаПиксел1",
-  БитНаПиксел24: "БитНаПиксел24",
-  БитНаПиксел32: "БитНаПиксел32",
-  БитНаПиксел4: "БитНаПиксел4",
-  БитНаПиксел8: "БитНаПиксел8",
-} as const
+export type ColorDepth = keyof typeof ColorDepthToEnterprise
+export type ColorDepthEnterprise = keyof typeof ColorDepthFromEnterprise
 
 export const ColumnEditModeToEnterprise = {
   Enter: "Вход",
@@ -9798,17 +5935,8 @@ export const ColumnEditModeFromEnterprise = {
   Непосредственно: "Directly",
 } as const
 
-export const ColumnEditMode = {
-  Enter: "Enter",
-  EnterOnInput: "EnterOnInput",
-  Directly: "Directly",
-} as const
-
-export const ColumnEditModeEnterprise = {
-  Вход: "Вход",
-  ВходПриВводе: "ВходПриВводе",
-  Непосредственно: "Непосредственно",
-} as const
+export type ColumnEditMode = keyof typeof ColumnEditModeToEnterprise
+export type ColumnEditModeEnterprise = keyof typeof ColumnEditModeFromEnterprise
 
 export const ColumnLocationToEnterprise = {
   SameColumn: "ВТойЖеКолонке",
@@ -9822,17 +5950,8 @@ export const ColumnLocationFromEnterprise = {
   НоваяКолонка: "NewColumn",
 } as const
 
-export const ColumnLocation = {
-  SameColumn: "SameColumn",
-  OnNextRow: "OnNextRow",
-  NewColumn: "NewColumn",
-} as const
-
-export const ColumnLocationEnterprise = {
-  ВТойЖеКолонке: "ВТойЖеКолонке",
-  НаСледующейСтроке: "НаСледующейСтроке",
-  НоваяКолонка: "НоваяКолонка",
-} as const
+export type ColumnLocation = keyof typeof ColumnLocationToEnterprise
+export type ColumnLocationEnterprise = keyof typeof ColumnLocationFromEnterprise
 
 export const ColumnSizeChangeToEnterprise = {
   Change: "Изменять",
@@ -9844,15 +5963,8 @@ export const ColumnSizeChangeFromEnterprise = {
   НеИзменять: "DontChange",
 } as const
 
-export const ColumnSizeChange = {
-  Change: "Change",
-  DontChange: "DontChange",
-} as const
-
-export const ColumnSizeChangeEnterprise = {
-  Изменять: "Изменять",
-  НеИзменять: "НеИзменять",
-} as const
+export type ColumnSizeChange = keyof typeof ColumnSizeChangeToEnterprise
+export type ColumnSizeChangeEnterprise = keyof typeof ColumnSizeChangeFromEnterprise
 
 export const ColumnsGroupToEnterprise = {
   Vertical: "Вертикальная",
@@ -9866,17 +5978,8 @@ export const ColumnsGroupFromEnterprise = {
   Горизонтальная: "Horizontal",
 } as const
 
-export const ColumnsGroup = {
-  Vertical: "Vertical",
-  InCell: "InCell",
-  Horizontal: "Horizontal",
-} as const
-
-export const ColumnsGroupEnterprise = {
-  Вертикальная: "Вертикальная",
-  ВЯчейке: "ВЯчейке",
-  Горизонтальная: "Горизонтальная",
-} as const
+export type ColumnsGroup = keyof typeof ColumnsGroupToEnterprise
+export type ColumnsGroupEnterprise = keyof typeof ColumnsGroupFromEnterprise
 
 export const CommandBarButtonAlignmentToEnterprise = {
   Left: "Лево",
@@ -9890,17 +5993,8 @@ export const CommandBarButtonAlignmentFromEnterprise = {
   Центр: "Center",
 } as const
 
-export const CommandBarButtonAlignment = {
-  Left: "Left",
-  Right: "Right",
-  Center: "Center",
-} as const
-
-export const CommandBarButtonAlignmentEnterprise = {
-  Лево: "Лево",
-  Право: "Право",
-  Центр: "Центр",
-} as const
+export type CommandBarButtonAlignment = keyof typeof CommandBarButtonAlignmentToEnterprise
+export type CommandBarButtonAlignmentEnterprise = keyof typeof CommandBarButtonAlignmentFromEnterprise
 
 export const CommandBarButtonOrderToEnterprise = {
   Asc: "Возр",
@@ -9914,17 +6008,8 @@ export const CommandBarButtonOrderFromEnterprise = {
   Убыв: "Desc",
 } as const
 
-export const CommandBarButtonOrder = {
-  Asc: "Asc",
-  DontOrder: "DontOrder",
-  Desc: "Desc",
-} as const
-
-export const CommandBarButtonOrderEnterprise = {
-  Возр: "Возр",
-  НеУпорядочивать: "НеУпорядочивать",
-  Убыв: "Убыв",
-} as const
+export type CommandBarButtonOrder = keyof typeof CommandBarButtonOrderToEnterprise
+export type CommandBarButtonOrderEnterprise = keyof typeof CommandBarButtonOrderFromEnterprise
 
 export const CommandBarButtonRepresentationToEnterprise = {
   Auto: "Авто",
@@ -9940,19 +6025,8 @@ export const CommandBarButtonRepresentationFromEnterprise = {
   НадписьКартинка: "PictureText",
 } as const
 
-export const CommandBarButtonRepresentation = {
-  Auto: "Auto",
-  Picture: "Picture",
-  Text: "Text",
-  PictureText: "PictureText",
-} as const
-
-export const CommandBarButtonRepresentationEnterprise = {
-  Авто: "Авто",
-  Картинка: "Картинка",
-  Надпись: "Надпись",
-  НадписьКартинка: "НадписьКартинка",
-} as const
+export type CommandBarButtonRepresentation = keyof typeof CommandBarButtonRepresentationToEnterprise
+export type CommandBarButtonRepresentationEnterprise = keyof typeof CommandBarButtonRepresentationFromEnterprise
 
 export const CommandBarButtonTypeToEnterprise = {
   Action: "Действие",
@@ -9966,17 +6040,8 @@ export const CommandBarButtonTypeFromEnterprise = {
   Разделитель: "Separator",
 } as const
 
-export const CommandBarButtonType = {
-  Action: "Action",
-  Popup: "Popup",
-  Separator: "Separator",
-} as const
-
-export const CommandBarButtonTypeEnterprise = {
-  Действие: "Действие",
-  Подменю: "Подменю",
-  Разделитель: "Разделитель",
-} as const
+export type CommandBarButtonType = keyof typeof CommandBarButtonTypeToEnterprise
+export type CommandBarButtonTypeEnterprise = keyof typeof CommandBarButtonTypeFromEnterprise
 
 export const CommandGroupCategoryToEnterprise = {
   FormCommandBar: "КоманднаяПанельФормы",
@@ -9992,19 +6057,8 @@ export const CommandGroupCategoryFromEnterprise = {
   ПанельНавигацииФормы: "FormNavigationPanel",
 } as const
 
-export const CommandGroupCategory = {
-  FormCommandBar: "FormCommandBar",
-  ActionsPanel: "ActionsPanel",
-  NavigationPanel: "NavigationPanel",
-  FormNavigationPanel: "FormNavigationPanel",
-} as const
-
-export const CommandGroupCategoryEnterprise = {
-  КоманднаяПанельФормы: "КоманднаяПанельФормы",
-  ПанельДействий: "ПанельДействий",
-  ПанельНавигации: "ПанельНавигации",
-  ПанельНавигацииФормы: "ПанельНавигацииФормы",
-} as const
+export type CommandGroupCategory = keyof typeof CommandGroupCategoryToEnterprise
+export type CommandGroupCategoryEnterprise = keyof typeof CommandGroupCategoryFromEnterprise
 
 export const CommandParameterUseModeToEnterprise = {
   Multiple: "Множественный",
@@ -10016,15 +6070,8 @@ export const CommandParameterUseModeFromEnterprise = {
   Одиночный: "Single",
 } as const
 
-export const CommandParameterUseMode = {
-  Multiple: "Multiple",
-  Single: "Single",
-} as const
-
-export const CommandParameterUseModeEnterprise = {
-  Множественный: "Множественный",
-  Одиночный: "Одиночный",
-} as const
+export type CommandParameterUseMode = keyof typeof CommandParameterUseModeToEnterprise
+export type CommandParameterUseModeEnterprise = keyof typeof CommandParameterUseModeFromEnterprise
 
 export const ConnectorLineTypeToEnterprise = {
   None: "НетЛинии",
@@ -10044,23 +6091,8 @@ export const ConnectorLineTypeFromEnterprise = {
   Точечная: "Dotted",
 } as const
 
-export const ConnectorLineType = {
-  None: "None",
-  Dashed: "Dashed",
-  DashDotted: "DashDotted",
-  DashDottedDotted: "DashDottedDotted",
-  Solid: "Solid",
-  Dotted: "Dotted",
-} as const
-
-export const ConnectorLineTypeEnterprise = {
-  НетЛинии: "НетЛинии",
-  Пунктир: "Пунктир",
-  ПунктирТочка: "ПунктирТочка",
-  ПунктирТочкаТочка: "ПунктирТочкаТочка",
-  Сплошная: "Сплошная",
-  Точечная: "Точечная",
-} as const
+export type ConnectorLineType = keyof typeof ConnectorLineTypeToEnterprise
+export type ConnectorLineTypeEnterprise = keyof typeof ConnectorLineTypeFromEnterprise
 
 export const ConnectorTextLocationToEnterprise = {
   FirstSegment: "ПервыйСегмент",
@@ -10072,15 +6104,8 @@ export const ConnectorTextLocationFromEnterprise = {
   СерединаЛинии: "Middle",
 } as const
 
-export const ConnectorTextLocation = {
-  FirstSegment: "FirstSegment",
-  Middle: "Middle",
-} as const
-
-export const ConnectorTextLocationEnterprise = {
-  ПервыйСегмент: "ПервыйСегмент",
-  СерединаЛинии: "СерединаЛинии",
-} as const
+export type ConnectorTextLocation = keyof typeof ConnectorTextLocationToEnterprise
+export type ConnectorTextLocationEnterprise = keyof typeof ConnectorTextLocationFromEnterprise
 
 export const ControlBorderTypeToEnterprise = {
   WithoutBorder: "БезРамки",
@@ -10106,29 +6131,8 @@ export const ControlBorderTypeFromEnterprise = {
   ЧертаСверху: "Overline",
 } as const
 
-export const ControlBorderType = {
-  WithoutBorder: "WithoutBorder",
-  Indented: "Indented",
-  Embossed: "Embossed",
-  Double: "Double",
-  DoubleUnderline: "DoubleUnderline",
-  Single: "Single",
-  Underline: "Underline",
-  Rounded: "Rounded",
-  Overline: "Overline",
-} as const
-
-export const ControlBorderTypeEnterprise = {
-  БезРамки: "БезРамки",
-  Вдавленная: "Вдавленная",
-  Выпуклая: "Выпуклая",
-  Двойная: "Двойная",
-  ДвойноеПодчеркивание: "ДвойноеПодчеркивание",
-  Одинарная: "Одинарная",
-  Подчеркивание: "Подчеркивание",
-  Скругленная: "Скругленная",
-  ЧертаСверху: "ЧертаСверху",
-} as const
+export type ControlBorderType = keyof typeof ControlBorderTypeToEnterprise
+export type ControlBorderTypeEnterprise = keyof typeof ControlBorderTypeFromEnterprise
 
 export const ControlCollapseModeToEnterprise = {
   Top: "Верх",
@@ -10146,21 +6150,8 @@ export const ControlCollapseModeFromEnterprise = {
   Право: "Right",
 } as const
 
-export const ControlCollapseMode = {
-  Top: "Top",
-  Left: "Left",
-  None: "None",
-  Bottom: "Bottom",
-  Right: "Right",
-} as const
-
-export const ControlCollapseModeEnterprise = {
-  Верх: "Верх",
-  Лево: "Лево",
-  Нет: "Нет",
-  Низ: "Низ",
-  Право: "Право",
-} as const
+export type ControlCollapseMode = keyof typeof ControlCollapseModeToEnterprise
+export type ControlCollapseModeEnterprise = keyof typeof ControlCollapseModeFromEnterprise
 
 export const ControlEdgeToEnterprise = {
   Top: "Верх",
@@ -10178,21 +6169,8 @@ export const ControlEdgeFromEnterprise = {
   Центр: "Center",
 } as const
 
-export const ControlEdge = {
-  Top: "Top",
-  Left: "Left",
-  Bottom: "Bottom",
-  Right: "Right",
-  Center: "Center",
-} as const
-
-export const ControlEdgeEnterprise = {
-  Верх: "Верх",
-  Лево: "Лево",
-  Низ: "Низ",
-  Право: "Право",
-  Центр: "Центр",
-} as const
+export type ControlEdge = keyof typeof ControlEdgeToEnterprise
+export type ControlEdgeEnterprise = keyof typeof ControlEdgeFromEnterprise
 
 export const CurrentRowUseToEnterprise = {
   Auto: "Авто",
@@ -10206,17 +6184,8 @@ export const CurrentRowUseFromEnterprise = {
   НеИспользует: "DontUse",
 } as const
 
-export const CurrentRowUse = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const CurrentRowUseEnterprise = {
-  Авто: "Авто",
-  Использует: "Использует",
-  НеИспользует: "НеИспользует",
-} as const
+export type CurrentRowUse = keyof typeof CurrentRowUseToEnterprise
+export type CurrentRowUseEnterprise = keyof typeof CurrentRowUseFromEnterprise
 
 export const DataChangeTypeToEnterprise = {
   Create: "Добавление",
@@ -10230,17 +6199,8 @@ export const DataChangeTypeFromEnterprise = {
   Удаление: "Delete",
 } as const
 
-export const DataChangeType = {
-  Create: "Create",
-  Update: "Update",
-  Delete: "Delete",
-} as const
-
-export const DataChangeTypeEnterprise = {
-  Добавление: "Добавление",
-  Изменение: "Изменение",
-  Удаление: "Удаление",
-} as const
+export type DataChangeType = keyof typeof DataChangeTypeToEnterprise
+export type DataChangeTypeEnterprise = keyof typeof DataChangeTypeFromEnterprise
 
 export const DateSelectionModeToEnterprise = {
   Interval: "Интервал",
@@ -10254,17 +6214,8 @@ export const DateSelectionModeFromEnterprise = {
   Одиночный: "Single",
 } as const
 
-export const DateSelectionMode = {
-  Interval: "Interval",
-  Multiple: "Multiple",
-  Single: "Single",
-} as const
-
-export const DateSelectionModeEnterprise = {
-  Интервал: "Интервал",
-  Множественный: "Множественный",
-  Одиночный: "Одиночный",
-} as const
+export type DateSelectionMode = keyof typeof DateSelectionModeToEnterprise
+export type DateSelectionModeEnterprise = keyof typeof DateSelectionModeFromEnterprise
 
 export const DimensionAttributePlacementTypeToEnterprise = {
   Together: "Вместе",
@@ -10278,17 +6229,8 @@ export const DimensionAttributePlacementTypeFromEnterprise = {
   Отдельно: "Separately",
 } as const
 
-export const DimensionAttributePlacementType = {
-  Together: "Together",
-  WithDimensions: "WithDimensions",
-  Separately: "Separately",
-} as const
-
-export const DimensionAttributePlacementTypeEnterprise = {
-  Вместе: "Вместе",
-  ВместеСИзмерениями: "ВместеСИзмерениями",
-  Отдельно: "Отдельно",
-} as const
+export type DimensionAttributePlacementType = keyof typeof DimensionAttributePlacementTypeToEnterprise
+export type DimensionAttributePlacementTypeEnterprise = keyof typeof DimensionAttributePlacementTypeFromEnterprise
 
 export const DimensionPlacementTypeToEnterprise = {
   Together: "Вместе",
@@ -10302,17 +6244,8 @@ export const DimensionPlacementTypeFromEnterprise = {
   ОтдельноИТолькоВИтогах: "SeparatelyAndInTotalsOnly",
 } as const
 
-export const DimensionPlacementType = {
-  Together: "Together",
-  Separately: "Separately",
-  SeparatelyAndInTotalsOnly: "SeparatelyAndInTotalsOnly",
-} as const
-
-export const DimensionPlacementTypeEnterprise = {
-  Вместе: "Вместе",
-  Отдельно: "Отдельно",
-  ОтдельноИТолькоВИтогах: "ОтдельноИТолькоВИтогах",
-} as const
+export type DimensionPlacementType = keyof typeof DimensionPlacementTypeToEnterprise
+export type DimensionPlacementTypeEnterprise = keyof typeof DimensionPlacementTypeFromEnterprise
 
 export const DisplayImportanceToEnterprise = {
   Auto: "Авто",
@@ -10332,23 +6265,8 @@ export const DisplayImportanceFromEnterprise = {
   ОченьНизкая: "VeryLow",
 } as const
 
-export const DisplayImportance = {
-  Auto: "Auto",
-  High: "High",
-  Low: "Low",
-  Usual: "Usual",
-  VeryHigh: "VeryHigh",
-  VeryLow: "VeryLow",
-} as const
-
-export const DisplayImportanceEnterprise = {
-  Авто: "Авто",
-  Высокая: "Высокая",
-  Низкая: "Низкая",
-  Обычная: "Обычная",
-  ОченьВысокая: "ОченьВысокая",
-  ОченьНизкая: "ОченьНизкая",
-} as const
+export type DisplayImportance = keyof typeof DisplayImportanceToEnterprise
+export type DisplayImportanceEnterprise = keyof typeof DisplayImportanceFromEnterprise
 
 export const DragActionToEnterprise = {
   Choice: "Выбор",
@@ -10364,19 +6282,8 @@ export const DragActionFromEnterprise = {
   Перемещение: "Move",
 } as const
 
-export const DragAction = {
-  Choice: "Choice",
-  Copy: "Copy",
-  Cancel: "Cancel",
-  Move: "Move",
-} as const
-
-export const DragActionEnterprise = {
-  Выбор: "Выбор",
-  Копирование: "Копирование",
-  Отмена: "Отмена",
-  Перемещение: "Перемещение",
-} as const
+export type DragAction = keyof typeof DragActionToEnterprise
+export type DragActionEnterprise = keyof typeof DragActionFromEnterprise
 
 export const DragAllowedActionsToEnterprise = {
   Copy: "Копирование",
@@ -10392,19 +6299,8 @@ export const DragAllowedActionsFromEnterprise = {
   Перемещение: "Move",
 } as const
 
-export const DragAllowedActions = {
-  Copy: "Copy",
-  CopyAndMove: "CopyAndMove",
-  DontProcess: "DontProcess",
-  Move: "Move",
-} as const
-
-export const DragAllowedActionsEnterprise = {
-  Копирование: "Копирование",
-  КопированиеИПеремещение: "КопированиеИПеремещение",
-  НеОбрабатывать: "НеОбрабатывать",
-  Перемещение: "Перемещение",
-} as const
+export type DragAllowedActions = keyof typeof DragAllowedActionsToEnterprise
+export type DragAllowedActionsEnterprise = keyof typeof DragAllowedActionsFromEnterprise
 
 export const DrawingSelectionShowModeToEnterprise = {
   Auto: "Авто",
@@ -10418,17 +6314,8 @@ export const DrawingSelectionShowModeFromEnterprise = {
   Отображать: "Show",
 } as const
 
-export const DrawingSelectionShowMode = {
-  Auto: "Auto",
-  DontShow: "DontShow",
-  Show: "Show",
-} as const
-
-export const DrawingSelectionShowModeEnterprise = {
-  Авто: "Авто",
-  НеОтображать: "НеОтображать",
-  Отображать: "Отображать",
-} as const
+export type DrawingSelectionShowMode = keyof typeof DrawingSelectionShowModeToEnterprise
+export type DrawingSelectionShowModeEnterprise = keyof typeof DrawingSelectionShowModeFromEnterprise
 
 export const EditTextUpdateToEnterprise = {
   Auto: "Авто",
@@ -10444,19 +6331,8 @@ export const EditTextUpdateFromEnterprise = {
   ПриИзмененииЗначения: "OnValueChange",
 } as const
 
-export const EditTextUpdate = {
-  Auto: "Auto",
-  Always: "Always",
-  DontUse: "DontUse",
-  OnValueChange: "OnValueChange",
-} as const
-
-export const EditTextUpdateEnterprise = {
-  Авто: "Авто",
-  Всегда: "Всегда",
-  НеИспользовать: "НеИспользовать",
-  ПриИзмененииЗначения: "ПриИзмененииЗначения",
-} as const
+export type EditTextUpdate = keyof typeof EditTextUpdateToEnterprise
+export type EditTextUpdateEnterprise = keyof typeof EditTextUpdateFromEnterprise
 
 export const FitPageModeToEnterprise = {
   Auto: "Авто",
@@ -10470,17 +6346,8 @@ export const FitPageModeFromEnterprise = {
   Пропорционально: "Proportionally",
 } as const
 
-export const FitPageMode = {
-  Auto: "Auto",
-  PageWidth: "PageWidth",
-  Proportionally: "Proportionally",
-} as const
-
-export const FitPageModeEnterprise = {
-  Авто: "Авто",
-  ПоШиринеСтраницы: "ПоШиринеСтраницы",
-  Пропорционально: "Пропорционально",
-} as const
+export type FitPageMode = keyof typeof FitPageModeToEnterprise
+export type FitPageModeEnterprise = keyof typeof FitPageModeFromEnterprise
 
 export const FixingInTableToEnterprise = {
   Left: "Лево",
@@ -10494,17 +6361,8 @@ export const FixingInTableFromEnterprise = {
   Право: "Right",
 } as const
 
-export const FixingInTable = {
-  Left: "Left",
-  None: "None",
-  Right: "Right",
-} as const
-
-export const FixingInTableEnterprise = {
-  Лево: "Лево",
-  Нет: "Нет",
-  Право: "Право",
-} as const
+export type FixingInTable = keyof typeof FixingInTableToEnterprise
+export type FixingInTableEnterprise = keyof typeof FixingInTableFromEnterprise
 
 export const FoldersAndItemsToEnterprise = {
   Auto: "Авто",
@@ -10520,19 +6378,8 @@ export const FoldersAndItemsFromEnterprise = {
   Элементы: "Items",
 } as const
 
-export const FoldersAndItems = {
-  Auto: "Auto",
-  Folders: "Folders",
-  FoldersAndItems: "FoldersAndItems",
-  Items: "Items",
-} as const
-
-export const FoldersAndItemsEnterprise = {
-  Авто: "Авто",
-  Группы: "Группы",
-  ГруппыИЭлементы: "ГруппыИЭлементы",
-  Элементы: "Элементы",
-} as const
+export type FoldersAndItems = keyof typeof FoldersAndItemsToEnterprise
+export type FoldersAndItemsEnterprise = keyof typeof FoldersAndItemsFromEnterprise
 
 export const FormButtonPictureLocationToEnterprise = {
   Auto: "Авто",
@@ -10546,17 +6393,8 @@ export const FormButtonPictureLocationFromEnterprise = {
   Право: "Right",
 } as const
 
-export const FormButtonPictureLocation = {
-  Auto: "Auto",
-  Left: "Left",
-  Right: "Right",
-} as const
-
-export const FormButtonPictureLocationEnterprise = {
-  Авто: "Авто",
-  Лево: "Лево",
-  Право: "Право",
-} as const
+export type FormButtonPictureLocation = keyof typeof FormButtonPictureLocationToEnterprise
+export type FormButtonPictureLocationEnterprise = keyof typeof FormButtonPictureLocationFromEnterprise
 
 export const FormButtonTypeToEnterprise = {
   Hyperlink: "Гиперссылка",
@@ -10572,19 +6410,8 @@ export const FormButtonTypeFromEnterprise = {
   ОбычнаяКнопка: "UsualButton",
 } as const
 
-export const FormButtonType = {
-  Hyperlink: "Hyperlink",
-  CommandBarHyperlink: "CommandBarHyperlink",
-  CommandBarButton: "CommandBarButton",
-  UsualButton: "UsualButton",
-} as const
-
-export const FormButtonTypeEnterprise = {
-  Гиперссылка: "Гиперссылка",
-  ГиперссылкаКоманднойПанели: "ГиперссылкаКоманднойПанели",
-  КнопкаКоманднойПанели: "КнопкаКоманднойПанели",
-  ОбычнаяКнопка: "ОбычнаяКнопка",
-} as const
+export type FormButtonType = keyof typeof FormButtonTypeToEnterprise
+export type FormButtonTypeEnterprise = keyof typeof FormButtonTypeFromEnterprise
 
 export const FormCommandBarLabelLocationToEnterprise = {
   Auto: "Авто",
@@ -10600,19 +6427,8 @@ export const FormCommandBarLabelLocationFromEnterprise = {
   Низ: "Bottom",
 } as const
 
-export const FormCommandBarLabelLocation = {
-  Auto: "Auto",
-  Top: "Top",
-  None: "None",
-  Bottom: "Bottom",
-} as const
-
-export const FormCommandBarLabelLocationEnterprise = {
-  Авто: "Авто",
-  Верх: "Верх",
-  Нет: "Нет",
-  Низ: "Низ",
-} as const
+export type FormCommandBarLabelLocation = keyof typeof FormCommandBarLabelLocationToEnterprise
+export type FormCommandBarLabelLocationEnterprise = keyof typeof FormCommandBarLabelLocationFromEnterprise
 
 export const FormConversationsRepresentationToEnterprise = {
   Auto: "Авто",
@@ -10626,17 +6442,8 @@ export const FormConversationsRepresentationFromEnterprise = {
   Отображать: "Show",
 } as const
 
-export const FormConversationsRepresentation = {
-  Auto: "Auto",
-  DontShow: "DontShow",
-  Show: "Show",
-} as const
-
-export const FormConversationsRepresentationEnterprise = {
-  Авто: "Авто",
-  НеОтображать: "НеОтображать",
-  Отображать: "Отображать",
-} as const
+export type FormConversationsRepresentation = keyof typeof FormConversationsRepresentationToEnterprise
+export type FormConversationsRepresentationEnterprise = keyof typeof FormConversationsRepresentationFromEnterprise
 
 export const FormDecorationTypeToEnterprise = {
   Picture: "Картинка",
@@ -10648,15 +6455,8 @@ export const FormDecorationTypeFromEnterprise = {
   Надпись: "Label",
 } as const
 
-export const FormDecorationType = {
-  Picture: "Picture",
-  Label: "Label",
-} as const
-
-export const FormDecorationTypeEnterprise = {
-  Картинка: "Картинка",
-  Надпись: "Надпись",
-} as const
+export type FormDecorationType = keyof typeof FormDecorationTypeToEnterprise
+export type FormDecorationTypeEnterprise = keyof typeof FormDecorationTypeFromEnterprise
 
 export const FormFieldTypeToEnterprise = {
   HTMLDocumentField: "ПолеHTMLДокумента",
@@ -10704,51 +6504,8 @@ export const FormFieldTypeFromEnterprise = {
   ПолеФорматированногоДокумента: "FormattedDocumentField",
 } as const
 
-export const FormFieldType = {
-  HTMLDocumentField: "HTMLDocumentField",
-  PDFDocumentField: "PDFDocumentField",
-  InputField: "InputField",
-  GeographicalSchemaField: "GeographicalSchemaField",
-  GraphicalSchemaField: "GraphicalSchemaField",
-  DendrogramField: "DendrogramField",
-  ChartField: "ChartField",
-  GanttChartField: "GanttChartField",
-  ProgressBarField: "ProgressBarField",
-  CalendarField: "CalendarField",
-  PictureField: "PictureField",
-  LabelField: "LabelField",
-  RadioButtonField: "RadioButtonField",
-  PeriodField: "PeriodField",
-  PlannerField: "PlannerField",
-  TrackBarField: "TrackBarField",
-  SpreadsheetDocumentField: "SpreadsheetDocumentField",
-  TextDocumentField: "TextDocumentField",
-  CheckBoxField: "CheckBoxField",
-  FormattedDocumentField: "FormattedDocumentField",
-} as const
-
-export const FormFieldTypeEnterprise = {
-  ПолеHTMLДокумента: "ПолеHTMLДокумента",
-  ПолеPDFДокумента: "ПолеPDFДокумента",
-  ПолеВвода: "ПолеВвода",
-  ПолеГеографическойСхемы: "ПолеГеографическойСхемы",
-  ПолеГрафическойСхемы: "ПолеГрафическойСхемы",
-  ПолеДендрограммы: "ПолеДендрограммы",
-  ПолеДиаграммы: "ПолеДиаграммы",
-  ПолеДиаграммыГанта: "ПолеДиаграммыГанта",
-  ПолеИндикатора: "ПолеИндикатора",
-  ПолеКалендаря: "ПолеКалендаря",
-  ПолеКартинки: "ПолеКартинки",
-  ПолеНадписи: "ПолеНадписи",
-  ПолеПереключателя: "ПолеПереключателя",
-  ПолеПериода: "ПолеПериода",
-  ПолеПланировщика: "ПолеПланировщика",
-  ПолеПолосыРегулирования: "ПолеПолосыРегулирования",
-  ПолеТабличногоДокумента: "ПолеТабличногоДокумента",
-  ПолеТекстовогоДокумента: "ПолеТекстовогоДокумента",
-  ПолеФлажка: "ПолеФлажка",
-  ПолеФорматированногоДокумента: "ПолеФорматированногоДокумента",
-} as const
+export type FormFieldType = keyof typeof FormFieldTypeToEnterprise
+export type FormFieldTypeEnterprise = keyof typeof FormFieldTypeFromEnterprise
 
 export const FormGroupTypeToEnterprise = {
   ButtonGroup: "ГруппаКнопок",
@@ -10772,27 +6529,8 @@ export const FormGroupTypeFromEnterprise = {
   Страницы: "Pages",
 } as const
 
-export const FormGroupType = {
-  ButtonGroup: "ButtonGroup",
-  ColumnGroup: "ColumnGroup",
-  CommandBar: "CommandBar",
-  ContextMenu: "ContextMenu",
-  UsualGroup: "UsualGroup",
-  Popup: "Popup",
-  Page: "Page",
-  Pages: "Pages",
-} as const
-
-export const FormGroupTypeEnterprise = {
-  ГруппаКнопок: "ГруппаКнопок",
-  ГруппаКолонок: "ГруппаКолонок",
-  КоманднаяПанель: "КоманднаяПанель",
-  КонтекстноеМеню: "КонтекстноеМеню",
-  ОбычнаяГруппа: "ОбычнаяГруппа",
-  Подменю: "Подменю",
-  Страница: "Страница",
-  Страницы: "Страницы",
-} as const
+export type FormGroupType = keyof typeof FormGroupTypeToEnterprise
+export type FormGroupTypeEnterprise = keyof typeof FormGroupTypeFromEnterprise
 
 export const FormItemAdditionTypeToEnterprise = {
   ViewStatusRepresentation: "ОтображениеСостоянияПросмотра",
@@ -10806,17 +6544,8 @@ export const FormItemAdditionTypeFromEnterprise = {
   УправлениеПоиском: "SearchControl",
 } as const
 
-export const FormItemAdditionType = {
-  ViewStatusRepresentation: "ViewStatusRepresentation",
-  SearchStringRepresentation: "SearchStringRepresentation",
-  SearchControl: "SearchControl",
-} as const
-
-export const FormItemAdditionTypeEnterprise = {
-  ОтображениеСостоянияПросмотра: "ОтображениеСостоянияПросмотра",
-  ОтображениеСтрокиПоиска: "ОтображениеСтрокиПоиска",
-  УправлениеПоиском: "УправлениеПоиском",
-} as const
+export type FormItemAdditionType = keyof typeof FormItemAdditionTypeToEnterprise
+export type FormItemAdditionTypeEnterprise = keyof typeof FormItemAdditionTypeFromEnterprise
 
 export const FormItemCommandBarLabelLocationToEnterprise = {
   Auto: "Авто",
@@ -10832,19 +6561,8 @@ export const FormItemCommandBarLabelLocationFromEnterprise = {
   Низ: "Bottom",
 } as const
 
-export const FormItemCommandBarLabelLocation = {
-  Auto: "Auto",
-  Top: "Top",
-  None: "None",
-  Bottom: "Bottom",
-} as const
-
-export const FormItemCommandBarLabelLocationEnterprise = {
-  Авто: "Авто",
-  Верх: "Верх",
-  Нет: "Нет",
-  Низ: "Низ",
-} as const
+export type FormItemCommandBarLabelLocation = keyof typeof FormItemCommandBarLabelLocationToEnterprise
+export type FormItemCommandBarLabelLocationEnterprise = keyof typeof FormItemCommandBarLabelLocationFromEnterprise
 
 export const FormItemOrientationToEnterprise = {
   Vertical: "Вертикально",
@@ -10856,15 +6574,8 @@ export const FormItemOrientationFromEnterprise = {
   Горизонтально: "Horizontal",
 } as const
 
-export const FormItemOrientation = {
-  Vertical: "Vertical",
-  Horizontal: "Horizontal",
-} as const
-
-export const FormItemOrientationEnterprise = {
-  Вертикально: "Вертикально",
-  Горизонтально: "Горизонтально",
-} as const
+export type FormItemOrientation = keyof typeof FormItemOrientationToEnterprise
+export type FormItemOrientationEnterprise = keyof typeof FormItemOrientationFromEnterprise
 
 export const FormItemSpacingToEnterprise = {
   Auto: "Авто",
@@ -10884,23 +6595,8 @@ export const FormItemSpacingFromEnterprise = {
   Полуторный: "OneAndHalf",
 } as const
 
-export const FormItemSpacing = {
-  Auto: "Auto",
-  Double: "Double",
-  None: "None",
-  Single: "Single",
-  Half: "Half",
-  OneAndHalf: "OneAndHalf",
-} as const
-
-export const FormItemSpacingEnterprise = {
-  Авто: "Авто",
-  Двойной: "Двойной",
-  Нет: "Нет",
-  Одинарный: "Одинарный",
-  Половинный: "Половинный",
-  Полуторный: "Полуторный",
-} as const
+export type FormItemSpacing = keyof typeof FormItemSpacingToEnterprise
+export type FormItemSpacingEnterprise = keyof typeof FormItemSpacingFromEnterprise
 
 export const FormItemTitleLocationToEnterprise = {
   Auto: "Авто",
@@ -10920,23 +6616,8 @@ export const FormItemTitleLocationFromEnterprise = {
   Право: "Right",
 } as const
 
-export const FormItemTitleLocation = {
-  Auto: "Auto",
-  Top: "Top",
-  Left: "Left",
-  None: "None",
-  Bottom: "Bottom",
-  Right: "Right",
-} as const
-
-export const FormItemTitleLocationEnterprise = {
-  Авто: "Авто",
-  Верх: "Верх",
-  Лево: "Лево",
-  Нет: "Нет",
-  Низ: "Низ",
-  Право: "Право",
-} as const
+export type FormItemTitleLocation = keyof typeof FormItemTitleLocationToEnterprise
+export type FormItemTitleLocationEnterprise = keyof typeof FormItemTitleLocationFromEnterprise
 
 export const FormPagesRepresentationToEnterprise = {
   Auto: "Авто",
@@ -10958,25 +6639,8 @@ export const FormPagesRepresentationFromEnterprise = {
   Пролистывание: "Swipe",
 } as const
 
-export const FormPagesRepresentation = {
-  Auto: "Auto",
-  TabsOnTop: "TabsOnTop",
-  TabsOnLeftHorizontal: "TabsOnLeftHorizontal",
-  TabsOnBottom: "TabsOnBottom",
-  TabsOnRightHorizontal: "TabsOnRightHorizontal",
-  None: "None",
-  Swipe: "Swipe",
-} as const
-
-export const FormPagesRepresentationEnterprise = {
-  Авто: "Авто",
-  ЗакладкиСверху: "ЗакладкиСверху",
-  ЗакладкиСлеваГоризонтально: "ЗакладкиСлеваГоризонтально",
-  ЗакладкиСнизу: "ЗакладкиСнизу",
-  ЗакладкиСправаГоризонтально: "ЗакладкиСправаГоризонтально",
-  Нет: "Нет",
-  Пролистывание: "Пролистывание",
-} as const
+export type FormPagesRepresentation = keyof typeof FormPagesRepresentationToEnterprise
+export type FormPagesRepresentationEnterprise = keyof typeof FormPagesRepresentationFromEnterprise
 
 export const FormPagesStateToEnterprise = {
   Titles: "Заголовки",
@@ -10990,17 +6654,8 @@ export const FormPagesStateFromEnterprise = {
   ТекущаяСтраница: "CurrentPage",
 } as const
 
-export const FormPagesState = {
-  Titles: "Titles",
-  TitlesAndCurrentPage: "TitlesAndCurrentPage",
-  CurrentPage: "CurrentPage",
-} as const
-
-export const FormPagesStateEnterprise = {
-  Заголовки: "Заголовки",
-  ЗаголовкиИТекущаяСтраница: "ЗаголовкиИТекущаяСтраница",
-  ТекущаяСтраница: "ТекущаяСтраница",
-} as const
+export type FormPagesState = keyof typeof FormPagesStateToEnterprise
+export type FormPagesStateEnterprise = keyof typeof FormPagesStateFromEnterprise
 
 export const FormStandardURLVariantToEnterprise = {
   ReportVariant: "ВариантОтчета",
@@ -11028,31 +6683,8 @@ export const FormStandardURLVariantFromEnterprise = {
   СписокСТекущимиНастройкамиИСтрокой: "ListWithCurrentSettingsAndRow",
 } as const
 
-export const FormStandardURLVariant = {
-  ReportVariant: "ReportVariant",
-  Record: "Record",
-  ListCurrentRowRecord: "ListCurrentRowRecord",
-  Object: "Object",
-  ListCurrentRowObject: "ListCurrentRowObject",
-  Report: "Report",
-  ReportWithCurrentSettings: "ReportWithCurrentSettings",
-  List: "List",
-  ListWithCurrentSettings: "ListWithCurrentSettings",
-  ListWithCurrentSettingsAndRow: "ListWithCurrentSettingsAndRow",
-} as const
-
-export const FormStandardURLVariantEnterprise = {
-  ВариантОтчета: "ВариантОтчета",
-  Запись: "Запись",
-  ЗаписьТекущейСтрокиСписка: "ЗаписьТекущейСтрокиСписка",
-  Объект: "Объект",
-  ОбъектТекущейСтрокиСписка: "ОбъектТекущейСтрокиСписка",
-  Отчет: "Отчет",
-  ОтчетСТекущимиНастройками: "ОтчетСТекущимиНастройками",
-  Список: "Список",
-  СписокСТекущимиНастройками: "СписокСТекущимиНастройками",
-  СписокСТекущимиНастройкамиИСтрокой: "СписокСТекущимиНастройкамиИСтрокой",
-} as const
+export type FormStandardURLVariant = keyof typeof FormStandardURLVariantToEnterprise
+export type FormStandardURLVariantEnterprise = keyof typeof FormStandardURLVariantFromEnterprise
 
 export const FormWindowOpeningModeToEnterprise = {
   LockWholeInterface: "БлокироватьВесьИнтерфейс",
@@ -11066,17 +6698,8 @@ export const FormWindowOpeningModeFromEnterprise = {
   НеБлокировать: "DontBlock",
 } as const
 
-export const FormWindowOpeningMode = {
-  LockWholeInterface: "LockWholeInterface",
-  LockOwnerWindow: "LockOwnerWindow",
-  DontBlock: "DontBlock",
-} as const
-
-export const FormWindowOpeningModeEnterprise = {
-  БлокироватьВесьИнтерфейс: "БлокироватьВесьИнтерфейс",
-  БлокироватьОкноВладельца: "БлокироватьОкноВладельца",
-  НеБлокировать: "НеБлокировать",
-} as const
+export type FormWindowOpeningMode = keyof typeof FormWindowOpeningModeToEnterprise
+export type FormWindowOpeningModeEnterprise = keyof typeof FormWindowOpeningModeFromEnterprise
 
 export const GraphicalSchemaGridDrawModeToEnterprise = {
   Lines: "Линии",
@@ -11092,19 +6715,8 @@ export const GraphicalSchemaGridDrawModeFromEnterprise = {
   ШахматнаяСетка: "Chess",
 } as const
 
-export const GraphicalSchemaGridDrawMode = {
-  Lines: "Lines",
-  None: "None",
-  Dots: "Dots",
-  Chess: "Chess",
-} as const
-
-export const GraphicalSchemaGridDrawModeEnterprise = {
-  Линии: "Линии",
-  НеРисовать: "НеРисовать",
-  Точки: "Точки",
-  ШахматнаяСетка: "ШахматнаяСетка",
-} as const
+export type GraphicalSchemaGridDrawMode = keyof typeof GraphicalSchemaGridDrawModeToEnterprise
+export type GraphicalSchemaGridDrawModeEnterprise = keyof typeof GraphicalSchemaGridDrawModeFromEnterprise
 
 export const GraphicalSchemaItemPictureLocationToEnterprise = {
   Top: "Верх",
@@ -11122,21 +6734,8 @@ export const GraphicalSchemaItemPictureLocationFromEnterprise = {
   Центр: "Center",
 } as const
 
-export const GraphicalSchemaItemPictureLocation = {
-  Top: "Top",
-  Left: "Left",
-  Bottom: "Bottom",
-  Right: "Right",
-  Center: "Center",
-} as const
-
-export const GraphicalSchemaItemPictureLocationEnterprise = {
-  Верх: "Верх",
-  Лево: "Лево",
-  Низ: "Низ",
-  Право: "Право",
-  Центр: "Центр",
-} as const
+export type GraphicalSchemaItemPictureLocation = keyof typeof GraphicalSchemaItemPictureLocationToEnterprise
+export type GraphicalSchemaItemPictureLocationEnterprise = keyof typeof GraphicalSchemaItemPictureLocationFromEnterprise
 
 export const GraphicalSchemaShapesToEnterprise = {
   Block: "Блок",
@@ -11172,39 +6771,8 @@ export const GraphicalSchemaShapesFromEnterprise = {
   Эллипс: "Ellipse",
 } as const
 
-export const GraphicalSchemaShapes = {
-  Block: "Block",
-  Document: "Document",
-  None: "None",
-  Folder: "Folder",
-  VerticalBrackets: "VerticalBrackets",
-  HorizontalBrackets: "HorizontalBrackets",
-  UpArrow: "UpArrow",
-  UpDownArrow: "UpDownArrow",
-  LeftArrow: "LeftArrow",
-  LeftRightArrow: "LeftRightArrow",
-  DownArrow: "DownArrow",
-  RightArrow: "RightArrow",
-  File: "File",
-  Ellipse: "Ellipse",
-} as const
-
-export const GraphicalSchemaShapesEnterprise = {
-  Блок: "Блок",
-  Документ: "Документ",
-  Нет: "Нет",
-  Папка: "Папка",
-  СкобкиВертикальные: "СкобкиВертикальные",
-  СкобкиГоризонтальные: "СкобкиГоризонтальные",
-  СтрелкаВверх: "СтрелкаВверх",
-  СтрелкаВверхВниз: "СтрелкаВверхВниз",
-  СтрелкаВлево: "СтрелкаВлево",
-  СтрелкаВлевоВправо: "СтрелкаВлевоВправо",
-  СтрелкаВниз: "СтрелкаВниз",
-  СтрелкаВправо: "СтрелкаВправо",
-  Файл: "Файл",
-  Эллипс: "Эллипс",
-} as const
+export type GraphicalSchemaShapes = keyof typeof GraphicalSchemaShapesToEnterprise
+export type GraphicalSchemaShapesEnterprise = keyof typeof GraphicalSchemaShapesFromEnterprise
 
 export const GraphicalSchemeElementSideTypeToEnterprise = {
   Top: "Верх",
@@ -11222,21 +6790,8 @@ export const GraphicalSchemeElementSideTypeFromEnterprise = {
   Центр: "Center",
 } as const
 
-export const GraphicalSchemeElementSideType = {
-  Top: "Top",
-  Left: "Left",
-  Bottom: "Bottom",
-  Right: "Right",
-  Center: "Center",
-} as const
-
-export const GraphicalSchemeElementSideTypeEnterprise = {
-  Верх: "Верх",
-  Лево: "Лево",
-  Низ: "Низ",
-  Право: "Право",
-  Центр: "Центр",
-} as const
+export type GraphicalSchemeElementSideType = keyof typeof GraphicalSchemeElementSideTypeToEnterprise
+export type GraphicalSchemeElementSideTypeEnterprise = keyof typeof GraphicalSchemeElementSideTypeFromEnterprise
 
 export const HTMLDocumentFieldModeToEnterprise = {
   Browse: "Просмотр",
@@ -11248,15 +6803,8 @@ export const HTMLDocumentFieldModeFromEnterprise = {
   Редактирование: "Design",
 } as const
 
-export const HTMLDocumentFieldMode = {
-  Browse: "Browse",
-  Design: "Design",
-} as const
-
-export const HTMLDocumentFieldModeEnterprise = {
-  Просмотр: "Просмотр",
-  Редактирование: "Редактирование",
-} as const
+export type HTMLDocumentFieldMode = keyof typeof HTMLDocumentFieldModeToEnterprise
+export type HTMLDocumentFieldModeEnterprise = keyof typeof HTMLDocumentFieldModeFromEnterprise
 
 export const HorizontalAlignToEnterprise = {
   Auto: "Авто",
@@ -11274,21 +6822,8 @@ export const HorizontalAlignFromEnterprise = {
   Центр: "Center",
 } as const
 
-export const HorizontalAlign = {
-  Auto: "Auto",
-  Left: "Left",
-  Justify: "Justify",
-  Right: "Right",
-  Center: "Center",
-} as const
-
-export const HorizontalAlignEnterprise = {
-  Авто: "Авто",
-  Лево: "Лево",
-  ПоШирине: "ПоШирине",
-  Право: "Право",
-  Центр: "Центр",
-} as const
+export type HorizontalAlign = keyof typeof HorizontalAlignToEnterprise
+export type HorizontalAlignEnterprise = keyof typeof HorizontalAlignFromEnterprise
 
 export const IncompleteChoiceModeToEnterprise = {
   OnActivate: "ПриАктивизации",
@@ -11300,15 +6835,8 @@ export const IncompleteChoiceModeFromEnterprise = {
   ПриНажатииEnter: "OnEnterPressed",
 } as const
 
-export const IncompleteChoiceMode = {
-  OnActivate: "OnActivate",
-  OnEnterPressed: "OnEnterPressed",
-} as const
-
-export const IncompleteChoiceModeEnterprise = {
-  ПриАктивизации: "ПриАктивизации",
-  ПриНажатииEnter: "ПриНажатииEnter",
-} as const
+export type IncompleteChoiceMode = keyof typeof IncompleteChoiceModeToEnterprise
+export type IncompleteChoiceModeEnterprise = keyof typeof IncompleteChoiceModeFromEnterprise
 
 export const InitialListViewToEnterprise = {
   Auto: "Авто",
@@ -11322,17 +6850,8 @@ export const InitialListViewFromEnterprise = {
   Начало: "Beginning",
 } as const
 
-export const InitialListView = {
-  Auto: "Auto",
-  End: "End",
-  Beginning: "Beginning",
-} as const
-
-export const InitialListViewEnterprise = {
-  Авто: "Авто",
-  Конец: "Конец",
-  Начало: "Начало",
-} as const
+export type InitialListView = keyof typeof InitialListViewToEnterprise
+export type InitialListViewEnterprise = keyof typeof InitialListViewFromEnterprise
 
 export const InitialTreeViewToEnterprise = {
   NoExpand: "НеРаскрывать",
@@ -11346,17 +6865,8 @@ export const InitialTreeViewFromEnterprise = {
   РаскрыватьВсеУровни: "ExpandAllLevels",
 } as const
 
-export const InitialTreeView = {
-  NoExpand: "NoExpand",
-  ExpandTopLevel: "ExpandTopLevel",
-  ExpandAllLevels: "ExpandAllLevels",
-} as const
-
-export const InitialTreeViewEnterprise = {
-  НеРаскрывать: "НеРаскрывать",
-  РаскрыватьВерхнийУровень: "РаскрыватьВерхнийУровень",
-  РаскрыватьВсеУровни: "РаскрыватьВсеУровни",
-} as const
+export type InitialTreeView = keyof typeof InitialTreeViewToEnterprise
+export type InitialTreeViewEnterprise = keyof typeof InitialTreeViewFromEnterprise
 
 export const InputFieldAutofillHintToEnterprise = {
   Email: "Email",
@@ -11402,49 +6912,8 @@ export const InputFieldAutofillHintFromEnterprise = {
   Фамилия: "FamilyName",
 } as const
 
-export const InputFieldAutofillHint = {
-  Email: "Email",
-  City: "City",
-  GivenName: "GivenName",
-  UserName: "UserName",
-  PostalCode: "PostalCode",
-  DontUse: "DontUse",
-  NewPassword: "NewPassword",
-  CreditCardNumber: "CreditCardNumber",
-  PhoneNumber: "PhoneNumber",
-  OneTimeCode: "OneTimeCode",
-  MiddleName: "MiddleName",
-  Password: "Password",
-  FullName: "FullName",
-  NamePrefix: "NamePrefix",
-  Region: "Region",
-  Country: "Country",
-  NameSuffix: "NameSuffix",
-  Street: "Street",
-  FamilyName: "FamilyName",
-} as const
-
-export const InputFieldAutofillHintEnterprise = {
-  Email: "Email",
-  Город: "Город",
-  Имя: "Имя",
-  ИмяПользователя: "ИмяПользователя",
-  Индекс: "Индекс",
-  НеИспользовать: "НеИспользовать",
-  НовыйПароль: "НовыйПароль",
-  НомерБанковскойКарты: "НомерБанковскойКарты",
-  НомерТелефона: "НомерТелефона",
-  ОдноразовыйПароль: "ОдноразовыйПароль",
-  Отчество: "Отчество",
-  Пароль: "Пароль",
-  ПолноеИмя: "ПолноеИмя",
-  ПрефиксИмени: "ПрефиксИмени",
-  Регион: "Регион",
-  Страна: "Страна",
-  СуффиксИмени: "СуффиксИмени",
-  Улица: "Улица",
-  Фамилия: "Фамилия",
-} as const
+export type InputFieldAutofillHint = keyof typeof InputFieldAutofillHintToEnterprise
+export type InputFieldAutofillHintEnterprise = keyof typeof InputFieldAutofillHintFromEnterprise
 
 export const InputFieldCommandSourceToEnterprise = {
   MultipleValue: "МножественноеЗначение",
@@ -11456,15 +6925,8 @@ export const InputFieldCommandSourceFromEnterprise = {
   ОбластьВвода: "InputArea",
 } as const
 
-export const InputFieldCommandSource = {
-  MultipleValue: "MultipleValue",
-  InputArea: "InputArea",
-} as const
-
-export const InputFieldCommandSourceEnterprise = {
-  МножественноеЗначение: "МножественноеЗначение",
-  ОбластьВвода: "ОбластьВвода",
-} as const
+export type InputFieldCommandSource = keyof typeof InputFieldCommandSourceToEnterprise
+export type InputFieldCommandSourceEnterprise = keyof typeof InputFieldCommandSourceFromEnterprise
 
 export const InputFieldMultipleValuePictureShapeToEnterprise = {
   Auto: "Авто",
@@ -11478,17 +6940,9 @@ export const InputFieldMultipleValuePictureShapeFromEnterprise = {
   Круг: "Circle",
 } as const
 
-export const InputFieldMultipleValuePictureShape = {
-  Auto: "Auto",
-  Rect: "Rect",
-  Circle: "Circle",
-} as const
-
-export const InputFieldMultipleValuePictureShapeEnterprise = {
-  Авто: "Авто",
-  Квадрат: "Квадрат",
-  Круг: "Круг",
-} as const
+export type InputFieldMultipleValuePictureShape = keyof typeof InputFieldMultipleValuePictureShapeToEnterprise
+export type InputFieldMultipleValuePictureShapeEnterprise =
+  keyof typeof InputFieldMultipleValuePictureShapeFromEnterprise
 
 export const InputFieldMultipleValuePictureSizeToEnterprise = {
   Auto: "Авто",
@@ -11504,19 +6958,8 @@ export const InputFieldMultipleValuePictureSizeFromEnterprise = {
   Средний: "Medium",
 } as const
 
-export const InputFieldMultipleValuePictureSize = {
-  Auto: "Auto",
-  Large: "Large",
-  Small: "Small",
-  Medium: "Medium",
-} as const
-
-export const InputFieldMultipleValuePictureSizeEnterprise = {
-  Авто: "Авто",
-  Крупный: "Крупный",
-  Маленький: "Маленький",
-  Средний: "Средний",
-} as const
+export type InputFieldMultipleValuePictureSize = keyof typeof InputFieldMultipleValuePictureSizeToEnterprise
+export type InputFieldMultipleValuePictureSizeEnterprise = keyof typeof InputFieldMultipleValuePictureSizeFromEnterprise
 
 export const InputFieldStandardCommandToEnterprise = {
   Paste: "Вставить",
@@ -11546,33 +6989,8 @@ export const InputFieldStandardCommandFromEnterprise = {
   Удалить: "Delete",
 } as const
 
-export const InputFieldStandardCommand = {
-  Paste: "Paste",
-  Choose: "Choose",
-  SelectAll: "SelectAll",
-  Cut: "Cut",
-  AddEmptyValue: "AddEmptyValue",
-  Copy: "Copy",
-  SearchEverywhere: "SearchEverywhere",
-  Open: "Open",
-  Clear: "Clear",
-  Create: "Create",
-  Delete: "Delete",
-} as const
-
-export const InputFieldStandardCommandEnterprise = {
-  Вставить: "Вставить",
-  Выбрать: "Выбрать",
-  ВыделитьВсе: "ВыделитьВсе",
-  Вырезать: "Вырезать",
-  ДобавитьПустоеЗначение: "ДобавитьПустоеЗначение",
-  Копировать: "Копировать",
-  НайтиВезде: "НайтиВезде",
-  Открыть: "Открыть",
-  Очистить: "Очистить",
-  Создать: "Создать",
-  Удалить: "Удалить",
-} as const
+export type InputFieldStandardCommand = keyof typeof InputFieldStandardCommandToEnterprise
+export type InputFieldStandardCommandEnterprise = keyof typeof InputFieldStandardCommandFromEnterprise
 
 export const ItemHeightControlVariantToEnterprise = {
   Auto: "Авто",
@@ -11586,17 +7004,8 @@ export const ItemHeightControlVariantFromEnterprise = {
   ПоСодержимому: "UseContentHeight",
 } as const
 
-export const ItemHeightControlVariant = {
-  Auto: "Auto",
-  UseHeightInFormRows: "UseHeightInFormRows",
-  UseContentHeight: "UseContentHeight",
-} as const
-
-export const ItemHeightControlVariantEnterprise = {
-  Авто: "Авто",
-  ВСтрокахФормы: "ВСтрокахФормы",
-  ПоСодержимому: "ПоСодержимому",
-} as const
+export type ItemHeightControlVariant = keyof typeof ItemHeightControlVariantToEnterprise
+export type ItemHeightControlVariantEnterprise = keyof typeof ItemHeightControlVariantFromEnterprise
 
 export const ItemHorizontalLocationToEnterprise = {
   Auto: "Авто",
@@ -11612,19 +7021,8 @@ export const ItemHorizontalLocationFromEnterprise = {
   Центр: "Center",
 } as const
 
-export const ItemHorizontalLocation = {
-  Auto: "Auto",
-  Left: "Left",
-  Right: "Right",
-  Center: "Center",
-} as const
-
-export const ItemHorizontalLocationEnterprise = {
-  Авто: "Авто",
-  Лево: "Лево",
-  Право: "Право",
-  Центр: "Центр",
-} as const
+export type ItemHorizontalLocation = keyof typeof ItemHorizontalLocationToEnterprise
+export type ItemHorizontalLocationEnterprise = keyof typeof ItemHorizontalLocationFromEnterprise
 
 export const ItemVerticalAlignToEnterprise = {
   Auto: "Авто",
@@ -11640,19 +7038,8 @@ export const ItemVerticalAlignFromEnterprise = {
   Центр: "Center",
 } as const
 
-export const ItemVerticalAlign = {
-  Auto: "Auto",
-  Top: "Top",
-  Bottom: "Bottom",
-  Center: "Center",
-} as const
-
-export const ItemVerticalAlignEnterprise = {
-  Авто: "Авто",
-  Верх: "Верх",
-  Низ: "Низ",
-  Центр: "Центр",
-} as const
+export type ItemVerticalAlign = keyof typeof ItemVerticalAlignToEnterprise
+export type ItemVerticalAlignEnterprise = keyof typeof ItemVerticalAlignFromEnterprise
 
 export const ItemsAndTitlesAlignVariantToEnterprise = {
   Auto: "Авто",
@@ -11672,23 +7059,8 @@ export const ItemsAndTitlesAlignVariantFromEnterprise = {
   ЭлементыПравоЗаголовкиПраво: "ItemsRightTitlesRight",
 } as const
 
-export const ItemsAndTitlesAlignVariant = {
-  Auto: "Auto",
-  None: "None",
-  ItemsLeftTitlesLeft: "ItemsLeftTitlesLeft",
-  ItemsLeftTitlesRight: "ItemsLeftTitlesRight",
-  ItemsRightTitlesLeft: "ItemsRightTitlesLeft",
-  ItemsRightTitlesRight: "ItemsRightTitlesRight",
-} as const
-
-export const ItemsAndTitlesAlignVariantEnterprise = {
-  Авто: "Авто",
-  Нет: "Нет",
-  ЭлементыЛевоЗаголовкиЛево: "ЭлементыЛевоЗаголовкиЛево",
-  ЭлементыЛевоЗаголовкиПраво: "ЭлементыЛевоЗаголовкиПраво",
-  ЭлементыПравоЗаголовкиЛево: "ЭлементыПравоЗаголовкиЛево",
-  ЭлементыПравоЗаголовкиПраво: "ЭлементыПравоЗаголовкиПраво",
-} as const
+export type ItemsAndTitlesAlignVariant = keyof typeof ItemsAndTitlesAlignVariantToEnterprise
+export type ItemsAndTitlesAlignVariantEnterprise = keyof typeof ItemsAndTitlesAlignVariantFromEnterprise
 
 export const LabelPictureLocationToEnterprise = {
   Top: "Верх",
@@ -11706,21 +7078,8 @@ export const LabelPictureLocationFromEnterprise = {
   Центр: "Center",
 } as const
 
-export const LabelPictureLocation = {
-  Top: "Top",
-  Left: "Left",
-  Bottom: "Bottom",
-  Right: "Right",
-  Center: "Center",
-} as const
-
-export const LabelPictureLocationEnterprise = {
-  Верх: "Верх",
-  Лево: "Лево",
-  Низ: "Низ",
-  Право: "Право",
-  Центр: "Центр",
-} as const
+export type LabelPictureLocation = keyof typeof LabelPictureLocationToEnterprise
+export type LabelPictureLocationEnterprise = keyof typeof LabelPictureLocationFromEnterprise
 
 export const LinkedValueChangeModeToEnterprise = {
   DontChange: "НеИзменять",
@@ -11732,15 +7091,8 @@ export const LinkedValueChangeModeFromEnterprise = {
   Очищать: "Clear",
 } as const
 
-export const LinkedValueChangeMode = {
-  DontChange: "DontChange",
-  Clear: "Clear",
-} as const
-
-export const LinkedValueChangeModeEnterprise = {
-  НеИзменять: "НеИзменять",
-  Очищать: "Очищать",
-} as const
+export type LinkedValueChangeMode = keyof typeof LinkedValueChangeModeToEnterprise
+export type LinkedValueChangeModeEnterprise = keyof typeof LinkedValueChangeModeFromEnterprise
 
 export const ListEditModeToEnterprise = {
   InDialog: "ВДиалоге",
@@ -11752,15 +7104,8 @@ export const ListEditModeFromEnterprise = {
   ВСписке: "InList",
 } as const
 
-export const ListEditMode = {
-  InDialog: "InDialog",
-  InList: "InList",
-} as const
-
-export const ListEditModeEnterprise = {
-  ВДиалоге: "ВДиалоге",
-  ВСписке: "ВСписке",
-} as const
+export type ListEditMode = keyof typeof ListEditModeToEnterprise
+export type ListEditModeEnterprise = keyof typeof ListEditModeFromEnterprise
 
 export const MainClientApplicationWindowModeToEnterprise = {
   EmbeddedWorkplace: "ВстроенноеРабочееМесто",
@@ -11778,21 +7123,8 @@ export const MainClientApplicationWindowModeFromEnterprise = {
   РабочееМесто: "Workplace",
 } as const
 
-export const MainClientApplicationWindowMode = {
-  EmbeddedWorkplace: "EmbeddedWorkplace",
-  Kiosk: "Kiosk",
-  Normal: "Normal",
-  FullscreenWorkplace: "FullscreenWorkplace",
-  Workplace: "Workplace",
-} as const
-
-export const MainClientApplicationWindowModeEnterprise = {
-  ВстроенноеРабочееМесто: "ВстроенноеРабочееМесто",
-  Киоск: "Киоск",
-  Обычный: "Обычный",
-  ПолноэкранноеРабочееМесто: "ПолноэкранноеРабочееМесто",
-  РабочееМесто: "РабочееМесто",
-} as const
+export type MainClientApplicationWindowMode = keyof typeof MainClientApplicationWindowModeToEnterprise
+export type MainClientApplicationWindowModeEnterprise = keyof typeof MainClientApplicationWindowModeFromEnterprise
 
 export const NewRowShowCheckVariantToEnterprise = {
   DontCheck: "НеПроверять",
@@ -11804,15 +7136,8 @@ export const NewRowShowCheckVariantFromEnterprise = {
   СообщатьОНесоответствииОтбору: "FilterMismatchMessage",
 } as const
 
-export const NewRowShowCheckVariant = {
-  DontCheck: "DontCheck",
-  FilterMismatchMessage: "FilterMismatchMessage",
-} as const
-
-export const NewRowShowCheckVariantEnterprise = {
-  НеПроверять: "НеПроверять",
-  СообщатьОНесоответствииОтбору: "СообщатьОНесоответствииОтбору",
-} as const
+export type NewRowShowCheckVariant = keyof typeof NewRowShowCheckVariantToEnterprise
+export type NewRowShowCheckVariantEnterprise = keyof typeof NewRowShowCheckVariantFromEnterprise
 
 export const OnScreenKeyboardReturnKeyTextToEnterprise = {
   Auto: "Авто",
@@ -11838,29 +7163,8 @@ export const OnScreenKeyboardReturnKeyTextFromEnterprise = {
   Продолжить: "Continue",
 } as const
 
-export const OnScreenKeyboardReturnKeyText = {
-  Auto: "Auto",
-  Return: "Return",
-  Done: "Done",
-  Next: "Next",
-  Search: "Search",
-  Send: "Send",
-  Go: "Go",
-  Join: "Join",
-  Continue: "Continue",
-} as const
-
-export const OnScreenKeyboardReturnKeyTextEnterprise = {
-  Авто: "Авто",
-  Ввод: "Ввод",
-  Готово: "Готово",
-  Далее: "Далее",
-  Найти: "Найти",
-  Отправить: "Отправить",
-  Перейти: "Перейти",
-  Подключиться: "Подключиться",
-  Продолжить: "Продолжить",
-} as const
+export type OnScreenKeyboardReturnKeyText = keyof typeof OnScreenKeyboardReturnKeyTextToEnterprise
+export type OnScreenKeyboardReturnKeyTextEnterprise = keyof typeof OnScreenKeyboardReturnKeyTextFromEnterprise
 
 export const OrientationToEnterprise = {
   Auto: "Авто",
@@ -11874,17 +7178,8 @@ export const OrientationFromEnterprise = {
   Горизонтально: "Horizontal",
 } as const
 
-export const Orientation = {
-  Auto: "Auto",
-  Vertical: "Vertical",
-  Horizontal: "Horizontal",
-} as const
-
-export const OrientationEnterprise = {
-  Авто: "Авто",
-  Вертикально: "Вертикально",
-  Горизонтально: "Горизонтально",
-} as const
+export type Orientation = keyof typeof OrientationToEnterprise
+export type OrientationEnterprise = keyof typeof OrientationFromEnterprise
 
 export const PanelPictureLocationToEnterprise = {
   Top: "Верх",
@@ -11902,21 +7197,8 @@ export const PanelPictureLocationFromEnterprise = {
   Центр: "Center",
 } as const
 
-export const PanelPictureLocation = {
-  Top: "Top",
-  Left: "Left",
-  Bottom: "Bottom",
-  Right: "Right",
-  Center: "Center",
-} as const
-
-export const PanelPictureLocationEnterprise = {
-  Верх: "Верх",
-  Лево: "Лево",
-  Низ: "Низ",
-  Право: "Право",
-  Центр: "Центр",
-} as const
+export type PanelPictureLocation = keyof typeof PanelPictureLocationToEnterprise
+export type PanelPictureLocationEnterprise = keyof typeof PanelPictureLocationFromEnterprise
 
 export const PictureFormatToEnterprise = {
   BMP: "BMP",
@@ -11944,31 +7226,8 @@ export const PictureFormatFromEnterprise = {
   НеизвестныйФормат: "UnknownFormat",
 } as const
 
-export const PictureFormat = {
-  BMP: "BMP",
-  EMF: "EMF",
-  GIF: "GIF",
-  Icon: "Icon",
-  JPEG: "JPEG",
-  PNG: "PNG",
-  SVG: "SVG",
-  TIFF: "TIFF",
-  WMF: "WMF",
-  UnknownFormat: "UnknownFormat",
-} as const
-
-export const PictureFormatEnterprise = {
-  BMP: "BMP",
-  EMF: "EMF",
-  GIF: "GIF",
-  Icon: "Icon",
-  JPEG: "JPEG",
-  PNG: "PNG",
-  SVG: "SVG",
-  TIFF: "TIFF",
-  WMF: "WMF",
-  НеизвестныйФормат: "НеизвестныйФормат",
-} as const
+export type PictureFormat = keyof typeof PictureFormatToEnterprise
+export type PictureFormatEnterprise = keyof typeof PictureFormatFromEnterprise
 
 export const PictureSizeToEnterprise = {
   AutoSize: "АвтоРазмер",
@@ -11992,27 +7251,8 @@ export const PictureSizeFromEnterprise = {
   Черепица: "Tile",
 } as const
 
-export const PictureSize = {
-  AutoSize: "AutoSize",
-  AutoSizeIgnoreScale: "AutoSizeIgnoreScale",
-  ByFontSize: "ByFontSize",
-  Proportionally: "Proportionally",
-  Stretch: "Stretch",
-  RealSize: "RealSize",
-  RealSizeIgnoreScale: "RealSizeIgnoreScale",
-  Tile: "Tile",
-} as const
-
-export const PictureSizeEnterprise = {
-  АвтоРазмер: "АвтоРазмер",
-  АвтоРазмерБезУчетаМасштаба: "АвтоРазмерБезУчетаМасштаба",
-  ПоРазмеруШрифта: "ПоРазмеруШрифта",
-  Пропорционально: "Пропорционально",
-  Растянуть: "Растянуть",
-  РеальныйРазмер: "РеальныйРазмер",
-  РеальныйРазмерБезУчетаМасштаба: "РеальныйРазмерБезУчетаМасштаба",
-  Черепица: "Черепица",
-} as const
+export type PictureSize = keyof typeof PictureSizeToEnterprise
+export type PictureSizeEnterprise = keyof typeof PictureSizeFromEnterprise
 
 export const PrintDialogUseModeToEnterprise = {
   Use: "Использовать",
@@ -12024,15 +7264,8 @@ export const PrintDialogUseModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const PrintDialogUseMode = {
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const PrintDialogUseModeEnterprise = {
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type PrintDialogUseMode = keyof typeof PrintDialogUseModeToEnterprise
+export type PrintDialogUseModeEnterprise = keyof typeof PrintDialogUseModeFromEnterprise
 
 export const ProgressBarSmoothingModeToEnterprise = {
   Smooth: "Плавный",
@@ -12046,17 +7279,8 @@ export const ProgressBarSmoothingModeFromEnterprise = {
   ПрерывистыйНаклонный: "BrokenTilt",
 } as const
 
-export const ProgressBarSmoothingMode = {
-  Smooth: "Smooth",
-  Broken: "Broken",
-  BrokenTilt: "BrokenTilt",
-} as const
-
-export const ProgressBarSmoothingModeEnterprise = {
-  Плавный: "Плавный",
-  Прерывистый: "Прерывистый",
-  ПрерывистыйНаклонный: "ПрерывистыйНаклонный",
-} as const
+export type ProgressBarSmoothingMode = keyof typeof ProgressBarSmoothingModeToEnterprise
+export type ProgressBarSmoothingModeEnterprise = keyof typeof ProgressBarSmoothingModeFromEnterprise
 
 export const RadioButtonTypeToEnterprise = {
   Auto: "Авто",
@@ -12070,17 +7294,8 @@ export const RadioButtonTypeFromEnterprise = {
   Тумблер: "Tumbler",
 } as const
 
-export const RadioButtonType = {
-  Auto: "Auto",
-  RadioButton: "RadioButton",
-  Tumbler: "Tumbler",
-} as const
-
-export const RadioButtonTypeEnterprise = {
-  Авто: "Авто",
-  Переключатель: "Переключатель",
-  Тумблер: "Тумблер",
-} as const
+export type RadioButtonType = keyof typeof RadioButtonTypeToEnterprise
+export type RadioButtonTypeEnterprise = keyof typeof RadioButtonTypeFromEnterprise
 
 export const RefreshRequestMethodToEnterprise = {
   None: "Нет",
@@ -12096,19 +7311,8 @@ export const RefreshRequestMethodFromEnterprise = {
   ПотянутьСнизу: "PullFromBottom",
 } as const
 
-export const RefreshRequestMethod = {
-  None: "None",
-  PullFromTop: "PullFromTop",
-  PullFromTopOrBottom: "PullFromTopOrBottom",
-  PullFromBottom: "PullFromBottom",
-} as const
-
-export const RefreshRequestMethodEnterprise = {
-  Нет: "Нет",
-  ПотянутьСверху: "ПотянутьСверху",
-  ПотянутьСверхуИлиСнизу: "ПотянутьСверхуИлиСнизу",
-  ПотянутьСнизу: "ПотянутьСнизу",
-} as const
+export type RefreshRequestMethod = keyof typeof RefreshRequestMethodToEnterprise
+export type RefreshRequestMethodEnterprise = keyof typeof RefreshRequestMethodFromEnterprise
 
 export const ReportFormTypeToEnterprise = {
   Variant: "Вариант",
@@ -12122,17 +7326,8 @@ export const ReportFormTypeFromEnterprise = {
   Основная: "Main",
 } as const
 
-export const ReportFormType = {
-  Variant: "Variant",
-  Settings: "Settings",
-  Main: "Main",
-} as const
-
-export const ReportFormTypeEnterprise = {
-  Вариант: "Вариант",
-  Настройка: "Настройка",
-  Основная: "Основная",
-} as const
+export type ReportFormType = keyof typeof ReportFormTypeToEnterprise
+export type ReportFormTypeEnterprise = keyof typeof ReportFormTypeFromEnterprise
 
 export const ReportResultViewModeToEnterprise = {
   Auto: "Авто",
@@ -12146,17 +7341,8 @@ export const ReportResultViewModeFromEnterprise = {
   Обычный: "Default",
 } as const
 
-export const ReportResultViewMode = {
-  Auto: "Auto",
-  Compact: "Compact",
-  Default: "Default",
-} as const
-
-export const ReportResultViewModeEnterprise = {
-  Авто: "Авто",
-  Компактный: "Компактный",
-  Обычный: "Обычный",
-} as const
+export type ReportResultViewMode = keyof typeof ReportResultViewModeToEnterprise
+export type ReportResultViewModeEnterprise = keyof typeof ReportResultViewModeFromEnterprise
 
 export const SaveFormDataInSettingsToEnterprise = {
   UseList: "ИспользоватьСписок",
@@ -12168,15 +7354,8 @@ export const SaveFormDataInSettingsFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const SaveFormDataInSettings = {
-  UseList: "UseList",
-  DontUse: "DontUse",
-} as const
-
-export const SaveFormDataInSettingsEnterprise = {
-  ИспользоватьСписок: "ИспользоватьСписок",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type SaveFormDataInSettings = keyof typeof SaveFormDataInSettingsToEnterprise
+export type SaveFormDataInSettingsEnterprise = keyof typeof SaveFormDataInSettingsFromEnterprise
 
 export const ScrollBarUseToEnterprise = {
   AutoUse: "ИспользоватьАвтоматически",
@@ -12190,17 +7369,8 @@ export const ScrollBarUseFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const ScrollBarUse = {
-  AutoUse: "AutoUse",
-  UseAlways: "UseAlways",
-  DontUse: "DontUse",
-} as const
-
-export const ScrollBarUseEnterprise = {
-  ИспользоватьАвтоматически: "ИспользоватьАвтоматически",
-  ИспользоватьВсегда: "ИспользоватьВсегда",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type ScrollBarUse = keyof typeof ScrollBarUseToEnterprise
+export type ScrollBarUseEnterprise = keyof typeof ScrollBarUseFromEnterprise
 
 export const ScrollingTextModeToEnterprise = {
   Fast: "Быстро",
@@ -12220,23 +7390,8 @@ export const ScrollingTextModeFromEnterprise = {
   ОченьМедленно: "VerySlow",
 } as const
 
-export const ScrollingTextMode = {
-  Fast: "Fast",
-  Slow: "Slow",
-  DontUse: "DontUse",
-  Normal: "Normal",
-  VeryFast: "VeryFast",
-  VerySlow: "VerySlow",
-} as const
-
-export const ScrollingTextModeEnterprise = {
-  Быстро: "Быстро",
-  Медленно: "Медленно",
-  НеИспользовать: "НеИспользовать",
-  Нормально: "Нормально",
-  ОченьБыстро: "ОченьБыстро",
-  ОченьМедленно: "ОченьМедленно",
-} as const
+export type ScrollingTextMode = keyof typeof ScrollingTextModeToEnterprise
+export type ScrollingTextModeEnterprise = keyof typeof ScrollingTextModeFromEnterprise
 
 export const SearchControlLocationToEnterprise = {
   Auto: "Авто",
@@ -12250,17 +7405,8 @@ export const SearchControlLocationFromEnterprise = {
   Нет: "None",
 } as const
 
-export const SearchControlLocation = {
-  Auto: "Auto",
-  CommandBar: "CommandBar",
-  None: "None",
-} as const
-
-export const SearchControlLocationEnterprise = {
-  Авто: "Авто",
-  КоманднаяПанель: "КоманднаяПанель",
-  Нет: "Нет",
-} as const
+export type SearchControlLocation = keyof typeof SearchControlLocationToEnterprise
+export type SearchControlLocationEnterprise = keyof typeof SearchControlLocationFromEnterprise
 
 export const SearchInTableOnInputToEnterprise = {
   Auto: "Авто",
@@ -12274,17 +7420,8 @@ export const SearchInTableOnInputFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const SearchInTableOnInput = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const SearchInTableOnInputEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type SearchInTableOnInput = keyof typeof SearchInTableOnInputToEnterprise
+export type SearchInTableOnInputEnterprise = keyof typeof SearchInTableOnInputFromEnterprise
 
 export const SearchStringLocationToEnterprise = {
   Auto: "Авто",
@@ -12306,25 +7443,8 @@ export const SearchStringLocationFromEnterprise = {
   Нет: "None",
 } as const
 
-export const SearchStringLocation = {
-  Auto: "Auto",
-  Top: "Top",
-  FormCaption: "FormCaption",
-  CommandBar: "CommandBar",
-  Bottom: "Bottom",
-  PullFromTop: "PullFromTop",
-  None: "None",
-} as const
-
-export const SearchStringLocationEnterprise = {
-  Авто: "Авто",
-  Верх: "Верх",
-  ЗаголовокФормы: "ЗаголовокФормы",
-  КоманднаяПанель: "КоманднаяПанель",
-  Низ: "Низ",
-  ПотянутьСверху: "ПотянутьСверху",
-  Нет: "Нет",
-} as const
+export type SearchStringLocation = keyof typeof SearchStringLocationToEnterprise
+export type SearchStringLocationEnterprise = keyof typeof SearchStringLocationFromEnterprise
 
 export const SelectionShowModeToEnterprise = {
   Always: "Всегда",
@@ -12342,21 +7462,8 @@ export const SelectionShowModeFromEnterprise = {
   ПриВыделенииНесколькихЯчеекПриАктивности: "WhenMultipleCellsSelectedWhenActive",
 } as const
 
-export const SelectionShowMode = {
-  Always: "Always",
-  DontShow: "DontShow",
-  WhenActive: "WhenActive",
-  WhenMultipleCellsSelected: "WhenMultipleCellsSelected",
-  WhenMultipleCellsSelectedWhenActive: "WhenMultipleCellsSelectedWhenActive",
-} as const
-
-export const SelectionShowModeEnterprise = {
-  Всегда: "Всегда",
-  НеОтображать: "НеОтображать",
-  ПриАктивности: "ПриАктивности",
-  ПриВыделенииНесколькихЯчеек: "ПриВыделенииНесколькихЯчеек",
-  ПриВыделенииНесколькихЯчеекПриАктивности: "ПриВыделенииНесколькихЯчеекПриАктивности",
-} as const
+export type SelectionShowMode = keyof typeof SelectionShowModeToEnterprise
+export type SelectionShowModeEnterprise = keyof typeof SelectionShowModeFromEnterprise
 
 export const ShowTabsToEnterprise = {
   DontUse: "НеИспользовать",
@@ -12390,37 +7497,8 @@ export const ShowTabsFromEnterprise = {
   СправаГоризонтально: "RightHorizontal",
 } as const
 
-export const ShowTabs = {
-  DontUse: "DontUse",
-  Top: "Top",
-  TopMultiLine: "TopMultiLine",
-  TopMultilineTransposition: "TopMultilineTransposition",
-  TopScrolling: "TopScrolling",
-  LeftVertical: "LeftVertical",
-  LeftHorizontal: "LeftHorizontal",
-  Bottom: "Bottom",
-  BottomMultiLine: "BottomMultiLine",
-  BottomMultilineTransposition: "BottomMultilineTransposition",
-  BottomScrolling: "BottomScrolling",
-  RightVertical: "RightVertical",
-  RightHorizontal: "RightHorizontal",
-} as const
-
-export const ShowTabsEnterprise = {
-  НеИспользовать: "НеИспользовать",
-  Сверху: "Сверху",
-  СверхуМногострочный: "СверхуМногострочный",
-  СверхуМногострочныйСПерестановкой: "СверхуМногострочныйСПерестановкой",
-  СверхуСПрокруткой: "СверхуСПрокруткой",
-  СлеваВертикально: "СлеваВертикально",
-  СлеваГоризонтально: "СлеваГоризонтально",
-  Снизу: "Снизу",
-  СнизуМногострочный: "СнизуМногострочный",
-  СнизуМногострочныйСПерестановкой: "СнизуМногострочныйСПерестановкой",
-  СнизуСПрокруткой: "СнизуСПрокруткой",
-  СправаВертикально: "СправаВертикально",
-  СправаГоризонтально: "СправаГоризонтально",
-} as const
+export type ShowTabs = keyof typeof ShowTabsToEnterprise
+export type ShowTabsEnterprise = keyof typeof ShowTabsFromEnterprise
 
 export const SizeChangeModeToEnterprise = {
   QuickChange: "БыстроеИзменение",
@@ -12432,15 +7510,8 @@ export const SizeChangeModeFromEnterprise = {
   Обычный: "Normal",
 } as const
 
-export const SizeChangeMode = {
-  QuickChange: "QuickChange",
-  Normal: "Normal",
-} as const
-
-export const SizeChangeModeEnterprise = {
-  БыстроеИзменение: "БыстроеИзменение",
-  Обычный: "Обычный",
-} as const
+export type SizeChangeMode = keyof typeof SizeChangeModeToEnterprise
+export type SizeChangeModeEnterprise = keyof typeof SizeChangeModeFromEnterprise
 
 export const SpecialTextInputModeToEnterprise = {
   Email: "Email",
@@ -12462,25 +7533,8 @@ export const SpecialTextInputModeFromEnterprise = {
   ЦифрыИПунктуация: "DigitsAndPunctuation",
 } as const
 
-export const SpecialTextInputMode = {
-  Email: "Email",
-  URL: "URL",
-  Auto: "Auto",
-  None: "None",
-  PhoneNumber: "PhoneNumber",
-  Digits: "Digits",
-  DigitsAndPunctuation: "DigitsAndPunctuation",
-} as const
-
-export const SpecialTextInputModeEnterprise = {
-  Email: "Email",
-  URL: "URL",
-  Авто: "Авто",
-  Нет: "Нет",
-  НомерТелефона: "НомерТелефона",
-  Цифры: "Цифры",
-  ЦифрыИПунктуация: "ЦифрыИПунктуация",
-} as const
+export type SpecialTextInputMode = keyof typeof SpecialTextInputModeToEnterprise
+export type SpecialTextInputModeEnterprise = keyof typeof SpecialTextInputModeFromEnterprise
 
 export const SpellCheckingOnTextInputToEnterprise = {
   Auto: "Авто",
@@ -12494,17 +7548,8 @@ export const SpellCheckingOnTextInputFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const SpellCheckingOnTextInput = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const SpellCheckingOnTextInputEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type SpellCheckingOnTextInput = keyof typeof SpellCheckingOnTextInputToEnterprise
+export type SpellCheckingOnTextInputEnterprise = keyof typeof SpellCheckingOnTextInputFromEnterprise
 
 export const StandardAppearanceToEnterprise = {
   Orange: "Апельсин",
@@ -12556,55 +7601,8 @@ export const StandardAppearanceFromEnterprise = {
   Трава: "Grass",
 } as const
 
-export const StandardAppearance = {
-  Orange: "Orange",
-  Asphalt: "Asphalt",
-  None: "None",
-  Turquoise: "Turquoise",
-  Bronze: "Bronze",
-  Spring: "Spring",
-  Wood: "Wood",
-  Winter: "Winter",
-  Interface: "Interface",
-  Stone: "Stone",
-  Classic: "Classic",
-  Classic2: "Classic2",
-  Classic3: "Classic3",
-  Ice: "Ice",
-  Summer: "Summer",
-  Copper: "Copper",
-  Autumn: "Autumn",
-  Sand: "Sand",
-  Platinum: "Platinum",
-  Silver: "Silver",
-  Textile: "Textile",
-  Grass: "Grass",
-} as const
-
-export const StandardAppearanceEnterprise = {
-  Апельсин: "Апельсин",
-  Асфальт: "Асфальт",
-  БезОформления: "БезОформления",
-  Бирюза: "Бирюза",
-  Бронза: "Бронза",
-  Весна: "Весна",
-  Дерево: "Дерево",
-  Зима: "Зима",
-  Интерфейс: "Интерфейс",
-  Камень: "Камень",
-  Классика: "Классика",
-  Классика2: "Классика2",
-  Классика3: "Классика3",
-  Лед: "Лед",
-  Лето: "Лето",
-  Медь: "Медь",
-  Осень: "Осень",
-  Песок: "Песок",
-  Платина: "Платина",
-  Серебро: "Серебро",
-  Текстиль: "Текстиль",
-  Трава: "Трава",
-} as const
+export type StandardAppearance = keyof typeof StandardAppearanceToEnterprise
+export type StandardAppearanceEnterprise = keyof typeof StandardAppearanceFromEnterprise
 
 export const StandardCommandsGroupToEnterprise = {
   FormCommandBarImportant: "КоманднаяПанельФормыВажное",
@@ -12634,33 +7632,8 @@ export const StandardCommandsGroupFromEnterprise = {
   ПанельНавигацииФормыСмТакже: "FormNavigationPanelSeeAlso",
 } as const
 
-export const StandardCommandsGroup = {
-  FormCommandBarImportant: "FormCommandBarImportant",
-  FormCommandBarCreateBasedOn: "FormCommandBarCreateBasedOn",
-  ActionsPanelReports: "ActionsPanelReports",
-  ActionsPanelTools: "ActionsPanelTools",
-  ActionsPanelCreate: "ActionsPanelCreate",
-  NavigationPanelImportant: "NavigationPanelImportant",
-  NavigationPanelOrdinary: "NavigationPanelOrdinary",
-  NavigationPanelSeeAlso: "NavigationPanelSeeAlso",
-  FormNavigationPanelImportant: "FormNavigationPanelImportant",
-  FormNavigationPanelGoTo: "FormNavigationPanelGoTo",
-  FormNavigationPanelSeeAlso: "FormNavigationPanelSeeAlso",
-} as const
-
-export const StandardCommandsGroupEnterprise = {
-  КоманднаяПанельФормыВажное: "КоманднаяПанельФормыВажное",
-  КоманднаяПанельФормыСоздатьНаОсновании: "КоманднаяПанельФормыСоздатьНаОсновании",
-  ПанельДействийОтчеты: "ПанельДействийОтчеты",
-  ПанельДействийСервис: "ПанельДействийСервис",
-  ПанельДействийСоздать: "ПанельДействийСоздать",
-  ПанельНавигацииВажное: "ПанельНавигацииВажное",
-  ПанельНавигацииОбычное: "ПанельНавигацииОбычное",
-  ПанельНавигацииСмТакже: "ПанельНавигацииСмТакже",
-  ПанельНавигацииФормыВажное: "ПанельНавигацииФормыВажное",
-  ПанельНавигацииФормыПерейти: "ПанельНавигацииФормыПерейти",
-  ПанельНавигацииФормыСмТакже: "ПанельНавигацииФормыСмТакже",
-} as const
+export type StandardCommandsGroup = keyof typeof StandardCommandsGroupToEnterprise
+export type StandardCommandsGroupEnterprise = keyof typeof StandardCommandsGroupFromEnterprise
 
 export const TableBehaviorOnHorizontalCompressionToEnterprise = {
   Auto: "Авто",
@@ -12674,17 +7647,9 @@ export const TableBehaviorOnHorizontalCompressionFromEnterprise = {
   СкрыватьЭлементыПоВажности: "HideItemsByImportance",
 } as const
 
-export const TableBehaviorOnHorizontalCompression = {
-  Auto: "Auto",
-  MoveItemsByImportance: "MoveItemsByImportance",
-  HideItemsByImportance: "HideItemsByImportance",
-} as const
-
-export const TableBehaviorOnHorizontalCompressionEnterprise = {
-  Авто: "Авто",
-  ПереноситьЭлементыПоВажности: "ПереноситьЭлементыПоВажности",
-  СкрыватьЭлементыПоВажности: "СкрыватьЭлементыПоВажности",
-} as const
+export type TableBehaviorOnHorizontalCompression = keyof typeof TableBehaviorOnHorizontalCompressionToEnterprise
+export type TableBehaviorOnHorizontalCompressionEnterprise =
+  keyof typeof TableBehaviorOnHorizontalCompressionFromEnterprise
 
 export const TableBoxRowInputModeToEnterprise = {
   EndOfWindow: "ВКонецОкна",
@@ -12700,19 +7665,8 @@ export const TableBoxRowInputModeFromEnterprise = {
   ПослеТекущейСтроки: "AfterCurrentRow",
 } as const
 
-export const TableBoxRowInputMode = {
-  EndOfWindow: "EndOfWindow",
-  EndOfList: "EndOfList",
-  BeforeCurrentRow: "BeforeCurrentRow",
-  AfterCurrentRow: "AfterCurrentRow",
-} as const
-
-export const TableBoxRowInputModeEnterprise = {
-  ВКонецОкна: "ВКонецОкна",
-  ВКонецСписка: "ВКонецСписка",
-  ПередТекущейСтрокой: "ПередТекущейСтрокой",
-  ПослеТекущейСтроки: "ПослеТекущейСтроки",
-} as const
+export type TableBoxRowInputMode = keyof typeof TableBoxRowInputModeToEnterprise
+export type TableBoxRowInputModeEnterprise = keyof typeof TableBoxRowInputModeFromEnterprise
 
 export const TableBoxRowSelectionModeToEnterprise = {
   Row: "Строка",
@@ -12724,15 +7678,8 @@ export const TableBoxRowSelectionModeFromEnterprise = {
   Ячейка: "Cell",
 } as const
 
-export const TableBoxRowSelectionMode = {
-  Row: "Row",
-  Cell: "Cell",
-} as const
-
-export const TableBoxRowSelectionModeEnterprise = {
-  Строка: "Строка",
-  Ячейка: "Ячейка",
-} as const
+export type TableBoxRowSelectionMode = keyof typeof TableBoxRowSelectionModeToEnterprise
+export type TableBoxRowSelectionModeEnterprise = keyof typeof TableBoxRowSelectionModeFromEnterprise
 
 export const TableBoxSelectionModeToEnterprise = {
   MultiLine: "Множественный",
@@ -12744,15 +7691,8 @@ export const TableBoxSelectionModeFromEnterprise = {
   Одиночный: "SingleLine",
 } as const
 
-export const TableBoxSelectionMode = {
-  MultiLine: "MultiLine",
-  SingleLine: "SingleLine",
-} as const
-
-export const TableBoxSelectionModeEnterprise = {
-  Множественный: "Множественный",
-  Одиночный: "Одиночный",
-} as const
+export type TableBoxSelectionMode = keyof typeof TableBoxSelectionModeToEnterprise
+export type TableBoxSelectionModeEnterprise = keyof typeof TableBoxSelectionModeFromEnterprise
 
 export const TableCurrentRowUseToEnterprise = {
   Auto: "Авто",
@@ -12768,19 +7708,8 @@ export const TableCurrentRowUseFromEnterprise = {
   ОтображениеВыделенияИВыбор: "SelectionPresentationAndChoice",
 } as const
 
-export const TableCurrentRowUse = {
-  Auto: "Auto",
-  Choice: "Choice",
-  SelectionPresentation: "SelectionPresentation",
-  SelectionPresentationAndChoice: "SelectionPresentationAndChoice",
-} as const
-
-export const TableCurrentRowUseEnterprise = {
-  Авто: "Авто",
-  Выбор: "Выбор",
-  ОтображениеВыделения: "ОтображениеВыделения",
-  ОтображениеВыделенияИВыбор: "ОтображениеВыделенияИВыбор",
-} as const
+export type TableCurrentRowUse = keyof typeof TableCurrentRowUseToEnterprise
+export type TableCurrentRowUseEnterprise = keyof typeof TableCurrentRowUseFromEnterprise
 
 export const TableHeightControlVariantToEnterprise = {
   Auto: "Авто",
@@ -12796,19 +7725,8 @@ export const TableHeightControlVariantFromEnterprise = {
   ПоСодержимому: "UseContentHeight",
 } as const
 
-export const TableHeightControlVariant = {
-  Auto: "Auto",
-  UseHeightInTableRows: "UseHeightInTableRows",
-  UseHeightInFormRows: "UseHeightInFormRows",
-  UseContentHeight: "UseContentHeight",
-} as const
-
-export const TableHeightControlVariantEnterprise = {
-  Авто: "Авто",
-  ВСтрокахТаблицы: "ВСтрокахТаблицы",
-  ВСтрокахФормы: "ВСтрокахФормы",
-  ПоСодержимому: "ПоСодержимому",
-} as const
+export type TableHeightControlVariant = keyof typeof TableHeightControlVariantToEnterprise
+export type TableHeightControlVariantEnterprise = keyof typeof TableHeightControlVariantFromEnterprise
 
 export const TableRepresentationToEnterprise = {
   Tree: "Дерево",
@@ -12822,17 +7740,8 @@ export const TableRepresentationFromEnterprise = {
   Список: "List",
 } as const
 
-export const TableRepresentation = {
-  Tree: "Tree",
-  HierarchicalList: "HierarchicalList",
-  List: "List",
-} as const
-
-export const TableRepresentationEnterprise = {
-  Дерево: "Дерево",
-  ИерархическийСписок: "ИерархическийСписок",
-  Список: "Список",
-} as const
+export type TableRepresentation = keyof typeof TableRepresentationToEnterprise
+export type TableRepresentationEnterprise = keyof typeof TableRepresentationFromEnterprise
 
 export const TableRowInputModeToEnterprise = {
   EndOfWindow: "ВКонецОкна",
@@ -12848,19 +7757,8 @@ export const TableRowInputModeFromEnterprise = {
   ПослеТекущейСтроки: "AfterCurrentRow",
 } as const
 
-export const TableRowInputMode = {
-  EndOfWindow: "EndOfWindow",
-  EndOfList: "EndOfList",
-  BeforeCurrentRow: "BeforeCurrentRow",
-  AfterCurrentRow: "AfterCurrentRow",
-} as const
-
-export const TableRowInputModeEnterprise = {
-  ВКонецОкна: "ВКонецОкна",
-  ВКонецСписка: "ВКонецСписка",
-  ПередТекущейСтрокой: "ПередТекущейСтрокой",
-  ПослеТекущейСтроки: "ПослеТекущейСтроки",
-} as const
+export type TableRowInputMode = keyof typeof TableRowInputModeToEnterprise
+export type TableRowInputModeEnterprise = keyof typeof TableRowInputModeFromEnterprise
 
 export const TableRowSelectionModeToEnterprise = {
   Row: "Строка",
@@ -12872,15 +7770,8 @@ export const TableRowSelectionModeFromEnterprise = {
   Ячейка: "Cell",
 } as const
 
-export const TableRowSelectionMode = {
-  Row: "Row",
-  Cell: "Cell",
-} as const
-
-export const TableRowSelectionModeEnterprise = {
-  Строка: "Строка",
-  Ячейка: "Ячейка",
-} as const
+export type TableRowSelectionMode = keyof typeof TableRowSelectionModeToEnterprise
+export type TableRowSelectionModeEnterprise = keyof typeof TableRowSelectionModeFromEnterprise
 
 export const TableSelectionModeToEnterprise = {
   MultiRow: "Множественный",
@@ -12892,15 +7783,8 @@ export const TableSelectionModeFromEnterprise = {
   Одиночный: "SingleRow",
 } as const
 
-export const TableSelectionMode = {
-  MultiRow: "MultiRow",
-  SingleRow: "SingleRow",
-} as const
-
-export const TableSelectionModeEnterprise = {
-  Множественный: "Множественный",
-  Одиночный: "Одиночный",
-} as const
+export type TableSelectionMode = keyof typeof TableSelectionModeToEnterprise
+export type TableSelectionModeEnterprise = keyof typeof TableSelectionModeFromEnterprise
 
 export const TaskListModeToEnterprise = {
   AllTasks: "ВсеЗадачи",
@@ -12912,15 +7796,8 @@ export const TaskListModeFromEnterprise = {
   ПоИсполнителю: "ByPerformer",
 } as const
 
-export const TaskListMode = {
-  AllTasks: "AllTasks",
-  ByPerformer: "ByPerformer",
-} as const
-
-export const TaskListModeEnterprise = {
-  ВсеЗадачи: "ВсеЗадачи",
-  ПоИсполнителю: "ПоИсполнителю",
-} as const
+export type TaskListMode = keyof typeof TaskListModeToEnterprise
+export type TaskListModeEnterprise = keyof typeof TaskListModeFromEnterprise
 
 export const TextDirectionToEnterprise = {
   LeftToRight: "СлеваНаправо",
@@ -12932,15 +7809,8 @@ export const TextDirectionFromEnterprise = {
   СправаНалево: "RightToLeft",
 } as const
 
-export const TextDirection = {
-  LeftToRight: "LeftToRight",
-  RightToLeft: "RightToLeft",
-} as const
-
-export const TextDirectionEnterprise = {
-  СлеваНаправо: "СлеваНаправо",
-  СправаНалево: "СправаНалево",
-} as const
+export type TextDirection = keyof typeof TextDirectionToEnterprise
+export type TextDirectionEnterprise = keyof typeof TextDirectionFromEnterprise
 
 export const ThroughAlignToEnterprise = {
   Auto: "Авто",
@@ -12954,17 +7824,8 @@ export const ThroughAlignFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const ThroughAlign = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const ThroughAlignEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type ThroughAlign = keyof typeof ThroughAlignToEnterprise
+export type ThroughAlignEnterprise = keyof typeof ThroughAlignFromEnterprise
 
 export const TimeScalePositionToEnterprise = {
   Top: "Верх",
@@ -12980,19 +7841,8 @@ export const TimeScalePositionFromEnterprise = {
   Право: "Right",
 } as const
 
-export const TimeScalePosition = {
-  Top: "Top",
-  Left: "Left",
-  Bottom: "Bottom",
-  Right: "Right",
-} as const
-
-export const TimeScalePositionEnterprise = {
-  Верх: "Верх",
-  Лево: "Лево",
-  Низ: "Низ",
-  Право: "Право",
-} as const
+export type TimeScalePosition = keyof typeof TimeScalePositionToEnterprise
+export type TimeScalePositionEnterprise = keyof typeof TimeScalePositionFromEnterprise
 
 export const TitleLocationToEnterprise = {
   TitleLeft: "ЗаголовокСлева",
@@ -13004,15 +7854,8 @@ export const TitleLocationFromEnterprise = {
   ЗаголовокСправа: "TitleRight",
 } as const
 
-export const TitleLocation = {
-  TitleLeft: "TitleLeft",
-  TitleRight: "TitleRight",
-} as const
-
-export const TitleLocationEnterprise = {
-  ЗаголовокСлева: "ЗаголовокСлева",
-  ЗаголовокСправа: "ЗаголовокСправа",
-} as const
+export type TitleLocation = keyof typeof TitleLocationToEnterprise
+export type TitleLocationEnterprise = keyof typeof TitleLocationFromEnterprise
 
 export const ToolTipRepresentationToEnterprise = {
   Auto: "Авто",
@@ -13038,29 +7881,8 @@ export const ToolTipRepresentationFromEnterprise = {
   ОтображатьСправа: "ShowRight",
 } as const
 
-export const ToolTipRepresentation = {
-  Auto: "Auto",
-  Balloon: "Balloon",
-  Button: "Button",
-  None: "None",
-  ShowAuto: "ShowAuto",
-  ShowTop: "ShowTop",
-  ShowLeft: "ShowLeft",
-  ShowBottom: "ShowBottom",
-  ShowRight: "ShowRight",
-} as const
-
-export const ToolTipRepresentationEnterprise = {
-  Авто: "Авто",
-  Всплывающая: "Всплывающая",
-  Кнопка: "Кнопка",
-  Нет: "Нет",
-  ОтображатьАвто: "ОтображатьАвто",
-  ОтображатьСверху: "ОтображатьСверху",
-  ОтображатьСлева: "ОтображатьСлева",
-  ОтображатьСнизу: "ОтображатьСнизу",
-  ОтображатьСправа: "ОтображатьСправа",
-} as const
+export type ToolTipRepresentation = keyof typeof ToolTipRepresentationToEnterprise
+export type ToolTipRepresentationEnterprise = keyof typeof ToolTipRepresentationFromEnterprise
 
 export const TrackBarMarkingAppearanceToEnterprise = {
   DontShow: "НеОтображать",
@@ -13076,19 +7898,8 @@ export const TrackBarMarkingAppearanceFromEnterprise = {
   СОбоихСторон: "BothSides",
 } as const
 
-export const TrackBarMarkingAppearance = {
-  DontShow: "DontShow",
-  TopLeft: "TopLeft",
-  BottomRight: "BottomRight",
-  BothSides: "BothSides",
-} as const
-
-export const TrackBarMarkingAppearanceEnterprise = {
-  НеОтображать: "НеОтображать",
-  СверхуИлиСлева: "СверхуИлиСлева",
-  СнизуИлиСправа: "СнизуИлиСправа",
-  СОбоихСторон: "СОбоихСторон",
-} as const
+export type TrackBarMarkingAppearance = keyof typeof TrackBarMarkingAppearanceToEnterprise
+export type TrackBarMarkingAppearanceEnterprise = keyof typeof TrackBarMarkingAppearanceFromEnterprise
 
 export const UseMenuModeToEnterprise = {
   Use: "Использовать",
@@ -13102,17 +7913,8 @@ export const UseMenuModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const UseMenuMode = {
-  Use: "Use",
-  UseExtra: "UseExtra",
-  DontUse: "DontUse",
-} as const
-
-export const UseMenuModeEnterprise = {
-  Использовать: "Использовать",
-  ИспользоватьДополнительно: "ИспользоватьДополнительно",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type UseMenuMode = keyof typeof UseMenuModeToEnterprise
+export type UseMenuModeEnterprise = keyof typeof UseMenuModeFromEnterprise
 
 export const UseOutputToEnterprise = {
   Auto: "Авто",
@@ -13126,17 +7928,8 @@ export const UseOutputFromEnterprise = {
   Разрешить: "Enable",
 } as const
 
-export const UseOutput = {
-  Auto: "Auto",
-  Disable: "Disable",
-  Enable: "Enable",
-} as const
-
-export const UseOutputEnterprise = {
-  Авто: "Авто",
-  Запретить: "Запретить",
-  Разрешить: "Разрешить",
-} as const
+export type UseOutput = keyof typeof UseOutputToEnterprise
+export type UseOutputEnterprise = keyof typeof UseOutputFromEnterprise
 
 export const UserNotificationStatusToEnterprise = {
   Important: "Важное",
@@ -13148,15 +7941,8 @@ export const UserNotificationStatusFromEnterprise = {
   Информация: "Information",
 } as const
 
-export const UserNotificationStatus = {
-  Important: "Important",
-  Information: "Information",
-} as const
-
-export const UserNotificationStatusEnterprise = {
-  Важное: "Важное",
-  Информация: "Информация",
-} as const
+export type UserNotificationStatus = keyof typeof UserNotificationStatusToEnterprise
+export type UserNotificationStatusEnterprise = keyof typeof UserNotificationStatusFromEnterprise
 
 export const UsualGroupBehaviorToEnterprise = {
   Auto: "Авто",
@@ -13172,19 +7958,8 @@ export const UsualGroupBehaviorFromEnterprise = {
   Свертываемая: "Collapsible",
 } as const
 
-export const UsualGroupBehavior = {
-  Auto: "Auto",
-  PopUp: "PopUp",
-  Usual: "Usual",
-  Collapsible: "Collapsible",
-} as const
-
-export const UsualGroupBehaviorEnterprise = {
-  Авто: "Авто",
-  Всплывающая: "Всплывающая",
-  Обычное: "Обычное",
-  Свертываемая: "Свертываемая",
-} as const
+export type UsualGroupBehavior = keyof typeof UsualGroupBehaviorToEnterprise
+export type UsualGroupBehaviorEnterprise = keyof typeof UsualGroupBehaviorFromEnterprise
 
 export const UsualGroupControlRepresentationToEnterprise = {
   TitleHyperlink: "ГиперссылкаЗаголовка",
@@ -13196,15 +7971,8 @@ export const UsualGroupControlRepresentationFromEnterprise = {
   Картинка: "Picture",
 } as const
 
-export const UsualGroupControlRepresentation = {
-  TitleHyperlink: "TitleHyperlink",
-  Picture: "Picture",
-} as const
-
-export const UsualGroupControlRepresentationEnterprise = {
-  ГиперссылкаЗаголовка: "ГиперссылкаЗаголовка",
-  Картинка: "Картинка",
-} as const
+export type UsualGroupControlRepresentation = keyof typeof UsualGroupControlRepresentationToEnterprise
+export type UsualGroupControlRepresentationEnterprise = keyof typeof UsualGroupControlRepresentationFromEnterprise
 
 export const UsualGroupRepresentationToEnterprise = {
   None: "Нет",
@@ -13220,19 +7988,8 @@ export const UsualGroupRepresentationFromEnterprise = {
   СлабоеВыделение: "WeakSeparation",
 } as const
 
-export const UsualGroupRepresentation = {
-  None: "None",
-  NormalSeparation: "NormalSeparation",
-  StrongSeparation: "StrongSeparation",
-  WeakSeparation: "WeakSeparation",
-} as const
-
-export const UsualGroupRepresentationEnterprise = {
-  Нет: "Нет",
-  ОбычноеВыделение: "ОбычноеВыделение",
-  СильноеВыделение: "СильноеВыделение",
-  СлабоеВыделение: "СлабоеВыделение",
-} as const
+export type UsualGroupRepresentation = keyof typeof UsualGroupRepresentationToEnterprise
+export type UsualGroupRepresentationEnterprise = keyof typeof UsualGroupRepresentationFromEnterprise
 
 export const VerticalAlignToEnterprise = {
   Top: "Верх",
@@ -13246,17 +8003,8 @@ export const VerticalAlignFromEnterprise = {
   Центр: "Center",
 } as const
 
-export const VerticalAlign = {
-  Top: "Top",
-  Bottom: "Bottom",
-  Center: "Center",
-} as const
-
-export const VerticalAlignEnterprise = {
-  Верх: "Верх",
-  Низ: "Низ",
-  Центр: "Центр",
-} as const
+export type VerticalAlign = keyof typeof VerticalAlignToEnterprise
+export type VerticalAlignEnterprise = keyof typeof VerticalAlignFromEnterprise
 
 export const VerticalFormScrollToEnterprise = {
   Auto: "Авто",
@@ -13272,19 +8020,8 @@ export const VerticalFormScrollFromEnterprise = {
   ИспользоватьПриНеобходимости: "UseIfNecessary",
 } as const
 
-export const VerticalFormScroll = {
-  Auto: "Auto",
-  Use: "Use",
-  UseWithoutStretch: "UseWithoutStretch",
-  UseIfNecessary: "UseIfNecessary",
-} as const
-
-export const VerticalFormScrollEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  ИспользоватьБезРастягивания: "ИспользоватьБезРастягивания",
-  ИспользоватьПриНеобходимости: "ИспользоватьПриНеобходимости",
-} as const
+export type VerticalFormScroll = keyof typeof VerticalFormScrollToEnterprise
+export type VerticalFormScrollEnterprise = keyof typeof VerticalFormScrollFromEnterprise
 
 export const ViewModeApplicationOnSetReportResultToEnterprise = {
   Auto: "Авто",
@@ -13298,17 +8035,9 @@ export const ViewModeApplicationOnSetReportResultFromEnterprise = {
   Применять: "Apply",
 } as const
 
-export const ViewModeApplicationOnSetReportResult = {
-  Auto: "Auto",
-  DontApply: "DontApply",
-  Apply: "Apply",
-} as const
-
-export const ViewModeApplicationOnSetReportResultEnterprise = {
-  Авто: "Авто",
-  НеПрименять: "НеПрименять",
-  Применять: "Применять",
-} as const
+export type ViewModeApplicationOnSetReportResult = keyof typeof ViewModeApplicationOnSetReportResultToEnterprise
+export type ViewModeApplicationOnSetReportResultEnterprise =
+  keyof typeof ViewModeApplicationOnSetReportResultFromEnterprise
 
 export const ViewScalingModeToEnterprise = {
   Auto: "Авто",
@@ -13322,17 +8051,8 @@ export const ViewScalingModeFromEnterprise = {
   Обычный: "Normal",
 } as const
 
-export const ViewScalingMode = {
-  Auto: "Auto",
-  Large: "Large",
-  Normal: "Normal",
-} as const
-
-export const ViewScalingModeEnterprise = {
-  Авто: "Авто",
-  Крупный: "Крупный",
-  Обычный: "Обычный",
-} as const
+export type ViewScalingMode = keyof typeof ViewScalingModeToEnterprise
+export type ViewScalingModeEnterprise = keyof typeof ViewScalingModeFromEnterprise
 
 export const ViewStatusLocationToEnterprise = {
   Auto: "Авто",
@@ -13348,19 +8068,8 @@ export const ViewStatusLocationFromEnterprise = {
   Низ: "Bottom",
 } as const
 
-export const ViewStatusLocation = {
-  Auto: "Auto",
-  Top: "Top",
-  None: "None",
-  Bottom: "Bottom",
-} as const
-
-export const ViewStatusLocationEnterprise = {
-  Авто: "Авто",
-  Верх: "Верх",
-  Нет: "Нет",
-  Низ: "Низ",
-} as const
+export type ViewStatusLocation = keyof typeof ViewStatusLocationToEnterprise
+export type ViewStatusLocationEnterprise = keyof typeof ViewStatusLocationFromEnterprise
 
 export const WarningOnEditRepresentationToEnterprise = {
   Auto: "Авто",
@@ -13374,17 +8083,8 @@ export const WarningOnEditRepresentationFromEnterprise = {
   Отображать: "Show",
 } as const
 
-export const WarningOnEditRepresentation = {
-  Auto: "Auto",
-  DontShow: "DontShow",
-  Show: "Show",
-} as const
-
-export const WarningOnEditRepresentationEnterprise = {
-  Авто: "Авто",
-  НеОтображать: "НеОтображать",
-  Отображать: "Отображать",
-} as const
+export type WarningOnEditRepresentation = keyof typeof WarningOnEditRepresentationToEnterprise
+export type WarningOnEditRepresentationEnterprise = keyof typeof WarningOnEditRepresentationFromEnterprise
 
 export const WindowAppearanceModeChangeToEnterprise = {
   Auto: "Авто",
@@ -13398,17 +8098,8 @@ export const WindowAppearanceModeChangeFromEnterprise = {
   Разрешить: "Enable",
 } as const
 
-export const WindowAppearanceModeChange = {
-  Auto: "Auto",
-  Disable: "Disable",
-  Enable: "Enable",
-} as const
-
-export const WindowAppearanceModeChangeEnterprise = {
-  Авто: "Авто",
-  Запретить: "Запретить",
-  Разрешить: "Разрешить",
-} as const
+export type WindowAppearanceModeChange = keyof typeof WindowAppearanceModeChangeToEnterprise
+export type WindowAppearanceModeChangeEnterprise = keyof typeof WindowAppearanceModeChangeFromEnterprise
 
 export const WindowAppearanceModeVariantToEnterprise = {
   Maximized: "Максимизированное",
@@ -13422,17 +8113,8 @@ export const WindowAppearanceModeVariantFromEnterprise = {
   Нормальное: "Normal",
 } as const
 
-export const WindowAppearanceModeVariant = {
-  Maximized: "Maximized",
-  Minimized: "Minimized",
-  Normal: "Normal",
-} as const
-
-export const WindowAppearanceModeVariantEnterprise = {
-  Максимизированное: "Максимизированное",
-  Минимизированное: "Минимизированное",
-  Нормальное: "Нормальное",
-} as const
+export type WindowAppearanceModeVariant = keyof typeof WindowAppearanceModeVariantToEnterprise
+export type WindowAppearanceModeVariantEnterprise = keyof typeof WindowAppearanceModeVariantFromEnterprise
 
 export const WindowDockVariantToEnterprise = {
   Top: "Верх",
@@ -13448,19 +8130,8 @@ export const WindowDockVariantFromEnterprise = {
   Право: "Right",
 } as const
 
-export const WindowDockVariant = {
-  Top: "Top",
-  Left: "Left",
-  Bottom: "Bottom",
-  Right: "Right",
-} as const
-
-export const WindowDockVariantEnterprise = {
-  Верх: "Верх",
-  Лево: "Лево",
-  Низ: "Низ",
-  Право: "Право",
-} as const
+export type WindowDockVariant = keyof typeof WindowDockVariantToEnterprise
+export type WindowDockVariantEnterprise = keyof typeof WindowDockVariantFromEnterprise
 
 export const WindowLocationVariantToEnterprise = {
   Auto: "Авто",
@@ -13474,17 +8145,8 @@ export const WindowLocationVariantFromEnterprise = {
   Центрировать: "Center",
 } as const
 
-export const WindowLocationVariant = {
-  Auto: "Auto",
-  DontOverlapOwner: "DontOverlapOwner",
-  Center: "Center",
-} as const
-
-export const WindowLocationVariantEnterprise = {
-  Авто: "Авто",
-  НеПерекрыватьВладельца: "НеПерекрыватьВладельца",
-  Центрировать: "Центрировать",
-} as const
+export type WindowLocationVariant = keyof typeof WindowLocationVariantToEnterprise
+export type WindowLocationVariantEnterprise = keyof typeof WindowLocationVariantFromEnterprise
 
 export const WindowSizeChangeToEnterprise = {
   Change: "Изменять",
@@ -13496,15 +8158,8 @@ export const WindowSizeChangeFromEnterprise = {
   НеИзменять: "DontChange",
 } as const
 
-export const WindowSizeChange = {
-  Change: "Change",
-  DontChange: "DontChange",
-} as const
-
-export const WindowSizeChangeEnterprise = {
-  Изменять: "Изменять",
-  НеИзменять: "НеИзменять",
-} as const
+export type WindowSizeChange = keyof typeof WindowSizeChangeToEnterprise
+export type WindowSizeChangeEnterprise = keyof typeof WindowSizeChangeFromEnterprise
 
 export const WindowStateVariantToEnterprise = {
   Normal: "Обычное",
@@ -13520,19 +8175,8 @@ export const WindowStateVariantFromEnterprise = {
   Свободное: "Float",
 } as const
 
-export const WindowStateVariant = {
-  Normal: "Normal",
-  Docked: "Docked",
-  Autohide: "Autohide",
-  Float: "Float",
-} as const
-
-export const WindowStateVariantEnterprise = {
-  Обычное: "Обычное",
-  Прикрепленное: "Прикрепленное",
-  Прячущееся: "Прячущееся",
-  Свободное: "Свободное",
-} as const
+export type WindowStateVariant = keyof typeof WindowStateVariantToEnterprise
+export type WindowStateVariantEnterprise = keyof typeof WindowStateVariantFromEnterprise
 
 export const AutoSeriesSeparationToEnterprise = {
   All: "Все",
@@ -13548,19 +8192,8 @@ export const AutoSeriesSeparationFromEnterprise = {
   Нет: "None",
 } as const
 
-export const AutoSeriesSeparation = {
-  All: "All",
-  Maximum: "Maximum",
-  Minimum: "Minimum",
-  None: "None",
-} as const
-
-export const AutoSeriesSeparationEnterprise = {
-  Все: "Все",
-  Максимум: "Максимум",
-  Минимум: "Минимум",
-  Нет: "Нет",
-} as const
+export type AutoSeriesSeparation = keyof typeof AutoSeriesSeparationToEnterprise
+export type AutoSeriesSeparationEnterprise = keyof typeof AutoSeriesSeparationFromEnterprise
 
 export const BarChartPointsOrderToEnterprise = {
   Auto: "Авто",
@@ -13574,17 +8207,8 @@ export const BarChartPointsOrderFromEnterprise = {
   СнизуВверх: "BottomToTop",
 } as const
 
-export const BarChartPointsOrder = {
-  Auto: "Auto",
-  TopToBottom: "TopToBottom",
-  BottomToTop: "BottomToTop",
-} as const
-
-export const BarChartPointsOrderEnterprise = {
-  Авто: "Авто",
-  СверхуВниз: "СверхуВниз",
-  СнизуВверх: "СнизуВверх",
-} as const
+export type BarChartPointsOrder = keyof typeof BarChartPointsOrderToEnterprise
+export type BarChartPointsOrderEnterprise = keyof typeof BarChartPointsOrderFromEnterprise
 
 export const BubbleChartNegativeValuesShowModeToEnterprise = {
   InvertedBackColor: "ИнвертированныйЦветФона",
@@ -13600,19 +8224,8 @@ export const BubbleChartNegativeValuesShowModeFromEnterprise = {
   ПрозрачныйФон: "Transparent",
 } as const
 
-export const BubbleChartNegativeValuesShowMode = {
-  InvertedBackColor: "InvertedBackColor",
-  DontShow: "DontShow",
-  Abs: "Abs",
-  Transparent: "Transparent",
-} as const
-
-export const BubbleChartNegativeValuesShowModeEnterprise = {
-  ИнвертированныйЦветФона: "ИнвертированныйЦветФона",
-  НеОтображать: "НеОтображать",
-  ПоМодулю: "ПоМодулю",
-  ПрозрачныйФон: "ПрозрачныйФон",
-} as const
+export type BubbleChartNegativeValuesShowMode = keyof typeof BubbleChartNegativeValuesShowModeToEnterprise
+export type BubbleChartNegativeValuesShowModeEnterprise = keyof typeof BubbleChartNegativeValuesShowModeFromEnterprise
 
 export const ChartAnimationToEnterprise = {
   Auto: "Авто",
@@ -13626,17 +8239,8 @@ export const ChartAnimationFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const ChartAnimation = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const ChartAnimationEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type ChartAnimation = keyof typeof ChartAnimationToEnterprise
+export type ChartAnimationEnterprise = keyof typeof ChartAnimationFromEnterprise
 
 export const ChartBoundaryDetectionMethodToEnterprise = {
   AutoDetect: "АвтоОпределение",
@@ -13650,17 +8254,8 @@ export const ChartBoundaryDetectionMethodFromEnterprise = {
   ИспользоватьЗначениеСОграничением: "UseValueWithLimitations",
 } as const
 
-export const ChartBoundaryDetectionMethod = {
-  AutoDetect: "AutoDetect",
-  UseValue: "UseValue",
-  UseValueWithLimitations: "UseValueWithLimitations",
-} as const
-
-export const ChartBoundaryDetectionMethodEnterprise = {
-  АвтоОпределение: "АвтоОпределение",
-  ИспользоватьЗначение: "ИспользоватьЗначение",
-  ИспользоватьЗначениеСОграничением: "ИспользоватьЗначениеСОграничением",
-} as const
+export type ChartBoundaryDetectionMethod = keyof typeof ChartBoundaryDetectionMethodToEnterprise
+export type ChartBoundaryDetectionMethodEnterprise = keyof typeof ChartBoundaryDetectionMethodFromEnterprise
 
 export const ChartBubbleSizeValueSourceToEnterprise = {
   None: "Нет",
@@ -13674,17 +8269,8 @@ export const ChartBubbleSizeValueSourceFromEnterprise = {
   СледующаяСерия: "NextSeries",
 } as const
 
-export const ChartBubbleSizeValueSource = {
-  None: "None",
-  CommonSeries: "CommonSeries",
-  NextSeries: "NextSeries",
-} as const
-
-export const ChartBubbleSizeValueSourceEnterprise = {
-  Нет: "Нет",
-  ОбщаяСерия: "ОбщаяСерия",
-  СледующаяСерия: "СледующаяСерия",
-} as const
+export type ChartBubbleSizeValueSource = keyof typeof ChartBubbleSizeValueSourceToEnterprise
+export type ChartBubbleSizeValueSourceEnterprise = keyof typeof ChartBubbleSizeValueSourceFromEnterprise
 
 export const ChartBubbleSizingToEnterprise = {
   IncreaseDiameter: "УвеличениеДиаметра",
@@ -13700,19 +8286,8 @@ export const ChartBubbleSizingFromEnterprise = {
   УменьшениеПлощади: "DecreaseArea",
 } as const
 
-export const ChartBubbleSizing = {
-  IncreaseDiameter: "IncreaseDiameter",
-  IncreaseArea: "IncreaseArea",
-  DecreaseDiameter: "DecreaseDiameter",
-  DecreaseArea: "DecreaseArea",
-} as const
-
-export const ChartBubbleSizingEnterprise = {
-  УвеличениеДиаметра: "УвеличениеДиаметра",
-  УвеличениеПлощади: "УвеличениеПлощади",
-  УменьшениеДиаметра: "УменьшениеДиаметра",
-  УменьшениеПлощади: "УменьшениеПлощади",
-} as const
+export type ChartBubbleSizing = keyof typeof ChartBubbleSizingToEnterprise
+export type ChartBubbleSizingEnterprise = keyof typeof ChartBubbleSizingFromEnterprise
 
 export const ChartColorPaletteToEnterprise = {
   Auto: "Авто",
@@ -13752,43 +8327,8 @@ export const ChartColorPaletteFromEnterprise = {
   Яркая: "Bright",
 } as const
 
-export const ChartColorPalette = {
-  Auto: "Auto",
-  Gradient: "Gradient",
-  Yellow: "Yellow",
-  Green: "Green",
-  Soft: "Soft",
-  SoftAdaptive: "SoftAdaptive",
-  Orange: "Orange",
-  Palette32: "Palette32",
-  Palette8: "Palette8",
-  Pastel: "Pastel",
-  Custom: "Custom",
-  Gray: "Gray",
-  Blue: "Blue",
-  Warm: "Warm",
-  Cold: "Cold",
-  Bright: "Bright",
-} as const
-
-export const ChartColorPaletteEnterprise = {
-  Авто: "Авто",
-  Градиентная: "Градиентная",
-  Желтая: "Желтая",
-  Зеленая: "Зеленая",
-  Мягкая: "Мягкая",
-  МягкаяАдаптивная: "МягкаяАдаптивная",
-  Оранжевая: "Оранжевая",
-  Палитра32: "Палитра32",
-  Палитра8: "Палитра8",
-  Пастельная: "Пастельная",
-  Произвольная: "Произвольная",
-  Серая: "Серая",
-  Синяя: "Синяя",
-  Теплая: "Теплая",
-  Холодная: "Холодная",
-  Яркая: "Яркая",
-} as const
+export type ChartColorPalette = keyof typeof ChartColorPaletteToEnterprise
+export type ChartColorPaletteEnterprise = keyof typeof ChartColorPaletteFromEnterprise
 
 export const ChartGridLinesShowModeToEnterprise = {
   Auto: "Авто",
@@ -13802,17 +8342,8 @@ export const ChartGridLinesShowModeFromEnterprise = {
   Отображать: "Show",
 } as const
 
-export const ChartGridLinesShowMode = {
-  Auto: "Auto",
-  DontShow: "DontShow",
-  Show: "Show",
-} as const
-
-export const ChartGridLinesShowModeEnterprise = {
-  Авто: "Авто",
-  НеОтображать: "НеОтображать",
-  Отображать: "Отображать",
-} as const
+export type ChartGridLinesShowMode = keyof typeof ChartGridLinesShowModeToEnterprise
+export type ChartGridLinesShowModeEnterprise = keyof typeof ChartGridLinesShowModeFromEnterprise
 
 export const ChartLabelLocationToEnterprise = {
   Auto: "Авто",
@@ -13842,33 +8373,8 @@ export const ChartLabelLocationFromEnterprise = {
   Центр: "Center",
 } as const
 
-export const ChartLabelLocation = {
-  Auto: "Auto",
-  Edge: "Edge",
-  EdgeAuto: "EdgeAuto",
-  EdgeInside: "EdgeInside",
-  TopLeft: "TopLeft",
-  BottomLeft: "BottomLeft",
-  TopRight: "TopRight",
-  BottomRight: "BottomRight",
-  EmptySpace: "EmptySpace",
-  TopAndLeftSpecified: "TopAndLeftSpecified",
-  Center: "Center",
-} as const
-
-export const ChartLabelLocationEnterprise = {
-  Авто: "Авто",
-  Край: "Край",
-  КрайАвто: "КрайАвто",
-  КрайВнутри: "КрайВнутри",
-  ЛевоВерх: "ЛевоВерх",
-  ЛевоНиз: "ЛевоНиз",
-  ПравоВерх: "ПравоВерх",
-  ПравоНиз: "ПравоНиз",
-  СвободноеМесто: "СвободноеМесто",
-  УказываетсяЛевоИВерх: "УказываетсяЛевоИВерх",
-  Центр: "Центр",
-} as const
+export type ChartLabelLocation = keyof typeof ChartLabelLocationToEnterprise
+export type ChartLabelLocationEnterprise = keyof typeof ChartLabelLocationFromEnterprise
 
 export const ChartLabelTypeToEnterprise = {
   Value: "Значение",
@@ -13922,57 +8428,8 @@ export const ChartLabelTypeFromEnterprise = {
   ТочкаРазмер: "PointSize",
 } as const
 
-export const ChartLabelType = {
-  Value: "Value",
-  ValuePercent: "ValuePercent",
-  ValueSize: "ValueSize",
-  None: "None",
-  Percent: "Percent",
-  Series: "Series",
-  SeriesValue: "SeriesValue",
-  SeriesValuePercent: "SeriesValuePercent",
-  SeriesValueSize: "SeriesValueSize",
-  SeriesPercent: "SeriesPercent",
-  SeriesSize: "SeriesSize",
-  SeriesPoint: "SeriesPoint",
-  SeriesPointValue: "SeriesPointValue",
-  SeriesPointValuePercent: "SeriesPointValuePercent",
-  SeriesPointValueSize: "SeriesPointValueSize",
-  SeriesPointPercent: "SeriesPointPercent",
-  SeriesPointSize: "SeriesPointSize",
-  Point: "Point",
-  PointValue: "PointValue",
-  PointValuePercent: "PointValuePercent",
-  PointValueSize: "PointValueSize",
-  PointPercent: "PointPercent",
-  PointSize: "PointSize",
-} as const
-
-export const ChartLabelTypeEnterprise = {
-  Значение: "Значение",
-  ЗначениеПроцент: "ЗначениеПроцент",
-  ЗначениеРазмер: "ЗначениеРазмер",
-  Нет: "Нет",
-  Процент: "Процент",
-  Серия: "Серия",
-  СерияЗначение: "СерияЗначение",
-  СерияЗначениеПроцент: "СерияЗначениеПроцент",
-  СерияЗначениеРазмер: "СерияЗначениеРазмер",
-  СерияПроцент: "СерияПроцент",
-  СерияРазмер: "СерияРазмер",
-  СерияТочка: "СерияТочка",
-  СерияТочкаЗначение: "СерияТочкаЗначение",
-  СерияТочкаЗначениеПроцент: "СерияТочкаЗначениеПроцент",
-  СерияТочкаЗначениеРазмер: "СерияТочкаЗначениеРазмер",
-  СерияТочкаПроцент: "СерияТочкаПроцент",
-  СерияТочкаРазмер: "СерияТочкаРазмер",
-  Точка: "Точка",
-  ТочкаЗначение: "ТочкаЗначение",
-  ТочкаЗначениеПроцент: "ТочкаЗначениеПроцент",
-  ТочкаЗначениеРазмер: "ТочкаЗначениеРазмер",
-  ТочкаПроцент: "ТочкаПроцент",
-  ТочкаРазмер: "ТочкаРазмер",
-} as const
+export type ChartLabelType = keyof typeof ChartLabelTypeToEnterprise
+export type ChartLabelTypeEnterprise = keyof typeof ChartLabelTypeFromEnterprise
 
 export const ChartLabelsOrientationToEnterprise = {
   Auto: "Авто",
@@ -13988,19 +8445,8 @@ export const ChartLabelsOrientationFromEnterprise = {
   ПроизвольныйУголНаклона: "CustomAngle",
 } as const
 
-export const ChartLabelsOrientation = {
-  Auto: "Auto",
-  Vertical: "Vertical",
-  Horizontal: "Horizontal",
-  CustomAngle: "CustomAngle",
-} as const
-
-export const ChartLabelsOrientationEnterprise = {
-  Авто: "Авто",
-  Вертикально: "Вертикально",
-  Горизонтально: "Горизонтально",
-  ПроизвольныйУголНаклона: "ПроизвольныйУголНаклона",
-} as const
+export type ChartLabelsOrientation = keyof typeof ChartLabelsOrientationToEnterprise
+export type ChartLabelsOrientationEnterprise = keyof typeof ChartLabelsOrientationFromEnterprise
 
 export const ChartLegendPlacementToEnterprise = {
   Auto: "Авто",
@@ -14022,25 +8468,8 @@ export const ChartLegendPlacementFromEnterprise = {
   УказываетсяРасположение: "UseCoordinates",
 } as const
 
-export const ChartLegendPlacement = {
-  Auto: "Auto",
-  Top: "Top",
-  Left: "Left",
-  None: "None",
-  Bottom: "Bottom",
-  Right: "Right",
-  UseCoordinates: "UseCoordinates",
-} as const
-
-export const ChartLegendPlacementEnterprise = {
-  Авто: "Авто",
-  Верх: "Верх",
-  Лево: "Лево",
-  Нет: "Нет",
-  Низ: "Низ",
-  Право: "Право",
-  УказываетсяРасположение: "УказываетсяРасположение",
-} as const
+export type ChartLegendPlacement = keyof typeof ChartLegendPlacementToEnterprise
+export type ChartLegendPlacementEnterprise = keyof typeof ChartLegendPlacementFromEnterprise
 
 export const ChartLineTypeToEnterprise = {
   None: "НетЛинии",
@@ -14060,23 +8489,8 @@ export const ChartLineTypeFromEnterprise = {
   Точечная: "Dotted",
 } as const
 
-export const ChartLineType = {
-  None: "None",
-  Dashed: "Dashed",
-  DashDotted: "DashDotted",
-  DashDottedDotted: "DashDottedDotted",
-  Solid: "Solid",
-  Dotted: "Dotted",
-} as const
-
-export const ChartLineTypeEnterprise = {
-  НетЛинии: "НетЛинии",
-  Пунктир: "Пунктир",
-  ПунктирТочка: "ПунктирТочка",
-  ПунктирТочкаТочка: "ПунктирТочкаТочка",
-  Сплошная: "Сплошная",
-  Точечная: "Точечная",
-} as const
+export type ChartLineType = keyof typeof ChartLineTypeToEnterprise
+export type ChartLineTypeEnterprise = keyof typeof ChartLineTypeFromEnterprise
 
 export const ChartMarkerTypeToEnterprise = {
   Auto: "Авто",
@@ -14096,23 +8510,8 @@ export const ChartMarkerTypeFromEnterprise = {
   Чередование: "Alternation",
 } as const
 
-export const ChartMarkerType = {
-  Auto: "Auto",
-  Rect: "Rect",
-  Circle: "Circle",
-  None: "None",
-  Rhomb: "Rhomb",
-  Alternation: "Alternation",
-} as const
-
-export const ChartMarkerTypeEnterprise = {
-  Авто: "Авто",
-  Квадрат: "Квадрат",
-  Круг: "Круг",
-  Нет: "Нет",
-  Ромб: "Ромб",
-  Чередование: "Чередование",
-} as const
+export type ChartMarkerType = keyof typeof ChartMarkerTypeToEnterprise
+export type ChartMarkerTypeEnterprise = keyof typeof ChartMarkerTypeFromEnterprise
 
 export const ChartOrientationToEnterprise = {
   SouthEast: "ЮгВосток",
@@ -14124,15 +8523,8 @@ export const ChartOrientationFromEnterprise = {
   ЮгЗапад: "SouthWest",
 } as const
 
-export const ChartOrientation = {
-  SouthEast: "SouthEast",
-  SouthWest: "SouthWest",
-} as const
-
-export const ChartOrientationEnterprise = {
-  ЮгВосток: "ЮгВосток",
-  ЮгЗапад: "ЮгЗапад",
-} as const
+export type ChartOrientation = keyof typeof ChartOrientationToEnterprise
+export type ChartOrientationEnterprise = keyof typeof ChartOrientationFromEnterprise
 
 export const ChartPlotAreaPlacementToEnterprise = {
   Auto: "Авто",
@@ -14146,17 +8538,8 @@ export const ChartPlotAreaPlacementFromEnterprise = {
   УказываетсяРасположение: "UseCoordinates",
 } as const
 
-export const ChartPlotAreaPlacement = {
-  Auto: "Auto",
-  EmptySpace: "EmptySpace",
-  UseCoordinates: "UseCoordinates",
-} as const
-
-export const ChartPlotAreaPlacementEnterprise = {
-  Авто: "Авто",
-  СвободноеМесто: "СвободноеМесто",
-  УказываетсяРасположение: "УказываетсяРасположение",
-} as const
+export type ChartPlotAreaPlacement = keyof typeof ChartPlotAreaPlacementToEnterprise
+export type ChartPlotAreaPlacementEnterprise = keyof typeof ChartPlotAreaPlacementFromEnterprise
 
 export const ChartPointsAxisValuesSourceToEnterprise = {
   Auto: "Авто",
@@ -14170,17 +8553,8 @@ export const ChartPointsAxisValuesSourceFromEnterprise = {
   Точки: "Points",
 } as const
 
-export const ChartPointsAxisValuesSource = {
-  Auto: "Auto",
-  Series: "Series",
-  Points: "Points",
-} as const
-
-export const ChartPointsAxisValuesSourceEnterprise = {
-  Авто: "Авто",
-  Серия: "Серия",
-  Точки: "Точки",
-} as const
+export type ChartPointsAxisValuesSource = keyof typeof ChartPointsAxisValuesSourceToEnterprise
+export type ChartPointsAxisValuesSourceEnterprise = keyof typeof ChartPointsAxisValuesSourceFromEnterprise
 
 export const ChartPointsConnectionTypeToEnterprise = {
   Auto: "Авто",
@@ -14194,17 +8568,8 @@ export const ChartPointsConnectionTypeFromEnterprise = {
   Соединять: "Connect",
 } as const
 
-export const ChartPointsConnectionType = {
-  Auto: "Auto",
-  DontConnect: "DontConnect",
-  Connect: "Connect",
-} as const
-
-export const ChartPointsConnectionTypeEnterprise = {
-  Авто: "Авто",
-  НеСоединять: "НеСоединять",
-  Соединять: "Соединять",
-} as const
+export type ChartPointsConnectionType = keyof typeof ChartPointsConnectionTypeToEnterprise
+export type ChartPointsConnectionTypeEnterprise = keyof typeof ChartPointsConnectionTypeFromEnterprise
 
 export const ChartReferenceBandBorderPositionToEnterprise = {
   Auto: "Авто",
@@ -14218,17 +8583,8 @@ export const ChartReferenceBandBorderPositionFromEnterprise = {
   МеждуЗначениями: "BetweenValues",
 } as const
 
-export const ChartReferenceBandBorderPosition = {
-  Auto: "Auto",
-  OnValue: "OnValue",
-  BetweenValues: "BetweenValues",
-} as const
-
-export const ChartReferenceBandBorderPositionEnterprise = {
-  Авто: "Авто",
-  ВЗначении: "ВЗначении",
-  МеждуЗначениями: "МеждуЗначениями",
-} as const
+export type ChartReferenceBandBorderPosition = keyof typeof ChartReferenceBandBorderPositionToEnterprise
+export type ChartReferenceBandBorderPositionEnterprise = keyof typeof ChartReferenceBandBorderPositionFromEnterprise
 
 export const ChartReferenceLinePositionToEnterprise = {
   Auto: "Авто",
@@ -14242,17 +8598,8 @@ export const ChartReferenceLinePositionFromEnterprise = {
   МеждуЗначениями: "BetweenValues",
 } as const
 
-export const ChartReferenceLinePosition = {
-  Auto: "Auto",
-  OnValue: "OnValue",
-  BetweenValues: "BetweenValues",
-} as const
-
-export const ChartReferenceLinePositionEnterprise = {
-  Авто: "Авто",
-  ВЗначении: "ВЗначении",
-  МеждуЗначениями: "МеждуЗначениями",
-} as const
+export type ChartReferenceLinePosition = keyof typeof ChartReferenceLinePositionToEnterprise
+export type ChartReferenceLinePositionEnterprise = keyof typeof ChartReferenceLinePositionFromEnterprise
 
 export const ChartScaleLabelLocationToEnterprise = {
   Auto: "Авто",
@@ -14268,19 +8615,8 @@ export const ChartScaleLabelLocationFromEnterprise = {
   Снаружи: "Outside",
 } as const
 
-export const ChartScaleLabelLocation = {
-  Auto: "Auto",
-  Inside: "Inside",
-  None: "None",
-  Outside: "Outside",
-} as const
-
-export const ChartScaleLabelLocationEnterprise = {
-  Авто: "Авто",
-  Внутри: "Внутри",
-  Нет: "Нет",
-  Снаружи: "Снаружи",
-} as const
+export type ChartScaleLabelLocation = keyof typeof ChartScaleLabelLocationToEnterprise
+export type ChartScaleLabelLocationEnterprise = keyof typeof ChartScaleLabelLocationFromEnterprise
 
 export const ChartScaleLocationToEnterprise = {
   Auto: "Авто",
@@ -14294,17 +8630,8 @@ export const ChartScaleLocationFromEnterprise = {
   Край: "Edge",
 } as const
 
-export const ChartScaleLocation = {
-  Auto: "Auto",
-  BaseValue: "BaseValue",
-  Edge: "Edge",
-} as const
-
-export const ChartScaleLocationEnterprise = {
-  Авто: "Авто",
-  БазовоеЗначение: "БазовоеЗначение",
-  Край: "Край",
-} as const
+export type ChartScaleLocation = keyof typeof ChartScaleLocationToEnterprise
+export type ChartScaleLocationEnterprise = keyof typeof ChartScaleLocationFromEnterprise
 
 export const ChartScaleMarkLocationToEnterprise = {
   Auto: "Авто",
@@ -14322,21 +8649,8 @@ export const ChartScaleMarkLocationFromEnterprise = {
   Центр: "Center",
 } as const
 
-export const ChartScaleMarkLocation = {
-  Auto: "Auto",
-  Inside: "Inside",
-  None: "None",
-  Outside: "Outside",
-  Center: "Center",
-} as const
-
-export const ChartScaleMarkLocationEnterprise = {
-  Авто: "Авто",
-  Внутри: "Внутри",
-  Нет: "Нет",
-  Снаружи: "Снаружи",
-  Центр: "Центр",
-} as const
+export type ChartScaleMarkLocation = keyof typeof ChartScaleMarkLocationToEnterprise
+export type ChartScaleMarkLocationEnterprise = keyof typeof ChartScaleMarkLocationFromEnterprise
 
 export const ChartScaleTitlePlacementToEnterprise = {
   SpecialArea: "ВВыделеннойОбласти",
@@ -14350,17 +8664,8 @@ export const ChartScaleTitlePlacementFromEnterprise = {
   РядомСОсью: "WithAxis",
 } as const
 
-export const ChartScaleTitlePlacement = {
-  SpecialArea: "SpecialArea",
-  PlotArea: "PlotArea",
-  WithAxis: "WithAxis",
-} as const
-
-export const ChartScaleTitlePlacementEnterprise = {
-  ВВыделеннойОбласти: "ВВыделеннойОбласти",
-  ВОбластиПостроения: "ВОбластиПостроения",
-  РядомСОсью: "РядомСОсью",
-} as const
+export type ChartScaleTitlePlacement = keyof typeof ChartScaleTitlePlacementToEnterprise
+export type ChartScaleTitlePlacementEnterprise = keyof typeof ChartScaleTitlePlacementFromEnterprise
 
 export const ChartScaleTitleTextSourceToEnterprise = {
   Auto: "Авто",
@@ -14374,17 +8679,8 @@ export const ChartScaleTitleTextSourceFromEnterprise = {
   ИспользоватьТекст: "UseText",
 } as const
 
-export const ChartScaleTitleTextSource = {
-  Auto: "Auto",
-  AutoText: "AutoText",
-  UseText: "UseText",
-} as const
-
-export const ChartScaleTitleTextSourceEnterprise = {
-  Авто: "Авто",
-  АвтоТекст: "АвтоТекст",
-  ИспользоватьТекст: "ИспользоватьТекст",
-} as const
+export type ChartScaleTitleTextSource = keyof typeof ChartScaleTitleTextSourceToEnterprise
+export type ChartScaleTitleTextSourceEnterprise = keyof typeof ChartScaleTitleTextSourceFromEnterprise
 
 export const ChartSelectionModeToEnterprise = {
   Auto: "Авто",
@@ -14400,19 +8696,8 @@ export const ChartSelectionModeFromEnterprise = {
   Нет: "None",
 } as const
 
-export const ChartSelectionMode = {
-  Auto: "Auto",
-  ValuesSelection: "ValuesSelection",
-  PointsSelection: "PointsSelection",
-  None: "None",
-} as const
-
-export const ChartSelectionModeEnterprise = {
-  Авто: "Авто",
-  ВыделениеЗначений: "ВыделениеЗначений",
-  ВыделениеТочек: "ВыделениеТочек",
-  Нет: "Нет",
-} as const
+export type ChartSelectionMode = keyof typeof ChartSelectionModeToEnterprise
+export type ChartSelectionModeEnterprise = keyof typeof ChartSelectionModeFromEnterprise
 
 export const ChartSemitransparencyModeToEnterprise = {
   Auto: "Авто",
@@ -14428,19 +8713,8 @@ export const ChartSemitransparencyModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const ChartSemitransparencyMode = {
-  Auto: "Auto",
-  AutoCalculate: "AutoCalculate",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const ChartSemitransparencyModeEnterprise = {
-  Авто: "Авто",
-  АвтоматическийРасчет: "АвтоматическийРасчет",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type ChartSemitransparencyMode = keyof typeof ChartSemitransparencyModeToEnterprise
+export type ChartSemitransparencyModeEnterprise = keyof typeof ChartSemitransparencyModeFromEnterprise
 
 export const ChartSeriesGraphicalRepresentationTypeToEnterprise = {
   Auto: "Авто",
@@ -14460,23 +8734,9 @@ export const ChartSeriesGraphicalRepresentationTypeFromEnterprise = {
   ГрафикСОбластями: "Area",
 } as const
 
-export const ChartSeriesGraphicalRepresentationType = {
-  Auto: "Auto",
-  Column: "Column",
-  Column3D: "Column3D",
-  Line: "Line",
-  Step: "Step",
-  Area: "Area",
-} as const
-
-export const ChartSeriesGraphicalRepresentationTypeEnterprise = {
-  Авто: "Авто",
-  Гистограмма: "Гистограмма",
-  ГистограммаОбъемная: "ГистограммаОбъемная",
-  График: "График",
-  ГрафикПоШагам: "ГрафикПоШагам",
-  ГрафикСОбластями: "ГрафикСОбластями",
-} as const
+export type ChartSeriesGraphicalRepresentationType = keyof typeof ChartSeriesGraphicalRepresentationTypeToEnterprise
+export type ChartSeriesGraphicalRepresentationTypeEnterprise =
+  keyof typeof ChartSeriesGraphicalRepresentationTypeFromEnterprise
 
 export const ChartSeriesOrderInLegendToEnterprise = {
   Auto: "Авто",
@@ -14490,17 +8750,8 @@ export const ChartSeriesOrderInLegendFromEnterprise = {
   Прямой: "Direct",
 } as const
 
-export const ChartSeriesOrderInLegend = {
-  Auto: "Auto",
-  Reverse: "Reverse",
-  Direct: "Direct",
-} as const
-
-export const ChartSeriesOrderInLegendEnterprise = {
-  Авто: "Авто",
-  Обратный: "Обратный",
-  Прямой: "Прямой",
-} as const
+export type ChartSeriesOrderInLegend = keyof typeof ChartSeriesOrderInLegendToEnterprise
+export type ChartSeriesOrderInLegendEnterprise = keyof typeof ChartSeriesOrderInLegendFromEnterprise
 
 export const ChartSeriesStackTypeToEnterprise = {
   Auto: "Авто",
@@ -14516,19 +8767,8 @@ export const ChartSeriesStackTypeFromEnterprise = {
   СНакоплениемНормированная: "StackedNormalized",
 } as const
 
-export const ChartSeriesStackType = {
-  Auto: "Auto",
-  Unstacked: "Unstacked",
-  Stacked: "Stacked",
-  StackedNormalized: "StackedNormalized",
-} as const
-
-export const ChartSeriesStackTypeEnterprise = {
-  Авто: "Авто",
-  БезНакопления: "БезНакопления",
-  СНакоплением: "СНакоплением",
-  СНакоплениемНормированная: "СНакоплениемНормированная",
-} as const
+export type ChartSeriesStackType = keyof typeof ChartSeriesStackTypeToEnterprise
+export type ChartSeriesStackTypeEnterprise = keyof typeof ChartSeriesStackTypeFromEnterprise
 
 export const ChartSpaceModeToEnterprise = {
   None: "Нет",
@@ -14542,17 +8782,8 @@ export const ChartSpaceModeFromEnterprise = {
   ПоловинаШирины: "Half",
 } as const
 
-export const ChartSpaceMode = {
-  None: "None",
-  Full: "Full",
-  Half: "Half",
-} as const
-
-export const ChartSpaceModeEnterprise = {
-  Нет: "Нет",
-  ПолнаяШирина: "ПолнаяШирина",
-  ПоловинаШирины: "ПоловинаШирины",
-} as const
+export type ChartSpaceMode = keyof typeof ChartSpaceModeToEnterprise
+export type ChartSpaceModeEnterprise = keyof typeof ChartSpaceModeFromEnterprise
 
 export const ChartSplineModeToEnterprise = {
   SmoothCurve: "ГладкаяКривая",
@@ -14564,15 +8795,8 @@ export const ChartSplineModeFromEnterprise = {
   Нет: "None",
 } as const
 
-export const ChartSplineMode = {
-  SmoothCurve: "SmoothCurve",
-  None: "None",
-} as const
-
-export const ChartSplineModeEnterprise = {
-  ГладкаяКривая: "ГладкаяКривая",
-  Нет: "Нет",
-} as const
+export type ChartSplineMode = keyof typeof ChartSplineModeToEnterprise
+export type ChartSplineModeEnterprise = keyof typeof ChartSplineModeFromEnterprise
 
 export const ChartTitleAreaPlacementToEnterprise = {
   Auto: "Авто",
@@ -14598,29 +8822,8 @@ export const ChartTitleAreaPlacementFromEnterprise = {
   УказываетсяРасположение: "UseCoordinates",
 } as const
 
-export const ChartTitleAreaPlacement = {
-  Auto: "Auto",
-  Top: "Top",
-  LeftTop: "LeftTop",
-  LeftBottom: "LeftBottom",
-  None: "None",
-  Bottom: "Bottom",
-  RightTop: "RightTop",
-  RightBottom: "RightBottom",
-  UseCoordinates: "UseCoordinates",
-} as const
-
-export const ChartTitleAreaPlacementEnterprise = {
-  Авто: "Авто",
-  Верх: "Верх",
-  ЛевоВерх: "ЛевоВерх",
-  ЛевоНиз: "ЛевоНиз",
-  Нет: "Нет",
-  Низ: "Низ",
-  ПравоВерх: "ПравоВерх",
-  ПравоНиз: "ПравоНиз",
-  УказываетсяРасположение: "УказываетсяРасположение",
-} as const
+export type ChartTitleAreaPlacement = keyof typeof ChartTitleAreaPlacementToEnterprise
+export type ChartTitleAreaPlacementEnterprise = keyof typeof ChartTitleAreaPlacementFromEnterprise
 
 export const ChartTrendlineApproximationTypeToEnterprise = {
   Linear: "Линейный",
@@ -14638,21 +8841,8 @@ export const ChartTrendlineApproximationTypeFromEnterprise = {
   Экспоненциальный: "Exponential",
 } as const
 
-export const ChartTrendlineApproximationType = {
-  Linear: "Linear",
-  Logarithmic: "Logarithmic",
-  Polynomial: "Polynomial",
-  Power: "Power",
-  Exponential: "Exponential",
-} as const
-
-export const ChartTrendlineApproximationTypeEnterprise = {
-  Линейный: "Линейный",
-  Логарифмический: "Логарифмический",
-  Полиномиальный: "Полиномиальный",
-  Степенной: "Степенной",
-  Экспоненциальный: "Экспоненциальный",
-} as const
+export type ChartTrendlineApproximationType = keyof typeof ChartTrendlineApproximationTypeToEnterprise
+export type ChartTrendlineApproximationTypeEnterprise = keyof typeof ChartTrendlineApproximationTypeFromEnterprise
 
 export const ChartTrendlineFactorToEnterprise = {
   Auto: "Авто",
@@ -14666,17 +8856,8 @@ export const ChartTrendlineFactorFromEnterprise = {
   НомерТочки: "PointNumber",
 } as const
 
-export const ChartTrendlineFactor = {
-  Auto: "Auto",
-  PointValue: "PointValue",
-  PointNumber: "PointNumber",
-} as const
-
-export const ChartTrendlineFactorEnterprise = {
-  Авто: "Авто",
-  ЗначениеТочки: "ЗначениеТочки",
-  НомерТочки: "НомерТочки",
-} as const
+export type ChartTrendlineFactor = keyof typeof ChartTrendlineFactorToEnterprise
+export type ChartTrendlineFactorEnterprise = keyof typeof ChartTrendlineFactorFromEnterprise
 
 export const ChartTypeToEnterprise = {
   Stock: "Биржевая",
@@ -14778,105 +8959,8 @@ export const ChartTypeFromEnterprise = {
   Точечная: "Scatter",
 } as const
 
-export const ChartType = {
-  Stock: "Stock",
-  OpenHighLowClose: "OpenHighLowClose",
-  ConcaveSurface: "ConcaveSurface",
-  Waterfall: "Waterfall",
-  Funnel: "Funnel",
-  NormalizedFunnel: "NormalizedFunnel",
-  NormalizedFunnel3D: "NormalizedFunnel3D",
-  Funnel3D: "Funnel3D",
-  ConvexSurface: "ConvexSurface",
-  Column: "Column",
-  Bar: "Bar",
-  Bar3D: "Bar3D",
-  NormalizedColumn: "NormalizedColumn",
-  NormalizedBar: "NormalizedBar",
-  NormalizedBar3D: "NormalizedBar3D",
-  NormalizedColumn3D: "NormalizedColumn3D",
-  Column3D: "Column3D",
-  StackedColumn: "StackedColumn",
-  StackedBar: "StackedBar",
-  StackedBar3D: "StackedBar3D",
-  StackedColumn3D: "StackedColumn3D",
-  Line: "Line",
-  Step: "Step",
-  StackedLine: "StackedLine",
-  Area: "Area",
-  StackedArea: "StackedArea",
-  NormalizedArea: "NormalizedArea",
-  ShadedSurface: "ShadedSurface",
-  Gauge: "Gauge",
-  BarGraph: "BarGraph",
-  TapeGraph: "TapeGraph",
-  CeilGraph: "CeilGraph",
-  PyramidGraph: "PyramidGraph",
-  WireframeSurface: "WireframeSurface",
-  Donut: "Donut",
-  Donut3D: "Donut3D",
-  Pie: "Pie",
-  Pie3D: "Pie3D",
-  Surface: "Surface",
-  Bubble: "Bubble",
-  RadarLine: "RadarLine",
-  RadarStackedLine: "RadarStackedLine",
-  RadarArea: "RadarArea",
-  RadarStackedArea: "RadarStackedArea",
-  RadarNormalizedArea: "RadarNormalizedArea",
-  Honeycomb: "Honeycomb",
-  Scatter: "Scatter",
-} as const
-
-export const ChartTypeEnterprise = {
-  Биржевая: "Биржевая",
-  БиржеваяСвеча: "БиржеваяСвеча",
-  ВогнутаяПоверхность: "ВогнутаяПоверхность",
-  Водопад: "Водопад",
-  Воронка: "Воронка",
-  ВоронкаНормированная: "ВоронкаНормированная",
-  ВоронкаНормированнаяОбъемная: "ВоронкаНормированнаяОбъемная",
-  ВоронкаОбъемная: "ВоронкаОбъемная",
-  ВыпуклаяПоверхность: "ВыпуклаяПоверхность",
-  Гистограмма: "Гистограмма",
-  ГистограммаГоризонтальная: "ГистограммаГоризонтальная",
-  ГистограммаГоризонтальнаяОбъемная: "ГистограммаГоризонтальнаяОбъемная",
-  ГистограммаНормированная: "ГистограммаНормированная",
-  ГистограммаНормированнаяГоризонтальная: "ГистограммаНормированнаяГоризонтальная",
-  ГистограммаНормированнаяГоризонтальнаяОбъемная: "ГистограммаНормированнаяГоризонтальнаяОбъемная",
-  ГистограммаНормированнаяОбъемная: "ГистограммаНормированнаяОбъемная",
-  ГистограммаОбъемная: "ГистограммаОбъемная",
-  ГистограммаСНакоплением: "ГистограммаСНакоплением",
-  ГистограммаСНакоплениемГоризонтальная: "ГистограммаСНакоплениемГоризонтальная",
-  ГистограммаСНакоплениемГоризонтальнаяОбъемная: "ГистограммаСНакоплениемГоризонтальнаяОбъемная",
-  ГистограммаСНакоплениемОбъемная: "ГистограммаСНакоплениемОбъемная",
-  График: "График",
-  ГрафикПоШагам: "ГрафикПоШагам",
-  ГрафикСНакоплением: "ГрафикСНакоплением",
-  ГрафикСОбластями: "ГрафикСОбластями",
-  ГрафикСОбластямиИНакоплением: "ГрафикСОбластямиИНакоплением",
-  ГрафикСОбластямиНормированный: "ГрафикСОбластямиНормированный",
-  ЗатененнаяПоверхность: "ЗатененнаяПоверхность",
-  Измерительная: "Измерительная",
-  Изометрическая: "Изометрическая",
-  ИзометрическаяЛента: "ИзометрическаяЛента",
-  ИзометрическаяНепрерывная: "ИзометрическаяНепрерывная",
-  ИзометрическаяПирамида: "ИзометрическаяПирамида",
-  КаркаснаяПоверхность: "КаркаснаяПоверхность",
-  Кольцевая: "Кольцевая",
-  КольцеваяОбъемная: "КольцеваяОбъемная",
-  Круговая: "Круговая",
-  КруговаяОбъемная: "КруговаяОбъемная",
-  Поверхность: "Поверхность",
-  Пузырьковая: "Пузырьковая",
-  РадарныйГрафик: "РадарныйГрафик",
-  РадарныйГрафикСНакоплением: "РадарныйГрафикСНакоплением",
-  РадарныйГрафикСОбластями: "РадарныйГрафикСОбластями",
-  РадарныйГрафикСОбластямиИНакоплением: "РадарныйГрафикСОбластямиИНакоплением",
-  РадарныйГрафикСОбластямиНормированный: "РадарныйГрафикСОбластямиНормированный",
-  Сотовая: "Сотовая",
-  Точечная: "Точечная",
-} as const
+export type ChartType = keyof typeof ChartTypeToEnterprise
+export type ChartTypeEnterprise = keyof typeof ChartTypeFromEnterprise
 
 export const ChartValueEditStateToEnterprise = {
   Finished: "Завершено",
@@ -14890,17 +8974,8 @@ export const ChartValueEditStateFromEnterprise = {
   Отменено: "Canceled",
 } as const
 
-export const ChartValueEditState = {
-  Finished: "Finished",
-  NotFinished: "NotFinished",
-  Canceled: "Canceled",
-} as const
-
-export const ChartValueEditStateEnterprise = {
-  Завершено: "Завершено",
-  НеЗавершено: "НеЗавершено",
-  Отменено: "Отменено",
-} as const
+export type ChartValueEditState = keyof typeof ChartValueEditStateToEnterprise
+export type ChartValueEditStateEnterprise = keyof typeof ChartValueEditStateFromEnterprise
 
 export const ChartValuesBySeriesConnectionTypeToEnterprise = {
   None: "Нет",
@@ -14912,15 +8987,8 @@ export const ChartValuesBySeriesConnectionTypeFromEnterprise = {
   СоединениеКраев: "EdgesConnection",
 } as const
 
-export const ChartValuesBySeriesConnectionType = {
-  None: "None",
-  EdgesConnection: "EdgesConnection",
-} as const
-
-export const ChartValuesBySeriesConnectionTypeEnterprise = {
-  Нет: "Нет",
-  СоединениеКраев: "СоединениеКраев",
-} as const
+export type ChartValuesBySeriesConnectionType = keyof typeof ChartValuesBySeriesConnectionTypeToEnterprise
+export type ChartValuesBySeriesConnectionTypeEnterprise = keyof typeof ChartValuesBySeriesConnectionTypeFromEnterprise
 
 export const ChartValuesEditModeToEnterprise = {
   Auto: "Авто",
@@ -14934,17 +9002,8 @@ export const ChartValuesEditModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const ChartValuesEditMode = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const ChartValuesEditModeEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type ChartValuesEditMode = keyof typeof ChartValuesEditModeToEnterprise
+export type ChartValuesEditModeEnterprise = keyof typeof ChartValuesEditModeFromEnterprise
 
 export const ChartValuesToolTipFillTypeToEnterprise = {
   Auto: "Авто",
@@ -14958,17 +9017,8 @@ export const ChartValuesToolTipFillTypeFromEnterprise = {
   ОдноЗначение: "SingleValue",
 } as const
 
-export const ChartValuesToolTipFillType = {
-  Auto: "Auto",
-  AllPointValues: "AllPointValues",
-  SingleValue: "SingleValue",
-} as const
-
-export const ChartValuesToolTipFillTypeEnterprise = {
-  Авто: "Авто",
-  ВсеЗначенияТочки: "ВсеЗначенияТочки",
-  ОдноЗначение: "ОдноЗначение",
-} as const
+export type ChartValuesToolTipFillType = keyof typeof ChartValuesToolTipFillTypeToEnterprise
+export type ChartValuesToolTipFillTypeEnterprise = keyof typeof ChartValuesToolTipFillTypeFromEnterprise
 
 export const ChartValuesToolTipShowModeToEnterprise = {
   Auto: "Авто",
@@ -14984,19 +9034,8 @@ export const ChartValuesToolTipShowModeFromEnterprise = {
   ОтображатьПриНаведении: "ShowOnHover",
 } as const
 
-export const ChartValuesToolTipShowMode = {
-  Auto: "Auto",
-  DontShow: "DontShow",
-  ShowForNearestValue: "ShowForNearestValue",
-  ShowOnHover: "ShowOnHover",
-} as const
-
-export const ChartValuesToolTipShowModeEnterprise = {
-  Авто: "Авто",
-  НеОтображать: "НеОтображать",
-  ОтображатьДляБлижайшего: "ОтображатьДляБлижайшего",
-  ОтображатьПриНаведении: "ОтображатьПриНаведении",
-} as const
+export type ChartValuesToolTipShowMode = keyof typeof ChartValuesToolTipShowModeToEnterprise
+export type ChartValuesToolTipShowModeEnterprise = keyof typeof ChartValuesToolTipShowModeFromEnterprise
 
 export const GaugeChartValueRepresentationToEnterprise = {
   Sector: "Сектор",
@@ -15008,15 +9047,8 @@ export const GaugeChartValueRepresentationFromEnterprise = {
   Стрелка: "Needle",
 } as const
 
-export const GaugeChartValueRepresentation = {
-  Sector: "Sector",
-  Needle: "Needle",
-} as const
-
-export const GaugeChartValueRepresentationEnterprise = {
-  Сектор: "Сектор",
-  Стрелка: "Стрелка",
-} as const
+export type GaugeChartValueRepresentation = keyof typeof GaugeChartValueRepresentationToEnterprise
+export type GaugeChartValueRepresentationEnterprise = keyof typeof GaugeChartValueRepresentationFromEnterprise
 
 export const GaugeChartValuesScaleLabelsLocationToEnterprise = {
   InsideScale: "ВнутриШкалы",
@@ -15028,15 +9060,9 @@ export const GaugeChartValuesScaleLabelsLocationFromEnterprise = {
   НаШкале: "AtScale",
 } as const
 
-export const GaugeChartValuesScaleLabelsLocation = {
-  InsideScale: "InsideScale",
-  AtScale: "AtScale",
-} as const
-
-export const GaugeChartValuesScaleLabelsLocationEnterprise = {
-  ВнутриШкалы: "ВнутриШкалы",
-  НаШкале: "НаШкале",
-} as const
+export type GaugeChartValuesScaleLabelsLocation = keyof typeof GaugeChartValuesScaleLabelsLocationToEnterprise
+export type GaugeChartValuesScaleLabelsLocationEnterprise =
+  keyof typeof GaugeChartValuesScaleLabelsLocationFromEnterprise
 
 export const MaxSeriesToEnterprise = {
   NotDefined: "НеЗадано",
@@ -15050,17 +9076,8 @@ export const MaxSeriesFromEnterprise = {
   Процент: "Percent",
 } as const
 
-export const MaxSeries = {
-  NotDefined: "NotDefined",
-  Limited: "Limited",
-  Percent: "Percent",
-} as const
-
-export const MaxSeriesEnterprise = {
-  НеЗадано: "НеЗадано",
-  Ограничено: "Ограничено",
-  Процент: "Процент",
-} as const
+export type MaxSeries = keyof typeof MaxSeriesToEnterprise
+export type MaxSeriesEnterprise = keyof typeof MaxSeriesFromEnterprise
 
 export const NonnumericChartValueUseToEnterprise = {
   Auto: "Авто",
@@ -15074,17 +9091,8 @@ export const NonnumericChartValueUseFromEnterprise = {
   Пропускать: "Skip",
 } as const
 
-export const NonnumericChartValueUse = {
-  Auto: "Auto",
-  AsZero: "AsZero",
-  Skip: "Skip",
-} as const
-
-export const NonnumericChartValueUseEnterprise = {
-  Авто: "Авто",
-  КакНоль: "КакНоль",
-  Пропускать: "Пропускать",
-} as const
+export type NonnumericChartValueUse = keyof typeof NonnumericChartValueUseToEnterprise
+export type NonnumericChartValueUseEnterprise = keyof typeof NonnumericChartValueUseFromEnterprise
 
 export const PointsConnectionAcrossSkippedChartValuesTypeToEnterprise = {
   Auto: "Авто",
@@ -15100,19 +9108,10 @@ export const PointsConnectionAcrossSkippedChartValuesTypeFromEnterprise = {
   СоединениеСБазовымЗначением: "ConnectWithBaseValue",
 } as const
 
-export const PointsConnectionAcrossSkippedChartValuesType = {
-  Auto: "Auto",
-  None: "None",
-  ConnectUnskippedValues: "ConnectUnskippedValues",
-  ConnectWithBaseValue: "ConnectWithBaseValue",
-} as const
-
-export const PointsConnectionAcrossSkippedChartValuesTypeEnterprise = {
-  Авто: "Авто",
-  Нет: "Нет",
-  СоединениеНеПропущенных: "СоединениеНеПропущенных",
-  СоединениеСБазовымЗначением: "СоединениеСБазовымЗначением",
-} as const
+export type PointsConnectionAcrossSkippedChartValuesType =
+  keyof typeof PointsConnectionAcrossSkippedChartValuesTypeToEnterprise
+export type PointsConnectionAcrossSkippedChartValuesTypeEnterprise =
+  keyof typeof PointsConnectionAcrossSkippedChartValuesTypeFromEnterprise
 
 export const RadarChartScaleTypeToEnterprise = {
   Circle: "Окружность",
@@ -15124,15 +9123,8 @@ export const RadarChartScaleTypeFromEnterprise = {
   Полигон: "Polygon",
 } as const
 
-export const RadarChartScaleType = {
-  Circle: "Circle",
-  Polygon: "Polygon",
-} as const
-
-export const RadarChartScaleTypeEnterprise = {
-  Окружность: "Окружность",
-  Полигон: "Полигон",
-} as const
+export type RadarChartScaleType = keyof typeof RadarChartScaleTypeToEnterprise
+export type RadarChartScaleTypeEnterprise = keyof typeof RadarChartScaleTypeFromEnterprise
 
 export const ShowChartPopupReferenceLineToEnterprise = {
   Auto: "Авто",
@@ -15146,17 +9138,8 @@ export const ShowChartPopupReferenceLineFromEnterprise = {
   Отображать: "Show",
 } as const
 
-export const ShowChartPopupReferenceLine = {
-  Auto: "Auto",
-  DontShow: "DontShow",
-  Show: "Show",
-} as const
-
-export const ShowChartPopupReferenceLineEnterprise = {
-  Авто: "Авто",
-  НеОтображать: "НеОтображать",
-  Отображать: "Отображать",
-} as const
+export type ShowChartPopupReferenceLine = keyof typeof ShowChartPopupReferenceLineToEnterprise
+export type ShowChartPopupReferenceLineEnterprise = keyof typeof ShowChartPopupReferenceLineFromEnterprise
 
 export const ShowChartScaleTitleToEnterprise = {
   Auto: "Авто",
@@ -15170,17 +9153,8 @@ export const ShowChartScaleTitleFromEnterprise = {
   Отображать: "Show",
 } as const
 
-export const ShowChartScaleTitle = {
-  Auto: "Auto",
-  DontShow: "DontShow",
-  Show: "Show",
-} as const
-
-export const ShowChartScaleTitleEnterprise = {
-  Авто: "Авто",
-  НеОтображать: "НеОтображать",
-  Отображать: "Отображать",
-} as const
+export type ShowChartScaleTitle = keyof typeof ShowChartScaleTitleToEnterprise
+export type ShowChartScaleTitleEnterprise = keyof typeof ShowChartScaleTitleFromEnterprise
 
 export const ShowInChartToEnterprise = {
   Auto: "Авто",
@@ -15194,17 +9168,8 @@ export const ShowInChartFromEnterprise = {
   Отображать: "Show",
 } as const
 
-export const ShowInChart = {
-  Auto: "Auto",
-  DontShow: "DontShow",
-  Show: "Show",
-} as const
-
-export const ShowInChartEnterprise = {
-  Авто: "Авто",
-  НеОтображать: "НеОтображать",
-  Отображать: "Отображать",
-} as const
+export type ShowInChart = keyof typeof ShowInChartToEnterprise
+export type ShowInChartEnterprise = keyof typeof ShowInChartFromEnterprise
 
 export const ShowInChartLegendToEnterprise = {
   Auto: "Авто",
@@ -15218,17 +9183,8 @@ export const ShowInChartLegendFromEnterprise = {
   Отображать: "Show",
 } as const
 
-export const ShowInChartLegend = {
-  Auto: "Auto",
-  DontShow: "DontShow",
-  Show: "Show",
-} as const
-
-export const ShowInChartLegendEnterprise = {
-  Авто: "Авто",
-  НеОтображать: "НеОтображать",
-  Отображать: "Отображать",
-} as const
+export type ShowInChartLegend = keyof typeof ShowInChartLegendToEnterprise
+export type ShowInChartLegendEnterprise = keyof typeof ShowInChartLegendFromEnterprise
 
 export const StockChartUsedPointValueToEnterprise = {
   Close: "Закрытие",
@@ -15246,21 +9202,8 @@ export const StockChartUsedPointValueFromEnterprise = {
   СреднееОткрытияИЗакрытия: "OpenCloseAverage",
 } as const
 
-export const StockChartUsedPointValue = {
-  Close: "Close",
-  High: "High",
-  Low: "Low",
-  Open: "Open",
-  OpenCloseAverage: "OpenCloseAverage",
-} as const
-
-export const StockChartUsedPointValueEnterprise = {
-  Закрытие: "Закрытие",
-  Максимальное: "Максимальное",
-  Минимальное: "Минимальное",
-  Открытие: "Открытие",
-  СреднееОткрытияИЗакрытия: "СреднееОткрытияИЗакрытия",
-} as const
+export type StockChartUsedPointValue = keyof typeof StockChartUsedPointValueToEnterprise
+export type StockChartUsedPointValueEnterprise = keyof typeof StockChartUsedPointValueFromEnterprise
 
 export const UsedChartValuesAxisToEnterprise = {
   Auto: "Авто",
@@ -15274,17 +9217,8 @@ export const UsedChartValuesAxisFromEnterprise = {
   Основная: "Main",
 } as const
 
-export const UsedChartValuesAxis = {
-  Auto: "Auto",
-  Additional: "Additional",
-  Main: "Main",
-} as const
-
-export const UsedChartValuesAxisEnterprise = {
-  Авто: "Авто",
-  Дополнительная: "Дополнительная",
-  Основная: "Основная",
-} as const
+export type UsedChartValuesAxis = keyof typeof UsedChartValuesAxisToEnterprise
+export type UsedChartValuesAxisEnterprise = keyof typeof UsedChartValuesAxisFromEnterprise
 
 export const GanttChartIntervalRepresentationToEnterprise = {
   Gradient: "Градиент",
@@ -15300,19 +9234,8 @@ export const GanttChartIntervalRepresentationFromEnterprise = {
   Ромб: "Rhomb",
 } as const
 
-export const GanttChartIntervalRepresentation = {
-  Gradient: "Gradient",
-  ThreeDimensional: "ThreeDimensional",
-  Flat: "Flat",
-  Rhomb: "Rhomb",
-} as const
-
-export const GanttChartIntervalRepresentationEnterprise = {
-  Градиент: "Градиент",
-  Объемный: "Объемный",
-  Плоский: "Плоский",
-  Ромб: "Ромб",
-} as const
+export type GanttChartIntervalRepresentation = keyof typeof GanttChartIntervalRepresentationToEnterprise
+export type GanttChartIntervalRepresentationEnterprise = keyof typeof GanttChartIntervalRepresentationFromEnterprise
 
 export const GanttChartIntervalTextRepresentationToEnterprise = {
   Auto: "Авто",
@@ -15326,17 +9249,9 @@ export const GanttChartIntervalTextRepresentationFromEnterprise = {
   Отображать: "Show",
 } as const
 
-export const GanttChartIntervalTextRepresentation = {
-  Auto: "Auto",
-  DontShow: "DontShow",
-  Show: "Show",
-} as const
-
-export const GanttChartIntervalTextRepresentationEnterprise = {
-  Авто: "Авто",
-  НеОтображать: "НеОтображать",
-  Отображать: "Отображать",
-} as const
+export type GanttChartIntervalTextRepresentation = keyof typeof GanttChartIntervalTextRepresentationToEnterprise
+export type GanttChartIntervalTextRepresentationEnterprise =
+  keyof typeof GanttChartIntervalTextRepresentationFromEnterprise
 
 export const GanttChartIntervalsSelectionModeToEnterprise = {
   Auto: "Авто",
@@ -15352,19 +9267,8 @@ export const GanttChartIntervalsSelectionModeFromEnterprise = {
   Одиночный: "Single",
 } as const
 
-export const GanttChartIntervalsSelectionMode = {
-  Auto: "Auto",
-  Multiple: "Multiple",
-  None: "None",
-  Single: "Single",
-} as const
-
-export const GanttChartIntervalsSelectionModeEnterprise = {
-  Авто: "Авто",
-  Множественный: "Множественный",
-  Нет: "Нет",
-  Одиночный: "Одиночный",
-} as const
+export type GanttChartIntervalsSelectionMode = keyof typeof GanttChartIntervalsSelectionModeToEnterprise
+export type GanttChartIntervalsSelectionModeEnterprise = keyof typeof GanttChartIntervalsSelectionModeFromEnterprise
 
 export const GanttChartLinkTypeToEnterprise = {
   EndEnd: "КонецКонец",
@@ -15380,19 +9284,8 @@ export const GanttChartLinkTypeFromEnterprise = {
   НачалоНачало: "BeginBegin",
 } as const
 
-export const GanttChartLinkType = {
-  EndEnd: "EndEnd",
-  EndBegin: "EndBegin",
-  BeginEnd: "BeginEnd",
-  BeginBegin: "BeginBegin",
-} as const
-
-export const GanttChartLinkTypeEnterprise = {
-  КонецКонец: "КонецКонец",
-  КонецНачало: "КонецНачало",
-  НачалоКонец: "НачалоКонец",
-  НачалоНачало: "НачалоНачало",
-} as const
+export type GanttChartLinkType = keyof typeof GanttChartLinkTypeToEnterprise
+export type GanttChartLinkTypeEnterprise = keyof typeof GanttChartLinkTypeFromEnterprise
 
 export const GanttChartScaleKeepingToEnterprise = {
   Auto: "Авто",
@@ -15408,19 +9301,8 @@ export const GanttChartScaleKeepingFromEnterprise = {
   Фиксированная: "Fixed",
 } as const
 
-export const GanttChartScaleKeeping = {
-  Auto: "Auto",
-  AllData: "AllData",
-  Period: "Period",
-  Fixed: "Fixed",
-} as const
-
-export const GanttChartScaleKeepingEnterprise = {
-  Авто: "Авто",
-  ВсеДанные: "ВсеДанные",
-  Период: "Период",
-  Фиксированная: "Фиксированная",
-} as const
+export type GanttChartScaleKeeping = keyof typeof GanttChartScaleKeepingToEnterprise
+export type GanttChartScaleKeepingEnterprise = keyof typeof GanttChartScaleKeepingFromEnterprise
 
 export const GanttChartTableLocationToEnterprise = {
   Auto: "Авто",
@@ -15436,19 +9318,8 @@ export const GanttChartTableLocationFromEnterprise = {
   Право: "Right",
 } as const
 
-export const GanttChartTableLocation = {
-  Auto: "Auto",
-  Left: "Left",
-  None: "None",
-  Right: "Right",
-} as const
-
-export const GanttChartTableLocationEnterprise = {
-  Авто: "Авто",
-  Лево: "Лево",
-  Нет: "Нет",
-  Право: "Право",
-} as const
+export type GanttChartTableLocation = keyof typeof GanttChartTableLocationToEnterprise
+export type GanttChartTableLocationEnterprise = keyof typeof GanttChartTableLocationFromEnterprise
 
 export const GanttChartTextPlacementTypeToEnterprise = {
   Auto: "Авто",
@@ -15462,17 +9333,8 @@ export const GanttChartTextPlacementTypeFromEnterprise = {
   Переносить: "Wrap",
 } as const
 
-export const GanttChartTextPlacementType = {
-  Auto: "Auto",
-  Cut: "Cut",
-  Wrap: "Wrap",
-} as const
-
-export const GanttChartTextPlacementTypeEnterprise = {
-  Авто: "Авто",
-  Обрезать: "Обрезать",
-  Переносить: "Переносить",
-} as const
+export type GanttChartTextPlacementType = keyof typeof GanttChartTextPlacementTypeToEnterprise
+export type GanttChartTextPlacementTypeEnterprise = keyof typeof GanttChartTextPlacementTypeFromEnterprise
 
 export const GanttChartValueTextRepresentationToEnterprise = {
   None: "НеОтображать",
@@ -15484,15 +9346,8 @@ export const GanttChartValueTextRepresentationFromEnterprise = {
   Право: "Right",
 } as const
 
-export const GanttChartValueTextRepresentation = {
-  None: "None",
-  Right: "Right",
-} as const
-
-export const GanttChartValueTextRepresentationEnterprise = {
-  НеОтображать: "НеОтображать",
-  Право: "Право",
-} as const
+export type GanttChartValueTextRepresentation = keyof typeof GanttChartValueTextRepresentationToEnterprise
+export type GanttChartValueTextRepresentationEnterprise = keyof typeof GanttChartValueTextRepresentationFromEnterprise
 
 export const GanttChartValuesSelectionModeToEnterprise = {
   Auto: "Авто",
@@ -15508,19 +9363,8 @@ export const GanttChartValuesSelectionModeFromEnterprise = {
   Одиночный: "Single",
 } as const
 
-export const GanttChartValuesSelectionMode = {
-  Auto: "Auto",
-  Multiple: "Multiple",
-  None: "None",
-  Single: "Single",
-} as const
-
-export const GanttChartValuesSelectionModeEnterprise = {
-  Авто: "Авто",
-  Множественный: "Множественный",
-  Нет: "Нет",
-  Одиночный: "Одиночный",
-} as const
+export type GanttChartValuesSelectionMode = keyof typeof GanttChartValuesSelectionModeToEnterprise
+export type GanttChartValuesSelectionModeEnterprise = keyof typeof GanttChartValuesSelectionModeFromEnterprise
 
 export const GanttChartVerticalStretchToEnterprise = {
   None: "НеРастягивать",
@@ -15534,17 +9378,8 @@ export const GanttChartVerticalStretchFromEnterprise = {
   РастягиватьСтрокиИДанные: "StretchRowsAndData",
 } as const
 
-export const GanttChartVerticalStretch = {
-  None: "None",
-  StretchRows: "StretchRows",
-  StretchRowsAndData: "StretchRowsAndData",
-} as const
-
-export const GanttChartVerticalStretchEnterprise = {
-  НеРастягивать: "НеРастягивать",
-  РастягиватьСтроки: "РастягиватьСтроки",
-  РастягиватьСтрокиИДанные: "РастягиватьСтрокиИДанные",
-} as const
+export type GanttChartVerticalStretch = keyof typeof GanttChartVerticalStretchToEnterprise
+export type GanttChartVerticalStretchEnterprise = keyof typeof GanttChartVerticalStretchFromEnterprise
 
 export const ShowInGanttChartToEnterprise = {
   Auto: "Авто",
@@ -15558,17 +9393,8 @@ export const ShowInGanttChartFromEnterprise = {
   Отображать: "Show",
 } as const
 
-export const ShowInGanttChart = {
-  Auto: "Auto",
-  DontShow: "DontShow",
-  Show: "Show",
-} as const
-
-export const ShowInGanttChartEnterprise = {
-  Авто: "Авто",
-  НеОтображать: "НеОтображать",
-  Отображать: "Отображать",
-} as const
+export type ShowInGanttChart = keyof typeof ShowInGanttChartToEnterprise
+export type ShowInGanttChartEnterprise = keyof typeof ShowInGanttChartFromEnterprise
 
 export const TimeScaleDayFormatToEnterprise = {
   MonthDay: "ДеньМесяца",
@@ -15584,19 +9410,8 @@ export const TimeScaleDayFormatFromEnterprise = {
   ДеньНеделиДеньМесяца: "WeekDayMonthDay",
 } as const
 
-export const TimeScaleDayFormat = {
-  MonthDay: "MonthDay",
-  MonthDayWeekDay: "MonthDayWeekDay",
-  WeekDay: "WeekDay",
-  WeekDayMonthDay: "WeekDayMonthDay",
-} as const
-
-export const TimeScaleDayFormatEnterprise = {
-  ДеньМесяца: "ДеньМесяца",
-  ДеньМесяцаДеньНедели: "ДеньМесяцаДеньНедели",
-  ДеньНедели: "ДеньНедели",
-  ДеньНеделиДеньМесяца: "ДеньНеделиДеньМесяца",
-} as const
+export type TimeScaleDayFormat = keyof typeof TimeScaleDayFormatToEnterprise
+export type TimeScaleDayFormatEnterprise = keyof typeof TimeScaleDayFormatFromEnterprise
 
 export const TimeScaleUnitTypeToEnterprise = {
   Year: "Год",
@@ -15620,27 +9435,8 @@ export const TimeScaleUnitTypeFromEnterprise = {
   Час: "Hour",
 } as const
 
-export const TimeScaleUnitType = {
-  Year: "Year",
-  Day: "Day",
-  Quarter: "Quarter",
-  Month: "Month",
-  Minute: "Minute",
-  Week: "Week",
-  Second: "Second",
-  Hour: "Hour",
-} as const
-
-export const TimeScaleUnitTypeEnterprise = {
-  Год: "Год",
-  День: "День",
-  Квартал: "Квартал",
-  Месяц: "Месяц",
-  Минута: "Минута",
-  Неделя: "Неделя",
-  Секунда: "Секунда",
-  Час: "Час",
-} as const
+export type TimeScaleUnitType = keyof typeof TimeScaleUnitTypeToEnterprise
+export type TimeScaleUnitTypeEnterprise = keyof typeof TimeScaleUnitTypeFromEnterprise
 
 export const PivotChartLabelsOrientationToEnterprise = {
   TopLevelsVertical: "ВерхниеУровниВертикально",
@@ -15654,17 +9450,8 @@ export const PivotChartLabelsOrientationFromEnterprise = {
   ВсеУровниГоризонтально: "AllLevelsHorizontal",
 } as const
 
-export const PivotChartLabelsOrientation = {
-  TopLevelsVertical: "TopLevelsVertical",
-  AllLevelsVertical: "AllLevelsVertical",
-  AllLevelsHorizontal: "AllLevelsHorizontal",
-} as const
-
-export const PivotChartLabelsOrientationEnterprise = {
-  ВерхниеУровниВертикально: "ВерхниеУровниВертикально",
-  ВсеУровниВертикально: "ВсеУровниВертикально",
-  ВсеУровниГоризонтально: "ВсеУровниГоризонтально",
-} as const
+export type PivotChartLabelsOrientation = keyof typeof PivotChartLabelsOrientationToEnterprise
+export type PivotChartLabelsOrientationEnterprise = keyof typeof PivotChartLabelsOrientationFromEnterprise
 
 export const PivotChartScaleKeepingToEnterprise = {
   AllValues: "ВсеЗначения",
@@ -15678,17 +9465,8 @@ export const PivotChartScaleKeepingFromEnterprise = {
   МинимальнаяШирина: "MinimumWidth",
 } as const
 
-export const PivotChartScaleKeeping = {
-  AllValues: "AllValues",
-  ValuesCount: "ValuesCount",
-  MinimumWidth: "MinimumWidth",
-} as const
-
-export const PivotChartScaleKeepingEnterprise = {
-  ВсеЗначения: "ВсеЗначения",
-  КоличествоЗначений: "КоличествоЗначений",
-  МинимальнаяШирина: "МинимальнаяШирина",
-} as const
+export type PivotChartScaleKeeping = keyof typeof PivotChartScaleKeepingToEnterprise
+export type PivotChartScaleKeepingEnterprise = keyof typeof PivotChartScaleKeepingFromEnterprise
 
 export const PivotChartTypeToEnterprise = {
   Column: "Гистограмма",
@@ -15700,15 +9478,8 @@ export const PivotChartTypeFromEnterprise = {
   ГистограммаОбъемная: "Column3D",
 } as const
 
-export const PivotChartType = {
-  Column: "Column",
-  Column3D: "Column3D",
-} as const
-
-export const PivotChartTypeEnterprise = {
-  Гистограмма: "Гистограмма",
-  ГистограммаОбъемная: "ГистограммаОбъемная",
-} as const
+export type PivotChartType = keyof typeof PivotChartTypeToEnterprise
+export type PivotChartTypeEnterprise = keyof typeof PivotChartTypeFromEnterprise
 
 export const PivotChartValuesShowModeToEnterprise = {
   AllValues: "ВсеЗначения",
@@ -15720,15 +9491,8 @@ export const PivotChartValuesShowModeFromEnterprise = {
   ЗначенияПоследнегоУровня: "LastLevelValues",
 } as const
 
-export const PivotChartValuesShowMode = {
-  AllValues: "AllValues",
-  LastLevelValues: "LastLevelValues",
-} as const
-
-export const PivotChartValuesShowModeEnterprise = {
-  ВсеЗначения: "ВсеЗначения",
-  ЗначенияПоследнегоУровня: "ЗначенияПоследнегоУровня",
-} as const
+export type PivotChartValuesShowMode = keyof typeof PivotChartValuesShowModeToEnterprise
+export type PivotChartValuesShowModeEnterprise = keyof typeof PivotChartValuesShowModeFromEnterprise
 
 export const DendrogramOrientationToEnterprise = {
   Top: "Верх",
@@ -15744,19 +9508,8 @@ export const DendrogramOrientationFromEnterprise = {
   Право: "Right",
 } as const
 
-export const DendrogramOrientation = {
-  Top: "Top",
-  Left: "Left",
-  Bottom: "Bottom",
-  Right: "Right",
-} as const
-
-export const DendrogramOrientationEnterprise = {
-  Верх: "Верх",
-  Лево: "Лево",
-  Низ: "Низ",
-  Право: "Право",
-} as const
+export type DendrogramOrientation = keyof typeof DendrogramOrientationToEnterprise
+export type DendrogramOrientationEnterprise = keyof typeof DendrogramOrientationFromEnterprise
 
 export const DendrogramScaleKeepingToEnterprise = {
   AllItems: "ВсеЭлементы",
@@ -15770,17 +9523,8 @@ export const DendrogramScaleKeepingFromEnterprise = {
   МинимальнаяШирина: "MinimumWidth",
 } as const
 
-export const DendrogramScaleKeeping = {
-  AllItems: "AllItems",
-  ItemCount: "ItemCount",
-  MinimumWidth: "MinimumWidth",
-} as const
-
-export const DendrogramScaleKeepingEnterprise = {
-  ВсеЭлементы: "ВсеЭлементы",
-  КоличествоЭлементов: "КоличествоЭлементов",
-  МинимальнаяШирина: "МинимальнаяШирина",
-} as const
+export type DendrogramScaleKeeping = keyof typeof DendrogramScaleKeepingToEnterprise
+export type DendrogramScaleKeepingEnterprise = keyof typeof DendrogramScaleKeepingFromEnterprise
 
 export const GeographicalSchemaDataSourceOrganizationTypeToEnterprise = {
   AtRow: "ВСтроке",
@@ -15792,15 +9536,10 @@ export const GeographicalSchemaDataSourceOrganizationTypeFromEnterprise = {
   НаПересечении: "AtIntersection",
 } as const
 
-export const GeographicalSchemaDataSourceOrganizationType = {
-  AtRow: "AtRow",
-  AtIntersection: "AtIntersection",
-} as const
-
-export const GeographicalSchemaDataSourceOrganizationTypeEnterprise = {
-  ВСтроке: "ВСтроке",
-  НаПересечении: "НаПересечении",
-} as const
+export type GeographicalSchemaDataSourceOrganizationType =
+  keyof typeof GeographicalSchemaDataSourceOrganizationTypeToEnterprise
+export type GeographicalSchemaDataSourceOrganizationTypeEnterprise =
+  keyof typeof GeographicalSchemaDataSourceOrganizationTypeFromEnterprise
 
 export const GeographicalSchemaLayerSeriesImportModeTypeToEnterprise = {
   ImportAll: "ИмпортироватьВсе",
@@ -15812,15 +9551,10 @@ export const GeographicalSchemaLayerSeriesImportModeTypeFromEnterprise = {
   НеИмпортировать: "DontImport",
 } as const
 
-export const GeographicalSchemaLayerSeriesImportModeType = {
-  ImportAll: "ImportAll",
-  DontImport: "DontImport",
-} as const
-
-export const GeographicalSchemaLayerSeriesImportModeTypeEnterprise = {
-  ИмпортироватьВсе: "ИмпортироватьВсе",
-  НеИмпортировать: "НеИмпортировать",
-} as const
+export type GeographicalSchemaLayerSeriesImportModeType =
+  keyof typeof GeographicalSchemaLayerSeriesImportModeTypeToEnterprise
+export type GeographicalSchemaLayerSeriesImportModeTypeEnterprise =
+  keyof typeof GeographicalSchemaLayerSeriesImportModeTypeFromEnterprise
 
 export const GeographicalSchemaLayerSeriesShowModeToEnterprise = {
   Column: "Гистограмма",
@@ -15846,29 +9580,9 @@ export const GeographicalSchemaLayerSeriesShowModeFromEnterprise = {
   ЦветФигуры: "ShapeColor",
 } as const
 
-export const GeographicalSchemaLayerSeriesShowMode = {
-  Column: "Column",
-  Picture: "Picture",
-  Pie: "Pie",
-  SizedPie: "SizedPie",
-  DontShow: "DontShow",
-  ShapeColorHue: "ShapeColorHue",
-  ShapeSize: "ShapeSize",
-  Text: "Text",
-  ShapeColor: "ShapeColor",
-} as const
-
-export const GeographicalSchemaLayerSeriesShowModeEnterprise = {
-  Гистограмма: "Гистограмма",
-  Картинка: "Картинка",
-  Круговая: "Круговая",
-  КруговаяСРазмером: "КруговаяСРазмером",
-  НеОтображать: "НеОтображать",
-  ОттенокЦветаФигуры: "ОттенокЦветаФигуры",
-  РазмерФигуры: "РазмерФигуры",
-  Текст: "Текст",
-  ЦветФигуры: "ЦветФигуры",
-} as const
+export type GeographicalSchemaLayerSeriesShowMode = keyof typeof GeographicalSchemaLayerSeriesShowModeToEnterprise
+export type GeographicalSchemaLayerSeriesShowModeEnterprise =
+  keyof typeof GeographicalSchemaLayerSeriesShowModeFromEnterprise
 
 export const GeographicalSchemaLegendItemShowScaleTypeToEnterprise = {
   DontShow: "НеОтображать",
@@ -15880,15 +9594,10 @@ export const GeographicalSchemaLegendItemShowScaleTypeFromEnterprise = {
   ОтображатьПоЗначениям: "ShowByValues",
 } as const
 
-export const GeographicalSchemaLegendItemShowScaleType = {
-  DontShow: "DontShow",
-  ShowByValues: "ShowByValues",
-} as const
-
-export const GeographicalSchemaLegendItemShowScaleTypeEnterprise = {
-  НеОтображать: "НеОтображать",
-  ОтображатьПоЗначениям: "ОтображатьПоЗначениям",
-} as const
+export type GeographicalSchemaLegendItemShowScaleType =
+  keyof typeof GeographicalSchemaLegendItemShowScaleTypeToEnterprise
+export type GeographicalSchemaLegendItemShowScaleTypeEnterprise =
+  keyof typeof GeographicalSchemaLegendItemShowScaleTypeFromEnterprise
 
 export const GeographicalSchemaLineTypeToEnterprise = {
   None: "НетЛинии",
@@ -15908,23 +9617,8 @@ export const GeographicalSchemaLineTypeFromEnterprise = {
   Точечная: "Dotted",
 } as const
 
-export const GeographicalSchemaLineType = {
-  None: "None",
-  Dashed: "Dashed",
-  DashDotted: "DashDotted",
-  DashDottedDotted: "DashDottedDotted",
-  Solid: "Solid",
-  Dotted: "Dotted",
-} as const
-
-export const GeographicalSchemaLineTypeEnterprise = {
-  НетЛинии: "НетЛинии",
-  Пунктир: "Пунктир",
-  ПунктирТочка: "ПунктирТочка",
-  ПунктирТочкаТочка: "ПунктирТочкаТочка",
-  Сплошная: "Сплошная",
-  Точечная: "Точечная",
-} as const
+export type GeographicalSchemaLineType = keyof typeof GeographicalSchemaLineTypeToEnterprise
+export type GeographicalSchemaLineTypeEnterprise = keyof typeof GeographicalSchemaLineTypeFromEnterprise
 
 export const GeographicalSchemaMarkerTypeToEnterprise = {
   BigSquare: "БольшойКвадрат",
@@ -15954,33 +9648,8 @@ export const GeographicalSchemaMarkerTypeFromEnterprise = {
   Нет: "None",
 } as const
 
-export const GeographicalSchemaMarkerType = {
-  BigSquare: "BigSquare",
-  BigCircle: "BigCircle",
-  BigTriangle: "BigTriangle",
-  ExclamationPoint: "ExclamationPoint",
-  Darts: "Darts",
-  QuestionMark: "QuestionMark",
-  Pin: "Pin",
-  LittleSquare: "LittleSquare",
-  LittleCircle: "LittleCircle",
-  LittleTriangle: "LittleTriangle",
-  None: "None",
-} as const
-
-export const GeographicalSchemaMarkerTypeEnterprise = {
-  БольшойКвадрат: "БольшойКвадрат",
-  БольшойКруг: "БольшойКруг",
-  БольшойТреугольник: "БольшойТреугольник",
-  ВосклицательныйЗнак: "ВосклицательныйЗнак",
-  Дартс: "Дартс",
-  ЗнакВопроса: "ЗнакВопроса",
-  Кнопка: "Кнопка",
-  МаленькийКвадрат: "МаленькийКвадрат",
-  МаленькийКруг: "МаленькийКруг",
-  МаленькийТреугольник: "МаленькийТреугольник",
-  Нет: "Нет",
-} as const
+export type GeographicalSchemaMarkerType = keyof typeof GeographicalSchemaMarkerTypeToEnterprise
+export type GeographicalSchemaMarkerTypeEnterprise = keyof typeof GeographicalSchemaMarkerTypeFromEnterprise
 
 export const GeographicalSchemaObjectFindTypeToEnterprise = {
   Included: "Включает",
@@ -15996,19 +9665,8 @@ export const GeographicalSchemaObjectFindTypeFromEnterprise = {
   ВключаютПолностью: "IncludesWholly",
 } as const
 
-export const GeographicalSchemaObjectFindType = {
-  Included: "Included",
-  IncludedWholly: "IncludedWholly",
-  Includes: "Includes",
-  IncludesWholly: "IncludesWholly",
-} as const
-
-export const GeographicalSchemaObjectFindTypeEnterprise = {
-  Включает: "Включает",
-  ВключаетПолностью: "ВключаетПолностью",
-  Включают: "Включают",
-  ВключаютПолностью: "ВключаютПолностью",
-} as const
+export type GeographicalSchemaObjectFindType = keyof typeof GeographicalSchemaObjectFindTypeToEnterprise
+export type GeographicalSchemaObjectFindTypeEnterprise = keyof typeof GeographicalSchemaObjectFindTypeFromEnterprise
 
 export const GeographicalSchemaPointObjectDrawingTypeToEnterprise = {
   Picture: "Картинка",
@@ -16022,17 +9680,9 @@ export const GeographicalSchemaPointObjectDrawingTypeFromEnterprise = {
   Символ: "Char",
 } as const
 
-export const GeographicalSchemaPointObjectDrawingType = {
-  Picture: "Picture",
-  Marker: "Marker",
-  Char: "Char",
-} as const
-
-export const GeographicalSchemaPointObjectDrawingTypeEnterprise = {
-  Картинка: "Картинка",
-  Маркер: "Маркер",
-  Символ: "Символ",
-} as const
+export type GeographicalSchemaPointObjectDrawingType = keyof typeof GeographicalSchemaPointObjectDrawingTypeToEnterprise
+export type GeographicalSchemaPointObjectDrawingTypeEnterprise =
+  keyof typeof GeographicalSchemaPointObjectDrawingTypeFromEnterprise
 
 export const GeographicalSchemaProjectionToEnterprise = {
   AzimuthalAitoffProjection: "АзимутальнаяПроекцияАитофа",
@@ -16122,91 +9772,8 @@ export const GeographicalSchemaProjectionFromEnterprise = {
   ЦилиндрическаяСтереографическаяПроекцияГалла: "CylindricalGallStereographicProjection",
 } as const
 
-export const GeographicalSchemaProjection = {
-  AzimuthalAitoffProjection: "AzimuthalAitoffProjection",
-  AzimuthalWagner7Projection: "AzimuthalWagner7Projection",
-  AzimuthalWinkelTripelProjection: "AzimuthalWinkelTripelProjection",
-  AzimuthalLambertEqualAreaProjection: "AzimuthalLambertEqualAreaProjection",
-  AzimuthalHammerProjection: "AzimuthalHammerProjection",
-  AzimuthalEquidistantProjection: "AzimuthalEquidistantProjection",
-  ConicLambertEqualAreaProjection: "ConicLambertEqualAreaProjection",
-  MiscellaneousOrteliusOvalProjection: "MiscellaneousOrteliusOvalProjection",
-  MiscellaneousVanDerGrinten1Projection: "MiscellaneousVanDerGrinten1Projection",
-  MiscellaneousVanDerGrinten2Projection: "MiscellaneousVanDerGrinten2Projection",
-  MiscellaneousVanDerGrinten3Projection: "MiscellaneousVanDerGrinten3Projection",
-  MiscellaneousApianGlobular1Projection: "MiscellaneousApianGlobular1Projection",
-  MiscellaneousBaconGlobularProjection: "MiscellaneousBaconGlobularProjection",
-  MiscellaneousNicolosiGlobularProjection: "MiscellaneousNicolosiGlobularProjection",
-  MiscellaneousAugustEpicycloidalProjection: "MiscellaneousAugustEpicycloidalProjection",
-  PseudoCylindricalBoggsEumorphicProjection: "PseudoCylindricalBoggsEumorphicProjection",
-  PseudoCylindricalMcBrydeThomasFlatPolarParabolicProjection:
-    "PseudoCylindricalMcBrydeThomasFlatPolarParabolicProjection",
-  PseudoCylindricalMcBrydeThomasFlatPolarQuarticProjection: "PseudoCylindricalMcBrydeThomasFlatPolarQuarticProjection",
-  PseudoCylindricalMcBrydeThomasFlatPolarSinusoidalProjection:
-    "PseudoCylindricalMcBrydeThomasFlatPolarSinusoidalProjection",
-  PseudoCylindricalWinkel1Projection: "PseudoCylindricalWinkel1Projection",
-  PseudoCylindricalLoximutalProjection: "PseudoCylindricalLoximutalProjection",
-  PseudoCylindricalMollweideProjection: "PseudoCylindricalMollweideProjection",
-  PseudoCylindricalHatanoAsymetricalEqualAreaProjection: "PseudoCylindricalHatanoAsymetricalEqualAreaProjection",
-  PseudoCylindricalPutninP2Projection: "PseudoCylindricalPutninP2Projection",
-  PseudoCylindricalPutninP5Projection: "PseudoCylindricalPutninP5Projection",
-  PseudoCylindricalRobinsonProjection: "PseudoCylindricalRobinsonProjection",
-  PseudoCylindricalEckert1Projection: "PseudoCylindricalEckert1Projection",
-  PseudoCylindricalEckert2Projection: "PseudoCylindricalEckert2Projection",
-  PseudoCylindricalEckert3Projection: "PseudoCylindricalEckert3Projection",
-  PseudoCylindricalEckert4Projection: "PseudoCylindricalEckert4Projection",
-  PseudoCylindricalEckert5Projection: "PseudoCylindricalEckert5Projection",
-  PseudoCylindricalEckert6Projection: "PseudoCylindricalEckert6Projection",
-  PseudoCylindricalSinusoidalProjection: "PseudoCylindricalSinusoidalProjection",
-  CylindricalMillerProjection: "CylindricalMillerProjection",
-  CylindricalLambertEqualAreaProjection: "CylindricalLambertEqualAreaProjection",
-  CylindricalEquidistantProjection: "CylindricalEquidistantProjection",
-  CylindricalGallStereographicProjection: "CylindricalGallStereographicProjection",
-} as const
-
-export const GeographicalSchemaProjectionEnterprise = {
-  АзимутальнаяПроекцияАитофа: "АзимутальнаяПроекцияАитофа",
-  АзимутальнаяПроекцияВагнера7: "АзимутальнаяПроекцияВагнера7",
-  АзимутальнаяПроекцияВинкеляТрипеля: "АзимутальнаяПроекцияВинкеляТрипеля",
-  АзимутальнаяПроекцияРавныхПлощадейЛамберта: "АзимутальнаяПроекцияРавныхПлощадейЛамберта",
-  АзимутальнаяПроекцияХамера: "АзимутальнаяПроекцияХамера",
-  АзимутальнаяРавноудаленнаяПроекция: "АзимутальнаяРавноудаленнаяПроекция",
-  КоническаяПроекцияРавныхПлощадейЛамберта: "КоническаяПроекцияРавныхПлощадейЛамберта",
-  ПрочаяОвальнаяПроекцияОртелиуса: "ПрочаяОвальнаяПроекцияОртелиуса",
-  ПрочаяПроекцияВанДерГринтена1: "ПрочаяПроекцияВанДерГринтена1",
-  ПрочаяПроекцияВанДерГринтена2: "ПрочаяПроекцияВанДерГринтена2",
-  ПрочаяПроекцияВанДерГринтена3: "ПрочаяПроекцияВанДерГринтена3",
-  ПрочаяСотоваяШаровая1Проекция: "ПрочаяСотоваяШаровая1Проекция",
-  ПрочаяШароваяПроекцияБекона: "ПрочаяШароваяПроекцияБекона",
-  ПрочаяШароваяПроекцияНиколоси: "ПрочаяШароваяПроекцияНиколоси",
-  ПрочаяЭпициклоидальнаяПроекцияАвгуста: "ПрочаяЭпициклоидальнаяПроекцияАвгуста",
-  ПсевдоцилиндрическаяНормальнаяПроекцияБоггса: "ПсевдоцилиндрическаяНормальнаяПроекцияБоггса",
-  ПсевдоцилиндрическаяПлоскоПолярнаяПараболическаяПроекцияМакБрайдаТомаса:
-    "ПсевдоцилиндрическаяПлоскоПолярнаяПараболическаяПроекцияМакБрайдаТомаса",
-  ПсевдоцилиндрическаяПлоскоПолярнаяПроекцияЧетвертогоПорядкаМакБрайдаТомаса:
-    "ПсевдоцилиндрическаяПлоскоПолярнаяПроекцияЧетвертогоПорядкаМакБрайдаТомаса",
-  ПсевдоцилиндрическаяПлоскоПолярнаяСинусоидальнаяПроекцияМакБрайдаТомаса:
-    "ПсевдоцилиндрическаяПлоскоПолярнаяСинусоидальнаяПроекцияМакБрайдаТомаса",
-  ПсевдоцилиндрическаяПроекцияВинкеля1: "ПсевдоцилиндрическаяПроекцияВинкеля1",
-  ПсевдоцилиндрическаяПроекцияЛоксимутала: "ПсевдоцилиндрическаяПроекцияЛоксимутала",
-  ПсевдоцилиндрическаяПроекцияМолвейда: "ПсевдоцилиндрическаяПроекцияМолвейда",
-  ПсевдоцилиндрическаяПроекцияНесимметричныхРавныхОбластейХатано:
-    "ПсевдоцилиндрическаяПроекцияНесимметричныхРавныхОбластейХатано",
-  ПсевдоцилиндрическаяПроекцияПутнинаP2: "ПсевдоцилиндрическаяПроекцияПутнинаP2",
-  ПсевдоцилиндрическаяПроекцияПутнинаP5: "ПсевдоцилиндрическаяПроекцияПутнинаP5",
-  ПсевдоцилиндрическаяПроекцияРобинсона: "ПсевдоцилиндрическаяПроекцияРобинсона",
-  ПсевдоцилиндрическаяПроекцияЭкерта1: "ПсевдоцилиндрическаяПроекцияЭкерта1",
-  ПсевдоцилиндрическаяПроекцияЭкерта2: "ПсевдоцилиндрическаяПроекцияЭкерта2",
-  ПсевдоцилиндрическаяПроекцияЭкерта3: "ПсевдоцилиндрическаяПроекцияЭкерта3",
-  ПсевдоцилиндрическаяПроекцияЭкерта4: "ПсевдоцилиндрическаяПроекцияЭкерта4",
-  ПсевдоцилиндрическаяПроекцияЭкерта5: "ПсевдоцилиндрическаяПроекцияЭкерта5",
-  ПсевдоцилиндрическаяПроекцияЭкерта6: "ПсевдоцилиндрическаяПроекцияЭкерта6",
-  ПсевдоцилиндрическаяСинусоидальнаяПроекция: "ПсевдоцилиндрическаяСинусоидальнаяПроекция",
-  ЦилиндрическаяПроекцияМиллера: "ЦилиндрическаяПроекцияМиллера",
-  ЦилиндрическаяПроекцияРавныхОбластейЛамберта: "ЦилиндрическаяПроекцияРавныхОбластейЛамберта",
-  ЦилиндрическаяРавноудаленнаяПроекция: "ЦилиндрическаяРавноудаленнаяПроекция",
-  ЦилиндрическаяСтереографическаяПроекцияГалла: "ЦилиндрическаяСтереографическаяПроекцияГалла",
-} as const
+export type GeographicalSchemaProjection = keyof typeof GeographicalSchemaProjectionToEnterprise
+export type GeographicalSchemaProjectionEnterprise = keyof typeof GeographicalSchemaProjectionFromEnterprise
 
 export const GeographicalSchemaShowModeToEnterprise = {
   AllData: "ВсеДанные",
@@ -16220,17 +9787,8 @@ export const GeographicalSchemaShowModeFromEnterprise = {
   ЗаданнаяОбласть: "SpecifiedArea",
 } as const
 
-export const GeographicalSchemaShowMode = {
-  AllData: "AllData",
-  ScaleDefined: "ScaleDefined",
-  SpecifiedArea: "SpecifiedArea",
-} as const
-
-export const GeographicalSchemaShowModeEnterprise = {
-  ВсеДанные: "ВсеДанные",
-  ЗадаетсяМасштабом: "ЗадаетсяМасштабом",
-  ЗаданнаяОбласть: "ЗаданнаяОбласть",
-} as const
+export type GeographicalSchemaShowMode = keyof typeof GeographicalSchemaShowModeToEnterprise
+export type GeographicalSchemaShowModeEnterprise = keyof typeof GeographicalSchemaShowModeFromEnterprise
 
 export const PaintingReferencePointPositionToEnterprise = {
   LeftTop: "ЛевоВерх",
@@ -16256,29 +9814,8 @@ export const PaintingReferencePointPositionFromEnterprise = {
   ЦентрНиз: "CenterBottom",
 } as const
 
-export const PaintingReferencePointPosition = {
-  LeftTop: "LeftTop",
-  LeftBottom: "LeftBottom",
-  LeftCenter: "LeftCenter",
-  RightTop: "RightTop",
-  RightBottom: "RightBottom",
-  RightCenter: "RightCenter",
-  Center: "Center",
-  CenterTop: "CenterTop",
-  CenterBottom: "CenterBottom",
-} as const
-
-export const PaintingReferencePointPositionEnterprise = {
-  ЛевоВерх: "ЛевоВерх",
-  ЛевоНиз: "ЛевоНиз",
-  ЛевоЦентр: "ЛевоЦентр",
-  ПравоВерх: "ПравоВерх",
-  ПравоНиз: "ПравоНиз",
-  ПравоЦентр: "ПравоЦентр",
-  Центр: "Центр",
-  ЦентрВерх: "ЦентрВерх",
-  ЦентрНиз: "ЦентрНиз",
-} as const
+export type PaintingReferencePointPosition = keyof typeof PaintingReferencePointPositionToEnterprise
+export type PaintingReferencePointPositionEnterprise = keyof typeof PaintingReferencePointPositionFromEnterprise
 
 export const SeriesValuesDrawingModeToEnterprise = {
   ShowAsPart: "ОтображатьКакДолю",
@@ -16290,15 +9827,8 @@ export const SeriesValuesDrawingModeFromEnterprise = {
   ОтображатьКакЗначение: "ShowAsValue",
 } as const
 
-export const SeriesValuesDrawingMode = {
-  ShowAsPart: "ShowAsPart",
-  ShowAsValue: "ShowAsValue",
-} as const
-
-export const SeriesValuesDrawingModeEnterprise = {
-  ОтображатьКакДолю: "ОтображатьКакДолю",
-  ОтображатьКакЗначение: "ОтображатьКакЗначение",
-} as const
+export type SeriesValuesDrawingMode = keyof typeof SeriesValuesDrawingModeToEnterprise
+export type SeriesValuesDrawingModeEnterprise = keyof typeof SeriesValuesDrawingModeFromEnterprise
 
 export const IntegrationServiceChannelStateToEnterprise = {
   Disconnected: "Отключен",
@@ -16310,15 +9840,8 @@ export const IntegrationServiceChannelStateFromEnterprise = {
   Подключен: "Connected",
 } as const
 
-export const IntegrationServiceChannelState = {
-  Disconnected: "Disconnected",
-  Connected: "Connected",
-} as const
-
-export const IntegrationServiceChannelStateEnterprise = {
-  Отключен: "Отключен",
-  Подключен: "Подключен",
-} as const
+export type IntegrationServiceChannelState = keyof typeof IntegrationServiceChannelStateToEnterprise
+export type IntegrationServiceChannelStateEnterprise = keyof typeof IntegrationServiceChannelStateFromEnterprise
 
 export const ArchiveFileCompressionLevelToEnterprise = {
   Maximum: "Максимальный",
@@ -16332,17 +9855,8 @@ export const ArchiveFileCompressionLevelFromEnterprise = {
   Оптимальный: "Optimal",
 } as const
 
-export const ArchiveFileCompressionLevel = {
-  Maximum: "Maximum",
-  Minimum: "Minimum",
-  Optimal: "Optimal",
-} as const
-
-export const ArchiveFileCompressionLevelEnterprise = {
-  Максимальный: "Максимальный",
-  Минимальный: "Минимальный",
-  Оптимальный: "Оптимальный",
-} as const
+export type ArchiveFileCompressionLevel = keyof typeof ArchiveFileCompressionLevelToEnterprise
+export type ArchiveFileCompressionLevelEnterprise = keyof typeof ArchiveFileCompressionLevelFromEnterprise
 
 export const ArchiveFileCompressionMethodToEnterprise = {
   BZIP2: "BZIP2",
@@ -16356,17 +9870,8 @@ export const ArchiveFileCompressionMethodFromEnterprise = {
   Сжатие: "Deflate",
 } as const
 
-export const ArchiveFileCompressionMethod = {
-  BZIP2: "BZIP2",
-  Copy: "Copy",
-  Deflate: "Deflate",
-} as const
-
-export const ArchiveFileCompressionMethodEnterprise = {
-  BZIP2: "BZIP2",
-  Копирование: "Копирование",
-  Сжатие: "Сжатие",
-} as const
+export type ArchiveFileCompressionMethod = keyof typeof ArchiveFileCompressionMethodToEnterprise
+export type ArchiveFileCompressionMethodEnterprise = keyof typeof ArchiveFileCompressionMethodFromEnterprise
 
 export const ArchiveFileEncryptionMethodToEnterprise = {
   AES128: "AES128",
@@ -16382,19 +9887,8 @@ export const ArchiveFileEncryptionMethodFromEnterprise = {
   Zip20: "Zip20",
 } as const
 
-export const ArchiveFileEncryptionMethod = {
-  AES128: "AES128",
-  AES192: "AES192",
-  AES256: "AES256",
-  Zip20: "Zip20",
-} as const
-
-export const ArchiveFileEncryptionMethodEnterprise = {
-  AES128: "AES128",
-  AES192: "AES192",
-  AES256: "AES256",
-  Zip20: "Zip20",
-} as const
+export type ArchiveFileEncryptionMethod = keyof typeof ArchiveFileEncryptionMethodToEnterprise
+export type ArchiveFileEncryptionMethodEnterprise = keyof typeof ArchiveFileEncryptionMethodFromEnterprise
 
 export const ArchiveFileRestoreFilePathsModeToEnterprise = {
   Restore: "Восстанавливать",
@@ -16406,15 +9900,8 @@ export const ArchiveFileRestoreFilePathsModeFromEnterprise = {
   НеВосстанавливать: "DontRestore",
 } as const
 
-export const ArchiveFileRestoreFilePathsMode = {
-  Restore: "Restore",
-  DontRestore: "DontRestore",
-} as const
-
-export const ArchiveFileRestoreFilePathsModeEnterprise = {
-  Восстанавливать: "Восстанавливать",
-  НеВосстанавливать: "НеВосстанавливать",
-} as const
+export type ArchiveFileRestoreFilePathsMode = keyof typeof ArchiveFileRestoreFilePathsModeToEnterprise
+export type ArchiveFileRestoreFilePathsModeEnterprise = keyof typeof ArchiveFileRestoreFilePathsModeFromEnterprise
 
 export const ArchiveFileStorePathModeToEnterprise = {
   DontStorePath: "НеСохранятьПути",
@@ -16428,17 +9915,8 @@ export const ArchiveFileStorePathModeFromEnterprise = {
   СохранятьПолныеПути: "StoreFullPath",
 } as const
 
-export const ArchiveFileStorePathMode = {
-  DontStorePath: "DontStorePath",
-  StoreRelativePath: "StoreRelativePath",
-  StoreFullPath: "StoreFullPath",
-} as const
-
-export const ArchiveFileStorePathModeEnterprise = {
-  НеСохранятьПути: "НеСохранятьПути",
-  СохранятьОтносительныеПути: "СохранятьОтносительныеПути",
-  СохранятьПолныеПути: "СохранятьПолныеПути",
-} as const
+export type ArchiveFileStorePathMode = keyof typeof ArchiveFileStorePathModeToEnterprise
+export type ArchiveFileStorePathModeEnterprise = keyof typeof ArchiveFileStorePathModeFromEnterprise
 
 export const ArchiveFileSubDirProcessingModeToEnterprise = {
   DontProcess: "НеОбрабатывать",
@@ -16450,15 +9928,8 @@ export const ArchiveFileSubDirProcessingModeFromEnterprise = {
   ОбрабатыватьРекурсивно: "ProcessRecursively",
 } as const
 
-export const ArchiveFileSubDirProcessingMode = {
-  DontProcess: "DontProcess",
-  ProcessRecursively: "ProcessRecursively",
-} as const
-
-export const ArchiveFileSubDirProcessingModeEnterprise = {
-  НеОбрабатывать: "НеОбрабатывать",
-  ОбрабатыватьРекурсивно: "ОбрабатыватьРекурсивно",
-} as const
+export type ArchiveFileSubDirProcessingMode = keyof typeof ArchiveFileSubDirProcessingModeToEnterprise
+export type ArchiveFileSubDirProcessingModeEnterprise = keyof typeof ArchiveFileSubDirProcessingModeFromEnterprise
 
 export const ArchiveFileTypeToEnterprise = {
   BZIP2: "BZIP2",
@@ -16480,25 +9951,8 @@ export const ArchiveFileTypeFromEnterprise = {
   ZIP: "ZIP",
 } as const
 
-export const ArchiveFileType = {
-  BZIP2: "BZIP2",
-  GZIP: "GZIP",
-  RAR: "RAR",
-  SevenZIP: "SevenZIP",
-  TAR: "TAR",
-  XZ: "XZ",
-  ZIP: "ZIP",
-} as const
-
-export const ArchiveFileTypeEnterprise = {
-  BZIP2: "BZIP2",
-  GZIP: "GZIP",
-  RAR: "RAR",
-  SevenZIP: "SevenZIP",
-  TAR: "TAR",
-  XZ: "XZ",
-  ZIP: "ZIP",
-} as const
+export type ArchiveFileType = keyof typeof ArchiveFileTypeToEnterprise
+export type ArchiveFileTypeEnterprise = keyof typeof ArchiveFileTypeFromEnterprise
 
 export const FileNamesEncodingInArchiveFileToEnterprise = {
   UTF8: "UTF8",
@@ -16512,17 +9966,8 @@ export const FileNamesEncodingInArchiveFileFromEnterprise = {
   КодировкаОСДополнительноUTF8: "OSEncodingWithUTF8",
 } as const
 
-export const FileNamesEncodingInArchiveFile = {
-  UTF8: "UTF8",
-  Auto: "Auto",
-  OSEncodingWithUTF8: "OSEncodingWithUTF8",
-} as const
-
-export const FileNamesEncodingInArchiveFileEnterprise = {
-  UTF8: "UTF8",
-  Авто: "Авто",
-  КодировкаОСДополнительноUTF8: "КодировкаОСДополнительноUTF8",
-} as const
+export type FileNamesEncodingInArchiveFile = keyof typeof FileNamesEncodingInArchiveFileToEnterprise
+export type FileNamesEncodingInArchiveFileEnterprise = keyof typeof FileNamesEncodingInArchiveFileFromEnterprise
 
 export const FileAccessToEnterprise = {
   Write: "Запись",
@@ -16536,17 +9981,8 @@ export const FileAccessFromEnterprise = {
   ЧтениеИЗапись: "ReadAndWrite",
 } as const
 
-export const FileAccess = {
-  Write: "Write",
-  Read: "Read",
-  ReadAndWrite: "ReadAndWrite",
-} as const
-
-export const FileAccessEnterprise = {
-  Запись: "Запись",
-  Чтение: "Чтение",
-  ЧтениеИЗапись: "ЧтениеИЗапись",
-} as const
+export type FileAccess = keyof typeof FileAccessToEnterprise
+export type FileAccessEnterprise = keyof typeof FileAccessFromEnterprise
 
 export const FileCompareMethodToEnterprise = {
   Binary: "Двоичное",
@@ -16560,17 +9996,8 @@ export const FileCompareMethodFromEnterprise = {
   ТекстовыйДокумент: "TextDocument",
 } as const
 
-export const FileCompareMethod = {
-  Binary: "Binary",
-  SpreadsheetDocument: "SpreadsheetDocument",
-  TextDocument: "TextDocument",
-} as const
-
-export const FileCompareMethodEnterprise = {
-  Двоичное: "Двоичное",
-  ТабличныйДокумент: "ТабличныйДокумент",
-  ТекстовыйДокумент: "ТекстовыйДокумент",
-} as const
+export type FileCompareMethod = keyof typeof FileCompareMethodToEnterprise
+export type FileCompareMethodEnterprise = keyof typeof FileCompareMethodFromEnterprise
 
 export const FileDialogModeToEnterprise = {
   ChooseDirectory: "ВыборКаталога",
@@ -16584,17 +10011,8 @@ export const FileDialogModeFromEnterprise = {
   Сохранение: "Save",
 } as const
 
-export const FileDialogMode = {
-  ChooseDirectory: "ChooseDirectory",
-  Open: "Open",
-  Save: "Save",
-} as const
-
-export const FileDialogModeEnterprise = {
-  ВыборКаталога: "ВыборКаталога",
-  Открытие: "Открытие",
-  Сохранение: "Сохранение",
-} as const
+export type FileDialogMode = keyof typeof FileDialogModeToEnterprise
+export type FileDialogModeEnterprise = keyof typeof FileDialogModeFromEnterprise
 
 export const FileDialogSectionToEnterprise = {
   Audio: "Аудио",
@@ -16612,21 +10030,8 @@ export const FileDialogSectionFromEnterprise = {
   Файлы: "Files",
 } as const
 
-export const FileDialogSection = {
-  Audio: "Audio",
-  Gallery: "Gallery",
-  Documents: "Documents",
-  Recent: "Recent",
-  Files: "Files",
-} as const
-
-export const FileDialogSectionEnterprise = {
-  Аудио: "Аудио",
-  Галерея: "Галерея",
-  Документы: "Документы",
-  Недавние: "Недавние",
-  Файлы: "Файлы",
-} as const
+export type FileDialogSection = keyof typeof FileDialogSectionToEnterprise
+export type FileDialogSectionEnterprise = keyof typeof FileDialogSectionFromEnterprise
 
 export const FileDragModeToEnterprise = {
   AsFileRef: "КакСсылкаНаФайл",
@@ -16638,15 +10043,8 @@ export const FileDragModeFromEnterprise = {
   КакФайл: "AsFile",
 } as const
 
-export const FileDragMode = {
-  AsFileRef: "AsFileRef",
-  AsFile: "AsFile",
-} as const
-
-export const FileDragModeEnterprise = {
-  КакСсылкаНаФайл: "КакСсылкаНаФайл",
-  КакФайл: "КакФайл",
-} as const
+export type FileDragMode = keyof typeof FileDragModeToEnterprise
+export type FileDragModeEnterprise = keyof typeof FileDragModeFromEnterprise
 
 export const FileOpenModeToEnterprise = {
   Append: "Дописать",
@@ -16666,23 +10064,8 @@ export const FileOpenModeFromEnterprise = {
   СоздатьНовый: "CreateNew",
 } as const
 
-export const FileOpenMode = {
-  Append: "Append",
-  Truncate: "Truncate",
-  Open: "Open",
-  OpenOrCreate: "OpenOrCreate",
-  Create: "Create",
-  CreateNew: "CreateNew",
-} as const
-
-export const FileOpenModeEnterprise = {
-  Дописать: "Дописать",
-  Обрезать: "Обрезать",
-  Открыть: "Открыть",
-  ОткрытьИлиСоздать: "ОткрытьИлиСоздать",
-  Создать: "Создать",
-  СоздатьНовый: "СоздатьНовый",
-} as const
+export type FileOpenMode = keyof typeof FileOpenModeToEnterprise
+export type FileOpenModeEnterprise = keyof typeof FileOpenModeFromEnterprise
 
 export const GetFilesArchiveModeToEnterprise = {
   GetArchiveAlways: "ПолучатьАрхивВсегда",
@@ -16694,15 +10077,8 @@ export const GetFilesArchiveModeFromEnterprise = {
   ПолучатьАрхивПриНеобходимости: "GetArchiveWhenRequired",
 } as const
 
-export const GetFilesArchiveMode = {
-  GetArchiveAlways: "GetArchiveAlways",
-  GetArchiveWhenRequired: "GetArchiveWhenRequired",
-} as const
-
-export const GetFilesArchiveModeEnterprise = {
-  ПолучатьАрхивВсегда: "ПолучатьАрхивВсегда",
-  ПолучатьАрхивПриНеобходимости: "ПолучатьАрхивПриНеобходимости",
-} as const
+export type GetFilesArchiveMode = keyof typeof GetFilesArchiveModeToEnterprise
+export type GetFilesArchiveModeEnterprise = keyof typeof GetFilesArchiveModeFromEnterprise
 
 export const IncomingShareRequestStandardCommandToEnterprise = {
   CopyToClipboard: "КопироватьВБуферОбмена",
@@ -16718,19 +10094,9 @@ export const IncomingShareRequestStandardCommandFromEnterprise = {
   Сохранить: "Save",
 } as const
 
-export const IncomingShareRequestStandardCommand = {
-  CopyToClipboard: "CopyToClipboard",
-  ShareInConversation: "ShareInConversation",
-  Show: "Show",
-  Save: "Save",
-} as const
-
-export const IncomingShareRequestStandardCommandEnterprise = {
-  КопироватьВБуферОбмена: "КопироватьВБуферОбмена",
-  ПоделитьсяВОбсуждении: "ПоделитьсяВОбсуждении",
-  Показать: "Показать",
-  Сохранить: "Сохранить",
-} as const
+export type IncomingShareRequestStandardCommand = keyof typeof IncomingShareRequestStandardCommandToEnterprise
+export type IncomingShareRequestStandardCommandEnterprise =
+  keyof typeof IncomingShareRequestStandardCommandFromEnterprise
 
 export const MobileDeviceLibraryDirTypeToEnterprise = {
   Audio: "Аудио",
@@ -16744,17 +10110,8 @@ export const MobileDeviceLibraryDirTypeFromEnterprise = {
   Картинки: "Pictures",
 } as const
 
-export const MobileDeviceLibraryDirType = {
-  Audio: "Audio",
-  Video: "Video",
-  Pictures: "Pictures",
-} as const
-
-export const MobileDeviceLibraryDirTypeEnterprise = {
-  Аудио: "Аудио",
-  Видео: "Видео",
-  Картинки: "Картинки",
-} as const
+export type MobileDeviceLibraryDirType = keyof typeof MobileDeviceLibraryDirTypeToEnterprise
+export type MobileDeviceLibraryDirTypeEnterprise = keyof typeof MobileDeviceLibraryDirTypeFromEnterprise
 
 export const ShareRequestDataProcessingVariantToEnterprise = {
   View: "Просмотр",
@@ -16766,15 +10123,8 @@ export const ShareRequestDataProcessingVariantFromEnterprise = {
   Редактирование: "Edit",
 } as const
 
-export const ShareRequestDataProcessingVariant = {
-  View: "View",
-  Edit: "Edit",
-} as const
-
-export const ShareRequestDataProcessingVariantEnterprise = {
-  Просмотр: "Просмотр",
-  Редактирование: "Редактирование",
-} as const
+export type ShareRequestDataProcessingVariant = keyof typeof ShareRequestDataProcessingVariantToEnterprise
+export type ShareRequestDataProcessingVariantEnterprise = keyof typeof ShareRequestDataProcessingVariantFromEnterprise
 
 export const AccountMainPresentationToEnterprise = {
   AsCode: "ВВидеКода",
@@ -16786,15 +10136,8 @@ export const AccountMainPresentationFromEnterprise = {
   ВВидеНаименования: "AsDescription",
 } as const
 
-export const AccountMainPresentation = {
-  AsCode: "AsCode",
-  AsDescription: "AsDescription",
-} as const
-
-export const AccountMainPresentationEnterprise = {
-  ВВидеКода: "ВВидеКода",
-  ВВидеНаименования: "ВВидеНаименования",
-} as const
+export type AccountMainPresentation = keyof typeof AccountMainPresentationToEnterprise
+export type AccountMainPresentationEnterprise = keyof typeof AccountMainPresentationFromEnterprise
 
 export const AccumulationRegisterTypeToEnterprise = {
   Turnovers: "Обороты",
@@ -16806,15 +10149,8 @@ export const AccumulationRegisterTypeFromEnterprise = {
   Остатки: "Balance",
 } as const
 
-export const AccumulationRegisterType = {
-  Turnovers: "Turnovers",
-  Balance: "Balance",
-} as const
-
-export const AccumulationRegisterTypeEnterprise = {
-  Обороты: "Обороты",
-  Остатки: "Остатки",
-} as const
+export type AccumulationRegisterType = keyof typeof AccumulationRegisterTypeToEnterprise
+export type AccumulationRegisterTypeEnterprise = keyof typeof AccumulationRegisterTypeFromEnterprise
 
 export const AttributeUseToEnterprise = {
   ForFolder: "ДляГруппы",
@@ -16828,17 +10164,8 @@ export const AttributeUseFromEnterprise = {
   ДляЭлемента: "ForItem",
 } as const
 
-export const AttributeUse = {
-  ForFolder: "ForFolder",
-  ForFolderAndItem: "ForFolderAndItem",
-  ForItem: "ForItem",
-} as const
-
-export const AttributeUseEnterprise = {
-  ДляГруппы: "ДляГруппы",
-  ДляГруппыИЭлемента: "ДляГруппыИЭлемента",
-  ДляЭлемента: "ДляЭлемента",
-} as const
+export type AttributeUse = keyof typeof AttributeUseToEnterprise
+export type AttributeUseEnterprise = keyof typeof AttributeUseFromEnterprise
 
 export const BinaryDataBlockStorageUseModeToEnterprise = {
   Use: "Использовать",
@@ -16850,15 +10177,8 @@ export const BinaryDataBlockStorageUseModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const BinaryDataBlockStorageUseMode = {
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const BinaryDataBlockStorageUseModeEnterprise = {
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type BinaryDataBlockStorageUseMode = keyof typeof BinaryDataBlockStorageUseModeToEnterprise
+export type BinaryDataBlockStorageUseModeEnterprise = keyof typeof BinaryDataBlockStorageUseModeFromEnterprise
 
 export const BinaryDataStorageModeToEnterprise = {
   Use: "Использовать",
@@ -16870,15 +10190,8 @@ export const BinaryDataStorageModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const BinaryDataStorageMode = {
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const BinaryDataStorageModeEnterprise = {
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type BinaryDataStorageMode = keyof typeof BinaryDataStorageModeToEnterprise
+export type BinaryDataStorageModeEnterprise = keyof typeof BinaryDataStorageModeFromEnterprise
 
 export const BusinessProcessNumberPeriodicityToEnterprise = {
   Year: "Год",
@@ -16896,21 +10209,8 @@ export const BusinessProcessNumberPeriodicityFromEnterprise = {
   Непериодический: "Nonperiodical",
 } as const
 
-export const BusinessProcessNumberPeriodicity = {
-  Year: "Year",
-  Day: "Day",
-  Quarter: "Quarter",
-  Month: "Month",
-  Nonperiodical: "Nonperiodical",
-} as const
-
-export const BusinessProcessNumberPeriodicityEnterprise = {
-  Год: "Год",
-  День: "День",
-  Квартал: "Квартал",
-  Месяц: "Месяц",
-  Непериодический: "Непериодический",
-} as const
+export type BusinessProcessNumberPeriodicity = keyof typeof BusinessProcessNumberPeriodicityToEnterprise
+export type BusinessProcessNumberPeriodicityEnterprise = keyof typeof BusinessProcessNumberPeriodicityFromEnterprise
 
 export const BusinessProcessNumberTypeToEnterprise = {
   String: "Строка",
@@ -16922,15 +10222,8 @@ export const BusinessProcessNumberTypeFromEnterprise = {
   Число: "Number",
 } as const
 
-export const BusinessProcessNumberType = {
-  String: "String",
-  Number: "Number",
-} as const
-
-export const BusinessProcessNumberTypeEnterprise = {
-  Строка: "Строка",
-  Число: "Число",
-} as const
+export type BusinessProcessNumberType = keyof typeof BusinessProcessNumberTypeToEnterprise
+export type BusinessProcessNumberTypeEnterprise = keyof typeof BusinessProcessNumberTypeFromEnterprise
 
 export const CalculationRegisterPeriodicityToEnterprise = {
   Year: "Год",
@@ -16946,19 +10239,8 @@ export const CalculationRegisterPeriodicityFromEnterprise = {
   Месяц: "Month",
 } as const
 
-export const CalculationRegisterPeriodicity = {
-  Year: "Year",
-  Day: "Day",
-  Quarter: "Quarter",
-  Month: "Month",
-} as const
-
-export const CalculationRegisterPeriodicityEnterprise = {
-  Год: "Год",
-  День: "День",
-  Квартал: "Квартал",
-  Месяц: "Месяц",
-} as const
+export type CalculationRegisterPeriodicity = keyof typeof CalculationRegisterPeriodicityToEnterprise
+export type CalculationRegisterPeriodicityEnterprise = keyof typeof CalculationRegisterPeriodicityFromEnterprise
 
 export const CalculationTypeMainPresentationToEnterprise = {
   AsCode: "ВВидеКода",
@@ -16970,15 +10252,8 @@ export const CalculationTypeMainPresentationFromEnterprise = {
   ВВидеНаименования: "AsDescription",
 } as const
 
-export const CalculationTypeMainPresentation = {
-  AsCode: "AsCode",
-  AsDescription: "AsDescription",
-} as const
-
-export const CalculationTypeMainPresentationEnterprise = {
-  ВВидеКода: "ВВидеКода",
-  ВВидеНаименования: "ВВидеНаименования",
-} as const
+export type CalculationTypeMainPresentation = keyof typeof CalculationTypeMainPresentationToEnterprise
+export type CalculationTypeMainPresentationEnterprise = keyof typeof CalculationTypeMainPresentationFromEnterprise
 
 export const CharOfAccountCodeSeriesToEnterprise = {
   WholeChartOfAccounts: "ВоВсемПланеСчетов",
@@ -16990,15 +10265,8 @@ export const CharOfAccountCodeSeriesFromEnterprise = {
   ВПределахПодчинения: "WithinSubordination",
 } as const
 
-export const CharOfAccountCodeSeries = {
-  WholeChartOfAccounts: "WholeChartOfAccounts",
-  WithinSubordination: "WithinSubordination",
-} as const
-
-export const CharOfAccountCodeSeriesEnterprise = {
-  ВоВсемПланеСчетов: "ВоВсемПланеСчетов",
-  ВПределахПодчинения: "ВПределахПодчинения",
-} as const
+export type CharOfAccountCodeSeries = keyof typeof CharOfAccountCodeSeriesToEnterprise
+export type CharOfAccountCodeSeriesEnterprise = keyof typeof CharOfAccountCodeSeriesFromEnterprise
 
 export const CharacteristicKindCodesSeriesToEnterprise = {
   WholeCharacteristicKind: "ВоВсемПланеВидовХарактеристик",
@@ -17010,15 +10278,8 @@ export const CharacteristicKindCodesSeriesFromEnterprise = {
   ВПределахПодчинения: "WithinSubordination",
 } as const
 
-export const CharacteristicKindCodesSeries = {
-  WholeCharacteristicKind: "WholeCharacteristicKind",
-  WithinSubordination: "WithinSubordination",
-} as const
-
-export const CharacteristicKindCodesSeriesEnterprise = {
-  ВоВсемПланеВидовХарактеристик: "ВоВсемПланеВидовХарактеристик",
-  ВПределахПодчинения: "ВПределахПодчинения",
-} as const
+export type CharacteristicKindCodesSeries = keyof typeof CharacteristicKindCodesSeriesToEnterprise
+export type CharacteristicKindCodesSeriesEnterprise = keyof typeof CharacteristicKindCodesSeriesFromEnterprise
 
 export const CharacteristicTypeMainPresentationToEnterprise = {
   AsCode: "ВВидеКода",
@@ -17030,15 +10291,8 @@ export const CharacteristicTypeMainPresentationFromEnterprise = {
   ВВидеНаименования: "AsDescription",
 } as const
 
-export const CharacteristicTypeMainPresentation = {
-  AsCode: "AsCode",
-  AsDescription: "AsDescription",
-} as const
-
-export const CharacteristicTypeMainPresentationEnterprise = {
-  ВВидеКода: "ВВидеКода",
-  ВВидеНаименования: "ВВидеНаименования",
-} as const
+export type CharacteristicTypeMainPresentation = keyof typeof CharacteristicTypeMainPresentationToEnterprise
+export type CharacteristicTypeMainPresentationEnterprise = keyof typeof CharacteristicTypeMainPresentationFromEnterprise
 
 export const ChartOfCalculationTypesBaseUseToEnterprise = {
   DontUse: "НеИспользовать",
@@ -17052,17 +10306,8 @@ export const ChartOfCalculationTypesBaseUseFromEnterprise = {
   ПоПериодуРегистрации: "OnRegistrationPeriod",
 } as const
 
-export const ChartOfCalculationTypesBaseUse = {
-  DontUse: "DontUse",
-  OnActionPeriod: "OnActionPeriod",
-  OnRegistrationPeriod: "OnRegistrationPeriod",
-} as const
-
-export const ChartOfCalculationTypesBaseUseEnterprise = {
-  НеИспользовать: "НеИспользовать",
-  ПоПериодуДействия: "ПоПериодуДействия",
-  ПоПериодуРегистрации: "ПоПериодуРегистрации",
-} as const
+export type ChartOfCalculationTypesBaseUse = keyof typeof ChartOfCalculationTypesBaseUseToEnterprise
+export type ChartOfCalculationTypesBaseUseEnterprise = keyof typeof ChartOfCalculationTypesBaseUseFromEnterprise
 
 export const ChartOfCalculationTypesCodeTypeToEnterprise = {
   String: "Строка",
@@ -17074,15 +10319,8 @@ export const ChartOfCalculationTypesCodeTypeFromEnterprise = {
   Число: "Number",
 } as const
 
-export const ChartOfCalculationTypesCodeType = {
-  String: "String",
-  Number: "Number",
-} as const
-
-export const ChartOfCalculationTypesCodeTypeEnterprise = {
-  Строка: "Строка",
-  Число: "Число",
-} as const
+export type ChartOfCalculationTypesCodeType = keyof typeof ChartOfCalculationTypesCodeTypeToEnterprise
+export type ChartOfCalculationTypesCodeTypeEnterprise = keyof typeof ChartOfCalculationTypesCodeTypeFromEnterprise
 
 export const ChoiceDataGetModeOnInputByStringToEnterprise = {
   Directly: "Непосредственно",
@@ -17094,15 +10332,8 @@ export const ChoiceDataGetModeOnInputByStringFromEnterprise = {
   Фоновый: "Background",
 } as const
 
-export const ChoiceDataGetModeOnInputByString = {
-  Directly: "Directly",
-  Background: "Background",
-} as const
-
-export const ChoiceDataGetModeOnInputByStringEnterprise = {
-  Непосредственно: "Непосредственно",
-  Фоновый: "Фоновый",
-} as const
+export type ChoiceDataGetModeOnInputByString = keyof typeof ChoiceDataGetModeOnInputByStringToEnterprise
+export type ChoiceDataGetModeOnInputByStringEnterprise = keyof typeof ChoiceDataGetModeOnInputByStringFromEnterprise
 
 export const ChoiceModeToEnterprise = {
   QuickChoice: "БыстрыйВыбор",
@@ -17116,17 +10347,8 @@ export const ChoiceModeFromEnterprise = {
   ОбоимиСпособами: "BothWays",
 } as const
 
-export const ChoiceMode = {
-  QuickChoice: "QuickChoice",
-  FromForm: "FromForm",
-  BothWays: "BothWays",
-} as const
-
-export const ChoiceModeEnterprise = {
-  БыстрыйВыбор: "БыстрыйВыбор",
-  ИзФормы: "ИзФормы",
-  ОбоимиСпособами: "ОбоимиСпособами",
-} as const
+export type ChoiceMode = keyof typeof ChoiceModeToEnterprise
+export type ChoiceModeEnterprise = keyof typeof ChoiceModeFromEnterprise
 
 export const CommonAttributeAuthenticationSeparationToEnterprise = {
   DontUse: "НеИспользовать",
@@ -17138,15 +10360,9 @@ export const CommonAttributeAuthenticationSeparationFromEnterprise = {
   Разделять: "Separate",
 } as const
 
-export const CommonAttributeAuthenticationSeparation = {
-  DontUse: "DontUse",
-  Separate: "Separate",
-} as const
-
-export const CommonAttributeAuthenticationSeparationEnterprise = {
-  НеИспользовать: "НеИспользовать",
-  Разделять: "Разделять",
-} as const
+export type CommonAttributeAuthenticationSeparation = keyof typeof CommonAttributeAuthenticationSeparationToEnterprise
+export type CommonAttributeAuthenticationSeparationEnterprise =
+  keyof typeof CommonAttributeAuthenticationSeparationFromEnterprise
 
 export const CommonAttributeAutoUseToEnterprise = {
   Use: "Использовать",
@@ -17158,15 +10374,8 @@ export const CommonAttributeAutoUseFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const CommonAttributeAutoUse = {
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const CommonAttributeAutoUseEnterprise = {
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type CommonAttributeAutoUse = keyof typeof CommonAttributeAutoUseToEnterprise
+export type CommonAttributeAutoUseEnterprise = keyof typeof CommonAttributeAutoUseFromEnterprise
 
 export const CommonAttributeConfigurationExtensionsSeparationToEnterprise = {
   DontUse: "НеИспользовать",
@@ -17178,15 +10387,10 @@ export const CommonAttributeConfigurationExtensionsSeparationFromEnterprise = {
   Разделять: "Separate",
 } as const
 
-export const CommonAttributeConfigurationExtensionsSeparation = {
-  DontUse: "DontUse",
-  Separate: "Separate",
-} as const
-
-export const CommonAttributeConfigurationExtensionsSeparationEnterprise = {
-  НеИспользовать: "НеИспользовать",
-  Разделять: "Разделять",
-} as const
+export type CommonAttributeConfigurationExtensionsSeparation =
+  keyof typeof CommonAttributeConfigurationExtensionsSeparationToEnterprise
+export type CommonAttributeConfigurationExtensionsSeparationEnterprise =
+  keyof typeof CommonAttributeConfigurationExtensionsSeparationFromEnterprise
 
 export const CommonAttributeDataSeparationToEnterprise = {
   DontUse: "НеИспользовать",
@@ -17198,15 +10402,8 @@ export const CommonAttributeDataSeparationFromEnterprise = {
   Разделять: "Separate",
 } as const
 
-export const CommonAttributeDataSeparation = {
-  DontUse: "DontUse",
-  Separate: "Separate",
-} as const
-
-export const CommonAttributeDataSeparationEnterprise = {
-  НеИспользовать: "НеИспользовать",
-  Разделять: "Разделять",
-} as const
+export type CommonAttributeDataSeparation = keyof typeof CommonAttributeDataSeparationToEnterprise
+export type CommonAttributeDataSeparationEnterprise = keyof typeof CommonAttributeDataSeparationFromEnterprise
 
 export const CommonAttributeSeparatedDataUseToEnterprise = {
   Independently: "Независимо",
@@ -17218,15 +10415,8 @@ export const CommonAttributeSeparatedDataUseFromEnterprise = {
   НезависимоИСовместно: "IndependentlyAndSimultaneously",
 } as const
 
-export const CommonAttributeSeparatedDataUse = {
-  Independently: "Independently",
-  IndependentlyAndSimultaneously: "IndependentlyAndSimultaneously",
-} as const
-
-export const CommonAttributeSeparatedDataUseEnterprise = {
-  Независимо: "Независимо",
-  НезависимоИСовместно: "НезависимоИСовместно",
-} as const
+export type CommonAttributeSeparatedDataUse = keyof typeof CommonAttributeSeparatedDataUseToEnterprise
+export type CommonAttributeSeparatedDataUseEnterprise = keyof typeof CommonAttributeSeparatedDataUseFromEnterprise
 
 export const CommonAttributeUseToEnterprise = {
   Auto: "Авто",
@@ -17240,17 +10430,8 @@ export const CommonAttributeUseFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const CommonAttributeUse = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const CommonAttributeUseEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type CommonAttributeUse = keyof typeof CommonAttributeUseToEnterprise
+export type CommonAttributeUseEnterprise = keyof typeof CommonAttributeUseFromEnterprise
 
 export const CommonAttributeUsersSeparationToEnterprise = {
   DontUse: "НеИспользовать",
@@ -17262,15 +10443,8 @@ export const CommonAttributeUsersSeparationFromEnterprise = {
   Разделять: "Separate",
 } as const
 
-export const CommonAttributeUsersSeparation = {
-  DontUse: "DontUse",
-  Separate: "Separate",
-} as const
-
-export const CommonAttributeUsersSeparationEnterprise = {
-  НеИспользовать: "НеИспользовать",
-  Разделять: "Разделять",
-} as const
+export type CommonAttributeUsersSeparation = keyof typeof CommonAttributeUsersSeparationToEnterprise
+export type CommonAttributeUsersSeparationEnterprise = keyof typeof CommonAttributeUsersSeparationFromEnterprise
 
 export const CompatibilityModeToEnterprise = {
   Version8_1: "Версия8_1",
@@ -17338,71 +10512,8 @@ export const CompatibilityModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const CompatibilityMode = {
-  Version8_1: "Version8_1",
-  Version8_2_13: "Version8_2_13",
-  Version8_2_16: "Version8_2_16",
-  Version8_3_1: "Version8_3_1",
-  Version8_3_10: "Version8_3_10",
-  Version8_3_11: "Version8_3_11",
-  Version8_3_12: "Version8_3_12",
-  Version8_3_13: "Version8_3_13",
-  Version8_3_14: "Version8_3_14",
-  Version8_3_15: "Version8_3_15",
-  Version8_3_16: "Version8_3_16",
-  Version8_3_17: "Version8_3_17",
-  Version8_3_18: "Version8_3_18",
-  Version8_3_19: "Version8_3_19",
-  Version8_3_2: "Version8_3_2",
-  Version8_3_20: "Version8_3_20",
-  Version8_3_21: "Version8_3_21",
-  Version8_3_22: "Version8_3_22",
-  Version8_3_23: "Version8_3_23",
-  Version8_3_24: "Version8_3_24",
-  Version8_3_25: "Version8_3_25",
-  Version8_3_26: "Version8_3_26",
-  Version8_3_3: "Version8_3_3",
-  Version8_3_4: "Version8_3_4",
-  Version8_3_5: "Version8_3_5",
-  Version8_3_6: "Version8_3_6",
-  Version8_3_7: "Version8_3_7",
-  Version8_3_8: "Version8_3_8",
-  Version8_3_9: "Version8_3_9",
-  DontUse: "DontUse",
-} as const
-
-export const CompatibilityModeEnterprise = {
-  Версия8_1: "Версия8_1",
-  Версия8_2_13: "Версия8_2_13",
-  Версия8_2_16: "Версия8_2_16",
-  Версия8_3_1: "Версия8_3_1",
-  Версия8_3_10: "Версия8_3_10",
-  Версия8_3_11: "Версия8_3_11",
-  Версия8_3_12: "Версия8_3_12",
-  Версия8_3_13: "Версия8_3_13",
-  Версия8_3_14: "Версия8_3_14",
-  Версия8_3_15: "Версия8_3_15",
-  Версия8_3_16: "Версия8_3_16",
-  Версия8_3_17: "Версия8_3_17",
-  Версия8_3_18: "Версия8_3_18",
-  Версия8_3_19: "Версия8_3_19",
-  Версия8_3_2: "Версия8_3_2",
-  Версия8_3_20: "Версия8_3_20",
-  Версия8_3_21: "Версия8_3_21",
-  Версия8_3_22: "Версия8_3_22",
-  Версия8_3_23: "Версия8_3_23",
-  Версия8_3_24: "Версия8_3_24",
-  Версия8_3_25: "Версия8_3_25",
-  Версия8_3_26: "Версия8_3_26",
-  Версия8_3_3: "Версия8_3_3",
-  Версия8_3_4: "Версия8_3_4",
-  Версия8_3_5: "Версия8_3_5",
-  Версия8_3_6: "Версия8_3_6",
-  Версия8_3_7: "Версия8_3_7",
-  Версия8_3_8: "Версия8_3_8",
-  Версия8_3_9: "Версия8_3_9",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type CompatibilityMode = keyof typeof CompatibilityModeToEnterprise
+export type CompatibilityModeEnterprise = keyof typeof CompatibilityModeFromEnterprise
 
 export const ConfigurationExtensionPurposeToEnterprise = {
   Customization: "Адаптация",
@@ -17416,17 +10527,8 @@ export const ConfigurationExtensionPurposeFromEnterprise = {
   Исправление: "Patch",
 } as const
 
-export const ConfigurationExtensionPurpose = {
-  Customization: "Customization",
-  AddOn: "AddOn",
-  Patch: "Patch",
-} as const
-
-export const ConfigurationExtensionPurposeEnterprise = {
-  Адаптация: "Адаптация",
-  Дополнение: "Дополнение",
-  Исправление: "Исправление",
-} as const
+export type ConfigurationExtensionPurpose = keyof typeof ConfigurationExtensionPurposeToEnterprise
+export type ConfigurationExtensionPurposeEnterprise = keyof typeof ConfigurationExtensionPurposeFromEnterprise
 
 export const CreateOnInputToEnterprise = {
   Auto: "Авто",
@@ -17440,17 +10542,8 @@ export const CreateOnInputFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const CreateOnInput = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const CreateOnInputEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type CreateOnInput = keyof typeof CreateOnInputToEnterprise
+export type CreateOnInputEnterprise = keyof typeof CreateOnInputFromEnterprise
 
 export const DataExchangeMainPresentationToEnterprise = {
   AsCode: "ВВидеКода",
@@ -17462,15 +10555,8 @@ export const DataExchangeMainPresentationFromEnterprise = {
   ВВидеНаименования: "AsDescription",
 } as const
 
-export const DataExchangeMainPresentation = {
-  AsCode: "AsCode",
-  AsDescription: "AsDescription",
-} as const
-
-export const DataExchangeMainPresentationEnterprise = {
-  ВВидеКода: "ВВидеКода",
-  ВВидеНаименования: "ВВидеНаименования",
-} as const
+export type DataExchangeMainPresentation = keyof typeof DataExchangeMainPresentationToEnterprise
+export type DataExchangeMainPresentationEnterprise = keyof typeof DataExchangeMainPresentationFromEnterprise
 
 export const DataHistoryUseToEnterprise = {
   Use: "Использовать",
@@ -17482,15 +10568,8 @@ export const DataHistoryUseFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const DataHistoryUse = {
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const DataHistoryUseEnterprise = {
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type DataHistoryUse = keyof typeof DataHistoryUseToEnterprise
+export type DataHistoryUseEnterprise = keyof typeof DataHistoryUseFromEnterprise
 
 export const DefaultDataLockControlModeToEnterprise = {
   Automatic: "Автоматический",
@@ -17504,17 +10583,8 @@ export const DefaultDataLockControlModeFromEnterprise = {
   Управляемый: "Managed",
 } as const
 
-export const DefaultDataLockControlMode = {
-  Automatic: "Automatic",
-  AutomaticAndManaged: "AutomaticAndManaged",
-  Managed: "Managed",
-} as const
-
-export const DefaultDataLockControlModeEnterprise = {
-  Автоматический: "Автоматический",
-  АвтоматическийИУправляемый: "АвтоматическийИУправляемый",
-  Управляемый: "Управляемый",
-} as const
+export type DefaultDataLockControlMode = keyof typeof DefaultDataLockControlModeToEnterprise
+export type DefaultDataLockControlModeEnterprise = keyof typeof DefaultDataLockControlModeFromEnterprise
 
 export const DocumentNumberPeriodicityToEnterprise = {
   Year: "Год",
@@ -17532,21 +10602,8 @@ export const DocumentNumberPeriodicityFromEnterprise = {
   Непериодический: "Nonperiodical",
 } as const
 
-export const DocumentNumberPeriodicity = {
-  Year: "Year",
-  Day: "Day",
-  Quarter: "Quarter",
-  Month: "Month",
-  Nonperiodical: "Nonperiodical",
-} as const
-
-export const DocumentNumberPeriodicityEnterprise = {
-  Год: "Год",
-  День: "День",
-  Квартал: "Квартал",
-  Месяц: "Месяц",
-  Непериодический: "Непериодический",
-} as const
+export type DocumentNumberPeriodicity = keyof typeof DocumentNumberPeriodicityToEnterprise
+export type DocumentNumberPeriodicityEnterprise = keyof typeof DocumentNumberPeriodicityFromEnterprise
 
 export const DocumentNumberTypeToEnterprise = {
   String: "Строка",
@@ -17558,15 +10615,8 @@ export const DocumentNumberTypeFromEnterprise = {
   Число: "Number",
 } as const
 
-export const DocumentNumberType = {
-  String: "String",
-  Number: "Number",
-} as const
-
-export const DocumentNumberTypeEnterprise = {
-  Строка: "Строка",
-  Число: "Число",
-} as const
+export type DocumentNumberType = keyof typeof DocumentNumberTypeToEnterprise
+export type DocumentNumberTypeEnterprise = keyof typeof DocumentNumberTypeFromEnterprise
 
 export const EditTypeToEnterprise = {
   InDialog: "ВДиалоге",
@@ -17580,17 +10630,8 @@ export const EditTypeFromEnterprise = {
   ОбоимиСпособами: "BothWays",
 } as const
 
-export const EditType = {
-  InDialog: "InDialog",
-  InList: "InList",
-  BothWays: "BothWays",
-} as const
-
-export const EditTypeEnterprise = {
-  ВДиалоге: "ВДиалоге",
-  ВСписке: "ВСписке",
-  ОбоимиСпособами: "ОбоимиСпособами",
-} as const
+export type EditType = keyof typeof EditTypeToEnterprise
+export type EditTypeEnterprise = keyof typeof EditTypeFromEnterprise
 
 export const ExternalDataSourceTableDataTypeToEnterprise = {
   NonobjectData: "НеобъектныеДанные",
@@ -17602,15 +10643,8 @@ export const ExternalDataSourceTableDataTypeFromEnterprise = {
   ОбъектныеДанные: "ObjectData",
 } as const
 
-export const ExternalDataSourceTableDataType = {
-  NonobjectData: "NonobjectData",
-  ObjectData: "ObjectData",
-} as const
-
-export const ExternalDataSourceTableDataTypeEnterprise = {
-  НеобъектныеДанные: "НеобъектныеДанные",
-  ОбъектныеДанные: "ОбъектныеДанные",
-} as const
+export type ExternalDataSourceTableDataType = keyof typeof ExternalDataSourceTableDataTypeToEnterprise
+export type ExternalDataSourceTableDataTypeEnterprise = keyof typeof ExternalDataSourceTableDataTypeFromEnterprise
 
 export const ExternalDataSourceTableTypeToEnterprise = {
   Expression: "Выражение",
@@ -17622,15 +10656,8 @@ export const ExternalDataSourceTableTypeFromEnterprise = {
   Таблица: "Table",
 } as const
 
-export const ExternalDataSourceTableType = {
-  Expression: "Expression",
-  Table: "Table",
-} as const
-
-export const ExternalDataSourceTableTypeEnterprise = {
-  Выражение: "Выражение",
-  Таблица: "Таблица",
-} as const
+export type ExternalDataSourceTableType = keyof typeof ExternalDataSourceTableTypeToEnterprise
+export type ExternalDataSourceTableTypeEnterprise = keyof typeof ExternalDataSourceTableTypeFromEnterprise
 
 export const FormTypeToEnterprise = {
   Ordinary: "Обычная",
@@ -17642,15 +10669,8 @@ export const FormTypeFromEnterprise = {
   Управляемая: "Managed",
 } as const
 
-export const FormType = {
-  Ordinary: "Ordinary",
-  Managed: "Managed",
-} as const
-
-export const FormTypeEnterprise = {
-  Обычная: "Обычная",
-  Управляемая: "Управляемая",
-} as const
+export type FormType = keyof typeof FormTypeToEnterprise
+export type FormTypeEnterprise = keyof typeof FormTypeFromEnterprise
 
 export const FullTextSearchOnInputByStringToEnterprise = {
   Use: "Использовать",
@@ -17662,15 +10682,8 @@ export const FullTextSearchOnInputByStringFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const FullTextSearchOnInputByString = {
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const FullTextSearchOnInputByStringEnterprise = {
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type FullTextSearchOnInputByString = keyof typeof FullTextSearchOnInputByStringToEnterprise
+export type FullTextSearchOnInputByStringEnterprise = keyof typeof FullTextSearchOnInputByStringFromEnterprise
 
 export const HTTPMethodToEnterprise = {
   CONNECT: "CONNECT",
@@ -17714,47 +10727,8 @@ export const HTTPMethodFromEnterprise = {
   Любой: "Any",
 } as const
 
-export const HTTPMethod = {
-  CONNECT: "CONNECT",
-  COPY: "COPY",
-  DELETE: "DELETE",
-  GET: "GET",
-  HEAD: "HEAD",
-  LOCK: "LOCK",
-  MERGE: "MERGE",
-  MKCOL: "MKCOL",
-  MOVE: "MOVE",
-  OPTIONS: "OPTIONS",
-  PATCH: "PATCH",
-  POST: "POST",
-  PROPFIND: "PROPFIND",
-  PROPPATCH: "PROPPATCH",
-  PUT: "PUT",
-  TRACE: "TRACE",
-  UNLOCK: "UNLOCK",
-  Any: "Any",
-} as const
-
-export const HTTPMethodEnterprise = {
-  CONNECT: "CONNECT",
-  COPY: "COPY",
-  DELETE: "DELETE",
-  GET: "GET",
-  HEAD: "HEAD",
-  LOCK: "LOCK",
-  MERGE: "MERGE",
-  MKCOL: "MKCOL",
-  MOVE: "MOVE",
-  OPTIONS: "OPTIONS",
-  PATCH: "PATCH",
-  POST: "POST",
-  PROPFIND: "PROPFIND",
-  PROPPATCH: "PROPPATCH",
-  PUT: "PUT",
-  TRACE: "TRACE",
-  UNLOCK: "UNLOCK",
-  Любой: "Любой",
-} as const
+export type HTTPMethod = keyof typeof HTTPMethodToEnterprise
+export type HTTPMethodEnterprise = keyof typeof HTTPMethodFromEnterprise
 
 export const HierarchyTypeToEnterprise = {
   HierarchyFoldersAndItems: "ИерархияГруппИЭлементов",
@@ -17766,15 +10740,8 @@ export const HierarchyTypeFromEnterprise = {
   ИерархияЭлементов: "HierarchyOfItems",
 } as const
 
-export const HierarchyType = {
-  HierarchyFoldersAndItems: "HierarchyFoldersAndItems",
-  HierarchyOfItems: "HierarchyOfItems",
-} as const
-
-export const HierarchyTypeEnterprise = {
-  ИерархияГруппИЭлементов: "ИерархияГруппИЭлементов",
-  ИерархияЭлементов: "ИерархияЭлементов",
-} as const
+export type HierarchyType = keyof typeof HierarchyTypeToEnterprise
+export type HierarchyTypeEnterprise = keyof typeof HierarchyTypeFromEnterprise
 
 export const IndexingToEnterprise = {
   Index: "Индексировать",
@@ -17788,17 +10755,8 @@ export const IndexingFromEnterprise = {
   НеИндексировать: "DontIndex",
 } as const
 
-export const Indexing = {
-  Index: "Index",
-  IndexWithAdditionalOrder: "IndexWithAdditionalOrder",
-  DontIndex: "DontIndex",
-} as const
-
-export const IndexingEnterprise = {
-  Индексировать: "Индексировать",
-  ИндексироватьСДопУпорядочиванием: "ИндексироватьСДопУпорядочиванием",
-  НеИндексировать: "НеИндексировать",
-} as const
+export type Indexing = keyof typeof IndexingToEnterprise
+export type IndexingEnterprise = keyof typeof IndexingFromEnterprise
 
 export const InformationRegisterPeriodicityToEnterprise = {
   Year: "Год",
@@ -17820,25 +10778,8 @@ export const InformationRegisterPeriodicityFromEnterprise = {
   Секунда: "Second",
 } as const
 
-export const InformationRegisterPeriodicity = {
-  Year: "Year",
-  Day: "Day",
-  Quarter: "Quarter",
-  Month: "Month",
-  Nonperiodical: "Nonperiodical",
-  RecorderPosition: "RecorderPosition",
-  Second: "Second",
-} as const
-
-export const InformationRegisterPeriodicityEnterprise = {
-  Год: "Год",
-  День: "День",
-  Квартал: "Квартал",
-  Месяц: "Месяц",
-  Непериодический: "Непериодический",
-  ПозицияРегистратора: "ПозицияРегистратора",
-  Секунда: "Секунда",
-} as const
+export type InformationRegisterPeriodicity = keyof typeof InformationRegisterPeriodicityToEnterprise
+export type InformationRegisterPeriodicityEnterprise = keyof typeof InformationRegisterPeriodicityFromEnterprise
 
 export const IntegrationServiceChannelMessageDirectionToEnterprise = {
   Send: "Отправка",
@@ -17850,15 +10791,10 @@ export const IntegrationServiceChannelMessageDirectionFromEnterprise = {
   Получение: "Receive",
 } as const
 
-export const IntegrationServiceChannelMessageDirection = {
-  Send: "Send",
-  Receive: "Receive",
-} as const
-
-export const IntegrationServiceChannelMessageDirectionEnterprise = {
-  Отправка: "Отправка",
-  Получение: "Получение",
-} as const
+export type IntegrationServiceChannelMessageDirection =
+  keyof typeof IntegrationServiceChannelMessageDirectionToEnterprise
+export type IntegrationServiceChannelMessageDirectionEnterprise =
+  keyof typeof IntegrationServiceChannelMessageDirectionFromEnterprise
 
 export const ModalityUseModeToEnterprise = {
   Use: "Использовать",
@@ -17872,17 +10808,8 @@ export const ModalityUseModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const ModalityUseMode = {
-  Use: "Use",
-  UseWithWarnings: "UseWithWarnings",
-  DontUse: "DontUse",
-} as const
-
-export const ModalityUseModeEnterprise = {
-  Использовать: "Использовать",
-  ИспользоватьСПредупреждениями: "ИспользоватьСПредупреждениями",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type ModalityUseMode = keyof typeof ModalityUseModeToEnterprise
+export type ModalityUseModeEnterprise = keyof typeof ModalityUseModeFromEnterprise
 
 export const MoveBoundaryOnPostingToEnterprise = {
   DontMove: "НеПеремещать",
@@ -17894,15 +10821,8 @@ export const MoveBoundaryOnPostingFromEnterprise = {
   Перемещать: "Move",
 } as const
 
-export const MoveBoundaryOnPosting = {
-  DontMove: "DontMove",
-  Move: "Move",
-} as const
-
-export const MoveBoundaryOnPostingEnterprise = {
-  НеПеремещать: "НеПеремещать",
-  Перемещать: "Перемещать",
-} as const
+export type MoveBoundaryOnPosting = keyof typeof MoveBoundaryOnPostingToEnterprise
+export type MoveBoundaryOnPostingEnterprise = keyof typeof MoveBoundaryOnPostingFromEnterprise
 
 export const ObjectAutonumerationModeToEnterprise = {
   NotAutoFree: "НеОсвобождатьАвтоматически",
@@ -17914,15 +10834,8 @@ export const ObjectAutonumerationModeFromEnterprise = {
   ОсвобождатьАвтоматически: "AutoFree",
 } as const
 
-export const ObjectAutonumerationMode = {
-  NotAutoFree: "NotAutoFree",
-  AutoFree: "AutoFree",
-} as const
-
-export const ObjectAutonumerationModeEnterprise = {
-  НеОсвобождатьАвтоматически: "НеОсвобождатьАвтоматически",
-  ОсвобождатьАвтоматически: "ОсвобождатьАвтоматически",
-} as const
+export type ObjectAutonumerationMode = keyof typeof ObjectAutonumerationModeToEnterprise
+export type ObjectAutonumerationModeEnterprise = keyof typeof ObjectAutonumerationModeFromEnterprise
 
 export const ObjectBelongingToEnterprise = {
   Adopted: "Заимствованный",
@@ -17934,15 +10847,8 @@ export const ObjectBelongingFromEnterprise = {
   Собственный: "Native",
 } as const
 
-export const ObjectBelonging = {
-  Adopted: "Adopted",
-  Native: "Native",
-} as const
-
-export const ObjectBelongingEnterprise = {
-  Заимствованный: "Заимствованный",
-  Собственный: "Собственный",
-} as const
+export type ObjectBelonging = keyof typeof ObjectBelongingToEnterprise
+export type ObjectBelongingEnterprise = keyof typeof ObjectBelongingFromEnterprise
 
 export const PostingToEnterprise = {
   Deny: "Запретить",
@@ -17954,15 +10860,8 @@ export const PostingFromEnterprise = {
   Разрешить: "Allow",
 } as const
 
-export const Posting = {
-  Deny: "Deny",
-  Allow: "Allow",
-} as const
-
-export const PostingEnterprise = {
-  Запретить: "Запретить",
-  Разрешить: "Разрешить",
-} as const
+export type Posting = keyof typeof PostingToEnterprise
+export type PostingEnterprise = keyof typeof PostingFromEnterprise
 
 export const RealTimePostingToEnterprise = {
   Deny: "Запретить",
@@ -17974,15 +10873,8 @@ export const RealTimePostingFromEnterprise = {
   Разрешить: "Allow",
 } as const
 
-export const RealTimePosting = {
-  Deny: "Deny",
-  Allow: "Allow",
-} as const
-
-export const RealTimePostingEnterprise = {
-  Запретить: "Запретить",
-  Разрешить: "Разрешить",
-} as const
+export type RealTimePosting = keyof typeof RealTimePostingToEnterprise
+export type RealTimePostingEnterprise = keyof typeof RealTimePostingFromEnterprise
 
 export const RegisterRecordsDeletionToEnterprise = {
   AutoDeleteOff: "НеУдалятьАвтоматически",
@@ -17996,17 +10888,8 @@ export const RegisterRecordsDeletionFromEnterprise = {
   УдалятьАвтоматическиПриОтменеПроведения: "AutoDeleteOnUnpost",
 } as const
 
-export const RegisterRecordsDeletion = {
-  AutoDeleteOff: "AutoDeleteOff",
-  AutoDelete: "AutoDelete",
-  AutoDeleteOnUnpost: "AutoDeleteOnUnpost",
-} as const
-
-export const RegisterRecordsDeletionEnterprise = {
-  НеУдалятьАвтоматически: "НеУдалятьАвтоматически",
-  УдалятьАвтоматически: "УдалятьАвтоматически",
-  УдалятьАвтоматическиПриОтменеПроведения: "УдалятьАвтоматическиПриОтменеПроведения",
-} as const
+export type RegisterRecordsDeletion = keyof typeof RegisterRecordsDeletionToEnterprise
+export type RegisterRecordsDeletionEnterprise = keyof typeof RegisterRecordsDeletionFromEnterprise
 
 export const RegisterRecordsWritingOnPostToEnterprise = {
   WriteSelected: "ЗаписыватьВыбранные",
@@ -18018,15 +10901,8 @@ export const RegisterRecordsWritingOnPostFromEnterprise = {
   ЗаписыватьМодифицированные: "WriteModified",
 } as const
 
-export const RegisterRecordsWritingOnPost = {
-  WriteSelected: "WriteSelected",
-  WriteModified: "WriteModified",
-} as const
-
-export const RegisterRecordsWritingOnPostEnterprise = {
-  ЗаписыватьВыбранные: "ЗаписыватьВыбранные",
-  ЗаписыватьМодифицированные: "ЗаписыватьМодифицированные",
-} as const
+export type RegisterRecordsWritingOnPost = keyof typeof RegisterRecordsWritingOnPostToEnterprise
+export type RegisterRecordsWritingOnPostEnterprise = keyof typeof RegisterRecordsWritingOnPostFromEnterprise
 
 export const RegisterWriteModeToEnterprise = {
   Independent: "Независимый",
@@ -18038,15 +10914,8 @@ export const RegisterWriteModeFromEnterprise = {
   ПодчинениеРегистратору: "RecorderSubordinate",
 } as const
 
-export const RegisterWriteMode = {
-  Independent: "Independent",
-  RecorderSubordinate: "RecorderSubordinate",
-} as const
-
-export const RegisterWriteModeEnterprise = {
-  Независимый: "Независимый",
-  ПодчинениеРегистратору: "ПодчинениеРегистратору",
-} as const
+export type RegisterWriteMode = keyof typeof RegisterWriteModeToEnterprise
+export type RegisterWriteModeEnterprise = keyof typeof RegisterWriteModeFromEnterprise
 
 export const ReturnValuesReuseToEnterprise = {
   DuringRequest: "НаВремяВызова",
@@ -18060,17 +10929,8 @@ export const ReturnValuesReuseFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const ReturnValuesReuse = {
-  DuringRequest: "DuringRequest",
-  DuringSession: "DuringSession",
-  DontUse: "DontUse",
-} as const
-
-export const ReturnValuesReuseEnterprise = {
-  НаВремяВызова: "НаВремяВызова",
-  НаВремяСеанса: "НаВремяСеанса",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type ReturnValuesReuse = keyof typeof ReturnValuesReuseToEnterprise
+export type ReturnValuesReuseEnterprise = keyof typeof ReturnValuesReuseFromEnterprise
 
 export const ScriptVariantToEnterprise = {
   English: "Английский",
@@ -18082,15 +10942,8 @@ export const ScriptVariantFromEnterprise = {
   Русский: "Russian",
 } as const
 
-export const ScriptVariant = {
-  English: "English",
-  Russian: "Russian",
-} as const
-
-export const ScriptVariantEnterprise = {
-  Английский: "Английский",
-  Русский: "Русский",
-} as const
+export type ScriptVariant = keyof typeof ScriptVariantToEnterprise
+export type ScriptVariantEnterprise = keyof typeof ScriptVariantFromEnterprise
 
 export const SearchStringModeOnInputByStringToEnterprise = {
   AnyPart: "ЛюбаяЧасть",
@@ -18102,15 +10955,8 @@ export const SearchStringModeOnInputByStringFromEnterprise = {
   Начало: "Begin",
 } as const
 
-export const SearchStringModeOnInputByString = {
-  AnyPart: "AnyPart",
-  Begin: "Begin",
-} as const
-
-export const SearchStringModeOnInputByStringEnterprise = {
-  ЛюбаяЧасть: "ЛюбаяЧасть",
-  Начало: "Начало",
-} as const
+export type SearchStringModeOnInputByString = keyof typeof SearchStringModeOnInputByStringToEnterprise
+export type SearchStringModeOnInputByStringEnterprise = keyof typeof SearchStringModeOnInputByStringFromEnterprise
 
 export const SequenceFillingToEnterprise = {
   AutoFill: "ЗаполнятьАвтоматически",
@@ -18122,15 +10968,8 @@ export const SequenceFillingFromEnterprise = {
   НеЗаполнятьАвтоматически: "AutoFillOff",
 } as const
 
-export const SequenceFilling = {
-  AutoFill: "AutoFill",
-  AutoFillOff: "AutoFillOff",
-} as const
-
-export const SequenceFillingEnterprise = {
-  ЗаполнятьАвтоматически: "ЗаполнятьАвтоматически",
-  НеЗаполнятьАвтоматически: "НеЗаполнятьАвтоматически",
-} as const
+export type SequenceFilling = keyof typeof SequenceFillingToEnterprise
+export type SequenceFillingEnterprise = keyof typeof SequenceFillingFromEnterprise
 
 export const SessionReuseModeToEnterprise = {
   Use: "Использовать",
@@ -18144,17 +10983,8 @@ export const SessionReuseModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const SessionReuseMode = {
-  Use: "Use",
-  AutoUse: "AutoUse",
-  DontUse: "DontUse",
-} as const
-
-export const SessionReuseModeEnterprise = {
-  Использовать: "Использовать",
-  ИспользоватьАвтоматически: "ИспользоватьАвтоматически",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type SessionReuseMode = keyof typeof SessionReuseModeToEnterprise
+export type SessionReuseModeEnterprise = keyof typeof SessionReuseModeFromEnterprise
 
 export const StyleElementTypeToEnterprise = {
   Border: "Рамка",
@@ -18168,17 +10998,8 @@ export const StyleElementTypeFromEnterprise = {
   Шрифт: "Font",
 } as const
 
-export const StyleElementType = {
-  Border: "Border",
-  Color: "Color",
-  Font: "Font",
-} as const
-
-export const StyleElementTypeEnterprise = {
-  Рамка: "Рамка",
-  Цвет: "Цвет",
-  Шрифт: "Шрифт",
-} as const
+export type StyleElementType = keyof typeof StyleElementTypeToEnterprise
+export type StyleElementTypeEnterprise = keyof typeof StyleElementTypeFromEnterprise
 
 export const SubordinationUseToEnterprise = {
   ToFolders: "Группам",
@@ -18192,17 +11013,8 @@ export const SubordinationUseFromEnterprise = {
   Элементам: "ToItems",
 } as const
 
-export const SubordinationUse = {
-  ToFolders: "ToFolders",
-  ToFoldersAndItems: "ToFoldersAndItems",
-  ToItems: "ToItems",
-} as const
-
-export const SubordinationUseEnterprise = {
-  Группам: "Группам",
-  ГруппамИЭлементам: "ГруппамИЭлементам",
-  Элементам: "Элементам",
-} as const
+export type SubordinationUse = keyof typeof SubordinationUseToEnterprise
+export type SubordinationUseEnterprise = keyof typeof SubordinationUseFromEnterprise
 
 export const SynchronousExtensionAndAddInCallUseModeToEnterprise = {
   Use: "Использовать",
@@ -18216,17 +11028,9 @@ export const SynchronousExtensionAndAddInCallUseModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const SynchronousExtensionAndAddInCallUseMode = {
-  Use: "Use",
-  UseWithWarnings: "UseWithWarnings",
-  DontUse: "DontUse",
-} as const
-
-export const SynchronousExtensionAndAddInCallUseModeEnterprise = {
-  Использовать: "Использовать",
-  ИспользоватьСПредупреждениями: "ИспользоватьСПредупреждениями",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type SynchronousExtensionAndAddInCallUseMode = keyof typeof SynchronousExtensionAndAddInCallUseModeToEnterprise
+export type SynchronousExtensionAndAddInCallUseModeEnterprise =
+  keyof typeof SynchronousExtensionAndAddInCallUseModeFromEnterprise
 
 export const SynchronousPlatformExtensionAndAddInCallUseModeToEnterprise = {
   Use: "Использовать",
@@ -18240,17 +11044,10 @@ export const SynchronousPlatformExtensionAndAddInCallUseModeFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const SynchronousPlatformExtensionAndAddInCallUseMode = {
-  Use: "Use",
-  UseWithWarnings: "UseWithWarnings",
-  DontUse: "DontUse",
-} as const
-
-export const SynchronousPlatformExtensionAndAddInCallUseModeEnterprise = {
-  Использовать: "Использовать",
-  ИспользоватьСПредупреждениями: "ИспользоватьСПредупреждениями",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type SynchronousPlatformExtensionAndAddInCallUseMode =
+  keyof typeof SynchronousPlatformExtensionAndAddInCallUseModeToEnterprise
+export type SynchronousPlatformExtensionAndAddInCallUseModeEnterprise =
+  keyof typeof SynchronousPlatformExtensionAndAddInCallUseModeFromEnterprise
 
 export const TaskMainPresentationToEnterprise = {
   AsDescription: "ВВидеНаименования",
@@ -18262,15 +11059,8 @@ export const TaskMainPresentationFromEnterprise = {
   ВВидеНомера: "AsNumber",
 } as const
 
-export const TaskMainPresentation = {
-  AsDescription: "AsDescription",
-  AsNumber: "AsNumber",
-} as const
-
-export const TaskMainPresentationEnterprise = {
-  ВВидеНаименования: "ВВидеНаименования",
-  ВВидеНомера: "ВВидеНомера",
-} as const
+export type TaskMainPresentation = keyof typeof TaskMainPresentationToEnterprise
+export type TaskMainPresentationEnterprise = keyof typeof TaskMainPresentationFromEnterprise
 
 export const TaskNumberAutoPrefixToEnterprise = {
   DontUse: "НеИспользовать",
@@ -18282,15 +11072,8 @@ export const TaskNumberAutoPrefixFromEnterprise = {
   НомерБизнесПроцесса: "BusinessProcessNumber",
 } as const
 
-export const TaskNumberAutoPrefix = {
-  DontUse: "DontUse",
-  BusinessProcessNumber: "BusinessProcessNumber",
-} as const
-
-export const TaskNumberAutoPrefixEnterprise = {
-  НеИспользовать: "НеИспользовать",
-  НомерБизнесПроцесса: "НомерБизнесПроцесса",
-} as const
+export type TaskNumberAutoPrefix = keyof typeof TaskNumberAutoPrefixToEnterprise
+export type TaskNumberAutoPrefixEnterprise = keyof typeof TaskNumberAutoPrefixFromEnterprise
 
 export const TaskNumberTypeToEnterprise = {
   String: "Строка",
@@ -18302,15 +11085,8 @@ export const TaskNumberTypeFromEnterprise = {
   Число: "Number",
 } as const
 
-export const TaskNumberType = {
-  String: "String",
-  Number: "Number",
-} as const
-
-export const TaskNumberTypeEnterprise = {
-  Строка: "Строка",
-  Число: "Число",
-} as const
+export type TaskNumberType = keyof typeof TaskNumberTypeToEnterprise
+export type TaskNumberTypeEnterprise = keyof typeof TaskNumberTypeFromEnterprise
 
 export const TemplateTypeToEnterprise = {
   ActiveDocument: "ActiveDocument",
@@ -18338,31 +11114,8 @@ export const TemplateTypeFromEnterprise = {
   ТекстовыйДокумент: "TextDocument",
 } as const
 
-export const TemplateType = {
-  ActiveDocument: "ActiveDocument",
-  HTMLDocument: "HTMLDocument",
-  AddIn: "AddIn",
-  GeographicalSchema: "GeographicalSchema",
-  GraphicalSchema: "GraphicalSchema",
-  BinaryData: "BinaryData",
-  DataCompositionAppearanceTemplate: "DataCompositionAppearanceTemplate",
-  DataCompositionSchema: "DataCompositionSchema",
-  SpreadsheetDocument: "SpreadsheetDocument",
-  TextDocument: "TextDocument",
-} as const
-
-export const TemplateTypeEnterprise = {
-  ActiveDocument: "ActiveDocument",
-  HTMLДокумент: "HTMLДокумент",
-  ВнешняяКомпонента: "ВнешняяКомпонента",
-  ГеографическаяСхема: "ГеографическаяСхема",
-  ГрафическаяСхема: "ГрафическаяСхема",
-  ДвоичныеДанные: "ДвоичныеДанные",
-  МакетОформленияКомпоновкиДанных: "МакетОформленияКомпоновкиДанных",
-  СхемаКомпоновкиДанных: "СхемаКомпоновкиДанных",
-  ТабличныйДокумент: "ТабличныйДокумент",
-  ТекстовыйДокумент: "ТекстовыйДокумент",
-} as const
+export type TemplateType = keyof typeof TemplateTypeToEnterprise
+export type TemplateTypeEnterprise = keyof typeof TemplateTypeFromEnterprise
 
 export const TransferDirectionToEnterprise = {
   In: "Входной",
@@ -18376,17 +11129,8 @@ export const TransferDirectionFromEnterprise = {
   Выходной: "Out",
 } as const
 
-export const TransferDirection = {
-  In: "In",
-  InOut: "InOut",
-  Out: "Out",
-} as const
-
-export const TransferDirectionEnterprise = {
-  Входной: "Входной",
-  ВходнойВыходной: "ВходнойВыходной",
-  Выходной: "Выходной",
-} as const
+export type TransferDirection = keyof typeof TransferDirectionToEnterprise
+export type TransferDirectionEnterprise = keyof typeof TransferDirectionFromEnterprise
 
 export const TypeReductionModeToEnterprise = {
   Deny: "Запрещать",
@@ -18400,17 +11144,8 @@ export const TypeReductionModeFromEnterprise = {
   УдалятьДанные: "DeleteData",
 } as const
 
-export const TypeReductionMode = {
-  Deny: "Deny",
-  TransformValues: "TransformValues",
-  DeleteData: "DeleteData",
-} as const
-
-export const TypeReductionModeEnterprise = {
-  Запрещать: "Запрещать",
-  ПреобразовыватьЗначения: "ПреобразовыватьЗначения",
-  УдалятьДанные: "УдалятьДанные",
-} as const
+export type TypeReductionMode = keyof typeof TypeReductionModeToEnterprise
+export type TypeReductionModeEnterprise = keyof typeof TypeReductionModeFromEnterprise
 
 export const UseFullTextSearchToEnterprise = {
   Use: "Использовать",
@@ -18422,15 +11157,8 @@ export const UseFullTextSearchFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const UseFullTextSearch = {
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const UseFullTextSearchEnterprise = {
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type UseFullTextSearch = keyof typeof UseFullTextSearchToEnterprise
+export type UseFullTextSearchEnterprise = keyof typeof UseFullTextSearchFromEnterprise
 
 export const UseQuickChoiceToEnterprise = {
   Auto: "Авто",
@@ -18444,17 +11172,8 @@ export const UseQuickChoiceFromEnterprise = {
   НеИспользовать: "DontUse",
 } as const
 
-export const UseQuickChoice = {
-  Auto: "Auto",
-  Use: "Use",
-  DontUse: "DontUse",
-} as const
-
-export const UseQuickChoiceEnterprise = {
-  Авто: "Авто",
-  Использовать: "Использовать",
-  НеИспользовать: "НеИспользовать",
-} as const
+export type UseQuickChoice = keyof typeof UseQuickChoiceToEnterprise
+export type UseQuickChoiceEnterprise = keyof typeof UseQuickChoiceFromEnterprise
 
 export const PresentationAdditionTypeToEnterprise = {
   Add: "Добавлять",
@@ -18466,15 +11185,8 @@ export const PresentationAdditionTypeFromEnterprise = {
   НеДобавлять: "DontAdd",
 } as const
 
-export const PresentationAdditionType = {
-  Add: "Add",
-  DontAdd: "DontAdd",
-} as const
-
-export const PresentationAdditionTypeEnterprise = {
-  Добавлять: "Добавлять",
-  НеДобавлять: "НеДобавлять",
-} as const
+export type PresentationAdditionType = keyof typeof PresentationAdditionTypeToEnterprise
+export type PresentationAdditionTypeEnterprise = keyof typeof PresentationAdditionTypeFromEnterprise
 
 export const ReportBuilderDetailsFillTypeToEnterprise = {
   GroupValues: "ЗначенияГруппировок",
@@ -18488,17 +11200,8 @@ export const ReportBuilderDetailsFillTypeFromEnterprise = {
   Расшифровка: "Details",
 } as const
 
-export const ReportBuilderDetailsFillType = {
-  GroupValues: "GroupValues",
-  DontFill: "DontFill",
-  Details: "Details",
-} as const
-
-export const ReportBuilderDetailsFillTypeEnterprise = {
-  ЗначенияГруппировок: "ЗначенияГруппировок",
-  НеЗаполнять: "НеЗаполнять",
-  Расшифровка: "Расшифровка",
-} as const
+export type ReportBuilderDetailsFillType = keyof typeof ReportBuilderDetailsFillTypeToEnterprise
+export type ReportBuilderDetailsFillTypeEnterprise = keyof typeof ReportBuilderDetailsFillTypeFromEnterprise
 
 export const ReportBuilderDimensionTypeToEnterprise = {
   Hierarchy: "Иерархия",
@@ -18512,17 +11215,8 @@ export const ReportBuilderDimensionTypeFromEnterprise = {
   Элементы: "Items",
 } as const
 
-export const ReportBuilderDimensionType = {
-  Hierarchy: "Hierarchy",
-  HierarchyOnly: "HierarchyOnly",
-  Items: "Items",
-} as const
-
-export const ReportBuilderDimensionTypeEnterprise = {
-  Иерархия: "Иерархия",
-  ТолькоИерархия: "ТолькоИерархия",
-  Элементы: "Элементы",
-} as const
+export type ReportBuilderDimensionType = keyof typeof ReportBuilderDimensionTypeToEnterprise
+export type ReportBuilderDimensionTypeEnterprise = keyof typeof ReportBuilderDimensionTypeFromEnterprise
 
 export const TotalPlacementTypeToEnterprise = {
   Header: "Заголовок",
@@ -18538,19 +11232,8 @@ export const TotalPlacementTypeFromEnterprise = {
   ТолькоПодвал: "FooterOnly",
 } as const
 
-export const TotalPlacementType = {
-  Header: "Header",
-  HeaderAndFooter: "HeaderAndFooter",
-  Footer: "Footer",
-  FooterOnly: "FooterOnly",
-} as const
-
-export const TotalPlacementTypeEnterprise = {
-  Заголовок: "Заголовок",
-  ЗаголовокИПодвал: "ЗаголовокИПодвал",
-  Подвал: "Подвал",
-  ТолькоПодвал: "ТолькоПодвал",
-} as const
+export type TotalPlacementType = keyof typeof TotalPlacementTypeToEnterprise
+export type TotalPlacementTypeEnterprise = keyof typeof TotalPlacementTypeFromEnterprise
 
 export const XMLAttributeTypeToEnterprise = {
   CDATA: "CDATA",
@@ -18578,31 +11261,8 @@ export const XMLAttributeTypeFromEnterprise = {
   NOTATION: "NOTATION",
 } as const
 
-export const XMLAttributeType = {
-  CDATA: "CDATA",
-  ENTITIES: "ENTITIES",
-  ENTITY: "ENTITY",
-  ENUMERATION: "ENUMERATION",
-  ID: "ID",
-  IDREF: "IDREF",
-  IDREFS: "IDREFS",
-  NMTOKEN: "NMTOKEN",
-  NMTOKENS: "NMTOKENS",
-  NOTATION: "NOTATION",
-} as const
-
-export const XMLAttributeTypeEnterprise = {
-  CDATA: "CDATA",
-  ENTITIES: "ENTITIES",
-  ENTITY: "ENTITY",
-  ENUMERATION: "ENUMERATION",
-  ID: "ID",
-  IDREF: "IDREF",
-  IDREFS: "IDREFS",
-  NMTOKEN: "NMTOKEN",
-  NMTOKENS: "NMTOKENS",
-  NOTATION: "NOTATION",
-} as const
+export type XMLAttributeType = keyof typeof XMLAttributeTypeToEnterprise
+export type XMLAttributeTypeEnterprise = keyof typeof XMLAttributeTypeFromEnterprise
 
 export const XMLCanonicalizationTypeToEnterprise = {
   XMLExclusiveCanonicalization: "ИсключающийКаноническийXML",
@@ -18622,23 +11282,8 @@ export const XMLCanonicalizationTypeFromEnterprise = {
   КаноническийXMLСКомментариями: "XMLCanonicalizationWithComments",
 } as const
 
-export const XMLCanonicalizationType = {
-  XMLExclusiveCanonicalization: "XMLExclusiveCanonicalization",
-  XMLExclusiveCanonicalizationWithComments: "XMLExclusiveCanonicalizationWithComments",
-  XMLCanonicalization: "XMLCanonicalization",
-  XMLCanonicalization1_1: "XMLCanonicalization1_1",
-  XMLCanonicalization1_1WithComments: "XMLCanonicalization1_1WithComments",
-  XMLCanonicalizationWithComments: "XMLCanonicalizationWithComments",
-} as const
-
-export const XMLCanonicalizationTypeEnterprise = {
-  ИсключающийКаноническийXML: "ИсключающийКаноническийXML",
-  ИсключающийКаноническийXMLСКомментариями: "ИсключающийКаноническийXMLСКомментариями",
-  КаноническийXML: "КаноническийXML",
-  КаноническийXML1_1: "КаноническийXML1_1",
-  КаноническийXML1_1СКомментариями: "КаноническийXML1_1СКомментариями",
-  КаноническийXMLСКомментариями: "КаноническийXMLСКомментариями",
-} as const
+export type XMLCanonicalizationType = keyof typeof XMLCanonicalizationTypeToEnterprise
+export type XMLCanonicalizationTypeEnterprise = keyof typeof XMLCanonicalizationTypeFromEnterprise
 
 export const XMLNodeTypeToEnterprise = {
   Attribute: "Атрибут",
@@ -18676,41 +11321,8 @@ export const XMLNodeTypeFromEnterprise = {
   Текст: "Text",
 } as const
 
-export const XMLNodeType = {
-  Attribute: "Attribute",
-  ProcessingInstruction: "ProcessingInstruction",
-  Comment: "Comment",
-  EndEntity: "EndEntity",
-  EndElement: "EndElement",
-  StartElement: "StartElement",
-  None: "None",
-  Notation: "Notation",
-  XMLDeclaration: "XMLDeclaration",
-  DocumentTypeDefinition: "DocumentTypeDefinition",
-  Whitespace: "Whitespace",
-  CDATASection: "CDATASection",
-  EntityReference: "EntityReference",
-  Entity: "Entity",
-  Text: "Text",
-} as const
-
-export const XMLNodeTypeEnterprise = {
-  Атрибут: "Атрибут",
-  ИнструкцияОбработки: "ИнструкцияОбработки",
-  Комментарий: "Комментарий",
-  КонецСущности: "КонецСущности",
-  КонецЭлемента: "КонецЭлемента",
-  НачалоЭлемента: "НачалоЭлемента",
-  Ничего: "Ничего",
-  Нотация: "Нотация",
-  ОбъявлениеXML: "ОбъявлениеXML",
-  ОпределениеТипаДокумента: "ОпределениеТипаДокумента",
-  ПробельныеСимволы: "ПробельныеСимволы",
-  СекцияCDATA: "СекцияCDATA",
-  СсылкаНаСущность: "СсылкаНаСущность",
-  Сущность: "Сущность",
-  Текст: "Текст",
-} as const
+export type XMLNodeType = keyof typeof XMLNodeTypeToEnterprise
+export type XMLNodeTypeEnterprise = keyof typeof XMLNodeTypeFromEnterprise
 
 export const XMLSpaceToEnterprise = {
   Default: "ПоУмолчанию",
@@ -18722,15 +11334,8 @@ export const XMLSpaceFromEnterprise = {
   Сохранять: "Preserve",
 } as const
 
-export const XMLSpace = {
-  Default: "Default",
-  Preserve: "Preserve",
-} as const
-
-export const XMLSpaceEnterprise = {
-  ПоУмолчанию: "ПоУмолчанию",
-  Сохранять: "Сохранять",
-} as const
+export type XMLSpace = keyof typeof XMLSpaceToEnterprise
+export type XMLSpaceEnterprise = keyof typeof XMLSpaceFromEnterprise
 
 export const XMLTypeAssignmentToEnterprise = {
   Implicit: "Неявное",
@@ -18742,15 +11347,8 @@ export const XMLTypeAssignmentFromEnterprise = {
   Явное: "Explicit",
 } as const
 
-export const XMLTypeAssignment = {
-  Implicit: "Implicit",
-  Explicit: "Explicit",
-} as const
-
-export const XMLTypeAssignmentEnterprise = {
-  Неявное: "Неявное",
-  Явное: "Явное",
-} as const
+export type XMLTypeAssignment = keyof typeof XMLTypeAssignmentToEnterprise
+export type XMLTypeAssignmentEnterprise = keyof typeof XMLTypeAssignmentFromEnterprise
 
 export const XMLValidationTypeToEnterprise = {
   NoValidate: "НетПроверки",
@@ -18764,17 +11362,8 @@ export const XMLValidationTypeFromEnterprise = {
   СхемаXML: "XMLSchema",
 } as const
 
-export const XMLValidationType = {
-  NoValidate: "NoValidate",
-  DocumentTypeDefinition: "DocumentTypeDefinition",
-  XMLSchema: "XMLSchema",
-} as const
-
-export const XMLValidationTypeEnterprise = {
-  НетПроверки: "НетПроверки",
-  ОпределениеТипаДокумента: "ОпределениеТипаДокумента",
-  СхемаXML: "СхемаXML",
-} as const
+export type XMLValidationType = keyof typeof XMLValidationTypeToEnterprise
+export type XMLValidationTypeEnterprise = keyof typeof XMLValidationTypeFromEnterprise
 
 export const AllowedMessageNoToEnterprise = {
   Greater: "Больший",
@@ -18788,17 +11377,8 @@ export const AllowedMessageNoFromEnterprise = {
   Очередной: "Next",
 } as const
 
-export const AllowedMessageNo = {
-  Greater: "Greater",
-  Any: "Any",
-  Next: "Next",
-} as const
-
-export const AllowedMessageNoEnterprise = {
-  Больший: "Больший",
-  Любой: "Любой",
-  Очередной: "Очередной",
-} as const
+export type AllowedMessageNo = keyof typeof AllowedMessageNoToEnterprise
+export type AllowedMessageNoEnterprise = keyof typeof AllowedMessageNoFromEnterprise
 
 export const AutoChangeRecordToEnterprise = {
   Deny: "Запретить",
@@ -18810,15 +11390,8 @@ export const AutoChangeRecordFromEnterprise = {
   Разрешить: "Allow",
 } as const
 
-export const AutoChangeRecord = {
-  Deny: "Deny",
-  Allow: "Allow",
-} as const
-
-export const AutoChangeRecordEnterprise = {
-  Запретить: "Запретить",
-  Разрешить: "Разрешить",
-} as const
+export type AutoChangeRecord = keyof typeof AutoChangeRecordToEnterprise
+export type AutoChangeRecordEnterprise = keyof typeof AutoChangeRecordFromEnterprise
 
 export const DataItemReceiveToEnterprise = {
   Auto: "Авто",
@@ -18832,17 +11405,8 @@ export const DataItemReceiveFromEnterprise = {
   Принять: "Accept",
 } as const
 
-export const DataItemReceive = {
-  Auto: "Auto",
-  Ignore: "Ignore",
-  Accept: "Accept",
-} as const
-
-export const DataItemReceiveEnterprise = {
-  Авто: "Авто",
-  Игнорировать: "Игнорировать",
-  Принять: "Принять",
-} as const
+export type DataItemReceive = keyof typeof DataItemReceiveToEnterprise
+export type DataItemReceiveEnterprise = keyof typeof DataItemReceiveFromEnterprise
 
 export const DataItemSendToEnterprise = {
   Auto: "Авто",
@@ -18856,17 +11420,8 @@ export const DataItemSendFromEnterprise = {
   Удалить: "Delete",
 } as const
 
-export const DataItemSend = {
-  Auto: "Auto",
-  Ignore: "Ignore",
-  Delete: "Delete",
-} as const
-
-export const DataItemSendEnterprise = {
-  Авто: "Авто",
-  Игнорировать: "Игнорировать",
-  Удалить: "Удалить",
-} as const
+export type DataItemSend = keyof typeof DataItemSendToEnterprise
+export type DataItemSendEnterprise = keyof typeof DataItemSendFromEnterprise
 
 export const AnalysisDataTypeToEnterprise = {
   Discrete: "Дискретные",
@@ -18878,15 +11433,8 @@ export const AnalysisDataTypeFromEnterprise = {
   Непрерывные: "Contiguous",
 } as const
 
-export const AnalysisDataType = {
-  Discrete: "Discrete",
-  Contiguous: "Contiguous",
-} as const
-
-export const AnalysisDataTypeEnterprise = {
-  Дискретные: "Дискретные",
-  Непрерывные: "Непрерывные",
-} as const
+export type AnalysisDataType = keyof typeof AnalysisDataTypeToEnterprise
+export type AnalysisDataTypeEnterprise = keyof typeof AnalysisDataTypeFromEnterprise
 
 export const AssociationRulesDataSourceTypeToEnterprise = {
   Object: "Объектный",
@@ -18898,15 +11446,8 @@ export const AssociationRulesDataSourceTypeFromEnterprise = {
   Событийный: "Event",
 } as const
 
-export const AssociationRulesDataSourceType = {
-  Object: "Object",
-  Event: "Event",
-} as const
-
-export const AssociationRulesDataSourceTypeEnterprise = {
-  Объектный: "Объектный",
-  Событийный: "Событийный",
-} as const
+export type AssociationRulesDataSourceType = keyof typeof AssociationRulesDataSourceTypeToEnterprise
+export type AssociationRulesDataSourceTypeEnterprise = keyof typeof AssociationRulesDataSourceTypeFromEnterprise
 
 export const AssociationRulesPruneTypeToEnterprise = {
   Redundant: "Избыточные",
@@ -18918,15 +11459,8 @@ export const AssociationRulesPruneTypeFromEnterprise = {
   Покрытые: "Covered",
 } as const
 
-export const AssociationRulesPruneType = {
-  Redundant: "Redundant",
-  Covered: "Covered",
-} as const
-
-export const AssociationRulesPruneTypeEnterprise = {
-  Избыточные: "Избыточные",
-  Покрытые: "Покрытые",
-} as const
+export type AssociationRulesPruneType = keyof typeof AssociationRulesPruneTypeToEnterprise
+export type AssociationRulesPruneTypeEnterprise = keyof typeof AssociationRulesPruneTypeFromEnterprise
 
 export const ClusterizationMethodToEnterprise = {
   NearestNeighbor: "БлижняяСвязь",
@@ -18942,19 +11476,8 @@ export const ClusterizationMethodFromEnterprise = {
   ЦентрТяжести: "Centroid",
 } as const
 
-export const ClusterizationMethod = {
-  NearestNeighbor: "NearestNeighbor",
-  FurthestNeighbor: "FurthestNeighbor",
-  KMeans: "KMeans",
-  Centroid: "Centroid",
-} as const
-
-export const ClusterizationMethodEnterprise = {
-  БлижняяСвязь: "БлижняяСвязь",
-  ДальняяСвязь: "ДальняяСвязь",
-  КСредних: "КСредних",
-  ЦентрТяжести: "ЦентрТяжести",
-} as const
+export type ClusterizationMethod = keyof typeof ClusterizationMethodToEnterprise
+export type ClusterizationMethodEnterprise = keyof typeof ClusterizationMethodFromEnterprise
 
 export const DataAnalysisAssociationRulesOrderTypeToEnterprise = {
   ByConfidence: "ПоДостоверности",
@@ -18968,17 +11491,9 @@ export const DataAnalysisAssociationRulesOrderTypeFromEnterprise = {
   ПоКоличествуСлучаев: "BySupport",
 } as const
 
-export const DataAnalysisAssociationRulesOrderType = {
-  ByConfidence: "ByConfidence",
-  ByImportance: "ByImportance",
-  BySupport: "BySupport",
-} as const
-
-export const DataAnalysisAssociationRulesOrderTypeEnterprise = {
-  ПоДостоверности: "ПоДостоверности",
-  ПоЗначимости: "ПоЗначимости",
-  ПоКоличествуСлучаев: "ПоКоличествуСлучаев",
-} as const
+export type DataAnalysisAssociationRulesOrderType = keyof typeof DataAnalysisAssociationRulesOrderTypeToEnterprise
+export type DataAnalysisAssociationRulesOrderTypeEnterprise =
+  keyof typeof DataAnalysisAssociationRulesOrderTypeFromEnterprise
 
 export const DataAnalysisColumnTypeAssociationRulesToEnterprise = {
   NotUsed: "НеИспользуемая",
@@ -18992,17 +11507,9 @@ export const DataAnalysisColumnTypeAssociationRulesFromEnterprise = {
   Элемент: "Item",
 } as const
 
-export const DataAnalysisColumnTypeAssociationRules = {
-  NotUsed: "NotUsed",
-  Object: "Object",
-  Item: "Item",
-} as const
-
-export const DataAnalysisColumnTypeAssociationRulesEnterprise = {
-  НеИспользуемая: "НеИспользуемая",
-  Объект: "Объект",
-  Элемент: "Элемент",
-} as const
+export type DataAnalysisColumnTypeAssociationRules = keyof typeof DataAnalysisColumnTypeAssociationRulesToEnterprise
+export type DataAnalysisColumnTypeAssociationRulesEnterprise =
+  keyof typeof DataAnalysisColumnTypeAssociationRulesFromEnterprise
 
 export const DataAnalysisColumnTypeClusterizationToEnterprise = {
   Input: "Входная",
@@ -19020,21 +11527,9 @@ export const DataAnalysisColumnTypeClusterizationFromEnterprise = {
   Прогнозируемая: "Predictable",
 } as const
 
-export const DataAnalysisColumnTypeClusterization = {
-  Input: "Input",
-  InputAndPredictable: "InputAndPredictable",
-  Key: "Key",
-  NotUsed: "NotUsed",
-  Predictable: "Predictable",
-} as const
-
-export const DataAnalysisColumnTypeClusterizationEnterprise = {
-  Входная: "Входная",
-  ВходнаяИПрогнозируемая: "ВходнаяИПрогнозируемая",
-  Ключ: "Ключ",
-  НеИспользуемая: "НеИспользуемая",
-  Прогнозируемая: "Прогнозируемая",
-} as const
+export type DataAnalysisColumnTypeClusterization = keyof typeof DataAnalysisColumnTypeClusterizationToEnterprise
+export type DataAnalysisColumnTypeClusterizationEnterprise =
+  keyof typeof DataAnalysisColumnTypeClusterizationFromEnterprise
 
 export const DataAnalysisColumnTypeDecisionTreeToEnterprise = {
   Input: "Входная",
@@ -19048,17 +11543,8 @@ export const DataAnalysisColumnTypeDecisionTreeFromEnterprise = {
   Прогнозируемая: "Predictable",
 } as const
 
-export const DataAnalysisColumnTypeDecisionTree = {
-  Input: "Input",
-  NotUsed: "NotUsed",
-  Predictable: "Predictable",
-} as const
-
-export const DataAnalysisColumnTypeDecisionTreeEnterprise = {
-  Входная: "Входная",
-  НеИспользуемая: "НеИспользуемая",
-  Прогнозируемая: "Прогнозируемая",
-} as const
+export type DataAnalysisColumnTypeDecisionTree = keyof typeof DataAnalysisColumnTypeDecisionTreeToEnterprise
+export type DataAnalysisColumnTypeDecisionTreeEnterprise = keyof typeof DataAnalysisColumnTypeDecisionTreeFromEnterprise
 
 export const DataAnalysisColumnTypeSequentialPatternsToEnterprise = {
   Time: "Время",
@@ -19074,19 +11560,9 @@ export const DataAnalysisColumnTypeSequentialPatternsFromEnterprise = {
   Элемент: "Item",
 } as const
 
-export const DataAnalysisColumnTypeSequentialPatterns = {
-  Time: "Time",
-  NotUsed: "NotUsed",
-  Sequence: "Sequence",
-  Item: "Item",
-} as const
-
-export const DataAnalysisColumnTypeSequentialPatternsEnterprise = {
-  Время: "Время",
-  НеИспользуемая: "НеИспользуемая",
-  Последовательность: "Последовательность",
-  Элемент: "Элемент",
-} as const
+export type DataAnalysisColumnTypeSequentialPatterns = keyof typeof DataAnalysisColumnTypeSequentialPatternsToEnterprise
+export type DataAnalysisColumnTypeSequentialPatternsEnterprise =
+  keyof typeof DataAnalysisColumnTypeSequentialPatternsFromEnterprise
 
 export const DataAnalysisColumnTypeSummaryStatisticsToEnterprise = {
   Input: "Входная",
@@ -19098,15 +11574,9 @@ export const DataAnalysisColumnTypeSummaryStatisticsFromEnterprise = {
   НеИспользуемая: "NotUsed",
 } as const
 
-export const DataAnalysisColumnTypeSummaryStatistics = {
-  Input: "Input",
-  NotUsed: "NotUsed",
-} as const
-
-export const DataAnalysisColumnTypeSummaryStatisticsEnterprise = {
-  Входная: "Входная",
-  НеИспользуемая: "НеИспользуемая",
-} as const
+export type DataAnalysisColumnTypeSummaryStatistics = keyof typeof DataAnalysisColumnTypeSummaryStatisticsToEnterprise
+export type DataAnalysisColumnTypeSummaryStatisticsEnterprise =
+  keyof typeof DataAnalysisColumnTypeSummaryStatisticsFromEnterprise
 
 export const DataAnalysisDistanceMetricTypeToEnterprise = {
   Euclidean: "ЕвклидоваМетрика",
@@ -19122,19 +11592,8 @@ export const DataAnalysisDistanceMetricTypeFromEnterprise = {
   МетрикаДоминирования: "Maximum",
 } as const
 
-export const DataAnalysisDistanceMetricType = {
-  Euclidean: "Euclidean",
-  SquaredEuclidean: "SquaredEuclidean",
-  CityBlock: "CityBlock",
-  Maximum: "Maximum",
-} as const
-
-export const DataAnalysisDistanceMetricTypeEnterprise = {
-  ЕвклидоваМетрика: "ЕвклидоваМетрика",
-  ЕвклидоваМетрикаВКвадрате: "ЕвклидоваМетрикаВКвадрате",
-  МетрикаГорода: "МетрикаГорода",
-  МетрикаДоминирования: "МетрикаДоминирования",
-} as const
+export type DataAnalysisDistanceMetricType = keyof typeof DataAnalysisDistanceMetricTypeToEnterprise
+export type DataAnalysisDistanceMetricTypeEnterprise = keyof typeof DataAnalysisDistanceMetricTypeFromEnterprise
 
 export const DataAnalysisFieldTypeToEnterprise = {
   DataAnalysisObject: "ОбъектАнализаДанных",
@@ -19146,15 +11605,8 @@ export const DataAnalysisFieldTypeFromEnterprise = {
   Поле: "Field",
 } as const
 
-export const DataAnalysisFieldType = {
-  DataAnalysisObject: "DataAnalysisObject",
-  Field: "Field",
-} as const
-
-export const DataAnalysisFieldTypeEnterprise = {
-  ОбъектАнализаДанных: "ОбъектАнализаДанных",
-  Поле: "Поле",
-} as const
+export type DataAnalysisFieldType = keyof typeof DataAnalysisFieldTypeToEnterprise
+export type DataAnalysisFieldTypeEnterprise = keyof typeof DataAnalysisFieldTypeFromEnterprise
 
 export const DataAnalysisNumericValueUseTypeToEnterprise = {
   AsBoolean: "КакБулево",
@@ -19166,15 +11618,8 @@ export const DataAnalysisNumericValueUseTypeFromEnterprise = {
   КакЧисло: "AsNumeric",
 } as const
 
-export const DataAnalysisNumericValueUseType = {
-  AsBoolean: "AsBoolean",
-  AsNumeric: "AsNumeric",
-} as const
-
-export const DataAnalysisNumericValueUseTypeEnterprise = {
-  КакБулево: "КакБулево",
-  КакЧисло: "КакЧисло",
-} as const
+export type DataAnalysisNumericValueUseType = keyof typeof DataAnalysisNumericValueUseTypeToEnterprise
+export type DataAnalysisNumericValueUseTypeEnterprise = keyof typeof DataAnalysisNumericValueUseTypeFromEnterprise
 
 export const DataAnalysisResultTableFillTypeToEnterprise = {
   AllFields: "ВсеПоля",
@@ -19190,19 +11635,8 @@ export const DataAnalysisResultTableFillTypeFromEnterprise = {
   НеЗаполнять: "DontFill",
 } as const
 
-export const DataAnalysisResultTableFillType = {
-  AllFields: "AllFields",
-  UsedFields: "UsedFields",
-  KeyFields: "KeyFields",
-  DontFill: "DontFill",
-} as const
-
-export const DataAnalysisResultTableFillTypeEnterprise = {
-  ВсеПоля: "ВсеПоля",
-  ИспользуемыеПоля: "ИспользуемыеПоля",
-  КлючевыеПоля: "КлючевыеПоля",
-  НеЗаполнять: "НеЗаполнять",
-} as const
+export type DataAnalysisResultTableFillType = keyof typeof DataAnalysisResultTableFillTypeToEnterprise
+export type DataAnalysisResultTableFillTypeEnterprise = keyof typeof DataAnalysisResultTableFillTypeFromEnterprise
 
 export const DataAnalysisSequentialPatternsOrderTypeToEnterprise = {
   ByLength: "ПоДлине",
@@ -19214,15 +11648,9 @@ export const DataAnalysisSequentialPatternsOrderTypeFromEnterprise = {
   ПоКоличествуСлучаев: "BySupport",
 } as const
 
-export const DataAnalysisSequentialPatternsOrderType = {
-  ByLength: "ByLength",
-  BySupport: "BySupport",
-} as const
-
-export const DataAnalysisSequentialPatternsOrderTypeEnterprise = {
-  ПоДлине: "ПоДлине",
-  ПоКоличествуСлучаев: "ПоКоличествуСлучаев",
-} as const
+export type DataAnalysisSequentialPatternsOrderType = keyof typeof DataAnalysisSequentialPatternsOrderTypeToEnterprise
+export type DataAnalysisSequentialPatternsOrderTypeEnterprise =
+  keyof typeof DataAnalysisSequentialPatternsOrderTypeFromEnterprise
 
 export const DataAnalysisStandardizationTypeToEnterprise = {
   DontStandardize: "НеСтандартизировать",
@@ -19234,15 +11662,8 @@ export const DataAnalysisStandardizationTypeFromEnterprise = {
   Стандартизировать: "Standardize",
 } as const
 
-export const DataAnalysisStandardizationType = {
-  DontStandardize: "DontStandardize",
-  Standardize: "Standardize",
-} as const
-
-export const DataAnalysisStandardizationTypeEnterprise = {
-  НеСтандартизировать: "НеСтандартизировать",
-  Стандартизировать: "Стандартизировать",
-} as const
+export type DataAnalysisStandardizationType = keyof typeof DataAnalysisStandardizationTypeToEnterprise
+export type DataAnalysisStandardizationTypeEnterprise = keyof typeof DataAnalysisStandardizationTypeFromEnterprise
 
 export const DataAnalysisTimeIntervalUnitTypeToEnterprise = {
   Year: "Год",
@@ -19288,49 +11709,8 @@ export const DataAnalysisTimeIntervalUnitTypeFromEnterprise = {
   Час: "Hour",
 } as const
 
-export const DataAnalysisTimeIntervalUnitType = {
-  Year: "Year",
-  TenDays: "TenDays",
-  Day: "Day",
-  Quarter: "Quarter",
-  Month: "Month",
-  Minute: "Minute",
-  Week: "Week",
-  HalfYear: "HalfYear",
-  Second: "Second",
-  CurrentTenDays: "CurrentTenDays",
-  CurrentMinute: "CurrentMinute",
-  CurrentWeek: "CurrentWeek",
-  CurrentHalfYear: "CurrentHalfYear",
-  CurrentYear: "CurrentYear",
-  CurrentDay: "CurrentDay",
-  CurrentQuarter: "CurrentQuarter",
-  CurrentMonth: "CurrentMonth",
-  CurrentHour: "CurrentHour",
-  Hour: "Hour",
-} as const
-
-export const DataAnalysisTimeIntervalUnitTypeEnterprise = {
-  Год: "Год",
-  Декада: "Декада",
-  День: "День",
-  Квартал: "Квартал",
-  Месяц: "Месяц",
-  Минута: "Минута",
-  Неделя: "Неделя",
-  Полугодие: "Полугодие",
-  Секунда: "Секунда",
-  ТекущаяДекада: "ТекущаяДекада",
-  ТекущаяМинута: "ТекущаяМинута",
-  ТекущаяНеделя: "ТекущаяНеделя",
-  ТекущееПолугодие: "ТекущееПолугодие",
-  ТекущийГод: "ТекущийГод",
-  ТекущийДень: "ТекущийДень",
-  ТекущийКвартал: "ТекущийКвартал",
-  ТекущийМесяц: "ТекущийМесяц",
-  ТекущийЧас: "ТекущийЧас",
-  Час: "Час",
-} as const
+export type DataAnalysisTimeIntervalUnitType = keyof typeof DataAnalysisTimeIntervalUnitTypeToEnterprise
+export type DataAnalysisTimeIntervalUnitTypeEnterprise = keyof typeof DataAnalysisTimeIntervalUnitTypeFromEnterprise
 
 export const DecisionTreeSimplificationTypeToEnterprise = {
   DontSimplify: "НеУпрощать",
@@ -19342,15 +11722,8 @@ export const DecisionTreeSimplificationTypeFromEnterprise = {
   Упрощать: "Simplify",
 } as const
 
-export const DecisionTreeSimplificationType = {
-  DontSimplify: "DontSimplify",
-  Simplify: "Simplify",
-} as const
-
-export const DecisionTreeSimplificationTypeEnterprise = {
-  НеУпрощать: "НеУпрощать",
-  Упрощать: "Упрощать",
-} as const
+export type DecisionTreeSimplificationType = keyof typeof DecisionTreeSimplificationTypeToEnterprise
+export type DecisionTreeSimplificationTypeEnterprise = keyof typeof DecisionTreeSimplificationTypeFromEnterprise
 
 export const PredictionModelColumnTypeToEnterprise = {
   Input: "Входная",
@@ -19364,17 +11737,8 @@ export const PredictionModelColumnTypeFromEnterprise = {
   Прогнозируемая: "Predictable",
 } as const
 
-export const PredictionModelColumnType = {
-  Input: "Input",
-  DataSourceColumn: "DataSourceColumn",
-  Predictable: "Predictable",
-} as const
-
-export const PredictionModelColumnTypeEnterprise = {
-  Входная: "Входная",
-  КолонкаИсточникаДанных: "КолонкаИсточникаДанных",
-  Прогнозируемая: "Прогнозируемая",
-} as const
+export type PredictionModelColumnType = keyof typeof PredictionModelColumnTypeToEnterprise
+export type PredictionModelColumnTypeEnterprise = keyof typeof PredictionModelColumnTypeFromEnterprise
 
 export const FileNamesEncodingInZipFileToEnterprise = {
   UTF8: "UTF8",
@@ -19388,17 +11752,8 @@ export const FileNamesEncodingInZipFileFromEnterprise = {
   КодировкаОСДополнительноUTF8: "OSEncodingWithUTF8",
 } as const
 
-export const FileNamesEncodingInZipFile = {
-  UTF8: "UTF8",
-  Auto: "Auto",
-  OSEncodingWithUTF8: "OSEncodingWithUTF8",
-} as const
-
-export const FileNamesEncodingInZipFileEnterprise = {
-  UTF8: "UTF8",
-  Авто: "Авто",
-  КодировкаОСДополнительноUTF8: "КодировкаОСДополнительноUTF8",
-} as const
+export type FileNamesEncodingInZipFile = keyof typeof FileNamesEncodingInZipFileToEnterprise
+export type FileNamesEncodingInZipFileEnterprise = keyof typeof FileNamesEncodingInZipFileFromEnterprise
 
 export const ZIPCompressionLevelToEnterprise = {
   Maximum: "Максимальный",
@@ -19412,17 +11767,8 @@ export const ZIPCompressionLevelFromEnterprise = {
   Оптимальный: "Optimal",
 } as const
 
-export const ZIPCompressionLevel = {
-  Maximum: "Maximum",
-  Minimum: "Minimum",
-  Optimal: "Optimal",
-} as const
-
-export const ZIPCompressionLevelEnterprise = {
-  Максимальный: "Максимальный",
-  Минимальный: "Минимальный",
-  Оптимальный: "Оптимальный",
-} as const
+export type ZIPCompressionLevel = keyof typeof ZIPCompressionLevelToEnterprise
+export type ZIPCompressionLevelEnterprise = keyof typeof ZIPCompressionLevelFromEnterprise
 
 export const ZIPCompressionMethodToEnterprise = {
   BZIP2: "BZIP2",
@@ -19436,17 +11782,8 @@ export const ZIPCompressionMethodFromEnterprise = {
   Сжатие: "Deflate",
 } as const
 
-export const ZIPCompressionMethod = {
-  BZIP2: "BZIP2",
-  Copy: "Copy",
-  Deflate: "Deflate",
-} as const
-
-export const ZIPCompressionMethodEnterprise = {
-  BZIP2: "BZIP2",
-  Копирование: "Копирование",
-  Сжатие: "Сжатие",
-} as const
+export type ZIPCompressionMethod = keyof typeof ZIPCompressionMethodToEnterprise
+export type ZIPCompressionMethodEnterprise = keyof typeof ZIPCompressionMethodFromEnterprise
 
 export const ZIPEncryptionMethodToEnterprise = {
   AES128: "AES128",
@@ -19462,19 +11799,8 @@ export const ZIPEncryptionMethodFromEnterprise = {
   Zip20: "Zip20",
 } as const
 
-export const ZIPEncryptionMethod = {
-  AES128: "AES128",
-  AES192: "AES192",
-  AES256: "AES256",
-  Zip20: "Zip20",
-} as const
-
-export const ZIPEncryptionMethodEnterprise = {
-  AES128: "AES128",
-  AES192: "AES192",
-  AES256: "AES256",
-  Zip20: "Zip20",
-} as const
+export type ZIPEncryptionMethod = keyof typeof ZIPEncryptionMethodToEnterprise
+export type ZIPEncryptionMethodEnterprise = keyof typeof ZIPEncryptionMethodFromEnterprise
 
 export const ZIPRestoreFilePathsModeToEnterprise = {
   Restore: "Восстанавливать",
@@ -19486,15 +11812,8 @@ export const ZIPRestoreFilePathsModeFromEnterprise = {
   НеВосстанавливать: "DontRestore",
 } as const
 
-export const ZIPRestoreFilePathsMode = {
-  Restore: "Restore",
-  DontRestore: "DontRestore",
-} as const
-
-export const ZIPRestoreFilePathsModeEnterprise = {
-  Восстанавливать: "Восстанавливать",
-  НеВосстанавливать: "НеВосстанавливать",
-} as const
+export type ZIPRestoreFilePathsMode = keyof typeof ZIPRestoreFilePathsModeToEnterprise
+export type ZIPRestoreFilePathsModeEnterprise = keyof typeof ZIPRestoreFilePathsModeFromEnterprise
 
 export const ZIPStorePathModeToEnterprise = {
   DontStorePath: "НеСохранятьПути",
@@ -19508,17 +11827,8 @@ export const ZIPStorePathModeFromEnterprise = {
   СохранятьПолныеПути: "StoreFullPath",
 } as const
 
-export const ZIPStorePathMode = {
-  DontStorePath: "DontStorePath",
-  StoreRelativePath: "StoreRelativePath",
-  StoreFullPath: "StoreFullPath",
-} as const
-
-export const ZIPStorePathModeEnterprise = {
-  НеСохранятьПути: "НеСохранятьПути",
-  СохранятьОтносительныеПути: "СохранятьОтносительныеПути",
-  СохранятьПолныеПути: "СохранятьПолныеПути",
-} as const
+export type ZIPStorePathMode = keyof typeof ZIPStorePathModeToEnterprise
+export type ZIPStorePathModeEnterprise = keyof typeof ZIPStorePathModeFromEnterprise
 
 export const ZIPSubDirProcessingModeToEnterprise = {
   DontProcess: "НеОбрабатывать",
@@ -19530,15 +11840,8 @@ export const ZIPSubDirProcessingModeFromEnterprise = {
   ОбрабатыватьРекурсивно: "ProcessRecursively",
 } as const
 
-export const ZIPSubDirProcessingMode = {
-  DontProcess: "DontProcess",
-  ProcessRecursively: "ProcessRecursively",
-} as const
-
-export const ZIPSubDirProcessingModeEnterprise = {
-  НеОбрабатывать: "НеОбрабатывать",
-  ОбрабатыватьРекурсивно: "ОбрабатыватьРекурсивно",
-} as const
+export type ZIPSubDirProcessingMode = keyof typeof ZIPSubDirProcessingModeToEnterprise
+export type ZIPSubDirProcessingModeEnterprise = keyof typeof ZIPSubDirProcessingModeFromEnterprise
 
 export const StatePresentationToEnterprise = {
   Visible: "Видимость",
@@ -19554,16 +11857,5 @@ export const StatePresentationFromEnterprise = {
   Текст: "Text",
 } as const
 
-export const StatePresentation = {
-  Visible: "Visible",
-  AdditionalShowMode: "AdditionalShowMode",
-  Picture: "Picture",
-  Text: "Text",
-} as const
-
-export const StatePresentationEnterprise = {
-  Видимость: "Видимость",
-  ДополнительныйРежимОтображения: "ДополнительныйРежимОтображения",
-  Картинка: "Картинка",
-  Текст: "Текст",
-} as const
+export type StatePresentation = keyof typeof StatePresentationToEnterprise
+export type StatePresentationEnterprise = keyof typeof StatePresentationFromEnterprise
