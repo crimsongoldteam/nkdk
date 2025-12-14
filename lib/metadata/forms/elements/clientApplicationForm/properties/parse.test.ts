@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import "~/lib/metadata/forms/elements/rules"
-import { TBaseElement } from "../../baseElement/types"
-import { TInputField } from "../../inputField/types"
+import { BaseElement } from "../../baseElement/types"
+import { InputField } from "../../inputField/types"
 import { FormElementType } from "../../types"
 import { parseProperties } from "./parse"
 
@@ -15,7 +15,7 @@ describe("parseProperties", () => {
     const mockContent = `ПолеВвода:
   ТолькоПросмотр: Истина`
 
-    const elementsMap: Record<string, TBaseElement> = {
+    const elementsMap: Record<string, BaseElement> = {
       ПолеВвода: {
         elementType: FormElementType.InputField,
         name: "ПолеВвода",
@@ -23,20 +23,16 @@ describe("parseProperties", () => {
       },
     }
 
-    const expectedResult: Record<string, TBaseElement> = {
+    const expectedResult: Record<string, BaseElement> = {
       ПолеВвода: {
         elementType: FormElementType.InputField,
         name: "ПолеВвода",
         id: "1",
         readOnly: true,
-      } as TInputField,
+      } as InputField,
     }
 
-    const result = parseProperties(
-      mockContent,
-      elementsMap,
-      configurationSettings
-    )
+    const result = parseProperties(mockContent, elementsMap, configurationSettings)
 
     expect(result).toEqual(expectedResult)
   })

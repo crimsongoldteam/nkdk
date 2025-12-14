@@ -7,9 +7,9 @@ import {
 } from "@ant-design/icons"
 import { Button, Form, Input, Space } from "antd"
 import type React from "react"
-import type { TInputField } from "~/lib/metadata/forms/elements/inputField/types"
+import { InputField } from "~/lib"
 
-export function InputField(props: Readonly<TInputField>): React.ReactNode {
+export function InputFieldComponent(props: Readonly<InputField>): React.ReactNode {
   const title = props.title?.items.ru || ""
   const name = props.name
   const dropListButton = props.dropListButton

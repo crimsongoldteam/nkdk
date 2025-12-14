@@ -1,15 +1,10 @@
-import {
-  FormatElementFunction,
-  IFormatElementResult,
-  IFormatterParams,
-} from "~/lib/format/types"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { FormatElementFunction, IFormatElementResult, IFormatterParams } from "~/lib/format/types"
 import * as t from "~/lib/parser/lexer"
-import { TBaseElement } from "../baseElement/types"
-import { TColumnGroup } from "../columnGroup/types"
-import { TInputField } from "../inputField/types"
+import { BaseElement } from "../baseElement/types"
+import { ColumnGroup } from "../columnGroup/types"
+import { InputField } from "../inputField/types"
 import { FormElementType } from "../types"
-import { TTable } from "./types"
+import { Table } from "./types"
 
 const V_BAR = t.VBar.LABEL as string
 
@@ -18,9 +13,9 @@ const formatColumnName = (name: string): string => {
   return name.replace(/(\D)(\d)/, "$1 $2")
 }
 
-const getColumnHeader = (element: TInputField | TColumnGroup): string => {
+const getColumnHeader = (element: InputField | ColumnGroup): string => {
   if (element.elementType === FormElementType.ColumnGroup) {
-    const columnGroup = element as TColumnGroup
+    const columnGroup = element as ColumnGroup
     // Используем title если есть, иначе name с форматированием
     const title = columnGroup.title?.items?.ru
     if (title) {
@@ -28,7 +23,7 @@ const getColumnHeader = (element: TInputField | TColumnGroup): string => {
     }
     return formatColumnName(columnGroup.name)
   } else {
-    const inputField = element as TInputField
+    const inputField = element as InputField
     // Используем title если есть, иначе name с форматированием
     const title = inputField.title?.items?.ru
     if (title) {
@@ -38,15 +33,12 @@ const getColumnHeader = (element: TInputField | TColumnGroup): string => {
   }
 }
 
-const formatTableRow = (columns: (TInputField | TColumnGroup)[]): string => {
+const formatTableRow = (columns: (InputField | ColumnGroup)[]): string => {
   const headers = columns.map((col) => getColumnHeader(col))
   return `${V_BAR} ${headers.join(` ${V_BAR} `)} ${V_BAR}`
 }
 
-export const formatTable: FormatElementFunction = (
-  element: TTable,
-  _params: IFormatterParams
-): IFormatElementResult => {
+export const formatTable: FormatElementFunction = (element: Table, _params: IFormatterParams): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
@@ -59,12 +51,11 @@ export const formatTable: FormatElementFunction = (
   // Обрабатываем горизонтальные группы
   const hasHorizontalGroup = element.childItems.some((item) => {
     if (!("elementType" in item)) return false
-    const baseItem = item as unknown as TBaseElement
+    const baseItem = item as unknown as BaseElement
     return (
       baseItem.elementType === FormElementType.ColumnGroup &&
       "group" in baseItem &&
-      (baseItem as unknown as TColumnGroup).group ===
-        SE.ZColumnsGroup.enum.Horizontal
+      (baseItem as unknown as ColumnGroup).group === "Horizontal"
     )
   })
 
@@ -72,19 +63,17 @@ export const formatTable: FormatElementFunction = (
     // Обрабатываем каждую группу или колонку
     for (const item of element.childItems) {
       if (!("elementType" in item)) continue
-      const baseItem = item as unknown as TBaseElement
+      const baseItem = item as unknown as BaseElement
       if (baseItem.elementType === FormElementType.ColumnGroup) {
-        const columnGroup = baseItem as unknown as TColumnGroup
-        if (columnGroup.group === SE.ZColumnsGroup.enum.Horizontal) {
+        const columnGroup = baseItem as unknown as ColumnGroup
+        if (columnGroup.group === "Horizontal") {
           // Сначала получаем строку с колонками для вычисления ширины
           if (columnGroup.childItems && columnGroup.childItems.length > 0) {
             const columns = columnGroup.childItems
               .filter((child) => "elementType" in child)
-              .map((child) => child as unknown as TBaseElement)
-              .filter(
-                (child) => child.elementType === FormElementType.InputField
-              )
-              .map((child) => child as unknown as TInputField)
+              .map((child) => child as unknown as BaseElement)
+              .filter((child) => child.elementType === FormElementType.InputField)
+              .map((child) => child as unknown as InputField)
             if (columns.length > 0) {
               const row = formatTableRow(columns)
               const rowWithExtraBar = `${V_BAR}${row.substring(1)}` // Добавляем дополнительный | в начале
@@ -115,11 +104,9 @@ export const formatTable: FormatElementFunction = (
           if (columnGroup.childItems && columnGroup.childItems.length > 0) {
             const columns = columnGroup.childItems
               .filter((child) => "elementType" in child)
-              .map((child) => child as unknown as TBaseElement)
-              .filter(
-                (child) => child.elementType === FormElementType.InputField
-              )
-              .map((child) => child as unknown as TInputField)
+              .map((child) => child as unknown as BaseElement)
+              .filter((child) => child.elementType === FormElementType.InputField)
+              .map((child) => child as unknown as InputField)
             // Форматируем каждую колонку в отдельную строку
             for (const column of columns) {
               result.strings.push(formatTableRow([column]))
@@ -128,21 +115,18 @@ export const formatTable: FormatElementFunction = (
         }
       } else if (baseItem.elementType === FormElementType.InputField) {
         // Обычная колонка
-        result.strings.push(
-          formatTableRow([baseItem as unknown as TInputField])
-        )
+        result.strings.push(formatTableRow([baseItem as unknown as InputField]))
       }
     }
   } else {
     // Нет горизонтальных групп - проверяем наличие вертикальных групп
     const hasVerticalGroup = element.childItems.some((item) => {
       if (!("elementType" in item)) return false
-      const baseItem = item as unknown as TBaseElement
+      const baseItem = item as unknown as BaseElement
       return (
         baseItem.elementType === FormElementType.ColumnGroup &&
         "group" in baseItem &&
-        (baseItem as unknown as TColumnGroup).group ===
-          SE.ZColumnsGroup.enum.Vertical
+        (baseItem as unknown as ColumnGroup).group === "Vertical"
       )
     })
 
@@ -150,18 +134,16 @@ export const formatTable: FormatElementFunction = (
       // Есть вертикальные группы - обрабатываем каждую группу
       for (const item of element.childItems) {
         if (!("elementType" in item)) continue
-        const baseItem = item as unknown as TBaseElement
+        const baseItem = item as unknown as BaseElement
         if (baseItem.elementType === FormElementType.ColumnGroup) {
-          const columnGroup = baseItem as unknown as TColumnGroup
+          const columnGroup = baseItem as unknown as ColumnGroup
           // Вертикальная группа - каждая колонка в отдельной строке
           if (columnGroup.childItems && columnGroup.childItems.length > 0) {
             const columns = columnGroup.childItems
               .filter((child) => "elementType" in child)
-              .map((child) => child as unknown as TBaseElement)
-              .filter(
-                (child) => child.elementType === FormElementType.InputField
-              )
-              .map((child) => child as unknown as TInputField)
+              .map((child) => child as unknown as BaseElement)
+              .filter((child) => child.elementType === FormElementType.InputField)
+              .map((child) => child as unknown as InputField)
             // Форматируем каждую колонку в отдельную строку
             for (const column of columns) {
               result.strings.push(formatTableRow([column]))
@@ -169,18 +151,16 @@ export const formatTable: FormatElementFunction = (
           }
         } else if (baseItem.elementType === FormElementType.InputField) {
           // Обычная колонка
-          result.strings.push(
-            formatTableRow([baseItem as unknown as TInputField])
-          )
+          result.strings.push(formatTableRow([baseItem as unknown as InputField]))
         }
       }
     } else {
       // Нет групп - просто форматируем все колонки в одну строку
       const columns = element.childItems
         .filter((item) => "elementType" in item)
-        .map((item) => item as unknown as TBaseElement)
+        .map((item) => item as unknown as BaseElement)
         .filter((item) => item.elementType === FormElementType.InputField)
-        .map((item) => item as unknown as TInputField)
+        .map((item) => item as unknown as InputField)
       if (columns.length > 0) {
         result.strings.push(formatTableRow(columns))
       }

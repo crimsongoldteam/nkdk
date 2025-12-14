@@ -3,13 +3,13 @@ import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import * as t from "~/lib/parser/lexer"
 import { isMultiline } from "./helpers"
-import { type TInputField } from "./types"
+import { InputField } from "./types"
 
 const UNDERLINE = t.Underscore.LABEL as string
 const COLON = t.Colon.LABEL as string
 
 export const formatInputField: FormatElementFunction = (
-  element: TInputField,
+  element: InputField,
   _configurationSettings: TConfigurationSettings
 ): IFormatElementResult => {
   const hasTitle = element.title?.items.ru !== undefined
@@ -18,7 +18,8 @@ export const formatInputField: FormatElementFunction = (
 
   header += COLON + " "
 
-  let value = element.value ?? ""
+  // let value = element.value ?? ""
+  let value = ""
 
   const modificators = getModificators(element)
   if (modificators.length > 0) {
@@ -34,43 +35,32 @@ export const formatInputField: FormatElementFunction = (
     haveSimpleHorizontalGroup: false,
   }
 
-  result.strings.push(
-    ...getMultilineString(element, header.length, value.length)
-  )
+  result.strings.push(...getMultilineString(element, header.length, value.length))
 
   return result
 }
 
-const formatTitle = (element: TInputField, hasTitle: boolean): string => {
+const formatTitle = (element: InputField, hasTitle: boolean): string => {
   if (!hasTitle) return formatElementName(element)
 
   return element.title?.items.ru ?? ""
 }
 
-const formatNamePart = (
-  element: TInputField,
-  hasTitle: boolean,
-  hasValue: boolean
-): string => {
+const formatNamePart = (element: InputField, hasTitle: boolean, hasValue: boolean): string => {
   if (!hasTitle) return ""
 
   // Добавляем пробел перед именем только если есть значение
   return (hasValue ? " " : "") + formatElementName(element)
 }
 
-function getMultilineString(
-  element: TInputField,
-  headerLength: number,
-  valueLength: number
-): string[] {
+function getMultilineString(element: InputField, headerLength: number, valueLength: number): string[] {
   if (!isMultiline(element)) {
     return []
   }
 
   const height = element.height!
 
-  let multilineStringTemplate =
-    " ".repeat(headerLength) + UNDERLINE.repeat(valueLength)
+  let multilineStringTemplate = " ".repeat(headerLength) + UNDERLINE.repeat(valueLength)
 
   const result: string[] = []
 
@@ -81,7 +71,7 @@ function getMultilineString(
   return result
 }
 
-function getModificators(element: TInputField): string {
+function getModificators(element: InputField): string {
   const propertyMap = {
     choiceButton: "В",
     dropListButton: "С",
@@ -91,7 +81,7 @@ function getModificators(element: TInputField): string {
   }
 
   return Object.entries(propertyMap)
-    .filter(([key, _]) => element[key as keyof TInputField] !== undefined)
+    .filter(([key, _]) => element[key as keyof InputField] !== undefined)
     .map(([_, value]) => value)
     .join("")
 }
