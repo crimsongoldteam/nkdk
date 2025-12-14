@@ -9,4 +9,4 @@ export type MetadataItemLinkEnterprise = string
 
 export type MetadataItemLinks = MetadataItemLink[]
 export type MetadataItemLinksXML = MetadataItemLinkXML[]
-export type MetadataItemLinksEnterprise = MetadataItemLinkEnterprise[]xx
+export type MetadataItemLinksEnterprise = MetadataItemLinkEnterprise[]

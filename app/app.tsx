@@ -3,10 +3,9 @@ import { useEffect, useState } from "react"
 import { ClientFormApplication } from "~/components/clientFormApplication/clientFormApplication"
 import {
   importClientApplicationFormFromXML,
+  xmlImport,
   type ClientApplicationForm,
   type ClientApplicationFormXML,
-  xmlImport,
-  ZClientApplicationFormXML,
 } from "~/lib"
 import "~/lib/metadata/forms/elements/button/registration"
 import "~/lib/metadata/forms/elements/inputField/registration"
@@ -25,10 +24,7 @@ export const App = () => {
     fetch("/lib/tempTest/Form.xml")
       .then((response) => response.text())
       .then((originalContent) => {
-        const importedXml = xmlImport<ClientApplicationFormXML>(
-          originalContent,
-          ZClientApplicationFormXML
-        )
+        const importedXml = xmlImport<ClientApplicationFormXML>(originalContent)
         const importedForm = importClientApplicationFormFromXML(importedXml)
         setForm(importedForm)
       })
@@ -94,11 +90,7 @@ export const App = () => {
         },
       }}
     >
-      {
-        <main className="app-main">
-          {form && <ClientFormApplication {...form} />}
-        </main>
-      }
+      {<main className="app-main">{form && <ClientFormApplication {...form} />}</main>}
     </ConfigProvider>
   )
 }
