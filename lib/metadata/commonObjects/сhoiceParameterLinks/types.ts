@@ -5,9 +5,7 @@ export interface ChoiceParameterLinkDataPathObject {
   "_xsi:type"?: string
 }
 
-export type ChoiceParameterLinkDataPath =
-  | string
-  | ChoiceParameterLinkDataPathObject
+export type ChoiceParameterLinkDataPath = string | ChoiceParameterLinkDataPathObject
 
 export interface ChoiceParameterLinkXML {
   "xr:Name": string
@@ -49,3 +47,5 @@ export type ChoiceParameterLinksXML =
   | ChoiceParameterLinksXMLAppItem[]
 
 export type ChoiceParameterLinks = ChoiceParameterLink[] | undefined
+
+export type ChoiceParameterLinksEnterprise = string

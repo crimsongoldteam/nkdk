@@ -7,3 +7,5 @@ export interface TypeLink {
   dataPath: string
   linkItem: string | number
 }
+
+export type TypeLinkEnterprise = string

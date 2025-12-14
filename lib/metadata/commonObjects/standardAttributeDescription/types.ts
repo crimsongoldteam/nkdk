@@ -32,11 +32,8 @@ import { CommandList, CommandListXML, CommandListEnterprise } from "~/lib/metada
 import { MetadataItemLinks, MetadataItemLinksEnterprise,MetadataItemLinksXML } from "~/lib/metadata/commonObjects/metadataItemLink/types"
 
 
-export interface MetadataAttribute  {
+export interface StandardAttributeDescription  {
 
-  binaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse,
-  binaryDataStorageLocationUseField?: boolean,
-  choiceFoldersAndItems?: SE.FoldersAndItemsUse,
   choiceForm?: string,
   choiceHistoryOnInput?: SE.ChoiceHistoryOnInput,
   choiceParameterLinks?: ChoiceParameterLinks,
@@ -48,31 +45,26 @@ export interface MetadataAttribute  {
   extendedEdit?: boolean,
   fillChecking?: SE.FillChecking,
   fillFromFillingValue?: boolean,
-  fillingValue?: MetadataValue,
+  fillValue?: MetadataValue,
   format?: I8nText,
   fullTextSearch?: SE.UseFullTextSearch,
-  indexing?: SE.Indexing,
   linkByType?: TypeLink,
   markNegatives?: boolean,
   mask?: string,
   maxValue?: number,
   minValue?: number,
   multiLine?: boolean,
-  objectBelonging?: SE.ObjectBelonging,
   passwordMode?: boolean,
-  quickChoice?: SE.UseQuickChoice,
+  quickChoice?: boolean,
   synonym?: I8nText,
-  tooltip?: I8nText,
+  toolTip?: I8nText,
   type?: TypeDescription,
-  use?: SE.AttributeUse,
+  typeReductionMode?: SE.TypeReductionMode,
   userVisible?: UserVisible,
 }
 
-export interface MetadataAttributeXML  {
+export interface StandardAttributeDescriptionXML  {
   
-  BinaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse,
-  BinaryDataStorageLocationUseField?: boolean,
-  ChoiceFoldersAndItems?: SE.FoldersAndItemsUse,
   ChoiceForm?: string,
   ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput,
   ChoiceParameterLinks?: ChoiceParameterLinksXML,
@@ -84,30 +76,25 @@ export interface MetadataAttributeXML  {
   ExtendedEdit?: boolean,
   FillChecking?: SE.FillChecking,
   FillFromFillingValue?: boolean,
-  FillingValue?: MetadataValueXML,
+  FillValue?: MetadataValueXML,
   Format?: I8nTextXML,
   FullTextSearch?: SE.UseFullTextSearch,
-  Indexing?: SE.Indexing,
   LinkByType?: TypeLinkXML,
   MarkNegatives?: boolean,
   Mask?: string,
   MaxValue?: number,
   MinValue?: number,
   MultiLine?: boolean,
-  ObjectBelonging?: SE.ObjectBelonging,
   PasswordMode?: boolean,
-  QuickChoice?: SE.UseQuickChoice,
+  QuickChoice?: boolean,
   Synonym?: I8nTextXML,
-  Tooltip?: I8nTextXML,
+  ToolTip?: I8nTextXML,
   Type?: TypeDescriptionXML,
-  Use?: SE.AttributeUse,
+  TypeReductionMode?: SE.TypeReductionMode,
   UserVisible?: UserVisibleXML,
 }
 
-export interface MetadataAttributeEnterprise  {
-  ИспользованиеХраненияВХранилищеДвоичныхДанных?: SE.BinaryDataStorageLocationUseEnterprise,
-  ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: boolean,
-  ВыборГруппИЭлементов?: SE.FoldersAndItemsUseEnterprise,
+export interface StandardAttributeDescriptionEnterprise  {
   ФормаВыбора?: string,
   ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise,
   СвязиПараметровВыбора?: ChoiceParameterLinksEnterprise,
@@ -122,23 +109,21 @@ export interface MetadataAttributeEnterprise  {
   ЗначениеЗаполнения?: MetadataValueEnterprise,
   Формат?: I8nTextEnterprise,
   ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise,
-  Индексирование?: SE.IndexingEnterprise,
   СвязьПоТипу?: TypeLinkEnterprise,
   ВыделятьОтрицательные?: boolean,
   Маска?: string,
   МаксимальноеЗначение?: number,
   МинимальноеЗначение?: number,
   МногострочныйРежим?: boolean,
-  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise,
   РежимПароля?: boolean,
-  БыстрыйВыбор?: SE.UseQuickChoiceEnterprise,
+  БыстрыйВыбор?: boolean,
   Синоним?: I8nTextEnterprise,
   Подсказка?: I8nTextEnterprise,
   Тип?: TypeDescriptionEnterprise,
-  Использование?: SE.AttributeUseEnterprise,
+  РежимСокращенияТипа?: SE.TypeReductionModeEnterprise,
   ПользовательскаяВидимость?: UserVisibleEnterprise,
 }
 
-export type MetadataAttributes = MetadataAttribute[]
-export type MetadataAttributesXML = MetadataAttributeXML[]
-export type MetadataAttributesEnterprise = MetadataAttributeEnterprise[]
+export type StandardAttributeDescriptions = StandardAttributeDescription[]
+    export type StandardAttributeDescriptionsXML = StandardAttributeDescriptionXML[]
+    export type StandardAttributeDescriptionsEnterprise = StandardAttributeDescriptionEnterprise[]

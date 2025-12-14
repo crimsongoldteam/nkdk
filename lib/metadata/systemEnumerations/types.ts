@@ -2912,6 +2912,22 @@ export type PlatformType = keyof typeof PlatformTypeToEnterprise;
 export type PlatformTypeEnterprise = keyof typeof PlatformTypeFromEnterprise;
 
 
+export const PredefinedDataUpdateToEnterprise = {
+  Auto : "Авто",
+  DontAutoUpdate : "НеОбновлятьАвтоматически",
+  AutoUpdate : "ОбновлятьАвтоматически",
+} as const;
+
+export const PredefinedDataUpdateFromEnterprise = {
+  Авто : "Auto",
+  НеОбновлятьАвтоматически : "DontAutoUpdate",
+  ОбновлятьАвтоматически : "AutoUpdate",
+} as const;
+
+export type PredefinedDataUpdate = keyof typeof PredefinedDataUpdateToEnterprise;
+export type PredefinedDataUpdateEnterprise = keyof typeof PredefinedDataUpdateFromEnterprise;
+
+
 export const QuestionDialogModeToEnterprise = {
   YesNo : "ДаНет",
   YesNoCancel : "ДаНетОтмена",
@@ -10730,6 +10746,50 @@ export type CalculationTypeMainPresentation = keyof typeof CalculationTypeMainPr
 export type CalculationTypeMainPresentationEnterprise = keyof typeof CalculationTypeMainPresentationFromEnterprise;
 
 
+export const CatalogCodeTypeToEnterprise = {
+  String : "Строка",
+  Number : "Число",
+} as const;
+
+export const CatalogCodeTypeFromEnterprise = {
+  Строка : "String",
+  Число : "Number",
+} as const;
+
+export type CatalogCodeType = keyof typeof CatalogCodeTypeToEnterprise;
+export type CatalogCodeTypeEnterprise = keyof typeof CatalogCodeTypeFromEnterprise;
+
+
+export const CatalogCodesSeriesToEnterprise = {
+  WholeCatalog : "ВоВсемСправочнике",
+  WithinSubordination : "ВПределахПодчинения",
+  WithinOwnerSubordination : "ВПределахПодчиненияВладельцу",
+} as const;
+
+export const CatalogCodesSeriesFromEnterprise = {
+  ВоВсемСправочнике : "WholeCatalog",
+  ВПределахПодчинения : "WithinSubordination",
+  ВПределахПодчиненияВладельцу : "WithinOwnerSubordination",
+} as const;
+
+export type CatalogCodesSeries = keyof typeof CatalogCodesSeriesToEnterprise;
+export type CatalogCodesSeriesEnterprise = keyof typeof CatalogCodesSeriesFromEnterprise;
+
+
+export const CatalogMainPresentationToEnterprise = {
+  AsCode : "ВВидеКода",
+  AsDescription : "ВВидеНаименования",
+} as const;
+
+export const CatalogMainPresentationFromEnterprise = {
+  ВВидеКода : "AsCode",
+  ВВидеНаименования : "AsDescription",
+} as const;
+
+export type CatalogMainPresentation = keyof typeof CatalogMainPresentationToEnterprise;
+export type CatalogMainPresentationEnterprise = keyof typeof CatalogMainPresentationFromEnterprise;
+
+
 export const CharOfAccountCodeSeriesToEnterprise = {
   WholeChartOfAccounts : "ВоВсемПланеСчетов",
   WithinSubordination : "ВПределахПодчинения",
@@ -12402,24 +12462,6 @@ export type ZIPSubDirProcessingMode = keyof typeof ZIPSubDirProcessingModeToEnte
 export type ZIPSubDirProcessingModeEnterprise = keyof typeof ZIPSubDirProcessingModeFromEnterprise;
 
 
-export const StatePresentationToEnterprise = {
-  Visible : "Видимость",
-  AdditionalShowMode : "ДополнительныйРежимОтображения",
-  Picture : "Картинка",
-  Text : "Текст",
-} as const;
-
-export const StatePresentationFromEnterprise = {
-  Видимость : "Visible",
-  ДополнительныйРежимОтображения : "AdditionalShowMode",
-  Картинка : "Picture",
-  Текст : "Text",
-} as const;
-
-export type StatePresentation = keyof typeof StatePresentationToEnterprise;
-export type StatePresentationEnterprise = keyof typeof StatePresentationFromEnterprise;
-
-
 // #endregion SystemEnumerations
 
 // #region SystemSets
@@ -13534,56 +13576,22 @@ export type WindowsFonts = keyof typeof WindowsFontsToEnterprise;
 export type WindowsFontsEnterprise = keyof typeof WindowsFontsFromEnterprise;
 
 
-export const StatePresentationToEnterprise = {
-  Visible : "Видимость",
-  AdditionalShowMode : "ДополнительныйРежимОтображения",
-  Picture : "Картинка",
-  Text : "Текст",
-} as const;
-
-export const StatePresentationFromEnterprise = {
-  Видимость : "Visible",
-  ДополнительныйРежимОтображения : "AdditionalShowMode",
-  Картинка : "Picture",
-  Текст : "Text",
-} as const;
-
-export type StatePresentation = keyof typeof StatePresentationToEnterprise;
-export type StatePresentationEnterprise = keyof typeof StatePresentationFromEnterprise;
-
-
 // #endregion SystemSets
 
 // #region BinaryDataStorageLocationUse
 
 export const BinaryDataStorageLocationUseToEnterprise = {
-,
+  Use : "Использовать",
+  DontUse : "НеИспользовать",
 } as const;
 
 export const BinaryDataStorageLocationUseFromEnterprise = {
-,
+  Использовать : "Use",
+  НеИспользовать : "DontUse",
 } as const;
 
 export type BinaryDataStorageLocationUse = keyof typeof BinaryDataStorageLocationUseToEnterprise;
 export type BinaryDataStorageLocationUseEnterprise = keyof typeof BinaryDataStorageLocationUseFromEnterprise;
-
-
-export const StatePresentationToEnterprise = {
-  Visible : "Видимость",
-  AdditionalShowMode : "ДополнительныйРежимОтображения",
-  Picture : "Картинка",
-  Text : "Текст",
-} as const;
-
-export const StatePresentationFromEnterprise = {
-  Видимость : "Visible",
-  ДополнительныйРежимОтображения : "AdditionalShowMode",
-  Картинка : "Picture",
-  Текст : "Text",
-} as const;
-
-export type StatePresentation = keyof typeof StatePresentationToEnterprise;
-export type StatePresentationEnterprise = keyof typeof StatePresentationFromEnterprise;
 
 
 // #endregion BinaryDataStorageLocationUse
