@@ -10,7 +10,6 @@ import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { EventsXML } from "../../events/types"
 import { ChildItems, ChildItemsXML } from "../childItems/types"
 import { CommandBar, CommandBarXML } from "../commandBar/types"
-import { FormElementType } from "../types"
 
 export interface FormAttribute {
   name: string

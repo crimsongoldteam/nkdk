@@ -60,17 +60,46 @@ import { registerImport } from "~/lib/xml/import/importerFactory"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { FormElementType } from "../types"
 
-export const importAdditionalIndexFromXML = (xml: AdditionalIndexXML | undefined): AdditionalIndex | undefined => {
+export const importMetadataAttributeFromXML = (xml: MetadataAttributeXML | undefined): MetadataAttribute | undefined => {
   if (!xml) return undefined
    
   return {
-elementType: FormElementType.AdditionalIndex,
+elementType: FormElementType.MetadataAttribute,
 
-    additionalFields: importChoiceParameterLinksFromXML(xml.AdditionalFields),
-    indexedFields: importChoiceParameterLinksFromXML(xml.IndexedFields),
-    table: importTableFromXML(xml.Table),
+    binaryDataStorageLocationUse: xml.BinaryDataStorageLocationUse,
+    binaryDataStorageLocationUseField: xml.BinaryDataStorageLocationUseField,
+    choiceFoldersAndItems: xml.ChoiceFoldersAndItems,
+    choiceForm: xml.ChoiceForm,
+    choiceHistoryOnInput: xml.ChoiceHistoryOnInput,
+    choiceParameterLinks: importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks),
+    choiceParameters: importChoiceParameterLinksFromXML(xml.ChoiceParameters),
+    comment: xml.Comment,
+    createOnInput: xml.CreateOnInput,
+    dataHistory: xml.DataHistory,
+    editFormat: importI8nTextFromXML(xml.EditFormat),
+    extendedConfigurationObject: xml.ExtendedConfigurationObject,
+    extendedEdit: xml.ExtendedEdit,
+    fillChecking: xml.FillChecking,
+    fillFromFillingValue: xml.FillFromFillingValue,
+    fillingValue: xml.FillingValue,
+    format: importI8nTextFromXML(xml.Format),
+    fullTextSearch: xml.FullTextSearch,
+    indexing: xml.Indexing,
+    linkByType: xml.LinkByType,
+    markNegatives: xml.MarkNegatives,
+    mask: xml.Mask,
+    maxValue: xml.MaxValue,
+    minValue: xml.MinValue,
+    multiLine: xml.MultiLine,
+    objectBelonging: xml.ObjectBelonging,
+    passwordMode: xml.PasswordMode,
+    quickChoice: xml.QuickChoice,
+    synonym: xml.Synonym,
+    tooltip: xml.Tooltip,
+    type: importTypeDescriptionFromXML(xml.Type),
+    use: xml.Use,
     userVisible: importUserVisibleFromXML(xml.UserVisible),
   }
 }
 
-registerImport(FormElementType.AdditionalIndex, importAdditionalIndexFromXML)
+registerImport(FormElementType.MetadataAttribute, importMetadataAttributeFromXML)

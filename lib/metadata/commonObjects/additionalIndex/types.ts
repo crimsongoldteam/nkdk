@@ -24,7 +24,7 @@ import { EventsXML } from "~/lib/metadata/forms/events/types";
 import { ChildItems, ChildItemsXML } from "../childItems/types";
 
 
-export interface Object  {
+export interface AdditionalIndex  {
 
   additionalFields?: ChoiceParameterLinks,
   indexedFields?: ChoiceParameterLinks,
@@ -32,7 +32,7 @@ export interface Object  {
   userVisible?: UserVisible,
 }
 
-export interface ObjectXML  {
+export interface AdditionalIndexXML  {
   
   AdditionalFields?: ChoiceParameterLinksXML,
   IndexedFields?: ChoiceParameterLinksXML,
@@ -40,7 +40,7 @@ export interface ObjectXML  {
   UserVisible?: UserVisibleXML,
 }
 
-export interface ObjectEnterprise  {
+export interface AdditionalIndexEnterprise  {
   ДополнительныеПоля?: ChoiceParameterLinksEnterprise,
   ИндексируемыеПоля?: ChoiceParameterLinksEnterprise,
   Таблица?: string,

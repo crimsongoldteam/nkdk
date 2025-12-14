@@ -60,7 +60,7 @@ import { registerImport } from "~/lib/xml/import/importerFactory"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { FormElementType } from "../types"
 
-export const exportObjectToXML = (data: Object | undefined): ObjectXML | undefined => {
+export const exportAdditionalIndexToXML = (data: AdditionalIndex | undefined): AdditionalIndexXML | undefined => {
     if (!data) return undefined
      
     return {
@@ -72,4 +72,4 @@ export const exportObjectToXML = (data: Object | undefined): ObjectXML | undefin
   }
 }
 
-registerExport(FormElementType.Object, exportObjectToXML)
+registerExport(FormElementType.AdditionalIndex, exportAdditionalIndexToXML)
