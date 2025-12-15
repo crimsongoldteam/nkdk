@@ -1,15 +1,14 @@
 import { Checkbox, Form, Switch, Typography } from "antd"
 import type React from "react"
-import type { TCheckBoxField } from "~/lib/metadata/forms/elements/checkBoxField/types"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { CheckBoxField } from "~/lib/metadata/forms/elements/checkBoxField/types"
 
-export function CheckBoxFieldComponent(props: Readonly<TCheckBoxField>): React.ReactNode {
-  const isRightHeader = props.headerHorizontalAlign === SE.ZItemHorizontalLocation.enum.Right
+export function CheckBoxFieldComponent(props: Readonly<CheckBoxField>): React.ReactNode {
+  const isRightHeader = props.headerHorizontalAlign === "Right"
 
   const rightHeader = isRightHeader ? props.title?.items.ru : undefined
   const leftHeader = isRightHeader ? undefined : props.title?.items.ru
 
-  if (props.checkBoxType === SE.ZCheckBoxType.enum.Switch) {
+  if (props.checkBoxType === "Switch") {
     return (
       <Form.Item>
         <Typography.Text>{leftHeader}</Typography.Text>

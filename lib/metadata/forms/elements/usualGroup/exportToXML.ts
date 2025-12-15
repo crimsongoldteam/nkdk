@@ -1,14 +1,10 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
-import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { exportFormGroupToXML } from "~/lib/metadata/forms/elements/formGroup/exportToXML"
+import { exportTableToXML } from "~/lib/metadata/forms/elements/table/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportFormGroupToXML } from "../formGroup/exportToXML"
-import { exportTableToXML } from "../table/exportToXML"
 import { FormElementType } from "../types"
-import { UsualGroup, UsualGroupXML } from "./types"
 
 export const exportUsualGroupToXML = (data: UsualGroup | undefined): UsualGroupXML | undefined => {
   if (!data) return undefined
@@ -16,26 +12,6 @@ export const exportUsualGroupToXML = (data: UsualGroup | undefined): UsualGroupX
   return {
     ...exportFormGroupToXML(data)!,
 
-    EnableContentChange: data.enableContentChange,
-    Enabled: data.enabled,
-    ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
-    Height: data.height,
-    HorizontalAlignInGroup: data.horizontalAlignInGroup,
-    HorizontalStretch: data.horizontalStretch,
-    ReadOnly: data.readOnly,
-    Shortcut: data.shortcut,
-    Title: exportI8nTextToXML(data.title),
-    TitleFont: exportFontToXML(data.titleFont),
-    TitleTextColor: exportColorToXML(data.titleTextColor),
-    ToolTip: exportI8nTextToXML(data.toolTip),
-    ToolTipRepresentation: data.toolTipRepresentation,
-    Type: data.type,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
-    VerticalAlignInGroup: data.verticalAlignInGroup,
-    VerticalStretch: data.verticalStretch,
-    Visible: data.visible,
-    Width: data.width,
-    ChildItems: exportChildItemsToXML(data.childItems),
     AssociatedTable: exportTableToXML(data.associatedTable),
     BackColor: exportColorToXML(data.backColor),
     Behavior: data.behavior,
@@ -61,6 +37,7 @@ export const exportUsualGroupToXML = (data: UsualGroup | undefined): UsualGroupX
     United: data.united,
     VerticalAlign: data.verticalAlign,
     VerticalSpacing: data.verticalSpacing,
+    UserVisible: exportUserVisibleToXML(data.userVisible),
   }
 }
 

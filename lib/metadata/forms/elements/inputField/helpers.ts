@@ -1,5 +1,5 @@
-import { type TInputField } from "./types"
+import { InputField } from "./types"
 
-export function isMultiline(element: TInputField): boolean {
+export const isMultiline = (element: InputField): boolean => {
   return element.height !== undefined && element.height > 1 && element.multiLine !== undefined && element.multiLine
 }

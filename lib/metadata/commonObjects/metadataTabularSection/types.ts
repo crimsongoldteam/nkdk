@@ -16,6 +16,7 @@ export interface MetadataTabularSection {
   comment?: string
   fillChecking?: SE.FillChecking
   lineNumberLength?: number
+  name?: string
   objectBelonging?: SE.ObjectBelonging
   standardAttributes?: StandardAttributeDescriptions
   synonym?: I8nText
@@ -28,6 +29,7 @@ export interface MetadataTabularSectionXML {
   Comment?: string
   FillChecking?: SE.FillChecking
   LineNumberLength?: number
+  Name?: string
   ObjectBelonging?: SE.ObjectBelonging
   StandardAttributes?: StandardAttributeDescriptionsXML
   Synonym?: I8nTextXML
@@ -40,6 +42,7 @@ export interface MetadataTabularSectionEnterprise {
   Комментарий?: string
   ПроверкаЗаполнения?: SE.FillCheckingEnterprise
   ДлинаНомераСтроки?: number
+  Имя?: string
   ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
   СтандартныеРеквизиты?: StandardAttributeDescriptionsEnterprise
   Синоним?: I8nTextEnterprise

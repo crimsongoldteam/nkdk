@@ -1,7 +1,17 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
-import { FormItemAddition, FormItemAdditionEnterprise, FormItemAdditionXML } from "../formItemAddition/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  FormItemAddition,
+  FormItemAdditionEnterprise,
+  FormItemAdditionXML,
+} from "~/lib/metadata/forms/elements/formItemAddition/types"
 
 export interface SearchControlAddition extends FormItemAddition {
   autoMaxWidth?: boolean
@@ -11,8 +21,8 @@ export interface SearchControlAddition extends FormItemAddition {
   horizontalStretch?: boolean
   maxWidth?: number
   textColor?: Color
-  userVisible?: UserVisible
   width?: number
+  userVisible?: UserVisible
 }
 
 export interface SearchControlAdditionXML extends FormItemAdditionXML {
@@ -23,18 +33,19 @@ export interface SearchControlAdditionXML extends FormItemAdditionXML {
   HorizontalStretch?: boolean
   MaxWidth?: number
   TextColor?: ColorXML
-  UserVisible?: UserVisibleXML
   Width?: number
+  UserVisible?: UserVisibleXML
 }
 
 export interface SearchControlAdditionEnterprise extends FormItemAdditionEnterprise {
-  АвтоМаксимальнаяШирина?: boolean
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
   ЦветФона?: ColorEnterprise
   ЦветРамки?: ColorEnterprise
   Шрифт?: FontEnterprise
-  РастягиватьПоГоризонтали?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяШирина?: number
   ЦветТекста?: ColorEnterprise
-  ПользовательскаяВидимость?: UserVisibleEnterprise
   Ширина?: number
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
 }

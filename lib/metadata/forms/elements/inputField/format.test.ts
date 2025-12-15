@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { FormElementType } from "../types"
 import { formatInputField } from "./format"
-import { TInputField } from "./types"
+import { InputField } from "./types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -10,7 +10,7 @@ const configurationSettings: TConfigurationSettings = {
 
 describe("formatInputField", () => {
   it("should format input field with title", () => {
-    const element: TInputField = {
+    const element: InputField = {
       name: "ИмяПоля",
       id: "1",
       elementType: FormElementType.InputField,
@@ -24,7 +24,7 @@ describe("formatInputField", () => {
   })
 
   it("should format input field with value", () => {
-    const element: TInputField = {
+    const element: InputField = {
       name: "ИмяПоля",
       id: "1",
       elementType: FormElementType.InputField,
@@ -36,7 +36,7 @@ describe("formatInputField", () => {
   })
 
   it("should format multiline input field", () => {
-    const element: TInputField = {
+    const element: InputField = {
       name: "ИмяПоля",
       id: "1",
       elementType: FormElementType.InputField,
@@ -48,14 +48,11 @@ describe("formatInputField", () => {
 
     const result = formatInputField(element, configurationSettings)
 
-    expect(result.strings).toEqual([
-      "Поле: Значение {ИмяПоля}",
-      "      ________",
-    ])
+    expect(result.strings).toEqual(["Поле: Значение {ИмяПоля}", "      ________"])
   })
 
   it("should format input field with modificators", () => {
-    const element: TInputField = {
+    const element: InputField = {
       name: "ИмяПоля",
       id: "1",
       elementType: FormElementType.InputField,
@@ -74,7 +71,7 @@ describe("formatInputField", () => {
   })
 
   it("should format input field with name if title is not present", () => {
-    const element: TInputField = {
+    const element: InputField = {
       name: "ИмяПоля",
       id: "1",
       elementType: FormElementType.InputField,

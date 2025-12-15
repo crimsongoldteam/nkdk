@@ -1,3 +1,4 @@
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 import { FormElementType } from "../types"
 
@@ -11,13 +12,13 @@ export const importMetadataDocumentNumeratorFromXML = (
 
     checkUnique: xml.CheckUnique,
     comment: xml.Comment,
-    extendedConfigurationObject: xml.ExtendedConfigurationObject,
+    name: xml.Name,
     numberAllowedLength: xml.NumberAllowedLength,
     numberLength: xml.NumberLength,
     numberPeriodicity: xml.NumberPeriodicity,
     numberType: xml.NumberType,
     objectBelonging: xml.ObjectBelonging,
-    synonym: xml.Synonym,
+    synonym: importI8nTextFromXML(xml.Synonym),
   }
 }
 

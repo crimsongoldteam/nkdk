@@ -1,6 +1,12 @@
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
 export interface PlannerField extends FormField {
   autoMaxHeight?: boolean
@@ -13,10 +19,10 @@ export interface PlannerField extends FormField {
   maxHeight?: number
   maxWidth?: number
   timeScaleItemHyperlink?: boolean
-  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
   wrappedTimeScaleHeaderHyperlink?: boolean
+  userVisible?: UserVisible
   events?: {
     onChange?: string
     selection?: string
@@ -55,28 +61,29 @@ export interface PlannerFieldXML extends FormFieldXML {
   MaxHeight?: number
   MaxWidth?: number
   TimeScaleItemHyperlink?: boolean
-  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
   WrappedTimeScaleHeaderHyperlink?: boolean
+  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface PlannerFieldEnterprise extends FormFieldEnterprise {
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяШирина?: boolean
-  ГиперссылкаЭлементаИзмерения?: boolean
-  РазрешитьПеретаскивание?: boolean
-  РазрешитьНачалоПеретаскивания?: boolean
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
+  ГиперссылкаЭлементаИзмерения?: StringboolEnterprise
+  РазрешитьПеретаскивание?: StringboolEnterprise
+  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  ГиперссылкаЭлементаШкалыВремени?: boolean
-  ПользовательскаяВидимость?: UserVisibleEnterprise
-  РастягиватьПоВертикали?: boolean
+  ГиперссылкаЭлементаШкалыВремени?: StringboolEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
   Ширина?: number
-  ГиперссылкаПеренесенногоЗаголовкаШкалыВремени?: boolean
+  ГиперссылкаПеренесенногоЗаголовкаШкалыВремени?: StringboolEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
   События?: {
     ПриИзменении?: string
     Выбор?: string

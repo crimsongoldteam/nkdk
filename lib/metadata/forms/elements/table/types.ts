@@ -1,8 +1,26 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/lib/metadata/forms/commandSet/types"
+import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
+import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/lib/metadata/forms/elements/commandBar/types"
+import {
+  FormDecoration,
+  FormDecorationEnterprise,
+  FormDecorationXML,
+} from "~/lib/metadata/forms/elements/formDecoration/types"
+import {
+  FormItemAddition,
+  FormItemAdditionEnterprise,
+  FormItemAdditionXML,
+} from "~/lib/metadata/forms/elements/formItemAddition/types"
 import {
   SearchControlAddition,
   SearchControlAdditionEnterprise,
@@ -20,11 +38,7 @@ import {
 } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { BaseElement, BaseElementEnterprise, BaseElementXML } from "../baseElement/types"
-import { ChildItems, ChildItemsXML } from "../childItems/types"
-import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../commandBar/types"
-import { FormDecoration, FormDecorationEnterprise, FormDecorationXML } from "../formDecoration/types"
-import { FormItemAddition, FormItemAdditionEnterprise, FormItemAdditionXML } from "../formItemAddition/types"
+import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../childItems/types"
 
 export interface Table extends BaseElement {
   autoAddIncomplete?: boolean
@@ -72,6 +86,7 @@ export interface Table extends BaseElement {
   maxHeightInTableRows?: number
   maxWidth?: number
   multipleChoice?: boolean
+  name?: string
   output?: SE.UseOutput
   readOnly?: boolean
   refreshRequest?: SE.RefreshRequestMethod
@@ -99,7 +114,6 @@ export interface Table extends BaseElement {
   toolTip?: I8nText
   toolTipRepresentation?: SE.ToolTipRepresentation
   useAlternationRowColor?: boolean
-  userVisible?: UserVisible
   verticalAlignInGroup?: SE.ItemVerticalAlign
   verticalLines?: boolean
   verticalScrollBar?: SE.ScrollBarUse
@@ -110,6 +124,7 @@ export interface Table extends BaseElement {
   visible?: boolean
   width?: number
   childItems?: ChildItems
+  userVisible?: UserVisible
   events?: {
     selection?: string
     valueChoice?: string
@@ -183,6 +198,7 @@ export interface TableXML extends BaseElementXML {
   MaxHeightInTableRows?: number
   MaxWidth?: number
   MultipleChoice?: boolean
+  Name?: string
   Output?: SE.UseOutput
   ReadOnly?: boolean
   RefreshRequest?: SE.RefreshRequestMethod
@@ -210,7 +226,6 @@ export interface TableXML extends BaseElementXML {
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
   UseAlternationRowColor?: boolean
-  UserVisible?: UserVisibleXML
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   VerticalLines?: boolean
   VerticalScrollBar?: SE.ScrollBarUse
@@ -221,63 +236,65 @@ export interface TableXML extends BaseElementXML {
   Visible?: boolean
   Width?: number
   ChildItems?: ChildItemsXML
+  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface TableEnterprise extends BaseElementEnterprise {
-  АвтоВводНезаполненного?: boolean
+  АвтоВводНезаполненного?: StringboolEnterprise
   АвтоКоманднаяПанель?: CommandBarEnterprise
-  АвтоВводНовойСтроки?: boolean
-  АвтоОтметкаНезаполненного?: boolean
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяВысотаВСтрокахТаблицы?: boolean
-  АвтоМаксимальнаяШирина?: boolean
+  АвтоВводНовойСтроки?: StringboolEnterprise
+  АвтоОтметкаНезаполненного?: StringboolEnterprise
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяВысотаВСтрокахТаблицы?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
   ЦветФона?: ColorEnterprise
   ПоведениеПриСжатииПоГоризонтали?: SE.TableBehaviorOnHorizontalCompressionEnterprise
   ЦветРамки?: ColorEnterprise
-  ИзменятьПорядокСтрок?: boolean
-  ИзменятьСоставСтрок?: boolean
-  РежимВыбора?: boolean
+  ИзменятьПорядокСтрок?: StringboolEnterprise
+  ИзменятьСоставСтрок?: StringboolEnterprise
+  РежимВыбора?: StringboolEnterprise
   КоманднаяПанель?: CommandBarEnterprise
   ПоложениеКоманднойПанели?: SE.FormItemCommandBarLabelLocationEnterprise
   Команда?: CommandSetEnterprise
   КонтекстноеМеню?: CommandBarEnterprise
   ИспользованиеТекущейСтроки?: SE.TableCurrentRowUseEnterprise
   ПутьКДанным?: string
-  АктивизироватьПоУмолчанию?: boolean
+  АктивизироватьПоУмолчанию?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  Доступность?: boolean
-  РазрешитьПеретаскивание?: boolean
-  РазрешитьНачалоПеретаскивания?: boolean
+  Доступность?: StringboolEnterprise
+  РазрешитьПеретаскивание?: StringboolEnterprise
+  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
   РасширеннаяПодсказка?: FormDecorationEnterprise
   СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise
   Шрифт?: FontEnterprise
-  Подвал?: boolean
+  Подвал?: StringboolEnterprise
   ВысотаПодвала?: number
-  Шапка?: boolean
+  Шапка?: StringboolEnterprise
   ВысотаШапки?: number
   Высота?: number
   ВариантУправленияВысотой?: SE.TableHeightControlVariantEnterprise
   ВысотаВСтрокахТаблицы?: number
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальныеЛинии?: boolean
+  ГоризонтальныеЛинии?: StringboolEnterprise
   ГоризонтальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
-  РастягиватьПоГоризонтали?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
   НачальноеОтображениеСписка?: SE.InitialListViewEnterprise
   НачальноеОтображениеДерева?: SE.InitialTreeViewEnterprise
-  ОтметкаНезаполненного?: boolean
+  ОтметкаНезаполненного?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяВысотаВСтрокахТаблицы?: number
   МаксимальнаяШирина?: number
-  МножественныйВыбор?: boolean
+  МножественныйВыбор?: StringboolEnterprise
+  Имя?: string
   Вывод?: SE.UseOutputEnterprise
-  ТолькоПросмотр?: boolean
+  ТолькоПросмотр?: StringboolEnterprise
   ЗапросОбновления?: SE.RefreshRequestMethodEnterprise
   Отображение?: SE.TableRepresentationEnterprise
   РежимВводаСтрок?: SE.TableRowInputModeEnterprise
   ПутьКДаннымКартинкиСтроки?: string
   РежимВыделенияСтроки?: SE.TableRowSelectionModeEnterprise
-  КартинкаСтрок?: boolean
+  КартинкаСтрок?: StringboolEnterprise
   УправлениеПоиском?: FormItemAdditionEnterprise
   УправлениеПоиском?: SearchControlAdditionEnterprise
   ПоложениеУправленияПоиском?: SE.SearchControlLocationEnterprise
@@ -287,7 +304,7 @@ export interface TableEnterprise extends BaseElementEnterprise {
   ОтображениеСтрокиПоиска?: FormItemAdditionEnterprise
   РежимВыделения?: SE.TableSelectionModeEnterprise
   СочетаниеКлавиш?: string
-  ПропускатьПриВводе?: boolean
+  ПропускатьПриВводе?: StringboolEnterprise
   ЦветТекста?: ColorEnterprise
   Заголовок?: I8nTextEnterprise
   ШрифтЗаголовка?: FontEnterprise
@@ -296,18 +313,19 @@ export interface TableEnterprise extends BaseElementEnterprise {
   ЦветТекстаЗаголовка?: ColorEnterprise
   Подсказка?: I8nTextEnterprise
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  ЧередованиеЦветовСтрок?: boolean
-  ПользовательскаяВидимость?: UserVisibleEnterprise
+  ЧередованиеЦветовСтрок?: StringboolEnterprise
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  ВертикальныеЛинии?: boolean
+  ВертикальныеЛинии?: StringboolEnterprise
   ВертикальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
-  РастягиватьПоВертикали?: boolean
+  РастягиватьПоВертикали?: StringboolEnterprise
   ПоложениеСостоянияПросмотра?: ViewStatusAdditionEnterprise
   ПоложениеСостоянияПросмотра?: SE.ViewStatusLocationEnterprise
   ОтображениеСостоянияПросмотра?: FormItemAdditionEnterprise
-  Видимость?: boolean
+  Видимость?: StringboolEnterprise
   Ширина?: number
   ПодчиненныеЭлементы?: ChildItemsEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
   События?: {
     Выбор?: string
     ВыборЗначения?: string

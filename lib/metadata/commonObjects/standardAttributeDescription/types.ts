@@ -1,3 +1,4 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   MetadataValue,
@@ -38,6 +39,7 @@ export interface StandardAttributeDescription {
   maxValue?: number
   minValue?: number
   multiLine?: boolean
+  name?: string
   passwordMode?: boolean
   quickChoice?: boolean
   synonym?: I8nText
@@ -67,6 +69,7 @@ export interface StandardAttributeDescriptionXML {
   MaxValue?: number
   MinValue?: number
   MultiLine?: boolean
+  Name?: string
   PasswordMode?: boolean
   QuickChoice?: boolean
   Synonym?: I8nTextXML
@@ -84,20 +87,21 @@ export interface StandardAttributeDescriptionEnterprise {
   СозданиеПриВводе?: SE.CreateOnInputEnterprise
   ИсторияДанных?: SE.DataHistoryUseEnterprise
   ФорматРедактирования?: I8nTextEnterprise
-  РасширенноеРедактирование?: boolean
+  РасширенноеРедактирование?: StringboolEnterprise
   ПроверкаЗаполнения?: SE.FillCheckingEnterprise
-  ЗаполнятьИзДанныхЗаполнения?: boolean
+  ЗаполнятьИзДанныхЗаполнения?: StringboolEnterprise
   ЗначениеЗаполнения?: MetadataValueEnterprise
   Формат?: I8nTextEnterprise
   ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
   СвязьПоТипу?: TypeLinkEnterprise
-  ВыделятьОтрицательные?: boolean
+  ВыделятьОтрицательные?: StringboolEnterprise
   Маска?: string
   МаксимальноеЗначение?: number
   МинимальноеЗначение?: number
-  МногострочныйРежим?: boolean
-  РежимПароля?: boolean
-  БыстрыйВыбор?: boolean
+  МногострочныйРежим?: StringboolEnterprise
+  Имя?: string
+  РежимПароля?: StringboolEnterprise
+  БыстрыйВыбор?: StringboolEnterprise
   Синоним?: I8nTextEnterprise
   Подсказка?: I8nTextEnterprise
   Тип?: TypeDescriptionEnterprise

@@ -1,4 +1,7 @@
+import { exportMetadataItemLinkToXML } from "~/lib/metadata/commonObjects/metadataItemLink/exportToXML"
+import { exportMetadataValueToXML } from "~/lib/metadata/commonObjects/metadataValue/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { exportMetadataFieldToXML } from "../metadataField/exportToXML"
 import { FormElementType } from "../types"
 
 export const exportCharacteristicsDescriptionToXML = (
@@ -7,18 +10,18 @@ export const exportCharacteristicsDescriptionToXML = (
   if (!data) return undefined
 
   return {
-    CharacteristicTypes: data.characteristicTypes,
-    CharacteristicValues: data.characteristicValues,
-    DataPathField: data.dataPathField,
-    KeyField: data.keyField,
-    MultipleValuesKeyField: data.multipleValuesKeyField,
-    MultipleValuesOrderField: data.multipleValuesOrderField,
-    MultipleValuesUseField: data.multipleValuesUseField,
-    ObjectField: data.objectField,
-    TypeField: data.typeField,
-    TypesFilterField: data.typesFilterField,
-    TypesFilterValue: data.typesFilterValue,
-    ValueField: data.valueField,
+    CharacteristicTypes: exportMetadataItemLinkToXML(data.characteristicTypes),
+    CharacteristicValues: exportMetadataValueToXML(data.characteristicValues),
+    DataPathField: exportMetadataFieldToXML(data.dataPathField),
+    KeyField: exportMetadataFieldToXML(data.keyField),
+    MultipleValuesKeyField: exportMetadataFieldToXML(data.multipleValuesKeyField),
+    MultipleValuesOrderField: exportMetadataFieldToXML(data.multipleValuesOrderField),
+    MultipleValuesUseField: exportMetadataFieldToXML(data.multipleValuesUseField),
+    ObjectField: exportMetadataFieldToXML(data.objectField),
+    TypeField: exportMetadataFieldToXML(data.typeField),
+    TypesFilterField: exportMetadataFieldToXML(data.typesFilterField),
+    TypesFilterValue: exportMetadataValueToXML(data.typesFilterValue),
+    ValueField: exportMetadataFieldToXML(data.valueField),
   }
 }
 

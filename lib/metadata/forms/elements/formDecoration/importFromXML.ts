@@ -2,11 +2,10 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
+import { importCommandBarFromXML } from "~/lib/metadata/forms/elements/commandBar/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { importBaseElementFromXML } from "../baseElement/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { FormElementType } from "../types"
-import { FormDecoration, FormDecorationXML } from "./types"
 
 export const importFormDecorationFromXML = (xml: FormDecorationXML | undefined): FormDecoration | undefined => {
   if (!xml) return undefined
@@ -27,6 +26,7 @@ export const importFormDecorationFromXML = (xml: FormDecorationXML | undefined):
     horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
+    name: xml.Name,
     shortcut: xml.Shortcut,
     skipOnInput: xml.SkipOnInput,
     textColor: importColorFromXML(xml.TextColor),
@@ -34,11 +34,11 @@ export const importFormDecorationFromXML = (xml: FormDecorationXML | undefined):
     toolTip: importI8nTextFromXML(xml.ToolTip),
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,
     width: xml.Width,
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
   }
 }
 

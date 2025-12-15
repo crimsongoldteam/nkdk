@@ -1,5 +1,7 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
+import { exportMetadataValueToXML } from "~/lib/metadata/commonObjects/metadataValue/exportToXML"
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
+import { exportTypeLinkToXML } from "~/lib/metadata/commonObjects/typeLink/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { FormElementType } from "../types"
@@ -19,25 +21,25 @@ export const exportMetadataAttributeToXML = (data: MetadataAttribute | undefined
     CreateOnInput: data.createOnInput,
     DataHistory: data.dataHistory,
     EditFormat: exportI8nTextToXML(data.editFormat),
-    ExtendedConfigurationObject: data.extendedConfigurationObject,
     ExtendedEdit: data.extendedEdit,
     FillChecking: data.fillChecking,
     FillFromFillingValue: data.fillFromFillingValue,
-    FillingValue: data.fillingValue,
+    FillingValue: exportMetadataValueToXML(data.fillingValue),
     Format: exportI8nTextToXML(data.format),
     FullTextSearch: data.fullTextSearch,
     Indexing: data.indexing,
-    LinkByType: data.linkByType,
+    LinkByType: exportTypeLinkToXML(data.linkByType),
     MarkNegatives: data.markNegatives,
     Mask: data.mask,
     MaxValue: data.maxValue,
     MinValue: data.minValue,
     MultiLine: data.multiLine,
+    Name: data.name,
     ObjectBelonging: data.objectBelonging,
     PasswordMode: data.passwordMode,
     QuickChoice: data.quickChoice,
-    Synonym: data.synonym,
-    Tooltip: data.tooltip,
+    Synonym: exportI8nTextToXML(data.synonym),
+    Tooltip: exportI8nTextToXML(data.tooltip),
     Type: exportTypeDescriptionToXML(data.type),
     Use: data.use,
   }

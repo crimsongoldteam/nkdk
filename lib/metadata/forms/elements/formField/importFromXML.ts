@@ -4,14 +4,13 @@ import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/impor
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
+import { importCommandBarFromXML } from "~/lib/metadata/forms/elements/commandBar/importFromXML"
+import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
+import { importTableFromXML } from "~/lib/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { importBaseElementFromXML } from "../baseElement/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importTableFromXML } from "../table/importFromXML"
 import { FormElementType } from "../types"
-import { FormField, FormFieldXML } from "./types"
 
 export const importFormFieldFromXML = (xml: FormFieldXML | undefined): FormField | undefined => {
   if (!xml) return undefined
@@ -41,6 +40,7 @@ export const importFormFieldFromXML = (xml: FormFieldXML | undefined): FormField
     headerPicture: importPictureFromXML(xml.HeaderPicture),
     horizontalAlign: xml.HorizontalAlign,
     horizontalAlignInGroup: xml.HorizontalAlignInGroup,
+    name: xml.Name,
     readOnly: xml.ReadOnly,
     shortcut: xml.Shortcut,
     showInFooter: xml.ShowInFooter,
@@ -57,12 +57,12 @@ export const importFormFieldFromXML = (xml: FormFieldXML | undefined): FormField
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
     typeRestriction: importTypeDescriptionFromXML(xml.TypeRestriction),
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
     verticalAlign: xml.VerticalAlign,
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     visible: xml.Visible,
     warningOnEdit: importI8nTextFromXML(xml.WarningOnEdit),
     warningOnEditRepresentation: xml.WarningOnEditRepresentation,
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
     events: importEventsFromXML(xml.Events),
   }
 }

@@ -1,8 +1,14 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
 export interface ProgressBarField extends FormField {
   autoMaxHeight?: boolean
@@ -17,9 +23,9 @@ export interface ProgressBarField extends FormField {
   orientation?: SE.FormItemOrientation
   representation?: SE.ProgressBarSmoothingMode
   showPercent?: boolean
-  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
+  userVisible?: UserVisible
   events?: {
     onChange?: string
   }
@@ -38,28 +44,29 @@ export interface ProgressBarFieldXML extends FormFieldXML {
   Orientation?: SE.FormItemOrientation
   Representation?: SE.ProgressBarSmoothingMode
   ShowPercent?: boolean
-  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
+  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface ProgressBarFieldEnterprise extends FormFieldEnterprise {
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяШирина?: boolean
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
   ЦветРамки?: ColorEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальноеЗначение?: number
   МаксимальнаяШирина?: number
   МинимальноеЗначение?: number
   Ориентация?: SE.FormItemOrientationEnterprise
   Отображение?: SE.ProgressBarSmoothingModeEnterprise
-  ОтображатьПроценты?: boolean
-  ПользовательскаяВидимость?: UserVisibleEnterprise
-  РастягиватьПоВертикали?: boolean
+  ОтображатьПроценты?: StringboolEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
   Ширина?: number
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
   События?: {
     ПриИзменении?: string
   }

@@ -2,11 +2,10 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { exportBaseElementToXML } from "~/lib/metadata/forms/elements/baseElement/exportToXML"
+import { exportCommandBarToXML } from "~/lib/metadata/forms/elements/commandBar/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { exportBaseElementToXML } from "../baseElement/exportToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import { FormElementType } from "../types"
-import { FormDecoration, FormDecorationXML } from "./types"
 
 export const exportFormDecorationToXML = (data: FormDecoration | undefined): FormDecorationXML | undefined => {
   if (!data) return undefined
@@ -26,6 +25,7 @@ export const exportFormDecorationToXML = (data: FormDecoration | undefined): For
     HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
+    Name: data.name,
     Shortcut: data.shortcut,
     SkipOnInput: data.skipOnInput,
     TextColor: exportColorToXML(data.textColor),
@@ -33,11 +33,11 @@ export const exportFormDecorationToXML = (data: FormDecoration | undefined): For
     ToolTip: exportI8nTextToXML(data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,
     Width: data.width,
+    UserVisible: exportUserVisibleToXML(data.userVisible),
   }
 }
 

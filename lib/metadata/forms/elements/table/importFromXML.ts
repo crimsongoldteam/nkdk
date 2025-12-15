@@ -2,18 +2,18 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { importCommandSetFromXML } from "~/lib/metadata/forms/commandSet/importFromXML"
+import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
+import { importCommandBarFromXML } from "~/lib/metadata/forms/elements/commandBar/importFromXML"
+import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
+import { importFormItemAdditionFromXML } from "~/lib/metadata/forms/elements/formItemAddition/importFromXML"
 import { importSearchControlAdditionFromXML } from "~/lib/metadata/forms/elements/searchControlAddition/importFromXML"
 import { importSearchStringAdditionFromXML } from "~/lib/metadata/forms/elements/searchStringAddition/importFromXML"
 import { importViewStatusAdditionFromXML } from "~/lib/metadata/forms/elements/viewStatusAddition/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { FormElementType } from "../types"
-import { Table, TableXML } from "./types"
 
 export const importTableFromXML = (xml: TableXML | undefined): Table | undefined => {
   if (!xml) return undefined
@@ -37,7 +37,7 @@ export const importTableFromXML = (xml: TableXML | undefined): Table | undefined
     choiceMode: xml.ChoiceMode,
     commandBar: importCommandBarFromXML(xml.CommandBar),
     commandBarLocation: xml.CommandBarLocation,
-    commandSet: xml.CommandSet,
+    commandSet: importCommandSetFromXML(xml.CommandSet),
     contextMenu: importCommandBarFromXML(xml.ContextMenu),
     currentRowUse: xml.CurrentRowUse,
     dataPath: xml.DataPath,
@@ -67,6 +67,7 @@ export const importTableFromXML = (xml: TableXML | undefined): Table | undefined
     maxHeightInTableRows: xml.MaxHeightInTableRows,
     maxWidth: xml.MaxWidth,
     multipleChoice: xml.MultipleChoice,
+    name: xml.Name,
     output: xml.Output,
     readOnly: xml.ReadOnly,
     refreshRequest: xml.RefreshRequest,
@@ -94,7 +95,6 @@ export const importTableFromXML = (xml: TableXML | undefined): Table | undefined
     toolTip: importI8nTextFromXML(xml.ToolTip),
     toolTipRepresentation: xml.ToolTipRepresentation,
     useAlternationRowColor: xml.UseAlternationRowColor,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalLines: xml.VerticalLines,
     verticalScrollBar: xml.VerticalScrollBar,
@@ -105,6 +105,7 @@ export const importTableFromXML = (xml: TableXML | undefined): Table | undefined
     visible: xml.Visible,
     width: xml.Width,
     childItems: importChildItemsFromXML(xml.ChildItems),
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
     events: importEventsFromXML(xml.Events),
   }
 }

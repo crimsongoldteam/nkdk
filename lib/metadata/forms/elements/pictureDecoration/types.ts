@@ -1,10 +1,20 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderXML } from "~/lib/metadata/commonObjects/border/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  FormDecoration,
+  FormDecorationEnterprise,
+  FormDecorationXML,
+} from "~/lib/metadata/forms/elements/formDecoration/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { FormDecoration, FormDecorationEnterprise, FormDecorationXML } from "../formDecoration/types"
 
 export interface PictureDecoration extends FormDecoration {
   border?: Border
@@ -17,8 +27,8 @@ export interface PictureDecoration extends FormDecoration {
   picture?: Picture
   pictureSize?: SE.PictureSize
   scale?: number
-  userVisible?: UserVisible
   zoomable?: boolean
+  userVisible?: UserVisible
   events?: {
     click?: string
     dragStart?: string
@@ -39,24 +49,25 @@ export interface PictureDecorationXML extends FormDecorationXML {
   Picture?: PictureXML
   PictureSize?: SE.PictureSize
   Scale?: number
-  UserVisible?: UserVisibleXML
   Zoomable?: boolean
+  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface PictureDecorationEnterprise extends FormDecorationEnterprise {
   Рамка?: BorderEnterprise
   ЦветРамки?: ColorEnterprise
-  РазрешитьПеретаскивание?: boolean
-  РазрешитьНачалоПеретаскивания?: boolean
+  РазрешитьПеретаскивание?: StringboolEnterprise
+  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
   СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise
-  Гиперссылка?: boolean
+  Гиперссылка?: StringboolEnterprise
   ТекстНевыбраннойКартинки?: string
   Картинка?: PictureEnterprise
   РазмерКартинки?: SE.PictureSizeEnterprise
   Масштаб?: number
-  ПользовательскаяВидимость?: UserVisibleEnterprise
-  Масштабировать?: boolean
+  Масштабировать?: StringboolEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
   События?: {
     Нажатие?: string
     НачалоПеретаскивания?: string

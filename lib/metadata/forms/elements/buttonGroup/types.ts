@@ -1,6 +1,11 @@
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/lib/metadata/forms/elements/formGroup/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "../formGroup/types"
 
 export interface ButtonGroup extends FormGroup {
   representation?: SE.ButtonGroupRepresentation
@@ -14,5 +19,6 @@ export interface ButtonGroupXML extends FormGroupXML {
 
 export interface ButtonGroupEnterprise extends FormGroupEnterprise {
   Отображение?: SE.ButtonGroupRepresentationEnterprise
-  ПользовательскаяВидимость?: UserVisibleEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
 }

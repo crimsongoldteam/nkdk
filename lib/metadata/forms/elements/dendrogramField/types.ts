@@ -1,6 +1,12 @@
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
 export interface DendrogramField extends FormField {
   autoMaxHeight?: boolean
@@ -9,9 +15,9 @@ export interface DendrogramField extends FormField {
   horizontalStretch?: boolean
   maxHeight?: number
   maxWidth?: number
-  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
+  userVisible?: UserVisible
   events?: {
     onChange?: string
     selection?: string
@@ -26,22 +32,23 @@ export interface DendrogramFieldXML extends FormFieldXML {
   HorizontalStretch?: boolean
   MaxHeight?: number
   MaxWidth?: number
-  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
+  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface DendrogramFieldEnterprise extends FormFieldEnterprise {
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяШирина?: boolean
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  ПользовательскаяВидимость?: UserVisibleEnterprise
-  РастягиватьПоВертикали?: boolean
+  РастягиватьПоВертикали?: StringboolEnterprise
   Ширина?: number
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
   События?: {
     ПриИзменении?: string
     Выбор?: string

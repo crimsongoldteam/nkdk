@@ -1,3 +1,13 @@
+import { importMetadataCommandsFromXML } from "~/lib/metadata/appliedObjects/metadataCommand/importFromXML"
+import { importAdditionalIndexesFromXML } from "~/lib/metadata/commonObjects/additionalIndex/importFromXML"
+import { importCharacteristicsDescriptionsFromXML } from "~/lib/metadata/commonObjects/characteristicsDescription/importFromXML"
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
+import { importMetadataAttributesFromXML } from "~/lib/metadata/commonObjects/metadataAttribute/importFromXML"
+import { importMetadataFieldsFromXML } from "~/lib/metadata/commonObjects/metadataField/importFromXML"
+import { importMetadataItemLinksFromXML } from "~/lib/metadata/commonObjects/metadataItemLink/importFromXML"
+import { importMetadataTabularSectionsFromXML } from "~/lib/metadata/commonObjects/metadataTabularSection/importFromXML"
+import { importPredefinedListFromXML } from "~/lib/metadata/commonObjects/predifined/importFromXML"
+import { importStandardAttributeDescriptionsFromXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 import { FormElementType } from "../types"
 
@@ -7,16 +17,16 @@ export const importMetadataCatalogFromXML = (xml: MetadataCatalogXML | undefined
   return {
     elementType: FormElementType.MetadataCatalog,
 
-    additionalIndexes: xml.AdditionalIndexes,
-    attributes: xml.Attributes,
+    additionalIndexes: importAdditionalIndexesFromXML(xml.AdditionalIndexes),
+    attributes: importMetadataAttributesFromXML(xml.Attributes),
     autonumbering: xml.Autonumbering,
     auxiliaryChoiceForm: xml.AuxiliaryChoiceForm,
     auxiliaryFolderChoiceForm: xml.AuxiliaryFolderChoiceForm,
     auxiliaryFolderForm: xml.AuxiliaryFolderForm,
     auxiliaryListForm: xml.AuxiliaryListForm,
     auxiliaryObjectForm: xml.AuxiliaryObjectForm,
-    basedOn: xml.BasedOn,
-    characteristics: xml.Characteristics,
+    basedOn: importMetadataItemLinksFromXML(xml.BasedOn),
+    characteristics: importCharacteristicsDescriptionsFromXML(xml.Characteristics),
     checkUnique: xml.CheckUnique,
     choiceDataGetModeOnInputByString: xml.ChoiceDataGetModeOnInputByString,
     choiceHistoryOnInput: xml.ChoiceHistoryOnInput,
@@ -25,12 +35,12 @@ export const importMetadataCatalogFromXML = (xml: MetadataCatalogXML | undefined
     codeLength: xml.CodeLength,
     codeSeries: xml.CodeSeries,
     codeType: xml.CodeType,
-    commands: xml.Commands,
+    commands: importMetadataCommandsFromXML(xml.Commands),
     comment: xml.Comment,
     createOnInput: xml.CreateOnInput,
     dataHistory: xml.DataHistory,
     dataLockControlMode: xml.DataLockControlMode,
-    dataLockFields: xml.DataLockFields,
+    dataLockFields: importMetadataFieldsFromXML(xml.DataLockFields),
     defaultChoiceForm: xml.DefaultChoiceForm,
     defaultFolderChoiceForm: xml.DefaultFolderChoiceForm,
     defaultFolderForm: xml.DefaultFolderForm,
@@ -40,36 +50,31 @@ export const importMetadataCatalogFromXML = (xml: MetadataCatalogXML | undefined
     descriptionLength: xml.DescriptionLength,
     editType: xml.EditType,
     executeAfterWriteDataHistoryVersionProcessing: xml.ExecuteAfterWriteDataHistoryVersionProcessing,
-    explanation: xml.Explanation,
-    extendedConfigurationObject: xml.ExtendedConfigurationObject,
-    extendedListPresentation: xml.ExtendedListPresentation,
-    extendedObjectPresentation: xml.ExtendedObjectPresentation,
+    explanation: importI8nTextFromXML(xml.Explanation),
+    extendedListPresentation: importI8nTextFromXML(xml.ExtendedListPresentation),
+    extendedObjectPresentation: importI8nTextFromXML(xml.ExtendedObjectPresentation),
     foldersOnTop: xml.FoldersOnTop,
-    forms: xml.Forms,
     fullTextSearch: xml.FullTextSearch,
     fullTextSearchOnInputByString: xml.FullTextSearchOnInputByString,
-    help: xml.Help,
     hierarchical: xml.Hierarchical,
     hierarchyType: xml.HierarchyType,
     includeHelpInContents: xml.IncludeHelpInContents,
-    inputByString: xml.InputByString,
+    inputByString: importMetadataFieldsFromXML(xml.InputByString),
     levelCount: xml.LevelCount,
     limitLevelCount: xml.LimitLevelCount,
-    listPresentation: xml.ListPresentation,
-    managerModule: xml.ManagerModule,
+    listPresentation: importI8nTextFromXML(xml.ListPresentation),
+    name: xml.Name,
     objectBelonging: xml.ObjectBelonging,
-    objectModule: xml.ObjectModule,
-    objectPresentation: xml.ObjectPresentation,
-    owners: xml.Owners,
-    predefined: xml.Predefined,
+    objectPresentation: importI8nTextFromXML(xml.ObjectPresentation),
+    owners: importMetadataItemLinksFromXML(xml.Owners),
+    predefined: importPredefinedListFromXML(xml.Predefined),
     predefinedDataUpdate: xml.PredefinedDataUpdate,
     quickChoice: xml.QuickChoice,
     searchStringModeOnInputByString: xml.SearchStringModeOnInputByString,
-    standardAttributes: xml.StandardAttributes,
+    standardAttributes: importStandardAttributeDescriptionsFromXML(xml.StandardAttributes),
     subordinationUse: xml.SubordinationUse,
-    synonym: xml.Synonym,
-    tabularSections: xml.TabularSections,
-    templates: xml.Templates,
+    synonym: importI8nTextFromXML(xml.Synonym),
+    tabularSections: importMetadataTabularSectionsFromXML(xml.TabularSections),
     updateDataHistoryImmediatelyAfterWrite: xml.UpdateDataHistoryImmediatelyAfterWrite,
     useStandardCommands: xml.UseStandardCommands,
   }

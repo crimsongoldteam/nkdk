@@ -1,7 +1,13 @@
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
 export interface TrackBarField extends FormField {
   autoMaxHeight?: boolean
@@ -17,9 +23,9 @@ export interface TrackBarField extends FormField {
   minValue?: number
   orientation?: SE.FormItemOrientation
   step?: number
-  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
+  userVisible?: UserVisible
   events?: {
     onChange?: string
   }
@@ -39,17 +45,17 @@ export interface TrackBarFieldXML extends FormFieldXML {
   MinValue?: number
   Orientation?: SE.FormItemOrientation
   Step?: number
-  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
+  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface TrackBarFieldEnterprise extends FormFieldEnterprise {
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяШирина?: boolean
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
   БольшойШаг?: number
   ОтображениеРазметки?: SE.TrackBarMarkingAppearanceEnterprise
   ШагРазметки?: number
@@ -59,9 +65,10 @@ export interface TrackBarFieldEnterprise extends FormFieldEnterprise {
   МинимальноеЗначение?: number
   Ориентация?: SE.FormItemOrientationEnterprise
   Шаг?: number
-  ПользовательскаяВидимость?: UserVisibleEnterprise
-  РастягиватьПоВертикали?: boolean
+  РастягиватьПоВертикали?: StringboolEnterprise
   Ширина?: number
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
   События?: {
     ПриИзменении?: string
   }

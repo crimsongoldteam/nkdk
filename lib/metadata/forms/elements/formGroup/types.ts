@@ -1,11 +1,21 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
+import {
+  FormDecoration,
+  FormDecorationEnterprise,
+  FormDecorationXML,
+} from "~/lib/metadata/forms/elements/formDecoration/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { BaseElement, BaseElementEnterprise, BaseElementXML } from "../baseElement/types"
-import { ChildItems, ChildItemsXML } from "../childItems/types"
-import { FormDecoration, FormDecorationEnterprise, FormDecorationXML } from "../formDecoration/types"
+import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../childItems/types"
 
 export interface FormGroup extends BaseElement {
   enableContentChange?: boolean
@@ -14,6 +24,7 @@ export interface FormGroup extends BaseElement {
   height?: number
   horizontalAlignInGroup?: SE.ItemHorizontalLocation
   horizontalStretch?: boolean
+  name?: string
   readOnly?: boolean
   shortcut?: string
   title?: I8nText
@@ -22,12 +33,12 @@ export interface FormGroup extends BaseElement {
   toolTip?: I8nText
   toolTipRepresentation?: SE.ToolTipRepresentation
   type?: SE.FormGroupType
-  userVisible?: UserVisible
   verticalAlignInGroup?: SE.ItemVerticalAlign
   verticalStretch?: boolean
   visible?: boolean
   width?: number
   childItems?: ChildItems
+  userVisible?: UserVisible
 }
 
 export interface FormGroupXML extends BaseElementXML {
@@ -37,6 +48,7 @@ export interface FormGroupXML extends BaseElementXML {
   Height?: number
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
   HorizontalStretch?: boolean
+  Name?: string
   ReadOnly?: boolean
   Shortcut?: string
   Title?: I8nTextXML
@@ -45,22 +57,23 @@ export interface FormGroupXML extends BaseElementXML {
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormGroupType
-  UserVisible?: UserVisibleXML
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number
   ChildItems?: ChildItemsXML
+  UserVisible?: UserVisibleXML
 }
 
 export interface FormGroupEnterprise extends BaseElementEnterprise {
-  РазрешитьИзменениеСостава?: boolean
-  Доступность?: boolean
+  РазрешитьИзменениеСостава?: StringboolEnterprise
+  Доступность?: StringboolEnterprise
   РасширеннаяПодсказка?: FormDecorationEnterprise
   Высота?: number
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  РастягиватьПоГоризонтали?: boolean
-  ТолькоПросмотр?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  Имя?: string
+  ТолькоПросмотр?: StringboolEnterprise
   СочетаниеКлавиш?: string
   Заголовок?: I8nTextEnterprise
   ШрифтЗаголовка?: FontEnterprise
@@ -68,10 +81,11 @@ export interface FormGroupEnterprise extends BaseElementEnterprise {
   Подсказка?: I8nTextEnterprise
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   Вид?: SE.FormGroupTypeEnterprise
-  ПользовательскаяВидимость?: UserVisibleEnterprise
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  РастягиватьПоВертикали?: boolean
-  Видимость?: boolean
+  РастягиватьПоВертикали?: StringboolEnterprise
+  Видимость?: StringboolEnterprise
   Ширина?: number
   ПодчиненныеЭлементы?: ChildItemsEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
 }

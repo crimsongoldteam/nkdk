@@ -1,10 +1,16 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderXML } from "~/lib/metadata/commonObjects/border/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
 export interface LabelField extends FormField {
   autoMaxHeight?: boolean
@@ -22,9 +28,9 @@ export interface LabelField extends FormField {
   maxWidth?: number
   passwordMode?: boolean
   textColor?: Color
-  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
+  userVisible?: UserVisible
   events?: {
     onChange?: string
     click?: string
@@ -48,31 +54,32 @@ export interface LabelFieldXML extends FormFieldXML {
   MaxWidth?: number
   PasswordMode?: boolean
   TextColor?: ColorXML
-  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
+  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface LabelFieldEnterprise extends FormFieldEnterprise {
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяШирина?: boolean
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
   ЦветФона?: ColorEnterprise
   Рамка?: BorderEnterprise
   ЦветРамки?: ColorEnterprise
   Шрифт?: FontEnterprise
   Формат?: I8nTextEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: boolean
-  Гиперссылка?: boolean
-  ВыделятьОтрицательные?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  Гиперссылка?: StringboolEnterprise
+  ВыделятьОтрицательные?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  РежимПароля?: boolean
+  РежимПароля?: StringboolEnterprise
   ЦветТекста?: ColorEnterprise
-  ПользовательскаяВидимость?: UserVisibleEnterprise
-  РастягиватьПоВертикали?: boolean
+  РастягиватьПоВертикали?: StringboolEnterprise
   Ширина?: number
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
   События?: {
     ПриИзменении?: string
     Нажатие?: string

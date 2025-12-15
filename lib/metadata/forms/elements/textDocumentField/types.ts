@@ -1,9 +1,15 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
 export interface TextDocumentField extends FormField {
   autoMaxHeight?: boolean
@@ -18,9 +24,9 @@ export interface TextDocumentField extends FormField {
   output?: SE.UseOutput
   selectedText?: string
   textColor?: Color
-  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
+  userVisible?: UserVisible
   events?: {
     onChange?: string
     beforeWrite?: string
@@ -42,28 +48,29 @@ export interface TextDocumentFieldXML extends FormFieldXML {
   Output?: SE.UseOutput
   SelectedText?: string
   TextColor?: ColorXML
-  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
+  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface TextDocumentFieldEnterprise extends FormFieldEnterprise {
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяШирина?: boolean
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
   ЦветФона?: ColorEnterprise
   ЦветРамки?: ColorEnterprise
   Шрифт?: FontEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
   Вывод?: SE.UseOutputEnterprise
   ВыделенныйТекст?: string
   ЦветТекста?: ColorEnterprise
-  ПользовательскаяВидимость?: UserVisibleEnterprise
-  РастягиватьПоВертикали?: boolean
+  РастягиватьПоВертикали?: StringboolEnterprise
   Ширина?: number
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
   События?: {
     ПриИзменении?: string
     ПередЗаписью?: string

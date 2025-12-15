@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { importInputFieldFromXML } from "./importFromXML"
-import { TInputField, TInputFieldXML, ZInputFieldXML } from "./types"
-import { FormElementType } from "../types"
 import { xmlImport } from "~/lib"
-import z from "zod"
+import { FormElementType } from "../types"
+import { importInputFieldFromXML } from "./importFromXML"
+import { InputField, InputFieldXML } from "./types"
 
 describe("importInputFieldFromXML", () => {
   it("should import name from XML", () => {
@@ -16,17 +15,14 @@ describe("importInputFieldFromXML", () => {
     </Title>
   </InputField>`
 
-    const expectedResult: TInputField = {
+    const expectedResult: InputField = {
       name: "ИмяПоля",
       elementType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
       id: "16",
     }
 
-    const xml = xmlImport<{ InputField: TInputFieldXML }>(
-      mockXml,
-      z.object({ InputField: ZInputFieldXML })
-    )
+    const xml = xmlImport<{ InputField: InputFieldXML }>(mockXml)
 
     const input = importInputFieldFromXML(xml.InputField)
 

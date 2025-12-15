@@ -1,3 +1,6 @@
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
+import { importMetadataAttributesFromXML } from "~/lib/metadata/commonObjects/metadataAttribute/importFromXML"
+import { importStandardAttributeDescriptionsFromXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 import { FormElementType } from "../types"
 
@@ -9,15 +12,15 @@ export const importMetadataTabularSectionFromXML = (
   return {
     elementType: FormElementType.MetadataTabularSection,
 
-    attributes: xml.Attributes,
+    attributes: importMetadataAttributesFromXML(xml.Attributes),
     comment: xml.Comment,
-    extendedConfigurationObject: xml.ExtendedConfigurationObject,
     fillChecking: xml.FillChecking,
     lineNumberLength: xml.LineNumberLength,
+    name: xml.Name,
     objectBelonging: xml.ObjectBelonging,
-    standardAttributes: xml.StandardAttributes,
-    synonym: xml.Synonym,
-    tooltip: xml.Tooltip,
+    standardAttributes: importStandardAttributeDescriptionsFromXML(xml.StandardAttributes),
+    synonym: importI8nTextFromXML(xml.Synonym),
+    tooltip: importI8nTextFromXML(xml.Tooltip),
     use: xml.Use,
   }
 }

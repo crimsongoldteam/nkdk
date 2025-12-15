@@ -3,11 +3,10 @@ import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromX
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
+import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { importBaseElementFromXML } from "../baseElement/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { FormElementType } from "../types"
-import { Button, ButtonXML } from "./types"
 
 export const importButtonFromXML = (xml: ButtonXML | undefined): Button | undefined => {
   if (!xml) return undefined
@@ -35,6 +34,7 @@ export const importButtonFromXML = (xml: ButtonXML | undefined): Button | undefi
     locationInCommandBar: xml.LocationInCommandBar,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
+    name: xml.Name,
     onlyInAllActions: xml.OnlyInAllActions,
     picture: importPictureFromXML(xml.Picture),
     pictureLocation: xml.PictureLocation,
@@ -48,11 +48,11 @@ export const importButtonFromXML = (xml: ButtonXML | undefined): Button | undefi
     titleHeight: xml.TitleHeight,
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,
     width: xml.Width,
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
   }
 }
 

@@ -1,3 +1,4 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
@@ -7,13 +8,22 @@ import {
   TypeDescriptionEnterprise,
   TypeDescriptionXML,
 } from "~/lib/metadata/commonObjects/typeDescription/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
+import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/lib/metadata/forms/elements/commandBar/types"
+import {
+  FormDecoration,
+  FormDecorationEnterprise,
+  FormDecorationXML,
+} from "~/lib/metadata/forms/elements/formDecoration/types"
+import { Table, TableEnterprise, TableXML } from "~/lib/metadata/forms/elements/table/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { BaseElement, BaseElementEnterprise, BaseElementXML } from "../baseElement/types"
-import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../commandBar/types"
-import { FormDecoration, FormDecorationEnterprise, FormDecorationXML } from "../formDecoration/types"
-import { Table, TableEnterprise, TableXML } from "../table/types"
 
 export interface FormField extends BaseElement {
   autoCellHeight?: boolean
@@ -37,6 +47,7 @@ export interface FormField extends BaseElement {
   headerPicture?: Picture
   horizontalAlign?: SE.ItemHorizontalLocation
   horizontalAlignInGroup?: SE.ItemHorizontalLocation
+  name?: string
   readOnly?: boolean
   shortcut?: string
   showInFooter?: boolean
@@ -53,12 +64,12 @@ export interface FormField extends BaseElement {
   toolTipRepresentation?: SE.ToolTipRepresentation
   type?: SE.FormFieldType
   typeRestriction?: TypeDescription
-  userVisible?: UserVisible
   verticalAlign?: SE.ItemVerticalAlign
   verticalAlignInGroup?: SE.ItemVerticalAlign
   visible?: boolean
   warningOnEdit?: I8nText
   warningOnEditRepresentation?: SE.WarningOnEditRepresentation
+  userVisible?: UserVisible
   events?: {
     onChange?: string
   }
@@ -86,6 +97,7 @@ export interface FormFieldXML extends BaseElementXML {
   HeaderPicture?: PictureXML
   HorizontalAlign?: SE.ItemHorizontalLocation
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  Name?: string
   ReadOnly?: boolean
   Shortcut?: string
   ShowInFooter?: boolean
@@ -102,24 +114,24 @@ export interface FormFieldXML extends BaseElementXML {
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormFieldType
   TypeRestriction?: TypeDescriptionXML
-  UserVisible?: UserVisibleXML
   VerticalAlign?: SE.ItemVerticalAlign
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   Visible?: boolean
   WarningOnEdit?: I8nTextXML
   WarningOnEditRepresentation?: SE.WarningOnEditRepresentation
+  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface FormFieldEnterprise extends BaseElementEnterprise {
-  АвтоВысотаЯчейки?: boolean
-  ГиперссылкаЯчейки?: boolean
+  АвтоВысотаЯчейки?: StringboolEnterprise
+  ГиперссылкаЯчейки?: StringboolEnterprise
   КонтекстноеМеню?: CommandBarEnterprise
   ПутьКДанным?: string
-  АктивизироватьПоУмолчанию?: boolean
+  АктивизироватьПоУмолчанию?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
   РежимРедактирования?: SE.ColumnEditModeEnterprise
-  Доступность?: boolean
+  Доступность?: StringboolEnterprise
   РасширеннаяПодсказка?: FormDecorationEnterprise
   ФиксацияВТаблице?: SE.FixingInTableEnterprise
   ЦветФонаПодвала?: ColorEnterprise
@@ -133,11 +145,12 @@ export interface FormFieldEnterprise extends BaseElementEnterprise {
   КартинкаШапки?: PictureEnterprise
   ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  ТолькоПросмотр?: boolean
+  Имя?: string
+  ТолькоПросмотр?: StringboolEnterprise
   СочетаниеКлавиш?: string
-  ОтображатьВПодвале?: boolean
-  ОтображатьВШапке?: boolean
-  ПропускатьПриВводе?: boolean
+  ОтображатьВПодвале?: StringboolEnterprise
+  ОтображатьВШапке?: StringboolEnterprise
+  ПропускатьПриВводе?: StringboolEnterprise
   Таблица?: TableEnterprise
   Заголовок?: I8nTextEnterprise
   ЦветФонаЗаголовка?: ColorEnterprise
@@ -149,12 +162,13 @@ export interface FormFieldEnterprise extends BaseElementEnterprise {
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   Вид?: SE.FormFieldTypeEnterprise
   ОграничениеТипа?: TypeDescriptionEnterprise
-  ПользовательскаяВидимость?: UserVisibleEnterprise
   ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Видимость?: boolean
+  Видимость?: StringboolEnterprise
   ПредупреждениеПриРедактировании?: I8nTextEnterprise
   ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
   События?: {
     ПриИзменении?: string
   }

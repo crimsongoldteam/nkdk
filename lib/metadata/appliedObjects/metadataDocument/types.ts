@@ -1,4 +1,9 @@
 import {
+  MetadataCommands,
+  MetadataCommandsEnterprise,
+  MetadataCommandsXML,
+} from "~/lib/metadata/appliedObjects/metadataCommand/types"
+import {
   MetadataDocumentNumerator,
   MetadataDocumentNumeratorEnterprise,
   MetadataDocumentNumeratorXML,
@@ -8,6 +13,7 @@ import {
   AdditionalIndexesEnterprise,
   AdditionalIndexesXML,
 } from "~/lib/metadata/commonObjects/additionalIndex/types"
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import {
   CharacteristicsDescriptions,
   CharacteristicsDescriptionsEnterprise,
@@ -19,11 +25,6 @@ import {
   MetadataAttributesEnterprise,
   MetadataAttributesXML,
 } from "~/lib/metadata/commonObjects/metadataAttribute/types"
-import {
-  MetadataCommands,
-  MetadataCommandsEnterprise,
-  MetadataCommandsXML,
-} from "~/lib/metadata/commonObjects/metadataCommand/types"
 import {
   MetadataFields,
   MetadataFieldsEnterprise,
@@ -54,6 +55,7 @@ export interface MetadataDocument {
   auxiliaryChoiceForm?: string
   auxiliaryListForm?: string
   auxiliaryObjectForm?: string
+  basedOn?: MetadataItemLinks
   characteristics?: CharacteristicsDescriptions
   checkUnique?: boolean
   choiceDataGetModeOnInputByString?: SE.ChoiceDataGetModeOnInputByString
@@ -76,6 +78,7 @@ export interface MetadataDocument {
   includeHelpInContents?: boolean
   inputByString?: MetadataFields
   listPresentation?: I8nText
+  name?: string
   numberAllowedLength?: SE.AllowedLength
   numberLength?: number
   numberPeriodicity?: SE.BusinessProcessNumberPeriodicity
@@ -129,6 +132,7 @@ export interface MetadataDocumentXML {
   IncludeHelpInContents?: boolean
   InputByString?: MetadataFieldsXML
   ListPresentation?: I8nTextXML
+  Name?: string
   NumberAllowedLength?: SE.AllowedLength
   NumberLength?: number
   NumberPeriodicity?: SE.BusinessProcessNumberPeriodicity
@@ -155,13 +159,13 @@ export interface MetadataDocumentEnterprise {
   ЗаписьДвиженийПриПроведении?: SE.RegisterRecordsWritingOnPostEnterprise
   ДополнительныеИндексы?: AdditionalIndexesEnterprise
   Реквизиты?: MetadataAttributesEnterprise
-  Автонумерация?: boolean
+  Автонумерация?: StringboolEnterprise
   ДополнительнаяФормаДляВыбора?: string
   ДополнительнаяФормаСписка?: string
   ДополнительнаяФормаОбъекта?: string
   ВводитсяНаОсновании?: MetadataItemLinksEnterprise
   Характеристики?: CharacteristicsDescriptionsEnterprise
-  КонтрольУникальности?: boolean
+  КонтрольУникальности?: StringboolEnterprise
   РежимПолученияДанныхВыбораПриВводеПоСтроке?: SE.ChoiceDataGetModeOnInputByStringEnterprise
   ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
   Команды?: MetadataCommandsEnterprise
@@ -173,15 +177,16 @@ export interface MetadataDocumentEnterprise {
   ОсновнаяФормаДляВыбора?: string
   ОсновнаяФормаСписка?: string
   ОсновнаяФормаОбъекта?: string
-  ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: boolean
+  ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: StringboolEnterprise
   Пояснение?: I8nTextEnterprise
   РасширенноеПредставлениеСписка?: I8nTextEnterprise
   РасширенноеПредставлениеОбъекта?: I8nTextEnterprise
   ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
   ПолнотекстовыйПоискПриВводеПоСтроке?: SE.FullTextSearchOnInputByStringEnterprise
-  ВключатьСправкуВСодержание?: boolean
+  ВключатьСправкуВСодержание?: StringboolEnterprise
   ВводПоСтроке?: MetadataFieldsEnterprise
   ПредставлениеСписка?: I8nTextEnterprise
+  Имя?: string
   ДопустимаяДлинаНомера?: SE.AllowedLengthEnterprise
   ДлинаНомера?: number
   ПериодичностьНомера?: SE.BusinessProcessNumberPeriodicityEnterprise
@@ -190,8 +195,8 @@ export interface MetadataDocumentEnterprise {
   ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
   ПредставлениеОбъекта?: I8nTextEnterprise
   Проведение?: SE.PostingEnterprise
-  ПривилегированныйРежимПриПроведении?: boolean
-  ПривилегированныйРежимПриОтменеПроведения?: boolean
+  ПривилегированныйРежимПриПроведении?: StringboolEnterprise
+  ПривилегированныйРежимПриОтменеПроведения?: StringboolEnterprise
   ОперативноеПроведение?: SE.RealTimePostingEnterprise
   Движения?: MetadataItemLinksEnterprise
   УдалениеДвижений?: SE.RegisterRecordsDeletionEnterprise
@@ -200,6 +205,6 @@ export interface MetadataDocumentEnterprise {
   СтандартныеРеквизиты?: StandardAttributeDescriptionsEnterprise
   Синоним?: I8nTextEnterprise
   ТабличныеЧасти?: MetadataTabularSectionsEnterprise
-  ОбновлятьИсториюДанныхСразуПослеЗаписи?: boolean
-  ИспользоватьСтандартныеКоманды?: boolean
+  ОбновлятьИсториюДанныхСразуПослеЗаписи?: StringboolEnterprise
+  ИспользоватьСтандартныеКоманды?: StringboolEnterprise
 }

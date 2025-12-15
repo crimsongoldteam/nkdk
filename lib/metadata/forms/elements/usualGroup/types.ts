@@ -1,9 +1,15 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/lib/metadata/forms/elements/formGroup/types"
+import { Table, TableEnterprise, TableXML } from "~/lib/metadata/forms/elements/table/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "../formGroup/types"
-import { Table, TableEnterprise, TableXML } from "../table/types"
 
 export interface UsualGroup extends FormGroup {
   associatedTable?: Table
@@ -29,9 +35,9 @@ export interface UsualGroup extends FormGroup {
   throughAlign?: SE.ThroughAlign
   titleDataPath?: string
   united?: boolean
-  userVisible?: UserVisible
   verticalAlign?: SE.ItemVerticalAlign
   verticalSpacing?: SE.FormItemSpacing
+  userVisible?: UserVisible
 }
 
 export interface UsualGroupXML extends FormGroupXML {
@@ -58,9 +64,9 @@ export interface UsualGroupXML extends FormGroupXML {
   ThroughAlign?: SE.ThroughAlign
   TitleDataPath?: string
   United?: boolean
-  UserVisible?: UserVisibleXML
   VerticalAlign?: SE.ItemVerticalAlign
   VerticalSpacing?: SE.FormItemSpacing
+  UserVisible?: UserVisibleXML
 }
 
 export interface UsualGroupEnterprise extends FormGroupEnterprise {
@@ -81,13 +87,14 @@ export interface UsualGroupEnterprise extends FormGroupEnterprise {
   ГоризонтальныйИнтервал?: SE.FormItemSpacingEnterprise
   ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantEnterprise
   Отображение?: SE.UsualGroupRepresentationEnterprise
-  ОтображатьОтступСлева?: boolean
-  ОтображатьЗаголовок?: boolean
+  ОтображатьОтступСлева?: StringboolEnterprise
+  ОтображатьЗаголовок?: StringboolEnterprise
   ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
   СквозноеВыравнивание?: SE.ThroughAlignEnterprise
   ПутьКДаннымЗаголовка?: string
-  Объединенная?: boolean
-  ПользовательскаяВидимость?: UserVisibleEnterprise
+  Объединенная?: StringboolEnterprise
   ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
   ВертикальныйИнтервал?: SE.FormItemSpacingEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
 }

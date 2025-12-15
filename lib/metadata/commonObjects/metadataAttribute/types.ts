@@ -1,3 +1,4 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   MetadataValue,
@@ -42,6 +43,7 @@ export interface MetadataAttribute {
   maxValue?: number
   minValue?: number
   multiLine?: boolean
+  name?: string
   objectBelonging?: SE.ObjectBelonging
   passwordMode?: boolean
   quickChoice?: SE.UseQuickChoice
@@ -76,6 +78,7 @@ export interface MetadataAttributeXML {
   MaxValue?: number
   MinValue?: number
   MultiLine?: boolean
+  Name?: string
   ObjectBelonging?: SE.ObjectBelonging
   PasswordMode?: boolean
   QuickChoice?: SE.UseQuickChoice
@@ -87,7 +90,7 @@ export interface MetadataAttributeXML {
 
 export interface MetadataAttributeEnterprise {
   ИспользованиеХраненияВХранилищеДвоичныхДанных?: SE.BinaryDataStorageLocationUseEnterprise
-  ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: boolean
+  ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: StringboolEnterprise
   ВыборГруппИЭлементов?: SE.FoldersAndItemsUseEnterprise
   ФормаВыбора?: string
   ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
@@ -97,21 +100,22 @@ export interface MetadataAttributeEnterprise {
   СозданиеПриВводе?: SE.CreateOnInputEnterprise
   ИсторияДанных?: SE.DataHistoryUseEnterprise
   ФорматРедактирования?: I8nTextEnterprise
-  РасширенноеРедактирование?: boolean
+  РасширенноеРедактирование?: StringboolEnterprise
   ПроверкаЗаполнения?: SE.FillCheckingEnterprise
-  ЗаполнятьИзДанныхЗаполнения?: boolean
+  ЗаполнятьИзДанныхЗаполнения?: StringboolEnterprise
   ЗначениеЗаполнения?: MetadataValueEnterprise
   Формат?: I8nTextEnterprise
   ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
   Индексирование?: SE.IndexingEnterprise
   СвязьПоТипу?: TypeLinkEnterprise
-  ВыделятьОтрицательные?: boolean
+  ВыделятьОтрицательные?: StringboolEnterprise
   Маска?: string
   МаксимальноеЗначение?: number
   МинимальноеЗначение?: number
-  МногострочныйРежим?: boolean
+  МногострочныйРежим?: StringboolEnterprise
+  Имя?: string
   ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
-  РежимПароля?: boolean
+  РежимПароля?: StringboolEnterprise
   БыстрыйВыбор?: SE.UseQuickChoiceEnterprise
   Синоним?: I8nTextEnterprise
   Подсказка?: I8nTextEnterprise

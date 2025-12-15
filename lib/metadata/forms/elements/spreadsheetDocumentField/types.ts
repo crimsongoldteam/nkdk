@@ -1,8 +1,14 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
 export interface SpreadSheetDocumentField extends FormField {
   autoMaxHeight?: boolean
@@ -29,11 +35,11 @@ export interface SpreadSheetDocumentField extends FormField {
   showRowAndColumnNames?: boolean
   statePresentation?: SE.StatePresentation
   usedFileName?: string
-  userVisible?: UserVisible
   verticalScrollBar?: SE.ScrollBarUse
   verticalStretch?: boolean
   viewScalingMode?: SE.ViewScalingMode
   width?: number
+  userVisible?: UserVisible
   events?: {
     onChange?: string
     selection?: string
@@ -77,44 +83,45 @@ export interface SpreadSheetDocumentFieldXML extends FormFieldXML {
   ShowRowAndColumnNames?: boolean
   StatePresentation?: SE.StatePresentation
   UsedFileName?: string
-  UserVisible?: UserVisibleXML
   VerticalScrollBar?: SE.ScrollBarUse
   VerticalStretch?: boolean
   ViewScalingMode?: SE.ViewScalingMode
   Width?: number
+  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface SpreadSheetDocumentFieldEnterprise extends FormFieldEnterprise {
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяШирина?: boolean
-  ЧерноБелыйПросмотр?: boolean
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
+  ЧерноБелыйПросмотр?: StringboolEnterprise
   ЦветРамки?: ColorEnterprise
   РежимОтображенияВыделенияРисунков?: SE.DrawingSelectionShowModeEnterprise
-  Редактирование?: boolean
-  РазрешитьПеретаскивание?: boolean
-  РазрешитьНачалоПеретаскивания?: boolean
+  Редактирование?: StringboolEnterprise
+  РазрешитьПеретаскивание?: StringboolEnterprise
+  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
   Высота?: number
   ГоризонтальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
-  РастягиватьПоГоризонтали?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
   Вывод?: SE.UseOutputEnterprise
   ТипКурсоров?: SE.SpreadsheetDocumentPointerTypeEnterprise
-  Защита?: boolean
+  Защита?: StringboolEnterprise
   РежимОтображенияВыделения?: SE.SelectionShowModeEnterprise
-  ОтображатьИменаЯчеек?: boolean
-  ОтображатьСетку?: boolean
-  ОтображатьГруппировки?: boolean
-  ОтображатьЗаголовки?: boolean
-  ОтображатьИменаСтрокИКолонок?: boolean
+  ОтображатьИменаЯчеек?: StringboolEnterprise
+  ОтображатьСетку?: StringboolEnterprise
+  ОтображатьГруппировки?: StringboolEnterprise
+  ОтображатьЗаголовки?: StringboolEnterprise
+  ОтображатьИменаСтрокИКолонок?: StringboolEnterprise
   ОтображениеСостояния?: SE.StatePresentationEnterprise
   ИспользуемоеИмяФайла?: string
-  ПользовательскаяВидимость?: UserVisibleEnterprise
   ВертикальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
-  РастягиватьПоВертикали?: boolean
+  РастягиватьПоВертикали?: StringboolEnterprise
   РежимМасштабированияПросмотра?: SE.ViewScalingModeEnterprise
   Ширина?: number
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
   События?: {
     ПриИзменении?: string
     Выбор?: string

@@ -1,5 +1,6 @@
+import { importIndexFieldsFromXML } from "~/lib/metadata/commonObjects/indexField/importFromXML"
+import { importTableFromXML } from "~/lib/metadata/forms/elements/table/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { importTableFromXML } from "../table/importFromXML"
 import { FormElementType } from "../types"
 
 export const importAdditionalIndexFromXML = (xml: AdditionalIndexXML | undefined): AdditionalIndex | undefined => {
@@ -8,8 +9,9 @@ export const importAdditionalIndexFromXML = (xml: AdditionalIndexXML | undefined
   return {
     elementType: FormElementType.AdditionalIndex,
 
-    additionalFields: xml.AdditionalFields,
-    indexedFields: xml.IndexedFields,
+    additionalFields: importIndexFieldsFromXML(xml.AdditionalFields),
+    indexedFields: importIndexFieldsFromXML(xml.IndexedFields),
+    name: xml.Name,
     table: importTableFromXML(xml.Table),
   }
 }

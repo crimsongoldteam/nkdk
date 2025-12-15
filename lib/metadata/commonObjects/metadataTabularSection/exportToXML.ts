@@ -1,3 +1,6 @@
+import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
+import { exportMetadataAttributesToXML } from "~/lib/metadata/commonObjects/metadataAttribute/exportToXML"
+import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { FormElementType } from "../types"
 
@@ -7,15 +10,15 @@ export const exportMetadataTabularSectionToXML = (
   if (!data) return undefined
 
   return {
-    Attributes: data.attributes,
+    Attributes: exportMetadataAttributesToXML(data.attributes),
     Comment: data.comment,
-    ExtendedConfigurationObject: data.extendedConfigurationObject,
     FillChecking: data.fillChecking,
     LineNumberLength: data.lineNumberLength,
+    Name: data.name,
     ObjectBelonging: data.objectBelonging,
-    StandardAttributes: data.standardAttributes,
-    Synonym: data.synonym,
-    Tooltip: data.tooltip,
+    StandardAttributes: exportStandardAttributeDescriptionsToXML(data.standardAttributes),
+    Synonym: exportI8nTextToXML(data.synonym),
+    Tooltip: exportI8nTextToXML(data.tooltip),
     Use: data.use,
   }
 }

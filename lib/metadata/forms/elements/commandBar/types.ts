@@ -1,6 +1,12 @@
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/lib/metadata/forms/elements/formGroup/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "../formGroup/types"
 
 export interface CommandBar extends FormGroup {
   autofill?: boolean
@@ -17,8 +23,9 @@ export interface CommandBarXML extends FormGroupXML {
 }
 
 export interface CommandBarEnterprise extends FormGroupEnterprise {
-  Автозаполнение?: boolean
+  Автозаполнение?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
   ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  ПользовательскаяВидимость?: UserVisibleEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
 }

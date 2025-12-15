@@ -1,14 +1,9 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
-import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { exportFormGroupToXML } from "~/lib/metadata/forms/elements/formGroup/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportFormGroupToXML } from "../formGroup/exportToXML"
 import { FormElementType } from "../types"
-import { ColumnGroup, ColumnGroupXML } from "./types"
 
 export const exportColumnGroupToXML = (data: ColumnGroup | undefined): ColumnGroupXML | undefined => {
   if (!data) return undefined
@@ -16,26 +11,6 @@ export const exportColumnGroupToXML = (data: ColumnGroup | undefined): ColumnGro
   return {
     ...exportFormGroupToXML(data)!,
 
-    EnableContentChange: data.enableContentChange,
-    Enabled: data.enabled,
-    ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip),
-    Height: data.height,
-    HorizontalAlignInGroup: data.horizontalAlignInGroup,
-    HorizontalStretch: data.horizontalStretch,
-    ReadOnly: data.readOnly,
-    Shortcut: data.shortcut,
-    Title: exportI8nTextToXML(data.title),
-    TitleFont: exportFontToXML(data.titleFont),
-    TitleTextColor: exportColorToXML(data.titleTextColor),
-    ToolTip: exportI8nTextToXML(data.toolTip),
-    ToolTipRepresentation: data.toolTipRepresentation,
-    Type: data.type,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
-    VerticalAlignInGroup: data.verticalAlignInGroup,
-    VerticalStretch: data.verticalStretch,
-    Visible: data.visible,
-    Width: data.width,
-    ChildItems: exportChildItemsToXML(data.childItems),
     FixingInTable: data.fixingInTable,
     Group: data.group,
     HeaderDataPath: data.headerDataPath,
@@ -45,6 +20,7 @@ export const exportColumnGroupToXML = (data: ColumnGroup | undefined): ColumnGro
     ShowInHeader: data.showInHeader,
     ShowTitle: data.showTitle,
     TitleBackColor: exportColorToXML(data.titleBackColor),
+    UserVisible: exportUserVisibleToXML(data.userVisible),
   }
 }
 

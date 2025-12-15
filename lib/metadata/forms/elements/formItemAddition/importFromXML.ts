@@ -1,12 +1,11 @@
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
+import { importCommandBarFromXML } from "~/lib/metadata/forms/elements/commandBar/importFromXML"
+import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
 import { FormElementType } from "../types"
-import { FormItemAddition, FormItemAdditionXML } from "./types"
 
 export const importFormItemAdditionFromXML = (xml: FormItemAdditionXML | undefined): FormItemAddition | undefined => {
   if (!xml) return undefined
@@ -20,14 +19,15 @@ export const importFormItemAdditionFromXML = (xml: FormItemAdditionXML | undefin
     enabled: xml.Enabled,
     extendedToolTip: importFormDecorationFromXML(xml.ExtendedToolTip),
     horizontalAlignInGroup: xml.HorizontalAlignInGroup,
+    name: xml.Name,
     title: importI8nTextFromXML(xml.Title),
     toolTip: importI8nTextFromXML(xml.ToolTip),
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     visible: xml.Visible,
     childItems: importChildItemsFromXML(xml.ChildItems),
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
   }
 }
 

@@ -1,11 +1,21 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
+import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/lib/metadata/forms/elements/commandBar/types"
+import {
+  FormDecoration,
+  FormDecorationEnterprise,
+  FormDecorationXML,
+} from "~/lib/metadata/forms/elements/formDecoration/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { BaseElement, BaseElementEnterprise, BaseElementXML } from "../baseElement/types"
-import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../commandBar/types"
-import { FormDecoration, FormDecorationEnterprise, FormDecorationXML } from "../formDecoration/types"
 
 export interface FormDecoration extends BaseElement {
   autoMaxHeight?: boolean
@@ -20,6 +30,7 @@ export interface FormDecoration extends BaseElement {
   horizontalStretch?: boolean
   maxHeight?: number
   maxWidth?: number
+  name?: string
   shortcut?: string
   skipOnInput?: boolean
   textColor?: Color
@@ -27,11 +38,11 @@ export interface FormDecoration extends BaseElement {
   toolTip?: I8nText
   toolTipRepresentation?: SE.ToolTipRepresentation
   type?: SE.FormDecorationType
-  userVisible?: UserVisible
   verticalAlignInGroup?: SE.ItemVerticalAlign
   verticalStretch?: boolean
   visible?: boolean
   width?: number
+  userVisible?: UserVisible
 }
 
 export interface FormDecorationXML extends BaseElementXML {
@@ -47,6 +58,7 @@ export interface FormDecorationXML extends BaseElementXML {
   HorizontalStretch?: boolean
   MaxHeight?: number
   MaxWidth?: number
+  Name?: string
   Shortcut?: string
   SkipOnInput?: boolean
   TextColor?: ColorXML
@@ -54,36 +66,38 @@ export interface FormDecorationXML extends BaseElementXML {
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormDecorationType
-  UserVisible?: UserVisibleXML
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number
+  UserVisible?: UserVisibleXML
 }
 
 export interface FormDecorationEnterprise extends BaseElementEnterprise {
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяШирина?: boolean
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
   КонтекстноеМеню?: CommandBarEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  Доступность?: boolean
+  Доступность?: StringboolEnterprise
   РасширеннаяПодсказка?: FormDecorationEnterprise
   Шрифт?: FontEnterprise
   Высота?: number
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  РастягиватьПоГоризонтали?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
+  Имя?: string
   СочетаниеКлавиш?: string
-  ПропускатьПриВводе?: boolean
+  ПропускатьПриВводе?: StringboolEnterprise
   ЦветТекста?: ColorEnterprise
   Заголовок?: I8nTextEnterprise
   Подсказка?: I8nTextEnterprise
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   Вид?: SE.FormDecorationTypeEnterprise
-  ПользовательскаяВидимость?: UserVisibleEnterprise
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  РастягиватьПоВертикали?: boolean
-  Видимость?: boolean
+  РастягиватьПоВертикали?: StringboolEnterprise
+  Видимость?: StringboolEnterprise
   Ширина?: number
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
 }

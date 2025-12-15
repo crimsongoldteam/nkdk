@@ -1,9 +1,19 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderXML } from "~/lib/metadata/commonObjects/border/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  FormItemAddition,
+  FormItemAdditionEnterprise,
+  FormItemAdditionXML,
+} from "~/lib/metadata/forms/elements/formItemAddition/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { FormItemAddition, FormItemAdditionEnterprise, FormItemAdditionXML } from "../formItemAddition/types"
 
 export interface ViewStatusAddition extends FormItemAddition {
   autoMaxWidth?: boolean
@@ -18,8 +28,8 @@ export interface ViewStatusAddition extends FormItemAddition {
   textColor?: Color
   titleFont?: Font
   titleTextColor?: Color
-  userVisible?: UserVisible
   width?: number
+  userVisible?: UserVisible
 }
 
 export interface ViewStatusAdditionXML extends FormItemAdditionXML {
@@ -35,23 +45,24 @@ export interface ViewStatusAdditionXML extends FormItemAdditionXML {
   TextColor?: ColorXML
   TitleFont?: FontXML
   TitleTextColor?: ColorXML
-  UserVisible?: UserVisibleXML
   Width?: number
+  UserVisible?: UserVisibleXML
 }
 
 export interface ViewStatusAdditionEnterprise extends FormItemAdditionEnterprise {
-  АвтоМаксимальнаяШирина?: boolean
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
   ЦветФона?: ColorEnterprise
   Рамка?: BorderEnterprise
   ЦветРамки?: ColorEnterprise
   ЦветФонаКнопок?: ColorEnterprise
   Шрифт?: FontEnterprise
   ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  РастягиватьПоГоризонтали?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяШирина?: number
   ЦветТекста?: ColorEnterprise
   ШрифтЗаголовка?: FontEnterprise
   ЦветТекстаЗаголовка?: ColorEnterprise
-  ПользовательскаяВидимость?: UserVisibleEnterprise
   Ширина?: number
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
 }

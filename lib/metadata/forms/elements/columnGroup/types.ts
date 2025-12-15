@@ -1,8 +1,14 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/lib/metadata/forms/elements/formGroup/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "../formGroup/types"
 
 export interface ColumnGroup extends FormGroup {
   fixingInTable?: SE.FixingInTable
@@ -37,8 +43,9 @@ export interface ColumnGroupEnterprise extends FormGroupEnterprise {
   ФорматШапки?: string
   ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationEnterprise
   КартинкаШапки?: PictureEnterprise
-  ОтображатьВШапке?: boolean
-  ОтображатьЗаголовок?: boolean
+  ОтображатьВШапке?: StringboolEnterprise
+  ОтображатьЗаголовок?: StringboolEnterprise
   ЦветФонаЗаголовка?: ColorEnterprise
-  ПользовательскаяВидимость?: UserVisibleEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
 }

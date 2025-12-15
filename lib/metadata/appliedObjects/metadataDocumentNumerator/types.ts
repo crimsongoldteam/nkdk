@@ -1,9 +1,11 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export interface MetadataDocumentNumerator {
   checkUnique?: boolean
   comment?: string
+  name?: string
   numberAllowedLength?: SE.AllowedLength
   numberLength?: number
   numberPeriodicity?: SE.BusinessProcessNumberPeriodicity
@@ -15,6 +17,7 @@ export interface MetadataDocumentNumerator {
 export interface MetadataDocumentNumeratorXML {
   CheckUnique?: boolean
   Comment?: string
+  Name?: string
   NumberAllowedLength?: SE.AllowedLength
   NumberLength?: number
   NumberPeriodicity?: SE.BusinessProcessNumberPeriodicity
@@ -24,8 +27,9 @@ export interface MetadataDocumentNumeratorXML {
 }
 
 export interface MetadataDocumentNumeratorEnterprise {
-  КонтрольУникальности?: boolean
+  КонтрольУникальности?: StringboolEnterprise
   Комментарий?: string
+  Имя?: string
   ДопустимаяДлинаНомера?: SE.AllowedLengthEnterprise
   ДлинаНомера?: number
   ПериодичностьНомера?: SE.BusinessProcessNumberPeriodicityEnterprise

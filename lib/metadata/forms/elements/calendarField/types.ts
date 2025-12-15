@@ -1,10 +1,16 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderXML } from "~/lib/metadata/commonObjects/border/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
 export interface CalendarField extends FormField {
   autoMaxHeight?: boolean
@@ -25,10 +31,10 @@ export interface CalendarField extends FormField {
   selectionMode?: SE.DateSelectionMode
   showCurrentDate?: boolean
   showMonthsPanel?: boolean
-  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
   widthInMonths?: number
+  userVisible?: UserVisible
   events?: {
     onChange?: string
     selection?: string
@@ -60,36 +66,37 @@ export interface CalendarFieldXML extends FormFieldXML {
   SelectionMode?: SE.DateSelectionMode
   ShowCurrentDate?: boolean
   ShowMonthsPanel?: boolean
-  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
   WidthInMonths?: number
+  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface CalendarFieldEnterprise extends FormFieldEnterprise {
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяШирина?: boolean
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
   НачалоПериодаОтображения?: string
   Рамка?: BorderEnterprise
   ЦветРамки?: ColorEnterprise
-  ПеремещениеПоКалендарю?: boolean
-  РазрешитьПеретаскивание?: boolean
-  РазрешитьНачалоПеретаскивания?: boolean
+  ПеремещениеПоКалендарю?: StringboolEnterprise
+  РазрешитьПеретаскивание?: StringboolEnterprise
+  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
   КонецПериодаОтображения?: string
   Шрифт?: FontEnterprise
   Высота?: number
   ВысотаВМесяцах?: number
-  РастягиватьПоГоризонтали?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
   РежимВыделения?: SE.DateSelectionModeEnterprise
-  ОтображатьТекущуюДату?: boolean
-  ОтображатьПанельМесяцев?: boolean
-  ПользовательскаяВидимость?: UserVisibleEnterprise
-  РастягиватьПоВертикали?: boolean
+  ОтображатьТекущуюДату?: StringboolEnterprise
+  ОтображатьПанельМесяцев?: StringboolEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
   Ширина?: number
   ШиринаВМесяцах?: number
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
   События?: {
     ПриИзменении?: string
     Выбор?: string

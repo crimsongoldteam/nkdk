@@ -4,14 +4,13 @@ import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportT
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { exportBaseElementToXML } from "~/lib/metadata/forms/elements/baseElement/exportToXML"
+import { exportCommandBarToXML } from "~/lib/metadata/forms/elements/commandBar/exportToXML"
+import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDecoration/exportToXML"
+import { exportTableToXML } from "~/lib/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { exportBaseElementToXML } from "../baseElement/exportToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportTableToXML } from "../table/exportToXML"
 import { FormElementType } from "../types"
-import { FormField, FormFieldXML } from "./types"
 
 export const exportFormFieldToXML = (data: FormField | undefined): FormFieldXML | undefined => {
   if (!data) return undefined
@@ -40,6 +39,7 @@ export const exportFormFieldToXML = (data: FormField | undefined): FormFieldXML 
     HeaderPicture: exportPictureToXML(data.headerPicture),
     HorizontalAlign: data.horizontalAlign,
     HorizontalAlignInGroup: data.horizontalAlignInGroup,
+    Name: data.name,
     ReadOnly: data.readOnly,
     Shortcut: data.shortcut,
     ShowInFooter: data.showInFooter,
@@ -56,12 +56,12 @@ export const exportFormFieldToXML = (data: FormField | undefined): FormFieldXML 
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
     TypeRestriction: exportTypeDescriptionToXML(data.typeRestriction),
-    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlign: data.verticalAlign,
     VerticalAlignInGroup: data.verticalAlignInGroup,
     Visible: data.visible,
     WarningOnEdit: exportI8nTextToXML(data.warningOnEdit),
     WarningOnEditRepresentation: data.warningOnEditRepresentation,
+    UserVisible: exportUserVisibleToXML(data.userVisible),
     Events: exportEventsToXML(data.events),
   }
 }

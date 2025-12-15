@@ -1,14 +1,9 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
-import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { importFormItemAdditionFromXML } from "~/lib/metadata/forms/elements/formItemAddition/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
-import { importFormDecorationFromXML } from "../formDecoration/importFromXML"
-import { importFormItemAdditionFromXML } from "../formItemAddition/importFromXML"
 import { FormElementType } from "../types"
-import { SearchStringAddition, SearchStringAdditionXML } from "./types"
 
 export const importSearchStringAdditionFromXML = (
   xml: SearchStringAdditionXML | undefined
@@ -19,25 +14,13 @@ export const importSearchStringAdditionFromXML = (
     ...importFormItemAdditionFromXML(xml)!,
     elementType: FormElementType.SearchStringAddition,
 
-    contextMenu: importCommandBarFromXML(xml.ContextMenu),
-    displayImportance: xml._DisplayImportance,
-    enabled: xml.Enabled,
-    extendedToolTip: importFormDecorationFromXML(xml.ExtendedToolTip),
-    horizontalAlignInGroup: xml.HorizontalAlignInGroup,
-    title: importI8nTextFromXML(xml.Title),
-    toolTip: importI8nTextFromXML(xml.ToolTip),
-    toolTipRepresentation: xml.ToolTipRepresentation,
-    type: xml.Type,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
-    verticalAlignInGroup: xml.VerticalAlignInGroup,
-    visible: xml.Visible,
-    childItems: importChildItemsFromXML(xml.ChildItems),
     backColor: importColorFromXML(xml.BackColor),
     borderColor: importColorFromXML(xml.BorderColor),
     font: importFontFromXML(xml.Font),
     horizontalStretch: xml.HorizontalStretch,
     textColor: importColorFromXML(xml.TextColor),
     width: xml.Width,
+    userVisible: importUserVisibleFromXML(xml.UserVisible),
   }
 }
 

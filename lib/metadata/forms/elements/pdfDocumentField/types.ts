@@ -1,8 +1,14 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
 export interface PdfDocumentField extends FormField {
   autoMaxHeight?: boolean
@@ -17,10 +23,10 @@ export interface PdfDocumentField extends FormField {
   output?: SE.UseOutput
   scale?: number
   usedFileName?: string
-  userVisible?: UserVisible
   verticalStretch?: boolean
   viewStatusLocation?: SE.ViewStatusLocation
   width?: number
+  userVisible?: UserVisible
   events?: {
     onChange?: string
     uRLClick?: string
@@ -40,30 +46,31 @@ export interface PdfDocumentFieldXML extends FormFieldXML {
   Output?: SE.UseOutput
   Scale?: number
   UsedFileName?: string
-  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   ViewStatusLocation?: SE.ViewStatusLocation
   Width?: number
+  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface PdfDocumentFieldEnterprise extends FormFieldEnterprise {
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяШирина?: boolean
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
   ЦветРамки?: ColorEnterprise
   НомерТекущейСтраницы?: number
   Высота?: number
-  РастягиватьПоГоризонтали?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
   Ориентация?: number
   Вывод?: SE.UseOutputEnterprise
   Масштаб?: number
   ИспользуемоеИмяФайла?: string
-  ПользовательскаяВидимость?: UserVisibleEnterprise
-  РастягиватьПоВертикали?: boolean
+  РастягиватьПоВертикали?: StringboolEnterprise
   ПоложениеСостоянияПросмотра?: SE.ViewStatusLocationEnterprise
   Ширина?: number
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
   События?: {
     ПриИзменении?: string
     НажатиеНаНавигационнойСсылке?: string

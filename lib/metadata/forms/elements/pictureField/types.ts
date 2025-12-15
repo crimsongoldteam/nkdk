@@ -1,11 +1,17 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderXML } from "~/lib/metadata/commonObjects/border/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
 export interface PictureField extends FormField {
   autoMaxHeight?: boolean
@@ -25,11 +31,11 @@ export interface PictureField extends FormField {
   pictureSize?: SE.PictureSize
   scale?: number
   textColor?: Color
-  userVisible?: UserVisible
   valuesPicture?: Picture
   verticalStretch?: boolean
   width?: number
   zoomable?: boolean
+  userVisible?: UserVisible
   events?: {
     onChange?: string
     click?: string
@@ -58,37 +64,38 @@ export interface PictureFieldXML extends FormFieldXML {
   PictureSize?: SE.PictureSize
   Scale?: number
   TextColor?: ColorXML
-  UserVisible?: UserVisibleXML
   ValuesPicture?: PictureXML
   VerticalStretch?: boolean
   Width?: number
   Zoomable?: boolean
+  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface PictureFieldEnterprise extends FormFieldEnterprise {
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяШирина?: boolean
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
   Рамка?: BorderEnterprise
   ЦветРамки?: ColorEnterprise
-  РазрешитьПеретаскивание?: boolean
-  РазрешитьНачалоПеретаскивания?: boolean
+  РазрешитьПеретаскивание?: StringboolEnterprise
+  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
   СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise
   Шрифт?: FontEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: boolean
-  Гиперссылка?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  Гиперссылка?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
   ТекстНевыбраннойКартинки?: string
   РазмерКартинки?: SE.PictureSizeEnterprise
   Масштаб?: number
   ЦветТекста?: ColorEnterprise
-  ПользовательскаяВидимость?: UserVisibleEnterprise
   КартинкаЗначений?: PictureEnterprise
-  РастягиватьПоВертикали?: boolean
+  РастягиватьПоВертикали?: StringboolEnterprise
   Ширина?: number
-  Масштабировать?: boolean
+  Масштабировать?: StringboolEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
   События?: {
     ПриИзменении?: string
     Нажатие?: string

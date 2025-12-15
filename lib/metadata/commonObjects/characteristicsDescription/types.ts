@@ -8,6 +8,7 @@ import {
   MetadataValueEnterprise,
   MetadataValueXML,
 } from "~/lib/metadata/commonObjects/metadataValue/types"
+import { MetadataField, MetadataFieldEnterprise, MetadataFieldXML } from "../metadataField/types"
 
 export interface CharacteristicsDescription {
   characteristicTypes?: MetadataItemLink

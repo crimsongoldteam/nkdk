@@ -1,11 +1,21 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
+import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
+import {
+  FormDecoration,
+  FormDecorationEnterprise,
+  FormDecorationXML,
+} from "~/lib/metadata/forms/elements/formDecoration/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { BaseElement, BaseElementEnterprise, BaseElementXML } from "../baseElement/types"
-import { FormDecoration, FormDecorationEnterprise, FormDecorationXML } from "../formDecoration/types"
 
 export interface Button extends BaseElement {
   autoMaxHeight?: boolean
@@ -27,6 +37,7 @@ export interface Button extends BaseElement {
   locationInCommandBar?: SE.ButtonLocationInCommandBar
   maxHeight?: number
   maxWidth?: number
+  name?: string
   onlyInAllActions?: boolean
   picture?: Picture
   pictureLocation?: SE.FormButtonPictureLocation
@@ -40,11 +51,11 @@ export interface Button extends BaseElement {
   titleHeight?: number
   toolTipRepresentation?: SE.ToolTipRepresentation
   type?: SE.FormButtonType
-  userVisible?: UserVisible
   verticalAlignInGroup?: SE.ItemVerticalAlign
   verticalStretch?: boolean
   visible?: boolean
   width?: number
+  userVisible?: UserVisible
 }
 
 export interface ButtonXML extends BaseElementXML {
@@ -67,6 +78,7 @@ export interface ButtonXML extends BaseElementXML {
   LocationInCommandBar?: SE.ButtonLocationInCommandBar
   MaxHeight?: number
   MaxWidth?: number
+  Name?: string
   OnlyInAllActions?: boolean
   Picture?: PictureXML
   PictureLocation?: SE.FormButtonPictureLocation
@@ -80,49 +92,51 @@ export interface ButtonXML extends BaseElementXML {
   TitleHeight?: number
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormButtonType
-  UserVisible?: UserVisibleXML
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number
+  UserVisible?: UserVisibleXML
 }
 
 export interface ButtonEnterprise extends BaseElementEnterprise {
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяШирина?: boolean
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
   ЦветФона?: ColorEnterprise
   ЦветРамки?: ColorEnterprise
   ИмяКоманды?: string
-  УникальностьКоманды?: boolean
+  УникальностьКоманды?: StringboolEnterprise
   ПутьКДанным?: string
-  КнопкаПоУмолчанию?: boolean
-  АктивизироватьПоУмолчанию?: boolean
+  КнопкаПоУмолчанию?: StringboolEnterprise
+  АктивизироватьПоУмолчанию?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  Доступность?: boolean
+  Доступность?: StringboolEnterprise
   РасширеннаяПодсказка?: FormDecorationEnterprise
   Шрифт?: FontEnterprise
   Высота?: number
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  РастягиватьПоГоризонтали?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
   ПоложениеВКоманднойПанели?: SE.ButtonLocationInCommandBarEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  ТолькоВоВсехДействиях?: boolean
+  Имя?: string
+  ТолькоВоВсехДействиях?: StringboolEnterprise
   Картинка?: PictureEnterprise
   ПоложениеКартинки?: SE.FormButtonPictureLocationEnterprise
   Отображение?: SE.ButtonRepresentationEnterprise
   Фигура?: SE.ButtonShapeEnterprise
   ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
   СочетаниеКлавиш?: string
-  ПропускатьПриВводе?: boolean
+  ПропускатьПриВводе?: StringboolEnterprise
   ЦветТекста?: ColorEnterprise
   Заголовок?: I8nTextEnterprise
   ВысотаЗаголовка?: number
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   Вид?: SE.FormButtonTypeEnterprise
-  ПользовательскаяВидимость?: UserVisibleEnterprise
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  РастягиватьПоВертикали?: boolean
-  Видимость?: boolean
+  РастягиватьПоВертикали?: StringboolEnterprise
+  Видимость?: StringboolEnterprise
   Ширина?: number
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
 }

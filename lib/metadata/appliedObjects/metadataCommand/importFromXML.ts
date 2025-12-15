@@ -1,3 +1,5 @@
+import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
+import { importMetadataCommandGroupFromXML } from "~/lib/metadata/commonObjects/metadataCommandGroup/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
@@ -9,19 +11,18 @@ export const importMetadataCommandFromXML = (xml: MetadataCommandXML | undefined
   return {
     elementType: FormElementType.MetadataCommand,
 
-    commandModule: xml.CommandModule,
     commandParameterType: importTypeDescriptionFromXML(xml.CommandParameterType),
     comment: xml.Comment,
-    extendedConfigurationObject: xml.ExtendedConfigurationObject,
-    group: xml.Group,
+    group: importMetadataCommandGroupFromXML(xml.Group),
     modifiesData: xml.ModifiesData,
+    name: xml.Name,
     objectBelonging: xml.ObjectBelonging,
     parameterUsageMode: xml.ParameterUsageMode,
     picture: importPictureFromXML(xml.Picture),
     representation: xml.Representation,
     shortcut: xml.Shortcut,
-    synonym: xml.Synonym,
-    tooltip: xml.Tooltip,
+    synonym: importI8nTextFromXML(xml.Synonym),
+    tooltip: importI8nTextFromXML(xml.Tooltip),
   }
 }
 

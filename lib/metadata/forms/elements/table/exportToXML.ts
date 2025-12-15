@@ -2,18 +2,18 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { exportCommandSetToXML } from "~/lib/metadata/forms/commandSet/exportToXML"
+import { exportBaseElementToXML } from "~/lib/metadata/forms/elements/baseElement/exportToXML"
+import { exportCommandBarToXML } from "~/lib/metadata/forms/elements/commandBar/exportToXML"
+import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDecoration/exportToXML"
+import { exportFormItemAdditionToXML } from "~/lib/metadata/forms/elements/formItemAddition/exportToXML"
 import { exportSearchControlAdditionToXML } from "~/lib/metadata/forms/elements/searchControlAddition/exportToXML"
 import { exportSearchStringAdditionToXML } from "~/lib/metadata/forms/elements/searchStringAddition/exportToXML"
 import { exportViewStatusAdditionToXML } from "~/lib/metadata/forms/elements/viewStatusAddition/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { exportBaseElementToXML } from "../baseElement/exportToXML"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
-import { exportFormDecorationToXML } from "../formDecoration/exportToXML"
-import { exportFormItemAdditionToXML } from "../formItemAddition/exportToXML"
 import { FormElementType } from "../types"
-import { Table, TableXML } from "./types"
 
 export const exportTableToXML = (data: Table | undefined): TableXML | undefined => {
   if (!data) return undefined
@@ -36,7 +36,7 @@ export const exportTableToXML = (data: Table | undefined): TableXML | undefined 
     ChoiceMode: data.choiceMode,
     CommandBar: exportCommandBarToXML(data.commandBar),
     CommandBarLocation: data.commandBarLocation,
-    CommandSet: data.commandSet,
+    CommandSet: exportCommandSetToXML(data.commandSet),
     ContextMenu: exportCommandBarToXML(data.contextMenu),
     CurrentRowUse: data.currentRowUse,
     DataPath: data.dataPath,
@@ -66,6 +66,7 @@ export const exportTableToXML = (data: Table | undefined): TableXML | undefined 
     MaxHeightInTableRows: data.maxHeightInTableRows,
     MaxWidth: data.maxWidth,
     MultipleChoice: data.multipleChoice,
+    Name: data.name,
     Output: data.output,
     ReadOnly: data.readOnly,
     RefreshRequest: data.refreshRequest,
@@ -93,7 +94,6 @@ export const exportTableToXML = (data: Table | undefined): TableXML | undefined 
     ToolTip: exportI8nTextToXML(data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,
     UseAlternationRowColor: data.useAlternationRowColor,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalLines: data.verticalLines,
     VerticalScrollBar: data.verticalScrollBar,
@@ -104,6 +104,7 @@ export const exportTableToXML = (data: Table | undefined): TableXML | undefined 
     Visible: data.visible,
     Width: data.width,
     ChildItems: exportChildItemsToXML(data.childItems),
+    UserVisible: exportUserVisibleToXML(data.userVisible),
     Events: exportEventsToXML(data.events),
   }
 }

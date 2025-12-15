@@ -1,8 +1,14 @@
 import {
+  MetadataCommands,
+  MetadataCommandsEnterprise,
+  MetadataCommandsXML,
+} from "~/lib/metadata/appliedObjects/metadataCommand/types"
+import {
   AdditionalIndexes,
   AdditionalIndexesEnterprise,
   AdditionalIndexesXML,
 } from "~/lib/metadata/commonObjects/additionalIndex/types"
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import {
   CharacteristicsDescriptions,
   CharacteristicsDescriptionsEnterprise,
@@ -14,11 +20,6 @@ import {
   MetadataAttributesEnterprise,
   MetadataAttributesXML,
 } from "~/lib/metadata/commonObjects/metadataAttribute/types"
-import {
-  MetadataCommands,
-  MetadataCommandsEnterprise,
-  MetadataCommandsXML,
-} from "~/lib/metadata/commonObjects/metadataCommand/types"
 import {
   MetadataFields,
   MetadataFieldsEnterprise,
@@ -54,6 +55,7 @@ export interface MetadataCatalog {
   auxiliaryFolderChoiceForm?: string
   auxiliaryFolderForm?: string
   auxiliaryListForm?: string
+  auxiliaryObjectForm?: string
   basedOn?: MetadataItemLinks
   characteristics?: CharacteristicsDescriptions
   checkUnique?: boolean
@@ -92,6 +94,7 @@ export interface MetadataCatalog {
   levelCount?: number
   limitLevelCount?: boolean
   listPresentation?: I8nText
+  name?: string
   objectBelonging?: SE.ObjectBelonging
   objectPresentation?: I8nText
   owners?: MetadataItemLinks
@@ -154,6 +157,7 @@ export interface MetadataCatalogXML {
   LevelCount?: number
   LimitLevelCount?: boolean
   ListPresentation?: I8nTextXML
+  Name?: string
   ObjectBelonging?: SE.ObjectBelonging
   ObjectPresentation?: I8nTextXML
   Owners?: MetadataItemLinksXML
@@ -172,7 +176,7 @@ export interface MetadataCatalogXML {
 export interface MetadataCatalogEnterprise {
   ДополнительныеИндексы?: AdditionalIndexesEnterprise
   Реквизиты?: MetadataAttributesEnterprise
-  Автонумерация?: boolean
+  Автонумерация?: StringboolEnterprise
   ДополнительнаяФормаДляВыбора?: string
   ДополнительнаяФормаДляВыбораГруппы?: string
   ДополнительнаяФормаГруппы?: string
@@ -180,7 +184,7 @@ export interface MetadataCatalogEnterprise {
   ДополнительнаяФормаОбъекта?: string
   ВводитсяНаОсновании?: MetadataItemLinksEnterprise
   Характеристики?: CharacteristicsDescriptionsEnterprise
-  КонтрольУникальности?: boolean
+  КонтрольУникальности?: StringboolEnterprise
   РежимПолученияДанныхВыбораПриВводеПоСтроке?: SE.ChoiceDataGetModeOnInputByStringEnterprise
   ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
   СпособВыбора?: SE.ChoiceModeEnterprise
@@ -202,31 +206,32 @@ export interface MetadataCatalogEnterprise {
   ОсновноеПредставление?: SE.CatalogMainPresentationEnterprise
   ДлинаНаименования?: number
   СпособРедактирования?: SE.EditTypeEnterprise
-  ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: boolean
+  ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: StringboolEnterprise
   Пояснение?: I8nTextEnterprise
   РасширенноеПредставлениеСписка?: I8nTextEnterprise
   РасширенноеПредставлениеОбъекта?: I8nTextEnterprise
-  ГруппыСверху?: boolean
+  ГруппыСверху?: StringboolEnterprise
   ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
   ПолнотекстовыйПоискПриВводеПоСтроке?: SE.FullTextSearchOnInputByStringEnterprise
-  Иерархический?: boolean
+  Иерархический?: StringboolEnterprise
   ВидИерархии?: SE.HierarchyTypeEnterprise
-  ВключатьСправкуВСодержание?: boolean
+  ВключатьСправкуВСодержание?: StringboolEnterprise
   ВводПоСтроке?: MetadataFieldsEnterprise
   КоличествоУровней?: number
-  ОграничиватьКоличествоУровней?: boolean
+  ОграничиватьКоличествоУровней?: StringboolEnterprise
   ПредставлениеСписка?: I8nTextEnterprise
+  Имя?: string
   ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
   ПредставлениеОбъекта?: I8nTextEnterprise
   Владельцы?: MetadataItemLinksEnterprise
   Предопределенные?: PredefinedListEnterprise
   ОбновлениеПредопределенныхДанных?: SE.PredefinedDataUpdateEnterprise
-  БыстрыйВыбор?: boolean
+  БыстрыйВыбор?: StringboolEnterprise
   СпособПоискаСтрокиПриВводеПоСтроке?: SE.SearchStringModeOnInputByStringEnterprise
   СтандартныеРеквизиты?: StandardAttributeDescriptionsEnterprise
   ИспользованиеПодчинения?: SE.SubordinationUseEnterprise
   Синоним?: I8nTextEnterprise
   ТабличныеЧасти?: MetadataTabularSectionsEnterprise
-  ОбновлятьИсториюДанныхСразуПослеЗаписи?: boolean
-  ИспользоватьСтандартныеКоманды?: boolean
+  ОбновлятьИсториюДанныхСразуПослеЗаписи?: StringboolEnterprise
+  ИспользоватьСтандартныеКоманды?: StringboolEnterprise
 }

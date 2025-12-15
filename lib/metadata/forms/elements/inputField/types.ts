@@ -1,3 +1,4 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { ChoiceList, ChoiceListEnterprise, ChoiceListXML } from "~/lib/metadata/commonObjects/choiceList/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
@@ -9,15 +10,20 @@ import {
   TypeDescriptionXML,
 } from "~/lib/metadata/commonObjects/typeDescription/types"
 import { TypeLink, TypeLinkEnterprise, TypeLinkXML } from "~/lib/metadata/commonObjects/typeLink/types"
-import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
+import {
+  UserVisible,
+  UserVisibleAllowEnterprise,
+  UserVisibleDenyEnterprise,
+  UserVisibleXML,
+} from "~/lib/metadata/commonObjects/userVisible/types"
 import {
   ChoiceParameterLinks,
   ChoiceParameterLinksEnterprise,
   ChoiceParameterLinksXML,
 } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
 
 export interface InputField extends FormField {
   allowInputEmptyMultipleValues?: boolean
@@ -94,10 +100,10 @@ export interface InputField extends FormField {
   textEdit?: boolean
   typeDomainEnabled?: boolean
   typeLink?: TypeLink
-  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
   wrap?: boolean
+  userVisible?: UserVisible
   events?: {
     onChange?: string
     autoComplete?: string
@@ -193,92 +199,93 @@ export interface InputFieldXML extends FormFieldXML {
   TextEdit?: boolean
   TypeDomainEnabled?: boolean
   TypeLink?: TypeLinkXML
-  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
   Wrap?: boolean
+  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface InputFieldEnterprise extends FormFieldEnterprise {
-  РазрешитьВводПустыхМножественныхЗначений?: boolean
-  РазрешитьДублированиеМножественныхЗначений?: boolean
+  РазрешитьВводПустыхМножественныхЗначений?: StringboolEnterprise
+  РазрешитьДублированиеМножественныхЗначений?: StringboolEnterprise
   АвтоИзменениеРегистраПриВводеТекста?: SE.AutoCapitalizationOnTextInputEnterprise
-  АвтоВыборНезаполненного?: boolean
+  АвтоВыборНезаполненного?: StringboolEnterprise
   АвтоИсправлениеПриВводеТекста?: SE.AutoCorrectionOnTextInputEnterprise
   ПодсказкаАвтозаполнения?: SE.InputFieldAutofillHintEnterprise
-  АвтоОтметкаНезаполненного?: boolean
-  АвтоМаксимальнаяВысота?: boolean
-  АвтоМаксимальнаяШирина?: boolean
+  АвтоОтметкаНезаполненного?: StringboolEnterprise
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
   АвтоОтображениеКнопкиОчистки?: SE.AutoShowClearButtonModeEnterprise
   АвтоОтображениеКнопкиОткрытия?: SE.AutoShowOpenButtonModeEnterprise
   ДоступныеТипы?: TypeDescriptionEnterprise
   ЦветФона?: ColorEnterprise
   ЦветРамки?: ColorEnterprise
-  КнопкаВыбора?: boolean
+  КнопкаВыбора?: StringboolEnterprise
   КартинкаКнопкиВыбора?: PictureEnterprise
   ОтображениеКнопкиВыбора?: SE.ChoiceButtonRepresentationEnterprise
   ВыборГруппИЭлементов?: SE.FoldersAndItemsEnterprise
   ФормаВыбора?: string
   ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
   СписокВыбора?: ChoiceListEnterprise
-  КнопкаСпискаВыбора?: boolean
+  КнопкаСпискаВыбора?: StringboolEnterprise
   ВысотаСпискаВыбора?: number
   СвязиПараметровВыбора?: ChoiceParameterLinksEnterprise
   ПараметрыВыбора?: ChoiceParameterLinksEnterprise
-  ВыбиратьТип?: boolean
-  КнопкаОчистки?: boolean
-  КнопкаСоздания?: boolean
-  КнопкаВыпадающегоСписка?: boolean
+  ВыбиратьТип?: StringboolEnterprise
+  КнопкаОчистки?: StringboolEnterprise
+  КнопкаСоздания?: StringboolEnterprise
+  КнопкаВыпадающегоСписка?: StringboolEnterprise
   ШиринаВыпадающегоСписка?: number
   ФорматРедактирования?: I8nTextEnterprise
   ТекстРедактирования?: string
   ОбновлениеТекстаРедактирования?: SE.EditTextUpdateEnterprise
-  РасширенноеРедактирование?: boolean
+  РасширенноеРедактирование?: StringboolEnterprise
   Шрифт?: FontEnterprise
   Формат?: I8nTextEnterprise
   Высота?: number
   ВариантУправленияВысотой?: SE.ItemHeightControlVariantEnterprise
-  РастягиватьПоГоризонтали?: boolean
+  РастягиватьПоГоризонтали?: StringboolEnterprise
   РежимВыбораНезаполненного?: SE.IncompleteChoiceModeEnterprise
   ПодсказкаВвода?: I8nTextEnterprise
-  РежимВыбораИзСписка?: boolean
-  ОтметкаНезаполненного?: boolean
-  ВыделятьОтрицательные?: boolean
+  РежимВыбораИзСписка?: StringboolEnterprise
+  ОтметкаНезаполненного?: StringboolEnterprise
+  ВыделятьОтрицательные?: StringboolEnterprise
   Маска?: string
   МаксимальнаяВысота?: number
   МаксимальноеЗначение?: number
   МаксимальнаяШирина?: number
   МинимальноеЗначение?: number
-  МногострочныйРежим?: boolean
+  МногострочныйРежим?: StringboolEnterprise
   ПутьКДаннымКартинкиМножественногоЗначения?: string
   ФигураКартинкиМножественногоЗначения?: SE.InputFieldMultipleValuePictureShapeEnterprise
   РазмерКартинкиМножественногоЗначения?: SE.InputFieldMultipleValuePictureSizeEnterprise
   ПутьКДаннымПредставленияМножественногоЗначения?: string
   ЦветФонаМножественныхЗначений?: ColorEnterprise
-  РасширенноеРедактированиеМножественныхЗначений?: boolean
+  РасширенноеРедактированиеМножественныхЗначений?: StringboolEnterprise
   ШрифтМножественныхЗначений?: FontEnterprise
-  ГиперссылкаМножественныхЗначений?: boolean
+  ГиперссылкаМножественныхЗначений?: StringboolEnterprise
   КартинкаМножественныхЗначений?: PictureEnterprise
   ЦветТекстаМножественныхЗначений?: ColorEnterprise
   ПутьКДаннымЗначенияМножественногоЗначения?: string
   ТекстКнопкиВводаЭкраннойКлавиатуры?: SE.OnScreenKeyboardReturnKeyTextEnterprise
-  КнопкаОткрытия?: boolean
-  РежимПароля?: boolean
-  БыстрыйВыбор?: boolean
+  КнопкаОткрытия?: StringboolEnterprise
+  РежимПароля?: StringboolEnterprise
+  БыстрыйВыбор?: StringboolEnterprise
   ВыделенныйТекст?: string
-  ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений?: boolean
+  ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений?: StringboolEnterprise
   СпециальныйРежимВводаТекста?: SE.SpecialTextInputModeEnterprise
   ПроверкаПравописанияПриВводеТекста?: SE.SpellCheckingOnTextInputEnterprise
-  КнопкаРегулирования?: boolean
+  КнопкаРегулирования?: StringboolEnterprise
   ЦветТекста?: ColorEnterprise
-  РедактированиеТекста?: boolean
-  РазрешитьСоставнойТип?: boolean
+  РедактированиеТекста?: StringboolEnterprise
+  РазрешитьСоставнойТип?: StringboolEnterprise
   СвязьПоТипу?: TypeLinkEnterprise
-  ПользовательскаяВидимость?: UserVisibleEnterprise
-  РастягиватьПоВертикали?: boolean
+  РастягиватьПоВертикали?: StringboolEnterprise
   Ширина?: number
-  АвтоПереносСтрок?: boolean
+  АвтоПереносСтрок?: StringboolEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
   События?: {
     ПриИзменении?: string
     АвтоПодбор?: string

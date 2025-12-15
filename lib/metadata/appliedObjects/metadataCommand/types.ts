@@ -1,3 +1,4 @@
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   MetadataCommandGroup,
@@ -17,6 +18,7 @@ export interface MetadataCommand {
   comment?: string
   group?: MetadataCommandGroup
   modifiesData?: boolean
+  name?: string
   objectBelonging?: SE.ObjectBelonging
   parameterUsageMode?: SE.CommandParameterUseMode
   picture?: Picture
@@ -31,6 +33,7 @@ export interface MetadataCommandXML {
   Comment?: string
   Group?: MetadataCommandGroupXML
   ModifiesData?: boolean
+  Name?: string
   ObjectBelonging?: SE.ObjectBelonging
   ParameterUsageMode?: SE.CommandParameterUseMode
   Picture?: PictureXML
@@ -44,7 +47,8 @@ export interface MetadataCommandEnterprise {
   ТипПараметраКоманды?: TypeDescriptionEnterprise
   Комментарий?: string
   Группа?: MetadataCommandGroupEnterprise
-  ИзменяетДанные?: boolean
+  ИзменяетДанные?: StringboolEnterprise
+  Имя?: string
   ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
   РежимИспользованияПараметра?: SE.CommandParameterUseModeEnterprise
   Картинка?: PictureEnterprise
