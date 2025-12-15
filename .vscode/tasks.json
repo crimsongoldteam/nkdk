@@ -26,6 +26,13 @@
         }
       }
     },
+
+    {
+      "label": "format all metadata files",
+      "type": "shell",
+      "command": "sh ${workspaceFolder}/tasks/format-metadata.sh",
+      "problemMatcher": "$tsc"
+    },
     {
       "label": "compile extension",
       "type": "shell",
