@@ -28,121 +28,65 @@ import { MetadataValue, MetadataValueXML, MetadataValueEnterprise } from "~/lib/
 import { MetadataTabularSections, MetadataTabularSectionsXML, MetadataTabularSectionsEnterprise } from "~/lib/metadata/commonObjects/metadataTabularSection/types";
 import { FieldList, FieldListXML, FieldListEnterprise } from "~/lib/metadata/commonObjects/field/types"
 import { PredefinedList, PredefinedListXML, PredefinedListEnterprise } from "~/lib/metadata/commonObjects/predifined/types"
-import { MetadataCommands, MetadataCommandsXML, MetadataCommandsEnterprise } from "~/lib/metadata/commonObjects/metadataCommand/types"
+import { CommandList, CommandListXML, CommandListEnterprise } from "~/lib/metadata/commonObjects/command/types"
 import { MetadataItemLinks, MetadataItemLinksEnterprise,MetadataItemLinksXML } from "~/lib/metadata/commonObjects/metadataItemLink/types"
 import { IndexFields, IndexFieldsXML, IndexFieldsEnterprise } from "~/lib/metadata/commonObjects/indexField/types"
 import { MetadataFields, MetadataFieldsXML, MetadataFieldsEnterprise } from "~/lib/metadata/commonObjects/metadataField/types";
 import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinkXML } from "~/lib/metadata/commonObjects/metadataItemLink/types"
 import { AdditionalIndexes, AdditionalIndexesXML, AdditionalIndexesEnterprise } from "~/lib/metadata/commonObjects/additionalIndex/types";
 import { CharacteristicsDescriptions, CharacteristicsDescriptionsXML, CharacteristicsDescriptionsEnterprise } from "~/lib/metadata/commonObjects/characteristicsDescription/types";
-import { MetadataCommandGroup, MetadataCommandGroupXML, MetadataCommandGroupEnterprise } from "~/lib/metadata/commonObjects/metadataCommandGroup/types";
 
 
+export interface MetadataCommand  {
 
-export interface MetadataAttribute  {
-
-  binaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse,
-  binaryDataStorageLocationUseField?: boolean,
-  choiceFoldersAndItems?: SE.FoldersAndItemsUse,
-  choiceForm?: string,
-  choiceHistoryOnInput?: SE.ChoiceHistoryOnInput,
-  choiceParameterLinks?: ChoiceParameterLinks,
-  choiceParameters?: ChoiceParameterLinks,
+  commandModule?: Неопределено,
+  commandParameterType?: TypeDescription,
   comment?: string,
-  createOnInput?: SE.CreateOnInput,
-  dataHistory?: SE.DataHistoryUse,
-  editFormat?: I8nText,
-  extendedEdit?: boolean,
-  fillChecking?: SE.FillChecking,
-  fillFromFillingValue?: boolean,
-  fillingValue?: MetadataValue,
-  format?: I8nText,
-  fullTextSearch?: SE.UseFullTextSearch,
-  indexing?: SE.Indexing,
-  linkByType?: TypeLink,
-  markNegatives?: boolean,
-  mask?: string,
-  maxValue?: number,
-  minValue?: number,
-  multiLine?: boolean,
+  extendedConfigurationObject?: УникальныйИдентификатор,
+  group?: ГруппаКоманд,
+  modifiesData?: boolean,
   objectBelonging?: SE.ObjectBelonging,
-  passwordMode?: boolean,
-  quickChoice?: SE.UseQuickChoice,
-  synonym?: I8nText,
-  tooltip?: I8nText,
-  type?: TypeDescription,
-  use?: SE.AttributeUse,
+  parameterUsageMode?: SE.CommandParameterUseMode,
+  picture?: Picture,
+  representation?: SE.ButtonRepresentation,
+  shortcut?: string,
+  synonym?: string,
+  tooltip?: string,
 }
 
-export interface MetadataAttributeXML  {
+export interface MetadataCommandXML  {
   
-  BinaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse,
-  BinaryDataStorageLocationUseField?: boolean,
-  ChoiceFoldersAndItems?: SE.FoldersAndItemsUse,
-  ChoiceForm?: string,
-  ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput,
-  ChoiceParameterLinks?: ChoiceParameterLinksXML,
-  ChoiceParameters?: ChoiceParameterLinksXML,
+  CommandModule?: НеопределеноXML,
+  CommandParameterType?: TypeDescriptionXML,
   Comment?: string,
-  CreateOnInput?: SE.CreateOnInput,
-  DataHistory?: SE.DataHistoryUse,
-  EditFormat?: I8nTextXML,
-  ExtendedEdit?: boolean,
-  FillChecking?: SE.FillChecking,
-  FillFromFillingValue?: boolean,
-  FillingValue?: MetadataValueXML,
-  Format?: I8nTextXML,
-  FullTextSearch?: SE.UseFullTextSearch,
-  Indexing?: SE.Indexing,
-  LinkByType?: TypeLinkXML,
-  MarkNegatives?: boolean,
-  Mask?: string,
-  MaxValue?: number,
-  MinValue?: number,
-  MultiLine?: boolean,
+  ExtendedConfigurationObject?: УникальныйИдентификаторXML,
+  Group?: ГруппаКомандXML,
+  ModifiesData?: boolean,
   ObjectBelonging?: SE.ObjectBelonging,
-  PasswordMode?: boolean,
-  QuickChoice?: SE.UseQuickChoice,
-  Synonym?: I8nTextXML,
-  Tooltip?: I8nTextXML,
-  Type?: TypeDescriptionXML,
-  Use?: SE.AttributeUse,
+  ParameterUsageMode?: SE.CommandParameterUseMode,
+  Picture?: PictureXML,
+  Representation?: SE.ButtonRepresentation,
+  Shortcut?: string,
+  Synonym?: string,
+  Tooltip?: string,
 }
 
-export interface MetadataAttributeEnterprise  {
-  ИспользованиеХраненияВХранилищеДвоичныхДанных?: SE.BinaryDataStorageLocationUseEnterprise,
-  ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: boolean,
-  ВыборГруппИЭлементов?: SE.FoldersAndItemsUseEnterprise,
-  ФормаВыбора?: string,
-  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise,
-  СвязиПараметровВыбора?: ChoiceParameterLinksEnterprise,
-  ПараметрыВыбора?: ChoiceParameterLinksEnterprise,
+export interface MetadataCommandEnterprise  {
+  МодульКоманды?: НеопределеноEnterprise,
+  ТипПараметраКоманды?: TypeDescriptionEnterprise,
   Комментарий?: string,
-  СозданиеПриВводе?: SE.CreateOnInputEnterprise,
-  ИсторияДанных?: SE.DataHistoryUseEnterprise,
-  ФорматРедактирования?: I8nTextEnterprise,
-  РасширенноеРедактирование?: boolean,
-  ПроверкаЗаполнения?: SE.FillCheckingEnterprise,
-  ЗаполнятьИзДанныхЗаполнения?: boolean,
-  ЗначениеЗаполнения?: MetadataValueEnterprise,
-  Формат?: I8nTextEnterprise,
-  ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise,
-  Индексирование?: SE.IndexingEnterprise,
-  СвязьПоТипу?: TypeLinkEnterprise,
-  ВыделятьОтрицательные?: boolean,
-  Маска?: string,
-  МаксимальноеЗначение?: number,
-  МинимальноеЗначение?: number,
-  МногострочныйРежим?: boolean,
+  ОбъектРасширяемойКонфигурации?: УникальныйИдентификаторEnterprise,
+  Группа?: ГруппаКомандEnterprise,
+  ИзменяетДанные?: boolean,
   ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise,
-  РежимПароля?: boolean,
-  БыстрыйВыбор?: SE.UseQuickChoiceEnterprise,
-  Синоним?: I8nTextEnterprise,
-  Подсказка?: I8nTextEnterprise,
-  Тип?: TypeDescriptionEnterprise,
-  Использование?: SE.AttributeUseEnterprise,
+  РежимИспользованияПараметра?: SE.CommandParameterUseModeEnterprise,
+  Картинка?: PictureEnterprise,
+  Отображение?: SE.ButtonRepresentationEnterprise,
+  СочетаниеКлавиш?: string,
+  Синоним?: string,
+  Подсказка?: string,
 }
 
-export type MetadataAttributes = MetadataAttribute[]
-export type MetadataAttributesXML = MetadataAttributeXML[]
-export type MetadataAttributesEnterprise = MetadataAttributeEnterprise[]
+export type MetadataCommands = MetadataCommand[]
+    export type MetadataCommandsXML = MetadataCommandXML[]
+    export type MetadataCommandsEnterprise = MetadataCommandEnterprise[]

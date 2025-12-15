@@ -93,7 +93,6 @@ elementType: FormElementType.StandardAttributeDescription,
     toolTip: importI8nTextFromXML(xml.ToolTip),
     type: importTypeDescriptionFromXML(xml.Type),
     typeReductionMode: xml.TypeReductionMode,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
   }
 }
 

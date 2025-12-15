@@ -28,9 +28,15 @@ import { MetadataValue, MetadataValueXML, MetadataValueEnterprise } from "~/lib/
 import { MetadataTabularSections, MetadataTabularSectionsXML, MetadataTabularSectionsEnterprise } from "~/lib/metadata/commonObjects/metadataTabularSection/types";
 import { FieldList, FieldListXML, FieldListEnterprise } from "~/lib/metadata/commonObjects/field/types"
 import { PredefinedList, PredefinedListXML, PredefinedListEnterprise } from "~/lib/metadata/commonObjects/predifined/types"
-import { CommandList, CommandListXML, CommandListEnterprise } from "~/lib/metadata/commonObjects/command/types"
+import { MetadataCommands, MetadataCommandsXML, MetadataCommandsEnterprise } from "~/lib/metadata/commonObjects/metadataCommand/types"
 import { MetadataItemLinks, MetadataItemLinksEnterprise,MetadataItemLinksXML } from "~/lib/metadata/commonObjects/metadataItemLink/types"
 import { IndexFields, IndexFieldsXML, IndexFieldsEnterprise } from "~/lib/metadata/commonObjects/indexField/types"
+import { MetadataFields, MetadataFieldsXML, MetadataFieldsEnterprise } from "~/lib/metadata/commonObjects/metadataField/types";
+import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinkXML } from "~/lib/metadata/commonObjects/metadataItemLink/types"
+import { AdditionalIndexes, AdditionalIndexesXML, AdditionalIndexesEnterprise } from "~/lib/metadata/commonObjects/additionalIndex/types";
+import { CharacteristicsDescriptions, CharacteristicsDescriptionsXML, CharacteristicsDescriptionsEnterprise } from "~/lib/metadata/commonObjects/characteristicsDescription/types";
+import { MetadataCommandGroup, MetadataCommandGroupXML, MetadataCommandGroupEnterprise } from "~/lib/metadata/commonObjects/metadataCommandGroup/types";
+
 
 
 export interface MetadataTabularSection  {
@@ -44,7 +50,6 @@ export interface MetadataTabularSection  {
   synonym?: I8nText,
   tooltip?: I8nText,
   use?: SE.AttributeUse,
-  userVisible?: UserVisible,
 }
 
 export interface MetadataTabularSectionXML  {
@@ -58,7 +63,6 @@ export interface MetadataTabularSectionXML  {
   Synonym?: I8nTextXML,
   Tooltip?: I8nTextXML,
   Use?: SE.AttributeUse,
-  UserVisible?: UserVisibleXML,
 }
 
 export interface MetadataTabularSectionEnterprise  {
@@ -71,7 +75,6 @@ export interface MetadataTabularSectionEnterprise  {
   Синоним?: I8nTextEnterprise,
   Подсказка?: I8nTextEnterprise,
   Использование?: SE.AttributeUseEnterprise,
-  ПользовательскаяВидимость?: UserVisibleEnterprise,
 }
 
 export type MetadataTabularSections = MetadataTabularSection[]

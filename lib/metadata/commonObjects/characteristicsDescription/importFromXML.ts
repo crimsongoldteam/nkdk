@@ -61,16 +61,25 @@ import { registerImport } from "~/lib/xml/import/importerFactory"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { FormElementType } from "../types"
 
-export const importAdditionalIndexFromXML = (xml: AdditionalIndexXML | undefined): AdditionalIndex | undefined => {
+export const importCharacteristicsDescriptionFromXML = (xml: CharacteristicsDescriptionXML | undefined): CharacteristicsDescription | undefined => {
   if (!xml) return undefined
    
   return {
-elementType: FormElementType.AdditionalIndex,
+elementType: FormElementType.CharacteristicsDescription,
 
-    additionalFields: xml.AdditionalFields,
-    indexedFields: xml.IndexedFields,
-    table: importTableFromXML(xml.Table),
+    characteristicTypes: xml.CharacteristicTypes,
+    characteristicValues: xml.CharacteristicValues,
+    dataPathField: xml.DataPathField,
+    keyField: xml.KeyField,
+    multipleValuesKeyField: xml.MultipleValuesKeyField,
+    multipleValuesOrderField: xml.MultipleValuesOrderField,
+    multipleValuesUseField: xml.MultipleValuesUseField,
+    objectField: xml.ObjectField,
+    typeField: xml.TypeField,
+    typesFilterField: xml.TypesFilterField,
+    typesFilterValue: xml.TypesFilterValue,
+    valueField: xml.ValueField,
   }
 }
 
-registerImport(FormElementType.AdditionalIndex, importAdditionalIndexFromXML)
+registerImport(FormElementType.CharacteristicsDescription, importCharacteristicsDescriptionFromXML)

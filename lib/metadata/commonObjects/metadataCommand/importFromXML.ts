@@ -61,16 +61,26 @@ import { registerImport } from "~/lib/xml/import/importerFactory"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 import { FormElementType } from "../types"
 
-export const importAdditionalIndexFromXML = (xml: AdditionalIndexXML | undefined): AdditionalIndex | undefined => {
+export const importMetadataCommandFromXML = (xml: MetadataCommandXML | undefined): MetadataCommand | undefined => {
   if (!xml) return undefined
    
   return {
-elementType: FormElementType.AdditionalIndex,
+elementType: FormElementType.MetadataCommand,
 
-    additionalFields: xml.AdditionalFields,
-    indexedFields: xml.IndexedFields,
-    table: importTableFromXML(xml.Table),
+    commandModule: xml.CommandModule,
+    commandParameterType: importTypeDescriptionFromXML(xml.CommandParameterType),
+    comment: xml.Comment,
+    extendedConfigurationObject: xml.ExtendedConfigurationObject,
+    group: xml.Group,
+    modifiesData: xml.ModifiesData,
+    objectBelonging: xml.ObjectBelonging,
+    parameterUsageMode: xml.ParameterUsageMode,
+    picture: importPictureFromXML(xml.Picture),
+    representation: xml.Representation,
+    shortcut: xml.Shortcut,
+    synonym: xml.Synonym,
+    tooltip: xml.Tooltip,
   }
 }
 
-registerImport(FormElementType.AdditionalIndex, importAdditionalIndexFromXML)
+registerImport(FormElementType.MetadataCommand, importMetadataCommandFromXML)

@@ -77,7 +77,6 @@ elementType: FormElementType.MetadataTabularSection,
     synonym: xml.Synonym,
     tooltip: xml.Tooltip,
     use: xml.Use,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
   }
 }
 

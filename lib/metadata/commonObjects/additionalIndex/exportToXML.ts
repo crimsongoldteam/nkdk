@@ -69,7 +69,6 @@ export const exportAdditionalIndexToXML = (data: AdditionalIndex | undefined): A
     AdditionalFields: data.additionalFields,
     IndexedFields: data.indexedFields,
     Table: exportTableToXML(data.table),
-    UserVisible: exportUserVisibleToXML(data.userVisible),
   }
 }
 

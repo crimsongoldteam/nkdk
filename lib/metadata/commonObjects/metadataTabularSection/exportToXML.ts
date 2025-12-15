@@ -76,7 +76,6 @@ export const exportMetadataTabularSectionToXML = (data: MetadataTabularSection |
     Synonym: data.synonym,
     Tooltip: data.tooltip,
     Use: data.use,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
   }
 }
 

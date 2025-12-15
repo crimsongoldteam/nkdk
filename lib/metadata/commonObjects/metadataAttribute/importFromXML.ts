@@ -99,7 +99,6 @@ elementType: FormElementType.MetadataAttribute,
     tooltip: xml.Tooltip,
     type: importTypeDescriptionFromXML(xml.Type),
     use: xml.Use,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
   }
 }
 

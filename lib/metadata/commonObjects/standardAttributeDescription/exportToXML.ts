@@ -92,7 +92,6 @@ export const exportStandardAttributeDescriptionToXML = (data: StandardAttributeD
     ToolTip: exportI8nTextToXML(data.toolTip),
     Type: exportTypeDescriptionToXML(data.type),
     TypeReductionMode: data.typeReductionMode,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
   }
 }
 
