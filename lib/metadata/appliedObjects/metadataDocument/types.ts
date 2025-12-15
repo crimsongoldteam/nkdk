@@ -1,4 +1,9 @@
 import {
+  MetadataDocumentNumerator,
+  MetadataDocumentNumeratorEnterprise,
+  MetadataDocumentNumeratorXML,
+} from "~/lib/metadata/appliedObjects/metadataDocumentNumerator/types"
+import {
   AdditionalIndexes,
   AdditionalIndexesEnterprise,
   AdditionalIndexesXML,
@@ -19,11 +24,6 @@ import {
   MetadataCommandsEnterprise,
   MetadataCommandsXML,
 } from "~/lib/metadata/commonObjects/metadataCommand/types"
-import {
-  MetadataDocumentNumerator,
-  MetadataDocumentNumeratorEnterprise,
-  MetadataDocumentNumeratorXML,
-} from "~/lib/metadata/commonObjects/metadataDocumentNumerator/types"
 import {
   MetadataFields,
   MetadataFieldsEnterprise,
