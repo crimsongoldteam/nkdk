@@ -1,4 +1,4 @@
-import { TBoolEnterprise } from "../boolean/types"
+import { StringboolEnterprise } from "../boolean/types"
 
 export interface UserVisibleItemXML {
   _name: string
@@ -22,7 +22,5 @@ export interface UserVisible {
   values: UserVisibleValue[]
 }
 
-export interface UserVisibleEnterprise {
-  РазрешитьИспользование?: Record<string, TBoolEnterprise>
-  ЗапретитьИспользование?: Record<string, TBoolEnterprise>
-}
+export type UserVisibleAllowEnterprise = Record<string, StringboolEnterprise>
+export type UserVisibleDenyEnterprise = Record<string, StringboolEnterprise>

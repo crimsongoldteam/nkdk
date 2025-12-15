@@ -1,13 +1,11 @@
 import { formatBoolean } from "~/lib/metadata/commonObjects/boolean/format"
-import { TBoolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
+import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { type UserVisible } from "./types"
 
-export const formatUserVisible = (
-  value: UserVisible | undefined
-): Record<string, any> | undefined => {
+export const formatUserVisible = (value: UserVisible | undefined): Record<string, any> | undefined => {
   if (!value) return undefined
 
-  const values: Record<string, TBoolEnterprise> = {}
+  const values: Record<string, StringboolEnterprise> = {}
   value.values.forEach((item) => {
     values[item.name] = formatBoolean(item.value)!
   })
