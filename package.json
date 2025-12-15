@@ -9,7 +9,7 @@
     "test": "vitest run --no-deprecation",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "prepare": "ts-patch install"
+    "prepare": "ts-patch install && typia patch"
   },
   "devDependencies": {
     "@ryoppippi/unplugin-typia": "^2.6.5",

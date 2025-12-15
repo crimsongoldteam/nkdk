@@ -1,19 +1,22 @@
-import { defineConfig } from "vitest/config"
+import UnpluginTypia from "@ryoppippi/unplugin-typia/vite"
 import react from "@vitejs/plugin-react"
 import { resolve } from "path"
-import typia from "@ryoppippi/unplugin-typia"
+import { defineConfig } from "vitest/config"
 
 export default defineConfig({
-  plugins: [react(), typia.vite()],
-  test: {
-    environment: "jsdom",
-    setupFiles: ["./vitestSetup.ts"],
-    globals: true,
-    watch: false,
+  plugins: [react(), UnpluginTypia()],
+  esbuild: {
+    target: "es2020",
   },
+  // test: {
+  //   environment: "jsdom",
+  //   setupFiles: ["./vitestSetup.ts"],
+  //   globals: true,
+  //   watch: false,
+  // },
   resolve: {
     alias: {
-      "~": resolve(__dirname, "./"),
+      "~": resolve(process.cwd(), "./"),
     },
   },
 })

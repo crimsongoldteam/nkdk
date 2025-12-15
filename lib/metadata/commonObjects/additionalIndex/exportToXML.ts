@@ -10,6 +10,7 @@ import { exportTypeLinkToXML } from "~/lib/metadata/commonObjects/typeLink/expor
 import { exportChoiceParameterLinksToXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportCommandSetToXML } from "~/lib/metadata/forms/commandSet/exportToXML"
+import { exportIndexFieldsToXML } from "~/lib/metadata/commonObjects/indexField/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import { exportTableToXML } from "../table/exportToXML"
@@ -65,8 +66,8 @@ export const exportAdditionalIndexToXML = (data: AdditionalIndex | undefined): A
      
     return {
 
-    AdditionalFields: exportChoiceParameterLinksToXML(data.additionalFields),
-    IndexedFields: exportChoiceParameterLinksToXML(data.indexedFields),
+    AdditionalFields: data.additionalFields,
+    IndexedFields: data.indexedFields,
     Table: exportTableToXML(data.table),
     UserVisible: exportUserVisibleToXML(data.userVisible),
   }

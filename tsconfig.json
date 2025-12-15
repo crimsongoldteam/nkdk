@@ -1,24 +1,20 @@
 {
   "compilerOptions": {
     "target": "ES2020",
+    "moduleResolution": "bundler",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ES2020",
+    "module": "ESNext",
     "skipLibCheck": true,
-    /* TypeScript mode */
-    "moduleResolution": "node",
-    "allowImportingTsExtensions": false,
+    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    /* Path mapping */
-    "baseUrl": ".",
     "paths": {
       "~/*": ["./*"]
     },
@@ -27,15 +23,11 @@
         "transform": "typia/lib/transform"
       }
     ],
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "src",
-    "components",
-    "lib",
-    "**/*.ts",
-    "**/*.tsx",
-    "playground/components/monacoEditor"
-  ],
-  "exclude": ["node_modules", "dist", "**/*.config.ts", "vite.config.*"]
+  "include": ["src", "components", "lib", "**/*.ts", "**/*.tsx", "playground/components/monacoEditor"],
+  "exclude": ["node_modules", "dist", "**/*.config.ts", "vite.config.*"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

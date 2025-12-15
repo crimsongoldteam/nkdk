@@ -10,6 +10,7 @@ import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/imp
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importCommandSetFromXML } from "~/lib/metadata/forms/commandSet/importFromXML"
+import { importIndexFieldsFromXML } from "~/lib/metadata/commonObjects/indexField/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { importTableFromXML } from "../table/importFromXML"

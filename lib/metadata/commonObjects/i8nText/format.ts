@@ -1,8 +1,7 @@
-import { I8nText, I8nTextEnterprise } from "./types"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { TFormatFunction } from "~/lib/rulesManager/types"
+import { I8nText, I8nTextEnterprise } from "./types"
 
-export const formatI8nText: TFormatFunction = (
+export const formatI8nText = (
   title: I8nText | undefined,
   configurationSettings: TConfigurationSettings
 ): I8nTextEnterprise | undefined => {
@@ -12,8 +11,7 @@ export const formatI8nText: TFormatFunction = (
 
   const items = title.items
 
-  if (Object.keys(items).length === 1 && items[defaultLanguage])
-    return items[defaultLanguage]
+  if (Object.keys(items).length === 1 && items[defaultLanguage]) return items[defaultLanguage]
 
   return items
 }
