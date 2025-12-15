@@ -1,8 +1,4 @@
-import {
-  TypeDescription,
-  TypeDescriptionXML,
-  TypeDescriptionXMLItem,
-} from "./types"
+import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLItem } from "./types"
 
 export const importTypeDescriptionFromXML = (
   xml: TypeDescriptionXML | TypeDescriptionXML[number] | undefined
@@ -24,15 +20,11 @@ export const importTypeDescriptionFromXML = (
     const typeValue = item["v8:Type"]
     result.type.push(...processType(typeValue))
 
-    const stringQualifiers = processStringQualifiers(
-      item["v8:StringQualifiers"]
-    )
+    const stringQualifiers = processStringQualifiers(item["v8:StringQualifiers"])
     if (stringQualifiers !== undefined) {
       result.stringQualifiers = stringQualifiers
     }
-    const numberQualifiers = processNumberQualifiers(
-      item["v8:NumberQualifiers"]
-    )
+    const numberQualifiers = processNumberQualifiers(item["v8:NumberQualifiers"])
     if (numberQualifiers !== undefined) {
       result.numberQualifiers = numberQualifiers
     }
@@ -46,9 +38,7 @@ export const importTypeDescriptionFromXML = (
 }
 
 export const processType = (
-  type:
-    | TypeDescriptionXMLItem["v8:Type"]
-    | TypeDescriptionXMLItem["v8:Type"][]
+  type: TypeDescriptionXMLItem["v8:Type"] | TypeDescriptionXMLItem["v8:Type"][]
 ): string[] => {
   if (type === undefined) return []
 
@@ -79,9 +69,7 @@ export const processType = (
   return result
 }
 
-function processStringQualifiers(
-  xml?: TypeDescriptionXMLItem["v8:StringQualifiers"]
-):
+function processStringQualifiers(xml?: TypeDescriptionXMLItem["v8:StringQualifiers"]):
   | {
       length: number
       allowedLength: "Variable" | "Fixed"
@@ -94,9 +82,7 @@ function processStringQualifiers(
   }
 }
 
-function processNumberQualifiers(
-  xml?: TypeDescriptionXMLItem["v8:NumberQualifiers"]
-) {
+function processNumberQualifiers(xml?: TypeDescriptionXMLItem["v8:NumberQualifiers"]) {
   if (!xml) return undefined
 
   return {
@@ -106,9 +92,7 @@ function processNumberQualifiers(
   }
 }
 
-function processDateQualifiers(
-  xml?: TypeDescriptionXMLItem["v8:DateQualifiers"]
-) {
+function processDateQualifiers(xml?: TypeDescriptionXMLItem["v8:DateQualifiers"]) {
   if (!xml) return undefined
 
   return {

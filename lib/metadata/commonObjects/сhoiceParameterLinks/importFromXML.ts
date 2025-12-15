@@ -1,17 +1,13 @@
 import { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
 
-const extractDataPath = (
-  dataPath: string | { "#text"?: string; "_xsi:type"?: string }
-): string => {
+const extractDataPath = (dataPath: string | { "#text"?: string; "_xsi:type"?: string }): string => {
   if (typeof dataPath === "string") {
     return dataPath
   }
   return dataPath["#text"] ?? ""
 }
 
-export const importChoiceParameterLinksFromXML = (
-  xml: ChoiceParameterLinksXML | undefined
-): ChoiceParameterLinks => {
+export const importChoiceParameterLinksFromXML = (xml: ChoiceParameterLinksXML | undefined): ChoiceParameterLinks => {
   if (!xml) return undefined
 
   // Проверяем, является ли это структурой с app:item (ChoiceParameters)

@@ -17,12 +17,7 @@ export const exportTypeDescriptionToXML = (
 }
 
 const mapType = (type: string): string => {
-  if (
-    type === "string" ||
-    type === "decimal" ||
-    type === "date" ||
-    type === "boolean"
-  ) {
+  if (type === "string" || type === "decimal" || type === "date" || type === "boolean") {
     return `xs:${type}`
   }
   if (type.startsWith("EnumRef.")) {

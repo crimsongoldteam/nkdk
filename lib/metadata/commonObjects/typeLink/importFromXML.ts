@@ -1,8 +1,6 @@
 import { TypeLink, TypeLinkXML } from "./types"
 
-export const importTypeLinkFromXML = (
-  xml: TypeLinkXML | undefined
-): TypeLink | undefined => {
+export const importTypeLinkFromXML = (xml: TypeLinkXML | undefined): TypeLink | undefined => {
   if (!xml) return undefined
 
   const result: TypeLink = {

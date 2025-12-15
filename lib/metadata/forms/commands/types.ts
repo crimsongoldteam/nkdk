@@ -1,23 +1,7 @@
-import {
-  I8nTextXML,
-  I8nText,
-  I8nTextEnterprise,
-} from "../../commonObjects/i8nText/types"
-import {
-  Picture,
-  PictureEnterprise,
-  PictureXML,
-} from "../../commonObjects/pictures/types"
-import {
-  TButtonRepresentation,
-  TCurrentRowUse,
-  TCurrentRowUseEnterprise,
-} from "../../systemEnumerations/types"
-import {
-  UserVisibleEnterprise,
-  UserVisibleXML,
-} from "../../commonObjects/userVisible/types"
-import { UserVisible } from "../../commonObjects/userVisible/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "../../commonObjects/i8nText/types"
+import { Picture, PictureEnterprise, PictureXML } from "../../commonObjects/pictures/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "../../commonObjects/userVisible/types"
+import { TButtonRepresentation, TCurrentRowUse, TCurrentRowUseEnterprise } from "../../systemEnumerations/types"
 
 export interface CommandXML {
   _name: string
@@ -58,7 +42,4 @@ export interface CommandEnterpriseItem {
   ИзменяемыеДанные?: boolean
 }
 
-export type CommandEnterprise = Record<
-  string,
-  CommandEnterpriseItem | UserVisibleEnterprise
->
+export type CommandEnterprise = Record<string, CommandEnterpriseItem | UserVisibleEnterprise>

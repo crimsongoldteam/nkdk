@@ -3,9 +3,7 @@ export interface TypeDescriptionXMLSpreadsheetDocument {
   "#text": "mxl:SpreadsheetDocument"
 }
 
-export type TypeDescriptionXMLType =
-  | string
-  | TypeDescriptionXMLSpreadsheetDocument
+export type TypeDescriptionXMLType = string | TypeDescriptionXMLSpreadsheetDocument
 
 export interface TypeDescriptionXMLStringQualifiers {
   "v8:Length": number

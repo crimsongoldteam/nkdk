@@ -1,8 +1,6 @@
-import { FontXML, Font } from "./types"
+import { Font, FontXML } from "./types"
 
-export const importFontFromXML = (
-  xml: FontXML | undefined
-): Font | undefined => {
+export const importFontFromXML = (xml: FontXML | undefined): Font | undefined => {
   if (!xml) return undefined
   const result: Font = {
     ref: xml._ref,

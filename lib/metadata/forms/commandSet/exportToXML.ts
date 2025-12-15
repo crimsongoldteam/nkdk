@@ -1,8 +1,6 @@
 import { CommandSet, CommandSetXML } from "./types"
 
-export const exportCommandSetToXML = (
-  data: CommandSet | undefined
-): CommandSetXML | undefined => {
+export const exportCommandSetToXML = (data: CommandSet | undefined): CommandSetXML | undefined => {
   if (!data || data.length === 0) return undefined
 
   const result: CommandSetXML = []

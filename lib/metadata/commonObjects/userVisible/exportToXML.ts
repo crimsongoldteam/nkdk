@@ -1,8 +1,6 @@
 import { UserVisible, UserVisibleXML } from "./types"
 
-export const exportUserVisibleToXML = (
-  userVisible: UserVisible | undefined
-): UserVisibleXML | undefined => {
+export const exportUserVisibleToXML = (userVisible: UserVisible | undefined): UserVisibleXML | undefined => {
   if (!userVisible) return undefined
 
   const result: UserVisibleXML = []
