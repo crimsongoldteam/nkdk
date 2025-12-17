@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { FormElementType } from "../types"
 import { formatOtherElement } from "./format"
 import { BaseElement } from "./types"
-import { FormElementType } from "../types"
 
 const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",

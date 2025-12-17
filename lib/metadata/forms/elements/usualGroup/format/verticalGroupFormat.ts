@@ -2,11 +2,8 @@ import { formatElements } from "~/lib/format/formatFactory"
 import { formatElementTitleAndName } from "~/lib/format/helpers"
 import { IFormatElementResult } from "~/lib/format/types"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import {
-  ZUsualGroupBehavior,
-  ZUsualGroupRepresentation,
-} from "~/lib/metadata/systemEnumerations/types"
 import * as t from "~/lib/parser/lexer"
+import { UsualGroupBehavior, UsualGroupRepresentation } from "~/lib/metadata/systemEnumerations/types"
 import { UsualGroup } from "../types"
 
 export const formatVerticalGroup = (
@@ -27,8 +24,7 @@ export const formatVerticalGroup = (
 
   for (const line of lines.strings) {
     result.strings.push("  " + line)
-    result.haveSimpleHorizontalGroup =
-      result.haveSimpleHorizontalGroup || lines.haveSimpleHorizontalGroup
+    result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || lines.haveSimpleHorizontalGroup
   }
 
   // result.push(...formatElements(element.childItems))
@@ -57,9 +53,7 @@ const getHeader = (element: UsualGroup): string => {
   return result
 }
 
-const getLevelDisplay = (
-  element: UsualGroup
-): { level: number; display: boolean } => {
+const getLevelDisplay = (element: UsualGroup): { level: number; display: boolean } => {
   const result: { level: number; display: boolean } = {
     level: 1,
     display: false,
@@ -68,27 +62,24 @@ const getLevelDisplay = (
   const representation = element.representation
   const behavior = element.behavior
 
-  const levelBehavior: Map<string, number> = new Map([
-    [ZUsualGroupBehavior.enum.Collapsible, 5],
-    [ZUsualGroupBehavior.enum.PopUp, 6],
+  const levelBehavior: Map<UsualGroupBehavior, number> = new Map([
+    ["Collapsible", 5],
+    ["PopUp", 6],
   ])
 
   if (behavior && levelBehavior.has(behavior)) {
     result.level = levelBehavior.get(behavior) ?? 1
-    if (
-      representation &&
-      representation !== ZUsualGroupRepresentation.enum.NormalSeparation
-    ) {
+    if (representation && representation !== "NormalSeparation") {
       result.display = true
     }
     return result
   }
 
-  const levelRepresentation: Map<string, number> = new Map([
-    [ZUsualGroupRepresentation.enum.None, 1],
-    [ZUsualGroupRepresentation.enum.WeakSeparation, 2],
-    [ZUsualGroupRepresentation.enum.NormalSeparation, 3],
-    [ZUsualGroupRepresentation.enum.StrongSeparation, 4],
+  const levelRepresentation: Map<UsualGroupRepresentation, number> = new Map([
+    ["None", 1],
+    ["WeakSeparation", 2],
+    ["NormalSeparation", 3],
+    ["StrongSeparation", 4],
   ])
 
   if (representation && levelRepresentation.has(representation)) {

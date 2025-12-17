@@ -4,11 +4,12 @@ import { describe, expect, it } from "vitest"
 import type { ConfigurationSettings } from "../metadata/configurationSettings/types"
 import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/format"
 import { importClientApplicationFormFromXML } from "../metadata/forms/elements/clientApplicationForm/importFromXML"
+import { ClientApplicationFormXML } from "../metadata/forms/elements/clientApplicationForm/types"
 import "../metadata/forms/elements/exportToXML"
 import "../metadata/forms/elements/importFromXML"
 import "../metadata/forms/elements/rules"
+import { xmlExport } from "../xml/export/exporter"
 import xmlImport from "../xml/import/importer"
-import { ClientApplicationFormXML } from "../metadata/forms/elements/clientApplicationForm/types"
 
 const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",

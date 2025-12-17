@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { ColumnGroup } from "../columnGroup/types"
 import { InputField } from "../inputField/types"
 import { FormElementType } from "../types"
@@ -70,7 +69,7 @@ describe("formatTable", () => {
           name: "Группа1",
           title: { items: { ru: "Группа 1" } },
           id: "1",
-          group: SE.ZColumnsGroup.enum.Horizontal,
+          group: "Horizontal",
           elementType: FormElementType.ColumnGroup,
           childItems: [
             {
@@ -93,7 +92,7 @@ describe("formatTable", () => {
     const expectedResult = `| -Группа 1             ||
 | Колонка 1 | Колонка 2  |`
 
-    const result = formatTable(mockElement, {})
+    const result = formatTable(mockElement, configurationSettings)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -108,7 +107,7 @@ describe("formatTable", () => {
           name: "Группа1",
           title: { items: { ru: "Группа 1" } },
           id: "1",
-          group: SE.ZColumnsGroup.enum.Vertical,
+          group: "Vertical",
           showTitle: false,
           elementType: FormElementType.ColumnGroup,
           childItems: [
@@ -147,7 +146,7 @@ describe("formatTable", () => {
           name: "Группа1",
           title: { items: { ru: "Группа 1" } },
           id: "1",
-          group: SE.ZColumnsGroup.enum.Vertical,
+          group: "Vertical",
           showTitle: true,
           elementType: FormElementType.ColumnGroup,
           childItems: [

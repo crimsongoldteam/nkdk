@@ -3,4 +3,7 @@ export interface ExcludedCommandXML {
 }
 
 export type CommandSet = string[]
+
 export type CommandSetXML = ExcludedCommandXML[]
+
+export type CommandSetEnterprise = string[]

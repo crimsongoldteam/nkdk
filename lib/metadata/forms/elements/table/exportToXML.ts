@@ -8,11 +8,8 @@ import { exportChildItemsToXML } from "~/lib/metadata/forms/elements/childItems/
 import { exportCommandBarToXML } from "~/lib/metadata/forms/elements/commandBar/exportToXML"
 import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDecoration/exportToXML"
 import { exportFormItemAdditionToXML } from "~/lib/metadata/forms/elements/formItemAddition/exportToXML"
-import { exportSearchControlAdditionToXML } from "~/lib/metadata/forms/elements/searchControlAddition/exportToXML"
-import { exportSearchStringAdditionToXML } from "~/lib/metadata/forms/elements/searchStringAddition/exportToXML"
 import { Table, TableXML } from "~/lib/metadata/forms/elements/table/types"
 import { FormElementType } from "~/lib/metadata/forms/elements/types"
-import { exportViewStatusAdditionToXML } from "~/lib/metadata/forms/elements/viewStatusAddition/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
 
@@ -76,10 +73,8 @@ export const exportTableToXML = (data: Table | undefined): TableXML | undefined 
     RowSelectionMode: data.rowSelectionMode,
     RowsPicture: data.rowsPicture,
     SearchControl: exportFormItemAdditionToXML(data.searchControl),
-    SearchControlAddition: exportSearchControlAdditionToXML(data.searchControlAddition),
     SearchControlLocation: data.searchControlLocation,
     SearchOnInput: data.searchOnInput,
-    SearchStringAddition: exportSearchStringAdditionToXML(data.searchStringAddition),
     SearchStringLocation: data.searchStringLocation,
     SearchStringRepresentation: exportFormItemAdditionToXML(data.searchStringRepresentation),
     SelectionMode: data.selectionMode,
@@ -98,7 +93,6 @@ export const exportTableToXML = (data: Table | undefined): TableXML | undefined 
     VerticalLines: data.verticalLines,
     VerticalScrollBar: data.verticalScrollBar,
     VerticalStretch: data.verticalStretch,
-    ViewStatusAddition: exportViewStatusAdditionToXML(data.viewStatusAddition),
     ViewStatusLocation: data.viewStatusLocation,
     ViewStatusRepresentation: exportFormItemAdditionToXML(data.viewStatusRepresentation),
     Visible: data.visible,

@@ -10,6 +10,7 @@ import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { EventsXML } from "../../events/types"
 import { ChildItems, ChildItemsXML } from "../childItems/types"
 import { CommandBar, CommandBarXML } from "../commandBar/types"
+import { FormElementType } from "../types"
 
 export interface FormAttribute {
   name: string
@@ -20,16 +21,6 @@ export interface FormAttribute {
   storedData?: boolean
   use?: UserVisible
 }
-
-// export interface AttributeEnterprise = z.union([
-//   z.object({
-//     Заголовок: z.string().optional(),
-//     Тип: z.string().optional(),
-//     ОсновнойАтрибут: ZBoolEnterprise.optional(),
-//     СохраняемыеДанные: ZBoolEnterprise.optional(),
-//   }),
-//   ZUseEnterprise,
-// ])
 
 export interface ClientApplicationFormEvents {
   collaborationSystemUsersAutoComplete?: string
@@ -62,7 +53,7 @@ export interface ClientApplicationFormEvents {
 
 export interface ClientApplicationForm {
   commandSet?: CommandSet
-  elementType: FormElementType.ClientApplicationForm
+  elementType: FormElementType
   attributes?: FormAttribute[]
   autoCommandBar?: CommandBar
   autoTitle?: boolean

@@ -1,8 +1,8 @@
-export const formatSystemEnumeration = (
+export const formatSystemEnumeration = <T extends string>(
   value: string | undefined,
   enumeration: Record<string, string>
-): string | undefined => {
+): T | undefined => {
   if (!value) return undefined
 
-  return enumeration[value]
+  return enumeration[value] as T
 }

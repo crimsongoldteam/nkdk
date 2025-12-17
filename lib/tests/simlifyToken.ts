@@ -1,18 +1,16 @@
 import { IToken } from "chevrotain"
-import { TElementType } from "~/lib/metadata/forms/elements/types"
 import { DetectedTreeNode } from "../parser/detector/detectTree"
+import { ParseElementType } from "../parser/types"
 
 export type TSimplifyToken = { type: string; value: string }
 
 export type SimplifiedDetectedTreeNode = {
   tokens: TSimplifyToken[]
-  type: TElementType
+  type: ParseElementType
   childItems: SimplifiedDetectedTreeNode[]
 }
 
-export const simlifyDetectedTreeNodes = (
-  nodes: DetectedTreeNode[]
-): SimplifiedDetectedTreeNode[] => {
+export const simlifyDetectedTreeNodes = (nodes: DetectedTreeNode[]): SimplifiedDetectedTreeNode[] => {
   return nodes.map((node) => {
     // Упрощаем токены текущего узла
     const simplifiedTokens = node.tokens.map((token) => simplifyToken(token))

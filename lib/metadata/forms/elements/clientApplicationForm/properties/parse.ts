@@ -42,7 +42,7 @@ const parseElementProperties = (
 
   for (const [key, value] of Object.entries(properties)) {
     // Find rule by nameEnterprise (key from YAML) instead of property key
-    const rule = Object.values(rules).find((r) => r.nameEnterprise === key)
+    const rule = Object.values(rules).find((r) => r.nameEnterprise === key) as TElementRule | undefined
     if (!rule) throw new Error(`Rule for property "${key}" not found`)
 
     // Find the property key (e.g., "readOnly") by nameEnterprise

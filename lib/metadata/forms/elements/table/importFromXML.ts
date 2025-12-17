@@ -8,11 +8,8 @@ import { importChildItemsFromXML } from "~/lib/metadata/forms/elements/childItem
 import { importCommandBarFromXML } from "~/lib/metadata/forms/elements/commandBar/importFromXML"
 import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
 import { importFormItemAdditionFromXML } from "~/lib/metadata/forms/elements/formItemAddition/importFromXML"
-import { importSearchControlAdditionFromXML } from "~/lib/metadata/forms/elements/searchControlAddition/importFromXML"
-import { importSearchStringAdditionFromXML } from "~/lib/metadata/forms/elements/searchStringAddition/importFromXML"
 import { Table, TableXML } from "~/lib/metadata/forms/elements/table/types"
 import { FormElementType } from "~/lib/metadata/forms/elements/types"
-import { importViewStatusAdditionFromXML } from "~/lib/metadata/forms/elements/viewStatusAddition/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
 
@@ -77,10 +74,8 @@ export const importTableFromXML = (xml: TableXML | undefined): Table | undefined
     rowSelectionMode: xml.RowSelectionMode,
     rowsPicture: xml.RowsPicture,
     searchControl: importFormItemAdditionFromXML(xml.SearchControl),
-    searchControlAddition: importSearchControlAdditionFromXML(xml.SearchControlAddition),
     searchControlLocation: xml.SearchControlLocation,
     searchOnInput: xml.SearchOnInput,
-    searchStringAddition: importSearchStringAdditionFromXML(xml.SearchStringAddition),
     searchStringLocation: xml.SearchStringLocation,
     searchStringRepresentation: importFormItemAdditionFromXML(xml.SearchStringRepresentation),
     selectionMode: xml.SelectionMode,
@@ -99,7 +94,6 @@ export const importTableFromXML = (xml: TableXML | undefined): Table | undefined
     verticalLines: xml.VerticalLines,
     verticalScrollBar: xml.VerticalScrollBar,
     verticalStretch: xml.VerticalStretch,
-    viewStatusAddition: importViewStatusAdditionFromXML(xml.ViewStatusAddition),
     viewStatusLocation: xml.ViewStatusLocation,
     viewStatusRepresentation: importFormItemAdditionFromXML(xml.ViewStatusRepresentation),
     visible: xml.Visible,

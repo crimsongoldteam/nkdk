@@ -1,13 +1,11 @@
 import { ClientApplicationForm } from "./types"
 import { BaseElement } from "../baseElement/types"
 
-export const getAllElements = (
-  form: ClientApplicationForm
-): BaseElement[] => {
+export const getAllElements = (form: ClientApplicationForm): BaseElement[] => {
   const elements: BaseElement[] = []
   const queue: BaseElement[] = []
 
-  for (const childItem of form.childItems) {
+  for (const childItem of form.childItems ?? []) {
     queue.push(childItem)
   }
 
@@ -15,8 +13,7 @@ export const getAllElements = (
     const element = queue.shift()!
     elements.push(element)
 
-    if (!("childItems" in element) || !Array.isArray(element.childItems))
-      continue
+    if (!("childItems" in element) || !Array.isArray(element.childItems)) continue
 
     for (const childItem of element.childItems) queue.push(childItem)
   }

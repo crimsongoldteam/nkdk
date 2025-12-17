@@ -74,7 +74,7 @@ describe("importAttributeFromXML", () => {
 
     const xmlData = xmlImport<{ Attributes: AttributeXML[] }>(mockXml)
 
-    const result = importAttributeFromXML(xmlData)
+    const result = importAttributeFromXML(xmlData.Attributes[0])
 
     expect(result).toEqual(mockResult)
   })

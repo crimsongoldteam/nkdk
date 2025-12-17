@@ -17,23 +17,20 @@ export const formatOneLineGroup = (
     haveSimpleHorizontalGroup: false,
   }
 
-  if (element.childItems.length === 0) {
+  if (element.childItems?.length === 0) {
     result.strings.push(separatorSymbol)
     return result
   }
 
   let groupItems: string[][] = []
 
-  for (const item of element.childItems) {
-    const itemResult = formatElement(
-      item as BaseElement,
-      configurationSettings
-    )
-    groupItems.push(itemResult.strings)
+  if (element.childItems) {
+    for (const item of element.childItems) {
+      const itemResult = formatElement(item as BaseElement, configurationSettings)
+      groupItems.push(itemResult.strings)
+    }
   }
-
-  let resultLine =
-    "%" + formatElementName(element) + " " + groupItems.join(separator)
+  let resultLine = "%" + formatElementName(element) + " " + groupItems.join(separator)
 
   result.strings.push(resultLine)
 

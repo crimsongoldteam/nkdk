@@ -1,11 +1,6 @@
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "../../commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureXML } from "../../commonObjects/pictures/types"
-import {
-  UserVisible,
-  UserVisibleAllowEnterprise,
-  UserVisibleDenyEnterprise,
-  UserVisibleXML,
-} from "../../commonObjects/userVisible/types"
+import { UserVisible, UserVisibleXML } from "../../commonObjects/userVisible/types"
 import { ButtonRepresentation, CurrentRowUse, CurrentRowUseEnterprise } from "../../systemEnumerations/types"
 
 export interface CommandXML {
@@ -36,7 +31,7 @@ export interface Command {
   modifiesSavedData?: boolean
 }
 
-export interface CommandEnterpriseItem {
+export interface CommandEnterprise {
   Заголовок?: I8nTextEnterprise
   Подсказка?: I8nTextEnterprise
   СочетаниеКлавиш?: string
@@ -46,8 +41,3 @@ export interface CommandEnterpriseItem {
   ИспользованиеТекущейСтроки?: CurrentRowUseEnterprise
   ИзменяемыеДанные?: boolean
 }
-
-export type CommandEnterprise = Record<
-  string,
-  CommandEnterpriseItem | UserVisibleAllowEnterprise | UserVisibleDenyEnterprise
->

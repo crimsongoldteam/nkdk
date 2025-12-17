@@ -22,21 +22,6 @@ import {
   FormItemAdditionEnterprise,
   FormItemAdditionXML,
 } from "~/lib/metadata/forms/elements/formItemAddition/types"
-import {
-  SearchControlAddition,
-  SearchControlAdditionEnterprise,
-  SearchControlAdditionXML,
-} from "~/lib/metadata/forms/elements/searchControlAddition/types"
-import {
-  SearchStringAddition,
-  SearchStringAdditionEnterprise,
-  SearchStringAdditionXML,
-} from "~/lib/metadata/forms/elements/searchStringAddition/types"
-import {
-  ViewStatusAddition,
-  ViewStatusAdditionEnterprise,
-  ViewStatusAdditionXML,
-} from "~/lib/metadata/forms/elements/viewStatusAddition/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -95,10 +80,8 @@ export interface Table extends BaseElement {
   rowSelectionMode?: SE.TableRowSelectionMode
   rowsPicture?: boolean
   searchControl?: FormItemAddition
-  searchControlAddition?: SearchControlAddition
   searchControlLocation?: SE.SearchControlLocation
   searchOnInput?: SE.SearchInTableOnInput
-  searchStringAddition?: SearchStringAddition
   searchStringLocation?: SE.SearchStringLocation
   searchStringRepresentation?: FormItemAddition
   selectionMode?: SE.TableSelectionMode
@@ -117,7 +100,6 @@ export interface Table extends BaseElement {
   verticalLines?: boolean
   verticalScrollBar?: SE.ScrollBarUse
   verticalStretch?: boolean
-  viewStatusAddition?: ViewStatusAddition
   viewStatusLocation?: SE.ViewStatusLocation
   viewStatusRepresentation?: FormItemAddition
   visible?: boolean
@@ -206,10 +188,8 @@ export interface TableXML extends BaseElementXML {
   RowSelectionMode?: SE.TableRowSelectionMode
   RowsPicture?: boolean
   SearchControl?: FormItemAdditionXML
-  SearchControlAddition?: SearchControlAdditionXML
   SearchControlLocation?: SE.SearchControlLocation
   SearchOnInput?: SE.SearchInTableOnInput
-  SearchStringAddition?: SearchStringAdditionXML
   SearchStringLocation?: SE.SearchStringLocation
   SearchStringRepresentation?: FormItemAdditionXML
   SelectionMode?: SE.TableSelectionMode
@@ -228,7 +208,6 @@ export interface TableXML extends BaseElementXML {
   VerticalLines?: boolean
   VerticalScrollBar?: SE.ScrollBarUse
   VerticalStretch?: boolean
-  ViewStatusAddition?: ViewStatusAdditionXML
   ViewStatusLocation?: SE.ViewStatusLocation
   ViewStatusRepresentation?: FormItemAdditionXML
   Visible?: boolean
@@ -293,10 +272,8 @@ export interface TableEnterprise extends BaseElementEnterprise {
   РежимВыделенияСтроки?: SE.TableRowSelectionModeEnterprise
   КартинкаСтрок?: StringboolEnterprise
   УправлениеПоиском?: FormItemAdditionEnterprise
-  УправлениеПоиском?: SearchControlAdditionEnterprise
   ПоложениеУправленияПоиском?: SE.SearchControlLocationEnterprise
   ПоискПриВводе?: SE.SearchInTableOnInputEnterprise
-  ПоложениеПоисковогоСтроки?: SearchStringAdditionEnterprise
   ПоложениеСтрокиПоиска?: SE.SearchStringLocationEnterprise
   ОтображениеСтрокиПоиска?: FormItemAdditionEnterprise
   РежимВыделения?: SE.TableSelectionModeEnterprise
@@ -315,7 +292,6 @@ export interface TableEnterprise extends BaseElementEnterprise {
   ВертикальныеЛинии?: StringboolEnterprise
   ВертикальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
-  ПоложениеСостоянияПросмотра?: ViewStatusAdditionEnterprise
   ПоложениеСостоянияПросмотра?: SE.ViewStatusLocationEnterprise
   ОтображениеСостоянияПросмотра?: FormItemAdditionEnterprise
   Видимость?: StringboolEnterprise

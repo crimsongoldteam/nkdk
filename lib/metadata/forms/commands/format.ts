@@ -17,15 +17,18 @@ export const formatCommands = (commands: Command[], configurationSettings: Confi
 }
 
 const formatCommand = (command: Command, configurationSettings: ConfigurationSettings): CommandEnterprise => {
-  const result: CommandEnterprise = {}
+  let result: CommandEnterprise = {}
 
-  result[command.name] = {
+  return {
     Заголовок: formatI8nText(command.title, configurationSettings),
     Подсказка: formatI8nText(command.toolTip, configurationSettings),
     СочетаниеКлавиш: command.shortcut,
     Действие: command.action,
     ОтображениеКнопки: command.representation,
-    ИспользованиеТекущейСтроки: formatSystemEnumeration(command.currentRowUse, SE.CurrentRowUseToEnterprise),
+    ИспользованиеТекущейСтроки: formatSystemEnumeration<SE.CurrentRowUseEnterprise>(
+      command.currentRowUse,
+      SE.CurrentRowUseToEnterprise
+    ),
     ИзменяемыеДанные: command.modifiesSavedData,
   }
 

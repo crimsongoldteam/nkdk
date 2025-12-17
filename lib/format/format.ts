@@ -43,9 +43,7 @@ export const formatElementProperties = (
     return undefined
   }
 
-  const sortedResult = Object.fromEntries(
-    Object.entries(result).sort((a, b) => a[0].localeCompare(b[0]))
-  )
+  const sortedResult = Object.fromEntries(Object.entries(result).sort((a, b) => a[0].localeCompare(b[0])))
 
   return sortedResult
 }
