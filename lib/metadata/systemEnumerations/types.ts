@@ -13025,3 +13025,24 @@ export type BinaryDataStorageLocationUse = keyof typeof BinaryDataStorageLocatio
 export type BinaryDataStorageLocationUseEnterprise = keyof typeof BinaryDataStorageLocationUseFromEnterprise
 
 // #endregion BinaryDataStorageLocationUse
+
+// #region StatePresentation
+
+export const StatePresentationToEnterprise = {
+  Visible: "Видимость",
+  AdditionalShowMode: "ДополнительныйРежимОтображения",
+  Picture: "Картинка",
+  Text: "Текст",
+} as const
+
+export const StatePresentationFromEnterprise = {
+  Видимость: "Visible",
+  ДополнительныйРежимОтображения: "AdditionalShowMode",
+  Картинка: "Picture",
+  Текст: "Text",
+} as const
+
+export type StatePresentation = keyof typeof StatePresentationToEnterprise
+export type StatePresentationEnterprise = keyof typeof StatePresentationFromEnterprise
+
+// #endregion StatePresentation
