@@ -30,7 +30,7 @@ describe("formatProperties", () => {
   ТолькоПросмотр: Истина`,
     ]
 
-    const properties = formatProperties(form.childItems, configurationSettings)
+    const properties = formatProperties(form.childItems ?? [], configurationSettings)
 
     expect(properties).toEqual(expectedResult)
   })

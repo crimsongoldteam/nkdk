@@ -7,11 +7,9 @@ export function PageComponent(props: Readonly<Page>): React.ReactNode {
 
   return (
     <>
-      {childItems.map((item) => {
-        const Component =
-          components[item.elementType as keyof typeof components]
-        if (!Component)
-          throw new Error(`Компонент ${item.elementType} не найден`)
+      {childItems?.map((item) => {
+        const Component = components[item.elementType as keyof typeof components]
+        if (!Component) throw new Error(`Компонент ${item.elementType} не найден`)
         return <Component key={item.name} {...item} />
       })}
     </>

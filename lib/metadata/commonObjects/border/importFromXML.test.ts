@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
 import xmlImport from "~/lib/xml/import/importer"
 import { importBorderFromXML } from "./importFromXML"
 import { Border, BorderXML } from "./types"
@@ -26,7 +25,7 @@ describe("importBorderFromXML", () => {
 
     const expected: Border = {
       width: 1,
-      controlBorderType: SE.ControlBorderType.Indented,
+      controlBorderType: "Indented",
     }
 
     const xml = xmlImport<{ Border: BorderXML }>(mockXml)

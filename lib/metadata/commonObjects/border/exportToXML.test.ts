@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
 import { xmlExport, xmlImport } from "~/lib"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { exportBorderToXML } from "./exportToXML"
 import { importBorderFromXML } from "./importFromXML"
 import { Border, BorderXML } from "./types"
@@ -22,7 +21,7 @@ describe("exportBorderToXML", () => {
   it("should export border with width and style", () => {
     const mockBorder: Border = {
       width: 1,
-      controlBorderType: SE.ControlBorderType.Indented,
+      controlBorderType: "Indented",
     }
 
     const expectedResult = `<Border width="1">

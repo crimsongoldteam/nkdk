@@ -4,7 +4,7 @@ import { Table } from "~/lib/metadata/forms/elements/table/types"
 export function TableComponent(props: Readonly<Table>): React.ReactNode {
   const { name, childItems } = props
 
-  const columns = childItems.map((item) => ({
+  const columns = childItems?.map((item) => ({
     title: item.name,
     dataIndex: item.name,
     key: item.name,

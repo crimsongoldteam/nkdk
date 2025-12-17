@@ -21,11 +21,7 @@ export const parseProperties = (
     const element = elementsMap[elementName]
     if (!element) throw new Error(`Element "${elementName}" not found`)
 
-    const parsedProperties = parseElementProperties(
-      element,
-      properties,
-      configurationSettings
-    )
+    const parsedProperties = parseElementProperties(element, properties, configurationSettings)
     result[elementName] = {
       ...element,
       ...parsedProperties,
@@ -42,8 +38,7 @@ const parseElementProperties = (
 ) => {
   const result: Record<string, any> = {}
   const rules = getElementRules(element.elementType)
-  if (!rules)
-    throw new Error(`Rules for element "${element.elementType}" not found`)
+  if (!rules) throw new Error(`Rules for element "${element.elementType}" not found`)
 
   for (const [key, value] of Object.entries(properties)) {
     // Find rule by nameEnterprise (key from YAML) instead of property key
@@ -51,27 +46,18 @@ const parseElementProperties = (
     if (!rule) throw new Error(`Rule for property "${key}" not found`)
 
     // Find the property key (e.g., "readOnly") by nameEnterprise
-    const propertyKey = Object.keys(rules).find(
-      (k) => rules[k].nameEnterprise === key
-    )
+    const propertyKey = Object.keys(rules).find((k) => rules[k].nameEnterprise === key)
     if (!propertyKey) throw new Error(`Property key for "${key}" not found`)
 
     const parsedValue = parseProperty(value, configurationSettings, rule)
-    if (parsedValue === undefined || parsedValue === null)
-      throw new Error(`Failed to parse property "${key}"`)
+    if (parsedValue === undefined || parsedValue === null) throw new Error(`Failed to parse property "${key}"`)
     result[propertyKey] = parsedValue
   }
 
   return result
 }
 
-const parseProperty = (
-  value: any,
-  configurationSettings: ConfigurationSettings,
-  rule: TElementRule
-) => {
+const parseProperty = (value: any, configurationSettings: ConfigurationSettings, rule: TElementRule) => {
   if (!rule) throw new Error("Rule not found")
-  return rule.parseProperties
-    ? rule.parseProperties(value, configurationSettings, rule)
-    : value
+  return rule.parseProperties ? rule.parseProperties(value, configurationSettings, rule) : value
 }

@@ -1,7 +1,6 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join, parse } from "path"
 import { describe, expect, it } from "vitest"
-import { type ClientApplicationFormXML, xmlExport, ZClientApplicationFormXML } from ".."
 import type { ConfigurationSettings } from "../metadata/configurationSettings/types"
 import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/format"
 import { importClientApplicationFormFromXML } from "../metadata/forms/elements/clientApplicationForm/importFromXML"
@@ -9,6 +8,7 @@ import "../metadata/forms/elements/exportToXML"
 import "../metadata/forms/elements/importFromXML"
 import "../metadata/forms/elements/rules"
 import xmlImport from "../xml/import/importer"
+import { ClientApplicationFormXML } from "../metadata/forms/elements/clientApplicationForm/types"
 
 const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
@@ -18,10 +18,7 @@ const originalContent = readFileSync(join(__dirname, "Form.xml"), "utf-8")
 
 describe("DO test", () => {
   it("should round-trip DO XML", () => {
-    const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(
-      originalContent,
-      z.object({ Form: ZClientApplicationFormXML })
-    )
+    const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(originalContent)
     const form = importClientApplicationFormFromXML(importedXml.Form)
 
     // const exportedForm = exportClientApplicationFormToXML(form)
@@ -39,10 +36,7 @@ describe("DO test", () => {
   })
 
   it("should round-trip DO with parsing", () => {
-    const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(
-      originalContent,
-      z.object({ Form: ZClientApplicationFormXML })
-    )
+    const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(originalContent)
     const form = importClientApplicationFormFromXML(importedXml.Form)
 
     // const exportedForm = exportClientApplicationFormToXML(form)
@@ -51,7 +45,7 @@ describe("DO test", () => {
 
     const parsedForm = parse(formattedForm.strings.join("\n"))
 
-    const exportedXml = xmlExport({ Form: parsedForm }, z.object({ Form: ZClientApplicationFormXML }))
+    const exportedXml = xmlExport({ Form: parsedForm })
 
     expect(exportedXml).toEqual(originalContent)
   })
