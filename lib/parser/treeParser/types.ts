@@ -1,8 +1,6 @@
-import z from "zod"
-
-export const ZOneLineGroupNode = z.object({
-  item: z.object({
-    name: z.literal("oneLineGroup"),
-    children: { Items: [], Properties: [] },
-  }),
-})
+export interface OneLineGroupNode {
+  item: {
+    name: "oneLineGroup"
+    children: { Items: []; Properties: [] }
+  }
+}

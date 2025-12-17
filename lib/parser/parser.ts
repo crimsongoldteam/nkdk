@@ -20,7 +20,7 @@ export const parse = (text: string): ClientApplicationForm => {
 
   for (const node of detectedNodes) {
     const element = parseElement(node, configurationSettings)
-    result.childItems.push(element)
+    result.childItems?.push(element)
   }
 
   return result

@@ -1,13 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
+import { ConfigurationSettings } from "../metadata/configurationSettings/types"
 import { FormElementType } from "../metadata/forms/elements/types"
-import {
-  clearElementRules,
-  formatProperty,
-  registerElementRules,
-} from "../rulesManager/rulesManager"
-import { TElementRules } from "../rulesManager/types"
+import { clearElementRules, formatProperty, registerElementRules } from "../rulesManager/rulesManager"
+import { ElementRules } from "../rulesManager/types"
 
-const configurationSettings = { defaultLanguage: "ru" }
+const configurationSettings: ConfigurationSettings = {
+  defaultLanguage: "ru",
+}
 
 describe("format", () => {
   beforeEach(() => {
@@ -16,7 +15,7 @@ describe("format", () => {
 
   it("should format value with properties function", () => {
     const formatFunction = vi.fn().mockReturnValue("test")
-    const rules: TElementRules = {
+    const rules: ElementRules = {
       autoTitle: {
         nameEnterprise: "Автозаголовок",
         type: "boolean",
@@ -27,11 +26,7 @@ describe("format", () => {
 
     registerElementRules(FormElementType.InputField, rules)
 
-    const format = formatProperty(
-      "testValue",
-      rules.autoTitle,
-      configurationSettings
-    )
+    const format = formatProperty("testValue", rules.autoTitle, configurationSettings)
 
     expect(format).toEqual("test")
   })

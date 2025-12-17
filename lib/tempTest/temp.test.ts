@@ -1,7 +1,6 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join, parse } from "path"
 import { describe, expect, it } from "vitest"
-import z from "zod"
 import { type ClientApplicationFormXML, xmlExport, ZClientApplicationFormXML } from ".."
 import type { ConfigurationSettings } from "../metadata/configurationSettings/types"
 import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/format"
@@ -52,10 +51,7 @@ describe("DO test", () => {
 
     const parsedForm = parse(formattedForm.strings.join("\n"))
 
-    const exportedXml = xmlExport(
-      { Form: parsedForm },
-      z.object({ Form: ZClientApplicationFormXML })
-    )
+    const exportedXml = xmlExport({ Form: parsedForm }, z.object({ Form: ZClientApplicationFormXML }))
 
     expect(exportedXml).toEqual(originalContent)
   })
