@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { formatSystemEnumeration } from "./format"
+import { formatSystemEnumeration } from "./exportToEnterprise"
 import { parseSystemEnumeration } from "./parse"
 
 describe("parseSystemEnumeration", () => {

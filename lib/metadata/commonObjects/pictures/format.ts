@@ -1,4 +1,4 @@
-import { formatSystemEnumeration } from "../../systemEnumerations/format"
+import { formatSystemEnumeration } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { type Picture } from "./types"
 

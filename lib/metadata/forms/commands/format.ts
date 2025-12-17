@@ -2,7 +2,7 @@ import { stringify } from "yaml"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { formatI8nText } from "../../commonObjects/i8nText/format"
 import { ConfigurationSettings } from "../../configurationSettings/types"
-import { formatSystemEnumeration } from "../../systemEnumerations/format"
+import { formatSystemEnumeration } from "../../systemEnumerations/exportToEnterprise"
 import { Command, CommandEnterprise } from "./types"
 
 export const formatCommands = (commands: Command[], configurationSettings: ConfigurationSettings): string[] => {

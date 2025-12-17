@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { formatSystemEnumeration } from "./format"
+import { exportSystemEnumerationToEnterprise } from "./exportToEnterprise"
 
-describe("formatSystemEnumeration", () => {
+describe("exportSystemEnumerationToEnterprise", () => {
   it("should format to enterprise", () => {
     const mockValue = "Vertical"
     const expectedResult = "Вертикальная"
 
-    const result = formatSystemEnumeration(mockValue, SE.ChildFormItemsGroupToEnterprise)
+    const result = exportSystemEnumerationToEnterprise(mockValue, SE.ChildFormItemsGroupToEnterprise)
 
     expect(result).toBe(expectedResult)
   })

@@ -1,4 +1,4 @@
-export const formatSystemEnumeration = <T extends string>(
+export const exportSystemEnumerationToEnterprise = <T extends string>(
   value: string | undefined,
   enumeration: Record<string, string>
 ): T | undefined => {
