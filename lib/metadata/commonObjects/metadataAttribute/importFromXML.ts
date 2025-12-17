@@ -1,10 +1,14 @@
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
+import {
+  MetadataAttribute,
+  MetadataAttributes,
+  MetadataAttributesXML,
+  MetadataAttributeXML,
+} from "~/lib/metadata/commonObjects/metadataAttribute/types"
 import { importMetadataValueFromXML } from "~/lib/metadata/commonObjects/metadataValue/importFromXML"
 import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importMetadataAttributeFromXML = (
   xml: MetadataAttributeXML | undefined
@@ -12,8 +16,6 @@ export const importMetadataAttributeFromXML = (
   if (!xml) return undefined
 
   return {
-    elementType: FormElementType.MetadataAttribute,
-
     binaryDataStorageLocationUse: xml.BinaryDataStorageLocationUse,
     binaryDataStorageLocationUseField: xml.BinaryDataStorageLocationUseField,
     choiceFoldersAndItems: xml.ChoiceFoldersAndItems,
@@ -49,4 +51,10 @@ export const importMetadataAttributeFromXML = (
   }
 }
 
-registerImport(FormElementType.MetadataAttribute, importMetadataAttributeFromXML)
+export const importMetadataAttributesFromXML = (
+  xml: MetadataAttributesXML | undefined
+): MetadataAttributes | undefined => {
+  if (!xml) return undefined
+
+  return xml.map((value: MetadataAttributeXML) => importMetadataAttributeFromXML(value)!)
+}

@@ -1,8 +1,7 @@
-import { TParseFunction } from "~/lib/rulesManager/types"
 import { TConfigurationSettings } from "../../configurationSettings/types"
 import { StringboolEnterprise } from "./types"
 
-export const parseBoolean: TParseFunction = (
+export const parseBoolean = (
   value: StringboolEnterprise | undefined,
   _configurationSettings: TConfigurationSettings
 ): boolean | undefined => {

@@ -4,9 +4,10 @@ import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/impor
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
+import { Button, ButtonXML } from "~/lib/metadata/forms/elements/button/types"
 import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importButtonFromXML = (xml: ButtonXML | undefined): Button | undefined => {
   if (!xml) return undefined

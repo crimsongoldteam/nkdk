@@ -2,6 +2,7 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { importChildItemsFromXML } from "~/lib/metadata/forms/childItems/importFromXML"
 import { importCommandSetFromXML } from "~/lib/metadata/forms/commandSet/importFromXML"
 import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
 import { importCommandBarFromXML } from "~/lib/metadata/forms/elements/commandBar/importFromXML"
@@ -9,11 +10,11 @@ import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formD
 import { importFormItemAdditionFromXML } from "~/lib/metadata/forms/elements/formItemAddition/importFromXML"
 import { importSearchControlAdditionFromXML } from "~/lib/metadata/forms/elements/searchControlAddition/importFromXML"
 import { importSearchStringAdditionFromXML } from "~/lib/metadata/forms/elements/searchStringAddition/importFromXML"
+import { Table, TableXML } from "~/lib/metadata/forms/elements/table/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importViewStatusAdditionFromXML } from "~/lib/metadata/forms/elements/viewStatusAddition/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
-import { FormElementType } from "../types"
 
 export const importTableFromXML = (xml: TableXML | undefined): Table | undefined => {
   if (!xml) return undefined

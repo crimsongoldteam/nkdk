@@ -1,8 +1,12 @@
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importMetadataAttributesFromXML } from "~/lib/metadata/commonObjects/metadataAttribute/importFromXML"
+import {
+  MetadataTabularSection,
+  MetadataTabularSections,
+  MetadataTabularSectionsXML,
+  MetadataTabularSectionXML,
+} from "~/lib/metadata/commonObjects/metadataTabularSection/types"
 import { importStandardAttributeDescriptionsFromXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importMetadataTabularSectionFromXML = (
   xml: MetadataTabularSectionXML | undefined
@@ -10,8 +14,6 @@ export const importMetadataTabularSectionFromXML = (
   if (!xml) return undefined
 
   return {
-    elementType: FormElementType.MetadataTabularSection,
-
     attributes: importMetadataAttributesFromXML(xml.Attributes),
     comment: xml.Comment,
     fillChecking: xml.FillChecking,
@@ -25,4 +27,10 @@ export const importMetadataTabularSectionFromXML = (
   }
 }
 
-registerImport(FormElementType.MetadataTabularSection, importMetadataTabularSectionFromXML)
+export const importMetadataTabularSectionsFromXML = (
+  xml: MetadataTabularSectionsXML | undefined
+): MetadataTabularSections | undefined => {
+  if (!xml) return undefined
+
+  return xml.map((value: MetadataTabularSectionXML) => importMetadataTabularSectionFromXML(value)!)
+}

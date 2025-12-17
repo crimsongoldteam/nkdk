@@ -6,7 +6,3 @@ export interface MetadataCommandGroupXML {
 }
 
 export type MetadataCommandGroupEnterprise = string
-
-export type MetadataCommandGroups = MetadataCommandGroup[]
-export type MetadataCommandGroupsXML = MetadataCommandGroupXML[]
-export type MetadataCommandGroupsEnterprise = MetadataCommandGroupEnterprise[]

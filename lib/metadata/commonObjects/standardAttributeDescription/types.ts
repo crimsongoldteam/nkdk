@@ -109,5 +109,7 @@ export interface StandardAttributeDescriptionEnterprise {
 }
 
 export type StandardAttributeDescriptions = StandardAttributeDescription[]
+
 export type StandardAttributeDescriptionsXML = StandardAttributeDescriptionXML[]
+
 export type StandardAttributeDescriptionsEnterprise = StandardAttributeDescriptionEnterprise[]

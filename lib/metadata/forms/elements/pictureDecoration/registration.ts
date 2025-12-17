@@ -1,14 +1,14 @@
 import { registerFormat } from "~/lib/format/formatFactory"
 import { registerIsOneLineElementCheck } from "~/lib/format/isOneLineElementCheckFactory"
-import { FormElementType } from "../types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { TPictureDecoration } from "./types"
-import { importPictureDecorationFromXML } from "./importFromXML"
+import { FormElementType } from "../types"
 import { formatPictureDecoration } from "./format"
+import { importPictureDecorationFromXML } from "./importFromXML"
+import { PictureDecoration } from "./types"
 
-registerFormat<TPictureDecoration>(
+registerFormat<PictureDecoration>(
   formatPictureDecoration,
-  (element: TPictureDecoration) => element.elementType === FormElementType.PictureDecoration
+  (element: PictureDecoration) => element.elementType === FormElementType.PictureDecoration
 )
-registerIsOneLineElementCheck<TPictureDecoration>(FormElementType.PictureDecoration, () => true)
-registerImport<TPictureDecoration | undefined>(FormElementType.PictureDecoration, importPictureDecorationFromXML)
+registerIsOneLineElementCheck<PictureDecoration>(FormElementType.PictureDecoration, () => true)
+registerImport<PictureDecoration | undefined>(FormElementType.PictureDecoration, importPictureDecorationFromXML)

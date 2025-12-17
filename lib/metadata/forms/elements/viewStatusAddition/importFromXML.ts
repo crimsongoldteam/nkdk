@@ -3,8 +3,9 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importFormItemAdditionFromXML } from "~/lib/metadata/forms/elements/formItemAddition/importFromXML"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { ViewStatusAddition, ViewStatusAdditionXML } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importViewStatusAdditionFromXML = (
   xml: ViewStatusAdditionXML | undefined

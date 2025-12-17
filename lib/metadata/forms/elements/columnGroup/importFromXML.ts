@@ -1,9 +1,10 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ColumnGroup, ColumnGroupXML } from "~/lib/metadata/forms/elements/columnGroup/types"
 import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/importFromXML"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importColumnGroupFromXML = (xml: ColumnGroupXML | undefined): ColumnGroup | undefined => {
   if (!xml) return undefined

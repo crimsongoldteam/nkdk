@@ -3,8 +3,9 @@ import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/impor
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/importFromXML"
+import { Page, PageXML } from "~/lib/metadata/forms/elements/page/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importPageFromXML = (xml: PageXML | undefined): Page | undefined => {
   if (!xml) return undefined

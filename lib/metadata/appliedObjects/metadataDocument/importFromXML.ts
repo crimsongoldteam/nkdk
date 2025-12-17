@@ -1,4 +1,5 @@
 import { importMetadataCommandsFromXML } from "~/lib/metadata/appliedObjects/metadataCommand/importFromXML"
+import { MetadataDocument, MetadataDocumentXML } from "~/lib/metadata/appliedObjects/metadataDocument/types"
 import { importMetadataDocumentNumeratorFromXML } from "~/lib/metadata/appliedObjects/metadataDocumentNumerator/importFromXML"
 import { importAdditionalIndexesFromXML } from "~/lib/metadata/commonObjects/additionalIndex/importFromXML"
 import { importCharacteristicsDescriptionsFromXML } from "~/lib/metadata/commonObjects/characteristicsDescription/importFromXML"
@@ -8,15 +9,11 @@ import { importMetadataFieldsFromXML } from "~/lib/metadata/commonObjects/metada
 import { importMetadataItemLinksFromXML } from "~/lib/metadata/commonObjects/metadataItemLink/importFromXML"
 import { importMetadataTabularSectionsFromXML } from "~/lib/metadata/commonObjects/metadataTabularSection/importFromXML"
 import { importStandardAttributeDescriptionsFromXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importMetadataDocumentFromXML = (xml: MetadataDocumentXML | undefined): MetadataDocument | undefined => {
   if (!xml) return undefined
 
   return {
-    elementType: FormElementType.MetadataDocument,
-
     actionsWritingOnPost: xml.ActionsWritingOnPost,
     additionalIndexes: importAdditionalIndexesFromXML(xml.AdditionalIndexes),
     attributes: importMetadataAttributesFromXML(xml.Attributes),
@@ -70,5 +67,3 @@ export const importMetadataDocumentFromXML = (xml: MetadataDocumentXML | undefin
     useStandardCommands: xml.UseStandardCommands,
   }
 }
-
-registerImport(FormElementType.MetadataDocument, importMetadataDocumentFromXML)

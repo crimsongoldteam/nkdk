@@ -10,11 +10,6 @@ import {
 } from "~/lib/metadata/commonObjects/userVisible/types"
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/lib/metadata/forms/elements/commandBar/types"
-import {
-  FormDecoration,
-  FormDecorationEnterprise,
-  FormDecorationXML,
-} from "~/lib/metadata/forms/elements/formDecoration/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export interface FormDecoration extends BaseElement {

@@ -1,6 +1,8 @@
+import {
+  MetadataDocumentNumerator,
+  MetadataDocumentNumeratorXML,
+} from "~/lib/metadata/appliedObjects/metadataDocumentNumerator/types"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportMetadataDocumentNumeratorToXML = (
   data: MetadataDocumentNumerator | undefined
@@ -19,5 +21,3 @@ export const exportMetadataDocumentNumeratorToXML = (
     Synonym: exportI8nTextToXML(data.synonym),
   }
 }
-
-registerExport(FormElementType.MetadataDocumentNumerator, exportMetadataDocumentNumeratorToXML)

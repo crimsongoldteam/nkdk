@@ -51,5 +51,7 @@ export interface MetadataTabularSectionEnterprise {
 }
 
 export type MetadataTabularSections = MetadataTabularSection[]
+
 export type MetadataTabularSectionsXML = MetadataTabularSectionXML[]
+
 export type MetadataTabularSectionsEnterprise = MetadataTabularSectionEnterprise[]

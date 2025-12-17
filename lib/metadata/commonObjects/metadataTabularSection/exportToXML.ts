@@ -1,8 +1,12 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportMetadataAttributesToXML } from "~/lib/metadata/commonObjects/metadataAttribute/exportToXML"
+import {
+  MetadataTabularSection,
+  MetadataTabularSections,
+  MetadataTabularSectionsXML,
+  MetadataTabularSectionXML,
+} from "~/lib/metadata/commonObjects/metadataTabularSection/types"
 import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportMetadataTabularSectionToXML = (
   data: MetadataTabularSection | undefined
@@ -23,4 +27,10 @@ export const exportMetadataTabularSectionToXML = (
   }
 }
 
-registerExport(FormElementType.MetadataTabularSection, exportMetadataTabularSectionToXML)
+export const exportMetadataTabularSectionsToXML = (
+  data: MetadataTabularSections | undefined
+): MetadataTabularSectionsXML | undefined => {
+  if (!data) return undefined
+
+  return data.map((value: MetadataTabularSection) => exportMetadataTabularSectionToXML(value)!)
+}

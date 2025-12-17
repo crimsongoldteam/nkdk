@@ -1,8 +1,9 @@
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { ChartField, ChartFieldXML } from "~/lib/metadata/forms/elements/chartField/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportChartFieldToXML = (data: ChartField | undefined): ChartFieldXML | undefined => {
   if (!data) return undefined

@@ -1,8 +1,9 @@
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
+import { PlannerField, PlannerFieldXML } from "~/lib/metadata/forms/elements/plannerField/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importPlannerFieldFromXML = (xml: PlannerFieldXML | undefined): PlannerField | undefined => {
   if (!xml) return undefined

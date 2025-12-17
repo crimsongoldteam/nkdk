@@ -8,6 +8,7 @@ import {
   UserVisibleDenyEnterprise,
   UserVisibleXML,
 } from "~/lib/metadata/commonObjects/userVisible/types"
+import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/lib/metadata/forms/childItems/types"
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/lib/metadata/forms/commandSet/types"
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/lib/metadata/forms/elements/commandBar/types"
@@ -38,7 +39,6 @@ import {
 } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../childItems/types"
 
 export interface Table extends BaseElement {
   autoAddIncomplete?: boolean

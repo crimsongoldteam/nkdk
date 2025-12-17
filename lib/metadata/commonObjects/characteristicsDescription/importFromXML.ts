@@ -1,8 +1,12 @@
+import {
+  CharacteristicsDescription,
+  CharacteristicsDescriptions,
+  CharacteristicsDescriptionsXML,
+  CharacteristicsDescriptionXML,
+} from "~/lib/metadata/commonObjects/characteristicsDescription/types"
+import { importMetadataFieldFromXML } from "~/lib/metadata/commonObjects/metadataField/importFromXML"
 import { importMetadataItemLinkFromXML } from "~/lib/metadata/commonObjects/metadataItemLink/importFromXML"
 import { importMetadataValueFromXML } from "~/lib/metadata/commonObjects/metadataValue/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
-import { importMetadataFieldFromXML } from "../metadataField/importFromXML"
-import { FormElementType } from "../types"
 
 export const importCharacteristicsDescriptionFromXML = (
   xml: CharacteristicsDescriptionXML | undefined
@@ -10,8 +14,6 @@ export const importCharacteristicsDescriptionFromXML = (
   if (!xml) return undefined
 
   return {
-    elementType: FormElementType.CharacteristicsDescription,
-
     characteristicTypes: importMetadataItemLinkFromXML(xml.CharacteristicTypes),
     characteristicValues: importMetadataValueFromXML(xml.CharacteristicValues),
     dataPathField: importMetadataFieldFromXML(xml.DataPathField),
@@ -27,4 +29,10 @@ export const importCharacteristicsDescriptionFromXML = (
   }
 }
 
-registerImport(FormElementType.CharacteristicsDescription, importCharacteristicsDescriptionFromXML)
+export const importCharacteristicsDescriptionsFromXML = (
+  xml: CharacteristicsDescriptionsXML | undefined
+): CharacteristicsDescriptions | undefined => {
+  if (!xml) return undefined
+
+  return xml.map((value: CharacteristicsDescriptionXML) => importCharacteristicsDescriptionFromXML(value)!)
+}

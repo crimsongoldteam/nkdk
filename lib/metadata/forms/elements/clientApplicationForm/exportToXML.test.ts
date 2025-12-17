@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
 import { xmlExport } from "~/lib"
-import { ZClientApplicationFormXML } from "~/lib/metadata/appliedObjects/attribute/types"
 import { FormElementType } from "../types"
 import { exportClientApplicationFormToXML } from "./exportToXML"
 import { ClientApplicationForm } from "./types"
@@ -32,7 +31,7 @@ describe("exportClientApplicationFormToXML", () => {
 </Form>`
 
     const exported = exportClientApplicationFormToXML(mockElement)
-    const xmlString = xmlExport({ Form: exported }, z.object({ Form: ZClientApplicationFormXML }))
+    const xmlString = xmlExport({ Form: exported })
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -59,7 +58,7 @@ describe("exportClientApplicationFormToXML", () => {
 </Form>`
 
     const exported = exportClientApplicationFormToXML(mockElement)
-    const xmlString = xmlExport({ Form: exported }, z.object({ Form: ZClientApplicationFormXML }))
+    const xmlString = xmlExport({ Form: exported })
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -131,7 +130,7 @@ describe("exportClientApplicationFormToXML", () => {
 </Form>`
 
     const exported = exportClientApplicationFormToXML(mockElement)
-    const xmlString = xmlExport({ Form: exported }, z.object({ Form: ClientApplicationFormXML }))
+    const xmlString = xmlExport({ Form: exported })
 
     expect(xmlString).toEqual(expectedResult)
   })
@@ -175,7 +174,7 @@ describe("exportClientApplicationFormToXML", () => {
 </Form>`
 
     const exported = exportClientApplicationFormToXML(mockElement)
-    const xmlString = xmlExport({ Form: exported }, z.object({ Form: ZClientApplicationFormXML }))
+    const xmlString = xmlExport({ Form: exported })
 
     expect(xmlString).toEqual(expectedResult)
   })

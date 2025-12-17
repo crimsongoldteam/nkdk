@@ -2,10 +2,11 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { CalendarField, CalendarFieldXML } from "~/lib/metadata/forms/elements/calendarField/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importCalendarFieldFromXML = (xml: CalendarFieldXML | undefined): CalendarField | undefined => {
   if (!xml) return undefined

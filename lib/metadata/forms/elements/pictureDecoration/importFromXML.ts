@@ -3,9 +3,10 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
+import { PictureDecoration, PictureDecorationXML } from "~/lib/metadata/forms/elements/pictureDecoration/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importPictureDecorationFromXML = (
   xml: PictureDecorationXML | undefined

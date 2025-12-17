@@ -59,5 +59,7 @@ export interface MetadataCommandEnterprise {
 }
 
 export type MetadataCommands = MetadataCommand[]
+
 export type MetadataCommandsXML = MetadataCommandXML[]
+
 export type MetadataCommandsEnterprise = MetadataCommandEnterprise[]

@@ -1,8 +1,9 @@
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
+import { TrackBarField, TrackBarFieldXML } from "~/lib/metadata/forms/elements/trackBarField/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportTrackBarFieldToXML = (data: TrackBarField | undefined): TrackBarFieldXML | undefined => {
   if (!data) return undefined

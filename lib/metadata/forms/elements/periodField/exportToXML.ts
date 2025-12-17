@@ -3,9 +3,10 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
+import { PeriodField, PeriodFieldXML } from "~/lib/metadata/forms/elements/periodField/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportPeriodFieldToXML = (data: PeriodField | undefined): PeriodFieldXML | undefined => {
   if (!data) return undefined

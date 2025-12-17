@@ -4,14 +4,14 @@ import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { addSimpleIndent } from "~/lib/format/wrap/addIndents"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import * as t from "~/lib/parser/lexer"
-import { TBaseElement, TNamedElementWithTitle } from "../baseElement/types"
-import { TPage } from "./types"
+import { BaseElement } from "../baseElement/types"
+import { Page } from "./types"
 
 export const formatPage: FormatElementFunction = (
-  element: TBaseElement,
+  element: BaseElement,
   configurationSettings: TConfigurationSettings
 ): IFormatElementResult => {
-  const pageElement = element as TPage
+  const pageElement = element as Page
   const result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
@@ -20,23 +20,17 @@ export const formatPage: FormatElementFunction = (
   const header = getHeader(pageElement)
   result.strings.push(header)
 
-  const childResult = formatElements(
-    pageElement.childItems,
-    configurationSettings
-  )
+  const childResult = formatElements(pageElement.childItems, configurationSettings)
   const indentedStrings = addSimpleIndent(childResult.strings)
   result.strings.push(...indentedStrings)
-  result.haveSimpleHorizontalGroup =
-    result.haveSimpleHorizontalGroup || childResult.haveSimpleHorizontalGroup
+  result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || childResult.haveSimpleHorizontalGroup
   return result
 }
 
-const getHeader = (element: TPage): string => {
+const getHeader = (element: Page): string => {
   let result = t.Slash.LABEL as string
 
-  result += formatElementTitleAndName(
-    element as unknown as TNamedElementWithTitle
-  )
+  result += formatElementTitleAndName(element)
 
   return result
 }

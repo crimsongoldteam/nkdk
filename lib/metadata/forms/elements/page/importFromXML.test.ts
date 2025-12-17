@@ -1,12 +1,11 @@
-import { it, expect, describe } from "vitest"
+import { describe, expect, it } from "vitest"
 import "~/lib/metadata/forms/elements/elements"
-import "~/lib/metadata/forms/elements/importFromXML"
 import "~/lib/metadata/forms/elements/exportToXML"
+import "~/lib/metadata/forms/elements/importFromXML"
 import xmlImport from "~/lib/xml/import/importer"
-import { TPage, TPageXML, ZPageXML } from "./types"
 import { FormElementType } from "../types"
 import { importPageFromXML } from "./importFromXML"
-import z from "zod"
+import { Page, PageXML } from "./types"
 
 describe("importPageFromXML", () => {
   it("should import Page from XML", () => {
@@ -19,7 +18,7 @@ describe("importPageFromXML", () => {
     </Title>
   </Page>`
 
-    const expectedResult: TPage = {
+    const expectedResult: Page = {
       name: "Страница",
       title: { items: { ru: "Заголовок группы" } },
       id: "1",
@@ -27,10 +26,7 @@ describe("importPageFromXML", () => {
       elementType: FormElementType.Page,
     }
 
-    const xmlData = xmlImport<{ Page: TPageXML }>(
-      mockXml,
-      z.object({ Page: ZPageXML })
-    )
+    const xmlData = xmlImport<{ Page: PageXML }>(mockXml)
 
     const input = importPageFromXML(xmlData.Page)
 

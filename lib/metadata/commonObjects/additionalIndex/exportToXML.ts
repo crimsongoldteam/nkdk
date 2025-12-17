@@ -1,7 +1,11 @@
+import {
+  AdditionalIndex,
+  AdditionalIndexes,
+  AdditionalIndexesXML,
+  AdditionalIndexXML,
+} from "~/lib/metadata/commonObjects/additionalIndex/types"
 import { exportIndexFieldsToXML } from "~/lib/metadata/commonObjects/indexField/exportToXML"
 import { exportTableToXML } from "~/lib/metadata/forms/elements/table/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportAdditionalIndexToXML = (data: AdditionalIndex | undefined): AdditionalIndexXML | undefined => {
   if (!data) return undefined
@@ -14,4 +18,8 @@ export const exportAdditionalIndexToXML = (data: AdditionalIndex | undefined): A
   }
 }
 
-registerExport(FormElementType.AdditionalIndex, exportAdditionalIndexToXML)
+export const exportAdditionalIndexesToXML = (data: AdditionalIndexes | undefined): AdditionalIndexesXML | undefined => {
+  if (!data) return undefined
+
+  return data.map((value: AdditionalIndex) => exportAdditionalIndexToXML(value)!)
+}

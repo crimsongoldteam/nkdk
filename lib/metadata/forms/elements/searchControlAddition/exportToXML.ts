@@ -2,8 +2,12 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportFormItemAdditionToXML } from "~/lib/metadata/forms/elements/formItemAddition/exportToXML"
+import {
+  SearchControlAddition,
+  SearchControlAdditionXML,
+} from "~/lib/metadata/forms/elements/searchControlAddition/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportSearchControlAdditionToXML = (
   data: SearchControlAddition | undefined

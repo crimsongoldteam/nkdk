@@ -124,5 +124,7 @@ export interface MetadataAttributeEnterprise {
 }
 
 export type MetadataAttributes = MetadataAttribute[]
+
 export type MetadataAttributesXML = MetadataAttributeXML[]
+
 export type MetadataAttributesEnterprise = MetadataAttributeEnterprise[]

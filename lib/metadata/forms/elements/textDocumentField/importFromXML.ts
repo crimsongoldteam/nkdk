@@ -2,9 +2,10 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
+import { TextDocumentField, TextDocumentFieldXML } from "~/lib/metadata/forms/elements/textDocumentField/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importTextDocumentFieldFromXML = (
   xml: TextDocumentFieldXML | undefined

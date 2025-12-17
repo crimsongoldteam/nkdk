@@ -1,8 +1,5 @@
 import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { parseRegions } from "~/lib/parser/regionsParser/regionsParser"
-import { RegionsVisitor } from "~/lib/parser/regionsParser/regionsVisitor"
 import { FormElementType } from "../types"
-import { parseAttributes } from "./attributes/parse"
 import type { ClientApplicationForm } from "./types"
 
 export const parseClientApplicationForm = (
@@ -60,5 +57,8 @@ export const parseClientApplicationForm = (
   //   }
   // }
 
-  return result
+  return {
+    elementType: FormElementType.Form,
+    childItems: [],
+  }
 }

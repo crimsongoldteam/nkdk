@@ -22,5 +22,7 @@ export interface AdditionalIndexEnterprise {
 }
 
 export type AdditionalIndexes = AdditionalIndex[]
+
 export type AdditionalIndexesXML = AdditionalIndexXML[]
+
 export type AdditionalIndexesEnterprise = AdditionalIndexEnterprise[]

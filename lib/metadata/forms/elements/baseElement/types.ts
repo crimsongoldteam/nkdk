@@ -1,3 +1,5 @@
+import { FormElementType } from "../types"
+
 export interface BaseElement {
   elementType: FormElementType
   name: string

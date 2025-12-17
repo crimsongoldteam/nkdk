@@ -1,11 +1,12 @@
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { importChildItemsFromXML } from "~/lib/metadata/forms/childItems/importFromXML"
 import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
 import { importCommandBarFromXML } from "~/lib/metadata/forms/elements/commandBar/importFromXML"
 import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
+import { FormItemAddition, FormItemAdditionXML } from "~/lib/metadata/forms/elements/formItemAddition/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
-import { FormElementType } from "../types"
 
 export const importFormItemAdditionFromXML = (xml: FormItemAdditionXML | undefined): FormItemAddition | undefined => {
   if (!xml) return undefined

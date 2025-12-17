@@ -1,10 +1,14 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
+import {
+  MetadataAttribute,
+  MetadataAttributes,
+  MetadataAttributesXML,
+  MetadataAttributeXML,
+} from "~/lib/metadata/commonObjects/metadataAttribute/types"
 import { exportMetadataValueToXML } from "~/lib/metadata/commonObjects/metadataValue/exportToXML"
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { exportTypeLinkToXML } from "~/lib/metadata/commonObjects/typeLink/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportMetadataAttributeToXML = (data: MetadataAttribute | undefined): MetadataAttributeXML | undefined => {
   if (!data) return undefined
@@ -45,4 +49,10 @@ export const exportMetadataAttributeToXML = (data: MetadataAttribute | undefined
   }
 }
 
-registerExport(FormElementType.MetadataAttribute, exportMetadataAttributeToXML)
+export const exportMetadataAttributesToXML = (
+  data: MetadataAttributes | undefined
+): MetadataAttributesXML | undefined => {
+  if (!data) return undefined
+
+  return data.map((value: MetadataAttribute) => exportMetadataAttributeToXML(value)!)
+}

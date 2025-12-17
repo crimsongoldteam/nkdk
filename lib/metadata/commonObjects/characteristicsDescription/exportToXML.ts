@@ -1,8 +1,12 @@
+import {
+  CharacteristicsDescription,
+  CharacteristicsDescriptions,
+  CharacteristicsDescriptionsXML,
+  CharacteristicsDescriptionXML,
+} from "~/lib/metadata/commonObjects/characteristicsDescription/types"
+import { exportMetadataFieldToXML } from "~/lib/metadata/commonObjects/metadataField/exportToXML"
 import { exportMetadataItemLinkToXML } from "~/lib/metadata/commonObjects/metadataItemLink/exportToXML"
 import { exportMetadataValueToXML } from "~/lib/metadata/commonObjects/metadataValue/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { exportMetadataFieldToXML } from "../metadataField/exportToXML"
-import { FormElementType } from "../types"
 
 export const exportCharacteristicsDescriptionToXML = (
   data: CharacteristicsDescription | undefined
@@ -25,4 +29,10 @@ export const exportCharacteristicsDescriptionToXML = (
   }
 }
 
-registerExport(FormElementType.CharacteristicsDescription, exportCharacteristicsDescriptionToXML)
+export const exportCharacteristicsDescriptionsToXML = (
+  data: CharacteristicsDescriptions | undefined
+): CharacteristicsDescriptionsXML | undefined => {
+  if (!data) return undefined
+
+  return data.map((value: CharacteristicsDescription) => exportCharacteristicsDescriptionToXML(value)!)
+}

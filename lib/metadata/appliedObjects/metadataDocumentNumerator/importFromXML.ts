@@ -1,6 +1,8 @@
+import {
+  MetadataDocumentNumerator,
+  MetadataDocumentNumeratorXML,
+} from "~/lib/metadata/appliedObjects/metadataDocumentNumerator/types"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importMetadataDocumentNumeratorFromXML = (
   xml: MetadataDocumentNumeratorXML | undefined
@@ -8,8 +10,6 @@ export const importMetadataDocumentNumeratorFromXML = (
   if (!xml) return undefined
 
   return {
-    elementType: FormElementType.MetadataDocumentNumerator,
-
     checkUnique: xml.CheckUnique,
     comment: xml.Comment,
     name: xml.Name,
@@ -21,5 +21,3 @@ export const importMetadataDocumentNumeratorFromXML = (
     synonym: importI8nTextFromXML(xml.Synonym),
   }
 }
-
-registerImport(FormElementType.MetadataDocumentNumerator, importMetadataDocumentNumeratorFromXML)

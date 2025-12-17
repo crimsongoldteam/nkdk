@@ -4,8 +4,9 @@ import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/impor
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
 import { importCommandBarFromXML } from "~/lib/metadata/forms/elements/commandBar/importFromXML"
+import { FormDecoration, FormDecorationXML } from "~/lib/metadata/forms/elements/formDecoration/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importFormDecorationFromXML = (xml: FormDecorationXML | undefined): FormDecoration | undefined => {
   if (!xml) return undefined

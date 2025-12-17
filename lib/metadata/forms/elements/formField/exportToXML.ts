@@ -7,10 +7,11 @@ import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible
 import { exportBaseElementToXML } from "~/lib/metadata/forms/elements/baseElement/exportToXML"
 import { exportCommandBarToXML } from "~/lib/metadata/forms/elements/commandBar/exportToXML"
 import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDecoration/exportToXML"
+import { FormField, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { exportTableToXML } from "~/lib/metadata/forms/elements/table/exportToXML"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportFormFieldToXML = (data: FormField | undefined): FormFieldXML | undefined => {
   if (!data) return undefined

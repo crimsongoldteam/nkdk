@@ -4,9 +4,10 @@ import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromX
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
+import { LabelField, LabelFieldXML } from "~/lib/metadata/forms/elements/labelField/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importLabelFieldFromXML = (xml: LabelFieldXML | undefined): LabelField | undefined => {
   if (!xml) return undefined

@@ -2,11 +2,12 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { exportChildItemsToXML } from "~/lib/metadata/forms/childItems/exportToXML"
 import { exportBaseElementToXML } from "~/lib/metadata/forms/elements/baseElement/exportToXML"
 import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDecoration/exportToXML"
+import { FormGroup, FormGroupXML } from "~/lib/metadata/forms/elements/formGroup/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
-import { FormElementType } from "../types"
 
 export const exportFormGroupToXML = (data: FormGroup | undefined): FormGroupXML | undefined => {
   if (!data) return undefined

@@ -2,8 +2,9 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/importFromXML"
+import { Popup, PopupXML } from "~/lib/metadata/forms/elements/popup/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importPopupFromXML = (xml: PopupXML | undefined): Popup | undefined => {
   if (!xml) return undefined

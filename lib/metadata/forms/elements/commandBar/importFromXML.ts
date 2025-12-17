@@ -1,7 +1,8 @@
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { CommandBar, CommandBarXML } from "~/lib/metadata/forms/elements/commandBar/types"
 import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/importFromXML"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importCommandBarFromXML = (xml: CommandBarXML | undefined): CommandBar | undefined => {
   if (!xml) return undefined

@@ -1,3 +1,4 @@
+import { MetadataCatalog, MetadataCatalogXML } from "~/lib/metadata/appliedObjects/metadataCatalog/types"
 import { importMetadataCommandsFromXML } from "~/lib/metadata/appliedObjects/metadataCommand/importFromXML"
 import { importAdditionalIndexesFromXML } from "~/lib/metadata/commonObjects/additionalIndex/importFromXML"
 import { importCharacteristicsDescriptionsFromXML } from "~/lib/metadata/commonObjects/characteristicsDescription/importFromXML"
@@ -6,17 +7,13 @@ import { importMetadataAttributesFromXML } from "~/lib/metadata/commonObjects/me
 import { importMetadataFieldsFromXML } from "~/lib/metadata/commonObjects/metadataField/importFromXML"
 import { importMetadataItemLinksFromXML } from "~/lib/metadata/commonObjects/metadataItemLink/importFromXML"
 import { importMetadataTabularSectionsFromXML } from "~/lib/metadata/commonObjects/metadataTabularSection/importFromXML"
-import { importPredefinedListFromXML } from "~/lib/metadata/commonObjects/predifined/importFromXML"
+import { importPredefinedItemsFromXML } from "~/lib/metadata/commonObjects/predifined/importFromXML"
 import { importStandardAttributeDescriptionsFromXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importMetadataCatalogFromXML = (xml: MetadataCatalogXML | undefined): MetadataCatalog | undefined => {
   if (!xml) return undefined
 
   return {
-    elementType: FormElementType.MetadataCatalog,
-
     additionalIndexes: importAdditionalIndexesFromXML(xml.AdditionalIndexes),
     attributes: importMetadataAttributesFromXML(xml.Attributes),
     autonumbering: xml.Autonumbering,
@@ -67,7 +64,7 @@ export const importMetadataCatalogFromXML = (xml: MetadataCatalogXML | undefined
     objectBelonging: xml.ObjectBelonging,
     objectPresentation: importI8nTextFromXML(xml.ObjectPresentation),
     owners: importMetadataItemLinksFromXML(xml.Owners),
-    predefined: importPredefinedListFromXML(xml.Predefined),
+    predefined: importPredefinedItemsFromXML(xml.Predefined),
     predefinedDataUpdate: xml.PredefinedDataUpdate,
     quickChoice: xml.QuickChoice,
     searchStringModeOnInputByString: xml.SearchStringModeOnInputByString,
@@ -79,5 +76,3 @@ export const importMetadataCatalogFromXML = (xml: MetadataCatalogXML | undefined
     useStandardCommands: xml.UseStandardCommands,
   }
 }
-
-registerImport(FormElementType.MetadataCatalog, importMetadataCatalogFromXML)

@@ -3,8 +3,9 @@ import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/impor
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/importFromXML"
 import { importTableFromXML } from "~/lib/metadata/forms/elements/table/importFromXML"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { UsualGroup, UsualGroupXML } from "~/lib/metadata/forms/elements/usualGroup/types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importUsualGroupFromXML = (xml: UsualGroupXML | undefined): UsualGroup | undefined => {
   if (!xml) return undefined

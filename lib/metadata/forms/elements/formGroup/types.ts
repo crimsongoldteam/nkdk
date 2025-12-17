@@ -8,6 +8,7 @@ import {
   UserVisibleDenyEnterprise,
   UserVisibleXML,
 } from "~/lib/metadata/commonObjects/userVisible/types"
+import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/lib/metadata/forms/childItems/types"
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
 import {
   FormDecoration,
@@ -15,7 +16,6 @@ import {
   FormDecorationXML,
 } from "~/lib/metadata/forms/elements/formDecoration/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../childItems/types"
 
 export interface FormGroup extends BaseElement {
   enableContentChange?: boolean

@@ -1,8 +1,9 @@
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
+import { PlannerField, PlannerFieldXML } from "~/lib/metadata/forms/elements/plannerField/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportPlannerFieldToXML = (data: PlannerField | undefined): PlannerFieldXML | undefined => {
   if (!data) return undefined

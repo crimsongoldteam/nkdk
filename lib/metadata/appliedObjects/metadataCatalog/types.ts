@@ -36,9 +36,9 @@ import {
   MetadataTabularSectionsXML,
 } from "~/lib/metadata/commonObjects/metadataTabularSection/types"
 import {
-  PredefinedList,
-  PredefinedListEnterprise,
-  PredefinedListXML,
+  PredefinedItems,
+  PredefinedItemsEnterprise,
+  PredefinedItemsXML,
 } from "~/lib/metadata/commonObjects/predifined/types"
 import {
   StandardAttributeDescriptions,
@@ -98,7 +98,7 @@ export interface MetadataCatalog {
   objectBelonging?: SE.ObjectBelonging
   objectPresentation?: I8nText
   owners?: MetadataItemLinks
-  predefined?: PredefinedList
+  predefined?: PredefinedItems
   predefinedDataUpdate?: SE.PredefinedDataUpdate
   quickChoice?: boolean
   searchStringModeOnInputByString?: SE.SearchStringModeOnInputByString
@@ -161,7 +161,7 @@ export interface MetadataCatalogXML {
   ObjectBelonging?: SE.ObjectBelonging
   ObjectPresentation?: I8nTextXML
   Owners?: MetadataItemLinksXML
-  Predefined?: PredefinedListXML
+  Predefined?: PredefinedItemsXML
   PredefinedDataUpdate?: SE.PredefinedDataUpdate
   QuickChoice?: boolean
   SearchStringModeOnInputByString?: SE.SearchStringModeOnInputByString
@@ -224,7 +224,7 @@ export interface MetadataCatalogEnterprise {
   ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
   ПредставлениеОбъекта?: I8nTextEnterprise
   Владельцы?: MetadataItemLinksEnterprise
-  Предопределенные?: PredefinedListEnterprise
+  Предопределенные?: PredefinedItemsEnterprise
   ОбновлениеПредопределенныхДанных?: SE.PredefinedDataUpdateEnterprise
   БыстрыйВыбор?: StringboolEnterprise
   СпособПоискаСтрокиПриВводеПоСтроке?: SE.SearchStringModeOnInputByStringEnterprise

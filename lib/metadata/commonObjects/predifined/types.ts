@@ -18,6 +18,6 @@ export interface PredefinedEnterprise {
   Description: string
   IsFolder: boolean
 }
-export type PredefinedList = Predefined[]
-export type PredefinedListXML = PredefinedXML[]
-export type PredefinedListEnterprise = PredefinedEnterprise[]
+export type PredefinedItems = Predefined[]
+export type PredefinedItemsXML = PredefinedXML[]
+export type PredefinedItemsEnterprise = PredefinedEnterprise[]

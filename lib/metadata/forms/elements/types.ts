@@ -41,3 +41,5 @@ export const FormElementType = {
   FormItemAddition: "ДополнениеЭлементаФормы",
   FormGroup: "ГруппаФормы",
 } as const
+
+export type FormElementType = (typeof FormElementType)[keyof typeof FormElementType]

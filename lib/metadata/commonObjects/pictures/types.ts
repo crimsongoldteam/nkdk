@@ -1,4 +1,4 @@
-import { TPictureLib, TPictureLibEnterprise } from "../../systemSets/types"
+import * as SE from "../../systemEnumerations/types"
 
 export interface PictureXML {
   "xr:Ref": string
@@ -6,9 +6,9 @@ export interface PictureXML {
 }
 
 export interface Picture {
-  ref: string | TPictureLib
+  ref: string | SE.PictureLib
   type: "StandardPicture" | "CommonPicture"
   loadTransparent: boolean
 }
 
-export type PictureEnterprise = string | TPictureLibEnterprise
+export type PictureEnterprise = string | SE.PictureLibEnterprise

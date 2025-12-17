@@ -1,9 +1,13 @@
+import {
+  MetadataCommand,
+  MetadataCommands,
+  MetadataCommandsXML,
+  MetadataCommandXML,
+} from "~/lib/metadata/appliedObjects/metadataCommand/types"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportMetadataCommandGroupToXML } from "~/lib/metadata/commonObjects/metadataCommandGroup/exportToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportMetadataCommandToXML = (data: MetadataCommand | undefined): MetadataCommandXML | undefined => {
   if (!data) return undefined
@@ -24,4 +28,8 @@ export const exportMetadataCommandToXML = (data: MetadataCommand | undefined): M
   }
 }
 
-registerExport(FormElementType.MetadataCommand, exportMetadataCommandToXML)
+export const exportMetadataCommandsToXML = (data: MetadataCommands | undefined): MetadataCommandsXML | undefined => {
+  if (!data) return undefined
+
+  return data.map((value: MetadataCommand) => exportMetadataCommandToXML(value)!)
+}

@@ -2,6 +2,7 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { exportChildItemsToXML } from "~/lib/metadata/forms/childItems/exportToXML"
 import { exportCommandSetToXML } from "~/lib/metadata/forms/commandSet/exportToXML"
 import { exportBaseElementToXML } from "~/lib/metadata/forms/elements/baseElement/exportToXML"
 import { exportCommandBarToXML } from "~/lib/metadata/forms/elements/commandBar/exportToXML"
@@ -9,11 +10,11 @@ import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDec
 import { exportFormItemAdditionToXML } from "~/lib/metadata/forms/elements/formItemAddition/exportToXML"
 import { exportSearchControlAdditionToXML } from "~/lib/metadata/forms/elements/searchControlAddition/exportToXML"
 import { exportSearchStringAdditionToXML } from "~/lib/metadata/forms/elements/searchStringAddition/exportToXML"
+import { Table, TableXML } from "~/lib/metadata/forms/elements/table/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportViewStatusAdditionToXML } from "~/lib/metadata/forms/elements/viewStatusAddition/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { exportChildItemsToXML } from "../childItems/exportToXML"
-import { FormElementType } from "../types"
 
 export const exportTableToXML = (data: Table | undefined): TableXML | undefined => {
   if (!data) return undefined

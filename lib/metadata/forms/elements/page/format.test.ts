@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import "~/lib/metadata/forms/elements/inputField/registration"
-import { TInputField } from "../inputField/types"
 import { FormElementType } from "../types"
 import { formatPage } from "./format"
-import { TPage } from "./types"
+import { Page } from "./types"
+import { InputField } from "../inputField/types"
 
 const configurationSettings: TConfigurationSettings = {
   defaultLanguage: "ru",
@@ -12,7 +12,7 @@ const configurationSettings: TConfigurationSettings = {
 
 describe("formatPage", () => {
   it("should format page", () => {
-    const mockElement: TPage = {
+    const mockElement: Page = {
       name: "Страница1",
       id: "1",
       elementType: FormElementType.Page,
@@ -21,7 +21,7 @@ describe("formatPage", () => {
           name: "Элемент1",
           id: "1",
           elementType: FormElementType.InputField,
-        } as TInputField,
+        } as InputField,
       ],
     }
 

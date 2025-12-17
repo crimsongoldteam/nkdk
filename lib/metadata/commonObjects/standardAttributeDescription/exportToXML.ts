@@ -1,10 +1,14 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportMetadataValueToXML } from "~/lib/metadata/commonObjects/metadataValue/exportToXML"
+import {
+  StandardAttributeDescription,
+  StandardAttributeDescriptions,
+  StandardAttributeDescriptionsXML,
+  StandardAttributeDescriptionXML,
+} from "~/lib/metadata/commonObjects/standardAttributeDescription/types"
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { exportTypeLinkToXML } from "~/lib/metadata/commonObjects/typeLink/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportStandardAttributeDescriptionToXML = (
   data: StandardAttributeDescription | undefined
@@ -42,4 +46,10 @@ export const exportStandardAttributeDescriptionToXML = (
   }
 }
 
-registerExport(FormElementType.StandardAttributeDescription, exportStandardAttributeDescriptionToXML)
+export const exportStandardAttributeDescriptionsToXML = (
+  data: StandardAttributeDescriptions | undefined
+): StandardAttributeDescriptionsXML | undefined => {
+  if (!data) return undefined
+
+  return data.map((value: StandardAttributeDescription) => exportStandardAttributeDescriptionToXML(value)!)
+}

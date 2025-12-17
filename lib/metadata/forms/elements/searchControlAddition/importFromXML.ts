@@ -2,8 +2,12 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importFormItemAdditionFromXML } from "~/lib/metadata/forms/elements/formItemAddition/importFromXML"
+import {
+  SearchControlAddition,
+  SearchControlAdditionXML,
+} from "~/lib/metadata/forms/elements/searchControlAddition/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importSearchControlAdditionFromXML = (
   xml: SearchControlAdditionXML | undefined

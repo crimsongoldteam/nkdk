@@ -1,10 +1,14 @@
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importMetadataValueFromXML } from "~/lib/metadata/commonObjects/metadataValue/importFromXML"
+import {
+  StandardAttributeDescription,
+  StandardAttributeDescriptions,
+  StandardAttributeDescriptionsXML,
+  StandardAttributeDescriptionXML,
+} from "~/lib/metadata/commonObjects/standardAttributeDescription/types"
 import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importStandardAttributeDescriptionFromXML = (
   xml: StandardAttributeDescriptionXML | undefined
@@ -12,8 +16,6 @@ export const importStandardAttributeDescriptionFromXML = (
   if (!xml) return undefined
 
   return {
-    elementType: FormElementType.StandardAttributeDescription,
-
     choiceForm: xml.ChoiceForm,
     choiceHistoryOnInput: xml.ChoiceHistoryOnInput,
     choiceParameterLinks: importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks),
@@ -44,4 +46,10 @@ export const importStandardAttributeDescriptionFromXML = (
   }
 }
 
-registerImport(FormElementType.StandardAttributeDescription, importStandardAttributeDescriptionFromXML)
+export const importStandardAttributeDescriptionsFromXML = (
+  xml: StandardAttributeDescriptionsXML | undefined
+): StandardAttributeDescriptions | undefined => {
+  if (!xml) return undefined
+
+  return xml.map((value: StandardAttributeDescriptionXML) => importStandardAttributeDescriptionFromXML(value)!)
+}

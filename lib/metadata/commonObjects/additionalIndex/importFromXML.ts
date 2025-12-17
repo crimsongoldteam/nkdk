@@ -1,14 +1,16 @@
+import {
+  AdditionalIndex,
+  AdditionalIndexes,
+  AdditionalIndexesXML,
+  AdditionalIndexXML,
+} from "~/lib/metadata/commonObjects/additionalIndex/types"
 import { importIndexFieldsFromXML } from "~/lib/metadata/commonObjects/indexField/importFromXML"
 import { importTableFromXML } from "~/lib/metadata/forms/elements/table/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importAdditionalIndexFromXML = (xml: AdditionalIndexXML | undefined): AdditionalIndex | undefined => {
   if (!xml) return undefined
 
   return {
-    elementType: FormElementType.AdditionalIndex,
-
     additionalFields: importIndexFieldsFromXML(xml.AdditionalFields),
     indexedFields: importIndexFieldsFromXML(xml.IndexedFields),
     name: xml.Name,
@@ -16,4 +18,10 @@ export const importAdditionalIndexFromXML = (xml: AdditionalIndexXML | undefined
   }
 }
 
-registerImport(FormElementType.AdditionalIndex, importAdditionalIndexFromXML)
+export const importAdditionalIndexesFromXML = (
+  xml: AdditionalIndexesXML | undefined
+): AdditionalIndexes | undefined => {
+  if (!xml) return undefined
+
+  return xml.map((value: AdditionalIndexXML) => importAdditionalIndexFromXML(value)!)
+}

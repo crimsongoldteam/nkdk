@@ -8,9 +8,10 @@ import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/imp
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
+import { InputField, InputFieldXML } from "~/lib/metadata/forms/elements/inputField/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { FormElementType } from "../types"
 
 export const importInputFieldFromXML = (xml: InputFieldXML | undefined): InputField | undefined => {
   if (!xml) return undefined

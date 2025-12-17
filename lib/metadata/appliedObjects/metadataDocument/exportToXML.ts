@@ -1,4 +1,5 @@
 import { exportMetadataCommandsToXML } from "~/lib/metadata/appliedObjects/metadataCommand/exportToXML"
+import { MetadataDocument, MetadataDocumentXML } from "~/lib/metadata/appliedObjects/metadataDocument/types"
 import { exportMetadataDocumentNumeratorToXML } from "~/lib/metadata/appliedObjects/metadataDocumentNumerator/exportToXML"
 import { exportAdditionalIndexesToXML } from "~/lib/metadata/commonObjects/additionalIndex/exportToXML"
 import { exportCharacteristicsDescriptionsToXML } from "~/lib/metadata/commonObjects/characteristicsDescription/exportToXML"
@@ -8,8 +9,6 @@ import { exportMetadataFieldsToXML } from "~/lib/metadata/commonObjects/metadata
 import { exportMetadataItemLinksToXML } from "~/lib/metadata/commonObjects/metadataItemLink/exportToXML"
 import { exportMetadataTabularSectionsToXML } from "~/lib/metadata/commonObjects/metadataTabularSection/exportToXML"
 import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportMetadataDocumentToXML = (data: MetadataDocument | undefined): MetadataDocumentXML | undefined => {
   if (!data) return undefined
@@ -68,5 +67,3 @@ export const exportMetadataDocumentToXML = (data: MetadataDocument | undefined):
     UseStandardCommands: data.useStandardCommands,
   }
 }
-
-registerExport(FormElementType.MetadataDocument, exportMetadataDocumentToXML)

@@ -4,8 +4,9 @@ import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportT
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportBaseElementToXML } from "~/lib/metadata/forms/elements/baseElement/exportToXML"
 import { exportCommandBarToXML } from "~/lib/metadata/forms/elements/commandBar/exportToXML"
+import { FormDecoration, FormDecorationXML } from "~/lib/metadata/forms/elements/formDecoration/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportFormDecorationToXML = (data: FormDecoration | undefined): FormDecorationXML | undefined => {
   if (!data) return undefined

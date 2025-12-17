@@ -14,7 +14,7 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports": "explicit",
     // "source.fixAll": "explicit",
-    "source.removeUnused": "explicit",
+    // "source.removeUnused": "explicit",
     "source.addMissingImports": "explicit"
   },
   "files.exclude": {

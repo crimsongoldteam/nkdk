@@ -4,9 +4,10 @@ import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
+import { PictureField, PictureFieldXML } from "~/lib/metadata/forms/elements/pictureField/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportPictureFieldToXML = (data: PictureField | undefined): PictureFieldXML | undefined => {
   if (!data) return undefined

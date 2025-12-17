@@ -3,9 +3,10 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDecoration/exportToXML"
+import { PictureDecoration, PictureDecorationXML } from "~/lib/metadata/forms/elements/pictureDecoration/types"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportPictureDecorationToXML = (data: PictureDecoration | undefined): PictureDecorationXML | undefined => {
   if (!data) return undefined

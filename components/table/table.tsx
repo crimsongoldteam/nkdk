@@ -1,9 +1,7 @@
 import React from "react"
-import { Table } from "antd"
-import { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
-import { TTable } from "~/lib/metadata/forms/elements/table/types"
+import { Table } from "~/lib/metadata/forms/elements/table/types"
 
-export function TableComponent(props: Readonly<TTable>): React.ReactNode {
+export function TableComponent(props: Readonly<Table>): React.ReactNode {
   const { name, childItems } = props
 
   const columns = childItems.map((item) => ({
@@ -19,12 +17,5 @@ export function TableComponent(props: Readonly<TTable>): React.ReactNode {
     },
   ]
 
-  return (
-    <Table
-      columns={columns}
-      dataSource={dataSource}
-      size="small"
-      pagination={false}
-    />
-  )
+  return <Table columns={columns} dataSource={dataSource} size="small" pagination={false} />
 }

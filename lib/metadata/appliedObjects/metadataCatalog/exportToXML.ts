@@ -1,3 +1,4 @@
+import { MetadataCatalog, MetadataCatalogXML } from "~/lib/metadata/appliedObjects/metadataCatalog/types"
 import { exportMetadataCommandsToXML } from "~/lib/metadata/appliedObjects/metadataCommand/exportToXML"
 import { exportAdditionalIndexesToXML } from "~/lib/metadata/commonObjects/additionalIndex/exportToXML"
 import { exportCharacteristicsDescriptionsToXML } from "~/lib/metadata/commonObjects/characteristicsDescription/exportToXML"
@@ -6,10 +7,8 @@ import { exportMetadataAttributesToXML } from "~/lib/metadata/commonObjects/meta
 import { exportMetadataFieldsToXML } from "~/lib/metadata/commonObjects/metadataField/exportToXML"
 import { exportMetadataItemLinksToXML } from "~/lib/metadata/commonObjects/metadataItemLink/exportToXML"
 import { exportMetadataTabularSectionsToXML } from "~/lib/metadata/commonObjects/metadataTabularSection/exportToXML"
-import { exportPredefinedListToXML } from "~/lib/metadata/commonObjects/predifined/exportToXML"
+import { exportPredefinedItemsToXML } from "~/lib/metadata/commonObjects/predifined/exportToXML"
 import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportMetadataCatalogToXML = (data: MetadataCatalog | undefined): MetadataCatalogXML | undefined => {
   if (!data) return undefined
@@ -65,7 +64,7 @@ export const exportMetadataCatalogToXML = (data: MetadataCatalog | undefined): M
     ObjectBelonging: data.objectBelonging,
     ObjectPresentation: exportI8nTextToXML(data.objectPresentation),
     Owners: exportMetadataItemLinksToXML(data.owners),
-    Predefined: exportPredefinedListToXML(data.predefined),
+    Predefined: exportPredefinedItemsToXML(data.predefined),
     PredefinedDataUpdate: data.predefinedDataUpdate,
     QuickChoice: data.quickChoice,
     SearchStringModeOnInputByString: data.searchStringModeOnInputByString,
@@ -77,5 +76,3 @@ export const exportMetadataCatalogToXML = (data: MetadataCatalog | undefined): M
     UseStandardCommands: data.useStandardCommands,
   }
 }
-
-registerExport(FormElementType.MetadataCatalog, exportMetadataCatalogToXML)

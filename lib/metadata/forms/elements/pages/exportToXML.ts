@@ -1,9 +1,10 @@
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportFormGroupToXML } from "~/lib/metadata/forms/elements/formGroup/exportToXML"
+import { Pages, PagesXML } from "~/lib/metadata/forms/elements/pages/types"
 import { exportTableToXML } from "~/lib/metadata/forms/elements/table/exportToXML"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { registerExport } from "~/lib/xml/export/exporterFactory"
-import { FormElementType } from "../types"
 
 export const exportPagesToXML = (data: Pages | undefined): PagesXML | undefined => {
   if (!data) return undefined
