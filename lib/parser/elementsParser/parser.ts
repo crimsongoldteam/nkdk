@@ -118,71 +118,65 @@ export class Parser extends CstParser {
 
   // #region checkboxField
 
-  private readonly rightTitledCheckboxField = this.RULE(
-    "rightTitledCheckboxField",
-    () => {
-      this.aligment("left")
+  private readonly rightTitledCheckboxField = this.RULE("rightTitledCheckboxField", () => {
+    this.aligment("left")
 
-      this.choice(
-        1,
-        () => {
-          this.CONSUME(t.CheckboxChecked)
-        },
-        () => {
-          this.CONSUME(t.CheckboxUnchecked)
-        },
-        () => {
-          this.CONSUME(t.SwitchChecked)
-        },
-        () => {
-          this.CONSUME(t.SwitchUnchecked)
-        }
-      )
+    this.choice(
+      1,
+      () => {
+        this.CONSUME(t.CheckboxChecked)
+      },
+      () => {
+        this.CONSUME(t.CheckboxUnchecked)
+      },
+      () => {
+        this.CONSUME(t.SwitchChecked)
+      },
+      () => {
+        this.CONSUME(t.SwitchUnchecked)
+      }
+    )
 
-      this.MANY(() => {
-        this.CONSUME(t.CheckboxHeader)
-      })
+    this.MANY(() => {
+      this.CONSUME(t.CheckboxHeader)
+    })
 
-      this.OPTION(() => {
-        this.SUBRULE(this.properties)
-      })
+    this.OPTION(() => {
+      this.SUBRULE(this.properties)
+    })
 
-      this.aligment("right")
-    }
-  )
+    this.aligment("right")
+  })
 
-  private readonly leftTitledCheckboxField = this.RULE(
-    "leftTitledCheckboxField",
-    () => {
-      this.aligment("left")
+  private readonly leftTitledCheckboxField = this.RULE("leftTitledCheckboxField", () => {
+    this.aligment("left")
 
-      this.MANY1(() => {
-        this.CONSUME(t.CheckboxHeader)
-      })
+    this.MANY1(() => {
+      this.CONSUME(t.CheckboxHeader)
+    })
 
-      this.choice(
-        1,
-        () => {
-          this.CONSUME(t.CheckboxChecked)
-        },
-        () => {
-          this.CONSUME(t.CheckboxUnchecked)
-        },
-        () => {
-          this.CONSUME(t.SwitchChecked)
-        },
-        () => {
-          this.CONSUME(t.SwitchUnchecked)
-        }
-      )
+    this.choice(
+      1,
+      () => {
+        this.CONSUME(t.CheckboxChecked)
+      },
+      () => {
+        this.CONSUME(t.CheckboxUnchecked)
+      },
+      () => {
+        this.CONSUME(t.SwitchChecked)
+      },
+      () => {
+        this.CONSUME(t.SwitchUnchecked)
+      }
+    )
 
-      this.OPTION3(() => {
-        this.SUBRULE(this.properties)
-      })
+    this.OPTION3(() => {
+      this.SUBRULE(this.properties)
+    })
 
-      this.aligment("right")
-    }
-  )
+    this.aligment("right")
+  })
 
   // #endregion
 
@@ -433,15 +427,6 @@ export class Parser extends CstParser {
       return { ALT: t }
     })
     this.or(idx, items)
-  }
-
-  // https://github.com/bia-technologies/yaxunit-editor
-  private binaryExpression(operand: any, operator: any) {
-    this.SUBRULE1(operand)
-    this.MANY(() => {
-      this.CONSUME(operator)
-      this.SUBRULE2(operand)
-    })
   }
 
   // #endregion
