@@ -1,26 +1,19 @@
-import { TPictureLib } from "~/lib/metadata/systemSets/types"
+import { formatSystemEnumeration } from "../../systemEnumerations/format"
+import * as SE from "../../systemEnumerations/types"
 import { type Picture } from "./types"
-import * as SystemSets from "~/lib/metadata/systemSets/types"
 
-export function formatPicture(picture: Picture): string {
+export function formatPicture(picture: Picture | undefined): string | undefined {
+  if (!picture) return undefined
+
   if (picture.type === "StandardPicture") {
-    // Получаем индексы массивов значений из enum'ов
-    // В zod есть свойство .options для получения значений enum
-    const standardValues = (SystemSets.ZPictureLib as any)
-      .options as TPictureLib[]
-    const enterpriseValues = (SystemSets.ZPictureLibEnterprise as any)
-      .options as string[]
+    const result = formatSystemEnumeration(picture.ref, SE.PictureLibToEnterprise)
 
-    // Находим индекс стандартной картинки
-    const index = standardValues.indexOf(picture.ref as TPictureLib)
+    if (!result) throw new Error(`Picture ref ${picture.ref} not found in PictureLibToEnterprise`)
 
-    // Если индекс найден, возвращаем соответствующую enterprise-версию
-    if (index !== -1) {
-      return enterpriseValues[index]
-    }
+    return result
+  }
 
-    return picture.ref as string
-  } else if (picture.type === "CommonPicture") {
+  if (picture.type === "CommonPicture") {
     return picture.ref as string
   }
 

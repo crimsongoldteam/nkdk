@@ -1,9 +1,9 @@
 import { ConfigurationSettings } from "../metadata/configurationSettings/types"
-import { TElementType } from "../metadata/forms/elements/types"
+import { FormElementType } from "../metadata/forms/elements/types"
 import { formatProperty, getElementRules } from "../rulesManager/rulesManager"
 
 export const formatElementProperties = (
-  elementType: TElementType,
+  elementType: FormElementType,
   value: object | undefined,
   configurationSettings: ConfigurationSettings
 ): object | undefined => {

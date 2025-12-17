@@ -5,7 +5,6 @@ import {
   AdditionalIndexXML,
 } from "~/lib/metadata/commonObjects/additionalIndex/types"
 import { exportIndexFieldsToXML } from "~/lib/metadata/commonObjects/indexField/exportToXML"
-import { exportTableToXML } from "~/lib/metadata/forms/elements/table/exportToXML"
 
 export const exportAdditionalIndexToXML = (data: AdditionalIndex | undefined): AdditionalIndexXML | undefined => {
   if (!data) return undefined
@@ -14,7 +13,7 @@ export const exportAdditionalIndexToXML = (data: AdditionalIndex | undefined): A
     AdditionalFields: exportIndexFieldsToXML(data.additionalFields),
     IndexedFields: exportIndexFieldsToXML(data.indexedFields),
     Name: data.name,
-    Table: exportTableToXML(data.table),
+    Table: data.table,
   }
 }
 
