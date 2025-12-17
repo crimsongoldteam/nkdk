@@ -3,8 +3,8 @@ import { FormElementType } from "../types"
 import type { ClientApplicationForm } from "./types"
 
 export const parseClientApplicationForm = (
-  text: string,
-  configurationSettings: ConfigurationSettings
+  _text: string,
+  _configurationSettings: ConfigurationSettings
 ): ClientApplicationForm => {
   // const cst = parseRegions(text)
   // const visitor = new RegionsVisitor()

@@ -12,6 +12,8 @@ export const formatPage: FormatElementFunction = (
   configurationSettings: ConfigurationSettings
 ): IFormatElementResult => {
   const pageElement = element as Page
+  const childItems = pageElement.childItems ?? []
+
   const result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
@@ -20,7 +22,7 @@ export const formatPage: FormatElementFunction = (
   const header = getHeader(pageElement)
   result.strings.push(header)
 
-  const childResult = formatElements(pageElement.childItems, configurationSettings)
+  const childResult = formatElements(childItems, configurationSettings)
   const indentedStrings = addSimpleIndent(childResult.strings)
   result.strings.push(...indentedStrings)
   result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || childResult.haveSimpleHorizontalGroup

@@ -16,7 +16,7 @@ export const parseUserVisible = (
 
   const values = Object.entries(value).map(([key, val]) => {
     const name = key.replace(/^Role\./, "")
-    const parsedValue = parseBoolean(val, configurationSettings)
+    const parsedValue = parseBoolean(val, configurationSettings)!
     return {
       name,
       value: parsedValue,

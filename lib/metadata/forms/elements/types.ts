@@ -1,4 +1,4 @@
-export const FormElementType = {
+export const FormElementTypeToEnterprise = {
   BaseElement: "БазовыйЭлемент",
   Form: "УправляемаяФорма",
   Button: "Кнопка",
@@ -41,5 +41,11 @@ export const FormElementType = {
   FormItemAddition: "ДополнениеЭлементаФормы",
   FormGroup: "ГруппаФормы",
 } as const
+
+export const FormElementType = Object.fromEntries(
+  Object.keys(FormElementTypeToEnterprise).map((key) => [key, key])
+) as {
+  [K in keyof typeof FormElementTypeToEnterprise]: K
+}
 
 export type FormElementType = (typeof FormElementType)[keyof typeof FormElementType]

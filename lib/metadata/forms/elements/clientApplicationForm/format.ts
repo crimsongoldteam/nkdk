@@ -10,6 +10,7 @@ export const formatClientApplicationForm = (
   element: ClientApplicationForm,
   configurationSettings: ConfigurationSettings
 ): IFormatElementResult => {
+  const childItems = element.childItems ?? []
   const result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
@@ -23,16 +24,13 @@ export const formatClientApplicationForm = (
 
   const allElements = getAllElements(element)
 
-  const itemsResult = formatElements(element.childItems, configurationSettings)
+  const itemsResult = formatElements(childItems, configurationSettings)
   result.strings.push(...itemsResult.strings)
-  result.haveSimpleHorizontalGroup =
-    result.haveSimpleHorizontalGroup || itemsResult.haveSimpleHorizontalGroup
+  result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || itemsResult.haveSimpleHorizontalGroup
 
   if (element.attributes) {
     result.strings.push(...formatSectionHeader("Реквизиты"))
-    result.strings.push(
-      ...formatFormAttributes(element.attributes, configurationSettings)
-    )
+    result.strings.push(...formatFormAttributes(element.attributes, configurationSettings))
   }
 
   if (allElements.length > 0) {

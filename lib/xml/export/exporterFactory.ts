@@ -1,4 +1,4 @@
-import { TChildItemXML } from "~/lib/metadata/forms/elements/childItems/types"
+import { ChildItemXML } from "~/lib/metadata/forms/elements/childItems/types"
 import { BaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
 import { BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
 
@@ -17,7 +17,7 @@ export const registerExport = <T extends BaseElement | undefined>(
   exportRegistry.set(key.toLowerCase(), exportFunction as ExportFunction<BaseElement | undefined>)
 }
 
-export const exportElementToXML = <T extends BaseElement | undefined>(data: T): TChildItemXML => {
+export const exportElementToXML = <T extends BaseElement | undefined>(data: T): ChildItemXML => {
   if (!data) {
     throw new Error("Element is required")
   }
@@ -39,7 +39,7 @@ export const exportElementToXML = <T extends BaseElement | undefined>(data: T): 
       ...baseXML,
       ...exported,
     },
-  } as TChildItemXML
+  } as ChildItemXML
 }
 
 export const clearExportRegistry = (): void => {

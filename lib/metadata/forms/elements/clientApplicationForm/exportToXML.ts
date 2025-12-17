@@ -1,6 +1,7 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportCommandSetToXML } from "~/lib/metadata/forms/commandSet/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
+import { Events } from "~/lib/metadata/forms/events/types"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import exportAttributeToXML from "./attributes/exportToXML"
@@ -77,6 +78,6 @@ export const exportClientApplicationFormToXML = (
     WindowOptionsKey: data.windowOptionsKey,
     UseForFoldersAndItems: data.useForFoldersAndItems,
     // ConditionalAppearance: data.conditionalAppearance,
-    Events: exportEventsToXML(data.events),
+    Events: exportEventsToXML(data.events as Events | undefined),
   }
 }

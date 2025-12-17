@@ -49,6 +49,7 @@ export interface ClientApplicationFormEvents {
   onReopen?: string
   onCreateAtServer?: string
   onSaveDataInSettingsAtServer?: string
+  [key: string]: string | undefined
 }
 
 export interface ClientApplicationForm {

@@ -20,7 +20,7 @@ describe("formatInputField", () => {
 
     const result = formatInputField(element as BaseElement, configurationSettings)
 
-    expect(result.strings).toEqual(["Поле:  {ИмяПоля}"])
+    expect(result.strings).toEqual(["Поле: {ИмяПоля}"])
   })
 
   it("should format input field with value", () => {
@@ -31,7 +31,7 @@ describe("formatInputField", () => {
       title: { items: { ru: "Поле" } },
     }
     const result = formatInputField(element as BaseElement, configurationSettings)
-    expect(result.strings).toEqual(["Поле:  {ИмяПоля}"])
+    expect(result.strings).toEqual(["Поле: {ИмяПоля}"])
   })
 
   it("should format multiline input field", () => {
@@ -46,7 +46,7 @@ describe("formatInputField", () => {
 
     const result = formatInputField(element as BaseElement, configurationSettings)
 
-    expect(result.strings).toEqual(["Поле:  {ИмяПоля}", "      "])
+    expect(result.strings).toEqual(["Поле: {ИмяПоля}", "      "])
   })
 
   it("should format input field with modificators", () => {

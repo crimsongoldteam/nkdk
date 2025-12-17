@@ -2,8 +2,8 @@ import { formatElements } from "~/lib/format/formatFactory"
 import { formatElementTitleAndName } from "~/lib/format/helpers"
 import { IFormatElementResult } from "~/lib/format/types"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import * as t from "~/lib/parser/lexer"
 import { UsualGroupBehavior, UsualGroupRepresentation } from "~/lib/metadata/systemEnumerations/types"
+import * as t from "~/lib/parser/lexer"
 import { UsualGroup } from "../types"
 
 export const formatVerticalGroup = (
@@ -14,13 +14,14 @@ export const formatVerticalGroup = (
     strings: [],
     haveSimpleHorizontalGroup: false,
   }
+  const childItems = element.childItems ?? []
 
   // if (params.wrapInGroup != WrapInGroupStrategy.None) {
   const header = getHeader(element)
   result.strings.push(header)
   // }
 
-  const lines = formatElements(element.childItems, configurationSettings)
+  const lines = formatElements(childItems, configurationSettings)
 
   for (const line of lines.strings) {
     result.strings.push("  " + line)
