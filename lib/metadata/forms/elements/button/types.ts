@@ -37,7 +37,6 @@ export interface Button extends BaseElement {
   locationInCommandBar?: SE.ButtonLocationInCommandBar
   maxHeight?: number
   maxWidth?: number
-  name?: string
   onlyInAllActions?: boolean
   picture?: Picture
   pictureLocation?: SE.FormButtonPictureLocation
@@ -78,7 +77,6 @@ export interface ButtonXML extends BaseElementXML {
   LocationInCommandBar?: SE.ButtonLocationInCommandBar
   MaxHeight?: number
   MaxWidth?: number
-  Name?: string
   OnlyInAllActions?: boolean
   Picture?: PictureXML
   PictureLocation?: SE.FormButtonPictureLocation
@@ -119,7 +117,6 @@ export interface ButtonEnterprise extends BaseElementEnterprise {
   ПоложениеВКоманднойПанели?: SE.ButtonLocationInCommandBarEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  Имя?: string
   ТолькоВоВсехДействиях?: StringboolEnterprise
   Картинка?: PictureEnterprise
   ПоложениеКартинки?: SE.FormButtonPictureLocationEnterprise

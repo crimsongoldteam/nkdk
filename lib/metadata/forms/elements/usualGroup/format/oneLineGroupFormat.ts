@@ -1,13 +1,13 @@
 import { formatElement } from "~/lib/format/formatFactory"
 import { formatElementName } from "~/lib/format/helpers"
 import { IFormatElementResult } from "~/lib/format/types"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { TBaseElement } from "../../baseElement/types"
-import { TUsualGroup } from "../types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { BaseElement } from "../../baseElement/types"
+import { UsualGroup } from "../types"
 
 export const formatOneLineGroup = (
-  element: TUsualGroup,
-  configurationSettings: TConfigurationSettings
+  element: UsualGroup,
+  configurationSettings: ConfigurationSettings
 ): IFormatElementResult => {
   const separatorSymbol = ";"
   const separator = separatorSymbol + " "
@@ -26,7 +26,7 @@ export const formatOneLineGroup = (
 
   for (const item of element.childItems) {
     const itemResult = formatElement(
-      item as TBaseElement,
+      item as BaseElement,
       configurationSettings
     )
     groupItems.push(itemResult.strings)

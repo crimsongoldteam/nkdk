@@ -8,9 +8,9 @@ import {
   UserVisibleDenyEnterprise,
   UserVisibleXML,
 } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/lib/metadata/forms/childItems/types"
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/lib/metadata/forms/commandSet/types"
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
+import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/lib/metadata/forms/elements/childItems/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/lib/metadata/forms/elements/commandBar/types"
 import {
   FormDecoration,
@@ -86,7 +86,6 @@ export interface Table extends BaseElement {
   maxHeightInTableRows?: number
   maxWidth?: number
   multipleChoice?: boolean
-  name?: string
   output?: SE.UseOutput
   readOnly?: boolean
   refreshRequest?: SE.RefreshRequestMethod
@@ -198,7 +197,6 @@ export interface TableXML extends BaseElementXML {
   MaxHeightInTableRows?: number
   MaxWidth?: number
   MultipleChoice?: boolean
-  Name?: string
   Output?: SE.UseOutput
   ReadOnly?: boolean
   RefreshRequest?: SE.RefreshRequestMethod
@@ -286,7 +284,6 @@ export interface TableEnterprise extends BaseElementEnterprise {
   МаксимальнаяВысотаВСтрокахТаблицы?: number
   МаксимальнаяШирина?: number
   МножественныйВыбор?: StringboolEnterprise
-  Имя?: string
   Вывод?: SE.UseOutputEnterprise
   ТолькоПросмотр?: StringboolEnterprise
   ЗапросОбновления?: SE.RefreshRequestMethodEnterprise

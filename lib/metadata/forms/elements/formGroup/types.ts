@@ -8,8 +8,8 @@ import {
   UserVisibleDenyEnterprise,
   UserVisibleXML,
 } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/lib/metadata/forms/childItems/types"
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
+import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/lib/metadata/forms/elements/childItems/types"
 import {
   FormDecoration,
   FormDecorationEnterprise,
@@ -24,7 +24,6 @@ export interface FormGroup extends BaseElement {
   height?: number
   horizontalAlignInGroup?: SE.ItemHorizontalLocation
   horizontalStretch?: boolean
-  name?: string
   readOnly?: boolean
   shortcut?: string
   title?: I8nText
@@ -48,7 +47,6 @@ export interface FormGroupXML extends BaseElementXML {
   Height?: number
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
   HorizontalStretch?: boolean
-  Name?: string
   ReadOnly?: boolean
   Shortcut?: string
   Title?: I8nTextXML
@@ -72,7 +70,6 @@ export interface FormGroupEnterprise extends BaseElementEnterprise {
   Высота?: number
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  Имя?: string
   ТолькоПросмотр?: StringboolEnterprise
   СочетаниеКлавиш?: string
   Заголовок?: I8nTextEnterprise

@@ -25,7 +25,6 @@ export interface FormDecoration extends BaseElement {
   horizontalStretch?: boolean
   maxHeight?: number
   maxWidth?: number
-  name?: string
   shortcut?: string
   skipOnInput?: boolean
   textColor?: Color
@@ -53,7 +52,6 @@ export interface FormDecorationXML extends BaseElementXML {
   HorizontalStretch?: boolean
   MaxHeight?: number
   MaxWidth?: number
-  Name?: string
   Shortcut?: string
   SkipOnInput?: boolean
   TextColor?: ColorXML
@@ -81,7 +79,6 @@ export interface FormDecorationEnterprise extends BaseElementEnterprise {
   РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  Имя?: string
   СочетаниеКлавиш?: string
   ПропускатьПриВводе?: StringboolEnterprise
   ЦветТекста?: ColorEnterprise

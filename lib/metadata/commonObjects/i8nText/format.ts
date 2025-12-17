@@ -1,9 +1,9 @@
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { I8nText, I8nTextEnterprise } from "./types"
 
 export const formatI8nText = (
   title: I8nText | undefined,
-  configurationSettings: TConfigurationSettings
+  configurationSettings: ConfigurationSettings
 ): I8nTextEnterprise | undefined => {
   if (!title) return undefined
 

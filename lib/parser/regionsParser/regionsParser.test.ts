@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest"
 import { parseRegions } from "./regionsParser"
-import { ZodError } from "zod"
-import { ZCSTRegions } from "./types"
 
 describe("regionsParser", () => {
   it("should parse text with sections", () => {
@@ -12,19 +10,10 @@ describe("regionsParser", () => {
 
     const cst = parseRegions(mock)
 
-    expect(() => ZCSTRegions.parse(cst)).not.toThrow(ZodError)
-    expect(cst[0].children.header?.[0].children.Text?.[0].image).to.equal(
-      "Раздел 1 "
-    )
-    expect(cst[1].children.text?.[0].children.Text?.[0].image).to.equal(
-      "Содержимое раздела 1"
-    )
-    expect(cst[2].children.header?.[0].children.Text?.[0].image).to.equal(
-      "Раздел 2 "
-    )
-    expect(cst[3].children.text?.[0].children.Text?.[0].image).to.equal(
-      "Содержимое раздела 2"
-    )
+    expect(cst[0].children.header?.[0].children.Text?.[0].image).to.equal("Раздел 1 ")
+    expect(cst[1].children.text?.[0].children.Text?.[0].image).to.equal("Содержимое раздела 1")
+    expect(cst[2].children.header?.[0].children.Text?.[0].image).to.equal("Раздел 2 ")
+    expect(cst[3].children.text?.[0].children.Text?.[0].image).to.equal("Содержимое раздела 2")
   })
 
   it("should parse text without first section", () => {
@@ -34,15 +23,8 @@ describe("regionsParser", () => {
 
     const cst = parseRegions(mock)
 
-    expect(() => ZCSTRegions.parse(cst)).not.toThrow(ZodError)
-    expect(cst[0].children.text?.[0].children.Text?.[0].image).to.equal(
-      "Содержимое раздела 1"
-    )
-    expect(cst[1].children.header?.[0].children.Text?.[0].image).to.equal(
-      "Раздел 2 "
-    )
-    expect(cst[2].children.text?.[0].children.Text?.[0].image).to.equal(
-      "Содержимое раздела 2"
-    )
+    expect(cst[0].children.text?.[0].children.Text?.[0].image).to.equal("Содержимое раздела 1")
+    expect(cst[1].children.header?.[0].children.Text?.[0].image).to.equal("Раздел 2 ")
+    expect(cst[2].children.text?.[0].children.Text?.[0].image).to.equal("Содержимое раздела 2")
   })
 })

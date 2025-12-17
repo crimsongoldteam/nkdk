@@ -40,7 +40,6 @@ export const exportFormFieldToXML = (data: FormField | undefined): FormFieldXML 
     HeaderPicture: exportPictureToXML(data.headerPicture),
     HorizontalAlign: data.horizontalAlign,
     HorizontalAlignInGroup: data.horizontalAlignInGroup,
-    Name: data.name,
     ReadOnly: data.readOnly,
     Shortcut: data.shortcut,
     ShowInFooter: data.showInFooter,

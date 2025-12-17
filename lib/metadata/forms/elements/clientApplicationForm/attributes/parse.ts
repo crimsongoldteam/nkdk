@@ -3,12 +3,12 @@ import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
 import { parseI8nText } from "~/lib/metadata/commonObjects/i8nText/parse"
 import { parseTypeDescription } from "~/lib/metadata/commonObjects/typeDescription/parse"
 import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { FormAttribute } from "../types"
 
 export const parseAttributes = (
   yamlContent: string,
-  configurationSettings: TConfigurationSettings
+  configurationSettings: ConfigurationSettings
 ): FormAttribute[] => {
   const parsed = parse(yamlContent) as Record<string, any>
   const result: FormAttribute[] = []

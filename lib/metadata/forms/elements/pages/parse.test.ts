@@ -4,10 +4,10 @@ import { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
 import { FormElementType } from "../types"
-import { TPages } from "./types"
-import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Pages } from "./types"
+import type { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 
@@ -31,7 +31,7 @@ describe("parse Pages", () => {
       ],
     }
 
-    const expectedResult: TPages = {
+    const expectedResult: Pages = {
       elementType: FormElementType.Pages,
       name: "pages",
       title: {

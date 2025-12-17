@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { lexer } from "~/lib/parser/lexer"
@@ -7,7 +7,7 @@ import { ParseElementType } from "~/lib/parser/types"
 import { FormElementType } from "../types"
 import { CheckBoxField } from "./types"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 

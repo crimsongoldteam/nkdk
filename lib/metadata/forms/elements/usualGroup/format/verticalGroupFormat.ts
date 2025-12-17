@@ -1,17 +1,17 @@
 import { formatElements } from "~/lib/format/formatFactory"
 import { formatElementTitleAndName } from "~/lib/format/helpers"
 import { IFormatElementResult } from "~/lib/format/types"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import {
   ZUsualGroupBehavior,
   ZUsualGroupRepresentation,
 } from "~/lib/metadata/systemEnumerations/types"
 import * as t from "~/lib/parser/lexer"
-import { TUsualGroup } from "../types"
+import { UsualGroup } from "../types"
 
 export const formatVerticalGroup = (
-  element: TUsualGroup,
-  configurationSettings: TConfigurationSettings
+  element: UsualGroup,
+  configurationSettings: ConfigurationSettings
 ): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: [],
@@ -40,7 +40,7 @@ export const formatVerticalGroup = (
   return result
 }
 
-const getHeader = (element: TUsualGroup): string => {
+const getHeader = (element: UsualGroup): string => {
   // const excludeProperties = ["Заголовок", "Поведение", "Группировка"]
 
   const levelDisplay = getLevelDisplay(element)
@@ -58,7 +58,7 @@ const getHeader = (element: TUsualGroup): string => {
 }
 
 const getLevelDisplay = (
-  element: TUsualGroup
+  element: UsualGroup
 ): { level: number; display: boolean } => {
   const result: { level: number; display: boolean } = {
     level: 1,

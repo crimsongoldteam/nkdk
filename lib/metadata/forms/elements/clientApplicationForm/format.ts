@@ -1,6 +1,6 @@
 import { formatElements } from "~/lib/format/formatFactory"
 import { IFormatElementResult } from "~/lib/format/types"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import formatFormAttributes from "./attributes/format"
 import { getAllElements } from "./getAllElements"
 import { formatProperties } from "./properties/format"
@@ -8,7 +8,7 @@ import { ClientApplicationForm } from "./types"
 
 export const formatClientApplicationForm = (
   element: ClientApplicationForm,
-  configurationSettings: TConfigurationSettings
+  configurationSettings: ConfigurationSettings
 ): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: [],

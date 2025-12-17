@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { ClientApplicationForm, TInputField } from "~/lib"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ClientApplicationForm, InputField } from "~/lib"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import "~/lib/metadata/forms/elements/elements"
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
@@ -9,7 +9,7 @@ import "~/lib/metadata/forms/elements/rules"
 import { FormElementType } from "../types"
 import { formatClientApplicationForm } from "./format"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 
@@ -27,7 +27,7 @@ describe("formatClientApplicationForm", () => {
   })
 
   it("should format form items", () => {
-    const input: TInputField = {
+    const input: InputField = {
       name: "ИмяПоля",
       id: "1",
       elementType: FormElementType.InputField,

@@ -1,8 +1,8 @@
 import React from "react"
-import { TPage } from "~/lib/metadata/forms/elements/page/types"
+import { Page } from "~/lib/metadata/forms/elements/page/types"
 import { components } from "../components"
 
-export function PageComponent(props: Readonly<TPage>): React.ReactNode {
+export function PageComponent(props: Readonly<Page>): React.ReactNode {
   const childItems = props.childItems
 
   return (

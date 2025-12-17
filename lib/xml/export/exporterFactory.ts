@@ -1,12 +1,12 @@
 import { TChildItemXML } from "~/lib/metadata/forms/elements/childItems/types"
-import { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
-import { TBaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
+import { BaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
+import { BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
 
-type ExportFunction<T extends TBaseElement | undefined> = (data: T) => any
+type ExportFunction<T extends BaseElement | undefined> = (data: T) => any
 
-const exportRegistry: Map<string, ExportFunction<TBaseElement | undefined>> = new Map()
+const exportRegistry: Map<string, ExportFunction<BaseElement | undefined>> = new Map()
 
-export const registerExport = <T extends TBaseElement | undefined>(
+export const registerExport = <T extends BaseElement | undefined>(
   key: string,
   exportFunction: ExportFunction<T>
 ): void => {
@@ -14,10 +14,10 @@ export const registerExport = <T extends TBaseElement | undefined>(
     throw new Error("Key is required")
   }
 
-  exportRegistry.set(key.toLowerCase(), exportFunction as ExportFunction<TBaseElement | undefined>)
+  exportRegistry.set(key.toLowerCase(), exportFunction as ExportFunction<BaseElement | undefined>)
 }
 
-export const exportElementToXML = <T extends TBaseElement | undefined>(data: T): TChildItemXML => {
+export const exportElementToXML = <T extends BaseElement | undefined>(data: T): TChildItemXML => {
   if (!data) {
     throw new Error("Element is required")
   }
@@ -29,7 +29,7 @@ export const exportElementToXML = <T extends TBaseElement | undefined>(data: T):
   }
 
   const exported = exportFunction(data)
-  const baseXML: TBaseElementXML = {
+  const baseXML: BaseElementXML = {
     _id: data.id ?? "",
     _name: data.name,
   }

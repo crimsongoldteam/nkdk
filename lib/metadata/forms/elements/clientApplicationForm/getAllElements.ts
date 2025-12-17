@@ -1,11 +1,11 @@
 import { ClientApplicationForm } from "./types"
-import { TBaseElement } from "../baseElement/types"
+import { BaseElement } from "../baseElement/types"
 
 export const getAllElements = (
   form: ClientApplicationForm
-): TBaseElement[] => {
-  const elements: TBaseElement[] = []
-  const queue: TBaseElement[] = []
+): BaseElement[] => {
+  const elements: BaseElement[] = []
+  const queue: BaseElement[] = []
 
   for (const childItem of form.childItems) {
     queue.push(childItem)

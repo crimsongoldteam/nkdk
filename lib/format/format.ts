@@ -1,11 +1,11 @@
-import { TConfigurationSettings } from "../metadata/configurationSettings/types"
+import { ConfigurationSettings } from "../metadata/configurationSettings/types"
 import { TElementType } from "../metadata/forms/elements/types"
 import { formatProperty, getElementRules } from "../rulesManager/rulesManager"
 
 export const formatElementProperties = (
   elementType: TElementType,
   value: object | undefined,
-  configurationSettings: TConfigurationSettings
+  configurationSettings: ConfigurationSettings
 ): object | undefined => {
   if (!value) {
     return undefined

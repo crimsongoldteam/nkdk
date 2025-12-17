@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { BaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
 import { FormElementType } from "../types"
 import { formatInputField } from "./format"
 import { InputField } from "./types"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 
@@ -15,12 +16,11 @@ describe("formatInputField", () => {
       id: "1",
       elementType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
-      value: "Значение",
     }
 
-    const result = formatInputField(element, configurationSettings)
+    const result = formatInputField(element as BaseElement, configurationSettings)
 
-    expect(result.strings).toEqual(["Поле: Значение {ИмяПоля}"])
+    expect(result.strings).toEqual(["Поле:  {ИмяПоля}"])
   })
 
   it("should format input field with value", () => {
@@ -29,10 +29,9 @@ describe("formatInputField", () => {
       id: "1",
       elementType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
-      value: "Значение",
     }
-    const result = formatInputField(element, configurationSettings)
-    expect(result.strings).toEqual(["Поле: Значение {ИмяПоля}"])
+    const result = formatInputField(element as BaseElement, configurationSettings)
+    expect(result.strings).toEqual(["Поле:  {ИмяПоля}"])
   })
 
   it("should format multiline input field", () => {
@@ -41,14 +40,13 @@ describe("formatInputField", () => {
       id: "1",
       elementType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
-      value: "Значение",
       height: 2,
       multiLine: true,
     }
 
-    const result = formatInputField(element, configurationSettings)
+    const result = formatInputField(element as BaseElement, configurationSettings)
 
-    expect(result.strings).toEqual(["Поле: Значение {ИмяПоля}", "      ________"])
+    expect(result.strings).toEqual(["Поле:  {ИмяПоля}", "      "])
   })
 
   it("should format input field with modificators", () => {
@@ -57,7 +55,6 @@ describe("formatInputField", () => {
       id: "1",
       elementType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
-      value: "Значение",
       choiceButton: true,
       dropListButton: true,
       clearButton: true,
@@ -65,9 +62,9 @@ describe("formatInputField", () => {
       spinButton: true,
     }
 
-    const result = formatInputField(element, configurationSettings)
+    const result = formatInputField(element as BaseElement, configurationSettings)
 
-    expect(result.strings).toEqual(["Поле: Значение__ВСХОД {ИмяПоля}"])
+    expect(result.strings).toEqual(["Поле: __ВСХОД {ИмяПоля}"])
   })
 
   it("should format input field with name if title is not present", () => {
@@ -77,7 +74,7 @@ describe("formatInputField", () => {
       elementType: FormElementType.InputField,
     }
 
-    const result = formatInputField(element, configurationSettings)
+    const result = formatInputField(element as BaseElement, configurationSettings)
 
     expect(result.strings).toEqual(["{ИмяПоля}: "])
   })

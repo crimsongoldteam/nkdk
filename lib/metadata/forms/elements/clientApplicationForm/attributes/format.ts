@@ -7,12 +7,12 @@ import {
   formatUserVisible,
   getUserVisibleKey,
 } from "~/lib/metadata/commonObjects/userVisible/format"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { FormAttribute } from "../types"
 
 export default function formatFormAttributes(
   attributes: FormAttribute[],
-  configurationSettings: TConfigurationSettings
+  configurationSettings: ConfigurationSettings
 ): string[] {
   const result: string[] = []
 
@@ -92,7 +92,7 @@ const isTitleEqualCamelCaseName = (title: string, name: string): boolean => {
 
 const transformAttribute = (
   attribute: FormAttribute,
-  configurationSettings: TConfigurationSettings,
+  configurationSettings: ConfigurationSettings,
   skipTitle: boolean = false
 ): Record<string, any> => {
   const title = formatI8nText(attribute.title, configurationSettings)

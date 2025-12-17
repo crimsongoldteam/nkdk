@@ -1,11 +1,9 @@
 import { Form } from "antd"
 import type React from "react"
-import { components } from "../components"
 import { ClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
+import { components } from "../components"
 
-export function ClientFormApplication(
-  props: Readonly<ClientApplicationForm>
-): React.ReactNode {
+export function ClientFormApplication(props: Readonly<ClientApplicationForm>): React.ReactNode {
   const { childItems } = props
 
   return (
@@ -18,13 +16,10 @@ export function ClientFormApplication(
       colon={false}
       style={{ maxWidth: 600 }}
     >
-      {childItems.map((item) => {
-        const Component =
-          components[item.elementType as keyof typeof components]
+      {childItems?.map((item) => {
+        const Component = components[item.elementType as keyof typeof components]
         if (!Component) {
-          return (
-            <div key={item.name}>Компонент {item.elementType} не найден</div>
-          )
+          return <div key={item.name}>Компонент {item.elementType} не найден</div>
         }
         return <Component key={item.name} {...item} />
       })}

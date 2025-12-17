@@ -66,8 +66,8 @@ describe("nameMapping", () => {
 
       updateNameIdMapping(mapping, form)
 
-      expect(form.childItems[0].id).toBe("2")
-      expect(form.childItems[1].id).toBe("1")
+      expect(form.childItems![0].id).toBe("2")
+      expect(form.childItems![1].id).toBe("1")
     })
 
     it("should assign next available id", () => {
@@ -90,7 +90,7 @@ describe("nameMapping", () => {
 
       updateNameIdMapping(mapping, form)
 
-      expect(form.childItems[1].id).toBe("2")
+      expect(form.childItems![1].id).toBe("2")
       expect(mapping.get("2")).toBe("field2")
     })
   })

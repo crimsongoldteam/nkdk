@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { formatI8nText } from "./format"
 import { I8nText } from "./types"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 

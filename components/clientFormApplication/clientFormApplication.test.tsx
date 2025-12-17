@@ -1,5 +1,6 @@
-import { render, screen, cleanup } from "@testing-library/react"
-import { expect, it, describe, afterEach } from "vitest"
+import { cleanup, render, screen } from "@testing-library/react"
+import { afterEach, describe, expect, it } from "vitest"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { ClientFormApplication } from "./clientFormApplication"
 
 describe("ClientFormApplication", () => {
@@ -8,7 +9,13 @@ describe("ClientFormApplication", () => {
   })
 
   it("should render with title", () => {
-    render(<ClientFormApplication title="Test Title" childItems={[]} />)
+    render(
+      <ClientFormApplication
+        elementType={FormElementType.ClientApplicationForm}
+        title={{ items: { ru: "Test Title" } }}
+        childItems={[]}
+      />
+    )
 
     expect(screen.getByText("Test Title")).toBeDefined()
   })

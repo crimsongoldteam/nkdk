@@ -2,9 +2,9 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { importChildItemsFromXML } from "~/lib/metadata/forms/childItems/importFromXML"
 import { importCommandSetFromXML } from "~/lib/metadata/forms/commandSet/importFromXML"
 import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
+import { importChildItemsFromXML } from "~/lib/metadata/forms/elements/childItems/importFromXML"
 import { importCommandBarFromXML } from "~/lib/metadata/forms/elements/commandBar/importFromXML"
 import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
 import { importFormItemAdditionFromXML } from "~/lib/metadata/forms/elements/formItemAddition/importFromXML"
@@ -68,7 +68,6 @@ export const importTableFromXML = (xml: TableXML | undefined): Table | undefined
     maxHeightInTableRows: xml.MaxHeightInTableRows,
     maxWidth: xml.MaxWidth,
     multipleChoice: xml.MultipleChoice,
-    name: xml.Name,
     output: xml.Output,
     readOnly: xml.ReadOnly,
     refreshRequest: xml.RefreshRequest,

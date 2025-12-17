@@ -1,6 +1,8 @@
-import { FormatElementFunction, IFormatElementResult, IFormatterParams } from "~/lib/format/types"
+import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import * as t from "~/lib/parser/lexer"
 import { BaseElement } from "../baseElement/types"
+import { ChildItem } from "../childItems/types"
 import { ColumnGroup } from "../columnGroup/types"
 import { InputField } from "../inputField/types"
 import { FormElementType } from "../types"
@@ -21,7 +23,7 @@ const getColumnHeader = (element: InputField | ColumnGroup): string => {
     if (title) {
       return title
     }
-    return formatColumnName(columnGroup.name)
+    return formatColumnName(columnGroup.name ?? "")
   } else {
     const inputField = element as InputField
     // Используем title если есть, иначе name с форматированием
@@ -29,7 +31,7 @@ const getColumnHeader = (element: InputField | ColumnGroup): string => {
     if (title) {
       return title
     }
-    return formatColumnName(inputField.name)
+    return formatColumnName(inputField.name ?? "")
   }
 }
 
@@ -38,7 +40,10 @@ const formatTableRow = (columns: (InputField | ColumnGroup)[]): string => {
   return `${V_BAR} ${headers.join(` ${V_BAR} `)} ${V_BAR}`
 }
 
-export const formatTable: FormatElementFunction = (element: Table, _params: IFormatterParams): IFormatElementResult => {
+export const formatTable: FormatElementFunction = (
+  element: Table,
+  _configurationSettings: ConfigurationSettings
+): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
@@ -49,7 +54,7 @@ export const formatTable: FormatElementFunction = (element: Table, _params: IFor
   }
 
   // Обрабатываем горизонтальные группы
-  const hasHorizontalGroup = element.childItems.some((item) => {
+  const hasHorizontalGroup = element.childItems.some((item: ChildItem) => {
     if (!("elementType" in item)) return false
     const baseItem = item as unknown as BaseElement
     return (
@@ -70,10 +75,10 @@ export const formatTable: FormatElementFunction = (element: Table, _params: IFor
           // Сначала получаем строку с колонками для вычисления ширины
           if (columnGroup.childItems && columnGroup.childItems.length > 0) {
             const columns = columnGroup.childItems
-              .filter((child) => "elementType" in child)
-              .map((child) => child as unknown as BaseElement)
-              .filter((child) => child.elementType === FormElementType.InputField)
-              .map((child) => child as unknown as InputField)
+              .filter((child: ChildItem) => "elementType" in child)
+              .map((child: ChildItem) => child as unknown as BaseElement)
+              .filter((child: BaseElement) => child.elementType === FormElementType.InputField)
+              .map((child: BaseElement) => child as unknown as InputField)
             if (columns.length > 0) {
               const row = formatTableRow(columns)
               const rowWithExtraBar = `${V_BAR}${row.substring(1)}` // Добавляем дополнительный | в начале
@@ -103,10 +108,10 @@ export const formatTable: FormatElementFunction = (element: Table, _params: IFor
           // Вертикальная группа - каждая колонка в отдельной строке
           if (columnGroup.childItems && columnGroup.childItems.length > 0) {
             const columns = columnGroup.childItems
-              .filter((child) => "elementType" in child)
-              .map((child) => child as unknown as BaseElement)
-              .filter((child) => child.elementType === FormElementType.InputField)
-              .map((child) => child as unknown as InputField)
+              .filter((child: ChildItem) => "elementType" in child)
+              .map((child: ChildItem) => child as unknown as BaseElement)
+              .filter((child: BaseElement) => child.elementType === FormElementType.InputField)
+              .map((child: BaseElement) => child as unknown as InputField)
             // Форматируем каждую колонку в отдельную строку
             for (const column of columns) {
               result.strings.push(formatTableRow([column]))
@@ -120,7 +125,7 @@ export const formatTable: FormatElementFunction = (element: Table, _params: IFor
     }
   } else {
     // Нет горизонтальных групп - проверяем наличие вертикальных групп
-    const hasVerticalGroup = element.childItems.some((item) => {
+    const hasVerticalGroup = element.childItems.some((item: ChildItem) => {
       if (!("elementType" in item)) return false
       const baseItem = item as unknown as BaseElement
       return (
@@ -140,10 +145,10 @@ export const formatTable: FormatElementFunction = (element: Table, _params: IFor
           // Вертикальная группа - каждая колонка в отдельной строке
           if (columnGroup.childItems && columnGroup.childItems.length > 0) {
             const columns = columnGroup.childItems
-              .filter((child) => "elementType" in child)
-              .map((child) => child as unknown as BaseElement)
-              .filter((child) => child.elementType === FormElementType.InputField)
-              .map((child) => child as unknown as InputField)
+              .filter((child: ChildItem) => "elementType" in child)
+              .map((child: ChildItem) => child as unknown as BaseElement)
+              .filter((child: BaseElement) => child.elementType === FormElementType.InputField)
+              .map((child: BaseElement) => child as unknown as InputField)
             // Форматируем каждую колонку в отдельную строку
             for (const column of columns) {
               result.strings.push(formatTableRow([column]))
@@ -157,10 +162,10 @@ export const formatTable: FormatElementFunction = (element: Table, _params: IFor
     } else {
       // Нет групп - просто форматируем все колонки в одну строку
       const columns = element.childItems
-        .filter((item) => "elementType" in item)
-        .map((item) => item as unknown as BaseElement)
-        .filter((item) => item.elementType === FormElementType.InputField)
-        .map((item) => item as unknown as InputField)
+        .filter((item: ChildItem) => "elementType" in item)
+        .map((item: ChildItem) => item as unknown as BaseElement)
+        .filter((item: BaseElement) => item.elementType === FormElementType.InputField)
+        .map((item: BaseElement) => item as unknown as InputField)
       if (columns.length > 0) {
         result.strings.push(formatTableRow(columns))
       }

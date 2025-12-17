@@ -1,11 +1,11 @@
 import { formatElementName } from "~/lib/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { BaseElement } from "./types"
 
 export const formatOtherElement: FormatElementFunction = (
   element: BaseElement,
-  _configurationSettings: TConfigurationSettings
+  _configurationSettings: ConfigurationSettings
 ): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: ["?" + element.elementType + " " + formatElementName(element)],

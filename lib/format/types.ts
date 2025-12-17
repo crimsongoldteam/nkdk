@@ -1,5 +1,5 @@
-import { TConfigurationSettings } from "../metadata/configurationSettings/types"
-import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
+import { ConfigurationSettings } from "../metadata/configurationSettings/types"
+import { BaseElement } from "../metadata/forms/elements/baseElement/types"
 
 export enum WrapInGroupStrategy {
   None,
@@ -19,11 +19,11 @@ export interface IFormatElementResult {
 }
 
 export type FormatElementFunction = (
-  element: TBaseElement,
-  configurationSettings: TConfigurationSettings
+  element: BaseElement,
+  configurationSettings: ConfigurationSettings
 ) => IFormatElementResult
-export type CheckFormatFunction<T = TBaseElement> = (element: T) => boolean
+export type CheckFormatFunction<T = BaseElement> = (element: T) => boolean
 
-export type CheckIsOneLineElementFunction<T = TBaseElement> = (
+export type CheckIsOneLineElementFunction<T = BaseElement> = (
   element: T
 ) => boolean

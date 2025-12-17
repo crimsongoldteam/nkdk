@@ -35,7 +35,6 @@ export const importButtonFromXML = (xml: ButtonXML | undefined): Button | undefi
     locationInCommandBar: xml.LocationInCommandBar,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
-    name: xml.Name,
     onlyInAllActions: xml.OnlyInAllActions,
     picture: importPictureFromXML(xml.Picture),
     pictureLocation: xml.PictureLocation,

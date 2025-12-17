@@ -8,12 +8,11 @@ export default defineConfig({
   esbuild: {
     target: "es2020",
   },
-  // test: {
-  //   environment: "jsdom",
-  //   setupFiles: ["./vitestSetup.ts"],
-  //   globals: true,
-  //   watch: false,
-  // },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    watch: false,
+  },
   resolve: {
     alias: {
       "~": resolve(process.cwd(), "./"),

@@ -1,10 +1,10 @@
-import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import type { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { FormElementType } from "../types"
 import type { ClientApplicationForm } from "./types"
 
 export const parseClientApplicationForm = (
   text: string,
-  configurationSettings: TConfigurationSettings
+  configurationSettings: ConfigurationSettings
 ): ClientApplicationForm => {
   // const cst = parseRegions(text)
   // const visitor = new RegionsVisitor()

@@ -1,17 +1,17 @@
 import { parse } from "yaml"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { getElementRules } from "~/lib/rulesManager/rulesManager"
 import { TElementRule } from "~/lib/rulesManager/types"
-import { TBaseElement } from "../../baseElement/types"
+import { BaseElement } from "../../baseElement/types"
 
 export const parseProperties = (
   yamlContent: string,
-  elementsMap: Record<string, TBaseElement>,
-  configurationSettings: TConfigurationSettings
-): Record<string, TBaseElement> => {
+  elementsMap: Record<string, BaseElement>,
+  configurationSettings: ConfigurationSettings
+): Record<string, BaseElement> => {
   const data = parse(yamlContent) as Record<string, any>
 
-  const result: Record<string, TBaseElement> = { ...elementsMap }
+  const result: Record<string, BaseElement> = { ...elementsMap }
 
   for (const [elementName, properties] of Object.entries(data)) {
     if (!properties || typeof properties !== "object") {
@@ -36,9 +36,9 @@ export const parseProperties = (
 }
 
 const parseElementProperties = (
-  element: TBaseElement,
+  element: BaseElement,
   properties: Record<string, any>,
-  configurationSettings: TConfigurationSettings
+  configurationSettings: ConfigurationSettings
 ) => {
   const result: Record<string, any> = {}
   const rules = getElementRules(element.elementType)
@@ -67,7 +67,7 @@ const parseElementProperties = (
 
 const parseProperty = (
   value: any,
-  configurationSettings: TConfigurationSettings,
+  configurationSettings: ConfigurationSettings,
   rule: TElementRule
 ) => {
   if (!rule) throw new Error("Rule not found")

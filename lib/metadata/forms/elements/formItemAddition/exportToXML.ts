@@ -1,7 +1,7 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { exportChildItemsToXML } from "~/lib/metadata/forms/childItems/exportToXML"
 import { exportBaseElementToXML } from "~/lib/metadata/forms/elements/baseElement/exportToXML"
+import { exportChildItemsToXML } from "~/lib/metadata/forms/elements/childItems/exportToXML"
 import { exportCommandBarToXML } from "~/lib/metadata/forms/elements/commandBar/exportToXML"
 import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDecoration/exportToXML"
 import { FormItemAddition, FormItemAdditionXML } from "~/lib/metadata/forms/elements/formItemAddition/types"
@@ -19,7 +19,6 @@ export const exportFormItemAdditionToXML = (data: FormItemAddition | undefined):
     Enabled: data.enabled,
     ExtendedToolTip: exportFormDecorationToXML(data.extendedToolTip),
     HorizontalAlignInGroup: data.horizontalAlignInGroup,
-    Name: data.name,
     Title: exportI8nTextToXML(data.title),
     ToolTip: exportI8nTextToXML(data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,

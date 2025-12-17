@@ -34,7 +34,6 @@ export const exportButtonToXML = (data: Button | undefined): ButtonXML | undefin
     LocationInCommandBar: data.locationInCommandBar,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
-    Name: data.name,
     OnlyInAllActions: data.onlyInAllActions,
     Picture: exportPictureToXML(data.picture),
     PictureLocation: data.pictureLocation,

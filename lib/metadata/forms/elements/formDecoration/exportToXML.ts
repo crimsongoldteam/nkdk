@@ -26,7 +26,6 @@ export const exportFormDecorationToXML = (data: FormDecoration | undefined): For
     HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
-    Name: data.name,
     Shortcut: data.shortcut,
     SkipOnInput: data.skipOnInput,
     TextColor: exportColorToXML(data.textColor),

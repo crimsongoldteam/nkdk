@@ -6,8 +6,8 @@ import {
   UserVisibleDenyEnterprise,
   UserVisibleXML,
 } from "~/lib/metadata/commonObjects/userVisible/types"
-import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/lib/metadata/forms/childItems/types"
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
+import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/lib/metadata/forms/elements/childItems/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/lib/metadata/forms/elements/commandBar/types"
 import {
   FormDecoration,
@@ -22,7 +22,6 @@ export interface FormItemAddition extends BaseElement {
   enabled?: boolean
   extendedToolTip?: FormDecoration
   horizontalAlignInGroup?: SE.ItemHorizontalLocation
-  name?: string
   title?: I8nText
   toolTip?: I8nText
   toolTipRepresentation?: SE.ToolTipRepresentation
@@ -39,7 +38,6 @@ export interface FormItemAdditionXML extends BaseElementXML {
   Enabled?: boolean
   ExtendedToolTip?: FormDecorationXML
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
-  Name?: string
   Title?: I8nTextXML
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
@@ -56,7 +54,6 @@ export interface FormItemAdditionEnterprise extends BaseElementEnterprise {
   Доступность?: StringboolEnterprise
   РасширеннаяПодсказка?: FormDecorationEnterprise
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  Имя?: string
   Заголовок?: I8nTextEnterprise
   Подсказка?: I8nTextEnterprise
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise

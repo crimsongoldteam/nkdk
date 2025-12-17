@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
 import "~/lib/metadata/forms/elements/rules"
@@ -7,7 +7,7 @@ import { FormElementType } from "../../types"
 import { ClientApplicationForm } from "../types"
 import { formatProperties } from "./format"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 

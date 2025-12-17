@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { TUsualGroup } from "./types"
+import { UsualGroup } from "./types"
 import { importUsualGroupFromXML } from "./importFromXML"
-import { TUsualGroupXML } from "./types"
+import { UsualGroupXML } from "./types"
 import { xmlImport } from "~/lib"
 import { FormElementType } from "../types"
-import z from "zod"
-import { ZUsualGroupXML } from "./types"
 
 describe("importUsualGroupFromXML", () => {
   it("should import usual group from XML", () => {
@@ -18,7 +16,7 @@ describe("importUsualGroupFromXML", () => {
     </Title>
   </UsualGroup>`
 
-    const mockResult: TUsualGroup = {
+    const mockResult: UsualGroup = {
       name: "Группа",
       title: { items: { ru: "Заголовок группы" } },
       id: "1",
@@ -26,7 +24,7 @@ describe("importUsualGroupFromXML", () => {
       elementType: FormElementType.UsualGroup,
     }
 
-    const xmlData = xmlImport<{ UsualGroup: TUsualGroupXML }>(mockXml, z.object({ UsualGroup: ZUsualGroupXML }))
+    const xmlData = xmlImport<{ UsualGroup: UsualGroupXML }>(mockXml)
     const value = xmlData.UsualGroup
 
     const input = importUsualGroupFromXML(value)
@@ -47,7 +45,7 @@ describe("importUsualGroupFromXML", () => {
 	  </ChildItems>
   </UsualGroup>`
 
-    const mockResult: TUsualGroup = {
+    const mockResult: UsualGroup = {
       name: "Группа",
       title: { items: { ru: "Заголовок группы" } },
       id: "1",
@@ -55,7 +53,7 @@ describe("importUsualGroupFromXML", () => {
       elementType: FormElementType.UsualGroup,
     }
 
-    const xmlData = xmlImport<{ UsualGroup: TUsualGroupXML }>(mockXml, z.object({ UsualGroup: ZUsualGroupXML }))
+    const xmlData = xmlImport<{ UsualGroup: UsualGroupXML }>(mockXml)
     const value = xmlData.UsualGroup
 
     const input = importUsualGroupFromXML(value)

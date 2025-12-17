@@ -1,16 +1,16 @@
 import { it, expect, describe } from "vitest"
 import { FormElementType } from "../types"
-import { TPictureDecoration } from "./types"
+import { PictureDecoration } from "./types"
 import { formatPictureDecoration } from "./format"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 
 describe("formatPictureDecoration", () => {
   it("should format picture decoration", () => {
-    const element: TPictureDecoration = {
+    const element: PictureDecoration = {
       elementType: FormElementType.PictureDecoration,
       picture: {
         ref: "Печать",

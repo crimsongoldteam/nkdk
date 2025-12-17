@@ -1,6 +1,6 @@
 import type { CstNode } from "chevrotain"
-import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import type { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
+import type { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import type { BaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
 import type { DetectedTreeNode } from "../detector/detectTree"
 import { ParseElementType } from "../types"
 import { elementsParser } from "./parser"
@@ -8,8 +8,8 @@ import { visitor } from "./visitor"
 
 export const parseElement = (
   element: DetectedTreeNode,
-  configurationSettings: TConfigurationSettings
-): TBaseElement => {
+  configurationSettings: ConfigurationSettings
+): BaseElement => {
   const ast = parseByElementType(element)
 
   const cst = visitor.visit(ast, configurationSettings)
@@ -21,9 +21,9 @@ export const parseElement = (
 }
 
 const addChildItemsToResult = (
-  cst: TBaseElement,
+  cst: BaseElement,
   element: DetectedTreeNode,
-  configurationSettings: TConfigurationSettings
+  configurationSettings: ConfigurationSettings
 ): void => {
   if (!("childItems" in cst)) return
 

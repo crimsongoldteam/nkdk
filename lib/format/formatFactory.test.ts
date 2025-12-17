@@ -1,14 +1,14 @@
 import { expect, vi, it, beforeEach } from "vitest"
-import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
+import { BaseElement } from "../metadata/forms/elements/baseElement/types"
 import { FormElementType } from "../metadata/forms/elements/types"
 import {
   clearFormatRegistry,
   formatElement,
   registerFormat,
 } from "./formatFactory"
-import { TConfigurationSettings } from "../metadata/configurationSettings/types"
+import { ConfigurationSettings } from "../metadata/configurationSettings/types"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 
@@ -20,7 +20,7 @@ it("should register a format function", () => {
   const mockFormat = vi.fn().mockReturnValue(["test"])
   const mockCheck = vi.fn().mockReturnValue(true)
 
-  const mockData: TBaseElement = {
+  const mockData: BaseElement = {
     elementType: FormElementType.InputField,
     name: "InputField",
     id: "1",

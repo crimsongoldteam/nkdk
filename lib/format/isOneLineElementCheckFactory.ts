@@ -1,23 +1,23 @@
 import { CheckIsOneLineElementFunction } from "./types"
-import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
+import { BaseElement } from "../metadata/forms/elements/baseElement/types"
 import { TElementType } from "../metadata/forms/elements/types"
 
 const isOneLineElementCheckRegistry: Map<
   TElementType,
-  CheckIsOneLineElementFunction<TBaseElement>
+  CheckIsOneLineElementFunction<BaseElement>
 > = new Map()
 
-export const registerIsOneLineElementCheck = <T extends TBaseElement>(
+export const registerIsOneLineElementCheck = <T extends BaseElement>(
   type: TElementType,
   check: CheckIsOneLineElementFunction<T>
 ): void => {
   isOneLineElementCheckRegistry.set(
     type,
-    check as CheckIsOneLineElementFunction<TBaseElement>
+    check as CheckIsOneLineElementFunction<BaseElement>
   )
 }
 
-export const isOneLineElement = <T extends TBaseElement>(
+export const isOneLineElement = <T extends BaseElement>(
   element: T
 ): boolean => {
   const checkFunction = isOneLineElementCheckRegistry.get(element.elementType)

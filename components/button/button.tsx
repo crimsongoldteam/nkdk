@@ -1,8 +1,7 @@
 import { Button, Form } from "antd"
 import type React from "react"
-import type { TButton } from "~/lib/metadata/forms/elements/button/types"
-
-export function ButtonComponent(props: Readonly<TButton>): React.ReactNode {
+import type { Button as ButtonType } from "~/lib/metadata/forms/elements/button/types"
+export function ButtonComponent(props: Readonly<ButtonType>): React.ReactNode {
   const title = props.title?.items.ru || ""
   const name = props.name
   return (

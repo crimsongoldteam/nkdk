@@ -1,12 +1,12 @@
 import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
 import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
-import { TConfigurationSettings } from "../../configurationSettings/types"
+import { ConfigurationSettings } from "../../configurationSettings/types"
 import { type UserVisible } from "./types"
 
 export const parseUserVisible = (
   value: Record<string, StringboolEnterprise> | undefined,
   usageType: "РазрешитьИспользование" | "ЗапретитьИспользование" | undefined,
-  configurationSettings: TConfigurationSettings
+  configurationSettings: ConfigurationSettings
 ): UserVisible | undefined => {
   if (value === undefined || typeof usageType === "boolean") {
     return undefined

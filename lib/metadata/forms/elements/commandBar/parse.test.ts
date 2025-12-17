@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import type { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import type { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { lexer } from "~/lib/parser/lexer"
@@ -7,7 +7,7 @@ import { ParseElementType } from "~/lib/parser/types"
 import { FormElementType } from "../types"
 import { CommandBar } from "./types"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 

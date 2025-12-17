@@ -21,7 +21,6 @@ export const exportFormGroupToXML = (data: FormGroup | undefined): FormGroupXML 
     Height: data.height,
     HorizontalAlignInGroup: data.horizontalAlignInGroup,
     HorizontalStretch: data.horizontalStretch,
-    Name: data.name,
     ReadOnly: data.readOnly,
     Shortcut: data.shortcut,
     Title: exportI8nTextToXML(data.title),

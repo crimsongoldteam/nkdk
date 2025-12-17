@@ -5,14 +5,14 @@ import { registerFormat } from "~/lib/format/formatFactory"
 import { isMultiline } from "./helpers"
 import { importInputFieldFromXML } from "./importFromXML"
 import { registerImport } from "~/lib/xml/import/importerFactory"
-import { TInputField } from "./types"
+import { InputField } from "./types"
 
-registerFormat<TInputField>(
+registerFormat<InputField>(
   formatInputField,
-  (element: TInputField) => element.elementType === FormElementType.InputField
+  (element: InputField) => element.elementType === FormElementType.InputField
 )
-registerIsOneLineElementCheck<TInputField>(
+registerIsOneLineElementCheck<InputField>(
   FormElementType.InputField,
-  (element: TInputField) => !isMultiline(element)
+  (element: InputField) => !isMultiline(element)
 )
-registerImport<TInputField | undefined>(FormElementType.InputField, importInputFieldFromXML)
+registerImport<InputField | undefined>(FormElementType.InputField, importInputFieldFromXML)

@@ -2,16 +2,16 @@ import { formatElement } from "~/lib/format/formatFactory"
 import { formatElementName } from "~/lib/format/helpers"
 import { IFormatElementResult } from "~/lib/format/types"
 import { addSimpleIndent } from "~/lib/format/wrap/addIndents"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import * as t from "~/lib/parser/lexer"
-import { TUsualGroup } from "../types"
+import { UsualGroup } from "../types"
 
 const FIRST_LINE_SEPARATOR = " " + (t.Hash.LABEL as string)
 const SEPARATOR = " " + "|"
 
 export const formatHorizontalGroup = (
-  element: TUsualGroup,
-  configurationSettings: TConfigurationSettings
+  element: UsualGroup,
+  configurationSettings: ConfigurationSettings
 ): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: ["%" + formatElementName(element)],
@@ -40,8 +40,8 @@ export const formatHorizontalGroup = (
 }
 
 const getVerticalItems = (
-  element: TUsualGroup,
-  configurationSettings: TConfigurationSettings
+  element: UsualGroup,
+  configurationSettings: ConfigurationSettings
 ): string[][] => {
   let result: string[][] = []
   let isFirst = true

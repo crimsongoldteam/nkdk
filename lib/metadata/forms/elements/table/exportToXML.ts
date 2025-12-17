@@ -2,9 +2,9 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { exportChildItemsToXML } from "~/lib/metadata/forms/childItems/exportToXML"
 import { exportCommandSetToXML } from "~/lib/metadata/forms/commandSet/exportToXML"
 import { exportBaseElementToXML } from "~/lib/metadata/forms/elements/baseElement/exportToXML"
+import { exportChildItemsToXML } from "~/lib/metadata/forms/elements/childItems/exportToXML"
 import { exportCommandBarToXML } from "~/lib/metadata/forms/elements/commandBar/exportToXML"
 import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDecoration/exportToXML"
 import { exportFormItemAdditionToXML } from "~/lib/metadata/forms/elements/formItemAddition/exportToXML"
@@ -67,7 +67,6 @@ export const exportTableToXML = (data: Table | undefined): TableXML | undefined 
     MaxHeightInTableRows: data.maxHeightInTableRows,
     MaxWidth: data.maxWidth,
     MultipleChoice: data.multipleChoice,
-    Name: data.name,
     Output: data.output,
     ReadOnly: data.readOnly,
     RefreshRequest: data.refreshRequest,

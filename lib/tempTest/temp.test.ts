@@ -3,7 +3,7 @@ import { join, parse } from "path"
 import { describe, expect, it } from "vitest"
 import z from "zod"
 import { type ClientApplicationFormXML, xmlExport, ZClientApplicationFormXML } from ".."
-import type { TConfigurationSettings } from "../metadata/configurationSettings/types"
+import type { ConfigurationSettings } from "../metadata/configurationSettings/types"
 import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/format"
 import { importClientApplicationFormFromXML } from "../metadata/forms/elements/clientApplicationForm/importFromXML"
 import "../metadata/forms/elements/exportToXML"
@@ -11,7 +11,7 @@ import "../metadata/forms/elements/importFromXML"
 import "../metadata/forms/elements/rules"
 import xmlImport from "../xml/import/importer"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 

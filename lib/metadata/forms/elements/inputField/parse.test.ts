@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest"
-import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import type { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import type { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
 import { FormElementType } from "../types"
-import type { TInputField } from "./types"
+import type { InputField } from "./types"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 
@@ -15,7 +15,7 @@ describe("parse InputField", () => {
   it("should parse input field without name", () => {
     const mock = "text:"
 
-    const expectedResult: TInputField = {
+    const expectedResult: InputField = {
       elementType: FormElementType.InputField,
       name: "text",
       title: {
@@ -31,7 +31,7 @@ describe("parse InputField", () => {
   it("should parse input field with name", () => {
     const mock = "text: {name}"
 
-    const expectedResult: TInputField = {
+    const expectedResult: InputField = {
       elementType: FormElementType.InputField,
       title: {
         items: { ru: "text" },
@@ -47,7 +47,7 @@ describe("parse InputField", () => {
   it("should parse input field without title", () => {
     const mock = ": {name}"
 
-    const expectedResult: TInputField = {
+    const expectedResult: InputField = {
       elementType: FormElementType.InputField,
       name: "name",
       id: undefined,
@@ -60,7 +60,7 @@ describe("parse InputField", () => {
   it("should parse input field with modificators", () => {
     const mock = ": _В {name}"
 
-    const expectedResult: TInputField = {
+    const expectedResult: InputField = {
       elementType: FormElementType.InputField,
       name: "name",
       id: undefined,

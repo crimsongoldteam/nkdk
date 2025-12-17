@@ -1,13 +1,13 @@
 import { lexer } from "~/lib/parser/lexer"
 import { FormElementType } from "../types"
-import { TTable } from "./types"
+import { Table } from "./types"
 import { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { describe, it, expect } from "vitest"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { ParseElementType } from "~/lib/parser/types"
-import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import type { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 
@@ -15,7 +15,7 @@ describe("parse Table", () => {
   it("should parse table", () => {
     const mock = "| column 1 | column 2 | column 3 | {name}"
 
-    const expectedResult: TTable = {
+    const expectedResult: Table = {
       elementType: FormElementType.Table,
       name: "name",
       id: undefined,

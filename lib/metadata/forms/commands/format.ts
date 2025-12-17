@@ -1,11 +1,11 @@
 import { stringify } from "yaml"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { formatI8nText } from "../../commonObjects/i8nText/format"
-import { TConfigurationSettings } from "../../configurationSettings/types"
+import { ConfigurationSettings } from "../../configurationSettings/types"
 import { formatSystemEnumeration } from "../../systemEnumerations/format"
 import { Command, CommandEnterprise } from "./types"
 
-export const formatCommands = (commands: Command[], configurationSettings: TConfigurationSettings): string[] => {
+export const formatCommands = (commands: Command[], configurationSettings: ConfigurationSettings): string[] => {
   const commandsEnterprise = commands.map((command) => formatCommand(command, configurationSettings))
 
   return commandsEnterprise.map((command) =>
@@ -16,7 +16,7 @@ export const formatCommands = (commands: Command[], configurationSettings: TConf
   )
 }
 
-const formatCommand = (command: Command, configurationSettings: TConfigurationSettings): CommandEnterprise => {
+const formatCommand = (command: Command, configurationSettings: ConfigurationSettings): CommandEnterprise => {
   const result: CommandEnterprise = {}
 
   result[command.name] = {

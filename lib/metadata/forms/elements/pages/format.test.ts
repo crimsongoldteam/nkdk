@@ -1,12 +1,12 @@
-import { expect, it, describe } from "vitest"
+import { describe, expect, it } from "vitest"
 import "~/lib/metadata/forms/elements/inputField/registration"
-import "~/lib/metadata/forms/elements/usualGroup/registration"
 import "~/lib/metadata/forms/elements/page/registration"
+import "~/lib/metadata/forms/elements/usualGroup/registration"
 import { FormElementType } from "../types"
-import { TInputField } from "../inputField/types"
-import { TPages } from "./types"
 import { formatPages } from "./format"
-import { TPage } from "../page/types"
+import { InputField } from "../inputField/types"
+import { Page } from "../page/types"
+import { Pages } from "./types"
 
 describe("formatPages", () => {
   it("should format pages", () => {
@@ -24,11 +24,11 @@ describe("formatPages", () => {
               name: "Элемент1",
               id: "1",
               elementType: FormElementType.InputField,
-            } as TInputField,
+            } as InputField,
           ],
-        } as TPage,
+        } as Page,
       ],
-    } as TPages
+    } as Pages
 
     const expectedResult = `//{Страницы}
   /{Страница1}

@@ -47,7 +47,6 @@ export interface FormField extends BaseElement {
   headerPicture?: Picture
   horizontalAlign?: SE.ItemHorizontalLocation
   horizontalAlignInGroup?: SE.ItemHorizontalLocation
-  name?: string
   readOnly?: boolean
   shortcut?: string
   showInFooter?: boolean
@@ -97,7 +96,6 @@ export interface FormFieldXML extends BaseElementXML {
   HeaderPicture?: PictureXML
   HorizontalAlign?: SE.ItemHorizontalLocation
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
-  Name?: string
   ReadOnly?: boolean
   Shortcut?: string
   ShowInFooter?: boolean
@@ -145,7 +143,6 @@ export interface FormFieldEnterprise extends BaseElementEnterprise {
   КартинкаШапки?: PictureEnterprise
   ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  Имя?: string
   ТолькоПросмотр?: StringboolEnterprise
   СочетаниеКлавиш?: string
   ОтображатьВПодвале?: StringboolEnterprise

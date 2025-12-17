@@ -1,14 +1,13 @@
 import { describe, expect, it } from "vitest"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
 import { FormElementType } from "../types"
 import { UsualGroup } from "./types"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 
@@ -28,7 +27,7 @@ describe("parse UsualGroup", () => {
 
     const expectedResult: UsualGroup = {
       elementType: FormElementType.UsualGroup,
-      group: SE.ChildFormItemsGroup.Vertical,
+      group: "Vertical",
       name: "vertical",
       id: undefined,
       title: {
@@ -65,7 +64,7 @@ describe("parse UsualGroup", () => {
 
     const expectedResult: UsualGroup = {
       elementType: FormElementType.UsualGroup,
-      group: SE.ChildFormItemsGroup.Horizontal,
+      group: "Horizontal",
       name: "horizontal",
       id: undefined,
       title: {

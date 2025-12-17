@@ -1,13 +1,13 @@
 import { ChildItemXML } from "~/lib/metadata/forms/elements/childItems/types"
 import { ImportFunction } from "./types"
-import { TBaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
+import { BaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
 
 const importRegistry: Map<
   string,
-  ImportFunction<TBaseElement | undefined>
+  ImportFunction<BaseElement | undefined>
 > = new Map()
 
-export const registerImport = <T extends TBaseElement | undefined>(
+export const registerImport = <T extends BaseElement | undefined>(
   key: string,
   importFunction: ImportFunction<T>
 ): void => {
@@ -18,7 +18,7 @@ export const registerImport = <T extends TBaseElement | undefined>(
   importRegistry.set(key.toLowerCase(), importFunction)
 }
 
-export const importElementFromXML = <T extends TBaseElement | undefined>(
+export const importElementFromXML = <T extends BaseElement | undefined>(
   data: ChildItemXML
 ): T => {
   const key = Object.keys(data)[0] as string | undefined

@@ -1,9 +1,9 @@
 import { it, expect, describe } from "vitest"
 import { FormAttribute } from "../types"
 import formatFormAttributes from "./format"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 

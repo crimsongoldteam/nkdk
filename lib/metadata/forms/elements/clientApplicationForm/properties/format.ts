@@ -1,11 +1,11 @@
 import { stringify } from "yaml"
 import { formatElementProperties } from "~/lib/format/format"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { TBaseElement } from "../../baseElement/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { BaseElement } from "../../baseElement/types"
 
 export const formatProperties = (
-  elements: TBaseElement[],
-  configurationSettings: TConfigurationSettings
+  elements: BaseElement[],
+  configurationSettings: ConfigurationSettings
 ): string[] => {
   const result: string[] = []
 

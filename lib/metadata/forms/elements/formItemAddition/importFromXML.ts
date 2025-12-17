@@ -1,7 +1,7 @@
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { importChildItemsFromXML } from "~/lib/metadata/forms/childItems/importFromXML"
 import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
+import { importChildItemsFromXML } from "~/lib/metadata/forms/elements/childItems/importFromXML"
 import { importCommandBarFromXML } from "~/lib/metadata/forms/elements/commandBar/importFromXML"
 import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
 import { FormItemAddition, FormItemAdditionXML } from "~/lib/metadata/forms/elements/formItemAddition/types"
@@ -20,7 +20,6 @@ export const importFormItemAdditionFromXML = (xml: FormItemAdditionXML | undefin
     enabled: xml.Enabled,
     extendedToolTip: importFormDecorationFromXML(xml.ExtendedToolTip),
     horizontalAlignInGroup: xml.HorizontalAlignInGroup,
-    name: xml.Name,
     title: importI8nTextFromXML(xml.Title),
     toolTip: importI8nTextFromXML(xml.ToolTip),
     toolTipRepresentation: xml.ToolTipRepresentation,

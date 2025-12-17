@@ -27,7 +27,6 @@ export const importFormDecorationFromXML = (xml: FormDecorationXML | undefined):
     horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
-    name: xml.Name,
     shortcut: xml.Shortcut,
     skipOnInput: xml.SkipOnInput,
     textColor: importColorFromXML(xml.TextColor),

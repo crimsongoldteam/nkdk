@@ -4,10 +4,10 @@ import { registerImport } from "~/lib/xml/import/importerFactory"
 import { importTableFromXML } from "./importFromXML"
 import { formatTable } from "./format"
 import { registerIsOneLineElementCheck } from "~/lib/format/isOneLineElementCheckFactory"
-import { TTable } from "./types"
+import { Table } from "./types"
 
 registerIsOneLineElementCheck(FormElementType.Table, () => false)
-registerFormat<TTable>(
+registerFormat<Table>(
   formatTable,
   (element) => element.elementType === FormElementType.Table
 )

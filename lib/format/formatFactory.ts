@@ -1,6 +1,6 @@
-import { TConfigurationSettings } from "../metadata/configurationSettings/types"
+import { ConfigurationSettings } from "../metadata/configurationSettings/types"
 import { formatOtherElement } from "../metadata/forms/elements/baseElement/format"
-import { TBaseElement } from "../metadata/forms/elements/baseElement/types"
+import { BaseElement } from "../metadata/forms/elements/baseElement/types"
 import { TChildItems } from "../metadata/forms/elements/childItems/types"
 import { FormElementType } from "../metadata/forms/elements/types"
 import {
@@ -11,24 +11,24 @@ import {
 
 type FormatRegistry = {
   format: FormatElementFunction
-  check: CheckFormatFunction<TBaseElement>
+  check: CheckFormatFunction<BaseElement>
 }[]
 
 const registry: FormatRegistry = []
 
-export const registerFormat = <T extends TBaseElement>(
+export const registerFormat = <T extends BaseElement>(
   format: FormatElementFunction,
   check: CheckFormatFunction<T>
 ): void => {
   registry.push({
     format: format,
-    check: check as CheckFormatFunction<TBaseElement>,
+    check: check as CheckFormatFunction<BaseElement>,
   })
 }
 
-export const formatElement = <T extends TBaseElement>(
+export const formatElement = <T extends BaseElement>(
   element: T,
-  configurationSettings: TConfigurationSettings
+  configurationSettings: ConfigurationSettings
 ): IFormatElementResult => {
   // params = { ...defaultParams, ...params }
 
@@ -37,7 +37,7 @@ export const formatElement = <T extends TBaseElement>(
   ) as FormatRegistry[number]
   if (!formatter)
     return formatOtherElement(
-      element as unknown as TBaseElement,
+      element as unknown as BaseElement,
       configurationSettings
     )
 
@@ -47,7 +47,7 @@ export const formatElement = <T extends TBaseElement>(
 
 export const formatElements = (
   items: TChildItems,
-  configurationSettings: TConfigurationSettings
+  configurationSettings: ConfigurationSettings
 ): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: [],
@@ -59,7 +59,7 @@ export const formatElements = (
     | typeof FormElementType.UsualGroup
   )[] = [FormElementType.Pages, FormElementType.UsualGroup]
 
-  let prevItem: TBaseElement | null = null
+  let prevItem: BaseElement | null = null
   for (const item of items) {
     if (
       prevItem &&

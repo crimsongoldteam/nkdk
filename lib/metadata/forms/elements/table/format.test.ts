@@ -1,20 +1,20 @@
 import { describe, expect, it } from "vitest"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { TColumnGroup } from "../columnGroup/types"
-import { TInputField } from "../inputField/types"
+import { ColumnGroup } from "../columnGroup/types"
+import { InputField } from "../inputField/types"
 import { FormElementType } from "../types"
 import { formatTable } from "./format"
 import "./registration"
-import { TTable } from "./types"
+import { Table } from "./types"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 
 describe("formatTable", () => {
   it("should format one-column table", () => {
-    const mockElement: TTable = {
+    const mockElement: Table = {
       name: "Таблица",
       id: "1",
       elementType: FormElementType.Table,
@@ -24,7 +24,7 @@ describe("formatTable", () => {
           title: { items: { ru: "Колонка 1" } },
           id: "1",
           elementType: FormElementType.InputField,
-        } as TInputField,
+        } as InputField,
       ],
     }
 
@@ -35,7 +35,7 @@ describe("formatTable", () => {
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
   it("should format two-column table", () => {
-    const mockElement: TTable = {
+    const mockElement: Table = {
       name: "Таблица",
       id: "1",
       elementType: FormElementType.Table,
@@ -44,12 +44,12 @@ describe("formatTable", () => {
           name: "Колонка1",
           id: "1",
           elementType: FormElementType.InputField,
-        } as TInputField,
+        } as InputField,
         {
           name: "Колонка2",
           id: "2",
           elementType: FormElementType.InputField,
-        } as TInputField,
+        } as InputField,
       ],
     }
 
@@ -61,7 +61,7 @@ describe("formatTable", () => {
   })
 
   it("should format table with horizontal group", () => {
-    const mockElement: TTable = {
+    const mockElement: Table = {
       name: "Таблица",
       id: "1",
       elementType: FormElementType.Table,
@@ -78,15 +78,15 @@ describe("formatTable", () => {
               title: { items: { ru: "Колонка 1" } },
               id: "1",
               elementType: FormElementType.InputField,
-            } as TInputField,
+            } as InputField,
             {
               name: "Колонка2",
               title: { items: { ru: "Колонка 2" } },
               id: "2",
               elementType: FormElementType.InputField,
-            } as TInputField,
+            } as InputField,
           ],
-        } as TColumnGroup,
+        } as ColumnGroup,
       ],
     }
 
@@ -99,7 +99,7 @@ describe("formatTable", () => {
   })
 
   it("should format table with vertical group without title", () => {
-    const mockElement: TTable = {
+    const mockElement: Table = {
       name: "Таблица",
       id: "1",
       elementType: FormElementType.Table,
@@ -117,15 +117,15 @@ describe("formatTable", () => {
               title: { items: { ru: "Колонка 1" } },
               id: "1",
               elementType: FormElementType.InputField,
-            } as TInputField,
+            } as InputField,
             {
               name: "Колонка2",
               title: { items: { ru: "Колонка 2" } },
               id: "2",
               elementType: FormElementType.InputField,
-            } as TInputField,
+            } as InputField,
           ],
-        } as TColumnGroup,
+        } as ColumnGroup,
       ],
     }
 
@@ -138,7 +138,7 @@ describe("formatTable", () => {
   })
 
   it("should format table with vertical group with title", () => {
-    const mockElement: TTable = {
+    const mockElement: Table = {
       name: "Таблица",
       id: "1",
       elementType: FormElementType.Table,
@@ -156,15 +156,15 @@ describe("formatTable", () => {
               title: { items: { ru: "Колонка 1" } },
               id: "1",
               elementType: FormElementType.InputField,
-            } as TInputField,
+            } as InputField,
             {
               name: "Колонка2",
               title: { items: { ru: "Колонка 2" } },
               id: "2",
               elementType: FormElementType.InputField,
-            } as TInputField,
+            } as InputField,
           ],
-        } as TColumnGroup,
+        } as ColumnGroup,
       ],
     }
 

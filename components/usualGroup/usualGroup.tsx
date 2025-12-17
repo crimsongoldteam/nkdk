@@ -2,10 +2,10 @@ import React from "react"
 import { Flex } from "antd"
 import { components } from "../components"
 import { ZChildFormItemsGroup } from "~/lib/metadata/systemEnumerations/types"
-import { TUsualGroup } from "~/lib/metadata/forms/elements/usualGroup/types"
+import { UsualGroup } from "~/lib/metadata/forms/elements/usualGroup/types"
 
 export function UsualGroupComponent(
-  props: Readonly<TUsualGroup>
+  props: Readonly<UsualGroup>
 ): React.ReactNode {
   const name = props.name
   const childItems = props.childItems

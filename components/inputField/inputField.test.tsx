@@ -1,18 +1,18 @@
 import { cleanup, render, screen } from "@testing-library/react"
 import { afterEach, describe, expect, it } from "vitest"
-import { InputField } from "./inputField"
+import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { InputFieldComponent } from "./inputField"
 
 describe("render InputField", () => {
   afterEach(() => {
     cleanup()
   })
 
-  it("should render with title and value", () => {
+  it("should render with title", () => {
     render(
-      <InputField
-        elementType="InputField"
+      <InputFieldComponent
+        elementType={FormElementType.InputField}
         title={{ items: { ru: "Test Title" } }}
-        value="Test Value"
         name="Test Name"
       />
     )
@@ -23,8 +23,8 @@ describe("render InputField", () => {
 
   it("should render with only title", () => {
     render(
-      <InputField
-        elementType="InputField"
+      <InputFieldComponent
+        elementType={FormElementType.InputField}
         title={{ items: { ru: "Test Title" } }}
         name="Test Name"
       />
@@ -34,12 +34,11 @@ describe("render InputField", () => {
     expect(screen.getByRole("textbox")).toBeDefined()
   })
 
-  it("should render with only value", () => {
+  it("should render with title only", () => {
     render(
-      <InputField
-        elementType="InputField"
+      <InputFieldComponent
+        elementType={FormElementType.InputField}
         title={{ items: { ru: "Test Title" } }}
-        value="Test Value"
         name="Test Name"
       />
     )
@@ -49,15 +48,13 @@ describe("render InputField", () => {
   })
 
   it("should render without props", () => {
-    render(<InputField elementType="InputField" name="Test Name" />)
+    render(<InputFieldComponent elementType={FormElementType.InputField} name="Test Name" />)
 
     expect(screen.getByRole("textbox")).toBeDefined()
   })
 
-  it("should render with undefined title and value", () => {
-    render(
-      <InputField elementType="InputField" title={undefined} value={undefined} name="Test Name" />
-    )
+  it("should render with undefined title", () => {
+    render(<InputFieldComponent elementType={FormElementType.InputField} title={undefined} name="Test Name" />)
 
     expect(screen.getByRole("textbox")).toBeDefined()
   })

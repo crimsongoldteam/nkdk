@@ -2,8 +2,8 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { importChildItemsFromXML } from "~/lib/metadata/forms/childItems/importFromXML"
 import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
+import { importChildItemsFromXML } from "~/lib/metadata/forms/elements/childItems/importFromXML"
 import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
 import { FormGroup, FormGroupXML } from "~/lib/metadata/forms/elements/formGroup/types"
 import { FormElementType } from "~/lib/metadata/forms/elements/types"
@@ -22,7 +22,6 @@ export const importFormGroupFromXML = (xml: FormGroupXML | undefined): FormGroup
     height: xml.Height,
     horizontalAlignInGroup: xml.HorizontalAlignInGroup,
     horizontalStretch: xml.HorizontalStretch,
-    name: xml.Name,
     readOnly: xml.ReadOnly,
     shortcut: xml.Shortcut,
     title: importI8nTextFromXML(xml.Title),

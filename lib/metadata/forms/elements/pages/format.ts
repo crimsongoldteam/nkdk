@@ -2,17 +2,17 @@ import { formatElements } from "~/lib/format/formatFactory"
 import { formatElementName } from "~/lib/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { addSimpleIndent } from "~/lib/format/wrap/addIndents"
-import { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import * as t from "~/lib/parser/lexer"
-import { TBaseElement } from "../baseElement/types"
-import { TPages } from "./types"
+import { BaseElement } from "../baseElement/types"
+import { Pages } from "./types"
 const SLASH = (t.Slash.LABEL as string).repeat(2)
 
 export const formatPages: FormatElementFunction = (
-  element: TBaseElement,
-  configurationSettings: TConfigurationSettings
+  element: BaseElement,
+  configurationSettings: ConfigurationSettings
 ): IFormatElementResult => {
-  const pagesElement = element as TPages
+  const pagesElement = element as Pages
   const result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
@@ -34,7 +34,7 @@ export const formatPages: FormatElementFunction = (
   return result
 }
 
-const getHeader = (element: TPages): string => {
+const getHeader = (element: Pages): string => {
   let result = SLASH
 
   result += element.title?.items.ru ?? ""

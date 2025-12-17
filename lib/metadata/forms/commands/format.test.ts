@@ -1,9 +1,9 @@
 import { expect, it, describe } from "vitest"
 import { Command } from "./types"
 import { formatCommands } from "./format"
-import { TConfigurationSettings } from "../../configurationSettings/types"
+import { ConfigurationSettings } from "../../configurationSettings/types"
 
-const configurationSettings: TConfigurationSettings = {
+const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
 }
 

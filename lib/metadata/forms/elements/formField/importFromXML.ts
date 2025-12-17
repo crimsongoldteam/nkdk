@@ -41,7 +41,6 @@ export const importFormFieldFromXML = (xml: FormFieldXML | undefined): FormField
     headerPicture: importPictureFromXML(xml.HeaderPicture),
     horizontalAlign: xml.HorizontalAlign,
     horizontalAlignInGroup: xml.HorizontalAlignInGroup,
-    name: xml.Name,
     readOnly: xml.ReadOnly,
     shortcut: xml.Shortcut,
     showInFooter: xml.ShowInFooter,
