@@ -1,13 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { BaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
 import { FormElementType } from "../types"
 import { formatInputField } from "./format"
 import { InputField } from "./types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("formatInputField", () => {
   it("should format input field with title", () => {
@@ -18,7 +14,7 @@ describe("formatInputField", () => {
       title: { items: { ru: "Поле" } },
     }
 
-    const result = formatInputField(element as BaseElement, configurationSettings)
+    const result = formatInputField(element as BaseElement, mockConfigurationSettings)
 
     expect(result.strings).toEqual(["Поле: {ИмяПоля}"])
   })
@@ -30,7 +26,7 @@ describe("formatInputField", () => {
       elementType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
     }
-    const result = formatInputField(element as BaseElement, configurationSettings)
+    const result = formatInputField(element as BaseElement, mockConfigurationSettings)
     expect(result.strings).toEqual(["Поле: {ИмяПоля}"])
   })
 
@@ -44,7 +40,7 @@ describe("formatInputField", () => {
       multiLine: true,
     }
 
-    const result = formatInputField(element as BaseElement, configurationSettings)
+    const result = formatInputField(element as BaseElement, mockConfigurationSettings)
 
     expect(result.strings).toEqual(["Поле: {ИмяПоля}", "      "])
   })
@@ -62,7 +58,7 @@ describe("formatInputField", () => {
       spinButton: true,
     }
 
-    const result = formatInputField(element as BaseElement, configurationSettings)
+    const result = formatInputField(element as BaseElement, mockConfigurationSettings)
 
     expect(result.strings).toEqual(["Поле: __ВСХОД {ИмяПоля}"])
   })
@@ -74,7 +70,7 @@ describe("formatInputField", () => {
       elementType: FormElementType.InputField,
     }
 
-    const result = formatInputField(element as BaseElement, configurationSettings)
+    const result = formatInputField(element as BaseElement, mockConfigurationSettings)
 
     expect(result.strings).toEqual(["{ИмяПоля}: "])
   })

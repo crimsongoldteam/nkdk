@@ -1,10 +1,5 @@
 import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
-import {
-  UserVisible,
-  UserVisibleAllowEnterprise,
-  UserVisibleDenyEnterprise,
-  UserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 
@@ -82,8 +77,8 @@ export interface PlannerFieldEnterprise extends FormFieldEnterprise {
   РастягиватьПоВертикали?: StringboolEnterprise
   Ширина?: number
   ГиперссылкаПеренесенногоЗаголовкаШкалыВремени?: StringboolEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
   События?: {
     ПриИзменении?: string
     Выбор?: string

@@ -3,12 +3,7 @@ import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/c
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import {
-  UserVisible,
-  UserVisibleAllowEnterprise,
-  UserVisibleDenyEnterprise,
-  UserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
 import {
   FormDecoration,
@@ -134,6 +129,6 @@ export interface ButtonEnterprise extends BaseElementEnterprise {
   РастягиватьПоВертикали?: StringboolEnterprise
   Видимость?: StringboolEnterprise
   Ширина?: number
-  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
 }

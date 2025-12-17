@@ -1,12 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { FormElementType } from "../types"
 import { formatButton } from "./format"
 import { Button } from "./types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("formatButton", () => {
   it("should format button", () => {
@@ -21,7 +17,7 @@ describe("formatButton", () => {
 
     const expectedResult = ["<Заголовок кнопки {ИмяКнопки}>"]
 
-    const result = formatButton(element, configurationSettings)
+    const result = formatButton(element, mockConfigurationSettings)
 
     expect(result.strings).toEqual(expectedResult)
   })

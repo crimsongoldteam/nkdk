@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { ClientApplicationForm, InputField } from "~/lib"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import "~/lib/metadata/forms/elements/elements"
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
@@ -8,10 +8,6 @@ import "~/lib/metadata/forms/elements/inputField/registration"
 import "~/lib/metadata/forms/elements/rules"
 import { FormElementType } from "../types"
 import { formatClientApplicationForm } from "./format"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("formatClientApplicationForm", () => {
   it("should format form header", () => {
@@ -21,7 +17,7 @@ describe("formatClientApplicationForm", () => {
       childItems: [],
     }
 
-    const result = formatClientApplicationForm(form, configurationSettings)
+    const result = formatClientApplicationForm(form, mockConfigurationSettings)
 
     expect(result.strings).toEqual(["--- Форма ---"])
   })
@@ -39,7 +35,7 @@ describe("formatClientApplicationForm", () => {
       childItems: [input],
     }
 
-    const result = formatClientApplicationForm(form, configurationSettings)
+    const result = formatClientApplicationForm(form, mockConfigurationSettings)
 
     expect(result.strings).toEqual(["Поле: {ИмяПоля}"])
   })
@@ -66,7 +62,7 @@ describe("formatClientApplicationForm", () => {
       ],
     }
 
-    const result = formatClientApplicationForm(form, configurationSettings)
+    const result = formatClientApplicationForm(form, mockConfigurationSettings)
 
     expect(result.strings.join("\n").trim()).toEqual(expectedResult)
   })

@@ -1,6 +1,6 @@
 import { stringify } from "yaml"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { formatI8nText } from "../../commonObjects/i8nText/format"
+import { exportI8nTextToEnterprise } from "../../commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationSettings } from "../../configurationSettings/types"
 import { formatSystemEnumeration } from "../../systemEnumerations/exportToEnterprise"
 import { Command, CommandEnterprise } from "./types"
@@ -20,8 +20,8 @@ const formatCommand = (command: Command, configurationSettings: ConfigurationSet
   let result: CommandEnterprise = {}
 
   return {
-    Заголовок: formatI8nText(command.title, configurationSettings),
-    Подсказка: formatI8nText(command.toolTip, configurationSettings),
+    Заголовок: exportI8nTextToEnterprise(command.title, configurationSettings),
+    Подсказка: exportI8nTextToEnterprise(command.toolTip, configurationSettings),
     СочетаниеКлавиш: command.shortcut,
     Действие: command.action,
     ОтображениеКнопки: command.representation,

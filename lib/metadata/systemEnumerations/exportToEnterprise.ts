@@ -1,6 +1,9 @@
+import { ConfigurationSettings } from "../configurationSettings/types"
+
 export const exportSystemEnumerationToEnterprise = <T extends string>(
   value: string | undefined,
-  enumeration: Record<string, string>
+  enumeration: Record<string, string>,
+  _configurationSettings: ConfigurationSettings
 ): T | undefined => {
   if (!value) return undefined
 

@@ -3,12 +3,7 @@ import { Border, BorderEnterprise, BorderXML } from "~/lib/metadata/commonObject
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import {
-  UserVisible,
-  UserVisibleAllowEnterprise,
-  UserVisibleDenyEnterprise,
-  UserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -94,8 +89,8 @@ export interface PictureFieldEnterprise extends FormFieldEnterprise {
   РастягиватьПоВертикали?: StringboolEnterprise
   Ширина?: number
   Масштабировать?: StringboolEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
   События?: {
     ПриИзменении?: string
     Нажатие?: string

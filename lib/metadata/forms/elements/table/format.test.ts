@@ -1,15 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { ColumnGroup } from "../columnGroup/types"
 import { InputField } from "../inputField/types"
 import { FormElementType } from "../types"
 import { formatTable } from "./format"
 import "./registration"
 import { Table } from "./types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("formatTable", () => {
   it("should format one-column table", () => {
@@ -29,7 +25,7 @@ describe("formatTable", () => {
 
     const expectedResult = `| Колонка 1 |`
 
-    const result = formatTable(mockElement, configurationSettings)
+    const result = formatTable(mockElement, mockConfigurationSettings)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -54,7 +50,7 @@ describe("formatTable", () => {
 
     const expectedResult = `| Колонка 1 | Колонка 2 |`
 
-    const result = formatTable(mockElement, configurationSettings)
+    const result = formatTable(mockElement, mockConfigurationSettings)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -92,7 +88,7 @@ describe("formatTable", () => {
     const expectedResult = `| -Группа 1             ||
 | Колонка 1 | Колонка 2  |`
 
-    const result = formatTable(mockElement, configurationSettings)
+    const result = formatTable(mockElement, mockConfigurationSettings)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -131,7 +127,7 @@ describe("formatTable", () => {
     const expectedResult = `| Колонка 1 |
 | Колонка 2 |`
 
-    const result = formatTable(mockElement, configurationSettings)
+    const result = formatTable(mockElement, mockConfigurationSettings)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -171,7 +167,7 @@ describe("formatTable", () => {
 | Колонка 1 |
 | Колонка 2 |`
 
-    const result = formatTable(mockElement, configurationSettings)
+    const result = formatTable(mockElement, mockConfigurationSettings)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })

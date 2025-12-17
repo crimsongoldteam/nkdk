@@ -1,6 +1,7 @@
 import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import {
   GeographicalSchemaField,
@@ -12,25 +13,26 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportGeographicalSchemaFieldToEnterprise = (
-  data: GeographicalSchemaField | undefined
+  data: GeographicalSchemaField | undefined,
+  configurationSettings: ConfigurationSettings
 ): GeographicalSchemaFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormFieldToEnterprise(data)!,
+    ...exportFormFieldToEnterprise(data, configurationSettings)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth),
-    ЦветРамки: exportColorToEnterprise(data.borderColor),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
     Высота: data.height,
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
-    Вывод: exportSystemEnumerationToEnterprise(data.output, SE.UseOutputToEnterprise),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch),
+    Вывод: exportSystemEnumerationToEnterprise(data.output, SE.UseOutputToEnterprise, configurationSettings),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
     Ширина: data.width,
-    ПользовательскаяВидимость: exportUserVisibleToEnterprise(data.userVisible),
-    Events: exportEventsToEnterprise(data.events),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    Events: exportEventsToEnterprise(data.events, configurationSettings),
   }
 }
 

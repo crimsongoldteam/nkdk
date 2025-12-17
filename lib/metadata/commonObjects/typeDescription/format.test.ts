@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { exportTypeDescriptionToEnterprise } from "./exportToEnterprise"
 import { TypeDescription } from "./types"
-import { formatTypeDescription } from "./format"
 
 it("should format undefined type description", () => {
-  const result = formatTypeDescription(undefined)
+  const result = exportTypeDescriptionToEnterprise(undefined, mockConfigurationSettings)
   expect(result).toBeUndefined()
 })
 
@@ -15,7 +16,7 @@ describe("string type description", () => {
     }
     const expectedResult = "Строка(10)"
 
-    const result = formatTypeDescription(mockTypeDescription)
+    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -27,7 +28,7 @@ describe("string type description", () => {
     }
     const expectedResult = "Строка"
 
-    const result = formatTypeDescription(mockTypeDescription)
+    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -39,7 +40,7 @@ describe("string type description", () => {
     }
     const expectedResult = "ФиксированнаяСтрока(100)"
 
-    const result = formatTypeDescription(mockTypeDescription)
+    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -53,7 +54,7 @@ describe("number type description", () => {
     }
     const expectedResult = "Число(10, 2)"
 
-    const result = formatTypeDescription(mockTypeDescription)
+    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -65,7 +66,7 @@ describe("number type description", () => {
     }
     const expectedResult = "НеотрицательноеЧисло(10, 2)"
 
-    const result = formatTypeDescription(mockTypeDescription)
+    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -80,7 +81,7 @@ describe("date type description", () => {
 
     const expectedResult = "Дата"
 
-    const result = formatTypeDescription(mockTypeDescription)
+    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -93,7 +94,7 @@ describe("date type description", () => {
 
     const expectedResult = "Время"
 
-    const result = formatTypeDescription(mockTypeDescription)
+    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -106,7 +107,7 @@ describe("date type description", () => {
 
     const expectedResult = "ДатаВремя"
 
-    const result = formatTypeDescription(mockTypeDescription)
+    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -119,7 +120,7 @@ describe("date type description", () => {
 
     const expectedResult = "Дата"
 
-    const result = formatTypeDescription(mockTypeDescription)
+    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -133,7 +134,7 @@ describe("composite type description", () => {
 
     const expectedResult = "тип1, тип2"
 
-    const result = formatTypeDescription(mockTypeDescription)
+    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -147,7 +148,7 @@ describe("composite type description", () => {
 
     const expectedResult = "Строка(10), Число(10, 2)"
 
-    const result = formatTypeDescription(mockTypeDescription)
+    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })

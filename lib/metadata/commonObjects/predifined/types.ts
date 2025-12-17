@@ -13,11 +13,11 @@ export interface PredefinedXML {
 }
 
 export interface PredefinedEnterprise {
-  Name: string
-  Code: string | number
-  Description: string
-  IsFolder: boolean
+  Код: string | number
+  Наименование: string
+  ЭтоГруппа: boolean
 }
+
 export type PredefinedItems = Predefined[]
 export type PredefinedItemsXML = PredefinedXML[]
-export type PredefinedItemsEnterprise = PredefinedEnterprise[]
+export type PredefinedItemsEnterprise = Map<string, PredefinedEnterprise>

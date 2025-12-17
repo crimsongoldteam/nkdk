@@ -1,12 +1,7 @@
 import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import {
-  UserVisible,
-  UserVisibleAllowEnterprise,
-  UserVisibleDenyEnterprise,
-  UserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/lib/metadata/forms/elements/formGroup/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -46,6 +41,6 @@ export interface ColumnGroupEnterprise extends FormGroupEnterprise {
   ОтображатьВШапке?: StringboolEnterprise
   ОтображатьЗаголовок?: StringboolEnterprise
   ЦветФонаЗаголовка?: ColorEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
 }

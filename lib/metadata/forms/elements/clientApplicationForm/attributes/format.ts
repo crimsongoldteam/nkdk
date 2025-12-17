@@ -1,12 +1,9 @@
 import { capitalCase, noCase } from "change-case"
 import { stringify } from "yaml"
-import { formatBoolean } from "~/lib/metadata/commonObjects/boolean/format"
-import { formatI8nText } from "~/lib/metadata/commonObjects/i8nText/format"
-import { formatTypeDescription } from "~/lib/metadata/commonObjects/typeDescription/format"
-import {
-  formatUserVisible,
-  getUserVisibleKey,
-} from "~/lib/metadata/commonObjects/userVisible/format"
+import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/exportToEnterprise"
+import { exportI8nTextToEnterprise } from "~/lib/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportTypeDescriptionToEnterprise } from "~/lib/metadata/commonObjects/typeDescription/exportToEnterprise"
+import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { FormAttribute } from "../types"
 
@@ -17,17 +14,11 @@ export default function formatFormAttributes(
   const result: string[] = []
 
   for (const attribute of attributes) {
-    const title = formatI8nText(attribute.title, configurationSettings)
+    const title = exportI8nTextToEnterprise(attribute.title, configurationSettings)
     const titleText = typeof title === "string" ? title : title?.ru
-    const isTitleEqualToName = Boolean(
-      titleText && isTitleEqualCamelCaseName(titleText, attribute.name)
-    )
+    const isTitleEqualToName = Boolean(titleText && isTitleEqualCamelCaseName(titleText, attribute.name))
 
-    const data = transformAttribute(
-      attribute,
-      configurationSettings,
-      isTitleEqualToName
-    )
+    const data = transformAttribute(attribute, configurationSettings, isTitleEqualToName)
     const keys = Object.keys(data)
 
     // Компактный формат: только тип, без title, mainAttribute, storedData
@@ -42,12 +33,7 @@ export default function formatFormAttributes(
       result.push(`${attribute.name}: ${data.Тип}`)
     }
     // Короткий формат: title равен camelCase имени, только тип - используем имя атрибута
-    else if (
-      isTitleEqualToName &&
-      keys.length === 1 &&
-      keys[0] === "Тип" &&
-      "Тип" in data
-    ) {
+    else if (isTitleEqualToName && keys.length === 1 && keys[0] === "Тип" && "Тип" in data) {
       result.push(`${attribute.name}: ${data.Тип}`)
     }
     // Формат с именем: title равен camelCase имени, но есть дополнительные поля - используем имя атрибута
@@ -95,10 +81,10 @@ const transformAttribute = (
   configurationSettings: ConfigurationSettings,
   skipTitle: boolean = false
 ): Record<string, any> => {
-  const title = formatI8nText(attribute.title, configurationSettings)
-  const type = formatTypeDescription(attribute.type)
-  const mainAttribute = formatBoolean(attribute.mainAttribute)
-  const storedData = formatBoolean(attribute.storedData)
+  const title = exportI8nTextToEnterprise(attribute.title, configurationSettings)
+  const type = exportTypeDescriptionToEnterprise(attribute.type, configurationSettings)
+  const mainAttribute = exportBooleanToEnterprise(attribute.mainAttribute, configurationSettings)
+  const storedData = exportBooleanToEnterprise(attribute.storedData, configurationSettings)
   let attributeData: Record<string, any> = {}
 
   // Не добавляем Заголовок, если title равен camelCase имени (будет использован в качестве имени)
@@ -118,8 +104,7 @@ const transformAttribute = (
   }
 
   if (attribute.use) {
-    const userVisibleKey = getUserVisibleKey(attribute.use)
-    attributeData[userVisibleKey] = formatUserVisible(attribute.use)
+    attributeData.push(exportUserVisibleToEnterprise(attribute.use, configurationSettings))
   }
 
   return attributeData

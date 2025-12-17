@@ -1,15 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
 import { FormElementType } from "../types"
 import { CheckBoxField } from "./types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("parse CheckBoxField", () => {
   it("should parse right titled check box field without name", () => {
@@ -90,5 +86,5 @@ const parseCheckBoxField = (mock: string, type: ParseElementType) => {
     childItems: [],
   }
 
-  return parseElement(node, configurationSettings)
+  return parseElement(node, mockConfigurationSettings)
 }

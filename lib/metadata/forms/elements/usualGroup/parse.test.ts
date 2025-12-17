@@ -1,15 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
 import { FormElementType } from "../types"
 import { UsualGroup } from "./types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("parse UsualGroup", () => {
   it("should parse vertical group", () => {
@@ -45,7 +41,7 @@ describe("parse UsualGroup", () => {
         },
       ],
     }
-    const result = parseElement(mock, configurationSettings)
+    const result = parseElement(mock, mockConfigurationSettings)
     expect(result).toEqual(expectedResult)
   })
 
@@ -82,7 +78,7 @@ describe("parse UsualGroup", () => {
         },
       ],
     }
-    const result = parseElement(mock, configurationSettings)
+    const result = parseElement(mock, mockConfigurationSettings)
     expect(result).toEqual(expectedResult)
   })
 })

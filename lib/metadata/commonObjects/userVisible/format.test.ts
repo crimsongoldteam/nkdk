@@ -1,6 +1,7 @@
 import { expect, it } from "vitest"
+import { exportUserVisibleToEnterprise } from "./exportToEnterprise"
 import { UserVisible } from "./types"
-import { formatUserVisible } from "./format"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 
 it("should format allow `use`", () => {
   const use: UserVisible = {
@@ -16,7 +17,7 @@ it("should format allow `use`", () => {
     Пользователь: "Ложь",
   }
 
-  const result = formatUserVisible(use)
+  const result = exportUserVisibleToEnterprise(use, mockConfigurationSettings)
 
   expect(result).toEqual(expectedResult)
 })
@@ -35,7 +36,7 @@ it("should format disable `use`", () => {
     Пользователь: "Ложь",
   }
 
-  const result = formatUserVisible(use)
+  const result = exportUserVisibleToEnterprise(use, mockConfigurationSettings)
 
   expect(result).toEqual(expectedResult)
 })

@@ -1,18 +1,26 @@
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { ButtonGroup, ButtonGroupEnterprise } from "~/lib/metadata/forms/elements/buttonGroup/types"
 import { exportFormGroupToEnterprise } from "~/lib/metadata/forms/elements/formGroup/exportToEnterprise"
 import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
-export const exportButtonGroupToEnterprise = (data: ButtonGroup | undefined): ButtonGroupEnterprise | undefined => {
+export const exportButtonGroupToEnterprise = (
+  data: ButtonGroup | undefined,
+  configurationSettings: ConfigurationSettings
+): ButtonGroupEnterprise | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormGroupToEnterprise(data)!,
+    ...exportFormGroupToEnterprise(data, configurationSettings)!,
 
-    Отображение: exportSystemEnumerationToEnterprise(data.representation, SE.ButtonGroupRepresentationToEnterprise),
-    ПользовательскаяВидимость: exportUserVisibleToEnterprise(data.userVisible),
+    Отображение: exportSystemEnumerationToEnterprise(
+      data.representation,
+      SE.ButtonGroupRepresentationToEnterprise,
+      configurationSettings
+    ),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
   }
 }
 

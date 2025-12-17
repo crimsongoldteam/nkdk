@@ -1,12 +1,7 @@
 import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import {
-  UserVisible,
-  UserVisibleAllowEnterprise,
-  UserVisibleDenyEnterprise,
-  UserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/lib/metadata/forms/elements/formGroup/types"
 import { Table, TableEnterprise, TableXML } from "~/lib/metadata/forms/elements/table/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -95,6 +90,6 @@ export interface UsualGroupEnterprise extends FormGroupEnterprise {
   Объединенная?: StringboolEnterprise
   ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
   ВертикальныйИнтервал?: SE.FormItemSpacingEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
 }

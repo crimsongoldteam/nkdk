@@ -1,11 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { FormAttribute } from "../types"
 import { parseAttributes } from "./parse"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("parseAttributes", () => {
   it("should parse attributes", () => {
@@ -25,7 +21,7 @@ describe("parseAttributes", () => {
       },
     ]
 
-    const result = parseAttributes(orignalContent, configurationSettings)
+    const result = parseAttributes(orignalContent, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })

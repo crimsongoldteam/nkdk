@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join, parse } from "path"
 import { describe, expect, it } from "vitest"
-import type { ConfigurationSettings } from "../metadata/configurationSettings/types"
+import { mockConfigurationSettings } from "../tests/mockConfigurationSettings"
 import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/format"
 import { importClientApplicationFormFromXML } from "../metadata/forms/elements/clientApplicationForm/importFromXML"
 import { ClientApplicationFormXML } from "../metadata/forms/elements/clientApplicationForm/types"
@@ -10,10 +10,6 @@ import "../metadata/forms/elements/importFromXML"
 import "../metadata/forms/elements/rules"
 import { xmlExport } from "../xml/export/exporter"
 import xmlImport from "../xml/import/importer"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 const originalContent = readFileSync(join(__dirname, "Form.xml"), "utf-8")
 
@@ -24,7 +20,7 @@ describe("DO test", () => {
 
     // const exportedForm = exportClientApplicationFormToXML(form)
 
-    const formattedForm = formatClientApplicationForm(form, configurationSettings)
+    const formattedForm = formatClientApplicationForm(form, mockConfigurationSettings)
 
     // const exportedXml = xmlExport(
     //   { Form: exportedForm },
@@ -42,7 +38,7 @@ describe("DO test", () => {
 
     // const exportedForm = exportClientApplicationFormToXML(form)
 
-    const formattedForm = formatClientApplicationForm(form, configurationSettings)
+    const formattedForm = formatClientApplicationForm(form, mockConfigurationSettings)
 
     const parsedForm = parse(formattedForm.strings.join("\n"))
 

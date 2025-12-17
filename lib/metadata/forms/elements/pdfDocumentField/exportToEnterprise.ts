@@ -1,6 +1,7 @@
 import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { PdfDocumentField, PdfDocumentFieldEnterprise } from "~/lib/metadata/forms/elements/pdfDocumentField/types"
 import { FormElementType } from "~/lib/metadata/forms/elements/types"
@@ -9,33 +10,35 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportPdfDocumentFieldToEnterprise = (
-  data: PdfDocumentField | undefined
+  data: PdfDocumentField | undefined,
+  configurationSettings: ConfigurationSettings
 ): PdfDocumentFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormFieldToEnterprise(data)!,
+    ...exportFormFieldToEnterprise(data, configurationSettings)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth),
-    ЦветРамки: exportColorToEnterprise(data.borderColor),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
     НомерТекущейСтраницы: data.currentPageNumber,
     Высота: data.height,
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
     Ориентация: data.orientation,
-    Вывод: exportSystemEnumerationToEnterprise(data.output, SE.UseOutputToEnterprise),
+    Вывод: exportSystemEnumerationToEnterprise(data.output, SE.UseOutputToEnterprise, configurationSettings),
     Масштаб: data.scale,
     ИспользуемоеИмяФайла: data.usedFileName,
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
     ПоложениеСостоянияПросмотра: exportSystemEnumerationToEnterprise(
       data.viewStatusLocation,
-      SE.ViewStatusLocationToEnterprise
+      SE.ViewStatusLocationToEnterprise,
+      configurationSettings
     ),
     Ширина: data.width,
-    ПользовательскаяВидимость: exportUserVisibleToEnterprise(data.userVisible),
-    Events: exportEventsToEnterprise(data.events),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    Events: exportEventsToEnterprise(data.events, configurationSettings),
   }
 }
 

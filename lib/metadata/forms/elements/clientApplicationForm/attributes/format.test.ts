@@ -1,11 +1,7 @@
 import { it, expect, describe } from "vitest"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { FormAttribute } from "../types"
 import formatFormAttributes from "./format"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("formatFormAttributes", () => {
   it("should format form attributes", () => {
@@ -25,7 +21,7 @@ describe("formatFormAttributes", () => {
       },
     ]
 
-    const result = formatFormAttributes(orignalContent, configurationSettings)
+    const result = formatFormAttributes(orignalContent, mockConfigurationSettings)
 
     expect(result).toEqual([expectedResult])
   })
@@ -41,7 +37,7 @@ describe("formatFormAttributes", () => {
       },
     ]
 
-    const result = formatFormAttributes(orignalContent, configurationSettings)
+    const result = formatFormAttributes(orignalContent, mockConfigurationSettings)
 
     expect(result).toEqual([expectedResult])
   })
@@ -63,7 +59,7 @@ describe("formatFormAttributes", () => {
       },
     ]
 
-    const result = formatFormAttributes(orignalContent, configurationSettings)
+    const result = formatFormAttributes(orignalContent, mockConfigurationSettings)
 
     expect(result).toEqual([expectedResult])
   })
@@ -86,7 +82,7 @@ describe("formatFormAttributes", () => {
       },
     ]
 
-    const result = formatFormAttributes(orignalContent, configurationSettings)
+    const result = formatFormAttributes(orignalContent, mockConfigurationSettings)
 
     expect(result).toEqual([expectedResult])
   })
@@ -109,7 +105,7 @@ describe("formatFormAttributes", () => {
       },
     ]
 
-    const result = formatFormAttributes(orignalContent, configurationSettings)
+    const result = formatFormAttributes(orignalContent, mockConfigurationSettings)
 
     expect(result).toEqual([expectedResult])
   })
@@ -127,7 +123,7 @@ describe("formatFormAttributes", () => {
       },
     ]
 
-    const result = formatFormAttributes(orignalContent, configurationSettings)
+    const result = formatFormAttributes(orignalContent, mockConfigurationSettings)
 
     expect(result).toEqual([expectedResult])
   })
@@ -156,7 +152,7 @@ describe("formatFormAttributes", () => {
     Администратор: Истина
     Пользователь: Ложь`
 
-    const result = formatFormAttributes(orignalContent, configurationSettings)
+    const result = formatFormAttributes(orignalContent, mockConfigurationSettings)
 
     expect(result).toEqual([expectedResult])
   })

@@ -10,3 +10,5 @@ export interface EventsXMLItem {
 export type EventsXML = EventsXMLItem[]
 
 export type Events = Record<string, string>
+
+export type EventsEnterprise = Record<string, string>

@@ -1,15 +1,11 @@
 import { describe, it, expect } from "vitest"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
 import { FormElementType } from "../types"
 import { Pages } from "./types"
-import type { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("parse Pages", () => {
   it("should parse pages", () => {
@@ -56,7 +52,7 @@ describe("parse Pages", () => {
         },
       ],
     }
-    const result = parseElement(mock, configurationSettings)
+    const result = parseElement(mock, mockConfigurationSettings)
     expect(result).toEqual(expectedResult)
   })
 })

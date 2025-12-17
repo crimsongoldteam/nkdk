@@ -1,6 +1,7 @@
 import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { ProgressBarField, ProgressBarFieldEnterprise } from "~/lib/metadata/forms/elements/progressBarField/types"
 import { FormElementType } from "~/lib/metadata/forms/elements/types"
@@ -9,29 +10,38 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportProgressBarFieldToEnterprise = (
-  data: ProgressBarField | undefined
+  data: ProgressBarField | undefined,
+  configurationSettings: ConfigurationSettings
 ): ProgressBarFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormFieldToEnterprise(data)!,
+    ...exportFormFieldToEnterprise(data, configurationSettings)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth),
-    ЦветРамки: exportColorToEnterprise(data.borderColor),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
     Высота: data.height,
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
     МаксимальнаяВысота: data.maxHeight,
     МаксимальноеЗначение: data.maxValue,
     МаксимальнаяШирина: data.maxWidth,
     МинимальноеЗначение: data.minValue,
-    Ориентация: exportSystemEnumerationToEnterprise(data.orientation, SE.FormItemOrientationToEnterprise),
-    Отображение: exportSystemEnumerationToEnterprise(data.representation, SE.ProgressBarSmoothingModeToEnterprise),
-    ОтображатьПроценты: exportBooleanToEnterprise(data.showPercent),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch),
+    Ориентация: exportSystemEnumerationToEnterprise(
+      data.orientation,
+      SE.FormItemOrientationToEnterprise,
+      configurationSettings
+    ),
+    Отображение: exportSystemEnumerationToEnterprise(
+      data.representation,
+      SE.ProgressBarSmoothingModeToEnterprise,
+      configurationSettings
+    ),
+    ОтображатьПроценты: exportBooleanToEnterprise(data.showPercent, configurationSettings),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
     Ширина: data.width,
-    ПользовательскаяВидимость: exportUserVisibleToEnterprise(data.userVisible),
-    Events: exportEventsToEnterprise(data.events),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    Events: exportEventsToEnterprise(data.events, configurationSettings),
   }
 }
 

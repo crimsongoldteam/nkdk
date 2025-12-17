@@ -1,12 +1,7 @@
 import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
-import {
-  UserVisible,
-  UserVisibleAllowEnterprise,
-  UserVisibleDenyEnterprise,
-  UserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import {
   FormItemAddition,
   FormItemAdditionEnterprise,
@@ -46,6 +41,6 @@ export interface SearchControlAdditionEnterprise extends FormItemAdditionEnterpr
   МаксимальнаяШирина?: number
   ЦветТекста?: ColorEnterprise
   Ширина?: number
-  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
 }

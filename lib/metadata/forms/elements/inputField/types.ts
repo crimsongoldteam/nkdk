@@ -10,12 +10,7 @@ import {
   TypeDescriptionXML,
 } from "~/lib/metadata/commonObjects/typeDescription/types"
 import { TypeLink, TypeLinkEnterprise, TypeLinkXML } from "~/lib/metadata/commonObjects/typeLink/types"
-import {
-  UserVisible,
-  UserVisibleAllowEnterprise,
-  UserVisibleDenyEnterprise,
-  UserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import {
   ChoiceParameterLinks,
   ChoiceParameterLinksEnterprise,
@@ -284,8 +279,8 @@ export interface InputFieldEnterprise extends FormFieldEnterprise {
   РастягиватьПоВертикали?: StringboolEnterprise
   Ширина?: number
   АвтоПереносСтрок?: StringboolEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
   События?: {
     ПриИзменении?: string
     АвтоПодбор?: string

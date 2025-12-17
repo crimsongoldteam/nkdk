@@ -1,11 +1,6 @@
 import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
-import {
-  UserVisible,
-  UserVisibleAllowEnterprise,
-  UserVisibleDenyEnterprise,
-  UserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -65,8 +60,8 @@ export interface ProgressBarFieldEnterprise extends FormFieldEnterprise {
   ОтображатьПроценты?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   Ширина?: number
-  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
   События?: {
     ПриИзменении?: string
   }

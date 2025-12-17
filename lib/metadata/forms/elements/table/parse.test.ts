@@ -1,15 +1,11 @@
 import { lexer } from "~/lib/parser/lexer"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { FormElementType } from "../types"
 import { Table } from "./types"
 import { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { describe, it, expect } from "vitest"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { ParseElementType } from "~/lib/parser/types"
-import type { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("parse Table", () => {
   it("should parse table", () => {
@@ -51,5 +47,5 @@ const parseTable = (mock: string) => {
     childItems: [],
   }
 
-  return parseElement(node, configurationSettings)
+  return parseElement(node, mockConfigurationSettings)
 }

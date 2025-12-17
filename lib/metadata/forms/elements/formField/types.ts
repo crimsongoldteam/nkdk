@@ -8,12 +8,7 @@ import {
   TypeDescriptionEnterprise,
   TypeDescriptionXML,
 } from "~/lib/metadata/commonObjects/typeDescription/types"
-import {
-  UserVisible,
-  UserVisibleAllowEnterprise,
-  UserVisibleDenyEnterprise,
-  UserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/lib/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/lib/metadata/forms/elements/commandBar/types"
 import {
@@ -164,8 +159,8 @@ export interface FormFieldEnterprise extends BaseElementEnterprise {
   Видимость?: StringboolEnterprise
   ПредупреждениеПриРедактировании?: I8nTextEnterprise
   ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
   События?: {
     ПриИзменении?: string
   }

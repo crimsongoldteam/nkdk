@@ -2,6 +2,7 @@ import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/
 import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/lib/metadata/commonObjects/font/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormItemAdditionToEnterprise } from "~/lib/metadata/forms/elements/formItemAddition/exportToEnterprise"
 import {
   SearchControlAddition,
@@ -10,22 +11,23 @@ import {
 import { FormElementType } from "~/lib/metadata/forms/elements/types"
 
 export const exportSearchControlAdditionToEnterprise = (
-  data: SearchControlAddition | undefined
+  data: SearchControlAddition | undefined,
+  configurationSettings: ConfigurationSettings
 ): SearchControlAdditionEnterprise | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormItemAdditionToEnterprise(data)!,
+    ...exportFormItemAdditionToEnterprise(data, configurationSettings)!,
 
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth),
-    ЦветФона: exportColorToEnterprise(data.backColor),
-    ЦветРамки: exportColorToEnterprise(data.borderColor),
-    Шрифт: exportFontToEnterprise(data.font),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
+    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
     МаксимальнаяШирина: data.maxWidth,
-    ЦветТекста: exportColorToEnterprise(data.textColor),
+    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
     Ширина: data.width,
-    ПользовательскаяВидимость: exportUserVisibleToEnterprise(data.userVisible),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
   }
 }
 

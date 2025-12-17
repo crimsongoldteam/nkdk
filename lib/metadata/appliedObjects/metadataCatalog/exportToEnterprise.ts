@@ -10,48 +10,73 @@ import { exportMetadataItemLinksToEnterprise } from "~/lib/metadata/commonObject
 import { exportMetadataTabularSectionsToEnterprise } from "~/lib/metadata/commonObjects/metadataTabularSection/exportToEnterprise"
 import { exportPredefinedItemsToEnterprise } from "~/lib/metadata/commonObjects/predifined/exportToEnterprise"
 import { exportStandardAttributeDescriptionsToEnterprise } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportMetadataCatalogToEnterprise = (
-  data: MetadataCatalog | undefined
+  data: MetadataCatalog | undefined,
+  configurationSettings: ConfigurationSettings
 ): MetadataCatalogEnterprise | undefined => {
   if (!data) return undefined
 
   return {
-    ДополнительныеИндексы: exportAdditionalIndexesToEnterprise(data.additionalIndexes),
-    Реквизиты: exportMetadataAttributesToEnterprise(data.attributes),
-    Автонумерация: exportBooleanToEnterprise(data.autonumbering),
+    ДополнительныеИндексы: exportAdditionalIndexesToEnterprise(data.additionalIndexes, configurationSettings),
+    Реквизиты: exportMetadataAttributesToEnterprise(data.attributes, configurationSettings),
+    Автонумерация: exportBooleanToEnterprise(data.autonumbering, configurationSettings),
     ДополнительнаяФормаДляВыбора: data.auxiliaryChoiceForm,
     ДополнительнаяФормаДляВыбораГруппы: data.auxiliaryFolderChoiceForm,
     ДополнительнаяФормаГруппы: data.auxiliaryFolderForm,
     ДополнительнаяФормаСписка: data.auxiliaryListForm,
     ДополнительнаяФормаОбъекта: data.auxiliaryObjectForm,
-    ВводитсяНаОсновании: exportMetadataItemLinksToEnterprise(data.basedOn),
-    Характеристики: exportCharacteristicsDescriptionsToEnterprise(data.characteristics),
-    КонтрольУникальности: exportBooleanToEnterprise(data.checkUnique),
+    ВводитсяНаОсновании: exportMetadataItemLinksToEnterprise(data.basedOn, configurationSettings),
+    Характеристики: exportCharacteristicsDescriptionsToEnterprise(data.characteristics, configurationSettings),
+    КонтрольУникальности: exportBooleanToEnterprise(data.checkUnique, configurationSettings),
     РежимПолученияДанныхВыбораПриВводеПоСтроке: exportSystemEnumerationToEnterprise(
       data.choiceDataGetModeOnInputByString,
-      SE.ChoiceDataGetModeOnInputByStringToEnterprise
+      SE.ChoiceDataGetModeOnInputByStringToEnterprise,
+      configurationSettings
     ),
     ИсторияВыбораПриВводе: exportSystemEnumerationToEnterprise(
       data.choiceHistoryOnInput,
-      SE.ChoiceHistoryOnInputToEnterprise
+      SE.ChoiceHistoryOnInputToEnterprise,
+      configurationSettings
     ),
-    СпособВыбора: exportSystemEnumerationToEnterprise(data.choiceMode, SE.ChoiceModeToEnterprise),
-    ДопустимаяДлинаКода: exportSystemEnumerationToEnterprise(data.codeAllowedLength, SE.AllowedLengthToEnterprise),
+    СпособВыбора: exportSystemEnumerationToEnterprise(
+      data.choiceMode,
+      SE.ChoiceModeToEnterprise,
+      configurationSettings
+    ),
+    ДопустимаяДлинаКода: exportSystemEnumerationToEnterprise(
+      data.codeAllowedLength,
+      SE.AllowedLengthToEnterprise,
+      configurationSettings
+    ),
     ДлинаКода: data.codeLength,
-    СерииКодов: exportSystemEnumerationToEnterprise(data.codeSeries, SE.CharacteristicKindCodesSeriesToEnterprise),
-    ТипКода: exportSystemEnumerationToEnterprise(data.codeType, SE.CatalogCodeTypeToEnterprise),
-    Команды: exportMetadataCommandsToEnterprise(data.commands),
+    СерииКодов: exportSystemEnumerationToEnterprise(
+      data.codeSeries,
+      SE.CharacteristicKindCodesSeriesToEnterprise,
+      configurationSettings
+    ),
+    ТипКода: exportSystemEnumerationToEnterprise(data.codeType, SE.CatalogCodeTypeToEnterprise, configurationSettings),
+    Команды: exportMetadataCommandsToEnterprise(data.commands, configurationSettings),
     Комментарий: data.comment,
-    СозданиеПриВводе: exportSystemEnumerationToEnterprise(data.createOnInput, SE.CreateOnInputToEnterprise),
-    ИсторияДанных: exportSystemEnumerationToEnterprise(data.dataHistory, SE.DataHistoryUseToEnterprise),
+    СозданиеПриВводе: exportSystemEnumerationToEnterprise(
+      data.createOnInput,
+      SE.CreateOnInputToEnterprise,
+      configurationSettings
+    ),
+    ИсторияДанных: exportSystemEnumerationToEnterprise(
+      data.dataHistory,
+      SE.DataHistoryUseToEnterprise,
+      configurationSettings
+    ),
     РежимУправленияБлокировкойДанных: exportSystemEnumerationToEnterprise(
       data.dataLockControlMode,
-      SE.DefaultDataLockControlModeToEnterprise
+      SE.DefaultDataLockControlModeToEnterprise,
+      configurationSettings
     ),
-    ПоляБлокировкиДанных: exportMetadataFieldsToEnterprise(data.dataLockFields),
+    ПоляБлокировкиДанных: exportMetadataFieldsToEnterprise(data.dataLockFields, configurationSettings),
     ОсновнаяФормаДляВыбора: data.defaultChoiceForm,
     ОсновнаяФормаДляВыбораГруппы: data.defaultFolderChoiceForm,
     ОсновнаяФормаГруппы: data.defaultFolderForm,
@@ -59,51 +84,79 @@ export const exportMetadataCatalogToEnterprise = (
     ОсновнаяФормаОбъекта: data.defaultObjectForm,
     ОсновноеПредставление: exportSystemEnumerationToEnterprise(
       data.defaultPresentation,
-      SE.CatalogMainPresentationToEnterprise
+      SE.CatalogMainPresentationToEnterprise,
+      configurationSettings
     ),
     ДлинаНаименования: data.descriptionLength,
-    СпособРедактирования: exportSystemEnumerationToEnterprise(data.editType, SE.EditTypeToEnterprise),
-    ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных: exportBooleanToEnterprise(
-      data.executeAfterWriteDataHistoryVersionProcessing
+    СпособРедактирования: exportSystemEnumerationToEnterprise(
+      data.editType,
+      SE.EditTypeToEnterprise,
+      configurationSettings
     ),
-    Пояснение: exportI8nTextToEnterprise(data.explanation),
-    РасширенноеПредставлениеСписка: exportI8nTextToEnterprise(data.extendedListPresentation),
-    РасширенноеПредставлениеОбъекта: exportI8nTextToEnterprise(data.extendedObjectPresentation),
-    ГруппыСверху: exportBooleanToEnterprise(data.foldersOnTop),
-    ПолнотекстовыйПоиск: exportSystemEnumerationToEnterprise(data.fullTextSearch, SE.UseFullTextSearchToEnterprise),
+    ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных: exportBooleanToEnterprise(
+      data.executeAfterWriteDataHistoryVersionProcessing,
+      configurationSettings
+    ),
+    Пояснение: exportI8nTextToEnterprise(data.explanation, configurationSettings),
+    РасширенноеПредставлениеСписка: exportI8nTextToEnterprise(data.extendedListPresentation, configurationSettings),
+    РасширенноеПредставлениеОбъекта: exportI8nTextToEnterprise(data.extendedObjectPresentation, configurationSettings),
+    ГруппыСверху: exportBooleanToEnterprise(data.foldersOnTop, configurationSettings),
+    ПолнотекстовыйПоиск: exportSystemEnumerationToEnterprise(
+      data.fullTextSearch,
+      SE.UseFullTextSearchToEnterprise,
+      configurationSettings
+    ),
     ПолнотекстовыйПоискПриВводеПоСтроке: exportSystemEnumerationToEnterprise(
       data.fullTextSearchOnInputByString,
-      SE.FullTextSearchOnInputByStringToEnterprise
+      SE.FullTextSearchOnInputByStringToEnterprise,
+      configurationSettings
     ),
-    Иерархический: exportBooleanToEnterprise(data.hierarchical),
-    ВидИерархии: exportSystemEnumerationToEnterprise(data.hierarchyType, SE.HierarchyTypeToEnterprise),
-    ВключатьСправкуВСодержание: exportBooleanToEnterprise(data.includeHelpInContents),
-    ВводПоСтроке: exportMetadataFieldsToEnterprise(data.inputByString),
+    Иерархический: exportBooleanToEnterprise(data.hierarchical, configurationSettings),
+    ВидИерархии: exportSystemEnumerationToEnterprise(
+      data.hierarchyType,
+      SE.HierarchyTypeToEnterprise,
+      configurationSettings
+    ),
+    ВключатьСправкуВСодержание: exportBooleanToEnterprise(data.includeHelpInContents, configurationSettings),
+    ВводПоСтроке: exportMetadataFieldsToEnterprise(data.inputByString, configurationSettings),
     КоличествоУровней: data.levelCount,
-    ОграничиватьКоличествоУровней: exportBooleanToEnterprise(data.limitLevelCount),
-    ПредставлениеСписка: exportI8nTextToEnterprise(data.listPresentation),
+    ОграничиватьКоличествоУровней: exportBooleanToEnterprise(data.limitLevelCount, configurationSettings),
+    ПредставлениеСписка: exportI8nTextToEnterprise(data.listPresentation, configurationSettings),
     Имя: data.name,
-    ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(data.objectBelonging, SE.ObjectBelongingToEnterprise),
-    ПредставлениеОбъекта: exportI8nTextToEnterprise(data.objectPresentation),
-    Владельцы: exportMetadataItemLinksToEnterprise(data.owners),
-    Предопределенные: exportPredefinedItemsToEnterprise(data.predefined),
+    ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
+      data.objectBelonging,
+      SE.ObjectBelongingToEnterprise,
+      configurationSettings
+    ),
+    ПредставлениеОбъекта: exportI8nTextToEnterprise(data.objectPresentation, configurationSettings),
+    Владельцы: exportMetadataItemLinksToEnterprise(data.owners, configurationSettings),
+    Предопределенные: exportPredefinedItemsToEnterprise(data.predefined, configurationSettings),
     ОбновлениеПредопределенныхДанных: exportSystemEnumerationToEnterprise(
       data.predefinedDataUpdate,
-      SE.PredefinedDataUpdateToEnterprise
+      SE.PredefinedDataUpdateToEnterprise,
+      configurationSettings
     ),
-    БыстрыйВыбор: exportBooleanToEnterprise(data.quickChoice),
+    БыстрыйВыбор: exportBooleanToEnterprise(data.quickChoice, configurationSettings),
     СпособПоискаСтрокиПриВводеПоСтроке: exportSystemEnumerationToEnterprise(
       data.searchStringModeOnInputByString,
-      SE.SearchStringModeOnInputByStringToEnterprise
+      SE.SearchStringModeOnInputByStringToEnterprise,
+      configurationSettings
     ),
-    СтандартныеРеквизиты: exportStandardAttributeDescriptionsToEnterprise(data.standardAttributes),
+    СтандартныеРеквизиты: exportStandardAttributeDescriptionsToEnterprise(
+      data.standardAttributes,
+      configurationSettings
+    ),
     ИспользованиеПодчинения: exportSystemEnumerationToEnterprise(
       data.subordinationUse,
-      SE.SubordinationUseToEnterprise
+      SE.SubordinationUseToEnterprise,
+      configurationSettings
     ),
-    Синоним: exportI8nTextToEnterprise(data.synonym),
-    ТабличныеЧасти: exportMetadataTabularSectionsToEnterprise(data.tabularSections),
-    ОбновлятьИсториюДанныхСразуПослеЗаписи: exportBooleanToEnterprise(data.updateDataHistoryImmediatelyAfterWrite),
-    ИспользоватьСтандартныеКоманды: exportBooleanToEnterprise(data.useStandardCommands),
+    Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
+    ТабличныеЧасти: exportMetadataTabularSectionsToEnterprise(data.tabularSections, configurationSettings),
+    ОбновлятьИсториюДанныхСразуПослеЗаписи: exportBooleanToEnterprise(
+      data.updateDataHistoryImmediatelyAfterWrite,
+      configurationSettings
+    ),
+    ИспользоватьСтандартныеКоманды: exportBooleanToEnterprise(data.useStandardCommands, configurationSettings),
   }
 }

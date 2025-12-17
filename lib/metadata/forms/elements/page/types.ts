@@ -2,12 +2,7 @@ import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/lib/metadata/commonObjects/pictures/types"
-import {
-  UserVisible,
-  UserVisibleAllowEnterprise,
-  UserVisibleDenyEnterprise,
-  UserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/lib/metadata/forms/elements/formGroup/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -68,6 +63,6 @@ export interface PageEnterprise extends FormGroupEnterprise {
   ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
   ВертикальнаяПрокруткаПриСжатии?: StringboolEnterprise
   ВертикальныйИнтервал?: SE.FormItemSpacingEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
 }

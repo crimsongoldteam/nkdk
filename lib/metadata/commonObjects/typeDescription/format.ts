@@ -1,6 +1,6 @@
 import { TypeDescription } from "./types"
 
-export const formatTypeDescription = (typeDescription: TypeDescription | undefined): string | undefined => {
+export const exportTypeDescriptionToEnterprise = (typeDescription: TypeDescription | undefined): string | undefined => {
   if (!typeDescription) {
     return undefined
   }

@@ -1,26 +1,22 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { parseBoolean } from "./parse"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("parseBoolean", () => {
   it("should return undefined when value is undefined", () => {
-    const result = parseBoolean(undefined, configurationSettings)
+    const result = parseBoolean(undefined, mockConfigurationSettings)
 
     expect(result).toBeUndefined()
   })
 
   it("should return true when value is 'Истина'", () => {
-    const result = parseBoolean("Истина", configurationSettings)
+    const result = parseBoolean("Истина", mockConfigurationSettings)
 
     expect(result).toBe(true)
   })
 
   it("should return false when value is 'Ложь'", () => {
-    const result = parseBoolean("Ложь", configurationSettings)
+    const result = parseBoolean("Ложь", mockConfigurationSettings)
 
     expect(result).toBe(false)
   })

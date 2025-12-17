@@ -1,14 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import "~/lib/metadata/forms/elements/inputField/registration"
 import { InputField } from "../inputField/types"
 import { FormElementType } from "../types"
 import { formatUsualGroup } from "./format"
 import { UsualGroup } from "./types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("formatUsualGroup", () => {
   it("should format one-line group", () => {
@@ -32,7 +28,7 @@ describe("formatUsualGroup", () => {
 
     const expectedResult = `%{Группа} {Элемент1}: ; {Элемент2}: `
 
-    const result = formatUsualGroup(mockElement, configurationSettings)
+    const result = formatUsualGroup(mockElement, mockConfigurationSettings)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -63,7 +59,7 @@ it("should format vertical group", () => {
   {Элемент1}: 
   {Элемент2}: `
 
-  const result = formatUsualGroup(mockElement, configurationSettings)
+  const result = formatUsualGroup(mockElement, mockConfigurationSettings)
 
   expect(result.strings.join("\n")).toEqual(expectedResult)
 })

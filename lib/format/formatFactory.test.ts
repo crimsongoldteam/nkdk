@@ -6,11 +6,7 @@ import {
   formatElement,
   registerFormat,
 } from "./formatFactory"
-import { ConfigurationSettings } from "../metadata/configurationSettings/types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
+import { mockConfigurationSettings } from "../tests/mockConfigurationSettings"
 
 beforeEach(() => {
   clearFormatRegistry()
@@ -28,5 +24,5 @@ it("should register a format function", () => {
 
   registerFormat(mockFormat, mockCheck)
 
-  expect(formatElement(mockData, configurationSettings)).toEqual(["test"])
+  expect(formatElement(mockData, mockConfigurationSettings)).toEqual(["test"])
 })

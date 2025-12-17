@@ -1,12 +1,8 @@
 import { it, expect, describe } from "vitest"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { FormElementType } from "../types"
 import { PictureDecoration } from "./types"
 import { formatPictureDecoration } from "./format"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("formatPictureDecoration", () => {
   it("should format picture decoration", () => {
@@ -23,7 +19,7 @@ describe("formatPictureDecoration", () => {
 
     const expectedResult = ["@Печать {ИмяПоля}"]
 
-    const result = formatPictureDecoration(element, configurationSettings)
+    const result = formatPictureDecoration(element, mockConfigurationSettings)
 
     expect(result.strings).toEqual(expectedResult)
   })

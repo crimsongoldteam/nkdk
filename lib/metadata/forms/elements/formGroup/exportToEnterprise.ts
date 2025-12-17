@@ -3,6 +3,7 @@ import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/expo
 import { exportFontToEnterprise } from "~/lib/metadata/commonObjects/font/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/lib/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportBaseElementToEnterprise } from "~/lib/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportChildItemsToEnterprise } from "~/lib/metadata/forms/elements/childItems/exportToEnterprise"
 import { exportFormDecorationToEnterprise } from "~/lib/metadata/forms/elements/formDecoration/exportToEnterprise"
@@ -11,41 +12,47 @@ import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
-export const exportFormGroupToEnterprise = (data: FormGroup | undefined): FormGroupEnterprise | undefined => {
+export const exportFormGroupToEnterprise = (
+  data: FormGroup | undefined,
+  configurationSettings: ConfigurationSettings
+): FormGroupEnterprise | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportBaseElementToEnterprise(data)!,
+    ...exportBaseElementToEnterprise(data, configurationSettings)!,
 
-    РазрешитьИзменениеСостава: exportBooleanToEnterprise(data.enableContentChange),
-    Доступность: exportBooleanToEnterprise(data.enabled),
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(data.extendedTooltip),
+    РазрешитьИзменениеСостава: exportBooleanToEnterprise(data.enableContentChange, configurationSettings),
+    Доступность: exportBooleanToEnterprise(data.enabled, configurationSettings),
+    РасширеннаяПодсказка: exportFormDecorationToEnterprise(data.extendedTooltip, configurationSettings),
     Высота: data.height,
     ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
       data.horizontalAlignInGroup,
-      SE.ItemHorizontalLocationToEnterprise
+      SE.ItemHorizontalLocationToEnterprise,
+      configurationSettings
     ),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch),
-    ТолькоПросмотр: exportBooleanToEnterprise(data.readOnly),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    ТолькоПросмотр: exportBooleanToEnterprise(data.readOnly, configurationSettings),
     СочетаниеКлавиш: data.shortcut,
-    Заголовок: exportI8nTextToEnterprise(data.title),
-    ШрифтЗаголовка: exportFontToEnterprise(data.titleFont),
-    ЦветТекстаЗаголовка: exportColorToEnterprise(data.titleTextColor),
-    Подсказка: exportI8nTextToEnterprise(data.toolTip),
+    Заголовок: exportI8nTextToEnterprise(data.title, configurationSettings),
+    ШрифтЗаголовка: exportFontToEnterprise(data.titleFont, configurationSettings),
+    ЦветТекстаЗаголовка: exportColorToEnterprise(data.titleTextColor, configurationSettings),
+    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
     ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
       data.toolTipRepresentation,
-      SE.ToolTipRepresentationToEnterprise
+      SE.ToolTipRepresentationToEnterprise,
+      configurationSettings
     ),
-    Вид: exportSystemEnumerationToEnterprise(data.type, SE.FormGroupTypeToEnterprise),
+    Вид: exportSystemEnumerationToEnterprise(data.type, SE.FormGroupTypeToEnterprise, configurationSettings),
     ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
       data.verticalAlignInGroup,
-      SE.ItemVerticalAlignToEnterprise
+      SE.ItemVerticalAlignToEnterprise,
+      configurationSettings
     ),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch),
-    Видимость: exportBooleanToEnterprise(data.visible),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
+    Видимость: exportBooleanToEnterprise(data.visible, configurationSettings),
     Ширина: data.width,
-    ПодчиненныеЭлементы: exportChildItemsToEnterprise(data.childItems),
-    ПользовательскаяВидимость: exportUserVisibleToEnterprise(data.userVisible),
+    ПодчиненныеЭлементы: exportChildItemsToEnterprise(data.childItems, configurationSettings),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
   }
 }
 

@@ -22,5 +22,11 @@ export interface UserVisible {
   values: UserVisibleValue[]
 }
 
-export type UserVisibleAllowEnterprise = Record<string, StringboolEnterprise>
-export type UserVisibleDenyEnterprise = Record<string, StringboolEnterprise>
+export const UserVisibleKeysEnterprise = {
+  Allow: "РазрешитьИспользование",
+  Deny: "ЗапретитьИспользование",
+} as const
+
+export type UserVisibleKeysEnterprise = (typeof UserVisibleKeysEnterprise)[keyof typeof UserVisibleKeysEnterprise]
+
+export type UserVisibleEnterprise = Record<string, StringboolEnterprise>

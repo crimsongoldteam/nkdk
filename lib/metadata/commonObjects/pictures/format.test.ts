@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import { Picture } from "./types"
-import { formatPicture } from "./format"
+import { exportPictureToEnterprise } from "./exportToEnterprise"
 
 it("should format standard picture", () => {
   const data: Picture = {
@@ -11,7 +11,7 @@ it("should format standard picture", () => {
 
   const expectedResult = `БизнесПроцесс`
 
-  const result = formatPicture(data)
+  const result = exportPictureToEnterprise(data)
 
   expect(result).toEqual(expectedResult)
 })
@@ -25,7 +25,7 @@ it("should format standard picture Print", () => {
 
   const expectedResult = `Печать`
 
-  const result = formatPicture(data)
+  const result = exportPictureToEnterprise(data)
 
   expect(result).toEqual(expectedResult)
 })
@@ -39,7 +39,7 @@ it("should format common picture", () => {
 
   const expectedResult = `ОбщаяКартинка1`
 
-  const result = formatPicture(data)
+  const result = exportPictureToEnterprise(data)
 
   expect(result).toEqual(expectedResult)
 })

@@ -2,12 +2,7 @@ import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types
 import { Border, BorderEnterprise, BorderXML } from "~/lib/metadata/commonObjects/border/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/lib/metadata/commonObjects/font/types"
-import {
-  UserVisible,
-  UserVisibleAllowEnterprise,
-  UserVisibleDenyEnterprise,
-  UserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { FormField, FormFieldEnterprise, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
 
@@ -58,8 +53,8 @@ export interface PeriodFieldEnterprise extends FormFieldEnterprise {
   МаксимальнаяШирина?: number
   РастягиватьПоВертикали?: StringboolEnterprise
   Ширина?: number
-  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
   События?: {
     ПриИзменении?: string
     Выбор?: string

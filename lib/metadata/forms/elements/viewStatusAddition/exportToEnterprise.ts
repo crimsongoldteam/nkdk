@@ -3,6 +3,7 @@ import { exportBorderToEnterprise } from "~/lib/metadata/commonObjects/border/ex
 import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/lib/metadata/commonObjects/font/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormItemAdditionToEnterprise } from "~/lib/metadata/forms/elements/formItemAddition/exportToEnterprise"
 import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import {
@@ -13,30 +14,32 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportViewStatusAdditionToEnterprise = (
-  data: ViewStatusAddition | undefined
+  data: ViewStatusAddition | undefined,
+  configurationSettings: ConfigurationSettings
 ): ViewStatusAdditionEnterprise | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormItemAdditionToEnterprise(data)!,
+    ...exportFormItemAdditionToEnterprise(data, configurationSettings)!,
 
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth),
-    ЦветФона: exportColorToEnterprise(data.backColor),
-    Рамка: exportBorderToEnterprise(data.border),
-    ЦветРамки: exportColorToEnterprise(data.borderColor),
-    ЦветФонаКнопок: exportColorToEnterprise(data.buttonsBackColor),
-    Шрифт: exportFontToEnterprise(data.font),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
+    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
+    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    ЦветФонаКнопок: exportColorToEnterprise(data.buttonsBackColor, configurationSettings),
+    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
     ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
       data.horizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise
+      SE.ItemHorizontalLocationToEnterprise,
+      configurationSettings
     ),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
     МаксимальнаяШирина: data.maxWidth,
-    ЦветТекста: exportColorToEnterprise(data.textColor),
-    ШрифтЗаголовка: exportFontToEnterprise(data.titleFont),
-    ЦветТекстаЗаголовка: exportColorToEnterprise(data.titleTextColor),
+    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
+    ШрифтЗаголовка: exportFontToEnterprise(data.titleFont, configurationSettings),
+    ЦветТекстаЗаголовка: exportColorToEnterprise(data.titleTextColor, configurationSettings),
     Ширина: data.width,
-    ПользовательскаяВидимость: exportUserVisibleToEnterprise(data.userVisible),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
   }
 }
 

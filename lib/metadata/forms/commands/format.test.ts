@@ -1,11 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { mockConfigurationSettings } from "../../../tests/mockConfigurationSettings"
 import { formatCommands } from "./format"
 import { Command } from "./types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("formatCommands", () => {
   it("should format command", () => {
@@ -23,7 +19,7 @@ describe("formatCommands", () => {
 Действие: СоставКомплектаПодобратьФайлы
 ИспользованиеТекущейСтроки: НеИспользует`
 
-    const result = formatCommands([data], configurationSettings)
+    const result = formatCommands([data], mockConfigurationSettings)
 
     expect(result).toEqual([expectedResult])
   })

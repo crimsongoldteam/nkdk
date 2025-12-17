@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import "~/lib/metadata/forms/elements/inputField/registration"
 import "~/lib/metadata/forms/elements/page/registration"
 import "~/lib/metadata/forms/elements/usualGroup/registration"
@@ -8,10 +8,6 @@ import { Page } from "../page/types"
 import { FormElementType } from "../types"
 import { formatPages } from "./format"
 import { Pages } from "./types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("formatPages", () => {
   it("should format pages", () => {
@@ -39,7 +35,7 @@ describe("formatPages", () => {
   /{Страница1}
     {Элемент1}: `
 
-    const result = formatPages(mockElement, configurationSettings)
+    const result = formatPages(mockElement, mockConfigurationSettings)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })

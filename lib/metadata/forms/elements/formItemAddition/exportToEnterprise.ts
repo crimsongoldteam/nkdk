@@ -1,6 +1,7 @@
 import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/lib/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportBaseElementToEnterprise } from "~/lib/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportChildItemsToEnterprise } from "~/lib/metadata/forms/elements/childItems/exportToEnterprise"
 import { exportCommandBarToEnterprise } from "~/lib/metadata/forms/elements/commandBar/exportToEnterprise"
@@ -11,38 +12,43 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportFormItemAdditionToEnterprise = (
-  data: FormItemAddition | undefined
+  data: FormItemAddition | undefined,
+  configurationSettings: ConfigurationSettings
 ): FormItemAdditionEnterprise | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportBaseElementToEnterprise(data)!,
+    ...exportBaseElementToEnterprise(data, configurationSettings)!,
 
-    КонтекстноеМеню: exportCommandBarToEnterprise(data.contextMenu),
+    КонтекстноеМеню: exportCommandBarToEnterprise(data.contextMenu, configurationSettings),
     ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
       data.displayImportance,
-      SE.DisplayImportanceToEnterprise
+      SE.DisplayImportanceToEnterprise,
+      configurationSettings
     ),
-    Доступность: exportBooleanToEnterprise(data.enabled),
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(data.extendedToolTip),
+    Доступность: exportBooleanToEnterprise(data.enabled, configurationSettings),
+    РасширеннаяПодсказка: exportFormDecorationToEnterprise(data.extendedToolTip, configurationSettings),
     ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
       data.horizontalAlignInGroup,
-      SE.ItemHorizontalLocationToEnterprise
+      SE.ItemHorizontalLocationToEnterprise,
+      configurationSettings
     ),
-    Заголовок: exportI8nTextToEnterprise(data.title),
-    Подсказка: exportI8nTextToEnterprise(data.toolTip),
+    Заголовок: exportI8nTextToEnterprise(data.title, configurationSettings),
+    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
     ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
       data.toolTipRepresentation,
-      SE.ToolTipRepresentationToEnterprise
+      SE.ToolTipRepresentationToEnterprise,
+      configurationSettings
     ),
-    Вид: exportSystemEnumerationToEnterprise(data.type, SE.FormItemAdditionTypeToEnterprise),
+    Вид: exportSystemEnumerationToEnterprise(data.type, SE.FormItemAdditionTypeToEnterprise, configurationSettings),
     ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
       data.verticalAlignInGroup,
-      SE.ItemVerticalAlignToEnterprise
+      SE.ItemVerticalAlignToEnterprise,
+      configurationSettings
     ),
-    Видимость: exportBooleanToEnterprise(data.visible),
-    ПодчиненныеЭлементы: exportChildItemsToEnterprise(data.childItems),
-    ПользовательскаяВидимость: exportUserVisibleToEnterprise(data.userVisible),
+    Видимость: exportBooleanToEnterprise(data.visible, configurationSettings),
+    ПодчиненныеЭлементы: exportChildItemsToEnterprise(data.childItems, configurationSettings),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
   }
 }
 

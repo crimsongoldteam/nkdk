@@ -8,6 +8,7 @@ import { exportTypeDescriptionToEnterprise } from "~/lib/metadata/commonObjects/
 import { exportTypeLinkToEnterprise } from "~/lib/metadata/commonObjects/typeLink/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
 import { exportChoiceParameterLinksToEnterprise } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { InputField, InputFieldEnterprise } from "~/lib/metadata/forms/elements/inputField/types"
 import { FormElementType } from "~/lib/metadata/forms/elements/types"
@@ -15,141 +16,170 @@ import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEn
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
-export const exportInputFieldToEnterprise = (data: InputField | undefined): InputFieldEnterprise | undefined => {
+export const exportInputFieldToEnterprise = (
+  data: InputField | undefined,
+  configurationSettings: ConfigurationSettings
+): InputFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormFieldToEnterprise(data)!,
+    ...exportFormFieldToEnterprise(data, configurationSettings)!,
 
-    РазрешитьВводПустыхМножественныхЗначений: exportBooleanToEnterprise(data.allowInputEmptyMultipleValues),
-    РазрешитьДублированиеМножественныхЗначений: exportBooleanToEnterprise(data.allowMultipleValuesDuplicates),
+    РазрешитьВводПустыхМножественныхЗначений: exportBooleanToEnterprise(
+      data.allowInputEmptyMultipleValues,
+      configurationSettings
+    ),
+    РазрешитьДублированиеМножественныхЗначений: exportBooleanToEnterprise(
+      data.allowMultipleValuesDuplicates,
+      configurationSettings
+    ),
     АвтоИзменениеРегистраПриВводеТекста: exportSystemEnumerationToEnterprise(
       data.autoCapitalizationOnTextInput,
-      SE.AutoCapitalizationOnTextInputToEnterprise
+      SE.AutoCapitalizationOnTextInputToEnterprise,
+      configurationSettings
     ),
-    АвтоВыборНезаполненного: exportBooleanToEnterprise(data.autoChoiceIncomplete),
+    АвтоВыборНезаполненного: exportBooleanToEnterprise(data.autoChoiceIncomplete, configurationSettings),
     АвтоИсправлениеПриВводеТекста: exportSystemEnumerationToEnterprise(
       data.autoCorrectionOnTextInput,
-      SE.AutoCorrectionOnTextInputToEnterprise
+      SE.AutoCorrectionOnTextInputToEnterprise,
+      configurationSettings
     ),
     ПодсказкаАвтозаполнения: exportSystemEnumerationToEnterprise(
       data.autoFillHint,
-      SE.InputFieldAutofillHintToEnterprise
+      SE.InputFieldAutofillHintToEnterprise,
+      configurationSettings
     ),
-    АвтоОтметкаНезаполненного: exportBooleanToEnterprise(data.autoMarkIncomplete),
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth),
+    АвтоОтметкаНезаполненного: exportBooleanToEnterprise(data.autoMarkIncomplete, configurationSettings),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
     АвтоОтображениеКнопкиОчистки: exportSystemEnumerationToEnterprise(
       data.autoShowClearButton,
-      SE.AutoShowClearButtonModeToEnterprise
+      SE.AutoShowClearButtonModeToEnterprise,
+      configurationSettings
     ),
     АвтоОтображениеКнопкиОткрытия: exportSystemEnumerationToEnterprise(
       data.autoShowOpenButton,
-      SE.AutoShowOpenButtonModeToEnterprise
+      SE.AutoShowOpenButtonModeToEnterprise,
+      configurationSettings
     ),
-    ДоступныеТипы: exportTypeDescriptionToEnterprise(data.availableTypes),
-    ЦветФона: exportColorToEnterprise(data.backColor),
-    ЦветРамки: exportColorToEnterprise(data.borderColor),
-    КнопкаВыбора: exportBooleanToEnterprise(data.choiceButton),
-    КартинкаКнопкиВыбора: exportPictureToEnterprise(data.choiceButtonPicture),
+    ДоступныеТипы: exportTypeDescriptionToEnterprise(data.availableTypes, configurationSettings),
+    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    КнопкаВыбора: exportBooleanToEnterprise(data.choiceButton, configurationSettings),
+    КартинкаКнопкиВыбора: exportPictureToEnterprise(data.choiceButtonPicture, configurationSettings),
     ОтображениеКнопкиВыбора: exportSystemEnumerationToEnterprise(
       data.choiceButtonRepresentation,
-      SE.ChoiceButtonRepresentationToEnterprise
+      SE.ChoiceButtonRepresentationToEnterprise,
+      configurationSettings
     ),
     ВыборГруппИЭлементов: exportSystemEnumerationToEnterprise(
       data.choiceFoldersAndItems,
-      SE.FoldersAndItemsToEnterprise
+      SE.FoldersAndItemsToEnterprise,
+      configurationSettings
     ),
     ФормаВыбора: data.choiceForm,
     ИсторияВыбораПриВводе: exportSystemEnumerationToEnterprise(
       data.choiceHistoryOnInput,
-      SE.ChoiceHistoryOnInputToEnterprise
+      SE.ChoiceHistoryOnInputToEnterprise,
+      configurationSettings
     ),
-    СписокВыбора: exportChoiceListToEnterprise(data.choiceList),
-    КнопкаСпискаВыбора: exportBooleanToEnterprise(data.choiceListButton),
+    СписокВыбора: exportChoiceListToEnterprise(data.choiceList, configurationSettings),
+    КнопкаСпискаВыбора: exportBooleanToEnterprise(data.choiceListButton, configurationSettings),
     ВысотаСпискаВыбора: data.choiceListHeight,
-    СвязиПараметровВыбора: exportChoiceParameterLinksToEnterprise(data.choiceParameterLinks),
-    ПараметрыВыбора: exportChoiceParameterLinksToEnterprise(data.choiceParameters),
-    ВыбиратьТип: exportBooleanToEnterprise(data.chooseType),
-    КнопкаОчистки: exportBooleanToEnterprise(data.clearButton),
-    КнопкаСоздания: exportBooleanToEnterprise(data.createButton),
-    КнопкаВыпадающегоСписка: exportBooleanToEnterprise(data.dropListButton),
+    СвязиПараметровВыбора: exportChoiceParameterLinksToEnterprise(data.choiceParameterLinks, configurationSettings),
+    ПараметрыВыбора: exportChoiceParameterLinksToEnterprise(data.choiceParameters, configurationSettings),
+    ВыбиратьТип: exportBooleanToEnterprise(data.chooseType, configurationSettings),
+    КнопкаОчистки: exportBooleanToEnterprise(data.clearButton, configurationSettings),
+    КнопкаСоздания: exportBooleanToEnterprise(data.createButton, configurationSettings),
+    КнопкаВыпадающегоСписка: exportBooleanToEnterprise(data.dropListButton, configurationSettings),
     ШиринаВыпадающегоСписка: data.dropListWidth,
-    ФорматРедактирования: exportI8nTextToEnterprise(data.editFormat),
+    ФорматРедактирования: exportI8nTextToEnterprise(data.editFormat, configurationSettings),
     ТекстРедактирования: data.editText,
     ОбновлениеТекстаРедактирования: exportSystemEnumerationToEnterprise(
       data.editTextUpdate,
-      SE.EditTextUpdateToEnterprise
+      SE.EditTextUpdateToEnterprise,
+      configurationSettings
     ),
-    РасширенноеРедактирование: exportBooleanToEnterprise(data.extendedEdit),
-    Шрифт: exportFontToEnterprise(data.font),
-    Формат: exportI8nTextToEnterprise(data.format),
+    РасширенноеРедактирование: exportBooleanToEnterprise(data.extendedEdit, configurationSettings),
+    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
+    Формат: exportI8nTextToEnterprise(data.format, configurationSettings),
     Высота: data.height,
     ВариантУправленияВысотой: exportSystemEnumerationToEnterprise(
       data.heightControlVariant,
-      SE.ItemHeightControlVariantToEnterprise
+      SE.ItemHeightControlVariantToEnterprise,
+      configurationSettings
     ),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
     РежимВыбораНезаполненного: exportSystemEnumerationToEnterprise(
       data.incompleteChoiceMode,
-      SE.IncompleteChoiceModeToEnterprise
+      SE.IncompleteChoiceModeToEnterprise,
+      configurationSettings
     ),
-    ПодсказкаВвода: exportI8nTextToEnterprise(data.inputHint),
-    РежимВыбораИзСписка: exportBooleanToEnterprise(data.listChoiceMode),
-    ОтметкаНезаполненного: exportBooleanToEnterprise(data.markIncomplete),
-    ВыделятьОтрицательные: exportBooleanToEnterprise(data.markNegatives),
+    ПодсказкаВвода: exportI8nTextToEnterprise(data.inputHint, configurationSettings),
+    РежимВыбораИзСписка: exportBooleanToEnterprise(data.listChoiceMode, configurationSettings),
+    ОтметкаНезаполненного: exportBooleanToEnterprise(data.markIncomplete, configurationSettings),
+    ВыделятьОтрицательные: exportBooleanToEnterprise(data.markNegatives, configurationSettings),
     Маска: data.mask,
     МаксимальнаяВысота: data.maxHeight,
     МаксимальноеЗначение: data.maxValue,
     МаксимальнаяШирина: data.maxWidth,
     МинимальноеЗначение: data.minValue,
-    МногострочныйРежим: exportBooleanToEnterprise(data.multiLine),
+    МногострочныйРежим: exportBooleanToEnterprise(data.multiLine, configurationSettings),
     ПутьКДаннымКартинкиМножественногоЗначения: data.multipleValuePictureDataPath,
     ФигураКартинкиМножественногоЗначения: exportSystemEnumerationToEnterprise(
       data.multipleValuePictureShape,
-      SE.InputFieldMultipleValuePictureShapeToEnterprise
+      SE.InputFieldMultipleValuePictureShapeToEnterprise,
+      configurationSettings
     ),
     РазмерКартинкиМножественногоЗначения: exportSystemEnumerationToEnterprise(
       data.multipleValuePictureSize,
-      SE.InputFieldMultipleValuePictureSizeToEnterprise
+      SE.InputFieldMultipleValuePictureSizeToEnterprise,
+      configurationSettings
     ),
     ПутьКДаннымПредставленияМножественногоЗначения: data.multipleValuePresentationDataPath,
-    ЦветФонаМножественныхЗначений: exportColorToEnterprise(data.multipleValuesBackColor),
-    РасширенноеРедактированиеМножественныхЗначений: exportBooleanToEnterprise(data.multipleValuesExtendedEdit),
-    ШрифтМножественныхЗначений: exportFontToEnterprise(data.multipleValuesFont),
-    ГиперссылкаМножественныхЗначений: exportBooleanToEnterprise(data.multipleValuesHyperlink),
-    КартинкаМножественныхЗначений: exportPictureToEnterprise(data.multipleValuesPicture),
-    ЦветТекстаМножественныхЗначений: exportColorToEnterprise(data.multipleValuesTextColor),
+    ЦветФонаМножественныхЗначений: exportColorToEnterprise(data.multipleValuesBackColor, configurationSettings),
+    РасширенноеРедактированиеМножественныхЗначений: exportBooleanToEnterprise(
+      data.multipleValuesExtendedEdit,
+      configurationSettings
+    ),
+    ШрифтМножественныхЗначений: exportFontToEnterprise(data.multipleValuesFont, configurationSettings),
+    ГиперссылкаМножественныхЗначений: exportBooleanToEnterprise(data.multipleValuesHyperlink, configurationSettings),
+    КартинкаМножественныхЗначений: exportPictureToEnterprise(data.multipleValuesPicture, configurationSettings),
+    ЦветТекстаМножественныхЗначений: exportColorToEnterprise(data.multipleValuesTextColor, configurationSettings),
     ПутьКДаннымЗначенияМножественногоЗначения: data.multipleValueValueDataPath,
     ТекстКнопкиВводаЭкраннойКлавиатуры: exportSystemEnumerationToEnterprise(
       data.onScreenKeyboardReturnKeyText,
-      SE.OnScreenKeyboardReturnKeyTextToEnterprise
+      SE.OnScreenKeyboardReturnKeyTextToEnterprise,
+      configurationSettings
     ),
-    КнопкаОткрытия: exportBooleanToEnterprise(data.openButton),
-    РежимПароля: exportBooleanToEnterprise(data.passwordMode),
-    БыстрыйВыбор: exportBooleanToEnterprise(data.quickChoice),
+    КнопкаОткрытия: exportBooleanToEnterprise(data.openButton, configurationSettings),
+    РежимПароля: exportBooleanToEnterprise(data.passwordMode, configurationSettings),
+    БыстрыйВыбор: exportBooleanToEnterprise(data.quickChoice, configurationSettings),
     ВыделенныйТекст: data.selectedText,
     ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений: exportBooleanToEnterprise(
-      data.showCheckBoxesInDropListWhenInputMultipleValues
+      data.showCheckBoxesInDropListWhenInputMultipleValues,
+      configurationSettings
     ),
     СпециальныйРежимВводаТекста: exportSystemEnumerationToEnterprise(
       data.specialTextInputMode,
-      SE.SpecialTextInputModeToEnterprise
+      SE.SpecialTextInputModeToEnterprise,
+      configurationSettings
     ),
     ПроверкаПравописанияПриВводеТекста: exportSystemEnumerationToEnterprise(
       data.spellCheckingOnTextInput,
-      SE.SpellCheckingOnTextInputToEnterprise
+      SE.SpellCheckingOnTextInputToEnterprise,
+      configurationSettings
     ),
-    КнопкаРегулирования: exportBooleanToEnterprise(data.spinButton),
-    ЦветТекста: exportColorToEnterprise(data.textColor),
-    РедактированиеТекста: exportBooleanToEnterprise(data.textEdit),
-    РазрешитьСоставнойТип: exportBooleanToEnterprise(data.typeDomainEnabled),
-    СвязьПоТипу: exportTypeLinkToEnterprise(data.typeLink),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch),
+    КнопкаРегулирования: exportBooleanToEnterprise(data.spinButton, configurationSettings),
+    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
+    РедактированиеТекста: exportBooleanToEnterprise(data.textEdit, configurationSettings),
+    РазрешитьСоставнойТип: exportBooleanToEnterprise(data.typeDomainEnabled, configurationSettings),
+    СвязьПоТипу: exportTypeLinkToEnterprise(data.typeLink, configurationSettings),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
     Ширина: data.width,
-    АвтоПереносСтрок: exportBooleanToEnterprise(data.wrap),
-    ПользовательскаяВидимость: exportUserVisibleToEnterprise(data.userVisible),
-    Events: exportEventsToEnterprise(data.events),
+    АвтоПереносСтрок: exportBooleanToEnterprise(data.wrap, configurationSettings),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    Events: exportEventsToEnterprise(data.events, configurationSettings),
   }
 }
 

@@ -2,6 +2,7 @@ import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/
 import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/lib/metadata/commonObjects/font/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormItemAdditionToEnterprise } from "~/lib/metadata/forms/elements/formItemAddition/exportToEnterprise"
 import {
   SearchStringAddition,
@@ -10,20 +11,21 @@ import {
 import { FormElementType } from "~/lib/metadata/forms/elements/types"
 
 export const exportSearchStringAdditionToEnterprise = (
-  data: SearchStringAddition | undefined
+  data: SearchStringAddition | undefined,
+  configurationSettings: ConfigurationSettings
 ): SearchStringAdditionEnterprise | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormItemAdditionToEnterprise(data)!,
+    ...exportFormItemAdditionToEnterprise(data, configurationSettings)!,
 
-    ЦветФона: exportColorToEnterprise(data.backColor),
-    ЦветРамки: exportColorToEnterprise(data.borderColor),
-    Шрифт: exportFontToEnterprise(data.font),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch),
-    ЦветТекста: exportColorToEnterprise(data.textColor),
+    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
     Ширина: data.width,
-    ПользовательскаяВидимость: exportUserVisibleToEnterprise(data.userVisible),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
   }
 }
 

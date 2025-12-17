@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { mockConfigurationSettings } from "../../../tests/mockConfigurationSettings"
 import { exportMetadataCatalogToEnterprise } from "./exportToEnterprise"
 import { MetadataCatalog, MetadataCatalogEnterprise } from "./types"
 
@@ -20,7 +21,7 @@ describe("exportMetadataCatalogToEnterprise", () => {
       ВидИерархии: "ИерархияГруппИЭлементов",
     }
 
-    const result = exportMetadataCatalogToEnterprise(mock)
+    const result = exportMetadataCatalogToEnterprise(mock, mockConfigurationSettings)
     expect(result).toEqual(expectedResult)
   })
 })

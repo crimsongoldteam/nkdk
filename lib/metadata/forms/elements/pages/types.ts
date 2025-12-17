@@ -1,9 +1,4 @@
-import {
-  UserVisible,
-  UserVisibleAllowEnterprise,
-  UserVisibleDenyEnterprise,
-  UserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/lib/metadata/forms/elements/formGroup/types"
 import { Table, TableEnterprise, TableXML } from "~/lib/metadata/forms/elements/table/types"
 import { EventsXML } from "~/lib/metadata/forms/events/types"
@@ -34,8 +29,8 @@ export interface PagesEnterprise extends FormGroupEnterprise {
   ТекущееСостояниеСтраниц?: SE.FormPagesStateEnterprise
   ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
   ОтображениеСтраниц?: SE.FormPagesRepresentationEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
   События?: {
     ПриСменеСтраницы?: string
   }

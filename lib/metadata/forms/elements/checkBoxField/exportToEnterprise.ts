@@ -3,6 +3,7 @@ import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/expo
 import { exportFontToEnterprise } from "~/lib/metadata/commonObjects/font/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/lib/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { CheckBoxField, CheckBoxFieldEnterprise } from "~/lib/metadata/forms/elements/checkBoxField/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { FormElementType } from "~/lib/metadata/forms/elements/types"
@@ -11,26 +12,31 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportCheckBoxFieldToEnterprise = (
-  data: CheckBoxField | undefined
+  data: CheckBoxField | undefined,
+  configurationSettings: ConfigurationSettings
 ): CheckBoxFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormFieldToEnterprise(data)!,
+    ...exportFormFieldToEnterprise(data, configurationSettings)!,
 
-    ЦветФона: exportColorToEnterprise(data.backColor),
-    ЦветРамки: exportColorToEnterprise(data.borderColor),
-    ВидФлажка: exportSystemEnumerationToEnterprise(data.checkBoxType, SE.CheckBoxTypeToEnterprise),
-    ФорматРедактирования: exportI8nTextToEnterprise(data.editFormat),
-    ОдинаковаяШиринаЭлементов: exportBooleanToEnterprise(data.equalItemsWidth),
-    Шрифт: exportFontToEnterprise(data.font),
+    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    ВидФлажка: exportSystemEnumerationToEnterprise(
+      data.checkBoxType,
+      SE.CheckBoxTypeToEnterprise,
+      configurationSettings
+    ),
+    ФорматРедактирования: exportI8nTextToEnterprise(data.editFormat, configurationSettings),
+    ОдинаковаяШиринаЭлементов: exportBooleanToEnterprise(data.equalItemsWidth, configurationSettings),
+    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
     ВысотаЭлемента: data.itemHeight,
     ВысотаЗаголовкаЭлемента: data.itemTitleHeight,
     ШиринаЭлемента: data.itemWidth,
-    ЦветТекста: exportColorToEnterprise(data.textColor),
-    ТриСостояния: exportBooleanToEnterprise(data.threeState),
-    ПользовательскаяВидимость: exportUserVisibleToEnterprise(data.userVisible),
-    Events: exportEventsToEnterprise(data.events),
+    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
+    ТриСостояния: exportBooleanToEnterprise(data.threeState, configurationSettings),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    Events: exportEventsToEnterprise(data.events, configurationSettings),
   }
 }
 

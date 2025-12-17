@@ -1,15 +1,11 @@
 import { describe, expect, it } from "vitest"
-import type { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import type { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
 import { FormElementType } from "../types"
 import { CommandBar } from "./types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 describe("parse CommandBar", () => {
   it("should parse command bar with buttons", () => {
@@ -61,5 +57,5 @@ const parseCommandBar = (mock: string) => {
     childItems: [],
   }
 
-  return parseElement(node, configurationSettings)
+  return parseElement(node, mockConfigurationSettings)
 }

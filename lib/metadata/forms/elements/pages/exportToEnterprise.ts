@@ -1,4 +1,5 @@
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormGroupToEnterprise } from "~/lib/metadata/forms/elements/formGroup/exportToEnterprise"
 import { Pages, PagesEnterprise } from "~/lib/metadata/forms/elements/pages/types"
 import { exportTableToEnterprise } from "~/lib/metadata/forms/elements/table/exportToEnterprise"
@@ -7,21 +8,33 @@ import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEn
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
-export const exportPagesToEnterprise = (data: Pages | undefined): PagesEnterprise | undefined => {
+export const exportPagesToEnterprise = (
+  data: Pages | undefined,
+  configurationSettings: ConfigurationSettings
+): PagesEnterprise | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormGroupToEnterprise(data)!,
+    ...exportFormGroupToEnterprise(data, configurationSettings)!,
 
-    ИспользуемаяТаблица: exportTableToEnterprise(data.associatedTable),
-    ТекущееСостояниеСтраниц: exportSystemEnumerationToEnterprise(data.currentPagesState, SE.FormPagesStateToEnterprise),
-    ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(data.currentRowUse, SE.CurrentRowUseToEnterprise),
+    ИспользуемаяТаблица: exportTableToEnterprise(data.associatedTable, configurationSettings),
+    ТекущееСостояниеСтраниц: exportSystemEnumerationToEnterprise(
+      data.currentPagesState,
+      SE.FormPagesStateToEnterprise,
+      configurationSettings
+    ),
+    ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
+      data.currentRowUse,
+      SE.CurrentRowUseToEnterprise,
+      configurationSettings
+    ),
     ОтображениеСтраниц: exportSystemEnumerationToEnterprise(
       data.pagesRepresentation,
-      SE.FormPagesRepresentationToEnterprise
+      SE.FormPagesRepresentationToEnterprise,
+      configurationSettings
     ),
-    ПользовательскаяВидимость: exportUserVisibleToEnterprise(data.userVisible),
-    Events: exportEventsToEnterprise(data.events),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    Events: exportEventsToEnterprise(data.events, configurationSettings),
   }
 }
 

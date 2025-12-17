@@ -1,15 +1,11 @@
 import { describe, expect, it } from "vitest"
-import type { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import type { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { lexer } from "~/lib/parser/lexer"
 import { FormElementType } from "../types"
 import type { LabelDecoration } from "./types"
 import { ParseElementType } from "~/lib/parser/types"
-
-const configurationSettings: ConfigurationSettings = {
-  defaultLanguage: "ru",
-}
 
 const parseLabelDecoration = (mock: string) => {
   const tokens = lexer.tokenize(mock).tokens
@@ -20,7 +16,7 @@ const parseLabelDecoration = (mock: string) => {
     childItems: [],
   }
 
-  return parseElement(node, configurationSettings)
+  return parseElement(node, mockConfigurationSettings)
 }
 
 describe("parse LabelDecoration", () => {

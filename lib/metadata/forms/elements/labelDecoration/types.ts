@@ -1,12 +1,7 @@
 import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { Border, BorderEnterprise, BorderXML } from "~/lib/metadata/commonObjects/border/types"
 import { Color, ColorEnterprise, ColorXML } from "~/lib/metadata/commonObjects/color/types"
-import {
-  UserVisible,
-  UserVisibleAllowEnterprise,
-  UserVisibleDenyEnterprise,
-  UserVisibleXML,
-} from "~/lib/metadata/commonObjects/userVisible/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import {
   FormDecoration,
   FormDecorationEnterprise,
@@ -53,8 +48,8 @@ export interface LabelDecorationEnterprise extends FormDecorationEnterprise {
   Гиперссылка?: StringboolEnterprise
   ВысотаЗаголовка?: number
   ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleAllowEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleDenyEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
   События?: {
     Нажатие?: string
     ОбработкаНавигационнойСсылки?: string
