@@ -1,6 +1,7 @@
 import { formatElementName } from "~/lib/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { FormElementTypeToEnterprise } from "../types"
 import { BaseElement } from "./types"
 
 export const formatOtherElement: FormatElementFunction = (
@@ -8,7 +9,7 @@ export const formatOtherElement: FormatElementFunction = (
   _configurationSettings: ConfigurationSettings
 ): IFormatElementResult => {
   const result: IFormatElementResult = {
-    strings: ["?" + element.elementType + " " + formatElementName(element)],
+    strings: ["?" + FormElementTypeToEnterprise[element.elementType] + " " + formatElementName(element)],
     haveSimpleHorizontalGroup: false,
   }
 

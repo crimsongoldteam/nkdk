@@ -1,15 +1,13 @@
 import type { CstNode } from "chevrotain"
 import type { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import type { BaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
+import { ChildItems } from "~/lib/metadata/forms/elements/childItems/types"
 import type { DetectedTreeNode } from "../detector/detectTree"
 import { ParseElementType } from "../types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
 
-export const parseElement = (
-  element: DetectedTreeNode,
-  configurationSettings: ConfigurationSettings
-): BaseElement => {
+export const parseElement = (element: DetectedTreeNode, configurationSettings: ConfigurationSettings): BaseElement => {
   const ast = parseByElementType(element)
 
   const cst = visitor.visit(ast, configurationSettings)
@@ -29,10 +27,13 @@ const addChildItemsToResult = (
 
   if (element.type === ParseElementType.CommandBar) return
 
-  cst.childItems =
-    element.childItems?.map((child) =>
-      parseElement(child, configurationSettings)
-    ) || []
+  // Для таблицы childItems уже установлены в visitor из ячеек первой строки
+  // Не перезаписываем их, если они уже есть
+  if (element.type === ParseElementType.Table && cst.childItems && (cst.childItems as ChildItems)?.length > 0) {
+    return
+  }
+
+  cst.childItems = element.childItems?.map((child) => parseElement(child, configurationSettings)) || []
 }
 
 const parseByElementType = (element: DetectedTreeNode): CstNode => {

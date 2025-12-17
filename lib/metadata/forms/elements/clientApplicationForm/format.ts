@@ -3,7 +3,6 @@ import { IFormatElementResult } from "~/lib/format/types"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import formatFormAttributes from "./attributes/format"
 import { getAllElements } from "./getAllElements"
-import { formatProperties } from "./properties/format"
 import { ClientApplicationForm } from "./types"
 
 export const formatClientApplicationForm = (
@@ -35,7 +34,7 @@ export const formatClientApplicationForm = (
 
   if (allElements.length > 0) {
     result.strings.push(...formatSectionHeader("Свойства"))
-    result.strings.push(...formatProperties(allElements, configurationSettings))
+    // result.strings.push(...formatProperties(allElements, configurationSettings))
   }
 
   return result

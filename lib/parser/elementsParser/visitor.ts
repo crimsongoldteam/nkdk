@@ -333,8 +333,9 @@ export class Visitor extends BaseVisitor {
         if (cell.properties) {
           // Если в ячейке есть properties, это имя таблицы
           tableName = cell.properties
-        } else if (cell.name) {
-          // Иначе это колонка
+        }
+        if (cell.name && cell.name.trim()) {
+          // Если в ячейке есть имя (и оно не пустое), это колонка
           childItems.push({
             elementType: FormElementType.InputField,
             name: cell.name,
@@ -380,7 +381,7 @@ export class Visitor extends BaseVisitor {
       return { name: "", properties: undefined }
     }
 
-    const tableDataCell = this.visit(tableDataCellNodes as CstNode[], configurationSettings) as {
+    const tableDataCell = this.visit(tableDataCellNodes[0] as CstNode, configurationSettings) as {
       name: string
       properties?: string
     }

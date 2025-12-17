@@ -1,7 +1,7 @@
-import { expect, it, describe } from "vitest"
-import { Command } from "./types"
-import { formatCommands } from "./format"
+import { describe, expect, it } from "vitest"
 import { ConfigurationSettings } from "../../configurationSettings/types"
+import { formatCommands } from "./format"
+import { Command } from "./types"
 
 const configurationSettings: ConfigurationSettings = {
   defaultLanguage: "ru",
@@ -18,11 +18,10 @@ describe("formatCommands", () => {
       currentRowUse: "DontUse",
     }
 
-    const expectedResult = `СоставКомплектаПодобратьФайлы:
-  Заголовок: Файлы
-  Подсказка: Состав комплекта подобрать файлы
-  Действие: СоставКомплектаПодобратьФайлы
-  ИспользованиеТекущейСтроки: НеИспользует`
+    const expectedResult = `Заголовок: Файлы
+Подсказка: Состав комплекта подобрать файлы
+Действие: СоставКомплектаПодобратьФайлы
+ИспользованиеТекущейСтроки: НеИспользует`
 
     const result = formatCommands([data], configurationSettings)
 

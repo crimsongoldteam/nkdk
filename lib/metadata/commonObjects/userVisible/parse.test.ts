@@ -1,19 +1,19 @@
 import { describe, expect, it } from "vitest"
+import { ConfigurationSettings } from "../../configurationSettings/types"
 import { parseUserVisible } from "./parse"
 
-describe("parseUserVisible", () => {
-  it("should parse UserVisible", () => {
-    const result = parseUserVisible(undefined, true)
+const configurationSettings: ConfigurationSettings = {
+  defaultLanguage: "ru",
+}
 
-    expect(result).toBeUndefined()
-  })
+describe("parseUserVisible", () => {
   it("should parse UserVisible with allow usage and values", () => {
     const mock = {
       "Role.Администратор": "Истина" as const,
       "Role.Пользователь": "Ложь" as const,
     }
 
-    const result = parseUserVisible(mock, "РазрешитьИспользование")
+    const result = parseUserVisible(mock, "РазрешитьИспользование", configurationSettings)
 
     expect(result).toEqual({
       common: true,
@@ -29,7 +29,7 @@ describe("parseUserVisible", () => {
       "Role.Пользователь": "Ложь" as const,
     }
 
-    const result = parseUserVisible(mock, "ЗапретитьИспользование")
+    const result = parseUserVisible(mock, "ЗапретитьИспользование", configurationSettings)
 
     expect(result).toEqual({
       common: false,

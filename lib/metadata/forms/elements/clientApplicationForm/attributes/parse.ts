@@ -6,10 +6,7 @@ import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { FormAttribute } from "../types"
 
-export const parseAttributes = (
-  yamlContent: string,
-  configurationSettings: ConfigurationSettings
-): FormAttribute[] => {
+export const parseAttributes = (yamlContent: string, configurationSettings: ConfigurationSettings): FormAttribute[] => {
   const parsed = parse(yamlContent) as Record<string, any>
   const result: FormAttribute[] = []
 
@@ -32,29 +29,17 @@ export const parseAttributes = (
 
       // Обработка ОсновнойАтрибут
       if ("ОсновнойАтрибут" in data) {
-        attribute.mainAttribute = parseBoolean(
-          data.ОсновнойАтрибут,
-          configurationSettings
-        )
+        attribute.mainAttribute = parseBoolean(data.ОсновнойАтрибут, configurationSettings)
       }
 
       // Обработка СохраняемыеДанные
       if ("СохраняемыеДанные" in data) {
-        attribute.storedData = parseBoolean(
-          data.СохраняемыеДанные,
-          configurationSettings
-        )
+        attribute.storedData = parseBoolean(data.СохраняемыеДанные, configurationSettings)
       }
 
-      if (
-        "РазрешитьИспользование" in data ||
-        "ЗапретитьИспользование" in data
-      ) {
-        const userVisibleKey =
-          "РазрешитьИспользование" in data
-            ? "РазрешитьИспользование"
-            : "ЗапретитьИспользование"
-        attribute.use = parseUserVisible(data[userVisibleKey], userVisibleKey)
+      if ("РазрешитьИспользование" in data || "ЗапретитьИспользование" in data) {
+        const userVisibleKey = "РазрешитьИспользование" in data ? "РазрешитьИспользование" : "ЗапретитьИспользование"
+        attribute.use = parseUserVisible(data[userVisibleKey], userVisibleKey, configurationSettings)
       }
     }
 

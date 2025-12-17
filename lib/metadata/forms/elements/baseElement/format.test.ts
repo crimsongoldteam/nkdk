@@ -16,7 +16,7 @@ describe("formatOtherElement", () => {
       id: "1",
     }
 
-    const expectedResult = ["?InputField {ИмяПоля}"]
+    const expectedResult = ["?ПолеВвода {ИмяПоля}"]
 
     const result = formatOtherElement(element, configurationSettings)
 
