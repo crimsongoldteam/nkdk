@@ -1,14 +1,7 @@
 import { describe, expect, it } from "vitest"
-import {
-  importClientApplicationFormFromXML,
-  ClientApplicationForm,
-  ClientApplicationFormXML,
-  xmlImport,
-  ZClientApplicationFormXML,
-} from "~/lib"
-import { FormElementType } from "../types"
+import { ClientApplicationForm, ClientApplicationFormXML, importClientApplicationFormFromXML, xmlImport } from "~/lib"
 import "~/lib/metadata/forms/elements/importFromXML"
-import z from "zod"
+import { FormElementType } from "../types"
 
 describe("importClientApplicationFormFromXML", () => {
   it("should import title from XML", () => {
@@ -37,10 +30,7 @@ describe("importClientApplicationFormFromXML", () => {
       attributes: [],
     }
 
-    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(
-      mockXml,
-      z.object({ Form: ZClientApplicationFormXML })
-    )
+    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
     const element = importClientApplicationFormFromXML(xmlData.Form)
 
     expect(element).toEqual(mockElement)
@@ -68,10 +58,7 @@ describe("importClientApplicationFormFromXML", () => {
       attributes: [],
     }
 
-    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(
-      mockXml,
-      z.object({ Form: ZClientApplicationFormXML })
-    )
+    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
     const element = importClientApplicationFormFromXML(xmlData.Form)
 
     expect(element).toEqual(mockElement)
@@ -104,10 +91,7 @@ describe("importClientApplicationFormFromXML", () => {
       attributes: [],
     }
 
-    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(
-      mockXml,
-      z.object({ Form: ZClientApplicationFormXML })
-    )
+    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
     const form = importClientApplicationFormFromXML(xmlData.Form)
 
     expect(form).toEqual(mockElement)
@@ -147,10 +131,7 @@ describe("importClientApplicationFormFromXML", () => {
       ],
     }
 
-    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(
-      mockXml,
-      z.object({ Form: ZClientApplicationFormXML })
-    )
+    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
 
     const form = importClientApplicationFormFromXML(xmlData.Form)
 
@@ -195,10 +176,7 @@ describe("importClientApplicationFormFromXML", () => {
       ],
     }
 
-    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(
-      mockXml,
-      z.object({ Form: ZClientApplicationFormXML })
-    )
+    const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
 
     const form = importClientApplicationFormFromXML(xmlData.Form)
 

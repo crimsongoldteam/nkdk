@@ -1,10 +1,8 @@
 import { expect, it } from "vitest"
-import { importPictureDecorationFromXML } from "./importFromXML"
-import { FormElementType } from "../types"
-import { TPictureDecoration, TPictureDecorationXML } from "./types"
 import { xmlImport } from "~/lib"
-import z from "zod"
-import { ZPictureDecorationXML } from "./types"
+import { FormElementType } from "../types"
+import { importPictureDecorationFromXML } from "./importFromXML"
+import { PictureDecoration, PictureDecorationXML } from "./types"
 
 it("should import name from XML", () => {
   const mockXml = `<PictureDecoration name="ПереданВАрхивИлиУничтоженКартинка" id="1">
@@ -14,7 +12,7 @@ it("should import name from XML", () => {
 					</Picture>
 				</PictureDecoration>`
 
-  const expectedResult: TPictureDecoration = {
+  const expectedResult: PictureDecoration = {
     name: "ПереданВАрхивИлиУничтоженКартинка",
     elementType: FormElementType.PictureDecoration,
     picture: {
@@ -25,10 +23,7 @@ it("should import name from XML", () => {
     id: "1",
   }
 
-  const xml = xmlImport<{ PictureDecoration: TPictureDecorationXML }>(
-    mockXml,
-    z.object({ PictureDecoration: ZPictureDecorationXML })
-  )
+  const xml = xmlImport<{ PictureDecoration: PictureDecorationXML }>(mockXml)
 
   const input = importPictureDecorationFromXML(xml.PictureDecoration)
 

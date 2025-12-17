@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest"
-import importAttributeFromXML from "./importFromXML"
-import { FormAttribute, AttributeXML, AttributesXML } from "../types"
 import { xmlImport } from "~/lib"
-import { ZAttributeXML, ZAttributesXML } from "../types"
-import z from "zod"
+import { AttributeXML, FormAttribute } from "../types"
+import importAttributeFromXML from "./importFromXML"
 
 describe("importAttributeFromXML", () => {
   it("should import attribute from XML", () => {
@@ -33,7 +31,7 @@ describe("importAttributeFromXML", () => {
       title: { items: { ru: "Заголовок поля" } },
     }
 
-    const xmlData = xmlImport<AttributeXML>(mockXml, ZAttributeXML)
+    const xmlData = xmlImport<AttributeXML>(mockXml)
 
     const result = importAttributeFromXML(xmlData)
 
@@ -50,7 +48,7 @@ describe("importAttributeFromXML", () => {
       id: "1",
     }
 
-    const xmlData = xmlImport<AttributeXML>(mockXml, ZAttributeXML)
+    const xmlData = xmlImport<AttributeXML>(mockXml)
 
     const result = importAttributeFromXML(xmlData)
 
@@ -74,7 +72,7 @@ describe("importAttributeFromXML", () => {
       storedData: true,
     }
 
-    const xmlData = xmlImport<AttributeXML>(mockXml, ZAttributeXML)
+    const xmlData = xmlImport<{ Attributes: AttributeXML[] }>(mockXml)
 
     const result = importAttributeFromXML(xmlData)
 
@@ -90,14 +88,9 @@ describe("importAttributeFromXML", () => {
     </ConditionalAppearance>
   </Attributes>`
 
-    const xmlData = xmlImport<{ Attributes: AttributesXML }>(
-      mockXml,
-      z.object({ Attributes: ZAttributesXML })
-    )
+    const xmlData = xmlImport<{ Attributes: AttributeXML[] }>(mockXml)
 
-    const result = importAttributeFromXML(
-      xmlData.Attributes[0] as AttributeXML
-    )
+    const result = importAttributeFromXML(xmlData.Attributes[0] as AttributeXML)
 
     expect(result).toBeUndefined()
   })

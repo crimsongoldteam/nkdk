@@ -1,19 +1,18 @@
 import type { CstChildrenDictionary, CstNode, IToken } from "chevrotain"
-import type { TChoiceList } from "~/lib/metadata/commonObjects/choiceList/types"
-import type { TI8nText } from "~/lib/metadata/commonObjects/i8nText/types"
+import type { ChoiceList } from "~/lib/metadata/commonObjects/choiceList/types"
+import type { I8nText } from "~/lib/metadata/commonObjects/i8nText/types"
 import type { TConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import type { TButton } from "~/lib/metadata/forms/elements/button/types"
-import type { TCheckBoxField } from "~/lib/metadata/forms/elements/checkBoxField/types"
-import { TCommandBar } from "~/lib/metadata/forms/elements/commandBar/types"
-import type { TInputField } from "~/lib/metadata/forms/elements/inputField/types"
-import type { TLabelDecoration } from "~/lib/metadata/forms/elements/labelDecoration/types"
-import { TPage } from "~/lib/metadata/forms/elements/page/types"
-import { TPages } from "~/lib/metadata/forms/elements/pages/types"
-import type { TRadioButtonField } from "~/lib/metadata/forms/elements/radioButtonField/types"
-import { TTable } from "~/lib/metadata/forms/elements/table/types"
+import type { Button } from "~/lib/metadata/forms/elements/button/types"
+import type { CheckBoxField } from "~/lib/metadata/forms/elements/checkBoxField/types"
+import { CommandBar } from "~/lib/metadata/forms/elements/commandBar/types"
+import type { InputField } from "~/lib/metadata/forms/elements/inputField/types"
+import type { LabelDecoration } from "~/lib/metadata/forms/elements/labelDecoration/types"
+import { Page } from "~/lib/metadata/forms/elements/page/types"
+import { Pages } from "~/lib/metadata/forms/elements/pages/types"
+import type { RadioButtonField } from "~/lib/metadata/forms/elements/radioButtonField/types"
+import { Table } from "~/lib/metadata/forms/elements/table/types"
 import { FormElementType } from "~/lib/metadata/forms/elements/types"
-import { TUsualGroup } from "~/lib/metadata/forms/elements/usualGroup/types"
-import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { UsualGroup } from "~/lib/metadata/forms/elements/usualGroup/types"
 import { joinTokens, visitAll } from "../visitorUtils"
 import { Parser } from "./parser"
 
@@ -21,7 +20,7 @@ const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
 export class Visitor extends BaseVisitor {
   // #region labelDecoration
-  public labelDecoration(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TLabelDecoration {
+  public labelDecoration(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): LabelDecoration {
     const labelContent = joinTokens(ctx.LabelContent as IToken[]) || ""
 
     const titleText = labelContent
@@ -33,13 +32,13 @@ export class Visitor extends BaseVisitor {
       name: name || "",
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       id: undefined,
-    } as TLabelDecoration
+    } as LabelDecoration
   }
   // #endregion
 
   // #region inputField
 
-  inputField(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TInputField {
+  inputField(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): InputField {
     const titleText = joinTokens(ctx.InputHeader as IToken[])
 
     const name = this.visit(ctx.properties as CstNode[]) || titleText
@@ -56,13 +55,13 @@ export class Visitor extends BaseVisitor {
       id: undefined,
       title: title,
       ...modificators,
-    } as TInputField
+    } as InputField
     return result
   }
 
   addInputModifiers(
     modifiers: string | undefined
-  ): Partial<Pick<TInputField, "dropListButton" | "choiceButton" | "clearButton" | "spinButton" | "openButton">> {
+  ): Partial<Pick<InputField, "dropListButton" | "choiceButton" | "clearButton" | "spinButton" | "openButton">> {
     if (modifiers === undefined) {
       return {}
     }
@@ -80,7 +79,7 @@ export class Visitor extends BaseVisitor {
     }
 
     const result: Partial<
-      Pick<TInputField, "dropListButton" | "choiceButton" | "clearButton" | "spinButton" | "openButton">
+      Pick<InputField, "dropListButton" | "choiceButton" | "clearButton" | "spinButton" | "openButton">
     > = {}
 
     for (const element of modifiers) {
@@ -98,7 +97,7 @@ export class Visitor extends BaseVisitor {
 
   // #region button
 
-  button(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TButton {
+  button(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): Button {
     const name = joinTokens(ctx.Button as IToken[]) || ""
     const titleText = joinTokens(ctx.Button as IToken[]) || ""
 
@@ -109,32 +108,32 @@ export class Visitor extends BaseVisitor {
       name: name || "",
       title: title,
       id: undefined,
-    } as TButton
+    } as Button
   }
   // #endregion
 
   // #region checkboxField
-  rightTitledCheckboxField(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TCheckBoxField {
+  rightTitledCheckboxField(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): CheckBoxField {
     const titleText = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
 
     const name = this.visit(ctx.properties as CstNode[]) || titleText
 
-    const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? SE.ZCheckBoxType.enum.Switch : undefined
+    const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? "Switch" : undefined
     return {
       elementType: FormElementType.CheckBoxField,
       name: name || "",
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
-      headerHorizontalAlign: SE.ZItemHorizontalLocation.enum.Right,
+      headerHorizontalAlign: "Right",
       id: undefined,
       checkBoxType: checkBoxType || undefined,
-    } as TCheckBoxField
+    } as CheckBoxField
   }
 
-  leftTitledCheckboxField(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TCheckBoxField {
+  leftTitledCheckboxField(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): CheckBoxField {
     const titleText = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
 
-    const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? SE.ZCheckBoxType.enum.Switch : undefined
+    const checkBoxType = ctx.SwitchChecked || ctx.SwitchUnchecked ? "Switch" : undefined
 
     return {
       elementType: FormElementType.CheckBoxField,
@@ -142,14 +141,14 @@ export class Visitor extends BaseVisitor {
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       id: undefined,
       checkBoxType: checkBoxType || undefined,
-    } as TCheckBoxField
+    } as CheckBoxField
   }
 
   //#endregion
 
   //  #region radioButtonField
 
-  radioButtonField(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TRadioButtonField {
+  radioButtonField(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): RadioButtonField {
     const titleText = joinTokens(ctx.RadioButtonHeader as IToken[]) || ""
 
     const name = this.visit(ctx.properties as CstNode[]) || titleText
@@ -159,7 +158,7 @@ export class Visitor extends BaseVisitor {
       description: string
     }[]
 
-    const choiceList: TChoiceList = {
+    const choiceList: ChoiceList = {
       items: items.map((item) => ({
         value: item.description,
         presentation: {
@@ -177,7 +176,7 @@ export class Visitor extends BaseVisitor {
       id: undefined,
       choiceList: choiceList,
       title: title,
-    } as TRadioButtonField
+    } as RadioButtonField
   }
 
   radioButtonItem(ctx: CstChildrenDictionary): any {
@@ -190,18 +189,21 @@ export class Visitor extends BaseVisitor {
 
   // #region commandBar
 
-  commandBar(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TCommandBar {
+  commandBar(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): CommandBar {
     const childItems = visitAll(
       this,
       ctx.commandBarButton,
       configurationSettings
-    ) as unknown as TCommandBar["childItems"]
+    ) as unknown as CommandBar["childItems"]
 
     // Добавляем id для кнопок
-    const childItemsWithId = childItems.map((item, index) => ({
-      ...item,
-      id: String(index + 1),
-    }))
+    const childItemsWithId = childItems.map(
+      (item: Button, index: number): Button =>
+        ({
+          ...(item as Button),
+          id: String(index + 1),
+        }) as Button
+    )
 
     const name = joinTokens(ctx.properties as IToken[]) || "CommandBar"
 
@@ -210,10 +212,10 @@ export class Visitor extends BaseVisitor {
       name: name,
       id: "1",
       childItems: childItemsWithId,
-    } as TCommandBar
+    } as CommandBar
   }
 
-  commandBarButton(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TButton {
+  commandBarButton(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): Button {
     const name = joinTokens(ctx.Button as IToken[]) || ""
     const titleText = joinTokens(ctx.Button as IToken[]) || ""
 
@@ -224,7 +226,7 @@ export class Visitor extends BaseVisitor {
       name: name || "",
       title: title,
       id: undefined,
-    } as TButton
+    } as Button
   }
 
   // #endregion
@@ -310,7 +312,7 @@ export class Visitor extends BaseVisitor {
   // }
 
   // #region table
-  table(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TTable {
+  table(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): Table {
     // Обрабатываем tableLine - это массив из AT_LEAST_ONE
     // В Chevrotain AT_LEAST_ONE создает массив с именем правила
     const tableLineValue = ctx.tableLine
@@ -320,7 +322,7 @@ export class Visitor extends BaseVisitor {
       cells: Array<{ name: string; properties?: string }>
     }>
 
-    const childItems: TInputField[] = []
+    const childItems: InputField[] = []
     let tableName: string | undefined
 
     // Обрабатываем первую строку таблицы (заголовки колонок)
@@ -336,7 +338,7 @@ export class Visitor extends BaseVisitor {
             elementType: FormElementType.InputField,
             name: cell.name,
             id: undefined,
-          } as TInputField)
+          } as InputField)
         }
       }
     }
@@ -346,7 +348,7 @@ export class Visitor extends BaseVisitor {
       name: tableName || "table",
       id: undefined,
       childItems: childItems,
-    } as TTable
+    } as Table
   }
 
   tableLine(
@@ -410,7 +412,7 @@ export class Visitor extends BaseVisitor {
   // #endregion
 
   // #region pages
-  pages(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TPages {
+  pages(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): Pages {
     const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
@@ -419,10 +421,10 @@ export class Visitor extends BaseVisitor {
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       id: undefined,
       childItems: [],
-    } as TPages
+    } as Pages
   }
 
-  page(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TPage {
+  page(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): Page {
     const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
@@ -431,36 +433,36 @@ export class Visitor extends BaseVisitor {
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       id: undefined,
       childItems: [],
-    } as TPage
+    } as Page
   }
 
   // #endregion
 
   // #region verticalGroup
-  verticalGroup(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TUsualGroup {
+  verticalGroup(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): UsualGroup {
     const titleText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
       elementType: FormElementType.UsualGroup,
-      group: SE.ZChildFormItemsGroup.enum.Vertical,
+      group: "Vertical",
       name: name || titleText,
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       id: undefined,
       childItems: [],
-    } as TUsualGroup
+    } as UsualGroup
   }
 
-  horizontalGroup(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): TUsualGroup {
+  horizontalGroup(ctx: CstChildrenDictionary, configurationSettings: TConfigurationSettings): UsualGroup {
     const titleText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
       elementType: FormElementType.UsualGroup,
-      group: SE.ZChildFormItemsGroup.enum.Horizontal,
+      group: "Horizontal",
       name: name || titleText,
       title: this.createTitle(titleText, configurationSettings.defaultLanguage),
       id: undefined,
       childItems: [],
-    } as TUsualGroup
+    } as UsualGroup
   }
 
   // #endregion
@@ -471,7 +473,7 @@ export class Visitor extends BaseVisitor {
     return properties
   }
 
-  createTitle(titleText: string | undefined, defaultLanguage: string): TI8nText | undefined {
+  createTitle(titleText: string | undefined, defaultLanguage: string): I8nText | undefined {
     return titleText
       ? {
           items: {

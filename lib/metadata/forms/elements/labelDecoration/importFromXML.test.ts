@@ -1,10 +1,8 @@
 import { expect, it } from "vitest"
-import { importLabelDecorationFromXML } from "./importFromXML"
-import { FormElementType } from "../types"
-import { TLabelDecoration, TLabelDecorationXML } from "./types"
 import { xmlImport } from "~/lib"
-import z from "zod"
-import { ZLabelDecorationXML } from "./types"
+import { FormElementType } from "../types"
+import { importLabelDecorationFromXML } from "./importFromXML"
+import { LabelDecoration, LabelDecorationXML } from "./types"
 
 it("should import name from XML", () => {
   const mockXml = `<LabelDecoration name="Заголовок" id="1">
@@ -16,7 +14,7 @@ it("should import name from XML", () => {
 					</Title>
 				</LabelDecoration>`
 
-  const expectedResult: TLabelDecoration = {
+  const expectedResult: LabelDecoration = {
     name: "Заголовок",
     elementType: FormElementType.LabelDecoration,
     title: {
@@ -25,10 +23,7 @@ it("should import name from XML", () => {
     id: "1",
   }
 
-  const xml = xmlImport<{ LabelDecoration: TLabelDecorationXML }>(
-    mockXml,
-    z.object({ LabelDecoration: ZLabelDecorationXML })
-  )
+  const xml = xmlImport<{ LabelDecoration: LabelDecorationXML }>(mockXml)
 
   const input = importLabelDecorationFromXML(xml.LabelDecoration)
 

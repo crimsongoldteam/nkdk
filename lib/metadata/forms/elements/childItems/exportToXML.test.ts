@@ -1,15 +1,14 @@
 import { describe, expect, it } from "vitest"
-import z from "zod"
 import { xmlExport } from "~/lib"
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
 import { FormElementType } from "../types"
 import { exportChildItemsToXML } from "./exportToXML"
-import { TChildItems, ZChildItemsXML } from "./types"
+import { ChildItems } from "./types"
 
 describe("exportChildItemsToXML", () => {
   it("should export child items to XML", () => {
-    const mockChildItems: TChildItems = [
+    const mockChildItems: ChildItems = [
       {
         name: "Input1",
         id: "1",
@@ -35,11 +34,7 @@ describe("exportChildItemsToXML", () => {
 
     const result = exportChildItemsToXML(mockChildItems)
 
-    const xml = xmlExport(
-      { ChildItems: result },
-      z.object({ ChildItems: ZChildItemsXML }),
-      false
-    )
+    const xml = xmlExport({ ChildItems: result })
     expect(xml).toEqual(expectedResult)
   })
 })

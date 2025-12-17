@@ -1,10 +1,10 @@
 import { exportElementToXML } from "~/lib/xml/export/exporterFactory"
-import { TChildItems, TChildItemsXML } from "./types"
+import { ChildItems, ChildItemsXML } from "./types"
 
-export const exportChildItemsToXML = (data: TChildItems | undefined): TChildItemsXML | undefined => {
+export const exportChildItemsToXML = (data: ChildItems | undefined): ChildItemsXML | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: TChildItemsXML = []
+  const result: ChildItemsXML = []
   for (const item of data) {
     result.push(exportElementToXML(item))
   }
