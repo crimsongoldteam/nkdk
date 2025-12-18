@@ -51,10 +51,10 @@ describe("exportUsualGroupToXML", () => {
 
   it("should export and import usual group with child items correctly (round-trip)", () => {
     const originalXml = `<UsualGroup id="1" name="Группа">
-    <ChildItems>
-      <InputField id="1" name="ПолеВвода"/>
-    </ChildItems>
-    <Title>
+	<ChildItems>
+		<InputField id="1" name="ПолеВвода"/>
+	</ChildItems>
+	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
 			<v8:content>Заголовок группы</v8:content>
