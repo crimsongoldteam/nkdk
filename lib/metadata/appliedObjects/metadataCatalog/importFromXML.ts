@@ -65,7 +65,7 @@ export const importMetadataCatalogFromXML = (
     levelCount: xml.LevelCount,
     limitLevelCount: xml.LimitLevelCount,
     listPresentation: importI8nTextFromXML(xml.ListPresentation, configurationSettings),
-    name: xml.Name,
+    name: xml.Name!,
     objectBelonging: xml.ObjectBelonging,
     objectPresentation: importI8nTextFromXML(xml.ObjectPresentation, configurationSettings),
     owners: importMetadataItemLinksFromXML(xml.Owners, configurationSettings),

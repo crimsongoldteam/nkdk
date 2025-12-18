@@ -22,38 +22,38 @@ export const exportFormGroupToEnterprise = (
   return compactObject({
     ...exportBaseElementToEnterprise(data, configurationSettings)!,
 
-    РазрешитьИзменениеСостава: exportBooleanToEnterprise(data.enableContentChange, configurationSettings),
-    Доступность: exportBooleanToEnterprise(data.enabled, configurationSettings),
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(data.extendedTooltip, configurationSettings),
+    ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
+      data.verticalAlignInGroup,
+      SE.ItemVerticalAlignToEnterprise,
+      configurationSettings
+    ),
+    Вид: exportSystemEnumerationToEnterprise(data.type, SE.FormGroupTypeToEnterprise, configurationSettings),
+    Видимость: exportBooleanToEnterprise(data.visible, configurationSettings),
     Высота: data.height,
     ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
       data.horizontalAlignInGroup,
       SE.ItemHorizontalLocationToEnterprise,
       configurationSettings
     ),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
-    ТолькоПросмотр: exportBooleanToEnterprise(data.readOnly, configurationSettings),
-    СочетаниеКлавиш: data.shortcut,
+    Доступность: exportBooleanToEnterprise(data.enabled, configurationSettings),
     Заголовок: exportI8nTextToEnterprise(data.title, configurationSettings),
-    ШрифтЗаголовка: exportFontToEnterprise(data.titleFont, configurationSettings),
-    ЦветТекстаЗаголовка: exportColorToEnterprise(data.titleTextColor, configurationSettings),
-    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
     ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
       data.toolTipRepresentation,
       SE.ToolTipRepresentationToEnterprise,
       configurationSettings
     ),
-    Вид: exportSystemEnumerationToEnterprise(data.type, SE.FormGroupTypeToEnterprise, configurationSettings),
-    ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      data.verticalAlignInGroup,
-      SE.ItemVerticalAlignToEnterprise,
-      configurationSettings
-    ),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
-    Видимость: exportBooleanToEnterprise(data.visible, configurationSettings),
-    Ширина: data.width,
+    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
     ПодчиненныеЭлементы: exportChildItemsToEnterprise(data.childItems, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    РазрешитьИзменениеСостава: exportBooleanToEnterprise(data.enableContentChange, configurationSettings),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    РасширеннаяПодсказка: exportFormDecorationToEnterprise(data.extendedTooltip, configurationSettings),
+    СочетаниеКлавиш: data.shortcut,
+    ТолькоПросмотр: exportBooleanToEnterprise(data.readOnly, configurationSettings),
+    ЦветТекстаЗаголовка: exportColorToEnterprise(data.titleTextColor, configurationSettings),
+    Ширина: data.width,
+    ШрифтЗаголовка: exportFontToEnterprise(data.titleFont, configurationSettings),
   })
 }
 

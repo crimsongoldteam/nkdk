@@ -25,9 +25,9 @@ export const exportGraphicalSchemaFieldToXML = (
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
     Output: data.output,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

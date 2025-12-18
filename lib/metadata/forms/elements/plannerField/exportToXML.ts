@@ -25,10 +25,10 @@ export const exportPlannerFieldToXML = (
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
     TimeScaleItemHyperlink: data.timeScaleItemHyperlink,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     WrappedTimeScaleHeaderHyperlink: data.wrappedTimeScaleHeaderHyperlink,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

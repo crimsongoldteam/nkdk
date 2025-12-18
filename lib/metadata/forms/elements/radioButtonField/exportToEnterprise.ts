@@ -21,22 +21,22 @@ export const exportRadioButtonFieldToEnterprise = (
   return compactObject({
     ...exportFormFieldToEnterprise(data, configurationSettings)!,
 
-    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
-    СписокВыбора: exportChoiceListToEnterprise(data.choiceList, configurationSettings),
-    КоличествоКолонок: data.columnsCount,
-    ОдинаковаяШиринаКолонок: exportBooleanToEnterprise(data.equalColumnsWidth, configurationSettings),
-    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
-    ВысотаЭлемента: data.itemHeight,
-    ВысотаЗаголовкаЭлемента: data.itemTitleHeight,
-    ШиринаЭлемента: data.itemWidth,
     ВидПереключателя: exportSystemEnumerationToEnterprise(
       data.radioButtonType,
       SE.RadioButtonTypeToEnterprise,
       configurationSettings
     ),
-    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
+    ВысотаЗаголовкаЭлемента: data.itemTitleHeight,
+    ВысотаЭлемента: data.itemHeight,
+    КоличествоКолонок: data.columnsCount,
+    ОдинаковаяШиринаКолонок: exportBooleanToEnterprise(data.equalColumnsWidth, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    СписокВыбора: exportChoiceListToEnterprise(data.choiceList, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
+    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
+    ШиринаЭлемента: data.itemWidth,
+    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }

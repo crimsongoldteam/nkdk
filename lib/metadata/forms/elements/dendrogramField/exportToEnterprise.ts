@@ -19,12 +19,12 @@ export const exportDendrogramFieldToEnterprise = (
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
     Высота: data.height,
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
-    Ширина: data.width,
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    Ширина: data.width,
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }

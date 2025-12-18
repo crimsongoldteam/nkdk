@@ -32,9 +32,9 @@ export const exportFormattedDocumentFieldToXML = (
     Output: data.output,
     SelectedText: data.selectedText,
     TextColor: exportColorToXML(data.textColor, configurationSettings),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

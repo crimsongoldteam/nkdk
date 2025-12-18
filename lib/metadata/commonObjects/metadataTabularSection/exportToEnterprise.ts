@@ -19,26 +19,26 @@ export const exportMetadataTabularSectionToEnterprise = (
   if (!data) return undefined
 
   return compactObject({
-    Реквизиты: exportMetadataAttributesToEnterprise(data.attributes, configurationSettings),
-    Комментарий: data.comment,
-    ПроверкаЗаполнения: exportSystemEnumerationToEnterprise(
-      data.fillChecking,
-      SE.FillCheckingToEnterprise,
-      configurationSettings
-    ),
     ДлинаНомераСтроки: data.lineNumberLength,
+    Использование: exportSystemEnumerationToEnterprise(data.use, SE.AttributeUseToEnterprise, configurationSettings),
+    Комментарий: data.comment,
+    Подсказка: exportI8nTextToEnterprise(data.tooltip, configurationSettings),
     ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
       data.objectBelonging,
       SE.ObjectBelongingToEnterprise,
       configurationSettings
     ),
+    ПроверкаЗаполнения: exportSystemEnumerationToEnterprise(
+      data.fillChecking,
+      SE.FillCheckingToEnterprise,
+      configurationSettings
+    ),
+    Реквизиты: exportMetadataAttributesToEnterprise(data.attributes, configurationSettings),
+    Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
     СтандартныеРеквизиты: exportStandardAttributeDescriptionsToEnterprise(
       data.standardAttributes,
       configurationSettings
     ),
-    Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
-    Подсказка: exportI8nTextToEnterprise(data.tooltip, configurationSettings),
-    Использование: exportSystemEnumerationToEnterprise(data.use, SE.AttributeUseToEnterprise, configurationSettings),
   })
 }
 

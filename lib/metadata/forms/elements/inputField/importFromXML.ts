@@ -99,10 +99,10 @@ export const importInputFieldFromXML = (
     textEdit: xml.TextEdit,
     typeDomainEnabled: xml.TypeDomainEnabled,
     typeLink: importTypeLinkFromXML(xml.TypeLink, configurationSettings),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     wrap: xml.Wrap,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

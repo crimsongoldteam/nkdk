@@ -34,9 +34,9 @@ export const importFormattedDocumentFieldFromXML = (
     output: xml.Output,
     selectedText: xml.SelectedText,
     textColor: importColorFromXML(xml.TextColor, configurationSettings),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

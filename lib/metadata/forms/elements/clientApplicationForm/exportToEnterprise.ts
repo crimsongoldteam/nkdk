@@ -1,7 +1,7 @@
 import { formatElements } from "~/lib/format/formatFactory"
 import { IFormatElementResult } from "~/lib/format/types"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import formatFormAttributes from "./attributes/format"
+import exportFormAttributesToEnterprise from "./attributes/exportToEnterprise"
 import { getAllElements } from "./getAllElements"
 import { ClientApplicationForm } from "./types"
 
@@ -29,7 +29,7 @@ export const formatClientApplicationForm = (
 
   if (element.attributes) {
     result.strings.push(...formatSectionHeader("Реквизиты"))
-    result.strings.push(...formatFormAttributes(element.attributes, configurationSettings))
+    result.strings.push(...exportFormAttributesToEnterprise(element.attributes, configurationSettings))
   }
 
   if (allElements.length > 0) {

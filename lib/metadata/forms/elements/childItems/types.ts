@@ -1,3 +1,4 @@
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 import { Button, ButtonEnterprise, ButtonXML } from "../button/types"
 import { ButtonGroup, ButtonGroupEnterprise, ButtonGroupXML } from "../buttonGroup/types"
 import { CalendarField, CalendarFieldEnterprise, CalendarFieldXML } from "../calendarField/types"
@@ -143,7 +144,7 @@ export type ChildItemXML =
   | UsualGroupXML
   | ViewStatusAdditionXML
 
-export type ChildItemsXML = ChildItemXML[]
+export type ChildItemsXML = Array<Partial<Record<FormElementType, ChildItemXML>>>
 
 export type ChildItemEnterprise =
   | ButtonEnterprise

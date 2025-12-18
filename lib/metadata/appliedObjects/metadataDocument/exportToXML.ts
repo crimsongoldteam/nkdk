@@ -49,7 +49,7 @@ export const exportMetadataDocumentToXML = (
     IncludeHelpInContents: data.includeHelpInContents,
     InputByString: exportMetadataFieldsToXML(data.inputByString, configurationSettings),
     ListPresentation: exportI8nTextToXML(data.listPresentation, configurationSettings),
-    Name: data.name,
+    Name: data.name!,
     NumberAllowedLength: data.numberAllowedLength,
     NumberLength: data.numberLength,
     NumberPeriodicity: data.numberPeriodicity,

@@ -174,64 +174,64 @@ export interface MetadataCatalogXML {
 }
 
 export interface MetadataCatalogEnterprise {
-  ДополнительныеИндексы?: AdditionalIndexesEnterprise
-  Реквизиты?: MetadataAttributesEnterprise
   Автонумерация?: StringboolEnterprise
-  ДополнительнаяФормаДляВыбора?: string
-  ДополнительнаяФормаДляВыбораГруппы?: string
-  ДополнительнаяФормаГруппы?: string
-  ДополнительнаяФормаСписка?: string
-  ДополнительнаяФормаОбъекта?: string
+  БыстрыйВыбор?: StringboolEnterprise
   ВводитсяНаОсновании?: MetadataItemLinksEnterprise
-  Характеристики?: CharacteristicsDescriptionsEnterprise
-  КонтрольУникальности?: StringboolEnterprise
-  РежимПолученияДанныхВыбораПриВводеПоСтроке?: SE.ChoiceDataGetModeOnInputByStringEnterprise
-  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
-  СпособВыбора?: SE.ChoiceModeEnterprise
-  ДопустимаяДлинаКода?: SE.AllowedLengthEnterprise
-  ДлинаКода?: number
-  СерииКодов?: SE.CharacteristicKindCodesSeriesEnterprise
-  ТипКода?: SE.CatalogCodeTypeEnterprise
-  Команды?: MetadataCommandsEnterprise
-  Комментарий?: string
-  СозданиеПриВводе?: SE.CreateOnInputEnterprise
-  ИсторияДанных?: SE.DataHistoryUseEnterprise
-  РежимУправленияБлокировкойДанных?: SE.DefaultDataLockControlModeEnterprise
-  ПоляБлокировкиДанных?: MetadataFieldsEnterprise
-  ОсновнаяФормаДляВыбора?: string
-  ОсновнаяФормаДляВыбораГруппы?: string
-  ОсновнаяФормаГруппы?: string
-  ОсновнаяФормаСписка?: string
-  ОсновнаяФормаОбъекта?: string
-  ОсновноеПредставление?: SE.CatalogMainPresentationEnterprise
-  ДлинаНаименования?: number
-  СпособРедактирования?: SE.EditTypeEnterprise
-  ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: StringboolEnterprise
-  Пояснение?: I8nTextEnterprise
-  РасширенноеПредставлениеСписка?: I8nTextEnterprise
-  РасширенноеПредставлениеОбъекта?: I8nTextEnterprise
-  ГруппыСверху?: StringboolEnterprise
-  ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
-  ПолнотекстовыйПоискПриВводеПоСтроке?: SE.FullTextSearchOnInputByStringEnterprise
-  Иерархический?: StringboolEnterprise
+  ВводПоСтроке?: MetadataFieldsEnterprise
   ВидИерархии?: SE.HierarchyTypeEnterprise
   ВключатьСправкуВСодержание?: StringboolEnterprise
-  ВводПоСтроке?: MetadataFieldsEnterprise
-  КоличествоУровней?: number
-  ОграничиватьКоличествоУровней?: StringboolEnterprise
-  ПредставлениеСписка?: I8nTextEnterprise
-  Имя?: string
-  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
-  ПредставлениеОбъекта?: I8nTextEnterprise
   Владельцы?: MetadataItemLinksEnterprise
-  Предопределенные?: PredefinedItemsEnterprise
-  ОбновлениеПредопределенныхДанных?: SE.PredefinedDataUpdateEnterprise
-  БыстрыйВыбор?: StringboolEnterprise
-  СпособПоискаСтрокиПриВводеПоСтроке?: SE.SearchStringModeOnInputByStringEnterprise
-  СтандартныеРеквизиты?: StandardAttributeDescriptionsEnterprise
+  ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: StringboolEnterprise
+  ГруппыСверху?: StringboolEnterprise
+  ДлинаКода?: number
+  ДлинаНаименования?: number
+  ДополнительнаяФормаГруппы?: string
+  ДополнительнаяФормаДляВыбора?: string
+  ДополнительнаяФормаДляВыбораГруппы?: string
+  ДополнительнаяФормаОбъекта?: string
+  ДополнительнаяФормаСписка?: string
+  ДополнительныеИндексы?: AdditionalIndexesEnterprise
+  ДопустимаяДлинаКода?: SE.AllowedLengthEnterprise
+  Иерархический?: StringboolEnterprise
+  Имя?: string
   ИспользованиеПодчинения?: SE.SubordinationUseEnterprise
-  Синоним?: I8nTextEnterprise
-  ТабличныеЧасти?: MetadataTabularSectionsEnterprise
-  ОбновлятьИсториюДанныхСразуПослеЗаписи?: StringboolEnterprise
   ИспользоватьСтандартныеКоманды?: StringboolEnterprise
+  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
+  ИсторияДанных?: SE.DataHistoryUseEnterprise
+  КоличествоУровней?: number
+  Команды?: MetadataCommandsEnterprise
+  Комментарий?: string
+  КонтрольУникальности?: StringboolEnterprise
+  ОбновлениеПредопределенныхДанных?: SE.PredefinedDataUpdateEnterprise
+  ОбновлятьИсториюДанныхСразуПослеЗаписи?: StringboolEnterprise
+  ОграничиватьКоличествоУровней?: StringboolEnterprise
+  ОсновнаяФормаГруппы?: string
+  ОсновнаяФормаДляВыбора?: string
+  ОсновнаяФормаДляВыбораГруппы?: string
+  ОсновнаяФормаОбъекта?: string
+  ОсновнаяФормаСписка?: string
+  ОсновноеПредставление?: SE.CatalogMainPresentationEnterprise
+  ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
+  ПолнотекстовыйПоискПриВводеПоСтроке?: SE.FullTextSearchOnInputByStringEnterprise
+  ПоляБлокировкиДанных?: MetadataFieldsEnterprise
+  Пояснение?: I8nTextEnterprise
+  Предопределенные?: PredefinedItemsEnterprise
+  ПредставлениеОбъекта?: I8nTextEnterprise
+  ПредставлениеСписка?: I8nTextEnterprise
+  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
+  РасширенноеПредставлениеОбъекта?: I8nTextEnterprise
+  РасширенноеПредставлениеСписка?: I8nTextEnterprise
+  РежимПолученияДанныхВыбораПриВводеПоСтроке?: SE.ChoiceDataGetModeOnInputByStringEnterprise
+  РежимУправленияБлокировкойДанных?: SE.DefaultDataLockControlModeEnterprise
+  Реквизиты?: MetadataAttributesEnterprise
+  СерииКодов?: SE.CharacteristicKindCodesSeriesEnterprise
+  Синоним?: I8nTextEnterprise
+  СозданиеПриВводе?: SE.CreateOnInputEnterprise
+  СпособВыбора?: SE.ChoiceModeEnterprise
+  СпособПоискаСтрокиПриВводеПоСтроке?: SE.SearchStringModeOnInputByStringEnterprise
+  СпособРедактирования?: SE.EditTypeEnterprise
+  СтандартныеРеквизиты?: StandardAttributeDescriptionsEnterprise
+  ТабличныеЧасти?: MetadataTabularSectionsEnterprise
+  ТипКода?: SE.CatalogCodeTypeEnterprise
+  Характеристики?: CharacteristicsDescriptionsEnterprise
 }

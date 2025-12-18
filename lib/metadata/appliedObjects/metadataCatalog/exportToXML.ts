@@ -65,7 +65,7 @@ export const exportMetadataCatalogToXML = (
     LevelCount: data.levelCount,
     LimitLevelCount: data.limitLevelCount,
     ListPresentation: exportI8nTextToXML(data.listPresentation, configurationSettings),
-    Name: data.name,
+    Name: data.name!,
     ObjectBelonging: data.objectBelonging,
     ObjectPresentation: exportI8nTextToXML(data.objectPresentation, configurationSettings),
     Owners: exportMetadataItemLinksToXML(data.owners, configurationSettings),

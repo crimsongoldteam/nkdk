@@ -26,8 +26,8 @@ export const importLabelDecorationFromXML = (
     horizontalAlign: xml.HorizontalAlign,
     hyperlink: xml.Hyperlink,
     titleHeight: xml.TitleHeight,
-    verticalAlign: xml.VerticalAlign,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    verticalAlign: xml.VerticalAlign,
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

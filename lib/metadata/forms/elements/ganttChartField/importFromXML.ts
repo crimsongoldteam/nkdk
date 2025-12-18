@@ -26,11 +26,11 @@ export const importGanttChartFieldFromXML = (
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
     tableLocation: xml.TableLocation,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     valuesSelectionMode: xml.ValuesSelectionMode,
     verticalLines: xml.VerticalLines,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

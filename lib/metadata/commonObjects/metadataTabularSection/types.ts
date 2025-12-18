@@ -38,16 +38,16 @@ export interface MetadataTabularSectionXML {
 }
 
 export interface MetadataTabularSectionEnterprise {
-  Реквизиты?: MetadataAttributesEnterprise
-  Комментарий?: string
-  ПроверкаЗаполнения?: SE.FillCheckingEnterprise
   ДлинаНомераСтроки?: number
   Имя?: string
-  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
-  СтандартныеРеквизиты?: StandardAttributeDescriptionsEnterprise
-  Синоним?: I8nTextEnterprise
-  Подсказка?: I8nTextEnterprise
   Использование?: SE.AttributeUseEnterprise
+  Комментарий?: string
+  Подсказка?: I8nTextEnterprise
+  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
+  ПроверкаЗаполнения?: SE.FillCheckingEnterprise
+  Реквизиты?: MetadataAttributesEnterprise
+  Синоним?: I8nTextEnterprise
+  СтандартныеРеквизиты?: StandardAttributeDescriptionsEnterprise
 }
 
 export type MetadataTabularSections = MetadataTabularSection[]

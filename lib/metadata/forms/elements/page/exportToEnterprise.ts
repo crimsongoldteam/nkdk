@@ -20,10 +20,15 @@ export const exportPageToEnterprise = (
   return compactObject({
     ...exportFormGroupToEnterprise(data, configurationSettings)!,
 
-    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
-    ГоризонтальноеПоложениеПодчиненных: exportSystemEnumerationToEnterprise(
-      data.childItemsHorizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise,
+    ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
+      data.displayImportance,
+      SE.DisplayImportanceToEnterprise,
+      configurationSettings
+    ),
+    ВертикальнаяПрокруткаПриСжатии: exportBooleanToEnterprise(data.verticalScrollOnReduceSize, configurationSettings),
+    ВертикальноеПоложение: exportSystemEnumerationToEnterprise(
+      data.verticalAlign,
+      SE.ItemVerticalAlignToEnterprise,
       configurationSettings
     ),
     ВертикальноеПоложениеПодчиненных: exportSystemEnumerationToEnterprise(
@@ -31,19 +36,8 @@ export const exportPageToEnterprise = (
       SE.ItemVerticalAlignToEnterprise,
       configurationSettings
     ),
-    ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
-      data.displayImportance,
-      SE.DisplayImportanceToEnterprise,
-      configurationSettings
-    ),
-    Формат: exportI8nTextToEnterprise(data.format, configurationSettings),
-    Группировка: exportSystemEnumerationToEnterprise(
-      data.group,
-      SE.ChildFormItemsGroupToEnterprise,
-      configurationSettings
-    ),
-    ГоризонтальныйИнтервал: exportSystemEnumerationToEnterprise(
-      data.horizontalSpacing,
+    ВертикальныйИнтервал: exportSystemEnumerationToEnterprise(
+      data.verticalSpacing,
       SE.FormItemSpacingToEnterprise,
       configurationSettings
     ),
@@ -52,27 +46,33 @@ export const exportPageToEnterprise = (
       SE.ItemsAndTitlesAlignVariantToEnterprise,
       configurationSettings
     ),
+    ГоризонтальноеПоложениеПодчиненных: exportSystemEnumerationToEnterprise(
+      data.childItemsHorizontalAlign,
+      SE.ItemHorizontalLocationToEnterprise,
+      configurationSettings
+    ),
+    ГоризонтальныйИнтервал: exportSystemEnumerationToEnterprise(
+      data.horizontalSpacing,
+      SE.FormItemSpacingToEnterprise,
+      configurationSettings
+    ),
+    Группировка: exportSystemEnumerationToEnterprise(
+      data.group,
+      SE.ChildFormItemsGroupToEnterprise,
+      configurationSettings
+    ),
     Картинка: exportPictureToEnterprise(data.picture, configurationSettings),
-    СкроллПриСжатии: exportBooleanToEnterprise(data.scrollOnCompress, configurationSettings),
     ОтображатьЗаголовок: exportBooleanToEnterprise(data.showTitle, configurationSettings),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    ПутьКДаннымЗаголовка: data.titleDataPath,
+    СкроллПриСжатии: exportBooleanToEnterprise(data.scrollOnCompress, configurationSettings),
+    Формат: exportI8nTextToEnterprise(data.format, configurationSettings),
+    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
     ШиринаПодчиненныхЭлементов: exportSystemEnumerationToEnterprise(
       data.slaveItemsWidth,
       SE.ChildFormItemsWidthToEnterprise,
       configurationSettings
     ),
-    ПутьКДаннымЗаголовка: data.titleDataPath,
-    ВертикальноеПоложение: exportSystemEnumerationToEnterprise(
-      data.verticalAlign,
-      SE.ItemVerticalAlignToEnterprise,
-      configurationSettings
-    ),
-    ВертикальнаяПрокруткаПриСжатии: exportBooleanToEnterprise(data.verticalScrollOnReduceSize, configurationSettings),
-    ВертикальныйИнтервал: exportSystemEnumerationToEnterprise(
-      data.verticalSpacing,
-      SE.FormItemSpacingToEnterprise,
-      configurationSettings
-    ),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
   })
 }
 

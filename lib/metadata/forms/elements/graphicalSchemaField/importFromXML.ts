@@ -27,9 +27,9 @@ export const importGraphicalSchemaFieldFromXML = (
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
     output: xml.Output,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

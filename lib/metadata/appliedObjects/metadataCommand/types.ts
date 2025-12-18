@@ -44,18 +44,18 @@ export interface MetadataCommandXML {
 }
 
 export interface MetadataCommandEnterprise {
-  ТипПараметраКоманды?: TypeDescriptionEnterprise
-  Комментарий?: string
   Группа?: MetadataCommandGroupEnterprise
   ИзменяетДанные?: StringboolEnterprise
   Имя?: string
+  Картинка?: PictureEnterprise
+  Комментарий?: string
+  Отображение?: SE.ButtonRepresentationEnterprise
+  Подсказка?: I8nTextEnterprise
   ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
   РежимИспользованияПараметра?: SE.CommandParameterUseModeEnterprise
-  Картинка?: PictureEnterprise
-  Отображение?: SE.ButtonRepresentationEnterprise
-  СочетаниеКлавиш?: string
   Синоним?: I8nTextEnterprise
-  Подсказка?: I8nTextEnterprise
+  СочетаниеКлавиш?: string
+  ТипПараметраКоманды?: TypeDescriptionEnterprise
 }
 
 export type MetadataCommands = MetadataCommand[]

@@ -43,11 +43,11 @@ export const exportSpreadSheetDocumentFieldToXML = (
     ShowRowAndColumnNames: data.showRowAndColumnNames,
     StatePresentation: data.statePresentation,
     UsedFileName: data.usedFileName,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalScrollBar: data.verticalScrollBar,
     VerticalStretch: data.verticalStretch,
     ViewScalingMode: data.viewScalingMode,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

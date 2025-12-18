@@ -16,8 +16,8 @@ export interface SearchControlAddition extends FormItemAddition {
   horizontalStretch?: boolean
   maxWidth?: number
   textColor?: Color
-  width?: number
   userVisible?: UserVisible
+  width?: number
 }
 
 export interface SearchControlAdditionXML extends FormItemAdditionXML {
@@ -28,19 +28,19 @@ export interface SearchControlAdditionXML extends FormItemAdditionXML {
   HorizontalStretch?: boolean
   MaxWidth?: number
   TextColor?: ColorXML
-  Width?: number
   UserVisible?: UserVisibleXML
+  Width?: number
 }
 
 export interface SearchControlAdditionEnterprise extends FormItemAdditionEnterprise {
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ЦветФона?: ColorEnterprise
-  ЦветРамки?: ColorEnterprise
-  Шрифт?: FontEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяШирина?: number
-  ЦветТекста?: ColorEnterprise
-  Ширина?: number
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  ЦветРамки?: ColorEnterprise
+  ЦветТекста?: ColorEnterprise
+  ЦветФона?: ColorEnterprise
+  Ширина?: number
+  Шрифт?: FontEnterprise
 }

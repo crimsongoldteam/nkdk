@@ -43,7 +43,7 @@ export const exportMetadataAttributeToXML = (
     MaxValue: data.maxValue,
     MinValue: data.minValue,
     MultiLine: data.multiLine,
-    Name: data.name,
+    Name: data.name!,
     ObjectBelonging: data.objectBelonging,
     PasswordMode: data.passwordMode,
     QuickChoice: data.quickChoice,

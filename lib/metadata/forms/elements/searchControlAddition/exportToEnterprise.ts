@@ -21,14 +21,14 @@ export const exportSearchControlAdditionToEnterprise = (
     ...exportFormItemAdditionToEnterprise(data, configurationSettings)!,
 
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
-    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
-    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
     МаксимальнаяШирина: data.maxWidth,
-    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
-    Ширина: data.width,
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
+    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
+    Ширина: data.width,
+    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
   })
 }
 

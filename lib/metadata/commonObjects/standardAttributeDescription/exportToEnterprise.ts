@@ -22,18 +22,13 @@ export const exportStandardAttributeDescriptionToEnterprise = (
   if (!data) return undefined
 
   return compactObject({
-    ФормаВыбора: data.choiceForm,
+    БыстрыйВыбор: exportBooleanToEnterprise(data.quickChoice, configurationSettings),
+    ВыделятьОтрицательные: exportBooleanToEnterprise(data.markNegatives, configurationSettings),
+    ЗаполнятьИзДанныхЗаполнения: exportBooleanToEnterprise(data.fillFromFillingValue, configurationSettings),
+    ЗначениеЗаполнения: exportMetadataValueToEnterprise(data.fillValue, configurationSettings),
     ИсторияВыбораПриВводе: exportSystemEnumerationToEnterprise(
       data.choiceHistoryOnInput,
       SE.ChoiceHistoryOnInputToEnterprise,
-      configurationSettings
-    ),
-    СвязиПараметровВыбора: exportChoiceParameterLinksToEnterprise(data.choiceParameterLinks, configurationSettings),
-    ПараметрыВыбора: exportChoiceParameterLinksToEnterprise(data.choiceParameters, configurationSettings),
-    Комментарий: data.comment,
-    СозданиеПриВводе: exportSystemEnumerationToEnterprise(
-      data.createOnInput,
-      SE.CreateOnInputToEnterprise,
       configurationSettings
     ),
     ИсторияДанных: exportSystemEnumerationToEnterprise(
@@ -41,37 +36,42 @@ export const exportStandardAttributeDescriptionToEnterprise = (
       SE.DataHistoryUseToEnterprise,
       configurationSettings
     ),
-    ФорматРедактирования: exportI8nTextToEnterprise(data.editFormat, configurationSettings),
-    РасширенноеРедактирование: exportBooleanToEnterprise(data.extendedEdit, configurationSettings),
-    ПроверкаЗаполнения: exportSystemEnumerationToEnterprise(
-      data.fillChecking,
-      SE.FillCheckingToEnterprise,
-      configurationSettings
-    ),
-    ЗаполнятьИзДанныхЗаполнения: exportBooleanToEnterprise(data.fillFromFillingValue, configurationSettings),
-    ЗначениеЗаполнения: exportMetadataValueToEnterprise(data.fillValue, configurationSettings),
-    Формат: exportI8nTextToEnterprise(data.format, configurationSettings),
+    Комментарий: data.comment,
+    МаксимальноеЗначение: data.maxValue,
+    Маска: data.mask,
+    МинимальноеЗначение: data.minValue,
+    МногострочныйРежим: exportBooleanToEnterprise(data.multiLine, configurationSettings),
+    ПараметрыВыбора: exportChoiceParameterLinksToEnterprise(data.choiceParameters, configurationSettings),
+    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
     ПолнотекстовыйПоиск: exportSystemEnumerationToEnterprise(
       data.fullTextSearch,
       SE.UseFullTextSearchToEnterprise,
       configurationSettings
     ),
-    СвязьПоТипу: exportTypeLinkToEnterprise(data.linkByType, configurationSettings),
-    ВыделятьОтрицательные: exportBooleanToEnterprise(data.markNegatives, configurationSettings),
-    Маска: data.mask,
-    МаксимальноеЗначение: data.maxValue,
-    МинимальноеЗначение: data.minValue,
-    МногострочныйРежим: exportBooleanToEnterprise(data.multiLine, configurationSettings),
+    ПроверкаЗаполнения: exportSystemEnumerationToEnterprise(
+      data.fillChecking,
+      SE.FillCheckingToEnterprise,
+      configurationSettings
+    ),
+    РасширенноеРедактирование: exportBooleanToEnterprise(data.extendedEdit, configurationSettings),
     РежимПароля: exportBooleanToEnterprise(data.passwordMode, configurationSettings),
-    БыстрыйВыбор: exportBooleanToEnterprise(data.quickChoice, configurationSettings),
-    Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
-    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
-    Тип: exportTypeDescriptionToEnterprise(data.type, configurationSettings),
     РежимСокращенияТипа: exportSystemEnumerationToEnterprise(
       data.typeReductionMode,
       SE.TypeReductionModeToEnterprise,
       configurationSettings
     ),
+    СвязиПараметровВыбора: exportChoiceParameterLinksToEnterprise(data.choiceParameterLinks, configurationSettings),
+    СвязьПоТипу: exportTypeLinkToEnterprise(data.linkByType, configurationSettings),
+    Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
+    СозданиеПриВводе: exportSystemEnumerationToEnterprise(
+      data.createOnInput,
+      SE.CreateOnInputToEnterprise,
+      configurationSettings
+    ),
+    Тип: exportTypeDescriptionToEnterprise(data.type, configurationSettings),
+    ФормаВыбора: data.choiceForm,
+    Формат: exportI8nTextToEnterprise(data.format, configurationSettings),
+    ФорматРедактирования: exportI8nTextToEnterprise(data.editFormat, configurationSettings),
   })
 }
 

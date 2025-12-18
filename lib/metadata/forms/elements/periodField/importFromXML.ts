@@ -29,9 +29,9 @@ export const importPeriodFieldFromXML = (
     horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

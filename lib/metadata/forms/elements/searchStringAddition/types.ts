@@ -14,8 +14,8 @@ export interface SearchStringAddition extends FormItemAddition {
   font?: Font
   horizontalStretch?: boolean
   textColor?: Color
-  width?: number
   userVisible?: UserVisible
+  width?: number
 }
 
 export interface SearchStringAdditionXML extends FormItemAdditionXML {
@@ -24,17 +24,17 @@ export interface SearchStringAdditionXML extends FormItemAdditionXML {
   Font?: FontXML
   HorizontalStretch?: boolean
   TextColor?: ColorXML
-  Width?: number
   UserVisible?: UserVisibleXML
+  Width?: number
 }
 
 export interface SearchStringAdditionEnterprise extends FormItemAdditionEnterprise {
-  ЦветФона?: ColorEnterprise
-  ЦветРамки?: ColorEnterprise
-  Шрифт?: FontEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  ЦветТекста?: ColorEnterprise
-  Ширина?: number
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  ЦветРамки?: ColorEnterprise
+  ЦветТекста?: ColorEnterprise
+  ЦветФона?: ColorEnterprise
+  Ширина?: number
+  Шрифт?: FontEnterprise
 }

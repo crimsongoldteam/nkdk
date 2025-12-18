@@ -7,7 +7,7 @@ import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/user
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { FormAttribute } from "../types"
 
-export default function formatFormAttributes(
+export default function exportFormAttributesToEnterprise(
   attributes: FormAttribute[],
   configurationSettings: ConfigurationSettings
 ): string[] {

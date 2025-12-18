@@ -24,11 +24,11 @@ export const exportGanttChartFieldToXML = (
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
     TableLocation: data.tableLocation,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     ValuesSelectionMode: data.valuesSelectionMode,
     VerticalLines: data.verticalLines,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

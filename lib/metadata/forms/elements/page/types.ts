@@ -20,10 +20,10 @@ export interface Page extends FormGroup {
   showTitle?: boolean
   slaveItemsWidth?: SE.ChildFormItemsWidth
   titleDataPath?: string
+  userVisible?: UserVisible
   verticalAlign?: SE.ItemVerticalAlign
   verticalScrollOnReduceSize?: boolean
   verticalSpacing?: SE.FormItemSpacing
-  userVisible?: UserVisible
 }
 
 export interface PageXML extends FormGroupXML {
@@ -40,29 +40,29 @@ export interface PageXML extends FormGroupXML {
   ShowTitle?: boolean
   SlaveItemsWidth?: SE.ChildFormItemsWidth
   TitleDataPath?: string
+  UserVisible?: UserVisibleXML
   VerticalAlign?: SE.ItemVerticalAlign
   VerticalScrollOnReduceSize?: boolean
   VerticalSpacing?: SE.FormItemSpacing
-  UserVisible?: UserVisibleXML
 }
 
 export interface PageEnterprise extends FormGroupEnterprise {
-  ЦветФона?: ColorEnterprise
-  ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationEnterprise
-  ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  Формат?: I8nTextEnterprise
-  Группировка?: SE.ChildFormItemsGroupEnterprise
-  ГоризонтальныйИнтервал?: SE.FormItemSpacingEnterprise
-  ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantEnterprise
-  Картинка?: PictureEnterprise
-  СкроллПриСжатии?: StringboolEnterprise
-  ОтображатьЗаголовок?: StringboolEnterprise
-  ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
-  ПутьКДаннымЗаголовка?: string
-  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
   ВертикальнаяПрокруткаПриСжатии?: StringboolEnterprise
+  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
+  ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignEnterprise
   ВертикальныйИнтервал?: SE.FormItemSpacingEnterprise
+  ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantEnterprise
+  ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationEnterprise
+  ГоризонтальныйИнтервал?: SE.FormItemSpacingEnterprise
+  Группировка?: SE.ChildFormItemsGroupEnterprise
+  Картинка?: PictureEnterprise
+  ОтображатьЗаголовок?: StringboolEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  ПутьКДаннымЗаголовка?: string
+  СкроллПриСжатии?: StringboolEnterprise
+  Формат?: I8nTextEnterprise
+  ЦветФона?: ColorEnterprise
+  ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
 }

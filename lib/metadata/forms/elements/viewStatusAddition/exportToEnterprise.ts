@@ -24,23 +24,23 @@ export const exportViewStatusAdditionToEnterprise = (
     ...exportFormItemAdditionToEnterprise(data, configurationSettings)!,
 
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
-    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
-    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
-    ЦветФонаКнопок: exportColorToEnterprise(data.buttonsBackColor, configurationSettings),
-    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
     ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
       data.horizontalAlign,
       SE.ItemHorizontalLocationToEnterprise,
       configurationSettings
     ),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
     МаксимальнаяШирина: data.maxWidth,
-    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
-    ШрифтЗаголовка: exportFontToEnterprise(data.titleFont, configurationSettings),
-    ЦветТекстаЗаголовка: exportColorToEnterprise(data.titleTextColor, configurationSettings),
-    Ширина: data.width,
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
+    ЦветТекстаЗаголовка: exportColorToEnterprise(data.titleTextColor, configurationSettings),
+    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
+    ЦветФонаКнопок: exportColorToEnterprise(data.buttonsBackColor, configurationSettings),
+    Ширина: data.width,
+    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
+    ШрифтЗаголовка: exportFontToEnterprise(data.titleFont, configurationSettings),
   })
 }
 

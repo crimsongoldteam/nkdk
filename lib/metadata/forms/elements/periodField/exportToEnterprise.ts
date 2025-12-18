@@ -21,16 +21,16 @@ export const exportPeriodFieldToEnterprise = (
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
-    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
-    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
     Высота: data.height,
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
-    Ширина: data.width,
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    Ширина: data.width,
+    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }

@@ -14,9 +14,9 @@ export interface GeographicalSchemaField extends FormField {
   maxHeight?: number
   maxWidth?: number
   output?: SE.UseOutput
+  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
-  userVisible?: UserVisible
   events?: {
     onChange?: string
     detailProcessing?: string
@@ -35,25 +35,25 @@ export interface GeographicalSchemaFieldXML extends FormFieldXML {
   MaxHeight?: number
   MaxWidth?: number
   Output?: SE.UseOutput
+  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface GeographicalSchemaFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ЦветРамки?: ColorEnterprise
+  Вывод?: SE.UseOutputEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  Вывод?: SE.UseOutputEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Ширина?: number
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  ЦветРамки?: ColorEnterprise
+  Ширина?: number
   События?: {
     ПриИзменении?: string
     ОбработкаРасшифровки?: string

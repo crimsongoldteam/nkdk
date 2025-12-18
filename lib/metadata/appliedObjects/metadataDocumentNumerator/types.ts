@@ -27,13 +27,13 @@ export interface MetadataDocumentNumeratorXML {
 }
 
 export interface MetadataDocumentNumeratorEnterprise {
-  КонтрольУникальности?: StringboolEnterprise
-  Комментарий?: string
-  Имя?: string
-  ДопустимаяДлинаНомера?: SE.AllowedLengthEnterprise
   ДлинаНомера?: number
+  ДопустимаяДлинаНомера?: SE.AllowedLengthEnterprise
+  Имя?: string
+  Комментарий?: string
+  КонтрольУникальности?: StringboolEnterprise
   ПериодичностьНомера?: SE.BusinessProcessNumberPeriodicityEnterprise
-  ТипНомера?: SE.DocumentNumberTypeEnterprise
   ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
   Синоним?: I8nTextEnterprise
+  ТипНомера?: SE.DocumentNumberTypeEnterprise
 }

@@ -13,7 +13,7 @@ export const exportChildItemsToXML = (
     const exportFunction = getOperationFunction("ExportToXML", item.elementType)
     if (!exportFunction) throw new Error(`Export function not found for element type: ${item.elementType}`)
 
-    result.push(exportFunction(item, configurationSettings)!)
+    result.push({ [item.elementType]: exportFunction(item, configurationSettings) })
   }
 
   return result

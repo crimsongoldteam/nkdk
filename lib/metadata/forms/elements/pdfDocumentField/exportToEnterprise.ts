@@ -21,24 +21,24 @@ export const exportPdfDocumentFieldToEnterprise = (
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
-    НомерТекущейСтраницы: data.currentPageNumber,
+    Вывод: exportSystemEnumerationToEnterprise(data.output, SE.UseOutputToEnterprise, configurationSettings),
     Высота: data.height,
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    ИспользуемоеИмяФайла: data.usedFileName,
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
-    Ориентация: data.orientation,
-    Вывод: exportSystemEnumerationToEnterprise(data.output, SE.UseOutputToEnterprise, configurationSettings),
     Масштаб: data.scale,
-    ИспользуемоеИмяФайла: data.usedFileName,
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
+    НомерТекущейСтраницы: data.currentPageNumber,
+    Ориентация: data.orientation,
     ПоложениеСостоянияПросмотра: exportSystemEnumerationToEnterprise(
       data.viewStatusLocation,
       SE.ViewStatusLocationToEnterprise,
       configurationSettings
     ),
-    Ширина: data.width,
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    Ширина: data.width,
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }

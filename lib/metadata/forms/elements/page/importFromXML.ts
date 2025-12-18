@@ -32,10 +32,10 @@ export const importPageFromXML = (
     showTitle: xml.ShowTitle,
     slaveItemsWidth: xml.SlaveItemsWidth,
     titleDataPath: xml.TitleDataPath,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalAlign: xml.VerticalAlign,
     verticalScrollOnReduceSize: xml.VerticalScrollOnReduceSize,
     verticalSpacing: xml.VerticalSpacing,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
   })
 }
 

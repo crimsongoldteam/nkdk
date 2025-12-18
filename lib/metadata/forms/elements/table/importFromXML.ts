@@ -37,6 +37,7 @@ export const importTableFromXML = (
     borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
     changeRowOrder: xml.ChangeRowOrder,
     changeRowSet: xml.ChangeRowSet,
+    childItems: importChildItemsFromXML(xml.ChildItems, configurationSettings),
     choiceMode: xml.ChoiceMode,
     commandBar: importCommandBarFromXML(xml.CommandBar, configurationSettings),
     commandBarLocation: xml.CommandBarLocation,
@@ -95,6 +96,7 @@ export const importTableFromXML = (
     toolTip: importI8nTextFromXML(xml.ToolTip, configurationSettings),
     toolTipRepresentation: xml.ToolTipRepresentation,
     useAlternationRowColor: xml.UseAlternationRowColor,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalLines: xml.VerticalLines,
     verticalScrollBar: xml.VerticalScrollBar,
@@ -103,8 +105,6 @@ export const importTableFromXML = (
     viewStatusRepresentation: importFormItemAdditionFromXML(xml.ViewStatusRepresentation, configurationSettings),
     visible: xml.Visible,
     width: xml.Width,
-    childItems: importChildItemsFromXML(xml.ChildItems, configurationSettings),
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

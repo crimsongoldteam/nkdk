@@ -18,10 +18,10 @@ export interface PdfDocumentField extends FormField {
   output?: SE.UseOutput
   scale?: number
   usedFileName?: string
+  userVisible?: UserVisible
   verticalStretch?: boolean
   viewStatusLocation?: SE.ViewStatusLocation
   width?: number
-  userVisible?: UserVisible
   events?: {
     onChange?: string
     uRLClick?: string
@@ -41,31 +41,31 @@ export interface PdfDocumentFieldXML extends FormFieldXML {
   Output?: SE.UseOutput
   Scale?: number
   UsedFileName?: string
+  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   ViewStatusLocation?: SE.ViewStatusLocation
   Width?: number
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface PdfDocumentFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ЦветРамки?: ColorEnterprise
-  НомерТекущейСтраницы?: number
+  Вывод?: SE.UseOutputEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: StringboolEnterprise
+  ИспользуемоеИмяФайла?: string
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  Ориентация?: number
-  Вывод?: SE.UseOutputEnterprise
   Масштаб?: number
-  ИспользуемоеИмяФайла?: string
-  РастягиватьПоВертикали?: StringboolEnterprise
+  НомерТекущейСтраницы?: number
+  Ориентация?: number
   ПоложениеСостоянияПросмотра?: SE.ViewStatusLocationEnterprise
-  Ширина?: number
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  ЦветРамки?: ColorEnterprise
+  Ширина?: number
   События?: {
     ПриИзменении?: string
     НажатиеНаНавигационнойСсылке?: string

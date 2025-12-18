@@ -14,11 +14,11 @@ export interface GanttChartField extends FormField {
   maxHeight?: number
   maxWidth?: number
   tableLocation?: SE.GanttChartTableLocation
+  userVisible?: UserVisible
   valuesSelectionMode?: SE.GanttChartValuesSelectionMode
   verticalLines?: boolean
   verticalStretch?: boolean
   width?: number
-  userVisible?: UserVisible
   events?: {
     onChange?: string
     selection?: string
@@ -41,30 +41,30 @@ export interface GanttChartFieldXML extends FormFieldXML {
   MaxHeight?: number
   MaxWidth?: number
   TableLocation?: SE.GanttChartTableLocation
+  UserVisible?: UserVisibleXML
   ValuesSelectionMode?: SE.GanttChartValuesSelectionMode
   VerticalLines?: boolean
   VerticalStretch?: boolean
   Width?: number
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface GanttChartFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
+  ВертикальныеЛинии?: StringboolEnterprise
   Высота?: number
   ГоризонтальныеЛинии?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  РежимВыделенияИнтервалов?: SE.GanttChartIntervalsSelectionModeEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
   ПоложениеТаблицы?: SE.GanttChartTableLocationEnterprise
-  РежимВыделенияЗначений?: SE.GanttChartValuesSelectionModeEnterprise
-  ВертикальныеЛинии?: StringboolEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Ширина?: number
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  РежимВыделенияЗначений?: SE.GanttChartValuesSelectionModeEnterprise
+  РежимВыделенияИнтервалов?: SE.GanttChartIntervalsSelectionModeEnterprise
+  Ширина?: number
   События?: {
     ПриИзменении?: string
     Выбор?: string

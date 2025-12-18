@@ -79,33 +79,33 @@ export interface StandardAttributeDescriptionXML {
 }
 
 export interface StandardAttributeDescriptionEnterprise {
-  ФормаВыбора?: string
-  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
-  СвязиПараметровВыбора?: ChoiceParameterLinksEnterprise
-  ПараметрыВыбора?: ChoiceParameterLinksEnterprise
-  Комментарий?: string
-  СозданиеПриВводе?: SE.CreateOnInputEnterprise
-  ИсторияДанных?: SE.DataHistoryUseEnterprise
-  ФорматРедактирования?: I8nTextEnterprise
-  РасширенноеРедактирование?: StringboolEnterprise
-  ПроверкаЗаполнения?: SE.FillCheckingEnterprise
+  БыстрыйВыбор?: StringboolEnterprise
+  ВыделятьОтрицательные?: StringboolEnterprise
   ЗаполнятьИзДанныхЗаполнения?: StringboolEnterprise
   ЗначениеЗаполнения?: MetadataValueEnterprise
-  Формат?: I8nTextEnterprise
-  ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
-  СвязьПоТипу?: TypeLinkEnterprise
-  ВыделятьОтрицательные?: StringboolEnterprise
-  Маска?: string
+  Имя?: string
+  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
+  ИсторияДанных?: SE.DataHistoryUseEnterprise
+  Комментарий?: string
   МаксимальноеЗначение?: number
+  Маска?: string
   МинимальноеЗначение?: number
   МногострочныйРежим?: StringboolEnterprise
-  Имя?: string
-  РежимПароля?: StringboolEnterprise
-  БыстрыйВыбор?: StringboolEnterprise
-  Синоним?: I8nTextEnterprise
+  ПараметрыВыбора?: ChoiceParameterLinksEnterprise
   Подсказка?: I8nTextEnterprise
-  Тип?: TypeDescriptionEnterprise
+  ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
+  ПроверкаЗаполнения?: SE.FillCheckingEnterprise
+  РасширенноеРедактирование?: StringboolEnterprise
+  РежимПароля?: StringboolEnterprise
   РежимСокращенияТипа?: SE.TypeReductionModeEnterprise
+  СвязиПараметровВыбора?: ChoiceParameterLinksEnterprise
+  СвязьПоТипу?: TypeLinkEnterprise
+  Синоним?: I8nTextEnterprise
+  СозданиеПриВводе?: SE.CreateOnInputEnterprise
+  Тип?: TypeDescriptionEnterprise
+  ФормаВыбора?: string
+  Формат?: I8nTextEnterprise
+  ФорматРедактирования?: I8nTextEnterprise
 }
 
 export type StandardAttributeDescriptions = StandardAttributeDescription[]

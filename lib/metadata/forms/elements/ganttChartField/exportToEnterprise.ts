@@ -20,14 +20,9 @@ export const exportGanttChartFieldToEnterprise = (
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
+    ВертикальныеЛинии: exportBooleanToEnterprise(data.verticalLines, configurationSettings),
     Высота: data.height,
     ГоризонтальныеЛинии: exportBooleanToEnterprise(data.horizontalLines, configurationSettings),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
-    РежимВыделенияИнтервалов: exportSystemEnumerationToEnterprise(
-      data.intervalsSelectionMode,
-      SE.GanttChartIntervalsSelectionModeToEnterprise,
-      configurationSettings
-    ),
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
     ПоложениеТаблицы: exportSystemEnumerationToEnterprise(
@@ -35,15 +30,20 @@ export const exportGanttChartFieldToEnterprise = (
       SE.GanttChartTableLocationToEnterprise,
       configurationSettings
     ),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
     РежимВыделенияЗначений: exportSystemEnumerationToEnterprise(
       data.valuesSelectionMode,
       SE.GanttChartValuesSelectionModeToEnterprise,
       configurationSettings
     ),
-    ВертикальныеЛинии: exportBooleanToEnterprise(data.verticalLines, configurationSettings),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
+    РежимВыделенияИнтервалов: exportSystemEnumerationToEnterprise(
+      data.intervalsSelectionMode,
+      SE.GanttChartIntervalsSelectionModeToEnterprise,
+      configurationSettings
+    ),
     Ширина: data.width,
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }

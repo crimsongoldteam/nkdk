@@ -18,9 +18,9 @@ export interface ProgressBarField extends FormField {
   orientation?: SE.FormItemOrientation
   representation?: SE.ProgressBarSmoothingMode
   showPercent?: boolean
+  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
-  userVisible?: UserVisible
   events?: {
     onChange?: string
   }
@@ -39,29 +39,29 @@ export interface ProgressBarFieldXML extends FormFieldXML {
   Orientation?: SE.FormItemOrientation
   Representation?: SE.ProgressBarSmoothingMode
   ShowPercent?: boolean
+  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface ProgressBarFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ЦветРамки?: ColorEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяВысота?: number
-  МаксимальноеЗначение?: number
   МаксимальнаяШирина?: number
+  МаксимальноеЗначение?: number
   МинимальноеЗначение?: number
   Ориентация?: SE.FormItemOrientationEnterprise
-  Отображение?: SE.ProgressBarSmoothingModeEnterprise
   ОтображатьПроценты?: StringboolEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Ширина?: number
+  Отображение?: SE.ProgressBarSmoothingModeEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  ЦветРамки?: ColorEnterprise
+  Ширина?: number
   События?: {
     ПриИзменении?: string
   }

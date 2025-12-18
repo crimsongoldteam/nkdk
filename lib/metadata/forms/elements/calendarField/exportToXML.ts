@@ -36,10 +36,10 @@ export const exportCalendarFieldToXML = (
     SelectionMode: data.selectionMode,
     ShowCurrentDate: data.showCurrentDate,
     ShowMonthsPanel: data.showMonthsPanel,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     WidthInMonths: data.widthInMonths,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

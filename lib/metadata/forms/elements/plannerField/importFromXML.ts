@@ -27,10 +27,10 @@ export const importPlannerFieldFromXML = (
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
     timeScaleItemHyperlink: xml.TimeScaleItemHyperlink,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     wrappedTimeScaleHeaderHyperlink: xml.WrappedTimeScaleHeaderHyperlink,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

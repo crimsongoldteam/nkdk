@@ -51,11 +51,11 @@ export const exportButtonToXML = (
     TitleHeight: data.titleHeight,
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
   })
 }
 

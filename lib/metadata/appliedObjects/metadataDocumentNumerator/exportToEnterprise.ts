@@ -16,23 +16,18 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
   if (!data) return undefined
 
   return compactObject({
-    КонтрольУникальности: exportBooleanToEnterprise(data.checkUnique, configurationSettings),
-    Комментарий: data.comment,
-    Имя: data.name,
+    ДлинаНомера: data.numberLength,
     ДопустимаяДлинаНомера: exportSystemEnumerationToEnterprise(
       data.numberAllowedLength,
       SE.AllowedLengthToEnterprise,
       configurationSettings
     ),
-    ДлинаНомера: data.numberLength,
+    Имя: data.name,
+    Комментарий: data.comment,
+    КонтрольУникальности: exportBooleanToEnterprise(data.checkUnique, configurationSettings),
     ПериодичностьНомера: exportSystemEnumerationToEnterprise(
       data.numberPeriodicity,
       SE.BusinessProcessNumberPeriodicityToEnterprise,
-      configurationSettings
-    ),
-    ТипНомера: exportSystemEnumerationToEnterprise(
-      data.numberType,
-      SE.DocumentNumberTypeToEnterprise,
       configurationSettings
     ),
     ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
@@ -41,5 +36,10 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
       configurationSettings
     ),
     Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
+    ТипНомера: exportSystemEnumerationToEnterprise(
+      data.numberType,
+      SE.DocumentNumberTypeToEnterprise,
+      configurationSettings
+    ),
   })
 }

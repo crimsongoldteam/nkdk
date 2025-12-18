@@ -28,9 +28,9 @@ export const exportProgressBarFieldToXML = (
     Orientation: data.orientation,
     Representation: data.representation,
     ShowPercent: data.showPercent,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

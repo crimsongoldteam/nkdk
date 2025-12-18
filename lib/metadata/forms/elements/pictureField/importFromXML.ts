@@ -38,11 +38,11 @@ export const importPictureFieldFromXML = (
     pictureSize: xml.PictureSize,
     scale: xml.Scale,
     textColor: importColorFromXML(xml.TextColor, configurationSettings),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     valuesPicture: importPictureFromXML(xml.ValuesPicture, configurationSettings),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     zoomable: xml.Zoomable,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

@@ -27,78 +27,12 @@ export const exportFormFieldToEnterprise = (
     ...exportBaseElementToEnterprise(data, configurationSettings)!,
 
     АвтоВысотаЯчейки: exportBooleanToEnterprise(data.autoCellHeight, configurationSettings),
-    ГиперссылкаЯчейки: exportBooleanToEnterprise(data.cellHyperlink, configurationSettings),
-    КонтекстноеМеню: exportCommandBarToEnterprise(data.contextMenu, configurationSettings),
-    ПутьКДанным: data.dataPath,
     АктивизироватьПоУмолчанию: exportBooleanToEnterprise(data.defaultItem, configurationSettings),
     ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
       data.displayImportance,
       SE.DisplayImportanceToEnterprise,
       configurationSettings
     ),
-    РежимРедактирования: exportSystemEnumerationToEnterprise(
-      data.editMode,
-      SE.ColumnEditModeToEnterprise,
-      configurationSettings
-    ),
-    Доступность: exportBooleanToEnterprise(data.enabled, configurationSettings),
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(data.extendedTooltip, configurationSettings),
-    ФиксацияВТаблице: exportSystemEnumerationToEnterprise(
-      data.fixingInTable,
-      SE.FixingInTableToEnterprise,
-      configurationSettings
-    ),
-    ЦветФонаПодвала: exportColorToEnterprise(data.footerBackColor, configurationSettings),
-    ПутьКДаннымПодвала: data.footerDataPath,
-    ШрифтПодвала: exportFontToEnterprise(data.footerFont, configurationSettings),
-    ГоризонтальноеПоложениеВПодвале: exportSystemEnumerationToEnterprise(
-      data.footerHorizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise,
-      configurationSettings
-    ),
-    КартинкаПодвала: exportPictureToEnterprise(data.footerPicture, configurationSettings),
-    ТекстПодвала: exportI8nTextToEnterprise(data.footerText, configurationSettings),
-    ЦветТекстаПодвала: exportColorToEnterprise(data.footerTextColor, configurationSettings),
-    ГоризонтальноеПоложениеВШапке: exportSystemEnumerationToEnterprise(
-      data.headerHorizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise,
-      configurationSettings
-    ),
-    КартинкаШапки: exportPictureToEnterprise(data.headerPicture, configurationSettings),
-    ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
-      data.horizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise,
-      configurationSettings
-    ),
-    ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      data.horizontalAlignInGroup,
-      SE.ItemHorizontalLocationToEnterprise,
-      configurationSettings
-    ),
-    ТолькоПросмотр: exportBooleanToEnterprise(data.readOnly, configurationSettings),
-    СочетаниеКлавиш: data.shortcut,
-    ОтображатьВПодвале: exportBooleanToEnterprise(data.showInFooter, configurationSettings),
-    ОтображатьВШапке: exportBooleanToEnterprise(data.showInHeader, configurationSettings),
-    ПропускатьПриВводе: exportBooleanToEnterprise(data.skipOnInput, configurationSettings),
-    Таблица: exportTableToEnterprise(data.table, configurationSettings),
-    Заголовок: exportI8nTextToEnterprise(data.title, configurationSettings),
-    ЦветФонаЗаголовка: exportColorToEnterprise(data.titleBackColor, configurationSettings),
-    ШрифтЗаголовка: exportFontToEnterprise(data.titleFont, configurationSettings),
-    ВысотаЗаголовка: data.titleHeight,
-    ПоложениеЗаголовка: exportSystemEnumerationToEnterprise(
-      data.titleLocation,
-      SE.FormItemTitleLocationToEnterprise,
-      configurationSettings
-    ),
-    ЦветТекстаЗаголовка: exportColorToEnterprise(data.titleTextColor, configurationSettings),
-    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
-    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
-      data.toolTipRepresentation,
-      SE.ToolTipRepresentationToEnterprise,
-      configurationSettings
-    ),
-    Вид: exportSystemEnumerationToEnterprise(data.type, SE.FormFieldTypeToEnterprise, configurationSettings),
-    ОграничениеТипа: exportTypeDescriptionToEnterprise(data.typeRestriction, configurationSettings),
     ВертикальноеПоложение: exportSystemEnumerationToEnterprise(
       data.verticalAlign,
       SE.ItemVerticalAlignToEnterprise,
@@ -109,14 +43,80 @@ export const exportFormFieldToEnterprise = (
       SE.ItemVerticalAlignToEnterprise,
       configurationSettings
     ),
+    Вид: exportSystemEnumerationToEnterprise(data.type, SE.FormFieldTypeToEnterprise, configurationSettings),
     Видимость: exportBooleanToEnterprise(data.visible, configurationSettings),
-    ПредупреждениеПриРедактировании: exportI8nTextToEnterprise(data.warningOnEdit, configurationSettings),
+    ВысотаЗаголовка: data.titleHeight,
+    ГиперссылкаЯчейки: exportBooleanToEnterprise(data.cellHyperlink, configurationSettings),
+    ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
+      data.horizontalAlign,
+      SE.ItemHorizontalLocationToEnterprise,
+      configurationSettings
+    ),
+    ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
+      data.horizontalAlignInGroup,
+      SE.ItemHorizontalLocationToEnterprise,
+      configurationSettings
+    ),
+    ГоризонтальноеПоложениеВПодвале: exportSystemEnumerationToEnterprise(
+      data.footerHorizontalAlign,
+      SE.ItemHorizontalLocationToEnterprise,
+      configurationSettings
+    ),
+    ГоризонтальноеПоложениеВШапке: exportSystemEnumerationToEnterprise(
+      data.headerHorizontalAlign,
+      SE.ItemHorizontalLocationToEnterprise,
+      configurationSettings
+    ),
+    Доступность: exportBooleanToEnterprise(data.enabled, configurationSettings),
+    Заголовок: exportI8nTextToEnterprise(data.title, configurationSettings),
+    КартинкаПодвала: exportPictureToEnterprise(data.footerPicture, configurationSettings),
+    КартинкаШапки: exportPictureToEnterprise(data.headerPicture, configurationSettings),
+    КонтекстноеМеню: exportCommandBarToEnterprise(data.contextMenu, configurationSettings),
+    ОграничениеТипа: exportTypeDescriptionToEnterprise(data.typeRestriction, configurationSettings),
+    ОтображатьВПодвале: exportBooleanToEnterprise(data.showInFooter, configurationSettings),
+    ОтображатьВШапке: exportBooleanToEnterprise(data.showInHeader, configurationSettings),
+    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
+      data.toolTipRepresentation,
+      SE.ToolTipRepresentationToEnterprise,
+      configurationSettings
+    ),
     ОтображениеПредупрежденияПриРедактировании: exportSystemEnumerationToEnterprise(
       data.warningOnEditRepresentation,
       SE.WarningOnEditRepresentationToEnterprise,
       configurationSettings
     ),
+    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
+    ПоложениеЗаголовка: exportSystemEnumerationToEnterprise(
+      data.titleLocation,
+      SE.FormItemTitleLocationToEnterprise,
+      configurationSettings
+    ),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    ПредупреждениеПриРедактировании: exportI8nTextToEnterprise(data.warningOnEdit, configurationSettings),
+    ПропускатьПриВводе: exportBooleanToEnterprise(data.skipOnInput, configurationSettings),
+    ПутьКДанным: data.dataPath,
+    ПутьКДаннымПодвала: data.footerDataPath,
+    РасширеннаяПодсказка: exportFormDecorationToEnterprise(data.extendedTooltip, configurationSettings),
+    РежимРедактирования: exportSystemEnumerationToEnterprise(
+      data.editMode,
+      SE.ColumnEditModeToEnterprise,
+      configurationSettings
+    ),
+    СочетаниеКлавиш: data.shortcut,
+    Таблица: exportTableToEnterprise(data.table, configurationSettings),
+    ТекстПодвала: exportI8nTextToEnterprise(data.footerText, configurationSettings),
+    ТолькоПросмотр: exportBooleanToEnterprise(data.readOnly, configurationSettings),
+    ФиксацияВТаблице: exportSystemEnumerationToEnterprise(
+      data.fixingInTable,
+      SE.FixingInTableToEnterprise,
+      configurationSettings
+    ),
+    ЦветТекстаЗаголовка: exportColorToEnterprise(data.titleTextColor, configurationSettings),
+    ЦветТекстаПодвала: exportColorToEnterprise(data.footerTextColor, configurationSettings),
+    ЦветФонаЗаголовка: exportColorToEnterprise(data.titleBackColor, configurationSettings),
+    ЦветФонаПодвала: exportColorToEnterprise(data.footerBackColor, configurationSettings),
+    ШрифтЗаголовка: exportFontToEnterprise(data.titleFont, configurationSettings),
+    ШрифтПодвала: exportFontToEnterprise(data.footerFont, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }

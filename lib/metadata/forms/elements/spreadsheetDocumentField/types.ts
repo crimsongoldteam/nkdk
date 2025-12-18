@@ -30,11 +30,11 @@ export interface SpreadSheetDocumentField extends FormField {
   showRowAndColumnNames?: boolean
   statePresentation?: SE.StatePresentation
   usedFileName?: string
+  userVisible?: UserVisible
   verticalScrollBar?: SE.ScrollBarUse
   verticalStretch?: boolean
   viewScalingMode?: SE.ViewScalingMode
   width?: number
-  userVisible?: UserVisible
   events?: {
     onChange?: string
     selection?: string
@@ -78,45 +78,45 @@ export interface SpreadSheetDocumentFieldXML extends FormFieldXML {
   ShowRowAndColumnNames?: boolean
   StatePresentation?: SE.StatePresentation
   UsedFileName?: string
+  UserVisible?: UserVisibleXML
   VerticalScrollBar?: SE.ScrollBarUse
   VerticalStretch?: boolean
   ViewScalingMode?: SE.ViewScalingMode
   Width?: number
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface SpreadSheetDocumentFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ЧерноБелыйПросмотр?: StringboolEnterprise
-  ЦветРамки?: ColorEnterprise
-  РежимОтображенияВыделенияРисунков?: SE.DrawingSelectionShowModeEnterprise
-  Редактирование?: StringboolEnterprise
-  РазрешитьПеретаскивание?: StringboolEnterprise
-  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
+  ВертикальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
+  Вывод?: SE.UseOutputEnterprise
   Высота?: number
   ГоризонтальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
+  Защита?: StringboolEnterprise
+  ИспользуемоеИмяФайла?: string
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  Вывод?: SE.UseOutputEnterprise
-  ТипКурсоров?: SE.SpreadsheetDocumentPointerTypeEnterprise
-  Защита?: StringboolEnterprise
-  РежимОтображенияВыделения?: SE.SelectionShowModeEnterprise
-  ОтображатьИменаЯчеек?: StringboolEnterprise
-  ОтображатьСетку?: StringboolEnterprise
   ОтображатьГруппировки?: StringboolEnterprise
   ОтображатьЗаголовки?: StringboolEnterprise
   ОтображатьИменаСтрокИКолонок?: StringboolEnterprise
+  ОтображатьИменаЯчеек?: StringboolEnterprise
+  ОтображатьСетку?: StringboolEnterprise
   ОтображениеСостояния?: SE.StatePresentationEnterprise
-  ИспользуемоеИмяФайла?: string
-  ВертикальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РежимМасштабированияПросмотра?: SE.ViewScalingModeEnterprise
-  Ширина?: number
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
+  РазрешитьПеретаскивание?: StringboolEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  Редактирование?: StringboolEnterprise
+  РежимМасштабированияПросмотра?: SE.ViewScalingModeEnterprise
+  РежимОтображенияВыделения?: SE.SelectionShowModeEnterprise
+  РежимОтображенияВыделенияРисунков?: SE.DrawingSelectionShowModeEnterprise
+  ТипКурсоров?: SE.SpreadsheetDocumentPointerTypeEnterprise
+  ЦветРамки?: ColorEnterprise
+  ЧерноБелыйПросмотр?: StringboolEnterprise
+  Ширина?: number
   События?: {
     ПриИзменении?: string
     Выбор?: string

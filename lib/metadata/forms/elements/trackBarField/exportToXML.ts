@@ -28,9 +28,9 @@ export const exportTrackBarFieldToXML = (
     MinValue: data.minValue,
     Orientation: data.orientation,
     Step: data.step,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

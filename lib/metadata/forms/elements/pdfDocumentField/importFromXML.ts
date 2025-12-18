@@ -30,10 +30,10 @@ export const importPdfDocumentFieldFromXML = (
     output: xml.Output,
     scale: xml.Scale,
     usedFileName: xml.UsedFileName,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalStretch: xml.VerticalStretch,
     viewStatusLocation: xml.ViewStatusLocation,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

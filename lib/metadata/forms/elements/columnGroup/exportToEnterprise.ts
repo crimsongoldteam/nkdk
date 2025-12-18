@@ -19,24 +19,24 @@ export const exportColumnGroupToEnterprise = (
   return compactObject({
     ...exportFormGroupToEnterprise(data, configurationSettings)!,
 
-    ФиксацияВТаблице: exportSystemEnumerationToEnterprise(
-      data.fixingInTable,
-      SE.FixingInTableToEnterprise,
-      configurationSettings
-    ),
-    Группировка: exportSystemEnumerationToEnterprise(data.group, SE.ColumnsGroupToEnterprise, configurationSettings),
-    ПутьКДаннымШапки: data.headerDataPath,
-    ФорматШапки: data.headerFormat,
     ГоризонтальноеПоложениеВШапке: exportSystemEnumerationToEnterprise(
       data.headerHorizontalAlign,
       SE.ItemHorizontalLocationToEnterprise,
       configurationSettings
     ),
+    Группировка: exportSystemEnumerationToEnterprise(data.group, SE.ColumnsGroupToEnterprise, configurationSettings),
     КартинкаШапки: exportPictureToEnterprise(data.headerPicture, configurationSettings),
     ОтображатьВШапке: exportBooleanToEnterprise(data.showInHeader, configurationSettings),
     ОтображатьЗаголовок: exportBooleanToEnterprise(data.showTitle, configurationSettings),
-    ЦветФонаЗаголовка: exportColorToEnterprise(data.titleBackColor, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    ПутьКДаннымШапки: data.headerDataPath,
+    ФиксацияВТаблице: exportSystemEnumerationToEnterprise(
+      data.fixingInTable,
+      SE.FixingInTableToEnterprise,
+      configurationSettings
+    ),
+    ФорматШапки: data.headerFormat,
+    ЦветФонаЗаголовка: exportColorToEnterprise(data.titleBackColor, configurationSettings),
   })
 }
 

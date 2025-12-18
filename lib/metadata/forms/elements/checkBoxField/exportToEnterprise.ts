@@ -21,22 +21,22 @@ export const exportCheckBoxFieldToEnterprise = (
   return compactObject({
     ...exportFormFieldToEnterprise(data, configurationSettings)!,
 
-    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
     ВидФлажка: exportSystemEnumerationToEnterprise(
       data.checkBoxType,
       SE.CheckBoxTypeToEnterprise,
       configurationSettings
     ),
-    ФорматРедактирования: exportI8nTextToEnterprise(data.editFormat, configurationSettings),
-    ОдинаковаяШиринаЭлементов: exportBooleanToEnterprise(data.equalItemsWidth, configurationSettings),
-    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
-    ВысотаЭлемента: data.itemHeight,
     ВысотаЗаголовкаЭлемента: data.itemTitleHeight,
-    ШиринаЭлемента: data.itemWidth,
-    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
-    ТриСостояния: exportBooleanToEnterprise(data.threeState, configurationSettings),
+    ВысотаЭлемента: data.itemHeight,
+    ОдинаковаяШиринаЭлементов: exportBooleanToEnterprise(data.equalItemsWidth, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    ТриСостояния: exportBooleanToEnterprise(data.threeState, configurationSettings),
+    ФорматРедактирования: exportI8nTextToEnterprise(data.editFormat, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
+    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
+    ШиринаЭлемента: data.itemWidth,
+    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }

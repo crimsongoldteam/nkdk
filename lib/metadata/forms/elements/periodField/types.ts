@@ -16,9 +16,9 @@ export interface PeriodField extends FormField {
   horizontalStretch?: boolean
   maxHeight?: number
   maxWidth?: number
+  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
-  userVisible?: UserVisible
   events?: {
     onChange?: string
     selection?: string
@@ -35,26 +35,26 @@ export interface PeriodFieldXML extends FormFieldXML {
   HorizontalStretch?: boolean
   MaxHeight?: number
   MaxWidth?: number
+  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface PeriodFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  Рамка?: BorderEnterprise
-  ЦветРамки?: ColorEnterprise
-  Шрифт?: FontEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Ширина?: number
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  Рамка?: BorderEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  ЦветРамки?: ColorEnterprise
+  Ширина?: number
+  Шрифт?: FontEnterprise
   События?: {
     ПриИзменении?: string
     Выбор?: string

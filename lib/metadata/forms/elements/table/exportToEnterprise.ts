@@ -27,126 +27,129 @@ export const exportTableToEnterprise = (
     ...exportBaseElementToEnterprise(data, configurationSettings)!,
 
     АвтоВводНезаполненного: exportBooleanToEnterprise(data.autoAddIncomplete, configurationSettings),
-    АвтоКоманднаяПанель: exportCommandBarToEnterprise(data.autoCommandBar, configurationSettings),
     АвтоВводНовойСтроки: exportBooleanToEnterprise(data.autoInsertNewRow, configurationSettings),
-    АвтоОтметкаНезаполненного: exportBooleanToEnterprise(data.autoMarkIncomplete, configurationSettings),
+    АвтоКоманднаяПанель: exportCommandBarToEnterprise(data.autoCommandBar, configurationSettings),
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
     АвтоМаксимальнаяВысотаВСтрокахТаблицы: exportBooleanToEnterprise(
       data.autoMaxHeightInTableRows,
       configurationSettings
     ),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
-    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
-    ПоведениеПриСжатииПоГоризонтали: exportSystemEnumerationToEnterprise(
-      data.behaviorOnHorizontalCompression,
-      SE.TableBehaviorOnHorizontalCompressionToEnterprise,
-      configurationSettings
-    ),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
-    ИзменятьПорядокСтрок: exportBooleanToEnterprise(data.changeRowOrder, configurationSettings),
-    ИзменятьСоставСтрок: exportBooleanToEnterprise(data.changeRowSet, configurationSettings),
-    РежимВыбора: exportBooleanToEnterprise(data.choiceMode, configurationSettings),
-    КоманднаяПанель: exportCommandBarToEnterprise(data.commandBar, configurationSettings),
-    ПоложениеКоманднойПанели: exportSystemEnumerationToEnterprise(
-      data.commandBarLocation,
-      SE.FormItemCommandBarLabelLocationToEnterprise,
-      configurationSettings
-    ),
-    Команда: exportCommandSetToEnterprise(data.commandSet, configurationSettings),
-    КонтекстноеМеню: exportCommandBarToEnterprise(data.contextMenu, configurationSettings),
-    ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
-      data.currentRowUse,
-      SE.TableCurrentRowUseToEnterprise,
-      configurationSettings
-    ),
-    ПутьКДанным: data.dataPath,
+    АвтоОтметкаНезаполненного: exportBooleanToEnterprise(data.autoMarkIncomplete, configurationSettings),
     АктивизироватьПоУмолчанию: exportBooleanToEnterprise(data.defaultItem, configurationSettings),
     ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
       data.displayImportance,
       SE.DisplayImportanceToEnterprise,
       configurationSettings
     ),
-    Доступность: exportBooleanToEnterprise(data.enabled, configurationSettings),
-    РазрешитьПеретаскивание: exportBooleanToEnterprise(data.enableDrag, configurationSettings),
-    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(data.enableStartDrag, configurationSettings),
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(data.extendedTooltip, configurationSettings),
-    СпособПеретаскиванияФайлов: exportSystemEnumerationToEnterprise(
-      data.fileDragMode,
-      SE.FileDragModeToEnterprise,
-      configurationSettings
-    ),
-    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
-    Подвал: exportBooleanToEnterprise(data.footer, configurationSettings),
-    ВысотаПодвала: data.footerHeight,
-    Шапка: exportBooleanToEnterprise(data.header, configurationSettings),
-    ВысотаШапки: data.headerHeight,
-    Высота: data.height,
     ВариантУправленияВысотой: exportSystemEnumerationToEnterprise(
       data.heightControlVariant,
       SE.TableHeightControlVariantToEnterprise,
       configurationSettings
     ),
+    ВертикальнаяПолосаПрокрутки: exportSystemEnumerationToEnterprise(
+      data.verticalScrollBar,
+      SE.ScrollBarUseToEnterprise,
+      configurationSettings
+    ),
+    ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
+      data.verticalAlignInGroup,
+      SE.ItemVerticalAlignToEnterprise,
+      configurationSettings
+    ),
+    ВертикальныеЛинии: exportBooleanToEnterprise(data.verticalLines, configurationSettings),
+    Видимость: exportBooleanToEnterprise(data.visible, configurationSettings),
+    Вывод: exportSystemEnumerationToEnterprise(data.output, SE.UseOutputToEnterprise, configurationSettings),
+    Высота: data.height,
     ВысотаВСтрокахТаблицы: data.heightInTableRows,
+    ВысотаЗаголовка: data.titleHeight,
+    ВысотаПодвала: data.footerHeight,
+    ВысотаШапки: data.headerHeight,
+    ГоризонтальнаяПолосаПрокрутки: exportSystemEnumerationToEnterprise(
+      data.horizontalScrollBar,
+      SE.ScrollBarUseToEnterprise,
+      configurationSettings
+    ),
     ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
       data.horizontalAlignInGroup,
       SE.ItemHorizontalLocationToEnterprise,
       configurationSettings
     ),
     ГоризонтальныеЛинии: exportBooleanToEnterprise(data.horizontalLines, configurationSettings),
-    ГоризонтальнаяПолосаПрокрутки: exportSystemEnumerationToEnterprise(
-      data.horizontalScrollBar,
-      SE.ScrollBarUseToEnterprise,
-      configurationSettings
-    ),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
-    НачальноеОтображениеСписка: exportSystemEnumerationToEnterprise(
-      data.initialListView,
-      SE.InitialListViewToEnterprise,
-      configurationSettings
-    ),
-    НачальноеОтображениеДерева: exportSystemEnumerationToEnterprise(
-      data.initialTreeView,
-      SE.InitialTreeViewToEnterprise,
-      configurationSettings
-    ),
-    ОтметкаНезаполненного: exportBooleanToEnterprise(data.markIncomplete, configurationSettings),
-    МаксимальнаяВысота: data.maxHeight,
-    МаксимальнаяВысотаВСтрокахТаблицы: data.maxHeightInTableRows,
-    МаксимальнаяШирина: data.maxWidth,
-    МножественныйВыбор: exportBooleanToEnterprise(data.multipleChoice, configurationSettings),
-    Вывод: exportSystemEnumerationToEnterprise(data.output, SE.UseOutputToEnterprise, configurationSettings),
-    ТолькоПросмотр: exportBooleanToEnterprise(data.readOnly, configurationSettings),
+    Доступность: exportBooleanToEnterprise(data.enabled, configurationSettings),
+    Заголовок: exportI8nTextToEnterprise(data.title, configurationSettings),
     ЗапросОбновления: exportSystemEnumerationToEnterprise(
       data.refreshRequest,
       SE.RefreshRequestMethodToEnterprise,
       configurationSettings
     ),
+    ИзменятьПорядокСтрок: exportBooleanToEnterprise(data.changeRowOrder, configurationSettings),
+    ИзменятьСоставСтрок: exportBooleanToEnterprise(data.changeRowSet, configurationSettings),
+    ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
+      data.currentRowUse,
+      SE.TableCurrentRowUseToEnterprise,
+      configurationSettings
+    ),
+    КартинкаСтрок: exportBooleanToEnterprise(data.rowsPicture, configurationSettings),
+    Команда: exportCommandSetToEnterprise(data.commandSet, configurationSettings),
+    КоманднаяПанель: exportCommandBarToEnterprise(data.commandBar, configurationSettings),
+    КонтекстноеМеню: exportCommandBarToEnterprise(data.contextMenu, configurationSettings),
+    МаксимальнаяВысота: data.maxHeight,
+    МаксимальнаяВысотаВСтрокахТаблицы: data.maxHeightInTableRows,
+    МаксимальнаяШирина: data.maxWidth,
+    МножественныйВыбор: exportBooleanToEnterprise(data.multipleChoice, configurationSettings),
+    НачальноеОтображениеДерева: exportSystemEnumerationToEnterprise(
+      data.initialTreeView,
+      SE.InitialTreeViewToEnterprise,
+      configurationSettings
+    ),
+    НачальноеОтображениеСписка: exportSystemEnumerationToEnterprise(
+      data.initialListView,
+      SE.InitialListViewToEnterprise,
+      configurationSettings
+    ),
+    ОтметкаНезаполненного: exportBooleanToEnterprise(data.markIncomplete, configurationSettings),
     Отображение: exportSystemEnumerationToEnterprise(
       data.representation,
       SE.TableRepresentationToEnterprise,
       configurationSettings
     ),
-    РежимВводаСтрок: exportSystemEnumerationToEnterprise(
-      data.rowInputMode,
-      SE.TableRowInputModeToEnterprise,
+    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
+      data.toolTipRepresentation,
+      SE.ToolTipRepresentationToEnterprise,
       configurationSettings
     ),
-    ПутьКДаннымКартинкиСтроки: data.rowPictureDataPath,
-    РежимВыделенияСтроки: exportSystemEnumerationToEnterprise(
-      data.rowSelectionMode,
-      SE.TableRowSelectionModeToEnterprise,
+    ОтображениеСостоянияПросмотра: exportFormItemAdditionToEnterprise(
+      data.viewStatusRepresentation,
       configurationSettings
     ),
-    КартинкаСтрок: exportBooleanToEnterprise(data.rowsPicture, configurationSettings),
-    УправлениеПоиском: exportFormItemAdditionToEnterprise(data.searchControl, configurationSettings),
-    ПоложениеУправленияПоиском: exportSystemEnumerationToEnterprise(
-      data.searchControlLocation,
-      SE.SearchControlLocationToEnterprise,
+    ОтображениеСтрокиПоиска: exportFormItemAdditionToEnterprise(data.searchStringRepresentation, configurationSettings),
+    ПоведениеПриСжатииПоГоризонтали: exportSystemEnumerationToEnterprise(
+      data.behaviorOnHorizontalCompression,
+      SE.TableBehaviorOnHorizontalCompressionToEnterprise,
       configurationSettings
     ),
+    Подвал: exportBooleanToEnterprise(data.footer, configurationSettings),
+    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
+    ПодчиненныеЭлементы: exportChildItemsToEnterprise(data.childItems, configurationSettings),
     ПоискПриВводе: exportSystemEnumerationToEnterprise(
       data.searchOnInput,
       SE.SearchInTableOnInputToEnterprise,
+      configurationSettings
+    ),
+    ПоложениеЗаголовка: exportSystemEnumerationToEnterprise(
+      data.titleLocation,
+      SE.FormItemTitleLocationToEnterprise,
+      configurationSettings
+    ),
+    ПоложениеКоманднойПанели: exportSystemEnumerationToEnterprise(
+      data.commandBarLocation,
+      SE.FormItemCommandBarLabelLocationToEnterprise,
+      configurationSettings
+    ),
+    ПоложениеСостоянияПросмотра: exportSystemEnumerationToEnterprise(
+      data.viewStatusLocation,
+      SE.ViewStatusLocationToEnterprise,
       configurationSettings
     ),
     ПоложениеСтрокиПоиска: exportSystemEnumerationToEnterprise(
@@ -154,56 +157,53 @@ export const exportTableToEnterprise = (
       SE.SearchStringLocationToEnterprise,
       configurationSettings
     ),
-    ОтображениеСтрокиПоиска: exportFormItemAdditionToEnterprise(data.searchStringRepresentation, configurationSettings),
+    ПоложениеУправленияПоиском: exportSystemEnumerationToEnterprise(
+      data.searchControlLocation,
+      SE.SearchControlLocationToEnterprise,
+      configurationSettings
+    ),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    ПропускатьПриВводе: exportBooleanToEnterprise(data.skipOnInput, configurationSettings),
+    ПутьКДанным: data.dataPath,
+    ПутьКДаннымКартинкиСтроки: data.rowPictureDataPath,
+    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(data.enableStartDrag, configurationSettings),
+    РазрешитьПеретаскивание: exportBooleanToEnterprise(data.enableDrag, configurationSettings),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    РасширеннаяПодсказка: exportFormDecorationToEnterprise(data.extendedTooltip, configurationSettings),
+    РежимВводаСтрок: exportSystemEnumerationToEnterprise(
+      data.rowInputMode,
+      SE.TableRowInputModeToEnterprise,
+      configurationSettings
+    ),
+    РежимВыбора: exportBooleanToEnterprise(data.choiceMode, configurationSettings),
     РежимВыделения: exportSystemEnumerationToEnterprise(
       data.selectionMode,
       SE.TableSelectionModeToEnterprise,
       configurationSettings
     ),
+    РежимВыделенияСтроки: exportSystemEnumerationToEnterprise(
+      data.rowSelectionMode,
+      SE.TableRowSelectionModeToEnterprise,
+      configurationSettings
+    ),
     СочетаниеКлавиш: data.shortcut,
-    ПропускатьПриВводе: exportBooleanToEnterprise(data.skipOnInput, configurationSettings),
+    СпособПеретаскиванияФайлов: exportSystemEnumerationToEnterprise(
+      data.fileDragMode,
+      SE.FileDragModeToEnterprise,
+      configurationSettings
+    ),
+    ТолькоПросмотр: exportBooleanToEnterprise(data.readOnly, configurationSettings),
+    УправлениеПоиском: exportFormItemAdditionToEnterprise(data.searchControl, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
     ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
-    Заголовок: exportI8nTextToEnterprise(data.title, configurationSettings),
-    ШрифтЗаголовка: exportFontToEnterprise(data.titleFont, configurationSettings),
-    ВысотаЗаголовка: data.titleHeight,
-    ПоложениеЗаголовка: exportSystemEnumerationToEnterprise(
-      data.titleLocation,
-      SE.FormItemTitleLocationToEnterprise,
-      configurationSettings
-    ),
     ЦветТекстаЗаголовка: exportColorToEnterprise(data.titleTextColor, configurationSettings),
-    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
-    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
-      data.toolTipRepresentation,
-      SE.ToolTipRepresentationToEnterprise,
-      configurationSettings
-    ),
+    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
     ЧередованиеЦветовСтрок: exportBooleanToEnterprise(data.useAlternationRowColor, configurationSettings),
-    ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      data.verticalAlignInGroup,
-      SE.ItemVerticalAlignToEnterprise,
-      configurationSettings
-    ),
-    ВертикальныеЛинии: exportBooleanToEnterprise(data.verticalLines, configurationSettings),
-    ВертикальнаяПолосаПрокрутки: exportSystemEnumerationToEnterprise(
-      data.verticalScrollBar,
-      SE.ScrollBarUseToEnterprise,
-      configurationSettings
-    ),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
-    ПоложениеСостоянияПросмотра: exportSystemEnumerationToEnterprise(
-      data.viewStatusLocation,
-      SE.ViewStatusLocationToEnterprise,
-      configurationSettings
-    ),
-    ОтображениеСостоянияПросмотра: exportFormItemAdditionToEnterprise(
-      data.viewStatusRepresentation,
-      configurationSettings
-    ),
-    Видимость: exportBooleanToEnterprise(data.visible, configurationSettings),
+    Шапка: exportBooleanToEnterprise(data.header, configurationSettings),
     Ширина: data.width,
-    ПодчиненныеЭлементы: exportChildItemsToEnterprise(data.childItems, configurationSettings),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
+    ШрифтЗаголовка: exportFontToEnterprise(data.titleFont, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }

@@ -42,19 +42,19 @@ export interface RadioButtonFieldXML extends FormFieldXML {
 }
 
 export interface RadioButtonFieldEnterprise extends FormFieldEnterprise {
-  ЦветФона?: ColorEnterprise
-  ЦветРамки?: ColorEnterprise
-  СписокВыбора?: ChoiceListEnterprise
+  ВидПереключателя?: SE.RadioButtonTypeEnterprise
+  ВысотаЗаголовкаЭлемента?: number
+  ВысотаЭлемента?: number
   КоличествоКолонок?: number
   ОдинаковаяШиринаКолонок?: StringboolEnterprise
-  Шрифт?: FontEnterprise
-  ВысотаЭлемента?: number
-  ВысотаЗаголовкаЭлемента?: number
-  ШиринаЭлемента?: number
-  ВидПереключателя?: SE.RadioButtonTypeEnterprise
-  ЦветТекста?: ColorEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  СписокВыбора?: ChoiceListEnterprise
+  ЦветРамки?: ColorEnterprise
+  ЦветТекста?: ColorEnterprise
+  ЦветФона?: ColorEnterprise
+  ШиринаЭлемента?: number
+  Шрифт?: FontEnterprise
   События?: {
     ПриИзменении?: string
   }

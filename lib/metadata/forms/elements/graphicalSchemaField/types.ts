@@ -15,9 +15,9 @@ export interface GraphicalSchemaField extends FormField {
   maxHeight?: number
   maxWidth?: number
   output?: SE.UseOutput
+  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
-  userVisible?: UserVisible
   events?: {
     onChange?: string
     selection?: string
@@ -38,26 +38,26 @@ export interface GraphicalSchemaFieldXML extends FormFieldXML {
   MaxHeight?: number
   MaxWidth?: number
   Output?: SE.UseOutput
+  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface GraphicalSchemaFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ЦветРамки?: ColorEnterprise
-  Редактирование?: StringboolEnterprise
+  Вывод?: SE.UseOutputEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  Вывод?: SE.UseOutputEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Ширина?: number
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  Редактирование?: StringboolEnterprise
+  ЦветРамки?: ColorEnterprise
+  Ширина?: number
   События?: {
     ПриИзменении?: string
     Выбор?: string

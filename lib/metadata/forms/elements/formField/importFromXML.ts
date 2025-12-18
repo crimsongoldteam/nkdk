@@ -62,12 +62,12 @@ export const importFormFieldFromXML = (
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
     typeRestriction: importTypeDescriptionFromXML(xml.TypeRestriction, configurationSettings),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalAlign: xml.VerticalAlign,
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     visible: xml.Visible,
     warningOnEdit: importI8nTextFromXML(xml.WarningOnEdit, configurationSettings),
     warningOnEditRepresentation: xml.WarningOnEditRepresentation,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

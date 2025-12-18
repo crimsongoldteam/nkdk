@@ -19,9 +19,9 @@ export interface FormattedDocumentField extends FormField {
   output?: SE.UseOutput
   selectedText?: string
   textColor?: Color
+  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
-  userVisible?: UserVisible
   events?: {
     onChange?: string
     beforeWrite?: string
@@ -43,29 +43,29 @@ export interface FormattedDocumentFieldXML extends FormFieldXML {
   Output?: SE.UseOutput
   SelectedText?: string
   TextColor?: ColorXML
+  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface FormattedDocumentFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ЦветФона?: ColorEnterprise
-  ЦветРамки?: ColorEnterprise
-  Шрифт?: FontEnterprise
-  Высота?: number
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  МаксимальнаяВысота?: number
-  МаксимальнаяШирина?: number
   Вывод?: SE.UseOutputEnterprise
   ВыделенныйТекст?: string
-  ЦветТекста?: ColorEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Ширина?: number
+  Высота?: number
+  МаксимальнаяВысота?: number
+  МаксимальнаяШирина?: number
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  ЦветРамки?: ColorEnterprise
+  ЦветТекста?: ColorEnterprise
+  ЦветФона?: ColorEnterprise
+  Ширина?: number
+  Шрифт?: FontEnterprise
   События?: {
     ПриИзменении?: string
     ПередЗаписью?: string

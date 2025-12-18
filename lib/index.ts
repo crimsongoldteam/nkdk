@@ -3,8 +3,8 @@ export { xmlExport } from "./xml/export/exporter"
 export { default as xmlImport } from "./xml/import/importer"
 
 // ClientApplicationForm
+export { formatClientApplicationForm } from "./metadata/forms/elements/clientApplicationForm/exportToEnterprise"
 export { exportClientApplicationFormToXML } from "./metadata/forms/elements/clientApplicationForm/exportToXML"
-export { formatClientApplicationForm } from "./metadata/forms/elements/clientApplicationForm/format"
 export { importClientApplicationFormFromXML } from "./metadata/forms/elements/clientApplicationForm/importFromXML"
 
 // Типы

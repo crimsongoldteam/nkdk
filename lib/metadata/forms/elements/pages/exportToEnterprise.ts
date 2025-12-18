@@ -18,23 +18,23 @@ export const exportPagesToEnterprise = (
   return compactObject({
     ...exportFormGroupToEnterprise(data, configurationSettings)!,
 
-    ИспользуемаяТаблица: exportTableToEnterprise(data.associatedTable, configurationSettings),
-    ТекущееСостояниеСтраниц: exportSystemEnumerationToEnterprise(
-      data.currentPagesState,
-      SE.FormPagesStateToEnterprise,
-      configurationSettings
-    ),
     ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
       data.currentRowUse,
       SE.CurrentRowUseToEnterprise,
       configurationSettings
     ),
+    ИспользуемаяТаблица: exportTableToEnterprise(data.associatedTable, configurationSettings),
     ОтображениеСтраниц: exportSystemEnumerationToEnterprise(
       data.pagesRepresentation,
       SE.FormPagesRepresentationToEnterprise,
       configurationSettings
     ),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    ТекущееСостояниеСтраниц: exportSystemEnumerationToEnterprise(
+      data.currentPagesState,
+      SE.FormPagesStateToEnterprise,
+      configurationSettings
+    ),
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }

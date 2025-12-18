@@ -21,6 +21,7 @@ export const importFormGroupFromXML = (
     ...importBaseElementFromXML(xml, configurationSettings)!,
     elementType: FormElementType.FormGroup,
 
+    childItems: importChildItemsFromXML(xml.ChildItems, configurationSettings),
     enableContentChange: xml.EnableContentChange,
     enabled: xml.Enabled,
     extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip, configurationSettings),
@@ -35,12 +36,11 @@ export const importFormGroupFromXML = (
     toolTip: importI8nTextFromXML(xml.ToolTip, configurationSettings),
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,
     width: xml.Width,
-    childItems: importChildItemsFromXML(xml.ChildItems, configurationSettings),
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
   })
 }
 

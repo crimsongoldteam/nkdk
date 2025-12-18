@@ -14,7 +14,7 @@ describe("exportBaseElementToXML", () => {
       id: "16",
     }
 
-    const expectedResult = `<BaseElement name="ИмяПоля" id="16"/>`
+    const expectedResult = `<BaseElement id="16" name="ИмяПоля"/>`
 
     const result = { BaseElement: exportBaseElementToXML(mockElement, mockConfigurationSettings) }
     const xmlString = xmlExport(result, false)
@@ -29,7 +29,7 @@ describe("exportBaseElementToXML", () => {
   })
 
   it("should export and import base element correctly (round-trip)", () => {
-    const originalXml = `<BaseElement name="ИмяПоля" id="16"/>`
+    const originalXml = `<BaseElement id="16" name="ИмяПоля"/>`
 
     const xml = xmlImport<{ BaseElement: BaseElementXML }>(originalXml)
     const imported = importBaseElementFromXML(xml.BaseElement, mockConfigurationSettings)

@@ -21,26 +21,26 @@ export const exportPictureDecorationToEnterprise = (
   return compactObject({
     ...exportFormDecorationToEnterprise(data, configurationSettings)!,
 
-    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
-    РазрешитьПеретаскивание: exportBooleanToEnterprise(data.enableDrag, configurationSettings),
-    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(data.enableStartDrag, configurationSettings),
-    СпособПеретаскиванияФайлов: exportSystemEnumerationToEnterprise(
-      data.fileDragMode,
-      SE.FileDragModeToEnterprise,
-      configurationSettings
-    ),
     Гиперссылка: exportBooleanToEnterprise(data.hyperlink, configurationSettings),
-    ТекстНевыбраннойКартинки: data.nonselectedPictureText,
     Картинка: exportPictureToEnterprise(data.picture, configurationSettings),
+    Масштаб: data.scale,
+    Масштабировать: exportBooleanToEnterprise(data.zoomable, configurationSettings),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
     РазмерКартинки: exportSystemEnumerationToEnterprise(
       data.pictureSize,
       SE.PictureSizeToEnterprise,
       configurationSettings
     ),
-    Масштаб: data.scale,
-    Масштабировать: exportBooleanToEnterprise(data.zoomable, configurationSettings),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(data.enableStartDrag, configurationSettings),
+    РазрешитьПеретаскивание: exportBooleanToEnterprise(data.enableDrag, configurationSettings),
+    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
+    СпособПеретаскиванияФайлов: exportSystemEnumerationToEnterprise(
+      data.fileDragMode,
+      SE.FileDragModeToEnterprise,
+      configurationSettings
+    ),
+    ТекстНевыбраннойКартинки: data.nonselectedPictureText,
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }

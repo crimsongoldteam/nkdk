@@ -30,8 +30,8 @@ export const importPictureDecorationFromXML = (
     picture: importPictureFromXML(xml.Picture, configurationSettings),
     pictureSize: xml.PictureSize,
     scale: xml.Scale,
-    zoomable: xml.Zoomable,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    zoomable: xml.Zoomable,
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

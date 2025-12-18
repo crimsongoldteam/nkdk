@@ -89,38 +89,38 @@ export interface MetadataAttributeXML {
 }
 
 export interface MetadataAttributeEnterprise {
-  ИспользованиеХраненияВХранилищеДвоичныхДанных?: SE.BinaryDataStorageLocationUseEnterprise
-  ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: StringboolEnterprise
+  БыстрыйВыбор?: SE.UseQuickChoiceEnterprise
   ВыборГруппИЭлементов?: SE.FoldersAndItemsUseEnterprise
-  ФормаВыбора?: string
-  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
-  СвязиПараметровВыбора?: ChoiceParameterLinksEnterprise
-  ПараметрыВыбора?: ChoiceParameterLinksEnterprise
-  Комментарий?: string
-  СозданиеПриВводе?: SE.CreateOnInputEnterprise
-  ИсторияДанных?: SE.DataHistoryUseEnterprise
-  ФорматРедактирования?: I8nTextEnterprise
-  РасширенноеРедактирование?: StringboolEnterprise
-  ПроверкаЗаполнения?: SE.FillCheckingEnterprise
+  ВыделятьОтрицательные?: StringboolEnterprise
   ЗаполнятьИзДанныхЗаполнения?: StringboolEnterprise
   ЗначениеЗаполнения?: MetadataValueEnterprise
-  Формат?: I8nTextEnterprise
-  ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
+  Имя?: string
   Индексирование?: SE.IndexingEnterprise
-  СвязьПоТипу?: TypeLinkEnterprise
-  ВыделятьОтрицательные?: StringboolEnterprise
-  Маска?: string
+  Использование?: SE.AttributeUseEnterprise
+  ИспользованиеХраненияВХранилищеДвоичныхДанных?: SE.BinaryDataStorageLocationUseEnterprise
+  ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
+  ИсторияДанных?: SE.DataHistoryUseEnterprise
+  Комментарий?: string
   МаксимальноеЗначение?: number
+  Маска?: string
   МинимальноеЗначение?: number
   МногострочныйРежим?: StringboolEnterprise
-  Имя?: string
-  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
-  РежимПароля?: StringboolEnterprise
-  БыстрыйВыбор?: SE.UseQuickChoiceEnterprise
-  Синоним?: I8nTextEnterprise
+  ПараметрыВыбора?: ChoiceParameterLinksEnterprise
   Подсказка?: I8nTextEnterprise
+  ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: StringboolEnterprise
+  ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
+  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
+  ПроверкаЗаполнения?: SE.FillCheckingEnterprise
+  РасширенноеРедактирование?: StringboolEnterprise
+  РежимПароля?: StringboolEnterprise
+  СвязиПараметровВыбора?: ChoiceParameterLinksEnterprise
+  СвязьПоТипу?: TypeLinkEnterprise
+  Синоним?: I8nTextEnterprise
+  СозданиеПриВводе?: SE.CreateOnInputEnterprise
   Тип: TypeDescriptionEnterprise
-  Использование?: SE.AttributeUseEnterprise
+  ФормаВыбора?: string
+  Формат?: I8nTextEnterprise
+  ФорматРедактирования?: I8nTextEnterprise
 }
 
 export type MetadataAttributes = MetadataAttribute[]

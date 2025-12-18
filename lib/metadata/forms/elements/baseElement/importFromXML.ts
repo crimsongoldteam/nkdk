@@ -8,7 +8,7 @@ export const importBaseElementFromXML = (
 ): BaseElement => {
   return {
     name: xml._name,
-    id: xml._id ?? "",
+    id: xml._id,
     elementType: FormElementType.BaseElement,
   }
 }

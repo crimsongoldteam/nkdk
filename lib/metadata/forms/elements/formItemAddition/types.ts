@@ -12,6 +12,7 @@ import {
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export interface FormItemAddition extends BaseElement {
+  childItems?: ChildItems
   contextMenu?: CommandBar
   displayImportance?: SE.DisplayImportance
   enabled?: boolean
@@ -21,13 +22,13 @@ export interface FormItemAddition extends BaseElement {
   toolTip?: I8nText
   toolTipRepresentation?: SE.ToolTipRepresentation
   type?: SE.FormItemAdditionType
+  userVisible?: UserVisible
   verticalAlignInGroup?: SE.ItemVerticalAlign
   visible?: boolean
-  childItems?: ChildItems
-  userVisible?: UserVisible
 }
 
 export interface FormItemAdditionXML extends BaseElementXML {
+  ChildItems?: ChildItemsXML
   ContextMenu?: CommandBarXML
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
@@ -37,25 +38,24 @@ export interface FormItemAdditionXML extends BaseElementXML {
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormItemAdditionType
+  UserVisible?: UserVisibleXML
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   Visible?: boolean
-  ChildItems?: ChildItemsXML
-  UserVisible?: UserVisibleXML
 }
 
 export interface FormItemAdditionEnterprise extends BaseElementEnterprise {
-  КонтекстноеМеню?: CommandBarEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  Доступность?: StringboolEnterprise
-  РасширеннаяПодсказка?: FormDecorationEnterprise
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  Заголовок?: I8nTextEnterprise
-  Подсказка?: I8nTextEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  Вид?: SE.FormItemAdditionTypeEnterprise
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
+  Вид?: SE.FormItemAdditionTypeEnterprise
   Видимость?: StringboolEnterprise
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
+  Доступность?: StringboolEnterprise
+  Заголовок?: I8nTextEnterprise
+  КонтекстноеМеню?: CommandBarEnterprise
+  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
+  Подсказка?: I8nTextEnterprise
   ПодчиненныеЭлементы?: ChildItemsEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РасширеннаяПодсказка?: FormDecorationEnterprise
 }

@@ -16,8 +16,8 @@ export interface AdditionalIndexXML {
 
 export interface AdditionalIndexEnterprise {
   ДополнительныеПоля?: IndexFieldsEnterprise
-  ИндексируемыеПоля?: IndexFieldsEnterprise
   Имя?: string
+  ИндексируемыеПоля?: IndexFieldsEnterprise
   Таблица?: string
 }
 

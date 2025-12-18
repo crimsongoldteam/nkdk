@@ -22,8 +22,8 @@ export interface PictureDecoration extends FormDecoration {
   picture?: Picture
   pictureSize?: SE.PictureSize
   scale?: number
-  zoomable?: boolean
   userVisible?: UserVisible
+  zoomable?: boolean
   events?: {
     click?: string
     dragStart?: string
@@ -44,25 +44,25 @@ export interface PictureDecorationXML extends FormDecorationXML {
   Picture?: PictureXML
   PictureSize?: SE.PictureSize
   Scale?: number
-  Zoomable?: boolean
   UserVisible?: UserVisibleXML
+  Zoomable?: boolean
   Events?: EventsXML
 }
 
 export interface PictureDecorationEnterprise extends FormDecorationEnterprise {
-  Рамка?: BorderEnterprise
-  ЦветРамки?: ColorEnterprise
-  РазрешитьПеретаскивание?: StringboolEnterprise
-  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
-  СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise
   Гиперссылка?: StringboolEnterprise
-  ТекстНевыбраннойКартинки?: string
   Картинка?: PictureEnterprise
-  РазмерКартинки?: SE.PictureSizeEnterprise
   Масштаб?: number
   Масштабировать?: StringboolEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазмерКартинки?: SE.PictureSizeEnterprise
+  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
+  РазрешитьПеретаскивание?: StringboolEnterprise
+  Рамка?: BorderEnterprise
+  СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise
+  ТекстНевыбраннойКартинки?: string
+  ЦветРамки?: ColorEnterprise
   События?: {
     Нажатие?: string
     НачалоПеретаскивания?: string

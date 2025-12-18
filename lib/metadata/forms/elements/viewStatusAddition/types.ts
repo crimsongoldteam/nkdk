@@ -23,8 +23,8 @@ export interface ViewStatusAddition extends FormItemAddition {
   textColor?: Color
   titleFont?: Font
   titleTextColor?: Color
-  width?: number
   userVisible?: UserVisible
+  width?: number
 }
 
 export interface ViewStatusAdditionXML extends FormItemAdditionXML {
@@ -40,24 +40,24 @@ export interface ViewStatusAdditionXML extends FormItemAdditionXML {
   TextColor?: ColorXML
   TitleFont?: FontXML
   TitleTextColor?: ColorXML
-  Width?: number
   UserVisible?: UserVisibleXML
+  Width?: number
 }
 
 export interface ViewStatusAdditionEnterprise extends FormItemAdditionEnterprise {
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ЦветФона?: ColorEnterprise
-  Рамка?: BorderEnterprise
-  ЦветРамки?: ColorEnterprise
-  ЦветФонаКнопок?: ColorEnterprise
-  Шрифт?: FontEnterprise
   ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяШирина?: number
-  ЦветТекста?: ColorEnterprise
-  ШрифтЗаголовка?: FontEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
-  Ширина?: number
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  Рамка?: BorderEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  ЦветРамки?: ColorEnterprise
+  ЦветТекста?: ColorEnterprise
+  ЦветТекстаЗаголовка?: ColorEnterprise
+  ЦветФона?: ColorEnterprise
+  ЦветФонаКнопок?: ColorEnterprise
+  Ширина?: number
+  Шрифт?: FontEnterprise
+  ШрифтЗаголовка?: FontEnterprise
 }

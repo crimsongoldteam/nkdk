@@ -21,9 +21,9 @@ export const exportChartFieldToXML = (
     HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

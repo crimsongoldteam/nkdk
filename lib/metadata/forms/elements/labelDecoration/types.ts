@@ -18,8 +18,8 @@ export interface LabelDecoration extends FormDecoration {
   horizontalAlign?: SE.ItemHorizontalLocation
   hyperlink?: boolean
   titleHeight?: number
-  verticalAlign?: SE.ItemVerticalAlign
   userVisible?: UserVisible
+  verticalAlign?: SE.ItemVerticalAlign
   events?: {
     click?: string
     uRLProcessing?: string
@@ -34,22 +34,22 @@ export interface LabelDecorationXML extends FormDecorationXML {
   HorizontalAlign?: SE.ItemHorizontalLocation
   Hyperlink?: boolean
   TitleHeight?: number
-  VerticalAlign?: SE.ItemVerticalAlign
   UserVisible?: UserVisibleXML
+  VerticalAlign?: SE.ItemVerticalAlign
   Events?: EventsXML
 }
 
 export interface LabelDecorationEnterprise extends FormDecorationEnterprise {
-  ЦветФона?: ColorEnterprise
-  Рамка?: BorderEnterprise
-  ЦветРамки?: ColorEnterprise
   ВертикальноеВыравниваниеГруппы?: SE.ItemVerticalAlignEnterprise
-  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  Гиперссылка?: StringboolEnterprise
-  ВысотаЗаголовка?: number
   ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
+  ВысотаЗаголовка?: number
+  Гиперссылка?: StringboolEnterprise
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  Рамка?: BorderEnterprise
+  ЦветРамки?: ColorEnterprise
+  ЦветФона?: ColorEnterprise
   События?: {
     Нажатие?: string
     ОбработкаНавигационнойСсылки?: string

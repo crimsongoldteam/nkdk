@@ -42,19 +42,19 @@ export interface CheckBoxFieldXML extends FormFieldXML {
 }
 
 export interface CheckBoxFieldEnterprise extends FormFieldEnterprise {
-  ЦветФона?: ColorEnterprise
-  ЦветРамки?: ColorEnterprise
   ВидФлажка?: SE.CheckBoxTypeEnterprise
-  ФорматРедактирования?: I8nTextEnterprise
-  ОдинаковаяШиринаЭлементов?: StringboolEnterprise
-  Шрифт?: FontEnterprise
-  ВысотаЭлемента?: number
   ВысотаЗаголовкаЭлемента?: number
-  ШиринаЭлемента?: number
-  ЦветТекста?: ColorEnterprise
-  ТриСостояния?: StringboolEnterprise
+  ВысотаЭлемента?: number
+  ОдинаковаяШиринаЭлементов?: StringboolEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  ТриСостояния?: StringboolEnterprise
+  ФорматРедактирования?: I8nTextEnterprise
+  ЦветРамки?: ColorEnterprise
+  ЦветТекста?: ColorEnterprise
+  ЦветФона?: ColorEnterprise
+  ШиринаЭлемента?: number
+  Шрифт?: FontEnterprise
   События?: {
     ПриИзменении?: string
   }

@@ -26,11 +26,11 @@ export interface PictureField extends FormField {
   pictureSize?: SE.PictureSize
   scale?: number
   textColor?: Color
+  userVisible?: UserVisible
   valuesPicture?: Picture
   verticalStretch?: boolean
   width?: number
   zoomable?: boolean
-  userVisible?: UserVisible
   events?: {
     onChange?: string
     click?: string
@@ -59,38 +59,38 @@ export interface PictureFieldXML extends FormFieldXML {
   PictureSize?: SE.PictureSize
   Scale?: number
   TextColor?: ColorXML
+  UserVisible?: UserVisibleXML
   ValuesPicture?: PictureXML
   VerticalStretch?: boolean
   Width?: number
   Zoomable?: boolean
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface PictureFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  Рамка?: BorderEnterprise
-  ЦветРамки?: ColorEnterprise
-  РазрешитьПеретаскивание?: StringboolEnterprise
-  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
-  СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise
-  Шрифт?: FontEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: StringboolEnterprise
   Гиперссылка?: StringboolEnterprise
+  КартинкаЗначений?: PictureEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  ТекстНевыбраннойКартинки?: string
-  РазмерКартинки?: SE.PictureSizeEnterprise
   Масштаб?: number
-  ЦветТекста?: ColorEnterprise
-  КартинкаЗначений?: PictureEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Ширина?: number
   Масштабировать?: StringboolEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазмерКартинки?: SE.PictureSizeEnterprise
+  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
+  РазрешитьПеретаскивание?: StringboolEnterprise
+  Рамка?: BorderEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise
+  ТекстНевыбраннойКартинки?: string
+  ЦветРамки?: ColorEnterprise
+  ЦветТекста?: ColorEnterprise
+  Ширина?: number
+  Шрифт?: FontEnterprise
   События?: {
     ПриИзменении?: string
     Нажатие?: string

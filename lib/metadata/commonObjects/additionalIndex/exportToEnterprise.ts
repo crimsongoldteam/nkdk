@@ -16,8 +16,8 @@ export const exportAdditionalIndexToEnterprise = (
 
   return compactObject({
     ДополнительныеПоля: exportIndexFieldsToEnterprise(data.additionalFields, configurationSettings),
-    ИндексируемыеПоля: exportIndexFieldsToEnterprise(data.indexedFields, configurationSettings),
     Имя: data.name,
+    ИндексируемыеПоля: exportIndexFieldsToEnterprise(data.indexedFields, configurationSettings),
     Таблица: data.table,
   })
 }

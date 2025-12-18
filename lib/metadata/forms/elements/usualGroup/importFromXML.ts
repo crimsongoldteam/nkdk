@@ -45,9 +45,9 @@ export const importUsualGroupFromXML = (
     throughAlign: xml.ThroughAlign,
     titleDataPath: xml.TitleDataPath,
     united: xml.United,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalAlign: xml.VerticalAlign,
     verticalSpacing: xml.VerticalSpacing,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
   })
 }
 

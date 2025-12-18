@@ -49,7 +49,7 @@ export const importMetadataDocumentFromXML = (
     includeHelpInContents: xml.IncludeHelpInContents,
     inputByString: importMetadataFieldsFromXML(xml.InputByString, configurationSettings),
     listPresentation: importI8nTextFromXML(xml.ListPresentation, configurationSettings),
-    name: xml.Name,
+    name: xml.Name!,
     numberAllowedLength: xml.NumberAllowedLength,
     numberLength: xml.NumberLength,
     numberPeriodicity: xml.NumberPeriodicity,

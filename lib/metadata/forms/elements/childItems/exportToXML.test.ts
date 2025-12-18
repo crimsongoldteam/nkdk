@@ -28,9 +28,9 @@ describe("exportChildItemsToXML", () => {
     ]
 
     const expectedResult = `<ChildItems>
-	<InputField name="Input1" id="1"/>
-	<Button name="Button2" id="2"/>
-	<InputField name="Input3" id="3"/>
+	<InputField id="1" name="Input1"/>
+	<Button id="2" name="Button2"/>
+	<InputField id="3" name="Input3"/>
 </ChildItems>`
 
     const result = exportChildItemsToXML(mockChildItems, mockConfigurationSettings)

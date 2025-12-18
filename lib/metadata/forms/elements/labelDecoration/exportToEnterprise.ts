@@ -20,27 +20,27 @@ export const exportLabelDecorationToEnterprise = (
   return compactObject({
     ...exportFormDecorationToEnterprise(data, configurationSettings)!,
 
-    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
-    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
     ВертикальноеВыравниваниеГруппы: exportSystemEnumerationToEnterprise(
       data.groupVerticalAlign,
       SE.ItemVerticalAlignToEnterprise,
       configurationSettings
     ),
-    ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
-      data.horizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise,
-      configurationSettings
-    ),
-    Гиперссылка: exportBooleanToEnterprise(data.hyperlink, configurationSettings),
-    ВысотаЗаголовка: data.titleHeight,
     ВертикальноеПоложение: exportSystemEnumerationToEnterprise(
       data.verticalAlign,
       SE.ItemVerticalAlignToEnterprise,
       configurationSettings
     ),
+    ВысотаЗаголовка: data.titleHeight,
+    Гиперссылка: exportBooleanToEnterprise(data.hyperlink, configurationSettings),
+    ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
+      data.horizontalAlign,
+      SE.ItemHorizontalLocationToEnterprise,
+      configurationSettings
+    ),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }

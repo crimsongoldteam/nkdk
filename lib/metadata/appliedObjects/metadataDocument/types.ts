@@ -156,55 +156,55 @@ export interface MetadataDocumentXML {
 }
 
 export interface MetadataDocumentEnterprise {
-  ЗаписьДвиженийПриПроведении?: SE.RegisterRecordsWritingOnPostEnterprise
-  ДополнительныеИндексы?: AdditionalIndexesEnterprise
-  Реквизиты?: MetadataAttributesEnterprise
   Автонумерация?: StringboolEnterprise
-  ДополнительнаяФормаДляВыбора?: string
-  ДополнительнаяФормаСписка?: string
-  ДополнительнаяФормаОбъекта?: string
   ВводитсяНаОсновании?: MetadataItemLinksEnterprise
-  Характеристики?: CharacteristicsDescriptionsEnterprise
-  КонтрольУникальности?: StringboolEnterprise
-  РежимПолученияДанныхВыбораПриВводеПоСтроке?: SE.ChoiceDataGetModeOnInputByStringEnterprise
+  ВводПоСтроке?: MetadataFieldsEnterprise
+  ВключатьСправкуВСодержание?: StringboolEnterprise
+  ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: StringboolEnterprise
+  Движения?: MetadataItemLinksEnterprise
+  ДлинаНомера?: number
+  ДополнительнаяФормаДляВыбора?: string
+  ДополнительнаяФормаОбъекта?: string
+  ДополнительнаяФормаСписка?: string
+  ДополнительныеИндексы?: AdditionalIndexesEnterprise
+  ДопустимаяДлинаНомера?: SE.AllowedLengthEnterprise
+  ЗаписьДвиженийПриПроведении?: SE.RegisterRecordsWritingOnPostEnterprise
+  ЗаполнениеПоследовательностей?: SE.SequenceFillingEnterprise
+  Имя?: string
+  ИспользоватьСтандартныеКоманды?: StringboolEnterprise
   ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
+  ИсторияДанных?: SE.DataHistoryUseEnterprise
   Команды?: MetadataCommandsEnterprise
   Комментарий?: string
-  СозданиеПриВводе?: SE.CreateOnInputEnterprise
-  ИсторияДанных?: SE.DataHistoryUseEnterprise
-  РежимУправленияБлокировкойДанных?: SE.DefaultDataLockControlModeEnterprise
-  ПоляБлокировкиДанных?: MetadataFieldsEnterprise
+  КонтрольУникальности?: StringboolEnterprise
+  Нумератор?: MetadataDocumentNumeratorEnterprise
+  ОбновлятьИсториюДанныхСразуПослеЗаписи?: StringboolEnterprise
+  ОперативноеПроведение?: SE.RealTimePostingEnterprise
   ОсновнаяФормаДляВыбора?: string
-  ОсновнаяФормаСписка?: string
   ОсновнаяФормаОбъекта?: string
-  ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: StringboolEnterprise
-  Пояснение?: I8nTextEnterprise
-  РасширенноеПредставлениеСписка?: I8nTextEnterprise
-  РасширенноеПредставлениеОбъекта?: I8nTextEnterprise
+  ОсновнаяФормаСписка?: string
+  ПериодичностьНомера?: SE.BusinessProcessNumberPeriodicityEnterprise
   ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
   ПолнотекстовыйПоискПриВводеПоСтроке?: SE.FullTextSearchOnInputByStringEnterprise
-  ВключатьСправкуВСодержание?: StringboolEnterprise
-  ВводПоСтроке?: MetadataFieldsEnterprise
-  ПредставлениеСписка?: I8nTextEnterprise
-  Имя?: string
-  ДопустимаяДлинаНомера?: SE.AllowedLengthEnterprise
-  ДлинаНомера?: number
-  ПериодичностьНомера?: SE.BusinessProcessNumberPeriodicityEnterprise
-  ТипНомера?: SE.DocumentNumberTypeEnterprise
-  Нумератор?: MetadataDocumentNumeratorEnterprise
-  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
+  ПоляБлокировкиДанных?: MetadataFieldsEnterprise
+  Пояснение?: I8nTextEnterprise
   ПредставлениеОбъекта?: I8nTextEnterprise
-  Проведение?: SE.PostingEnterprise
-  ПривилегированныйРежимПриПроведении?: StringboolEnterprise
+  ПредставлениеСписка?: I8nTextEnterprise
   ПривилегированныйРежимПриОтменеПроведения?: StringboolEnterprise
-  ОперативноеПроведение?: SE.RealTimePostingEnterprise
-  Движения?: MetadataItemLinksEnterprise
-  УдалениеДвижений?: SE.RegisterRecordsDeletionEnterprise
-  СпособПоискаСтрокиПриВводеПоСтроке?: SE.SearchStringModeOnInputByStringEnterprise
-  ЗаполнениеПоследовательностей?: SE.SequenceFillingEnterprise
-  СтандартныеРеквизиты?: StandardAttributeDescriptionsEnterprise
+  ПривилегированныйРежимПриПроведении?: StringboolEnterprise
+  ПринадлежностьОбъекта?: SE.ObjectBelongingEnterprise
+  Проведение?: SE.PostingEnterprise
+  РасширенноеПредставлениеОбъекта?: I8nTextEnterprise
+  РасширенноеПредставлениеСписка?: I8nTextEnterprise
+  РежимПолученияДанныхВыбораПриВводеПоСтроке?: SE.ChoiceDataGetModeOnInputByStringEnterprise
+  РежимУправленияБлокировкойДанных?: SE.DefaultDataLockControlModeEnterprise
+  Реквизиты?: MetadataAttributesEnterprise
   Синоним?: I8nTextEnterprise
+  СозданиеПриВводе?: SE.CreateOnInputEnterprise
+  СпособПоискаСтрокиПриВводеПоСтроке?: SE.SearchStringModeOnInputByStringEnterprise
+  СтандартныеРеквизиты?: StandardAttributeDescriptionsEnterprise
   ТабличныеЧасти?: MetadataTabularSectionsEnterprise
-  ОбновлятьИсториюДанныхСразуПослеЗаписи?: StringboolEnterprise
-  ИспользоватьСтандартныеКоманды?: StringboolEnterprise
+  ТипНомера?: SE.DocumentNumberTypeEnterprise
+  УдалениеДвижений?: SE.RegisterRecordsDeletionEnterprise
+  Характеристики?: CharacteristicsDescriptionsEnterprise
 }

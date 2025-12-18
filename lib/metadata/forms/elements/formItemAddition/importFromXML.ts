@@ -20,6 +20,7 @@ export const importFormItemAdditionFromXML = (
     ...importBaseElementFromXML(xml, configurationSettings)!,
     elementType: FormElementType.FormItemAddition,
 
+    childItems: importChildItemsFromXML(xml.ChildItems, configurationSettings),
     contextMenu: importCommandBarFromXML(xml.ContextMenu, configurationSettings),
     displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
@@ -29,10 +30,9 @@ export const importFormItemAdditionFromXML = (
     toolTip: importI8nTextFromXML(xml.ToolTip, configurationSettings),
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     visible: xml.Visible,
-    childItems: importChildItemsFromXML(xml.ChildItems, configurationSettings),
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
   })
 }
 

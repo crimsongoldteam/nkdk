@@ -31,8 +31,8 @@ export const importViewStatusAdditionFromXML = (
     textColor: importColorFromXML(xml.TextColor, configurationSettings),
     titleFont: importFontFromXML(xml.TitleFont, configurationSettings),
     titleTextColor: importColorFromXML(xml.TitleTextColor, configurationSettings),
-    width: xml.Width,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    width: xml.Width,
   })
 }
 

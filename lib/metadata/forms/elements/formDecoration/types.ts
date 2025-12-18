@@ -27,11 +27,11 @@ export interface FormDecoration extends BaseElement {
   toolTip?: I8nText
   toolTipRepresentation?: SE.ToolTipRepresentation
   type?: SE.FormDecorationType
+  userVisible?: UserVisible
   verticalAlignInGroup?: SE.ItemVerticalAlign
   verticalStretch?: boolean
   visible?: boolean
   width?: number
-  userVisible?: UserVisible
 }
 
 export interface FormDecorationXML extends BaseElementXML {
@@ -54,37 +54,37 @@ export interface FormDecorationXML extends BaseElementXML {
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormDecorationType
+  UserVisible?: UserVisibleXML
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number
-  UserVisible?: UserVisibleXML
 }
 
 export interface FormDecorationEnterprise extends BaseElementEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  КонтекстноеМеню?: CommandBarEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  Доступность?: StringboolEnterprise
-  РасширеннаяПодсказка?: FormDecorationEnterprise
-  Шрифт?: FontEnterprise
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
+  Вид?: SE.FormDecorationTypeEnterprise
+  Видимость?: StringboolEnterprise
   Высота?: number
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
+  Доступность?: StringboolEnterprise
+  Заголовок?: I8nTextEnterprise
+  КонтекстноеМеню?: CommandBarEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  СочетаниеКлавиш?: string
-  ПропускатьПриВводе?: StringboolEnterprise
-  ЦветТекста?: ColorEnterprise
-  Заголовок?: I8nTextEnterprise
-  Подсказка?: I8nTextEnterprise
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  Вид?: SE.FormDecorationTypeEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Видимость?: StringboolEnterprise
-  Ширина?: number
+  Подсказка?: I8nTextEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  ПропускатьПриВводе?: StringboolEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  РасширеннаяПодсказка?: FormDecorationEnterprise
+  СочетаниеКлавиш?: string
+  ЦветТекста?: ColorEnterprise
+  Ширина?: number
+  Шрифт?: FontEnterprise
 }

@@ -14,10 +14,10 @@ export interface PlannerField extends FormField {
   maxHeight?: number
   maxWidth?: number
   timeScaleItemHyperlink?: boolean
+  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
   wrappedTimeScaleHeaderHyperlink?: boolean
-  userVisible?: UserVisible
   events?: {
     onChange?: string
     selection?: string
@@ -56,29 +56,29 @@ export interface PlannerFieldXML extends FormFieldXML {
   MaxHeight?: number
   MaxWidth?: number
   TimeScaleItemHyperlink?: boolean
+  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
   WrappedTimeScaleHeaderHyperlink?: boolean
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface PlannerFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ГиперссылкаЭлементаИзмерения?: StringboolEnterprise
-  РазрешитьПеретаскивание?: StringboolEnterprise
-  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: StringboolEnterprise
+  ГиперссылкаПеренесенногоЗаголовкаШкалыВремени?: StringboolEnterprise
+  ГиперссылкаЭлементаИзмерения?: StringboolEnterprise
+  ГиперссылкаЭлементаШкалыВремени?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  ГиперссылкаЭлементаШкалыВремени?: StringboolEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Ширина?: number
-  ГиперссылкаПеренесенногоЗаголовкаШкалыВремени?: StringboolEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
+  РазрешитьПеретаскивание?: StringboolEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  Ширина?: number
   События?: {
     ПриИзменении?: string
     Выбор?: string

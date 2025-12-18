@@ -58,12 +58,12 @@ export interface FormField extends BaseElement {
   toolTipRepresentation?: SE.ToolTipRepresentation
   type?: SE.FormFieldType
   typeRestriction?: TypeDescription
+  userVisible?: UserVisible
   verticalAlign?: SE.ItemVerticalAlign
   verticalAlignInGroup?: SE.ItemVerticalAlign
   visible?: boolean
   warningOnEdit?: I8nText
   warningOnEditRepresentation?: SE.WarningOnEditRepresentation
-  userVisible?: UserVisible
   events?: {
     onChange?: string
   }
@@ -107,60 +107,60 @@ export interface FormFieldXML extends BaseElementXML {
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormFieldType
   TypeRestriction?: TypeDescriptionXML
+  UserVisible?: UserVisibleXML
   VerticalAlign?: SE.ItemVerticalAlign
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   Visible?: boolean
   WarningOnEdit?: I8nTextXML
   WarningOnEditRepresentation?: SE.WarningOnEditRepresentation
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface FormFieldEnterprise extends BaseElementEnterprise {
   АвтоВысотаЯчейки?: StringboolEnterprise
-  ГиперссылкаЯчейки?: StringboolEnterprise
-  КонтекстноеМеню?: CommandBarEnterprise
-  ПутьКДанным?: string
   АктивизироватьПоУмолчанию?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  РежимРедактирования?: SE.ColumnEditModeEnterprise
-  Доступность?: StringboolEnterprise
-  РасширеннаяПодсказка?: FormDecorationEnterprise
-  ФиксацияВТаблице?: SE.FixingInTableEnterprise
-  ЦветФонаПодвала?: ColorEnterprise
-  ПутьКДаннымПодвала?: string
-  ШрифтПодвала?: FontEnterprise
-  ГоризонтальноеПоложениеВПодвале?: SE.ItemHorizontalLocationEnterprise
-  КартинкаПодвала?: PictureEnterprise
-  ТекстПодвала?: I8nTextEnterprise
-  ЦветТекстаПодвала?: ColorEnterprise
-  ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationEnterprise
-  КартинкаШапки?: PictureEnterprise
-  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  ТолькоПросмотр?: StringboolEnterprise
-  СочетаниеКлавиш?: string
-  ОтображатьВПодвале?: StringboolEnterprise
-  ОтображатьВШапке?: StringboolEnterprise
-  ПропускатьПриВводе?: StringboolEnterprise
-  Таблица?: TableEnterprise
-  Заголовок?: I8nTextEnterprise
-  ЦветФонаЗаголовка?: ColorEnterprise
-  ШрифтЗаголовка?: FontEnterprise
-  ВысотаЗаголовка?: number
-  ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
-  Подсказка?: I8nTextEnterprise
-  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  Вид?: SE.FormFieldTypeEnterprise
-  ОграничениеТипа?: TypeDescriptionEnterprise
   ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
+  Вид?: SE.FormFieldTypeEnterprise
   Видимость?: StringboolEnterprise
-  ПредупреждениеПриРедактировании?: I8nTextEnterprise
+  ВысотаЗаголовка?: number
+  ГиперссылкаЯчейки?: StringboolEnterprise
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
+  ГоризонтальноеПоложениеВПодвале?: SE.ItemHorizontalLocationEnterprise
+  ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationEnterprise
+  Доступность?: StringboolEnterprise
+  Заголовок?: I8nTextEnterprise
+  КартинкаПодвала?: PictureEnterprise
+  КартинкаШапки?: PictureEnterprise
+  КонтекстноеМеню?: CommandBarEnterprise
+  ОграничениеТипа?: TypeDescriptionEnterprise
+  ОтображатьВПодвале?: StringboolEnterprise
+  ОтображатьВШапке?: StringboolEnterprise
+  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationEnterprise
+  Подсказка?: I8nTextEnterprise
+  ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  ПредупреждениеПриРедактировании?: I8nTextEnterprise
+  ПропускатьПриВводе?: StringboolEnterprise
+  ПутьКДанным?: string
+  ПутьКДаннымПодвала?: string
+  РасширеннаяПодсказка?: FormDecorationEnterprise
+  РежимРедактирования?: SE.ColumnEditModeEnterprise
+  СочетаниеКлавиш?: string
+  Таблица?: TableEnterprise
+  ТекстПодвала?: I8nTextEnterprise
+  ТолькоПросмотр?: StringboolEnterprise
+  ФиксацияВТаблице?: SE.FixingInTableEnterprise
+  ЦветТекстаЗаголовка?: ColorEnterprise
+  ЦветТекстаПодвала?: ColorEnterprise
+  ЦветФонаЗаголовка?: ColorEnterprise
+  ЦветФонаПодвала?: ColorEnterprise
+  ШрифтЗаголовка?: FontEnterprise
+  ШрифтПодвала?: FontEnterprise
   События?: {
     ПриИзменении?: string
   }

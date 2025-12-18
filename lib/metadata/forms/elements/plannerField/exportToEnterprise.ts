@@ -18,21 +18,21 @@ export const exportPlannerFieldToEnterprise = (
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
-    ГиперссылкаЭлементаИзмерения: exportBooleanToEnterprise(data.dimensionItemHyperlink, configurationSettings),
-    РазрешитьПеретаскивание: exportBooleanToEnterprise(data.enableDrag, configurationSettings),
-    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(data.enableStartDrag, configurationSettings),
     Высота: data.height,
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
-    МаксимальнаяВысота: data.maxHeight,
-    МаксимальнаяШирина: data.maxWidth,
-    ГиперссылкаЭлементаШкалыВремени: exportBooleanToEnterprise(data.timeScaleItemHyperlink, configurationSettings),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
-    Ширина: data.width,
     ГиперссылкаПеренесенногоЗаголовкаШкалыВремени: exportBooleanToEnterprise(
       data.wrappedTimeScaleHeaderHyperlink,
       configurationSettings
     ),
+    ГиперссылкаЭлементаИзмерения: exportBooleanToEnterprise(data.dimensionItemHyperlink, configurationSettings),
+    ГиперссылкаЭлементаШкалыВремени: exportBooleanToEnterprise(data.timeScaleItemHyperlink, configurationSettings),
+    МаксимальнаяВысота: data.maxHeight,
+    МаксимальнаяШирина: data.maxWidth,
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(data.enableStartDrag, configurationSettings),
+    РазрешитьПеретаскивание: exportBooleanToEnterprise(data.enableDrag, configurationSettings),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    Ширина: data.width,
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }

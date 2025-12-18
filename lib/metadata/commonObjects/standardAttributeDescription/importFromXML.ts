@@ -39,7 +39,7 @@ export const importStandardAttributeDescriptionFromXML = (
     maxValue: xml.MaxValue,
     minValue: xml.MinValue,
     multiLine: xml.MultiLine,
-    name: xml.Name,
+    name: xml.Name!,
     passwordMode: xml.PasswordMode,
     quickChoice: xml.QuickChoice,
     synonym: importI8nTextFromXML(xml.Synonym, configurationSettings),

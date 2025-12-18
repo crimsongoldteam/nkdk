@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join, parse } from "path"
 import { describe, expect, it } from "vitest"
-import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/format"
+import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/exportToEnterprise"
 import { importClientApplicationFormFromXML } from "../metadata/forms/elements/clientApplicationForm/importFromXML"
 import { ClientApplicationFormXML } from "../metadata/forms/elements/clientApplicationForm/types"
 import "../metadata/forms/elements/exportToXML"

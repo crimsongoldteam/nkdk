@@ -21,7 +21,7 @@ export const importMetadataTabularSectionFromXML = (
     comment: xml.Comment,
     fillChecking: xml.FillChecking,
     lineNumberLength: xml.LineNumberLength,
-    name: xml.Name,
+    name: xml.Name!,
     objectBelonging: xml.ObjectBelonging,
     standardAttributes: importStandardAttributeDescriptionsFromXML(xml.StandardAttributes, configurationSettings),
     synonym: importI8nTextFromXML(xml.Synonym, configurationSettings),

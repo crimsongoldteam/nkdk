@@ -36,9 +36,9 @@ export const importLabelFieldFromXML = (
     maxWidth: xml.MaxWidth,
     passwordMode: xml.PasswordMode,
     textColor: importColorFromXML(xml.TextColor, configurationSettings),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

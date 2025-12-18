@@ -29,8 +29,8 @@ export const exportViewStatusAdditionToXML = (
     TextColor: exportColorToXML(data.textColor, configurationSettings),
     TitleFont: exportFontToXML(data.titleFont, configurationSettings),
     TitleTextColor: exportColorToXML(data.titleTextColor, configurationSettings),
-    Width: data.width,
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    Width: data.width,
   })
 }
 

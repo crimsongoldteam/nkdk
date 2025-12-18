@@ -33,6 +33,7 @@ export interface Table extends BaseElement {
   borderColor?: Color
   changeRowOrder?: boolean
   changeRowSet?: boolean
+  childItems?: ChildItems
   choiceMode?: boolean
   commandBar?: CommandBar
   commandBarLocation?: SE.FormItemCommandBarLabelLocation
@@ -91,6 +92,7 @@ export interface Table extends BaseElement {
   toolTip?: I8nText
   toolTipRepresentation?: SE.ToolTipRepresentation
   useAlternationRowColor?: boolean
+  userVisible?: UserVisible
   verticalAlignInGroup?: SE.ItemVerticalAlign
   verticalLines?: boolean
   verticalScrollBar?: SE.ScrollBarUse
@@ -99,8 +101,6 @@ export interface Table extends BaseElement {
   viewStatusRepresentation?: FormItemAddition
   visible?: boolean
   width?: number
-  childItems?: ChildItems
-  userVisible?: UserVisible
   events?: {
     selection?: string
     valueChoice?: string
@@ -141,6 +141,7 @@ export interface TableXML extends BaseElementXML {
   BorderColor?: ColorXML
   ChangeRowOrder?: boolean
   ChangeRowSet?: boolean
+  ChildItems?: ChildItemsXML
   ChoiceMode?: boolean
   CommandBar?: CommandBarXML
   CommandBarLocation?: SE.FormItemCommandBarLabelLocation
@@ -199,6 +200,7 @@ export interface TableXML extends BaseElementXML {
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
   UseAlternationRowColor?: boolean
+  UserVisible?: UserVisibleXML
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   VerticalLines?: boolean
   VerticalScrollBar?: SE.ScrollBarUse
@@ -207,93 +209,91 @@ export interface TableXML extends BaseElementXML {
   ViewStatusRepresentation?: FormItemAdditionXML
   Visible?: boolean
   Width?: number
-  ChildItems?: ChildItemsXML
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface TableEnterprise extends BaseElementEnterprise {
   АвтоВводНезаполненного?: StringboolEnterprise
-  АвтоКоманднаяПанель?: CommandBarEnterprise
   АвтоВводНовойСтроки?: StringboolEnterprise
-  АвтоОтметкаНезаполненного?: StringboolEnterprise
+  АвтоКоманднаяПанель?: CommandBarEnterprise
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяВысотаВСтрокахТаблицы?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ЦветФона?: ColorEnterprise
-  ПоведениеПриСжатииПоГоризонтали?: SE.TableBehaviorOnHorizontalCompressionEnterprise
-  ЦветРамки?: ColorEnterprise
-  ИзменятьПорядокСтрок?: StringboolEnterprise
-  ИзменятьСоставСтрок?: StringboolEnterprise
-  РежимВыбора?: StringboolEnterprise
-  КоманднаяПанель?: CommandBarEnterprise
-  ПоложениеКоманднойПанели?: SE.FormItemCommandBarLabelLocationEnterprise
-  Команда?: CommandSetEnterprise
-  КонтекстноеМеню?: CommandBarEnterprise
-  ИспользованиеТекущейСтроки?: SE.TableCurrentRowUseEnterprise
-  ПутьКДанным?: string
+  АвтоОтметкаНезаполненного?: StringboolEnterprise
   АктивизироватьПоУмолчанию?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  Доступность?: StringboolEnterprise
-  РазрешитьПеретаскивание?: StringboolEnterprise
-  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
-  РасширеннаяПодсказка?: FormDecorationEnterprise
-  СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise
-  Шрифт?: FontEnterprise
-  Подвал?: StringboolEnterprise
-  ВысотаПодвала?: number
-  Шапка?: StringboolEnterprise
-  ВысотаШапки?: number
-  Высота?: number
   ВариантУправленияВысотой?: SE.TableHeightControlVariantEnterprise
+  ВертикальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
+  ВертикальныеЛинии?: StringboolEnterprise
+  Видимость?: StringboolEnterprise
+  Вывод?: SE.UseOutputEnterprise
+  Высота?: number
   ВысотаВСтрокахТаблицы?: number
+  ВысотаЗаголовка?: number
+  ВысотаПодвала?: number
+  ВысотаШапки?: number
+  ГоризонтальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
   ГоризонтальныеЛинии?: StringboolEnterprise
-  ГоризонтальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  НачальноеОтображениеСписка?: SE.InitialListViewEnterprise
-  НачальноеОтображениеДерева?: SE.InitialTreeViewEnterprise
-  ОтметкаНезаполненного?: StringboolEnterprise
+  Доступность?: StringboolEnterprise
+  Заголовок?: I8nTextEnterprise
+  ЗапросОбновления?: SE.RefreshRequestMethodEnterprise
+  ИзменятьПорядокСтрок?: StringboolEnterprise
+  ИзменятьСоставСтрок?: StringboolEnterprise
+  ИспользованиеТекущейСтроки?: SE.TableCurrentRowUseEnterprise
+  КартинкаСтрок?: StringboolEnterprise
+  Команда?: CommandSetEnterprise
+  КоманднаяПанель?: CommandBarEnterprise
+  КонтекстноеМеню?: CommandBarEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяВысотаВСтрокахТаблицы?: number
   МаксимальнаяШирина?: number
   МножественныйВыбор?: StringboolEnterprise
-  Вывод?: SE.UseOutputEnterprise
-  ТолькоПросмотр?: StringboolEnterprise
-  ЗапросОбновления?: SE.RefreshRequestMethodEnterprise
+  НачальноеОтображениеДерева?: SE.InitialTreeViewEnterprise
+  НачальноеОтображениеСписка?: SE.InitialListViewEnterprise
+  ОтметкаНезаполненного?: StringboolEnterprise
   Отображение?: SE.TableRepresentationEnterprise
-  РежимВводаСтрок?: SE.TableRowInputModeEnterprise
-  ПутьКДаннымКартинкиСтроки?: string
-  РежимВыделенияСтроки?: SE.TableRowSelectionModeEnterprise
-  КартинкаСтрок?: StringboolEnterprise
-  УправлениеПоиском?: FormItemAdditionEnterprise
-  ПоложениеУправленияПоиском?: SE.SearchControlLocationEnterprise
-  ПоискПриВводе?: SE.SearchInTableOnInputEnterprise
-  ПоложениеСтрокиПоиска?: SE.SearchStringLocationEnterprise
-  ОтображениеСтрокиПоиска?: FormItemAdditionEnterprise
-  РежимВыделения?: SE.TableSelectionModeEnterprise
-  СочетаниеКлавиш?: string
-  ПропускатьПриВводе?: StringboolEnterprise
-  ЦветТекста?: ColorEnterprise
-  Заголовок?: I8nTextEnterprise
-  ШрифтЗаголовка?: FontEnterprise
-  ВысотаЗаголовка?: number
-  ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
-  Подсказка?: I8nTextEnterprise
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  ЧередованиеЦветовСтрок?: StringboolEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  ВертикальныеЛинии?: StringboolEnterprise
-  ВертикальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  ПоложениеСостоянияПросмотра?: SE.ViewStatusLocationEnterprise
   ОтображениеСостоянияПросмотра?: FormItemAdditionEnterprise
-  Видимость?: StringboolEnterprise
-  Ширина?: number
+  ОтображениеСтрокиПоиска?: FormItemAdditionEnterprise
+  ПоведениеПриСжатииПоГоризонтали?: SE.TableBehaviorOnHorizontalCompressionEnterprise
+  Подвал?: StringboolEnterprise
+  Подсказка?: I8nTextEnterprise
   ПодчиненныеЭлементы?: ChildItemsEnterprise
+  ПоискПриВводе?: SE.SearchInTableOnInputEnterprise
+  ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
+  ПоложениеКоманднойПанели?: SE.FormItemCommandBarLabelLocationEnterprise
+  ПоложениеСостоянияПросмотра?: SE.ViewStatusLocationEnterprise
+  ПоложениеСтрокиПоиска?: SE.SearchStringLocationEnterprise
+  ПоложениеУправленияПоиском?: SE.SearchControlLocationEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  ПропускатьПриВводе?: StringboolEnterprise
+  ПутьКДанным?: string
+  ПутьКДаннымКартинкиСтроки?: string
+  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
+  РазрешитьПеретаскивание?: StringboolEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  РасширеннаяПодсказка?: FormDecorationEnterprise
+  РежимВводаСтрок?: SE.TableRowInputModeEnterprise
+  РежимВыбора?: StringboolEnterprise
+  РежимВыделения?: SE.TableSelectionModeEnterprise
+  РежимВыделенияСтроки?: SE.TableRowSelectionModeEnterprise
+  СочетаниеКлавиш?: string
+  СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise
+  ТолькоПросмотр?: StringboolEnterprise
+  УправлениеПоиском?: FormItemAdditionEnterprise
+  ЦветРамки?: ColorEnterprise
+  ЦветТекста?: ColorEnterprise
+  ЦветТекстаЗаголовка?: ColorEnterprise
+  ЦветФона?: ColorEnterprise
+  ЧередованиеЦветовСтрок?: StringboolEnterprise
+  Шапка?: StringboolEnterprise
+  Ширина?: number
+  Шрифт?: FontEnterprise
+  ШрифтЗаголовка?: FontEnterprise
   События?: {
     Выбор?: string
     ВыборЗначения?: string

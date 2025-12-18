@@ -60,12 +60,12 @@ export const exportFormFieldToXML = (
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
     TypeRestriction: exportTypeDescriptionToXML(data.typeRestriction, configurationSettings),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalAlign: data.verticalAlign,
     VerticalAlignInGroup: data.verticalAlignInGroup,
     Visible: data.visible,
     WarningOnEdit: exportI8nTextToXML(data.warningOnEdit, configurationSettings),
     WarningOnEditRepresentation: data.warningOnEditRepresentation,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

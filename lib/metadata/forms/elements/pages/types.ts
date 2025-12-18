@@ -25,12 +25,12 @@ export interface PagesXML extends FormGroupXML {
 }
 
 export interface PagesEnterprise extends FormGroupEnterprise {
-  ИспользуемаяТаблица?: TableEnterprise
-  ТекущееСостояниеСтраниц?: SE.FormPagesStateEnterprise
   ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
+  ИспользуемаяТаблица?: TableEnterprise
   ОтображениеСтраниц?: SE.FormPagesRepresentationEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  ТекущееСостояниеСтраниц?: SE.FormPagesStateEnterprise
   События?: {
     ПриСменеСтраницы?: string
   }

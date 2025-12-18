@@ -28,8 +28,8 @@ export const exportPictureDecorationToXML = (
     Picture: exportPictureToXML(data.picture, configurationSettings),
     PictureSize: data.pictureSize,
     Scale: data.scale,
-    Zoomable: data.zoomable,
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    Zoomable: data.zoomable,
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

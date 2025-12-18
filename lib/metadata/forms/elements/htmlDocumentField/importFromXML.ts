@@ -27,9 +27,9 @@ export const importHTMLDocumentFieldFromXML = (
     maxWidth: xml.MaxWidth,
     output: xml.Output,
     userAgentInformation: xml.UserAgentInformation,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

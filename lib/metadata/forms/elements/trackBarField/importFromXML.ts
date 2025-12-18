@@ -30,9 +30,9 @@ export const importTrackBarFieldFromXML = (
     minValue: xml.MinValue,
     orientation: xml.Orientation,
     step: xml.Step,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

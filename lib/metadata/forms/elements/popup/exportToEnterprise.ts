@@ -18,21 +18,21 @@ export const exportPopupToEnterprise = (
   return compactObject({
     ...exportFormGroupToEnterprise(data, configurationSettings)!,
 
-    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
     Картинка: exportPictureToEnterprise(data.picture, configurationSettings),
     Отображение: exportSystemEnumerationToEnterprise(
       data.representation,
       SE.ButtonRepresentationToEnterprise,
       configurationSettings
     ),
-    Фигура: exportSystemEnumerationToEnterprise(data.shape, SE.ButtonShapeToEnterprise, configurationSettings),
     ОтображениеФигуры: exportSystemEnumerationToEnterprise(
       data.shapeRepresentation,
       SE.ButtonShapeRepresentationToEnterprise,
       configurationSettings
     ),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    Фигура: exportSystemEnumerationToEnterprise(data.shape, SE.ButtonShapeToEnterprise, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
   })
 }
 

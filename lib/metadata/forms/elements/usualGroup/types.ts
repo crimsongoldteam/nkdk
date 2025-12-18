@@ -30,9 +30,9 @@ export interface UsualGroup extends FormGroup {
   throughAlign?: SE.ThroughAlign
   titleDataPath?: string
   united?: boolean
+  userVisible?: UserVisible
   verticalAlign?: SE.ItemVerticalAlign
   verticalSpacing?: SE.FormItemSpacing
-  userVisible?: UserVisible
 }
 
 export interface UsualGroupXML extends FormGroupXML {
@@ -59,37 +59,37 @@ export interface UsualGroupXML extends FormGroupXML {
   ThroughAlign?: SE.ThroughAlign
   TitleDataPath?: string
   United?: boolean
+  UserVisible?: UserVisibleXML
   VerticalAlign?: SE.ItemVerticalAlign
   VerticalSpacing?: SE.FormItemSpacing
-  UserVisible?: UserVisibleXML
 }
 
 export interface UsualGroupEnterprise extends FormGroupEnterprise {
-  ИспользуемаяТаблица?: TableEnterprise
-  ЦветФона?: ColorEnterprise
-  Поведение?: SE.UsualGroupBehaviorEnterprise
-  ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationEnterprise
-  ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignEnterprise
-  ЗаголовокСвернутогоОтображения?: string
-  ОтображениеУправления?: SE.UsualGroupControlRepresentationEnterprise
-  ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  Формат?: I8nTextEnterprise
-  Группировка?: SE.ChildFormItemsGroupEnterprise
-  ГоризонтальноеВыравниваниеГруппы?: SE.ItemHorizontalLocationEnterprise
   ВертикальноеВыравниваниеГруппы?: SE.ItemVerticalAlignEnterprise
-  ЦветФонаЗаголовкаСкрытогоОтображения?: ColorEnterprise
-  ГоризонтальныйИнтервал?: SE.FormItemSpacingEnterprise
-  ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantEnterprise
-  Отображение?: SE.UsualGroupRepresentationEnterprise
-  ОтображатьОтступСлева?: StringboolEnterprise
-  ОтображатьЗаголовок?: StringboolEnterprise
-  ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
-  СквозноеВыравнивание?: SE.ThroughAlignEnterprise
-  ПутьКДаннымЗаголовка?: string
-  Объединенная?: StringboolEnterprise
   ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
+  ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignEnterprise
   ВертикальныйИнтервал?: SE.FormItemSpacingEnterprise
+  ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantEnterprise
+  ГоризонтальноеВыравниваниеГруппы?: SE.ItemHorizontalLocationEnterprise
+  ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationEnterprise
+  ГоризонтальныйИнтервал?: SE.FormItemSpacingEnterprise
+  Группировка?: SE.ChildFormItemsGroupEnterprise
+  ЗаголовокСвернутогоОтображения?: string
+  ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
+  ИспользуемаяТаблица?: TableEnterprise
+  Объединенная?: StringboolEnterprise
+  ОтображатьЗаголовок?: StringboolEnterprise
+  ОтображатьОтступСлева?: StringboolEnterprise
+  Отображение?: SE.UsualGroupRepresentationEnterprise
+  ОтображениеУправления?: SE.UsualGroupControlRepresentationEnterprise
+  Поведение?: SE.UsualGroupBehaviorEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  ПутьКДаннымЗаголовка?: string
+  СквозноеВыравнивание?: SE.ThroughAlignEnterprise
+  Формат?: I8nTextEnterprise
+  ЦветФона?: ColorEnterprise
+  ЦветФонаЗаголовкаСкрытогоОтображения?: ColorEnterprise
+  ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
 }

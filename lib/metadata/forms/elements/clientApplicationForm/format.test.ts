@@ -7,7 +7,7 @@ import "~/lib/metadata/forms/elements/inputField/registration"
 import "~/lib/metadata/forms/elements/rules"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { FormElementType } from "../../../metadataFactory/types"
-import { formatClientApplicationForm } from "./format"
+import { formatClientApplicationForm } from "./exportToEnterprise"
 
 describe("formatClientApplicationForm", () => {
   it("should format form header", () => {

@@ -30,9 +30,9 @@ export const importProgressBarFieldFromXML = (
     orientation: xml.Orientation,
     representation: xml.Representation,
     showPercent: xml.ShowPercent,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

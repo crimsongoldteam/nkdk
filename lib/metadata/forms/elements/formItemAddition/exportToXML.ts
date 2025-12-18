@@ -18,6 +18,7 @@ export const exportFormItemAdditionToXML = (
   return compactObject({
     ...exportBaseElementToXML(data, configurationSettings)!,
 
+    ChildItems: exportChildItemsToXML(data.childItems, configurationSettings),
     ContextMenu: exportCommandBarToXML(data.contextMenu, configurationSettings),
     _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
@@ -27,10 +28,9 @@ export const exportFormItemAdditionToXML = (
     ToolTip: exportI8nTextToXML(data.toolTip, configurationSettings),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     Visible: data.visible,
-    ChildItems: exportChildItemsToXML(data.childItems, configurationSettings),
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
   })
 }
 

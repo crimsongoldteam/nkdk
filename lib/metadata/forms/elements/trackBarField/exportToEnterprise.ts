@@ -20,28 +20,28 @@ export const exportTrackBarFieldToEnterprise = (
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
-    Высота: data.height,
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
     БольшойШаг: data.largeStep,
-    ОтображениеРазметки: exportSystemEnumerationToEnterprise(
-      data.markingAppearance,
-      SE.TrackBarMarkingAppearanceToEnterprise,
-      configurationSettings
-    ),
-    ШагРазметки: data.markingStep,
+    Высота: data.height,
     МаксимальнаяВысота: data.maxHeight,
-    МаксимальноеЗначение: data.maxValue,
     МаксимальнаяШирина: data.maxWidth,
+    МаксимальноеЗначение: data.maxValue,
     МинимальноеЗначение: data.minValue,
     Ориентация: exportSystemEnumerationToEnterprise(
       data.orientation,
       SE.FormItemOrientationToEnterprise,
       configurationSettings
     ),
-    Шаг: data.step,
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
-    Ширина: data.width,
+    ОтображениеРазметки: exportSystemEnumerationToEnterprise(
+      data.markingAppearance,
+      SE.TrackBarMarkingAppearanceToEnterprise,
+      configurationSettings
+    ),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    Шаг: data.step,
+    ШагРазметки: data.markingStep,
+    Ширина: data.width,
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }

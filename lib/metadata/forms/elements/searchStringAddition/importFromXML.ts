@@ -23,8 +23,8 @@ export const importSearchStringAdditionFromXML = (
     font: importFontFromXML(xml.Font, configurationSettings),
     horizontalStretch: xml.HorizontalStretch,
     textColor: importColorFromXML(xml.TextColor, configurationSettings),
-    width: xml.Width,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    width: xml.Width,
   })
 }
 

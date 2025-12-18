@@ -35,6 +35,7 @@ export const exportTableToXML = (
     BorderColor: exportColorToXML(data.borderColor, configurationSettings),
     ChangeRowOrder: data.changeRowOrder,
     ChangeRowSet: data.changeRowSet,
+    ChildItems: exportChildItemsToXML(data.childItems, configurationSettings),
     ChoiceMode: data.choiceMode,
     CommandBar: exportCommandBarToXML(data.commandBar, configurationSettings),
     CommandBarLocation: data.commandBarLocation,
@@ -93,6 +94,7 @@ export const exportTableToXML = (
     ToolTip: exportI8nTextToXML(data.toolTip, configurationSettings),
     ToolTipRepresentation: data.toolTipRepresentation,
     UseAlternationRowColor: data.useAlternationRowColor,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalLines: data.verticalLines,
     VerticalScrollBar: data.verticalScrollBar,
@@ -101,8 +103,6 @@ export const exportTableToXML = (
     ViewStatusRepresentation: exportFormItemAdditionToXML(data.viewStatusRepresentation, configurationSettings),
     Visible: data.visible,
     Width: data.width,
-    ChildItems: exportChildItemsToXML(data.childItems, configurationSettings),
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

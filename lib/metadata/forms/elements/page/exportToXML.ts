@@ -30,10 +30,10 @@ export const exportPageToXML = (
     ShowTitle: data.showTitle,
     SlaveItemsWidth: data.slaveItemsWidth,
     TitleDataPath: data.titleDataPath,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalAlign: data.verticalAlign,
     VerticalScrollOnReduceSize: data.verticalScrollOnReduceSize,
     VerticalSpacing: data.verticalSpacing,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
   })
 }
 

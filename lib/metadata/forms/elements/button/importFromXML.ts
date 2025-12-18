@@ -53,11 +53,11 @@ export const importButtonFromXML = (
     titleHeight: xml.TitleHeight,
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
   })
 }
 

@@ -39,7 +39,7 @@ export const exportStandardAttributeDescriptionToXML = (
     MaxValue: data.maxValue,
     MinValue: data.minValue,
     MultiLine: data.multiLine,
-    Name: data.name,
+    Name: data.name!,
     PasswordMode: data.passwordMode,
     QuickChoice: data.quickChoice,
     Synonym: exportI8nTextToXML(data.synonym, configurationSettings),

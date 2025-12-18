@@ -18,9 +18,9 @@ export interface TrackBarField extends FormField {
   minValue?: number
   orientation?: SE.FormItemOrientation
   step?: number
+  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
-  userVisible?: UserVisible
   events?: {
     onChange?: string
   }
@@ -40,30 +40,30 @@ export interface TrackBarFieldXML extends FormFieldXML {
   MinValue?: number
   Orientation?: SE.FormItemOrientation
   Step?: number
+  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface TrackBarFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  Высота?: number
-  РастягиватьПоГоризонтали?: StringboolEnterprise
   БольшойШаг?: number
-  ОтображениеРазметки?: SE.TrackBarMarkingAppearanceEnterprise
-  ШагРазметки?: number
+  Высота?: number
   МаксимальнаяВысота?: number
-  МаксимальноеЗначение?: number
   МаксимальнаяШирина?: number
+  МаксимальноеЗначение?: number
   МинимальноеЗначение?: number
   Ориентация?: SE.FormItemOrientationEnterprise
-  Шаг?: number
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Ширина?: number
+  ОтображениеРазметки?: SE.TrackBarMarkingAppearanceEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  Шаг?: number
+  ШагРазметки?: number
+  Ширина?: number
   События?: {
     ПриИзменении?: string
   }

@@ -46,17 +46,17 @@ export interface CharacteristicsDescriptionXML {
 
 export interface CharacteristicsDescriptionEnterprise {
   ВидыХарактеристик?: MetadataItemLinkEnterprise
+  ЗначениеОтбораВидов?: MetadataValueEnterprise
   ЗначенияХарактеристик?: MetadataValueEnterprise
-  ПолеПутиКДанным?: MetadataFieldEnterprise
+  ПолеВида?: MetadataFieldEnterprise
+  ПолеЗначения?: MetadataFieldEnterprise
+  ПолеИспользованияМножественныхЗначений?: MetadataFieldEnterprise
   ПолеКлюча?: MetadataFieldEnterprise
   ПолеКлючаМножественныхЗначений?: MetadataFieldEnterprise
-  ПолеПорядкаМножественныхЗначений?: MetadataFieldEnterprise
-  ПолеИспользованияМножественныхЗначений?: MetadataFieldEnterprise
   ПолеОбъекта?: MetadataFieldEnterprise
-  ПолеВида?: MetadataFieldEnterprise
   ПолеОтбораВидов?: MetadataFieldEnterprise
-  ЗначениеОтбораВидов?: MetadataValueEnterprise
-  ПолеЗначения?: MetadataFieldEnterprise
+  ПолеПорядкаМножественныхЗначений?: MetadataFieldEnterprise
+  ПолеПутиКДанным?: MetadataFieldEnterprise
 }
 
 export type CharacteristicsDescriptions = CharacteristicsDescription[]

@@ -19,6 +19,7 @@ export const exportFormGroupToXML = (
   return compactObject({
     ...exportBaseElementToXML(data, configurationSettings)!,
 
+    ChildItems: exportChildItemsToXML(data.childItems, configurationSettings),
     EnableContentChange: data.enableContentChange,
     Enabled: data.enabled,
     ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip, configurationSettings),
@@ -33,12 +34,11 @@ export const exportFormGroupToXML = (
     ToolTip: exportI8nTextToXML(data.toolTip, configurationSettings),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,
     Width: data.width,
-    ChildItems: exportChildItemsToXML(data.childItems, configurationSettings),
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
   })
 }
 

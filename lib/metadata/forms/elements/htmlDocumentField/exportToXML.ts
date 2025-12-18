@@ -25,9 +25,9 @@ export const exportHTMLDocumentFieldToXML = (
     MaxWidth: data.maxWidth,
     Output: data.output,
     UserAgentInformation: data.userAgentInformation,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

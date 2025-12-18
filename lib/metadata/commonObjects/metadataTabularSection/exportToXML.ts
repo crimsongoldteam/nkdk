@@ -21,7 +21,7 @@ export const exportMetadataTabularSectionToXML = (
     Comment: data.comment,
     FillChecking: data.fillChecking,
     LineNumberLength: data.lineNumberLength,
-    Name: data.name,
+    Name: data.name!,
     ObjectBelonging: data.objectBelonging,
     StandardAttributes: exportStandardAttributeDescriptionsToXML(data.standardAttributes, configurationSettings),
     Synonym: exportI8nTextToXML(data.synonym, configurationSettings),

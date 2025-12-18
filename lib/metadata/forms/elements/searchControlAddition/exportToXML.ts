@@ -26,8 +26,8 @@ export const exportSearchControlAdditionToXML = (
     HorizontalStretch: data.horizontalStretch,
     MaxWidth: data.maxWidth,
     TextColor: exportColorToXML(data.textColor, configurationSettings),
-    Width: data.width,
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    Width: data.width,
   })
 }
 

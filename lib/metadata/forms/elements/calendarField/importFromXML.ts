@@ -38,10 +38,10 @@ export const importCalendarFieldFromXML = (
     selectionMode: xml.SelectionMode,
     showCurrentDate: xml.ShowCurrentDate,
     showMonthsPanel: xml.ShowMonthsPanel,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     widthInMonths: xml.WidthInMonths,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

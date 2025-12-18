@@ -24,34 +24,34 @@ export const exportPictureFieldToEnterprise = (
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
-    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
-    РазрешитьПеретаскивание: exportBooleanToEnterprise(data.enableDrag, configurationSettings),
-    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(data.enableStartDrag, configurationSettings),
-    СпособПеретаскиванияФайлов: exportSystemEnumerationToEnterprise(
-      data.fileDragMode,
-      SE.FileDragModeToEnterprise,
-      configurationSettings
-    ),
-    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
     Высота: data.height,
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
     Гиперссылка: exportBooleanToEnterprise(data.hyperlink, configurationSettings),
+    КартинкаЗначений: exportPictureToEnterprise(data.valuesPicture, configurationSettings),
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
-    ТекстНевыбраннойКартинки: data.nonselectedPictureText,
+    Масштаб: data.scale,
+    Масштабировать: exportBooleanToEnterprise(data.zoomable, configurationSettings),
+    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
     РазмерКартинки: exportSystemEnumerationToEnterprise(
       data.pictureSize,
       SE.PictureSizeToEnterprise,
       configurationSettings
     ),
-    Масштаб: data.scale,
-    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
-    КартинкаЗначений: exportPictureToEnterprise(data.valuesPicture, configurationSettings),
+    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(data.enableStartDrag, configurationSettings),
+    РазрешитьПеретаскивание: exportBooleanToEnterprise(data.enableDrag, configurationSettings),
+    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
     РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    СпособПеретаскиванияФайлов: exportSystemEnumerationToEnterprise(
+      data.fileDragMode,
+      SE.FileDragModeToEnterprise,
+      configurationSettings
+    ),
+    ТекстНевыбраннойКартинки: data.nonselectedPictureText,
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
     Ширина: data.width,
-    Масштабировать: exportBooleanToEnterprise(data.zoomable, configurationSettings),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }

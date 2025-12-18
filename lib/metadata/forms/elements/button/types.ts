@@ -45,11 +45,11 @@ export interface Button extends BaseElement {
   titleHeight?: number
   toolTipRepresentation?: SE.ToolTipRepresentation
   type?: SE.FormButtonType
+  userVisible?: UserVisible
   verticalAlignInGroup?: SE.ItemVerticalAlign
   verticalStretch?: boolean
   visible?: boolean
   width?: number
-  userVisible?: UserVisible
 }
 
 export interface ButtonXML extends BaseElementXML {
@@ -85,50 +85,50 @@ export interface ButtonXML extends BaseElementXML {
   TitleHeight?: number
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormButtonType
+  UserVisible?: UserVisibleXML
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number
-  UserVisible?: UserVisibleXML
 }
 
 export interface ButtonEnterprise extends BaseElementEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ЦветФона?: ColorEnterprise
-  ЦветРамки?: ColorEnterprise
-  ИмяКоманды?: string
-  УникальностьКоманды?: StringboolEnterprise
-  ПутьКДанным?: string
-  КнопкаПоУмолчанию?: StringboolEnterprise
   АктивизироватьПоУмолчанию?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-  Доступность?: StringboolEnterprise
-  РасширеннаяПодсказка?: FormDecorationEnterprise
-  Шрифт?: FontEnterprise
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
+  Вид?: SE.FormButtonTypeEnterprise
+  Видимость?: StringboolEnterprise
   Высота?: number
+  ВысотаЗаголовка?: number
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  ПоложениеВКоманднойПанели?: SE.ButtonLocationInCommandBarEnterprise
+  Доступность?: StringboolEnterprise
+  Заголовок?: I8nTextEnterprise
+  ИмяКоманды?: string
+  Картинка?: PictureEnterprise
+  КнопкаПоУмолчанию?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  ТолькоВоВсехДействиях?: StringboolEnterprise
-  Картинка?: PictureEnterprise
-  ПоложениеКартинки?: SE.FormButtonPictureLocationEnterprise
   Отображение?: SE.ButtonRepresentationEnterprise
-  Фигура?: SE.ButtonShapeEnterprise
-  ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
-  СочетаниеКлавиш?: string
-  ПропускатьПриВводе?: StringboolEnterprise
-  ЦветТекста?: ColorEnterprise
-  Заголовок?: I8nTextEnterprise
-  ВысотаЗаголовка?: number
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  Вид?: SE.FormButtonTypeEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Видимость?: StringboolEnterprise
-  Ширина?: number
+  ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
+  ПоложениеВКоманднойПанели?: SE.ButtonLocationInCommandBarEnterprise
+  ПоложениеКартинки?: SE.FormButtonPictureLocationEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  ПропускатьПриВводе?: StringboolEnterprise
+  ПутьКДанным?: string
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  РасширеннаяПодсказка?: FormDecorationEnterprise
+  СочетаниеКлавиш?: string
+  ТолькоВоВсехДействиях?: StringboolEnterprise
+  УникальностьКоманды?: StringboolEnterprise
+  Фигура?: SE.ButtonShapeEnterprise
+  ЦветРамки?: ColorEnterprise
+  ЦветТекста?: ColorEnterprise
+  ЦветФона?: ColorEnterprise
+  Ширина?: number
+  Шрифт?: FontEnterprise
 }

@@ -21,11 +21,17 @@ export const exportMetadataCommandToEnterprise = (
   if (!data) return undefined
 
   return compactObject({
-    ТипПараметраКоманды: exportTypeDescriptionToEnterprise(data.commandParameterType, configurationSettings),
-    Комментарий: data.comment,
     Группа: exportMetadataCommandGroupToEnterprise(data.group, configurationSettings),
     ИзменяетДанные: exportBooleanToEnterprise(data.modifiesData, configurationSettings),
     Имя: data.name,
+    Картинка: exportPictureToEnterprise(data.picture, configurationSettings),
+    Комментарий: data.comment,
+    Отображение: exportSystemEnumerationToEnterprise(
+      data.representation,
+      SE.ButtonRepresentationToEnterprise,
+      configurationSettings
+    ),
+    Подсказка: exportI8nTextToEnterprise(data.tooltip, configurationSettings),
     ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
       data.objectBelonging,
       SE.ObjectBelongingToEnterprise,
@@ -36,15 +42,9 @@ export const exportMetadataCommandToEnterprise = (
       SE.CommandParameterUseModeToEnterprise,
       configurationSettings
     ),
-    Картинка: exportPictureToEnterprise(data.picture, configurationSettings),
-    Отображение: exportSystemEnumerationToEnterprise(
-      data.representation,
-      SE.ButtonRepresentationToEnterprise,
-      configurationSettings
-    ),
-    СочетаниеКлавиш: data.shortcut,
     Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
-    Подсказка: exportI8nTextToEnterprise(data.tooltip, configurationSettings),
+    СочетаниеКлавиш: data.shortcut,
+    ТипПараметраКоманды: exportTypeDescriptionToEnterprise(data.commandParameterType, configurationSettings),
   })
 }
 

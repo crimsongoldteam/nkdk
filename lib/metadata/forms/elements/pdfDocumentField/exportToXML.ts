@@ -28,10 +28,10 @@ export const exportPdfDocumentFieldToXML = (
     Output: data.output,
     Scale: data.scale,
     UsedFileName: data.usedFileName,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalStretch: data.verticalStretch,
     ViewStatusLocation: data.viewStatusLocation,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

@@ -13,6 +13,7 @@ import {
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export interface FormGroup extends BaseElement {
+  childItems?: ChildItems
   enableContentChange?: boolean
   enabled?: boolean
   extendedTooltip?: FormDecoration
@@ -27,15 +28,15 @@ export interface FormGroup extends BaseElement {
   toolTip?: I8nText
   toolTipRepresentation?: SE.ToolTipRepresentation
   type?: SE.FormGroupType
+  userVisible?: UserVisible
   verticalAlignInGroup?: SE.ItemVerticalAlign
   verticalStretch?: boolean
   visible?: boolean
   width?: number
-  childItems?: ChildItems
-  userVisible?: UserVisible
 }
 
 export interface FormGroupXML extends BaseElementXML {
+  ChildItems?: ChildItemsXML
   EnableContentChange?: boolean
   Enabled?: boolean
   ExtendedTooltip?: FormDecorationXML
@@ -50,34 +51,33 @@ export interface FormGroupXML extends BaseElementXML {
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormGroupType
+  UserVisible?: UserVisibleXML
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number
-  ChildItems?: ChildItemsXML
-  UserVisible?: UserVisibleXML
 }
 
 export interface FormGroupEnterprise extends BaseElementEnterprise {
-  РазрешитьИзменениеСостава?: StringboolEnterprise
-  Доступность?: StringboolEnterprise
-  РасширеннаяПодсказка?: FormDecorationEnterprise
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
+  Вид?: SE.FormGroupTypeEnterprise
+  Видимость?: StringboolEnterprise
   Высота?: number
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  ТолькоПросмотр?: StringboolEnterprise
-  СочетаниеКлавиш?: string
+  Доступность?: StringboolEnterprise
   Заголовок?: I8nTextEnterprise
-  ШрифтЗаголовка?: FontEnterprise
-  ЦветТекстаЗаголовка?: ColorEnterprise
-  Подсказка?: I8nTextEnterprise
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  Вид?: SE.FormGroupTypeEnterprise
-  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Видимость?: StringboolEnterprise
-  Ширина?: number
+  Подсказка?: I8nTextEnterprise
   ПодчиненныеЭлементы?: ChildItemsEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИзменениеСостава?: StringboolEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  РасширеннаяПодсказка?: FormDecorationEnterprise
+  СочетаниеКлавиш?: string
+  ТолькоПросмотр?: StringboolEnterprise
+  ЦветТекстаЗаголовка?: ColorEnterprise
+  Ширина?: number
+  ШрифтЗаголовка?: FontEnterprise
 }

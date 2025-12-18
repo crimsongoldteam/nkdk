@@ -26,10 +26,10 @@ export interface CalendarField extends FormField {
   selectionMode?: SE.DateSelectionMode
   showCurrentDate?: boolean
   showMonthsPanel?: boolean
+  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
   widthInMonths?: number
-  userVisible?: UserVisible
   events?: {
     onChange?: string
     selection?: string
@@ -61,37 +61,37 @@ export interface CalendarFieldXML extends FormFieldXML {
   SelectionMode?: SE.DateSelectionMode
   ShowCurrentDate?: boolean
   ShowMonthsPanel?: boolean
+  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
   WidthInMonths?: number
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface CalendarFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  НачалоПериодаОтображения?: string
-  Рамка?: BorderEnterprise
-  ЦветРамки?: ColorEnterprise
-  ПеремещениеПоКалендарю?: StringboolEnterprise
-  РазрешитьПеретаскивание?: StringboolEnterprise
-  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
-  КонецПериодаОтображения?: string
-  Шрифт?: FontEnterprise
   Высота?: number
   ВысотаВМесяцах?: number
-  РастягиватьПоГоризонтали?: StringboolEnterprise
+  КонецПериодаОтображения?: string
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  РежимВыделения?: SE.DateSelectionModeEnterprise
-  ОтображатьТекущуюДату?: StringboolEnterprise
+  НачалоПериодаОтображения?: string
   ОтображатьПанельМесяцев?: StringboolEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Ширина?: number
-  ШиринаВМесяцах?: number
+  ОтображатьТекущуюДату?: StringboolEnterprise
+  ПеремещениеПоКалендарю?: StringboolEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
+  РазрешитьПеретаскивание?: StringboolEnterprise
+  Рамка?: BorderEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  РежимВыделения?: SE.DateSelectionModeEnterprise
+  ЦветРамки?: ColorEnterprise
+  Ширина?: number
+  ШиринаВМесяцах?: number
+  Шрифт?: FontEnterprise
   События?: {
     ПриИзменении?: string
     Выбор?: string

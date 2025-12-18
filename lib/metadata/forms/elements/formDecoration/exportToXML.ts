@@ -37,11 +37,11 @@ export const exportFormDecorationToXML = (
     ToolTip: exportI8nTextToXML(data.toolTip, configurationSettings),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
   })
 }
 

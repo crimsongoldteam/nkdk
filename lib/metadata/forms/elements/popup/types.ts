@@ -25,12 +25,12 @@ export interface PopupXML extends FormGroupXML {
 }
 
 export interface PopupEnterprise extends FormGroupEnterprise {
-  ЦветФона?: ColorEnterprise
-  ЦветРамки?: ColorEnterprise
   Картинка?: PictureEnterprise
   Отображение?: SE.ButtonRepresentationEnterprise
-  Фигура?: SE.ButtonShapeEnterprise
   ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  Фигура?: SE.ButtonShapeEnterprise
+  ЦветРамки?: ColorEnterprise
+  ЦветФона?: ColorEnterprise
 }

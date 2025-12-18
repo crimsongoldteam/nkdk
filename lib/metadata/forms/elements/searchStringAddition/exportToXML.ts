@@ -21,8 +21,8 @@ export const exportSearchStringAdditionToXML = (
     Font: exportFontToXML(data.font, configurationSettings),
     HorizontalStretch: data.horizontalStretch,
     TextColor: exportColorToXML(data.textColor, configurationSettings),
-    Width: data.width,
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    Width: data.width,
   })
 }
 

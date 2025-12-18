@@ -36,11 +36,11 @@ export const exportPictureFieldToXML = (
     PictureSize: data.pictureSize,
     Scale: data.scale,
     TextColor: exportColorToXML(data.textColor, configurationSettings),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     ValuesPicture: exportPictureToXML(data.valuesPicture, configurationSettings),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     Zoomable: data.zoomable,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

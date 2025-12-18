@@ -45,11 +45,11 @@ export const importSpreadSheetDocumentFieldFromXML = (
     showRowAndColumnNames: xml.ShowRowAndColumnNames,
     statePresentation: xml.StatePresentation,
     usedFileName: xml.UsedFileName,
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     verticalScrollBar: xml.VerticalScrollBar,
     verticalStretch: xml.VerticalStretch,
     viewScalingMode: xml.ViewScalingMode,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
   })
 }

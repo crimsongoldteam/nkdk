@@ -43,7 +43,7 @@ export const importMetadataAttributeFromXML = (
     maxValue: xml.MaxValue,
     minValue: xml.MinValue,
     multiLine: xml.MultiLine,
-    name: xml.Name,
+    name: xml.Name!,
     objectBelonging: xml.ObjectBelonging,
     passwordMode: xml.PasswordMode,
     quickChoice: xml.QuickChoice,

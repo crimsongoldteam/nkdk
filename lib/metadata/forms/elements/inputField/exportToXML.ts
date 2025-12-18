@@ -97,10 +97,10 @@ export const exportInputFieldToXML = (
     TextEdit: data.textEdit,
     TypeDomainEnabled: data.typeDomainEnabled,
     TypeLink: exportTypeLinkToXML(data.typeLink, configurationSettings),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     Wrap: data.wrap,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

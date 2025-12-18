@@ -18,23 +18,23 @@ export const exportCharacteristicsDescriptionToEnterprise = (
 
   return compactObject({
     ВидыХарактеристик: exportMetadataItemLinkToEnterprise(data.characteristicTypes, configurationSettings),
+    ЗначениеОтбораВидов: exportMetadataValueToEnterprise(data.typesFilterValue, configurationSettings),
     ЗначенияХарактеристик: exportMetadataValueToEnterprise(data.characteristicValues, configurationSettings),
-    ПолеПутиКДанным: exportMetadataFieldToEnterprise(data.dataPathField, configurationSettings),
-    ПолеКлюча: exportMetadataFieldToEnterprise(data.keyField, configurationSettings),
-    ПолеКлючаМножественныхЗначений: exportMetadataFieldToEnterprise(data.multipleValuesKeyField, configurationSettings),
-    ПолеПорядкаМножественныхЗначений: exportMetadataFieldToEnterprise(
-      data.multipleValuesOrderField,
-      configurationSettings
-    ),
+    ПолеВида: exportMetadataFieldToEnterprise(data.typeField, configurationSettings),
+    ПолеЗначения: exportMetadataFieldToEnterprise(data.valueField, configurationSettings),
     ПолеИспользованияМножественныхЗначений: exportMetadataFieldToEnterprise(
       data.multipleValuesUseField,
       configurationSettings
     ),
+    ПолеКлюча: exportMetadataFieldToEnterprise(data.keyField, configurationSettings),
+    ПолеКлючаМножественныхЗначений: exportMetadataFieldToEnterprise(data.multipleValuesKeyField, configurationSettings),
     ПолеОбъекта: exportMetadataFieldToEnterprise(data.objectField, configurationSettings),
-    ПолеВида: exportMetadataFieldToEnterprise(data.typeField, configurationSettings),
     ПолеОтбораВидов: exportMetadataFieldToEnterprise(data.typesFilterField, configurationSettings),
-    ЗначениеОтбораВидов: exportMetadataValueToEnterprise(data.typesFilterValue, configurationSettings),
-    ПолеЗначения: exportMetadataFieldToEnterprise(data.valueField, configurationSettings),
+    ПолеПорядкаМножественныхЗначений: exportMetadataFieldToEnterprise(
+      data.multipleValuesOrderField,
+      configurationSettings
+    ),
+    ПолеПутиКДанным: exportMetadataFieldToEnterprise(data.dataPathField, configurationSettings),
   })
 }
 

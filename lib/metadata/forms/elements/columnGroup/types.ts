@@ -32,15 +32,15 @@ export interface ColumnGroupXML extends FormGroupXML {
 }
 
 export interface ColumnGroupEnterprise extends FormGroupEnterprise {
-  ФиксацияВТаблице?: SE.FixingInTableEnterprise
-  Группировка?: SE.ColumnsGroupEnterprise
-  ПутьКДаннымШапки?: string
-  ФорматШапки?: string
   ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationEnterprise
+  Группировка?: SE.ColumnsGroupEnterprise
   КартинкаШапки?: PictureEnterprise
   ОтображатьВШапке?: StringboolEnterprise
   ОтображатьЗаголовок?: StringboolEnterprise
-  ЦветФонаЗаголовка?: ColorEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  ПутьКДаннымШапки?: string
+  ФиксацияВТаблице?: SE.FixingInTableEnterprise
+  ФорматШапки?: string
+  ЦветФонаЗаголовка?: ColorEnterprise
 }

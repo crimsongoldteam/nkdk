@@ -43,9 +43,9 @@ export const exportUsualGroupToXML = (
     ThroughAlign: data.throughAlign,
     TitleDataPath: data.titleDataPath,
     United: data.united,
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     VerticalAlign: data.verticalAlign,
     VerticalSpacing: data.verticalSpacing,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
   })
 }
 

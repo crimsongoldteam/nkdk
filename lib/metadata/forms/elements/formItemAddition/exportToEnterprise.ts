@@ -21,35 +21,35 @@ export const exportFormItemAdditionToEnterprise = (
   return compactObject({
     ...exportBaseElementToEnterprise(data, configurationSettings)!,
 
-    КонтекстноеМеню: exportCommandBarToEnterprise(data.contextMenu, configurationSettings),
     ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
       data.displayImportance,
       SE.DisplayImportanceToEnterprise,
       configurationSettings
     ),
-    Доступность: exportBooleanToEnterprise(data.enabled, configurationSettings),
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(data.extendedToolTip, configurationSettings),
-    ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      data.horizontalAlignInGroup,
-      SE.ItemHorizontalLocationToEnterprise,
-      configurationSettings
-    ),
-    Заголовок: exportI8nTextToEnterprise(data.title, configurationSettings),
-    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
-    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
-      data.toolTipRepresentation,
-      SE.ToolTipRepresentationToEnterprise,
-      configurationSettings
-    ),
-    Вид: exportSystemEnumerationToEnterprise(data.type, SE.FormItemAdditionTypeToEnterprise, configurationSettings),
     ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
       data.verticalAlignInGroup,
       SE.ItemVerticalAlignToEnterprise,
       configurationSettings
     ),
+    Вид: exportSystemEnumerationToEnterprise(data.type, SE.FormItemAdditionTypeToEnterprise, configurationSettings),
     Видимость: exportBooleanToEnterprise(data.visible, configurationSettings),
+    ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
+      data.horizontalAlignInGroup,
+      SE.ItemHorizontalLocationToEnterprise,
+      configurationSettings
+    ),
+    Доступность: exportBooleanToEnterprise(data.enabled, configurationSettings),
+    Заголовок: exportI8nTextToEnterprise(data.title, configurationSettings),
+    КонтекстноеМеню: exportCommandBarToEnterprise(data.contextMenu, configurationSettings),
+    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
+      data.toolTipRepresentation,
+      SE.ToolTipRepresentationToEnterprise,
+      configurationSettings
+    ),
+    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
     ПодчиненныеЭлементы: exportChildItemsToEnterprise(data.childItems, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    РасширеннаяПодсказка: exportFormDecorationToEnterprise(data.extendedToolTip, configurationSettings),
   })
 }
 

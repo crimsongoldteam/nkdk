@@ -15,9 +15,9 @@ export interface HTMLDocumentField extends FormField {
   maxWidth?: number
   output?: SE.UseOutput
   userAgentInformation?: string
+  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
-  userVisible?: UserVisible
   events?: {
     onChange?: string
     documentComplete?: string
@@ -38,26 +38,26 @@ export interface HTMLDocumentFieldXML extends FormFieldXML {
   MaxWidth?: number
   Output?: SE.UseOutput
   UserAgentInformation?: string
+  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface HTMLDocumentFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ЦветРамки?: ColorEnterprise
+  Вывод?: SE.UseOutputEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: StringboolEnterprise
+  ИнформацияПрограммыПросмотра?: string
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  Вывод?: SE.UseOutputEnterprise
-  ИнформацияПрограммыПросмотра?: string
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Ширина?: number
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  ЦветРамки?: ColorEnterprise
+  Ширина?: number
   События?: {
     ПриИзменении?: string
     ДокументСформирован?: string

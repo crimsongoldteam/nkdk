@@ -23,9 +23,9 @@ export interface LabelField extends FormField {
   maxWidth?: number
   passwordMode?: boolean
   textColor?: Color
+  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
-  userVisible?: UserVisible
   events?: {
     onChange?: string
     click?: string
@@ -49,32 +49,32 @@ export interface LabelFieldXML extends FormFieldXML {
   MaxWidth?: number
   PasswordMode?: boolean
   TextColor?: ColorXML
+  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
 export interface LabelFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
-  ЦветФона?: ColorEnterprise
-  Рамка?: BorderEnterprise
-  ЦветРамки?: ColorEnterprise
-  Шрифт?: FontEnterprise
-  Формат?: I8nTextEnterprise
-  Высота?: number
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  Гиперссылка?: StringboolEnterprise
   ВыделятьОтрицательные?: StringboolEnterprise
+  Высота?: number
+  Гиперссылка?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  РежимПароля?: StringboolEnterprise
-  ЦветТекста?: ColorEnterprise
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Ширина?: number
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  Рамка?: BorderEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  РежимПароля?: StringboolEnterprise
+  Формат?: I8nTextEnterprise
+  ЦветРамки?: ColorEnterprise
+  ЦветТекста?: ColorEnterprise
+  ЦветФона?: ColorEnterprise
+  Ширина?: number
+  Шрифт?: FontEnterprise
   События?: {
     ПриИзменении?: string
     Нажатие?: string

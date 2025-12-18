@@ -24,8 +24,8 @@ export const exportLabelDecorationToXML = (
     HorizontalAlign: data.horizontalAlign,
     Hyperlink: data.hyperlink,
     TitleHeight: data.titleHeight,
-    VerticalAlign: data.verticalAlign,
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    VerticalAlign: data.verticalAlign,
     Events: exportEventsToXML(data.events, configurationSettings),
   })
 }

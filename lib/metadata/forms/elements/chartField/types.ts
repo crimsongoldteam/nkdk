@@ -10,9 +10,9 @@ export interface ChartField extends FormField {
   horizontalStretch?: boolean
   maxHeight?: number
   maxWidth?: number
+  userVisible?: UserVisible
   verticalStretch?: boolean
   width?: number
-  userVisible?: UserVisible
   events?: {
     onChange?: string
     selection?: string
@@ -28,9 +28,9 @@ export interface ChartFieldXML extends FormFieldXML {
   HorizontalStretch?: boolean
   MaxHeight?: number
   MaxWidth?: number
+  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
-  UserVisible?: UserVisibleXML
   Events?: EventsXML
 }
 
@@ -38,13 +38,13 @@ export interface ChartFieldEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Высота?: number
-  РастягиватьПоГоризонтали?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  РастягиватьПоВертикали?: StringboolEnterprise
-  Ширина?: number
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
   ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  Ширина?: number
   События?: {
     ПриИзменении?: string
     Выбор?: string

@@ -28,8 +28,8 @@ export const importSearchControlAdditionFromXML = (
     horizontalStretch: xml.HorizontalStretch,
     maxWidth: xml.MaxWidth,
     textColor: importColorFromXML(xml.TextColor, configurationSettings),
-    width: xml.Width,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    width: xml.Width,
   })
 }
 

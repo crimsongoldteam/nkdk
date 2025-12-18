@@ -21,27 +21,27 @@ export const exportProgressBarFieldToEnterprise = (
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
     Высота: data.height,
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
     МаксимальнаяВысота: data.maxHeight,
-    МаксимальноеЗначение: data.maxValue,
     МаксимальнаяШирина: data.maxWidth,
+    МаксимальноеЗначение: data.maxValue,
     МинимальноеЗначение: data.minValue,
     Ориентация: exportSystemEnumerationToEnterprise(
       data.orientation,
       SE.FormItemOrientationToEnterprise,
       configurationSettings
     ),
+    ОтображатьПроценты: exportBooleanToEnterprise(data.showPercent, configurationSettings),
     Отображение: exportSystemEnumerationToEnterprise(
       data.representation,
       SE.ProgressBarSmoothingModeToEnterprise,
       configurationSettings
     ),
-    ОтображатьПроценты: exportBooleanToEnterprise(data.showPercent, configurationSettings),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
-    Ширина: data.width,
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    Ширина: data.width,
     События: exportEventsToEnterprise(data.events, configurationSettings),
   })
 }
