@@ -78,7 +78,7 @@ export interface MetadataDocument {
   includeHelpInContents?: boolean
   inputByString?: MetadataFields
   listPresentation?: I8nText
-  name?: string
+  name: string
   numberAllowedLength?: SE.AllowedLength
   numberLength?: number
   numberPeriodicity?: SE.BusinessProcessNumberPeriodicity
@@ -132,7 +132,7 @@ export interface MetadataDocumentXML {
   IncludeHelpInContents?: boolean
   InputByString?: MetadataFieldsXML
   ListPresentation?: I8nTextXML
-  Name?: string
+  Name: string
   NumberAllowedLength?: SE.AllowedLength
   NumberLength?: number
   NumberPeriodicity?: SE.BusinessProcessNumberPeriodicity

@@ -49,7 +49,7 @@ export const importMetadataAttributeFromXML = (
     quickChoice: xml.QuickChoice,
     synonym: importI8nTextFromXML(xml.Synonym, configurationSettings),
     tooltip: importI8nTextFromXML(xml.Tooltip, configurationSettings),
-    type: importTypeDescriptionFromXML(xml.Type, configurationSettings),
+    type: importTypeDescriptionFromXML(xml.Type, configurationSettings)!,
     use: xml.Use,
   })
 }

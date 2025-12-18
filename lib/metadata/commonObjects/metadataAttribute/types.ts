@@ -43,13 +43,13 @@ export interface MetadataAttribute {
   maxValue?: number
   minValue?: number
   multiLine?: boolean
-  name?: string
+  name: string
   objectBelonging?: SE.ObjectBelonging
   passwordMode?: boolean
   quickChoice?: SE.UseQuickChoice
   synonym?: I8nText
   tooltip?: I8nText
-  type?: TypeDescription
+  type: TypeDescription
   use?: SE.AttributeUse
 }
 
@@ -78,13 +78,13 @@ export interface MetadataAttributeXML {
   MaxValue?: number
   MinValue?: number
   MultiLine?: boolean
-  Name?: string
+  Name: string
   ObjectBelonging?: SE.ObjectBelonging
   PasswordMode?: boolean
   QuickChoice?: SE.UseQuickChoice
   Synonym?: I8nTextXML
   Tooltip?: I8nTextXML
-  Type?: TypeDescriptionXML
+  Type: TypeDescriptionXML
   Use?: SE.AttributeUse
 }
 
@@ -119,7 +119,7 @@ export interface MetadataAttributeEnterprise {
   БыстрыйВыбор?: SE.UseQuickChoiceEnterprise
   Синоним?: I8nTextEnterprise
   Подсказка?: I8nTextEnterprise
-  Тип?: TypeDescriptionEnterprise
+  Тип: TypeDescriptionEnterprise
   Использование?: SE.AttributeUseEnterprise
 }
 

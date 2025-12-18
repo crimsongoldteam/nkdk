@@ -39,7 +39,7 @@ export interface StandardAttributeDescription {
   maxValue?: number
   minValue?: number
   multiLine?: boolean
-  name?: string
+  name: string
   passwordMode?: boolean
   quickChoice?: boolean
   synonym?: I8nText
@@ -69,7 +69,7 @@ export interface StandardAttributeDescriptionXML {
   MaxValue?: number
   MinValue?: number
   MultiLine?: boolean
-  Name?: string
+  Name: string
   PasswordMode?: boolean
   QuickChoice?: boolean
   Synonym?: I8nTextXML
@@ -112,4 +112,4 @@ export type StandardAttributeDescriptions = StandardAttributeDescription[]
 
 export type StandardAttributeDescriptionsXML = StandardAttributeDescriptionXML[]
 
-export type StandardAttributeDescriptionsEnterprise = StandardAttributeDescriptionEnterprise[]
+export type StandardAttributeDescriptionsEnterprise = Record<string, StandardAttributeDescriptionEnterprise>

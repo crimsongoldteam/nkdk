@@ -90,7 +90,7 @@ export const exportMetadataAttributeToEnterprise = (
     ),
     Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
     Подсказка: exportI8nTextToEnterprise(data.tooltip, configurationSettings),
-    Тип: exportTypeDescriptionToEnterprise(data.type, configurationSettings),
+    Тип: exportTypeDescriptionToEnterprise(data.type, configurationSettings)!,
     Использование: exportSystemEnumerationToEnterprise(data.use, SE.AttributeUseToEnterprise, configurationSettings),
   })
 }

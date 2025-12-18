@@ -49,7 +49,7 @@ export const exportMetadataAttributeToXML = (
     QuickChoice: data.quickChoice,
     Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
     Tooltip: exportI8nTextToXML(data.tooltip, configurationSettings),
-    Type: exportTypeDescriptionToXML(data.type, configurationSettings),
+    Type: exportTypeDescriptionToXML(data.type, configurationSettings)!,
     Use: data.use,
   })
 }

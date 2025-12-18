@@ -16,7 +16,7 @@ export interface MetadataTabularSection {
   comment?: string
   fillChecking?: SE.FillChecking
   lineNumberLength?: number
-  name?: string
+  name: string
   objectBelonging?: SE.ObjectBelonging
   standardAttributes?: StandardAttributeDescriptions
   synonym?: I8nText
@@ -29,7 +29,7 @@ export interface MetadataTabularSectionXML {
   Comment?: string
   FillChecking?: SE.FillChecking
   LineNumberLength?: number
-  Name?: string
+  Name: string
   ObjectBelonging?: SE.ObjectBelonging
   StandardAttributes?: StandardAttributeDescriptionsXML
   Synonym?: I8nTextXML

@@ -81,8 +81,10 @@ export const exportStandardAttributeDescriptionsToEnterprise = (
 ): StandardAttributeDescriptionsEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map(
-    (value: StandardAttributeDescription) =>
-      exportStandardAttributeDescriptionToEnterprise(value, configurationSettings)!
+  return Object.fromEntries(
+    data.map((value: StandardAttributeDescription) => [
+      value.name,
+      exportStandardAttributeDescriptionToEnterprise(value, configurationSettings)!,
+    ])
   )
 }

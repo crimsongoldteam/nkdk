@@ -87,7 +87,6 @@ export const exportMetadataDocumentToEnterprise = (
     ВключатьСправкуВСодержание: exportBooleanToEnterprise(data.includeHelpInContents, configurationSettings),
     ВводПоСтроке: exportMetadataFieldsToEnterprise(data.inputByString, configurationSettings),
     ПредставлениеСписка: exportI8nTextToEnterprise(data.listPresentation, configurationSettings),
-    Имя: data.name,
     ДопустимаяДлинаНомера: exportSystemEnumerationToEnterprise(
       data.numberAllowedLength,
       SE.AllowedLengthToEnterprise,

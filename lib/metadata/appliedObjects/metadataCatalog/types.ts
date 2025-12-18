@@ -94,7 +94,7 @@ export interface MetadataCatalog {
   levelCount?: number
   limitLevelCount?: boolean
   listPresentation?: I8nText
-  name?: string
+  name: string
   objectBelonging?: SE.ObjectBelonging
   objectPresentation?: I8nText
   owners?: MetadataItemLinks
@@ -157,7 +157,7 @@ export interface MetadataCatalogXML {
   LevelCount?: number
   LimitLevelCount?: boolean
   ListPresentation?: I8nTextXML
-  Name?: string
+  Name: string
   ObjectBelonging?: SE.ObjectBelonging
   ObjectPresentation?: I8nTextXML
   Owners?: MetadataItemLinksXML
