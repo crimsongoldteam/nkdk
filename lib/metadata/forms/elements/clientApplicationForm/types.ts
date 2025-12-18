@@ -1,26 +1,11 @@
 import { I8nText, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import {
-  TypeDescription,
-  TypeDescriptionXML,
-  TypeDescriptionXMLItem,
-} from "~/lib/metadata/commonObjects/typeDescription/types"
-import { UserVisible, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { CommandSet, CommandSetXML } from "~/lib/metadata/forms/commandSet/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { FormAttribute, FormAttributesXML } from "../../../commonObjects/formAttributes/types"
 import { FormElementType } from "../../../metadataFactory/types"
 import { EventsXML } from "../../events/types"
 import { ChildItems, ChildItemsXML } from "../childItems/types"
 import { CommandBar, CommandBarXML } from "../commandBar/types"
-
-export interface FormAttribute {
-  name: string
-  id: string
-  title?: I8nText
-  type?: TypeDescription
-  mainAttribute?: boolean
-  storedData?: boolean
-  use?: UserVisible
-}
 
 export interface ClientApplicationFormEvents {
   collaborationSystemUsersAutoComplete?: string
@@ -49,7 +34,6 @@ export interface ClientApplicationFormEvents {
   onReopen?: string
   onCreateAtServer?: string
   onSaveDataInSettingsAtServer?: string
-  [key: string]: string | undefined
 }
 
 export interface ClientApplicationForm {
@@ -99,31 +83,6 @@ export interface ClientApplicationForm {
   useForFoldersAndItems?: SE.FoldersAndItemsUse
   events?: ClientApplicationFormEvents
 }
-
-export interface AutoCommandBarXML {
-  _name: string
-  _id: string
-}
-
-export interface ConditionalAppearanceXML {
-  ConditionalAppearance: Record<string, unknown>
-}
-
-export interface AttributeXMLItem {
-  _name: string
-  _id: string
-  Title?: I8nTextXML
-  Type?: TypeDescriptionXML | TypeDescriptionXMLItem
-  MainAttribute?: boolean
-  StoredData?: boolean
-  Use?: UserVisibleXML
-}
-
-export interface AttributeXML {
-  Attribute: AttributeXMLItem
-}
-
-export type AttributesXML = (AttributeXML | ConditionalAppearanceXML)[]
 
 export interface ClientApplicationFormXML {
   _xmlns?: string
@@ -188,7 +147,5 @@ export interface ClientApplicationFormXML {
   AutoCommandBar?: CommandBarXML
   Events?: EventsXML
   ChildItems?: ChildItemsXML
-  Attributes?: AttributesXML
+  Attributes?: FormAttributesXML
 }
-
-// export type TAttributeEnterprise = z.infer<typeof ZAttributeEnterprise>

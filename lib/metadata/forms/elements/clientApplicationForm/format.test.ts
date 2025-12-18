@@ -54,7 +54,7 @@ describe("formatClientApplicationForm", () => {
           name: "ИмяАтрибута",
           id: "1",
           title: { items: { ru: "Атрибут" } },
-          type: {
+          valueType: {
             type: ["string"],
             stringQualifiers: { length: 10, allowedLength: "Variable" },
           },

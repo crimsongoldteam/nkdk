@@ -1,12 +1,13 @@
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importCommandSetFromXML } from "~/lib/metadata/forms/commandSet/importFromXML"
+import { FormAttribute, FormAttributeXML } from "../../../commonObjects/formAttributes/types"
 import { FormElementType } from "../../../metadataFactory/types"
 import { importEventsFromXML } from "../../events/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import importAttributeFromXML from "./attributes/importFromXML"
-import { AttributeXML, ClientApplicationForm, ClientApplicationFormXML, FormAttribute } from "./types"
+import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
 export const importClientApplicationFormFromXML = (
   xml: ClientApplicationFormXML,
@@ -16,7 +17,9 @@ export const importClientApplicationFormFromXML = (
     elementType: FormElementType.ClientApplicationForm,
     attributes:
       xml.Attributes?.map((attribute) =>
-        "Attribute" in attribute ? importAttributeFromXML(attribute as AttributeXML, configurationSettings) : undefined
+        "Attribute" in attribute
+          ? importAttributeFromXML(attribute as FormAttributeXML, configurationSettings)
+          : undefined
       ).filter((attr): attr is FormAttribute => attr !== undefined) ?? [],
     autoCommandBar: importCommandBarFromXML(xml.AutoCommandBar, configurationSettings),
     commandSet: importCommandSetFromXML(xml.CommandSet, configurationSettings),

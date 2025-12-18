@@ -2,12 +2,12 @@ import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportT
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { AttributeXML, FormAttribute } from "../types"
+import { FormAttribute, FormAttributeXML } from "./types"
 
 export default function exportAttributeToXML(
   attribute: FormAttribute | undefined,
   configurationSettings: ConfigurationSettings
-): AttributeXML | undefined {
+): FormAttributeXML | undefined {
   if (!attribute) return undefined
 
   return {
@@ -15,7 +15,7 @@ export default function exportAttributeToXML(
       _name: attribute.name,
       _id: attribute.id,
       Title: exportI8nTextToXML(attribute.title, configurationSettings),
-      Type: exportTypeDescriptionToXML(attribute.type, configurationSettings),
+      Type: exportTypeDescriptionToXML(attribute.valueType, configurationSettings),
       MainAttribute: attribute.mainAttribute,
       StoredData: attribute.storedData,
       Use: exportUserVisibleToXML(attribute.use, configurationSettings),

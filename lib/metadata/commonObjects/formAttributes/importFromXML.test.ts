@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { xmlImport } from "~/lib"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
-import { AttributeXML, FormAttribute } from "../types"
 import importAttributeFromXML from "./importFromXML"
+import { FormAttribute, FormAttributeItemXML } from "./types"
 
 describe("importAttributeFromXML", () => {
   it("should import attribute from XML", () => {
@@ -25,14 +25,14 @@ describe("importAttributeFromXML", () => {
     const mockResult: FormAttribute = {
       name: "Поле",
       id: "1",
-      type: {
+      valueType: {
         type: ["string"],
         stringQualifiers: { length: 0, allowedLength: "Variable" },
       },
       title: { items: { ru: "Заголовок поля" } },
     }
 
-    const xmlData = xmlImport<AttributeXML>(mockXml)
+    const xmlData = xmlImport<{ Attribute: FormAttributeItemXML }>(mockXml)
 
     const result = importAttributeFromXML(xmlData, mockConfigurationSettings)
 

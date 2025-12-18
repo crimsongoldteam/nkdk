@@ -113,7 +113,7 @@ describe("exportClientApplicationFormToXML", () => {
         {
           name: "Объект",
           id: "1",
-          type: { type: ["DataProcessorObject.ТестоваяОбработка"] },
+          valueType: { type: ["DataProcessorObject.ТестоваяОбработка"] },
           mainAttribute: true,
         },
       ],

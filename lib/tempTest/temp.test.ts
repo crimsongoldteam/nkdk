@@ -6,7 +6,6 @@ import { importClientApplicationFormFromXML } from "../metadata/forms/elements/c
 import { ClientApplicationFormXML } from "../metadata/forms/elements/clientApplicationForm/types"
 import "../metadata/forms/elements/exportToXML"
 import "../metadata/forms/elements/importFromXML"
-import "../metadata/forms/elements/rules"
 import { mockConfigurationSettings } from "../tests/mockConfigurationSettings"
 import { xmlExport } from "../xml/export/exporter"
 import xmlImport from "../xml/import/importer"
