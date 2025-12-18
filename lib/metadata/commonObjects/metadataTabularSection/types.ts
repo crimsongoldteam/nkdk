@@ -54,4 +54,4 @@ export type MetadataTabularSections = MetadataTabularSection[]
 
 export type MetadataTabularSectionsXML = MetadataTabularSectionXML[]
 
-export type MetadataTabularSectionsEnterprise = MetadataTabularSectionEnterprise[]
+export type MetadataTabularSectionsEnterprise = Record<string, MetadataTabularSectionEnterprise>

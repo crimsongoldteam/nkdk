@@ -62,7 +62,6 @@ export const exportStandardAttributeDescriptionToEnterprise = (
     МаксимальноеЗначение: data.maxValue,
     МинимальноеЗначение: data.minValue,
     МногострочныйРежим: exportBooleanToEnterprise(data.multiLine, configurationSettings),
-    Имя: data.name,
     РежимПароля: exportBooleanToEnterprise(data.passwordMode, configurationSettings),
     БыстрыйВыбор: exportBooleanToEnterprise(data.quickChoice, configurationSettings),
     Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),

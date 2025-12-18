@@ -27,7 +27,6 @@ export const exportMetadataTabularSectionToEnterprise = (
       configurationSettings
     ),
     ДлинаНомераСтроки: data.lineNumberLength,
-    Имя: data.name,
     ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
       data.objectBelonging,
       SE.ObjectBelongingToEnterprise,
@@ -49,7 +48,10 @@ export const exportMetadataTabularSectionsToEnterprise = (
 ): MetadataTabularSectionsEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map(
-    (value: MetadataTabularSection) => exportMetadataTabularSectionToEnterprise(value, configurationSettings)!
+  return Object.fromEntries(
+    data.map((value: MetadataTabularSection) => [
+      value.name,
+      exportMetadataTabularSectionToEnterprise(value, configurationSettings)!,
+    ])
   )
 }

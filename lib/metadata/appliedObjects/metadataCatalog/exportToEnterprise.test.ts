@@ -18,6 +18,19 @@ describe("exportMetadataCatalogToEnterprise", () => {
           type: { type: ["string"] },
         },
       ],
+      tabularSections: [
+        {
+          name: "ТабличнаяЧасть1",
+          synonym: { items: { ru: "Табличная часть" } },
+          attributes: [
+            {
+              name: "РеквизитТабличнойЧасти",
+              synonym: { items: { ru: "Реквизит табличной части" } },
+              type: { type: ["string"] },
+            },
+          ],
+        },
+      ],
     }
 
     const expectedResult: MetadataCatalogEnterprise = {
@@ -29,6 +42,17 @@ describe("exportMetadataCatalogToEnterprise", () => {
         РеквизитСправочника: {
           Синоним: "Реквизит справочника",
           Тип: "Строка",
+        },
+      },
+      ТабличныеЧасти: {
+        ТабличнаяЧасть1: {
+          Синоним: "Табличная часть",
+          Реквизиты: {
+            РеквизитТабличнойЧасти: {
+              Синоним: "Реквизит табличной части",
+              Тип: "Строка",
+            },
+          },
         },
       },
     }
