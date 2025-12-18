@@ -6,6 +6,7 @@ import {
 } from "~/lib/metadata/commonObjects/additionalIndex/types"
 import { exportIndexFieldsToEnterprise } from "~/lib/metadata/commonObjects/indexField/exportToEnterprise"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const exportAdditionalIndexToEnterprise = (
   data: AdditionalIndex | undefined,
@@ -13,12 +14,12 @@ export const exportAdditionalIndexToEnterprise = (
 ): AdditionalIndexEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ДополнительныеПоля: exportIndexFieldsToEnterprise(data.additionalFields, configurationSettings),
     ИндексируемыеПоля: exportIndexFieldsToEnterprise(data.indexedFields, configurationSettings),
     Имя: data.name,
     Таблица: data.table,
-  }
+  })
 }
 
 export const exportAdditionalIndexesToEnterprise = (

@@ -3,6 +3,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { PlannerField, PlannerFieldXML } from "~/lib/metadata/forms/elements/plannerField/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -12,7 +13,7 @@ export const importPlannerFieldFromXML = (
 ): PlannerField | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.PlannerField,
 
@@ -31,7 +32,7 @@ export const importPlannerFieldFromXML = (
     wrappedTimeScaleHeaderHyperlink: xml.WrappedTimeScaleHeaderHyperlink,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "PlannerField", importPlannerFieldFromXML)

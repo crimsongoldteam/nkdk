@@ -8,6 +8,7 @@ import {
 } from "~/lib/metadata/forms/elements/formattedDocumentField/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportFormattedDocumentFieldToXML = (
@@ -16,7 +17,7 @@ export const exportFormattedDocumentFieldToXML = (
 ): FormattedDocumentFieldXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormFieldToXML(data, configurationSettings)!,
 
     AutoMaxHeight: data.autoMaxHeight,
@@ -35,7 +36,7 @@ export const exportFormattedDocumentFieldToXML = (
     Width: data.width,
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToXML", "FormattedDocumentField", exportFormattedDocumentFieldToXML)

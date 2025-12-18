@@ -4,6 +4,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { DendrogramField, DendrogramFieldEnterprise } from "~/lib/metadata/forms/elements/dendrogramField/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportDendrogramFieldToEnterprise = (
@@ -12,7 +13,7 @@ export const exportDendrogramFieldToEnterprise = (
 ): DendrogramFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormFieldToEnterprise(data, configurationSettings)!,
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
@@ -25,7 +26,7 @@ export const exportDendrogramFieldToEnterprise = (
     Ширина: data.width,
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToEnterprise", "DendrogramField", exportDendrogramFieldToEnterprise)

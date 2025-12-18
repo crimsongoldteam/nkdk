@@ -5,6 +5,7 @@ import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisib
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importFormItemAdditionFromXML } from "~/lib/metadata/forms/elements/formItemAddition/importFromXML"
 import { ViewStatusAddition, ViewStatusAdditionXML } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -14,7 +15,7 @@ export const importViewStatusAdditionFromXML = (
 ): ViewStatusAddition | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importFormItemAdditionFromXML(xml, configurationSettings)!,
     elementType: FormElementType.ViewStatusAddition,
 
@@ -32,7 +33,7 @@ export const importViewStatusAdditionFromXML = (
     titleTextColor: importColorFromXML(xml.TitleTextColor, configurationSettings),
     width: xml.Width,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "ViewStatusAddition", importViewStatusAdditionFromXML)

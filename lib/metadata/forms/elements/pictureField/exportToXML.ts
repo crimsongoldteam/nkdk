@@ -7,6 +7,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { PictureField, PictureFieldXML } from "~/lib/metadata/forms/elements/pictureField/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPictureFieldToXML = (
@@ -15,7 +16,7 @@ export const exportPictureFieldToXML = (
 ): PictureFieldXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormFieldToXML(data, configurationSettings)!,
 
     AutoMaxHeight: data.autoMaxHeight,
@@ -41,7 +42,7 @@ export const exportPictureFieldToXML = (
     Zoomable: data.zoomable,
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToXML", "PictureField", exportPictureFieldToXML)

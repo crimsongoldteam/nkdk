@@ -127,4 +127,4 @@ export type MetadataAttributes = MetadataAttribute[]
 
 export type MetadataAttributesXML = MetadataAttributeXML[]
 
-export type MetadataAttributesEnterprise = MetadataAttributeEnterprise[]
+export type MetadataAttributesEnterprise = Record<string, MetadataAttributeEnterprise>

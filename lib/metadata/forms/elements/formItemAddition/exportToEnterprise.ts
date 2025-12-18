@@ -7,6 +7,7 @@ import { exportChildItemsToEnterprise } from "~/lib/metadata/forms/elements/chil
 import { exportCommandBarToEnterprise } from "~/lib/metadata/forms/elements/commandBar/exportToEnterprise"
 import { exportFormDecorationToEnterprise } from "~/lib/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { FormItemAddition, FormItemAdditionEnterprise } from "~/lib/metadata/forms/elements/formItemAddition/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -17,7 +18,7 @@ export const exportFormItemAdditionToEnterprise = (
 ): FormItemAdditionEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportBaseElementToEnterprise(data, configurationSettings)!,
 
     КонтекстноеМеню: exportCommandBarToEnterprise(data.contextMenu, configurationSettings),
@@ -49,7 +50,7 @@ export const exportFormItemAdditionToEnterprise = (
     Видимость: exportBooleanToEnterprise(data.visible, configurationSettings),
     ПодчиненныеЭлементы: exportChildItemsToEnterprise(data.childItems, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToEnterprise", "FormItemAddition", exportFormItemAdditionToEnterprise)

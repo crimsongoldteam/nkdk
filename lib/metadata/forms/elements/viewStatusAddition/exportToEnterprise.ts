@@ -9,6 +9,7 @@ import {
   ViewStatusAddition,
   ViewStatusAdditionEnterprise,
 } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -19,7 +20,7 @@ export const exportViewStatusAdditionToEnterprise = (
 ): ViewStatusAdditionEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormItemAdditionToEnterprise(data, configurationSettings)!,
 
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
@@ -40,7 +41,7 @@ export const exportViewStatusAdditionToEnterprise = (
     ЦветТекстаЗаголовка: exportColorToEnterprise(data.titleTextColor, configurationSettings),
     Ширина: data.width,
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToEnterprise", "ViewStatusAddition", exportViewStatusAdditionToEnterprise)

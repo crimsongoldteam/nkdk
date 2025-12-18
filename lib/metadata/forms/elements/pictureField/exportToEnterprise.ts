@@ -8,6 +8,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { PictureField, PictureFieldEnterprise } from "~/lib/metadata/forms/elements/pictureField/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -18,7 +19,7 @@ export const exportPictureFieldToEnterprise = (
 ): PictureFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormFieldToEnterprise(data, configurationSettings)!,
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
@@ -52,7 +53,7 @@ export const exportPictureFieldToEnterprise = (
     Масштабировать: exportBooleanToEnterprise(data.zoomable, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToEnterprise", "PictureField", exportPictureFieldToEnterprise)

@@ -5,6 +5,7 @@ import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisib
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/importFromXML"
 import { Page, PageXML } from "~/lib/metadata/forms/elements/page/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -14,7 +15,7 @@ export const importPageFromXML = (
 ): Page | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importFormGroupFromXML(xml, configurationSettings)!,
     elementType: FormElementType.Page,
 
@@ -35,7 +36,7 @@ export const importPageFromXML = (
     verticalScrollOnReduceSize: xml.VerticalScrollOnReduceSize,
     verticalSpacing: xml.VerticalSpacing,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "Page", importPageFromXML)

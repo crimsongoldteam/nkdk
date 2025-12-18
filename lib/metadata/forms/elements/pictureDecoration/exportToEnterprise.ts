@@ -7,6 +7,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { exportFormDecorationToEnterprise } from "~/lib/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { PictureDecoration, PictureDecorationEnterprise } from "~/lib/metadata/forms/elements/pictureDecoration/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -17,7 +18,7 @@ export const exportPictureDecorationToEnterprise = (
 ): PictureDecorationEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormDecorationToEnterprise(data, configurationSettings)!,
 
     Рамка: exportBorderToEnterprise(data.border, configurationSettings),
@@ -41,7 +42,7 @@ export const exportPictureDecorationToEnterprise = (
     Масштабировать: exportBooleanToEnterprise(data.zoomable, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToEnterprise", "PictureDecoration", exportPictureDecorationToEnterprise)

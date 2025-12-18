@@ -6,6 +6,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
 import { importCommandBarFromXML } from "~/lib/metadata/forms/elements/commandBar/importFromXML"
 import { FormDecoration, FormDecorationXML } from "~/lib/metadata/forms/elements/formDecoration/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -15,7 +16,7 @@ export const importFormDecorationFromXML = (
 ): FormDecoration | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importBaseElementFromXML(xml, configurationSettings)!,
     elementType: FormElementType.FormDecoration,
 
@@ -43,7 +44,7 @@ export const importFormDecorationFromXML = (
     visible: xml.Visible,
     width: xml.Width,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "FormDecoration", importFormDecorationFromXML)

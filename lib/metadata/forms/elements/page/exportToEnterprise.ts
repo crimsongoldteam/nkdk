@@ -6,6 +6,7 @@ import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/user
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormGroupToEnterprise } from "~/lib/metadata/forms/elements/formGroup/exportToEnterprise"
 import { Page, PageEnterprise } from "~/lib/metadata/forms/elements/page/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -16,7 +17,7 @@ export const exportPageToEnterprise = (
 ): PageEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormGroupToEnterprise(data, configurationSettings)!,
 
     ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
@@ -72,7 +73,7 @@ export const exportPageToEnterprise = (
       configurationSettings
     ),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToEnterprise", "Page", exportPageToEnterprise)

@@ -7,6 +7,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { exportBaseElementToXML } from "~/lib/metadata/forms/elements/baseElement/exportToXML"
 import { Button, ButtonXML } from "~/lib/metadata/forms/elements/button/types"
 import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDecoration/exportToXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportButtonToXML = (
@@ -15,7 +16,7 @@ export const exportButtonToXML = (
 ): ButtonXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportBaseElementToXML(data, configurationSettings)!,
 
     AutoMaxHeight: data.autoMaxHeight,
@@ -55,7 +56,7 @@ export const exportButtonToXML = (
     Visible: data.visible,
     Width: data.width,
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToXML", "Button", exportButtonToXML)

@@ -13,6 +13,7 @@ import { exportChoiceParameterLinksToEnterprise } from "~/lib/metadata/commonObj
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { compactObject } from "../../helpers/compactObject"
 
 export const exportMetadataAttributeToEnterprise = (
   data: MetadataAttribute | undefined,
@@ -20,7 +21,7 @@ export const exportMetadataAttributeToEnterprise = (
 ): MetadataAttributeEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ИспользованиеХраненияВХранилищеДвоичныхДанных: exportSystemEnumerationToEnterprise(
       data.binaryDataStorageLocationUse,
       SE.BinaryDataStorageLocationUseToEnterprise,
@@ -76,7 +77,6 @@ export const exportMetadataAttributeToEnterprise = (
     МаксимальноеЗначение: data.maxValue,
     МинимальноеЗначение: data.minValue,
     МногострочныйРежим: exportBooleanToEnterprise(data.multiLine, configurationSettings),
-    Имя: data.name,
     ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
       data.objectBelonging,
       SE.ObjectBelongingToEnterprise,
@@ -92,7 +92,7 @@ export const exportMetadataAttributeToEnterprise = (
     Подсказка: exportI8nTextToEnterprise(data.tooltip, configurationSettings),
     Тип: exportTypeDescriptionToEnterprise(data.type, configurationSettings),
     Использование: exportSystemEnumerationToEnterprise(data.use, SE.AttributeUseToEnterprise, configurationSettings),
-  }
+  })
 }
 
 export const exportMetadataAttributesToEnterprise = (
@@ -101,5 +101,10 @@ export const exportMetadataAttributesToEnterprise = (
 ): MetadataAttributesEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((value: MetadataAttribute) => exportMetadataAttributeToEnterprise(value, configurationSettings)!)
+  return Object.fromEntries(
+    data.map((value: MetadataAttribute) => [
+      value.name,
+      exportMetadataAttributeToEnterprise(value, configurationSettings)!,
+    ])
+  )
 }

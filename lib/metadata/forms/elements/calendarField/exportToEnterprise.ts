@@ -7,6 +7,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { CalendarField, CalendarFieldEnterprise } from "~/lib/metadata/forms/elements/calendarField/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -17,7 +18,7 @@ export const exportCalendarFieldToEnterprise = (
 ): CalendarFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormFieldToEnterprise(data, configurationSettings)!,
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
@@ -47,7 +48,7 @@ export const exportCalendarFieldToEnterprise = (
     ШиринаВМесяцах: data.widthInMonths,
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToEnterprise", "CalendarField", exportCalendarFieldToEnterprise)

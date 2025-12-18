@@ -8,6 +8,7 @@ import { exportMetadataFieldToXML } from "~/lib/metadata/commonObjects/metadataF
 import { exportMetadataItemLinkToXML } from "~/lib/metadata/commonObjects/metadataItemLink/exportToXML"
 import { exportMetadataValueToXML } from "~/lib/metadata/commonObjects/metadataValue/exportToXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const exportCharacteristicsDescriptionToXML = (
   data: CharacteristicsDescription | undefined,
@@ -15,7 +16,7 @@ export const exportCharacteristicsDescriptionToXML = (
 ): CharacteristicsDescriptionXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     CharacteristicTypes: exportMetadataItemLinkToXML(data.characteristicTypes, configurationSettings),
     CharacteristicValues: exportMetadataValueToXML(data.characteristicValues, configurationSettings),
     DataPathField: exportMetadataFieldToXML(data.dataPathField, configurationSettings),
@@ -28,7 +29,7 @@ export const exportCharacteristicsDescriptionToXML = (
     TypesFilterField: exportMetadataFieldToXML(data.typesFilterField, configurationSettings),
     TypesFilterValue: exportMetadataValueToXML(data.typesFilterValue, configurationSettings),
     ValueField: exportMetadataFieldToXML(data.valueField, configurationSettings),
-  }
+  })
 }
 
 export const exportCharacteristicsDescriptionsToXML = (

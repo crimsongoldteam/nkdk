@@ -10,6 +10,7 @@ import { exportMetadataCommandGroupToEnterprise } from "~/lib/metadata/commonObj
 import { exportPictureToEnterprise } from "~/lib/metadata/commonObjects/pictures/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "~/lib/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -19,7 +20,7 @@ export const exportMetadataCommandToEnterprise = (
 ): MetadataCommandEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ТипПараметраКоманды: exportTypeDescriptionToEnterprise(data.commandParameterType, configurationSettings),
     Комментарий: data.comment,
     Группа: exportMetadataCommandGroupToEnterprise(data.group, configurationSettings),
@@ -44,7 +45,7 @@ export const exportMetadataCommandToEnterprise = (
     СочетаниеКлавиш: data.shortcut,
     Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
     Подсказка: exportI8nTextToEnterprise(data.tooltip, configurationSettings),
-  }
+  })
 }
 
 export const exportMetadataCommandsToEnterprise = (

@@ -10,6 +10,7 @@ import { importMetadataTabularSectionsFromXML } from "~/lib/metadata/commonObjec
 import { importPredefinedItemsFromXML } from "~/lib/metadata/commonObjects/predifined/importFromXML"
 import { importStandardAttributeDescriptionsFromXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/importFromXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const importMetadataCatalogFromXML = (
   xml: MetadataCatalogXML | undefined,
@@ -17,7 +18,7 @@ export const importMetadataCatalogFromXML = (
 ): MetadataCatalog | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     additionalIndexes: importAdditionalIndexesFromXML(xml.AdditionalIndexes, configurationSettings),
     attributes: importMetadataAttributesFromXML(xml.Attributes, configurationSettings),
     autonumbering: xml.Autonumbering,
@@ -78,5 +79,5 @@ export const importMetadataCatalogFromXML = (
     tabularSections: importMetadataTabularSectionsFromXML(xml.TabularSections, configurationSettings),
     updateDataHistoryImmediatelyAfterWrite: xml.UpdateDataHistoryImmediatelyAfterWrite,
     useStandardCommands: xml.UseStandardCommands,
-  }
+  })
 }

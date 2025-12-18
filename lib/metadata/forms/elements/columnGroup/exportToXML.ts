@@ -4,6 +4,7 @@ import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { ColumnGroup, ColumnGroupXML } from "~/lib/metadata/forms/elements/columnGroup/types"
 import { exportFormGroupToXML } from "~/lib/metadata/forms/elements/formGroup/exportToXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportColumnGroupToXML = (
@@ -12,7 +13,7 @@ export const exportColumnGroupToXML = (
 ): ColumnGroupXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormGroupToXML(data, configurationSettings)!,
 
     FixingInTable: data.fixingInTable,
@@ -25,7 +26,7 @@ export const exportColumnGroupToXML = (
     ShowTitle: data.showTitle,
     TitleBackColor: exportColorToXML(data.titleBackColor, configurationSettings),
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToXML", "ColumnGroup", exportColumnGroupToXML)

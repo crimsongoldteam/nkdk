@@ -10,6 +10,7 @@ import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDes
 import { exportTypeLinkToXML } from "~/lib/metadata/commonObjects/typeLink/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const exportStandardAttributeDescriptionToXML = (
   data: StandardAttributeDescription | undefined,
@@ -17,7 +18,7 @@ export const exportStandardAttributeDescriptionToXML = (
 ): StandardAttributeDescriptionXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ChoiceForm: data.choiceForm,
     ChoiceHistoryOnInput: data.choiceHistoryOnInput,
     ChoiceParameterLinks: exportChoiceParameterLinksToXML(data.choiceParameterLinks, configurationSettings),
@@ -45,7 +46,7 @@ export const exportStandardAttributeDescriptionToXML = (
     ToolTip: exportI8nTextToXML(data.toolTip, configurationSettings),
     Type: exportTypeDescriptionToXML(data.type, configurationSettings),
     TypeReductionMode: data.typeReductionMode,
-  }
+  })
 }
 
 export const exportStandardAttributeDescriptionsToXML = (

@@ -5,6 +5,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/importFromXML"
 import { importTableFromXML } from "~/lib/metadata/forms/elements/table/importFromXML"
 import { UsualGroup, UsualGroupXML } from "~/lib/metadata/forms/elements/usualGroup/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -14,7 +15,7 @@ export const importUsualGroupFromXML = (
 ): UsualGroup | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importFormGroupFromXML(xml, configurationSettings)!,
     elementType: FormElementType.UsualGroup,
 
@@ -47,7 +48,7 @@ export const importUsualGroupFromXML = (
     verticalAlign: xml.VerticalAlign,
     verticalSpacing: xml.VerticalSpacing,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "UsualGroup", importUsualGroupFromXML)

@@ -6,6 +6,7 @@ import { exportChildItemsToXML } from "~/lib/metadata/forms/elements/childItems/
 import { exportCommandBarToXML } from "~/lib/metadata/forms/elements/commandBar/exportToXML"
 import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDecoration/exportToXML"
 import { FormItemAddition, FormItemAdditionXML } from "~/lib/metadata/forms/elements/formItemAddition/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportFormItemAdditionToXML = (
@@ -14,7 +15,7 @@ export const exportFormItemAdditionToXML = (
 ): FormItemAdditionXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportBaseElementToXML(data, configurationSettings)!,
 
     ContextMenu: exportCommandBarToXML(data.contextMenu, configurationSettings),
@@ -30,7 +31,7 @@ export const exportFormItemAdditionToXML = (
     Visible: data.visible,
     ChildItems: exportChildItemsToXML(data.childItems, configurationSettings),
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToXML", "FormItemAddition", exportFormItemAdditionToXML)

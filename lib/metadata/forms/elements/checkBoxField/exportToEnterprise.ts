@@ -7,6 +7,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { CheckBoxField, CheckBoxFieldEnterprise } from "~/lib/metadata/forms/elements/checkBoxField/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -17,7 +18,7 @@ export const exportCheckBoxFieldToEnterprise = (
 ): CheckBoxFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormFieldToEnterprise(data, configurationSettings)!,
 
     ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
@@ -37,7 +38,7 @@ export const exportCheckBoxFieldToEnterprise = (
     ТриСостояния: exportBooleanToEnterprise(data.threeState, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToEnterprise", "CheckBoxField", exportCheckBoxFieldToEnterprise)

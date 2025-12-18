@@ -9,6 +9,7 @@ import { exportMetadataCommandGroupToXML } from "~/lib/metadata/commonObjects/me
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const exportMetadataCommandToXML = (
   data: MetadataCommand | undefined,
@@ -16,7 +17,7 @@ export const exportMetadataCommandToXML = (
 ): MetadataCommandXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     CommandParameterType: exportTypeDescriptionToXML(data.commandParameterType, configurationSettings),
     Comment: data.comment,
     Group: exportMetadataCommandGroupToXML(data.group, configurationSettings),
@@ -29,7 +30,7 @@ export const exportMetadataCommandToXML = (
     Shortcut: data.shortcut,
     Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
     Tooltip: exportI8nTextToXML(data.tooltip, configurationSettings),
-  }
+  })
 }
 
 export const exportMetadataCommandsToXML = (

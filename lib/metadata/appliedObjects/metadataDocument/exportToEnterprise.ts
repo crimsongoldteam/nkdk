@@ -11,6 +11,7 @@ import { exportMetadataItemLinksToEnterprise } from "~/lib/metadata/commonObject
 import { exportMetadataTabularSectionsToEnterprise } from "~/lib/metadata/commonObjects/metadataTabularSection/exportToEnterprise"
 import { exportStandardAttributeDescriptionsToEnterprise } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -20,7 +21,7 @@ export const exportMetadataDocumentToEnterprise = (
 ): MetadataDocumentEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ЗаписьДвиженийПриПроведении: exportSystemEnumerationToEnterprise(
       data.actionsWritingOnPost,
       SE.RegisterRecordsWritingOnPostToEnterprise,
@@ -148,5 +149,5 @@ export const exportMetadataDocumentToEnterprise = (
       configurationSettings
     ),
     ИспользоватьСтандартныеКоманды: exportBooleanToEnterprise(data.useStandardCommands, configurationSettings),
-  }
+  })
 }

@@ -4,6 +4,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { PlannerField, PlannerFieldEnterprise } from "~/lib/metadata/forms/elements/plannerField/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPlannerFieldToEnterprise = (
@@ -12,7 +13,7 @@ export const exportPlannerFieldToEnterprise = (
 ): PlannerFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormFieldToEnterprise(data, configurationSettings)!,
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
@@ -33,7 +34,7 @@ export const exportPlannerFieldToEnterprise = (
     ),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToEnterprise", "PlannerField", exportPlannerFieldToEnterprise)

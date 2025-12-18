@@ -4,6 +4,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { HTMLDocumentField, HTMLDocumentFieldXML } from "~/lib/metadata/forms/elements/htmlDocumentField/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -13,7 +14,7 @@ export const importHTMLDocumentFieldFromXML = (
 ): HTMLDocumentField | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.HTMLDocumentField,
 
@@ -30,7 +31,7 @@ export const importHTMLDocumentFieldFromXML = (
     width: xml.Width,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "HTMLDocumentField", importHTMLDocumentFieldFromXML)

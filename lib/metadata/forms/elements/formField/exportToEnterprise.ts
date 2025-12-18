@@ -12,6 +12,7 @@ import { exportFormDecorationToEnterprise } from "~/lib/metadata/forms/elements/
 import { FormField, FormFieldEnterprise } from "~/lib/metadata/forms/elements/formField/types"
 import { exportTableToEnterprise } from "~/lib/metadata/forms/elements/table/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -22,7 +23,7 @@ export const exportFormFieldToEnterprise = (
 ): FormFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportBaseElementToEnterprise(data, configurationSettings)!,
 
     АвтоВысотаЯчейки: exportBooleanToEnterprise(data.autoCellHeight, configurationSettings),
@@ -117,7 +118,7 @@ export const exportFormFieldToEnterprise = (
     ),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToEnterprise", "FormField", exportFormFieldToEnterprise)

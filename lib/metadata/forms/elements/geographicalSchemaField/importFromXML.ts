@@ -7,6 +7,7 @@ import {
   GeographicalSchemaFieldXML,
 } from "~/lib/metadata/forms/elements/geographicalSchemaField/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -16,7 +17,7 @@ export const importGeographicalSchemaFieldFromXML = (
 ): GeographicalSchemaField | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.GeographicalSchemaField,
 
@@ -32,7 +33,7 @@ export const importGeographicalSchemaFieldFromXML = (
     width: xml.Width,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "GeographicalSchemaField", importGeographicalSchemaFieldFromXML)

@@ -4,6 +4,7 @@ import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisib
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { ColumnGroup, ColumnGroupXML } from "~/lib/metadata/forms/elements/columnGroup/types"
 import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/importFromXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -13,7 +14,7 @@ export const importColumnGroupFromXML = (
 ): ColumnGroup | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importFormGroupFromXML(xml, configurationSettings)!,
     elementType: FormElementType.ColumnGroup,
 
@@ -27,7 +28,7 @@ export const importColumnGroupFromXML = (
     showTitle: xml.ShowTitle,
     titleBackColor: importColorFromXML(xml.TitleBackColor, configurationSettings),
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "ColumnGroup", importColumnGroupFromXML)

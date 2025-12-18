@@ -6,6 +6,7 @@ import {
 } from "~/lib/metadata/commonObjects/additionalIndex/types"
 import { exportIndexFieldsToXML } from "~/lib/metadata/commonObjects/indexField/exportToXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const exportAdditionalIndexToXML = (
   data: AdditionalIndex | undefined,
@@ -13,12 +14,12 @@ export const exportAdditionalIndexToXML = (
 ): AdditionalIndexXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     AdditionalFields: exportIndexFieldsToXML(data.additionalFields, configurationSettings),
     IndexedFields: exportIndexFieldsToXML(data.indexedFields, configurationSettings),
     Name: data.name,
     Table: data.table,
-  }
+  })
 }
 
 export const exportAdditionalIndexesToXML = (

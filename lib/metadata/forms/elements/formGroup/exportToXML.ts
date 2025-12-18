@@ -7,6 +7,7 @@ import { exportBaseElementToXML } from "~/lib/metadata/forms/elements/baseElemen
 import { exportChildItemsToXML } from "~/lib/metadata/forms/elements/childItems/exportToXML"
 import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDecoration/exportToXML"
 import { FormGroup, FormGroupXML } from "~/lib/metadata/forms/elements/formGroup/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportFormGroupToXML = (
@@ -15,7 +16,7 @@ export const exportFormGroupToXML = (
 ): FormGroupXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportBaseElementToXML(data, configurationSettings)!,
 
     EnableContentChange: data.enableContentChange,
@@ -38,7 +39,7 @@ export const exportFormGroupToXML = (
     Width: data.width,
     ChildItems: exportChildItemsToXML(data.childItems, configurationSettings),
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToXML", "FormGroup", exportFormGroupToXML)

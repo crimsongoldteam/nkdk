@@ -2,6 +2,7 @@ import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/user
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { ButtonGroup, ButtonGroupEnterprise } from "~/lib/metadata/forms/elements/buttonGroup/types"
 import { exportFormGroupToEnterprise } from "~/lib/metadata/forms/elements/formGroup/exportToEnterprise"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -12,7 +13,7 @@ export const exportButtonGroupToEnterprise = (
 ): ButtonGroupEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormGroupToEnterprise(data, configurationSettings)!,
 
     Отображение: exportSystemEnumerationToEnterprise(
@@ -21,7 +22,7 @@ export const exportButtonGroupToEnterprise = (
       configurationSettings
     ),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToEnterprise", "ButtonGroup", exportButtonGroupToEnterprise)

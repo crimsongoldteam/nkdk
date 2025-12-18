@@ -11,14 +11,26 @@ describe("exportMetadataCatalogToEnterprise", () => {
       comment: "Комментарий",
       hierarchical: true,
       hierarchyType: "HierarchyFoldersAndItems",
+      attributes: [
+        {
+          name: "РеквизитСправочника",
+          synonym: { items: { ru: "Реквизит справочника" } },
+          type: { type: ["string"] },
+        },
+      ],
     }
 
     const expectedResult: MetadataCatalogEnterprise = {
-      Имя: "Контрагенты",
-      Синоним: { ru: "Контрагенты" },
+      Синоним: "Контрагенты",
       Комментарий: "Комментарий",
       Иерархический: "Истина",
       ВидИерархии: "ИерархияГруппИЭлементов",
+      Реквизиты: {
+        РеквизитСправочника: {
+          Синоним: "Реквизит справочника",
+          Тип: "Строка",
+        },
+      },
     }
 
     const result = exportMetadataCatalogToEnterprise(mock, mockConfigurationSettings)

@@ -7,6 +7,7 @@ import {
   SearchControlAddition,
   SearchControlAdditionXML,
 } from "~/lib/metadata/forms/elements/searchControlAddition/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportSearchControlAdditionToXML = (
@@ -15,7 +16,7 @@ export const exportSearchControlAdditionToXML = (
 ): SearchControlAdditionXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormItemAdditionToXML(data, configurationSettings)!,
 
     AutoMaxWidth: data.autoMaxWidth,
@@ -27,7 +28,7 @@ export const exportSearchControlAdditionToXML = (
     TextColor: exportColorToXML(data.textColor, configurationSettings),
     Width: data.width,
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToXML", "SearchControlAddition", exportSearchControlAdditionToXML)

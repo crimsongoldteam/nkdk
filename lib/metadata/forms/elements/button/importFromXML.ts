@@ -7,6 +7,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
 import { Button, ButtonXML } from "~/lib/metadata/forms/elements/button/types"
 import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -16,7 +17,7 @@ export const importButtonFromXML = (
 ): Button | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importBaseElementFromXML(xml, configurationSettings)!,
     elementType: FormElementType.Button,
 
@@ -57,7 +58,7 @@ export const importButtonFromXML = (
     visible: xml.Visible,
     width: xml.Width,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "Button", importButtonFromXML)

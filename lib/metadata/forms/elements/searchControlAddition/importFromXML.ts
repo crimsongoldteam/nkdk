@@ -7,6 +7,7 @@ import {
   SearchControlAddition,
   SearchControlAdditionXML,
 } from "~/lib/metadata/forms/elements/searchControlAddition/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -16,7 +17,7 @@ export const importSearchControlAdditionFromXML = (
 ): SearchControlAddition | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importFormItemAdditionFromXML(xml, configurationSettings)!,
     elementType: FormElementType.SearchControlAddition,
 
@@ -29,7 +30,7 @@ export const importSearchControlAdditionFromXML = (
     textColor: importColorFromXML(xml.TextColor, configurationSettings),
     width: xml.Width,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "SearchControlAddition", importSearchControlAdditionFromXML)

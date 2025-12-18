@@ -8,6 +8,7 @@ import { exportMetadataFieldToEnterprise } from "~/lib/metadata/commonObjects/me
 import { exportMetadataItemLinkToEnterprise } from "~/lib/metadata/commonObjects/metadataItemLink/exportToEnterprise"
 import { exportMetadataValueToEnterprise } from "~/lib/metadata/commonObjects/metadataValue/exportToEnterprise"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const exportCharacteristicsDescriptionToEnterprise = (
   data: CharacteristicsDescription | undefined,
@@ -15,7 +16,7 @@ export const exportCharacteristicsDescriptionToEnterprise = (
 ): CharacteristicsDescriptionEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ВидыХарактеристик: exportMetadataItemLinkToEnterprise(data.characteristicTypes, configurationSettings),
     ЗначенияХарактеристик: exportMetadataValueToEnterprise(data.characteristicValues, configurationSettings),
     ПолеПутиКДанным: exportMetadataFieldToEnterprise(data.dataPathField, configurationSettings),
@@ -34,7 +35,7 @@ export const exportCharacteristicsDescriptionToEnterprise = (
     ПолеОтбораВидов: exportMetadataFieldToEnterprise(data.typesFilterField, configurationSettings),
     ЗначениеОтбораВидов: exportMetadataValueToEnterprise(data.typesFilterValue, configurationSettings),
     ПолеЗначения: exportMetadataFieldToEnterprise(data.valueField, configurationSettings),
-  }
+  })
 }
 
 export const exportCharacteristicsDescriptionsToEnterprise = (

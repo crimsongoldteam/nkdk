@@ -9,6 +9,7 @@ import { importMetadataCommandGroupFromXML } from "~/lib/metadata/commonObjects/
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const importMetadataCommandFromXML = (
   xml: MetadataCommandXML | undefined,
@@ -16,7 +17,7 @@ export const importMetadataCommandFromXML = (
 ): MetadataCommand | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     commandParameterType: importTypeDescriptionFromXML(xml.CommandParameterType, configurationSettings),
     comment: xml.Comment,
     group: importMetadataCommandGroupFromXML(xml.Group, configurationSettings),
@@ -29,7 +30,7 @@ export const importMetadataCommandFromXML = (
     shortcut: xml.Shortcut,
     synonym: importI8nTextFromXML(xml.Synonym, configurationSettings),
     tooltip: importI8nTextFromXML(xml.Tooltip, configurationSettings),
-  }
+  })
 }
 
 export const importMetadataCommandsFromXML = (

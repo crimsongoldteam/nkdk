@@ -4,6 +4,7 @@ import { exportFormGroupToEnterprise } from "~/lib/metadata/forms/elements/formG
 import { Pages, PagesEnterprise } from "~/lib/metadata/forms/elements/pages/types"
 import { exportTableToEnterprise } from "~/lib/metadata/forms/elements/table/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -14,7 +15,7 @@ export const exportPagesToEnterprise = (
 ): PagesEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormGroupToEnterprise(data, configurationSettings)!,
 
     ИспользуемаяТаблица: exportTableToEnterprise(data.associatedTable, configurationSettings),
@@ -35,7 +36,7 @@ export const exportPagesToEnterprise = (
     ),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToEnterprise", "Pages", exportPagesToEnterprise)

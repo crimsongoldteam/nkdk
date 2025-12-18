@@ -5,6 +5,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
 import { LabelDecoration, LabelDecorationXML } from "~/lib/metadata/forms/elements/labelDecoration/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -14,7 +15,7 @@ export const importLabelDecorationFromXML = (
 ): LabelDecoration | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importFormDecorationFromXML(xml, configurationSettings)!,
     elementType: FormElementType.LabelDecoration,
 
@@ -28,7 +29,7 @@ export const importLabelDecorationFromXML = (
     verticalAlign: xml.VerticalAlign,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "LabelDecoration", importLabelDecorationFromXML)

@@ -4,6 +4,7 @@ import { exportFormGroupToXML } from "~/lib/metadata/forms/elements/formGroup/ex
 import { Pages, PagesXML } from "~/lib/metadata/forms/elements/pages/types"
 import { exportTableToXML } from "~/lib/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPagesToXML = (
@@ -12,7 +13,7 @@ export const exportPagesToXML = (
 ): PagesXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormGroupToXML(data, configurationSettings)!,
 
     AssociatedTable: exportTableToXML(data.associatedTable, configurationSettings),
@@ -21,7 +22,7 @@ export const exportPagesToXML = (
     PagesRepresentation: data.pagesRepresentation,
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToXML", "Pages", exportPagesToXML)

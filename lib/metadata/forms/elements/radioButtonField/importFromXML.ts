@@ -6,6 +6,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { RadioButtonField, RadioButtonFieldXML } from "~/lib/metadata/forms/elements/radioButtonField/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -15,7 +16,7 @@ export const importRadioButtonFieldFromXML = (
 ): RadioButtonField | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.RadioButtonField,
 
@@ -32,7 +33,7 @@ export const importRadioButtonFieldFromXML = (
     textColor: importColorFromXML(xml.TextColor, configurationSettings),
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "RadioButtonField", importRadioButtonFieldFromXML)

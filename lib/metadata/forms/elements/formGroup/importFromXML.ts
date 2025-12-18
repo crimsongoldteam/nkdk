@@ -7,6 +7,7 @@ import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElem
 import { importChildItemsFromXML } from "~/lib/metadata/forms/elements/childItems/importFromXML"
 import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
 import { FormGroup, FormGroupXML } from "~/lib/metadata/forms/elements/formGroup/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -16,7 +17,7 @@ export const importFormGroupFromXML = (
 ): FormGroup | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importBaseElementFromXML(xml, configurationSettings)!,
     elementType: FormElementType.FormGroup,
 
@@ -40,7 +41,7 @@ export const importFormGroupFromXML = (
     width: xml.Width,
     childItems: importChildItemsFromXML(xml.ChildItems, configurationSettings),
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "FormGroup", importFormGroupFromXML)

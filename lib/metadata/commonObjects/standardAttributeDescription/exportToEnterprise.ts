@@ -11,6 +11,7 @@ import { exportTypeDescriptionToEnterprise } from "~/lib/metadata/commonObjects/
 import { exportTypeLinkToEnterprise } from "~/lib/metadata/commonObjects/typeLink/exportToEnterprise"
 import { exportChoiceParameterLinksToEnterprise } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -20,7 +21,7 @@ export const exportStandardAttributeDescriptionToEnterprise = (
 ): StandardAttributeDescriptionEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ФормаВыбора: data.choiceForm,
     ИсторияВыбораПриВводе: exportSystemEnumerationToEnterprise(
       data.choiceHistoryOnInput,
@@ -72,7 +73,7 @@ export const exportStandardAttributeDescriptionToEnterprise = (
       SE.TypeReductionModeToEnterprise,
       configurationSettings
     ),
-  }
+  })
 }
 
 export const exportStandardAttributeDescriptionsToEnterprise = (

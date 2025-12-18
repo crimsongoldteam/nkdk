@@ -8,6 +8,7 @@ import {
 } from "~/lib/metadata/forms/elements/formattedDocumentField/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -17,7 +18,7 @@ export const importFormattedDocumentFieldFromXML = (
 ): FormattedDocumentField | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.FormattedDocumentField,
 
@@ -37,7 +38,7 @@ export const importFormattedDocumentFieldFromXML = (
     width: xml.Width,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "FormattedDocumentField", importFormattedDocumentFieldFromXML)

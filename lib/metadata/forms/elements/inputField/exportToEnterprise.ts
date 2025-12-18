@@ -12,6 +12,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { InputField, InputFieldEnterprise } from "~/lib/metadata/forms/elements/inputField/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -22,7 +23,7 @@ export const exportInputFieldToEnterprise = (
 ): InputFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormFieldToEnterprise(data, configurationSettings)!,
 
     РазрешитьВводПустыхМножественныхЗначений: exportBooleanToEnterprise(
@@ -180,7 +181,7 @@ export const exportInputFieldToEnterprise = (
     АвтоПереносСтрок: exportBooleanToEnterprise(data.wrap, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToEnterprise", "InputField", exportInputFieldToEnterprise)

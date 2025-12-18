@@ -2,6 +2,7 @@ import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { ButtonGroup, ButtonGroupXML } from "~/lib/metadata/forms/elements/buttonGroup/types"
 import { exportFormGroupToXML } from "~/lib/metadata/forms/elements/formGroup/exportToXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportButtonGroupToXML = (
@@ -10,12 +11,12 @@ export const exportButtonGroupToXML = (
 ): ButtonGroupXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormGroupToXML(data, configurationSettings)!,
 
     Representation: data.representation,
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToXML", "ButtonGroup", exportButtonGroupToXML)

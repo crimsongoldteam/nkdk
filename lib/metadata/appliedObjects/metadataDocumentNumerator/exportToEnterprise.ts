@@ -5,6 +5,7 @@ import {
 import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/lib/metadata/commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -14,7 +15,7 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
 ): MetadataDocumentNumeratorEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     КонтрольУникальности: exportBooleanToEnterprise(data.checkUnique, configurationSettings),
     Комментарий: data.comment,
     Имя: data.name,
@@ -40,5 +41,5 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
       configurationSettings
     ),
     Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
-  }
+  })
 }

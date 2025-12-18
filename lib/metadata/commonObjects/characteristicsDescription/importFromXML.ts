@@ -8,6 +8,7 @@ import { importMetadataFieldFromXML } from "~/lib/metadata/commonObjects/metadat
 import { importMetadataItemLinkFromXML } from "~/lib/metadata/commonObjects/metadataItemLink/importFromXML"
 import { importMetadataValueFromXML } from "~/lib/metadata/commonObjects/metadataValue/importFromXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const importCharacteristicsDescriptionFromXML = (
   xml: CharacteristicsDescriptionXML | undefined,
@@ -15,7 +16,7 @@ export const importCharacteristicsDescriptionFromXML = (
 ): CharacteristicsDescription | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     characteristicTypes: importMetadataItemLinkFromXML(xml.CharacteristicTypes, configurationSettings),
     characteristicValues: importMetadataValueFromXML(xml.CharacteristicValues, configurationSettings),
     dataPathField: importMetadataFieldFromXML(xml.DataPathField, configurationSettings),
@@ -28,7 +29,7 @@ export const importCharacteristicsDescriptionFromXML = (
     typesFilterField: importMetadataFieldFromXML(xml.TypesFilterField, configurationSettings),
     typesFilterValue: importMetadataValueFromXML(xml.TypesFilterValue, configurationSettings),
     valueField: importMetadataFieldFromXML(xml.ValueField, configurationSettings),
-  }
+  })
 }
 
 export const importCharacteristicsDescriptionsFromXML = (

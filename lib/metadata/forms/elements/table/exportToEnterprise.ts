@@ -12,6 +12,7 @@ import { exportFormDecorationToEnterprise } from "~/lib/metadata/forms/elements/
 import { exportFormItemAdditionToEnterprise } from "~/lib/metadata/forms/elements/formItemAddition/exportToEnterprise"
 import { Table, TableEnterprise } from "~/lib/metadata/forms/elements/table/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -22,7 +23,7 @@ export const exportTableToEnterprise = (
 ): TableEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportBaseElementToEnterprise(data, configurationSettings)!,
 
     АвтоВводНезаполненного: exportBooleanToEnterprise(data.autoAddIncomplete, configurationSettings),
@@ -204,7 +205,7 @@ export const exportTableToEnterprise = (
     ПодчиненныеЭлементы: exportChildItemsToEnterprise(data.childItems, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
     События: exportEventsToEnterprise(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToEnterprise", "Table", exportTableToEnterprise)

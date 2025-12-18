@@ -11,6 +11,7 @@ import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDec
 import { FormField, FormFieldXML } from "~/lib/metadata/forms/elements/formField/types"
 import { exportTableToXML } from "~/lib/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportFormFieldToXML = (
@@ -19,7 +20,7 @@ export const exportFormFieldToXML = (
 ): FormFieldXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportBaseElementToXML(data, configurationSettings)!,
 
     AutoCellHeight: data.autoCellHeight,
@@ -66,7 +67,7 @@ export const exportFormFieldToXML = (
     WarningOnEditRepresentation: data.warningOnEditRepresentation,
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToXML", "FormField", exportFormFieldToXML)

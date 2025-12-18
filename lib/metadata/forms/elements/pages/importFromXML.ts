@@ -4,6 +4,7 @@ import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/
 import { Pages, PagesXML } from "~/lib/metadata/forms/elements/pages/types"
 import { importTableFromXML } from "~/lib/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -13,7 +14,7 @@ export const importPagesFromXML = (
 ): Pages | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importFormGroupFromXML(xml, configurationSettings)!,
     elementType: FormElementType.Pages,
 
@@ -23,7 +24,7 @@ export const importPagesFromXML = (
     pagesRepresentation: xml.PagesRepresentation,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "Pages", importPagesFromXML)

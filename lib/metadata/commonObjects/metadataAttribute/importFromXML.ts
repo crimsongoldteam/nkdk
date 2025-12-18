@@ -10,6 +10,7 @@ import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeD
 import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const importMetadataAttributeFromXML = (
   xml: MetadataAttributeXML | undefined,
@@ -17,7 +18,7 @@ export const importMetadataAttributeFromXML = (
 ): MetadataAttribute | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     binaryDataStorageLocationUse: xml.BinaryDataStorageLocationUse,
     binaryDataStorageLocationUseField: xml.BinaryDataStorageLocationUseField,
     choiceFoldersAndItems: xml.ChoiceFoldersAndItems,
@@ -50,7 +51,7 @@ export const importMetadataAttributeFromXML = (
     tooltip: importI8nTextFromXML(xml.Tooltip, configurationSettings),
     type: importTypeDescriptionFromXML(xml.Type, configurationSettings),
     use: xml.Use,
-  }
+  })
 }
 
 export const importMetadataAttributesFromXML = (

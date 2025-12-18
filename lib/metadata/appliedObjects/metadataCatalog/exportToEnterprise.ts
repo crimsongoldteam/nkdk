@@ -11,6 +11,7 @@ import { exportMetadataTabularSectionsToEnterprise } from "~/lib/metadata/common
 import { exportPredefinedItemsToEnterprise } from "~/lib/metadata/commonObjects/predifined/exportToEnterprise"
 import { exportStandardAttributeDescriptionsToEnterprise } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -20,7 +21,7 @@ export const exportMetadataCatalogToEnterprise = (
 ): MetadataCatalogEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ДополнительныеИндексы: exportAdditionalIndexesToEnterprise(data.additionalIndexes, configurationSettings),
     Реквизиты: exportMetadataAttributesToEnterprise(data.attributes, configurationSettings),
     Автонумерация: exportBooleanToEnterprise(data.autonumbering, configurationSettings),
@@ -122,7 +123,6 @@ export const exportMetadataCatalogToEnterprise = (
     КоличествоУровней: data.levelCount,
     ОграничиватьКоличествоУровней: exportBooleanToEnterprise(data.limitLevelCount, configurationSettings),
     ПредставлениеСписка: exportI8nTextToEnterprise(data.listPresentation, configurationSettings),
-    Имя: data.name,
     ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
       data.objectBelonging,
       SE.ObjectBelongingToEnterprise,
@@ -158,5 +158,5 @@ export const exportMetadataCatalogToEnterprise = (
       configurationSettings
     ),
     ИспользоватьСтандартныеКоманды: exportBooleanToEnterprise(data.useStandardCommands, configurationSettings),
-  }
+  })
 }

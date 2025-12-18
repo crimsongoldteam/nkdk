@@ -11,6 +11,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { InputField, InputFieldXML } from "~/lib/metadata/forms/elements/inputField/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -20,7 +21,7 @@ export const importInputFieldFromXML = (
 ): InputField | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.InputField,
 
@@ -103,7 +104,7 @@ export const importInputFieldFromXML = (
     wrap: xml.Wrap,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "InputField", importInputFieldFromXML)

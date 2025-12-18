@@ -8,6 +8,7 @@ import {
 } from "~/lib/metadata/commonObjects/metadataTabularSection/types"
 import { exportStandardAttributeDescriptionsToEnterprise } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -17,7 +18,7 @@ export const exportMetadataTabularSectionToEnterprise = (
 ): MetadataTabularSectionEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     Реквизиты: exportMetadataAttributesToEnterprise(data.attributes, configurationSettings),
     Комментарий: data.comment,
     ПроверкаЗаполнения: exportSystemEnumerationToEnterprise(
@@ -39,7 +40,7 @@ export const exportMetadataTabularSectionToEnterprise = (
     Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
     Подсказка: exportI8nTextToEnterprise(data.tooltip, configurationSettings),
     Использование: exportSystemEnumerationToEnterprise(data.use, SE.AttributeUseToEnterprise, configurationSettings),
-  }
+  })
 }
 
 export const exportMetadataTabularSectionsToEnterprise = (

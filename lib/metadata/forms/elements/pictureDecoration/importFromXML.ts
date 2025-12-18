@@ -6,6 +6,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
 import { PictureDecoration, PictureDecorationXML } from "~/lib/metadata/forms/elements/pictureDecoration/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
@@ -15,7 +16,7 @@ export const importPictureDecorationFromXML = (
 ): PictureDecoration | undefined => {
   if (!xml) return undefined
 
-  return {
+  return compactObject({
     ...importFormDecorationFromXML(xml, configurationSettings)!,
     elementType: FormElementType.PictureDecoration,
 
@@ -32,7 +33,7 @@ export const importPictureDecorationFromXML = (
     zoomable: xml.Zoomable,
     userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
     events: importEventsFromXML(xml.Events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ImportFromXML", "PictureDecoration", importPictureDecorationFromXML)

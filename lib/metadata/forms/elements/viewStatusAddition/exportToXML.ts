@@ -5,6 +5,7 @@ import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormItemAdditionToXML } from "~/lib/metadata/forms/elements/formItemAddition/exportToXML"
 import { ViewStatusAddition, ViewStatusAdditionXML } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportViewStatusAdditionToXML = (
@@ -13,7 +14,7 @@ export const exportViewStatusAdditionToXML = (
 ): ViewStatusAdditionXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormItemAdditionToXML(data, configurationSettings)!,
 
     AutoMaxWidth: data.autoMaxWidth,
@@ -30,7 +31,7 @@ export const exportViewStatusAdditionToXML = (
     TitleTextColor: exportColorToXML(data.titleTextColor, configurationSettings),
     Width: data.width,
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToXML", "ViewStatusAddition", exportViewStatusAdditionToXML)

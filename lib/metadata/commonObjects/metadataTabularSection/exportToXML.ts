@@ -8,6 +8,7 @@ import {
 } from "~/lib/metadata/commonObjects/metadataTabularSection/types"
 import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const exportMetadataTabularSectionToXML = (
   data: MetadataTabularSection | undefined,
@@ -15,7 +16,7 @@ export const exportMetadataTabularSectionToXML = (
 ): MetadataTabularSectionXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     Attributes: exportMetadataAttributesToXML(data.attributes, configurationSettings),
     Comment: data.comment,
     FillChecking: data.fillChecking,
@@ -26,7 +27,7 @@ export const exportMetadataTabularSectionToXML = (
     Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
     Tooltip: exportI8nTextToXML(data.tooltip, configurationSettings),
     Use: data.use,
-  }
+  })
 }
 
 export const exportMetadataTabularSectionsToXML = (

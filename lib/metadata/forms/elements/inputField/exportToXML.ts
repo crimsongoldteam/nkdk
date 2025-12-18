@@ -11,6 +11,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { InputField, InputFieldXML } from "~/lib/metadata/forms/elements/inputField/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
+import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportInputFieldToXML = (
@@ -19,7 +20,7 @@ export const exportInputFieldToXML = (
 ): InputFieldXML | undefined => {
   if (!data) return undefined
 
-  return {
+  return compactObject({
     ...exportFormFieldToXML(data, configurationSettings)!,
 
     AllowInputEmptyMultipleValues: data.allowInputEmptyMultipleValues,
@@ -101,7 +102,7 @@ export const exportInputFieldToXML = (
     Wrap: data.wrap,
     UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
     Events: exportEventsToXML(data.events, configurationSettings),
-  }
+  })
 }
 
 registerMetadata("ExportToXML", "InputField", exportInputFieldToXML)
