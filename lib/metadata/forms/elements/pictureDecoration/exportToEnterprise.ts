@@ -6,8 +6,8 @@ import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/user
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormDecorationToEnterprise } from "~/lib/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { PictureDecoration, PictureDecorationEnterprise } from "~/lib/metadata/forms/elements/pictureDecoration/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -44,4 +44,4 @@ export const exportPictureDecorationToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.PictureDecoration, exportPictureDecorationToEnterprise)
+registerMetadata("ExportToEnterprise", "PictureDecoration", exportPictureDecorationToEnterprise)

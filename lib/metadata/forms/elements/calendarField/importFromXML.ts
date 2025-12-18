@@ -2,29 +2,33 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { CalendarField, CalendarFieldXML } from "~/lib/metadata/forms/elements/calendarField/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importCalendarFieldFromXML = (xml: CalendarFieldXML | undefined): CalendarField | undefined => {
+export const importCalendarFieldFromXML = (
+  xml: CalendarFieldXML | undefined,
+  configurationSettings: ConfigurationSettings
+): CalendarField | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importFormFieldFromXML(xml)!,
+    ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.CalendarField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     beginOfRepresentationPeriod: xml.BeginOfRepresentationPeriod,
-    border: importBorderFromXML(xml.Border),
-    borderColor: importColorFromXML(xml.BorderColor),
+    border: importBorderFromXML(xml.Border, configurationSettings),
+    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
     calendarNavigation: xml.CalendarNavigation,
     enableDrag: xml.EnableDrag,
     enableStartDrag: xml.EnableStartDrag,
     endOfRepresentationPeriod: xml.EndOfRepresentationPeriod,
-    font: importFontFromXML(xml.Font),
+    font: importFontFromXML(xml.Font, configurationSettings),
     height: xml.Height,
     heightInMonths: xml.HeightInMonths,
     horizontalStretch: xml.HorizontalStretch,
@@ -36,9 +40,9 @@ export const importCalendarFieldFromXML = (xml: CalendarFieldXML | undefined): C
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     widthInMonths: xml.WidthInMonths,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
-    events: importEventsFromXML(xml.Events),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    events: importEventsFromXML(xml.Events, configurationSettings),
   }
 }
 
-registerImport(FormElementType.CalendarField, importCalendarFieldFromXML)
+registerMetadata("ImportFromXML", "CalendarField", importCalendarFieldFromXML)

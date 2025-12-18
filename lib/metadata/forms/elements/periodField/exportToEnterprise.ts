@@ -6,8 +6,8 @@ import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/user
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { PeriodField, PeriodFieldEnterprise } from "~/lib/metadata/forms/elements/periodField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPeriodFieldToEnterprise = (
   data: PeriodField | undefined,
@@ -34,4 +34,4 @@ export const exportPeriodFieldToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.PeriodField, exportPeriodFieldToEnterprise)
+registerMetadata("ExportToEnterprise", "PeriodField", exportPeriodFieldToEnterprise)

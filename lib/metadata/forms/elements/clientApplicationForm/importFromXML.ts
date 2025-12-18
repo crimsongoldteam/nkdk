@@ -1,21 +1,25 @@
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importCommandSetFromXML } from "~/lib/metadata/forms/commandSet/importFromXML"
+import { FormElementType } from "../../../metadataFactory/types"
 import { importEventsFromXML } from "../../events/importFromXML"
 import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { importCommandBarFromXML } from "../commandBar/importFromXML"
-import { FormElementType } from "../types"
 import importAttributeFromXML from "./attributes/importFromXML"
 import { AttributeXML, ClientApplicationForm, ClientApplicationFormXML, FormAttribute } from "./types"
 
-export const importClientApplicationFormFromXML = (xml: ClientApplicationFormXML): ClientApplicationForm => {
+export const importClientApplicationFormFromXML = (
+  xml: ClientApplicationFormXML,
+  configurationSettings: ConfigurationSettings
+): ClientApplicationForm => {
   return {
     elementType: FormElementType.ClientApplicationForm,
     attributes:
       xml.Attributes?.map((attribute) =>
-        "Attribute" in attribute ? importAttributeFromXML(attribute as AttributeXML) : undefined
+        "Attribute" in attribute ? importAttributeFromXML(attribute as AttributeXML, configurationSettings) : undefined
       ).filter((attr): attr is FormAttribute => attr !== undefined) ?? [],
-    autoCommandBar: importCommandBarFromXML(xml.AutoCommandBar),
-    commandSet: importCommandSetFromXML(xml.CommandSet),
+    autoCommandBar: importCommandBarFromXML(xml.AutoCommandBar, configurationSettings),
+    commandSet: importCommandSetFromXML(xml.CommandSet, configurationSettings),
     autoTitle: xml.AutoTitle,
     autoSaveDataInSettings: xml.AutoSaveDataInSettings,
     autoURL: xml.AutoURL,
@@ -27,14 +31,14 @@ export const importClientApplicationFormFromXML = (xml: ClientApplicationFormXML
     horizontalSpacing: xml.HorizontalSpacing,
     group: xml.Group,
     enabled: xml.Enabled,
-    title: importI8nTextFromXML(xml.Title),
+    title: importI8nTextFromXML(xml.Title, configurationSettings),
     closeOnChoice: xml.CloseOnChoice,
     closeOnOwnerClose: xml.CloseOnOwnerClose,
     formName: xml.FormName,
     usedFormServer: xml.UsedFormServer,
     purposeUseKey: xml.PurposeUseKey,
     windowOptionsKey: xml.WindowOptionsKey,
-    commandBar: importCommandBarFromXML(xml.CommandBar),
+    commandBar: importCommandBarFromXML(xml.CommandBar, configurationSettings),
     // commands: xml.Commands,
     scale: xml.Scale,
     modalMode: xml.ModalMode,
@@ -44,7 +48,7 @@ export const importClientApplicationFormFromXML = (xml: ClientApplicationFormXML
     showCloseButton: xml.ShowCloseButton,
     conversationsRepresentation: xml.ConversationsRepresentation,
     enterKeyBehavior: xml.EnterKeyBehavior,
-    childItems: importChildItemsFromXML(xml.ChildItems),
+    childItems: importChildItemsFromXML(xml.ChildItems, configurationSettings),
     commandBarLocation: xml.CommandBarLocation,
     autoFillCheck: xml.AutoFillCheck,
     formWindowOpeningMode: xml.FormWindowOpeningMode,
@@ -57,7 +61,7 @@ export const importClientApplicationFormFromXML = (xml: ClientApplicationFormXML
     width: xml.Width,
     useForFoldersAndItems: xml.UseForFoldersAndItems,
     slaveItemsWidth: xml.SlaveItemsWidth,
-    events: importEventsFromXML(xml.Events),
+    events: importEventsFromXML(xml.Events, configurationSettings),
   }
 }
 

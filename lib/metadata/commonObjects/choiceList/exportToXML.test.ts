@@ -1,9 +1,10 @@
-import { expect, it, describe } from "vitest"
+import { describe, expect, it } from "vitest"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { xmlExport } from "~/lib/xml/export/exporter"
+import { xmlImport } from "~/lib/xml/import/importer"
 import { exportChoiceListToXML } from "./exportToXML"
 import { importChoiceListFromXML } from "./importFromXML"
 import { ChoiceList, ChoiceListXML } from "./types"
-import { xmlExport } from "~/lib/xml/export/exporter"
-import { xmlImport } from "~/lib/xml/import/importer"
 
 describe("exportChoiceListToXML", () => {
   it("should export choice list to XML", () => {
@@ -49,14 +50,14 @@ describe("exportChoiceListToXML", () => {
 	</xr:Item>
 </ChoiceList>`
 
-    const result = { ChoiceList: exportChoiceListToXML(mockChoiceList) }
+    const result = { ChoiceList: exportChoiceListToXML(mockChoiceList, mockConfigurationSettings) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportChoiceListToXML(undefined)
+    const result = exportChoiceListToXML(undefined, mockConfigurationSettings)
 
     expect(result).toBeUndefined()
   })
@@ -90,8 +91,8 @@ describe("exportChoiceListToXML", () => {
 </ChoiceList>`
 
     const xml = xmlImport<{ ChoiceList: ChoiceListXML }>(originalXml)
-    const imported = importChoiceListFromXML(xml.ChoiceList)
-    const exported = exportChoiceListToXML(imported)
+    const imported = importChoiceListFromXML(xml.ChoiceList, mockConfigurationSettings)
+    const exported = exportChoiceListToXML(imported, mockConfigurationSettings)
     const resultXml = xmlExport({ ChoiceList: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

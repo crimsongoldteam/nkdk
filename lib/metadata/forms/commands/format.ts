@@ -2,7 +2,7 @@ import { stringify } from "yaml"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { exportI8nTextToEnterprise } from "../../commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationSettings } from "../../configurationSettings/types"
-import { formatSystemEnumeration } from "../../systemEnumerations/exportToEnterprise"
+import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
 import { Command, CommandEnterprise } from "./types"
 
 export const formatCommands = (commands: Command[], configurationSettings: ConfigurationSettings): string[] => {
@@ -25,9 +25,10 @@ const formatCommand = (command: Command, configurationSettings: ConfigurationSet
     СочетаниеКлавиш: command.shortcut,
     Действие: command.action,
     ОтображениеКнопки: command.representation,
-    ИспользованиеТекущейСтроки: formatSystemEnumeration<SE.CurrentRowUseEnterprise>(
+    ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
       command.currentRowUse,
-      SE.CurrentRowUseToEnterprise
+      SE.CurrentRowUseToEnterprise,
+      configurationSettings
     ),
     ИзменяемыеДанные: command.modifiesSavedData,
   }

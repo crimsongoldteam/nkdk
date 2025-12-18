@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { UsualGroup } from "./types"
-import { importUsualGroupFromXML } from "./importFromXML"
-import { UsualGroupXML } from "./types"
 import { xmlImport } from "~/lib"
-import { FormElementType } from "../types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { FormElementType } from "../../../metadataFactory/types"
+import { importUsualGroupFromXML } from "./importFromXML"
+import { UsualGroup, UsualGroupXML } from "./types"
 
 describe("importUsualGroupFromXML", () => {
   it("should import usual group from XML", () => {
@@ -27,7 +27,7 @@ describe("importUsualGroupFromXML", () => {
     const xmlData = xmlImport<{ UsualGroup: UsualGroupXML }>(mockXml)
     const value = xmlData.UsualGroup
 
-    const input = importUsualGroupFromXML(value)
+    const input = importUsualGroupFromXML(value, mockConfigurationSettings)
 
     expect(input).toEqual(mockResult)
   })
@@ -56,7 +56,7 @@ describe("importUsualGroupFromXML", () => {
     const xmlData = xmlImport<{ UsualGroup: UsualGroupXML }>(mockXml)
     const value = xmlData.UsualGroup
 
-    const input = importUsualGroupFromXML(value)
+    const input = importUsualGroupFromXML(value, mockConfigurationSettings)
 
     expect(input).toEqual(mockResult)
   })

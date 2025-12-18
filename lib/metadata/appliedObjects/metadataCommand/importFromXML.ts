@@ -8,28 +8,35 @@ import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/impor
 import { importMetadataCommandGroupFromXML } from "~/lib/metadata/commonObjects/metadataCommandGroup/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
-export const importMetadataCommandFromXML = (xml: MetadataCommandXML | undefined): MetadataCommand | undefined => {
+export const importMetadataCommandFromXML = (
+  xml: MetadataCommandXML | undefined,
+  configurationSettings: ConfigurationSettings
+): MetadataCommand | undefined => {
   if (!xml) return undefined
 
   return {
-    commandParameterType: importTypeDescriptionFromXML(xml.CommandParameterType),
+    commandParameterType: importTypeDescriptionFromXML(xml.CommandParameterType, configurationSettings),
     comment: xml.Comment,
-    group: importMetadataCommandGroupFromXML(xml.Group),
+    group: importMetadataCommandGroupFromXML(xml.Group, configurationSettings),
     modifiesData: xml.ModifiesData,
     name: xml.Name,
     objectBelonging: xml.ObjectBelonging,
     parameterUsageMode: xml.ParameterUsageMode,
-    picture: importPictureFromXML(xml.Picture),
+    picture: importPictureFromXML(xml.Picture, configurationSettings),
     representation: xml.Representation,
     shortcut: xml.Shortcut,
-    synonym: importI8nTextFromXML(xml.Synonym),
-    tooltip: importI8nTextFromXML(xml.Tooltip),
+    synonym: importI8nTextFromXML(xml.Synonym, configurationSettings),
+    tooltip: importI8nTextFromXML(xml.Tooltip, configurationSettings),
   }
 }
 
-export const importMetadataCommandsFromXML = (xml: MetadataCommandsXML | undefined): MetadataCommands | undefined => {
+export const importMetadataCommandsFromXML = (
+  xml: MetadataCommandsXML | undefined,
+  configurationSettings: ConfigurationSettings
+): MetadataCommands | undefined => {
   if (!xml) return undefined
 
-  return xml.map((value: MetadataCommandXML) => importMetadataCommandFromXML(value)!)
+  return xml.map((value: MetadataCommandXML) => importMetadataCommandFromXML(value, configurationSettings)!)
 }

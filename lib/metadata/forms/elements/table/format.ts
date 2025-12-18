@@ -1,11 +1,11 @@
 import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import * as t from "~/lib/parser/lexer"
+import { FormElementType } from "../../../metadataFactory/types"
 import { BaseElement } from "../baseElement/types"
 import { ChildItem } from "../childItems/types"
 import { ColumnGroup } from "../columnGroup/types"
 import { InputField } from "../inputField/types"
-import { FormElementType } from "../types"
 import { Table } from "./types"
 
 const V_BAR = t.VBar.LABEL as string

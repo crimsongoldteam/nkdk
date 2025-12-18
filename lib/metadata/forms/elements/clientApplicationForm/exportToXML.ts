@@ -1,14 +1,16 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportCommandSetToXML } from "~/lib/metadata/forms/commandSet/exportToXML"
+import { exportCommandBarToXML } from "~/lib/metadata/forms/elements/commandBar/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { Events } from "~/lib/metadata/forms/events/types"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import exportAttributeToXML from "./attributes/exportToXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
 export const exportClientApplicationFormToXML = (
-  data: ClientApplicationForm | undefined
+  data: ClientApplicationForm | undefined,
+  configurationSettings: ConfigurationSettings
 ): ClientApplicationFormXML | undefined => {
   if (!data) return undefined
 
@@ -31,16 +33,16 @@ export const exportClientApplicationFormToXML = (
     "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
     _version: "2.18",
-    AutoCommandBar: exportCommandBarToXML(data.autoCommandBar),
-    Title: exportI8nTextToXML(data.title),
-    ChildItems: exportChildItemsToXML(data.childItems),
+    AutoCommandBar: exportCommandBarToXML(data.autoCommandBar, configurationSettings),
+    Title: exportI8nTextToXML(data.title, configurationSettings),
+    ChildItems: exportChildItemsToXML(data.childItems, configurationSettings),
     Attributes:
       data.attributes && data.attributes.length > 0
         ? data.attributes
-            .map((attr) => exportAttributeToXML(attr))
+            .map((attr) => exportAttributeToXML(attr, configurationSettings))
             .filter((attr): attr is NonNullable<typeof attr> => attr !== undefined)
         : undefined,
-    CommandSet: exportCommandSetToXML(data.commandSet),
+    CommandSet: exportCommandSetToXML(data.commandSet, configurationSettings),
     AutoFillCheck: data.autoFillCheck,
     AutoSaveDataInSettings: data.autoSaveDataInSettings,
     AutoTitle: data.autoTitle,
@@ -48,7 +50,7 @@ export const exportClientApplicationFormToXML = (
     CloseOnChoice: data.closeOnChoice,
     CloseOnOwnerClose: data.closeOnOwnerClose,
     CollapseItemsByImportance: data.collapseItemsByImportance,
-    CommandBar: exportCommandBarToXML(data.commandBar),
+    CommandBar: exportCommandBarToXML(data.commandBar, configurationSettings),
     CommandBarLocation: data.commandBarLocation,
     // Commands: data.commands,
     ConversationsRepresentation: data.conversationsRepresentation,
@@ -78,6 +80,6 @@ export const exportClientApplicationFormToXML = (
     WindowOptionsKey: data.windowOptionsKey,
     UseForFoldersAndItems: data.useForFoldersAndItems,
     // ConditionalAppearance: data.conditionalAppearance,
-    Events: exportEventsToXML(data.events as Events | undefined),
+    Events: exportEventsToXML(data.events as Events | undefined, configurationSettings),
   }
 }

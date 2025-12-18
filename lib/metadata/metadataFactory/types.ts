@@ -49,3 +49,5 @@ export const FormElementType = Object.fromEntries(
 }
 
 export type FormElementType = (typeof FormElementType)[keyof typeof FormElementType]
+
+export type MetadataType = FormElementType

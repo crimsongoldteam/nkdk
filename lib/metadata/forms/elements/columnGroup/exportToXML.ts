@@ -1,28 +1,31 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { ColumnGroup, ColumnGroupXML } from "~/lib/metadata/forms/elements/columnGroup/types"
 import { exportFormGroupToXML } from "~/lib/metadata/forms/elements/formGroup/exportToXML"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportColumnGroupToXML = (data: ColumnGroup | undefined): ColumnGroupXML | undefined => {
+export const exportColumnGroupToXML = (
+  data: ColumnGroup | undefined,
+  configurationSettings: ConfigurationSettings
+): ColumnGroupXML | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormGroupToXML(data)!,
+    ...exportFormGroupToXML(data, configurationSettings)!,
 
     FixingInTable: data.fixingInTable,
     Group: data.group,
     HeaderDataPath: data.headerDataPath,
     HeaderFormat: data.headerFormat,
     HeaderHorizontalAlign: data.headerHorizontalAlign,
-    HeaderPicture: exportPictureToXML(data.headerPicture),
+    HeaderPicture: exportPictureToXML(data.headerPicture, configurationSettings),
     ShowInHeader: data.showInHeader,
     ShowTitle: data.showTitle,
-    TitleBackColor: exportColorToXML(data.titleBackColor),
-    UserVisible: exportUserVisibleToXML(data.userVisible),
+    TitleBackColor: exportColorToXML(data.titleBackColor, configurationSettings),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
   }
 }
 
-registerExport(FormElementType.ColumnGroup, exportColumnGroupToXML)
+registerMetadata("ExportToXML", "ColumnGroup", exportColumnGroupToXML)

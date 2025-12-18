@@ -2,33 +2,37 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { PeriodField, PeriodFieldXML } from "~/lib/metadata/forms/elements/periodField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importPeriodFieldFromXML = (xml: PeriodFieldXML | undefined): PeriodField | undefined => {
+export const importPeriodFieldFromXML = (
+  xml: PeriodFieldXML | undefined,
+  configurationSettings: ConfigurationSettings
+): PeriodField | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importFormFieldFromXML(xml)!,
+    ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.PeriodField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    border: importBorderFromXML(xml.Border),
-    borderColor: importColorFromXML(xml.BorderColor),
-    font: importFontFromXML(xml.Font),
+    border: importBorderFromXML(xml.Border, configurationSettings),
+    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
+    font: importFontFromXML(xml.Font, configurationSettings),
     height: xml.Height,
     horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
-    events: importEventsFromXML(xml.Events),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    events: importEventsFromXML(xml.Events, configurationSettings),
   }
 }
 
-registerImport(FormElementType.PeriodField, importPeriodFieldFromXML)
+registerMetadata("ImportFromXML", "PeriodField", importPeriodFieldFromXML)

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import xmlImport from "~/lib/xml/import/importer"
 import { importBorderFromXML } from "./importFromXML"
 import { Border, BorderXML } from "./types"
@@ -13,7 +14,7 @@ describe("importBorderFromXML", () => {
 
     const xml = xmlImport<{ Border: BorderXML }>(mockXml)
 
-    const result = importBorderFromXML(xml.Border)
+    const result = importBorderFromXML(xml.Border, mockConfigurationSettings)
 
     expect(result).toEqual(expected)
   })
@@ -30,7 +31,7 @@ describe("importBorderFromXML", () => {
 
     const xml = xmlImport<{ Border: BorderXML }>(mockXml)
 
-    const result = importBorderFromXML(xml.Border)
+    const result = importBorderFromXML(xml.Border, mockConfigurationSettings)
 
     expect(result).toEqual(expected)
   })

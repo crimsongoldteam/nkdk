@@ -1,11 +1,12 @@
-import { describe, it, expect } from "vitest"
-import { importChoiceParameterLinksFromXML } from "./importFromXML"
+import { describe, expect, it } from "vitest"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { xmlImport } from "~/lib/xml/import/importer"
+import { importChoiceParameterLinksFromXML } from "./importFromXML"
 import { ChoiceParameterLinksXML } from "./types"
 
 describe("importChoiceParameterLinksFromXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importChoiceParameterLinksFromXML(undefined)
+    const result = importChoiceParameterLinksFromXML(undefined, mockConfigurationSettings)
 
     expect(result).toBeUndefined()
   })
@@ -27,10 +28,8 @@ describe("importChoiceParameterLinksFromXML", () => {
       },
     ]
 
-    const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
-      xmlData
-    )
-    const result = importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks)
+    const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(xmlData)
+    const result = importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -61,10 +60,8 @@ describe("importChoiceParameterLinksFromXML", () => {
       },
     ]
 
-    const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
-      xmlData
-    )
-    const result = importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks)
+    const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(xmlData)
+    const result = importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -85,10 +82,8 @@ describe("importChoiceParameterLinksFromXML", () => {
       },
     ]
 
-    const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
-      xmlData
-    )
-    const result = importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks)
+    const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(xmlData)
+    const result = importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })

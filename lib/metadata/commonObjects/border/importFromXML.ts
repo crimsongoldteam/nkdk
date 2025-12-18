@@ -1,7 +1,11 @@
 import type { ControlBorderType } from "~/lib/metadata/systemEnumerations/types"
+import { ConfigurationSettings } from "../../configurationSettings/types"
 import { Border, BorderXML } from "./types"
 
-export const importBorderFromXML = (xml: BorderXML | { Border: BorderXML } | undefined): Border | undefined => {
+export const importBorderFromXML = (
+  xml: BorderXML | { Border: BorderXML } | undefined,
+  _configurationSettings: ConfigurationSettings
+): Border | undefined => {
   if (!xml) return undefined
 
   const node: BorderXML = ("Border" in (xml as any) ? (xml as any).Border : xml) as BorderXML

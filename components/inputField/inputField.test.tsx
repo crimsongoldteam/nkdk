@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react"
 import { afterEach, describe, expect, it } from "vitest"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 import { InputFieldComponent } from "./inputField"
 
 describe("render InputField", () => {

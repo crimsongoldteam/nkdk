@@ -1,15 +1,19 @@
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { GanttChartField, GanttChartFieldXML } from "~/lib/metadata/forms/elements/ganttChartField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importGanttChartFieldFromXML = (xml: GanttChartFieldXML | undefined): GanttChartField | undefined => {
+export const importGanttChartFieldFromXML = (
+  xml: GanttChartFieldXML | undefined,
+  configurationSettings: ConfigurationSettings
+): GanttChartField | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importFormFieldFromXML(xml)!,
+    ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.GanttChartField,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -25,9 +29,9 @@ export const importGanttChartFieldFromXML = (xml: GanttChartFieldXML | undefined
     verticalLines: xml.VerticalLines,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
-    events: importEventsFromXML(xml.Events),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    events: importEventsFromXML(xml.Events, configurationSettings),
   }
 }
 
-registerImport(FormElementType.GanttChartField, importGanttChartFieldFromXML)
+registerMetadata("ImportFromXML", "GanttChartField", importGanttChartFieldFromXML)

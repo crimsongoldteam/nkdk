@@ -2,9 +2,10 @@ import { describe, expect, it } from "vitest"
 import { xmlExport } from "~/lib"
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
-import { FormElementType } from "../types"
+import { FormElementType } from "../../../metadataFactory/types"
 import { exportChildItemsToXML } from "./exportToXML"
 import { ChildItems } from "./types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 
 describe("exportChildItemsToXML", () => {
   it("should export child items to XML", () => {
@@ -32,7 +33,7 @@ describe("exportChildItemsToXML", () => {
 	<InputField name="Input3" id="3"/>
 </ChildItems>`
 
-    const result = exportChildItemsToXML(mockChildItems)
+    const result = exportChildItemsToXML(mockChildItems, mockConfigurationSettings)
 
     const xml = xmlExport({ ChildItems: result })
     expect(xml).toEqual(expectedResult)

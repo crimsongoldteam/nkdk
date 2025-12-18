@@ -3,8 +3,8 @@ import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/user
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { ChartField, ChartFieldEnterprise } from "~/lib/metadata/forms/elements/chartField/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportChartFieldToEnterprise = (
   data: ChartField | undefined,
@@ -28,4 +28,4 @@ export const exportChartFieldToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.ChartField, exportChartFieldToEnterprise)
+registerMetadata("ExportToEnterprise", "ChartField", exportChartFieldToEnterprise)

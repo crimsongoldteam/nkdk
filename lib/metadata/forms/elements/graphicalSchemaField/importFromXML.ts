@@ -1,23 +1,25 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { GraphicalSchemaField, GraphicalSchemaFieldXML } from "~/lib/metadata/forms/elements/graphicalSchemaField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importGraphicalSchemaFieldFromXML = (
-  xml: GraphicalSchemaFieldXML | undefined
+  xml: GraphicalSchemaFieldXML | undefined,
+  configurationSettings: ConfigurationSettings
 ): GraphicalSchemaField | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importFormFieldFromXML(xml)!,
+    ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.GraphicalSchemaField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    borderColor: importColorFromXML(xml.BorderColor),
+    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
     edit: xml.Edit,
     height: xml.Height,
     horizontalStretch: xml.HorizontalStretch,
@@ -26,9 +28,9 @@ export const importGraphicalSchemaFieldFromXML = (
     output: xml.Output,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
-    events: importEventsFromXML(xml.Events),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    events: importEventsFromXML(xml.Events, configurationSettings),
   }
 }
 
-registerImport(FormElementType.GraphicalSchemaField, importGraphicalSchemaFieldFromXML)
+registerMetadata("ImportFromXML", "GraphicalSchemaField", importGraphicalSchemaFieldFromXML)

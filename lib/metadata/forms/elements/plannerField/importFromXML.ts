@@ -1,15 +1,19 @@
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { PlannerField, PlannerFieldXML } from "~/lib/metadata/forms/elements/plannerField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importPlannerFieldFromXML = (xml: PlannerFieldXML | undefined): PlannerField | undefined => {
+export const importPlannerFieldFromXML = (
+  xml: PlannerFieldXML | undefined,
+  configurationSettings: ConfigurationSettings
+): PlannerField | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importFormFieldFromXML(xml)!,
+    ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.PlannerField,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -25,9 +29,9 @@ export const importPlannerFieldFromXML = (xml: PlannerFieldXML | undefined): Pla
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     wrappedTimeScaleHeaderHyperlink: xml.WrappedTimeScaleHeaderHyperlink,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
-    events: importEventsFromXML(xml.Events),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    events: importEventsFromXML(xml.Events, configurationSettings),
   }
 }
 
-registerImport(FormElementType.PlannerField, importPlannerFieldFromXML)
+registerMetadata("ImportFromXML", "PlannerField", importPlannerFieldFromXML)

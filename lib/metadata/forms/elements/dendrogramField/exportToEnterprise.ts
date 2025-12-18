@@ -3,8 +3,8 @@ import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/user
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { DendrogramField, DendrogramFieldEnterprise } from "~/lib/metadata/forms/elements/dendrogramField/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportDendrogramFieldToEnterprise = (
   data: DendrogramField | undefined,
@@ -28,4 +28,4 @@ export const exportDendrogramFieldToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.DendrogramField, exportDendrogramFieldToEnterprise)
+registerMetadata("ExportToEnterprise", "DendrogramField", exportDendrogramFieldToEnterprise)

@@ -3,23 +3,27 @@ import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromX
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
 import { Button, ButtonXML } from "~/lib/metadata/forms/elements/button/types"
 import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importButtonFromXML = (xml: ButtonXML | undefined): Button | undefined => {
+export const importButtonFromXML = (
+  xml: ButtonXML | undefined,
+  configurationSettings: ConfigurationSettings
+): Button | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importBaseElementFromXML(xml)!,
+    ...importBaseElementFromXML(xml, configurationSettings)!,
     elementType: FormElementType.Button,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    backColor: importColorFromXML(xml.BackColor),
-    borderColor: importColorFromXML(xml.BorderColor),
+    backColor: importColorFromXML(xml.BackColor, configurationSettings),
+    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
     commandName: xml.CommandName,
     commandUniqueness: xml.CommandUniqueness,
     dataPath: xml.DataPath,
@@ -27,8 +31,8 @@ export const importButtonFromXML = (xml: ButtonXML | undefined): Button | undefi
     defaultItem: xml.DefaultItem,
     displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
-    extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),
-    font: importFontFromXML(xml.Font),
+    extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip, configurationSettings),
+    font: importFontFromXML(xml.Font, configurationSettings),
     height: xml.Height,
     horizontalAlignInGroup: xml.HorizontalAlignInGroup,
     horizontalStretch: xml.HorizontalStretch,
@@ -36,15 +40,15 @@ export const importButtonFromXML = (xml: ButtonXML | undefined): Button | undefi
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
     onlyInAllActions: xml.OnlyInAllActions,
-    picture: importPictureFromXML(xml.Picture),
+    picture: importPictureFromXML(xml.Picture, configurationSettings),
     pictureLocation: xml.PictureLocation,
     representation: xml.Representation,
     shape: xml.Shape,
     shapeRepresentation: xml.ShapeRepresentation,
     shortcut: xml.Shortcut,
     skipOnInput: xml.SkipOnInput,
-    textColor: importColorFromXML(xml.TextColor),
-    title: importI8nTextFromXML(xml.Title),
+    textColor: importColorFromXML(xml.TextColor, configurationSettings),
+    title: importI8nTextFromXML(xml.Title, configurationSettings),
     titleHeight: xml.TitleHeight,
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
@@ -52,8 +56,8 @@ export const importButtonFromXML = (xml: ButtonXML | undefined): Button | undefi
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
   }
 }
 
-registerImport(FormElementType.Button, importButtonFromXML)
+registerMetadata("ImportFromXML", "Button", importButtonFromXML)

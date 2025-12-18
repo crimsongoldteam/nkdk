@@ -1,32 +1,33 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormItemAdditionToXML } from "~/lib/metadata/forms/elements/formItemAddition/exportToXML"
 import {
   SearchControlAddition,
   SearchControlAdditionXML,
 } from "~/lib/metadata/forms/elements/searchControlAddition/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportSearchControlAdditionToXML = (
-  data: SearchControlAddition | undefined
+  data: SearchControlAddition | undefined,
+  configurationSettings: ConfigurationSettings
 ): SearchControlAdditionXML | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormItemAdditionToXML(data)!,
+    ...exportFormItemAdditionToXML(data, configurationSettings)!,
 
     AutoMaxWidth: data.autoMaxWidth,
-    BackColor: exportColorToXML(data.backColor),
-    BorderColor: exportColorToXML(data.borderColor),
-    Font: exportFontToXML(data.font),
+    BackColor: exportColorToXML(data.backColor, configurationSettings),
+    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
+    Font: exportFontToXML(data.font, configurationSettings),
     HorizontalStretch: data.horizontalStretch,
     MaxWidth: data.maxWidth,
-    TextColor: exportColorToXML(data.textColor),
+    TextColor: exportColorToXML(data.textColor, configurationSettings),
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
   }
 }
 
-registerExport(FormElementType.SearchControlAddition, exportSearchControlAdditionToXML)
+registerMetadata("ExportToXML", "SearchControlAddition", exportSearchControlAdditionToXML)

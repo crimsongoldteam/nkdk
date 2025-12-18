@@ -2,6 +2,7 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importCommandSetFromXML } from "~/lib/metadata/forms/commandSet/importFromXML"
 import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
 import { importChildItemsFromXML } from "~/lib/metadata/forms/elements/childItems/importFromXML"
@@ -9,34 +10,37 @@ import { importCommandBarFromXML } from "~/lib/metadata/forms/elements/commandBa
 import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
 import { importFormItemAdditionFromXML } from "~/lib/metadata/forms/elements/formItemAddition/importFromXML"
 import { Table, TableXML } from "~/lib/metadata/forms/elements/table/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importTableFromXML = (xml: TableXML | undefined): Table | undefined => {
+export const importTableFromXML = (
+  xml: TableXML | undefined,
+  configurationSettings: ConfigurationSettings
+): Table | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importBaseElementFromXML(xml)!,
+    ...importBaseElementFromXML(xml, configurationSettings)!,
     elementType: FormElementType.Table,
 
     autoAddIncomplete: xml.AutoAddIncomplete,
-    autoCommandBar: importCommandBarFromXML(xml.AutoCommandBar),
+    autoCommandBar: importCommandBarFromXML(xml.AutoCommandBar, configurationSettings),
     autoInsertNewRow: xml.AutoInsertNewRow,
     autoMarkIncomplete: xml.AutoMarkIncomplete,
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxHeightInTableRows: xml.AutoMaxHeightInTableRows,
     autoMaxWidth: xml.AutoMaxWidth,
-    backColor: importColorFromXML(xml.BackColor),
+    backColor: importColorFromXML(xml.BackColor, configurationSettings),
     behaviorOnHorizontalCompression: xml.BehaviorOnHorizontalCompression,
-    borderColor: importColorFromXML(xml.BorderColor),
+    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
     changeRowOrder: xml.ChangeRowOrder,
     changeRowSet: xml.ChangeRowSet,
     choiceMode: xml.ChoiceMode,
-    commandBar: importCommandBarFromXML(xml.CommandBar),
+    commandBar: importCommandBarFromXML(xml.CommandBar, configurationSettings),
     commandBarLocation: xml.CommandBarLocation,
-    commandSet: importCommandSetFromXML(xml.CommandSet),
-    contextMenu: importCommandBarFromXML(xml.ContextMenu),
+    commandSet: importCommandSetFromXML(xml.CommandSet, configurationSettings),
+    contextMenu: importCommandBarFromXML(xml.ContextMenu, configurationSettings),
     currentRowUse: xml.CurrentRowUse,
     dataPath: xml.DataPath,
     defaultItem: xml.DefaultItem,
@@ -44,9 +48,9 @@ export const importTableFromXML = (xml: TableXML | undefined): Table | undefined
     enabled: xml.Enabled,
     enableDrag: xml.EnableDrag,
     enableStartDrag: xml.EnableStartDrag,
-    extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip),
+    extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip, configurationSettings),
     fileDragMode: xml.FileDragMode,
-    font: importFontFromXML(xml.Font),
+    font: importFontFromXML(xml.Font, configurationSettings),
     footer: xml.Footer,
     footerHeight: xml.FooterHeight,
     header: xml.Header,
@@ -73,21 +77,21 @@ export const importTableFromXML = (xml: TableXML | undefined): Table | undefined
     rowPictureDataPath: xml.RowPictureDataPath,
     rowSelectionMode: xml.RowSelectionMode,
     rowsPicture: xml.RowsPicture,
-    searchControl: importFormItemAdditionFromXML(xml.SearchControl),
+    searchControl: importFormItemAdditionFromXML(xml.SearchControl, configurationSettings),
     searchControlLocation: xml.SearchControlLocation,
     searchOnInput: xml.SearchOnInput,
     searchStringLocation: xml.SearchStringLocation,
-    searchStringRepresentation: importFormItemAdditionFromXML(xml.SearchStringRepresentation),
+    searchStringRepresentation: importFormItemAdditionFromXML(xml.SearchStringRepresentation, configurationSettings),
     selectionMode: xml.SelectionMode,
     shortcut: xml.Shortcut,
     skipOnInput: xml.SkipOnInput,
-    textColor: importColorFromXML(xml.TextColor),
-    title: importI8nTextFromXML(xml.Title),
-    titleFont: importFontFromXML(xml.TitleFont),
+    textColor: importColorFromXML(xml.TextColor, configurationSettings),
+    title: importI8nTextFromXML(xml.Title, configurationSettings),
+    titleFont: importFontFromXML(xml.TitleFont, configurationSettings),
     titleHeight: xml.TitleHeight,
     titleLocation: xml.TitleLocation,
-    titleTextColor: importColorFromXML(xml.TitleTextColor),
-    toolTip: importI8nTextFromXML(xml.ToolTip),
+    titleTextColor: importColorFromXML(xml.TitleTextColor, configurationSettings),
+    toolTip: importI8nTextFromXML(xml.ToolTip, configurationSettings),
     toolTipRepresentation: xml.ToolTipRepresentation,
     useAlternationRowColor: xml.UseAlternationRowColor,
     verticalAlignInGroup: xml.VerticalAlignInGroup,
@@ -95,13 +99,13 @@ export const importTableFromXML = (xml: TableXML | undefined): Table | undefined
     verticalScrollBar: xml.VerticalScrollBar,
     verticalStretch: xml.VerticalStretch,
     viewStatusLocation: xml.ViewStatusLocation,
-    viewStatusRepresentation: importFormItemAdditionFromXML(xml.ViewStatusRepresentation),
+    viewStatusRepresentation: importFormItemAdditionFromXML(xml.ViewStatusRepresentation, configurationSettings),
     visible: xml.Visible,
     width: xml.Width,
-    childItems: importChildItemsFromXML(xml.ChildItems),
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
-    events: importEventsFromXML(xml.Events),
+    childItems: importChildItemsFromXML(xml.ChildItems, configurationSettings),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    events: importEventsFromXML(xml.Events, configurationSettings),
   }
 }
 
-registerImport(FormElementType.Table, importTableFromXML)
+registerMetadata("ImportFromXML", "Table", importTableFromXML)

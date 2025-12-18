@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportI8nTextToXML } from "./exportToXML"
 import { I8nText } from "./types"
@@ -24,7 +25,7 @@ describe("exportI8nTextToXML", () => {
       },
     }
 
-    const exported = exportI8nTextToXML(originalContent)
+    const exported = exportI8nTextToXML(originalContent, mockConfigurationSettings)
 
     const xml = xmlExport({ Title: exported }, false)
 
@@ -45,7 +46,7 @@ describe("exportI8nTextToXML", () => {
       },
     }
 
-    const exported = exportI8nTextToXML(originalContent)
+    const exported = exportI8nTextToXML(originalContent, mockConfigurationSettings)
 
     const xml = xmlExport({ Title: exported }, false)
 

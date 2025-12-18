@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { BaseElement } from "~/lib/metadata/forms/elements/baseElement/types"
-import { FormElementType } from "../types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { FormElementType } from "../../../metadataFactory/types"
 import { formatInputField } from "./format"
 import { InputField } from "./types"
 

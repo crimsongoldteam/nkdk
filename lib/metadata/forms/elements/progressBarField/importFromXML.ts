@@ -1,21 +1,25 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { ProgressBarField, ProgressBarFieldXML } from "~/lib/metadata/forms/elements/progressBarField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importProgressBarFieldFromXML = (xml: ProgressBarFieldXML | undefined): ProgressBarField | undefined => {
+export const importProgressBarFieldFromXML = (
+  xml: ProgressBarFieldXML | undefined,
+  configurationSettings: ConfigurationSettings
+): ProgressBarField | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importFormFieldFromXML(xml)!,
+    ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.ProgressBarField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    borderColor: importColorFromXML(xml.BorderColor),
+    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
     height: xml.Height,
     horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
@@ -27,9 +31,9 @@ export const importProgressBarFieldFromXML = (xml: ProgressBarFieldXML | undefin
     showPercent: xml.ShowPercent,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
-    events: importEventsFromXML(xml.Events),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    events: importEventsFromXML(xml.Events, configurationSettings),
   }
 }
 
-registerImport(FormElementType.ProgressBarField, importProgressBarFieldFromXML)
+registerMetadata("ImportFromXML", "ProgressBarField", importProgressBarFieldFromXML)

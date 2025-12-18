@@ -6,8 +6,8 @@ import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/user
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { RadioButtonField, RadioButtonFieldEnterprise } from "~/lib/metadata/forms/elements/radioButtonField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -40,4 +40,4 @@ export const exportRadioButtonFieldToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.RadioButtonField, exportRadioButtonFieldToEnterprise)
+registerMetadata("ExportToEnterprise", "RadioButtonField", exportRadioButtonFieldToEnterprise)

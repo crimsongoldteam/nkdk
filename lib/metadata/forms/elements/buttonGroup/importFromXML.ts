@@ -1,19 +1,23 @@
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { ButtonGroup, ButtonGroupXML } from "~/lib/metadata/forms/elements/buttonGroup/types"
 import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/importFromXML"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importButtonGroupFromXML = (xml: ButtonGroupXML | undefined): ButtonGroup | undefined => {
+export const importButtonGroupFromXML = (
+  xml: ButtonGroupXML | undefined,
+  configurationSettings: ConfigurationSettings
+): ButtonGroup | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importFormGroupFromXML(xml)!,
+    ...importFormGroupFromXML(xml, configurationSettings)!,
     elementType: FormElementType.ButtonGroup,
 
     representation: xml.Representation,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
   }
 }
 
-registerImport(FormElementType.ButtonGroup, importButtonGroupFromXML)
+registerMetadata("ImportFromXML", "ButtonGroup", importButtonGroupFromXML)

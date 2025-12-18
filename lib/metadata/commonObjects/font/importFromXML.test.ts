@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { xmlImport } from "~/lib"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { importFontFromXML } from "./importFromXML"
 import { Font, FontXML } from "./types"
 
@@ -20,7 +21,7 @@ describe("importFontFromXML", () => {
     const xml = xmlImport<{ Font: FontXML }>(mockXml)
     const value = xml.Font
 
-    const result = importFontFromXML(value)
+    const result = importFontFromXML(value, mockConfigurationSettings)
 
     expect(result).toEqual(mockResult)
   })

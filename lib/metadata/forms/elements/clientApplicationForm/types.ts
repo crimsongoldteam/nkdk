@@ -7,10 +7,10 @@ import {
 import { UserVisible, UserVisibleXML } from "~/lib/metadata/commonObjects/userVisible/types"
 import { CommandSet, CommandSetXML } from "~/lib/metadata/forms/commandSet/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { FormElementType } from "../../../metadataFactory/types"
 import { EventsXML } from "../../events/types"
 import { ChildItems, ChildItemsXML } from "../childItems/types"
 import { CommandBar, CommandBarXML } from "../commandBar/types"
-import { FormElementType } from "../types"
 
 export interface FormAttribute {
   name: string

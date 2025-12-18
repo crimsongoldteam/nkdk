@@ -15,6 +15,10 @@ import "~/lib/metadata/forms/elements/pages/registration"
 import "~/lib/metadata/forms/elements/pictureDecoration/registration"
 import "~/lib/metadata/forms/elements/usualGroup/registration"
 
+const configurationSettings = {
+  defaultLanguage: "ru",
+}
+
 export const App = () => {
   const [form, setForm] = useState<ClientApplicationForm | null>(null)
 
@@ -25,7 +29,7 @@ export const App = () => {
       .then((response) => response.text())
       .then((originalContent) => {
         const importedXml = xmlImport<ClientApplicationFormXML>(originalContent)
-        const importedForm = importClientApplicationFormFromXML(importedXml)
+        const importedForm = importClientApplicationFormFromXML(importedXml, configurationSettings)
         setForm(importedForm)
       })
   }, [])

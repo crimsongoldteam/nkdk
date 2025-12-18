@@ -1,15 +1,18 @@
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { PlannerField, PlannerFieldXML } from "~/lib/metadata/forms/elements/plannerField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportPlannerFieldToXML = (data: PlannerField | undefined): PlannerFieldXML | undefined => {
+export const exportPlannerFieldToXML = (
+  data: PlannerField | undefined,
+  configurationSettings: ConfigurationSettings
+): PlannerFieldXML | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormFieldToXML(data)!,
+    ...exportFormFieldToXML(data, configurationSettings)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -24,9 +27,9 @@ export const exportPlannerFieldToXML = (data: PlannerField | undefined): Planner
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     WrappedTimeScaleHeaderHyperlink: data.wrappedTimeScaleHeaderHyperlink,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
-    Events: exportEventsToXML(data.events),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    Events: exportEventsToXML(data.events, configurationSettings),
   }
 }
 
-registerExport(FormElementType.PlannerField, exportPlannerFieldToXML)
+registerMetadata("ExportToXML", "PlannerField", exportPlannerFieldToXML)

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { ClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 import { createNameIdMapping, updateNameIdMapping } from "./nameIdMapping"
 
 describe("nameMapping", () => {

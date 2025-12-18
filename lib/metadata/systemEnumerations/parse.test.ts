@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { formatSystemEnumeration } from "./exportToEnterprise"
 import { parseSystemEnumeration } from "./parse"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { exportSystemEnumerationToEnterprise } from "./exportToEnterprise"
 
 describe("parseSystemEnumeration", () => {
   it("should parse from enterprise to normal", () => {
@@ -22,7 +23,11 @@ describe("parseSystemEnumeration", () => {
   it("should be inverse of formatSystemEnumeration", () => {
     const originalValue = "Vertical"
 
-    const formatted = formatSystemEnumeration(originalValue, SE.ChildFormItemsGroupToEnterprise)
+    const formatted = exportSystemEnumerationToEnterprise(
+      originalValue,
+      SE.ChildFormItemsGroupToEnterprise,
+      mockConfigurationSettings
+    )
     const parsed = parseSystemEnumeration(formatted, SE.ChildFormItemsGroupFromEnterprise)
 
     expect(parsed).toBe(originalValue)

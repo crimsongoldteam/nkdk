@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { xmlImport } from "~/lib"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { importI8nTextFromXML } from "./importFromXML"
 import { I8nText, I8nTextXML } from "./types"
 
@@ -18,7 +19,7 @@ describe("importI8nTextFromXML", () => {
     }
 
     const importedXml = xmlImport<{ Title: I8nTextXML }>(xml)
-    const result = importI8nTextFromXML(importedXml.Title)
+    const result = importI8nTextFromXML(importedXml.Title, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -43,7 +44,7 @@ describe("importI8nTextFromXML", () => {
     }
 
     const importedXml = xmlImport<{ Title: I8nTextXML }>(xml)
-    const result = importI8nTextFromXML(importedXml.Title)
+    const result = importI8nTextFromXML(importedXml.Title, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })

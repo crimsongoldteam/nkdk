@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType } from "../types"
-import { ClientApplicationForm } from "./types"
+import { FormElementType } from "../../../metadataFactory/types"
 import { getAllElements } from "./getAllElements"
+import { ClientApplicationForm } from "./types"
 
 describe("getAllElements", () => {
   it("should return all elements", () => {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { xmlExport, xmlImport } from "~/lib"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { exportBorderToXML } from "./exportToXML"
 import { importBorderFromXML } from "./importFromXML"
 import { Border, BorderXML } from "./types"
@@ -12,7 +13,7 @@ describe("exportBorderToXML", () => {
 
     const expectedResult = `<Border ref="style:ControlBorder"/>`
 
-    const result = { Border: exportBorderToXML(mockBorder) }
+    const result = { Border: exportBorderToXML(mockBorder, mockConfigurationSettings) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
@@ -28,14 +29,14 @@ describe("exportBorderToXML", () => {
 	<v8ui:style xsi:type="v8ui:ControlBorderType">Indented</v8ui:style>
 </Border>`
 
-    const result = { Border: exportBorderToXML(mockBorder) }
+    const result = { Border: exportBorderToXML(mockBorder, mockConfigurationSettings) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportBorderToXML(undefined)
+    const result = exportBorderToXML(undefined, mockConfigurationSettings)
 
     expect(result).toBeUndefined()
   })
@@ -44,8 +45,8 @@ describe("exportBorderToXML", () => {
     const originalXml = `<Border ref="style:ControlBorder"/>`
 
     const xml = xmlImport<{ Border: BorderXML }>(originalXml)
-    const imported = importBorderFromXML(xml.Border)
-    const exported = exportBorderToXML(imported)
+    const imported = importBorderFromXML(xml.Border, mockConfigurationSettings)
+    const exported = exportBorderToXML(imported, mockConfigurationSettings)
     const resultXml = xmlExport({ Border: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
@@ -57,8 +58,8 @@ describe("exportBorderToXML", () => {
 </Border>`
 
     const xml = xmlImport<{ Border: BorderXML }>(originalXml)
-    const imported = importBorderFromXML(xml.Border)
-    const exported = exportBorderToXML(imported)
+    const imported = importBorderFromXML(xml.Border, mockConfigurationSettings)
+    const exported = exportBorderToXML(imported, mockConfigurationSettings)
     const resultXml = xmlExport({ Border: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

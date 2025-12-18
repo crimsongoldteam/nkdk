@@ -1,7 +1,9 @@
+import { ConfigurationSettings } from "../../configurationSettings/types"
 import { TypeDescription, TypeDescriptionXML } from "./types"
 
 export const exportTypeDescriptionToXML = (
-  typeDescription: TypeDescription | undefined
+  typeDescription: TypeDescription | undefined,
+  _configurationSettings: ConfigurationSettings
 ): TypeDescriptionXML | undefined => {
   if (!typeDescription) return undefined
 

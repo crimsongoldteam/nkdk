@@ -3,8 +3,8 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { exportFormGroupToEnterprise } from "~/lib/metadata/forms/elements/formGroup/exportToEnterprise"
 import { Pages, PagesEnterprise } from "~/lib/metadata/forms/elements/pages/types"
 import { exportTableToEnterprise } from "~/lib/metadata/forms/elements/table/exportToEnterprise"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -38,4 +38,4 @@ export const exportPagesToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.Pages, exportPagesToEnterprise)
+registerMetadata("ExportToEnterprise", "Pages", exportPagesToEnterprise)

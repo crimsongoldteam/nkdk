@@ -2,7 +2,7 @@ import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/user
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { ButtonGroup, ButtonGroupEnterprise } from "~/lib/metadata/forms/elements/buttonGroup/types"
 import { exportFormGroupToEnterprise } from "~/lib/metadata/forms/elements/formGroup/exportToEnterprise"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -24,4 +24,4 @@ export const exportButtonGroupToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.ButtonGroup, exportButtonGroupToEnterprise)
+registerMetadata("ExportToEnterprise", "ButtonGroup", exportButtonGroupToEnterprise)

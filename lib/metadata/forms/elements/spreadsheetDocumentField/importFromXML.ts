@@ -1,27 +1,29 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldXML,
 } from "~/lib/metadata/forms/elements/spreadSheetDocumentField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importSpreadSheetDocumentFieldFromXML = (
-  xml: SpreadSheetDocumentFieldXML | undefined
+  xml: SpreadSheetDocumentFieldXML | undefined,
+  configurationSettings: ConfigurationSettings
 ): SpreadSheetDocumentField | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importFormFieldFromXML(xml)!,
+    ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.SpreadSheetDocumentField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     blackAndWhiteView: xml.BlackAndWhiteView,
-    borderColor: importColorFromXML(xml.BorderColor),
+    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
     drawingSelectionShowMode: xml.DrawingSelectionShowMode,
     edit: xml.Edit,
     enableDrag: xml.EnableDrag,
@@ -46,9 +48,9 @@ export const importSpreadSheetDocumentFieldFromXML = (
     verticalStretch: xml.VerticalStretch,
     viewScalingMode: xml.ViewScalingMode,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
-    events: importEventsFromXML(xml.Events),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    events: importEventsFromXML(xml.Events, configurationSettings),
   }
 }
 
-registerImport(FormElementType.SpreadSheetDocumentField, importSpreadSheetDocumentFieldFromXML)
+registerMetadata("ImportFromXML", "SpreadSheetDocumentField", importSpreadSheetDocumentFieldFromXML)

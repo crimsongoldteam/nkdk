@@ -1,12 +1,8 @@
-import { expect, vi, it, beforeEach } from "vitest"
+import { beforeEach, expect, it, vi } from "vitest"
 import { BaseElement } from "../metadata/forms/elements/baseElement/types"
-import { FormElementType } from "../metadata/forms/elements/types"
-import {
-  clearFormatRegistry,
-  formatElement,
-  registerFormat,
-} from "./formatFactory"
+import { FormElementType } from "../metadata/metadataFactory/types"
 import { mockConfigurationSettings } from "../tests/mockConfigurationSettings"
+import { clearFormatRegistry, formatElement, registerFormat } from "./formatFactory"
 
 beforeEach(() => {
   clearFormatRegistry()

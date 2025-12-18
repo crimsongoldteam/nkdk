@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { xmlExport } from "~/lib/xml/export/exporter"
-import { TypeDescription } from "./types"
 import { exportTypeDescriptionToXML } from "./exportToXML"
+import { TypeDescription } from "./types"
 
 describe("exportTypeDescriptionToXML", () => {
   it("should export string type to XML", () => {
@@ -21,7 +22,7 @@ describe("exportTypeDescriptionToXML", () => {
 	</v8:StringQualifiers>
 </TypeDescription>`
 
-    const result = exportTypeDescriptionToXML(mockTypeDescription)
+    const result = exportTypeDescriptionToXML(mockTypeDescription, mockConfigurationSettings)
     const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -46,7 +47,7 @@ describe("exportTypeDescriptionToXML", () => {
 	</v8:NumberQualifiers>
 </TypeDescription>`
 
-    const result = exportTypeDescriptionToXML(mockTypeDescription)
+    const result = exportTypeDescriptionToXML(mockTypeDescription, mockConfigurationSettings)
     const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -67,7 +68,7 @@ describe("exportTypeDescriptionToXML", () => {
 	</v8:DateQualifiers>
 </TypeDescription>`
 
-    const result = exportTypeDescriptionToXML(mockTypeDescription)
+    const result = exportTypeDescriptionToXML(mockTypeDescription, mockConfigurationSettings)
     const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -83,7 +84,7 @@ describe("exportTypeDescriptionToXML", () => {
 	<v8:Type>cfg:EnumRef.Статусы</v8:Type>
 </TypeDescription>`
 
-    const result = exportTypeDescriptionToXML(mockTypeDescription)
+    const result = exportTypeDescriptionToXML(mockTypeDescription, mockConfigurationSettings)
     const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)

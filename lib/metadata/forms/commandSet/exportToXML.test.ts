@@ -1,8 +1,9 @@
-import { describe, it, expect } from "vitest"
-import { CommandSet, CommandSetXML } from "./types"
+import { describe, expect, it } from "vitest"
 import { xmlExport, xmlImport } from "~/lib"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { exportCommandSetToXML } from "./exportToXML"
 import { importCommandSetFromXML } from "./importFromXML"
+import { CommandSet, CommandSetXML } from "./types"
 
 describe("exportCommandSetToXML", () => {
   it("should export command set", () => {
@@ -11,7 +12,7 @@ describe("exportCommandSetToXML", () => {
 	<ExcludedCommand>WriteAndClose</ExcludedCommand>
 </CommandSet>`
 
-    const exported = exportCommandSetToXML(mockData)
+    const exported = exportCommandSetToXML(mockData, mockConfigurationSettings)
     const resultXml = xmlExport({ CommandSet: exported }, false)
     expect(resultXml).toEqual(expectedResult)
   })
@@ -24,8 +25,8 @@ describe("exportCommandSetToXML", () => {
 </CommandSet>`
 
     const xml = xmlImport<{ CommandSet: CommandSetXML }>(mockXml)
-    const imported = importCommandSetFromXML(xml.CommandSet)
-    const exported = exportCommandSetToXML(imported)
+    const imported = importCommandSetFromXML(xml.CommandSet, mockConfigurationSettings)
+    const exported = exportCommandSetToXML(imported, mockConfigurationSettings)
 
     const resultXml = xmlExport({ CommandSet: exported }, false)
     expect(resultXml).toEqual(mockXml)

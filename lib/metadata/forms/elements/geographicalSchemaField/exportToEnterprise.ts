@@ -7,8 +7,8 @@ import {
   GeographicalSchemaField,
   GeographicalSchemaFieldEnterprise,
 } from "~/lib/metadata/forms/elements/geographicalSchemaField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -36,4 +36,4 @@ export const exportGeographicalSchemaFieldToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.GeographicalSchemaField, exportGeographicalSchemaFieldToEnterprise)
+registerMetadata("ExportToEnterprise", "GeographicalSchemaField", exportGeographicalSchemaFieldToEnterprise)

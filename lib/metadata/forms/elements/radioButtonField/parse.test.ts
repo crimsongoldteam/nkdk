@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import type { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
-import { FormElementType } from "../types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { FormElementType } from "../../../metadataFactory/types"
 import type { RadioButtonField } from "./types"
 
 describe("parse RadioButtonField", () => {

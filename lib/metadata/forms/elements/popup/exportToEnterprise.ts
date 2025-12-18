@@ -4,7 +4,7 @@ import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/user
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormGroupToEnterprise } from "~/lib/metadata/forms/elements/formGroup/exportToEnterprise"
 import { Popup, PopupEnterprise } from "~/lib/metadata/forms/elements/popup/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -35,4 +35,4 @@ export const exportPopupToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.Popup, exportPopupToEnterprise)
+registerMetadata("ExportToEnterprise", "Popup", exportPopupToEnterprise)

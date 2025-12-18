@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
-import { parseElement } from "~/lib/parser/elementsParser/parse"
 import type { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
+import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { lexer } from "~/lib/parser/lexer"
-import { FormElementType } from "../types"
-import type { LabelDecoration } from "./types"
 import { ParseElementType } from "~/lib/parser/types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { FormElementType } from "../../../metadataFactory/types"
+import type { LabelDecoration } from "./types"
 
 const parseLabelDecoration = (mock: string) => {
   const tokens = lexer.tokenize(mock).tokens

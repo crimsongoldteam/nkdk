@@ -1,7 +1,11 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
+import { ConfigurationSettings } from "../../configurationSettings/types"
 import { ChoiceList, ChoiceListXML } from "./types"
 
-export const exportChoiceListToXML = (choiceList: ChoiceList | undefined): ChoiceListXML | undefined => {
+export const exportChoiceListToXML = (
+  choiceList: ChoiceList | undefined,
+  configurationSettings: ConfigurationSettings
+): ChoiceListXML | undefined => {
   if (!choiceList) return undefined
 
   return choiceList.items.map((item) => ({
@@ -10,7 +14,7 @@ export const exportChoiceListToXML = (choiceList: ChoiceList | undefined): Choic
       "xr:CheckState": item.checkState,
       "xr:Value": {
         "_xsi:type": "FormChoiceListDesTimeValue",
-        Presentation: exportI8nTextToXML(item.presentation),
+        Presentation: exportI8nTextToXML(item.presentation, configurationSettings),
         Value: {
           "_xsi:type": "xs:string",
           "#text": item.value,

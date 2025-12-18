@@ -8,7 +8,7 @@ import { exportBaseElementToEnterprise } from "~/lib/metadata/forms/elements/bas
 import { exportChildItemsToEnterprise } from "~/lib/metadata/forms/elements/childItems/exportToEnterprise"
 import { exportFormDecorationToEnterprise } from "~/lib/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { FormGroup, FormGroupEnterprise } from "~/lib/metadata/forms/elements/formGroup/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -56,4 +56,4 @@ export const exportFormGroupToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.FormGroup, exportFormGroupToEnterprise)
+registerMetadata("ExportToEnterprise", "FormGroup", exportFormGroupToEnterprise)

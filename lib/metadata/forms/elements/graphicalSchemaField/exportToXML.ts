@@ -1,22 +1,23 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { GraphicalSchemaField, GraphicalSchemaFieldXML } from "~/lib/metadata/forms/elements/graphicalSchemaField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportGraphicalSchemaFieldToXML = (
-  data: GraphicalSchemaField | undefined
+  data: GraphicalSchemaField | undefined,
+  configurationSettings: ConfigurationSettings
 ): GraphicalSchemaFieldXML | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormFieldToXML(data)!,
+    ...exportFormFieldToXML(data, configurationSettings)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    BorderColor: exportColorToXML(data.borderColor),
+    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
     Edit: data.edit,
     Height: data.height,
     HorizontalStretch: data.horizontalStretch,
@@ -25,9 +26,9 @@ export const exportGraphicalSchemaFieldToXML = (
     Output: data.output,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
-    Events: exportEventsToXML(data.events),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    Events: exportEventsToXML(data.events, configurationSettings),
   }
 }
 
-registerExport(FormElementType.GraphicalSchemaField, exportGraphicalSchemaFieldToXML)
+registerMetadata("ExportToXML", "GraphicalSchemaField", exportGraphicalSchemaFieldToXML)

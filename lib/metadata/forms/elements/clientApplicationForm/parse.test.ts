@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
-import { FormElementType } from "../types"
+import { FormElementType } from "../../../metadataFactory/types"
 import { parseClientApplicationForm } from "./parse"
 import { ClientApplicationForm } from "./types"
 
@@ -27,10 +27,7 @@ describe("parseClientApplicationForm", () => {
       ],
     }
 
-    const result = parseClientApplicationForm(
-      orignalContent,
-      mockConfigurationSettings
-    )
+    const result = parseClientApplicationForm(orignalContent, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })

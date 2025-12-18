@@ -1,3 +1,4 @@
+import { ConfigurationSettings } from "../../configurationSettings/types"
 import { Events, EventsXML } from "./types"
 
 function toCamelCase(str: string): string {
@@ -5,7 +6,10 @@ function toCamelCase(str: string): string {
   return str.charAt(0).toLowerCase() + str.slice(1)
 }
 
-export const importEventsFromXML = (xml: EventsXML | undefined): Events | undefined => {
+export const importEventsFromXML = (
+  xml: EventsXML | undefined,
+  _configurationSettings: ConfigurationSettings
+): Events | undefined => {
   if (!xml || xml.length === 0) return undefined
 
   const events: Events = {}

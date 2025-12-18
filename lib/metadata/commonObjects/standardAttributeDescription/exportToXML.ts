@@ -9,28 +9,30 @@ import {
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { exportTypeLinkToXML } from "~/lib/metadata/commonObjects/typeLink/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
 export const exportStandardAttributeDescriptionToXML = (
-  data: StandardAttributeDescription | undefined
+  data: StandardAttributeDescription | undefined,
+  configurationSettings: ConfigurationSettings
 ): StandardAttributeDescriptionXML | undefined => {
   if (!data) return undefined
 
   return {
     ChoiceForm: data.choiceForm,
     ChoiceHistoryOnInput: data.choiceHistoryOnInput,
-    ChoiceParameterLinks: exportChoiceParameterLinksToXML(data.choiceParameterLinks),
-    ChoiceParameters: exportChoiceParameterLinksToXML(data.choiceParameters),
+    ChoiceParameterLinks: exportChoiceParameterLinksToXML(data.choiceParameterLinks, configurationSettings),
+    ChoiceParameters: exportChoiceParameterLinksToXML(data.choiceParameters, configurationSettings),
     Comment: data.comment,
     CreateOnInput: data.createOnInput,
     DataHistory: data.dataHistory,
-    EditFormat: exportI8nTextToXML(data.editFormat),
+    EditFormat: exportI8nTextToXML(data.editFormat, configurationSettings),
     ExtendedEdit: data.extendedEdit,
     FillChecking: data.fillChecking,
     FillFromFillingValue: data.fillFromFillingValue,
-    FillValue: exportMetadataValueToXML(data.fillValue),
-    Format: exportI8nTextToXML(data.format),
+    FillValue: exportMetadataValueToXML(data.fillValue, configurationSettings),
+    Format: exportI8nTextToXML(data.format, configurationSettings),
     FullTextSearch: data.fullTextSearch,
-    LinkByType: exportTypeLinkToXML(data.linkByType),
+    LinkByType: exportTypeLinkToXML(data.linkByType, configurationSettings),
     MarkNegatives: data.markNegatives,
     Mask: data.mask,
     MaxValue: data.maxValue,
@@ -39,17 +41,20 @@ export const exportStandardAttributeDescriptionToXML = (
     Name: data.name,
     PasswordMode: data.passwordMode,
     QuickChoice: data.quickChoice,
-    Synonym: exportI8nTextToXML(data.synonym),
-    ToolTip: exportI8nTextToXML(data.toolTip),
-    Type: exportTypeDescriptionToXML(data.type),
+    Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
+    ToolTip: exportI8nTextToXML(data.toolTip, configurationSettings),
+    Type: exportTypeDescriptionToXML(data.type, configurationSettings),
     TypeReductionMode: data.typeReductionMode,
   }
 }
 
 export const exportStandardAttributeDescriptionsToXML = (
-  data: StandardAttributeDescriptions | undefined
+  data: StandardAttributeDescriptions | undefined,
+  configurationSettings: ConfigurationSettings
 ): StandardAttributeDescriptionsXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value: StandardAttributeDescription) => exportStandardAttributeDescriptionToXML(value)!)
+  return data.map(
+    (value: StandardAttributeDescription) => exportStandardAttributeDescriptionToXML(value, configurationSettings)!
+  )
 }

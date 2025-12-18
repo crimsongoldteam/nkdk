@@ -1,15 +1,18 @@
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { TrackBarField, TrackBarFieldXML } from "~/lib/metadata/forms/elements/trackBarField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportTrackBarFieldToXML = (data: TrackBarField | undefined): TrackBarFieldXML | undefined => {
+export const exportTrackBarFieldToXML = (
+  data: TrackBarField | undefined,
+  configurationSettings: ConfigurationSettings
+): TrackBarFieldXML | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormFieldToXML(data)!,
+    ...exportFormFieldToXML(data, configurationSettings)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -26,9 +29,9 @@ export const exportTrackBarFieldToXML = (data: TrackBarField | undefined): Track
     Step: data.step,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
-    Events: exportEventsToXML(data.events),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    Events: exportEventsToXML(data.events, configurationSettings),
   }
 }
 
-registerExport(FormElementType.TrackBarField, exportTrackBarFieldToXML)
+registerMetadata("ExportToXML", "TrackBarField", exportTrackBarFieldToXML)

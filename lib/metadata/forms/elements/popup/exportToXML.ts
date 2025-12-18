@@ -1,25 +1,28 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormGroupToXML } from "~/lib/metadata/forms/elements/formGroup/exportToXML"
 import { Popup, PopupXML } from "~/lib/metadata/forms/elements/popup/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportPopupToXML = (data: Popup | undefined): PopupXML | undefined => {
+export const exportPopupToXML = (
+  data: Popup | undefined,
+  configurationSettings: ConfigurationSettings
+): PopupXML | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormGroupToXML(data)!,
+    ...exportFormGroupToXML(data, configurationSettings)!,
 
-    BackColor: exportColorToXML(data.backColor),
-    BorderColor: exportColorToXML(data.borderColor),
-    Picture: exportPictureToXML(data.picture),
+    BackColor: exportColorToXML(data.backColor, configurationSettings),
+    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
+    Picture: exportPictureToXML(data.picture, configurationSettings),
     Representation: data.representation,
     Shape: data.shape,
     ShapeRepresentation: data.shapeRepresentation,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
   }
 }
 
-registerExport(FormElementType.Popup, exportPopupToXML)
+registerMetadata("ExportToXML", "Popup", exportPopupToXML)

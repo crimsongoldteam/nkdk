@@ -1,6 +1,10 @@
+import { ConfigurationSettings } from "../../configurationSettings/types"
 import { Picture, PictureXML } from "./types"
 
-export const importPictureFromXML = (xml: PictureXML | undefined): Picture | undefined => {
+export const importPictureFromXML = (
+  xml: PictureXML | undefined,
+  _configurationSettings: ConfigurationSettings
+): Picture | undefined => {
   if (!xml) return undefined
 
   // Parse Ref to extract type and reference

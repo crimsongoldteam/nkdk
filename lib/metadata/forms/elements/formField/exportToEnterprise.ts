@@ -11,8 +11,8 @@ import { exportCommandBarToEnterprise } from "~/lib/metadata/forms/elements/comm
 import { exportFormDecorationToEnterprise } from "~/lib/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { FormField, FormFieldEnterprise } from "~/lib/metadata/forms/elements/formField/types"
 import { exportTableToEnterprise } from "~/lib/metadata/forms/elements/table/exportToEnterprise"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -120,4 +120,4 @@ export const exportFormFieldToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.FormField, exportFormFieldToEnterprise)
+registerMetadata("ExportToEnterprise", "FormField", exportFormFieldToEnterprise)

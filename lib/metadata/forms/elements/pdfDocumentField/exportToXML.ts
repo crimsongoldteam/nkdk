@@ -1,20 +1,23 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { PdfDocumentField, PdfDocumentFieldXML } from "~/lib/metadata/forms/elements/pdfDocumentField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportPdfDocumentFieldToXML = (data: PdfDocumentField | undefined): PdfDocumentFieldXML | undefined => {
+export const exportPdfDocumentFieldToXML = (
+  data: PdfDocumentField | undefined,
+  configurationSettings: ConfigurationSettings
+): PdfDocumentFieldXML | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormFieldToXML(data)!,
+    ...exportFormFieldToXML(data, configurationSettings)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    BorderColor: exportColorToXML(data.borderColor),
+    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
     CurrentPageNumber: data.currentPageNumber,
     Height: data.height,
     HorizontalStretch: data.horizontalStretch,
@@ -27,9 +30,9 @@ export const exportPdfDocumentFieldToXML = (data: PdfDocumentField | undefined):
     VerticalStretch: data.verticalStretch,
     ViewStatusLocation: data.viewStatusLocation,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
-    Events: exportEventsToXML(data.events),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    Events: exportEventsToXML(data.events, configurationSettings),
   }
 }
 
-registerExport(FormElementType.PdfDocumentField, exportPdfDocumentFieldToXML)
+registerMetadata("ExportToXML", "PdfDocumentField", exportPdfDocumentFieldToXML)

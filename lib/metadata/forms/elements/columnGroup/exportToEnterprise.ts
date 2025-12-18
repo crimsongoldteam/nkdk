@@ -5,7 +5,7 @@ import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/user
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { ColumnGroup, ColumnGroupEnterprise } from "~/lib/metadata/forms/elements/columnGroup/types"
 import { exportFormGroupToEnterprise } from "~/lib/metadata/forms/elements/formGroup/exportToEnterprise"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -39,4 +39,4 @@ export const exportColumnGroupToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.ColumnGroup, exportColumnGroupToEnterprise)
+registerMetadata("ExportToEnterprise", "ColumnGroup", exportColumnGroupToEnterprise)

@@ -1,11 +1,11 @@
-import { lexer } from "~/lib/parser/lexer"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
-import { FormElementType } from "../types"
-import { Table } from "./types"
+import { describe, expect, it } from "vitest"
 import { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
-import { describe, it, expect } from "vitest"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
+import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { FormElementType } from "../../../metadataFactory/types"
+import { Table } from "./types"
 
 describe("parse Table", () => {
   it("should parse table", () => {

@@ -7,8 +7,8 @@ import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/user
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { LabelField, LabelFieldEnterprise } from "~/lib/metadata/forms/elements/labelField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportLabelFieldToEnterprise = (
   data: LabelField | undefined,
@@ -41,4 +41,4 @@ export const exportLabelFieldToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.LabelField, exportLabelFieldToEnterprise)
+registerMetadata("ExportToEnterprise", "LabelField", exportLabelFieldToEnterprise)

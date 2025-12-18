@@ -3,25 +3,28 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { LabelField, LabelFieldXML } from "~/lib/metadata/forms/elements/labelField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportLabelFieldToXML = (data: LabelField | undefined): LabelFieldXML | undefined => {
+export const exportLabelFieldToXML = (
+  data: LabelField | undefined,
+  configurationSettings: ConfigurationSettings
+): LabelFieldXML | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormFieldToXML(data)!,
+    ...exportFormFieldToXML(data, configurationSettings)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    BackColor: exportColorToXML(data.backColor),
-    Border: exportBorderToXML(data.border),
-    BorderColor: exportColorToXML(data.borderColor),
-    Font: exportFontToXML(data.font),
-    Format: exportI8nTextToXML(data.format),
+    BackColor: exportColorToXML(data.backColor, configurationSettings),
+    Border: exportBorderToXML(data.border, configurationSettings),
+    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
+    Font: exportFontToXML(data.font, configurationSettings),
+    Format: exportI8nTextToXML(data.format, configurationSettings),
     Height: data.height,
     HorizontalStretch: data.horizontalStretch,
     Hyperlink: data.hyperlink,
@@ -29,12 +32,12 @@ export const exportLabelFieldToXML = (data: LabelField | undefined): LabelFieldX
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
     PasswordMode: data.passwordMode,
-    TextColor: exportColorToXML(data.textColor),
+    TextColor: exportColorToXML(data.textColor, configurationSettings),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
-    Events: exportEventsToXML(data.events),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    Events: exportEventsToXML(data.events, configurationSettings),
   }
 }
 
-registerExport(FormElementType.LabelField, exportLabelFieldToXML)
+registerMetadata("ExportToXML", "LabelField", exportLabelFieldToXML)

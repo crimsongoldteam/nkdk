@@ -8,7 +8,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { exportBaseElementToEnterprise } from "~/lib/metadata/forms/elements/baseElement/exportToEnterprise"
 import { Button, ButtonEnterprise } from "~/lib/metadata/forms/elements/button/types"
 import { exportFormDecorationToEnterprise } from "~/lib/metadata/forms/elements/formDecoration/exportToEnterprise"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -93,4 +93,4 @@ export const exportButtonToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.Button, exportButtonToEnterprise)
+registerMetadata("ExportToEnterprise", "Button", exportButtonToEnterprise)

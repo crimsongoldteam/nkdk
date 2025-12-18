@@ -1,20 +1,23 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormGroupToXML } from "~/lib/metadata/forms/elements/formGroup/exportToXML"
 import { exportTableToXML } from "~/lib/metadata/forms/elements/table/exportToXML"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { UsualGroup, UsualGroupXML } from "~/lib/metadata/forms/elements/usualGroup/types"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportUsualGroupToXML = (data: UsualGroup | undefined): UsualGroupXML | undefined => {
+export const exportUsualGroupToXML = (
+  data: UsualGroup | undefined,
+  configurationSettings: ConfigurationSettings
+): UsualGroupXML | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormGroupToXML(data)!,
+    ...exportFormGroupToXML(data, configurationSettings)!,
 
-    AssociatedTable: exportTableToXML(data.associatedTable),
-    BackColor: exportColorToXML(data.backColor),
+    AssociatedTable: exportTableToXML(data.associatedTable, configurationSettings),
+    BackColor: exportColorToXML(data.backColor, configurationSettings),
     Behavior: data.behavior,
     ChildItemsHorizontalAlign: data.childItemsHorizontalAlign,
     ChildItemsVerticalAlign: data.childItemsVerticalAlign,
@@ -22,11 +25,14 @@ export const exportUsualGroupToXML = (data: UsualGroup | undefined): UsualGroupX
     ControlRepresentation: data.controlRepresentation,
     CurrentRowUse: data.currentRowUse,
     _DisplayImportance: data.displayImportance,
-    Format: exportI8nTextToXML(data.format),
+    Format: exportI8nTextToXML(data.format, configurationSettings),
     Group: data.group,
     GroupHorizontalAlign: data.groupHorizontalAlign,
     GroupVerticalAlign: data.groupVerticalAlign,
-    HiddenRepresentationTitleBackColor: exportColorToXML(data.hiddenRepresentationTitleBackColor),
+    HiddenRepresentationTitleBackColor: exportColorToXML(
+      data.hiddenRepresentationTitleBackColor,
+      configurationSettings
+    ),
     HorizontalSpacing: data.horizontalSpacing,
     ItemsAndTitlesAlign: data.itemsAndTitlesAlign,
     Representation: data.representation,
@@ -38,8 +44,8 @@ export const exportUsualGroupToXML = (data: UsualGroup | undefined): UsualGroupX
     United: data.united,
     VerticalAlign: data.verticalAlign,
     VerticalSpacing: data.verticalSpacing,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
   }
 }
 
-registerExport(FormElementType.UsualGroup, exportUsualGroupToXML)
+registerMetadata("ExportToXML", "UsualGroup", exportUsualGroupToXML)

@@ -1,23 +1,25 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { HTMLDocumentField, HTMLDocumentFieldXML } from "~/lib/metadata/forms/elements/htmlDocumentField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importHTMLDocumentFieldFromXML = (
-  xml: HTMLDocumentFieldXML | undefined
+  xml: HTMLDocumentFieldXML | undefined,
+  configurationSettings: ConfigurationSettings
 ): HTMLDocumentField | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importFormFieldFromXML(xml)!,
+    ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.HTMLDocumentField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    borderColor: importColorFromXML(xml.BorderColor),
+    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
     height: xml.Height,
     horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
@@ -26,9 +28,9 @@ export const importHTMLDocumentFieldFromXML = (
     userAgentInformation: xml.UserAgentInformation,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
-    events: importEventsFromXML(xml.Events),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    events: importEventsFromXML(xml.Events, configurationSettings),
   }
 }
 
-registerImport(FormElementType.HTMLDocumentField, importHTMLDocumentFieldFromXML)
+registerMetadata("ImportFromXML", "HTMLDocumentField", importHTMLDocumentFieldFromXML)

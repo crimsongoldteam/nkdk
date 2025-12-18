@@ -7,17 +7,21 @@ import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeD
 import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { InputField, InputFieldXML } from "~/lib/metadata/forms/elements/inputField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importInputFieldFromXML = (xml: InputFieldXML | undefined): InputField | undefined => {
+export const importInputFieldFromXML = (
+  xml: InputFieldXML | undefined,
+  configurationSettings: ConfigurationSettings
+): InputField | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importFormFieldFromXML(xml)!,
+    ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.InputField,
 
     allowInputEmptyMultipleValues: xml.AllowInputEmptyMultipleValues,
@@ -31,36 +35,36 @@ export const importInputFieldFromXML = (xml: InputFieldXML | undefined): InputFi
     autoMaxWidth: xml.AutoMaxWidth,
     autoShowClearButton: xml.AutoShowClearButton,
     autoShowOpenButton: xml.AutoShowOpenButton,
-    availableTypes: importTypeDescriptionFromXML(xml.AvailableTypes),
-    backColor: importColorFromXML(xml.BackColor),
-    borderColor: importColorFromXML(xml.BorderColor),
+    availableTypes: importTypeDescriptionFromXML(xml.AvailableTypes, configurationSettings),
+    backColor: importColorFromXML(xml.BackColor, configurationSettings),
+    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
     choiceButton: xml.ChoiceButton,
-    choiceButtonPicture: importPictureFromXML(xml.ChoiceButtonPicture),
+    choiceButtonPicture: importPictureFromXML(xml.ChoiceButtonPicture, configurationSettings),
     choiceButtonRepresentation: xml.ChoiceButtonRepresentation,
     choiceFoldersAndItems: xml.ChoiceFoldersAndItems,
     choiceForm: xml.ChoiceForm,
     choiceHistoryOnInput: xml.ChoiceHistoryOnInput,
-    choiceList: importChoiceListFromXML(xml.ChoiceList),
+    choiceList: importChoiceListFromXML(xml.ChoiceList, configurationSettings),
     choiceListButton: xml.ChoiceListButton,
     choiceListHeight: xml.ChoiceListHeight,
-    choiceParameterLinks: importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks),
-    choiceParameters: importChoiceParameterLinksFromXML(xml.ChoiceParameters),
+    choiceParameterLinks: importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks, configurationSettings),
+    choiceParameters: importChoiceParameterLinksFromXML(xml.ChoiceParameters, configurationSettings),
     chooseType: xml.ChooseType,
     clearButton: xml.ClearButton,
     createButton: xml.CreateButton,
     dropListButton: xml.DropListButton,
     dropListWidth: xml.DropListWidth,
-    editFormat: importI8nTextFromXML(xml.EditFormat),
+    editFormat: importI8nTextFromXML(xml.EditFormat, configurationSettings),
     editText: xml.EditText,
     editTextUpdate: xml.EditTextUpdate,
     extendedEdit: xml.ExtendedEdit,
-    font: importFontFromXML(xml.Font),
-    format: importI8nTextFromXML(xml.Format),
+    font: importFontFromXML(xml.Font, configurationSettings),
+    format: importI8nTextFromXML(xml.Format, configurationSettings),
     height: xml.Height,
     heightControlVariant: xml.HeightControlVariant,
     horizontalStretch: xml.HorizontalStretch,
     incompleteChoiceMode: xml.IncompleteChoiceMode,
-    inputHint: importI8nTextFromXML(xml.InputHint),
+    inputHint: importI8nTextFromXML(xml.InputHint, configurationSettings),
     listChoiceMode: xml.ListChoiceMode,
     markIncomplete: xml.MarkIncomplete,
     markNegatives: xml.MarkNegatives,
@@ -74,12 +78,12 @@ export const importInputFieldFromXML = (xml: InputFieldXML | undefined): InputFi
     multipleValuePictureShape: xml.MultipleValuePictureShape,
     multipleValuePictureSize: xml.MultipleValuePictureSize,
     multipleValuePresentationDataPath: xml.MultipleValuePresentationDataPath,
-    multipleValuesBackColor: importColorFromXML(xml.MultipleValuesBackColor),
+    multipleValuesBackColor: importColorFromXML(xml.MultipleValuesBackColor, configurationSettings),
     multipleValuesExtendedEdit: xml.MultipleValuesExtendedEdit,
-    multipleValuesFont: importFontFromXML(xml.MultipleValuesFont),
+    multipleValuesFont: importFontFromXML(xml.MultipleValuesFont, configurationSettings),
     multipleValuesHyperlink: xml.MultipleValuesHyperlink,
-    multipleValuesPicture: importPictureFromXML(xml.MultipleValuesPicture),
-    multipleValuesTextColor: importColorFromXML(xml.MultipleValuesTextColor),
+    multipleValuesPicture: importPictureFromXML(xml.MultipleValuesPicture, configurationSettings),
+    multipleValuesTextColor: importColorFromXML(xml.MultipleValuesTextColor, configurationSettings),
     multipleValueValueDataPath: xml.MultipleValueValueDataPath,
     onScreenKeyboardReturnKeyText: xml.OnScreenKeyboardReturnKeyText,
     openButton: xml.OpenButton,
@@ -90,16 +94,16 @@ export const importInputFieldFromXML = (xml: InputFieldXML | undefined): InputFi
     specialTextInputMode: xml.SpecialTextInputMode,
     spellCheckingOnTextInput: xml.SpellCheckingOnTextInput,
     spinButton: xml.SpinButton,
-    textColor: importColorFromXML(xml.TextColor),
+    textColor: importColorFromXML(xml.TextColor, configurationSettings),
     textEdit: xml.TextEdit,
     typeDomainEnabled: xml.TypeDomainEnabled,
-    typeLink: importTypeLinkFromXML(xml.TypeLink),
+    typeLink: importTypeLinkFromXML(xml.TypeLink, configurationSettings),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     wrap: xml.Wrap,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
-    events: importEventsFromXML(xml.Events),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    events: importEventsFromXML(xml.Events, configurationSettings),
   }
 }
 
-registerImport(FormElementType.InputField, importInputFieldFromXML)
+registerMetadata("ImportFromXML", "InputField", importInputFieldFromXML)

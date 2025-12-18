@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { ClientApplicationForm, ClientApplicationFormXML, importClientApplicationFormFromXML, xmlImport } from "~/lib"
 import "~/lib/metadata/forms/elements/importFromXML"
-import { FormElementType } from "../types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { FormElementType } from "../../../metadataFactory/types"
 
 describe("importClientApplicationFormFromXML", () => {
   it("should import title from XML", () => {
@@ -31,7 +32,7 @@ describe("importClientApplicationFormFromXML", () => {
     }
 
     const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
-    const element = importClientApplicationFormFromXML(xmlData.Form)
+    const element = importClientApplicationFormFromXML(xmlData.Form, mockConfigurationSettings)
 
     expect(element).toEqual(mockElement)
   })
@@ -59,7 +60,7 @@ describe("importClientApplicationFormFromXML", () => {
     }
 
     const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
-    const element = importClientApplicationFormFromXML(xmlData.Form)
+    const element = importClientApplicationFormFromXML(xmlData.Form, mockConfigurationSettings)
 
     expect(element).toEqual(mockElement)
   })
@@ -92,7 +93,7 @@ describe("importClientApplicationFormFromXML", () => {
     }
 
     const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
-    const form = importClientApplicationFormFromXML(xmlData.Form)
+    const form = importClientApplicationFormFromXML(xmlData.Form, mockConfigurationSettings)
 
     expect(form).toEqual(mockElement)
   })
@@ -133,7 +134,7 @@ describe("importClientApplicationFormFromXML", () => {
 
     const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
 
-    const form = importClientApplicationFormFromXML(xmlData.Form)
+    const form = importClientApplicationFormFromXML(xmlData.Form, mockConfigurationSettings)
 
     expect(form).toEqual(mockElement)
   })
@@ -178,7 +179,7 @@ describe("importClientApplicationFormFromXML", () => {
 
     const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
 
-    const form = importClientApplicationFormFromXML(xmlData.Form)
+    const form = importClientApplicationFormFromXML(xmlData.Form, mockConfigurationSettings)
 
     expect(form).toEqual(mockElement)
   })

@@ -1,13 +1,13 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join, parse } from "path"
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "../tests/mockConfigurationSettings"
 import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/format"
 import { importClientApplicationFormFromXML } from "../metadata/forms/elements/clientApplicationForm/importFromXML"
 import { ClientApplicationFormXML } from "../metadata/forms/elements/clientApplicationForm/types"
 import "../metadata/forms/elements/exportToXML"
 import "../metadata/forms/elements/importFromXML"
 import "../metadata/forms/elements/rules"
+import { mockConfigurationSettings } from "../tests/mockConfigurationSettings"
 import { xmlExport } from "../xml/export/exporter"
 import xmlImport from "../xml/import/importer"
 
@@ -16,7 +16,7 @@ const originalContent = readFileSync(join(__dirname, "Form.xml"), "utf-8")
 describe("DO test", () => {
   it("should round-trip DO XML", () => {
     const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(originalContent)
-    const form = importClientApplicationFormFromXML(importedXml.Form)
+    const form = importClientApplicationFormFromXML(importedXml.Form, mockConfigurationSettings)
 
     // const exportedForm = exportClientApplicationFormToXML(form)
 
@@ -34,7 +34,7 @@ describe("DO test", () => {
 
   it("should round-trip DO with parsing", () => {
     const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(originalContent)
-    const form = importClientApplicationFormFromXML(importedXml.Form)
+    const form = importClientApplicationFormFromXML(importedXml.Form, mockConfigurationSettings)
 
     // const exportedForm = exportClientApplicationFormToXML(form)
 

@@ -1,8 +1,9 @@
 import { expect, it } from "vitest"
 import { xmlImport } from "~/lib"
-import { FormElementType } from "../types"
+import { FormElementType } from "../../../metadataFactory/types"
 import { importLabelDecorationFromXML } from "./importFromXML"
 import { LabelDecoration, LabelDecorationXML } from "./types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 
 it("should import name from XML", () => {
   const mockXml = `<LabelDecoration name="Заголовок" id="1">
@@ -25,7 +26,7 @@ it("should import name from XML", () => {
 
   const xml = xmlImport<{ LabelDecoration: LabelDecorationXML }>(mockXml)
 
-  const input = importLabelDecorationFromXML(xml.LabelDecoration)
+  const input = importLabelDecorationFromXML(xml.LabelDecoration, mockConfigurationSettings)
 
   expect(input).toEqual(expectedResult)
 })

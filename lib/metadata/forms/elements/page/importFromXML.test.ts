@@ -3,9 +3,10 @@ import "~/lib/metadata/forms/elements/elements"
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
 import xmlImport from "~/lib/xml/import/importer"
-import { FormElementType } from "../types"
+import { FormElementType } from "../../../metadataFactory/types"
 import { importPageFromXML } from "./importFromXML"
 import { Page, PageXML } from "./types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 
 describe("importPageFromXML", () => {
   it("should import Page from XML", () => {
@@ -28,7 +29,7 @@ describe("importPageFromXML", () => {
 
     const xmlData = xmlImport<{ Page: PageXML }>(mockXml)
 
-    const input = importPageFromXML(xmlData.Page)
+    const input = importPageFromXML(xmlData.Page, mockConfigurationSettings)
 
     expect(input).toEqual(expectedResult)
   })

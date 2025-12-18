@@ -1,26 +1,27 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldXML,
 } from "~/lib/metadata/forms/elements/spreadSheetDocumentField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportSpreadSheetDocumentFieldToXML = (
-  data: SpreadSheetDocumentField | undefined
+  data: SpreadSheetDocumentField | undefined,
+  configurationSettings: ConfigurationSettings
 ): SpreadSheetDocumentFieldXML | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormFieldToXML(data)!,
+    ...exportFormFieldToXML(data, configurationSettings)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
     BlackAndWhiteView: data.blackAndWhiteView,
-    BorderColor: exportColorToXML(data.borderColor),
+    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
     DrawingSelectionShowMode: data.drawingSelectionShowMode,
     Edit: data.edit,
     EnableDrag: data.enableDrag,
@@ -45,9 +46,9 @@ export const exportSpreadSheetDocumentFieldToXML = (
     VerticalStretch: data.verticalStretch,
     ViewScalingMode: data.viewScalingMode,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
-    Events: exportEventsToXML(data.events),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    Events: exportEventsToXML(data.events, configurationSettings),
   }
 }
 
-registerExport(FormElementType.SpreadSheetDocumentField, exportSpreadSheetDocumentFieldToXML)
+registerMetadata("ExportToXML", "SpreadSheetDocumentField", exportSpreadSheetDocumentFieldToXML)

@@ -1,6 +1,10 @@
+import { ConfigurationSettings } from "../../configurationSettings/types"
 import { MetadataValue, MetadataValueXML } from "./types"
 
-export const exportMetadataValueToXML = (data: MetadataValue | undefined): MetadataValueXML | undefined => {
+export const exportMetadataValueToXML = (
+  data: MetadataValue | undefined,
+  _configurationSettings: ConfigurationSettings
+): MetadataValueXML | undefined => {
   if (!data) return undefined
 
   return {
@@ -9,8 +13,11 @@ export const exportMetadataValueToXML = (data: MetadataValue | undefined): Metad
   }
 }
 
-export const exportMetadataValuesToXML = (data: MetadataValue[] | undefined): MetadataValueXML[] | undefined => {
+export const exportMetadataValuesToXML = (
+  data: MetadataValue[] | undefined,
+  configurationSettings: ConfigurationSettings
+): MetadataValueXML[] | undefined => {
   if (!data) return undefined
 
-  return data.map((value) => exportMetadataValueToXML(value)!)
+  return data.map((value) => exportMetadataValueToXML(value, configurationSettings)!)
 }

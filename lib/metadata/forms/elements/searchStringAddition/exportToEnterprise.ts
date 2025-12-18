@@ -8,7 +8,7 @@ import {
   SearchStringAddition,
   SearchStringAdditionEnterprise,
 } from "~/lib/metadata/forms/elements/searchStringAddition/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportSearchStringAdditionToEnterprise = (
   data: SearchStringAddition | undefined,
@@ -29,4 +29,4 @@ export const exportSearchStringAdditionToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.SearchStringAddition, exportSearchStringAdditionToEnterprise)
+registerMetadata("ExportToEnterprise", "SearchStringAddition", exportSearchStringAdditionToEnterprise)

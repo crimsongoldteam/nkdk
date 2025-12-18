@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { xmlImport } from "~/lib"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { AttributeXML, FormAttribute } from "../types"
 import importAttributeFromXML from "./importFromXML"
 
@@ -33,7 +34,7 @@ describe("importAttributeFromXML", () => {
 
     const xmlData = xmlImport<AttributeXML>(mockXml)
 
-    const result = importAttributeFromXML(xmlData)
+    const result = importAttributeFromXML(xmlData, mockConfigurationSettings)
 
     expect(result).toEqual(mockResult)
   })
@@ -50,7 +51,7 @@ describe("importAttributeFromXML", () => {
 
     const xmlData = xmlImport<AttributeXML>(mockXml)
 
-    const result = importAttributeFromXML(xmlData)
+    const result = importAttributeFromXML(xmlData, mockConfigurationSettings)
 
     expect(result).toEqual(mockResult)
   })
@@ -74,7 +75,7 @@ describe("importAttributeFromXML", () => {
 
     const xmlData = xmlImport<{ Attributes: AttributeXML[] }>(mockXml)
 
-    const result = importAttributeFromXML(xmlData.Attributes[0])
+    const result = importAttributeFromXML(xmlData.Attributes[0], mockConfigurationSettings)
 
     expect(result).toEqual(mockResult)
   })
@@ -90,7 +91,7 @@ describe("importAttributeFromXML", () => {
 
     const xmlData = xmlImport<{ Attributes: AttributeXML[] }>(mockXml)
 
-    const result = importAttributeFromXML(xmlData.Attributes[0] as AttributeXML)
+    const result = importAttributeFromXML(xmlData.Attributes[0] as AttributeXML, mockConfigurationSettings)
 
     expect(result).toBeUndefined()
   })

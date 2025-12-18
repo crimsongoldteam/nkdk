@@ -1,6 +1,10 @@
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { BaseElement, BaseElementXML } from "./types"
 
-export const exportBaseElementToXML = (data: BaseElement | undefined): BaseElementXML | undefined => {
+export const exportBaseElementToXML = (
+  data: BaseElement | undefined,
+  _configurationSettings: ConfigurationSettings
+): BaseElementXML | undefined => {
   if (!data) return undefined
   return {
     _id: data.id ?? "",

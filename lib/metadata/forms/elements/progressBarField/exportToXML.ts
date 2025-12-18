@@ -1,20 +1,23 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { ProgressBarField, ProgressBarFieldXML } from "~/lib/metadata/forms/elements/progressBarField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportProgressBarFieldToXML = (data: ProgressBarField | undefined): ProgressBarFieldXML | undefined => {
+export const exportProgressBarFieldToXML = (
+  data: ProgressBarField | undefined,
+  configurationSettings: ConfigurationSettings
+): ProgressBarFieldXML | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormFieldToXML(data)!,
+    ...exportFormFieldToXML(data, configurationSettings)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    BorderColor: exportColorToXML(data.borderColor),
+    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
     Height: data.height,
     HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
@@ -26,9 +29,9 @@ export const exportProgressBarFieldToXML = (data: ProgressBarField | undefined):
     ShowPercent: data.showPercent,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
-    Events: exportEventsToXML(data.events),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    Events: exportEventsToXML(data.events, configurationSettings),
   }
 }
 
-registerExport(FormElementType.ProgressBarField, exportProgressBarFieldToXML)
+registerMetadata("ExportToXML", "ProgressBarField", exportProgressBarFieldToXML)

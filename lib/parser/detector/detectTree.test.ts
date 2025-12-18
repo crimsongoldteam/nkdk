@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 import { simlifyDetectedTreeNodes } from "~/lib/tests/simlifyToken"
-import { detectTreeNodes } from "./detectTree"
 import type { TreeNode } from "../treeParser/parseTree"
 import { ParseElementType } from "../types"
+import { detectTreeNodes } from "./detectTree"
 
 describe("detectTreeNodes", () => {
   it("should detect label decoration for plain text", () => {
@@ -25,9 +25,7 @@ describe("detectTreeNodes", () => {
   })
 
   it("should detect usual group starting with #", () => {
-    const mock: TreeNode[] = [
-      { content: "#VerticalGroup", childItems: [{ content: "text" }] },
-    ]
+    const mock: TreeNode[] = [{ content: "#VerticalGroup", childItems: [{ content: "text" }] }]
 
     const result = detectTreeNodes(mock)
 

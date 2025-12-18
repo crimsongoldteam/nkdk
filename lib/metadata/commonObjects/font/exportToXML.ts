@@ -1,6 +1,10 @@
+import { ConfigurationSettings } from "../../configurationSettings/types"
 import { Font, FontXML } from "./types"
 
-export const exportFontToXML = (font: Font | undefined): FontXML | undefined => {
+export const exportFontToXML = (
+  font: Font | undefined,
+  _configurationSettings: ConfigurationSettings
+): FontXML | undefined => {
   if (!font) return undefined
   const result: FontXML = {
     _ref: font.ref,

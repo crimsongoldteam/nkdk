@@ -1,3 +1,4 @@
+import { ConfigurationSettings } from "../../configurationSettings/types"
 import { Events, EventsXML } from "./types"
 
 function toPascalCase(str: string): string {
@@ -5,7 +6,10 @@ function toPascalCase(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-export const exportEventsToXML = (data: Events | undefined): EventsXML | undefined => {
+export const exportEventsToXML = (
+  data: Events | undefined,
+  _configurationSettings: ConfigurationSettings
+): EventsXML | undefined => {
   if (!data || Object.keys(data).length === 0) return undefined
 
   const events: EventsXML = Object.entries(data).map(([eventName, eventValue]) => {

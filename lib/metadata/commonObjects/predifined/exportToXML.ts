@@ -1,6 +1,10 @@
+import { ConfigurationSettings } from "../../configurationSettings/types"
 import { Predefined, PredefinedItems, PredefinedItemsXML, PredefinedXML } from "./types"
 
-export const exportPredefinedToXML = (data: Predefined | undefined): PredefinedXML | undefined => {
+export const exportPredefinedToXML = (
+  data: Predefined | undefined,
+  _configurationSettings: ConfigurationSettings
+): PredefinedXML | undefined => {
   if (!data) return undefined
 
   return {
@@ -11,8 +15,11 @@ export const exportPredefinedToXML = (data: Predefined | undefined): PredefinedX
   }
 }
 
-export const exportPredefinedItemsToXML = (data: PredefinedItems | undefined): PredefinedItemsXML | undefined => {
+export const exportPredefinedItemsToXML = (
+  data: PredefinedItems | undefined,
+  configurationSettings: ConfigurationSettings
+): PredefinedItemsXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value) => exportPredefinedToXML(value)!)
+  return data.map((value) => exportPredefinedToXML(value, configurationSettings)!)
 }

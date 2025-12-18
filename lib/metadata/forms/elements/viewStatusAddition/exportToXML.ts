@@ -2,34 +2,35 @@ import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToX
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormItemAdditionToXML } from "~/lib/metadata/forms/elements/formItemAddition/exportToXML"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { ViewStatusAddition, ViewStatusAdditionXML } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportViewStatusAdditionToXML = (
-  data: ViewStatusAddition | undefined
+  data: ViewStatusAddition | undefined,
+  configurationSettings: ConfigurationSettings
 ): ViewStatusAdditionXML | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormItemAdditionToXML(data)!,
+    ...exportFormItemAdditionToXML(data, configurationSettings)!,
 
     AutoMaxWidth: data.autoMaxWidth,
-    BackColor: exportColorToXML(data.backColor),
-    Border: exportBorderToXML(data.border),
-    BorderColor: exportColorToXML(data.borderColor),
-    ButtonsBackColor: exportColorToXML(data.buttonsBackColor),
-    Font: exportFontToXML(data.font),
+    BackColor: exportColorToXML(data.backColor, configurationSettings),
+    Border: exportBorderToXML(data.border, configurationSettings),
+    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
+    ButtonsBackColor: exportColorToXML(data.buttonsBackColor, configurationSettings),
+    Font: exportFontToXML(data.font, configurationSettings),
     HorizontalAlign: data.horizontalAlign,
     HorizontalStretch: data.horizontalStretch,
     MaxWidth: data.maxWidth,
-    TextColor: exportColorToXML(data.textColor),
-    TitleFont: exportFontToXML(data.titleFont),
-    TitleTextColor: exportColorToXML(data.titleTextColor),
+    TextColor: exportColorToXML(data.textColor, configurationSettings),
+    TitleFont: exportFontToXML(data.titleFont, configurationSettings),
+    TitleTextColor: exportColorToXML(data.titleTextColor, configurationSettings),
     Width: data.width,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
   }
 }
 
-registerExport(FormElementType.ViewStatusAddition, exportViewStatusAdditionToXML)
+registerMetadata("ExportToXML", "ViewStatusAddition", exportViewStatusAdditionToXML)

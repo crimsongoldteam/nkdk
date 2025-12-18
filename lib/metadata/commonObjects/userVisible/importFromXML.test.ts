@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import xmlImport from "~/lib/xml/import/importer"
 import { importUserVisibleFromXML } from "./importFromXML"
 import { UserVisible, UserVisibleXML } from "./types"
-import xmlImport from "~/lib/xml/import/importer"
 
 describe("importUserVisibleFromXML", () => {
   it("should import Use from XML", () => {
@@ -27,7 +28,7 @@ describe("importUserVisibleFromXML", () => {
 
     const xml = xmlImport<{ UserVisible: UserVisibleXML }>(mockXml)
 
-    const result = importUserVisibleFromXML(xml.UserVisible)
+    const result = importUserVisibleFromXML(xml.UserVisible, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
@@ -44,13 +45,13 @@ describe("importUserVisibleFromXML", () => {
 
     const xml = xmlImport<{ UserVisible: UserVisibleXML }>(mockXml)
 
-    const result = importUserVisibleFromXML(xml.UserVisible)
+    const result = importUserVisibleFromXML(xml.UserVisible, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = importUserVisibleFromXML(undefined)
+    const result = importUserVisibleFromXML(undefined, mockConfigurationSettings)
 
     expect(result).toBeUndefined()
   })
@@ -73,7 +74,7 @@ describe("importUserVisibleFromXML", () => {
 
     const xml = xmlImport<{ UserVisible: UserVisibleXML }>(mockXml)
 
-    const result = importUserVisibleFromXML(xml.UserVisible)
+    const result = importUserVisibleFromXML(xml.UserVisible, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })

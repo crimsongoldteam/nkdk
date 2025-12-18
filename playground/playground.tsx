@@ -1,10 +1,10 @@
 import { ConfigProvider, Splitter } from "antd"
 import { useState } from "react"
 import { ClientFormApplication } from "~/components/clientFormApplication/clientFormApplication"
-import { MonacoEditor } from "~/playground/components/monacoEditor/monacoEditor"
 import type { ClientApplicationForm } from "~/lib/metadata/forms/elements/clientApplicationForm/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 import { parse } from "~/lib/parser/parser"
+import { MonacoEditor } from "~/playground/components/monacoEditor/monacoEditor"
 
 export const Playground = () => {
   const [text, setText] = useState<string>("")
@@ -30,10 +30,7 @@ export const Playground = () => {
     >
       <Splitter style={{ width: "100%" }}>
         <Splitter.Panel>
-          <MonacoEditor
-            value={text}
-            onChange={(value) => changeText(value || "")}
-          />
+          <MonacoEditor value={text} onChange={(value) => changeText(value || "")} />
         </Splitter.Panel>
         <Splitter.Panel>
           <ClientFormApplication {...form} />

@@ -7,7 +7,7 @@ import { exportChildItemsToEnterprise } from "~/lib/metadata/forms/elements/chil
 import { exportCommandBarToEnterprise } from "~/lib/metadata/forms/elements/commandBar/exportToEnterprise"
 import { exportFormDecorationToEnterprise } from "~/lib/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { FormItemAddition, FormItemAdditionEnterprise } from "~/lib/metadata/forms/elements/formItemAddition/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -52,4 +52,4 @@ export const exportFormItemAdditionToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.FormItemAddition, exportFormItemAdditionToEnterprise)
+registerMetadata("ExportToEnterprise", "FormItemAddition", exportFormItemAdditionToEnterprise)

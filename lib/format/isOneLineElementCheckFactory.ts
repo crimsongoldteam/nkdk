@@ -1,6 +1,6 @@
-import { CheckIsOneLineElementFunction } from "./types"
 import { BaseElement } from "../metadata/forms/elements/baseElement/types"
-import { FormElementType } from "../metadata/forms/elements/types"
+import { FormElementType } from "../metadata/metadataFactory/types"
+import { CheckIsOneLineElementFunction } from "./types"
 
 const isOneLineElementCheckRegistry: Map<FormElementType, CheckIsOneLineElementFunction<BaseElement>> = new Map()
 

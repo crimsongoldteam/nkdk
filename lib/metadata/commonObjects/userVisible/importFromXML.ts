@@ -1,6 +1,10 @@
+import { ConfigurationSettings } from "../../configurationSettings/types"
 import { UserVisible, UserVisibleXML } from "./types"
 
-export const importUserVisibleFromXML = (xml: UserVisibleXML | undefined): UserVisible | undefined => {
+export const importUserVisibleFromXML = (
+  xml: UserVisibleXML | undefined,
+  _configurationSettings: ConfigurationSettings
+): UserVisible | undefined => {
   if (!xml) return undefined
 
   const result: UserVisible = {

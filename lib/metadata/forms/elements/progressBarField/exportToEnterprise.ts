@@ -4,8 +4,8 @@ import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/user
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { ProgressBarField, ProgressBarFieldEnterprise } from "~/lib/metadata/forms/elements/progressBarField/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -45,4 +45,4 @@ export const exportProgressBarFieldToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.ProgressBarField, exportProgressBarFieldToEnterprise)
+registerMetadata("ExportToEnterprise", "ProgressBarField", exportProgressBarFieldToEnterprise)

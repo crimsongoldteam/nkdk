@@ -1,5 +1,5 @@
 import type { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { FormElementType } from "../types"
+import { FormElementType } from "../../../metadataFactory/types"
 import type { ClientApplicationForm } from "./types"
 
 export const parseClientApplicationForm = (

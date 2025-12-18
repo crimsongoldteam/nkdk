@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { ClientApplicationForm, InputField } from "~/lib"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import "~/lib/metadata/forms/elements/elements"
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
 import "~/lib/metadata/forms/elements/inputField/registration"
 import "~/lib/metadata/forms/elements/rules"
-import { FormElementType } from "../types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { FormElementType } from "../../../metadataFactory/types"
 import { formatClientApplicationForm } from "./format"
 
 describe("formatClientApplicationForm", () => {

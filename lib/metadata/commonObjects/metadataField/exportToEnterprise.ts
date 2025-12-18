@@ -1,7 +1,7 @@
 import { ConfigurationSettings } from "../../configurationSettings/types"
 import { MetadataField, MetadataFieldEnterprise, MetadataFields, MetadataFieldsEnterprise } from "./types"
 
-export const exportMetadataItemLinkToEnterprise = (
+export const exportMetadataFieldToEnterprise = (
   data: MetadataField | undefined,
   _configurationSettings: ConfigurationSettings
 ): MetadataFieldEnterprise | undefined => {
@@ -12,9 +12,9 @@ export const exportMetadataItemLinkToEnterprise = (
 
 export const exportMetadataFieldsToEnterprise = (
   data: MetadataFields | undefined,
-  _configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings
 ): MetadataFieldsEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => exportMetadataItemLinkToEnterprise(item, _configurationSettings)!)
+  return data.map((item) => exportMetadataFieldToEnterprise(item, configurationSettings)!)
 }

@@ -1,15 +1,19 @@
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { DendrogramField, DendrogramFieldXML } from "~/lib/metadata/forms/elements/dendrogramField/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importDendrogramFieldFromXML = (xml: DendrogramFieldXML | undefined): DendrogramField | undefined => {
+export const importDendrogramFieldFromXML = (
+  xml: DendrogramFieldXML | undefined,
+  configurationSettings: ConfigurationSettings
+): DendrogramField | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importFormFieldFromXML(xml)!,
+    ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.DendrogramField,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -20,9 +24,9 @@ export const importDendrogramFieldFromXML = (xml: DendrogramFieldXML | undefined
     maxWidth: xml.MaxWidth,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
-    events: importEventsFromXML(xml.Events),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    events: importEventsFromXML(xml.Events, configurationSettings),
   }
 }
 
-registerImport(FormElementType.DendrogramField, importDendrogramFieldFromXML)
+registerMetadata("ImportFromXML", "DendrogramField", importDendrogramFieldFromXML)

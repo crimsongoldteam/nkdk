@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
-import { FormElementType } from "../types"
+import { FormElementType } from "../../../metadataFactory/types"
 import { formatOtherElement } from "./format"
 import { BaseElement } from "./types"
 

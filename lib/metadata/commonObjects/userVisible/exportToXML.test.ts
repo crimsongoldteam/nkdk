@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { xmlExport } from "~/lib/xml/export/exporter"
+import { xmlImport } from "~/lib/xml/import/importer"
 import { exportUserVisibleToXML } from "./exportToXML"
 import { importUserVisibleFromXML } from "./importFromXML"
 import { UserVisible, UserVisibleXML } from "./types"
-import { xmlExport } from "~/lib/xml/export/exporter"
-import { xmlImport } from "~/lib/xml/import/importer"
 
 describe("exportUserVisibleToXML", () => {
   it("should export UserVisible to XML", () => {
@@ -27,7 +28,7 @@ describe("exportUserVisibleToXML", () => {
 	<xr:Value name="Role.Пользователь">false</xr:Value>
 </UserVisible>`
 
-    const exported = exportUserVisibleToXML(mockUserVisible)
+    const exported = exportUserVisibleToXML(mockUserVisible, mockConfigurationSettings)
     const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
@@ -43,14 +44,14 @@ describe("exportUserVisibleToXML", () => {
 	<xr:Common>false</xr:Common>
 </UserVisible>`
 
-    const exported = exportUserVisibleToXML(mockUserVisible)
+    const exported = exportUserVisibleToXML(mockUserVisible, mockConfigurationSettings)
     const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportUserVisibleToXML(undefined)
+    const result = exportUserVisibleToXML(undefined, mockConfigurationSettings)
 
     expect(result).toBeUndefined()
   })
@@ -71,7 +72,7 @@ describe("exportUserVisibleToXML", () => {
 	<xr:Value name="Role.Менеджер">true</xr:Value>
 </UserVisible>`
 
-    const exported = exportUserVisibleToXML(mockUserVisible)
+    const exported = exportUserVisibleToXML(mockUserVisible, mockConfigurationSettings)
     const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
@@ -85,8 +86,8 @@ describe("exportUserVisibleToXML", () => {
 </UserVisible>`
 
     const xml = xmlImport<{ UserVisible: UserVisibleXML }>(originalXml)
-    const imported = importUserVisibleFromXML(xml.UserVisible)
-    const exported = exportUserVisibleToXML(imported)
+    const imported = importUserVisibleFromXML(xml.UserVisible, mockConfigurationSettings)
+    const exported = exportUserVisibleToXML(imported, mockConfigurationSettings)
     const resultXml = xmlExport({ UserVisible: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

@@ -9,8 +9,12 @@ import { exportMetadataValueToXML } from "~/lib/metadata/commonObjects/metadataV
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { exportTypeLinkToXML } from "~/lib/metadata/commonObjects/typeLink/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
-export const exportMetadataAttributeToXML = (data: MetadataAttribute | undefined): MetadataAttributeXML | undefined => {
+export const exportMetadataAttributeToXML = (
+  data: MetadataAttribute | undefined,
+  configurationSettings: ConfigurationSettings
+): MetadataAttributeXML | undefined => {
   if (!data) return undefined
 
   return {
@@ -19,20 +23,20 @@ export const exportMetadataAttributeToXML = (data: MetadataAttribute | undefined
     ChoiceFoldersAndItems: data.choiceFoldersAndItems,
     ChoiceForm: data.choiceForm,
     ChoiceHistoryOnInput: data.choiceHistoryOnInput,
-    ChoiceParameterLinks: exportChoiceParameterLinksToXML(data.choiceParameterLinks),
-    ChoiceParameters: exportChoiceParameterLinksToXML(data.choiceParameters),
+    ChoiceParameterLinks: exportChoiceParameterLinksToXML(data.choiceParameterLinks, configurationSettings),
+    ChoiceParameters: exportChoiceParameterLinksToXML(data.choiceParameters, configurationSettings),
     Comment: data.comment,
     CreateOnInput: data.createOnInput,
     DataHistory: data.dataHistory,
-    EditFormat: exportI8nTextToXML(data.editFormat),
+    EditFormat: exportI8nTextToXML(data.editFormat, configurationSettings),
     ExtendedEdit: data.extendedEdit,
     FillChecking: data.fillChecking,
     FillFromFillingValue: data.fillFromFillingValue,
-    FillingValue: exportMetadataValueToXML(data.fillingValue),
-    Format: exportI8nTextToXML(data.format),
+    FillingValue: exportMetadataValueToXML(data.fillingValue, configurationSettings),
+    Format: exportI8nTextToXML(data.format, configurationSettings),
     FullTextSearch: data.fullTextSearch,
     Indexing: data.indexing,
-    LinkByType: exportTypeLinkToXML(data.linkByType),
+    LinkByType: exportTypeLinkToXML(data.linkByType, configurationSettings),
     MarkNegatives: data.markNegatives,
     Mask: data.mask,
     MaxValue: data.maxValue,
@@ -42,17 +46,18 @@ export const exportMetadataAttributeToXML = (data: MetadataAttribute | undefined
     ObjectBelonging: data.objectBelonging,
     PasswordMode: data.passwordMode,
     QuickChoice: data.quickChoice,
-    Synonym: exportI8nTextToXML(data.synonym),
-    Tooltip: exportI8nTextToXML(data.tooltip),
-    Type: exportTypeDescriptionToXML(data.type),
+    Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
+    Tooltip: exportI8nTextToXML(data.tooltip, configurationSettings),
+    Type: exportTypeDescriptionToXML(data.type, configurationSettings),
     Use: data.use,
   }
 }
 
 export const exportMetadataAttributesToXML = (
-  data: MetadataAttributes | undefined
+  data: MetadataAttributes | undefined,
+  configurationSettings: ConfigurationSettings
 ): MetadataAttributesXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value: MetadataAttribute) => exportMetadataAttributeToXML(value)!)
+  return data.map((value: MetadataAttribute) => exportMetadataAttributeToXML(value, configurationSettings)!)
 }

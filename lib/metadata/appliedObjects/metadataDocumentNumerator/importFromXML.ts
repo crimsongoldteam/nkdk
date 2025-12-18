@@ -3,9 +3,11 @@ import {
   MetadataDocumentNumeratorXML,
 } from "~/lib/metadata/appliedObjects/metadataDocumentNumerator/types"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 
 export const importMetadataDocumentNumeratorFromXML = (
-  xml: MetadataDocumentNumeratorXML | undefined
+  xml: MetadataDocumentNumeratorXML | undefined,
+  configurationSettings: ConfigurationSettings
 ): MetadataDocumentNumerator | undefined => {
   if (!xml) return undefined
 
@@ -18,6 +20,6 @@ export const importMetadataDocumentNumeratorFromXML = (
     numberPeriodicity: xml.NumberPeriodicity,
     numberType: xml.NumberType,
     objectBelonging: xml.ObjectBelonging,
-    synonym: importI8nTextFromXML(xml.Synonym),
+    synonym: importI8nTextFromXML(xml.Synonym, configurationSettings),
   }
 }

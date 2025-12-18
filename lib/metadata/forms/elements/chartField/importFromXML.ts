@@ -1,15 +1,19 @@
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { ChartField, ChartFieldXML } from "~/lib/metadata/forms/elements/chartField/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importChartFieldFromXML = (xml: ChartFieldXML | undefined): ChartField | undefined => {
+export const importChartFieldFromXML = (
+  xml: ChartFieldXML | undefined,
+  configurationSettings: ConfigurationSettings
+): ChartField | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importFormFieldFromXML(xml)!,
+    ...importFormFieldFromXML(xml, configurationSettings)!,
     elementType: FormElementType.ChartField,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -20,9 +24,9 @@ export const importChartFieldFromXML = (xml: ChartFieldXML | undefined): ChartFi
     maxWidth: xml.MaxWidth,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
-    events: importEventsFromXML(xml.Events),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    events: importEventsFromXML(xml.Events, configurationSettings),
   }
 }
 
-registerImport(FormElementType.ChartField, importChartFieldFromXML)
+registerMetadata("ImportFromXML", "ChartField", importChartFieldFromXML)

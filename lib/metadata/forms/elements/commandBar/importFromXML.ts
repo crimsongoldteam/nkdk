@@ -1,21 +1,25 @@
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { CommandBar, CommandBarXML } from "~/lib/metadata/forms/elements/commandBar/types"
 import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/importFromXML"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importCommandBarFromXML = (xml: CommandBarXML | undefined): CommandBar | undefined => {
+export const importCommandBarFromXML = (
+  xml: CommandBarXML | undefined,
+  configurationSettings: ConfigurationSettings
+): CommandBar | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importFormGroupFromXML(xml)!,
+    ...importFormGroupFromXML(xml, configurationSettings)!,
     elementType: FormElementType.CommandBar,
 
     autofill: xml.Autofill,
     displayImportance: xml._DisplayImportance,
     horizontalAlign: xml.HorizontalAlign,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
   }
 }
 
-registerImport(FormElementType.CommandBar, importCommandBarFromXML)
+registerMetadata("ImportFromXML", "CommandBar", importCommandBarFromXML)

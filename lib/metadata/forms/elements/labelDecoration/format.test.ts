@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
-import { FormElementType } from "../types"
+import { FormElementType } from "../../../metadataFactory/types"
 import { formatLabelDecoration } from "./format"
 import { LabelDecoration } from "./types"
 
@@ -17,10 +17,7 @@ describe("formatLabelDecoration", () => {
 
     const expectedResult = ["Заголовок {ИмяПоля}"]
 
-    const result = formatLabelDecoration(
-      element as LabelDecoration,
-      mockConfigurationSettings
-    )
+    const result = formatLabelDecoration(element as LabelDecoration, mockConfigurationSettings)
 
     expect(result.strings).toEqual(expectedResult)
   })

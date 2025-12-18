@@ -5,11 +5,11 @@ import { exportFontToEnterprise } from "~/lib/metadata/commonObjects/font/export
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { exportFormItemAdditionToEnterprise } from "~/lib/metadata/forms/elements/formItemAddition/exportToEnterprise"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import {
   ViewStatusAddition,
   ViewStatusAdditionEnterprise,
 } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -43,4 +43,4 @@ export const exportViewStatusAdditionToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.ViewStatusAddition, exportViewStatusAdditionToEnterprise)
+registerMetadata("ExportToEnterprise", "ViewStatusAddition", exportViewStatusAdditionToEnterprise)

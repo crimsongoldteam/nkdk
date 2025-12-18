@@ -7,7 +7,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { exportBaseElementToEnterprise } from "~/lib/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportCommandBarToEnterprise } from "~/lib/metadata/forms/elements/commandBar/exportToEnterprise"
 import { FormDecoration, FormDecorationEnterprise } from "~/lib/metadata/forms/elements/formDecoration/types"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
@@ -63,4 +63,4 @@ export const exportFormDecorationToEnterprise = (
   }
 }
 
-registerEnterpriseExport(FormElementType.FormDecoration, exportFormDecorationToEnterprise)
+registerMetadata("ExportToEnterprise", "FormDecoration", exportFormDecorationToEnterprise)

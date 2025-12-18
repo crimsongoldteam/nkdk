@@ -1,18 +1,21 @@
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { ButtonGroup, ButtonGroupXML } from "~/lib/metadata/forms/elements/buttonGroup/types"
 import { exportFormGroupToXML } from "~/lib/metadata/forms/elements/formGroup/exportToXML"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
-import { registerExport } from "~/lib/xml/export/exporterFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportButtonGroupToXML = (data: ButtonGroup | undefined): ButtonGroupXML | undefined => {
+export const exportButtonGroupToXML = (
+  data: ButtonGroup | undefined,
+  configurationSettings: ConfigurationSettings
+): ButtonGroupXML | undefined => {
   if (!data) return undefined
 
   return {
-    ...exportFormGroupToXML(data)!,
+    ...exportFormGroupToXML(data, configurationSettings)!,
 
     Representation: data.representation,
-    UserVisible: exportUserVisibleToXML(data.userVisible),
+    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
   }
 }
 
-registerExport(FormElementType.ButtonGroup, exportButtonGroupToXML)
+registerMetadata("ExportToXML", "ButtonGroup", exportButtonGroupToXML)

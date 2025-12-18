@@ -1,25 +1,29 @@
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
+import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/importFromXML"
 import { Pages, PagesXML } from "~/lib/metadata/forms/elements/pages/types"
 import { importTableFromXML } from "~/lib/metadata/forms/elements/table/importFromXML"
-import { FormElementType } from "~/lib/metadata/forms/elements/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
-import { registerImport } from "~/lib/xml/import/importerFactory"
+import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importPagesFromXML = (xml: PagesXML | undefined): Pages | undefined => {
+export const importPagesFromXML = (
+  xml: PagesXML | undefined,
+  configurationSettings: ConfigurationSettings
+): Pages | undefined => {
   if (!xml) return undefined
 
   return {
-    ...importFormGroupFromXML(xml)!,
+    ...importFormGroupFromXML(xml, configurationSettings)!,
     elementType: FormElementType.Pages,
 
-    associatedTable: importTableFromXML(xml.AssociatedTable),
+    associatedTable: importTableFromXML(xml.AssociatedTable, configurationSettings),
     currentPagesState: xml.CurrentPagesState,
     currentRowUse: xml.CurrentRowUse,
     pagesRepresentation: xml.PagesRepresentation,
-    userVisible: importUserVisibleFromXML(xml.UserVisible),
-    events: importEventsFromXML(xml.Events),
+    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    events: importEventsFromXML(xml.Events, configurationSettings),
   }
 }
 
-registerImport(FormElementType.Pages, importPagesFromXML)
+registerMetadata("ImportFromXML", "Pages", importPagesFromXML)

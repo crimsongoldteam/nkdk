@@ -1,7 +1,8 @@
-import { expect, it, describe } from "vitest"
+import { describe, expect, it } from "vitest"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportEventsToXML } from "./exportToXML"
 import { Events } from "./types"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 
 describe("exportEventsToXML", () => {
   it("should export events", () => {
@@ -15,7 +16,7 @@ describe("exportEventsToXML", () => {
       onChange: "ОбработкаИзменения",
     }
 
-    const result = exportEventsToXML(mockData as Events)
+    const result = exportEventsToXML(mockData as Events, mockConfigurationSettings)
     const resultXml = xmlExport({ Events: result }, false)
 
     expect(resultXml).toEqual(expectedResult)

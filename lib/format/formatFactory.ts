@@ -2,7 +2,7 @@ import { ConfigurationSettings } from "../metadata/configurationSettings/types"
 import { formatOtherElement } from "../metadata/forms/elements/baseElement/format"
 import { BaseElement } from "../metadata/forms/elements/baseElement/types"
 import { ChildItems } from "../metadata/forms/elements/childItems/types"
-import { FormElementType } from "../metadata/forms/elements/types"
+import { FormElementType } from "../metadata/metadataFactory/types"
 import { CheckFormatFunction, FormatElementFunction, IFormatElementResult } from "./types"
 
 type FormatRegistry = {
