@@ -179,7 +179,7 @@ export const exportInputFieldToEnterprise = (
     Ширина: data.width,
     АвтоПереносСтрок: exportBooleanToEnterprise(data.wrap, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    Events: exportEventsToEnterprise(data.events, configurationSettings),
+    События: exportEventsToEnterprise(data.events, configurationSettings),
   }
 }
 

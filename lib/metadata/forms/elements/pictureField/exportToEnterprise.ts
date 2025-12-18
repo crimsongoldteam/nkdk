@@ -51,7 +51,7 @@ export const exportPictureFieldToEnterprise = (
     Ширина: data.width,
     Масштабировать: exportBooleanToEnterprise(data.zoomable, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    Events: exportEventsToEnterprise(data.events, configurationSettings),
+    События: exportEventsToEnterprise(data.events, configurationSettings),
   }
 }
 

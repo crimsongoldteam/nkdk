@@ -36,7 +36,7 @@ export const exportRadioButtonFieldToEnterprise = (
     ),
     ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    Events: exportEventsToEnterprise(data.events, configurationSettings),
+    События: exportEventsToEnterprise(data.events, configurationSettings),
   }
 }
 

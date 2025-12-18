@@ -203,7 +203,7 @@ export const exportTableToEnterprise = (
     Ширина: data.width,
     ПодчиненныеЭлементы: exportChildItemsToEnterprise(data.childItems, configurationSettings),
     ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    Events: exportEventsToEnterprise(data.events, configurationSettings),
+    События: exportEventsToEnterprise(data.events, configurationSettings),
   }
 }
 
