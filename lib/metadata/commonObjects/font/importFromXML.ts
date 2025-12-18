@@ -1,4 +1,5 @@
 import { ConfigurationSettings } from "../../configurationSettings/types"
+import { compactObject } from "../../helpers/compactObject"
 import { Font, FontXML } from "./types"
 
 export const importFontFromXML = (
@@ -6,7 +7,7 @@ export const importFontFromXML = (
   _configurationSettings: ConfigurationSettings
 ): Font | undefined => {
   if (!xml) return undefined
-  const result: Font = {
+  return compactObject({
     ref: xml._ref,
     faceName: xml._faceName,
     scale: xml._scale,
@@ -16,6 +17,5 @@ export const importFontFromXML = (
     underline: xml._underline,
     strikeout: xml._strikeout,
     kind: xml._kind,
-  }
-  return result
+  })
 }

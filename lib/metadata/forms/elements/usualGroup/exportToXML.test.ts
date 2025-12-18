@@ -3,11 +3,11 @@ import { xmlExport, xmlImport } from "~/lib"
 import "~/lib/metadata/forms/elements/elements"
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
+import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { FormElementType } from "../../../metadataFactory/types"
 import { exportUsualGroupToXML } from "./exportToXML"
 import { importUsualGroupFromXML } from "./importFromXML"
 import { UsualGroup, UsualGroupXML } from "./types"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 
 describe("exportUsualGroupToXML", () => {
   it("should export usual group to XML with child items", () => {
@@ -25,16 +25,16 @@ describe("exportUsualGroupToXML", () => {
       elementType: FormElementType.UsualGroup,
     }
 
-    const expectedResult = `<UsualGroup name="Группа" id="1">
+    const expectedResult = `<UsualGroup id="1" name="Группа">
+	<ChildItems>
+		<InputField id="1" name="ПолеВвода"/>
+	</ChildItems>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
 			<v8:content>Заголовок группы</v8:content>
 		</v8:item>
 	</Title>
-	<ChildItems>
-		<InputField name="ПолеВвода" id="1"/>
-	</ChildItems>
 </UsualGroup>`
 
     const result = { UsualGroup: exportUsualGroupToXML(mockElement, mockConfigurationSettings) }
@@ -50,17 +50,17 @@ describe("exportUsualGroupToXML", () => {
   })
 
   it("should export and import usual group with child items correctly (round-trip)", () => {
-    const originalXml = `<UsualGroup name="Группа" id="1">
-	<Visible>false</Visible>
-	<Title>
+    const originalXml = `<UsualGroup id="1" name="Группа">
+    <ChildItems>
+      <InputField id="1" name="ПолеВвода"/>
+    </ChildItems>
+    <Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
 			<v8:content>Заголовок группы</v8:content>
 		</v8:item>
 	</Title>
-	<ChildItems>
-		<InputField name="ПолеВвода" id="1"/>
-	</ChildItems>
+	<Visible>false</Visible>
 </UsualGroup>`
 
     const xml = xmlImport<{ UsualGroup: UsualGroupXML }>(originalXml)

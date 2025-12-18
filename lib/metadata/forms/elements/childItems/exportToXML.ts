@@ -1,6 +1,7 @@
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { getOperationFunction } from "~/lib/metadata/metadataFactory/metadataFactory"
-import { ChildItems, ChildItemsXML } from "./types"
+import { FormElementType } from "~/lib/metadata/metadataFactory/types"
+import { ChildItems, ChildItemsXML, ChildItemXML } from "./types"
 
 export const exportChildItemsToXML = (
   data: ChildItems | undefined,
@@ -12,8 +13,8 @@ export const exportChildItemsToXML = (
   for (const item of data) {
     const exportFunction = getOperationFunction("ExportToXML", item.elementType)
     if (!exportFunction) throw new Error(`Export function not found for element type: ${item.elementType}`)
-
-    result.push({ [item.elementType]: exportFunction(item, configurationSettings) })
+    const value = exportFunction(item, configurationSettings)
+    result.push({ [item.elementType]: value } as Record<FormElementType, ChildItemXML>)
   }
 
   return result
