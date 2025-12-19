@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { simpleCatalog } from "~/tests/fixtures/metadataCatalog/simple"
+import { withAttributesCatalog } from "~/tests/fixtures/metadataCatalog/withAttributes"
 import { exportMetadataCatalogToXML } from "./exportToXML"
 import { MetadataCatalogXML } from "./types"
 
@@ -17,6 +18,23 @@ describe("exportMetadataCatalogToXML", () => {
     const mock = simpleCatalog
 
     const expectedResult = readFileSync(join(process.cwd(), "tests/fixtures/metadataCatalog/simple.xml"), "utf-8")
+
+    const xmlData = exportMetadataCatalogToXML(mock, mockConfigurationSettings)
+
+    expect(assert<MetadataCatalogXML>(xmlData)).toEqual(xmlData)
+
+    const result = xmlExport({ MetaDataObject: xmlData })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export metadata catalog with attributes to XML", () => {
+    const mock = withAttributesCatalog
+
+    const expectedResult = readFileSync(
+      join(process.cwd(), "tests/fixtures/metadataCatalog/withAttributes.xml"),
+      "utf-8"
+    )
 
     const xmlData = exportMetadataCatalogToXML(mock, mockConfigurationSettings)
 
