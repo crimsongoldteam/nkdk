@@ -11,7 +11,7 @@ export interface I8nTextLanguageXML {
 }
 
 export interface I8nTextItemXML {
-  "@attributes"?: { formatted?: boolean }
+  _formatted?: boolean
   "v8:item"?: I8nTextLanguageXML
 }
 export type I8nTextXML = I8nTextItemXML[]

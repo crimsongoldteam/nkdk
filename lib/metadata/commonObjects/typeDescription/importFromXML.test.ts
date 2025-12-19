@@ -1,3 +1,4 @@
+import { assertEquals } from "typia"
 import { describe, expect, it } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { xmlImport } from "~/lib/xml/import/importer"
@@ -20,6 +21,8 @@ describe("importTypeDescriptionFromXML", () => {
     }
 
     const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
+
+    expect(assertEquals<TypeDescriptionXML>(xmlData.TypeDescription)).toEqual(xmlData.TypeDescription)
 
     const result = importTypeDescriptionFromXML(xmlData.TypeDescription, mockConfigurationSettings)
 
@@ -47,6 +50,8 @@ describe("importTypeDescriptionFromXML", () => {
 
     const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
 
+    expect(assertEquals<TypeDescriptionXML>(xmlData.TypeDescription)).toEqual(xmlData.TypeDescription)
+
     const result = importTypeDescriptionFromXML(xmlData.TypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(mockResult)
@@ -67,6 +72,8 @@ describe("importTypeDescriptionFromXML", () => {
 
     const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
 
+    expect(assertEquals<TypeDescriptionXML>(xmlData.TypeDescription)).toEqual(xmlData.TypeDescription)
+
     const result = importTypeDescriptionFromXML(xmlData.TypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(mockResult)
@@ -83,6 +90,8 @@ describe("importTypeDescriptionFromXML", () => {
     }
 
     const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
+
+    expect(assertEquals<TypeDescriptionXML>(xmlData.TypeDescription)).toEqual(xmlData.TypeDescription)
 
     const result = importTypeDescriptionFromXML(xmlData.TypeDescription, mockConfigurationSettings)
 
@@ -102,6 +111,8 @@ describe("importTypeDescriptionFromXML", () => {
 
     const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
 
+    expect(assertEquals<TypeDescriptionXML>(xmlData.TypeDescription)).toEqual(xmlData.TypeDescription)
+
     const result = importTypeDescriptionFromXML(xmlData.TypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(mockResult)
@@ -118,6 +129,8 @@ describe("importTypeDescriptionFromXML", () => {
 
     const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
 
+    expect(assertEquals<TypeDescriptionXML>(xmlData.TypeDescription)).toEqual(xmlData.TypeDescription)
+
     const result = importTypeDescriptionFromXML(xmlData.TypeDescription, mockConfigurationSettings)
 
     expect(result).toEqual(mockResult)
@@ -128,6 +141,8 @@ describe("importTypeDescriptionFromXML", () => {
   </TypeDescription>`
 
     const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
+
+    expect(assertEquals<TypeDescriptionXML>(xmlData.TypeDescription)).toEqual(xmlData.TypeDescription)
 
     const result = importTypeDescriptionFromXML(xmlData.TypeDescription, mockConfigurationSettings)
 

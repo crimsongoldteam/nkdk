@@ -38,7 +38,9 @@ export const importCharacteristicsDescriptionsFromXML = (
 ): CharacteristicsDescriptions | undefined => {
   if (!xml) return undefined
 
-  return xml.map(
-    (value: CharacteristicsDescriptionXML) => importCharacteristicsDescriptionFromXML(value, configurationSettings)!
-  )
+  return undefined
+
+  // return xml.map(
+  //   (value: CharacteristicsDescriptionXML) => importCharacteristicsDescriptionFromXML(value, configurationSettings)!
+  // )
 }

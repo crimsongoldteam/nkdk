@@ -12,8 +12,8 @@ export const importI8nTextFromXML = (
   }
 
   for (const item of xml) {
-    if (item["@attributes"]?.formatted !== undefined) {
-      result.formatted = item["@attributes"].formatted
+    if (item._formatted !== undefined) {
+      result.formatted = item._formatted
     }
     const value = item["v8:item"]
     if (value !== undefined) {

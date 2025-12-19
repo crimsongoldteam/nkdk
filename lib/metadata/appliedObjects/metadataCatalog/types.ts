@@ -112,43 +112,42 @@ export interface MetadataCatalog {
   useStandardCommands?: boolean
 }
 
-// <xr:GeneratedType name="CatalogObject.Контрагенты" category="Object">
-// <xr:TypeId>26b3549b-c3c7-4670-85ac-1f213210cc50</xr:TypeId>
-// <xr:ValueId>f7beb6fa-01b7-42d5-af21-8426469fbf3b</xr:ValueId>
-// </xr:GeneratedType>
-// <xr:GeneratedType name="CatalogRef.Контрагенты" category="Ref">
-// <xr:TypeId>b692a3bc-f9d8-4bec-836e-67bb38767199</xr:TypeId>
-// <xr:ValueId>0fd40096-7bec-4145-9be5-5a464e0589ab</xr:ValueId>
-// </xr:GeneratedType>
-// <xr:GeneratedType name="CatalogSelection.Контрагенты" category="Selection">
-// <xr:TypeId>86d68206-17c5-4f8b-9f1e-cb83bb32bd18</xr:TypeId>
-// <xr:ValueId>f7046d6d-ecfe-464d-9cc7-2de3fdfe9900</xr:ValueId>
-// </xr:GeneratedType>
-// <xr:GeneratedType name="CatalogList.Контрагенты" category="List">
-// <xr:TypeId>b2b1e80f-b136-4c2e-b770-ed32334a060a</xr:TypeId>
-// <xr:ValueId>ca26fb8a-8414-468c-a0f8-f574ca1906b8</xr:ValueId>
-// </xr:GeneratedType>
-// <xr:GeneratedType name="CatalogManager.Контрагенты" category="Manager">
-// <xr:TypeId>e87aa731-0f4b-482e-80c5-6d9e80b04a4c</xr:TypeId>
-// <xr:ValueId>444ed280-0682-4349-8215-a9a08dc04009</xr:ValueId>
-// </xr:GeneratedType>
+export const GeneratedTypeCategory = ["Object", "Ref", "Selection", "List", "Manager"] as const
+export type GeneratedTypeCategory = (typeof GeneratedTypeCategory)[number]
 
-export interface GeneratedType {
+export type GeneratedType = {
   _name: string
-  _category: string
+  _category: GeneratedTypeCategory
   "xr:TypeId": string & tags.Format<"uuid">
   "xr:ValueId": string & tags.Format<"uuid">
 }
-
 export interface MetadataCatalogXML {
+  _xmlns?: string
+  "_xmlns:app"?: string
+  "_xmlns:cfg"?: string
+  "_xmlns:cmi"?: string
+  "_xmlns:ent"?: string
+  "_xmlns:lf"?: string
+  "_xmlns:style": string
+  "_xmlns:sys": string
+  "_xmlns:v8"?: string
+  "_xmlns:v8ui": string
+  "_xmlns:web"?: string
+  "_xmlns:win"?: string
+  "_xmlns:xen"?: string
+  "_xmlns:xpr"?: string
+  "_xmlns:xr"?: string
+  "_xmlns:xs"?: string
+  "_xmlns:xsi"?: string
+  _version: string
+
   Catalog: {
-    _uuid?: string
+    _uuid: string
     InternalInfo: {
       "xr:GeneratedType": GeneratedType[]
     }
     Properties: {
       AdditionalIndexes?: AdditionalIndexesXML
-      Attributes?: MetadataAttributesXML
       Autonumbering?: boolean
       AuxiliaryChoiceForm?: string
       AuxiliaryFolderChoiceForm?: string
@@ -207,6 +206,9 @@ export interface MetadataCatalogXML {
       TabularSections?: MetadataTabularSectionsXML
       UpdateDataHistoryImmediatelyAfterWrite?: boolean
       UseStandardCommands?: boolean
+    }
+    ChildObjects?: {
+      Attribute?: MetadataAttributesXML
     }
   }
 }

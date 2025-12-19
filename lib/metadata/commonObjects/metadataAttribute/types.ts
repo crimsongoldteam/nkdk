@@ -54,38 +54,41 @@ export interface MetadataAttribute {
 }
 
 export interface MetadataAttributeXML {
-  BinaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse
-  BinaryDataStorageLocationUseField?: boolean
-  ChoiceFoldersAndItems?: SE.FoldersAndItemsUse
-  ChoiceForm?: string
-  ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
-  ChoiceParameterLinks?: ChoiceParameterLinksXML
-  ChoiceParameters?: ChoiceParameterLinksXML
-  Comment?: string
-  CreateOnInput?: SE.CreateOnInput
-  DataHistory?: SE.DataHistoryUse
-  EditFormat?: I8nTextXML
-  ExtendedEdit?: boolean
-  FillChecking?: SE.FillChecking
-  FillFromFillingValue?: boolean
-  FillingValue?: MetadataValueXML
-  Format?: I8nTextXML
-  FullTextSearch?: SE.UseFullTextSearch
-  Indexing?: SE.Indexing
-  LinkByType?: TypeLinkXML
-  MarkNegatives?: boolean
-  Mask?: string
-  MaxValue?: number
-  MinValue?: number
-  MultiLine?: boolean
-  Name: string
-  ObjectBelonging?: SE.ObjectBelonging
-  PasswordMode?: boolean
-  QuickChoice?: SE.UseQuickChoice
-  Synonym?: I8nTextXML
-  Tooltip?: I8nTextXML
-  Type: TypeDescriptionXML
-  Use?: SE.AttributeUse
+  _uuid: string
+  Properties: {
+    BinaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse
+    BinaryDataStorageLocationUseField?: boolean
+    ChoiceFoldersAndItems?: SE.FoldersAndItemsUse
+    ChoiceForm?: string
+    ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
+    ChoiceParameterLinks?: ChoiceParameterLinksXML
+    ChoiceParameters?: ChoiceParameterLinksXML
+    Comment?: string
+    CreateOnInput?: SE.CreateOnInput
+    DataHistory?: SE.DataHistoryUse
+    EditFormat?: I8nTextXML
+    ExtendedEdit?: boolean
+    FillChecking?: SE.FillChecking
+    FillFromFillingValue?: boolean
+    FillingValue?: MetadataValueXML
+    Format?: I8nTextXML
+    FullTextSearch?: SE.UseFullTextSearch
+    Indexing?: SE.Indexing
+    LinkByType?: TypeLinkXML
+    MarkNegatives?: boolean
+    Mask?: string
+    MaxValue?: number
+    MinValue?: number
+    MultiLine?: boolean
+    Name: string
+    ObjectBelonging?: SE.ObjectBelonging
+    PasswordMode?: boolean
+    QuickChoice?: SE.UseQuickChoice
+    Synonym?: I8nTextXML
+    Tooltip?: I8nTextXML
+    Type: TypeDescriptionXML
+    Use?: SE.AttributeUse
+  }
 }
 
 export interface MetadataAttributeEnterprise {
@@ -125,6 +128,6 @@ export interface MetadataAttributeEnterprise {
 
 export type MetadataAttributes = MetadataAttribute[]
 
-export type MetadataAttributesXML = MetadataAttributeXML[]
+export type MetadataAttributesXML = MetadataAttributeXML | MetadataAttributeXML[]
 
 export type MetadataAttributesEnterprise = Record<string, MetadataAttributeEnterprise>

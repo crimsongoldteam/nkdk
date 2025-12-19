@@ -1,9 +1,12 @@
+import { readFileSync } from "fs"
+import { join } from "path"
 import { assert } from "typia"
 import { describe, expect, it, vi } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportMetadataCatalogToXML } from "./exportToXML"
-import { MetadataCatalog, MetadataCatalogXML } from "./types"
+import { MetadataCatalogXML } from "./types"
+import { simpleCatalog } from "~/tests/fixtures/metadataCatalog/simple"
 
 vi.mock("uuid", () => ({
   v4: vi.fn(() => "8f93c5cf-a2f6-4d79-ab40-83f36042b478"),
@@ -11,47 +14,9 @@ vi.mock("uuid", () => ({
 
 describe("exportMetadataCatalogToXML", () => {
   it("should export metadata catalog to XML", () => {
-    const mock: MetadataCatalog = {
-      name: "Контрагенты",
-      synonym: { items: { ru: "Контрагенты" } },
-    }
+    const mock = simpleCatalog
 
-    const expectedResult = `<?xml version="1.0" encoding="UTF-8"?>
-<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
-	<Catalog uuid="8f93c5cf-a2f6-4d79-ab40-83f36042b478">
-		<InternalInfo>
-			<xr:GeneratedType name="CatalogObject.Контрагенты" category="Object">
-				<xr:TypeId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:TypeId>
-				<xr:ValueId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:ValueId>
-			</xr:GeneratedType>
-			<xr:GeneratedType name="CatalogRef.Контрагенты" category="Ref">
-				<xr:TypeId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:TypeId>
-				<xr:ValueId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:ValueId>
-			</xr:GeneratedType>
-			<xr:GeneratedType name="CatalogSelection.Контрагенты" category="Selection">
-				<xr:TypeId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:TypeId>
-				<xr:ValueId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:ValueId>
-			</xr:GeneratedType>
-			<xr:GeneratedType name="CatalogList.Контрагенты" category="List">
-				<xr:TypeId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:TypeId>
-				<xr:ValueId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:ValueId>
-			</xr:GeneratedType>
-			<xr:GeneratedType name="CatalogManager.Контрагенты" category="Manager">
-				<xr:TypeId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:TypeId>
-				<xr:ValueId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:ValueId>
-			</xr:GeneratedType>
-		</InternalInfo>
-		<Properties>
-			<Name>Контрагенты</Name>
-			<Synonym>
-				<v8:item>
-					<v8:lang>ru</v8:lang>
-					<v8:content>Контрагенты</v8:content>
-				</v8:item>
-			</Synonym>
-		</Properties>
-	</Catalog>
-</MetaDataObject>`
+    const expectedResult = readFileSync(join(process.cwd(), "tests/fixtures/metadataCatalog/simple.xml"), "utf-8")
 
     const xmlData = exportMetadataCatalogToXML(mock, mockConfigurationSettings)
 

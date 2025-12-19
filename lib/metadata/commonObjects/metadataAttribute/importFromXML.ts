@@ -18,39 +18,41 @@ export const importMetadataAttributeFromXML = (
 ): MetadataAttribute | undefined => {
   if (!xml) return undefined
 
+  const props = xml.Properties
+
   return compactObject({
-    binaryDataStorageLocationUse: xml.BinaryDataStorageLocationUse,
-    binaryDataStorageLocationUseField: xml.BinaryDataStorageLocationUseField,
-    choiceFoldersAndItems: xml.ChoiceFoldersAndItems,
-    choiceForm: xml.ChoiceForm,
-    choiceHistoryOnInput: xml.ChoiceHistoryOnInput,
-    choiceParameterLinks: importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks, configurationSettings),
-    choiceParameters: importChoiceParameterLinksFromXML(xml.ChoiceParameters, configurationSettings),
-    comment: xml.Comment,
-    createOnInput: xml.CreateOnInput,
-    dataHistory: xml.DataHistory,
-    editFormat: importI8nTextFromXML(xml.EditFormat, configurationSettings),
-    extendedEdit: xml.ExtendedEdit,
-    fillChecking: xml.FillChecking,
-    fillFromFillingValue: xml.FillFromFillingValue,
-    fillingValue: importMetadataValueFromXML(xml.FillingValue, configurationSettings),
-    format: importI8nTextFromXML(xml.Format, configurationSettings),
-    fullTextSearch: xml.FullTextSearch,
-    indexing: xml.Indexing,
-    linkByType: importTypeLinkFromXML(xml.LinkByType, configurationSettings),
-    markNegatives: xml.MarkNegatives,
-    mask: xml.Mask,
-    maxValue: xml.MaxValue,
-    minValue: xml.MinValue,
-    multiLine: xml.MultiLine,
-    name: xml.Name!,
-    objectBelonging: xml.ObjectBelonging,
-    passwordMode: xml.PasswordMode,
-    quickChoice: xml.QuickChoice,
-    synonym: importI8nTextFromXML(xml.Synonym, configurationSettings),
-    tooltip: importI8nTextFromXML(xml.Tooltip, configurationSettings),
-    type: importTypeDescriptionFromXML(xml.Type, configurationSettings)!,
-    use: xml.Use,
+    binaryDataStorageLocationUse: props.BinaryDataStorageLocationUse,
+    binaryDataStorageLocationUseField: props.BinaryDataStorageLocationUseField,
+    choiceFoldersAndItems: props.ChoiceFoldersAndItems,
+    choiceForm: props.ChoiceForm,
+    choiceHistoryOnInput: props.ChoiceHistoryOnInput,
+    choiceParameterLinks: importChoiceParameterLinksFromXML(props.ChoiceParameterLinks, configurationSettings),
+    choiceParameters: importChoiceParameterLinksFromXML(props.ChoiceParameters, configurationSettings),
+    comment: props.Comment,
+    createOnInput: props.CreateOnInput,
+    dataHistory: props.DataHistory,
+    editFormat: importI8nTextFromXML(props.EditFormat, configurationSettings),
+    extendedEdit: props.ExtendedEdit,
+    fillChecking: props.FillChecking,
+    fillFromFillingValue: props.FillFromFillingValue,
+    fillingValue: importMetadataValueFromXML(props.FillingValue, configurationSettings),
+    format: importI8nTextFromXML(props.Format, configurationSettings),
+    fullTextSearch: props.FullTextSearch,
+    indexing: props.Indexing,
+    linkByType: importTypeLinkFromXML(props.LinkByType, configurationSettings),
+    markNegatives: props.MarkNegatives,
+    mask: props.Mask,
+    maxValue: props.MaxValue,
+    minValue: props.MinValue,
+    multiLine: props.MultiLine,
+    name: props.Name!,
+    objectBelonging: props.ObjectBelonging,
+    passwordMode: props.PasswordMode,
+    quickChoice: props.QuickChoice,
+    synonym: importI8nTextFromXML(props.Synonym, configurationSettings),
+    tooltip: importI8nTextFromXML(props.Tooltip, configurationSettings),
+    type: importTypeDescriptionFromXML(props.Type, configurationSettings)!,
+    use: props.Use,
   })
 }
 
@@ -60,5 +62,7 @@ export const importMetadataAttributesFromXML = (
 ): MetadataAttributes | undefined => {
   if (!xml) return undefined
 
-  return xml.map((value: MetadataAttributeXML) => importMetadataAttributeFromXML(value, configurationSettings)!)
+  const items = Array.isArray(xml) ? xml : [xml]
+
+  return items.map((value: MetadataAttributeXML) => importMetadataAttributeFromXML(value, configurationSettings)!)
 }

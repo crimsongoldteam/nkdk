@@ -5,7 +5,7 @@ import { exportCommandBarToXML } from "~/lib/metadata/forms/elements/commandBar/
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { Events } from "~/lib/metadata/forms/events/types"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
-import exportAttributeToXML from "./attributes/exportToXML"
+// import exportAttributeToXML from "./attributes/exportToXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
 export const exportClientApplicationFormToXML = (
@@ -36,12 +36,12 @@ export const exportClientApplicationFormToXML = (
     AutoCommandBar: exportCommandBarToXML(data.autoCommandBar, configurationSettings),
     Title: exportI8nTextToXML(data.title, configurationSettings),
     ChildItems: exportChildItemsToXML(data.childItems, configurationSettings),
-    Attributes:
-      data.attributes && data.attributes.length > 0
-        ? data.attributes
-            .map((attr) => exportAttributeToXML(attr, configurationSettings))
-            .filter((attr): attr is NonNullable<typeof attr> => attr !== undefined)
-        : undefined,
+    // Attributes:
+    //   data.attributes && data.attributes.length > 0
+    //     ? data.attributes
+    //         .map((attr) => exportAttributeToXML(attr, configurationSettings))
+    //         .filter((attr): attr is NonNullable<typeof attr> => attr !== undefined)
+    //     : undefined,
     CommandSet: exportCommandSetToXML(data.commandSet, configurationSettings),
     AutoFillCheck: data.autoFillCheck,
     AutoSaveDataInSettings: data.autoSaveDataInSettings,

@@ -16,5 +16,7 @@ export const importMetadataFieldsFromXML = (
 ): MetadataFields | undefined => {
   if (!data) return undefined
 
-  return data.map((value) => importMetadataFieldFromXML(value, configurationSettings)!)
+  return undefined
+
+  // return data.map((value) => importMetadataFieldFromXML(value, configurationSettings)!)
 }

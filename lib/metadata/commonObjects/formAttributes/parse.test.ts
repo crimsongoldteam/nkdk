@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
-import { FormAttribute } from "../types"
 import { parseAttributes } from "./parse"
+import { FormAttribute } from "./types"
 
 describe("parseAttributes", () => {
   it("should parse attributes", () => {

@@ -55,7 +55,9 @@ export const importStandardAttributeDescriptionsFromXML = (
 ): StandardAttributeDescriptions | undefined => {
   if (!xml) return undefined
 
-  return xml.map(
-    (value: StandardAttributeDescriptionXML) => importStandardAttributeDescriptionFromXML(value, configurationSettings)!
-  )
+  return undefined
+
+  // return xml.map(
+  //   (value: StandardAttributeDescriptionXML) => importStandardAttributeDescriptionFromXML(value, configurationSettings)!
+  // )
 }

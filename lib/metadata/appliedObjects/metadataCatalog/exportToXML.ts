@@ -1,5 +1,10 @@
 import { v4 } from "uuid"
-import { MetadataCatalog, MetadataCatalogXML } from "~/lib/metadata/appliedObjects/metadataCatalog/types"
+import {
+  GeneratedType,
+  GeneratedTypeCategory,
+  MetadataCatalog,
+  MetadataCatalogXML,
+} from "~/lib/metadata/appliedObjects/metadataCatalog/types"
 import { exportMetadataCommandsToXML } from "~/lib/metadata/appliedObjects/metadataCommand/exportToXML"
 import { exportAdditionalIndexesToXML } from "~/lib/metadata/commonObjects/additionalIndex/exportToXML"
 import { exportCharacteristicsDescriptionsToXML } from "~/lib/metadata/commonObjects/characteristicsDescription/exportToXML"
@@ -13,30 +18,46 @@ import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonO
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
-const generatedTypeNames = ["CatalogObject", "CatalogRef", "CatalogSelection", "CatalogList", "CatalogManager"] as const
-
 export const exportMetadataCatalogToXML = (
   data: MetadataCatalog | undefined,
   configurationSettings: ConfigurationSettings
 ): MetadataCatalogXML | undefined => {
   if (!data) return undefined
 
-  const generatedTypes: NonNullable<MetadataCatalogXML["Catalog"]["InternalInfo"]>["xr:GeneratedType"] = []
-  for (const name of generatedTypeNames) {
+  const generatedTypes: GeneratedType[] = []
+  for (const category of GeneratedTypeCategory) {
     generatedTypes.push({
-      _name: `${name}.${data.name}`,
-      _category: name,
-      "xr:TypeId": v4(),
-      "xr:ValueId": v4(),
+      "xr:GeneratedType": {
+        _name: `Catalog${category}.${data.name}`,
+        _category: category,
+        "xr:TypeId": v4(),
+        "xr:ValueId": v4(),
+      },
     })
   }
 
-  return {
+  const result: MetadataCatalogXML = {
+    _xmlns: "http://v8.1c.ru/8.3/MDClasses",
+    "_xmlns:app": "http://v8.1c.ru/8.2/managed-application/core",
+    "_xmlns:cfg": "http://v8.1c.ru/8.1/data/enterprise/current-config",
+    "_xmlns:cmi": "http://v8.1c.ru/8.2/managed-application/cmi",
+    "_xmlns:ent": "http://v8.1c.ru/8.1/data/enterprise",
+    "_xmlns:lf": "http://v8.1c.ru/8.2/managed-application/logform",
+    "_xmlns:style": "http://v8.1c.ru/8.1/data/ui/style",
+    "_xmlns:sys": "http://v8.1c.ru/8.1/data/ui/fonts/system",
+    "_xmlns:v8": "http://v8.1c.ru/8.1/data/core",
+    "_xmlns:v8ui": "http://v8.1c.ru/8.1/data/ui",
+    "_xmlns:web": "http://v8.1c.ru/8.1/data/ui/colors/web",
+    "_xmlns:win": "http://v8.1c.ru/8.1/data/ui/colors/windows",
+    "_xmlns:xen": "http://v8.1c.ru/8.3/xcf/enums",
+    "_xmlns:xpr": "http://v8.1c.ru/8.3/xcf/predef",
+    "_xmlns:xr": "http://v8.1c.ru/8.3/xcf/readable",
+    "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
+    "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    _version: "2.20",
     Catalog: {
       _uuid: v4(),
-      InternalInfo: {
-        "xr:GeneratedType": generatedTypes,
-      },
+      InternalInfo: generatedTypes,
       Properties: compactObject({
         AdditionalIndexes: exportAdditionalIndexesToXML(data.additionalIndexes, configurationSettings),
         Attributes: exportMetadataAttributesToXML(data.attributes, configurationSettings),
@@ -101,4 +122,6 @@ export const exportMetadataCatalogToXML = (
       })!,
     },
   }
+
+  return result
 }
