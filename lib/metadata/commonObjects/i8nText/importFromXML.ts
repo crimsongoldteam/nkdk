@@ -1,6 +1,6 @@
 import { ConfigurationSettings } from "../../configurationSettings/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
-import { I8nText, I8nTextXML } from "./types"
+import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
 export const importI8nTextFromXML = (
   xml: I8nTextXML | undefined,
@@ -8,7 +8,9 @@ export const importI8nTextFromXML = (
 ): I8nText | undefined => {
   if (!xml) return undefined
 
-  const items = Array.isArray(xml["v8:item"]) ? xml["v8:item"] : [xml["v8:item"]]
+  if (!xml["v8:item"]) return undefined
+
+  const items: I8nTextLanguageXML[] = Array.isArray(xml["v8:item"]) ? xml["v8:item"] : [xml["v8:item"]]
 
   if (items.length === 0) return undefined
 

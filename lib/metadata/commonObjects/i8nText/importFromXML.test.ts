@@ -25,6 +25,7 @@ describe("importI8nTextFromXML", () => {
     const importedXml = xmlImport<{ Title: I8nTextXML }>(xml)
     const result = importI8nTextFromXML(importedXml.Title, mockConfigurationSettings)
 
+    expect(assertEquals<I8nTextXML>(importedXml.Title)).toEqual(importedXml.Title)
     expect(result).toEqual(expectedResult)
   })
 

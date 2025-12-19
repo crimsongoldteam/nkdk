@@ -14,6 +14,6 @@ export interface I8nTextLanguageXML {
 
 export interface I8nTextItemXML {
   _formatted?: StringboolXML
-  "v8:item"?: I8nTextLanguageXML[]
+  "v8:item"?: I8nTextLanguageXML[] | I8nTextLanguageXML
 }
 export type I8nTextXML = I8nTextItemXML
