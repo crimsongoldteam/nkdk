@@ -21,7 +21,7 @@ export const exportMetadataAttributeToXML = (
 
   const result: MetadataAttributeXML = {
     _uuid: v4(),
-    Properties: compactObject({
+    Properties: compactObject<MetadataAttributeXML["Properties"]>({
       BinaryDataStorageLocationUse: data.binaryDataStorageLocationUse,
       BinaryDataStorageLocationUseField: data.binaryDataStorageLocationUseField,
       ChoiceFoldersAndItems: data.choiceFoldersAndItems,
@@ -66,5 +66,7 @@ export const exportMetadataAttributesToXML = (
 ): MetadataAttributesXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value: MetadataAttribute) => exportMetadataAttributeToXML(value, configurationSettings)!)
+  const result = data.map((value: MetadataAttribute) => exportMetadataAttributeToXML(value, configurationSettings)!)
+
+  return result.length === 1 ? result[0] : result
 }

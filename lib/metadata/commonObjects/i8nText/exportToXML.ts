@@ -7,13 +7,11 @@ export const exportI8nTextToXML = (
 ): I8nTextXML | undefined => {
   if (!data) return undefined
 
-  const items: I8nTextXML = []
+  const items: I8nTextXML = { _formatted: data.formatted, "v8:item": [] }
 
   Object.entries(data.items).forEach(([lang, content]) => {
-    items.push({ "v8:item": { "v8:lang": lang, "v8:content": content } })
+    items["v8:item"]?.push({ "v8:lang": lang, "v8:content": content })
   })
 
-  const result = data.formatted !== undefined ? [{ _formatted: data.formatted }, ...items] : items
-
-  return result
+  return items
 }

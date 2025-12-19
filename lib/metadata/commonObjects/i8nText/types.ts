@@ -1,3 +1,5 @@
+import { StringboolXML } from "../boolean/types"
+
 export interface I8nText {
   formatted?: boolean
   items: Record<string, string>
@@ -11,7 +13,7 @@ export interface I8nTextLanguageXML {
 }
 
 export interface I8nTextItemXML {
-  _formatted?: boolean
-  "v8:item"?: I8nTextLanguageXML
+  _formatted?: StringboolXML
+  "v8:item"?: I8nTextLanguageXML[]
 }
-export type I8nTextXML = I8nTextItemXML[]
+export type I8nTextXML = I8nTextItemXML

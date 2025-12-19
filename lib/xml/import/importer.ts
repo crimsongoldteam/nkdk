@@ -42,8 +42,9 @@ export const xmlImport = <T>(data: string): T => {
       name === "ChoiceList" ||
       name === "TypeDescription" ||
       name === "Type" ||
-      name === "InternalInfo" ||
-      I8N_TEXT_FIELDS.includes(name)
+      name === "InternalInfo"
+      // name === "v8:item" ||
+      // I8N_TEXT_FIELDS.includes(name)
     )
   }
 
@@ -59,7 +60,7 @@ export const xmlImport = <T>(data: string): T => {
 const defaultOptions = {
   preserveOrder: false,
   attributeNamePrefix: "@_",
-  attributesGroupName: false,
+  attributesGroupName: "@attributes",
   textNodeName: "#text",
   ignoreAttributes: true,
   removeNSPrefix: false, // remove NS from tag name or attribute name if true

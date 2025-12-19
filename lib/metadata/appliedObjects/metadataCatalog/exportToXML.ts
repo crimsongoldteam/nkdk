@@ -42,9 +42,11 @@ export const exportMetadataCatalogToXML = (
     attributes = exportMetadataAttributesToXML(data.attributes, configurationSettings)
   }
 
-  let childObjects: MetadataCatalogXML["Catalog"]["ChildObjects"] = {}
+  let childObjects: MetadataCatalogXML["Catalog"]["ChildObjects"] | undefined
   if (attributes) {
-    childObjects.Attribute = attributes
+    childObjects = {
+      Attribute: attributes,
+    }
   }
 
   const result: MetadataCatalogXML = {
@@ -130,7 +132,7 @@ export const exportMetadataCatalogToXML = (
         UpdateDataHistoryImmediatelyAfterWrite: data.updateDataHistoryImmediatelyAfterWrite,
         UseStandardCommands: data.useStandardCommands,
       })!,
-      ChildObjects: childObjects ? compactObject(childObjects) : undefined,
+      ChildObjects: childObjects,
     }),
   }
 
