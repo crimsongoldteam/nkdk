@@ -7,7 +7,7 @@ import "~/lib/metadata/forms/elements/inputField/registration"
 import "~/lib/metadata/forms/elements/rules"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { FormElementType } from "../../../metadataFactory/types"
-import { formatClientApplicationForm } from "./exportToEnterprise"
+import { exportClientApplicationFormToEnterprise } from "./exportToEnterprise"
 
 describe("formatClientApplicationForm", () => {
   it("should format form header", () => {
@@ -17,7 +17,7 @@ describe("formatClientApplicationForm", () => {
       childItems: [],
     }
 
-    const result = formatClientApplicationForm(form, mockConfigurationSettings)
+    const result = exportClientApplicationFormToEnterprise(form, mockConfigurationSettings)
 
     expect(result.strings).toEqual(["--- Форма ---"])
   })
@@ -35,7 +35,7 @@ describe("formatClientApplicationForm", () => {
       childItems: [input],
     }
 
-    const result = formatClientApplicationForm(form, mockConfigurationSettings)
+    const result = exportClientApplicationFormToEnterprise(form, mockConfigurationSettings)
 
     expect(result.strings).toEqual(["Поле: {ИмяПоля}"])
   })
@@ -62,7 +62,7 @@ describe("formatClientApplicationForm", () => {
       ],
     }
 
-    const result = formatClientApplicationForm(form, mockConfigurationSettings)
+    const result = exportClientApplicationFormToEnterprise(form, mockConfigurationSettings)
 
     expect(result.strings.join("\n").trim()).toEqual(expectedResult)
   })

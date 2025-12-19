@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join, parse } from "path"
 import { describe, expect, it } from "vitest"
-import { formatClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/exportToEnterprise"
+import { exportClientApplicationFormToEnterprise } from "../metadata/forms/elements/clientApplicationForm/exportToEnterprise"
 import { importClientApplicationFormFromXML } from "../metadata/forms/elements/clientApplicationForm/importFromXML"
 import { ClientApplicationFormXML } from "../metadata/forms/elements/clientApplicationForm/types"
 import "../metadata/forms/elements/exportToXML"
@@ -19,7 +19,7 @@ describe("DO test", () => {
 
     // const exportedForm = exportClientApplicationFormToXML(form)
 
-    const formattedForm = formatClientApplicationForm(form, mockConfigurationSettings)
+    const formattedForm = exportClientApplicationFormToEnterprise(form, mockConfigurationSettings)
 
     // const exportedXml = xmlExport(
     //   { Form: exportedForm },
@@ -37,7 +37,7 @@ describe("DO test", () => {
 
     // const exportedForm = exportClientApplicationFormToXML(form)
 
-    const formattedForm = formatClientApplicationForm(form, mockConfigurationSettings)
+    const formattedForm = exportClientApplicationFormToEnterprise(form, mockConfigurationSettings)
 
     const parsedForm = parse(formattedForm.strings.join("\n"))
 
