@@ -27,10 +27,12 @@ export const exportMetadataCatalogToXML = (
   const generatedTypes: GeneratedType[] = []
   for (const category of GeneratedTypeCategory) {
     generatedTypes.push({
-      _name: `Catalog${category}.${data.name}`,
-      _category: category,
-      "xr:TypeId": v4(),
-      "xr:ValueId": v4(),
+      "xr:GeneratedType": {
+        _name: `Catalog${category}.${data.name}`,
+        _category: category,
+        "xr:TypeId": v4(),
+        "xr:ValueId": v4(),
+      },
     })
   }
 
@@ -55,9 +57,7 @@ export const exportMetadataCatalogToXML = (
     _version: "2.20",
     Catalog: {
       _uuid: v4(),
-      InternalInfo: {
-        "xr:GeneratedType": generatedTypes,
-      },
+      InternalInfo: generatedTypes,
       Properties: compactObject({
         AdditionalIndexes: exportAdditionalIndexesToXML(data.additionalIndexes, configurationSettings),
         Attributes: exportMetadataAttributesToXML(data.attributes, configurationSettings),

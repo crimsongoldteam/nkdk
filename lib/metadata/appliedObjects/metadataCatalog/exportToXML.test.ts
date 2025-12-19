@@ -4,9 +4,9 @@ import { assert } from "typia"
 import { describe, expect, it, vi } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { xmlExport } from "~/lib/xml/export/exporter"
+import { simpleCatalog } from "~/tests/fixtures/metadataCatalog/simple"
 import { exportMetadataCatalogToXML } from "./exportToXML"
 import { MetadataCatalogXML } from "./types"
-import { simpleCatalog } from "~/tests/fixtures/metadataCatalog/simple"
 
 vi.mock("uuid", () => ({
   v4: vi.fn(() => "8f93c5cf-a2f6-4d79-ab40-83f36042b478"),

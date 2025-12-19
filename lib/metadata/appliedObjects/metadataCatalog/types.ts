@@ -116,10 +116,12 @@ export const GeneratedTypeCategory = ["Object", "Ref", "Selection", "List", "Man
 export type GeneratedTypeCategory = (typeof GeneratedTypeCategory)[number]
 
 export type GeneratedType = {
-  _name: string
-  _category: GeneratedTypeCategory
-  "xr:TypeId": string & tags.Format<"uuid">
-  "xr:ValueId": string & tags.Format<"uuid">
+  "xr:GeneratedType": {
+    _name: string
+    _category: GeneratedTypeCategory
+    "xr:TypeId": string & tags.Format<"uuid">
+    "xr:ValueId": string & tags.Format<"uuid">
+  }
 }
 export interface MetadataCatalogXML {
   _xmlns?: string
@@ -143,9 +145,7 @@ export interface MetadataCatalogXML {
 
   Catalog: {
     _uuid: string
-    InternalInfo: {
-      "xr:GeneratedType": GeneratedType[]
-    }
+    InternalInfo: GeneratedType | GeneratedType[]
     Properties: {
       AdditionalIndexes?: AdditionalIndexesXML
       Autonumbering?: boolean
