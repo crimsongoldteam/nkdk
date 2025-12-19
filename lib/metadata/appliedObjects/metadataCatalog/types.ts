@@ -142,7 +142,6 @@ export interface MetadataCatalogXML {
   "_xmlns:xs"?: string
   "_xmlns:xsi"?: string
   _version: string
-
   Catalog: {
     _uuid: string
     InternalInfo: GeneratedType | GeneratedType[]

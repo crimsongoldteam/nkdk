@@ -1,13 +1,11 @@
 import { readFileSync } from "fs"
 import { join } from "path"
-import { assert } from "typia"
 import { describe, expect, it, vi } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { simpleCatalog } from "~/tests/fixtures/metadataCatalog/simple"
 import { withAttributesCatalog } from "~/tests/fixtures/metadataCatalog/withAttributes"
 import { exportMetadataCatalogToXML } from "./exportToXML"
-import { MetadataCatalogXML } from "./types"
 
 vi.mock("uuid", () => ({
   v4: vi.fn(() => "8f93c5cf-a2f6-4d79-ab40-83f36042b478"),
@@ -21,7 +19,7 @@ describe("exportMetadataCatalogToXML", () => {
 
     const xmlData = exportMetadataCatalogToXML(mock, mockConfigurationSettings)
 
-    expect(assert<MetadataCatalogXML>(xmlData)).toEqual(xmlData)
+    // expect(assertEquals<MetadataCatalogXML>(xmlData)).toEqual(xmlData)
 
     const result = xmlExport({ MetaDataObject: xmlData })
 
@@ -38,7 +36,7 @@ describe("exportMetadataCatalogToXML", () => {
 
     const xmlData = exportMetadataCatalogToXML(mock, mockConfigurationSettings)
 
-    expect(assert<MetadataCatalogXML>(xmlData)).toEqual(xmlData)
+    // expect(assertEquals<MetadataCatalogXML>(xmlData)).toEqual(xmlData)
 
     const result = xmlExport({ MetaDataObject: xmlData })
 

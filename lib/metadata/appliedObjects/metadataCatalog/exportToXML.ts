@@ -9,7 +9,6 @@ import { exportMetadataCommandsToXML } from "~/lib/metadata/appliedObjects/metad
 import { exportAdditionalIndexesToXML } from "~/lib/metadata/commonObjects/additionalIndex/exportToXML"
 import { exportCharacteristicsDescriptionsToXML } from "~/lib/metadata/commonObjects/characteristicsDescription/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
-import { exportMetadataAttributesToXML } from "~/lib/metadata/commonObjects/metadataAttribute/exportToXML"
 import { exportMetadataFieldsToXML } from "~/lib/metadata/commonObjects/metadataField/exportToXML"
 import { exportMetadataItemLinksToXML } from "~/lib/metadata/commonObjects/metadataItemLink/exportToXML"
 import { exportMetadataTabularSectionsToXML } from "~/lib/metadata/commonObjects/metadataTabularSection/exportToXML"
@@ -17,6 +16,8 @@ import { exportPredefinedItemsToXML } from "~/lib/metadata/commonObjects/predifi
 import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
+import { exportMetadataAttributesToXML } from "../../commonObjects/metadataAttribute/exportToXML"
+import { MetadataAttributesXML } from "../../commonObjects/metadataAttribute/types"
 
 export const exportMetadataCatalogToXML = (
   data: MetadataCatalog | undefined,
@@ -34,6 +35,16 @@ export const exportMetadataCatalogToXML = (
         "xr:ValueId": v4(),
       },
     })
+  }
+
+  let attributes: MetadataAttributesXML | undefined
+  if (data.attributes) {
+    attributes = exportMetadataAttributesToXML(data.attributes, configurationSettings)
+  }
+
+  let childObjects: MetadataCatalogXML["Catalog"]["ChildObjects"] = {}
+  if (attributes) {
+    childObjects.Attribute = attributes
   }
 
   const result: MetadataCatalogXML = {
@@ -55,12 +66,11 @@ export const exportMetadataCatalogToXML = (
     "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
     _version: "2.20",
-    Catalog: {
+    Catalog: compactObject<MetadataCatalogXML["Catalog"]>({
       _uuid: v4(),
       InternalInfo: generatedTypes,
-      Properties: compactObject({
+      Properties: compactObject<MetadataCatalogXML["Catalog"]["Properties"]>({
         AdditionalIndexes: exportAdditionalIndexesToXML(data.additionalIndexes, configurationSettings),
-        Attributes: exportMetadataAttributesToXML(data.attributes, configurationSettings),
         Autonumbering: data.autonumbering,
         AuxiliaryChoiceForm: data.auxiliaryChoiceForm,
         AuxiliaryFolderChoiceForm: data.auxiliaryFolderChoiceForm,
@@ -120,7 +130,8 @@ export const exportMetadataCatalogToXML = (
         UpdateDataHistoryImmediatelyAfterWrite: data.updateDataHistoryImmediatelyAfterWrite,
         UseStandardCommands: data.useStandardCommands,
       })!,
-    },
+      ChildObjects: childObjects ? compactObject(childObjects) : undefined,
+    }),
   }
 
   return result
