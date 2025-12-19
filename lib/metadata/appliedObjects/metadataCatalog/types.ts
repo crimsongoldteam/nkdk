@@ -47,6 +47,8 @@ import {
 } from "~/lib/metadata/commonObjects/standardAttributeDescription/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
+import { tags } from "typia"
+
 export interface MetadataCatalog {
   additionalIndexes?: AdditionalIndexes
   attributes?: MetadataAttributes
@@ -110,67 +112,103 @@ export interface MetadataCatalog {
   useStandardCommands?: boolean
 }
 
+// <xr:GeneratedType name="CatalogObject.Контрагенты" category="Object">
+// <xr:TypeId>26b3549b-c3c7-4670-85ac-1f213210cc50</xr:TypeId>
+// <xr:ValueId>f7beb6fa-01b7-42d5-af21-8426469fbf3b</xr:ValueId>
+// </xr:GeneratedType>
+// <xr:GeneratedType name="CatalogRef.Контрагенты" category="Ref">
+// <xr:TypeId>b692a3bc-f9d8-4bec-836e-67bb38767199</xr:TypeId>
+// <xr:ValueId>0fd40096-7bec-4145-9be5-5a464e0589ab</xr:ValueId>
+// </xr:GeneratedType>
+// <xr:GeneratedType name="CatalogSelection.Контрагенты" category="Selection">
+// <xr:TypeId>86d68206-17c5-4f8b-9f1e-cb83bb32bd18</xr:TypeId>
+// <xr:ValueId>f7046d6d-ecfe-464d-9cc7-2de3fdfe9900</xr:ValueId>
+// </xr:GeneratedType>
+// <xr:GeneratedType name="CatalogList.Контрагенты" category="List">
+// <xr:TypeId>b2b1e80f-b136-4c2e-b770-ed32334a060a</xr:TypeId>
+// <xr:ValueId>ca26fb8a-8414-468c-a0f8-f574ca1906b8</xr:ValueId>
+// </xr:GeneratedType>
+// <xr:GeneratedType name="CatalogManager.Контрагенты" category="Manager">
+// <xr:TypeId>e87aa731-0f4b-482e-80c5-6d9e80b04a4c</xr:TypeId>
+// <xr:ValueId>444ed280-0682-4349-8215-a9a08dc04009</xr:ValueId>
+// </xr:GeneratedType>
+
+export interface GeneratedType {
+  _name: string
+  _category: string
+  "xr:TypeId": string & tags.Format<"uuid">
+  "xr:ValueId": string & tags.Format<"uuid">
+}
+
 export interface MetadataCatalogXML {
-  AdditionalIndexes?: AdditionalIndexesXML
-  Attributes?: MetadataAttributesXML
-  Autonumbering?: boolean
-  AuxiliaryChoiceForm?: string
-  AuxiliaryFolderChoiceForm?: string
-  AuxiliaryFolderForm?: string
-  AuxiliaryListForm?: string
-  AuxiliaryObjectForm?: string
-  BasedOn?: MetadataItemLinksXML
-  Characteristics?: CharacteristicsDescriptionsXML
-  CheckUnique?: boolean
-  ChoiceDataGetModeOnInputByString?: SE.ChoiceDataGetModeOnInputByString
-  ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
-  ChoiceMode?: SE.ChoiceMode
-  CodeAllowedLength?: SE.AllowedLength
-  CodeLength?: number
-  CodeSeries?: SE.CharacteristicKindCodesSeries
-  CodeType?: SE.CatalogCodeType
-  Commands?: MetadataCommandsXML
-  Comment?: string
-  CreateOnInput?: SE.CreateOnInput
-  DataHistory?: SE.DataHistoryUse
-  DataLockControlMode?: SE.DefaultDataLockControlMode
-  DataLockFields?: MetadataFieldsXML
-  DefaultChoiceForm?: string
-  DefaultFolderChoiceForm?: string
-  DefaultFolderForm?: string
-  DefaultListForm?: string
-  DefaultObjectForm?: string
-  DefaultPresentation?: SE.CatalogMainPresentation
-  DescriptionLength?: number
-  EditType?: SE.EditType
-  ExecuteAfterWriteDataHistoryVersionProcessing?: boolean
-  Explanation?: I8nTextXML
-  ExtendedListPresentation?: I8nTextXML
-  ExtendedObjectPresentation?: I8nTextXML
-  FoldersOnTop?: boolean
-  FullTextSearch?: SE.UseFullTextSearch
-  FullTextSearchOnInputByString?: SE.FullTextSearchOnInputByString
-  Hierarchical?: boolean
-  HierarchyType?: SE.HierarchyType
-  IncludeHelpInContents?: boolean
-  InputByString?: MetadataFieldsXML
-  LevelCount?: number
-  LimitLevelCount?: boolean
-  ListPresentation?: I8nTextXML
-  Name: string
-  ObjectBelonging?: SE.ObjectBelonging
-  ObjectPresentation?: I8nTextXML
-  Owners?: MetadataItemLinksXML
-  Predefined?: PredefinedItemsXML
-  PredefinedDataUpdate?: SE.PredefinedDataUpdate
-  QuickChoice?: boolean
-  SearchStringModeOnInputByString?: SE.SearchStringModeOnInputByString
-  StandardAttributes?: StandardAttributeDescriptionsXML
-  SubordinationUse?: SE.SubordinationUse
-  Synonym?: I8nTextXML
-  TabularSections?: MetadataTabularSectionsXML
-  UpdateDataHistoryImmediatelyAfterWrite?: boolean
-  UseStandardCommands?: boolean
+  Catalog: {
+    _uuid?: string
+    InternalInfo: {
+      "xr:GeneratedType": GeneratedType[]
+    }
+    Properties: {
+      AdditionalIndexes?: AdditionalIndexesXML
+      Attributes?: MetadataAttributesXML
+      Autonumbering?: boolean
+      AuxiliaryChoiceForm?: string
+      AuxiliaryFolderChoiceForm?: string
+      AuxiliaryFolderForm?: string
+      AuxiliaryListForm?: string
+      AuxiliaryObjectForm?: string
+      BasedOn?: MetadataItemLinksXML
+      Characteristics?: CharacteristicsDescriptionsXML
+      CheckUnique?: boolean
+      ChoiceDataGetModeOnInputByString?: SE.ChoiceDataGetModeOnInputByString
+      ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
+      ChoiceMode?: SE.ChoiceMode
+      CodeAllowedLength?: SE.AllowedLength
+      CodeLength?: number
+      CodeSeries?: SE.CharacteristicKindCodesSeries
+      CodeType?: SE.CatalogCodeType
+      Commands?: MetadataCommandsXML
+      Comment?: string
+      CreateOnInput?: SE.CreateOnInput
+      DataHistory?: SE.DataHistoryUse
+      DataLockControlMode?: SE.DefaultDataLockControlMode
+      DataLockFields?: MetadataFieldsXML
+      DefaultChoiceForm?: string
+      DefaultFolderChoiceForm?: string
+      DefaultFolderForm?: string
+      DefaultListForm?: string
+      DefaultObjectForm?: string
+      DefaultPresentation?: SE.CatalogMainPresentation
+      DescriptionLength?: number
+      EditType?: SE.EditType
+      ExecuteAfterWriteDataHistoryVersionProcessing?: boolean
+      Explanation?: I8nTextXML
+      ExtendedListPresentation?: I8nTextXML
+      ExtendedObjectPresentation?: I8nTextXML
+      FoldersOnTop?: boolean
+      FullTextSearch?: SE.UseFullTextSearch
+      FullTextSearchOnInputByString?: SE.FullTextSearchOnInputByString
+      Hierarchical?: boolean
+      HierarchyType?: SE.HierarchyType
+      IncludeHelpInContents?: boolean
+      InputByString?: MetadataFieldsXML
+      LevelCount?: number
+      LimitLevelCount?: boolean
+      ListPresentation?: I8nTextXML
+      Name: string
+      ObjectBelonging?: SE.ObjectBelonging
+      ObjectPresentation?: I8nTextXML
+      Owners?: MetadataItemLinksXML
+      Predefined?: PredefinedItemsXML
+      PredefinedDataUpdate?: SE.PredefinedDataUpdate
+      QuickChoice?: boolean
+      SearchStringModeOnInputByString?: SE.SearchStringModeOnInputByString
+      StandardAttributes?: StandardAttributeDescriptionsXML
+      SubordinationUse?: SE.SubordinationUse
+      Synonym?: I8nTextXML
+      TabularSections?: MetadataTabularSectionsXML
+      UpdateDataHistoryImmediatelyAfterWrite?: boolean
+      UseStandardCommands?: boolean
+    }
+  }
 }
 
 export interface MetadataCatalogEnterprise {

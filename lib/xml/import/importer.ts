@@ -11,6 +11,12 @@ export const I8N_TEXT_FIELDS = [
   "InputHint",
   "Presentation",
   "xr:Presentation",
+  "Synonym",
+  "Explanation",
+  "ListPresentation",
+  "ObjectPresentation",
+  "ExtendedListPresentation",
+  "ExtendedObjectPresentation",
 ]
 
 export const xmlImport = <T>(data: string): T => {
@@ -137,12 +143,7 @@ function compress(arr: any[], options: any, jPath: string): any {
 
       if (attrs) {
         // Ensure val is an object to assign attributes to
-        if (
-          val === undefined ||
-          (typeof val === "object" &&
-            Object.keys(val).length === 0 &&
-            !Array.isArray(val))
-        ) {
+        if (val === undefined || (typeof val === "object" && Object.keys(val).length === 0 && !Array.isArray(val))) {
           val = {}
         }
         assignAttributes(val, attrs, newJpath, options)
@@ -168,10 +169,7 @@ function compress(arr: any[], options: any, jPath: string): any {
         continue
       }
 
-      if (
-        compressedObj[property] !== undefined &&
-        compressedObj.hasOwnProperty(property)
-      ) {
+      if (compressedObj[property] !== undefined && compressedObj.hasOwnProperty(property)) {
         if (!isArray && !Array.isArray(compressedObj[property])) {
           compressedObj[property] = [compressedObj[property]]
         }
@@ -196,12 +194,7 @@ function propName(obj: any): string | undefined {
   return undefined
 }
 
-function assignAttributes(
-  obj: any,
-  attrMap: any,
-  jpath: string,
-  options: any
-): void {
+function assignAttributes(obj: any, attrMap: any, jpath: string, options: any): void {
   if (attrMap) {
     const keys = Object.keys(attrMap)
     const len = keys.length //don't make it inline
