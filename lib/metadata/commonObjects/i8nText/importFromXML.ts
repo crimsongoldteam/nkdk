@@ -7,6 +7,8 @@ export const importI8nTextFromXML = (
 ): I8nText | undefined => {
   if (!xml) return undefined
 
+  if (xml.length === 0) return undefined
+
   const result: I8nText = {
     items: {},
   }

@@ -48,4 +48,13 @@ describe("importI8nTextFromXML", () => {
 
     expect(result).toEqual(expectedResult)
   })
+
+  it("should import empty I8nText from XML", () => {
+    const originalContent = `<Title/>`
+
+    const importedXml = xmlImport<{ Title: I8nTextXML }>(originalContent)
+    const result = importI8nTextFromXML(importedXml.Title, mockConfigurationSettings)
+
+    expect(result).toBeUndefined()
+  })
 })

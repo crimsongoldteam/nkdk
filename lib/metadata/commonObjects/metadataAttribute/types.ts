@@ -92,6 +92,7 @@ export interface MetadataAttributeXML {
 }
 
 export interface MetadataAttributeEnterprise {
+  Тип: TypeDescriptionEnterprise
   БыстрыйВыбор?: SE.UseQuickChoiceEnterprise
   ВыборГруппИЭлементов?: SE.FoldersAndItemsUseEnterprise
   ВыделятьОтрицательные?: StringboolEnterprise
@@ -120,7 +121,6 @@ export interface MetadataAttributeEnterprise {
   СвязьПоТипу?: TypeLinkEnterprise
   Синоним?: I8nTextEnterprise
   СозданиеПриВводе?: SE.CreateOnInputEnterprise
-  Тип: TypeDescriptionEnterprise
   ФормаВыбора?: string
   Формат?: I8nTextEnterprise
   ФорматРедактирования?: I8nTextEnterprise

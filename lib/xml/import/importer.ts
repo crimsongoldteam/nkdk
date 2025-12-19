@@ -41,8 +41,8 @@ export const xmlImport = <T>(data: string): T => {
       name === "ChoiceParameters" ||
       name === "ChoiceList" ||
       name === "TypeDescription" ||
+      name === "Type" ||
       // name === "xr:GeneratedType" ||
-      // name === "Type" ||
       I8N_TEXT_FIELDS.includes(name)
     )
   }

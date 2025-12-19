@@ -21,7 +21,9 @@ export const exportMetadataAttributeToEnterprise = (
 ): MetadataAttributeEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
+  const result = {
+    Тип: exportTypeDescriptionToEnterprise(data.type, configurationSettings)!,
+    Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
     БыстрыйВыбор: exportSystemEnumerationToEnterprise(
       data.quickChoice,
       SE.UseQuickChoiceToEnterprise,
@@ -82,17 +84,17 @@ export const exportMetadataAttributeToEnterprise = (
     РежимПароля: exportBooleanToEnterprise(data.passwordMode, configurationSettings),
     СвязиПараметровВыбора: exportChoiceParameterLinksToEnterprise(data.choiceParameterLinks, configurationSettings),
     СвязьПоТипу: exportTypeLinkToEnterprise(data.linkByType, configurationSettings),
-    Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
     СозданиеПриВводе: exportSystemEnumerationToEnterprise(
       data.createOnInput,
       SE.CreateOnInputToEnterprise,
       configurationSettings
     ),
-    Тип: exportTypeDescriptionToEnterprise(data.type, configurationSettings)!,
     ФормаВыбора: data.choiceForm,
     Формат: exportI8nTextToEnterprise(data.format, configurationSettings),
     ФорматРедактирования: exportI8nTextToEnterprise(data.editFormat, configurationSettings),
-  })
+  }
+
+  return compactObject(result) as MetadataAttributeEnterprise
 }
 
 export const exportMetadataAttributesToEnterprise = (

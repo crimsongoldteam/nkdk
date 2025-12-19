@@ -9,9 +9,10 @@ import { importMetadataTabularSectionsFromXML } from "~/lib/metadata/commonObjec
 import { importPredefinedItemsFromXML } from "~/lib/metadata/commonObjects/predifined/importFromXML"
 import { importStandardAttributeDescriptionsFromXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/importFromXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { importMetadataAttributesFromXML } from "../../commonObjects/metadataAttribute/importFromXML"
 import { MetadataAttributes } from "../../commonObjects/metadataAttribute/types"
+import { compactObject, removeDefaults } from "../../helpers/compactObject"
+import { getDefaults } from "./defaults"
 
 export const importMetadataCatalogFromXML = (
   xml: MetadataCatalogXML | undefined,
@@ -26,7 +27,7 @@ export const importMetadataCatalogFromXML = (
     attributes = importMetadataAttributesFromXML(xml.Catalog.ChildObjects.Attribute, configurationSettings)
   }
 
-  return compactObject({
+  const result = {
     additionalIndexes: importAdditionalIndexesFromXML(props.AdditionalIndexes, configurationSettings),
     attributes: attributes,
     autonumbering: props.Autonumbering,
@@ -87,5 +88,11 @@ export const importMetadataCatalogFromXML = (
     tabularSections: importMetadataTabularSectionsFromXML(props.TabularSections, configurationSettings),
     updateDataHistoryImmediatelyAfterWrite: props.UpdateDataHistoryImmediatelyAfterWrite,
     useStandardCommands: props.UseStandardCommands,
-  })
+  }
+
+  const compactedResult = compactObject(result)
+
+  const defaults = getDefaults(compactedResult, configurationSettings)
+
+  return removeDefaults(compactedResult, defaults)
 }

@@ -66,7 +66,7 @@ export interface MetadataCatalog {
   choiceMode?: SE.ChoiceMode
   codeAllowedLength?: SE.AllowedLength
   codeLength?: number
-  codeSeries?: SE.CharacteristicKindCodesSeries
+  codeSeries?: SE.CatalogCodesSeries
   codeType?: SE.CatalogCodeType
   commands?: MetadataCommands
   comment?: string
@@ -162,7 +162,7 @@ export interface MetadataCatalogXML {
       ChoiceMode?: SE.ChoiceMode
       CodeAllowedLength?: SE.AllowedLength
       CodeLength?: number
-      CodeSeries?: SE.CharacteristicKindCodesSeries
+      CodeSeries?: SE.CatalogCodesSeries
       CodeType?: SE.CatalogCodeType
       Commands?: MetadataCommandsXML
       Comment?: string
@@ -211,6 +211,11 @@ export interface MetadataCatalogXML {
       Attribute?: MetadataAttributesXML
     }
   }
+}
+
+export const defaults: Partial<MetadataCatalog> = {
+  autonumbering: true,
+  codeLength: 9,
 }
 
 export interface MetadataCatalogEnterprise {
@@ -264,7 +269,7 @@ export interface MetadataCatalogEnterprise {
   РежимПолученияДанныхВыбораПриВводеПоСтроке?: SE.ChoiceDataGetModeOnInputByStringEnterprise
   РежимУправленияБлокировкойДанных?: SE.DefaultDataLockControlModeEnterprise
   Реквизиты?: MetadataAttributesEnterprise
-  СерииКодов?: SE.CharacteristicKindCodesSeriesEnterprise
+  СерииКодов?: SE.CatalogCodesSeriesEnterprise
   Синоним?: I8nTextEnterprise
   СозданиеПриВводе?: SE.CreateOnInputEnterprise
   СпособВыбора?: SE.ChoiceModeEnterprise
