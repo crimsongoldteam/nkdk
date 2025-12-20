@@ -1,3 +1,5 @@
+import { readFileSync } from "fs"
+import { join } from "path"
 import { assertEquals } from "typia"
 import { describe, expect, it } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
@@ -128,6 +130,22 @@ describe("importTypeDescriptionFromXML", () => {
     }
 
     const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(mockXml)
+
+    expect(assertEquals<TypeDescriptionXML>(xmlData.TypeDescription)).toEqual(xmlData.TypeDescription)
+
+    const result = importTypeDescriptionFromXML(xmlData.TypeDescription, mockConfigurationSettings)
+
+    expect(result).toEqual(mockResult)
+  })
+
+  it("should import type set from XML", () => {
+    const xml = readFileSync(join(process.cwd(), "tests/fixtures/typeDescription/typeSet.xml"), "utf-8")
+
+    const mockResult: TypeDescription = {
+      type: ["Characteristic.ДополнительныеРеквизитыИСведения"],
+    }
+
+    const xmlData = xmlImport<{ TypeDescription?: TypeDescriptionXML }>(xml)
 
     expect(assertEquals<TypeDescriptionXML>(xmlData.TypeDescription)).toEqual(xmlData.TypeDescription)
 

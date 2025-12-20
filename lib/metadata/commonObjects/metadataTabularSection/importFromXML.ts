@@ -8,7 +8,9 @@ import {
 } from "~/lib/metadata/commonObjects/metadataTabularSection/types"
 import { importStandardAttributeDescriptionsFromXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/importFromXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
-import { compactObject } from "~/lib/metadata/helpers/compactObject"
+import { compactObject, removeDefaults } from "~/lib/metadata/helpers/compactObject"
+import { MetadataAttributes } from "../metadataAttribute/types"
+import { getDefaults } from "./defaults"
 
 export const importMetadataTabularSectionFromXML = (
   xml: MetadataTabularSectionXML | undefined,
@@ -16,18 +18,29 @@ export const importMetadataTabularSectionFromXML = (
 ): MetadataTabularSection | undefined => {
   if (!xml) return undefined
 
-  return compactObject({
-    attributes: importMetadataAttributesFromXML(xml.Attributes, configurationSettings),
-    comment: xml.Comment,
-    fillChecking: xml.FillChecking,
-    lineNumberLength: xml.LineNumberLength,
-    name: xml.Name!,
-    objectBelonging: xml.ObjectBelonging,
-    standardAttributes: importStandardAttributeDescriptionsFromXML(xml.StandardAttributes, configurationSettings),
-    synonym: importI8nTextFromXML(xml.Synonym, configurationSettings),
-    tooltip: importI8nTextFromXML(xml.Tooltip, configurationSettings),
-    use: xml.Use,
-  })
+  const props = xml.Properties
+
+  let attributes: MetadataAttributes | undefined
+  if (xml.ChildObjects?.Attribute) {
+    attributes = importMetadataAttributesFromXML(xml.ChildObjects.Attribute, configurationSettings)
+  }
+
+  const result = {
+    attributes: attributes,
+    comment: props.Comment,
+    fillChecking: props.FillChecking,
+    lineNumberLength: props.LineNumberLength,
+    name: props.Name!,
+    objectBelonging: props.ObjectBelonging,
+    standardAttributes: importStandardAttributeDescriptionsFromXML(props.StandardAttributes, configurationSettings),
+    synonym: importI8nTextFromXML(props.Synonym, configurationSettings),
+    tooltip: importI8nTextFromXML(props.Tooltip, configurationSettings),
+    use: props.Use,
+  }
+
+  const compactedResult = compactObject(result)
+  const defaults = getDefaults(compactedResult, configurationSettings)
+  return removeDefaults(compactedResult, defaults)
 }
 
 export const importMetadataTabularSectionsFromXML = (

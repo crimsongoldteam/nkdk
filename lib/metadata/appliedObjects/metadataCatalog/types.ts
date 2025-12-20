@@ -202,12 +202,12 @@ export interface MetadataCatalogXML {
       StandardAttributes?: StandardAttributeDescriptionsXML
       SubordinationUse?: SE.SubordinationUse
       Synonym?: I8nTextXML
-      TabularSections?: MetadataTabularSectionsXML
       UpdateDataHistoryImmediatelyAfterWrite?: boolean
       UseStandardCommands?: boolean
     }
     ChildObjects?: {
       Attribute?: MetadataAttributesXML
+      TabularSection?: MetadataTabularSectionsXML
     }
   }
 }

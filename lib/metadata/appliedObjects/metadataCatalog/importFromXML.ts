@@ -9,8 +9,10 @@ import { importMetadataTabularSectionsFromXML } from "~/lib/metadata/commonObjec
 import { importPredefinedItemsFromXML } from "~/lib/metadata/commonObjects/predifined/importFromXML"
 import { importStandardAttributeDescriptionsFromXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/importFromXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { importBooleanFromXML } from "../../commonObjects/boolean/importFromXML"
 import { importMetadataAttributesFromXML } from "../../commonObjects/metadataAttribute/importFromXML"
 import { MetadataAttributes } from "../../commonObjects/metadataAttribute/types"
+import { MetadataTabularSections } from "../../commonObjects/metadataTabularSection/types"
 import { compactObject, removeDefaults } from "../../helpers/compactObject"
 import { getDefaults } from "./defaults"
 
@@ -27,10 +29,18 @@ export const importMetadataCatalogFromXML = (
     attributes = importMetadataAttributesFromXML(xml.Catalog.ChildObjects.Attribute, configurationSettings)
   }
 
+  let tabularSections: MetadataTabularSections | undefined
+  if (xml.Catalog.ChildObjects?.TabularSection) {
+    tabularSections = importMetadataTabularSectionsFromXML(
+      xml.Catalog.ChildObjects.TabularSection,
+      configurationSettings
+    )
+  }
+
   const result = {
     additionalIndexes: importAdditionalIndexesFromXML(props.AdditionalIndexes, configurationSettings),
     attributes: attributes,
-    autonumbering: props.Autonumbering,
+    autonumbering: importBooleanFromXML(props.Autonumbering, configurationSettings),
     auxiliaryChoiceForm: props.AuxiliaryChoiceForm,
     auxiliaryFolderChoiceForm: props.AuxiliaryFolderChoiceForm,
     auxiliaryFolderForm: props.AuxiliaryFolderForm,
@@ -38,7 +48,7 @@ export const importMetadataCatalogFromXML = (
     auxiliaryObjectForm: props.AuxiliaryObjectForm,
     basedOn: importMetadataItemLinksFromXML(props.BasedOn, configurationSettings),
     characteristics: importCharacteristicsDescriptionsFromXML(props.Characteristics, configurationSettings),
-    checkUnique: props.CheckUnique,
+    checkUnique: importBooleanFromXML(props.CheckUnique, configurationSettings),
     choiceDataGetModeOnInputByString: props.ChoiceDataGetModeOnInputByString,
     choiceHistoryOnInput: props.ChoiceHistoryOnInput,
     choiceMode: props.ChoiceMode,
@@ -64,15 +74,15 @@ export const importMetadataCatalogFromXML = (
     explanation: importI8nTextFromXML(props.Explanation, configurationSettings),
     extendedListPresentation: importI8nTextFromXML(props.ExtendedListPresentation, configurationSettings),
     extendedObjectPresentation: importI8nTextFromXML(props.ExtendedObjectPresentation, configurationSettings),
-    foldersOnTop: props.FoldersOnTop,
+    foldersOnTop: importBooleanFromXML(props.FoldersOnTop, configurationSettings),
     fullTextSearch: props.FullTextSearch,
     fullTextSearchOnInputByString: props.FullTextSearchOnInputByString,
-    hierarchical: props.Hierarchical,
+    hierarchical: importBooleanFromXML(props.Hierarchical, configurationSettings),
     hierarchyType: props.HierarchyType,
-    includeHelpInContents: props.IncludeHelpInContents,
+    includeHelpInContents: importBooleanFromXML(props.IncludeHelpInContents, configurationSettings),
     inputByString: importMetadataFieldsFromXML(props.InputByString, configurationSettings),
     levelCount: props.LevelCount,
-    limitLevelCount: props.LimitLevelCount,
+    limitLevelCount: importBooleanFromXML(props.LimitLevelCount, configurationSettings),
     listPresentation: importI8nTextFromXML(props.ListPresentation, configurationSettings),
     name: props.Name!,
     objectBelonging: props.ObjectBelonging,
@@ -80,19 +90,20 @@ export const importMetadataCatalogFromXML = (
     owners: importMetadataItemLinksFromXML(props.Owners, configurationSettings),
     predefined: importPredefinedItemsFromXML(props.Predefined, configurationSettings),
     predefinedDataUpdate: props.PredefinedDataUpdate,
-    quickChoice: props.QuickChoice,
+    quickChoice: importBooleanFromXML(props.QuickChoice, configurationSettings),
     searchStringModeOnInputByString: props.SearchStringModeOnInputByString,
     standardAttributes: importStandardAttributeDescriptionsFromXML(props.StandardAttributes, configurationSettings),
     subordinationUse: props.SubordinationUse,
     synonym: importI8nTextFromXML(props.Synonym, configurationSettings),
-    tabularSections: importMetadataTabularSectionsFromXML(props.TabularSections, configurationSettings),
-    updateDataHistoryImmediatelyAfterWrite: props.UpdateDataHistoryImmediatelyAfterWrite,
-    useStandardCommands: props.UseStandardCommands,
+    tabularSections: tabularSections,
+    updateDataHistoryImmediatelyAfterWrite: importBooleanFromXML(
+      props.UpdateDataHistoryImmediatelyAfterWrite,
+      configurationSettings
+    ),
+    useStandardCommands: importBooleanFromXML(props.UseStandardCommands, configurationSettings),
   }
 
   const compactedResult = compactObject(result)
-
   const defaults = getDefaults(compactedResult, configurationSettings)
-
   return removeDefaults(compactedResult, defaults)
 }

@@ -1,0 +1,98 @@
+<TabularSection uuid="a87fba31-32d9-4b41-be05-e0141f6a803d">
+	<InternalInfo>
+		<xr:GeneratedType name="CatalogTabularSection.Лиды.Контакты" category="TabularSection">
+			<xr:TypeId>680f128b-88c1-42b9-a829-990bb752bfca</xr:TypeId>
+			<xr:ValueId>8ed597fc-740f-4968-9e99-6ac9036edd92</xr:ValueId>
+		</xr:GeneratedType>
+		<xr:GeneratedType name="CatalogTabularSectionRow.Лиды.Контакты" category="TabularSectionRow">
+			<xr:TypeId>beec513a-c2a7-4fe8-b3bf-dcfe3c7bedcf</xr:TypeId>
+			<xr:ValueId>8325936e-f8df-43df-8aa8-32e7d640b218</xr:ValueId>
+		</xr:GeneratedType>
+	</InternalInfo>
+	<Properties>
+		<Name>Контакты</Name>
+		<Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Контакты</v8:content>
+			</v8:item>
+		</Synonym>
+		<Comment/>
+		<ToolTip/>
+		<FillChecking>DontCheck</FillChecking>
+		<StandardAttributes>
+			<xr:StandardAttribute name="LineNumber">
+				<xr:LinkByType/>
+				<xr:FillChecking>DontCheck</xr:FillChecking>
+				<xr:MultiLine>false</xr:MultiLine>
+				<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+				<xr:CreateOnInput>Auto</xr:CreateOnInput>
+				<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				<xr:MaxValue xsi:nil="true"/>
+				<xr:ToolTip/>
+				<xr:ExtendedEdit>false</xr:ExtendedEdit>
+				<xr:Format/>
+				<xr:ChoiceForm/>
+				<xr:QuickChoice>Auto</xr:QuickChoice>
+				<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+				<xr:EditFormat/>
+				<xr:PasswordMode>false</xr:PasswordMode>
+				<xr:DataHistory>Use</xr:DataHistory>
+				<xr:MarkNegatives>false</xr:MarkNegatives>
+				<xr:MinValue xsi:nil="true"/>
+				<xr:Synonym/>
+				<xr:Comment/>
+				<xr:FullTextSearch>Use</xr:FullTextSearch>
+				<xr:ChoiceParameterLinks/>
+				<xr:FillValue xsi:nil="true"/>
+				<xr:Mask/>
+				<xr:ChoiceParameters/>
+			</xr:StandardAttribute>
+		</StandardAttributes>
+		<Use>ForItem</Use>
+		<LineNumberLength>5</LineNumberLength>
+	</Properties>
+	<ChildObjects>
+		<Attribute uuid="2049199e-b95b-452f-ac7e-55f571219dd7">
+			<Properties>
+				<Name>Наименование</Name>
+				<Synonym>
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Имя Фамилия</v8:content>
+					</v8:item>
+				</Synonym>
+				<Comment/>
+				<Type>
+					<v8:Type>xs:string</v8:Type>
+					<v8:StringQualifiers>
+						<v8:Length>0</v8:Length>
+						<v8:AllowedLength>Variable</v8:AllowedLength>
+					</v8:StringQualifiers>
+				</Type>
+				<PasswordMode>false</PasswordMode>
+				<Format/>
+				<EditFormat/>
+				<ToolTip/>
+				<MarkNegatives>false</MarkNegatives>
+				<Mask/>
+				<MultiLine>false</MultiLine>
+				<ExtendedEdit>false</ExtendedEdit>
+				<MinValue xsi:nil="true"/>
+				<MaxValue xsi:nil="true"/>
+				<FillChecking>DontCheck</FillChecking>
+				<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+				<ChoiceParameterLinks/>
+				<ChoiceParameters/>
+				<QuickChoice>Auto</QuickChoice>
+				<CreateOnInput>Auto</CreateOnInput>
+				<ChoiceForm/>
+				<LinkByType/>
+				<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+				<Indexing>DontIndex</Indexing>
+				<FullTextSearch>DontUse</FullTextSearch>
+				<DataHistory>Use</DataHistory>
+			</Properties>
+		</Attribute>
+	</ChildObjects>
+</TabularSection>

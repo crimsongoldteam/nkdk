@@ -22,6 +22,11 @@ export const importTypeDescriptionFromXML = (
     const typeValue = item["v8:Type"]
     result.type.push(...processType(typeValue))
 
+    const typeSetValue = item["v8:TypeSet"]
+    if (typeSetValue !== undefined) {
+      result.type.push(...processType(typeSetValue))
+    }
+
     const stringQualifiers = processStringQualifiers(item["v8:StringQualifiers"])
     if (stringQualifiers !== undefined) {
       result.stringQualifiers = stringQualifiers

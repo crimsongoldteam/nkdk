@@ -25,16 +25,20 @@ export interface MetadataTabularSection {
 }
 
 export interface MetadataTabularSectionXML {
-  Attributes?: MetadataAttributesXML
-  Comment?: string
-  FillChecking?: SE.FillChecking
-  LineNumberLength?: number
-  Name: string
-  ObjectBelonging?: SE.ObjectBelonging
-  StandardAttributes?: StandardAttributeDescriptionsXML
-  Synonym?: I8nTextXML
-  Tooltip?: I8nTextXML
-  Use?: SE.AttributeUse
+  Properties: {
+    Comment?: string
+    FillChecking?: SE.FillChecking
+    LineNumberLength?: number
+    Name: string
+    ObjectBelonging?: SE.ObjectBelonging
+    StandardAttributes?: StandardAttributeDescriptionsXML
+    Synonym?: I8nTextXML
+    Tooltip?: I8nTextXML
+    Use?: SE.AttributeUse
+  }
+  ChildObjects?: {
+    Attribute?: MetadataAttributesXML
+  }
 }
 
 export interface MetadataTabularSectionEnterprise {

@@ -19,6 +19,7 @@ export const exportMetadataTabularSectionToEnterprise = (
   if (!data) return undefined
 
   return compactObject({
+    Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
     ДлинаНомераСтроки: data.lineNumberLength,
     Использование: exportSystemEnumerationToEnterprise(data.use, SE.AttributeUseToEnterprise, configurationSettings),
     Комментарий: data.comment,
@@ -33,12 +34,11 @@ export const exportMetadataTabularSectionToEnterprise = (
       SE.FillCheckingToEnterprise,
       configurationSettings
     ),
-    Реквизиты: exportMetadataAttributesToEnterprise(data.attributes, configurationSettings),
-    Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
     СтандартныеРеквизиты: exportStandardAttributeDescriptionsToEnterprise(
       data.standardAttributes,
       configurationSettings
     ),
+    Реквизиты: exportMetadataAttributesToEnterprise(data.attributes, configurationSettings),
   })
 }
 

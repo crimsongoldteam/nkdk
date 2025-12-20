@@ -16,17 +16,21 @@ export const exportMetadataTabularSectionToXML = (
 ): MetadataTabularSectionXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    Attributes: exportMetadataAttributesToXML(data.attributes, configurationSettings),
-    Comment: data.comment,
-    FillChecking: data.fillChecking,
-    LineNumberLength: data.lineNumberLength,
-    Name: data.name!,
-    ObjectBelonging: data.objectBelonging,
-    StandardAttributes: exportStandardAttributeDescriptionsToXML(data.standardAttributes, configurationSettings),
-    Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
-    Tooltip: exportI8nTextToXML(data.tooltip, configurationSettings),
-    Use: data.use,
+  return compactObject<MetadataTabularSectionXML>({
+    Properties: {
+      Comment: data.comment,
+      FillChecking: data.fillChecking,
+      LineNumberLength: data.lineNumberLength,
+      Name: data.name!,
+      ObjectBelonging: data.objectBelonging,
+      StandardAttributes: exportStandardAttributeDescriptionsToXML(data.standardAttributes, configurationSettings),
+      Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
+      Tooltip: exportI8nTextToXML(data.tooltip, configurationSettings),
+      Use: data.use,
+    },
+    ChildObjects: {
+      Attribute: exportMetadataAttributesToXML(data.attributes, configurationSettings),
+    },
   })
 }
 

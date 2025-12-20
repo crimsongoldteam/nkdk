@@ -22,6 +22,7 @@ export interface TypeDescriptionXMLDateQualifiers {
 
 export interface TypeDescriptionXMLItem {
   "v8:Type"?: TypeDescriptionXMLType | TypeDescriptionXMLType[]
+  "v8:TypeSet"?: string
   "v8:StringQualifiers"?: TypeDescriptionXMLStringQualifiers
   "v8:NumberQualifiers"?: TypeDescriptionXMLNumberQualifiers
   "v8:DateQualifiers"?: TypeDescriptionXMLDateQualifiers
@@ -58,4 +59,6 @@ export const TypesToEnterprise = {
   DocumentRef: "Документ",
   EnumRef: "Перечисление",
   ChartOfAccountsRef: "ПланСчетов",
+  ChartOfCharacteristicTypesRef: "ПланВидовХарактеристик",
+  Characteristic: "Характеристика",
 }

@@ -154,9 +154,9 @@ export const exportMetadataCatalogToEnterprise = (
       data.standardAttributes,
       configurationSettings
     ),
-    ТабличныеЧасти: exportMetadataTabularSectionsToEnterprise(data.tabularSections, configurationSettings),
     ТипКода: exportSystemEnumerationToEnterprise(data.codeType, SE.CatalogCodeTypeToEnterprise, configurationSettings),
     Характеристики: exportCharacteristicsDescriptionsToEnterprise(data.characteristics, configurationSettings),
     Реквизиты: exportMetadataAttributesToEnterprise(data.attributes, configurationSettings),
+    ТабличныеЧасти: exportMetadataTabularSectionsToEnterprise(data.tabularSections, configurationSettings),
   })
 }
