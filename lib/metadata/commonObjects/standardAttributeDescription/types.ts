@@ -41,7 +41,7 @@ export interface StandardAttributeDescription {
   multiLine?: boolean
   name: string
   passwordMode?: boolean
-  quickChoice?: boolean
+  quickChoice?: SE.UseQuickChoice
   synonym?: I8nText
   toolTip?: I8nText
   type?: TypeDescription
@@ -49,37 +49,37 @@ export interface StandardAttributeDescription {
 }
 
 export interface StandardAttributeDescriptionXML {
-  ChoiceForm?: string
-  ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
-  ChoiceParameterLinks?: ChoiceParameterLinksXML
-  ChoiceParameters?: ChoiceParameterLinksXML
-  Comment?: string
-  CreateOnInput?: SE.CreateOnInput
-  DataHistory?: SE.DataHistoryUse
-  EditFormat?: I8nTextXML
-  ExtendedEdit?: boolean
-  FillChecking?: SE.FillChecking
-  FillFromFillingValue?: boolean
-  FillValue?: MetadataValueXML
-  Format?: I8nTextXML
-  FullTextSearch?: SE.UseFullTextSearch
-  LinkByType?: TypeLinkXML
-  MarkNegatives?: boolean
-  Mask?: string
-  MaxValue?: number
-  MinValue?: number
-  MultiLine?: boolean
-  Name: string
-  PasswordMode?: boolean
-  QuickChoice?: boolean
-  Synonym?: I8nTextXML
-  ToolTip?: I8nTextXML
-  Type?: TypeDescriptionXML
-  TypeReductionMode?: SE.TypeReductionMode
+  _name: string
+  "xr:ChoiceForm"?: string
+  "xr:ChoiceHistoryOnInput"?: SE.ChoiceHistoryOnInput
+  "xr:ChoiceParameterLinks"?: ChoiceParameterLinksXML
+  "xr:ChoiceParameters"?: ChoiceParameterLinksXML
+  "xr:Comment"?: string
+  "xr:CreateOnInput"?: SE.CreateOnInput
+  "xr:DataHistory"?: SE.DataHistoryUse
+  "xr:EditFormat"?: I8nTextXML
+  "xr:ExtendedEdit"?: boolean
+  "xr:FillChecking"?: SE.FillChecking
+  "xr:FillFromFillingValue"?: boolean
+  "xr:FillValue"?: MetadataValueXML
+  "xr:Format"?: I8nTextXML
+  "xr:FullTextSearch"?: SE.UseFullTextSearch
+  "xr:LinkByType"?: TypeLinkXML
+  "xr:MarkNegatives"?: boolean
+  "xr:Mask"?: string
+  "xr:MaxValue"?: number
+  "xr:MinValue"?: number
+  "xr:MultiLine"?: boolean
+  "xr:PasswordMode"?: boolean
+  "xr:QuickChoice"?: SE.UseQuickChoice
+  "xr:Synonym"?: I8nTextXML
+  "xr:ToolTip"?: I8nTextXML
+  "xr:Type"?: TypeDescriptionXML
+  "xr:TypeReductionMode"?: SE.TypeReductionMode
 }
 
 export interface StandardAttributeDescriptionEnterprise {
-  БыстрыйВыбор?: StringboolEnterprise
+  БыстрыйВыбор?: SE.UseQuickChoiceEnterprise
   ВыделятьОтрицательные?: StringboolEnterprise
   ЗаполнятьИзДанныхЗаполнения?: StringboolEnterprise
   ЗначениеЗаполнения?: MetadataValueEnterprise
