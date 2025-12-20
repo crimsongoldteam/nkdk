@@ -1,5 +1,5 @@
 import { tags } from "typia"
-import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
+import { StringboolEnterprise, StringboolXML } from "~/lib/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   MetadataValue,
@@ -58,7 +58,7 @@ export interface MetadataAttributeXML {
   _uuid: string & tags.Format<"uuid">
   Properties: {
     BinaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse
-    BinaryDataStorageLocationUseField?: boolean
+    BinaryDataStorageLocationUseField?: StringboolXML
     ChoiceFoldersAndItems?: SE.FoldersAndItemsUse
     ChoiceForm?: string
     ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
@@ -68,22 +68,22 @@ export interface MetadataAttributeXML {
     CreateOnInput?: SE.CreateOnInput
     DataHistory?: SE.DataHistoryUse
     EditFormat?: I8nTextXML
-    ExtendedEdit?: boolean
+    ExtendedEdit?: StringboolXML
     FillChecking?: SE.FillChecking
-    FillFromFillingValue?: boolean
+    FillFromFillingValue?: StringboolXML
     FillingValue?: MetadataValueXML
     Format?: I8nTextXML
     FullTextSearch?: SE.UseFullTextSearch
     Indexing?: SE.Indexing
     LinkByType?: TypeLinkXML
-    MarkNegatives?: boolean
+    MarkNegatives?: StringboolXML
     Mask?: string
     MaxValue?: number
     MinValue?: number
-    MultiLine?: boolean
+    MultiLine?: StringboolXML
     Name: string
     ObjectBelonging?: SE.ObjectBelonging
-    PasswordMode?: boolean
+    PasswordMode?: StringboolXML
     QuickChoice?: SE.UseQuickChoice
     Synonym?: I8nTextXML
     Tooltip?: I8nTextXML
@@ -92,7 +92,7 @@ export interface MetadataAttributeXML {
   }
 }
 
-export interface MetadataAttributeEnterprise {
+export interface MetadataAttributeFullEnterprise {
   Тип: TypeDescriptionEnterprise
   БыстрыйВыбор?: SE.UseQuickChoiceEnterprise
   ВыборГруппИЭлементов?: SE.FoldersAndItemsUseEnterprise
@@ -126,6 +126,8 @@ export interface MetadataAttributeEnterprise {
   Формат?: I8nTextEnterprise
   ФорматРедактирования?: I8nTextEnterprise
 }
+
+export type MetadataAttributeEnterprise = MetadataAttributeFullEnterprise | TypeDescriptionEnterprise
 
 export type MetadataAttributes = MetadataAttribute[]
 

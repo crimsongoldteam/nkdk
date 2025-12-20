@@ -11,6 +11,7 @@ import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/imp
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { compactObject, removeDefaults } from "~/lib/metadata/helpers/compactObject"
+import { importBooleanFromXML } from "../boolean/importFromXML"
 import { getDefaults } from "./defaults"
 
 export const importMetadataAttributeFromXML = (
@@ -23,7 +24,10 @@ export const importMetadataAttributeFromXML = (
 
   const result = {
     binaryDataStorageLocationUse: props.BinaryDataStorageLocationUse,
-    binaryDataStorageLocationUseField: props.BinaryDataStorageLocationUseField,
+    binaryDataStorageLocationUseField: importBooleanFromXML(
+      props.BinaryDataStorageLocationUseField,
+      configurationSettings
+    ),
     choiceFoldersAndItems: props.ChoiceFoldersAndItems,
     choiceForm: props.ChoiceForm,
     choiceHistoryOnInput: props.ChoiceHistoryOnInput,
@@ -33,22 +37,22 @@ export const importMetadataAttributeFromXML = (
     createOnInput: props.CreateOnInput,
     dataHistory: props.DataHistory,
     editFormat: importI8nTextFromXML(props.EditFormat, configurationSettings),
-    extendedEdit: props.ExtendedEdit,
+    extendedEdit: importBooleanFromXML(props.ExtendedEdit, configurationSettings),
     fillChecking: props.FillChecking,
-    fillFromFillingValue: props.FillFromFillingValue,
+    fillFromFillingValue: importBooleanFromXML(props.FillFromFillingValue, configurationSettings),
     fillingValue: importMetadataValueFromXML(props.FillingValue, configurationSettings),
     format: importI8nTextFromXML(props.Format, configurationSettings),
     fullTextSearch: props.FullTextSearch,
     indexing: props.Indexing,
     linkByType: importTypeLinkFromXML(props.LinkByType, configurationSettings),
-    markNegatives: props.MarkNegatives,
+    markNegatives: importBooleanFromXML(props.MarkNegatives, configurationSettings),
     mask: props.Mask,
     maxValue: props.MaxValue,
     minValue: props.MinValue,
-    multiLine: props.MultiLine,
+    multiLine: importBooleanFromXML(props.MultiLine, configurationSettings),
     name: props.Name!,
     objectBelonging: props.ObjectBelonging,
-    passwordMode: props.PasswordMode,
+    passwordMode: importBooleanFromXML(props.PasswordMode, configurationSettings),
     quickChoice: props.QuickChoice,
     synonym: importI8nTextFromXML(props.Synonym, configurationSettings),
     tooltip: importI8nTextFromXML(props.Tooltip, configurationSettings),

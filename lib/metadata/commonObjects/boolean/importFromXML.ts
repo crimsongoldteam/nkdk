@@ -5,7 +5,7 @@ export const importBooleanFromXML = (
   xml: StringboolXML | undefined,
   _configurationSettings: ConfigurationSettings
 ): boolean | undefined => {
-  if (!xml) return undefined
+  if (xml === undefined) return undefined
 
   return xml === "true" ? true : xml === "false" ? false : xml
 }
