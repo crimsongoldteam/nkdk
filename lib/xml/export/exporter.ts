@@ -1,6 +1,6 @@
 import { XMLBuilder } from "fast-xml-parser"
 
-const ARRAY_FIELDS = ["v8:item"]
+const ARRAY_FIELDS = ["v8:item", "InternalInfo"]
 
 export const xmlExport = (data: Record<string, any>, addDeclaration: boolean = true): string => {
   const fixedData = fixArraysExport(data, ARRAY_FIELDS)
@@ -42,8 +42,8 @@ const fixArraysExport = (data: any, arrayFields: string[]): any => {
   }
 
   if (typeof data !== "object") return data
-  const result: Record<string, any> = {}
 
+  const result: Record<string, any> = {}
   for (const [key, value] of Object.entries(data)) {
     if (arrayFields.includes(key)) {
       result[key] = processArrayField(value, arrayFields)

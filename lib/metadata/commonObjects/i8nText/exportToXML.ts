@@ -1,5 +1,5 @@
 import { ConfigurationSettings } from "../../configurationSettings/types"
-import { I8nText, I8nTextXML } from "./types"
+import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
 export const exportI8nTextToXML = (
   data: I8nText | undefined,
@@ -7,11 +7,10 @@ export const exportI8nTextToXML = (
 ): I8nTextXML | undefined => {
   if (!data) return undefined
 
-  const items: I8nTextXML = { _formatted: data.formatted, "v8:item": [] }
-
+  const v8Items: I8nTextLanguageXML[] = []
   Object.entries(data.items).forEach(([lang, content]) => {
-    items["v8:item"]?.push({ "v8:lang": lang, "v8:content": content })
+    v8Items.push({ "v8:lang": lang, "v8:content": content })
   })
 
-  return items
+  return { _formatted: data.formatted, "v8:item": v8Items }
 }

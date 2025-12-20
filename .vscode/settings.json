@@ -26,5 +26,11 @@
     "**/node_modules": true,
     "**/dist": true,
     "**/yarn.lock": true
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "DotJoshJohnson.xml",
+    "editor.insertSpaces": false,
+    "editor.tabSize": 1,
+    "editor.formatOnSave": true
   }
 }
