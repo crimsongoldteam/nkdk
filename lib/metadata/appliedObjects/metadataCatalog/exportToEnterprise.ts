@@ -69,7 +69,6 @@ export const exportMetadataCatalogToEnterprise = (
       configurationSettings
     ),
     КоличествоУровней: data.levelCount,
-    Команды: exportMetadataCommandsToEnterprise(data.commands, configurationSettings),
     Комментарий: data.comment,
     КонтрольУникальности: exportBooleanToEnterprise(data.checkUnique, configurationSettings),
     ОбновлениеПредопределенныхДанных: exportSystemEnumerationToEnterprise(
@@ -158,5 +157,6 @@ export const exportMetadataCatalogToEnterprise = (
     Характеристики: exportCharacteristicsDescriptionsToEnterprise(data.characteristics, configurationSettings),
     Реквизиты: exportMetadataAttributesToEnterprise(data.attributes, configurationSettings),
     ТабличныеЧасти: exportMetadataTabularSectionsToEnterprise(data.tabularSections, configurationSettings),
+    Команды: exportMetadataCommandsToEnterprise(data.commands, configurationSettings),
   })
 }

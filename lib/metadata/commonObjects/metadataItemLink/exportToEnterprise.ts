@@ -1,4 +1,5 @@
 import { ConfigurationSettings } from "../../configurationSettings/types"
+import { AppliedType, AppliedTypeToEnterprise } from "../typeDescription/types"
 import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinks, MetadataItemLinksEnterprise } from "./types"
 
 export const exportMetadataItemLinkToEnterprise = (
@@ -7,7 +8,9 @@ export const exportMetadataItemLinkToEnterprise = (
 ): MetadataItemLinkEnterprise | undefined => {
   if (!data) return undefined
 
-  return "TODO"
+  const [type, object] = data.split(".") as [AppliedType, string]
+
+  return `${AppliedTypeToEnterprise[type]}.${object}`
 }
 
 export const exportMetadataItemLinksToEnterprise = (

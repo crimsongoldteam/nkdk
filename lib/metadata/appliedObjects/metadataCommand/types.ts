@@ -1,10 +1,6 @@
+import { tags } from "typia"
 import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-import {
-  MetadataCommandGroup,
-  MetadataCommandGroupEnterprise,
-  MetadataCommandGroupXML,
-} from "~/lib/metadata/commonObjects/metadataCommandGroup/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/lib/metadata/commonObjects/pictures/types"
 import {
   TypeDescription,
@@ -12,41 +8,50 @@ import {
   TypeDescriptionXML,
 } from "~/lib/metadata/commonObjects/typeDescription/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import {
+  MetadataItemLink,
+  MetadataItemLinkEnterprise,
+  MetadataItemLinkXML,
+} from "../../commonObjects/metadataItemLink/types"
 
 export interface MetadataCommand {
   commandParameterType?: TypeDescription
   comment?: string
-  group?: MetadataCommandGroup
+  group: SE.StandardCommandsGroup | MetadataItemLink
   modifiesData?: boolean
-  name?: string
+  name: string
   objectBelonging?: SE.ObjectBelonging
-  parameterUsageMode?: SE.CommandParameterUseMode
+  parameterUseMode?: SE.CommandParameterUseMode
   picture?: Picture
   representation?: SE.ButtonRepresentation
   shortcut?: string
   synonym?: I8nText
-  tooltip?: I8nText
+  toolTip?: I8nText
+  onMainServerUnavalableBehavior?: SE.OnMainServerUnavalableBehavior
 }
 
 export interface MetadataCommandXML {
-  CommandParameterType?: TypeDescriptionXML
-  Comment?: string
-  Group?: MetadataCommandGroupXML
-  ModifiesData?: boolean
-  Name?: string
-  ObjectBelonging?: SE.ObjectBelonging
-  ParameterUsageMode?: SE.CommandParameterUseMode
-  Picture?: PictureXML
-  Representation?: SE.ButtonRepresentation
-  Shortcut?: string
-  Synonym?: I8nTextXML
-  Tooltip?: I8nTextXML
+  _uuid: string & tags.Format<"uuid">
+  Properties: {
+    CommandParameterType?: TypeDescriptionXML
+    Comment?: string
+    Group: SE.StandardCommandsGroup | MetadataItemLinkXML
+    ModifiesData?: boolean
+    Name: string
+    ObjectBelonging?: SE.ObjectBelonging
+    ParameterUseMode?: SE.CommandParameterUseMode
+    Picture?: PictureXML
+    Representation?: SE.ButtonRepresentation
+    Shortcut?: string
+    Synonym?: I8nTextXML
+    ToolTip?: I8nTextXML
+    OnMainServerUnavalableBehavior?: SE.OnMainServerUnavalableBehavior
+  }
 }
 
 export interface MetadataCommandEnterprise {
-  Группа?: MetadataCommandGroupEnterprise
+  Группа?: SE.StandardCommandsGroupEnterprise | MetadataItemLinkEnterprise
   ИзменяетДанные?: StringboolEnterprise
-  Имя?: string
   Картинка?: PictureEnterprise
   Комментарий?: string
   Отображение?: SE.ButtonRepresentationEnterprise
@@ -56,6 +61,7 @@ export interface MetadataCommandEnterprise {
   Синоним?: I8nTextEnterprise
   СочетаниеКлавиш?: string
   ТипПараметраКоманды?: TypeDescriptionEnterprise
+  ПоведениеПриНедоступностиОсновногоСервера?: SE.OnMainServerUnavalableBehaviorEnterprise
 }
 
 export type MetadataCommands = MetadataCommand[]

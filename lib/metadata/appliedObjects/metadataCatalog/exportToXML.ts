@@ -11,13 +11,13 @@ import { exportCharacteristicsDescriptionsToXML } from "~/lib/metadata/commonObj
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportMetadataFieldsToXML } from "~/lib/metadata/commonObjects/metadataField/exportToXML"
 import { exportMetadataItemLinksToXML } from "~/lib/metadata/commonObjects/metadataItemLink/exportToXML"
-import { exportMetadataTabularSectionsToXML } from "~/lib/metadata/commonObjects/metadataTabularSection/exportToXML"
 import { exportPredefinedItemsToXML } from "~/lib/metadata/commonObjects/predifined/exportToXML"
 import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportMetadataAttributesToXML } from "../../commonObjects/metadataAttribute/exportToXML"
 import { MetadataAttributesXML } from "../../commonObjects/metadataAttribute/types"
+import { MetadataCommandsXML } from "../metadataCommand/types"
 
 export const exportMetadataCatalogToXML = (
   data: MetadataCatalog | undefined,
@@ -42,10 +42,19 @@ export const exportMetadataCatalogToXML = (
     attributes = exportMetadataAttributesToXML(data.attributes, configurationSettings)
   }
 
+  let commands: MetadataCommandsXML | undefined
+  if (data.commands) {
+    commands = exportMetadataCommandsToXML(data.commands, configurationSettings)
+  }
+
   let childObjects: MetadataCatalogXML["Catalog"]["ChildObjects"] | undefined
-  if (attributes) {
-    childObjects = {
-      Attribute: attributes,
+  if (attributes || commands) {
+    childObjects = {}
+    if (attributes) {
+      childObjects.Attribute = attributes
+    }
+    if (commands) {
+      childObjects.Command = commands
     }
   }
 
@@ -89,7 +98,6 @@ export const exportMetadataCatalogToXML = (
         CodeLength: data.codeLength,
         CodeSeries: data.codeSeries,
         CodeType: data.codeType,
-        Commands: exportMetadataCommandsToXML(data.commands, configurationSettings),
         Comment: data.comment,
         CreateOnInput: data.createOnInput,
         DataHistory: data.dataHistory,
@@ -128,7 +136,6 @@ export const exportMetadataCatalogToXML = (
         StandardAttributes: exportStandardAttributeDescriptionsToXML(data.standardAttributes, configurationSettings),
         SubordinationUse: data.subordinationUse,
         Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
-        TabularSections: exportMetadataTabularSectionsToXML(data.tabularSections, configurationSettings),
         UpdateDataHistoryImmediatelyAfterWrite: data.updateDataHistoryImmediatelyAfterWrite,
         UseStandardCommands: data.useStandardCommands,
       })!,

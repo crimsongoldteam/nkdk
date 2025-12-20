@@ -14,6 +14,7 @@ import { importMetadataAttributesFromXML } from "../../commonObjects/metadataAtt
 import { MetadataAttributes } from "../../commonObjects/metadataAttribute/types"
 import { MetadataTabularSections } from "../../commonObjects/metadataTabularSection/types"
 import { compactObject, removeDefaults } from "../../helpers/compactObject"
+import { MetadataCommands } from "../metadataCommand/types"
 import { getDefaults } from "./defaults"
 
 export const importMetadataCatalogFromXML = (
@@ -37,6 +38,11 @@ export const importMetadataCatalogFromXML = (
     )
   }
 
+  let commands: MetadataCommands | undefined
+  if (xml.Catalog.ChildObjects?.Command) {
+    commands = importMetadataCommandsFromXML(xml.Catalog.ChildObjects.Command, configurationSettings)
+  }
+
   const result = {
     additionalIndexes: importAdditionalIndexesFromXML(props.AdditionalIndexes, configurationSettings),
     attributes: attributes,
@@ -56,7 +62,7 @@ export const importMetadataCatalogFromXML = (
     codeLength: props.CodeLength,
     codeSeries: props.CodeSeries,
     codeType: props.CodeType,
-    commands: importMetadataCommandsFromXML(props.Commands, configurationSettings),
+    commands: commands,
     comment: props.Comment,
     createOnInput: props.CreateOnInput,
     dataHistory: props.DataHistory,

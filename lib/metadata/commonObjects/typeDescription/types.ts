@@ -54,7 +54,7 @@ export interface TypeDescription {
 
 export type TypeDescriptionEnterprise = string
 
-export const TypesToEnterprise = {
+export const AppliedTypeToEnterprise = {
   CatalogRef: "Справочник",
   DocumentRef: "Документ",
   EnumRef: "Перечисление",
@@ -62,4 +62,14 @@ export const TypesToEnterprise = {
   ChartOfCharacteristicTypesRef: "ПланВидовХарактеристик",
   Characteristic: "Характеристика",
   DefinedType: "ОпределяемыйТип",
+  CommandGroup: "ГруппаКоманд",
+} as const
+
+export const AppliedTypeFromEnterprise = (name: string): AppliedType => {
+  return Object.keys(AppliedTypeToEnterprise).find(
+    (key) => AppliedTypeToEnterprise[key as AppliedType] === name
+  ) as AppliedType
 }
+
+export type AppliedType = keyof typeof AppliedTypeToEnterprise
+export type AppliedTypeEnterprise = (typeof AppliedTypeToEnterprise)[keyof typeof AppliedTypeToEnterprise]

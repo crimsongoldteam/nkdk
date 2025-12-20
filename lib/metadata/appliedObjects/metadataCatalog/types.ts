@@ -163,7 +163,6 @@ export interface MetadataCatalogXML {
       CodeLength?: number
       CodeSeries?: SE.CatalogCodesSeries
       CodeType?: SE.CatalogCodeType
-      Commands?: MetadataCommandsXML
       Comment?: string
       CreateOnInput?: SE.CreateOnInput
       DataHistory?: SE.DataHistoryUse
@@ -208,6 +207,7 @@ export interface MetadataCatalogXML {
     ChildObjects?: {
       Attribute?: MetadataAttributesXML
       TabularSection?: MetadataTabularSectionsXML
+      Command?: MetadataCommandsXML
     }
   }
 }

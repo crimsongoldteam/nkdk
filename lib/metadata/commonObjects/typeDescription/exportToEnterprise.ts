@@ -1,5 +1,5 @@
 import { ConfigurationSettings } from "../../configurationSettings/types"
-import { TypeDescription, TypesToEnterprise } from "./types"
+import { AppliedTypeToEnterprise, TypeDescription } from "./types"
 
 export const exportTypeDescriptionToEnterprise = (
   typeDescription: TypeDescription | undefined,
@@ -63,7 +63,7 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
   }
 
   // Обработка прикладных типов (CatalogRef, DocumentRef, EnumRef)
-  for (const [prefix, enterpriseName] of Object.entries(TypesToEnterprise)) {
+  for (const [prefix, enterpriseName] of Object.entries(AppliedTypeToEnterprise)) {
     if (type.startsWith(`${prefix}.`)) {
       const objectName = type.substring(prefix.length + 1)
       return `${enterpriseName}.${objectName}`

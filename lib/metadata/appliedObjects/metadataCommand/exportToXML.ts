@@ -1,3 +1,4 @@
+import { v4 } from "uuid"
 import {
   MetadataCommand,
   MetadataCommands,
@@ -5,7 +6,6 @@ import {
   MetadataCommandXML,
 } from "~/lib/metadata/appliedObjects/metadataCommand/types"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
-import { exportMetadataCommandGroupToXML } from "~/lib/metadata/commonObjects/metadataCommandGroup/exportToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
@@ -17,20 +17,26 @@ export const exportMetadataCommandToXML = (
 ): MetadataCommandXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    CommandParameterType: exportTypeDescriptionToXML(data.commandParameterType, configurationSettings),
-    Comment: data.comment,
-    Group: exportMetadataCommandGroupToXML(data.group, configurationSettings),
-    ModifiesData: data.modifiesData,
-    Name: data.name,
-    ObjectBelonging: data.objectBelonging,
-    ParameterUsageMode: data.parameterUsageMode,
-    Picture: exportPictureToXML(data.picture, configurationSettings),
-    Representation: data.representation,
-    Shortcut: data.shortcut,
-    Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
-    Tooltip: exportI8nTextToXML(data.tooltip, configurationSettings),
-  })
+  const result: MetadataCommandXML = {
+    _uuid: v4(),
+    Properties: {
+      CommandParameterType: exportTypeDescriptionToXML(data.commandParameterType, configurationSettings),
+      Comment: data.comment,
+      Group: data.group,
+      ModifiesData: data.modifiesData,
+      Name: data.name,
+      ObjectBelonging: data.objectBelonging,
+      ParameterUseMode: data.parameterUseMode,
+      Picture: exportPictureToXML(data.picture, configurationSettings),
+      Representation: data.representation,
+      Shortcut: data.shortcut,
+      Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
+      ToolTip: exportI8nTextToXML(data.toolTip, configurationSettings),
+      OnMainServerUnavalableBehavior: data.onMainServerUnavalableBehavior,
+    },
+  }
+
+  return compactObject<MetadataCommandXML>(result)
 }
 
 export const exportMetadataCommandsToXML = (

@@ -6,13 +6,15 @@ import {
 } from "~/lib/metadata/appliedObjects/metadataCommand/types"
 import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/lib/metadata/commonObjects/i8nText/exportToEnterprise"
-import { exportMetadataCommandGroupToEnterprise } from "~/lib/metadata/commonObjects/metadataCommandGroup/exportToEnterprise"
 import { exportPictureToEnterprise } from "~/lib/metadata/commonObjects/pictures/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "~/lib/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { MetadataItemLinkEnterprise } from "../../commonObjects/metadataItemLink/types"
+import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
+import { exportMetadataItemLinkToEnterprise } from "../../commonObjects/metadataItemLink/exportToEnterprise"
 
 export const exportMetadataCommandToEnterprise = (
   data: MetadataCommand | undefined,
@@ -20,10 +22,24 @@ export const exportMetadataCommandToEnterprise = (
 ): MetadataCommandEnterprise | undefined => {
   if (!data) return undefined
 
+  let synonym = exportI8nTextToEnterprise(data.synonym, configurationSettings)
+
+  const excludeSynonym = isSynonymEqualToName(synonym, data.name)
+
+  if (excludeSynonym) {
+    synonym = undefined
+  }
+
+  let group: SE.StandardCommandsGroupEnterprise | MetadataItemLinkEnterprise | undefined
+  if (data.group in SE.StandardCommandsGroupToEnterprise) {
+    group = exportSystemEnumerationToEnterprise(data.group, SE.StandardCommandsGroupToEnterprise, configurationSettings)
+  } else {
+    group = exportMetadataItemLinkToEnterprise(data.group, configurationSettings)
+  }
+
   return compactObject({
-    Группа: exportMetadataCommandGroupToEnterprise(data.group, configurationSettings),
+    Группа: group,
     ИзменяетДанные: exportBooleanToEnterprise(data.modifiesData, configurationSettings),
-    Имя: data.name,
     Картинка: exportPictureToEnterprise(data.picture, configurationSettings),
     Комментарий: data.comment,
     Отображение: exportSystemEnumerationToEnterprise(
@@ -31,20 +47,25 @@ export const exportMetadataCommandToEnterprise = (
       SE.ButtonRepresentationToEnterprise,
       configurationSettings
     ),
-    Подсказка: exportI8nTextToEnterprise(data.tooltip, configurationSettings),
+    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
     ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
       data.objectBelonging,
       SE.ObjectBelongingToEnterprise,
       configurationSettings
     ),
     РежимИспользованияПараметра: exportSystemEnumerationToEnterprise(
-      data.parameterUsageMode,
+      data.parameterUseMode,
       SE.CommandParameterUseModeToEnterprise,
       configurationSettings
     ),
     Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
     СочетаниеКлавиш: data.shortcut,
     ТипПараметраКоманды: exportTypeDescriptionToEnterprise(data.commandParameterType, configurationSettings),
+    ПоведениеПриНедоступностиОсновногоСервера: exportSystemEnumerationToEnterprise(
+      data.onMainServerUnavalableBehavior,
+      SE.OnMainServerUnavalableBehaviorToEnterprise,
+      configurationSettings
+    ),
   })
 }
 
