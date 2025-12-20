@@ -124,7 +124,6 @@ export const exportMetadataCatalogToEnterprise = (
       SE.DefaultDataLockControlModeToEnterprise,
       configurationSettings
     ),
-    Реквизиты: exportMetadataAttributesToEnterprise(data.attributes, configurationSettings),
     СерииКодов: exportSystemEnumerationToEnterprise(
       data.codeSeries,
       SE.CharacteristicKindCodesSeriesToEnterprise,
@@ -158,5 +157,6 @@ export const exportMetadataCatalogToEnterprise = (
     ТабличныеЧасти: exportMetadataTabularSectionsToEnterprise(data.tabularSections, configurationSettings),
     ТипКода: exportSystemEnumerationToEnterprise(data.codeType, SE.CatalogCodeTypeToEnterprise, configurationSettings),
     Характеристики: exportCharacteristicsDescriptionsToEnterprise(data.characteristics, configurationSettings),
+    Реквизиты: exportMetadataAttributesToEnterprise(data.attributes, configurationSettings),
   })
 }

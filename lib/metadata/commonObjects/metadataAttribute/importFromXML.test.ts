@@ -30,4 +30,15 @@ describe("importMetadataAttributeFromXML", () => {
 
     expect(result).toEqual(expectedResult)
   })
+
+  it("should ignore nil min value", () => {
+    const xml = readFileSync(join(process.cwd(), "tests/fixtures/metadataAttribute/withMinValue.xml"), "utf-8")
+    const expectedResult = singleAttribute
+
+    const xmlData = xmlImport<{ Attribute: MetadataAttributeXML }>(xml)
+
+    const result = importMetadataAttributesFromXML(xmlData.Attribute, mockConfigurationSettings)
+
+    expect(result).toEqual(expectedResult)
+  })
 })

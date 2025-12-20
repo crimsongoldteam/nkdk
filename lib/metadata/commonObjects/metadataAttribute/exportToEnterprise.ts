@@ -14,6 +14,7 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
 
 export const exportMetadataAttributeToEnterprise = (
   data: MetadataAttribute | undefined,
@@ -21,9 +22,23 @@ export const exportMetadataAttributeToEnterprise = (
 ): MetadataAttributeEnterprise | undefined => {
   if (!data) return undefined
 
+  const type = exportTypeDescriptionToEnterprise(data.type, configurationSettings)!
+
+  let synonym = exportI8nTextToEnterprise(data.synonym, configurationSettings)
+
+  const excludeSynonym = isSynonymEqualToName(synonym, data.name)
+
+  if (excludeSynonym) {
+    synonym = undefined
+  }
+
+  if (canUseShortFormat(data, excludeSynonym)) {
+    return type
+  }
+
   const result = {
-    Тип: exportTypeDescriptionToEnterprise(data.type, configurationSettings)!,
-    Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
+    Тип: type,
+    Синоним: synonym,
     БыстрыйВыбор: exportSystemEnumerationToEnterprise(
       data.quickChoice,
       SE.UseQuickChoiceToEnterprise,
@@ -109,4 +124,19 @@ export const exportMetadataAttributesToEnterprise = (
       exportMetadataAttributeToEnterprise(value, configurationSettings)!,
     ])
   )
+}
+
+const canUseShortFormat = (data: MetadataAttribute, isSynonymEqualToName: boolean): boolean => {
+  for (const key in data) {
+    const value = data[key as keyof MetadataAttribute]
+    if (value === undefined) continue
+
+    if (["name", "type"].includes(key)) continue
+
+    if (key == "synonym" && isSynonymEqualToName) continue
+
+    return false
+  }
+
+  return true
 }

@@ -22,9 +22,9 @@ export const I8N_TEXT_FIELDS = [
 export const xmlImport = <T>(data: string): T => {
   const parser = new XMLParser({
     preserveOrder: true,
-    ignoreAttributes: false,
     attributeNamePrefix: "_",
     attributesGroupName: "@attributes",
+    ignoreAttributes: ["xsi:nil"],
   })
   const parsedData = parser.parse(data)
 

@@ -1,5 +1,6 @@
 <Attribute uuid="8f93c5cf-a2f6-4d79-ab40-83f36042b478">
 	<Properties>
+		<MinValue xsi:nil="true"/>
 		<Name>РеквизитОбъекта</Name>
 		<Synonym>
 			<v8:item>
