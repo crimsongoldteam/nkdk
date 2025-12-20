@@ -134,7 +134,6 @@ export type StandardAttributeDescriptions = StandardAttributeDescription[]
 
 export type StandardAttributeDescriptionsXML = StandardAttributeDescriptionXML[]
 
-export type StandardAttributeDescriptionsEnterprise = Record<
-  PredefinedNameEnterprise,
-  StandardAttributeDescriptionEnterprise
+export type StandardAttributeDescriptionsEnterprise = Partial<
+  Record<PredefinedNameEnterprise, StandardAttributeDescriptionEnterprise>
 >

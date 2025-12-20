@@ -2,6 +2,7 @@ import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/
 import { exportI8nTextToEnterprise } from "~/lib/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportMetadataValueToEnterprise } from "~/lib/metadata/commonObjects/metadataValue/exportToEnterprise"
 import {
+  PredefinedNameToEnterprise,
   StandardAttributeDescription,
   StandardAttributeDescriptionEnterprise,
   StandardAttributeDescriptions,
@@ -85,10 +86,14 @@ export const exportStandardAttributeDescriptionsToEnterprise = (
 ): StandardAttributeDescriptionsEnterprise | undefined => {
   if (!data) return undefined
 
-  return Object.fromEntries(
+  const result: StandardAttributeDescriptionsEnterprise = Object.fromEntries(
     data.map((value: StandardAttributeDescription) => [
-      value.name,
+      PredefinedNameToEnterprise[value.name],
       exportStandardAttributeDescriptionToEnterprise(value, configurationSettings)!,
     ])
   )
+
+  if (Object.keys(result).length === 0) return undefined
+
+  return result
 }

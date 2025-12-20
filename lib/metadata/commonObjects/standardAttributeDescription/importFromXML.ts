@@ -54,10 +54,11 @@ export const importStandardAttributeDescriptionFromXML = (
   const defaults = getDefaults(compactedResult, configurationSettings)
   const resultWithoutDefaults = removeDefaults(compactedResult, defaults)
 
-  // If only name remains after removing defaults, return undefined
-  if (Object.keys(resultWithoutDefaults).length === 1 && resultWithoutDefaults.name) {
-    return undefined
-  }
+  const keyCount = Object.keys(resultWithoutDefaults).length
+
+  if (keyCount === 0) return undefined
+
+  if (keyCount === 1 && resultWithoutDefaults.name) return undefined
 
   return resultWithoutDefaults
 }
@@ -70,11 +71,14 @@ export const importStandardAttributeDescriptionsFromXML = (
 
   const items = Array.isArray(xml) ? xml : [xml]
 
-  const result = items
-    .map((value: StandardAttributeDescriptionXML) =>
-      importStandardAttributeDescriptionFromXML(value, configurationSettings)
-    )
-    .filter((item): item is StandardAttributeDescription => item !== undefined)
+  const result: StandardAttributeDescriptions = []
+
+  items.forEach((value: StandardAttributeDescriptionXML) => {
+    const item = importStandardAttributeDescriptionFromXML(value, configurationSettings)
+    if (item) {
+      result.push(item)
+    }
+  })
 
   if (result.length === 0) return undefined
 
