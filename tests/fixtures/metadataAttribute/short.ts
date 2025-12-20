@@ -3,7 +3,7 @@ import { MetadataAttributes } from "~/lib/metadata/commonObjects/metadataAttribu
 export const singleAttribute: MetadataAttributes = [
   {
     name: "РеквизитОбъекта",
-    synonym: { items: { ru: "Реквизит какого-то объекта" } },
+    synonym: { items: { ru: "Реквизит объекта" } },
     type: { type: ["string"] },
   },
 ]
