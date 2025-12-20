@@ -52,12 +52,19 @@ export const importStandardAttributeDescriptionFromXML = (
 
   const compactedResult = compactObject(result)
   const defaults = getDefaults(compactedResult, configurationSettings)
-  return removeDefaults(compactedResult, defaults)
+  const resultWithoutDefaults = removeDefaults(compactedResult, defaults)
+
+  // If only name remains after removing defaults, return undefined
+  if (Object.keys(resultWithoutDefaults).length === 1 && resultWithoutDefaults.name) {
+    return undefined
+  }
+
+  return resultWithoutDefaults
 }
 
 export const importStandardAttributeDescriptionsFromXML = (
   xml: StandardAttributeDescriptionsXML | undefined,
-  configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings
 ): StandardAttributeDescriptions | undefined => {
   if (!xml) return undefined
 

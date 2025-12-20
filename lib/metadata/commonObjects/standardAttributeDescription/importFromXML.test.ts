@@ -3,11 +3,15 @@ import { join } from "path"
 import { describe, expect, it } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import xmlImport from "~/lib/xml/import/importer"
-import { importStandardAttributeDescriptionFromXML } from "./importFromXML"
-import { StandardAttributeDescription, StandardAttributeDescriptionXML } from "./types"
+import { importStandardAttributeDescriptionFromXML, importStandardAttributeDescriptionsFromXML } from "./importFromXML"
+import {
+  StandardAttributeDescription,
+  StandardAttributeDescriptionsXML,
+  StandardAttributeDescriptionXML,
+} from "./types"
 
 describe("importStandardAttributeDescriptionFromXML", () => {
-  it("should import standard attribute description from XML", () => {
+  it("should import with single value", () => {
     const xml = readFileSync(join(process.cwd(), "tests/fixtures/standartAttribute/single.xml"), "utf-8")
 
     const expectedResult: StandardAttributeDescription = {
@@ -28,5 +32,22 @@ describe("importStandardAttributeDescriptionFromXML", () => {
 
     const result = importStandardAttributeDescriptionFromXML(xmlData["xr:StandardAttribute"], mockConfigurationSettings)
     expect(result).toBeUndefined()
+  })
+
+  it("should import with multiple values", () => {
+    const xml = readFileSync(join(process.cwd(), "tests/fixtures/standartAttribute/multiple.xml"), "utf-8")
+
+    const expectedResult: StandardAttributeDescription = {
+      fillChecking: "DontCheck",
+      name: "Predefined",
+    }
+
+    const xmlData = xmlImport<{ "xr:StandardAttribute": StandardAttributeDescriptionsXML }>(xml)
+
+    const result = importStandardAttributeDescriptionsFromXML(
+      xmlData["xr:StandardAttribute"],
+      mockConfigurationSettings
+    )
+    expect(result).toEqual(expectedResult)
   })
 })
