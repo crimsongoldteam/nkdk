@@ -81,7 +81,7 @@ const processNumberType = (result: TypeDescription, typeInfo: any, originalValue
   }
 
   // Проверяем, является ли это неотрицательным числом
-  if (originalValue.toLowerCase().startsWith("неотрицательноечисло")) {
+  if (originalValue.toLowerCase().startsWith("положительноечисло")) {
     result.numberQualifiers!.allowedSign = "Nonnegative"
   }
 }
@@ -128,7 +128,7 @@ const getAliase = (type: string): string | undefined => {
     перечисления: "Перечисление",
     переч: "Перечисление",
     число: "Число",
-    неотрицательноечисло: "Число",
+    положительноечисло: "Число",
     строка: "Строка",
     фиксированнаястрока: "Строка",
     дата: "Дата",

@@ -34,7 +34,7 @@ const formatNumberQualifier = (numberQualifiers: NonNullable<TypeDescription["nu
   const { digits, fractionDigits, allowedSign } = numberQualifiers
 
   if (allowedSign === "Nonnegative") {
-    return `НеотрицательноеЧисло(${digits}, ${fractionDigits})`
+    return `ПоложительноеЧисло(${digits}, ${fractionDigits})`
   }
 
   return `Число(${digits}, ${fractionDigits})`
@@ -57,7 +57,7 @@ const formatDateQualifier = (dateQualifiers: NonNullable<TypeDescription["dateQu
 const formatSingleType = (type: string, typeDescription: TypeDescription): string => {
   const typeMap: Record<string, string> = {
     string: "Строка",
-    number: "Число",
+    decimal: "Число",
     date: "Дата",
     boolean: "Булево",
   }
@@ -74,7 +74,7 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
     return formatStringQualifier(typeDescription.stringQualifiers)
   }
 
-  if (type === "number" && typeDescription.numberQualifiers) {
+  if (type === "decimal" && typeDescription.numberQualifiers) {
     return formatNumberQualifier(typeDescription.numberQualifiers)
   }
 

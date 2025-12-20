@@ -65,7 +65,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
         type: ["number"],
         numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Nonnegative" },
       }
-      const expectedResult = "НеотрицательноеЧисло(10, 2)"
+      const expectedResult = "ПоложительноеЧисло(10, 2)"
 
       const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 

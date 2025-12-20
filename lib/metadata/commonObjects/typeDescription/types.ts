@@ -61,4 +61,5 @@ export const TypesToEnterprise = {
   ChartOfAccountsRef: "ПланСчетов",
   ChartOfCharacteristicTypesRef: "ПланВидовХарактеристик",
   Characteristic: "Характеристика",
+  DefinedType: "ОпределяемыйТип",
 }

@@ -60,7 +60,7 @@ describe("number type description", () => {
   })
 
   it("should parse non-negative number", () => {
-    const input = "НеотрицательноеЧисло(10, 2)"
+    const input = "ПоложительноеЧисло(10, 2)"
     const result = parseTypeDescription(input)
 
     expect(result).toEqual({
