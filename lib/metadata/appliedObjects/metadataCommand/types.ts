@@ -49,8 +49,10 @@ export interface MetadataCommandXML {
   }
 }
 
-export interface MetadataCommandEnterprise {
-  Группа?: SE.StandardCommandsGroupEnterprise | MetadataItemLinkEnterprise
+export type MetadataCommandGroupEnterprise = SE.StandardCommandsGroupEnterprise | MetadataItemLinkEnterprise
+
+export interface MetadataCommandFullEnterprise {
+  Группа: MetadataCommandGroupEnterprise
   ИзменяетДанные?: StringboolEnterprise
   Картинка?: PictureEnterprise
   Комментарий?: string
@@ -63,6 +65,8 @@ export interface MetadataCommandEnterprise {
   ТипПараметраКоманды?: TypeDescriptionEnterprise
   ПоведениеПриНедоступностиОсновногоСервера?: SE.OnMainServerUnavalableBehaviorEnterprise
 }
+
+export type MetadataCommandEnterprise = MetadataCommandFullEnterprise | MetadataCommandGroupEnterprise
 
 export type MetadataCommands = MetadataCommand[]
 

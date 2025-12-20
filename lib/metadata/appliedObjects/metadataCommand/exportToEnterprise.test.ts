@@ -44,12 +44,12 @@ describe("exportMetadataCommandToEnterprise", () => {
     const metadataCommand: MetadataCommand = {
       name: "ТестоваяКоманда",
       synonym: { items: { ru: "Тестовая команда" } },
-      parameterUseMode: "Single",
+      parameterUseMode: "Multiple",
       group: "NavigationPanelImportant",
     }
 
     const expectedResult: MetadataCommandEnterprise = {
-      РежимИспользованияПараметра: "Одиночный",
+      РежимИспользованияПараметра: "Множественный",
       Группа: "ПанельНавигацииВажное",
     }
 
