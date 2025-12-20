@@ -9,6 +9,9 @@ import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/impo
 import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { compactObject, removeDefaults } from "~/lib/metadata/helpers/compactObject"
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { importMetadataItemLinkFromXML } from "../../commonObjects/metadataItemLink/importFromXML"
+import { MetadataItemLink, MetadataItemLinkXML } from "../../commonObjects/metadataItemLink/types"
 import { getDefaults } from "./defaults"
 
 export const importMetadataCommandFromXML = (
@@ -19,10 +22,17 @@ export const importMetadataCommandFromXML = (
 
   const props = xml.Properties
 
+  let group: SE.StandardCommandsGroup | MetadataItemLink
+  if (typeof props.Group === "string" && props.Group in SE.StandardCommandsGroupToEnterprise) {
+    group = props.Group
+  } else {
+    group = importMetadataItemLinkFromXML(props.Group as MetadataItemLinkXML, configurationSettings)!
+  }
+
   const result: MetadataCommand = {
     commandParameterType: importTypeDescriptionFromXML(props.CommandParameterType, configurationSettings),
     comment: props.Comment,
-    group: props.Group,
+    group: group,
     modifiesData: props.ModifiesData,
     name: props.Name,
     objectBelonging: props.ObjectBelonging,

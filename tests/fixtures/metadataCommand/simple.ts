@@ -4,7 +4,4 @@ export const simpleCommand: MetadataCommand = {
   name: "Характеристики",
   synonym: { items: { ru: "Характеристики" } },
   group: "FormNavigationPanelImportant",
-  parameterUseMode: "Single",
-  modifiesData: false,
-  representation: "Auto",
 }

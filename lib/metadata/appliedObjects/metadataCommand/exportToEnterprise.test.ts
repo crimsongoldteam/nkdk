@@ -39,4 +39,22 @@ describe("exportMetadataCommandToEnterprise", () => {
 
     expect(result).toEqual(expectedResult)
   })
+
+  it("should omit synonym if it is same as name", () => {
+    const metadataCommand: MetadataCommand = {
+      name: "ТестоваяКоманда",
+      synonym: { items: { ru: "Тестовая команда" } },
+      parameterUseMode: "Single",
+      group: "NavigationPanelImportant",
+    }
+
+    const expectedResult: MetadataCommandEnterprise = {
+      РежимИспользованияПараметра: "Одиночный",
+      Группа: "ПанельНавигацииВажное",
+    }
+
+    const result = exportMetadataCommandToEnterprise(metadataCommand, mockConfigurationSettings)
+
+    expect(result).toEqual(expectedResult)
+  })
 })

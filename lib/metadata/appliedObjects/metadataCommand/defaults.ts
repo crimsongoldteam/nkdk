@@ -6,7 +6,7 @@ export const getDefaults = (
   _configurationSettings: ConfigurationSettings
 ): Partial<MetadataCommand> => {
   return {
-    group: "NavigationPanelImportant",
+    group: "NavigationPanelOrdinary",
     parameterUseMode: "Single",
     modifiesData: false,
     representation: "Auto",

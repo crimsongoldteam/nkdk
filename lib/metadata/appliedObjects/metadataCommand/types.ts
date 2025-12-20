@@ -68,4 +68,4 @@ export type MetadataCommands = MetadataCommand[]
 
 export type MetadataCommandsXML = MetadataCommandXML[]
 
-export type MetadataCommandsEnterprise = MetadataCommandEnterprise[]
+export type MetadataCommandsEnterprise = Record<string, MetadataCommandEnterprise>

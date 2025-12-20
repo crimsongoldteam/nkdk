@@ -12,9 +12,9 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { exportMetadataItemLinkToEnterprise } from "../../commonObjects/metadataItemLink/exportToEnterprise"
 import { MetadataItemLinkEnterprise } from "../../commonObjects/metadataItemLink/types"
 import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
-import { exportMetadataItemLinkToEnterprise } from "../../commonObjects/metadataItemLink/exportToEnterprise"
 
 export const exportMetadataCommandToEnterprise = (
   data: MetadataCommand | undefined,
@@ -58,7 +58,7 @@ export const exportMetadataCommandToEnterprise = (
       SE.CommandParameterUseModeToEnterprise,
       configurationSettings
     ),
-    Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
+    Синоним: synonym,
     СочетаниеКлавиш: data.shortcut,
     ТипПараметраКоманды: exportTypeDescriptionToEnterprise(data.commandParameterType, configurationSettings),
     ПоведениеПриНедоступностиОсновногоСервера: exportSystemEnumerationToEnterprise(
@@ -75,5 +75,7 @@ export const exportMetadataCommandsToEnterprise = (
 ): MetadataCommandsEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((value: MetadataCommand) => exportMetadataCommandToEnterprise(value, configurationSettings)!)
+  return Object.fromEntries(
+    data.map((value: MetadataCommand) => [value.name, exportMetadataCommandToEnterprise(value, configurationSettings)!])
+  )
 }
