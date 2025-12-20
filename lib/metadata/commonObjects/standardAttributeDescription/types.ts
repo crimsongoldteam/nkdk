@@ -18,6 +18,29 @@ import {
 } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
+export const PredefinedNameToEnterprise = {
+  Owner: "Владелец",
+  PredefinedDataName: "ИмяПредопределенныхДанных",
+  Code: "Код",
+  Description: "Наименование",
+  DeletionMark: "ПометкаУдаления",
+  Predefined: "Предопределенный",
+  Parent: "Родитель",
+  Ref: "Ссылка",
+  IsFolder: "ЭтоГруппа",
+} as const
+
+export const PredefinedNameFromEnterprise = (name: string): PredefinedName => {
+  return Object.keys(PredefinedNameToEnterprise).find(
+    (key) => PredefinedNameToEnterprise[key as PredefinedName] === name
+  ) as PredefinedName
+}
+
+export type PredefinedName = keyof typeof PredefinedNameToEnterprise
+export type PredefinedNameEnterprise = (typeof PredefinedNameToEnterprise)[keyof typeof PredefinedNameToEnterprise]
+
+// export const PredefinedNameToEnterprise
+
 export interface StandardAttributeDescription {
   choiceForm?: string
   choiceHistoryOnInput?: SE.ChoiceHistoryOnInput
@@ -39,7 +62,7 @@ export interface StandardAttributeDescription {
   maxValue?: number
   minValue?: number
   multiLine?: boolean
-  name: string
+  name: PredefinedName
   passwordMode?: boolean
   quickChoice?: SE.UseQuickChoice
   synonym?: I8nText
@@ -49,7 +72,7 @@ export interface StandardAttributeDescription {
 }
 
 export interface StandardAttributeDescriptionXML {
-  _name: string
+  _name: PredefinedName
   "xr:ChoiceForm"?: string
   "xr:ChoiceHistoryOnInput"?: SE.ChoiceHistoryOnInput
   "xr:ChoiceParameterLinks"?: ChoiceParameterLinksXML
@@ -83,7 +106,6 @@ export interface StandardAttributeDescriptionEnterprise {
   ВыделятьОтрицательные?: StringboolEnterprise
   ЗаполнятьИзДанныхЗаполнения?: StringboolEnterprise
   ЗначениеЗаполнения?: MetadataValueEnterprise
-  Имя?: string
   ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
   ИсторияДанных?: SE.DataHistoryUseEnterprise
   Комментарий?: string
@@ -112,4 +134,7 @@ export type StandardAttributeDescriptions = StandardAttributeDescription[]
 
 export type StandardAttributeDescriptionsXML = StandardAttributeDescriptionXML[]
 
-export type StandardAttributeDescriptionsEnterprise = Record<string, StandardAttributeDescriptionEnterprise>
+export type StandardAttributeDescriptionsEnterprise = Record<
+  PredefinedNameEnterprise,
+  StandardAttributeDescriptionEnterprise
+>

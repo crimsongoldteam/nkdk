@@ -70,9 +70,13 @@ export const importStandardAttributeDescriptionsFromXML = (
 
   const items = Array.isArray(xml) ? xml : [xml]
 
-  return items
+  const result = items
     .map((value: StandardAttributeDescriptionXML) =>
       importStandardAttributeDescriptionFromXML(value, configurationSettings)
     )
     .filter((item): item is StandardAttributeDescription => item !== undefined)
+
+  if (result.length === 0) return undefined
+
+  return result
 }

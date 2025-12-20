@@ -58,4 +58,16 @@ describe("importStandardAttributeDescriptionFromXML", () => {
     )
     expect(result).toEqual(expectedResult)
   })
+
+  it("should import with multiple default values to undefined", () => {
+    const xml = readFileSync(join(process.cwd(), "tests/fixtures/standartAttribute/multipleDefault.xml"), "utf-8")
+
+    const xmlData = xmlImport<{ "xr:StandardAttribute": StandardAttributeDescriptionsXML }>(xml)
+
+    const result = importStandardAttributeDescriptionsFromXML(
+      xmlData["xr:StandardAttribute"],
+      mockConfigurationSettings
+    )
+    expect(result).toBeUndefined()
+  })
 })
