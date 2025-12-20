@@ -22,9 +22,9 @@ describe("exportMetadataTabularSectionToEnterprise", () => {
 
   it("should export with synonym is same as name", () => {
     const metadataTabularSection: MetadataTabularSection = {
-      name: "Контакты",
+      name: "ИсторияКПП",
       fillChecking: "DontCheck",
-      synonym: { items: { ru: "Контакты" } },
+      synonym: { items: { ru: "История КПП" } },
     }
 
     const expectedResult: MetadataTabularSectionEnterprise = {

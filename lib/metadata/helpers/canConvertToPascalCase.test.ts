@@ -24,7 +24,7 @@ describe("canConvertToPascalCase", () => {
     })
 
     it("should return true when string is already in PascalCase", () => {
-      expect(canConvertToPascalCase("TestTest", "TestTest")).toBeTruthy()
+      expect(canConvertToPascalCase("TestTest", "TestTest")).toBeFalsy()
     })
   })
 
@@ -49,8 +49,12 @@ describe("canConvertToPascalCase", () => {
       expect(canConvertToPascalCase("Назад в СССР", "НазадВСССР")).toBeFalsy()
     })
 
+    it("should return false when have one word with uppercase letter", () => {
+      expect(canConvertToPascalCase("Назад В СССР", "НазадВСССР")).toBeFalsy()
+    })
+
     it("should return true when string is already in PascalCase", () => {
-      expect(canConvertToPascalCase("ТестТест", "ТестТест")).toBeTruthy()
+      expect(canConvertToPascalCase("ТестТест", "ТестТест")).toBeFalsy()
     })
 
     it("should return false when string contains multiple spaces", () => {

@@ -1,35 +1,34 @@
 import { I8nTextEnterprise } from "~/lib/metadata/commonObjects/i8nText/types"
-import { pascalCase } from "change-case"
+import { canConvertToPascalCase } from "./canConvertToPascalCase"
 
 /**
- * Проверяет, соответствует ли синоним (описание) имени в формате PascalCase.
- * 
- * Функция используется для определения, является ли синоним автоматически
- * сгенерированным из имени. Если синоним соответствует имени, его можно
- * не экспортировать, так как это дефолтное значение.
- * 
- * @param synonym - Синоним в формате I8nTextEnterprise (строка для одного языка или объект для нескольких)
- * @param name - Имя в формате PascalCase
- * @returns `true` если синоним соответствует имени, иначе `false`
- * 
+ * Checks if a synonym (description) matches the name in PascalCase format.
+ *
+ * The function is used to determine if a synonym is automatically
+ * generated from the name. If the synonym matches the name, it can
+ * be omitted from export, as it is the default value.
+ *
+ * Uses canConvertToPascalCase for correct handling of abbreviations,
+ * which the change-case library does not handle properly.
+ *
+ * @param synonym - Synonym in I8nTextEnterprise format (string for one language or object for multiple)
+ * @param name - Name in PascalCase format
+ * @returns `true` if the synonym matches the name, otherwise `false`
+ *
  * @example
  * ```ts
  * isSynonymEqualToName("Тестовый реквизит", "ТестовыйРеквизит") // true
- * isSynonymEqualToName({ ru: "Тестовый реквизит" }, "ТестовыйРеквизит") // false (несколько языков)
+ * isSynonymEqualToName("История КПП", "ИсторияКПП") // true (correctly handles abbreviations)
+ * isSynonymEqualToName({ ru: "Тестовый реквизит" }, "ТестовыйРеквизит") // false (multiple languages)
  * isSynonymEqualToName(undefined, "ТестовыйРеквизит") // false
  * ```
  */
-export const isSynonymEqualToName = (
-  synonym: I8nTextEnterprise | undefined,
-  name: string
-): boolean => {
+export const isSynonymEqualToName = (synonym: I8nTextEnterprise | undefined, name: string): boolean => {
   if (!synonym) return false
 
-  // Если синоним - объект (несколько языков), это не дефолтное значение
+  // If synonym is an object (multiple languages), it's not a default value
   if (typeof synonym !== "string") return false
 
-  // Преобразуем строку в PascalCase и сравниваем с именем
-  const synonymPascalCase = pascalCase(synonym)
-  return synonymPascalCase === name
+  // Check if synonym can be converted to name (correctly handles abbreviations)
+  return canConvertToPascalCase(synonym, name)
 }
-
