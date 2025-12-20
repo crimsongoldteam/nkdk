@@ -1,5 +1,5 @@
 import { ConfigurationSettings } from "../../configurationSettings/types"
-import { TypeDescription } from "./types"
+import { TypeDescription, TypesToEnterprise } from "./types"
 
 export const exportTypeDescriptionToEnterprise = (
   typeDescription: TypeDescription | undefined,
@@ -59,6 +59,15 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
     string: "Строка",
     number: "Число",
     date: "Дата",
+    boolean: "Булево",
+  }
+
+  // Обработка прикладных типов (CatalogRef, DocumentRef, EnumRef)
+  for (const [prefix, enterpriseName] of Object.entries(TypesToEnterprise)) {
+    if (type.startsWith(`${prefix}.`)) {
+      const objectName = type.substring(prefix.length + 1)
+      return `${enterpriseName}.${objectName}`
+    }
   }
 
   if (type === "string" && typeDescription.stringQualifiers) {

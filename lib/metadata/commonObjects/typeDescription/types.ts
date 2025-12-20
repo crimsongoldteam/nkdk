@@ -52,3 +52,10 @@ export interface TypeDescription {
 }
 
 export type TypeDescriptionEnterprise = string
+
+export const TypesToEnterprise = {
+  CatalogRef: "Справочник",
+  DocumentRef: "Документ",
+  EnumRef: "Перечисление",
+  ChartOfAccountsRef: "ПланСчетов",
+}

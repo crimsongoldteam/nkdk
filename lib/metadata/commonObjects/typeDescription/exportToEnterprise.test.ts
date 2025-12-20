@@ -3,153 +3,199 @@ import { mockConfigurationSettings } from "../../../tests/mockConfigurationSetti
 import { exportTypeDescriptionToEnterprise } from "./exportToEnterprise"
 import { TypeDescription } from "./types"
 
-it("should format undefined type description", () => {
-  const result = exportTypeDescriptionToEnterprise(undefined, mockConfigurationSettings)
-  expect(result).toBeUndefined()
-})
-
-describe("string type description", () => {
-  it("should format string", () => {
-    const mockTypeDescription: TypeDescription = {
-      type: ["string"],
-      stringQualifiers: { length: 10, allowedLength: "Variable" },
-    }
-    const expectedResult = "Строка(10)"
-
-    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
-
-    expect(result).toEqual(expectedResult)
+describe("exportTypeDescriptionToEnterprise", () => {
+  it("should format undefined type description", () => {
+    const result = exportTypeDescriptionToEnterprise(undefined, mockConfigurationSettings)
+    expect(result).toBeUndefined()
   })
 
-  it("should format unlimited string", () => {
-    const mockTypeDescription: TypeDescription = {
-      type: ["string"],
-      stringQualifiers: { length: 0, allowedLength: "Variable" },
-    }
-    const expectedResult = "Строка"
+  describe("string type description", () => {
+    it("should format string", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["string"],
+        stringQualifiers: { length: 10, allowedLength: "Variable" },
+      }
+      const expectedResult = "Строка(10)"
 
-    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
-    expect(result).toEqual(expectedResult)
+      expect(result).toEqual(expectedResult)
+    })
+
+    it("should format unlimited string", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["string"],
+        stringQualifiers: { length: 0, allowedLength: "Variable" },
+      }
+      const expectedResult = "Строка"
+
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
+
+      expect(result).toEqual(expectedResult)
+    })
+
+    it("should format fixed string", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["string"],
+        stringQualifiers: { length: 100, allowedLength: "Fixed" },
+      }
+      const expectedResult = "ФиксированнаяСтрока(100)"
+
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
+
+      expect(result).toEqual(expectedResult)
+    })
   })
 
-  it("should format fixed string", () => {
-    const mockTypeDescription: TypeDescription = {
-      type: ["string"],
-      stringQualifiers: { length: 100, allowedLength: "Fixed" },
-    }
-    const expectedResult = "ФиксированнаяСтрока(100)"
+  describe("number type description", () => {
+    it("should format number", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["number"],
+        numberQualifiers: { digits: 10, fractionDigits: 2 },
+      }
+      const expectedResult = "Число(10, 2)"
 
-    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
-    expect(result).toEqual(expectedResult)
-  })
-})
+      expect(result).toEqual(expectedResult)
+    })
 
-describe("number type description", () => {
-  it("should format number", () => {
-    const mockTypeDescription: TypeDescription = {
-      type: ["number"],
-      numberQualifiers: { digits: 10, fractionDigits: 2 },
-    }
-    const expectedResult = "Число(10, 2)"
+    it("should format non-negative number", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["number"],
+        numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Nonnegative" },
+      }
+      const expectedResult = "НеотрицательноеЧисло(10, 2)"
 
-    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
-    expect(result).toEqual(expectedResult)
-  })
-
-  it("should format non-negative number", () => {
-    const mockTypeDescription: TypeDescription = {
-      type: ["number"],
-      numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Nonnegative" },
-    }
-    const expectedResult = "НеотрицательноеЧисло(10, 2)"
-
-    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
-
-    expect(result).toEqual(expectedResult)
-  })
-})
-
-describe("date type description", () => {
-  it("should format date", () => {
-    const mockTypeDescription: TypeDescription = {
-      type: ["date"],
-      dateQualifiers: { dateFractions: "Date" },
-    }
-
-    const expectedResult = "Дата"
-
-    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
-
-    expect(result).toEqual(expectedResult)
+      expect(result).toEqual(expectedResult)
+    })
   })
 
-  it("should format time", () => {
-    const mockTypeDescription: TypeDescription = {
-      type: ["date"],
-      dateQualifiers: { dateFractions: "Time" },
-    }
+  describe("date type description", () => {
+    it("should format date", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["date"],
+        dateQualifiers: { dateFractions: "Date" },
+      }
 
-    const expectedResult = "Время"
+      const expectedResult = "Дата"
 
-    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
-    expect(result).toEqual(expectedResult)
+      expect(result).toEqual(expectedResult)
+    })
+
+    it("should format time", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["date"],
+        dateQualifiers: { dateFractions: "Time" },
+      }
+
+      const expectedResult = "Время"
+
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
+
+      expect(result).toEqual(expectedResult)
+    })
+
+    it("should format date and time", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["date"],
+        dateQualifiers: { dateFractions: "DateTime" },
+      }
+
+      const expectedResult = "ДатаВремя"
+
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
+
+      expect(result).toEqual(expectedResult)
+    })
+
+    it("should format date", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["date"],
+        dateQualifiers: { dateFractions: "Date" },
+      }
+
+      const expectedResult = "Дата"
+
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
+
+      expect(result).toEqual(expectedResult)
+    })
   })
 
-  it("should format date and time", () => {
-    const mockTypeDescription: TypeDescription = {
-      type: ["date"],
-      dateQualifiers: { dateFractions: "DateTime" },
-    }
+  describe("boolean type description", () => {
+    it("should format boolean", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["boolean"],
+      }
 
-    const expectedResult = "ДатаВремя"
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
-    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
-
-    expect(result).toEqual(expectedResult)
+      expect(result).toEqual("Булево")
+    })
   })
 
-  it("should format date", () => {
-    const mockTypeDescription: TypeDescription = {
-      type: ["date"],
-      dateQualifiers: { dateFractions: "Date" },
-    }
+  describe("composite type description", () => {
+    it("should format composite", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["тип1", "тип2"],
+      }
 
-    const expectedResult = "Дата"
+      const expectedResult = "тип1, тип2"
 
-    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
-    expect(result).toEqual(expectedResult)
+      expect(result).toEqual(expectedResult)
+    })
+
+    it("should format parametrical types composite", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["string", "number"],
+        stringQualifiers: { length: 10, allowedLength: "Variable" },
+        numberQualifiers: { digits: 10, fractionDigits: 2 },
+      }
+
+      const expectedResult = "Строка(10), Число(10, 2)"
+
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
+
+      expect(result).toEqual(expectedResult)
+    })
   })
-})
 
-describe("composite type description", () => {
-  it("should format composite", () => {
-    const mockTypeDescription: TypeDescription = {
-      type: ["тип1", "тип2"],
-    }
+  describe("applied objects type description", () => {
+    it("should format catalog", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["CatalogRef.Контрагенты"],
+      }
 
-    const expectedResult = "тип1, тип2"
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
-    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
+      expect(result).toEqual("Справочник.Контрагенты")
+    })
 
-    expect(result).toEqual(expectedResult)
-  })
+    it("should format document", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["DocumentRef.ПоступлениеТоваровНаСклад"],
+      }
 
-  it("should format parametrical types composite", () => {
-    const mockTypeDescription: TypeDescription = {
-      type: ["string", "number"],
-      stringQualifiers: { length: 10, allowedLength: "Variable" },
-      numberQualifiers: { digits: 10, fractionDigits: 2 },
-    }
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
 
-    const expectedResult = "Строка(10), Число(10, 2)"
+      expect(result).toEqual("Документ.ПоступлениеТоваровНаСклад")
+    })
 
-    const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
+    it("should format enum", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["EnumRef.ТипыДокументов"],
+      }
 
-    expect(result).toEqual(expectedResult)
+      const result = exportTypeDescriptionToEnterprise(mockTypeDescription, mockConfigurationSettings)
+
+      expect(result).toEqual("Перечисление.ТипыДокументов")
+    })
   })
 })
