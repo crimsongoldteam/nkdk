@@ -45,8 +45,8 @@ describe("canConvertToPascalCase", () => {
       expect(canConvertToPascalCase("СССР", "СССР")).toBeTruthy()
     })
 
-    it("should return true when abbreviation with lowercase words converts to PascalCase", () => {
-      expect(canConvertToPascalCase("Назад в СССР", "НазадВСССР")).toBeTruthy()
+    it("should return false when have one word with uppercase letter", () => {
+      expect(canConvertToPascalCase("Назад в СССР", "НазадВСССР")).toBeFalsy()
     })
 
     it("should return true when string is already in PascalCase", () => {
@@ -55,6 +55,10 @@ describe("canConvertToPascalCase", () => {
 
     it("should return false when string contains multiple spaces", () => {
       expect(canConvertToPascalCase("Тест  тест", "ТестТест")).toBeFalsy()
+    })
+
+    it("should return true when have abbreviation", () => {
+      expect(canConvertToPascalCase("История КПП", "ИсторияКПП")).toBeTruthy()
     })
   })
 })
