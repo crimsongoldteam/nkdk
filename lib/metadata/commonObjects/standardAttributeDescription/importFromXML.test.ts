@@ -6,6 +6,7 @@ import xmlImport from "~/lib/xml/import/importer"
 import { importStandardAttributeDescriptionFromXML, importStandardAttributeDescriptionsFromXML } from "./importFromXML"
 import {
   StandardAttributeDescription,
+  StandardAttributeDescriptions,
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionXML,
 } from "./types"
@@ -37,10 +38,17 @@ describe("importStandardAttributeDescriptionFromXML", () => {
   it("should import with multiple values", () => {
     const xml = readFileSync(join(process.cwd(), "tests/fixtures/standartAttribute/multiple.xml"), "utf-8")
 
-    const expectedResult: StandardAttributeDescription = {
-      fillChecking: "DontCheck",
-      name: "Predefined",
-    }
+    const expectedResult: StandardAttributeDescriptions = [
+      {
+        fillChecking: "ShowError",
+        name: "PredefinedDataName",
+        synonym: { items: { ru: "Какой-то синоним" } },
+      },
+      {
+        name: "Predefined",
+        synonym: { items: { ru: "Другой какой-то синоним" } },
+      },
+    ]
 
     const xmlData = xmlImport<{ "xr:StandardAttribute": StandardAttributeDescriptionsXML }>(xml)
 

@@ -22,7 +22,11 @@ export const exportStandardAttributeDescriptionToEnterprise = (
   if (!data) return undefined
 
   return compactObject({
-    БыстрыйВыбор: exportBooleanToEnterprise(data.quickChoice, configurationSettings),
+    БыстрыйВыбор: exportSystemEnumerationToEnterprise(
+      data.quickChoice,
+      SE.UseQuickChoiceToEnterprise,
+      configurationSettings
+    ),
     ВыделятьОтрицательные: exportBooleanToEnterprise(data.markNegatives, configurationSettings),
     ЗаполнятьИзДанныхЗаполнения: exportBooleanToEnterprise(data.fillFromFillingValue, configurationSettings),
     ЗначениеЗаполнения: exportMetadataValueToEnterprise(data.fillValue, configurationSettings),

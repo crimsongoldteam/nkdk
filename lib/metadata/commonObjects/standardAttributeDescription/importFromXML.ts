@@ -64,13 +64,15 @@ export const importStandardAttributeDescriptionFromXML = (
 
 export const importStandardAttributeDescriptionsFromXML = (
   xml: StandardAttributeDescriptionsXML | undefined,
-  _configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings
 ): StandardAttributeDescriptions | undefined => {
   if (!xml) return undefined
 
-  return undefined
+  const items = Array.isArray(xml) ? xml : [xml]
 
-  // return xml.map(
-  //   (value: StandardAttributeDescriptionXML) => importStandardAttributeDescriptionFromXML(value, configurationSettings)!
-  // )
+  return items
+    .map((value: StandardAttributeDescriptionXML) =>
+      importStandardAttributeDescriptionFromXML(value, configurationSettings)
+    )
+    .filter((item): item is StandardAttributeDescription => item !== undefined)
 }
