@@ -78,7 +78,7 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
     return formatNumberQualifier(typeDescription.numberQualifiers)
   }
 
-  if (type === "date" && typeDescription.dateQualifiers) {
+  if ((type === "date" || type === "dateTime") && typeDescription.dateQualifiers) {
     return formatDateQualifier(typeDescription.dateQualifiers)
   }
 

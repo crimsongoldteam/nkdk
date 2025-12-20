@@ -76,7 +76,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
   describe("date type description", () => {
     it("should format date", () => {
       const mockTypeDescription: TypeDescription = {
-        type: ["date"],
+        type: ["dateTime"],
         dateQualifiers: { dateFractions: "Date" },
       }
 
@@ -89,7 +89,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
 
     it("should format time", () => {
       const mockTypeDescription: TypeDescription = {
-        type: ["date"],
+        type: ["dateTime"],
         dateQualifiers: { dateFractions: "Time" },
       }
 
@@ -102,7 +102,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
 
     it("should format date and time", () => {
       const mockTypeDescription: TypeDescription = {
-        type: ["date"],
+        type: ["dateTime"],
         dateQualifiers: { dateFractions: "DateTime" },
       }
 
@@ -115,7 +115,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
 
     it("should format date", () => {
       const mockTypeDescription: TypeDescription = {
-        type: ["date"],
+        type: ["dateTime"],
         dateQualifiers: { dateFractions: "Date" },
       }
 

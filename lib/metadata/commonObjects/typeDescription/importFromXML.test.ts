@@ -59,14 +59,14 @@ describe("importTypeDescriptionFromXML", () => {
 
   it("should import date type from XML", () => {
     const mockXml = `<TypeDescription>
-    <v8:Type>xs:date</v8:Type>
+    <v8:Type>xs:dateTime</v8:Type>
       <v8:DateQualifiers>
           <v8:DateFractions>Date</v8:DateFractions>
       </v8:DateQualifiers>
       </TypeDescription>`
 
     const mockResult: TypeDescription = {
-      type: ["date"],
+      type: ["dateTime"],
       dateQualifiers: { dateFractions: "Date" },
     }
 
