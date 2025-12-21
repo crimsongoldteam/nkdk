@@ -1,36 +1,28 @@
 import { I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
-
-export interface ChoiceParameterLinkDataPathObject {
-  "#text"?: string
-  "_xsi:type"?: string
-}
-
-export type ChoiceParameterLinkDataPath = string | ChoiceParameterLinkDataPathObject
+import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { MetadataField, MetadataFieldXML } from "../metadataField/types"
 
 export interface ChoiceParameterLinkXML {
   "xr:Name": string
-  "xr:DataPath": ChoiceParameterLinkDataPath
-  "xr:ValueChange"?: string
+  "xr:DataPath": MetadataField
+  "xr:ValueChange"?: SE.LinkedValueChangeMode
 }
 
-export interface ChoiceParameterLinkValue {
+export interface ChoiceParameterLinkValueXML {
   "_xsi:type"?: string
   Presentation?: I8nTextXML
-  Value: {
-    "_xsi:type": "xs:string" | "xs:boolean"
-    "#text": string | boolean
-  }
+  Value: MetadataFieldXML
 }
 
 export interface ChoiceParameterAppItemXML {
   _name: string
-  "app:value": ChoiceParameterLinkValue
+  "app:value": ChoiceParameterLinkValueXML
 }
 
 export interface ChoiceParameterLink {
   name: string
   dataPath: string
-  valueChange?: string
+  valueChange?: SE.LinkedValueChangeMode
 }
 
 export interface ChoiceParameterLinksXMLItem {
