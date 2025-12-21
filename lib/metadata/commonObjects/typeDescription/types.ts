@@ -113,6 +113,11 @@ export const AppliedTypeToEnterprise = {
   HTTPService: "HTTPСервис",
   WebSocketClient: "WebSocketКлиент",
   WebService: "WebСервис",
+  BusinessProcess: "БизнесПроцесс",
+  Bot: "Бот",
+  ExternalDataSource: "ВнешнийИсточникДанных",
+  SessionParameter: "ПараметрСеанса",
+  FunctionalOptionParameter: "ПараметрФункциональныхОпций",
 } as const
 
 export const AppliedTypeFromEnterprise = (name: string): AppliedType => {
