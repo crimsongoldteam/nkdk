@@ -4,11 +4,17 @@ import {
   CharacteristicsDescriptionsXML,
   CharacteristicsDescriptionXML,
 } from "~/lib/metadata/commonObjects/characteristicsDescription/types"
-import { importMetadataFieldFromXML } from "~/lib/metadata/commonObjects/metadataField/importFromXML"
-import { importMetadataItemLinkFromXML } from "~/lib/metadata/commonObjects/metadataItemLink/importFromXML"
+import { MetadataField, MetadataFieldXML } from "~/lib/metadata/commonObjects/metadataField/types"
 import { importMetadataValueFromXML } from "~/lib/metadata/commonObjects/metadataValue/importFromXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
+
+const extractFieldValue = (field: MetadataFieldXML | string | number | undefined): MetadataField | undefined => {
+  if (field === undefined) return undefined
+  if (typeof field === "string") return field
+  if (typeof field === "number") return String(field)
+  return field["#text"]
+}
 
 export const importCharacteristicsDescriptionFromXML = (
   xml: CharacteristicsDescriptionXML | undefined,
@@ -16,19 +22,36 @@ export const importCharacteristicsDescriptionFromXML = (
 ): CharacteristicsDescription | undefined => {
   if (!xml) return undefined
 
+  const characteristicTypes = xml["xr:CharacteristicTypes"]
+  const characteristicValues = xml["xr:CharacteristicValues"]
+
   return compactObject({
-    characteristicTypes: importMetadataItemLinkFromXML(xml.CharacteristicTypes, configurationSettings),
-    characteristicValues: importMetadataValueFromXML(xml.CharacteristicValues, configurationSettings),
-    dataPathField: importMetadataFieldFromXML(xml.DataPathField, configurationSettings),
-    keyField: importMetadataFieldFromXML(xml.KeyField, configurationSettings),
-    multipleValuesKeyField: importMetadataFieldFromXML(xml.MultipleValuesKeyField, configurationSettings),
-    multipleValuesOrderField: importMetadataFieldFromXML(xml.MultipleValuesOrderField, configurationSettings),
-    multipleValuesUseField: importMetadataFieldFromXML(xml.MultipleValuesUseField, configurationSettings),
-    objectField: importMetadataFieldFromXML(xml.ObjectField, configurationSettings),
-    typeField: importMetadataFieldFromXML(xml.TypeField, configurationSettings),
-    typesFilterField: importMetadataFieldFromXML(xml.TypesFilterField, configurationSettings),
-    typesFilterValue: importMetadataValueFromXML(xml.TypesFilterValue, configurationSettings),
-    valueField: importMetadataFieldFromXML(xml.ValueField, configurationSettings),
+    characteristicTypes: characteristicTypes?._from,
+    characteristicValues: characteristicValues?._from
+      ? {
+          type: "xs:string",
+          value: characteristicValues._from,
+        }
+      : undefined,
+    dataPathField: extractFieldValue(characteristicTypes?.["xr:DataPathField"] || xml["xr:DataPathField"]),
+    keyField: extractFieldValue(characteristicTypes?.["xr:KeyField"] || xml["xr:KeyField"]),
+    multipleValuesKeyField: extractFieldValue(
+      characteristicValues?.["xr:MultipleValuesKeyField"] || xml["xr:MultipleValuesKeyField"]
+    ),
+    multipleValuesOrderField: extractFieldValue(
+      characteristicValues?.["xr:MultipleValuesOrderField"] || xml["xr:MultipleValuesOrderField"]
+    ),
+    multipleValuesUseField: extractFieldValue(
+      characteristicTypes?.["xr:MultipleValuesUseField"] || xml["xr:MultipleValuesUseField"]
+    ),
+    objectField: extractFieldValue(characteristicValues?.["xr:ObjectField"] || xml["xr:ObjectField"]),
+    typeField: extractFieldValue(characteristicValues?.["xr:TypeField"] || xml["xr:TypeField"]),
+    typesFilterField: extractFieldValue(characteristicTypes?.["xr:TypesFilterField"] || xml["xr:TypesFilterField"]),
+    typesFilterValue: importMetadataValueFromXML(
+      characteristicTypes?.["xr:TypesFilterValue"] || xml["xr:TypesFilterValue"],
+      configurationSettings
+    ),
+    valueField: extractFieldValue(characteristicValues?.["xr:ValueField"] || xml["xr:ValueField"]),
   })
 }
 
@@ -38,9 +61,7 @@ export const importCharacteristicsDescriptionsFromXML = (
 ): CharacteristicsDescriptions | undefined => {
   if (!xml) return undefined
 
-  return undefined
-
-  // return xml.map(
-  //   (value: CharacteristicsDescriptionXML) => importCharacteristicsDescriptionFromXML(value, configurationSettings)!
-  // )
+  return xml.map(
+    (value: CharacteristicsDescriptionXML) => importCharacteristicsDescriptionFromXML(value, configurationSettings)!
+  )
 }

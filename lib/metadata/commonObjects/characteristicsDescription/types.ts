@@ -3,20 +3,12 @@ import {
   MetadataFieldEnterprise,
   MetadataFieldXML,
 } from "~/lib/metadata/commonObjects/metadataField/types"
-import {
-  MetadataItemLink,
-  MetadataItemLinkEnterprise,
-  MetadataItemLinkXML,
-} from "~/lib/metadata/commonObjects/metadataItemLink/types"
-import {
-  MetadataValue,
-  MetadataValueEnterprise,
-  MetadataValueXML,
-} from "~/lib/metadata/commonObjects/metadataValue/types"
+import { MetadataItemLink, MetadataItemLinkEnterprise } from "~/lib/metadata/commonObjects/metadataItemLink/types"
+import { MetadataValueEnterprise, MetadataValueXML } from "~/lib/metadata/commonObjects/metadataValue/types"
 
 export interface CharacteristicsDescription {
   characteristicTypes?: MetadataItemLink
-  characteristicValues?: MetadataValue
+  characteristicValues?: string
   dataPathField?: MetadataField
   keyField?: MetadataField
   multipleValuesKeyField?: MetadataField
@@ -25,23 +17,37 @@ export interface CharacteristicsDescription {
   objectField?: MetadataField
   typeField?: MetadataField
   typesFilterField?: MetadataField
-  typesFilterValue?: MetadataValue
+  typesFilterValue?: string
   valueField?: MetadataField
 }
 
 export interface CharacteristicsDescriptionXML {
-  CharacteristicTypes?: MetadataItemLinkXML
-  CharacteristicValues?: MetadataValueXML
-  DataPathField?: MetadataFieldXML
-  KeyField?: MetadataFieldXML
-  MultipleValuesKeyField?: MetadataFieldXML
-  MultipleValuesOrderField?: MetadataFieldXML
-  MultipleValuesUseField?: MetadataFieldXML
-  ObjectField?: MetadataFieldXML
-  TypeField?: MetadataFieldXML
-  TypesFilterField?: MetadataFieldXML
-  TypesFilterValue?: MetadataValueXML
-  ValueField?: MetadataFieldXML
+  "xr:CharacteristicTypes"?: {
+    _from?: string
+    "xr:KeyField"?: MetadataFieldXML | string
+    "xr:TypesFilterField"?: MetadataFieldXML | string
+    "xr:TypesFilterValue"?: MetadataValueXML
+    "xr:DataPathField"?: MetadataFieldXML | string | number
+    "xr:MultipleValuesUseField"?: MetadataFieldXML | string
+  }
+  "xr:CharacteristicValues"?: {
+    _from?: string
+    "xr:ObjectField"?: MetadataFieldXML | string
+    "xr:TypeField"?: MetadataFieldXML | string
+    "xr:ValueField"?: MetadataFieldXML | string
+    "xr:MultipleValuesKeyField"?: MetadataFieldXML | string | number
+    "xr:MultipleValuesOrderField"?: MetadataFieldXML | string | number
+  }
+  "xr:DataPathField"?: MetadataFieldXML | string | number
+  "xr:KeyField"?: MetadataFieldXML | string
+  "xr:MultipleValuesKeyField"?: MetadataFieldXML | string | number
+  "xr:MultipleValuesOrderField"?: MetadataFieldXML | string | number
+  "xr:MultipleValuesUseField"?: MetadataFieldXML | string
+  "xr:ObjectField"?: MetadataFieldXML | string
+  "xr:TypeField"?: MetadataFieldXML | string
+  "xr:TypesFilterField"?: MetadataFieldXML | string
+  "xr:TypesFilterValue"?: MetadataValueXML
+  "xr:ValueField"?: MetadataFieldXML | string
 }
 
 export interface CharacteristicsDescriptionEnterprise {
