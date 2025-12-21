@@ -28,6 +28,12 @@ describe("DO test", () => {
 
     writeFileSync(join(__dirname, "After/Контрагенты.yml"), yamlString, "utf-8")
   })
+
+  // it("should export schema ", () => {
+  //   const catalogSchema = typia.json.schemas<[MetadataCatalogEnterprise], "3.1">()
+
+  //   writeFileSync(join(__dirname, "After/Контрагенты.json"), typia.json.stringify(catalogSchema), "utf-8")
+  // })
   // it("should round-trip DO XML", () => {
   //   const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(originalContent)
   //   const form = importClientApplicationFormFromXML(importedXml.Form, mockConfigurationSettings)

@@ -12,7 +12,7 @@ export const importMetadataFieldFromXML = (
 
 export const importMetadataFieldsFromXML = (
   data: MetadataFieldsXML | undefined,
-  configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings
 ): MetadataFields | undefined => {
   if (!data) return undefined
 

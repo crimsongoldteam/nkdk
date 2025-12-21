@@ -20,4 +20,4 @@ export interface PredefinedEnterprise {
 
 export type PredefinedItems = Predefined[]
 export type PredefinedItemsXML = PredefinedXML[]
-export type PredefinedItemsEnterprise = Map<string, PredefinedEnterprise>
+export type PredefinedItemsEnterprise = Record<string, PredefinedEnterprise>

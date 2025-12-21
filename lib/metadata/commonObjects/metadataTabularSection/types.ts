@@ -10,6 +10,7 @@ import {
   StandardAttributeDescriptionsXML,
 } from "~/lib/metadata/commonObjects/standardAttributeDescription/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { MetadataName } from "../metadataName/types"
 
 export interface MetadataTabularSection {
   attributes?: MetadataAttributes
@@ -43,7 +44,6 @@ export interface MetadataTabularSectionXML {
 
 export interface MetadataTabularSectionEnterprise {
   ДлинаНомераСтроки?: number
-  Имя?: string
   Использование?: SE.AttributeUseEnterprise
   Комментарий?: string
   Подсказка?: I8nTextEnterprise
@@ -58,4 +58,4 @@ export type MetadataTabularSections = MetadataTabularSection[]
 
 export type MetadataTabularSectionsXML = MetadataTabularSectionXML[]
 
-export type MetadataTabularSectionsEnterprise = Record<string, MetadataTabularSectionEnterprise>
+export type MetadataTabularSectionsEnterprise = Record<MetadataName, MetadataTabularSectionEnterprise>

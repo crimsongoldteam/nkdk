@@ -20,5 +20,7 @@ export const exportPredefinedItemsToEnterprise = (
 ): PredefinedItemsEnterprise | undefined => {
   if (!data) return undefined
 
-  return new Map(data.map((item) => [item.name, exportPredefinedToEnterprise(item, _configurationSettings)!]))
+  return Object.fromEntries(
+    data.map((item) => [item.name, exportPredefinedToEnterprise(item, _configurationSettings)!])
+  ) as PredefinedItemsEnterprise
 }
