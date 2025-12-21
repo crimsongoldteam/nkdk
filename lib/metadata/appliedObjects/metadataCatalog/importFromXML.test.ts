@@ -1,21 +1,17 @@
-import { readFileSync } from "fs"
-import { join } from "path"
 import { assertEquals } from "typia"
 import { describe, expect, it } from "vitest"
 import { simpleCatalog } from "~/lib/tests/fixtures/metadataCatalog/simple"
 import { withAttributesCatalog } from "~/lib/tests/fixtures/metadataCatalog/withAttributes"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
-import xmlImport from "~/lib/xml/import/importer"
+import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { importMetadataCatalogFromXML } from "./importFromXML"
 import { MetadataCatalogXML } from "./types"
 
 describe("importMetadataCatalogFromXML", () => {
   it("should import metadata catalog from XML", () => {
-    const xml = readFileSync(join(process.cwd(), "tests/fixtures/metadataCatalog/simple.xml"), "utf-8")
+    const xmlData = readAndParseXMLFile<{ MetaDataObject: MetadataCatalogXML }>("metadataCatalog/simple.xml")
 
     const expectedResult = simpleCatalog
-
-    const xmlData = xmlImport<{ MetaDataObject: MetadataCatalogXML }>(xml)
 
     expect(assertEquals<MetadataCatalogXML>(xmlData.MetaDataObject)).toEqual(xmlData.MetaDataObject)
 
@@ -25,11 +21,9 @@ describe("importMetadataCatalogFromXML", () => {
   })
 
   it("should import metadata catalog with attributes from XML", () => {
-    const xml = readFileSync(join(process.cwd(), "tests/fixtures/metadataCatalog/withAttributes.xml"), "utf-8")
+    const xmlData = readAndParseXMLFile<{ MetaDataObject: MetadataCatalogXML }>("metadataCatalog/withAttributes.xml")
 
     const expectedResult = withAttributesCatalog
-
-    const xmlData = xmlImport<{ MetaDataObject: MetadataCatalogXML }>(xml)
 
     expect(assertEquals<MetadataCatalogXML>(xmlData.MetaDataObject)).toEqual(xmlData.MetaDataObject)
 
