@@ -66,6 +66,7 @@ export const AppliedTypeToEnterprise = {
   Characteristic: "Характеристика",
   DefinedType: "ОпределяемыйТип",
   CommandGroup: "ГруппаКоманд",
+  InformationRegister: "РегистрСведений",
 } as const
 
 export const AppliedTypeFromEnterprise = (name: string): AppliedType => {

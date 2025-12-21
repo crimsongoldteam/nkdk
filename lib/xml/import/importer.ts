@@ -24,7 +24,7 @@ export const xmlImport = <T>(data: string): T => {
     preserveOrder: true,
     attributeNamePrefix: "_",
     attributesGroupName: "@attributes",
-    ignoreAttributes: ["xsi:nil"],
+    ignoreAttributes: ["xsi:nil", "xsi:type"],
   })
   const parsedData = parser.parse(data)
 

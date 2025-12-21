@@ -2,13 +2,21 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { MetadataValue, MetadataValueXML } from "./types"
 
 export const importMetadataValueFromXML = (
-  data: MetadataValueXML | undefined,
+  data: MetadataValueXML | string | undefined,
   _configurationSettings: ConfigurationSettings
 ): MetadataValue | undefined => {
   if (!data) return undefined
 
+  // Если data - строка, возвращаем объект с этой строкой как значением
+  if (typeof data === "string") {
+    return {
+      type: "",
+      value: data,
+    }
+  }
+
   return {
-    type: data["_xsi:type"],
+    type: data["_xsi:type"] || "",
     value: data["#text"],
   }
 }

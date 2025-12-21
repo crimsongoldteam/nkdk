@@ -7,6 +7,8 @@ const FiledsMap = {
   Attribute: "Реквизит",
   TabularSection: "ТабличнаяЧасть",
   StandardAttribute: "СтандартныйРеквизит",
+  Dimension: "Измерение",
+  Resource: "Ресурс",
 } as const
 
 export const exportMetadataFieldToEnterprise = (

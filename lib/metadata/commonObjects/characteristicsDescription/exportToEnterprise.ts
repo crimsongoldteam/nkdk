@@ -6,9 +6,10 @@ import {
 } from "~/lib/metadata/commonObjects/characteristicsDescription/types"
 import { exportMetadataFieldToEnterprise } from "~/lib/metadata/commonObjects/metadataField/exportToEnterprise"
 import { exportMetadataItemLinkToEnterprise } from "~/lib/metadata/commonObjects/metadataItemLink/exportToEnterprise"
-import { exportMetadataValueToEnterprise } from "~/lib/metadata/commonObjects/metadataValue/exportToEnterprise"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
+import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterprise"
+import { MetadataValue } from "../metadataValue/types"
 
 export const exportCharacteristicsDescriptionToEnterprise = (
   data: CharacteristicsDescription | undefined,
@@ -16,10 +17,18 @@ export const exportCharacteristicsDescriptionToEnterprise = (
 ): CharacteristicsDescriptionEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
+  const typesFilterValueMetadata: MetadataValue | undefined = data.typesFilterValue
+    ? { type: "xs:string", value: data.typesFilterValue }
+    : undefined
+
+  const characteristicValuesMetadata: MetadataValue | undefined = data.characteristicValues
+    ? { type: "xs:string", value: data.characteristicValues }
+    : undefined
+
+  return compactObject<CharacteristicsDescriptionEnterprise>({
     ВидыХарактеристик: exportMetadataItemLinkToEnterprise(data.characteristicTypes, configurationSettings),
-    ЗначениеОтбораВидов: exportMetadataValueToEnterprise(data.typesFilterValue, configurationSettings),
-    ЗначенияХарактеристик: exportMetadataValueToEnterprise(data.characteristicValues, configurationSettings),
+    ЗначениеОтбораВидов: exportMetadataValueToEnterprise(typesFilterValueMetadata, configurationSettings),
+    ЗначенияХарактеристик: exportMetadataValueToEnterprise(characteristicValuesMetadata, configurationSettings),
     ПолеВида: exportMetadataFieldToEnterprise(data.typeField, configurationSettings),
     ПолеЗначения: exportMetadataFieldToEnterprise(data.valueField, configurationSettings),
     ПолеИспользованияМножественныхЗначений: exportMetadataFieldToEnterprise(

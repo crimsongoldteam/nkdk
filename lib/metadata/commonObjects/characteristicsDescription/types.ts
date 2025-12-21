@@ -38,16 +38,6 @@ export interface CharacteristicsDescriptionXML {
     "xr:MultipleValuesKeyField"?: MetadataFieldXML | string | number
     "xr:MultipleValuesOrderField"?: MetadataFieldXML | string | number
   }
-  "xr:DataPathField"?: MetadataFieldXML | string | number
-  "xr:KeyField"?: MetadataFieldXML | string
-  "xr:MultipleValuesKeyField"?: MetadataFieldXML | string | number
-  "xr:MultipleValuesOrderField"?: MetadataFieldXML | string | number
-  "xr:MultipleValuesUseField"?: MetadataFieldXML | string
-  "xr:ObjectField"?: MetadataFieldXML | string
-  "xr:TypeField"?: MetadataFieldXML | string
-  "xr:TypesFilterField"?: MetadataFieldXML | string
-  "xr:TypesFilterValue"?: MetadataValueXML
-  "xr:ValueField"?: MetadataFieldXML | string
 }
 
 export interface CharacteristicsDescriptionEnterprise {
@@ -67,6 +57,6 @@ export interface CharacteristicsDescriptionEnterprise {
 
 export type CharacteristicsDescriptions = CharacteristicsDescription[]
 
-export type CharacteristicsDescriptionsXML = CharacteristicsDescriptionXML[]
+export type CharacteristicsDescriptionsXML = { "xr:Characteristic": CharacteristicsDescriptionXML[] }
 
 export type CharacteristicsDescriptionsEnterprise = CharacteristicsDescriptionEnterprise[]

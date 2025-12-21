@@ -11,9 +11,17 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 const extractFieldValue = (field: MetadataFieldXML | string | number | undefined): MetadataField | undefined => {
   if (field === undefined) return undefined
-  if (typeof field === "string") return field
-  if (typeof field === "number") return String(field)
-  return field["#text"]
+  if (typeof field === "string") {
+    if (field === "-1") return undefined
+    return field
+  }
+  if (typeof field === "number") {
+    if (field === -1) return undefined
+    return String(field)
+  }
+  const text = field["#text"]
+  if (text === "-1") return undefined
+  return text
 }
 
 export const importCharacteristicsDescriptionFromXML = (
@@ -25,33 +33,24 @@ export const importCharacteristicsDescriptionFromXML = (
   const characteristicTypes = xml["xr:CharacteristicTypes"]
   const characteristicValues = xml["xr:CharacteristicValues"]
 
-  return compactObject({
+  const typesFilterValueData = importMetadataValueFromXML(
+    characteristicTypes?.["xr:TypesFilterValue"],
+    configurationSettings
+  )
+
+  return compactObject<CharacteristicsDescription>({
     characteristicTypes: characteristicTypes?._from,
-    characteristicValues: characteristicValues?._from
-      ? {
-          type: "xs:string",
-          value: characteristicValues._from,
-        }
-      : undefined,
-    dataPathField: extractFieldValue(characteristicTypes?.["xr:DataPathField"] || xml["xr:DataPathField"]),
-    keyField: extractFieldValue(characteristicTypes?.["xr:KeyField"] || xml["xr:KeyField"]),
-    multipleValuesKeyField: extractFieldValue(
-      characteristicValues?.["xr:MultipleValuesKeyField"] || xml["xr:MultipleValuesKeyField"]
-    ),
-    multipleValuesOrderField: extractFieldValue(
-      characteristicValues?.["xr:MultipleValuesOrderField"] || xml["xr:MultipleValuesOrderField"]
-    ),
-    multipleValuesUseField: extractFieldValue(
-      characteristicTypes?.["xr:MultipleValuesUseField"] || xml["xr:MultipleValuesUseField"]
-    ),
-    objectField: extractFieldValue(characteristicValues?.["xr:ObjectField"] || xml["xr:ObjectField"]),
-    typeField: extractFieldValue(characteristicValues?.["xr:TypeField"] || xml["xr:TypeField"]),
-    typesFilterField: extractFieldValue(characteristicTypes?.["xr:TypesFilterField"] || xml["xr:TypesFilterField"]),
-    typesFilterValue: importMetadataValueFromXML(
-      characteristicTypes?.["xr:TypesFilterValue"] || xml["xr:TypesFilterValue"],
-      configurationSettings
-    ),
-    valueField: extractFieldValue(characteristicValues?.["xr:ValueField"] || xml["xr:ValueField"]),
+    characteristicValues: characteristicValues?._from,
+    dataPathField: extractFieldValue(characteristicTypes?.["xr:DataPathField"]),
+    keyField: extractFieldValue(characteristicTypes?.["xr:KeyField"]),
+    multipleValuesKeyField: extractFieldValue(characteristicValues?.["xr:MultipleValuesKeyField"]),
+    multipleValuesOrderField: extractFieldValue(characteristicValues?.["xr:MultipleValuesOrderField"]),
+    multipleValuesUseField: extractFieldValue(characteristicTypes?.["xr:MultipleValuesUseField"]),
+    objectField: extractFieldValue(characteristicValues?.["xr:ObjectField"]),
+    typeField: extractFieldValue(characteristicValues?.["xr:TypeField"]),
+    typesFilterField: extractFieldValue(characteristicTypes?.["xr:TypesFilterField"]),
+    typesFilterValue: typesFilterValueData?.value,
+    valueField: extractFieldValue(characteristicValues?.["xr:ValueField"]),
   })
 }
 
@@ -61,7 +60,10 @@ export const importCharacteristicsDescriptionsFromXML = (
 ): CharacteristicsDescriptions | undefined => {
   if (!xml) return undefined
 
-  return xml.map(
+  const characteristics = xml["xr:Characteristic"]
+  const items = Array.isArray(characteristics) ? characteristics : [characteristics]
+
+  return items.map(
     (value: CharacteristicsDescriptionXML) => importCharacteristicsDescriptionFromXML(value, configurationSettings)!
   )
 }
