@@ -50,7 +50,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
   describe("number type description", () => {
     it("should format number", () => {
       const mockTypeDescription: TypeDescription = {
-        type: ["number"],
+        type: ["decimal"],
         numberQualifiers: { digits: 10, fractionDigits: 2 },
       }
       const expectedResult = "Число(10, 2)"
@@ -62,7 +62,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
 
     it("should format non-negative number", () => {
       const mockTypeDescription: TypeDescription = {
-        type: ["number"],
+        type: ["decimal"],
         numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Nonnegative" },
       }
       const expectedResult = "ПоложительноеЧисло(10, 2)"
@@ -154,7 +154,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
 
     it("should format parametrical types composite", () => {
       const mockTypeDescription: TypeDescription = {
-        type: ["string", "number"],
+        type: ["string", "decimal"],
         stringQualifiers: { length: 10, allowedLength: "Variable" },
         numberQualifiers: { digits: 10, fractionDigits: 2 },
       }

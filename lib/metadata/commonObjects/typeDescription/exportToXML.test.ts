@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportTypeDescriptionToXML } from "./exportToXML"
 import { TypeDescription } from "./types"
@@ -14,13 +15,7 @@ describe("exportTypeDescriptionToXML", () => {
       },
     }
 
-    const expectedXml = `<TypeDescription>
-	<v8:Type>xs:string</v8:Type>
-	<v8:StringQualifiers>
-		<v8:Length>10</v8:Length>
-		<v8:AllowedLength>Variable</v8:AllowedLength>
-	</v8:StringQualifiers>
-</TypeDescription>`
+    const expectedXml = readXMLFileAsString("typeDescription/stringType.xml")
 
     const result = exportTypeDescriptionToXML(mockTypeDescription, mockConfigurationSettings)
     const xmlString = xmlExport({ TypeDescription: result }, false)
@@ -38,14 +33,7 @@ describe("exportTypeDescriptionToXML", () => {
       },
     }
 
-    const expectedXml = `<TypeDescription>
-	<v8:Type>xs:decimal</v8:Type>
-	<v8:NumberQualifiers>
-		<v8:Digits>10</v8:Digits>
-		<v8:FractionDigits>2</v8:FractionDigits>
-		<v8:AllowedSign>Nonnegative</v8:AllowedSign>
-	</v8:NumberQualifiers>
-</TypeDescription>`
+    const expectedXml = readXMLFileAsString("typeDescription/numberType.xml")
 
     const result = exportTypeDescriptionToXML(mockTypeDescription, mockConfigurationSettings)
     const xmlString = xmlExport({ TypeDescription: result }, false)
@@ -61,12 +49,7 @@ describe("exportTypeDescriptionToXML", () => {
       },
     }
 
-    const expectedXml = `<TypeDescription>
-	<v8:Type>xs:date</v8:Type>
-	<v8:DateQualifiers>
-		<v8:DateFractions>Date</v8:DateFractions>
-	</v8:DateQualifiers>
-</TypeDescription>`
+    const expectedXml = readXMLFileAsString("typeDescription/dateType.xml")
 
     const result = exportTypeDescriptionToXML(mockTypeDescription, mockConfigurationSettings)
     const xmlString = xmlExport({ TypeDescription: result }, false)
@@ -79,10 +62,7 @@ describe("exportTypeDescriptionToXML", () => {
       type: ["boolean", "EnumRef.Статусы"],
     }
 
-    const expectedXml = `<TypeDescription>
-	<v8:Type>xs:boolean</v8:Type>
-	<v8:Type>cfg:EnumRef.Статусы</v8:Type>
-</TypeDescription>`
+    const expectedXml = readXMLFileAsString("typeDescription/complexType.xml")
 
     const result = exportTypeDescriptionToXML(mockTypeDescription, mockConfigurationSettings)
     const xmlString = xmlExport({ TypeDescription: result }, false)

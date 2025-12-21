@@ -1,10 +1,10 @@
 import { readFileSync } from "fs"
 import { join } from "path"
 import { describe, expect, it, vi } from "vitest"
+import { multipleAttributes } from "~/lib/tests/fixtures/metadataAttribute/multiple"
+import { singleAttribute } from "~/lib/tests/fixtures/metadataAttribute/single"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { xmlExport } from "~/lib/xml/export/exporter"
-import { multipleAttributes } from "~/tests/fixtures/metadataAttribute/multiple"
-import { singleAttribute } from "~/tests/fixtures/metadataAttribute/single"
 import { exportMetadataAttributesToXML } from "./exportToXML"
 
 vi.mock("uuid", () => ({

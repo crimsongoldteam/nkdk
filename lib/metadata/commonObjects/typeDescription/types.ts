@@ -45,8 +45,24 @@ export interface TypeDescriptionDateQualifiers {
   dateFractions?: "Date" | "Time" | "DateTime"
 }
 
+const PrimitiveTypeToEnterprise = {
+  string: "Строка",
+  decimal: "Число",
+  date: "Дата",
+  boolean: "Булево",
+} as const
+
+export const PrimitiveTypeFromEnterprise = (name: string): PrimitiveType => {
+  return Object.keys(PrimitiveTypeToEnterprise).find(
+    (key) => PrimitiveTypeToEnterprise[key as keyof typeof PrimitiveTypeToEnterprise] === name
+  ) as PrimitiveType
+}
+
+export type PrimitiveType = keyof typeof PrimitiveTypeToEnterprise
+export type PrimitiveTypeEnterprise = (typeof PrimitiveTypeToEnterprise)[keyof typeof PrimitiveTypeToEnterprise]
+
 export interface TypeDescription {
-  type: string[]
+  type: (PrimitiveType | string)[]
   stringQualifiers?: TypeDescriptionStringQualifiers
   numberQualifiers?: TypeDescriptionNumberQualifiers
   dateQualifiers?: TypeDescriptionDateQualifiers

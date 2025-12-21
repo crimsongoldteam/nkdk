@@ -1,10 +1,10 @@
 import { readFileSync } from "fs"
 import { join } from "path"
 import { describe, expect, it, vi } from "vitest"
+import { simpleCatalog } from "~/lib/tests/fixtures/metadataCatalog/simple"
+import { withAttributesCatalog } from "~/lib/tests/fixtures/metadataCatalog/withAttributes"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { xmlExport } from "~/lib/xml/export/exporter"
-import { simpleCatalog } from "~/tests/fixtures/metadataCatalog/simple"
-import { withAttributesCatalog } from "~/tests/fixtures/metadataCatalog/withAttributes"
 import { exportMetadataCatalogToXML } from "./exportToXML"
 
 vi.mock("uuid", () => ({
