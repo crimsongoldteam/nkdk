@@ -1,0 +1,8 @@
+<Attribute name="Фамилия" id="1">
+	<Type>
+		<v8:Type>xs:string</v8:Type>
+	</Type>
+	<MainAttribute>true</MainAttribute>
+	<StoredData>true</StoredData>
+</Attribute>
+
