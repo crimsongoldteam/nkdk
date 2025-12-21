@@ -1,16 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
-import xmlImport from "~/lib/xml/import/importer"
+import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { importUserVisibleFromXML } from "./importFromXML"
 import { UserVisible, UserVisibleXML } from "./types"
 
 describe("importUserVisibleFromXML", () => {
   it("should import Use from XML", () => {
-    const mockXml = `<UserVisible>
-      <xr:Common>true</xr:Common>
-      <xr:Value name="Role.Администратор">true</xr:Value> 
-      <xr:Value name="Role.Пользователь">false</xr:Value>
-    </UserVisible>`
+    const xml = readAndParseXMLFile<{ UserVisible: UserVisibleXML }>("userVisible/withMultipleValues.xml")
 
     const expectedResult: UserVisible = {
       common: true,
@@ -26,24 +22,18 @@ describe("importUserVisibleFromXML", () => {
       ],
     }
 
-    const xml = xmlImport<{ UserVisible: UserVisibleXML }>(mockXml)
-
     const result = importUserVisibleFromXML(xml.UserVisible, mockConfigurationSettings)
 
     expect(result).toEqual(expectedResult)
   })
 
   it("should import Use from XML with empty values", () => {
-    const mockXml = `<UserVisible>
-      <xr:Common>false</xr:Common>
-    </UserVisible>`
+    const xml = readAndParseXMLFile<{ UserVisible: UserVisibleXML }>("userVisible/withEmptyValues.xml")
 
     const expectedResult: UserVisible = {
       common: false,
       values: [],
     }
-
-    const xml = xmlImport<{ UserVisible: UserVisibleXML }>(mockXml)
 
     const result = importUserVisibleFromXML(xml.UserVisible, mockConfigurationSettings)
 
@@ -57,10 +47,7 @@ describe("importUserVisibleFromXML", () => {
   })
 
   it("should handle single value in Use XML", () => {
-    const mockXml = `<UserVisible>
-      <xr:Common>true</xr:Common>
-      <xr:Value name="Role.Менеджер">true</xr:Value>
-    </UserVisible>`
+    const xml = readAndParseXMLFile<{ UserVisible: UserVisibleXML }>("userVisible/withSingleValue.xml")
 
     const expectedResult: UserVisible = {
       common: true,
@@ -71,8 +58,6 @@ describe("importUserVisibleFromXML", () => {
         },
       ],
     }
-
-    const xml = xmlImport<{ UserVisible: UserVisibleXML }>(mockXml)
 
     const result = importUserVisibleFromXML(xml.UserVisible, mockConfigurationSettings)
 

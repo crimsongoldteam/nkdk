@@ -1,10 +1,9 @@
-import { readFileSync } from "fs"
-import { join } from "path"
 import { describe, expect, it } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportMetadataTabularSectionToXML } from "./exportToXML"
-import { MetadataTabularSection } from "./types"
+import { MetadataTabularSection, MetadataTabularSectionXML } from "./types"
 
 describe("exportMetadataTabularSectionToXML", () => {
   it("should export tabular section with one attribute", () => {
@@ -24,14 +23,13 @@ describe("exportMetadataTabularSectionToXML", () => {
       ],
     }
 
-    const expectedResult = readFileSync(
-      join(process.cwd(), "tests/fixtures/metadataTabularSection/oneAttribute.xml"),
-      "utf-8"
+    const expectedResult = readAndParseXMLFile<{ TabularSection: MetadataTabularSectionXML }>(
+      "metadataTabularSection/oneAttribute.xml"
     )
 
     const result = exportMetadataTabularSectionToXML(data, mockConfigurationSettings)
     const resultXml = xmlExport({ TabularSection: result }, false).trim()
 
-    expect(resultXml).toEqual(expectedResult)
+    expect(resultXml).toEqual(expectedResult.TabularSection)
   })
 })
