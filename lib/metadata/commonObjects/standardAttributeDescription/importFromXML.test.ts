@@ -13,7 +13,7 @@ import {
 
 describe("importStandardAttributeDescriptionFromXML", () => {
   it("should import with single value", () => {
-    const xml = readFileSync(join(process.cwd(), "tests/fixtures/standartAttribute/single.xml"), "utf-8")
+    const xml = readFileSync(join(process.cwd(), "lib/tests/fixtures/standartAttribute/single.xml"), "utf-8")
 
     const expectedResult: StandardAttributeDescription = {
       fillChecking: "ShowError",
@@ -27,7 +27,7 @@ describe("importStandardAttributeDescriptionFromXML", () => {
   })
 
   it("should return undefined when all values are defaults", () => {
-    const xml = readFileSync(join(process.cwd(), "tests/fixtures/standartAttribute/default.xml"), "utf-8")
+    const xml = readFileSync(join(process.cwd(), "lib/tests/fixtures/standartAttribute/default.xml"), "utf-8")
 
     const xmlData = xmlImport<{ "xr:StandardAttribute": StandardAttributeDescriptionXML }>(xml)
 
@@ -36,7 +36,7 @@ describe("importStandardAttributeDescriptionFromXML", () => {
   })
 
   it("should import with multiple values", () => {
-    const xml = readFileSync(join(process.cwd(), "tests/fixtures/standartAttribute/multiple.xml"), "utf-8")
+    const xml = readFileSync(join(process.cwd(), "lib/tests/fixtures/standartAttribute/multiple.xml"), "utf-8")
 
     const expectedResult: StandardAttributeDescriptions = [
       {
@@ -60,7 +60,7 @@ describe("importStandardAttributeDescriptionFromXML", () => {
   })
 
   it("should import with multiple default values to undefined", () => {
-    const xml = readFileSync(join(process.cwd(), "tests/fixtures/standartAttribute/multipleDefault.xml"), "utf-8")
+    const xml = readFileSync(join(process.cwd(), "lib/tests/fixtures/standartAttribute/multipleDefault.xml"), "utf-8")
 
     const xmlData = xmlImport<{ "xr:StandardAttribute": StandardAttributeDescriptionsXML }>(xml)
 

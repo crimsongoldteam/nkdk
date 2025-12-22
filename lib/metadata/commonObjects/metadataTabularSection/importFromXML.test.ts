@@ -1,14 +1,14 @@
-import { readFileSync } from "fs"
-import { join } from "path"
 import { describe, expect, it } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
-import xmlImport from "~/lib/xml/import/importer"
+import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { importMetadataTabularSectionFromXML } from "./importFromXML"
 import { MetadataTabularSection, MetadataTabularSectionXML } from "./types"
 
 describe("importMetadataTabularSectionFromXML", () => {
   it("should import with one attribute", () => {
-    const xml = readFileSync(join(process.cwd(), "tests/fixtures/metadataTabularSection/oneAttribute.xml"), "utf-8")
+    const xmlData = readAndParseXMLFile<{ TabularSection: MetadataTabularSectionXML }>(
+      "metadataTabularSection/oneAttribute.xml"
+    )
 
     const expectedResult: MetadataTabularSection = {
       name: "Контакты",
@@ -25,13 +25,14 @@ describe("importMetadataTabularSectionFromXML", () => {
         },
       ],
     }
-    const xmlData = xmlImport<{ TabularSection: MetadataTabularSectionXML }>(xml)
     const result = importMetadataTabularSectionFromXML(xmlData.TabularSection, mockConfigurationSettings)
     expect(result).toEqual(expectedResult)
   })
 
   it("should import with two attributes", () => {
-    const xml = readFileSync(join(process.cwd(), "tests/fixtures/metadataTabularSection/twoAttributes.xml"), "utf-8")
+    const xmlData = readAndParseXMLFile<{ TabularSection: MetadataTabularSectionXML }>(
+      "metadataTabularSection/twoAttributes.xml"
+    )
 
     const expectedResult: MetadataTabularSection = {
       name: "Контакты",
@@ -58,7 +59,6 @@ describe("importMetadataTabularSectionFromXML", () => {
       ],
     }
 
-    const xmlData = xmlImport<{ TabularSection: MetadataTabularSectionXML }>(xml)
     const result = importMetadataTabularSectionFromXML(xmlData.TabularSection, mockConfigurationSettings)
     expect(result).toEqual(expectedResult)
   })
