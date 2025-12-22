@@ -1,12 +1,12 @@
 <TabularSection uuid="a87fba31-32d9-4b41-be05-e0141f6a803d">
 	<InternalInfo>
 		<xr:GeneratedType name="CatalogTabularSection.Лиды.Контакты" category="TabularSection">
-			<xr:TypeId>680f128b-88c1-42b9-a829-990bb752bfca</xr:TypeId>
-			<xr:ValueId>8ed597fc-740f-4968-9e99-6ac9036edd92</xr:ValueId>
+			<xr:TypeId>a87fba31-32d9-4b41-be05-e0141f6a803d</xr:TypeId>
+			<xr:ValueId>a87fba31-32d9-4b41-be05-e0141f6a803d</xr:ValueId>
 		</xr:GeneratedType>
 		<xr:GeneratedType name="CatalogTabularSectionRow.Лиды.Контакты" category="TabularSectionRow">
-			<xr:TypeId>beec513a-c2a7-4fe8-b3bf-dcfe3c7bedcf</xr:TypeId>
-			<xr:ValueId>8325936e-f8df-43df-8aa8-32e7d640b218</xr:ValueId>
+			<xr:TypeId>a87fba31-32d9-4b41-be05-e0141f6a803d</xr:TypeId>
+			<xr:ValueId>a87fba31-32d9-4b41-be05-e0141f6a803d</xr:ValueId>
 		</xr:GeneratedType>
 	</InternalInfo>
 	<Properties>
@@ -53,7 +53,7 @@
 		<LineNumberLength>5</LineNumberLength>
 	</Properties>
 	<ChildObjects>
-		<Attribute uuid="2049199e-b95b-452f-ac7e-55f571219dd7">
+		<Attribute uuid="a87fba31-32d9-4b41-be05-e0141f6a803d">
 			<Properties>
 				<Name>Наименование</Name>
 				<Synonym>

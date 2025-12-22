@@ -1,0 +1,10 @@
+<InternalInfo>
+	<xr:GeneratedType name="CatalogTabularSection.Лиды.Контакты" category="TabularSection">
+		<xr:TypeId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:TypeId>
+		<xr:ValueId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:ValueId>
+	</xr:GeneratedType>
+	<xr:GeneratedType name="CatalogTabularSectionRow.Лиды.Контакты" category="TabularSectionRow">
+		<xr:TypeId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:TypeId>
+		<xr:ValueId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:ValueId>
+	</xr:GeneratedType>
+</InternalInfo>

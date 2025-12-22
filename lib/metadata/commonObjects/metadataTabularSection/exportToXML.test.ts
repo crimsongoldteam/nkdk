@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
-import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
+import { readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportMetadataTabularSectionToXML } from "./exportToXML"
-import { MetadataTabularSection, MetadataTabularSectionXML } from "./types"
+import { MetadataTabularSection } from "./types"
 
 describe("exportMetadataTabularSectionToXML", () => {
   it("should export tabular section with one attribute", () => {
@@ -23,13 +23,11 @@ describe("exportMetadataTabularSectionToXML", () => {
       ],
     }
 
-    const expectedResult = readAndParseXMLFile<{ TabularSection: MetadataTabularSectionXML }>(
-      "metadataTabularSection/oneAttribute.xml"
-    )
+    const expectedResult = readXMLFileAsString("metadataTabularSection/oneAttribute.xml")
 
-    const result = exportMetadataTabularSectionToXML(data, mockConfigurationSettings)
-    const resultXml = xmlExport({ TabularSection: result }, false).trim()
+    const result = exportMetadataTabularSectionToXML(data, mockConfigurationSettings, "Catalog", "Лиды")
+    const resultXml = xmlExport({ TabularSection: result }, false)
 
-    expect(resultXml).toEqual(expectedResult.TabularSection)
+    expect(resultXml).toEqual(expectedResult)
   })
 })

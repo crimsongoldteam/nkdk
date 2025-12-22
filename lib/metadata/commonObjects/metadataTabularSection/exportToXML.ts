@@ -16,6 +16,9 @@ export const exportMetadataTabularSectionToXML = (
 ): MetadataTabularSectionXML | undefined => {
   if (!data) return undefined
 
+  const standardAttributes = exportStandardAttributeDescriptionsToXML(data.standardAttributes, configurationSettings)
+  const standardAttributesXML = standardAttributes ? { "xr:StandardAttribute": standardAttributes } : undefined
+
   return compactObject<MetadataTabularSectionXML>({
     Properties: {
       Comment: data.comment,
@@ -23,7 +26,7 @@ export const exportMetadataTabularSectionToXML = (
       LineNumberLength: data.lineNumberLength,
       Name: data.name!,
       ObjectBelonging: data.objectBelonging,
-      StandardAttributes: exportStandardAttributeDescriptionsToXML(data.standardAttributes, configurationSettings),
+      StandardAttributes: standardAttributesXML,
       Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
       Tooltip: exportI8nTextToXML(data.tooltip, configurationSettings),
       Use: data.use,

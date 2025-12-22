@@ -1,3 +1,4 @@
+import { tags } from "typia"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   MetadataAttributes,
@@ -25,7 +26,21 @@ export interface MetadataTabularSection {
   use?: SE.AttributeUse
 }
 
+export const TabularSectionGeneratedTypeCategory = ["TabularSection", "TabularSectionRow"] as const
+export type TabularSectionGeneratedTypeCategory = (typeof TabularSectionGeneratedTypeCategory)[number]
+
+export type TabularSectionGeneratedType = {
+  "xr:GeneratedType": {
+    _name: string
+    _category: TabularSectionGeneratedTypeCategory
+    "xr:TypeId": string & tags.Format<"uuid">
+    "xr:ValueId": string & tags.Format<"uuid">
+  }
+}
+
 export interface MetadataTabularSectionXML {
+  _uuid?: string
+  InternalInfo?: TabularSectionGeneratedType | TabularSectionGeneratedType[]
   Properties: {
     Comment?: string
     FillChecking?: SE.FillChecking
