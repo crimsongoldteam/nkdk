@@ -10,6 +10,8 @@
 		</xr:GeneratedType>
 	</InternalInfo>
 	<Properties>
+		<FillChecking>DontCheck</FillChecking>
+		<LineNumberLength>5</LineNumberLength>
 		<Name>Контакты</Name>
 		<Synonym>
 			<v8:item>
@@ -17,12 +19,25 @@
 				<v8:content>Контакты</v8:content>
 			</v8:item>
 		</Synonym>
+		<Use>ForItem</Use>
 	</Properties>
 	<ChildObjects>
 		<Attribute uuid="a87fba31-32d9-4b41-be05-e0141f6a803d">
 			<Properties>
+				<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+				<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+				<CreateOnInput>Auto</CreateOnInput>
+				<DataHistory>Use</DataHistory>
+				<ExtendedEdit>false</ExtendedEdit>
+				<FillChecking>DontCheck</FillChecking>
+				<FillFromFillingValue>false</FillFromFillingValue>
 				<FullTextSearch>DontUse</FullTextSearch>
+				<Indexing>DontIndex</Indexing>
+				<MarkNegatives>false</MarkNegatives>
+				<MultiLine>false</MultiLine>
 				<Name>Наименование</Name>
+				<PasswordMode>false</PasswordMode>
+				<QuickChoice>Auto</QuickChoice>
 				<Synonym>
 					<v8:item>
 						<v8:lang>ru</v8:lang>
@@ -36,6 +51,7 @@
 						<v8:AllowedLength>Variable</v8:AllowedLength>
 					</v8:StringQualifiers>
 				</Type>
+				<Use>ForItem</Use>
 			</Properties>
 		</Attribute>
 	</ChildObjects>

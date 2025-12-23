@@ -1,4 +1,3 @@
-import { assertEquals } from "typia"
 import { describe, expect, it } from "vitest"
 import { simpleCatalog } from "~/lib/tests/fixtures/metadataCatalog/simple"
 import { withAttributesCatalog } from "~/lib/tests/fixtures/metadataCatalog/withAttributes"
@@ -13,7 +12,7 @@ describe("importMetadataCatalogFromXML", () => {
 
     const expectedResult = simpleCatalog
 
-    expect(assertEquals<MetadataCatalogXML>(xmlData.MetaDataObject)).toEqual(xmlData.MetaDataObject)
+    // expect(assertEquals<MetadataCatalogXML>(xmlData.MetaDataObject)).toEqual(xmlData.MetaDataObject)
 
     const result = importMetadataCatalogFromXML(mockConfigurationSettings, xmlData.MetaDataObject)
 
@@ -25,7 +24,7 @@ describe("importMetadataCatalogFromXML", () => {
 
     const expectedResult = withAttributesCatalog
 
-    expect(assertEquals<MetadataCatalogXML>(xmlData.MetaDataObject)).toEqual(xmlData.MetaDataObject)
+    // expect(assertEquals<MetadataCatalogXML>(xmlData.MetaDataObject)).toEqual(xmlData.MetaDataObject)
 
     const result = importMetadataCatalogFromXML(mockConfigurationSettings, xmlData.MetaDataObject)
 

@@ -18,6 +18,7 @@ import { exportInternalInfoToXML } from "../../commonObjects/internalInfo/export
 import { exportMetadataAttributesToXML } from "../../commonObjects/metadataAttribute/exportToXML"
 import { MetadataAttributesXML } from "../../commonObjects/metadataAttribute/types"
 import { MetadataCommandsXML } from "../metadataCommand/types"
+import { getDefaults } from "./defaults"
 
 export const exportMetadataCatalogToXML = (
   configurationSettings: ConfigurationSettings,
@@ -25,22 +26,25 @@ export const exportMetadataCatalogToXML = (
 ): MetadataCatalogXML | undefined => {
   if (!data) return undefined
 
+  const defaults = getDefaults(data, configurationSettings)
+  const mergedData = { ...defaults, ...data }
+
   const internalInfo = exportInternalInfoToXML<CatalogInternalInfoParamsXML>([
-    { name: `CatalogObject.${data.name}`, category: "Object" },
-    { name: `CatalogRef.${data.name}`, category: "Ref" },
-    { name: `CatalogSelection.${data.name}`, category: "Selection" },
-    { name: `CatalogList.${data.name}`, category: "List" },
-    { name: `CatalogManager.${data.name}`, category: "Manager" },
+    { name: `CatalogObject.${mergedData.name}`, category: "Object" },
+    { name: `CatalogRef.${mergedData.name}`, category: "Ref" },
+    { name: `CatalogSelection.${mergedData.name}`, category: "Selection" },
+    { name: `CatalogList.${mergedData.name}`, category: "List" },
+    { name: `CatalogManager.${mergedData.name}`, category: "Manager" },
   ])
 
   let attributes: MetadataAttributesXML | undefined
-  if (data.attributes) {
-    attributes = exportMetadataAttributesToXML(configurationSettings, data.attributes)
+  if (mergedData.attributes) {
+    attributes = exportMetadataAttributesToXML(configurationSettings, mergedData.attributes)
   }
 
   let commands: MetadataCommandsXML | undefined
-  if (data.commands) {
-    commands = exportMetadataCommandsToXML(configurationSettings, data.commands)
+  if (mergedData.commands) {
+    commands = exportMetadataCommandsToXML(configurationSettings, mergedData.commands)
   }
 
   let childObjects: MetadataCatalogXML["Catalog"]["ChildObjects"] | undefined
@@ -77,63 +81,66 @@ export const exportMetadataCatalogToXML = (
       _uuid: v4(),
       InternalInfo: internalInfo,
       Properties: compactObject<MetadataCatalogXML["Catalog"]["Properties"]>({
-        AdditionalIndexes: exportAdditionalIndexesToXML(configurationSettings, data.additionalIndexes),
-        Autonumbering: data.autonumbering,
-        AuxiliaryChoiceForm: data.auxiliaryChoiceForm,
-        AuxiliaryFolderChoiceForm: data.auxiliaryFolderChoiceForm,
-        AuxiliaryFolderForm: data.auxiliaryFolderForm,
-        AuxiliaryListForm: data.auxiliaryListForm,
-        AuxiliaryObjectForm: data.auxiliaryObjectForm,
-        BasedOn: exportMetadataItemLinksToXML(configurationSettings, data.basedOn),
-        Characteristics: exportCharacteristicsDescriptionsToXML(configurationSettings, data.characteristics),
-        CheckUnique: data.checkUnique,
-        ChoiceDataGetModeOnInputByString: data.choiceDataGetModeOnInputByString,
-        ChoiceHistoryOnInput: data.choiceHistoryOnInput,
-        ChoiceMode: data.choiceMode,
-        CodeAllowedLength: data.codeAllowedLength,
-        CodeLength: data.codeLength,
-        CodeSeries: data.codeSeries,
-        CodeType: data.codeType,
-        Comment: data.comment,
-        CreateOnInput: data.createOnInput,
-        DataHistory: data.dataHistory,
-        DataLockControlMode: data.dataLockControlMode,
-        DataLockFields: exportMetadataFieldsToXML(configurationSettings, data.dataLockFields),
-        DefaultChoiceForm: data.defaultChoiceForm,
-        DefaultFolderChoiceForm: data.defaultFolderChoiceForm,
-        DefaultFolderForm: data.defaultFolderForm,
-        DefaultListForm: data.defaultListForm,
-        DefaultObjectForm: data.defaultObjectForm,
-        DefaultPresentation: data.defaultPresentation,
-        DescriptionLength: data.descriptionLength,
-        EditType: data.editType,
-        ExecuteAfterWriteDataHistoryVersionProcessing: data.executeAfterWriteDataHistoryVersionProcessing,
-        Explanation: exportI8nTextToXML(configurationSettings, data.explanation),
-        ExtendedListPresentation: exportI8nTextToXML(configurationSettings, data.extendedListPresentation),
-        ExtendedObjectPresentation: exportI8nTextToXML(configurationSettings, data.extendedObjectPresentation),
-        FoldersOnTop: data.foldersOnTop,
-        FullTextSearch: data.fullTextSearch,
-        FullTextSearchOnInputByString: data.fullTextSearchOnInputByString,
-        Hierarchical: data.hierarchical,
-        HierarchyType: data.hierarchyType,
-        IncludeHelpInContents: data.includeHelpInContents,
-        InputByString: exportMetadataFieldsToXML(configurationSettings, data.inputByString),
-        LevelCount: data.levelCount,
-        LimitLevelCount: data.limitLevelCount,
-        ListPresentation: exportI8nTextToXML(configurationSettings, data.listPresentation),
-        Name: data.name!,
-        ObjectBelonging: data.objectBelonging,
-        ObjectPresentation: exportI8nTextToXML(configurationSettings, data.objectPresentation),
-        Owners: exportMetadataItemLinksToXML(configurationSettings, data.owners),
-        Predefined: exportPredefinedItemsToXML(configurationSettings, data.predefined),
-        PredefinedDataUpdate: data.predefinedDataUpdate,
-        QuickChoice: data.quickChoice,
-        SearchStringModeOnInputByString: data.searchStringModeOnInputByString,
-        StandardAttributes: exportStandardAttributeDescriptionsToXML(configurationSettings, data.standardAttributes),
-        SubordinationUse: data.subordinationUse,
-        Synonym: exportI8nTextToXML(configurationSettings, data.synonym),
-        UpdateDataHistoryImmediatelyAfterWrite: data.updateDataHistoryImmediatelyAfterWrite,
-        UseStandardCommands: data.useStandardCommands,
+        AdditionalIndexes: exportAdditionalIndexesToXML(configurationSettings, mergedData.additionalIndexes),
+        Autonumbering: mergedData.autonumbering,
+        AuxiliaryChoiceForm: mergedData.auxiliaryChoiceForm,
+        AuxiliaryFolderChoiceForm: mergedData.auxiliaryFolderChoiceForm,
+        AuxiliaryFolderForm: mergedData.auxiliaryFolderForm,
+        AuxiliaryListForm: mergedData.auxiliaryListForm,
+        AuxiliaryObjectForm: mergedData.auxiliaryObjectForm,
+        BasedOn: exportMetadataItemLinksToXML(configurationSettings, mergedData.basedOn),
+        Characteristics: exportCharacteristicsDescriptionsToXML(configurationSettings, mergedData.characteristics),
+        CheckUnique: mergedData.checkUnique,
+        ChoiceDataGetModeOnInputByString: mergedData.choiceDataGetModeOnInputByString,
+        ChoiceHistoryOnInput: mergedData.choiceHistoryOnInput,
+        ChoiceMode: mergedData.choiceMode,
+        CodeAllowedLength: mergedData.codeAllowedLength,
+        CodeLength: mergedData.codeLength,
+        CodeSeries: mergedData.codeSeries,
+        CodeType: mergedData.codeType,
+        Comment: mergedData.comment,
+        CreateOnInput: mergedData.createOnInput,
+        DataHistory: mergedData.dataHistory,
+        DataLockControlMode: mergedData.dataLockControlMode,
+        DataLockFields: exportMetadataFieldsToXML(configurationSettings, mergedData.dataLockFields),
+        DefaultChoiceForm: mergedData.defaultChoiceForm,
+        DefaultFolderChoiceForm: mergedData.defaultFolderChoiceForm,
+        DefaultFolderForm: mergedData.defaultFolderForm,
+        DefaultListForm: mergedData.defaultListForm,
+        DefaultObjectForm: mergedData.defaultObjectForm,
+        DefaultPresentation: mergedData.defaultPresentation,
+        DescriptionLength: mergedData.descriptionLength,
+        EditType: mergedData.editType,
+        ExecuteAfterWriteDataHistoryVersionProcessing: mergedData.executeAfterWriteDataHistoryVersionProcessing,
+        Explanation: exportI8nTextToXML(configurationSettings, mergedData.explanation),
+        ExtendedListPresentation: exportI8nTextToXML(configurationSettings, mergedData.extendedListPresentation),
+        ExtendedObjectPresentation: exportI8nTextToXML(configurationSettings, mergedData.extendedObjectPresentation),
+        FoldersOnTop: mergedData.foldersOnTop,
+        FullTextSearch: mergedData.fullTextSearch,
+        FullTextSearchOnInputByString: mergedData.fullTextSearchOnInputByString,
+        Hierarchical: mergedData.hierarchical,
+        HierarchyType: mergedData.hierarchyType,
+        IncludeHelpInContents: mergedData.includeHelpInContents,
+        InputByString: exportMetadataFieldsToXML(configurationSettings, mergedData.inputByString),
+        LevelCount: mergedData.levelCount,
+        LimitLevelCount: mergedData.limitLevelCount,
+        ListPresentation: exportI8nTextToXML(configurationSettings, mergedData.listPresentation),
+        Name: mergedData.name!,
+        ObjectBelonging: mergedData.objectBelonging,
+        ObjectPresentation: exportI8nTextToXML(configurationSettings, mergedData.objectPresentation),
+        Owners: exportMetadataItemLinksToXML(configurationSettings, mergedData.owners),
+        Predefined: exportPredefinedItemsToXML(configurationSettings, mergedData.predefined),
+        PredefinedDataUpdate: mergedData.predefinedDataUpdate,
+        QuickChoice: mergedData.quickChoice,
+        SearchStringModeOnInputByString: mergedData.searchStringModeOnInputByString,
+        StandardAttributes: exportStandardAttributeDescriptionsToXML(
+          configurationSettings,
+          mergedData.standardAttributes
+        ),
+        SubordinationUse: mergedData.subordinationUse,
+        Synonym: exportI8nTextToXML(configurationSettings, mergedData.synonym),
+        UpdateDataHistoryImmediatelyAfterWrite: mergedData.updateDataHistoryImmediatelyAfterWrite,
+        UseStandardCommands: mergedData.useStandardCommands,
       })!,
       ChildObjects: childObjects,
     }),

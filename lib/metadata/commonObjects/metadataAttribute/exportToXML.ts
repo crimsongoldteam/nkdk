@@ -12,6 +12,7 @@ import { exportTypeLinkToXML } from "~/lib/metadata/commonObjects/typeLink/expor
 import { exportChoiceParameterLinksToXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
+import { getDefaults } from "./defaults"
 
 export const exportMetadataAttributeToXML = (
   configurationSettings: ConfigurationSettings,
@@ -19,41 +20,44 @@ export const exportMetadataAttributeToXML = (
 ): MetadataAttributeXML | undefined => {
   if (!data) return undefined
 
+  const defaults = getDefaults(data, configurationSettings)
+  const mergedData = { ...defaults, ...data }
+
   const result: MetadataAttributeXML = {
     _uuid: v4(),
     Properties: compactObject<MetadataAttributeXML["Properties"]>({
-      BinaryDataStorageLocationUse: data.binaryDataStorageLocationUse,
-      BinaryDataStorageLocationUseField: data.binaryDataStorageLocationUseField,
-      ChoiceFoldersAndItems: data.choiceFoldersAndItems,
-      ChoiceForm: data.choiceForm,
-      ChoiceHistoryOnInput: data.choiceHistoryOnInput,
-      ChoiceParameterLinks: exportChoiceParameterLinksToXML(configurationSettings, data.choiceParameterLinks),
-      ChoiceParameters: exportChoiceParameterLinksToXML(configurationSettings, data.choiceParameters),
-      Comment: data.comment,
-      CreateOnInput: data.createOnInput,
-      DataHistory: data.dataHistory,
-      EditFormat: exportI8nTextToXML(configurationSettings, data.editFormat),
-      ExtendedEdit: data.extendedEdit,
-      FillChecking: data.fillChecking,
-      FillFromFillingValue: data.fillFromFillingValue,
-      FillingValue: exportMetadataValueToXML(configurationSettings, data.fillingValue),
-      Format: exportI8nTextToXML(configurationSettings, data.format),
-      FullTextSearch: data.fullTextSearch,
-      Indexing: data.indexing,
-      LinkByType: exportTypeLinkToXML(configurationSettings, data.linkByType),
-      MarkNegatives: data.markNegatives,
-      Mask: data.mask,
-      MaxValue: data.maxValue,
-      MinValue: data.minValue,
-      MultiLine: data.multiLine,
-      Name: data.name!,
-      ObjectBelonging: data.objectBelonging,
-      PasswordMode: data.passwordMode,
-      QuickChoice: data.quickChoice,
-      Synonym: exportI8nTextToXML(configurationSettings, data.synonym),
-      Tooltip: exportI8nTextToXML(configurationSettings, data.tooltip),
-      Type: exportTypeDescriptionToXML(configurationSettings, data.type)!,
-      Use: data.use,
+      BinaryDataStorageLocationUse: mergedData.binaryDataStorageLocationUse,
+      BinaryDataStorageLocationUseField: mergedData.binaryDataStorageLocationUseField,
+      ChoiceFoldersAndItems: mergedData.choiceFoldersAndItems,
+      ChoiceForm: mergedData.choiceForm,
+      ChoiceHistoryOnInput: mergedData.choiceHistoryOnInput,
+      ChoiceParameterLinks: exportChoiceParameterLinksToXML(configurationSettings, mergedData.choiceParameterLinks),
+      ChoiceParameters: exportChoiceParameterLinksToXML(configurationSettings, mergedData.choiceParameters),
+      Comment: mergedData.comment,
+      CreateOnInput: mergedData.createOnInput,
+      DataHistory: mergedData.dataHistory,
+      EditFormat: exportI8nTextToXML(configurationSettings, mergedData.editFormat),
+      ExtendedEdit: mergedData.extendedEdit,
+      FillChecking: mergedData.fillChecking,
+      FillFromFillingValue: mergedData.fillFromFillingValue,
+      FillingValue: exportMetadataValueToXML(configurationSettings, mergedData.fillingValue),
+      Format: exportI8nTextToXML(configurationSettings, mergedData.format),
+      FullTextSearch: mergedData.fullTextSearch,
+      Indexing: mergedData.indexing,
+      LinkByType: exportTypeLinkToXML(configurationSettings, mergedData.linkByType),
+      MarkNegatives: mergedData.markNegatives,
+      Mask: mergedData.mask,
+      MaxValue: mergedData.maxValue,
+      MinValue: mergedData.minValue,
+      MultiLine: mergedData.multiLine,
+      Name: mergedData.name!,
+      ObjectBelonging: mergedData.objectBelonging,
+      PasswordMode: mergedData.passwordMode,
+      QuickChoice: mergedData.quickChoice,
+      Synonym: exportI8nTextToXML(configurationSettings, mergedData.synonym),
+      Tooltip: exportI8nTextToXML(configurationSettings, mergedData.tooltip),
+      Type: exportTypeDescriptionToXML(configurationSettings, mergedData.type)!,
+      Use: mergedData.use,
     })!,
   }
 

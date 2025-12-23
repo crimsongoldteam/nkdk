@@ -1,3 +1,4 @@
+import { v4 } from "uuid"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportMetadataAttributesToXML } from "~/lib/metadata/commonObjects/metadataAttribute/exportToXML"
 import {
@@ -10,7 +11,7 @@ import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonO
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportInternalInfoToXML } from "../internalInfo/exportToXML"
-import { v4 } from "uuid"
+import { getDefaults } from "./defaults"
 
 export const exportMetadataTabularSectionToXML = (
   configurationSettings: ConfigurationSettings,
@@ -18,27 +19,33 @@ export const exportMetadataTabularSectionToXML = (
 ): MetadataTabularSectionXML | undefined => {
   if (!data) return undefined
 
+  const defaults = getDefaults(data, configurationSettings)
+  const mergedData = { ...defaults, ...data }
+
   const parentName = configurationSettings.context
 
   return compactObject<MetadataTabularSectionXML>({
     _uuid: v4(),
     InternalInfo: exportInternalInfoToXML([
-      { name: `CatalogTabularSection.${parentName}.${data.name}`, category: "TabularSection" },
-      { name: `CatalogTabularSectionRow.${parentName}.${data.name}`, category: "TabularSectionRow" },
+      { name: `CatalogTabularSection.${parentName}.${mergedData.name}`, category: "TabularSection" },
+      { name: `CatalogTabularSectionRow.${parentName}.${mergedData.name}`, category: "TabularSectionRow" },
     ]),
     Properties: {
-      Comment: data.comment,
-      FillChecking: data.fillChecking,
-      LineNumberLength: data.lineNumberLength,
-      Name: data.name!,
-      ObjectBelonging: data.objectBelonging,
-      StandardAttributes: exportStandardAttributeDescriptionsToXML(configurationSettings, data.standardAttributes),
-      Synonym: exportI8nTextToXML(configurationSettings, data.synonym),
-      Tooltip: exportI8nTextToXML(configurationSettings, data.tooltip),
-      Use: data.use,
+      Comment: mergedData.comment,
+      FillChecking: mergedData.fillChecking,
+      LineNumberLength: mergedData.lineNumberLength,
+      Name: mergedData.name!,
+      ObjectBelonging: mergedData.objectBelonging,
+      StandardAttributes: exportStandardAttributeDescriptionsToXML(
+        configurationSettings,
+        mergedData.standardAttributes
+      ),
+      Synonym: exportI8nTextToXML(configurationSettings, mergedData.synonym),
+      Tooltip: exportI8nTextToXML(configurationSettings, mergedData.tooltip),
+      Use: mergedData.use,
     },
     ChildObjects: {
-      Attribute: exportMetadataAttributesToXML(configurationSettings, data.attributes),
+      Attribute: exportMetadataAttributesToXML(configurationSettings, mergedData.attributes),
     },
   })
 }

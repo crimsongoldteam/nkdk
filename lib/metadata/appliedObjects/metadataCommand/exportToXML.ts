@@ -13,6 +13,7 @@ import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDes
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { getDefaults } from "./defaults"
 
 export const exportMetadataCommandToXML = (
   configurationSettings: ConfigurationSettings,
@@ -20,24 +21,27 @@ export const exportMetadataCommandToXML = (
 ): MetadataCommandXML | undefined => {
   if (!data) return undefined
 
-  let group = getGroup(configurationSettings, data)
+  const defaults = getDefaults(data, configurationSettings)
+  const mergedData = { ...defaults, ...data }
+
+  let group = getGroup(configurationSettings, mergedData)
 
   const result: MetadataCommandXML = {
     _uuid: v4(),
     Properties: {
-      CommandParameterType: exportTypeDescriptionToXML(configurationSettings, data.commandParameterType),
-      Comment: data.comment,
+      CommandParameterType: exportTypeDescriptionToXML(configurationSettings, mergedData.commandParameterType),
+      Comment: mergedData.comment,
       Group: group,
-      ModifiesData: data.modifiesData,
-      Name: data.name,
-      ObjectBelonging: data.objectBelonging,
-      ParameterUseMode: data.parameterUseMode,
-      Picture: exportPictureToXML(configurationSettings, data.picture),
-      Representation: data.representation,
-      Shortcut: data.shortcut,
-      Synonym: exportI8nTextToXML(configurationSettings, data.synonym),
-      ToolTip: exportI8nTextToXML(configurationSettings, data.toolTip),
-      OnMainServerUnavalableBehavior: data.onMainServerUnavalableBehavior,
+      ModifiesData: mergedData.modifiesData,
+      Name: mergedData.name,
+      ObjectBelonging: mergedData.objectBelonging,
+      ParameterUseMode: mergedData.parameterUseMode,
+      Picture: exportPictureToXML(configurationSettings, mergedData.picture),
+      Representation: mergedData.representation,
+      Shortcut: mergedData.shortcut,
+      Synonym: exportI8nTextToXML(configurationSettings, mergedData.synonym),
+      ToolTip: exportI8nTextToXML(configurationSettings, mergedData.toolTip),
+      OnMainServerUnavalableBehavior: mergedData.onMainServerUnavalableBehavior,
     },
   }
 
