@@ -11,25 +11,25 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importCalendarFieldFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: CalendarFieldXML | undefined
 ): CalendarField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(configurationSettings, xml)!,
+    ...importFormFieldFromXML(context, xml)!,
     elementType: FormElementType.CalendarField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     beginOfRepresentationPeriod: xml.BeginOfRepresentationPeriod,
-    border: importBorderFromXML(configurationSettings, xml.Border),
-    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
+    border: importBorderFromXML(context, xml.Border),
+    borderColor: importColorFromXML(context, xml.BorderColor),
     calendarNavigation: xml.CalendarNavigation,
     enableDrag: xml.EnableDrag,
     enableStartDrag: xml.EnableStartDrag,
     endOfRepresentationPeriod: xml.EndOfRepresentationPeriod,
-    font: importFontFromXML(configurationSettings, xml.Font),
+    font: importFontFromXML(context, xml.Font),
     height: xml.Height,
     heightInMonths: xml.HeightInMonths,
     horizontalStretch: xml.HorizontalStretch,
@@ -38,11 +38,11 @@ export const importCalendarFieldFromXML = (
     selectionMode: xml.SelectionMode,
     showCurrentDate: xml.ShowCurrentDate,
     showMonthsPanel: xml.ShowMonthsPanel,
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     widthInMonths: xml.WidthInMonths,
-    events: importEventsFromXML(configurationSettings, xml.Events),
+    events: importEventsFromXML(context, xml.Events),
   })
 }
 

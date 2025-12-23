@@ -13,31 +13,27 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportCheckBoxFieldToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: CheckBoxField | undefined
 ): CheckBoxFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(configurationSettings, data)!,
+    ...exportFormFieldToEnterprise(context, data)!,
 
-    ВидФлажка: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.checkBoxType,
-      SE.CheckBoxTypeToEnterprise
-    ),
+    ВидФлажка: exportSystemEnumerationToEnterprise(context, data.checkBoxType, SE.CheckBoxTypeToEnterprise),
     ВысотаЗаголовкаЭлемента: data.itemTitleHeight,
     ВысотаЭлемента: data.itemHeight,
-    ОдинаковаяШиринаЭлементов: exportBooleanToEnterprise(configurationSettings, data.equalItemsWidth),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    ТриСостояния: exportBooleanToEnterprise(configurationSettings, data.threeState),
-    ФорматРедактирования: exportI8nTextToEnterprise(configurationSettings, data.editFormat),
-    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
-    ЦветТекста: exportColorToEnterprise(configurationSettings, data.textColor),
-    ЦветФона: exportColorToEnterprise(configurationSettings, data.backColor),
+    ОдинаковаяШиринаЭлементов: exportBooleanToEnterprise(context, data.equalItemsWidth),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    ТриСостояния: exportBooleanToEnterprise(context, data.threeState),
+    ФорматРедактирования: exportI8nTextToEnterprise(context, data.editFormat),
+    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
+    ЦветТекста: exportColorToEnterprise(context, data.textColor),
+    ЦветФона: exportColorToEnterprise(context, data.backColor),
     ШиринаЭлемента: data.itemWidth,
-    Шрифт: exportFontToEnterprise(configurationSettings, data.font),
-    События: exportEventsToEnterprise(configurationSettings, data.events),
+    Шрифт: exportFontToEnterprise(context, data.font),
+    События: exportEventsToEnterprise(context, data.events),
   })
 }
 

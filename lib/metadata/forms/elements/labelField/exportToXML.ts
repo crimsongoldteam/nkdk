@@ -10,22 +10,19 @@ import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportLabelFieldToXML = (
-  configurationSettings: Context,
-  data: LabelField | undefined
-): LabelFieldXML | undefined => {
+export const exportLabelFieldToXML = (context: Context, data: LabelField | undefined): LabelFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(configurationSettings, data)!,
+    ...exportFormFieldToXML(context, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    BackColor: exportColorToXML(configurationSettings, data.backColor),
-    Border: exportBorderToXML(configurationSettings, data.border),
-    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
-    Font: exportFontToXML(configurationSettings, data.font),
-    Format: exportI8nTextToXML(configurationSettings, data.format),
+    BackColor: exportColorToXML(context, data.backColor),
+    Border: exportBorderToXML(context, data.border),
+    BorderColor: exportColorToXML(context, data.borderColor),
+    Font: exportFontToXML(context, data.font),
+    Format: exportI8nTextToXML(context, data.format),
     Height: data.height,
     HorizontalStretch: data.horizontalStretch,
     Hyperlink: data.hyperlink,
@@ -33,11 +30,11 @@ export const exportLabelFieldToXML = (
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
     PasswordMode: data.passwordMode,
-    TextColor: exportColorToXML(configurationSettings, data.textColor),
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    TextColor: exportColorToXML(context, data.textColor),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Events: exportEventsToXML(configurationSettings, data.events),
+    Events: exportEventsToXML(context, data.events),
   })
 }
 

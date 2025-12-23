@@ -7,10 +7,7 @@ import * as t from "~/lib/parser/lexer"
 import { BaseElement } from "../baseElement/types"
 import { Page } from "./types"
 
-export const formatPage: FormatElementFunction = (
-  element: BaseElement,
-  configurationSettings: Context
-): IFormatElementResult => {
+export const formatPage: FormatElementFunction = (element: BaseElement, context: Context): IFormatElementResult => {
   const pageElement = element as Page
   const childItems = pageElement.childItems ?? []
 
@@ -22,7 +19,7 @@ export const formatPage: FormatElementFunction = (
   const header = getHeader(pageElement)
   result.strings.push(header)
 
-  const childResult = formatElements(childItems, configurationSettings)
+  const childResult = formatElements(childItems, context)
   const indentedStrings = addSimpleIndent(childResult.strings)
   result.strings.push(...indentedStrings)
   result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || childResult.haveSimpleHorizontalGroup

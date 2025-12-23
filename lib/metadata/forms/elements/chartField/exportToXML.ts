@@ -6,14 +6,11 @@ import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportChartFieldToXML = (
-  configurationSettings: Context,
-  data: ChartField | undefined
-): ChartFieldXML | undefined => {
+export const exportChartFieldToXML = (context: Context, data: ChartField | undefined): ChartFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(configurationSettings, data)!,
+    ...exportFormFieldToXML(context, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -21,10 +18,10 @@ export const exportChartFieldToXML = (
     HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Events: exportEventsToXML(configurationSettings, data.events),
+    Events: exportEventsToXML(context, data.events),
   })
 }
 

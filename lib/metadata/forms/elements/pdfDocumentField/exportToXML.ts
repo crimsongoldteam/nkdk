@@ -8,17 +8,17 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPdfDocumentFieldToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: PdfDocumentField | undefined
 ): PdfDocumentFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(configurationSettings, data)!,
+    ...exportFormFieldToXML(context, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
+    BorderColor: exportColorToXML(context, data.borderColor),
     CurrentPageNumber: data.currentPageNumber,
     Height: data.height,
     HorizontalStretch: data.horizontalStretch,
@@ -28,11 +28,11 @@ export const exportPdfDocumentFieldToXML = (
     Output: data.output,
     Scale: data.scale,
     UsedFileName: data.usedFileName,
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalStretch: data.verticalStretch,
     ViewStatusLocation: data.viewStatusLocation,
     Width: data.width,
-    Events: exportEventsToXML(configurationSettings, data.events),
+    Events: exportEventsToXML(context, data.events),
   })
 }
 

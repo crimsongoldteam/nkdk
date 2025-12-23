@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { xmlImport } from "~/lib/xml/import/importer"
 import { exportChoiceParameterLinksToXML } from "./exportToXML"
@@ -8,7 +8,7 @@ import { ChoiceParameterLinksXML } from "./types"
 
 describe("exportChoiceParameterLinksToXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = exportChoiceParameterLinksToXML(mockConfigurationSettings, undefined)
+    const result = exportChoiceParameterLinksToXML(mockcontext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -23,8 +23,8 @@ describe("exportChoiceParameterLinksToXML", () => {
 </ChoiceParameterLinks>`
 
     const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(originalXml)
-    const imported = importChoiceParameterLinksFromXML(mockConfigurationSettings, xml.ChoiceParameterLinks)
-    const exported = exportChoiceParameterLinksToXML(mockConfigurationSettings, imported)
+    const imported = importChoiceParameterLinksFromXML(mockcontext, xml.ChoiceParameterLinks)
+    const exported = exportChoiceParameterLinksToXML(mockcontext, imported)
     const resultXml = xmlExport({ ChoiceParameterLinks: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
@@ -44,8 +44,8 @@ describe("exportChoiceParameterLinksToXML", () => {
 </ChoiceParameterLinks>`
 
     const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(originalXml)
-    const imported = importChoiceParameterLinksFromXML(mockConfigurationSettings, xml.ChoiceParameterLinks)
-    const exported = exportChoiceParameterLinksToXML(mockConfigurationSettings, imported)
+    const imported = importChoiceParameterLinksFromXML(mockcontext, xml.ChoiceParameterLinks)
+    const exported = exportChoiceParameterLinksToXML(mockcontext, imported)
     const resultXml = xmlExport({ ChoiceParameterLinks: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

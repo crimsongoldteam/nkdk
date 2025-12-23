@@ -12,23 +12,23 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importSearchControlAdditionFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: SearchControlAdditionXML | undefined
 ): SearchControlAddition | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormItemAdditionFromXML(configurationSettings, xml)!,
+    ...importFormItemAdditionFromXML(context, xml)!,
     elementType: FormElementType.SearchControlAddition,
 
     autoMaxWidth: xml.AutoMaxWidth,
-    backColor: importColorFromXML(configurationSettings, xml.BackColor),
-    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
-    font: importFontFromXML(configurationSettings, xml.Font),
+    backColor: importColorFromXML(context, xml.BackColor),
+    borderColor: importColorFromXML(context, xml.BorderColor),
+    font: importFontFromXML(context, xml.Font),
     horizontalStretch: xml.HorizontalStretch,
     maxWidth: xml.MaxWidth,
-    textColor: importColorFromXML(configurationSettings, xml.TextColor),
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    textColor: importColorFromXML(context, xml.TextColor),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     width: xml.Width,
   })
 }

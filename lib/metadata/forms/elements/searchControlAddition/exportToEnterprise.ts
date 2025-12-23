@@ -12,23 +12,23 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportSearchControlAdditionToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: SearchControlAddition | undefined
 ): SearchControlAdditionEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormItemAdditionToEnterprise(configurationSettings, data)!,
+    ...exportFormItemAdditionToEnterprise(context, data)!,
 
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
     МаксимальнаяШирина: data.maxWidth,
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
-    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
-    ЦветТекста: exportColorToEnterprise(configurationSettings, data.textColor),
-    ЦветФона: exportColorToEnterprise(configurationSettings, data.backColor),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
+    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
+    ЦветТекста: exportColorToEnterprise(context, data.textColor),
+    ЦветФона: exportColorToEnterprise(context, data.backColor),
     Ширина: data.width,
-    Шрифт: exportFontToEnterprise(configurationSettings, data.font),
+    Шрифт: exportFontToEnterprise(context, data.font),
   })
 }
 

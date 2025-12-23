@@ -9,18 +9,18 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importProgressBarFieldFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: ProgressBarFieldXML | undefined
 ): ProgressBarField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(configurationSettings, xml)!,
+    ...importFormFieldFromXML(context, xml)!,
     elementType: FormElementType.ProgressBarField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
+    borderColor: importColorFromXML(context, xml.BorderColor),
     height: xml.Height,
     horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
@@ -30,10 +30,10 @@ export const importProgressBarFieldFromXML = (
     orientation: xml.Orientation,
     representation: xml.Representation,
     showPercent: xml.ShowPercent,
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: importEventsFromXML(configurationSettings, xml.Events),
+    events: importEventsFromXML(context, xml.Events),
   })
 }
 

@@ -10,7 +10,7 @@ const COLON = t.Colon.LABEL as string
 
 export const formatInputField: FormatElementFunction = (
   element: InputField,
-  _configurationSettings: Context
+  _context: Context
 ): IFormatElementResult => {
   const hasTitle = element.title?.items.ru !== undefined
 

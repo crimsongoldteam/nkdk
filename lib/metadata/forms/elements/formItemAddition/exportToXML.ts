@@ -10,25 +10,25 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportFormItemAdditionToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: FormItemAddition | undefined
 ): FormItemAdditionXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportBaseElementToXML(configurationSettings, data)!,
+    ...exportBaseElementToXML(context, data)!,
 
-    ChildItems: exportChildItemsToXML(configurationSettings, data.childItems),
-    ContextMenu: exportCommandBarToXML(configurationSettings, data.contextMenu),
+    ChildItems: exportChildItemsToXML(context, data.childItems),
+    ContextMenu: exportCommandBarToXML(context, data.contextMenu),
     _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
-    ExtendedToolTip: exportFormDecorationToXML(configurationSettings, data.extendedToolTip),
+    ExtendedToolTip: exportFormDecorationToXML(context, data.extendedToolTip),
     HorizontalAlignInGroup: data.horizontalAlignInGroup,
-    Title: exportI8nTextToXML(configurationSettings, data.title),
-    ToolTip: exportI8nTextToXML(configurationSettings, data.toolTip),
+    Title: exportI8nTextToXML(context, data.title),
+    ToolTip: exportI8nTextToXML(context, data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     Visible: data.visible,
   })

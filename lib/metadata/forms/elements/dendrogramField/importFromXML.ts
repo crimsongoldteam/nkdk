@@ -8,13 +8,13 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importDendrogramFieldFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: DendrogramFieldXML | undefined
 ): DendrogramField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(configurationSettings, xml)!,
+    ...importFormFieldFromXML(context, xml)!,
     elementType: FormElementType.DendrogramField,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -23,10 +23,10 @@ export const importDendrogramFieldFromXML = (
     horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: importEventsFromXML(configurationSettings, xml.Events),
+    events: importEventsFromXML(context, xml.Events),
   })
 }
 

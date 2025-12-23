@@ -2,12 +2,12 @@ import { Context } from "~/lib/metadata/context/types"
 import { I8nText, I8nTextEnterprise } from "./types"
 
 export const exportI8nTextToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   title: I8nText | undefined
 ): I8nTextEnterprise | undefined => {
   if (!title) return undefined
 
-  const defaultLanguage = configurationSettings.defaultLanguage
+  const defaultLanguage = context.defaultLanguage
 
   const items = title.items
 

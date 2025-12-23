@@ -6,7 +6,7 @@ import { BaseElement } from "./types"
 
 export const formatOtherElement: FormatElementFunction = (
   element: BaseElement,
-  _configurationSettings: Context
+  _context: Context
 ): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: ["?" + FormElementTypeToEnterprise[element.elementType] + " " + formatElementName(element)],

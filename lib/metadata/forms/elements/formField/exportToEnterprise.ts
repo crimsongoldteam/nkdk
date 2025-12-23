@@ -18,106 +18,98 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportFormFieldToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: FormField | undefined
 ): FormFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportBaseElementToEnterprise(configurationSettings, data)!,
+    ...exportBaseElementToEnterprise(context, data)!,
 
-    АвтоВысотаЯчейки: exportBooleanToEnterprise(configurationSettings, data.autoCellHeight),
-    АктивизироватьПоУмолчанию: exportBooleanToEnterprise(configurationSettings, data.defaultItem),
+    АвтоВысотаЯчейки: exportBooleanToEnterprise(context, data.autoCellHeight),
+    АктивизироватьПоУмолчанию: exportBooleanToEnterprise(context, data.defaultItem),
     ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.displayImportance,
       SE.DisplayImportanceToEnterprise
     ),
     ВертикальноеПоложение: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.verticalAlign,
       SE.ItemVerticalAlignToEnterprise
     ),
     ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.verticalAlignInGroup,
       SE.ItemVerticalAlignToEnterprise
     ),
-    Вид: exportSystemEnumerationToEnterprise(configurationSettings, data.type, SE.FormFieldTypeToEnterprise),
-    Видимость: exportBooleanToEnterprise(configurationSettings, data.visible),
+    Вид: exportSystemEnumerationToEnterprise(context, data.type, SE.FormFieldTypeToEnterprise),
+    Видимость: exportBooleanToEnterprise(context, data.visible),
     ВысотаЗаголовка: data.titleHeight,
-    ГиперссылкаЯчейки: exportBooleanToEnterprise(configurationSettings, data.cellHyperlink),
+    ГиперссылкаЯчейки: exportBooleanToEnterprise(context, data.cellHyperlink),
     ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.horizontalAlign,
       SE.ItemHorizontalLocationToEnterprise
     ),
     ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.horizontalAlignInGroup,
       SE.ItemHorizontalLocationToEnterprise
     ),
     ГоризонтальноеПоложениеВПодвале: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.footerHorizontalAlign,
       SE.ItemHorizontalLocationToEnterprise
     ),
     ГоризонтальноеПоложениеВШапке: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.headerHorizontalAlign,
       SE.ItemHorizontalLocationToEnterprise
     ),
-    Доступность: exportBooleanToEnterprise(configurationSettings, data.enabled),
-    Заголовок: exportI8nTextToEnterprise(configurationSettings, data.title),
-    КартинкаПодвала: exportPictureToEnterprise(configurationSettings, data.footerPicture),
-    КартинкаШапки: exportPictureToEnterprise(configurationSettings, data.headerPicture),
-    КонтекстноеМеню: exportCommandBarToEnterprise(configurationSettings, data.contextMenu),
-    ОграничениеТипа: exportTypeDescriptionToEnterprise(configurationSettings, data.typeRestriction),
-    ОтображатьВПодвале: exportBooleanToEnterprise(configurationSettings, data.showInFooter),
-    ОтображатьВШапке: exportBooleanToEnterprise(configurationSettings, data.showInHeader),
+    Доступность: exportBooleanToEnterprise(context, data.enabled),
+    Заголовок: exportI8nTextToEnterprise(context, data.title),
+    КартинкаПодвала: exportPictureToEnterprise(context, data.footerPicture),
+    КартинкаШапки: exportPictureToEnterprise(context, data.headerPicture),
+    КонтекстноеМеню: exportCommandBarToEnterprise(context, data.contextMenu),
+    ОграничениеТипа: exportTypeDescriptionToEnterprise(context, data.typeRestriction),
+    ОтображатьВПодвале: exportBooleanToEnterprise(context, data.showInFooter),
+    ОтображатьВШапке: exportBooleanToEnterprise(context, data.showInHeader),
     ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.toolTipRepresentation,
       SE.ToolTipRepresentationToEnterprise
     ),
     ОтображениеПредупрежденияПриРедактировании: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.warningOnEditRepresentation,
       SE.WarningOnEditRepresentationToEnterprise
     ),
-    Подсказка: exportI8nTextToEnterprise(configurationSettings, data.toolTip),
+    Подсказка: exportI8nTextToEnterprise(context, data.toolTip),
     ПоложениеЗаголовка: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.titleLocation,
       SE.FormItemTitleLocationToEnterprise
     ),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    ПредупреждениеПриРедактировании: exportI8nTextToEnterprise(configurationSettings, data.warningOnEdit),
-    ПропускатьПриВводе: exportBooleanToEnterprise(configurationSettings, data.skipOnInput),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    ПредупреждениеПриРедактировании: exportI8nTextToEnterprise(context, data.warningOnEdit),
+    ПропускатьПриВводе: exportBooleanToEnterprise(context, data.skipOnInput),
     ПутьКДанным: data.dataPath,
     ПутьКДаннымПодвала: data.footerDataPath,
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(configurationSettings, data.extendedTooltip),
-    РежимРедактирования: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.editMode,
-      SE.ColumnEditModeToEnterprise
-    ),
+    РасширеннаяПодсказка: exportFormDecorationToEnterprise(context, data.extendedTooltip),
+    РежимРедактирования: exportSystemEnumerationToEnterprise(context, data.editMode, SE.ColumnEditModeToEnterprise),
     СочетаниеКлавиш: data.shortcut,
-    Таблица: exportTableToEnterprise(configurationSettings, data.table),
-    ТекстПодвала: exportI8nTextToEnterprise(configurationSettings, data.footerText),
-    ТолькоПросмотр: exportBooleanToEnterprise(configurationSettings, data.readOnly),
-    ФиксацияВТаблице: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.fixingInTable,
-      SE.FixingInTableToEnterprise
-    ),
-    ЦветТекстаЗаголовка: exportColorToEnterprise(configurationSettings, data.titleTextColor),
-    ЦветТекстаПодвала: exportColorToEnterprise(configurationSettings, data.footerTextColor),
-    ЦветФонаЗаголовка: exportColorToEnterprise(configurationSettings, data.titleBackColor),
-    ЦветФонаПодвала: exportColorToEnterprise(configurationSettings, data.footerBackColor),
-    ШрифтЗаголовка: exportFontToEnterprise(configurationSettings, data.titleFont),
-    ШрифтПодвала: exportFontToEnterprise(configurationSettings, data.footerFont),
-    События: exportEventsToEnterprise(configurationSettings, data.events),
+    Таблица: exportTableToEnterprise(context, data.table),
+    ТекстПодвала: exportI8nTextToEnterprise(context, data.footerText),
+    ТолькоПросмотр: exportBooleanToEnterprise(context, data.readOnly),
+    ФиксацияВТаблице: exportSystemEnumerationToEnterprise(context, data.fixingInTable, SE.FixingInTableToEnterprise),
+    ЦветТекстаЗаголовка: exportColorToEnterprise(context, data.titleTextColor),
+    ЦветТекстаПодвала: exportColorToEnterprise(context, data.footerTextColor),
+    ЦветФонаЗаголовка: exportColorToEnterprise(context, data.titleBackColor),
+    ЦветФонаПодвала: exportColorToEnterprise(context, data.footerBackColor),
+    ШрифтЗаголовка: exportFontToEnterprise(context, data.titleFont),
+    ШрифтПодвала: exportFontToEnterprise(context, data.footerFont),
+    События: exportEventsToEnterprise(context, data.events),
   })
 }
 

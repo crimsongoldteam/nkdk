@@ -8,31 +8,31 @@ import { I8nTextEnterprise } from "../i8nText/types"
 import { FormAttribute, FormAttributeEnterprise, FormAttributes, FormAttributesEnterprise } from "./types"
 
 export const exportFormAttributeToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   attribute: FormAttribute | undefined
 ): FormAttributeEnterprise | undefined => {
   if (!attribute) return undefined
 
-  const title = exportI8nTextToEnterprise(configurationSettings, attribute.title)
+  const title = exportI8nTextToEnterprise(context, attribute.title)
 
   if (isUseShortFormat(attribute, title)) {
-    const type = exportTypeDescriptionToEnterprise(configurationSettings, attribute.valueType)
+    const type = exportTypeDescriptionToEnterprise(context, attribute.valueType)
     return {
       [attribute.name]: type,
     }
   }
 
-  return transformAttribute(configurationSettings, attribute)
+  return transformAttribute(context, attribute)
 }
 
 export const exportFormAttributesToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: FormAttributes | undefined
 ): FormAttributesEnterprise | undefined => {
   if (!data) return undefined
 
   return Object.fromEntries(
-    data.map((value: FormAttribute) => [value.name, exportFormAttributeToEnterprise(configurationSettings, value)!])
+    data.map((value: FormAttribute) => [value.name, exportFormAttributeToEnterprise(context, value)!])
   )
 }
 
@@ -68,12 +68,12 @@ const isUseShortFormat = (attribute: FormAttribute, title: I8nTextEnterprise | u
 //   return normalizedTitle.toLowerCase() === nameAsText.toLowerCase()
 // }
 
-const transformAttribute = (configurationSettings: Context, attribute: FormAttribute): FormAttributeEnterprise => {
+const transformAttribute = (context: Context, attribute: FormAttribute): FormAttributeEnterprise => {
   return compactObject<FormAttributeEnterprise>({
-    Заголовок: exportI8nTextToEnterprise(configurationSettings, attribute.title),
-    Тип: exportTypeDescriptionToEnterprise(configurationSettings, attribute.valueType),
-    ОсновнойРеквизит: exportBooleanToEnterprise(configurationSettings, attribute.mainAttribute),
-    СохраняемыеДанные: exportBooleanToEnterprise(configurationSettings, attribute.storedData),
-    ...exportUserVisibleToEnterprise(configurationSettings, attribute.use),
+    Заголовок: exportI8nTextToEnterprise(context, attribute.title),
+    Тип: exportTypeDescriptionToEnterprise(context, attribute.valueType),
+    ОсновнойРеквизит: exportBooleanToEnterprise(context, attribute.mainAttribute),
+    СохраняемыеДанные: exportBooleanToEnterprise(context, attribute.storedData),
+    ...exportUserVisibleToEnterprise(context, attribute.use),
   })
 }

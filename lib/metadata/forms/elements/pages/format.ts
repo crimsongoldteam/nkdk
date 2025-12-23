@@ -8,10 +8,7 @@ import { BaseElement } from "../baseElement/types"
 import { Pages } from "./types"
 const SLASH = (t.Slash.LABEL as string).repeat(2)
 
-export const formatPages: FormatElementFunction = (
-  element: BaseElement,
-  configurationSettings: Context
-): IFormatElementResult => {
+export const formatPages: FormatElementFunction = (element: BaseElement, context: Context): IFormatElementResult => {
   const pagesElement = element as Pages
   const childItems = pagesElement.childItems ?? []
   const result: IFormatElementResult = {
@@ -22,7 +19,7 @@ export const formatPages: FormatElementFunction = (
   const header = getHeader(pagesElement)
   result.strings.push(header)
 
-  const childResult = formatElements(childItems, configurationSettings)
+  const childResult = formatElements(childItems, context)
 
   const indentedStrings = addSimpleIndent(childResult.strings)
 

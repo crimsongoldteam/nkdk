@@ -3,7 +3,7 @@ import { MetadataType } from "./types"
 
 export type ItemOperationType = "ExportToXML" | "ExportToEnterprise" | "ImportFromXML" | "ImportFromEnterprise"
 
-type OperationFunction<T = any> = (configurationSettings: Context, data: T) => any
+type OperationFunction<T = any> = (context: Context, data: T) => any
 
 type OperationRegistry = Map<MetadataType, OperationFunction>
 
@@ -43,7 +43,7 @@ export const executeOperation = <T = any>(
   operationType: ItemOperationType,
   key: MetadataType,
   data: T,
-  configurationSettings: Context
+  context: Context
 ): any => {
   const operationFunction = getOperationFunction(operationType, key)
 
@@ -51,7 +51,7 @@ export const executeOperation = <T = any>(
     throw new Error(`Operation function for type ${operationType} and key ${key} not found`)
   }
 
-  return operationFunction(configurationSettings, data)
+  return operationFunction(context, data)
 }
 
 export const clearMetadataRegistry = (operationType: ItemOperationType): void => {

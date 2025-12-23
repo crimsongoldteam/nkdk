@@ -8,32 +8,32 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPlannerFieldToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: PlannerField | undefined
 ): PlannerFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(configurationSettings, data)!,
+    ...exportFormFieldToEnterprise(context, data)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
     Высота: data.height,
     ГиперссылкаПеренесенногоЗаголовкаШкалыВремени: exportBooleanToEnterprise(
-      configurationSettings,
+      context,
       data.wrappedTimeScaleHeaderHyperlink
     ),
-    ГиперссылкаЭлементаИзмерения: exportBooleanToEnterprise(configurationSettings, data.dimensionItemHyperlink),
-    ГиперссылкаЭлементаШкалыВремени: exportBooleanToEnterprise(configurationSettings, data.timeScaleItemHyperlink),
+    ГиперссылкаЭлементаИзмерения: exportBooleanToEnterprise(context, data.dimensionItemHyperlink),
+    ГиперссылкаЭлементаШкалыВремени: exportBooleanToEnterprise(context, data.timeScaleItemHyperlink),
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(configurationSettings, data.enableStartDrag),
-    РазрешитьПеретаскивание: exportBooleanToEnterprise(configurationSettings, data.enableDrag),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(context, data.enableStartDrag),
+    РазрешитьПеретаскивание: exportBooleanToEnterprise(context, data.enableDrag),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
     Ширина: data.width,
-    События: exportEventsToEnterprise(configurationSettings, data.events),
+    События: exportEventsToEnterprise(context, data.events),
   })
 }
 

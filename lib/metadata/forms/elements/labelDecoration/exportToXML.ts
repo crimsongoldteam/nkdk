@@ -9,24 +9,24 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportLabelDecorationToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: LabelDecoration | undefined
 ): LabelDecorationXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormDecorationToXML(configurationSettings, data)!,
+    ...exportFormDecorationToXML(context, data)!,
 
-    BackColor: exportColorToXML(configurationSettings, data.backColor),
-    Border: exportBorderToXML(configurationSettings, data.border),
-    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
+    BackColor: exportColorToXML(context, data.backColor),
+    Border: exportBorderToXML(context, data.border),
+    BorderColor: exportColorToXML(context, data.borderColor),
     GroupVerticalAlign: data.groupVerticalAlign,
     HorizontalAlign: data.horizontalAlign,
     Hyperlink: data.hyperlink,
     TitleHeight: data.titleHeight,
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalAlign: data.verticalAlign,
-    Events: exportEventsToXML(configurationSettings, data.events),
+    Events: exportEventsToXML(context, data.events),
   })
 }
 

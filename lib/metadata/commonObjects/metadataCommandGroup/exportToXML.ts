@@ -2,7 +2,7 @@ import { Context } from "../../context/types"
 import { MetadataCommandGroup, MetadataCommandGroupXML } from "./types"
 
 export const exportMetadataCommandGroupToXML = (
-  _configurationSettings: Context,
+  _context: Context,
   data: MetadataCommandGroup | undefined
 ): MetadataCommandGroupXML | undefined => {
   if (!data) return undefined
@@ -14,10 +14,10 @@ export const exportMetadataCommandGroupToXML = (
 }
 
 export const exportMetadataCommandGroupsToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: MetadataCommandGroup[] | undefined
 ): MetadataCommandGroupXML[] | undefined => {
   if (!data) return undefined
 
-  return data.map((value) => exportMetadataCommandGroupToXML(configurationSettings, value)!)
+  return data.map((value) => exportMetadataCommandGroupToXML(context, value)!)
 }

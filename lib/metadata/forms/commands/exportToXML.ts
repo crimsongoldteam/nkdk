@@ -2,10 +2,7 @@ import { exportI8nTextToXML } from "../../commonObjects/i8nText/exportToXML"
 import { Context } from "../../context/types"
 import { Command, CommandXML } from "./types"
 
-export default function exportCommandToXML(
-  configurationSettings: Context,
-  command: Command | undefined
-): CommandXML | undefined {
+export default function exportCommandToXML(context: Context, command: Command | undefined): CommandXML | undefined {
   if (!command) return undefined
 
   const result: CommandXML = {
@@ -14,11 +11,11 @@ export default function exportCommandToXML(
   }
 
   if (command.title !== undefined) {
-    result.Title = exportI8nTextToXML(configurationSettings, command.title)
+    result.Title = exportI8nTextToXML(context, command.title)
   }
 
   if (command.toolTip !== undefined) {
-    result.ToolTip = exportI8nTextToXML(configurationSettings, command.toolTip)
+    result.ToolTip = exportI8nTextToXML(context, command.toolTip)
   }
 
   if (command.shortcut !== undefined) {

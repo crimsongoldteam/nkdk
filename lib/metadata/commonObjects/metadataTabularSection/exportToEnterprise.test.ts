@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { exportMetadataTabularSectionToEnterprise } from "./exportToEnterprise"
 import { MetadataTabularSection, MetadataTabularSectionEnterprise } from "./types"
 
@@ -16,7 +16,7 @@ describe("exportMetadataTabularSectionToEnterprise", () => {
       ПроверкаЗаполнения: "НеПроверять",
     }
 
-    const result = exportMetadataTabularSectionToEnterprise(mockConfigurationSettings, metadataTabularSection)
+    const result = exportMetadataTabularSectionToEnterprise(mockcontext, metadataTabularSection)
     expect(result).toEqual(expectedResult)
   })
 
@@ -31,7 +31,7 @@ describe("exportMetadataTabularSectionToEnterprise", () => {
       ПроверкаЗаполнения: "НеПроверять",
     }
 
-    const result = exportMetadataTabularSectionToEnterprise(mockConfigurationSettings, metadataTabularSection)
+    const result = exportMetadataTabularSectionToEnterprise(mockcontext, metadataTabularSection)
     expect(result).toEqual(expectedResult)
   })
 })

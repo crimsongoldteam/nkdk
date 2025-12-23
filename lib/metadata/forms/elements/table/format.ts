@@ -40,10 +40,7 @@ const formatTableRow = (columns: (InputField | ColumnGroup)[]): string => {
   return `${V_BAR} ${headers.join(` ${V_BAR} `)} ${V_BAR}`
 }
 
-export const formatTable: FormatElementFunction = (
-  element: Table,
-  _configurationSettings: Context
-): IFormatElementResult => {
+export const formatTable: FormatElementFunction = (element: Table, _context: Context): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,

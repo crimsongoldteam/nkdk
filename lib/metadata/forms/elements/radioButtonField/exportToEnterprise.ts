@@ -13,31 +13,31 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportRadioButtonFieldToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: RadioButtonField | undefined
 ): RadioButtonFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(configurationSettings, data)!,
+    ...exportFormFieldToEnterprise(context, data)!,
 
     ВидПереключателя: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.radioButtonType,
       SE.RadioButtonTypeToEnterprise
     ),
     ВысотаЗаголовкаЭлемента: data.itemTitleHeight,
     ВысотаЭлемента: data.itemHeight,
     КоличествоКолонок: data.columnsCount,
-    ОдинаковаяШиринаКолонок: exportBooleanToEnterprise(configurationSettings, data.equalColumnsWidth),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    СписокВыбора: exportChoiceListToEnterprise(configurationSettings, data.choiceList),
-    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
-    ЦветТекста: exportColorToEnterprise(configurationSettings, data.textColor),
-    ЦветФона: exportColorToEnterprise(configurationSettings, data.backColor),
+    ОдинаковаяШиринаКолонок: exportBooleanToEnterprise(context, data.equalColumnsWidth),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    СписокВыбора: exportChoiceListToEnterprise(context, data.choiceList),
+    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
+    ЦветТекста: exportColorToEnterprise(context, data.textColor),
+    ЦветФона: exportColorToEnterprise(context, data.backColor),
     ШиринаЭлемента: data.itemWidth,
-    Шрифт: exportFontToEnterprise(configurationSettings, data.font),
-    События: exportEventsToEnterprise(configurationSettings, data.events),
+    Шрифт: exportFontToEnterprise(context, data.font),
+    События: exportEventsToEnterprise(context, data.events),
   })
 }
 

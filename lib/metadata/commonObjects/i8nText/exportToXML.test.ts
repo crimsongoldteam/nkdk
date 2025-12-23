@@ -2,7 +2,7 @@ import { assertEquals } from "typia"
 import { describe, expect, it } from "vitest"
 import { oneLangI8nText } from "~/lib/tests/fixtures/i8nText/oneLang"
 import { twoLangsI8nText } from "~/lib/tests/fixtures/i8nText/twoLangs"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportI8nTextToXML } from "./exportToXML"
@@ -14,7 +14,7 @@ describe("exportI8nTextToXML", () => {
 
     const originalContent = twoLangsI8nText
 
-    const exported = exportI8nTextToXML(mockConfigurationSettings, originalContent)
+    const exported = exportI8nTextToXML(mockcontext, originalContent)
 
     const xml = xmlExport({ Title: exported }, false)
 
@@ -28,7 +28,7 @@ describe("exportI8nTextToXML", () => {
 
     const originalContent = oneLangI8nText
 
-    const exported = exportI8nTextToXML(mockConfigurationSettings, originalContent)
+    const exported = exportI8nTextToXML(mockcontext, originalContent)
 
     const xml = xmlExport({ Title: exported }, false)
 

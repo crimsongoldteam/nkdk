@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "../../../tests/mockConfigurationSettings"
+import { mockcontext } from "../../../tests/mockContext"
 import { exportTypeDescriptionToEnterprise } from "./exportToEnterprise"
 import { TypeDescription } from "./types"
 
 describe("exportTypeDescriptionToEnterprise", () => {
   it("should format undefined type description", () => {
-    const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, undefined)
+    const result = exportTypeDescriptionToEnterprise(mockcontext, undefined)
     expect(result).toBeUndefined()
   })
 
@@ -17,7 +17,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
       }
       const expectedResult = "Строка(10)"
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual(expectedResult)
     })
@@ -29,7 +29,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
       }
       const expectedResult = "Строка"
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual(expectedResult)
     })
@@ -41,7 +41,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
       }
       const expectedResult = "ФиксированнаяСтрока(100)"
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual(expectedResult)
     })
@@ -55,7 +55,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
       }
       const expectedResult = "Число(10, 2)"
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual(expectedResult)
     })
@@ -67,7 +67,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
       }
       const expectedResult = "ПоложительноеЧисло(10, 2)"
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual(expectedResult)
     })
@@ -82,7 +82,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
 
       const expectedResult = "Дата"
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual(expectedResult)
     })
@@ -95,7 +95,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
 
       const expectedResult = "Время"
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual(expectedResult)
     })
@@ -108,7 +108,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
 
       const expectedResult = "ДатаВремя"
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual(expectedResult)
     })
@@ -121,7 +121,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
 
       const expectedResult = "Дата"
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual(expectedResult)
     })
@@ -133,7 +133,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
         type: ["boolean"],
       }
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual("Булево")
     })
@@ -147,7 +147,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
 
       const expectedResult = "тип1, тип2"
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual(expectedResult)
     })
@@ -161,7 +161,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
 
       const expectedResult = "Строка(10), Число(10, 2)"
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual(expectedResult)
     })
@@ -173,7 +173,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
         type: ["CatalogRef.Контрагенты"],
       }
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual("Справочник.Контрагенты")
     })
@@ -183,7 +183,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
         type: ["DocumentRef.ПоступлениеТоваровНаСклад"],
       }
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual("Документ.ПоступлениеТоваровНаСклад")
     })
@@ -193,7 +193,7 @@ describe("exportTypeDescriptionToEnterprise", () => {
         type: ["EnumRef.ТипыДокументов"],
       }
 
-      const result = exportTypeDescriptionToEnterprise(mockConfigurationSettings, mockTypeDescription)
+      const result = exportTypeDescriptionToEnterprise(mockcontext, mockTypeDescription)
 
       expect(result).toEqual("Перечисление.ТипыДокументов")
     })

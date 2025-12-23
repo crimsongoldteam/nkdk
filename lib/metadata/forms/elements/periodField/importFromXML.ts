@@ -11,28 +11,28 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importPeriodFieldFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: PeriodFieldXML | undefined
 ): PeriodField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(configurationSettings, xml)!,
+    ...importFormFieldFromXML(context, xml)!,
     elementType: FormElementType.PeriodField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    border: importBorderFromXML(configurationSettings, xml.Border),
-    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
-    font: importFontFromXML(configurationSettings, xml.Font),
+    border: importBorderFromXML(context, xml.Border),
+    borderColor: importColorFromXML(context, xml.BorderColor),
+    font: importFontFromXML(context, xml.Font),
     height: xml.Height,
     horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: importEventsFromXML(configurationSettings, xml.Events),
+    events: importEventsFromXML(context, xml.Events),
   })
 }
 

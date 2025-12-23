@@ -11,32 +11,28 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportColumnGroupToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: ColumnGroup | undefined
 ): ColumnGroupEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToEnterprise(configurationSettings, data)!,
+    ...exportFormGroupToEnterprise(context, data)!,
 
     ГоризонтальноеПоложениеВШапке: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.headerHorizontalAlign,
       SE.ItemHorizontalLocationToEnterprise
     ),
-    Группировка: exportSystemEnumerationToEnterprise(configurationSettings, data.group, SE.ColumnsGroupToEnterprise),
-    КартинкаШапки: exportPictureToEnterprise(configurationSettings, data.headerPicture),
-    ОтображатьВШапке: exportBooleanToEnterprise(configurationSettings, data.showInHeader),
-    ОтображатьЗаголовок: exportBooleanToEnterprise(configurationSettings, data.showTitle),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    Группировка: exportSystemEnumerationToEnterprise(context, data.group, SE.ColumnsGroupToEnterprise),
+    КартинкаШапки: exportPictureToEnterprise(context, data.headerPicture),
+    ОтображатьВШапке: exportBooleanToEnterprise(context, data.showInHeader),
+    ОтображатьЗаголовок: exportBooleanToEnterprise(context, data.showTitle),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
     ПутьКДаннымШапки: data.headerDataPath,
-    ФиксацияВТаблице: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.fixingInTable,
-      SE.FixingInTableToEnterprise
-    ),
+    ФиксацияВТаблице: exportSystemEnumerationToEnterprise(context, data.fixingInTable, SE.FixingInTableToEnterprise),
     ФорматШапки: data.headerFormat,
-    ЦветФонаЗаголовка: exportColorToEnterprise(configurationSettings, data.titleBackColor),
+    ЦветФонаЗаголовка: exportColorToEnterprise(context, data.titleBackColor),
   })
 }
 

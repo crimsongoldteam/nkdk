@@ -13,54 +13,54 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportFormDecorationToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: FormDecoration | undefined
 ): FormDecorationEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportBaseElementToEnterprise(configurationSettings, data)!,
+    ...exportBaseElementToEnterprise(context, data)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
     ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.displayImportance,
       SE.DisplayImportanceToEnterprise
     ),
     ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.verticalAlignInGroup,
       SE.ItemVerticalAlignToEnterprise
     ),
-    Вид: exportSystemEnumerationToEnterprise(configurationSettings, data.type, SE.FormDecorationTypeToEnterprise),
-    Видимость: exportBooleanToEnterprise(configurationSettings, data.visible),
+    Вид: exportSystemEnumerationToEnterprise(context, data.type, SE.FormDecorationTypeToEnterprise),
+    Видимость: exportBooleanToEnterprise(context, data.visible),
     Высота: data.height,
     ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.horizontalAlignInGroup,
       SE.ItemHorizontalLocationToEnterprise
     ),
-    Доступность: exportBooleanToEnterprise(configurationSettings, data.enabled),
-    Заголовок: exportI8nTextToEnterprise(configurationSettings, data.title),
-    КонтекстноеМеню: exportCommandBarToEnterprise(configurationSettings, data.contextMenu),
+    Доступность: exportBooleanToEnterprise(context, data.enabled),
+    Заголовок: exportI8nTextToEnterprise(context, data.title),
+    КонтекстноеМеню: exportCommandBarToEnterprise(context, data.contextMenu),
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
     ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.toolTipRepresentation,
       SE.ToolTipRepresentationToEnterprise
     ),
-    Подсказка: exportI8nTextToEnterprise(configurationSettings, data.toolTip),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    ПропускатьПриВводе: exportBooleanToEnterprise(configurationSettings, data.skipOnInput),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(configurationSettings, data.extendedTooltip),
+    Подсказка: exportI8nTextToEnterprise(context, data.toolTip),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    ПропускатьПриВводе: exportBooleanToEnterprise(context, data.skipOnInput),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
+    РасширеннаяПодсказка: exportFormDecorationToEnterprise(context, data.extendedTooltip),
     СочетаниеКлавиш: data.shortcut,
-    ЦветТекста: exportColorToEnterprise(configurationSettings, data.textColor),
+    ЦветТекста: exportColorToEnterprise(context, data.textColor),
     Ширина: data.width,
-    Шрифт: exportFontToEnterprise(configurationSettings, data.font),
+    Шрифт: exportFontToEnterprise(context, data.font),
   })
 }
 

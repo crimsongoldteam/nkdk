@@ -11,32 +11,29 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importFormGroupFromXML = (
-  configurationSettings: Context,
-  xml: FormGroupXML | undefined
-): FormGroup | undefined => {
+export const importFormGroupFromXML = (context: Context, xml: FormGroupXML | undefined): FormGroup | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importBaseElementFromXML(configurationSettings, xml)!,
+    ...importBaseElementFromXML(context, xml)!,
     elementType: FormElementType.FormGroup,
 
-    childItems: importChildItemsFromXML(configurationSettings, xml.ChildItems),
+    childItems: importChildItemsFromXML(context, xml.ChildItems),
     enableContentChange: xml.EnableContentChange,
     enabled: xml.Enabled,
-    extendedTooltip: importFormDecorationFromXML(configurationSettings, xml.ExtendedTooltip),
+    extendedTooltip: importFormDecorationFromXML(context, xml.ExtendedTooltip),
     height: xml.Height,
     horizontalAlignInGroup: xml.HorizontalAlignInGroup,
     horizontalStretch: xml.HorizontalStretch,
     readOnly: xml.ReadOnly,
     shortcut: xml.Shortcut,
-    title: importI8nTextFromXML(configurationSettings, xml.Title),
-    titleFont: importFontFromXML(configurationSettings, xml.TitleFont),
-    titleTextColor: importColorFromXML(configurationSettings, xml.TitleTextColor),
-    toolTip: importI8nTextFromXML(configurationSettings, xml.ToolTip),
+    title: importI8nTextFromXML(context, xml.Title),
+    titleFont: importFontFromXML(context, xml.TitleFont),
+    titleTextColor: importColorFromXML(context, xml.TitleTextColor),
+    toolTip: importI8nTextFromXML(context, xml.ToolTip),
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,

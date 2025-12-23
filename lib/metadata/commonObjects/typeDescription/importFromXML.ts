@@ -4,7 +4,7 @@ import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLType } from "./t
 const TypePrefixes = ["xs:", "cfg:", "mxl:"]
 
 export const importTypeDescriptionFromXML = (
-  _configurationSettings: Context,
+  _context: Context,
   xml: TypeDescriptionXML | undefined
 ): TypeDescription | undefined => {
   if (!xml) return undefined

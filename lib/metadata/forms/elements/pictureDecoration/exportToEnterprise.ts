@@ -13,35 +13,31 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportPictureDecorationToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: PictureDecoration | undefined
 ): PictureDecorationEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormDecorationToEnterprise(configurationSettings, data)!,
+    ...exportFormDecorationToEnterprise(context, data)!,
 
-    Гиперссылка: exportBooleanToEnterprise(configurationSettings, data.hyperlink),
-    Картинка: exportPictureToEnterprise(configurationSettings, data.picture),
+    Гиперссылка: exportBooleanToEnterprise(context, data.hyperlink),
+    Картинка: exportPictureToEnterprise(context, data.picture),
     Масштаб: data.scale,
-    Масштабировать: exportBooleanToEnterprise(configurationSettings, data.zoomable),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    РазмерКартинки: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.pictureSize,
-      SE.PictureSizeToEnterprise
-    ),
-    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(configurationSettings, data.enableStartDrag),
-    РазрешитьПеретаскивание: exportBooleanToEnterprise(configurationSettings, data.enableDrag),
-    Рамка: exportBorderToEnterprise(configurationSettings, data.border),
+    Масштабировать: exportBooleanToEnterprise(context, data.zoomable),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    РазмерКартинки: exportSystemEnumerationToEnterprise(context, data.pictureSize, SE.PictureSizeToEnterprise),
+    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(context, data.enableStartDrag),
+    РазрешитьПеретаскивание: exportBooleanToEnterprise(context, data.enableDrag),
+    Рамка: exportBorderToEnterprise(context, data.border),
     СпособПеретаскиванияФайлов: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.fileDragMode,
       SE.FileDragModeToEnterprise
     ),
     ТекстНевыбраннойКартинки: data.nonselectedPictureText,
-    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
-    События: exportEventsToEnterprise(configurationSettings, data.events),
+    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
+    События: exportEventsToEnterprise(context, data.events),
   })
 }
 

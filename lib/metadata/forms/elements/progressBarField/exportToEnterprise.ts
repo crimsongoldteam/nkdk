@@ -11,38 +11,34 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportProgressBarFieldToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: ProgressBarField | undefined
 ): ProgressBarFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(configurationSettings, data)!,
+    ...exportFormFieldToEnterprise(context, data)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
     Высота: data.height,
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
     МаксимальноеЗначение: data.maxValue,
     МинимальноеЗначение: data.minValue,
-    Ориентация: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.orientation,
-      SE.FormItemOrientationToEnterprise
-    ),
-    ОтображатьПроценты: exportBooleanToEnterprise(configurationSettings, data.showPercent),
+    Ориентация: exportSystemEnumerationToEnterprise(context, data.orientation, SE.FormItemOrientationToEnterprise),
+    ОтображатьПроценты: exportBooleanToEnterprise(context, data.showPercent),
     Отображение: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.representation,
       SE.ProgressBarSmoothingModeToEnterprise
     ),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
-    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
+    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
     Ширина: data.width,
-    События: exportEventsToEnterprise(configurationSettings, data.events),
+    События: exportEventsToEnterprise(context, data.events),
   })
 }
 

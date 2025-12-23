@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportMetadataTabularSectionToXML } from "./exportToXML"
@@ -29,12 +29,12 @@ describe("exportMetadataTabularSectionToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataTabularSection/oneAttribute.xml")
 
-    const configurationSettings = {
-      ...mockConfigurationSettings,
+    const context = {
+      ...mockcontext,
       context: "Лиды" as any,
     }
 
-    const result = exportMetadataTabularSectionToXML(configurationSettings, data)
+    const result = exportMetadataTabularSectionToXML(context, data)
     const resultXml = xmlExport({ TabularSection: result }, false)
 
     expect(resultXml).toEqual(expectedResult)
@@ -68,12 +68,12 @@ describe("exportMetadataTabularSectionToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataTabularSection/twoAttributes.xml")
 
-    const configurationSettings = {
-      ...mockConfigurationSettings,
+    const context = {
+      ...mockcontext,
       context: "Лиды" as any,
     }
 
-    const result = exportMetadataTabularSectionToXML(configurationSettings, data)
+    const result = exportMetadataTabularSectionToXML(context, data)
     const resultXml = xmlExport({ TabularSection: result }, false)
 
     expect(resultXml).toEqual(expectedResult)

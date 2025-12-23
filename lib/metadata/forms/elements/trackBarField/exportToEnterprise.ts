@@ -10,39 +10,35 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportTrackBarFieldToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: TrackBarField | undefined
 ): TrackBarFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(configurationSettings, data)!,
+    ...exportFormFieldToEnterprise(context, data)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
     БольшойШаг: data.largeStep,
     Высота: data.height,
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
     МаксимальноеЗначение: data.maxValue,
     МинимальноеЗначение: data.minValue,
-    Ориентация: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.orientation,
-      SE.FormItemOrientationToEnterprise
-    ),
+    Ориентация: exportSystemEnumerationToEnterprise(context, data.orientation, SE.FormItemOrientationToEnterprise),
     ОтображениеРазметки: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.markingAppearance,
       SE.TrackBarMarkingAppearanceToEnterprise
     ),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
     Шаг: data.step,
     ШагРазметки: data.markingStep,
     Ширина: data.width,
-    События: exportEventsToEnterprise(configurationSettings, data.events),
+    События: exportEventsToEnterprise(context, data.events),
   })
 }
 

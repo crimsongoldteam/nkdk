@@ -1,7 +1,7 @@
 import { readFileSync } from "fs"
 import { join } from "path"
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import xmlImport from "~/lib/xml/import/importer"
 import { importStandardAttributeDescriptionFromXML, importStandardAttributeDescriptionsFromXML } from "./importFromXML"
 import {
@@ -22,7 +22,7 @@ describe("importStandardAttributeDescriptionFromXML", () => {
 
     const xmlData = xmlImport<{ "xr:StandardAttribute": StandardAttributeDescriptionXML }>(xml)
 
-    const result = importStandardAttributeDescriptionFromXML(mockConfigurationSettings, xmlData["xr:StandardAttribute"])
+    const result = importStandardAttributeDescriptionFromXML(mockcontext, xmlData["xr:StandardAttribute"])
     expect(result).toEqual(expectedResult)
   })
 
@@ -31,7 +31,7 @@ describe("importStandardAttributeDescriptionFromXML", () => {
 
     const xmlData = xmlImport<{ "xr:StandardAttribute": StandardAttributeDescriptionXML }>(xml)
 
-    const result = importStandardAttributeDescriptionFromXML(mockConfigurationSettings, xmlData["xr:StandardAttribute"])
+    const result = importStandardAttributeDescriptionFromXML(mockcontext, xmlData["xr:StandardAttribute"])
     expect(result).toBeUndefined()
   })
 
@@ -52,7 +52,7 @@ describe("importStandardAttributeDescriptionFromXML", () => {
 
     const xmlData = xmlImport<{ "xr:StandardAttribute": StandardAttributeDescriptionsXML }>(xml)
 
-    const result = importStandardAttributeDescriptionsFromXML(mockConfigurationSettings, xmlData["xr:StandardAttribute"])
+    const result = importStandardAttributeDescriptionsFromXML(mockcontext, xmlData["xr:StandardAttribute"])
     expect(result).toEqual(expectedResult)
   })
 
@@ -61,7 +61,7 @@ describe("importStandardAttributeDescriptionFromXML", () => {
 
     const xmlData = xmlImport<{ "xr:StandardAttribute": StandardAttributeDescriptionsXML }>(xml)
 
-    const result = importStandardAttributeDescriptionsFromXML(mockConfigurationSettings, xmlData["xr:StandardAttribute"])
+    const result = importStandardAttributeDescriptionsFromXML(mockcontext, xmlData["xr:StandardAttribute"])
     expect(result).toBeUndefined()
   })
 })

@@ -5,17 +5,14 @@ import { exportFormGroupToXML } from "~/lib/metadata/forms/elements/formGroup/ex
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportButtonGroupToXML = (
-  configurationSettings: Context,
-  data: ButtonGroup | undefined
-): ButtonGroupXML | undefined => {
+export const exportButtonGroupToXML = (context: Context, data: ButtonGroup | undefined): ButtonGroupXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToXML(configurationSettings, data)!,
+    ...exportFormGroupToXML(context, data)!,
 
     Representation: data.representation,
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
   })
 }
 

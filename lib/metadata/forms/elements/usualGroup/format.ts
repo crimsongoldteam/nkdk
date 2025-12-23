@@ -9,11 +9,11 @@ import { UsualGroup } from "./types"
 
 export const formatUsualGroup: FormatElementFunction = (
   element: BaseElement,
-  configurationSettings: Context
+  context: Context
 ): IFormatElementResult => {
   const usualGroup = element as UsualGroup
-  if (isVerticalGroup(usualGroup)) return formatVerticalGroup(usualGroup, configurationSettings)
-  if (isOneLineGroup(usualGroup)) return formatOneLineGroup(usualGroup, configurationSettings)
+  if (isVerticalGroup(usualGroup)) return formatVerticalGroup(usualGroup, context)
+  if (isOneLineGroup(usualGroup)) return formatOneLineGroup(usualGroup, context)
 
-  return formatHorizontalGroup(usualGroup, configurationSettings)
+  return formatHorizontalGroup(usualGroup, context)
 }

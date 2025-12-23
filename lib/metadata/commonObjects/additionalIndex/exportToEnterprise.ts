@@ -9,24 +9,24 @@ import { Context } from "~/lib/metadata/context/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const exportAdditionalIndexToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: AdditionalIndex | undefined
 ): AdditionalIndexEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ДополнительныеПоля: exportIndexFieldsToEnterprise(configurationSettings, data.additionalFields),
+    ДополнительныеПоля: exportIndexFieldsToEnterprise(context, data.additionalFields),
     Имя: data.name,
-    ИндексируемыеПоля: exportIndexFieldsToEnterprise(configurationSettings, data.indexedFields),
+    ИндексируемыеПоля: exportIndexFieldsToEnterprise(context, data.indexedFields),
     Таблица: data.table,
   })
 }
 
 export const exportAdditionalIndexesToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: AdditionalIndexes | undefined
 ): AdditionalIndexesEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((value: AdditionalIndex) => exportAdditionalIndexToEnterprise(configurationSettings, value)!)
+  return data.map((value: AdditionalIndex) => exportAdditionalIndexToEnterprise(context, value)!)
 }

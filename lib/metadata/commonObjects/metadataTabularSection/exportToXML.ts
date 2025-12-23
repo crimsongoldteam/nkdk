@@ -14,15 +14,15 @@ import { exportInternalInfoToXML } from "../internalInfo/exportToXML"
 import { getDefaults } from "./defaults"
 
 export const exportMetadataTabularSectionToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: MetadataTabularSection | undefined
 ): MetadataTabularSectionXML | undefined => {
   if (!data) return undefined
 
-  const defaults = getDefaults(data, configurationSettings)
+  const defaults = getDefaults(data, context)
   const mergedData = { ...defaults, ...data }
 
-  const parentName = configurationSettings.context
+  const parentName = context.context
 
   return compactObject<MetadataTabularSectionXML>({
     _uuid: v4(),
@@ -36,25 +36,22 @@ export const exportMetadataTabularSectionToXML = (
       LineNumberLength: mergedData.lineNumberLength,
       Name: mergedData.name!,
       ObjectBelonging: mergedData.objectBelonging,
-      StandardAttributes: exportStandardAttributeDescriptionsToXML(
-        configurationSettings,
-        mergedData.standardAttributes
-      ),
-      Synonym: exportI8nTextToXML(configurationSettings, mergedData.synonym),
-      Tooltip: exportI8nTextToXML(configurationSettings, mergedData.tooltip),
+      StandardAttributes: exportStandardAttributeDescriptionsToXML(context, mergedData.standardAttributes),
+      Synonym: exportI8nTextToXML(context, mergedData.synonym),
+      Tooltip: exportI8nTextToXML(context, mergedData.tooltip),
       Use: mergedData.use,
     },
     ChildObjects: {
-      Attribute: exportMetadataAttributesToXML(configurationSettings, mergedData.attributes),
+      Attribute: exportMetadataAttributesToXML(context, mergedData.attributes),
     },
   })
 }
 
 export const exportMetadataTabularSectionsToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: MetadataTabularSections | undefined
 ): MetadataTabularSectionsXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value: MetadataTabularSection) => exportMetadataTabularSectionToXML(configurationSettings, value)!)
+  return data.map((value: MetadataTabularSection) => exportMetadataTabularSectionToXML(context, value)!)
 }

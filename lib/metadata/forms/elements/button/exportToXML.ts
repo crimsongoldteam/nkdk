@@ -10,16 +10,16 @@ import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDec
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportButtonToXML = (configurationSettings: Context, data: Button | undefined): ButtonXML | undefined => {
+export const exportButtonToXML = (context: Context, data: Button | undefined): ButtonXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportBaseElementToXML(configurationSettings, data)!,
+    ...exportBaseElementToXML(context, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    BackColor: exportColorToXML(configurationSettings, data.backColor),
-    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
+    BackColor: exportColorToXML(context, data.backColor),
+    BorderColor: exportColorToXML(context, data.borderColor),
     CommandName: data.commandName,
     CommandUniqueness: data.commandUniqueness,
     DataPath: data.dataPath,
@@ -27,8 +27,8 @@ export const exportButtonToXML = (configurationSettings: Context, data: Button |
     DefaultItem: data.defaultItem,
     _DisplayImportance: data.displayImportance,
     Enabled: data.enabled,
-    ExtendedTooltip: exportFormDecorationToXML(configurationSettings, data.extendedTooltip),
-    Font: exportFontToXML(configurationSettings, data.font),
+    ExtendedTooltip: exportFormDecorationToXML(context, data.extendedTooltip),
+    Font: exportFontToXML(context, data.font),
     Height: data.height,
     HorizontalAlignInGroup: data.horizontalAlignInGroup,
     HorizontalStretch: data.horizontalStretch,
@@ -36,19 +36,19 @@ export const exportButtonToXML = (configurationSettings: Context, data: Button |
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
     OnlyInAllActions: data.onlyInAllActions,
-    Picture: exportPictureToXML(configurationSettings, data.picture),
+    Picture: exportPictureToXML(context, data.picture),
     PictureLocation: data.pictureLocation,
     Representation: data.representation,
     Shape: data.shape,
     ShapeRepresentation: data.shapeRepresentation,
     Shortcut: data.shortcut,
     SkipOnInput: data.skipOnInput,
-    TextColor: exportColorToXML(configurationSettings, data.textColor),
-    Title: exportI8nTextToXML(configurationSettings, data.title),
+    TextColor: exportColorToXML(context, data.textColor),
+    Title: exportI8nTextToXML(context, data.title),
     TitleHeight: data.titleHeight,
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,

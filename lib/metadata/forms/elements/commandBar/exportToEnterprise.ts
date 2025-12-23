@@ -9,26 +9,26 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportCommandBarToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: CommandBar | undefined
 ): CommandBarEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToEnterprise(configurationSettings, data)!,
+    ...exportFormGroupToEnterprise(context, data)!,
 
-    Автозаполнение: exportBooleanToEnterprise(configurationSettings, data.autofill),
+    Автозаполнение: exportBooleanToEnterprise(context, data.autofill),
     ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.displayImportance,
       SE.DisplayImportanceToEnterprise
     ),
     ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.horizontalAlign,
       SE.ItemHorizontalLocationToEnterprise
     ),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
   })
 }
 

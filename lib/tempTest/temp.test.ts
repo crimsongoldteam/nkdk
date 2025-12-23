@@ -7,7 +7,7 @@ import { importMetadataCatalogFromXML } from "../metadata/appliedObjects/metadat
 import { MetadataCatalogXML } from "../metadata/appliedObjects/metadataCatalog/types"
 import "../metadata/forms/elements/exportToXML"
 import "../metadata/forms/elements/importFromXML"
-import { mockConfigurationSettings } from "../tests/mockConfigurationSettings"
+import { mockcontext } from "../tests/mockContext"
 import xmlImport from "../xml/import/importer"
 
 // const originalContent = readFileSync(join(__dirname, "Form.xml"), "utf-8")
@@ -17,9 +17,9 @@ describe("DO test", () => {
   it("should import metadata catalog from XML", () => {
     const importedXml = xmlImport<{ MetaDataObject: MetadataCatalogXML }>(metadataCatalogContent)
 
-    const xmlData = importMetadataCatalogFromXML(mockConfigurationSettings, importedXml.MetaDataObject)
+    const xmlData = importMetadataCatalogFromXML(mockcontext, importedXml.MetaDataObject)
 
-    const exportedEnterprise = exportMetadataCatalogToEnterprise(mockConfigurationSettings, xmlData)
+    const exportedEnterprise = exportMetadataCatalogToEnterprise(mockcontext, xmlData)
 
     const yamlString = stringify(exportedEnterprise!, {
       indent: 2,
@@ -36,11 +36,11 @@ describe("DO test", () => {
   // })
   // it("should round-trip DO XML", () => {
   //   const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(originalContent)
-  //   const form = importClientApplicationFormFromXML(mockConfigurationSettings, importedXml.Form)
+  //   const form = importClientApplicationFormFromXML(mockcontext, importedXml.Form)
 
   //   // const exportedForm = exportClientApplicationFormToXML(form)
 
-  //   const formattedForm = exportClientApplicationFormToEnterprise(mockConfigurationSettings, form)
+  //   const formattedForm = exportClientApplicationFormToEnterprise(mockcontext, form)
 
   //   // const exportedXml = xmlExport(
   //   //   { Form: exportedForm },
@@ -54,9 +54,9 @@ describe("DO test", () => {
 
   it("should round-trip DO with parsing", () => {
     // const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(originalContent)
-    // const form = importClientApplicationFormFromXML(mockConfigurationSettings, importedXml.Form)
+    // const form = importClientApplicationFormFromXML(mockcontext, importedXml.Form)
     // // const exportedForm = exportClientApplicationFormToXML(form)
-    // const formattedForm = exportClientApplicationFormToEnterprise(mockConfigurationSettings, form)
+    // const formattedForm = exportClientApplicationFormToEnterprise(mockcontext, form)
     // const parsedForm = parse(formattedForm.strings.join("\n"))
     // const exportedXml = xmlExport({ Form: parsedForm })
     // expect(exportedXml).toEqual(originalContent)

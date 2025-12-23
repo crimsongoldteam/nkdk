@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { exportMetadataCommandToEnterprise } from "./exportToEnterprise"
 import { MetadataCommand, MetadataCommandEnterprise } from "./types"
 
@@ -18,7 +18,7 @@ describe("exportMetadataCommandToEnterprise", () => {
       РежимИспользованияПараметра: "Одиночный",
     }
 
-    const result = exportMetadataCommandToEnterprise(mockConfigurationSettings, metadataCommand)
+    const result = exportMetadataCommandToEnterprise(mockcontext, metadataCommand)
 
     expect(result).toEqual(expectedResult)
   })
@@ -35,7 +35,7 @@ describe("exportMetadataCommandToEnterprise", () => {
       Группа: "ГруппаКоманд.Печать",
     }
 
-    const result = exportMetadataCommandToEnterprise(mockConfigurationSettings, metadataCommand)
+    const result = exportMetadataCommandToEnterprise(mockcontext, metadataCommand)
 
     expect(result).toEqual(expectedResult)
   })
@@ -53,7 +53,7 @@ describe("exportMetadataCommandToEnterprise", () => {
       Группа: "ПанельНавигацииВажное",
     }
 
-    const result = exportMetadataCommandToEnterprise(mockConfigurationSettings, metadataCommand)
+    const result = exportMetadataCommandToEnterprise(mockcontext, metadataCommand)
 
     expect(result).toEqual(expectedResult)
   })

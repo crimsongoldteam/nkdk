@@ -11,65 +11,58 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
-export const exportPageToEnterprise = (
-  configurationSettings: Context,
-  data: Page | undefined
-): PageEnterprise | undefined => {
+export const exportPageToEnterprise = (context: Context, data: Page | undefined): PageEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToEnterprise(configurationSettings, data)!,
+    ...exportFormGroupToEnterprise(context, data)!,
 
     ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.displayImportance,
       SE.DisplayImportanceToEnterprise
     ),
-    ВертикальнаяПрокруткаПриСжатии: exportBooleanToEnterprise(configurationSettings, data.verticalScrollOnReduceSize),
+    ВертикальнаяПрокруткаПриСжатии: exportBooleanToEnterprise(context, data.verticalScrollOnReduceSize),
     ВертикальноеПоложение: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.verticalAlign,
       SE.ItemVerticalAlignToEnterprise
     ),
     ВертикальноеПоложениеПодчиненных: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.childItemsVerticalAlign,
       SE.ItemVerticalAlignToEnterprise
     ),
     ВертикальныйИнтервал: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.verticalSpacing,
       SE.FormItemSpacingToEnterprise
     ),
     ВыравниваниеЭлементовИЗаголовков: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.itemsAndTitlesAlign,
       SE.ItemsAndTitlesAlignVariantToEnterprise
     ),
     ГоризонтальноеПоложениеПодчиненных: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.childItemsHorizontalAlign,
       SE.ItemHorizontalLocationToEnterprise
     ),
     ГоризонтальныйИнтервал: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.horizontalSpacing,
       SE.FormItemSpacingToEnterprise
     ),
-    Группировка: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.group,
-      SE.ChildFormItemsGroupToEnterprise
-    ),
-    Картинка: exportPictureToEnterprise(configurationSettings, data.picture),
-    ОтображатьЗаголовок: exportBooleanToEnterprise(configurationSettings, data.showTitle),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    Группировка: exportSystemEnumerationToEnterprise(context, data.group, SE.ChildFormItemsGroupToEnterprise),
+    Картинка: exportPictureToEnterprise(context, data.picture),
+    ОтображатьЗаголовок: exportBooleanToEnterprise(context, data.showTitle),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
     ПутьКДаннымЗаголовка: data.titleDataPath,
-    СкроллПриСжатии: exportBooleanToEnterprise(configurationSettings, data.scrollOnCompress),
-    Формат: exportI8nTextToEnterprise(configurationSettings, data.format),
-    ЦветФона: exportColorToEnterprise(configurationSettings, data.backColor),
+    СкроллПриСжатии: exportBooleanToEnterprise(context, data.scrollOnCompress),
+    Формат: exportI8nTextToEnterprise(context, data.format),
+    ЦветФона: exportColorToEnterprise(context, data.backColor),
     ШиринаПодчиненныхЭлементов: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.slaveItemsWidth,
       SE.ChildFormItemsWidthToEnterprise
     ),

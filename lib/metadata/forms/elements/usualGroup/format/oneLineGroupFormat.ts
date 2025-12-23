@@ -5,7 +5,7 @@ import { Context } from "~/lib/metadata/context/types"
 import { BaseElement } from "../../baseElement/types"
 import { UsualGroup } from "../types"
 
-export const formatOneLineGroup = (element: UsualGroup, configurationSettings: Context): IFormatElementResult => {
+export const formatOneLineGroup = (element: UsualGroup, context: Context): IFormatElementResult => {
   const separatorSymbol = ";"
   const separator = separatorSymbol + " "
 
@@ -23,7 +23,7 @@ export const formatOneLineGroup = (element: UsualGroup, configurationSettings: C
 
   if (element.childItems) {
     for (const item of element.childItems) {
-      const itemResult = formatElement(item as BaseElement, configurationSettings)
+      const itemResult = formatElement(item as BaseElement, context)
       groupItems.push(itemResult.strings)
     }
   }

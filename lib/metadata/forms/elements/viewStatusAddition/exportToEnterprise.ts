@@ -15,32 +15,32 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportViewStatusAdditionToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: ViewStatusAddition | undefined
 ): ViewStatusAdditionEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormItemAdditionToEnterprise(configurationSettings, data)!,
+    ...exportFormItemAdditionToEnterprise(context, data)!,
 
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
     ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.horizontalAlign,
       SE.ItemHorizontalLocationToEnterprise
     ),
     МаксимальнаяШирина: data.maxWidth,
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    Рамка: exportBorderToEnterprise(configurationSettings, data.border),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
-    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
-    ЦветТекста: exportColorToEnterprise(configurationSettings, data.textColor),
-    ЦветТекстаЗаголовка: exportColorToEnterprise(configurationSettings, data.titleTextColor),
-    ЦветФона: exportColorToEnterprise(configurationSettings, data.backColor),
-    ЦветФонаКнопок: exportColorToEnterprise(configurationSettings, data.buttonsBackColor),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    Рамка: exportBorderToEnterprise(context, data.border),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
+    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
+    ЦветТекста: exportColorToEnterprise(context, data.textColor),
+    ЦветТекстаЗаголовка: exportColorToEnterprise(context, data.titleTextColor),
+    ЦветФона: exportColorToEnterprise(context, data.backColor),
+    ЦветФонаКнопок: exportColorToEnterprise(context, data.buttonsBackColor),
     Ширина: data.width,
-    Шрифт: exportFontToEnterprise(configurationSettings, data.font),
-    ШрифтЗаголовка: exportFontToEnterprise(configurationSettings, data.titleFont),
+    Шрифт: exportFontToEnterprise(context, data.font),
+    ШрифтЗаголовка: exportFontToEnterprise(context, data.titleFont),
   })
 }
 

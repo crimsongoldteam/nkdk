@@ -3,7 +3,7 @@ import { StandardAttributeDescription } from "./types"
 
 export const getDefaults = (
   _data: StandardAttributeDescription,
-  _configurationSettings: Context
+  _context: Context
 ): Partial<StandardAttributeDescription> => {
   return {
     fillChecking: "DontCheck",

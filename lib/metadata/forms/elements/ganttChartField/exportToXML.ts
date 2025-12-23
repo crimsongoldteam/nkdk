@@ -7,13 +7,13 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportGanttChartFieldToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: GanttChartField | undefined
 ): GanttChartFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(configurationSettings, data)!,
+    ...exportFormFieldToXML(context, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -24,12 +24,12 @@ export const exportGanttChartFieldToXML = (
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
     TableLocation: data.tableLocation,
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     ValuesSelectionMode: data.valuesSelectionMode,
     VerticalLines: data.verticalLines,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Events: exportEventsToXML(configurationSettings, data.events),
+    Events: exportEventsToXML(context, data.events),
   })
 }
 

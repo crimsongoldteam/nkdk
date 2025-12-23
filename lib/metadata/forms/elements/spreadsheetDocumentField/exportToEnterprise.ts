@@ -14,72 +14,72 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportSpreadSheetDocumentFieldToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: SpreadSheetDocumentField | undefined
 ): SpreadSheetDocumentFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(configurationSettings, data)!,
+    ...exportFormFieldToEnterprise(context, data)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
     ВертикальнаяПолосаПрокрутки: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.verticalScrollBar,
       SE.ScrollBarUseToEnterprise
     ),
-    Вывод: exportSystemEnumerationToEnterprise(configurationSettings, data.output, SE.UseOutputToEnterprise),
+    Вывод: exportSystemEnumerationToEnterprise(context, data.output, SE.UseOutputToEnterprise),
     Высота: data.height,
     ГоризонтальнаяПолосаПрокрутки: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.horizontalScrollBar,
       SE.ScrollBarUseToEnterprise
     ),
-    Защита: exportBooleanToEnterprise(configurationSettings, data.protection),
+    Защита: exportBooleanToEnterprise(context, data.protection),
     ИспользуемоеИмяФайла: data.usedFileName,
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
-    ОтображатьГруппировки: exportBooleanToEnterprise(configurationSettings, data.showGroups),
-    ОтображатьЗаголовки: exportBooleanToEnterprise(configurationSettings, data.showHeaders),
-    ОтображатьИменаСтрокИКолонок: exportBooleanToEnterprise(configurationSettings, data.showRowAndColumnNames),
-    ОтображатьИменаЯчеек: exportBooleanToEnterprise(configurationSettings, data.showCellNames),
-    ОтображатьСетку: exportBooleanToEnterprise(configurationSettings, data.showGrid),
+    ОтображатьГруппировки: exportBooleanToEnterprise(context, data.showGroups),
+    ОтображатьЗаголовки: exportBooleanToEnterprise(context, data.showHeaders),
+    ОтображатьИменаСтрокИКолонок: exportBooleanToEnterprise(context, data.showRowAndColumnNames),
+    ОтображатьИменаЯчеек: exportBooleanToEnterprise(context, data.showCellNames),
+    ОтображатьСетку: exportBooleanToEnterprise(context, data.showGrid),
     ОтображениеСостояния: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.statePresentation,
       SE.StatePresentationToEnterprise
     ),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(configurationSettings, data.enableStartDrag),
-    РазрешитьПеретаскивание: exportBooleanToEnterprise(configurationSettings, data.enableDrag),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
-    Редактирование: exportBooleanToEnterprise(configurationSettings, data.edit),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(context, data.enableStartDrag),
+    РазрешитьПеретаскивание: exportBooleanToEnterprise(context, data.enableDrag),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
+    Редактирование: exportBooleanToEnterprise(context, data.edit),
     РежимМасштабированияПросмотра: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.viewScalingMode,
       SE.ViewScalingModeToEnterprise
     ),
     РежимОтображенияВыделения: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.selectionShowMode,
       SE.SelectionShowModeToEnterprise
     ),
     РежимОтображенияВыделенияРисунков: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.drawingSelectionShowMode,
       SE.DrawingSelectionShowModeToEnterprise
     ),
     ТипКурсоров: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.pointerType,
       SE.SpreadsheetDocumentPointerTypeToEnterprise
     ),
-    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
-    ЧерноБелыйПросмотр: exportBooleanToEnterprise(configurationSettings, data.blackAndWhiteView),
+    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
+    ЧерноБелыйПросмотр: exportBooleanToEnterprise(context, data.blackAndWhiteView),
     Ширина: data.width,
-    События: exportEventsToEnterprise(configurationSettings, data.events),
+    События: exportEventsToEnterprise(context, data.events),
   })
 }
 

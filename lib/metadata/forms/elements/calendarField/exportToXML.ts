@@ -10,24 +10,24 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportCalendarFieldToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: CalendarField | undefined
 ): CalendarFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(configurationSettings, data)!,
+    ...exportFormFieldToXML(context, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
     BeginOfRepresentationPeriod: data.beginOfRepresentationPeriod,
-    Border: exportBorderToXML(configurationSettings, data.border),
-    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
+    Border: exportBorderToXML(context, data.border),
+    BorderColor: exportColorToXML(context, data.borderColor),
     CalendarNavigation: data.calendarNavigation,
     EnableDrag: data.enableDrag,
     EnableStartDrag: data.enableStartDrag,
     EndOfRepresentationPeriod: data.endOfRepresentationPeriod,
-    Font: exportFontToXML(configurationSettings, data.font),
+    Font: exportFontToXML(context, data.font),
     Height: data.height,
     HeightInMonths: data.heightInMonths,
     HorizontalStretch: data.horizontalStretch,
@@ -36,11 +36,11 @@ export const exportCalendarFieldToXML = (
     SelectionMode: data.selectionMode,
     ShowCurrentDate: data.showCurrentDate,
     ShowMonthsPanel: data.showMonthsPanel,
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     WidthInMonths: data.widthInMonths,
-    Events: exportEventsToXML(configurationSettings, data.events),
+    Events: exportEventsToXML(context, data.events),
   })
 }
 

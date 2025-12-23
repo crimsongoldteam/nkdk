@@ -7,19 +7,19 @@ import { Popup, PopupXML } from "~/lib/metadata/forms/elements/popup/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportPopupToXML = (configurationSettings: Context, data: Popup | undefined): PopupXML | undefined => {
+export const exportPopupToXML = (context: Context, data: Popup | undefined): PopupXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToXML(configurationSettings, data)!,
+    ...exportFormGroupToXML(context, data)!,
 
-    BackColor: exportColorToXML(configurationSettings, data.backColor),
-    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
-    Picture: exportPictureToXML(configurationSettings, data.picture),
+    BackColor: exportColorToXML(context, data.backColor),
+    BorderColor: exportColorToXML(context, data.borderColor),
+    Picture: exportPictureToXML(context, data.picture),
     Representation: data.representation,
     Shape: data.shape,
     ShapeRepresentation: data.shapeRepresentation,
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
   })
 }
 

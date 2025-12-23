@@ -8,20 +8,20 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportButtonGroupToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: ButtonGroup | undefined
 ): ButtonGroupEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToEnterprise(configurationSettings, data)!,
+    ...exportFormGroupToEnterprise(context, data)!,
 
     Отображение: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.representation,
       SE.ButtonGroupRepresentationToEnterprise
     ),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
   })
 }
 

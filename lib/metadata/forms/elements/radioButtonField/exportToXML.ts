@@ -10,27 +10,27 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportRadioButtonFieldToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: RadioButtonField | undefined
 ): RadioButtonFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(configurationSettings, data)!,
+    ...exportFormFieldToXML(context, data)!,
 
-    BackColor: exportColorToXML(configurationSettings, data.backColor),
-    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
-    ChoiceList: exportChoiceListToXML(configurationSettings, data.choiceList),
+    BackColor: exportColorToXML(context, data.backColor),
+    BorderColor: exportColorToXML(context, data.borderColor),
+    ChoiceList: exportChoiceListToXML(context, data.choiceList),
     ColumnsCount: data.columnsCount,
     EqualColumnsWidth: data.equalColumnsWidth,
-    Font: exportFontToXML(configurationSettings, data.font),
+    Font: exportFontToXML(context, data.font),
     ItemHeight: data.itemHeight,
     ItemTitleHeight: data.itemTitleHeight,
     ItemWidth: data.itemWidth,
     RadioButtonType: data.radioButtonType,
-    TextColor: exportColorToXML(configurationSettings, data.textColor),
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
-    Events: exportEventsToXML(configurationSettings, data.events),
+    TextColor: exportColorToXML(context, data.textColor),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
+    Events: exportEventsToXML(context, data.events),
   })
 }
 

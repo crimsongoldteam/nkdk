@@ -5,7 +5,7 @@ import { PictureDecoration } from "./types"
 
 export const formatPictureDecoration: FormatElementFunction = (
   element: PictureDecoration,
-  _configurationSettings: Context
+  _context: Context
 ): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: ["@" + element.picture?.ref + " " + formatElementName(element)],

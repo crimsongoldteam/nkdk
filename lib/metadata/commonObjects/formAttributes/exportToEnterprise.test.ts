@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { exportFormAttributesToEnterprise } from "./exportToEnterprise"
 import { FormAttribute, FormAttributes, FormAttributesEnterprise } from "./types"
 
@@ -24,7 +24,7 @@ describe("exportFormAttributesToEnterprise", () => {
       },
     ]
 
-    const result = exportFormAttributesToEnterprise(mockConfigurationSettings, orignalContent)
+    const result = exportFormAttributesToEnterprise(mockcontext, orignalContent)
 
     expect(result).toEqual(expectedResult)
   })
@@ -43,7 +43,7 @@ describe("exportFormAttributesToEnterprise", () => {
   //     },
   //   ]
 
-  //   const result = exportFormAttributesToEnterprise(mockConfigurationSettings, orignalContent)
+  //   const result = exportFormAttributesToEnterprise(mockcontext, orignalContent)
 
   //   expect(result).toEqual([expectedResult])
   // })
@@ -65,7 +65,7 @@ describe("exportFormAttributesToEnterprise", () => {
   //     },
   //   ]
 
-  //   const result = exportFormAttributesToEnterprise(mockConfigurationSettings, orignalContent)
+  //   const result = exportFormAttributesToEnterprise(mockcontext, orignalContent)
 
   //   expect(result).toEqual([expectedResult])
   // })
@@ -91,7 +91,7 @@ describe("exportFormAttributesToEnterprise", () => {
       },
     ]
 
-    const result = exportFormAttributesToEnterprise(mockConfigurationSettings, orignalContent)
+    const result = exportFormAttributesToEnterprise(mockcontext, orignalContent)
 
     expect(result).toEqual(expectedResult)
   })
@@ -117,7 +117,7 @@ describe("exportFormAttributesToEnterprise", () => {
       },
     ]
 
-    const result = exportFormAttributesToEnterprise(mockConfigurationSettings, orignalContent)
+    const result = exportFormAttributesToEnterprise(mockcontext, orignalContent)
 
     expect(result).toEqual(expectedResult)
   })
@@ -135,7 +135,7 @@ describe("exportFormAttributesToEnterprise", () => {
   //     },
   //   ]
 
-  //   const result = exportFormAttributesToEnterprise(mockConfigurationSettings, orignalContent)
+  //   const result = exportFormAttributesToEnterprise(mockcontext, orignalContent)
 
   //   expect(result).toEqual([expectedResult])
   // })
@@ -168,7 +168,7 @@ describe("exportFormAttributesToEnterprise", () => {
       },
     }
 
-    const result = exportFormAttributesToEnterprise(mockConfigurationSettings, orignalContent)
+    const result = exportFormAttributesToEnterprise(mockcontext, orignalContent)
 
     expect(result).toEqual(expectedResult)
   })

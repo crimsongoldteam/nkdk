@@ -2,7 +2,7 @@ import { Context } from "../../context/types"
 import { MetadataCommandGroup, MetadataCommandGroupEnterprise } from "./types"
 
 export const exportMetadataCommandGroupToEnterprise = (
-  _configurationSettings: Context,
+  _context: Context,
   data: MetadataCommandGroup | undefined
 ): MetadataCommandGroupEnterprise | undefined => {
   if (!data) return undefined

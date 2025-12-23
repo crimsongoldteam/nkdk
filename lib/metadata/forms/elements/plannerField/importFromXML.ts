@@ -8,13 +8,13 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importPlannerFieldFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: PlannerFieldXML | undefined
 ): PlannerField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(configurationSettings, xml)!,
+    ...importFormFieldFromXML(context, xml)!,
     elementType: FormElementType.PlannerField,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -27,11 +27,11 @@ export const importPlannerFieldFromXML = (
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
     timeScaleItemHyperlink: xml.TimeScaleItemHyperlink,
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     wrappedTimeScaleHeaderHyperlink: xml.WrappedTimeScaleHeaderHyperlink,
-    events: importEventsFromXML(configurationSettings, xml.Events),
+    events: importEventsFromXML(context, xml.Events),
   })
 }
 

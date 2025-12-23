@@ -12,36 +12,36 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportLabelDecorationToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: LabelDecoration | undefined
 ): LabelDecorationEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormDecorationToEnterprise(configurationSettings, data)!,
+    ...exportFormDecorationToEnterprise(context, data)!,
 
     ВертикальноеВыравниваниеГруппы: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.groupVerticalAlign,
       SE.ItemVerticalAlignToEnterprise
     ),
     ВертикальноеПоложение: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.verticalAlign,
       SE.ItemVerticalAlignToEnterprise
     ),
     ВысотаЗаголовка: data.titleHeight,
-    Гиперссылка: exportBooleanToEnterprise(configurationSettings, data.hyperlink),
+    Гиперссылка: exportBooleanToEnterprise(context, data.hyperlink),
     ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.horizontalAlign,
       SE.ItemHorizontalLocationToEnterprise
     ),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    Рамка: exportBorderToEnterprise(configurationSettings, data.border),
-    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
-    ЦветФона: exportColorToEnterprise(configurationSettings, data.backColor),
-    События: exportEventsToEnterprise(configurationSettings, data.events),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    Рамка: exportBorderToEnterprise(context, data.border),
+    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
+    ЦветФона: exportColorToEnterprise(context, data.backColor),
+    События: exportEventsToEnterprise(context, data.events),
   })
 }
 

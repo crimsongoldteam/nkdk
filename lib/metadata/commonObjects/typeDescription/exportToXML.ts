@@ -2,7 +2,7 @@ import { Context } from "../../context/types"
 import { TypeDescription, TypeDescriptionXML } from "./types"
 
 export const exportTypeDescriptionToXML = (
-  _configurationSettings: Context,
+  _context: Context,
   typeDescription: TypeDescription | undefined
 ): TypeDescriptionXML | undefined => {
   if (!typeDescription) return undefined

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
+import { mockcontext } from "~/lib/tests/mockContext"
 import xmlImport from "~/lib/xml/import/importer"
 import { FormElementType } from "../../../metadataFactory/types"
 import { importButtonFromXML } from "./importFromXML"
 import { Button, ButtonXML } from "./types"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 
 describe("importButtonFromXML", () => {
   it("should import button from XML", () => {
@@ -27,7 +27,7 @@ describe("importButtonFromXML", () => {
 
     const xml = xmlImport<{ Button: ButtonXML }>(mockXml)
 
-    const result = importButtonFromXML(mockConfigurationSettings, xml.Button)
+    const result = importButtonFromXML(mockcontext, xml.Button)
 
     expect(result).toEqual(expectedResult)
   })

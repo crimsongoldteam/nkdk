@@ -10,7 +10,7 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportMetadataDocumentNumeratorToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: MetadataDocumentNumerator | undefined
 ): MetadataDocumentNumeratorEnterprise | undefined => {
   if (!data) return undefined
@@ -18,28 +18,24 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
   return compactObject({
     ДлинаНомера: data.numberLength,
     ДопустимаяДлинаНомера: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.numberAllowedLength,
       SE.AllowedLengthToEnterprise
     ),
     Имя: data.name,
     Комментарий: data.comment,
-    КонтрольУникальности: exportBooleanToEnterprise(configurationSettings, data.checkUnique),
+    КонтрольУникальности: exportBooleanToEnterprise(context, data.checkUnique),
     ПериодичностьНомера: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.numberPeriodicity,
       SE.BusinessProcessNumberPeriodicityToEnterprise
     ),
     ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.objectBelonging,
       SE.ObjectBelongingToEnterprise
     ),
-    Синоним: exportI8nTextToEnterprise(configurationSettings, data.synonym),
-    ТипНомера: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.numberType,
-      SE.DocumentNumberTypeToEnterprise
-    ),
+    Синоним: exportI8nTextToEnterprise(context, data.synonym),
+    ТипНомера: exportSystemEnumerationToEnterprise(context, data.numberType, SE.DocumentNumberTypeToEnterprise),
   })
 }

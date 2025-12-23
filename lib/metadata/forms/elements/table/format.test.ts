@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { ColumnGroup } from "../columnGroup/types"
 import { InputField } from "../inputField/types"
@@ -25,7 +25,7 @@ describe("formatTable", () => {
 
     const expectedResult = `| Колонка 1 |`
 
-    const result = formatTable(mockElement, mockConfigurationSettings)
+    const result = formatTable(mockElement, mockcontext)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -50,7 +50,7 @@ describe("formatTable", () => {
 
     const expectedResult = `| Колонка 1 | Колонка 2 |`
 
-    const result = formatTable(mockElement, mockConfigurationSettings)
+    const result = formatTable(mockElement, mockcontext)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -88,7 +88,7 @@ describe("formatTable", () => {
     const expectedResult = `| -Группа 1             ||
 | Колонка 1 | Колонка 2  |`
 
-    const result = formatTable(mockElement, mockConfigurationSettings)
+    const result = formatTable(mockElement, mockcontext)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -127,7 +127,7 @@ describe("formatTable", () => {
     const expectedResult = `| Колонка 1 |
 | Колонка 2 |`
 
-    const result = formatTable(mockElement, mockConfigurationSettings)
+    const result = formatTable(mockElement, mockcontext)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -167,7 +167,7 @@ describe("formatTable", () => {
 | Колонка 1 |
 | Колонка 2 |`
 
-    const result = formatTable(mockElement, mockConfigurationSettings)
+    const result = formatTable(mockElement, mockcontext)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })

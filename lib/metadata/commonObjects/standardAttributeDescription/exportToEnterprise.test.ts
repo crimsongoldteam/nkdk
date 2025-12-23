@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import {
   exportStandardAttributeDescriptionToEnterprise,
   exportStandardAttributeDescriptionsToEnterprise,
@@ -24,7 +24,7 @@ describe("exportStandardAttributeDescriptionToEnterprise", () => {
       ПроверкаЗаполнения: "ВыдаватьОшибку",
     }
 
-    const result = exportStandardAttributeDescriptionToEnterprise(mockConfigurationSettings, data)
+    const result = exportStandardAttributeDescriptionToEnterprise(mockcontext, data)
 
     expect(result).toEqual(expectedResult)
   })
@@ -45,7 +45,7 @@ describe("exportStandardAttributeDescriptionToEnterprise", () => {
       },
     }
 
-    const result = exportStandardAttributeDescriptionsToEnterprise(mockConfigurationSettings, data)
+    const result = exportStandardAttributeDescriptionsToEnterprise(mockcontext, data)
 
     expect(result).toEqual(expectedResult)
   })

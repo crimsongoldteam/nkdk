@@ -1,10 +1,7 @@
 import { Context } from "../../context/types"
 import { Picture, PictureXML } from "./types"
 
-export const importPictureFromXML = (
-  _configurationSettings: Context,
-  xml: PictureXML | undefined
-): Picture | undefined => {
+export const importPictureFromXML = (_context: Context, xml: PictureXML | undefined): Picture | undefined => {
   if (!xml) return undefined
 
   // Parse Ref to extract type and reference

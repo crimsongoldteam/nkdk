@@ -9,7 +9,7 @@ import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
 export const exportClientApplicationFormToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: ClientApplicationForm | undefined
 ): ClientApplicationFormXML | undefined => {
   if (!data) return undefined
@@ -33,16 +33,16 @@ export const exportClientApplicationFormToXML = (
     "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
     _version: "2.18",
-    AutoCommandBar: exportCommandBarToXML(configurationSettings, data.autoCommandBar),
-    Title: exportI8nTextToXML(configurationSettings, data.title),
-    ChildItems: exportChildItemsToXML(configurationSettings, data.childItems),
+    AutoCommandBar: exportCommandBarToXML(context, data.autoCommandBar),
+    Title: exportI8nTextToXML(context, data.title),
+    ChildItems: exportChildItemsToXML(context, data.childItems),
     // Attributes:
     //   data.attributes && data.attributes.length > 0
     //     ? data.attributes
-    //         .map((attr) => exportAttributeToXML(attr, configurationSettings))
+    //         .map((attr) => exportAttributeToXML(attr, context))
     //         .filter((attr): attr is NonNullable<typeof attr> => attr !== undefined)
     //     : undefined,
-    CommandSet: exportCommandSetToXML(configurationSettings, data.commandSet),
+    CommandSet: exportCommandSetToXML(context, data.commandSet),
     AutoFillCheck: data.autoFillCheck,
     AutoSaveDataInSettings: data.autoSaveDataInSettings,
     AutoTitle: data.autoTitle,
@@ -50,7 +50,7 @@ export const exportClientApplicationFormToXML = (
     CloseOnChoice: data.closeOnChoice,
     CloseOnOwnerClose: data.closeOnOwnerClose,
     CollapseItemsByImportance: data.collapseItemsByImportance,
-    CommandBar: exportCommandBarToXML(configurationSettings, data.commandBar),
+    CommandBar: exportCommandBarToXML(context, data.commandBar),
     CommandBarLocation: data.commandBarLocation,
     // Commands: data.commands,
     ConversationsRepresentation: data.conversationsRepresentation,
@@ -80,6 +80,6 @@ export const exportClientApplicationFormToXML = (
     WindowOptionsKey: data.windowOptionsKey,
     UseForFoldersAndItems: data.useForFoldersAndItems,
     // ConditionalAppearance: data.conditionalAppearance,
-    Events: exportEventsToXML(configurationSettings, data.events as Events | undefined),
+    Events: exportEventsToXML(context, data.events as Events | undefined),
   }
 }

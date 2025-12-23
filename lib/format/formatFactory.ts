@@ -22,20 +22,17 @@ export const registerFormat = <T extends BaseElement>(
   })
 }
 
-export const formatElement = <T extends BaseElement>(
-  element: T,
-  configurationSettings: Context
-): IFormatElementResult => {
+export const formatElement = <T extends BaseElement>(element: T, context: Context): IFormatElementResult => {
   // params = { ...defaultParams, ...params }
 
   const formatter = registry.find((f) => f.check(element)) as FormatRegistry[number]
-  if (!formatter) return formatOtherElement(element as unknown as BaseElement, configurationSettings)
+  if (!formatter) return formatOtherElement(element as unknown as BaseElement, context)
 
-  const result = formatter.format(element, configurationSettings)
+  const result = formatter.format(element, context)
   return result
 }
 
-export const formatElements = (items: ChildItems, configurationSettings: Context): IFormatElementResult => {
+export const formatElements = (items: ChildItems, context: Context): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
@@ -60,7 +57,7 @@ export const formatElements = (items: ChildItems, configurationSettings: Context
 
     prevItem = item
 
-    const text = formatElement(item, configurationSettings)
+    const text = formatElement(item, context)
     result.strings.push(...text.strings)
     result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
   }

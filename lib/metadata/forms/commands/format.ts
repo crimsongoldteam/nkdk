@@ -5,8 +5,8 @@ import { Context } from "../../context/types"
 import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
 import { Command, CommandEnterprise } from "./types"
 
-export const formatCommands = (commands: Command[], configurationSettings: Context): string[] => {
-  const commandsEnterprise = commands.map((command) => formatCommand(command, configurationSettings))
+export const formatCommands = (commands: Command[], context: Context): string[] => {
+  const commandsEnterprise = commands.map((command) => formatCommand(command, context))
 
   return commandsEnterprise.map((command) =>
     stringify(command, {
@@ -16,17 +16,17 @@ export const formatCommands = (commands: Command[], configurationSettings: Conte
   )
 }
 
-const formatCommand = (command: Command, configurationSettings: Context): CommandEnterprise => {
+const formatCommand = (command: Command, context: Context): CommandEnterprise => {
   let result: CommandEnterprise = {}
 
   return {
-    Заголовок: exportI8nTextToEnterprise(configurationSettings, command.title),
-    Подсказка: exportI8nTextToEnterprise(configurationSettings, command.toolTip),
+    Заголовок: exportI8nTextToEnterprise(context, command.title),
+    Подсказка: exportI8nTextToEnterprise(context, command.toolTip),
     СочетаниеКлавиш: command.shortcut,
     Действие: command.action,
     ОтображениеКнопки: command.representation,
     ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       command.currentRowUse,
       SE.CurrentRowUseToEnterprise
     ),

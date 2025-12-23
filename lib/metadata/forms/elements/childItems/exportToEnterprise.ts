@@ -3,7 +3,7 @@ import { getOperationFunction } from "~/lib/metadata/metadataFactory/metadataFac
 import { ChildItems, ChildItemsEnterprise } from "./types"
 
 export const exportChildItemsToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: ChildItems | undefined
 ): ChildItemsEnterprise | undefined => {
   if (!data || data.length === 0) return undefined
@@ -13,7 +13,7 @@ export const exportChildItemsToEnterprise = (
     const exportFunction = getOperationFunction("ExportToEnterprise", item.elementType)
     if (!exportFunction) throw new Error(`Export function not found for element type: ${item.elementType}`)
 
-    result.push(exportFunction(configurationSettings, item)!)
+    result.push(exportFunction(context, item)!)
   }
 
   return result

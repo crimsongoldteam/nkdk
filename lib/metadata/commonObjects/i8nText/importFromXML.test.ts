@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { xmlImport } from "~/lib"
 import { oneLangI8nText } from "~/lib/tests/fixtures/i8nText/oneLang"
 import { twoLangsI8nText } from "~/lib/tests/fixtures/i8nText/twoLangs"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { importI8nTextFromXML } from "./importFromXML"
 import { I8nTextXML } from "./types"
@@ -14,7 +14,7 @@ describe("importI8nTextFromXML", () => {
 
     const expectedResult = oneLangI8nText
 
-    const result = importI8nTextFromXML(mockConfigurationSettings, xmlData.Title)
+    const result = importI8nTextFromXML(mockcontext, xmlData.Title)
 
     expect(assertEquals<I8nTextXML>(xmlData.Title)).toEqual(xmlData.Title)
 
@@ -26,7 +26,7 @@ describe("importI8nTextFromXML", () => {
 
     const expectedResult = twoLangsI8nText
 
-    const result = importI8nTextFromXML(mockConfigurationSettings, xmlData.Title)
+    const result = importI8nTextFromXML(mockcontext, xmlData.Title)
 
     expect(assertEquals<I8nTextXML>(xmlData.Title)).toEqual(xmlData.Title)
 
@@ -35,7 +35,7 @@ describe("importI8nTextFromXML", () => {
 
   it("should import empty I8nText from XML", () => {
     const importedXml = xmlImport<{ Title: I8nTextXML }>(`<Title/>`)
-    const result = importI8nTextFromXML(mockConfigurationSettings, importedXml.Title)
+    const result = importI8nTextFromXML(mockcontext, importedXml.Title)
 
     expect(result).toBeUndefined()
   })

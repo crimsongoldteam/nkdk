@@ -1,8 +1,8 @@
 import { expect, it } from "vitest"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { xmlImport } from "~/lib/xml/import/importer"
 import { importColorFromXML } from "./importFromXML"
 import { Color, ColorXML } from "./types"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 
 it("should import color from XML", () => {
   const mockXml = `<Color>style:NegativeTextColor</Color>`
@@ -12,7 +12,7 @@ it("should import color from XML", () => {
   const xml = xmlImport<{ Color: ColorXML }>(mockXml)
   const value = xml.Color
 
-  const result = importColorFromXML(mockConfigurationSettings, value)
+  const result = importColorFromXML(mockcontext, value)
 
   expect(result).toEqual(mockResult)
 })

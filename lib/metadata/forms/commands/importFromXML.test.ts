@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { xmlImport } from "~/lib/xml/import/importer"
 import importCommandFromXML from "./importFromXML"
 import { Command, CommandXML } from "./types"
 
 describe("importCommandFromXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importCommandFromXML(mockConfigurationSettings, undefined)
+    const result = importCommandFromXML(mockcontext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -40,7 +40,7 @@ describe("importCommandFromXML", () => {
 
     const xmlData = xmlImport<{ Command: CommandXML }>(mockXml)
 
-    const result = importCommandFromXML(mockConfigurationSettings, xmlData.Command)
+    const result = importCommandFromXML(mockcontext, xmlData.Command)
 
     expect(result).toEqual(expectedResult)
   })

@@ -14,45 +14,41 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportPictureFieldToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: PictureField | undefined
 ): PictureFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(configurationSettings, data)!,
+    ...exportFormFieldToEnterprise(context, data)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
     Высота: data.height,
-    Гиперссылка: exportBooleanToEnterprise(configurationSettings, data.hyperlink),
-    КартинкаЗначений: exportPictureToEnterprise(configurationSettings, data.valuesPicture),
+    Гиперссылка: exportBooleanToEnterprise(context, data.hyperlink),
+    КартинкаЗначений: exportPictureToEnterprise(context, data.valuesPicture),
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
     Масштаб: data.scale,
-    Масштабировать: exportBooleanToEnterprise(configurationSettings, data.zoomable),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    РазмерКартинки: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.pictureSize,
-      SE.PictureSizeToEnterprise
-    ),
-    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(configurationSettings, data.enableStartDrag),
-    РазрешитьПеретаскивание: exportBooleanToEnterprise(configurationSettings, data.enableDrag),
-    Рамка: exportBorderToEnterprise(configurationSettings, data.border),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
+    Масштабировать: exportBooleanToEnterprise(context, data.zoomable),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    РазмерКартинки: exportSystemEnumerationToEnterprise(context, data.pictureSize, SE.PictureSizeToEnterprise),
+    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(context, data.enableStartDrag),
+    РазрешитьПеретаскивание: exportBooleanToEnterprise(context, data.enableDrag),
+    Рамка: exportBorderToEnterprise(context, data.border),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
     СпособПеретаскиванияФайлов: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.fileDragMode,
       SE.FileDragModeToEnterprise
     ),
     ТекстНевыбраннойКартинки: data.nonselectedPictureText,
-    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
-    ЦветТекста: exportColorToEnterprise(configurationSettings, data.textColor),
+    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
+    ЦветТекста: exportColorToEnterprise(context, data.textColor),
     Ширина: data.width,
-    Шрифт: exportFontToEnterprise(configurationSettings, data.font),
-    События: exportEventsToEnterprise(configurationSettings, data.events),
+    Шрифт: exportFontToEnterprise(context, data.font),
+    События: exportEventsToEnterprise(context, data.events),
   })
 }
 

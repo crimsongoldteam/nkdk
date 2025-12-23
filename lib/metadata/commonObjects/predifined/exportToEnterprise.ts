@@ -2,7 +2,7 @@ import { Context } from "../../context/types"
 import { Predefined, PredefinedEnterprise, PredefinedItems, PredefinedItemsEnterprise } from "./types"
 
 export const exportPredefinedToEnterprise = (
-  _configurationSettings: Context,
+  _context: Context,
   data: Predefined | undefined
 ): PredefinedEnterprise | undefined => {
   if (!data) return undefined
@@ -15,12 +15,12 @@ export const exportPredefinedToEnterprise = (
 }
 
 export const exportPredefinedItemsToEnterprise = (
-  _configurationSettings: Context,
+  _context: Context,
   data: PredefinedItems | undefined
 ): PredefinedItemsEnterprise | undefined => {
   if (!data) return undefined
 
   return Object.fromEntries(
-    data.map((item) => [item.name, exportPredefinedToEnterprise(_configurationSettings, item)!])
+    data.map((item) => [item.name, exportPredefinedToEnterprise(_context, item)!])
   ) as PredefinedItemsEnterprise
 }

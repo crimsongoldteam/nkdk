@@ -11,28 +11,28 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importPictureDecorationFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: PictureDecorationXML | undefined
 ): PictureDecoration | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormDecorationFromXML(configurationSettings, xml)!,
+    ...importFormDecorationFromXML(context, xml)!,
     elementType: FormElementType.PictureDecoration,
 
-    border: importBorderFromXML(configurationSettings, xml.Border),
-    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
+    border: importBorderFromXML(context, xml.Border),
+    borderColor: importColorFromXML(context, xml.BorderColor),
     enableDrag: xml.EnableDrag,
     enableStartDrag: xml.EnableStartDrag,
     fileDragMode: xml.FileDragMode,
     hyperlink: xml.Hyperlink,
     nonselectedPictureText: xml.NonselectedPictureText,
-    picture: importPictureFromXML(configurationSettings, xml.Picture),
+    picture: importPictureFromXML(context, xml.Picture),
     pictureSize: xml.PictureSize,
     scale: xml.Scale,
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     zoomable: xml.Zoomable,
-    events: importEventsFromXML(configurationSettings, xml.Events),
+    events: importEventsFromXML(context, xml.Events),
   })
 }
 

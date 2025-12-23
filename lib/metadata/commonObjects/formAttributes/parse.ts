@@ -6,7 +6,7 @@ import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse
 import { Context } from "~/lib/metadata/context/types"
 import { FormAttribute } from "../types"
 
-export const parseAttributes = (yamlContent: string, configurationSettings: Context): FormAttribute[] => {
+export const parseAttributes = (yamlContent: string, context: Context): FormAttribute[] => {
   const parsed = parse(yamlContent) as Record<string, any>
   const result: FormAttribute[] = []
 
@@ -19,27 +19,27 @@ export const parseAttributes = (yamlContent: string, configurationSettings: Cont
     if (data && typeof data === "object") {
       // Обработка Заголовок
       if ("Заголовок" in data) {
-        attribute.title = parseI8nText(data.Заголовок, configurationSettings)
+        attribute.title = parseI8nText(data.Заголовок, context)
       }
 
       // Обработка Тип
       if ("Тип" in data && typeof data.Тип === "string") {
-        attribute.type = importTypeDescriptionFromEnterprise(configurationSettings, data.Тип)
+        attribute.type = importTypeDescriptionFromEnterprise(context, data.Тип)
       }
 
       // Обработка ОсновнойАтрибут
       if ("ОсновнойАтрибут" in data) {
-        attribute.mainAttribute = parseBoolean(data.ОсновнойАтрибут, configurationSettings)
+        attribute.mainAttribute = parseBoolean(data.ОсновнойАтрибут, context)
       }
 
       // Обработка СохраняемыеДанные
       if ("СохраняемыеДанные" in data) {
-        attribute.storedData = parseBoolean(data.СохраняемыеДанные, configurationSettings)
+        attribute.storedData = parseBoolean(data.СохраняемыеДанные, context)
       }
 
       if ("РазрешитьИспользование" in data || "ЗапретитьИспользование" in data) {
         const userVisibleKey = "РазрешитьИспользование" in data ? "РазрешитьИспользование" : "ЗапретитьИспользование"
-        attribute.use = parseUserVisible(data[userVisibleKey], userVisibleKey, configurationSettings)
+        attribute.use = parseUserVisible(data[userVisibleKey], userVisibleKey, context)
       }
     }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { parseAttributes } from "./parse"
 import { FormAttribute } from "./types"
 
@@ -21,7 +21,7 @@ describe("parseAttributes", () => {
       },
     ]
 
-    const result = parseAttributes(orignalContent, mockConfigurationSettings)
+    const result = parseAttributes(orignalContent, mockcontext)
 
     expect(result).toEqual(expectedResult)
   })

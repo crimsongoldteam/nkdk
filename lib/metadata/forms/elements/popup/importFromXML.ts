@@ -8,20 +8,20 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importPopupFromXML = (configurationSettings: Context, xml: PopupXML | undefined): Popup | undefined => {
+export const importPopupFromXML = (context: Context, xml: PopupXML | undefined): Popup | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormGroupFromXML(configurationSettings, xml)!,
+    ...importFormGroupFromXML(context, xml)!,
     elementType: FormElementType.Popup,
 
-    backColor: importColorFromXML(configurationSettings, xml.BackColor),
-    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
-    picture: importPictureFromXML(configurationSettings, xml.Picture),
+    backColor: importColorFromXML(context, xml.BackColor),
+    borderColor: importColorFromXML(context, xml.BorderColor),
+    picture: importPictureFromXML(context, xml.Picture),
     representation: xml.Representation,
     shape: xml.Shape,
     shapeRepresentation: xml.ShapeRepresentation,
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
   })
 }
 

@@ -15,7 +15,7 @@ import { importBooleanFromXML } from "../boolean/importFromXML"
 import { getDefaults } from "./defaults"
 
 export const importMetadataAttributeFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: MetadataAttributeXML | undefined
 ): MetadataAttribute | undefined => {
   if (!xml) return undefined
@@ -24,56 +24,53 @@ export const importMetadataAttributeFromXML = (
 
   const result = {
     binaryDataStorageLocationUse: props.BinaryDataStorageLocationUse,
-    binaryDataStorageLocationUseField: importBooleanFromXML(
-      configurationSettings,
-      props.BinaryDataStorageLocationUseField
-    ),
+    binaryDataStorageLocationUseField: importBooleanFromXML(context, props.BinaryDataStorageLocationUseField),
     choiceFoldersAndItems: props.ChoiceFoldersAndItems,
     choiceForm: props.ChoiceForm,
     choiceHistoryOnInput: props.ChoiceHistoryOnInput,
-    choiceParameterLinks: importChoiceParameterLinksFromXML(configurationSettings, props.ChoiceParameterLinks),
-    choiceParameters: importChoiceParameterLinksFromXML(configurationSettings, props.ChoiceParameters),
+    choiceParameterLinks: importChoiceParameterLinksFromXML(context, props.ChoiceParameterLinks),
+    choiceParameters: importChoiceParameterLinksFromXML(context, props.ChoiceParameters),
     comment: props.Comment,
     createOnInput: props.CreateOnInput,
     dataHistory: props.DataHistory,
-    editFormat: importI8nTextFromXML(configurationSettings, props.EditFormat),
-    extendedEdit: importBooleanFromXML(configurationSettings, props.ExtendedEdit),
+    editFormat: importI8nTextFromXML(context, props.EditFormat),
+    extendedEdit: importBooleanFromXML(context, props.ExtendedEdit),
     fillChecking: props.FillChecking,
-    fillFromFillingValue: importBooleanFromXML(configurationSettings, props.FillFromFillingValue),
-    fillingValue: importMetadataValueFromXML(configurationSettings, props.FillingValue),
-    format: importI8nTextFromXML(configurationSettings, props.Format),
+    fillFromFillingValue: importBooleanFromXML(context, props.FillFromFillingValue),
+    fillingValue: importMetadataValueFromXML(context, props.FillingValue),
+    format: importI8nTextFromXML(context, props.Format),
     fullTextSearch: props.FullTextSearch,
     indexing: props.Indexing,
-    linkByType: importTypeLinkFromXML(configurationSettings, props.LinkByType),
-    markNegatives: importBooleanFromXML(configurationSettings, props.MarkNegatives),
+    linkByType: importTypeLinkFromXML(context, props.LinkByType),
+    markNegatives: importBooleanFromXML(context, props.MarkNegatives),
     mask: props.Mask,
     maxValue: props.MaxValue,
     minValue: props.MinValue,
-    multiLine: importBooleanFromXML(configurationSettings, props.MultiLine),
+    multiLine: importBooleanFromXML(context, props.MultiLine),
     name: props.Name!,
     objectBelonging: props.ObjectBelonging,
-    passwordMode: importBooleanFromXML(configurationSettings, props.PasswordMode),
+    passwordMode: importBooleanFromXML(context, props.PasswordMode),
     quickChoice: props.QuickChoice,
-    synonym: importI8nTextFromXML(configurationSettings, props.Synonym),
-    tooltip: importI8nTextFromXML(configurationSettings, props.Tooltip),
-    type: importTypeDescriptionFromXML(configurationSettings, props.Type)!,
+    synonym: importI8nTextFromXML(context, props.Synonym),
+    tooltip: importI8nTextFromXML(context, props.Tooltip),
+    type: importTypeDescriptionFromXML(context, props.Type)!,
     use: props.Use,
   }
 
   const compactedResult = compactObject(result)
 
-  const defaults = getDefaults(compactedResult, configurationSettings)
+  const defaults = getDefaults(compactedResult, context)
 
   return removeDefaults(compactedResult, defaults)
 }
 
 export const importMetadataAttributesFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: MetadataAttributesXML | undefined
 ): MetadataAttributes | undefined => {
   if (!xml) return undefined
 
   const items = Array.isArray(xml) ? xml : [xml]
 
-  return items.map((value: MetadataAttributeXML) => importMetadataAttributeFromXML(configurationSettings, value)!)
+  return items.map((value: MetadataAttributeXML) => importMetadataAttributeFromXML(context, value)!)
 }

@@ -9,27 +9,27 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportViewStatusAdditionToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: ViewStatusAddition | undefined
 ): ViewStatusAdditionXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormItemAdditionToXML(configurationSettings, data)!,
+    ...exportFormItemAdditionToXML(context, data)!,
 
     AutoMaxWidth: data.autoMaxWidth,
-    BackColor: exportColorToXML(configurationSettings, data.backColor),
-    Border: exportBorderToXML(configurationSettings, data.border),
-    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
-    ButtonsBackColor: exportColorToXML(configurationSettings, data.buttonsBackColor),
-    Font: exportFontToXML(configurationSettings, data.font),
+    BackColor: exportColorToXML(context, data.backColor),
+    Border: exportBorderToXML(context, data.border),
+    BorderColor: exportColorToXML(context, data.borderColor),
+    ButtonsBackColor: exportColorToXML(context, data.buttonsBackColor),
+    Font: exportFontToXML(context, data.font),
     HorizontalAlign: data.horizontalAlign,
     HorizontalStretch: data.horizontalStretch,
     MaxWidth: data.maxWidth,
-    TextColor: exportColorToXML(configurationSettings, data.textColor),
-    TitleFont: exportFontToXML(configurationSettings, data.titleFont),
-    TitleTextColor: exportColorToXML(configurationSettings, data.titleTextColor),
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    TextColor: exportColorToXML(context, data.textColor),
+    TitleFont: exportFontToXML(context, data.titleFont),
+    TitleTextColor: exportColorToXML(context, data.titleTextColor),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     Width: data.width,
   })
 }

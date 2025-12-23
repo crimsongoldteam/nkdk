@@ -3,14 +3,11 @@ import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/ex
 import * as SE from "../../systemEnumerations/types"
 import { type Picture } from "./types"
 
-export const exportPictureToEnterprise = (
-  picture: Picture | undefined,
-  configurationSettings: Context
-): string | undefined => {
+export const exportPictureToEnterprise = (picture: Picture | undefined, context: Context): string | undefined => {
   if (!picture) return undefined
 
   if (picture.type === "StandardPicture") {
-    const result = exportSystemEnumerationToEnterprise(configurationSettings, picture.ref, SE.PictureLibToEnterprise)
+    const result = exportSystemEnumerationToEnterprise(context, picture.ref, SE.PictureLibToEnterprise)
 
     if (!result) throw new Error(`Picture ref ${picture.ref} not found in PictureLibToEnterprise`)
 

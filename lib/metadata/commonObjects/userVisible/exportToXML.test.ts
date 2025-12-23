@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { withMultipleValuesUserVisible } from "~/lib/tests/fixtures/userVisible/withMultipleValues"
 import { withSingleValueUserVisible } from "~/lib/tests/fixtures/userVisible/withSingleValue"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportUserVisibleToXML } from "./exportToXML"
@@ -13,7 +13,7 @@ describe("exportUserVisibleToXML", () => {
 
     const expectedResult = readXMLFileAsString("userVisible/withMultipleValues.xml").trimEnd()
 
-    const exported = exportUserVisibleToXML(mockConfigurationSettings, mockUserVisible)
+    const exported = exportUserVisibleToXML(mockcontext, mockUserVisible)
     const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
@@ -29,14 +29,14 @@ describe("exportUserVisibleToXML", () => {
 	<xr:Common>false</xr:Common>
 </UserVisible>`
 
-    const exported = exportUserVisibleToXML(mockConfigurationSettings, mockUserVisible)
+    const exported = exportUserVisibleToXML(mockcontext, mockUserVisible)
     const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportUserVisibleToXML(mockConfigurationSettings, undefined)
+    const result = exportUserVisibleToXML(mockcontext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -46,7 +46,7 @@ describe("exportUserVisibleToXML", () => {
 
     const expectedResult = readXMLFileAsString("userVisible/withSingleValue.xml").trimEnd()
 
-    const exported = exportUserVisibleToXML(mockConfigurationSettings, mockUserVisible)
+    const exported = exportUserVisibleToXML(mockcontext, mockUserVisible)
     const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)

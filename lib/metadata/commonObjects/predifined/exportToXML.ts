@@ -1,10 +1,7 @@
 import { Context } from "../../context/types"
 import { Predefined, PredefinedItems, PredefinedItemsXML, PredefinedXML } from "./types"
 
-export const exportPredefinedToXML = (
-  _configurationSettings: Context,
-  data: Predefined | undefined
-): PredefinedXML | undefined => {
+export const exportPredefinedToXML = (_context: Context, data: Predefined | undefined): PredefinedXML | undefined => {
   if (!data) return undefined
 
   return {
@@ -16,10 +13,10 @@ export const exportPredefinedToXML = (
 }
 
 export const exportPredefinedItemsToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: PredefinedItems | undefined
 ): PredefinedItemsXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value) => exportPredefinedToXML(configurationSettings, value)!)
+  return data.map((value) => exportPredefinedToXML(context, value)!)
 }

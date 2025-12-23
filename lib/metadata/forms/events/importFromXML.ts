@@ -6,10 +6,7 @@ function toCamelCase(str: string): string {
   return str.charAt(0).toLowerCase() + str.slice(1)
 }
 
-export const importEventsFromXML = (
-  _configurationSettings: Context,
-  xml: EventsXML | undefined
-): Events | undefined => {
+export const importEventsFromXML = (_context: Context, xml: EventsXML | undefined): Events | undefined => {
   if (!xml || xml.length === 0) return undefined
 
   const events: Events = {}

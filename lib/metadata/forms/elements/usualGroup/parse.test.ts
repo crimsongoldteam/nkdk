@@ -3,7 +3,7 @@ import { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { UsualGroup } from "./types"
 
@@ -41,7 +41,7 @@ describe("parse UsualGroup", () => {
         },
       ],
     }
-    const result = parseElement(mock, mockConfigurationSettings)
+    const result = parseElement(mock, mockcontext)
     expect(result).toEqual(expectedResult)
   })
 
@@ -78,7 +78,7 @@ describe("parse UsualGroup", () => {
         },
       ],
     }
-    const result = parseElement(mock, mockConfigurationSettings)
+    const result = parseElement(mock, mockcontext)
     expect(result).toEqual(expectedResult)
   })
 })

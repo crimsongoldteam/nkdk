@@ -14,34 +14,31 @@ import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportFormFieldToXML = (
-  configurationSettings: Context,
-  data: FormField | undefined
-): FormFieldXML | undefined => {
+export const exportFormFieldToXML = (context: Context, data: FormField | undefined): FormFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportBaseElementToXML(configurationSettings, data)!,
+    ...exportBaseElementToXML(context, data)!,
 
     AutoCellHeight: data.autoCellHeight,
     CellHyperlink: data.cellHyperlink,
-    ContextMenu: exportCommandBarToXML(configurationSettings, data.contextMenu),
+    ContextMenu: exportCommandBarToXML(context, data.contextMenu),
     DataPath: data.dataPath,
     DefaultItem: data.defaultItem,
     _DisplayImportance: data.displayImportance,
     EditMode: data.editMode,
     Enabled: data.enabled,
-    ExtendedTooltip: exportFormDecorationToXML(configurationSettings, data.extendedTooltip),
+    ExtendedTooltip: exportFormDecorationToXML(context, data.extendedTooltip),
     FixingInTable: data.fixingInTable,
-    FooterBackColor: exportColorToXML(configurationSettings, data.footerBackColor),
+    FooterBackColor: exportColorToXML(context, data.footerBackColor),
     FooterDataPath: data.footerDataPath,
-    FooterFont: exportFontToXML(configurationSettings, data.footerFont),
+    FooterFont: exportFontToXML(context, data.footerFont),
     FooterHorizontalAlign: data.footerHorizontalAlign,
-    FooterPicture: exportPictureToXML(configurationSettings, data.footerPicture),
-    FooterText: exportI8nTextToXML(configurationSettings, data.footerText),
-    FooterTextColor: exportColorToXML(configurationSettings, data.footerTextColor),
+    FooterPicture: exportPictureToXML(context, data.footerPicture),
+    FooterText: exportI8nTextToXML(context, data.footerText),
+    FooterTextColor: exportColorToXML(context, data.footerTextColor),
     HeaderHorizontalAlign: data.headerHorizontalAlign,
-    HeaderPicture: exportPictureToXML(configurationSettings, data.headerPicture),
+    HeaderPicture: exportPictureToXML(context, data.headerPicture),
     HorizontalAlign: data.horizontalAlign,
     HorizontalAlignInGroup: data.horizontalAlignInGroup,
     ReadOnly: data.readOnly,
@@ -49,24 +46,24 @@ export const exportFormFieldToXML = (
     ShowInFooter: data.showInFooter,
     ShowInHeader: data.showInHeader,
     SkipOnInput: data.skipOnInput,
-    Table: exportTableToXML(configurationSettings, data.table),
-    Title: exportI8nTextToXML(configurationSettings, data.title),
-    TitleBackColor: exportColorToXML(configurationSettings, data.titleBackColor),
-    TitleFont: exportFontToXML(configurationSettings, data.titleFont),
+    Table: exportTableToXML(context, data.table),
+    Title: exportI8nTextToXML(context, data.title),
+    TitleBackColor: exportColorToXML(context, data.titleBackColor),
+    TitleFont: exportFontToXML(context, data.titleFont),
     TitleHeight: data.titleHeight,
     TitleLocation: data.titleLocation,
-    TitleTextColor: exportColorToXML(configurationSettings, data.titleTextColor),
-    ToolTip: exportI8nTextToXML(configurationSettings, data.toolTip),
+    TitleTextColor: exportColorToXML(context, data.titleTextColor),
+    ToolTip: exportI8nTextToXML(context, data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
-    TypeRestriction: exportTypeDescriptionToXML(configurationSettings, data.typeRestriction),
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    TypeRestriction: exportTypeDescriptionToXML(context, data.typeRestriction),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalAlign: data.verticalAlign,
     VerticalAlignInGroup: data.verticalAlignInGroup,
     Visible: data.visible,
-    WarningOnEdit: exportI8nTextToXML(configurationSettings, data.warningOnEdit),
+    WarningOnEdit: exportI8nTextToXML(context, data.warningOnEdit),
     WarningOnEditRepresentation: data.warningOnEditRepresentation,
-    Events: exportEventsToXML(configurationSettings, data.events),
+    Events: exportEventsToXML(context, data.events),
   })
 }
 

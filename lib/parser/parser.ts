@@ -5,7 +5,7 @@ import { detectTreeNodes } from "./detector/detectTree"
 import { parseElement } from "./elementsParser/parse"
 import { parseTree } from "./treeParser/parseTree"
 
-const configurationSettings: Context = {
+const context: Context = {
   defaultLanguage: "ru",
 }
 
@@ -19,7 +19,7 @@ export const parse = (text: string): ClientApplicationForm => {
   }
 
   for (const node of detectedNodes) {
-    const element = parseElement(node, configurationSettings)
+    const element = parseElement(node, context)
     result.childItems?.push(element)
   }
 

@@ -1,10 +1,7 @@
 import { Context } from "../../context/types"
 import { CommandSet, CommandSetXML } from "./types"
 
-export const importCommandSetFromXML = (
-  _configurationSettings: Context,
-  xml: CommandSetXML | undefined
-): CommandSet | undefined => {
+export const importCommandSetFromXML = (_context: Context, xml: CommandSetXML | undefined): CommandSet | undefined => {
   if (!xml) return undefined
 
   const result: CommandSet = []

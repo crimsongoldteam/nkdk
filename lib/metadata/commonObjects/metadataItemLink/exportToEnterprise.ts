@@ -3,7 +3,7 @@ import { AppliedType, AppliedTypeToEnterprise } from "../typeDescription/types"
 import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinks, MetadataItemLinksEnterprise } from "./types"
 
 export const exportMetadataItemLinkToEnterprise = (
-  _configurationSettings: Context,
+  _context: Context,
   data: MetadataItemLink | undefined
 ): MetadataItemLinkEnterprise | undefined => {
   if (!data) return undefined
@@ -14,10 +14,10 @@ export const exportMetadataItemLinkToEnterprise = (
 }
 
 export const exportMetadataItemLinksToEnterprise = (
-  _configurationSettings: Context,
+  _context: Context,
   data: MetadataItemLinks | undefined
 ): MetadataItemLinksEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => exportMetadataItemLinkToEnterprise(_configurationSettings, item)!)
+  return data.map((item) => exportMetadataItemLinkToEnterprise(_context, item)!)
 }

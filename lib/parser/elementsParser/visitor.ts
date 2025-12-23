@@ -21,7 +21,7 @@ const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
 export class Visitor extends BaseVisitor {
   // #region labelDecoration
-  public labelDecoration(ctx: CstChildrenDictionary, configurationSettings: Context): LabelDecoration {
+  public labelDecoration(ctx: CstChildrenDictionary, context: Context): LabelDecoration {
     const labelContent = joinTokens(ctx.LabelContent as IToken[]) || ""
 
     const titleText = labelContent
@@ -31,7 +31,7 @@ export class Visitor extends BaseVisitor {
     return {
       elementType: FormElementType.LabelDecoration,
       name: name || "",
-      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
+      title: this.createTitle(titleText, context.defaultLanguage),
       id: undefined,
     } as LabelDecoration
   }
@@ -39,14 +39,14 @@ export class Visitor extends BaseVisitor {
 
   // #region inputField
 
-  inputField(ctx: CstChildrenDictionary, configurationSettings: Context): InputField {
+  inputField(ctx: CstChildrenDictionary, context: Context): InputField {
     const titleText = joinTokens(ctx.InputHeader as IToken[])
 
     const name = this.visit(ctx.properties as CstNode[]) || titleText
 
     const modifiers = joinTokens(ctx.InputModifiers as IToken[])
 
-    const title = this.createTitle(titleText, configurationSettings.defaultLanguage)
+    const title = this.createTitle(titleText, context.defaultLanguage)
 
     const modificators = this.addInputModifiers(modifiers)
 
@@ -98,11 +98,11 @@ export class Visitor extends BaseVisitor {
 
   // #region button
 
-  button(ctx: CstChildrenDictionary, configurationSettings: Context): Button {
+  button(ctx: CstChildrenDictionary, context: Context): Button {
     const name = joinTokens(ctx.Button as IToken[]) || ""
     const titleText = joinTokens(ctx.Button as IToken[]) || ""
 
-    const title = this.createTitle(titleText, configurationSettings.defaultLanguage)
+    const title = this.createTitle(titleText, context.defaultLanguage)
 
     return {
       elementType: FormElementType.Button,
@@ -114,7 +114,7 @@ export class Visitor extends BaseVisitor {
   // #endregion
 
   // #region checkboxField
-  rightTitledCheckboxField(ctx: CstChildrenDictionary, configurationSettings: Context): CheckBoxField {
+  rightTitledCheckboxField(ctx: CstChildrenDictionary, context: Context): CheckBoxField {
     const titleText = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
 
     const name = this.visit(ctx.properties as CstNode[]) || titleText
@@ -123,14 +123,14 @@ export class Visitor extends BaseVisitor {
     return {
       elementType: FormElementType.CheckBoxField,
       name: name || "",
-      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
+      title: this.createTitle(titleText, context.defaultLanguage),
       headerHorizontalAlign: "Right",
       id: undefined,
       checkBoxType: checkBoxType || undefined,
     } as CheckBoxField
   }
 
-  leftTitledCheckboxField(ctx: CstChildrenDictionary, configurationSettings: Context): CheckBoxField {
+  leftTitledCheckboxField(ctx: CstChildrenDictionary, context: Context): CheckBoxField {
     const titleText = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
 
@@ -139,7 +139,7 @@ export class Visitor extends BaseVisitor {
     return {
       elementType: FormElementType.CheckBoxField,
       name: name || "",
-      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
+      title: this.createTitle(titleText, context.defaultLanguage),
       id: undefined,
       checkBoxType: checkBoxType || undefined,
     } as CheckBoxField
@@ -149,7 +149,7 @@ export class Visitor extends BaseVisitor {
 
   //  #region radioButtonField
 
-  radioButtonField(ctx: CstChildrenDictionary, configurationSettings: Context): RadioButtonField {
+  radioButtonField(ctx: CstChildrenDictionary, context: Context): RadioButtonField {
     const titleText = joinTokens(ctx.RadioButtonHeader as IToken[]) || ""
 
     const name = this.visit(ctx.properties as CstNode[]) || titleText
@@ -163,13 +163,13 @@ export class Visitor extends BaseVisitor {
       items: items.map((item) => ({
         value: item.description,
         presentation: {
-          items: { [configurationSettings.defaultLanguage]: item.description },
+          items: { [context.defaultLanguage]: item.description },
         },
         checkState: item.checked ? 1 : 2,
       })),
     }
 
-    const title = this.createTitle(titleText, configurationSettings.defaultLanguage)
+    const title = this.createTitle(titleText, context.defaultLanguage)
 
     return {
       elementType: FormElementType.RadioButtonField,
@@ -190,12 +190,8 @@ export class Visitor extends BaseVisitor {
 
   // #region commandBar
 
-  commandBar(ctx: CstChildrenDictionary, configurationSettings: Context): CommandBar {
-    const childItems = visitAll(
-      this,
-      ctx.commandBarButton,
-      configurationSettings
-    ) as unknown as CommandBar["childItems"]
+  commandBar(ctx: CstChildrenDictionary, context: Context): CommandBar {
+    const childItems = visitAll(this, ctx.commandBarButton, context) as unknown as CommandBar["childItems"]
 
     // Добавляем id для кнопок
     const childItemsWithId = childItems?.map(
@@ -216,11 +212,11 @@ export class Visitor extends BaseVisitor {
     } as CommandBar
   }
 
-  commandBarButton(ctx: CstChildrenDictionary, configurationSettings: Context): Button {
+  commandBarButton(ctx: CstChildrenDictionary, context: Context): Button {
     const name = joinTokens(ctx.Button as IToken[]) || ""
     const titleText = joinTokens(ctx.Button as IToken[]) || ""
 
-    const title = this.createTitle(titleText, configurationSettings.defaultLanguage)
+    const title = this.createTitle(titleText, context.defaultLanguage)
 
     return {
       elementType: FormElementType.Button,
@@ -313,13 +309,13 @@ export class Visitor extends BaseVisitor {
   // }
 
   // #region table
-  table(ctx: CstChildrenDictionary, configurationSettings: Context): Table {
+  table(ctx: CstChildrenDictionary, context: Context): Table {
     // Обрабатываем tableLine - это массив из AT_LEAST_ONE
     // В Chevrotain AT_LEAST_ONE создает массив с именем правила
     const tableLineValue = ctx.tableLine
     const tableLineArray = tableLineValue ? (Array.isArray(tableLineValue) ? tableLineValue : [tableLineValue]) : []
 
-    const tableLines = visitAll(this, tableLineArray as CstNode[], configurationSettings) as unknown as Array<{
+    const tableLines = visitAll(this, tableLineArray as CstNode[], context) as unknown as Array<{
       cells: Array<{ name: string; properties?: string }>
     }>
 
@@ -353,13 +349,10 @@ export class Visitor extends BaseVisitor {
     } as Table
   }
 
-  tableLine(
-    ctx: CstChildrenDictionary,
-    configurationSettings: Context
-  ): { cells: Array<{ name: string; properties?: string }> } {
+  tableLine(ctx: CstChildrenDictionary, context: Context): { cells: Array<{ name: string; properties?: string }> } {
     // Обрабатываем ячейки из AT_LEAST_ONE_SEP
     // В Chevrotain AT_LEAST_ONE_SEP создает массив с именем правила (tableCell)
-    const cells = visitAll(this, ctx.tableCell as CstNode[], configurationSettings) as unknown as Array<{
+    const cells = visitAll(this, ctx.tableCell as CstNode[], context) as unknown as Array<{
       name: string
       properties?: string
     }>
@@ -367,7 +360,7 @@ export class Visitor extends BaseVisitor {
     return { cells }
   }
 
-  tableCell(ctx: CstChildrenDictionary, configurationSettings: Context): { name: string; properties?: string } {
+  tableCell(ctx: CstChildrenDictionary, context: Context): { name: string; properties?: string } {
     const tableDataCellNodes = ctx.tableDataCell
       ? (Array.isArray(ctx.tableDataCell) ? ctx.tableDataCell : [ctx.tableDataCell]).filter(
           (item) => "children" in item
@@ -378,7 +371,7 @@ export class Visitor extends BaseVisitor {
       return { name: "", properties: undefined }
     }
 
-    const tableDataCell = this.visit(tableDataCellNodes[0] as CstNode, configurationSettings) as {
+    const tableDataCell = this.visit(tableDataCellNodes[0] as CstNode, context) as {
       name: string
       properties?: string
     }
@@ -386,7 +379,7 @@ export class Visitor extends BaseVisitor {
     return tableDataCell
   }
 
-  tableDataCell(ctx: CstChildrenDictionary, _configurationSettings: Context): { name: string; properties?: string } {
+  tableDataCell(ctx: CstChildrenDictionary, _context: Context): { name: string; properties?: string } {
     // TableCellContinue с LABEL: "TableCell" попадает в тот же массив
     const tableCellTokens = (ctx.TableCell as IToken[]) || []
     const cellName = joinTokens(tableCellTokens) || ""
@@ -408,25 +401,25 @@ export class Visitor extends BaseVisitor {
   // #endregion
 
   // #region pages
-  pages(ctx: CstChildrenDictionary, configurationSettings: Context): Pages {
+  pages(ctx: CstChildrenDictionary, context: Context): Pages {
     const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
       elementType: FormElementType.Pages,
       name: name || titleText,
-      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
+      title: this.createTitle(titleText, context.defaultLanguage),
       id: undefined,
       childItems: [],
     } as Pages
   }
 
-  page(ctx: CstChildrenDictionary, configurationSettings: Context): Page {
+  page(ctx: CstChildrenDictionary, context: Context): Page {
     const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
       elementType: FormElementType.Page,
       name: name || titleText,
-      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
+      title: this.createTitle(titleText, context.defaultLanguage),
       id: undefined,
       childItems: [],
     } as Page
@@ -435,27 +428,27 @@ export class Visitor extends BaseVisitor {
   // #endregion
 
   // #region verticalGroup
-  verticalGroup(ctx: CstChildrenDictionary, configurationSettings: Context): UsualGroup {
+  verticalGroup(ctx: CstChildrenDictionary, context: Context): UsualGroup {
     const titleText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
       elementType: FormElementType.UsualGroup,
       group: "Vertical",
       name: name || titleText,
-      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
+      title: this.createTitle(titleText, context.defaultLanguage),
       id: undefined,
       childItems: [],
     } as UsualGroup
   }
 
-  horizontalGroup(ctx: CstChildrenDictionary, configurationSettings: Context): UsualGroup {
+  horizontalGroup(ctx: CstChildrenDictionary, context: Context): UsualGroup {
     const titleText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
       elementType: FormElementType.UsualGroup,
       group: "Horizontal",
       name: name || titleText,
-      title: this.createTitle(titleText, configurationSettings.defaultLanguage),
+      title: this.createTitle(titleText, context.defaultLanguage),
       id: undefined,
       childItems: [],
     } as UsualGroup

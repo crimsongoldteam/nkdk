@@ -9,18 +9,15 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importUsualGroupFromXML = (
-  configurationSettings: Context,
-  xml: UsualGroupXML | undefined
-): UsualGroup | undefined => {
+export const importUsualGroupFromXML = (context: Context, xml: UsualGroupXML | undefined): UsualGroup | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormGroupFromXML(configurationSettings, xml)!,
+    ...importFormGroupFromXML(context, xml)!,
     elementType: FormElementType.UsualGroup,
 
-    associatedTable: importTableFromXML(configurationSettings, xml.AssociatedTable),
-    backColor: importColorFromXML(configurationSettings, xml.BackColor),
+    associatedTable: importTableFromXML(context, xml.AssociatedTable),
+    backColor: importColorFromXML(context, xml.BackColor),
     behavior: xml.Behavior,
     childItemsHorizontalAlign: xml.ChildItemsHorizontalAlign,
     childItemsVerticalAlign: xml.ChildItemsVerticalAlign,
@@ -28,14 +25,11 @@ export const importUsualGroupFromXML = (
     controlRepresentation: xml.ControlRepresentation,
     currentRowUse: xml.CurrentRowUse,
     displayImportance: xml._DisplayImportance,
-    format: importI8nTextFromXML(configurationSettings, xml.Format),
+    format: importI8nTextFromXML(context, xml.Format),
     group: xml.Group,
     groupHorizontalAlign: xml.GroupHorizontalAlign,
     groupVerticalAlign: xml.GroupVerticalAlign,
-    hiddenRepresentationTitleBackColor: importColorFromXML(
-      configurationSettings,
-      xml.HiddenRepresentationTitleBackColor
-    ),
+    hiddenRepresentationTitleBackColor: importColorFromXML(context, xml.HiddenRepresentationTitleBackColor),
     horizontalSpacing: xml.HorizontalSpacing,
     itemsAndTitlesAlign: xml.ItemsAndTitlesAlign,
     representation: xml.Representation,
@@ -45,7 +39,7 @@ export const importUsualGroupFromXML = (
     throughAlign: xml.ThroughAlign,
     titleDataPath: xml.TitleDataPath,
     united: xml.United,
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalAlign: xml.VerticalAlign,
     verticalSpacing: xml.VerticalSpacing,
   })

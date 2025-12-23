@@ -8,13 +8,13 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importGanttChartFieldFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: GanttChartFieldXML | undefined
 ): GanttChartField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(configurationSettings, xml)!,
+    ...importFormFieldFromXML(context, xml)!,
     elementType: FormElementType.GanttChartField,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -26,12 +26,12 @@ export const importGanttChartFieldFromXML = (
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
     tableLocation: xml.TableLocation,
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     valuesSelectionMode: xml.ValuesSelectionMode,
     verticalLines: xml.VerticalLines,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: importEventsFromXML(configurationSettings, xml.Events),
+    events: importEventsFromXML(context, xml.Events),
   })
 }
 

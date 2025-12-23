@@ -7,18 +7,18 @@ import { ParseElementType } from "../types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
 
-export const parseElement = (element: DetectedTreeNode, configurationSettings: Context): BaseElement => {
+export const parseElement = (element: DetectedTreeNode, context: Context): BaseElement => {
   const ast = parseByElementType(element)
 
-  const cst = visitor.visit(ast, configurationSettings)
+  const cst = visitor.visit(ast, context)
 
   // Обрабатываем childItems рекурсивно
-  addChildItemsToResult(cst, element, configurationSettings)
+  addChildItemsToResult(cst, element, context)
 
   return cst
 }
 
-const addChildItemsToResult = (cst: BaseElement, element: DetectedTreeNode, configurationSettings: Context): void => {
+const addChildItemsToResult = (cst: BaseElement, element: DetectedTreeNode, context: Context): void => {
   if (!("childItems" in cst)) return
 
   if (element.type === ParseElementType.CommandBar) return
@@ -29,7 +29,7 @@ const addChildItemsToResult = (cst: BaseElement, element: DetectedTreeNode, conf
     return
   }
 
-  cst.childItems = element.childItems?.map((child) => parseElement(child, configurationSettings)) || []
+  cst.childItems = element.childItems?.map((child) => parseElement(child, context)) || []
 }
 
 const parseByElementType = (element: DetectedTreeNode): CstNode => {

@@ -3,7 +3,7 @@ import { xmlExport, xmlImport } from "~/lib"
 import "~/lib/metadata/forms/elements/elements"
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { exportUsualGroupToXML } from "./exportToXML"
 import { importUsualGroupFromXML } from "./importFromXML"
@@ -37,14 +37,14 @@ describe("exportUsualGroupToXML", () => {
 	</Title>
 </UsualGroup>`
 
-    const result = { UsualGroup: exportUsualGroupToXML(mockConfigurationSettings, mockElement) }
+    const result = { UsualGroup: exportUsualGroupToXML(mockcontext, mockElement) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportUsualGroupToXML(mockConfigurationSettings, undefined)
+    const result = exportUsualGroupToXML(mockcontext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -64,8 +64,8 @@ describe("exportUsualGroupToXML", () => {
 </UsualGroup>`
 
     const xml = xmlImport<{ UsualGroup: UsualGroupXML }>(originalXml)
-    const imported = importUsualGroupFromXML(mockConfigurationSettings, xml.UsualGroup)
-    const exported = exportUsualGroupToXML(mockConfigurationSettings, imported)
+    const imported = importUsualGroupFromXML(mockcontext, xml.UsualGroup)
+    const exported = exportUsualGroupToXML(mockcontext, imported)
     const resultXml = xmlExport({ UsualGroup: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

@@ -12,7 +12,7 @@ import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterp
 import { MetadataValue } from "../metadataValue/types"
 
 export const exportCharacteristicsDescriptionToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: CharacteristicsDescription | undefined
 ): CharacteristicsDescriptionEnterprise | undefined => {
   if (!data) return undefined
@@ -26,34 +26,26 @@ export const exportCharacteristicsDescriptionToEnterprise = (
     : undefined
 
   return compactObject<CharacteristicsDescriptionEnterprise>({
-    ВидыХарактеристик: exportMetadataItemLinkToEnterprise(configurationSettings, data.characteristicTypes),
-    ЗначениеОтбораВидов: exportMetadataValueToEnterprise(configurationSettings, typesFilterValueMetadata),
-    ЗначенияХарактеристик: exportMetadataValueToEnterprise(configurationSettings, characteristicValuesMetadata),
-    ПолеВида: exportMetadataFieldToEnterprise(configurationSettings, data.typeField),
-    ПолеЗначения: exportMetadataFieldToEnterprise(configurationSettings, data.valueField),
-    ПолеИспользованияМножественныхЗначений: exportMetadataFieldToEnterprise(
-      configurationSettings,
-      data.multipleValuesUseField
-    ),
-    ПолеКлюча: exportMetadataFieldToEnterprise(configurationSettings, data.keyField),
-    ПолеКлючаМножественныхЗначений: exportMetadataFieldToEnterprise(configurationSettings, data.multipleValuesKeyField),
-    ПолеОбъекта: exportMetadataFieldToEnterprise(configurationSettings, data.objectField),
-    ПолеОтбораВидов: exportMetadataFieldToEnterprise(configurationSettings, data.typesFilterField),
-    ПолеПорядкаМножественныхЗначений: exportMetadataFieldToEnterprise(
-      configurationSettings,
-      data.multipleValuesOrderField
-    ),
-    ПолеПутиКДанным: exportMetadataFieldToEnterprise(configurationSettings, data.dataPathField),
+    ВидыХарактеристик: exportMetadataItemLinkToEnterprise(context, data.characteristicTypes),
+    ЗначениеОтбораВидов: exportMetadataValueToEnterprise(context, typesFilterValueMetadata),
+    ЗначенияХарактеристик: exportMetadataValueToEnterprise(context, characteristicValuesMetadata),
+    ПолеВида: exportMetadataFieldToEnterprise(context, data.typeField),
+    ПолеЗначения: exportMetadataFieldToEnterprise(context, data.valueField),
+    ПолеИспользованияМножественныхЗначений: exportMetadataFieldToEnterprise(context, data.multipleValuesUseField),
+    ПолеКлюча: exportMetadataFieldToEnterprise(context, data.keyField),
+    ПолеКлючаМножественныхЗначений: exportMetadataFieldToEnterprise(context, data.multipleValuesKeyField),
+    ПолеОбъекта: exportMetadataFieldToEnterprise(context, data.objectField),
+    ПолеОтбораВидов: exportMetadataFieldToEnterprise(context, data.typesFilterField),
+    ПолеПорядкаМножественныхЗначений: exportMetadataFieldToEnterprise(context, data.multipleValuesOrderField),
+    ПолеПутиКДанным: exportMetadataFieldToEnterprise(context, data.dataPathField),
   })
 }
 
 export const exportCharacteristicsDescriptionsToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: CharacteristicsDescriptions | undefined
 ): CharacteristicsDescriptionsEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map(
-    (value: CharacteristicsDescription) => exportCharacteristicsDescriptionToEnterprise(configurationSettings, value)!
-  )
+  return data.map((value: CharacteristicsDescription) => exportCharacteristicsDescriptionToEnterprise(context, value)!)
 }

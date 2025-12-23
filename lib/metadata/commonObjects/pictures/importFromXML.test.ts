@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { importPictureFromXML } from "./importFromXML"
 import { PictureXML } from "./types"
 
 describe("importPictureFromXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importPictureFromXML(mockConfigurationSettings, undefined)
+    const result = importPictureFromXML(mockcontext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -22,7 +22,7 @@ describe("importPictureFromXML", () => {
       loadTransparent: true,
     }
 
-    const result = importPictureFromXML(mockConfigurationSettings, xmlData)
+    const result = importPictureFromXML(mockcontext, xmlData)
 
     expect(result).toEqual(expectedResult)
   })
@@ -39,7 +39,7 @@ describe("importPictureFromXML", () => {
       loadTransparent: true,
     }
 
-    const result = importPictureFromXML(mockConfigurationSettings, xmlData)
+    const result = importPictureFromXML(mockcontext, xmlData)
 
     expect(result).toEqual(expectedResult)
   })

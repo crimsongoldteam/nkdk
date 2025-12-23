@@ -10,31 +10,28 @@ import { FormGroup, FormGroupXML } from "~/lib/metadata/forms/elements/formGroup
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportFormGroupToXML = (
-  configurationSettings: Context,
-  data: FormGroup | undefined
-): FormGroupXML | undefined => {
+export const exportFormGroupToXML = (context: Context, data: FormGroup | undefined): FormGroupXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportBaseElementToXML(configurationSettings, data)!,
+    ...exportBaseElementToXML(context, data)!,
 
-    ChildItems: exportChildItemsToXML(configurationSettings, data.childItems),
+    ChildItems: exportChildItemsToXML(context, data.childItems),
     EnableContentChange: data.enableContentChange,
     Enabled: data.enabled,
-    ExtendedTooltip: exportFormDecorationToXML(configurationSettings, data.extendedTooltip),
+    ExtendedTooltip: exportFormDecorationToXML(context, data.extendedTooltip),
     Height: data.height,
     HorizontalAlignInGroup: data.horizontalAlignInGroup,
     HorizontalStretch: data.horizontalStretch,
     ReadOnly: data.readOnly,
     Shortcut: data.shortcut,
-    Title: exportI8nTextToXML(configurationSettings, data.title),
-    TitleFont: exportFontToXML(configurationSettings, data.titleFont),
-    TitleTextColor: exportColorToXML(configurationSettings, data.titleTextColor),
-    ToolTip: exportI8nTextToXML(configurationSettings, data.toolTip),
+    Title: exportI8nTextToXML(context, data.title),
+    TitleFont: exportFontToXML(context, data.titleFont),
+    TitleTextColor: exportColorToXML(context, data.titleTextColor),
+    ToolTip: exportI8nTextToXML(context, data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,

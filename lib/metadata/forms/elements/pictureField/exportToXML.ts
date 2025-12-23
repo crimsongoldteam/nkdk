@@ -11,22 +11,22 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPictureFieldToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: PictureField | undefined
 ): PictureFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(configurationSettings, data)!,
+    ...exportFormFieldToXML(context, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    Border: exportBorderToXML(configurationSettings, data.border),
-    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
+    Border: exportBorderToXML(context, data.border),
+    BorderColor: exportColorToXML(context, data.borderColor),
     EnableDrag: data.enableDrag,
     EnableStartDrag: data.enableStartDrag,
     FileDragMode: data.fileDragMode,
-    Font: exportFontToXML(configurationSettings, data.font),
+    Font: exportFontToXML(context, data.font),
     Height: data.height,
     HorizontalStretch: data.horizontalStretch,
     Hyperlink: data.hyperlink,
@@ -35,13 +35,13 @@ export const exportPictureFieldToXML = (
     NonselectedPictureText: data.nonselectedPictureText,
     PictureSize: data.pictureSize,
     Scale: data.scale,
-    TextColor: exportColorToXML(configurationSettings, data.textColor),
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
-    ValuesPicture: exportPictureToXML(configurationSettings, data.valuesPicture),
+    TextColor: exportColorToXML(context, data.textColor),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
+    ValuesPicture: exportPictureToXML(context, data.valuesPicture),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     Zoomable: data.zoomable,
-    Events: exportEventsToXML(configurationSettings, data.events),
+    Events: exportEventsToXML(context, data.events),
   })
 }
 

@@ -13,31 +13,31 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importFormattedDocumentFieldFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: FormattedDocumentFieldXML | undefined
 ): FormattedDocumentField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(configurationSettings, xml)!,
+    ...importFormFieldFromXML(context, xml)!,
     elementType: FormElementType.FormattedDocumentField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    backColor: importColorFromXML(configurationSettings, xml.BackColor),
-    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
-    font: importFontFromXML(configurationSettings, xml.Font),
+    backColor: importColorFromXML(context, xml.BackColor),
+    borderColor: importColorFromXML(context, xml.BorderColor),
+    font: importFontFromXML(context, xml.Font),
     height: xml.Height,
     horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
     output: xml.Output,
     selectedText: xml.SelectedText,
-    textColor: importColorFromXML(configurationSettings, xml.TextColor),
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    textColor: importColorFromXML(context, xml.TextColor),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: importEventsFromXML(configurationSettings, xml.Events),
+    events: importEventsFromXML(context, xml.Events),
   })
 }
 

@@ -5,7 +5,7 @@ import { LabelDecoration } from "./types"
 
 export const formatLabelDecoration: FormatElementFunction = (
   element: LabelDecoration,
-  _configurationSettings: Context
+  _context: Context
 ): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: [element.title?.items.ru + " " + formatElementName(element)],

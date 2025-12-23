@@ -12,23 +12,23 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importPictureFieldFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: PictureFieldXML | undefined
 ): PictureField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(configurationSettings, xml)!,
+    ...importFormFieldFromXML(context, xml)!,
     elementType: FormElementType.PictureField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    border: importBorderFromXML(configurationSettings, xml.Border),
-    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
+    border: importBorderFromXML(context, xml.Border),
+    borderColor: importColorFromXML(context, xml.BorderColor),
     enableDrag: xml.EnableDrag,
     enableStartDrag: xml.EnableStartDrag,
     fileDragMode: xml.FileDragMode,
-    font: importFontFromXML(configurationSettings, xml.Font),
+    font: importFontFromXML(context, xml.Font),
     height: xml.Height,
     horizontalStretch: xml.HorizontalStretch,
     hyperlink: xml.Hyperlink,
@@ -37,13 +37,13 @@ export const importPictureFieldFromXML = (
     nonselectedPictureText: xml.NonselectedPictureText,
     pictureSize: xml.PictureSize,
     scale: xml.Scale,
-    textColor: importColorFromXML(configurationSettings, xml.TextColor),
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
-    valuesPicture: importPictureFromXML(configurationSettings, xml.ValuesPicture),
+    textColor: importColorFromXML(context, xml.TextColor),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
+    valuesPicture: importPictureFromXML(context, xml.ValuesPicture),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     zoomable: xml.Zoomable,
-    events: importEventsFromXML(configurationSettings, xml.Events),
+    events: importEventsFromXML(context, xml.Events),
   })
 }
 

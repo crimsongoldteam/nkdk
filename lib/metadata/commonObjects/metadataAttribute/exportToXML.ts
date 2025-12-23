@@ -15,12 +15,12 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { getDefaults } from "./defaults"
 
 export const exportMetadataAttributeToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: MetadataAttribute | undefined
 ): MetadataAttributeXML | undefined => {
   if (!data) return undefined
 
-  const defaults = getDefaults(data, configurationSettings)
+  const defaults = getDefaults(data, context)
   const mergedData = { ...defaults, ...data }
 
   const result: MetadataAttributeXML = {
@@ -31,20 +31,20 @@ export const exportMetadataAttributeToXML = (
       ChoiceFoldersAndItems: mergedData.choiceFoldersAndItems,
       ChoiceForm: mergedData.choiceForm,
       ChoiceHistoryOnInput: mergedData.choiceHistoryOnInput,
-      ChoiceParameterLinks: exportChoiceParameterLinksToXML(configurationSettings, mergedData.choiceParameterLinks),
-      ChoiceParameters: exportChoiceParameterLinksToXML(configurationSettings, mergedData.choiceParameters),
+      ChoiceParameterLinks: exportChoiceParameterLinksToXML(context, mergedData.choiceParameterLinks),
+      ChoiceParameters: exportChoiceParameterLinksToXML(context, mergedData.choiceParameters),
       Comment: mergedData.comment,
       CreateOnInput: mergedData.createOnInput,
       DataHistory: mergedData.dataHistory,
-      EditFormat: exportI8nTextToXML(configurationSettings, mergedData.editFormat),
+      EditFormat: exportI8nTextToXML(context, mergedData.editFormat),
       ExtendedEdit: mergedData.extendedEdit,
       FillChecking: mergedData.fillChecking,
       FillFromFillingValue: mergedData.fillFromFillingValue,
-      FillingValue: exportMetadataValueToXML(configurationSettings, mergedData.fillingValue),
-      Format: exportI8nTextToXML(configurationSettings, mergedData.format),
+      FillingValue: exportMetadataValueToXML(context, mergedData.fillingValue),
+      Format: exportI8nTextToXML(context, mergedData.format),
       FullTextSearch: mergedData.fullTextSearch,
       Indexing: mergedData.indexing,
-      LinkByType: exportTypeLinkToXML(configurationSettings, mergedData.linkByType),
+      LinkByType: exportTypeLinkToXML(context, mergedData.linkByType),
       MarkNegatives: mergedData.markNegatives,
       Mask: mergedData.mask,
       MaxValue: mergedData.maxValue,
@@ -54,9 +54,9 @@ export const exportMetadataAttributeToXML = (
       ObjectBelonging: mergedData.objectBelonging,
       PasswordMode: mergedData.passwordMode,
       QuickChoice: mergedData.quickChoice,
-      Synonym: exportI8nTextToXML(configurationSettings, mergedData.synonym),
-      Tooltip: exportI8nTextToXML(configurationSettings, mergedData.tooltip),
-      Type: exportTypeDescriptionToXML(configurationSettings, mergedData.type)!,
+      Synonym: exportI8nTextToXML(context, mergedData.synonym),
+      Tooltip: exportI8nTextToXML(context, mergedData.tooltip),
+      Type: exportTypeDescriptionToXML(context, mergedData.type)!,
       Use: mergedData.use,
     })!,
   }
@@ -65,12 +65,12 @@ export const exportMetadataAttributeToXML = (
 }
 
 export const exportMetadataAttributesToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: MetadataAttributes | undefined
 ): MetadataAttributesXML | undefined => {
   if (!data) return undefined
 
-  const result = data.map((value: MetadataAttribute) => exportMetadataAttributeToXML(configurationSettings, value)!)
+  const result = data.map((value: MetadataAttribute) => exportMetadataAttributeToXML(context, value)!)
 
   return result.length === 1 ? result[0] : result
 }

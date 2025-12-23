@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { xmlImport } from "~/lib"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { importTypeLinkFromXML } from "./importFromXML"
 import { TypeLink, TypeLinkXML } from "./types"
 
 describe("importTypeLinkFromXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importTypeLinkFromXML(mockConfigurationSettings, undefined)
+    const result = importTypeLinkFromXML(mockcontext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -24,7 +24,7 @@ describe("importTypeLinkFromXML", () => {
 
     const xml = xmlImport<{ TypeLink: TypeLinkXML }>(xmlData)
 
-    const result = importTypeLinkFromXML(mockConfigurationSettings, xml.TypeLink)
+    const result = importTypeLinkFromXML(mockcontext, xml.TypeLink)
 
     expect(result).toEqual(expectedResult)
   })

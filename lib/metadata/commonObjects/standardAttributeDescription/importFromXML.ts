@@ -15,7 +15,7 @@ import { importBooleanFromXML } from "../boolean/importFromXML"
 import { getDefaults } from "./defaults"
 
 export const importStandardAttributeDescriptionFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: StandardAttributeDescriptionXML | undefined
 ): StandardAttributeDescription | undefined => {
   if (!xml) return undefined
@@ -23,35 +23,35 @@ export const importStandardAttributeDescriptionFromXML = (
   const result = {
     choiceForm: xml["xr:ChoiceForm"],
     choiceHistoryOnInput: xml["xr:ChoiceHistoryOnInput"],
-    choiceParameterLinks: importChoiceParameterLinksFromXML(configurationSettings, xml["xr:ChoiceParameterLinks"]),
-    choiceParameters: importChoiceParameterLinksFromXML(configurationSettings, xml["xr:ChoiceParameters"]),
+    choiceParameterLinks: importChoiceParameterLinksFromXML(context, xml["xr:ChoiceParameterLinks"]),
+    choiceParameters: importChoiceParameterLinksFromXML(context, xml["xr:ChoiceParameters"]),
     comment: xml["xr:Comment"],
     createOnInput: xml["xr:CreateOnInput"],
     dataHistory: xml["xr:DataHistory"],
-    editFormat: importI8nTextFromXML(configurationSettings, xml["xr:EditFormat"]),
-    extendedEdit: importBooleanFromXML(configurationSettings, xml["xr:ExtendedEdit"]),
+    editFormat: importI8nTextFromXML(context, xml["xr:EditFormat"]),
+    extendedEdit: importBooleanFromXML(context, xml["xr:ExtendedEdit"]),
     fillChecking: xml["xr:FillChecking"],
     fillFromFillingValue: xml["xr:FillFromFillingValue"],
-    fillValue: importMetadataValueFromXML(configurationSettings, xml["xr:FillValue"]),
-    format: importI8nTextFromXML(configurationSettings, xml["xr:Format"]),
+    fillValue: importMetadataValueFromXML(context, xml["xr:FillValue"]),
+    format: importI8nTextFromXML(context, xml["xr:Format"]),
     fullTextSearch: xml["xr:FullTextSearch"],
-    linkByType: importTypeLinkFromXML(configurationSettings, xml["xr:LinkByType"]),
+    linkByType: importTypeLinkFromXML(context, xml["xr:LinkByType"]),
     markNegatives: xml["xr:MarkNegatives"],
     mask: xml["xr:Mask"],
     maxValue: xml["xr:MaxValue"],
     minValue: xml["xr:MinValue"],
-    multiLine: importBooleanFromXML(configurationSettings, xml["xr:MultiLine"]),
+    multiLine: importBooleanFromXML(context, xml["xr:MultiLine"]),
     name: xml._name,
-    passwordMode: importBooleanFromXML(configurationSettings, xml["xr:PasswordMode"]),
+    passwordMode: importBooleanFromXML(context, xml["xr:PasswordMode"]),
     quickChoice: xml["xr:QuickChoice"],
-    synonym: importI8nTextFromXML(configurationSettings, xml["xr:Synonym"]),
-    toolTip: importI8nTextFromXML(configurationSettings, xml["xr:ToolTip"]),
-    type: importTypeDescriptionFromXML(configurationSettings, xml["xr:Type"]),
+    synonym: importI8nTextFromXML(context, xml["xr:Synonym"]),
+    toolTip: importI8nTextFromXML(context, xml["xr:ToolTip"]),
+    type: importTypeDescriptionFromXML(context, xml["xr:Type"]),
     typeReductionMode: xml["xr:TypeReductionMode"],
   }
 
   const compactedResult = compactObject(result)
-  const defaults = getDefaults(compactedResult, configurationSettings)
+  const defaults = getDefaults(compactedResult, context)
   const resultWithoutDefaults = removeDefaults(compactedResult, defaults)
 
   const keyCount = Object.keys(resultWithoutDefaults).length
@@ -64,7 +64,7 @@ export const importStandardAttributeDescriptionFromXML = (
 }
 
 export const importStandardAttributeDescriptionsFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: StandardAttributeDescriptionsXML | undefined
 ): StandardAttributeDescriptions | undefined => {
   if (!xml) return undefined
@@ -74,7 +74,7 @@ export const importStandardAttributeDescriptionsFromXML = (
   const result: StandardAttributeDescriptions = []
 
   items.forEach((value: StandardAttributeDescriptionXML) => {
-    const item = importStandardAttributeDescriptionFromXML(configurationSettings, value)
+    const item = importStandardAttributeDescriptionFromXML(context, value)
     if (item) {
       result.push(item)
     }

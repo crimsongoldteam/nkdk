@@ -12,21 +12,21 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportSearchStringAdditionToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: SearchStringAddition | undefined
 ): SearchStringAdditionEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormItemAdditionToEnterprise(configurationSettings, data)!,
+    ...exportFormItemAdditionToEnterprise(context, data)!,
 
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
-    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
-    ЦветТекста: exportColorToEnterprise(configurationSettings, data.textColor),
-    ЦветФона: exportColorToEnterprise(configurationSettings, data.backColor),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
+    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
+    ЦветТекста: exportColorToEnterprise(context, data.textColor),
+    ЦветФона: exportColorToEnterprise(context, data.backColor),
     Ширина: data.width,
-    Шрифт: exportFontToEnterprise(configurationSettings, data.font),
+    Шрифт: exportFontToEnterprise(context, data.font),
   })
 }
 

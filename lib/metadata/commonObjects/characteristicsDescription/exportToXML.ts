@@ -15,7 +15,7 @@ const exportFieldValue = (field: MetadataField | undefined, defaultValue: string
 }
 
 export const exportCharacteristicsDescriptionToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: CharacteristicsDescription | undefined
 ): CharacteristicsDescriptionXML | undefined => {
   if (!data) return undefined
@@ -25,7 +25,7 @@ export const exportCharacteristicsDescriptionToXML = (
     "xr:KeyField": data.keyField || undefined,
     "xr:TypesFilterField": data.typesFilterField || undefined,
     "xr:TypesFilterValue": data.typesFilterValue
-      ? exportMetadataValueToXML(configurationSettings, { type: "xs:string", value: data.typesFilterValue })
+      ? exportMetadataValueToXML(context, { type: "xs:string", value: data.typesFilterValue })
       : undefined,
     "xr:DataPathField": exportFieldValue(data.dataPathField),
     "xr:MultipleValuesUseField": exportFieldValue(data.multipleValuesUseField),
@@ -57,14 +57,14 @@ export const exportCharacteristicsDescriptionToXML = (
 }
 
 export const exportCharacteristicsDescriptionsToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: CharacteristicsDescriptions | undefined
 ): CharacteristicsDescriptionsXML | undefined => {
   if (!data) return undefined
 
   return {
     "xr:Characteristic": data
-      .map((value: CharacteristicsDescription) => exportCharacteristicsDescriptionToXML(configurationSettings, value))
+      .map((value: CharacteristicsDescription) => exportCharacteristicsDescriptionToXML(context, value))
       .filter((value): value is CharacteristicsDescriptionXML => value !== undefined),
   }
 }

@@ -6,7 +6,7 @@ import { getAllElements } from "./getAllElements"
 import { ClientApplicationForm } from "./types"
 
 export const exportClientApplicationFormToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   element: ClientApplicationForm
 ): IFormatElementResult => {
   const childItems = element.childItems ?? []
@@ -23,18 +23,18 @@ export const exportClientApplicationFormToEnterprise = (
 
   const allElements = getAllElements(element)
 
-  const itemsResult = formatElements(childItems, configurationSettings)
+  const itemsResult = formatElements(childItems, context)
   result.strings.push(...itemsResult.strings)
   result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || itemsResult.haveSimpleHorizontalGroup
 
   if (element.attributes) {
     result.strings.push(...formatSectionHeader("Реквизиты"))
-    result.strings.push(...exportFormAttributesToEnterprise(configurationSettings, element.attributes))
+    result.strings.push(...exportFormAttributesToEnterprise(context, element.attributes))
   }
 
   if (allElements.length > 0) {
     result.strings.push(...formatSectionHeader("Свойства"))
-    // result.strings.push(...formatProperties(allElements, configurationSettings))
+    // result.strings.push(...formatProperties(allElements, context))
   }
 
   return result

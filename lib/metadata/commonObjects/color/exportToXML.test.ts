@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { xmlImport } from "~/lib/xml/import/importer"
 import { exportColorToXML } from "./exportToXML"
@@ -12,14 +12,14 @@ describe("exportColorToXML", () => {
 
     const mockColor: Color = "style:NegativeTextColor"
 
-    const result = { Color: exportColorToXML(mockConfigurationSettings, mockColor) }
+    const result = { Color: exportColorToXML(mockcontext, mockColor) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportColorToXML(mockConfigurationSettings, undefined)
+    const result = exportColorToXML(mockcontext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -28,8 +28,8 @@ describe("exportColorToXML", () => {
     const originalXml = `<Color>style:NegativeTextColor</Color>`
 
     const xml = xmlImport<{ Color: ColorXML }>(originalXml)
-    const imported = importColorFromXML(mockConfigurationSettings, xml.Color)
-    const exported = exportColorToXML(mockConfigurationSettings, imported)
+    const imported = importColorFromXML(mockcontext, xml.Color)
+    const exported = exportColorToXML(mockcontext, imported)
     const resultXml = xmlExport({ Color: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

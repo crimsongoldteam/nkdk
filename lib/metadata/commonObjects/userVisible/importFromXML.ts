@@ -2,7 +2,7 @@ import { Context } from "../../context/types"
 import { UserVisible, UserVisibleXML } from "./types"
 
 export const importUserVisibleFromXML = (
-  _configurationSettings: Context,
+  _context: Context,
   xml: UserVisibleXML | undefined
 ): UserVisible | undefined => {
   if (!xml) return undefined

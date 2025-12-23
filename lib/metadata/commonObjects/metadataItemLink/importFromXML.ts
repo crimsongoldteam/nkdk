@@ -2,7 +2,7 @@ import { Context } from "../../context/types"
 import { MetadataItemLink, MetadataItemLinks, MetadataItemLinksXML, MetadataItemLinkXML } from "./types"
 
 export function importMetadataItemLinkFromXML(
-  _configurationSettings: Context,
+  _context: Context,
   data: MetadataItemLinkXML | undefined
 ): MetadataItemLink | undefined {
   if (!data) return undefined
@@ -11,10 +11,10 @@ export function importMetadataItemLinkFromXML(
 }
 
 export function importMetadataItemLinksFromXML(
-  configurationSettings: Context,
+  context: Context,
   data: MetadataItemLinksXML | undefined
 ): MetadataItemLinks | undefined {
   if (!data) return undefined
 
-  return data.map((value) => importMetadataItemLinkFromXML(configurationSettings, value)!)
+  return data.map((value) => importMetadataItemLinkFromXML(context, value)!)
 }

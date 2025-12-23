@@ -1,7 +1,7 @@
 import { assertEquals } from "typia"
 import { describe, expect, it } from "vitest"
 import { simpleCommand } from "~/lib/tests/fixtures/metadataCommand/simple"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { exportMetadataCommandToXML } from "./exportToXML"
 import { importMetadataCommandFromXML } from "./importFromXML"
@@ -15,7 +15,7 @@ describe("importMetadataCommandFromXML", () => {
 
     expect(assertEquals<MetadataCommandXML>(xmlData.Command)).toEqual(xmlData.Command)
 
-    const result = importMetadataCommandFromXML(mockConfigurationSettings, xmlData.Command)
+    const result = importMetadataCommandFromXML(mockcontext, xmlData.Command)
 
     expect(result).toEqual(expectedResult)
   })
@@ -23,8 +23,8 @@ describe("importMetadataCommandFromXML", () => {
   it("should export and import simple command correctly (round-trip)", () => {
     const originalCommand: MetadataCommand = simpleCommand
 
-    const exported = exportMetadataCommandToXML(mockConfigurationSettings, originalCommand)
-    const imported = importMetadataCommandFromXML(mockConfigurationSettings, exported)
+    const exported = exportMetadataCommandToXML(mockcontext, originalCommand)
+    const imported = importMetadataCommandFromXML(mockcontext, exported)
 
     expect(imported).toEqual(originalCommand)
   })
@@ -41,8 +41,8 @@ describe("importMetadataCommandFromXML", () => {
       shortcut: "Ctrl+T",
     }
 
-    const exported = exportMetadataCommandToXML(mockConfigurationSettings, originalCommand)
-    const imported = importMetadataCommandFromXML(mockConfigurationSettings, exported)
+    const exported = exportMetadataCommandToXML(mockcontext, originalCommand)
+    const imported = importMetadataCommandFromXML(mockcontext, exported)
 
     expect(imported).toEqual(originalCommand)
   })
@@ -53,8 +53,8 @@ describe("importMetadataCommandFromXML", () => {
       group: "FormNavigationPanelImportant",
     }
 
-    const exported = exportMetadataCommandToXML(mockConfigurationSettings, originalCommand)
-    const imported = importMetadataCommandFromXML(mockConfigurationSettings, exported)
+    const exported = exportMetadataCommandToXML(mockcontext, originalCommand)
+    const imported = importMetadataCommandFromXML(mockcontext, exported)
 
     expect(imported).toEqual(originalCommand)
   })

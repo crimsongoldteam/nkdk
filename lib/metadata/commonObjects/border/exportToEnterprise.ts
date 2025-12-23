@@ -3,19 +3,12 @@ import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/ex
 import * as SE from "../../systemEnumerations/types"
 import { Border, BorderEnterprise } from "./types"
 
-export const exportBorderToEnterprise = (
-  configurationSettings: Context,
-  data: Border | undefined
-): BorderEnterprise | undefined => {
+export const exportBorderToEnterprise = (context: Context, data: Border | undefined): BorderEnterprise | undefined => {
   if (!data) return undefined
 
   return {
     Имя: data.ref,
     Ширина: data.width,
-    ТипРамки: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.controlBorderType,
-      SE.ControlBorderTypeToEnterprise
-    ),
+    ТипРамки: exportSystemEnumerationToEnterprise(context, data.controlBorderType, SE.ControlBorderTypeToEnterprise),
   }
 }

@@ -10,41 +10,41 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportGanttChartFieldToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: GanttChartField | undefined
 ): GanttChartFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(configurationSettings, data)!,
+    ...exportFormFieldToEnterprise(context, data)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
-    ВертикальныеЛинии: exportBooleanToEnterprise(configurationSettings, data.verticalLines),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
+    ВертикальныеЛинии: exportBooleanToEnterprise(context, data.verticalLines),
     Высота: data.height,
-    ГоризонтальныеЛинии: exportBooleanToEnterprise(configurationSettings, data.horizontalLines),
+    ГоризонтальныеЛинии: exportBooleanToEnterprise(context, data.horizontalLines),
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
     ПоложениеТаблицы: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.tableLocation,
       SE.GanttChartTableLocationToEnterprise
     ),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
     РежимВыделенияЗначений: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.valuesSelectionMode,
       SE.GanttChartValuesSelectionModeToEnterprise
     ),
     РежимВыделенияИнтервалов: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.intervalsSelectionMode,
       SE.GanttChartIntervalsSelectionModeToEnterprise
     ),
     Ширина: data.width,
-    События: exportEventsToEnterprise(configurationSettings, data.events),
+    События: exportEventsToEnterprise(context, data.events),
   })
 }
 

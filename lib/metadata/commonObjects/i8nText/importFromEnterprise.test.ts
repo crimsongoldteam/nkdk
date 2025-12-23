@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { parseI8nText } from "./importFromEnterprise"
 import { I8nText } from "./types"
 
 describe("parseI8nText", () => {
   it("should parse undefined as undefined", () => {
-    const result = parseI8nText(undefined, mockConfigurationSettings)
+    const result = parseI8nText(undefined, mockcontext)
 
     expect(result).toBeUndefined()
   })
 
   it("should parse string value", () => {
-    const result = parseI8nText("Поле", mockConfigurationSettings)
+    const result = parseI8nText("Поле", mockcontext)
 
     expect(result).toEqual({
       items: {
@@ -28,16 +28,13 @@ describe("parseI8nText", () => {
       },
     }
 
-    const result = parseI8nText(
-      { ru: "Поле", en: "Field" },
-      mockConfigurationSettings
-    )
+    const result = parseI8nText({ ru: "Поле", en: "Field" }, mockcontext)
 
     expect(result).toEqual(expectedResult)
   })
 
   it("should parse object value with single language", () => {
-    const result = parseI8nText({ en: "Field" }, mockConfigurationSettings)
+    const result = parseI8nText({ en: "Field" }, mockcontext)
 
     expect(result).toEqual({
       items: {
@@ -47,11 +44,10 @@ describe("parseI8nText", () => {
   })
 
   it("should parse empty object", () => {
-    const result = parseI8nText({}, mockConfigurationSettings)
+    const result = parseI8nText({}, mockcontext)
 
     expect(result).toEqual({
       items: {},
     })
   })
 })
-

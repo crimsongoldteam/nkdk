@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { withMultipleValuesUserVisible } from "~/lib/tests/fixtures/userVisible/withMultipleValues"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { importUserVisibleFromXML } from "./importFromXML"
 import { UserVisible, UserVisibleXML } from "./types"
@@ -9,7 +9,7 @@ describe("importUserVisibleFromXML", () => {
   it("should import Use from XML", () => {
     const xml = readAndParseXMLFile<{ UserVisible: UserVisibleXML }>("userVisible/withMultipleValues.xml")
 
-    const result = importUserVisibleFromXML(mockConfigurationSettings, xml.UserVisible)
+    const result = importUserVisibleFromXML(mockcontext, xml.UserVisible)
 
     expect(result).toEqual(withMultipleValuesUserVisible)
   })
@@ -22,13 +22,13 @@ describe("importUserVisibleFromXML", () => {
       values: [],
     }
 
-    const result = importUserVisibleFromXML(mockConfigurationSettings, xml.UserVisible)
+    const result = importUserVisibleFromXML(mockcontext, xml.UserVisible)
 
     expect(result).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = importUserVisibleFromXML(mockConfigurationSettings, undefined)
+    const result = importUserVisibleFromXML(mockcontext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -38,7 +38,7 @@ describe("importUserVisibleFromXML", () => {
 
     const expectedResult = withMultipleValuesUserVisible
 
-    const result = importUserVisibleFromXML(mockConfigurationSettings, xml.UserVisible)
+    const result = importUserVisibleFromXML(mockcontext, xml.UserVisible)
 
     expect(result).toEqual(expectedResult)
   })

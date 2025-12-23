@@ -6,7 +6,7 @@ import { TypeDescriptionVisitor } from "./parser/visitor"
 import { TypeDescription } from "./types"
 
 export const importTypeDescriptionFromEnterprise = (
-  _configurationSettings: Context,
+  _context: Context,
   value: string | undefined
 ): TypeDescription | undefined => {
   if (value === undefined || value.trim() === "") {

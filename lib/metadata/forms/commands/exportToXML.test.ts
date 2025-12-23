@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import exportCommandToXML from "./exportToXML"
 import { Command } from "./types"
 
 describe("exportCommandToXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = exportCommandToXML(mockConfigurationSettings, undefined)
+    const result = exportCommandToXML(mockcontext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -21,7 +21,7 @@ describe("exportCommandToXML", () => {
       currentRowUse: "DontUse",
     }
 
-    const result = exportCommandToXML(mockConfigurationSettings, command)
+    const result = exportCommandToXML(mockcontext, command)
 
     const xmlString = xmlExport({ Command: result! }, false)
 

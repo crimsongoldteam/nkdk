@@ -8,26 +8,26 @@ import { Page, PageXML } from "~/lib/metadata/forms/elements/page/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportPageToXML = (configurationSettings: Context, data: Page | undefined): PageXML | undefined => {
+export const exportPageToXML = (context: Context, data: Page | undefined): PageXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToXML(configurationSettings, data)!,
+    ...exportFormGroupToXML(context, data)!,
 
-    BackColor: exportColorToXML(configurationSettings, data.backColor),
+    BackColor: exportColorToXML(context, data.backColor),
     ChildItemsHorizontalAlign: data.childItemsHorizontalAlign,
     ChildItemsVerticalAlign: data.childItemsVerticalAlign,
     _DisplayImportance: data.displayImportance,
-    Format: exportI8nTextToXML(configurationSettings, data.format),
+    Format: exportI8nTextToXML(context, data.format),
     Group: data.group,
     HorizontalSpacing: data.horizontalSpacing,
     ItemsAndTitlesAlign: data.itemsAndTitlesAlign,
-    Picture: exportPictureToXML(configurationSettings, data.picture),
+    Picture: exportPictureToXML(context, data.picture),
     ScrollOnCompress: data.scrollOnCompress,
     ShowTitle: data.showTitle,
     SlaveItemsWidth: data.slaveItemsWidth,
     TitleDataPath: data.titleDataPath,
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalAlign: data.verticalAlign,
     VerticalScrollOnReduceSize: data.verticalScrollOnReduceSize,
     VerticalSpacing: data.verticalSpacing,

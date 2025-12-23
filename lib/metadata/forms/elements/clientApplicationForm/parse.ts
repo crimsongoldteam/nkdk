@@ -2,7 +2,7 @@ import type { Context } from "~/lib/metadata/context/types"
 import { FormElementType } from "../../../metadataFactory/types"
 import type { ClientApplicationForm } from "./types"
 
-export const parseClientApplicationForm = (_text: string, _configurationSettings: Context): ClientApplicationForm => {
+export const parseClientApplicationForm = (_text: string, _context: Context): ClientApplicationForm => {
   // const cst = parseRegions(text)
   // const visitor = new RegionsVisitor()
   // const sections = visitor.lines(cst)
@@ -44,7 +44,7 @@ export const parseClientApplicationForm = (_text: string, _configurationSettings
   //       .join("\n")
   //       .trim()
   //     if (content) {
-  //       const attributes = parseAttributes(content, configurationSettings)
+  //       const attributes = parseAttributes(content, context)
   //       // Генерируем ID для атрибутов
   //       attributes.forEach((attr, index) => {
   //         attr.id = (index + 1).toString()

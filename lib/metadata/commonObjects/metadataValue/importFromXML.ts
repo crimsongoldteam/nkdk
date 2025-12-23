@@ -2,7 +2,7 @@ import { Context } from "../../context/types"
 import { MetadataValue, MetadataValueXML } from "./types"
 
 export const importMetadataValueFromXML = (
-  _configurationSettings: Context,
+  _context: Context,
   data: MetadataValueXML | string | undefined
 ): MetadataValue | undefined => {
   if (!data) return undefined
@@ -22,10 +22,10 @@ export const importMetadataValueFromXML = (
 }
 
 export const importMetadataValuesFromXML = (
-  configurationSettings: Context,
+  context: Context,
   data: MetadataValueXML[] | undefined
 ): MetadataValue[] | undefined => {
   if (!data) return undefined
 
-  return data.map((value) => importMetadataValueFromXML(configurationSettings, value)!)
+  return data.map((value) => importMetadataValueFromXML(context, value)!)
 }

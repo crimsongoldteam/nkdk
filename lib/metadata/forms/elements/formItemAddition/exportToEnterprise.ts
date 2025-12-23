@@ -13,43 +13,43 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportFormItemAdditionToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: FormItemAddition | undefined
 ): FormItemAdditionEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportBaseElementToEnterprise(configurationSettings, data)!,
+    ...exportBaseElementToEnterprise(context, data)!,
 
     ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.displayImportance,
       SE.DisplayImportanceToEnterprise
     ),
     ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.verticalAlignInGroup,
       SE.ItemVerticalAlignToEnterprise
     ),
-    Вид: exportSystemEnumerationToEnterprise(configurationSettings, data.type, SE.FormItemAdditionTypeToEnterprise),
-    Видимость: exportBooleanToEnterprise(configurationSettings, data.visible),
+    Вид: exportSystemEnumerationToEnterprise(context, data.type, SE.FormItemAdditionTypeToEnterprise),
+    Видимость: exportBooleanToEnterprise(context, data.visible),
     ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.horizontalAlignInGroup,
       SE.ItemHorizontalLocationToEnterprise
     ),
-    Доступность: exportBooleanToEnterprise(configurationSettings, data.enabled),
-    Заголовок: exportI8nTextToEnterprise(configurationSettings, data.title),
-    КонтекстноеМеню: exportCommandBarToEnterprise(configurationSettings, data.contextMenu),
+    Доступность: exportBooleanToEnterprise(context, data.enabled),
+    Заголовок: exportI8nTextToEnterprise(context, data.title),
+    КонтекстноеМеню: exportCommandBarToEnterprise(context, data.contextMenu),
     ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.toolTipRepresentation,
       SE.ToolTipRepresentationToEnterprise
     ),
-    Подсказка: exportI8nTextToEnterprise(configurationSettings, data.toolTip),
-    ПодчиненныеЭлементы: exportChildItemsToEnterprise(configurationSettings, data.childItems),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(configurationSettings, data.extendedToolTip),
+    Подсказка: exportI8nTextToEnterprise(context, data.toolTip),
+    ПодчиненныеЭлементы: exportChildItemsToEnterprise(context, data.childItems),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    РасширеннаяПодсказка: exportFormDecorationToEnterprise(context, data.extendedToolTip),
   })
 }
 

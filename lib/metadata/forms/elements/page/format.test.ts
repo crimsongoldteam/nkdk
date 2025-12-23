@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import "~/lib/metadata/forms/elements/inputField/registration"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { InputField } from "../inputField/types"
 import { formatPage } from "./format"
@@ -24,7 +24,7 @@ describe("formatPage", () => {
     const expectedResult = `/{Страница1}
   {Элемент1}: `
 
-    const result = formatPage(mockElement, mockConfigurationSettings)
+    const result = formatPage(mockElement, mockcontext)
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
 })

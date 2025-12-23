@@ -1,7 +1,7 @@
 import { Context } from "../../context/types"
 import { MetadataCatalog } from "./types"
 
-export function getDefaults(_data: MetadataCatalog, _configurationSettings: Context): Partial<MetadataCatalog> {
+export function getDefaults(_data: MetadataCatalog, _context: Context): Partial<MetadataCatalog> {
   return {
     hierarchical: false,
     hierarchyType: "HierarchyFoldersAndItems",

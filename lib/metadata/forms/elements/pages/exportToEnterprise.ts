@@ -9,33 +9,30 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
-export const exportPagesToEnterprise = (
-  configurationSettings: Context,
-  data: Pages | undefined
-): PagesEnterprise | undefined => {
+export const exportPagesToEnterprise = (context: Context, data: Pages | undefined): PagesEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToEnterprise(configurationSettings, data)!,
+    ...exportFormGroupToEnterprise(context, data)!,
 
     ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.currentRowUse,
       SE.CurrentRowUseToEnterprise
     ),
-    ИспользуемаяТаблица: exportTableToEnterprise(configurationSettings, data.associatedTable),
+    ИспользуемаяТаблица: exportTableToEnterprise(context, data.associatedTable),
     ОтображениеСтраниц: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.pagesRepresentation,
       SE.FormPagesRepresentationToEnterprise
     ),
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
     ТекущееСостояниеСтраниц: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.currentPagesState,
       SE.FormPagesStateToEnterprise
     ),
-    События: exportEventsToEnterprise(configurationSettings, data.events),
+    События: exportEventsToEnterprise(context, data.events),
   })
 }
 

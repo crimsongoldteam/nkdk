@@ -1,10 +1,7 @@
 import { Context } from "../../context/types"
 import { Border, BorderXML } from "./types"
 
-export const exportBorderToXML = (
-  _configurationSettings: Context,
-  border: Border | undefined
-): BorderXML | undefined => {
+export const exportBorderToXML = (_context: Context, border: Border | undefined): BorderXML | undefined => {
   if (!border) return undefined
 
   const result: BorderXML = {}

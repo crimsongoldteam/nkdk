@@ -7,17 +7,17 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importButtonGroupFromXML = (
-  configurationSettings: Context,
+  context: Context,
   xml: ButtonGroupXML | undefined
 ): ButtonGroup | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormGroupFromXML(configurationSettings, xml)!,
+    ...importFormGroupFromXML(context, xml)!,
     elementType: FormElementType.ButtonGroup,
 
     representation: xml.Representation,
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
   })
 }
 

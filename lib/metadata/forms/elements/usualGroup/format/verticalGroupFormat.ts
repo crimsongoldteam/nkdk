@@ -6,7 +6,7 @@ import { UsualGroupBehavior, UsualGroupRepresentation } from "~/lib/metadata/sys
 import * as t from "~/lib/parser/lexer"
 import { UsualGroup } from "../types"
 
-export const formatVerticalGroup = (element: UsualGroup, configurationSettings: Context): IFormatElementResult => {
+export const formatVerticalGroup = (element: UsualGroup, context: Context): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
@@ -18,7 +18,7 @@ export const formatVerticalGroup = (element: UsualGroup, configurationSettings: 
   result.strings.push(header)
   // }
 
-  const lines = formatElements(childItems, configurationSettings)
+  const lines = formatElements(childItems, context)
 
   for (const line of lines.strings) {
     result.strings.push("  " + line)

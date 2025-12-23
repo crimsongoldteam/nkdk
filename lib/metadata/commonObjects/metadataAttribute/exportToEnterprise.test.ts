@@ -5,7 +5,7 @@ import {
   shortMetadataAttributeEnterprise,
   shortMetadataAttributeWithSynonym,
 } from "~/lib/tests/fixtures/metadataAttribute/enterprise"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { exportMetadataAttributeToEnterprise } from "./exportToEnterprise"
 
 describe("exportMetadataAttributeToEnterprise", () => {
@@ -14,7 +14,7 @@ describe("exportMetadataAttributeToEnterprise", () => {
 
     const expectedResult = fullMetadataAttributeEnterprise
 
-    const result = exportMetadataAttributeToEnterprise(mockConfigurationSettings, metadataAttribute)
+    const result = exportMetadataAttributeToEnterprise(mockcontext, metadataAttribute)
 
     expect(result).toEqual(expectedResult)
   })
@@ -24,7 +24,7 @@ describe("exportMetadataAttributeToEnterprise", () => {
 
     const expectedResult = shortMetadataAttributeEnterprise
 
-    const result = exportMetadataAttributeToEnterprise(mockConfigurationSettings, metadataAttribute)
+    const result = exportMetadataAttributeToEnterprise(mockcontext, metadataAttribute)
 
     expect(result).toEqual(expectedResult)
   })

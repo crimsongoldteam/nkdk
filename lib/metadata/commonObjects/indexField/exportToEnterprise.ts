@@ -2,7 +2,7 @@ import { Context } from "../../context/types"
 import { IndexField, IndexFieldEnterprise, IndexFields, IndexFieldsEnterprise } from "./types"
 
 export const exportIndexFieldToEnterprise = (
-  _configurationSettings: Context,
+  _context: Context,
   data: IndexField | undefined
 ): IndexFieldEnterprise | undefined => {
   if (!data) return undefined
@@ -11,10 +11,10 @@ export const exportIndexFieldToEnterprise = (
 }
 
 export const exportIndexFieldsToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: IndexFields | undefined
 ): IndexFieldsEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => exportIndexFieldToEnterprise(configurationSettings, item)!)
+  return data.map((item) => exportIndexFieldToEnterprise(context, item)!)
 }

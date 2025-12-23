@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { importCharacteristicsDescriptionsFromXML } from "./importFromXML"
 import { CharacteristicsDescriptions, CharacteristicsDescriptionsXML } from "./types"
@@ -19,7 +19,7 @@ describe("importCharacteristicsDescriptionFromXML", () => {
         multipleValuesUseField: "ChartOfCharacteristicTypes.РеквизитыДляСписка.Attribute.Множественный",
       },
     ]
-    const result = importCharacteristicsDescriptionsFromXML(mockConfigurationSettings, xmlData.Characteristics)
+    const result = importCharacteristicsDescriptionsFromXML(mockcontext, xmlData.Characteristics)
     expect(result).toEqual(expectedResult)
   })
 
@@ -55,7 +55,7 @@ describe("importCharacteristicsDescriptionFromXML", () => {
         valueField: "InformationRegister.ДополнительныеСведения.Resource.Значение",
       },
     ]
-    const result = importCharacteristicsDescriptionsFromXML(mockConfigurationSettings, xmlData.Characteristics)
+    const result = importCharacteristicsDescriptionsFromXML(mockcontext, xmlData.Characteristics)
     expect(result).toEqual(expectedResult)
   })
 })

@@ -12,7 +12,7 @@ const FiledsMap = {
 } as const
 
 export const exportMetadataFieldToEnterprise = (
-  _configurationSettings: Context,
+  _context: Context,
   data: MetadataField | undefined
 ): MetadataFieldEnterprise | undefined => {
   if (!data) return undefined
@@ -61,10 +61,10 @@ export const exportMetadataFieldToEnterprise = (
 }
 
 export const exportMetadataFieldsToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: MetadataFields | undefined
 ): MetadataFieldsEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => exportMetadataFieldToEnterprise(configurationSettings, item)!)
+  return data.map((item) => exportMetadataFieldToEnterprise(context, item)!)
 }

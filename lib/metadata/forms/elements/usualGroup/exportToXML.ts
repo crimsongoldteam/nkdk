@@ -8,17 +8,14 @@ import { UsualGroup, UsualGroupXML } from "~/lib/metadata/forms/elements/usualGr
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportUsualGroupToXML = (
-  configurationSettings: Context,
-  data: UsualGroup | undefined
-): UsualGroupXML | undefined => {
+export const exportUsualGroupToXML = (context: Context, data: UsualGroup | undefined): UsualGroupXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToXML(configurationSettings, data)!,
+    ...exportFormGroupToXML(context, data)!,
 
-    AssociatedTable: exportTableToXML(configurationSettings, data.associatedTable),
-    BackColor: exportColorToXML(configurationSettings, data.backColor),
+    AssociatedTable: exportTableToXML(context, data.associatedTable),
+    BackColor: exportColorToXML(context, data.backColor),
     Behavior: data.behavior,
     ChildItemsHorizontalAlign: data.childItemsHorizontalAlign,
     ChildItemsVerticalAlign: data.childItemsVerticalAlign,
@@ -26,14 +23,11 @@ export const exportUsualGroupToXML = (
     ControlRepresentation: data.controlRepresentation,
     CurrentRowUse: data.currentRowUse,
     _DisplayImportance: data.displayImportance,
-    Format: exportI8nTextToXML(configurationSettings, data.format),
+    Format: exportI8nTextToXML(context, data.format),
     Group: data.group,
     GroupHorizontalAlign: data.groupHorizontalAlign,
     GroupVerticalAlign: data.groupVerticalAlign,
-    HiddenRepresentationTitleBackColor: exportColorToXML(
-      configurationSettings,
-      data.hiddenRepresentationTitleBackColor
-    ),
+    HiddenRepresentationTitleBackColor: exportColorToXML(context, data.hiddenRepresentationTitleBackColor),
     HorizontalSpacing: data.horizontalSpacing,
     ItemsAndTitlesAlign: data.itemsAndTitlesAlign,
     Representation: data.representation,
@@ -43,7 +37,7 @@ export const exportUsualGroupToXML = (
     ThroughAlign: data.throughAlign,
     TitleDataPath: data.titleDataPath,
     United: data.united,
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalAlign: data.verticalAlign,
     VerticalSpacing: data.verticalSpacing,
   })

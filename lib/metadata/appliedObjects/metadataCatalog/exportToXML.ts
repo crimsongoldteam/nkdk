@@ -21,12 +21,12 @@ import { MetadataCommandsXML } from "../metadataCommand/types"
 import { getDefaults } from "./defaults"
 
 export const exportMetadataCatalogToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: MetadataCatalog | undefined
 ): MetadataCatalogXML | undefined => {
   if (!data) return undefined
 
-  const defaults = getDefaults(data, configurationSettings)
+  const defaults = getDefaults(data, context)
   const mergedData = { ...defaults, ...data }
 
   const internalInfo = exportInternalInfoToXML<CatalogInternalInfoParamsXML>([
@@ -39,12 +39,12 @@ export const exportMetadataCatalogToXML = (
 
   let attributes: MetadataAttributesXML | undefined
   if (mergedData.attributes) {
-    attributes = exportMetadataAttributesToXML(configurationSettings, mergedData.attributes)
+    attributes = exportMetadataAttributesToXML(context, mergedData.attributes)
   }
 
   let commands: MetadataCommandsXML | undefined
   if (mergedData.commands) {
-    commands = exportMetadataCommandsToXML(configurationSettings, mergedData.commands)
+    commands = exportMetadataCommandsToXML(context, mergedData.commands)
   }
 
   let childObjects: MetadataCatalogXML["Catalog"]["ChildObjects"] | undefined
@@ -81,15 +81,15 @@ export const exportMetadataCatalogToXML = (
       _uuid: v4(),
       InternalInfo: internalInfo,
       Properties: compactObject<MetadataCatalogXML["Catalog"]["Properties"]>({
-        AdditionalIndexes: exportAdditionalIndexesToXML(configurationSettings, mergedData.additionalIndexes),
+        AdditionalIndexes: exportAdditionalIndexesToXML(context, mergedData.additionalIndexes),
         Autonumbering: mergedData.autonumbering,
         AuxiliaryChoiceForm: mergedData.auxiliaryChoiceForm,
         AuxiliaryFolderChoiceForm: mergedData.auxiliaryFolderChoiceForm,
         AuxiliaryFolderForm: mergedData.auxiliaryFolderForm,
         AuxiliaryListForm: mergedData.auxiliaryListForm,
         AuxiliaryObjectForm: mergedData.auxiliaryObjectForm,
-        BasedOn: exportMetadataItemLinksToXML(configurationSettings, mergedData.basedOn),
-        Characteristics: exportCharacteristicsDescriptionsToXML(configurationSettings, mergedData.characteristics),
+        BasedOn: exportMetadataItemLinksToXML(context, mergedData.basedOn),
+        Characteristics: exportCharacteristicsDescriptionsToXML(context, mergedData.characteristics),
         CheckUnique: mergedData.checkUnique,
         ChoiceDataGetModeOnInputByString: mergedData.choiceDataGetModeOnInputByString,
         ChoiceHistoryOnInput: mergedData.choiceHistoryOnInput,
@@ -102,7 +102,7 @@ export const exportMetadataCatalogToXML = (
         CreateOnInput: mergedData.createOnInput,
         DataHistory: mergedData.dataHistory,
         DataLockControlMode: mergedData.dataLockControlMode,
-        DataLockFields: exportMetadataFieldsToXML(configurationSettings, mergedData.dataLockFields),
+        DataLockFields: exportMetadataFieldsToXML(context, mergedData.dataLockFields),
         DefaultChoiceForm: mergedData.defaultChoiceForm,
         DefaultFolderChoiceForm: mergedData.defaultFolderChoiceForm,
         DefaultFolderForm: mergedData.defaultFolderForm,
@@ -112,33 +112,30 @@ export const exportMetadataCatalogToXML = (
         DescriptionLength: mergedData.descriptionLength,
         EditType: mergedData.editType,
         ExecuteAfterWriteDataHistoryVersionProcessing: mergedData.executeAfterWriteDataHistoryVersionProcessing,
-        Explanation: exportI8nTextToXML(configurationSettings, mergedData.explanation),
-        ExtendedListPresentation: exportI8nTextToXML(configurationSettings, mergedData.extendedListPresentation),
-        ExtendedObjectPresentation: exportI8nTextToXML(configurationSettings, mergedData.extendedObjectPresentation),
+        Explanation: exportI8nTextToXML(context, mergedData.explanation),
+        ExtendedListPresentation: exportI8nTextToXML(context, mergedData.extendedListPresentation),
+        ExtendedObjectPresentation: exportI8nTextToXML(context, mergedData.extendedObjectPresentation),
         FoldersOnTop: mergedData.foldersOnTop,
         FullTextSearch: mergedData.fullTextSearch,
         FullTextSearchOnInputByString: mergedData.fullTextSearchOnInputByString,
         Hierarchical: mergedData.hierarchical,
         HierarchyType: mergedData.hierarchyType,
         IncludeHelpInContents: mergedData.includeHelpInContents,
-        InputByString: exportMetadataFieldsToXML(configurationSettings, mergedData.inputByString),
+        InputByString: exportMetadataFieldsToXML(context, mergedData.inputByString),
         LevelCount: mergedData.levelCount,
         LimitLevelCount: mergedData.limitLevelCount,
-        ListPresentation: exportI8nTextToXML(configurationSettings, mergedData.listPresentation),
+        ListPresentation: exportI8nTextToXML(context, mergedData.listPresentation),
         Name: mergedData.name!,
         ObjectBelonging: mergedData.objectBelonging,
-        ObjectPresentation: exportI8nTextToXML(configurationSettings, mergedData.objectPresentation),
-        Owners: exportMetadataItemLinksToXML(configurationSettings, mergedData.owners),
-        Predefined: exportPredefinedItemsToXML(configurationSettings, mergedData.predefined),
+        ObjectPresentation: exportI8nTextToXML(context, mergedData.objectPresentation),
+        Owners: exportMetadataItemLinksToXML(context, mergedData.owners),
+        Predefined: exportPredefinedItemsToXML(context, mergedData.predefined),
         PredefinedDataUpdate: mergedData.predefinedDataUpdate,
         QuickChoice: mergedData.quickChoice,
         SearchStringModeOnInputByString: mergedData.searchStringModeOnInputByString,
-        StandardAttributes: exportStandardAttributeDescriptionsToXML(
-          configurationSettings,
-          mergedData.standardAttributes
-        ),
+        StandardAttributes: exportStandardAttributeDescriptionsToXML(context, mergedData.standardAttributes),
         SubordinationUse: mergedData.subordinationUse,
-        Synonym: exportI8nTextToXML(configurationSettings, mergedData.synonym),
+        Synonym: exportI8nTextToXML(context, mergedData.synonym),
         UpdateDataHistoryImmediatelyAfterWrite: mergedData.updateDataHistoryImmediatelyAfterWrite,
         UseStandardCommands: mergedData.useStandardCommands,
       })!,

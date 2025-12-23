@@ -7,25 +7,22 @@ import { exportFormGroupToXML } from "~/lib/metadata/forms/elements/formGroup/ex
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportColumnGroupToXML = (
-  configurationSettings: Context,
-  data: ColumnGroup | undefined
-): ColumnGroupXML | undefined => {
+export const exportColumnGroupToXML = (context: Context, data: ColumnGroup | undefined): ColumnGroupXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToXML(configurationSettings, data)!,
+    ...exportFormGroupToXML(context, data)!,
 
     FixingInTable: data.fixingInTable,
     Group: data.group,
     HeaderDataPath: data.headerDataPath,
     HeaderFormat: data.headerFormat,
     HeaderHorizontalAlign: data.headerHorizontalAlign,
-    HeaderPicture: exportPictureToXML(configurationSettings, data.headerPicture),
+    HeaderPicture: exportPictureToXML(context, data.headerPicture),
     ShowInHeader: data.showInHeader,
     ShowTitle: data.showTitle,
-    TitleBackColor: exportColorToXML(configurationSettings, data.titleBackColor),
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    TitleBackColor: exportColorToXML(context, data.titleBackColor),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
   })
 }
 

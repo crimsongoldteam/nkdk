@@ -5,7 +5,7 @@ import { Context } from "~/lib/metadata/context/types"
 import { FormAttribute, FormAttributeXML } from "./types"
 
 export default function exportAttributeToXML(
-  configurationSettings: Context,
+  context: Context,
   attribute: FormAttribute | undefined
 ): FormAttributeXML | undefined {
   if (!attribute) return undefined
@@ -14,11 +14,11 @@ export default function exportAttributeToXML(
     Attribute: {
       _name: attribute.name,
       _id: attribute.id,
-      Title: exportI8nTextToXML(configurationSettings, attribute.title),
-      Type: exportTypeDescriptionToXML(configurationSettings, attribute.valueType),
+      Title: exportI8nTextToXML(context, attribute.title),
+      Type: exportTypeDescriptionToXML(context, attribute.valueType),
       MainAttribute: attribute.mainAttribute,
       StoredData: attribute.storedData,
-      Use: exportUserVisibleToXML(configurationSettings, attribute.use),
+      Use: exportUserVisibleToXML(context, attribute.use),
     },
   }
 }

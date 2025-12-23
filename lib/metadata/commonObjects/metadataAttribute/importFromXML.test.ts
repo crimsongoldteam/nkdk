@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { multipleAttributes } from "~/lib/tests/fixtures/metadataAttribute/multiple"
 import { singleAttribute } from "~/lib/tests/fixtures/metadataAttribute/single"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { importMetadataAttributesFromXML } from "./importFromXML"
 import { MetadataAttributeXML } from "./types"
@@ -11,7 +11,7 @@ describe("importMetadataAttributeFromXML", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML }>("metadataAttribute/single.xml")
     const expectedResult = singleAttribute
 
-    const result = importMetadataAttributesFromXML(mockConfigurationSettings, xmlData.Attribute)
+    const result = importMetadataAttributesFromXML(mockcontext, xmlData.Attribute)
 
     expect(result).toEqual(expectedResult)
   })
@@ -20,7 +20,7 @@ describe("importMetadataAttributeFromXML", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML[] }>("metadataAttribute/multiple.xml")
     const expectedResult = multipleAttributes
 
-    const result = importMetadataAttributesFromXML(mockConfigurationSettings, xmlData.Attribute)
+    const result = importMetadataAttributesFromXML(mockcontext, xmlData.Attribute)
 
     expect(result).toEqual(expectedResult)
   })
@@ -29,7 +29,7 @@ describe("importMetadataAttributeFromXML", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML }>("metadataAttribute/withMinValue.xml")
     const expectedResult = singleAttribute
 
-    const result = importMetadataAttributesFromXML(mockConfigurationSettings, xmlData.Attribute)
+    const result = importMetadataAttributesFromXML(mockcontext, xmlData.Attribute)
 
     expect(result).toEqual(expectedResult)
   })

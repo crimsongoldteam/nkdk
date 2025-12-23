@@ -11,23 +11,20 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importLabelFieldFromXML = (
-  configurationSettings: Context,
-  xml: LabelFieldXML | undefined
-): LabelField | undefined => {
+export const importLabelFieldFromXML = (context: Context, xml: LabelFieldXML | undefined): LabelField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(configurationSettings, xml)!,
+    ...importFormFieldFromXML(context, xml)!,
     elementType: FormElementType.LabelField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    backColor: importColorFromXML(configurationSettings, xml.BackColor),
-    border: importBorderFromXML(configurationSettings, xml.Border),
-    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
-    font: importFontFromXML(configurationSettings, xml.Font),
-    format: importI8nTextFromXML(configurationSettings, xml.Format),
+    backColor: importColorFromXML(context, xml.BackColor),
+    border: importBorderFromXML(context, xml.Border),
+    borderColor: importColorFromXML(context, xml.BorderColor),
+    font: importFontFromXML(context, xml.Font),
+    format: importI8nTextFromXML(context, xml.Format),
     height: xml.Height,
     horizontalStretch: xml.HorizontalStretch,
     hyperlink: xml.Hyperlink,
@@ -35,11 +32,11 @@ export const importLabelFieldFromXML = (
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
     passwordMode: xml.PasswordMode,
-    textColor: importColorFromXML(configurationSettings, xml.TextColor),
-    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    textColor: importColorFromXML(context, xml.TextColor),
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: importEventsFromXML(configurationSettings, xml.Events),
+    events: importEventsFromXML(context, xml.Events),
   })
 }
 

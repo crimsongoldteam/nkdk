@@ -17,71 +17,55 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportStandardAttributeDescriptionToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: StandardAttributeDescription | undefined
 ): StandardAttributeDescriptionEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    БыстрыйВыбор: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.quickChoice,
-      SE.UseQuickChoiceToEnterprise
-    ),
-    ВыделятьОтрицательные: exportBooleanToEnterprise(configurationSettings, data.markNegatives),
-    ЗаполнятьИзДанныхЗаполнения: exportBooleanToEnterprise(configurationSettings, data.fillFromFillingValue),
-    ЗначениеЗаполнения: exportMetadataValueToEnterprise(configurationSettings, data.fillValue),
+    БыстрыйВыбор: exportSystemEnumerationToEnterprise(context, data.quickChoice, SE.UseQuickChoiceToEnterprise),
+    ВыделятьОтрицательные: exportBooleanToEnterprise(context, data.markNegatives),
+    ЗаполнятьИзДанныхЗаполнения: exportBooleanToEnterprise(context, data.fillFromFillingValue),
+    ЗначениеЗаполнения: exportMetadataValueToEnterprise(context, data.fillValue),
     ИсторияВыбораПриВводе: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.choiceHistoryOnInput,
       SE.ChoiceHistoryOnInputToEnterprise
     ),
-    ИсторияДанных: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.dataHistory,
-      SE.DataHistoryUseToEnterprise
-    ),
+    ИсторияДанных: exportSystemEnumerationToEnterprise(context, data.dataHistory, SE.DataHistoryUseToEnterprise),
     Комментарий: data.comment,
     МаксимальноеЗначение: data.maxValue,
     Маска: data.mask,
     МинимальноеЗначение: data.minValue,
-    МногострочныйРежим: exportBooleanToEnterprise(configurationSettings, data.multiLine),
-    ПараметрыВыбора: exportChoiceParameterLinksToEnterprise(configurationSettings, data.choiceParameters),
-    Подсказка: exportI8nTextToEnterprise(configurationSettings, data.toolTip),
+    МногострочныйРежим: exportBooleanToEnterprise(context, data.multiLine),
+    ПараметрыВыбора: exportChoiceParameterLinksToEnterprise(context, data.choiceParameters),
+    Подсказка: exportI8nTextToEnterprise(context, data.toolTip),
     ПолнотекстовыйПоиск: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.fullTextSearch,
       SE.UseFullTextSearchToEnterprise
     ),
-    ПроверкаЗаполнения: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.fillChecking,
-      SE.FillCheckingToEnterprise
-    ),
-    РасширенноеРедактирование: exportBooleanToEnterprise(configurationSettings, data.extendedEdit),
-    РежимПароля: exportBooleanToEnterprise(configurationSettings, data.passwordMode),
+    ПроверкаЗаполнения: exportSystemEnumerationToEnterprise(context, data.fillChecking, SE.FillCheckingToEnterprise),
+    РасширенноеРедактирование: exportBooleanToEnterprise(context, data.extendedEdit),
+    РежимПароля: exportBooleanToEnterprise(context, data.passwordMode),
     РежимСокращенияТипа: exportSystemEnumerationToEnterprise(
-      configurationSettings,
+      context,
       data.typeReductionMode,
       SE.TypeReductionModeToEnterprise
     ),
-    СвязиПараметровВыбора: exportChoiceParameterLinksToEnterprise(configurationSettings, data.choiceParameterLinks),
-    СвязьПоТипу: exportTypeLinkToEnterprise(configurationSettings, data.linkByType),
-    Синоним: exportI8nTextToEnterprise(configurationSettings, data.synonym),
-    СозданиеПриВводе: exportSystemEnumerationToEnterprise(
-      configurationSettings,
-      data.createOnInput,
-      SE.CreateOnInputToEnterprise
-    ),
-    Тип: exportTypeDescriptionToEnterprise(configurationSettings, data.type),
+    СвязиПараметровВыбора: exportChoiceParameterLinksToEnterprise(context, data.choiceParameterLinks),
+    СвязьПоТипу: exportTypeLinkToEnterprise(context, data.linkByType),
+    Синоним: exportI8nTextToEnterprise(context, data.synonym),
+    СозданиеПриВводе: exportSystemEnumerationToEnterprise(context, data.createOnInput, SE.CreateOnInputToEnterprise),
+    Тип: exportTypeDescriptionToEnterprise(context, data.type),
     ФормаВыбора: data.choiceForm,
-    Формат: exportI8nTextToEnterprise(configurationSettings, data.format),
-    ФорматРедактирования: exportI8nTextToEnterprise(configurationSettings, data.editFormat),
+    Формат: exportI8nTextToEnterprise(context, data.format),
+    ФорматРедактирования: exportI8nTextToEnterprise(context, data.editFormat),
   })
 }
 
 export const exportStandardAttributeDescriptionsToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: StandardAttributeDescriptions | undefined
 ): StandardAttributeDescriptionsEnterprise | undefined => {
   if (!data) return undefined
@@ -89,7 +73,7 @@ export const exportStandardAttributeDescriptionsToEnterprise = (
   const result: StandardAttributeDescriptionsEnterprise = Object.fromEntries(
     data.map((value: StandardAttributeDescription) => [
       PredefinedNameToEnterprise[value.name],
-      exportStandardAttributeDescriptionToEnterprise(configurationSettings, value)!,
+      exportStandardAttributeDescriptionToEnterprise(context, value)!,
     ])
   )
 

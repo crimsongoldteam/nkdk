@@ -12,30 +12,30 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportFormattedDocumentFieldToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: FormattedDocumentField | undefined
 ): FormattedDocumentFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(configurationSettings, data)!,
+    ...exportFormFieldToXML(context, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    BackColor: exportColorToXML(configurationSettings, data.backColor),
-    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
-    Font: exportFontToXML(configurationSettings, data.font),
+    BackColor: exportColorToXML(context, data.backColor),
+    BorderColor: exportColorToXML(context, data.borderColor),
+    Font: exportFontToXML(context, data.font),
     Height: data.height,
     HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
     Output: data.output,
     SelectedText: data.selectedText,
-    TextColor: exportColorToXML(configurationSettings, data.textColor),
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    TextColor: exportColorToXML(context, data.textColor),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Events: exportEventsToXML(configurationSettings, data.events),
+    Events: exportEventsToXML(context, data.events),
   })
 }
 

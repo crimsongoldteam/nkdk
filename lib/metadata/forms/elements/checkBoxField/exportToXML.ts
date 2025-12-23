@@ -10,27 +10,27 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportCheckBoxFieldToXML = (
-  configurationSettings: Context,
+  context: Context,
   data: CheckBoxField | undefined
 ): CheckBoxFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(configurationSettings, data)!,
+    ...exportFormFieldToXML(context, data)!,
 
-    BackColor: exportColorToXML(configurationSettings, data.backColor),
-    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
+    BackColor: exportColorToXML(context, data.backColor),
+    BorderColor: exportColorToXML(context, data.borderColor),
     CheckBoxType: data.checkBoxType,
-    EditFormat: exportI8nTextToXML(configurationSettings, data.editFormat),
+    EditFormat: exportI8nTextToXML(context, data.editFormat),
     EqualItemsWidth: data.equalItemsWidth,
-    Font: exportFontToXML(configurationSettings, data.font),
+    Font: exportFontToXML(context, data.font),
     ItemHeight: data.itemHeight,
     ItemTitleHeight: data.itemTitleHeight,
     ItemWidth: data.itemWidth,
-    TextColor: exportColorToXML(configurationSettings, data.textColor),
+    TextColor: exportColorToXML(context, data.textColor),
     ThreeState: data.threeState,
-    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
-    Events: exportEventsToXML(configurationSettings, data.events),
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
+    Events: exportEventsToXML(context, data.events),
   })
 }
 

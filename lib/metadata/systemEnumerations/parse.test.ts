@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { mockcontext } from "~/lib/tests/mockContext"
 import { exportSystemEnumerationToEnterprise } from "./exportToEnterprise"
 import { importSystemEnumerationFromEnterprise } from "./importFromEnterprise"
 
@@ -9,21 +9,13 @@ describe("importSystemEnumerationFromEnterprise", () => {
     const mockValue = "Вертикальная"
     const expectedResult = "Vertical"
 
-    const result = importSystemEnumerationFromEnterprise(
-      mockConfigurationSettings,
-      mockValue,
-      SE.ChildFormItemsGroupFromEnterprise
-    )
+    const result = importSystemEnumerationFromEnterprise(mockcontext, mockValue, SE.ChildFormItemsGroupFromEnterprise)
 
     expect(result).toBe(expectedResult)
   })
 
   it("should return undefined when value is undefined", () => {
-    const result = importSystemEnumerationFromEnterprise(
-      mockConfigurationSettings,
-      undefined,
-      SE.ChildFormItemsGroupFromEnterprise
-    )
+    const result = importSystemEnumerationFromEnterprise(mockcontext, undefined, SE.ChildFormItemsGroupFromEnterprise)
 
     expect(result).toBeUndefined()
   })
@@ -32,15 +24,11 @@ describe("importSystemEnumerationFromEnterprise", () => {
     const originalValue = "Vertical"
 
     const formatted = exportSystemEnumerationToEnterprise(
-      mockConfigurationSettings,
+      mockcontext,
       originalValue,
       SE.ChildFormItemsGroupToEnterprise
     )
-    const parsed = importSystemEnumerationFromEnterprise(
-      mockConfigurationSettings,
-      formatted,
-      SE.ChildFormItemsGroupFromEnterprise
-    )
+    const parsed = importSystemEnumerationFromEnterprise(mockcontext, formatted, SE.ChildFormItemsGroupFromEnterprise)
 
     expect(parsed).toBe(originalValue)
   })

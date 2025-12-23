@@ -12,33 +12,33 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportLabelFieldToEnterprise = (
-  configurationSettings: Context,
+  context: Context,
   data: LabelField | undefined
 ): LabelFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(configurationSettings, data)!,
+    ...exportFormFieldToEnterprise(context, data)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
-    ВыделятьОтрицательные: exportBooleanToEnterprise(configurationSettings, data.markNegatives),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
+    ВыделятьОтрицательные: exportBooleanToEnterprise(context, data.markNegatives),
     Высота: data.height,
-    Гиперссылка: exportBooleanToEnterprise(configurationSettings, data.hyperlink),
+    Гиперссылка: exportBooleanToEnterprise(context, data.hyperlink),
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
-    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    Рамка: exportBorderToEnterprise(configurationSettings, data.border),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
-    РежимПароля: exportBooleanToEnterprise(configurationSettings, data.passwordMode),
-    Формат: exportI8nTextToEnterprise(configurationSettings, data.format),
-    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
-    ЦветТекста: exportColorToEnterprise(configurationSettings, data.textColor),
-    ЦветФона: exportColorToEnterprise(configurationSettings, data.backColor),
+    ...exportUserVisibleToEnterprise(context, data.userVisible),
+    Рамка: exportBorderToEnterprise(context, data.border),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
+    РежимПароля: exportBooleanToEnterprise(context, data.passwordMode),
+    Формат: exportI8nTextToEnterprise(context, data.format),
+    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
+    ЦветТекста: exportColorToEnterprise(context, data.textColor),
+    ЦветФона: exportColorToEnterprise(context, data.backColor),
     Ширина: data.width,
-    Шрифт: exportFontToEnterprise(configurationSettings, data.font),
-    События: exportEventsToEnterprise(configurationSettings, data.events),
+    Шрифт: exportFontToEnterprise(context, data.font),
+    События: exportEventsToEnterprise(context, data.events),
   })
 }
 

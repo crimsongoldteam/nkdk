@@ -3,7 +3,7 @@ import { getOperationFunction } from "~/lib/metadata/metadataFactory/metadataFac
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 import { ChildItems, ChildItemsXML } from "./types"
 
-export const importChildItemsFromXML = (configurationSettings: Context, xml: ChildItemsXML | undefined): ChildItems => {
+export const importChildItemsFromXML = (context: Context, xml: ChildItemsXML | undefined): ChildItems => {
   if (!xml) return []
 
   const result: ChildItems = []
@@ -12,7 +12,7 @@ export const importChildItemsFromXML = (configurationSettings: Context, xml: Chi
     const importFunction = getOperationFunction("ImportFromXML", elementType)
     if (!importFunction) throw new Error(`Import function not found for element type: ${elementType}`)
 
-    result.push(importFunction(configurationSettings, item[elementType])!)
+    result.push(importFunction(context, item[elementType])!)
   }
 
   return result

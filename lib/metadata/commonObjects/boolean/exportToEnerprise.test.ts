@@ -1,17 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { mockConfigurationSettings } from "../../../tests/mockConfigurationSettings"
+import { mockcontext } from "../../../tests/mockContext"
 import { exportBooleanToEnterprise } from "./exportToEnterprise"
 
 describe("exportBooleanToEnterprise", () => {
   it("should return undefined when value is undefined", () => {
-    expect(exportBooleanToEnterprise(mockConfigurationSettings, undefined)).toBeUndefined()
+    expect(exportBooleanToEnterprise(mockcontext, undefined)).toBeUndefined()
   })
 
   it("should return 'Истина' when value is true", () => {
-    expect(exportBooleanToEnterprise(mockConfigurationSettings, true)).toBe("Истина")
+    expect(exportBooleanToEnterprise(mockcontext, true)).toBe("Истина")
   })
 
   it("should return 'Ложь' when value is false", () => {
-    expect(exportBooleanToEnterprise(mockConfigurationSettings, false)).toBe("Ложь")
+    expect(exportBooleanToEnterprise(mockcontext, false)).toBe("Ложь")
   })
 })
