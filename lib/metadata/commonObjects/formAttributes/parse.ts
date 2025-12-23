@@ -1,7 +1,7 @@
 import { parse } from "yaml"
 import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
 import { parseI8nText } from "~/lib/metadata/commonObjects/i8nText/parse"
-import { parseTypeDescription } from "~/lib/metadata/commonObjects/typeDescription/parse"
+import { importTypeDescriptionFromEnterprise } from "~/lib/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { FormAttribute } from "../types"
@@ -24,7 +24,7 @@ export const parseAttributes = (yamlContent: string, configurationSettings: Conf
 
       // Обработка Тип
       if ("Тип" in data && typeof data.Тип === "string") {
-        attribute.type = parseTypeDescription(data.Тип)
+        attribute.type = importTypeDescriptionFromEnterprise(configurationSettings, data.Тип)
       }
 
       // Обработка ОсновнойАтрибут

@@ -1,10 +1,12 @@
 import { Lexer } from "chevrotain"
 import { multiModeLexerDefinition } from "~/lib/parser/lexer"
+import { ConfigurationSettings } from "../../configurationSettings/types"
 import { TypeDescriptionParser } from "./parser/parser"
 import { TypeDescriptionVisitor } from "./parser/visitor"
 import { TypeDescription } from "./types"
 
-export const parseTypeDescription = (
+export const importTypeDescriptionFromEnterprise = (
+  _configurationSettings: ConfigurationSettings,
   value: string | undefined
 ): TypeDescription | undefined => {
   if (value === undefined || value.trim() === "") {
@@ -32,3 +34,4 @@ export const parseTypeDescription = (
 
   return result
 }
+
