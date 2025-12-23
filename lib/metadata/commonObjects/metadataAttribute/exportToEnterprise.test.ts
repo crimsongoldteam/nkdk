@@ -1,20 +1,18 @@
 import { describe, expect, it } from "vitest"
+import {
+  fullMetadataAttribute,
+  fullMetadataAttributeEnterprise,
+  shortMetadataAttributeEnterprise,
+  shortMetadataAttributeWithSynonym,
+} from "~/lib/tests/fixtures/metadataAttribute/enterprise"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { exportMetadataAttributeToEnterprise } from "./exportToEnterprise"
-import { MetadataAttribute, MetadataAttributeEnterprise } from "./types"
 
 describe("exportMetadataAttributeToEnterprise", () => {
   it("should export metadata attribute to enterprise", () => {
-    const metadataAttribute: MetadataAttribute = {
-      name: "ТестовыйРеквизит",
-      synonym: { items: { ru: "Какой-то тестовый реквизит" } },
-      type: { type: ["string"] },
-    }
+    const metadataAttribute = fullMetadataAttribute
 
-    const expectedResult: MetadataAttributeEnterprise = {
-      Тип: "Строка",
-      Синоним: "Какой-то тестовый реквизит",
-    }
+    const expectedResult = fullMetadataAttributeEnterprise
 
     const result = exportMetadataAttributeToEnterprise(mockConfigurationSettings, metadataAttribute)
 
@@ -22,13 +20,9 @@ describe("exportMetadataAttributeToEnterprise", () => {
   })
 
   it("should export metadata attribute to enterprise with short format", () => {
-    const metadataAttribute: MetadataAttribute = {
-      name: "ТестовыйРеквизит",
-      synonym: { items: { ru: "Тестовый реквизит" } },
-      type: { type: ["string"] },
-    }
+    const metadataAttribute = shortMetadataAttributeWithSynonym
 
-    const expectedResult: MetadataAttributeEnterprise = "Строка"
+    const expectedResult = shortMetadataAttributeEnterprise
 
     const result = exportMetadataAttributeToEnterprise(mockConfigurationSettings, metadataAttribute)
 
