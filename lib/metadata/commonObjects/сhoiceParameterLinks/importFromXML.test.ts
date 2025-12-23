@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
+import { multipleChoiceParameterLinks } from "~/lib/tests/fixtures/сhoiceParameterLinks/multiple"
+import { singleChoiceParameterLinks } from "~/lib/tests/fixtures/сhoiceParameterLinks/single"
+import { withStringDataPathChoiceParameterLinks } from "~/lib/tests/fixtures/сhoiceParameterLinks/withStringDataPath"
 import { mockcontext } from "~/lib/tests/mockContext"
-import { xmlImport } from "~/lib/xml/import/importer"
+import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { importChoiceParameterLinksFromXML } from "./importFromXML"
 import { ChoiceParameterLinksXML } from "./types"
 
@@ -12,78 +15,34 @@ describe("importChoiceParameterLinksFromXML", () => {
   })
 
   it("should import ChoiceParameterLinks with single Link", () => {
-    const xmlData = `<ChoiceParameterLinks>
-			<xr:Link>
-				<xr:Name>Отбор.ИмяПредопределенныхДанных</xr:Name>
-				<xr:DataPath xsi:type="xs:string">Объект.PredefinedDataName</xr:DataPath>
-				<xr:ValueChange>Clear</xr:ValueChange>
-			</xr:Link>
-		</ChoiceParameterLinks>`
+    const xmlData = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
+      "сhoiceParameterLinks/single.xml"
+    )
+    const expectedResult = singleChoiceParameterLinks
 
-    const expectedResult = [
-      {
-        name: "Отбор.ИмяПредопределенныхДанных",
-        dataPath: "Объект.PredefinedDataName",
-        valueChange: "Clear",
-      },
-    ]
-
-    const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(xmlData)
-    const result = importChoiceParameterLinksFromXML(mockcontext, xml.ChoiceParameterLinks)
+    const result = importChoiceParameterLinksFromXML(mockcontext, xmlData.ChoiceParameterLinks)
 
     expect(result).toEqual(expectedResult)
   })
 
   it("should import ChoiceParameterLinks with multiple Links", () => {
-    const xmlData = `<ChoiceParameterLinks>
-			<xr:Link>
-				<xr:Name>Отбор.ИмяПредопределенныхДанных</xr:Name>
-				<xr:DataPath xsi:type="xs:string">Объект.PredefinedDataName</xr:DataPath>
-				<xr:ValueChange>Clear</xr:ValueChange>
-			</xr:Link>
-			<xr:Link>
-				<xr:Name>Отбор.ДругоеПоле</xr:Name>
-				<xr:DataPath>Объект.ДругоеПоле</xr:DataPath>
-			</xr:Link>
-		</ChoiceParameterLinks>`
+    const xmlData = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
+      "сhoiceParameterLinks/multiple.xml"
+    )
+    const expectedResult = multipleChoiceParameterLinks
 
-    const expectedResult = [
-      {
-        name: "Отбор.ИмяПредопределенныхДанных",
-        dataPath: "Объект.PredefinedDataName",
-        valueChange: "Clear",
-      },
-      {
-        name: "Отбор.ДругоеПоле",
-        dataPath: "Объект.ДругоеПоле",
-        valueChange: undefined,
-      },
-    ]
-
-    const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(xmlData)
-    const result = importChoiceParameterLinksFromXML(mockcontext, xml.ChoiceParameterLinks)
+    const result = importChoiceParameterLinksFromXML(mockcontext, xmlData.ChoiceParameterLinks)
 
     expect(result).toEqual(expectedResult)
   })
 
   it("should import ChoiceParameterLinks with DataPath as string", () => {
-    const xmlData = `<ChoiceParameterLinks>
-			<xr:Link>
-				<xr:Name>Отбор.Поле</xr:Name>
-				<xr:DataPath>Объект.Поле</xr:DataPath>
-			</xr:Link>
-		</ChoiceParameterLinks>`
+    const xmlData = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
+      "сhoiceParameterLinks/withStringDataPath.xml"
+    )
+    const expectedResult = withStringDataPathChoiceParameterLinks
 
-    const expectedResult = [
-      {
-        name: "Отбор.Поле",
-        dataPath: "Объект.Поле",
-        valueChange: undefined,
-      },
-    ]
-
-    const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(xmlData)
-    const result = importChoiceParameterLinksFromXML(mockcontext, xml.ChoiceParameterLinks)
+    const result = importChoiceParameterLinksFromXML(mockcontext, xmlData.ChoiceParameterLinks)
 
     expect(result).toEqual(expectedResult)
   })

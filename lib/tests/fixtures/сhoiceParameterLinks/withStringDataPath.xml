@@ -1,0 +1,7 @@
+<ChoiceParameterLinks>
+	<xr:Link>
+		<xr:Name>Отбор.Поле</xr:Name>
+		<xr:DataPath>Объект.Поле</xr:DataPath>
+	</xr:Link>
+</ChoiceParameterLinks>
+

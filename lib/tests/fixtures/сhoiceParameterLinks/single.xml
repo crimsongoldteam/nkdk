@@ -1,0 +1,8 @@
+<ChoiceParameterLinks>
+	<xr:Link>
+		<xr:Name>Отбор.ИмяПредопределенныхДанных</xr:Name>
+		<xr:DataPath xsi:type="xs:string">Объект.PredefinedDataName</xr:DataPath>
+		<xr:ValueChange>Clear</xr:ValueChange>
+	</xr:Link>
+</ChoiceParameterLinks>
+
