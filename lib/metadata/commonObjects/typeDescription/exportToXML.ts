@@ -21,19 +21,19 @@ const mapType = (type: string): string => {
   if (type === "string" || type === "decimal" || type === "dateTime" || type === "boolean") {
     return `xs:${type}`
   }
-  if (type.startsWith("EnumRef.")) {
-    return `cfg:${type}`
-  }
+
   if (
     type.startsWith("DataProcessorObject.") ||
     type.startsWith("CatalogObject.") ||
     type.startsWith("DocumentObject.") ||
     type.startsWith("BusinessProcessObject.") ||
-    type.startsWith("TaskObject.")
+    type.startsWith("TaskObject.") ||
+    type.startsWith("EnumRef.")
   ) {
     return `cfg:${type}`
   }
-  return type
+
+  return `cfg:${type}`
 }
 
 const getStringQualifiers = (
