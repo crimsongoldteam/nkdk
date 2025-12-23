@@ -1,6 +1,6 @@
 import { XMLBuilder, XMLParser } from "fast-xml-parser"
 
-const TARGET_UUID = "672124b6-9894-11e5-be38-001d42e813fe"
+const TARGET_UUID = "11111111-1111-4111-8111-111111111111"
 
 export function processXmlContent(xmlContent: string): string {
   const parsedData = parseXml(xmlContent)
