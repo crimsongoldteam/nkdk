@@ -1,7 +1,6 @@
 import { v4 } from "uuid"
 import {
-  GeneratedType,
-  GeneratedTypeCategory,
+  CatalogInternalInfoParamsXML,
   MetadataCatalog,
   MetadataCatalogXML,
 } from "~/lib/metadata/appliedObjects/metadataCatalog/types"
@@ -15,6 +14,7 @@ import { exportPredefinedItemsToXML } from "~/lib/metadata/commonObjects/predifi
 import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
+import { exportInternalInfoToXML } from "../../commonObjects/internalInfo/exportToXML"
 import { exportMetadataAttributesToXML } from "../../commonObjects/metadataAttribute/exportToXML"
 import { MetadataAttributesXML } from "../../commonObjects/metadataAttribute/types"
 import { MetadataCommandsXML } from "../metadataCommand/types"
@@ -25,17 +25,13 @@ export const exportMetadataCatalogToXML = (
 ): MetadataCatalogXML | undefined => {
   if (!data) return undefined
 
-  const generatedTypes: GeneratedType[] = []
-  for (const category of GeneratedTypeCategory) {
-    generatedTypes.push({
-      "xr:GeneratedType": {
-        _name: `Catalog${category}.${data.name}`,
-        _category: category,
-        "xr:TypeId": v4(),
-        "xr:ValueId": v4(),
-      },
-    })
-  }
+  const internalInfo = exportInternalInfoToXML<CatalogInternalInfoParamsXML>([
+    { name: `CatalogObject.${data.name}`, category: "Object" },
+    { name: `CatalogRef.${data.name}`, category: "Ref" },
+    { name: `CatalogSelection.${data.name}`, category: "Selection" },
+    { name: `CatalogList.${data.name}`, category: "List" },
+    { name: `CatalogManager.${data.name}`, category: "Manager" },
+  ])
 
   let attributes: MetadataAttributesXML | undefined
   if (data.attributes) {
@@ -79,7 +75,7 @@ export const exportMetadataCatalogToXML = (
     _version: "2.20",
     Catalog: compactObject<MetadataCatalogXML["Catalog"]>({
       _uuid: v4(),
-      InternalInfo: generatedTypes,
+      InternalInfo: internalInfo,
       Properties: compactObject<MetadataCatalogXML["Catalog"]["Properties"]>({
         AdditionalIndexes: exportAdditionalIndexesToXML(configurationSettings, data.additionalIndexes),
         Autonumbering: data.autonumbering,
