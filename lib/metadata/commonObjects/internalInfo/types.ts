@@ -12,6 +12,13 @@ export interface InternalInfoXML {
   "xr:ValueId": string & tags.Format<"uuid">
 }
 
-export type InternalInfoItemsXML = { "xr:GeneratedType": InternalInfoXML[] }
+export type InternalInfoItemsXML<T extends InternalInfoParam[]> = {
+  "xr:GeneratedType": {
+    _name: T[number]["name"]
+    _category: T[number]["category"]
+    "xr:TypeId": string & tags.Format<"uuid">
+    "xr:ValueId": string & tags.Format<"uuid">
+  }[]
+}
 
 export type InternalInfoParams = InternalInfoParam[]

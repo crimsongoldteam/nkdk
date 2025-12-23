@@ -1,4 +1,3 @@
-import { tags } from "typia"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import {
   MetadataAttributes,
@@ -11,6 +10,7 @@ import {
   StandardAttributeDescriptionsXML,
 } from "~/lib/metadata/commonObjects/standardAttributeDescription/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
+import { InternalInfoItemsXML } from "../internalInfo/types"
 import { MetadataName } from "../metadataName/types"
 
 export interface MetadataTabularSection {
@@ -26,21 +26,14 @@ export interface MetadataTabularSection {
   use?: SE.AttributeUse
 }
 
-export const TabularSectionGeneratedTypeCategory = ["TabularSection", "TabularSectionRow"] as const
-export type TabularSectionGeneratedTypeCategory = (typeof TabularSectionGeneratedTypeCategory)[number]
-
-export type TabularSectionGeneratedType = {
-  "xr:GeneratedType": {
-    _name: string
-    _category: TabularSectionGeneratedTypeCategory
-    "xr:TypeId": string & tags.Format<"uuid">
-    "xr:ValueId": string & tags.Format<"uuid">
-  }
-}
+export type TabularSectionInternalInfoParamsXML = [
+  { name: string; category: "TabularSection" },
+  { name: string; category: "TabularSectionRow" },
+]
 
 export interface MetadataTabularSectionXML {
   _uuid?: string
-  InternalInfo?: TabularSectionGeneratedType | TabularSectionGeneratedType[]
+  InternalInfo?: InternalInfoItemsXML<TabularSectionInternalInfoParamsXML>
   Properties: {
     Comment?: string
     FillChecking?: SE.FillChecking

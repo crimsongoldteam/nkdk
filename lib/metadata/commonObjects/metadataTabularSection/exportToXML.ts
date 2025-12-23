@@ -9,6 +9,7 @@ import {
 import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
+import { exportInternalInfoToXML } from "../internalInfo/exportToXML"
 
 export const exportMetadataTabularSectionToXML = (
   data: MetadataTabularSection | undefined,
@@ -16,17 +17,18 @@ export const exportMetadataTabularSectionToXML = (
 ): MetadataTabularSectionXML | undefined => {
   if (!data) return undefined
 
-  const standardAttributes = exportStandardAttributeDescriptionsToXML(data.standardAttributes, configurationSettings)
-  const standardAttributesXML = standardAttributes ? { "xr:StandardAttribute": standardAttributes } : undefined
-
   return compactObject<MetadataTabularSectionXML>({
+    InternalInfo: exportInternalInfoToXML([
+      { name: `CatalogTabularSection.${data.name}`, category: "TabularSection" },
+      { name: `CatalogTabularSectionRow.${data.name}`, category: "TabularSectionRow" },
+    ]),
     Properties: {
       Comment: data.comment,
       FillChecking: data.fillChecking,
       LineNumberLength: data.lineNumberLength,
       Name: data.name!,
       ObjectBelonging: data.objectBelonging,
-      StandardAttributes: standardAttributesXML,
+      StandardAttributes: exportStandardAttributeDescriptionsToXML(data.standardAttributes, configurationSettings),
       Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
       Tooltip: exportI8nTextToXML(data.tooltip, configurationSettings),
       Use: data.use,

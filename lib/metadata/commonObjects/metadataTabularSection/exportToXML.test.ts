@@ -1,9 +1,13 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportMetadataTabularSectionToXML } from "./exportToXML"
 import { MetadataTabularSection } from "./types"
+
+vi.mock("uuid", () => ({
+  v4: vi.fn(() => "a87fba31-32d9-4b41-be05-e0141f6a803d"),
+}))
 
 describe("exportMetadataTabularSectionToXML", () => {
   it("should export tabular section with one attribute", () => {
