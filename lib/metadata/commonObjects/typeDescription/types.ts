@@ -22,7 +22,7 @@ export interface TypeDescriptionXMLDateQualifiers {
 
 export type TypeDescriptionXML = {
   "v8:Type"?: TypeDescriptionXMLType | TypeDescriptionXMLType[]
-  "v8:TypeSet"?: string
+  "v8:TypeSet"?: TypeDescriptionXMLType
   "v8:StringQualifiers"?: TypeDescriptionXMLStringQualifiers
   "v8:NumberQualifiers"?: TypeDescriptionXMLNumberQualifiers
   "v8:DateQualifiers"?: TypeDescriptionXMLDateQualifiers

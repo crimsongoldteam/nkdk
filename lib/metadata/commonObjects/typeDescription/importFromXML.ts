@@ -1,82 +1,60 @@
 import { ConfigurationSettings } from "../../configurationSettings/types"
-import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLItem } from "./types"
+import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
+
+const TypePrefixes = ["xs:", "cfg:", "mxl:"]
 
 export const importTypeDescriptionFromXML = (
   _configurationSettings: ConfigurationSettings,
-  xml: TypeDescriptionXML | TypeDescriptionXML[number] | undefined
+  xml: TypeDescriptionXML | undefined
 ): TypeDescription | undefined => {
   if (!xml) return undefined
 
-  // Если это один объект, преобразуем в массив
-  const xmlArray = Array.isArray(xml) ? xml : [xml]
-  if (xmlArray.length === 0) return undefined
+  const types = extractTypes(xml)
 
   const result: TypeDescription = {
-    type: [],
-    stringQualifiers: undefined,
-    numberQualifiers: undefined,
-    dateQualifiers: undefined,
-  }
-
-  for (const item of xmlArray) {
-    const typeValue = item["v8:Type"]
-    result.type.push(...processType(typeValue))
-
-    const typeSetValue = item["v8:TypeSet"]
-    if (typeSetValue !== undefined) {
-      result.type.push(...processType(typeSetValue))
-    }
-
-    const stringQualifiers = processStringQualifiers(item["v8:StringQualifiers"])
-    if (stringQualifiers !== undefined) {
-      result.stringQualifiers = stringQualifiers
-    }
-    const numberQualifiers = processNumberQualifiers(item["v8:NumberQualifiers"])
-    if (numberQualifiers !== undefined) {
-      result.numberQualifiers = numberQualifiers
-    }
-    const dateQualifiers = processDateQualifiers(item["v8:DateQualifiers"])
-    if (dateQualifiers !== undefined) {
-      result.dateQualifiers = dateQualifiers
-    }
+    type: types,
+    stringQualifiers: getStringQualifiers(xml["v8:StringQualifiers"]),
+    numberQualifiers: getNumberQualifiers(xml["v8:NumberQualifiers"]),
+    dateQualifiers: getDateQualifiers(xml["v8:DateQualifiers"]),
   }
 
   return result
 }
 
-export const processType = (
-  type: TypeDescriptionXMLItem["v8:Type"] | TypeDescriptionXMLItem["v8:Type"][]
-): string[] => {
-  if (type === undefined) return []
+export const extractTypes = (item: TypeDescriptionXML): string[] => {
+  const type = getTypes(item["v8:Type"])
+  if (type !== undefined) return type
+
+  const typeSet = getTypes(item["v8:TypeSet"])
+  if (typeSet !== undefined) return typeSet
+
+  throw new Error("Type is undefined")
+}
+
+export const getTypes = (type: TypeDescriptionXMLType | TypeDescriptionXMLType[] | undefined): string[] | undefined => {
+  if (type === undefined) return undefined
 
   let typeArray = Array.isArray(type) ? type : [type]
 
-  let result: string[] = []
-  for (const typeItem of typeArray) {
-    if (typeItem === undefined) continue
-    let textValue: string | undefined
-    if (typeof typeItem === "string") {
-      textValue = typeItem
-    } else if (typeof typeItem === "object" && "#text" in typeItem) {
-      textValue = typeItem["#text"] as string | undefined
-    }
-    if (textValue === undefined) continue
-
-    if (textValue.startsWith("xs:")) {
-      result.push(textValue.substring(3))
-    } else if (textValue.startsWith("cfg:")) {
-      result.push(textValue.substring(4))
-    } else if (textValue.startsWith("mxl:")) {
-      result.push(textValue.substring(4))
-    } else {
-      result.push(textValue)
-    }
-  }
-
-  return result
+  return typeArray.map((typeItem) => getType(typeItem))
 }
 
-function processStringQualifiers(xml?: TypeDescriptionXMLItem["v8:StringQualifiers"]):
+export const getType = (type: TypeDescriptionXMLType): string => {
+  const text = typeof type === "string" ? type : type["#text"]
+
+  if (text === undefined) throw new Error("Type is undefined")
+
+  return removeTypePrefix(text)
+}
+
+const removeTypePrefix = (type: string): string => {
+  for (const prefix of TypePrefixes) {
+    if (type.startsWith(prefix)) return type.substring(prefix.length)
+  }
+  return type
+}
+
+function getStringQualifiers(xml?: TypeDescriptionXML["v8:StringQualifiers"]):
   | {
       length: number
       allowedLength: "Variable" | "Fixed"
@@ -89,7 +67,7 @@ function processStringQualifiers(xml?: TypeDescriptionXMLItem["v8:StringQualifie
   }
 }
 
-function processNumberQualifiers(xml?: TypeDescriptionXMLItem["v8:NumberQualifiers"]) {
+function getNumberQualifiers(xml?: TypeDescriptionXML["v8:NumberQualifiers"]) {
   if (!xml) return undefined
 
   return {
@@ -99,7 +77,7 @@ function processNumberQualifiers(xml?: TypeDescriptionXMLItem["v8:NumberQualifie
   }
 }
 
-function processDateQualifiers(xml?: TypeDescriptionXMLItem["v8:DateQualifiers"]) {
+function getDateQualifiers(xml?: TypeDescriptionXML["v8:DateQualifiers"]) {
   if (!xml) return undefined
 
   return {
