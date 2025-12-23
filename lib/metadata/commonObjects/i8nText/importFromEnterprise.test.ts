@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
-import { parseI8nText } from "./parse"
+import { parseI8nText } from "./importFromEnterprise"
 import { I8nText } from "./types"
 
 describe("parseI8nText", () => {
@@ -54,3 +54,4 @@ describe("parseI8nText", () => {
     })
   })
 })
+

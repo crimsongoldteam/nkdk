@@ -1,4 +1,4 @@
-import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
+import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/importFromEnterprise"
 import { StringboolEnterprise } from "~/lib/metadata/commonObjects/boolean/types"
 import { ConfigurationSettings } from "../../configurationSettings/types"
 import { type UserVisible } from "./types"

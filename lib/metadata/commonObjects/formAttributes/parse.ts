@@ -1,6 +1,6 @@
 import { parse } from "yaml"
-import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/parse"
-import { parseI8nText } from "~/lib/metadata/commonObjects/i8nText/parse"
+import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/importFromEnterprise"
+import { parseI8nText } from "~/lib/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importTypeDescriptionFromEnterprise } from "~/lib/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse"
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"

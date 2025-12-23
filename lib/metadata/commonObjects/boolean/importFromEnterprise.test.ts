@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
-import { parseBoolean } from "./parse"
+import { parseBoolean } from "./importFromEnterprise"
 
 describe("parseBoolean", () => {
   it("should return undefined when value is undefined", () => {
