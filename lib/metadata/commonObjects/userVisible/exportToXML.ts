@@ -7,19 +7,12 @@ export const exportUserVisibleToXML = (
 ): UserVisibleXML | undefined => {
   if (!userVisible) return undefined
 
-  const result: UserVisibleXML = []
-
-  result.push({
+  const result: UserVisibleXML = {
     "xr:Common": userVisible.common,
-  })
-
-  for (const item of userVisible.values) {
-    result.push({
-      "xr:Value": {
-        _name: `Role.${item.name}`,
-        "#text": item.value,
-      },
-    })
+    "xr:Value": userVisible.values.map((item) => ({
+      _name: `Role.${item.name}`,
+      "#text": item.value,
+    })),
   }
 
   return result

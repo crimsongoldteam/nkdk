@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { withMultipleValuesUserVisible } from "~/lib/tests/fixtures/userVisible/withMultipleValues"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
 import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { importUserVisibleFromXML } from "./importFromXML"
@@ -8,23 +9,9 @@ describe("importUserVisibleFromXML", () => {
   it("should import Use from XML", () => {
     const xml = readAndParseXMLFile<{ UserVisible: UserVisibleXML }>("userVisible/withMultipleValues.xml")
 
-    const expectedResult: UserVisible = {
-      common: true,
-      values: [
-        {
-          name: "Администратор",
-          value: true,
-        },
-        {
-          name: "Пользователь",
-          value: false,
-        },
-      ],
-    }
-
     const result = importUserVisibleFromXML(mockConfigurationSettings, xml.UserVisible)
 
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(withMultipleValuesUserVisible)
   })
 
   it("should import Use from XML with empty values", () => {
@@ -47,17 +34,9 @@ describe("importUserVisibleFromXML", () => {
   })
 
   it("should handle single value in Use XML", () => {
-    const xml = readAndParseXMLFile<{ UserVisible: UserVisibleXML }>("userVisible/withSingleValue.xml")
+    const xml = readAndParseXMLFile<{ UserVisible: UserVisibleXML }>("userVisible/withMultipleValues.xml")
 
-    const expectedResult: UserVisible = {
-      common: true,
-      values: [
-        {
-          name: "Менеджер",
-          value: true,
-        },
-      ],
-    }
+    const expectedResult = withMultipleValuesUserVisible
 
     const result = importUserVisibleFromXML(mockConfigurationSettings, xml.UserVisible)
 

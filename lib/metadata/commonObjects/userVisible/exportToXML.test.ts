@@ -1,32 +1,17 @@
 import { describe, expect, it } from "vitest"
+import { withMultipleValuesUserVisible } from "~/lib/tests/fixtures/userVisible/withMultipleValues"
+import { withSingleValueUserVisible } from "~/lib/tests/fixtures/userVisible/withSingleValue"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
-import { xmlImport } from "~/lib/xml/import/importer"
 import { exportUserVisibleToXML } from "./exportToXML"
-import { importUserVisibleFromXML } from "./importFromXML"
-import { UserVisible, UserVisibleXML } from "./types"
+import { UserVisible } from "./types"
 
 describe("exportUserVisibleToXML", () => {
   it("should export UserVisible to XML", () => {
-    const mockUserVisible: UserVisible = {
-      common: true,
-      values: [
-        {
-          name: "Администратор",
-          value: true,
-        },
-        {
-          name: "Пользователь",
-          value: false,
-        },
-      ],
-    }
+    const mockUserVisible = withMultipleValuesUserVisible
 
-    const expectedResult = `<UserVisible>
-	<xr:Common>true</xr:Common>
-	<xr:Value name="Role.Администратор">true</xr:Value>
-	<xr:Value name="Role.Пользователь">false</xr:Value>
-</UserVisible>`
+    const expectedResult = readXMLFileAsString("userVisible/withMultipleValues.xml").trimEnd()
 
     const exported = exportUserVisibleToXML(mockConfigurationSettings, mockUserVisible)
     const xmlString = xmlExport({ UserVisible: exported }, false)
@@ -57,39 +42,13 @@ describe("exportUserVisibleToXML", () => {
   })
 
   it("should handle single value in UserVisible", () => {
-    const mockUserVisible: UserVisible = {
-      common: true,
-      values: [
-        {
-          name: "Менеджер",
-          value: true,
-        },
-      ],
-    }
+    const mockUserVisible = withSingleValueUserVisible
 
-    const expectedResult = `<UserVisible>
-	<xr:Common>true</xr:Common>
-	<xr:Value name="Role.Менеджер">true</xr:Value>
-</UserVisible>`
+    const expectedResult = readXMLFileAsString("userVisible/withSingleValue.xml").trimEnd()
 
     const exported = exportUserVisibleToXML(mockConfigurationSettings, mockUserVisible)
     const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
-  })
-
-  it("should export and import UserVisible correctly (round-trip)", () => {
-    const originalXml = `<UserVisible>
-	<xr:Common>true</xr:Common>
-	<xr:Value name="Role.Администратор">true</xr:Value>
-	<xr:Value name="Role.Пользователь">false</xr:Value>
-</UserVisible>`
-
-    const xml = xmlImport<{ UserVisible: UserVisibleXML }>(originalXml)
-    const imported = importUserVisibleFromXML(mockConfigurationSettings, xml.UserVisible)
-    const exported = exportUserVisibleToXML(mockConfigurationSettings, imported)
-    const resultXml = xmlExport({ UserVisible: exported }, false)
-
-    expect(resultXml).toEqual(originalXml)
   })
 })

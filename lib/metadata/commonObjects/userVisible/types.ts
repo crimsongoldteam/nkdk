@@ -5,12 +5,10 @@ export interface UserVisibleItemXML {
   "#text": boolean
 }
 
-export interface UserVisibleXMLItem {
+export type UserVisibleXML = {
   "xr:Common"?: boolean
-  "xr:Value"?: UserVisibleItemXML
+  "xr:Value"?: UserVisibleItemXML[]
 }
-
-export type UserVisibleXML = UserVisibleXMLItem[]
 
 export interface UserVisibleValue {
   name: string
