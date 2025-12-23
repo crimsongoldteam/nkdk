@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { xmlExport } from "~/lib"
 import "~/lib/metadata/forms/elements/inputField/exportToXML"
 import "~/lib/metadata/forms/elements/usualGroup/exportToXML"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { exportClientApplicationFormToXML } from "./exportToXML"
 import { ClientApplicationForm } from "./types"
@@ -33,7 +33,7 @@ describe("exportClientApplicationFormToXML", () => {
 	</Title>
 </Form>`
 
-    const exported = exportClientApplicationFormToXML(mockcontext, mockElement)
+    const exported = exportClientApplicationFormToXML(mockСontext, mockElement)
     const xmlString = xmlExport({ Form: exported })
 
     expect(xmlString).toEqual(expectedResult)
@@ -60,7 +60,7 @@ describe("exportClientApplicationFormToXML", () => {
 	</AutoCommandBar>
 </Form>`
 
-    const exported = exportClientApplicationFormToXML(mockcontext, mockElement)
+    const exported = exportClientApplicationFormToXML(mockСontext, mockElement)
     const xmlString = xmlExport({ Form: exported })
 
     expect(xmlString).toEqual(expectedResult)
@@ -93,7 +93,7 @@ describe("exportClientApplicationFormToXML", () => {
 	</ChildItems>
 </Form>`
 
-    const exported = exportClientApplicationFormToXML(mockcontext, mockElement)
+    const exported = exportClientApplicationFormToXML(mockСontext, mockElement)
     const xmlString = xmlExport({ Form: exported })
 
     expect(xmlString).toEqual(expectedResult)
@@ -132,7 +132,7 @@ describe("exportClientApplicationFormToXML", () => {
 	</Attributes>
 </Form>`
 
-    const exported = exportClientApplicationFormToXML(mockcontext, mockElement)
+    const exported = exportClientApplicationFormToXML(mockСontext, mockElement)
     const xmlString = xmlExport({ Form: exported })
 
     expect(xmlString).toEqual(expectedResult)
@@ -176,7 +176,7 @@ describe("exportClientApplicationFormToXML", () => {
 	</ChildItems>
 </Form>`
 
-    const exported = exportClientApplicationFormToXML(mockcontext, mockElement)
+    const exported = exportClientApplicationFormToXML(mockСontext, mockElement)
     const xmlString = xmlExport({ Form: exported })
 
     expect(xmlString).toEqual(expectedResult)

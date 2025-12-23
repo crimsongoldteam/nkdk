@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "../../../tests/mockContext"
+import { mockСontext } from "../../../tests/mockContext"
 import { exportMetadataCatalogToEnterprise } from "./exportToEnterprise"
 import { MetadataCatalog, MetadataCatalogEnterprise } from "./types"
 
@@ -57,7 +57,7 @@ describe("exportMetadataCatalogToEnterprise", () => {
       },
     }
 
-    const result = exportMetadataCatalogToEnterprise(mockcontext, mock)
+    const result = exportMetadataCatalogToEnterprise(mockСontext, mock)
     expect(result).toEqual(expectedResult)
   })
 })

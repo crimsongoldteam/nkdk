@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "../../../tests/mockContext"
+import { mockСontext } from "../../../tests/mockContext"
 import { exportUserVisibleToEnterprise } from "./exportToEnterprise"
 import { UserVisible } from "./types"
 
@@ -20,7 +20,7 @@ describe("exportUserVisibleToEnterprise", () => {
       },
     }
 
-    const result = exportUserVisibleToEnterprise(mockcontext, use)
+    const result = exportUserVisibleToEnterprise(mockСontext, use)
 
     expect(result).toEqual(expectedResult)
   })
@@ -41,7 +41,7 @@ describe("exportUserVisibleToEnterprise", () => {
       },
     }
 
-    const result = exportUserVisibleToEnterprise(mockcontext, use)
+    const result = exportUserVisibleToEnterprise(mockСontext, use)
 
     expect(result).toEqual(expectedResult)
   })

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 import { multipleAttributes } from "~/lib/tests/fixtures/metadataAttribute/multiple"
 import { singleAttribute } from "~/lib/tests/fixtures/metadataAttribute/single"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportMetadataAttributesToXML } from "./exportToXML"
@@ -14,7 +14,7 @@ describe("exportMetadataAttributesToXML", () => {
   it("should export single attribute to XML", () => {
     const expectedResult = readXMLFileAsString("metadataAttribute/single.xml")
 
-    const xmlData = exportMetadataAttributesToXML(mockcontext, singleAttribute)
+    const xmlData = exportMetadataAttributesToXML(mockСontext, singleAttribute)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 
@@ -24,7 +24,7 @@ describe("exportMetadataAttributesToXML", () => {
   it("should export multiple attributes to XML", () => {
     const expectedResult = readXMLFileAsString("metadataAttribute/multiple.xml")
 
-    const xmlData = exportMetadataAttributesToXML(mockcontext, multipleAttributes)
+    const xmlData = exportMetadataAttributesToXML(mockСontext, multipleAttributes)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 

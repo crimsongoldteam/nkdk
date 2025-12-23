@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import { xmlImport } from "~/lib"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { importPictureDecorationFromXML } from "./importFromXML"
 import { PictureDecoration, PictureDecorationXML } from "./types"
@@ -26,7 +26,7 @@ it("should import name from XML", () => {
 
   const xml = xmlImport<{ PictureDecoration: PictureDecorationXML }>(mockXml)
 
-  const input = importPictureDecorationFromXML(mockcontext, xml.PictureDecoration)
+  const input = importPictureDecorationFromXML(mockСontext, xml.PictureDecoration)
 
   expect(input).toEqual(expectedResult)
 })

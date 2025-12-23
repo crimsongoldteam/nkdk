@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import "~/lib/metadata/forms/elements/inputField/registration"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { InputField } from "../inputField/types"
 import { formatUsualGroup } from "./format"
@@ -28,7 +28,7 @@ describe("formatUsualGroup", () => {
 
     const expectedResult = `%{Группа} {Элемент1}: ; {Элемент2}: `
 
-    const result = formatUsualGroup(mockElement, mockcontext)
+    const result = formatUsualGroup(mockElement, mockСontext)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -59,7 +59,7 @@ it("should format vertical group", () => {
   {Элемент1}: 
   {Элемент2}: `
 
-  const result = formatUsualGroup(mockElement, mockcontext)
+  const result = formatUsualGroup(mockElement, mockСontext)
 
   expect(result.strings.join("\n")).toEqual(expectedResult)
 })

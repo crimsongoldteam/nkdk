@@ -1,5 +1,5 @@
 import { Context } from "../metadata/context/types"
 
-export const mockcontext: Context = {
+export const mockСontext: Context = {
   defaultLanguage: "ru",
 }

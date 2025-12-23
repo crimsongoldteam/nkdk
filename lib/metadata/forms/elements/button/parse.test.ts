@@ -3,7 +3,7 @@ import type { DetectedTreeNode } from "~/lib/parser/detector/detectTree"
 import { parseElement } from "~/lib/parser/elementsParser/parse"
 import { lexer } from "~/lib/parser/lexer"
 import { ParseElementType } from "~/lib/parser/types"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { Button } from "./types"
 
@@ -34,5 +34,5 @@ const parseButton = (mock: string) => {
     childItems: [],
   }
 
-  return parseElement(node, mockcontext)
+  return parseElement(node, mockСontext)
 }

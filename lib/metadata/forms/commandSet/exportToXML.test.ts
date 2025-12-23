@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { xmlExport, xmlImport } from "~/lib"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { exportCommandSetToXML } from "./exportToXML"
 import { importCommandSetFromXML } from "./importFromXML"
 import { CommandSet, CommandSetXML } from "./types"
@@ -12,7 +12,7 @@ describe("exportCommandSetToXML", () => {
 	<ExcludedCommand>WriteAndClose</ExcludedCommand>
 </CommandSet>`
 
-    const exported = exportCommandSetToXML(mockcontext, mockData)
+    const exported = exportCommandSetToXML(mockСontext, mockData)
     const resultXml = xmlExport({ CommandSet: exported }, false)
     expect(resultXml).toEqual(expectedResult)
   })
@@ -25,8 +25,8 @@ describe("exportCommandSetToXML", () => {
 </CommandSet>`
 
     const xml = xmlImport<{ CommandSet: CommandSetXML }>(mockXml)
-    const imported = importCommandSetFromXML(mockcontext, xml.CommandSet)
-    const exported = exportCommandSetToXML(mockcontext, imported)
+    const imported = importCommandSetFromXML(mockСontext, xml.CommandSet)
+    const exported = exportCommandSetToXML(mockСontext, imported)
 
     const resultXml = xmlExport({ CommandSet: exported }, false)
     expect(resultXml).toEqual(mockXml)

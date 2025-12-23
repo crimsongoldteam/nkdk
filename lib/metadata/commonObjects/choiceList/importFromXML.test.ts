@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { xmlImport } from "~/lib/xml/import/importer"
 import { importChoiceListFromXML } from "./importFromXML"
 import { ChoiceList, ChoiceListXML } from "./types"
@@ -37,7 +37,7 @@ describe("importChoiceListFromXML", () => {
 		</ChoiceList>`
 
     const xml = xmlImport<{ ChoiceList: ChoiceListXML }>(mockXml)
-    const input = importChoiceListFromXML(mockcontext, xml.ChoiceList)
+    const input = importChoiceListFromXML(mockСontext, xml.ChoiceList)
 
     expect(input).toEqual({
       items: [
@@ -80,7 +80,7 @@ describe("importChoiceListFromXML", () => {
     }
 
     const xml = xmlImport<{ ChoiceList: ChoiceListXML }>(mockXml)
-    const input = importChoiceListFromXML(mockcontext, xml.ChoiceList)
+    const input = importChoiceListFromXML(mockСontext, xml.ChoiceList)
 
     expect(input).toEqual(expectedResult)
   })

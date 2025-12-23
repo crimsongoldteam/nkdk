@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { importFormAttributeFromXML } from "./importFromXML"
 import { FormAttribute, FormAttributeXML, FormAttributesXML } from "./types"
@@ -18,7 +18,7 @@ describe("importFormAttributeFromXML", () => {
       title: { items: { ru: "Заголовок поля" } },
     }
 
-    const result = importFormAttributeFromXML(mockcontext, xmlData)
+    const result = importFormAttributeFromXML(mockСontext, xmlData)
 
     expect(result).toEqual(mockResult)
   })
@@ -31,7 +31,7 @@ describe("importFormAttributeFromXML", () => {
       id: "1",
     }
 
-    const result = importFormAttributeFromXML(mockcontext, xmlData)
+    const result = importFormAttributeFromXML(mockСontext, xmlData)
 
     expect(result).toEqual(mockResult)
   })
@@ -47,7 +47,7 @@ describe("importFormAttributeFromXML", () => {
       storedData: true,
     }
 
-    const result = importFormAttributeFromXML(mockcontext, xmlData)
+    const result = importFormAttributeFromXML(mockСontext, xmlData)
 
     expect(result).toEqual(mockResult)
   })
@@ -55,7 +55,7 @@ describe("importFormAttributeFromXML", () => {
   it("should ignore ConditionalAppearance from XML", () => {
     const xmlData = readAndParseXMLFile<{ Attributes: FormAttributesXML }>("formAttributes/conditionalAppearance.xml")
 
-    const result = importFormAttributeFromXML(mockcontext, xmlData.Attributes?.[0] as FormAttributeXML)
+    const result = importFormAttributeFromXML(mockСontext, xmlData.Attributes?.[0] as FormAttributeXML)
 
     expect(result).toBeUndefined()
   })

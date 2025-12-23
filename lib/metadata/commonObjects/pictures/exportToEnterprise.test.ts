@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { mockcontext } from "../../../tests/mockContext"
+import { mockСontext } from "../../../tests/mockContext"
 import { exportPictureToEnterprise } from "./exportToEnterprise"
 import { Picture } from "./types"
 
@@ -12,7 +12,7 @@ it("should format standard picture", () => {
 
   const expectedResult = `БизнесПроцесс`
 
-  const result = exportPictureToEnterprise(mockcontext, data)
+  const result = exportPictureToEnterprise(mockСontext, data)
 
   expect(result).toEqual(expectedResult)
 })
@@ -26,7 +26,7 @@ it("should format standard picture Print", () => {
 
   const expectedResult = `Печать`
 
-  const result = exportPictureToEnterprise(mockcontext, data)
+  const result = exportPictureToEnterprise(mockСontext, data)
 
   expect(result).toEqual(expectedResult)
 })
@@ -40,7 +40,7 @@ it("should format common picture", () => {
 
   const expectedResult = `ОбщаяКартинка1`
 
-  const result = exportPictureToEnterprise(mockcontext, data)
+  const result = exportPictureToEnterprise(mockСontext, data)
 
   expect(result).toEqual(expectedResult)
 })

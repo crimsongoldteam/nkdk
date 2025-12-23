@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { xmlImport } from "~/lib"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { importInputFieldFromXML } from "./importFromXML"
 import { InputField, InputFieldXML } from "./types"
@@ -25,7 +25,7 @@ describe("importInputFieldFromXML", () => {
 
     const xml = xmlImport<{ InputField: InputFieldXML }>(mockXml)
 
-    const input = importInputFieldFromXML(mockcontext, xml.InputField)
+    const input = importInputFieldFromXML(mockСontext, xml.InputField)
 
     expect(input).toEqual(expectedResult)
   })

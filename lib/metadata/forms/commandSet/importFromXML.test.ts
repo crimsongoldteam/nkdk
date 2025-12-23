@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import xmlImport from "~/lib/xml/import/importer"
 import { importCommandSetFromXML } from "./importFromXML"
 import { CommandSet, CommandSetXML } from "./types"
@@ -14,7 +14,7 @@ describe("importCommandSetFromXML", () => {
 
     const xml = xmlImport<{ CommandSet: CommandSetXML }>(mockXml)
 
-    const result = importCommandSetFromXML(mockcontext, xml.CommandSet)
+    const result = importCommandSetFromXML(mockСontext, xml.CommandSet)
 
     expect(result).toEqual(expectedResult)
   })
@@ -30,7 +30,7 @@ describe("importCommandSetFromXML", () => {
 
     const xml = xmlImport<{ CommandSet: CommandSetXML }>(mockXml)
 
-    const result = importCommandSetFromXML(mockcontext, xml.CommandSet)
+    const result = importCommandSetFromXML(mockСontext, xml.CommandSet)
 
     expect(result).toEqual(expectedResult)
   })

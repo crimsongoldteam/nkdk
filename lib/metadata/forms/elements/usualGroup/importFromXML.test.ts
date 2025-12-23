@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { xmlImport } from "~/lib"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { importUsualGroupFromXML } from "./importFromXML"
 import { UsualGroup, UsualGroupXML } from "./types"
@@ -27,7 +27,7 @@ describe("importUsualGroupFromXML", () => {
     const xmlData = xmlImport<{ UsualGroup: UsualGroupXML }>(mockXml)
     const value = xmlData.UsualGroup
 
-    const input = importUsualGroupFromXML(mockcontext, value)
+    const input = importUsualGroupFromXML(mockСontext, value)
 
     expect(input).toEqual(mockResult)
   })
@@ -56,7 +56,7 @@ describe("importUsualGroupFromXML", () => {
     const xmlData = xmlImport<{ UsualGroup: UsualGroupXML }>(mockXml)
     const value = xmlData.UsualGroup
 
-    const input = importUsualGroupFromXML(mockcontext, value)
+    const input = importUsualGroupFromXML(mockСontext, value)
 
     expect(input).toEqual(mockResult)
   })

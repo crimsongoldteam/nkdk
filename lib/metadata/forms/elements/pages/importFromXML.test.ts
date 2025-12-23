@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import { xmlImport } from "~/lib"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { importPagesFromXML } from "./importFromXML"
 import { Pages, PagesXML } from "./types"
@@ -26,7 +26,7 @@ it("should import pages from XML", () => {
 
   const xmlData = xmlImport<{ Pages: PagesXML }>(mockXml)
 
-  const result = importPagesFromXML(mockcontext, xmlData.Pages)
+  const result = importPagesFromXML(mockСontext, xmlData.Pages)
 
   expect(result).toEqual(mockResult)
 })

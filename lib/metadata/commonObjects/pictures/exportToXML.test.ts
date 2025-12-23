@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { xmlImport } from "~/lib/xml/import/importer"
 import { exportPictureToXML } from "./exportToXML"
@@ -18,7 +18,7 @@ describe("exportPictureToXML", () => {
 \t<xr:LoadTransparent>true</xr:LoadTransparent>
 </Picture>`
 
-    const result = { Picture: exportPictureToXML(mockcontext, mockPicture) }
+    const result = { Picture: exportPictureToXML(mockСontext, mockPicture) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
@@ -36,14 +36,14 @@ describe("exportPictureToXML", () => {
 \t<xr:LoadTransparent>true</xr:LoadTransparent>
 </Picture>`
 
-    const result = { Picture: exportPictureToXML(mockcontext, mockPicture) }
+    const result = { Picture: exportPictureToXML(mockСontext, mockPicture) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportPictureToXML(mockcontext, undefined)
+    const result = exportPictureToXML(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -55,8 +55,8 @@ describe("exportPictureToXML", () => {
 </Picture>`
 
     const xml = xmlImport<{ Picture: PictureXML }>(originalXml)
-    const imported = importPictureFromXML(mockcontext, xml.Picture)
-    const exported = exportPictureToXML(mockcontext, imported)
+    const imported = importPictureFromXML(mockСontext, xml.Picture)
+    const exported = exportPictureToXML(mockСontext, imported)
     const resultXml = xmlExport({ Picture: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
@@ -69,8 +69,8 @@ describe("exportPictureToXML", () => {
 </Picture>`
 
     const xml = xmlImport<{ Picture: PictureXML }>(originalXml)
-    const imported = importPictureFromXML(mockcontext, xml.Picture)
-    const exported = exportPictureToXML(mockcontext, imported)
+    const imported = importPictureFromXML(mockСontext, xml.Picture)
+    const exported = exportPictureToXML(mockСontext, imported)
     const resultXml = xmlExport({ Picture: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest"
 import { simpleCatalog } from "~/lib/tests/fixtures/metadataCatalog/simple"
 import { withAttributesCatalog } from "~/lib/tests/fixtures/metadataCatalog/withAttributes"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportMetadataCatalogToXML } from "./exportToXML"
@@ -18,7 +18,7 @@ describe("exportMetadataCatalogToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataCatalog/simple.xml")
 
-    const xmlData = exportMetadataCatalogToXML(mockcontext, mock)
+    const xmlData = exportMetadataCatalogToXML(mockСontext, mock)
 
     const result = xmlExport({ MetaDataObject: xmlData })
 
@@ -30,7 +30,7 @@ describe("exportMetadataCatalogToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataCatalog/withAttributes.xml")
 
-    const xmlData = exportMetadataCatalogToXML(mockcontext, mock)
+    const xmlData = exportMetadataCatalogToXML(mockСontext, mock)
 
     const result = xmlExport({ MetaDataObject: xmlData })
 
@@ -43,10 +43,10 @@ describe("importMetadataCatalogFromXML - exportMetadataCatalogToXML roundtrip", 
     const originalXML = readXMLFileAsString("metadataCatalog/simple.xml")
     const xmlData = readAndParseXMLFile<{ MetaDataObject: MetadataCatalogXML }>("metadataCatalog/simple.xml")
 
-    const importedCatalog = importMetadataCatalogFromXML(mockcontext, xmlData.MetaDataObject)
+    const importedCatalog = importMetadataCatalogFromXML(mockСontext, xmlData.MetaDataObject)
     expect(importedCatalog).toBeDefined()
 
-    const exportedXMLData = exportMetadataCatalogToXML(mockcontext, importedCatalog!)
+    const exportedXMLData = exportMetadataCatalogToXML(mockСontext, importedCatalog!)
     const exportedXML = xmlExport({ MetaDataObject: exportedXMLData })
 
     expect(exportedXML).toEqual(originalXML)
@@ -56,10 +56,10 @@ describe("importMetadataCatalogFromXML - exportMetadataCatalogToXML roundtrip", 
     const originalXML = readXMLFileAsString("metadataCatalog/withAttributes.xml")
     const xmlData = readAndParseXMLFile<{ MetaDataObject: MetadataCatalogXML }>("metadataCatalog/withAttributes.xml")
 
-    const importedCatalog = importMetadataCatalogFromXML(mockcontext, xmlData.MetaDataObject)
+    const importedCatalog = importMetadataCatalogFromXML(mockСontext, xmlData.MetaDataObject)
     expect(importedCatalog).toBeDefined()
 
-    const exportedXMLData = exportMetadataCatalogToXML(mockcontext, importedCatalog!)
+    const exportedXMLData = exportMetadataCatalogToXML(mockСontext, importedCatalog!)
     const exportedXML = xmlExport({ MetaDataObject: exportedXMLData })
 
     expect(exportedXML).toEqual(originalXML)

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import "~/lib/metadata/forms/elements/inputField/registration"
 import "~/lib/metadata/forms/elements/page/registration"
 import "~/lib/metadata/forms/elements/usualGroup/registration"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { InputField } from "../inputField/types"
 import { Page } from "../page/types"
@@ -35,7 +35,7 @@ describe("formatPages", () => {
   /{Страница1}
     {Элемент1}: `
 
-    const result = formatPages(mockElement, mockcontext)
+    const result = formatPages(mockElement, mockСontext)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })

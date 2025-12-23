@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { xmlImport } from "~/lib/xml/import/importer"
 import { importColorFromXML } from "./importFromXML"
 import { Color, ColorXML } from "./types"
@@ -12,7 +12,7 @@ it("should import color from XML", () => {
   const xml = xmlImport<{ Color: ColorXML }>(mockXml)
   const value = xml.Color
 
-  const result = importColorFromXML(mockcontext, value)
+  const result = importColorFromXML(mockСontext, value)
 
   expect(result).toEqual(mockResult)
 })

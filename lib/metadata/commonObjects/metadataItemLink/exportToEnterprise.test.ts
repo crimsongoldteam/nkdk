@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { exportMetadataItemLinkToEnterprise } from "./exportToEnterprise"
 import { MetadataItemLink } from "./types"
 
@@ -8,7 +8,7 @@ describe("exportMetadataItemLinkToEnterprise", () => {
     const metadataItemLink: MetadataItemLink = "CatalogRef.Организации"
     const expectedResult = "Справочник.Организации"
 
-    const result = exportMetadataItemLinkToEnterprise(mockcontext, metadataItemLink)
+    const result = exportMetadataItemLinkToEnterprise(mockСontext, metadataItemLink)
 
     expect(result).toEqual(expectedResult)
   })

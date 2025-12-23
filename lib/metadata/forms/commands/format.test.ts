@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "../../../tests/mockContext"
+import { mockСontext } from "../../../tests/mockContext"
 import { formatCommands } from "./format"
 import { Command } from "./types"
 
@@ -19,7 +19,7 @@ describe("formatCommands", () => {
 Действие: СоставКомплектаПодобратьФайлы
 ИспользованиеТекущейСтроки: НеИспользует`
 
-    const result = formatCommands([data], mockcontext)
+    const result = formatCommands([data], mockСontext)
 
     expect(result).toEqual([expectedResult])
   })

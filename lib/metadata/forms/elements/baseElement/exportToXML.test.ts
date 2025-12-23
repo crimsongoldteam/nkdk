@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { xmlExport, xmlImport } from "~/lib"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { exportBaseElementToXML } from "./exportToXML"
 import { importBaseElementFromXML } from "./importFromXML"
@@ -16,14 +16,14 @@ describe("exportBaseElementToXML", () => {
 
     const expectedResult = `<BaseElement id="16" name="ИмяПоля"/>`
 
-    const result = { BaseElement: exportBaseElementToXML(mockcontext, mockElement) }
+    const result = { BaseElement: exportBaseElementToXML(mockСontext, mockElement) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportBaseElementToXML(mockcontext, undefined)
+    const result = exportBaseElementToXML(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -32,8 +32,8 @@ describe("exportBaseElementToXML", () => {
     const originalXml = `<BaseElement id="16" name="ИмяПоля"/>`
 
     const xml = xmlImport<{ BaseElement: BaseElementXML }>(originalXml)
-    const imported = importBaseElementFromXML(mockcontext, xml.BaseElement)
-    const exported = exportBaseElementToXML(mockcontext, imported)
+    const imported = importBaseElementFromXML(mockСontext, xml.BaseElement)
+    const exported = exportBaseElementToXML(mockСontext, imported)
     const resultXml = xmlExport({ BaseElement: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { xmlExport, xmlImport } from "~/lib"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { exportTypeLinkToXML } from "./exportToXML"
 import { importTypeLinkFromXML } from "./importFromXML"
 import { TypeLink, TypeLinkXML } from "./types"
@@ -17,14 +17,14 @@ describe("exportTypeLinkToXML", () => {
 \t<xr:LinkItem>0</xr:LinkItem>
 </TypeLink>`
 
-    const result = { TypeLink: exportTypeLinkToXML(mockcontext, mockTypeLink) }
+    const result = { TypeLink: exportTypeLinkToXML(mockСontext, mockTypeLink) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportTypeLinkToXML(mockcontext, undefined)
+    const result = exportTypeLinkToXML(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -36,8 +36,8 @@ describe("exportTypeLinkToXML", () => {
 </TypeLink>`
 
     const xml = xmlImport<{ TypeLink: TypeLinkXML }>(originalXml)
-    const imported = importTypeLinkFromXML(mockcontext, xml.TypeLink)
-    const exported = exportTypeLinkToXML(mockcontext, imported)
+    const imported = importTypeLinkFromXML(mockСontext, xml.TypeLink)
+    const exported = exportTypeLinkToXML(mockСontext, imported)
     const resultXml = xmlExport({ TypeLink: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

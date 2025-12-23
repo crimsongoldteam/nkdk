@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { importMetadataTabularSectionFromXML } from "./importFromXML"
 import { MetadataTabularSection, MetadataTabularSectionXML } from "./types"
@@ -25,7 +25,7 @@ describe("importMetadataTabularSectionFromXML", () => {
         },
       ],
     }
-    const result = importMetadataTabularSectionFromXML(mockcontext, xmlData.TabularSection)
+    const result = importMetadataTabularSectionFromXML(mockСontext, xmlData.TabularSection)
     expect(result).toEqual(expectedResult)
   })
 
@@ -59,7 +59,7 @@ describe("importMetadataTabularSectionFromXML", () => {
       ],
     }
 
-    const result = importMetadataTabularSectionFromXML(mockcontext, xmlData.TabularSection)
+    const result = importMetadataTabularSectionFromXML(mockСontext, xmlData.TabularSection)
     expect(result).toEqual(expectedResult)
   })
 })

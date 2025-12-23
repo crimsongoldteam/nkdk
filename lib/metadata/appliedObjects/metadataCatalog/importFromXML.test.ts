@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { simpleCatalog } from "~/lib/tests/fixtures/metadataCatalog/simple"
 import { withAttributesCatalog } from "~/lib/tests/fixtures/metadataCatalog/withAttributes"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { importMetadataCatalogFromXML } from "./importFromXML"
 import { MetadataCatalogXML } from "./types"
@@ -14,7 +14,7 @@ describe("importMetadataCatalogFromXML", () => {
 
     // expect(assertEquals<MetadataCatalogXML>(xmlData.MetaDataObject)).toEqual(xmlData.MetaDataObject)
 
-    const result = importMetadataCatalogFromXML(mockcontext, xmlData.MetaDataObject)
+    const result = importMetadataCatalogFromXML(mockСontext, xmlData.MetaDataObject)
 
     expect(result).toEqual(expectedResult)
   })
@@ -26,7 +26,7 @@ describe("importMetadataCatalogFromXML", () => {
 
     // expect(assertEquals<MetadataCatalogXML>(xmlData.MetaDataObject)).toEqual(xmlData.MetaDataObject)
 
-    const result = importMetadataCatalogFromXML(mockcontext, xmlData.MetaDataObject)
+    const result = importMetadataCatalogFromXML(mockСontext, xmlData.MetaDataObject)
 
     expect(result).toEqual(expectedResult)
   })

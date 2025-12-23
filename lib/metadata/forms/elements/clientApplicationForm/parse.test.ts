@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { parseClientApplicationForm } from "./parse"
 import { ClientApplicationForm } from "./types"
@@ -27,7 +27,7 @@ describe("parseClientApplicationForm", () => {
       ],
     }
 
-    const result = parseClientApplicationForm(orignalContent, mockcontext)
+    const result = parseClientApplicationForm(orignalContent, mockСontext)
 
     expect(result).toEqual(expectedResult)
   })

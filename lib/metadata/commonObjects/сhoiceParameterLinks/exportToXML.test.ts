@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportChoiceParameterLinksToXML } from "./exportToXML"
@@ -8,7 +8,7 @@ import { ChoiceParameterLinksXML } from "./types"
 
 describe("exportChoiceParameterLinksToXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = exportChoiceParameterLinksToXML(mockcontext, undefined)
+    const result = exportChoiceParameterLinksToXML(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -19,8 +19,8 @@ describe("exportChoiceParameterLinksToXML", () => {
     const xml = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
       "сhoiceParameterLinks/exportSingle.xml"
     )
-    const imported = importChoiceParameterLinksFromXML(mockcontext, xml.ChoiceParameterLinks)
-    const exported = exportChoiceParameterLinksToXML(mockcontext, imported)
+    const imported = importChoiceParameterLinksFromXML(mockСontext, xml.ChoiceParameterLinks)
+    const exported = exportChoiceParameterLinksToXML(mockСontext, imported)
     const resultXml = xmlExport({ ChoiceParameterLinks: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
@@ -32,8 +32,8 @@ describe("exportChoiceParameterLinksToXML", () => {
     const xml = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
       "сhoiceParameterLinks/exportMultiple.xml"
     )
-    const imported = importChoiceParameterLinksFromXML(mockcontext, xml.ChoiceParameterLinks)
-    const exported = exportChoiceParameterLinksToXML(mockcontext, imported)
+    const imported = importChoiceParameterLinksFromXML(mockСontext, xml.ChoiceParameterLinks)
+    const exported = exportChoiceParameterLinksToXML(mockСontext, imported)
     const resultXml = xmlExport({ ChoiceParameterLinks: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

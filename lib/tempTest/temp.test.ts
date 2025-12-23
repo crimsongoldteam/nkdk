@@ -7,7 +7,7 @@ import { importMetadataCatalogFromXML } from "../metadata/appliedObjects/metadat
 import { MetadataCatalogXML } from "../metadata/appliedObjects/metadataCatalog/types"
 import "../metadata/forms/elements/exportToXML"
 import "../metadata/forms/elements/importFromXML"
-import { mockcontext } from "../tests/mockContext"
+import { mockСontext } from "../tests/mockContext"
 import xmlImport from "../xml/import/importer"
 
 // const originalContent = readFileSync(join(__dirname, "Form.xml"), "utf-8")
@@ -17,9 +17,9 @@ describe("DO test", () => {
   it("should import metadata catalog from XML", () => {
     const importedXml = xmlImport<{ MetaDataObject: MetadataCatalogXML }>(metadataCatalogContent)
 
-    const xmlData = importMetadataCatalogFromXML(mockcontext, importedXml.MetaDataObject)
+    const xmlData = importMetadataCatalogFromXML(mockСontext, importedXml.MetaDataObject)
 
-    const exportedEnterprise = exportMetadataCatalogToEnterprise(mockcontext, xmlData)
+    const exportedEnterprise = exportMetadataCatalogToEnterprise(mockСontext, xmlData)
 
     const yamlString = stringify(exportedEnterprise!, {
       indent: 2,

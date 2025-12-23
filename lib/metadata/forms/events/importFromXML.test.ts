@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { xmlImport } from "~/lib/xml/import/importer"
 import { importEventsFromXML } from "./importFromXML"
 import { EventsXML } from "./types"
@@ -19,7 +19,7 @@ describe("importEventsFromXML", () => {
     }
 
     const xml = xmlImport<{ Events: EventsXML }>(mockXml)
-    const result = importEventsFromXML(mockcontext, xml.Events)
+    const result = importEventsFromXML(mockСontext, xml.Events)
 
     expect(result).toEqual(expectedResult)
   })

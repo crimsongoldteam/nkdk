@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { exportSystemEnumerationToEnterprise } from "./exportToEnterprise"
 
 describe("exportSystemEnumerationToEnterprise", () => {
@@ -8,7 +8,7 @@ describe("exportSystemEnumerationToEnterprise", () => {
     const mockValue = "Vertical"
     const expectedResult = "Вертикальная"
 
-    const result = exportSystemEnumerationToEnterprise(mockcontext, mockValue, SE.ChildFormItemsGroupToEnterprise)
+    const result = exportSystemEnumerationToEnterprise(mockСontext, mockValue, SE.ChildFormItemsGroupToEnterprise)
 
     expect(result).toBe(expectedResult)
   })

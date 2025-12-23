@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportTypeDescriptionToXML } from "./exportToXML"
@@ -17,7 +17,7 @@ describe("exportTypeDescriptionToXML", () => {
 
     const expectedXml = readXMLFileAsString("typeDescription/stringType.xml")
 
-    const result = exportTypeDescriptionToXML(mockcontext, mockTypeDescription)
+    const result = exportTypeDescriptionToXML(mockСontext, mockTypeDescription)
     const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -35,7 +35,7 @@ describe("exportTypeDescriptionToXML", () => {
 
     const expectedXml = readXMLFileAsString("typeDescription/numberType.xml")
 
-    const result = exportTypeDescriptionToXML(mockcontext, mockTypeDescription)
+    const result = exportTypeDescriptionToXML(mockСontext, mockTypeDescription)
     const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -51,7 +51,7 @@ describe("exportTypeDescriptionToXML", () => {
 
     const expectedXml = readXMLFileAsString("typeDescription/dateTimeType.xml")
 
-    const result = exportTypeDescriptionToXML(mockcontext, mockTypeDescription)
+    const result = exportTypeDescriptionToXML(mockСontext, mockTypeDescription)
     const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -64,7 +64,7 @@ describe("exportTypeDescriptionToXML", () => {
 
     const expectedXml = readXMLFileAsString("typeDescription/complexType.xml")
 
-    const result = exportTypeDescriptionToXML(mockcontext, mockTypeDescription)
+    const result = exportTypeDescriptionToXML(mockСontext, mockTypeDescription)
     const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)

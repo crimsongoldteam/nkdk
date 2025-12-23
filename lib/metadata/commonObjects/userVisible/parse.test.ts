@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "../../../tests/mockContext"
+import { mockСontext } from "../../../tests/mockContext"
 import { parseUserVisible } from "./parse"
 
 describe("parseUserVisible", () => {
@@ -9,7 +9,7 @@ describe("parseUserVisible", () => {
       "Role.Пользователь": "Ложь" as const,
     }
 
-    const result = parseUserVisible(mock, "РазрешитьИспользование", mockcontext)
+    const result = parseUserVisible(mock, "РазрешитьИспользование", mockСontext)
 
     expect(result).toEqual({
       common: true,
@@ -25,7 +25,7 @@ describe("parseUserVisible", () => {
       "Role.Пользователь": "Ложь" as const,
     }
 
-    const result = parseUserVisible(mock, "ЗапретитьИспользование", mockcontext)
+    const result = parseUserVisible(mock, "ЗапретитьИспользование", mockСontext)
 
     expect(result).toEqual({
       common: false,

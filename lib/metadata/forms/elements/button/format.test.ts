@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { formatButton } from "./format"
 import { Button } from "./types"
@@ -17,7 +17,7 @@ describe("formatButton", () => {
 
     const expectedResult = ["<Заголовок кнопки {ИмяКнопки}>"]
 
-    const result = formatButton(element, mockcontext)
+    const result = formatButton(element, mockСontext)
 
     expect(result.strings).toEqual(expectedResult)
   })

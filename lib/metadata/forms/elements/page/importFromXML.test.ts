@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import "~/lib/metadata/forms/elements/elements"
 import "~/lib/metadata/forms/elements/exportToXML"
 import "~/lib/metadata/forms/elements/importFromXML"
-import { mockcontext } from "~/lib/tests/mockContext"
+import { mockСontext } from "~/lib/tests/mockContext"
 import xmlImport from "~/lib/xml/import/importer"
 import { FormElementType } from "../../../metadataFactory/types"
 import { importPageFromXML } from "./importFromXML"
@@ -29,7 +29,7 @@ describe("importPageFromXML", () => {
 
     const xmlData = xmlImport<{ Page: PageXML }>(mockXml)
 
-    const input = importPageFromXML(mockcontext, xmlData.Page)
+    const input = importPageFromXML(mockСontext, xmlData.Page)
 
     expect(input).toEqual(expectedResult)
   })
