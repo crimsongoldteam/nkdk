@@ -7,19 +7,18 @@ export const exportTypeDescriptionToXML = (
 ): TypeDescriptionXML | undefined => {
   if (!typeDescription) return undefined
 
-  const result: TypeDescriptionXML = typeDescription.type.map((type) => ({
-    "v8:Type": mapType(type),
-  }))
-
-  addStringQualifiers(result, typeDescription.stringQualifiers)
-  addNumberQualifiers(result, typeDescription.numberQualifiers)
-  addDateQualifiers(result, typeDescription.dateQualifiers)
+  const result: TypeDescriptionXML = {
+    "v8:Type": typeDescription.type.map((type) => mapType(type)),
+    "v8:StringQualifiers": getStringQualifiers(typeDescription.stringQualifiers),
+    "v8:NumberQualifiers": getNumberQualifiers(typeDescription.numberQualifiers),
+    "v8:DateQualifiers": getDateQualifiers(typeDescription.dateQualifiers),
+  }
 
   return result
 }
 
 const mapType = (type: string): string => {
-  if (type === "string" || type === "decimal" || type === "date" || type === "boolean") {
+  if (type === "string" || type === "decimal" || type === "dateTime" || type === "boolean") {
     return `xs:${type}`
   }
   if (type.startsWith("EnumRef.")) {
@@ -37,41 +36,32 @@ const mapType = (type: string): string => {
   return type
 }
 
-const addStringQualifiers = (
-  result: NonNullable<TypeDescriptionXML>,
+const getStringQualifiers = (
   stringQualifiers: TypeDescription["stringQualifiers"]
-) => {
-  if (!stringQualifiers) return
-  result.push({
-    "v8:StringQualifiers": {
-      "v8:Length": stringQualifiers.length,
-      "v8:AllowedLength": stringQualifiers.allowedLength,
-    },
-  })
+): TypeDescriptionXML["v8:StringQualifiers"] | undefined => {
+  if (!stringQualifiers) return undefined
+  return {
+    "v8:Length": stringQualifiers.length,
+    "v8:AllowedLength": stringQualifiers.allowedLength,
+  }
 }
 
-const addNumberQualifiers = (
-  result: NonNullable<TypeDescriptionXML>,
+const getNumberQualifiers = (
   numberQualifiers: TypeDescription["numberQualifiers"]
-) => {
-  if (!numberQualifiers) return
-  result.push({
-    "v8:NumberQualifiers": {
-      "v8:Digits": numberQualifiers.digits,
-      "v8:FractionDigits": numberQualifiers.fractionDigits,
-      "v8:AllowedSign": numberQualifiers.allowedSign,
-    },
-  })
+): TypeDescriptionXML["v8:NumberQualifiers"] | undefined => {
+  if (!numberQualifiers) return undefined
+  return {
+    "v8:Digits": numberQualifiers.digits,
+    "v8:FractionDigits": numberQualifiers.fractionDigits,
+    "v8:AllowedSign": numberQualifiers.allowedSign,
+  }
 }
 
-const addDateQualifiers = (
-  result: NonNullable<TypeDescriptionXML>,
+const getDateQualifiers = (
   dateQualifiers: TypeDescription["dateQualifiers"]
-) => {
-  if (!dateQualifiers) return
-  result.push({
-    "v8:DateQualifiers": {
-      "v8:DateFractions": dateQualifiers.dateFractions,
-    },
-  })
+): TypeDescriptionXML["v8:DateQualifiers"] | undefined => {
+  if (!dateQualifiers) return undefined
+  return {
+    "v8:DateFractions": dateQualifiers.dateFractions,
+  }
 }

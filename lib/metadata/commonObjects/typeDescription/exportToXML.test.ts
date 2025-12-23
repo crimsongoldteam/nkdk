@@ -43,13 +43,13 @@ describe("exportTypeDescriptionToXML", () => {
 
   it("should export date type to XML", () => {
     const mockTypeDescription: TypeDescription = {
-      type: ["date"],
+      type: ["dateTime"],
       dateQualifiers: {
         dateFractions: "Date",
       },
     }
 
-    const expectedXml = readXMLFileAsString("typeDescription/dateType.xml")
+    const expectedXml = readXMLFileAsString("typeDescription/dateTimeType.xml")
 
     const result = exportTypeDescriptionToXML(mockConfigurationSettings, mockTypeDescription)
     const xmlString = xmlExport({ TypeDescription: result }, false)

@@ -20,15 +20,13 @@ export interface TypeDescriptionXMLDateQualifiers {
   "v8:DateFractions"?: "Date" | "Time" | "DateTime"
 }
 
-export interface TypeDescriptionXMLItem {
+export type TypeDescriptionXML = {
   "v8:Type"?: TypeDescriptionXMLType | TypeDescriptionXMLType[]
   "v8:TypeSet"?: string
   "v8:StringQualifiers"?: TypeDescriptionXMLStringQualifiers
   "v8:NumberQualifiers"?: TypeDescriptionXMLNumberQualifiers
   "v8:DateQualifiers"?: TypeDescriptionXMLDateQualifiers
 }
-
-export type TypeDescriptionXML = TypeDescriptionXMLItem[]
 
 export interface TypeDescriptionStringQualifiers {
   length: number
