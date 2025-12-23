@@ -1,17 +1,16 @@
-import { readFileSync } from "fs"
-import { join } from "path"
 import { assertEquals } from "typia"
 import { describe, expect, it } from "vitest"
 import { oneLangI8nText } from "~/lib/tests/fixtures/i8nText/oneLang"
 import { twoLangsI8nText } from "~/lib/tests/fixtures/i8nText/twoLangs"
 import { mockConfigurationSettings } from "~/lib/tests/mockConfigurationSettings"
+import { readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
 import { exportI8nTextToXML } from "./exportToXML"
 import { I8nTextXML } from "./types"
 
 describe("exportI8nTextToXML", () => {
   it("should export I8nText to XML", () => {
-    const expectedResult = readFileSync(join(process.cwd(), "tests/fixtures/i8nText/twoLangs.xml"), "utf-8")
+    const expectedResult = readXMLFileAsString("i8nText/twoLangs.xml")
 
     const originalContent = twoLangsI8nText
 
@@ -25,7 +24,7 @@ describe("exportI8nTextToXML", () => {
   })
 
   it("should export without formatted attribute", () => {
-    const expectedResult = readFileSync(join(process.cwd(), "tests/fixtures/i8nText/oneLang.xml"), "utf-8").trimEnd()
+    const expectedResult = readXMLFileAsString("i8nText/oneLang.xml").trimEnd()
 
     const originalContent = oneLangI8nText
 
