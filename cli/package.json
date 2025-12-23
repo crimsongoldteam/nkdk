@@ -1,0 +1,22 @@
+{
+  "name": "@nakidka/cli",
+  "version": "1.0.0",
+  "description": "CLI инструменты для обработки XML файлов",
+  "type": "module",
+  "bin": {
+    "process-xml": "./dist/process-xml.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/process-xml.ts",
+    "process-xml": "tsx src/process-xml.ts"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsx": "^4.19.2",
+    "typescript": "~5.9.3"
+  }
+}
