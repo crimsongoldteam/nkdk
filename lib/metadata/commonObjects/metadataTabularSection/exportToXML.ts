@@ -10,6 +10,7 @@ import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonO
 import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportInternalInfoToXML } from "../internalInfo/exportToXML"
+import { v4 } from "uuid"
 
 export const exportMetadataTabularSectionToXML = (
   configurationSettings: ConfigurationSettings,
@@ -17,10 +18,13 @@ export const exportMetadataTabularSectionToXML = (
 ): MetadataTabularSectionXML | undefined => {
   if (!data) return undefined
 
+  const parentName = configurationSettings.context
+
   return compactObject<MetadataTabularSectionXML>({
+    _uuid: v4(),
     InternalInfo: exportInternalInfoToXML([
-      { name: `CatalogTabularSection.${data.name}`, category: "TabularSection" },
-      { name: `CatalogTabularSectionRow.${data.name}`, category: "TabularSectionRow" },
+      { name: `CatalogTabularSection.${parentName}.${data.name}`, category: "TabularSection" },
+      { name: `CatalogTabularSectionRow.${parentName}.${data.name}`, category: "TabularSectionRow" },
     ]),
     Properties: {
       Comment: data.comment,

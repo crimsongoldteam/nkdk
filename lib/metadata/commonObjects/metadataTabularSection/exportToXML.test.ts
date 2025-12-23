@@ -29,7 +29,51 @@ describe("exportMetadataTabularSectionToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataTabularSection/oneAttribute.xml")
 
-    const result = exportMetadataTabularSectionToXML(data, mockConfigurationSettings, "Catalog", "Лиды")
+    const configurationSettings = {
+      ...mockConfigurationSettings,
+      context: "Лиды" as any,
+    }
+
+    const result = exportMetadataTabularSectionToXML(configurationSettings, data)
+    const resultXml = xmlExport({ TabularSection: result }, false)
+
+    expect(resultXml).toEqual(expectedResult)
+  })
+
+  it("should export tabular section with two attributes", () => {
+    const data: MetadataTabularSection = {
+      name: "Контакты",
+      synonym: { items: { ru: "Контакты" } },
+      attributes: [
+        {
+          name: "Наименование",
+          synonym: { items: { ru: "Имя Фамилия" } },
+          type: {
+            type: ["string"],
+            stringQualifiers: { allowedLength: "Variable", length: 0 },
+          },
+          fullTextSearch: "DontUse",
+        },
+        {
+          name: "ИдентификаторСтрокиТабличнойЧасти",
+          synonym: { items: { ru: "Идентификатор строки табличной части" } },
+          type: {
+            type: ["decimal"],
+            numberQualifiers: { digits: 7, fractionDigits: 0, allowedSign: "Any" },
+          },
+          fullTextSearch: "DontUse",
+        },
+      ],
+    }
+
+    const expectedResult = readXMLFileAsString("metadataTabularSection/twoAttributes.xml")
+
+    const configurationSettings = {
+      ...mockConfigurationSettings,
+      context: "Лиды" as any,
+    }
+
+    const result = exportMetadataTabularSectionToXML(configurationSettings, data)
     const resultXml = xmlExport({ TabularSection: result }, false)
 
     expect(resultXml).toEqual(expectedResult)

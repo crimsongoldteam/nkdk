@@ -47,7 +47,7 @@ import {
 } from "~/lib/metadata/commonObjects/standardAttributeDescription/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
-import { tags } from "typia"
+import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 
 export interface MetadataCatalog {
   additionalIndexes?: AdditionalIndexes
@@ -115,14 +115,14 @@ export interface MetadataCatalog {
 export const GeneratedTypeCategory = ["Object", "Ref", "Selection", "List", "Manager"] as const
 export type GeneratedTypeCategory = (typeof GeneratedTypeCategory)[number]
 
-export type GeneratedType = {
-  "xr:GeneratedType": {
-    _name: string
-    _category: GeneratedTypeCategory
-    "xr:TypeId": string & tags.Format<"uuid">
-    "xr:ValueId": string & tags.Format<"uuid">
-  }
-}
+export type CatalogInternalInfoParamsXML = [
+  { name: string; category: "Object" },
+  { name: string; category: "Ref" },
+  { name: string; category: "Selection" },
+  { name: string; category: "List" },
+  { name: string; category: "Manager" },
+]
+
 export interface MetadataCatalogXML {
   _xmlns?: string
   "_xmlns:app"?: string
@@ -144,7 +144,7 @@ export interface MetadataCatalogXML {
   _version: string
   Catalog: {
     _uuid: string
-    InternalInfo: GeneratedType | GeneratedType[]
+    InternalInfo: InternalInfoItemsXML<CatalogInternalInfoParamsXML> | undefined
     Properties: {
       AdditionalIndexes?: AdditionalIndexesXML
       Autonumbering?: boolean
