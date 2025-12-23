@@ -1,6 +1,6 @@
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
 import { importChildItemsFromXML } from "~/lib/metadata/forms/elements/childItems/importFromXML"
 import { importCommandBarFromXML } from "~/lib/metadata/forms/elements/commandBar/importFromXML"
@@ -11,7 +11,7 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importFormItemAdditionFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: FormItemAdditionXML | undefined
 ): FormItemAddition | undefined => {
   if (!xml) return undefined

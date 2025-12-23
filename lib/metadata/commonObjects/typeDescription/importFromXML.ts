@@ -1,10 +1,10 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
 
 const TypePrefixes = ["xs:", "cfg:", "mxl:"]
 
 export const importTypeDescriptionFromXML = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   xml: TypeDescriptionXML | undefined
 ): TypeDescription | undefined => {
   if (!xml) return undefined

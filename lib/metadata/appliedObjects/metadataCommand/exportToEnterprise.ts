@@ -8,7 +8,7 @@ import {
 import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/lib/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportPictureToEnterprise } from "~/lib/metadata/commonObjects/pictures/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -17,7 +17,7 @@ import { exportTypeDescriptionToEnterprise } from "../../commonObjects/typeDescr
 import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
 
 export const exportMetadataCommandToEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: MetadataCommand | undefined
 ): MetadataCommandEnterprise | undefined => {
   if (!data) return undefined
@@ -75,7 +75,7 @@ export const exportMetadataCommandToEnterprise = (
 }
 
 export const exportMetadataCommandsToEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: MetadataCommands | undefined
 ): MetadataCommandsEnterprise | undefined => {
   if (!data) return undefined
@@ -109,7 +109,7 @@ const canUseShortFormat = (data: MetadataCommand, isSynonymEqualToName: boolean)
 }
 
 const getGroup = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: MetadataCommand
 ): MetadataCommandGroupEnterprise | undefined => {
   if (!data.group) return undefined

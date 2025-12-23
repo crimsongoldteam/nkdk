@@ -10,13 +10,13 @@ import { exportMetadataItemLinksToEnterprise } from "~/lib/metadata/commonObject
 import { exportMetadataTabularSectionsToEnterprise } from "~/lib/metadata/commonObjects/metadataTabularSection/exportToEnterprise"
 import { exportPredefinedItemsToEnterprise } from "~/lib/metadata/commonObjects/predifined/exportToEnterprise"
 import { exportStandardAttributeDescriptionsToEnterprise } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportMetadataCatalogToEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: MetadataCatalog | undefined
 ): MetadataCatalogEnterprise | undefined => {
   if (!data) return undefined

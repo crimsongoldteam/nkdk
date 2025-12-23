@@ -3,7 +3,7 @@ import { exportBorderToEnterprise } from "~/lib/metadata/commonObjects/border/ex
 import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/lib/metadata/commonObjects/font/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { PeriodField, PeriodFieldEnterprise } from "~/lib/metadata/forms/elements/periodField/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
@@ -11,7 +11,8 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPeriodFieldToEnterprise = (
-  configurationSettings: ConfigurationSettings, data: PeriodField | undefined
+  configurationSettings: Context,
+  data: PeriodField | undefined
 ): PeriodFieldEnterprise | undefined => {
   if (!data) return undefined
 

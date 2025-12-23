@@ -3,10 +3,10 @@ import { parseBoolean } from "~/lib/metadata/commonObjects/boolean/importFromEnt
 import { parseI8nText } from "~/lib/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importTypeDescriptionFromEnterprise } from "~/lib/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { parseUserVisible } from "~/lib/metadata/commonObjects/userVisible/parse"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { FormAttribute } from "../types"
 
-export const parseAttributes = (yamlContent: string, configurationSettings: ConfigurationSettings): FormAttribute[] => {
+export const parseAttributes = (yamlContent: string, configurationSettings: Context): FormAttribute[] => {
   const parsed = parse(yamlContent) as Record<string, any>
   const result: FormAttribute[] = []
 

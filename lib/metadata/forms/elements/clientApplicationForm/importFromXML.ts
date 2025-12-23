@@ -1,5 +1,5 @@
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importCommandSetFromXML } from "~/lib/metadata/forms/commandSet/importFromXML"
 import { FormElementType } from "../../../metadataFactory/types"
 import { importEventsFromXML } from "../../events/importFromXML"
@@ -8,7 +8,7 @@ import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
 export const importClientApplicationFormFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: ClientApplicationFormXML
 ): ClientApplicationForm => {
   return {

@@ -2,14 +2,14 @@ import { formatElements } from "~/lib/format/formatFactory"
 import { formatElementTitleAndName } from "~/lib/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
 import { addSimpleIndent } from "~/lib/format/wrap/addIndents"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import * as t from "~/lib/parser/lexer"
 import { BaseElement } from "../baseElement/types"
 import { Page } from "./types"
 
 export const formatPage: FormatElementFunction = (
   element: BaseElement,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: Context
 ): IFormatElementResult => {
   const pageElement = element as Page
   const childItems = pageElement.childItems ?? []

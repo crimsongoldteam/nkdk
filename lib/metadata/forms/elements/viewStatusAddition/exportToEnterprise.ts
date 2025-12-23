@@ -3,7 +3,7 @@ import { exportBorderToEnterprise } from "~/lib/metadata/commonObjects/border/ex
 import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/lib/metadata/commonObjects/font/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormItemAdditionToEnterprise } from "~/lib/metadata/forms/elements/formItemAddition/exportToEnterprise"
 import {
   ViewStatusAddition,
@@ -15,7 +15,7 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportViewStatusAdditionToEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: ViewStatusAddition | undefined
 ): ViewStatusAdditionEnterprise | undefined => {
   if (!data) return undefined

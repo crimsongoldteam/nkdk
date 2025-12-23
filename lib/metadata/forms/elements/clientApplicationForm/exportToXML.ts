@@ -1,5 +1,5 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportCommandSetToXML } from "~/lib/metadata/forms/commandSet/exportToXML"
 import { exportCommandBarToXML } from "~/lib/metadata/forms/elements/commandBar/exportToXML"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
@@ -9,7 +9,7 @@ import { exportChildItemsToXML } from "../childItems/exportToXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
 export const exportClientApplicationFormToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: ClientApplicationForm | undefined
 ): ClientApplicationFormXML | undefined => {
   if (!data) return undefined

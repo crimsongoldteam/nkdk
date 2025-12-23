@@ -1,9 +1,9 @@
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { I8nText, I8nTextEnterprise } from "./types"
 
 export const parseI8nText = (
   value: I8nTextEnterprise | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: Context
 ): I8nText | undefined => {
   if (value === undefined) return undefined
 
@@ -19,4 +19,3 @@ export const parseI8nText = (
     items: value,
   }
 }
-

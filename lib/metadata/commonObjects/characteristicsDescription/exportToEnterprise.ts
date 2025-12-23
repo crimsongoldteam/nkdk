@@ -6,13 +6,13 @@ import {
 } from "~/lib/metadata/commonObjects/characteristicsDescription/types"
 import { exportMetadataFieldToEnterprise } from "~/lib/metadata/commonObjects/metadataField/exportToEnterprise"
 import { exportMetadataItemLinkToEnterprise } from "~/lib/metadata/commonObjects/metadataItemLink/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterprise"
 import { MetadataValue } from "../metadataValue/types"
 
 export const exportCharacteristicsDescriptionToEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: CharacteristicsDescription | undefined
 ): CharacteristicsDescriptionEnterprise | undefined => {
   if (!data) return undefined
@@ -48,7 +48,7 @@ export const exportCharacteristicsDescriptionToEnterprise = (
 }
 
 export const exportCharacteristicsDescriptionsToEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: CharacteristicsDescriptions | undefined
 ): CharacteristicsDescriptionsEnterprise | undefined => {
   if (!data) return undefined

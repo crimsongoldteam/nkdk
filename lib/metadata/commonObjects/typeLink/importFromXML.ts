@@ -1,8 +1,8 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { TypeLink, TypeLinkXML } from "./types"
 
 export const importTypeLinkFromXML = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   xml: TypeLinkXML | undefined
 ): TypeLink | undefined => {
   if (!xml) return undefined

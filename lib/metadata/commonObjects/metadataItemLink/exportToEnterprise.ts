@@ -1,9 +1,9 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { AppliedType, AppliedTypeToEnterprise } from "../typeDescription/types"
 import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinks, MetadataItemLinksEnterprise } from "./types"
 
 export const exportMetadataItemLinkToEnterprise = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   data: MetadataItemLink | undefined
 ): MetadataItemLinkEnterprise | undefined => {
   if (!data) return undefined
@@ -14,7 +14,7 @@ export const exportMetadataItemLinkToEnterprise = (
 }
 
 export const exportMetadataItemLinksToEnterprise = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   data: MetadataItemLinks | undefined
 ): MetadataItemLinksEnterprise | undefined => {
   if (!data) return undefined

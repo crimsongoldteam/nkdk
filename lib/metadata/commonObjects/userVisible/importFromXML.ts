@@ -1,8 +1,8 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { UserVisible, UserVisibleXML } from "./types"
 
 export const importUserVisibleFromXML = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   xml: UserVisibleXML | undefined
 ): UserVisible | undefined => {
   if (!xml) return undefined

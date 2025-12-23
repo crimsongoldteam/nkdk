@@ -2,16 +2,13 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormGroupToXML } from "~/lib/metadata/forms/elements/formGroup/exportToXML"
 import { Page, PageXML } from "~/lib/metadata/forms/elements/page/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportPageToXML = (
-  configurationSettings: ConfigurationSettings,
-  data: Page | undefined
-): PageXML | undefined => {
+export const exportPageToXML = (configurationSettings: Context, data: Page | undefined): PageXML | undefined => {
   if (!data) return undefined
 
   return compactObject({

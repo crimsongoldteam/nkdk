@@ -5,11 +5,11 @@ import {
   AdditionalIndexXML,
 } from "~/lib/metadata/commonObjects/additionalIndex/types"
 import { exportIndexFieldsToXML } from "~/lib/metadata/commonObjects/indexField/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const exportAdditionalIndexToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: AdditionalIndex | undefined
 ): AdditionalIndexXML | undefined => {
   if (!data) return undefined
@@ -23,7 +23,7 @@ export const exportAdditionalIndexToXML = (
 }
 
 export const exportAdditionalIndexesToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: AdditionalIndexes | undefined
 ): AdditionalIndexesXML | undefined => {
   if (!data) return undefined

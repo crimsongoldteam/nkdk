@@ -1,7 +1,7 @@
-import { ConfigurationSettings } from "../configurationSettings/types"
+import { Context } from "../context/types"
 
 export const importSystemEnumerationFromEnterprise = <T extends string>(
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   value: string | undefined,
   enumeration: Record<string, string>
 ): T | undefined => {
@@ -9,4 +9,3 @@ export const importSystemEnumerationFromEnterprise = <T extends string>(
 
   return enumeration[value] as T
 }
-

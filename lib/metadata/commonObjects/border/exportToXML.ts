@@ -1,8 +1,8 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { Border, BorderXML } from "./types"
 
 export const exportBorderToXML = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   border: Border | undefined
 ): BorderXML | undefined => {
   if (!border) return undefined

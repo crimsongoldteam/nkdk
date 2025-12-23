@@ -1,10 +1,7 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { MetadataCommand } from "./types"
 
-export const getDefaults = (
-  _data: MetadataCommand,
-  _configurationSettings: ConfigurationSettings
-): Partial<MetadataCommand> => {
+export const getDefaults = (_data: MetadataCommand, _configurationSettings: Context): Partial<MetadataCommand> => {
   return {
     group: "NavigationPanelOrdinary",
     parameterUseMode: "Single",

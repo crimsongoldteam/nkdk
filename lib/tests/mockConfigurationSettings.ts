@@ -1,6 +1,5 @@
-import { ConfigurationSettings } from "../metadata/configurationSettings/types"
+import { Context } from "../metadata/context/types"
 
-export const mockConfigurationSettings: ConfigurationSettings = {
+export const mockConfigurationSettings: Context = {
   defaultLanguage: "ru",
 }
-

@@ -1,6 +1,6 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportBaseElementToXML } from "~/lib/metadata/forms/elements/baseElement/exportToXML"
 import { exportChildItemsToXML } from "~/lib/metadata/forms/elements/childItems/exportToXML"
 import { exportCommandBarToXML } from "~/lib/metadata/forms/elements/commandBar/exportToXML"
@@ -10,7 +10,7 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportFormItemAdditionToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: FormItemAddition | undefined
 ): FormItemAdditionXML | undefined => {
   if (!data) return undefined

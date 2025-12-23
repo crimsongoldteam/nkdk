@@ -1,6 +1,6 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import {
   GeographicalSchemaField,
@@ -12,7 +12,8 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importGeographicalSchemaFieldFromXML = (
-  configurationSettings: ConfigurationSettings, xml: GeographicalSchemaFieldXML | undefined
+  configurationSettings: Context,
+  xml: GeographicalSchemaFieldXML | undefined
 ): GeographicalSchemaField | undefined => {
   if (!xml) return undefined
 

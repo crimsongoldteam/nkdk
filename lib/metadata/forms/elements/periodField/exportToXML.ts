@@ -2,7 +2,7 @@ import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToX
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { PeriodField, PeriodFieldXML } from "~/lib/metadata/forms/elements/periodField/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
@@ -10,7 +10,8 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPeriodFieldToXML = (
-  configurationSettings: ConfigurationSettings, data: PeriodField | undefined
+  configurationSettings: Context,
+  data: PeriodField | undefined
 ): PeriodFieldXML | undefined => {
   if (!data) return undefined
 

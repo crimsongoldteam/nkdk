@@ -7,7 +7,7 @@ import {
   MetadataAttributesEnterprise,
 } from "~/lib/metadata/commonObjects/metadataAttribute/types"
 import { importTypeDescriptionFromEnterprise } from "~/lib/metadata/commonObjects/typeDescription/importFromEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { compactObject, removeDefaults } from "~/lib/metadata/helpers/compactObject"
 import { importSystemEnumerationFromEnterprise } from "~/lib/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
@@ -15,7 +15,7 @@ import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
 import { getDefaults } from "./defaults"
 
 const importMetadataValueFromEnterprise = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   data: { Тип: string; Значение: string } | undefined
 ): { type: string; value: string } | undefined => {
   if (!data) return undefined
@@ -27,7 +27,7 @@ const importMetadataValueFromEnterprise = (
 }
 
 const importTypeLinkFromEnterprise = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   value: string | undefined
 ): { dataPath: string; linkItem: string | number } | undefined => {
   if (!value) return undefined
@@ -37,7 +37,7 @@ const importTypeLinkFromEnterprise = (
 }
 
 const importChoiceParameterLinksFromEnterprise = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   value: string | undefined
 ): Array<{ name: string; dataPath: string; valueChange?: string }> | undefined => {
   if (!value) return undefined
@@ -47,7 +47,7 @@ const importChoiceParameterLinksFromEnterprise = (
 }
 
 export const importMetadataAttributeFromEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: MetadataAttributeEnterprise | undefined,
   name: string
 ): MetadataAttribute | undefined => {
@@ -195,7 +195,7 @@ export const importMetadataAttributeFromEnterprise = (
 }
 
 export const importMetadataAttributesFromEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: MetadataAttributesEnterprise | undefined
 ): MetadataAttributes | undefined => {
   if (!data) return undefined

@@ -2,7 +2,7 @@ import { importChoiceListFromXML } from "~/lib/metadata/commonObjects/choiceList
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { RadioButtonField, RadioButtonFieldXML } from "~/lib/metadata/forms/elements/radioButtonField/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
@@ -11,7 +11,8 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importRadioButtonFieldFromXML = (
-  configurationSettings: ConfigurationSettings, xml: RadioButtonFieldXML | undefined
+  configurationSettings: Context,
+  xml: RadioButtonFieldXML | undefined
 ): RadioButtonField | undefined => {
   if (!xml) return undefined
 

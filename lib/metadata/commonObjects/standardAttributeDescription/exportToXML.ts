@@ -9,12 +9,12 @@ import {
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { exportTypeLinkToXML } from "~/lib/metadata/commonObjects/typeLink/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { getDefaults } from "./defaults"
 
 export const exportStandardAttributeDescriptionToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: StandardAttributeDescription | undefined
 ): StandardAttributeDescriptionXML | undefined => {
   if (!data) return undefined
@@ -58,7 +58,7 @@ export const exportStandardAttributeDescriptionToXML = (
 }
 
 export const exportStandardAttributeDescriptionsToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: StandardAttributeDescriptions | undefined
 ): StandardAttributeDescriptionsXML | undefined => {
   if (!data) return undefined

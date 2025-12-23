@@ -1,8 +1,8 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { TypeLink, TypeLinkEnterprise } from "./types"
 
 export const exportTypeLinkToEnterprise = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   data: TypeLink | undefined
 ): TypeLinkEnterprise | undefined => {
   if (!data) return undefined

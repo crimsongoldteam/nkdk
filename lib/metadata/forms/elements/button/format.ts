@@ -1,11 +1,11 @@
 import { formatElementName } from "~/lib/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { Button } from "./types"
 
 export const formatButton: FormatElementFunction = (
   element: Button,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: Context
 ): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: ["<" + element.title?.items?.["ru"] + " " + formatElementName(element) + ">"],

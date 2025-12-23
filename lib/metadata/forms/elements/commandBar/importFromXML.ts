@@ -1,5 +1,5 @@
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { CommandBar, CommandBarXML } from "~/lib/metadata/forms/elements/commandBar/types"
 import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/importFromXML"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
@@ -7,7 +7,7 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importCommandBarFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: CommandBarXML | undefined
 ): CommandBar | undefined => {
   if (!xml) return undefined

@@ -1,11 +1,11 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { type Picture } from "./types"
 
 export const exportPictureToEnterprise = (
   picture: Picture | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: Context
 ): string | undefined => {
   if (!picture) return undefined
 

@@ -1,8 +1,8 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { MetadataField, MetadataFields, MetadataFieldsXML, MetadataFieldXML } from "./types"
 
 export const exportMetadataFieldToXML = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   data: MetadataField | undefined
 ): MetadataFieldXML | undefined => {
   if (!data) return undefined
@@ -14,7 +14,7 @@ export const exportMetadataFieldToXML = (
 }
 
 export const exportMetadataFieldsToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: MetadataFields | undefined
 ): MetadataFieldsXML | undefined => {
   if (!data) return undefined

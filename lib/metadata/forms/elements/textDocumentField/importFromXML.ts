@@ -1,7 +1,7 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { TextDocumentField, TextDocumentFieldXML } from "~/lib/metadata/forms/elements/textDocumentField/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
@@ -10,7 +10,8 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importTextDocumentFieldFromXML = (
-  configurationSettings: ConfigurationSettings, xml: TextDocumentFieldXML | undefined
+  configurationSettings: Context,
+  xml: TextDocumentFieldXML | undefined
 ): TextDocumentField | undefined => {
   if (!xml) return undefined
 

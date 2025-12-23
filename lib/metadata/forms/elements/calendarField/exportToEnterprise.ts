@@ -3,7 +3,7 @@ import { exportBorderToEnterprise } from "~/lib/metadata/commonObjects/border/ex
 import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/lib/metadata/commonObjects/font/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { CalendarField, CalendarFieldEnterprise } from "~/lib/metadata/forms/elements/calendarField/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
@@ -13,7 +13,8 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportCalendarFieldToEnterprise = (
-  configurationSettings: ConfigurationSettings, data: CalendarField | undefined
+  configurationSettings: Context,
+  data: CalendarField | undefined
 ): CalendarFieldEnterprise | undefined => {
   if (!data) return undefined
 
@@ -37,7 +38,11 @@ export const exportCalendarFieldToEnterprise = (
     Рамка: exportBorderToEnterprise(configurationSettings, data.border),
     РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
     РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
-    РежимВыделения: exportSystemEnumerationToEnterprise(configurationSettings, data.selectionMode, SE.DateSelectionModeToEnterprise),
+    РежимВыделения: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.selectionMode,
+      SE.DateSelectionModeToEnterprise
+    ),
     ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
     Ширина: data.width,
     ШиринаВМесяцах: data.widthInMonths,

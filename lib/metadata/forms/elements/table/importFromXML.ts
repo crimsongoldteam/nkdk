@@ -2,7 +2,7 @@ import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFro
 import { importFontFromXML } from "~/lib/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importCommandSetFromXML } from "~/lib/metadata/forms/commandSet/importFromXML"
 import { importBaseElementFromXML } from "~/lib/metadata/forms/elements/baseElement/importFromXML"
 import { importChildItemsFromXML } from "~/lib/metadata/forms/elements/childItems/importFromXML"
@@ -15,10 +15,7 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importTableFromXML = (
-  configurationSettings: ConfigurationSettings,
-  xml: TableXML | undefined
-): Table | undefined => {
+export const importTableFromXML = (configurationSettings: Context, xml: TableXML | undefined): Table | undefined => {
   if (!xml) return undefined
 
   return compactObject({

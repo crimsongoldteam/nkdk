@@ -1,11 +1,11 @@
-import type { ConfigurationSettings } from "../metadata/configurationSettings/types"
+import type { Context } from "../metadata/context/types"
 import type { ClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/types"
 import { FormElementType } from "../metadata/metadataFactory/types"
 import { detectTreeNodes } from "./detector/detectTree"
 import { parseElement } from "./elementsParser/parse"
 import { parseTree } from "./treeParser/parseTree"
 
-const configurationSettings: ConfigurationSettings = {
+const configurationSettings: Context = {
   defaultLanguage: "ru",
 }
 

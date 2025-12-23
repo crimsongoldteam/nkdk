@@ -1,8 +1,8 @@
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { BaseElement, BaseElementXML } from "./types"
 
 export const exportBaseElementToXML = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   data: BaseElement | undefined
 ): BaseElementXML | undefined => {
   if (!data) return undefined

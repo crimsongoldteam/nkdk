@@ -6,7 +6,7 @@ import {
 } from "~/lib/metadata/commonObjects/characteristicsDescription/types"
 import { MetadataField, MetadataFieldXML } from "~/lib/metadata/commonObjects/metadataField/types"
 import { importMetadataValueFromXML } from "~/lib/metadata/commonObjects/metadataValue/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 const extractFieldValue = (field: MetadataFieldXML | string | number | undefined): MetadataField | undefined => {
@@ -25,7 +25,7 @@ const extractFieldValue = (field: MetadataFieldXML | string | number | undefined
 }
 
 export const importCharacteristicsDescriptionFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: CharacteristicsDescriptionXML | undefined
 ): CharacteristicsDescription | undefined => {
   if (!xml) return undefined
@@ -55,7 +55,7 @@ export const importCharacteristicsDescriptionFromXML = (
 }
 
 export const importCharacteristicsDescriptionsFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: CharacteristicsDescriptionsXML | undefined
 ): CharacteristicsDescriptions | undefined => {
   if (!xml) return undefined

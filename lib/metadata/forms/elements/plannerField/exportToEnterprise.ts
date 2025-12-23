@@ -1,6 +1,6 @@
 import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { PlannerField, PlannerFieldEnterprise } from "~/lib/metadata/forms/elements/plannerField/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
@@ -8,7 +8,8 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPlannerFieldToEnterprise = (
-  configurationSettings: ConfigurationSettings, data: PlannerField | undefined
+  configurationSettings: Context,
+  data: PlannerField | undefined
 ): PlannerFieldEnterprise | undefined => {
   if (!data) return undefined
 
@@ -18,7 +19,10 @@ export const exportPlannerFieldToEnterprise = (
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
     Высота: data.height,
-    ГиперссылкаПеренесенногоЗаголовкаШкалыВремени: exportBooleanToEnterprise(configurationSettings, data.wrappedTimeScaleHeaderHyperlink),
+    ГиперссылкаПеренесенногоЗаголовкаШкалыВремени: exportBooleanToEnterprise(
+      configurationSettings,
+      data.wrappedTimeScaleHeaderHyperlink
+    ),
     ГиперссылкаЭлементаИзмерения: exportBooleanToEnterprise(configurationSettings, data.dimensionItemHyperlink),
     ГиперссылкаЭлементаШкалыВремени: exportBooleanToEnterprise(configurationSettings, data.timeScaleItemHyperlink),
     МаксимальнаяВысота: data.maxHeight,

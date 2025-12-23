@@ -1,5 +1,5 @@
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { DendrogramField, DendrogramFieldXML } from "~/lib/metadata/forms/elements/dendrogramField/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
@@ -8,7 +8,7 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importDendrogramFieldFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: DendrogramFieldXML | undefined
 ): DendrogramField | undefined => {
   if (!xml) return undefined

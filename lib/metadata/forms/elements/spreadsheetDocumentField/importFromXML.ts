@@ -1,6 +1,6 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import {
   SpreadSheetDocumentField,
@@ -12,7 +12,8 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importSpreadSheetDocumentFieldFromXML = (
-  configurationSettings: ConfigurationSettings, xml: SpreadSheetDocumentFieldXML | undefined
+  configurationSettings: Context,
+  xml: SpreadSheetDocumentFieldXML | undefined
 ): SpreadSheetDocumentField | undefined => {
   if (!xml) return undefined
 

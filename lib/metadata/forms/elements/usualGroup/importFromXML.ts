@@ -1,7 +1,7 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/importFromXML"
 import { importTableFromXML } from "~/lib/metadata/forms/elements/table/importFromXML"
 import { UsualGroup, UsualGroupXML } from "~/lib/metadata/forms/elements/usualGroup/types"
@@ -10,7 +10,7 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importUsualGroupFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: UsualGroupXML | undefined
 ): UsualGroup | undefined => {
   if (!xml) return undefined

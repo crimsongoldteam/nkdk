@@ -11,13 +11,13 @@ import {
 import { exportTypeDescriptionToEnterprise } from "~/lib/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { exportTypeLinkToEnterprise } from "~/lib/metadata/commonObjects/typeLink/exportToEnterprise"
 import { exportChoiceParameterLinksToEnterprise } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportStandardAttributeDescriptionToEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: StandardAttributeDescription | undefined
 ): StandardAttributeDescriptionEnterprise | undefined => {
   if (!data) return undefined
@@ -81,7 +81,7 @@ export const exportStandardAttributeDescriptionToEnterprise = (
 }
 
 export const exportStandardAttributeDescriptionsToEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: StandardAttributeDescriptions | undefined
 ): StandardAttributeDescriptionsEnterprise | undefined => {
   if (!data) return undefined

@@ -1,5 +1,5 @@
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { TrackBarField, TrackBarFieldXML } from "~/lib/metadata/forms/elements/trackBarField/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
@@ -8,7 +8,8 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importTrackBarFieldFromXML = (
-  configurationSettings: ConfigurationSettings, xml: TrackBarFieldXML | undefined
+  configurationSettings: Context,
+  xml: TrackBarFieldXML | undefined
 ): TrackBarField | undefined => {
   if (!xml) return undefined
 

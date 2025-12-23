@@ -2,7 +2,7 @@ import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/
 import { exportBorderToEnterprise } from "~/lib/metadata/commonObjects/border/exportToEnterprise"
 import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormDecorationToEnterprise } from "~/lib/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { LabelDecoration, LabelDecorationEnterprise } from "~/lib/metadata/forms/elements/labelDecoration/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
@@ -12,18 +12,31 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportLabelDecorationToEnterprise = (
-  configurationSettings: ConfigurationSettings, data: LabelDecoration | undefined
+  configurationSettings: Context,
+  data: LabelDecoration | undefined
 ): LabelDecorationEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
     ...exportFormDecorationToEnterprise(configurationSettings, data)!,
 
-    ВертикальноеВыравниваниеГруппы: exportSystemEnumerationToEnterprise(configurationSettings, data.groupVerticalAlign, SE.ItemVerticalAlignToEnterprise),
-    ВертикальноеПоложение: exportSystemEnumerationToEnterprise(configurationSettings, data.verticalAlign, SE.ItemVerticalAlignToEnterprise),
+    ВертикальноеВыравниваниеГруппы: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.groupVerticalAlign,
+      SE.ItemVerticalAlignToEnterprise
+    ),
+    ВертикальноеПоложение: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.verticalAlign,
+      SE.ItemVerticalAlignToEnterprise
+    ),
     ВысотаЗаголовка: data.titleHeight,
     Гиперссылка: exportBooleanToEnterprise(configurationSettings, data.hyperlink),
-    ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(configurationSettings, data.horizontalAlign, SE.ItemHorizontalLocationToEnterprise),
+    ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.horizontalAlign,
+      SE.ItemHorizontalLocationToEnterprise
+    ),
     ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
     Рамка: exportBorderToEnterprise(configurationSettings, data.border),
     ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),

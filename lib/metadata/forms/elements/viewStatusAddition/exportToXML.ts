@@ -2,14 +2,14 @@ import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToX
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormItemAdditionToXML } from "~/lib/metadata/forms/elements/formItemAddition/exportToXML"
 import { ViewStatusAddition, ViewStatusAdditionXML } from "~/lib/metadata/forms/elements/viewStatusAddition/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportViewStatusAdditionToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: ViewStatusAddition | undefined
 ): ViewStatusAdditionXML | undefined => {
   if (!data) return undefined

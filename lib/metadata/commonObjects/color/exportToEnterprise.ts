@@ -1,10 +1,10 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { Color } from "./types"
 
 export const exportColorToEnterprise = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   color: Color | undefined
 ): string | undefined => {
   if (!color) return undefined

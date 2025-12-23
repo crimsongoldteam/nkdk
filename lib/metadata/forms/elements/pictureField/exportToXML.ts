@@ -3,7 +3,7 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { PictureField, PictureFieldXML } from "~/lib/metadata/forms/elements/pictureField/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
@@ -11,7 +11,8 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPictureFieldToXML = (
-  configurationSettings: ConfigurationSettings, data: PictureField | undefined
+  configurationSettings: Context,
+  data: PictureField | undefined
 ): PictureFieldXML | undefined => {
   if (!data) return undefined
 

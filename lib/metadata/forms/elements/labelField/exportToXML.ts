@@ -3,7 +3,7 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { LabelField, LabelFieldXML } from "~/lib/metadata/forms/elements/labelField/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
@@ -11,7 +11,8 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportLabelFieldToXML = (
-  configurationSettings: ConfigurationSettings, data: LabelField | undefined
+  configurationSettings: Context,
+  data: LabelField | undefined
 ): LabelFieldXML | undefined => {
   if (!data) return undefined
 

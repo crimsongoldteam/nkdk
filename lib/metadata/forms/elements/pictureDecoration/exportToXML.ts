@@ -2,7 +2,7 @@ import { exportBorderToXML } from "~/lib/metadata/commonObjects/border/exportToX
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormDecorationToXML } from "~/lib/metadata/forms/elements/formDecoration/exportToXML"
 import { PictureDecoration, PictureDecorationXML } from "~/lib/metadata/forms/elements/pictureDecoration/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
@@ -10,7 +10,8 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPictureDecorationToXML = (
-  configurationSettings: ConfigurationSettings, data: PictureDecoration | undefined
+  configurationSettings: Context,
+  data: PictureDecoration | undefined
 ): PictureDecorationXML | undefined => {
   if (!data) return undefined
 

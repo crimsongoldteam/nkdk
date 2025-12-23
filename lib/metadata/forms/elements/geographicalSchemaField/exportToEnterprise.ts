@@ -1,7 +1,7 @@
 import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import {
   GeographicalSchemaField,
@@ -14,7 +14,8 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportGeographicalSchemaFieldToEnterprise = (
-  configurationSettings: ConfigurationSettings, data: GeographicalSchemaField | undefined
+  configurationSettings: Context,
+  data: GeographicalSchemaField | undefined
 ): GeographicalSchemaFieldEnterprise | undefined => {
   if (!data) return undefined
 

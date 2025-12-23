@@ -1,9 +1,9 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { StringboolEnterprise } from "./types"
 
 export const parseBoolean = (
   value: StringboolEnterprise | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: Context
 ): boolean | undefined => {
   if (value === undefined) return undefined
   return value === "Истина"

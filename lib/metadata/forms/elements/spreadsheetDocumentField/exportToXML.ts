@@ -1,6 +1,6 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import {
   SpreadSheetDocumentField,
@@ -11,7 +11,8 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportSpreadSheetDocumentFieldToXML = (
-  configurationSettings: ConfigurationSettings, data: SpreadSheetDocumentField | undefined
+  configurationSettings: Context,
+  data: SpreadSheetDocumentField | undefined
 ): SpreadSheetDocumentFieldXML | undefined => {
   if (!data) return undefined
 

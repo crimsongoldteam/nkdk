@@ -1,5 +1,5 @@
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { PlannerField, PlannerFieldXML } from "~/lib/metadata/forms/elements/plannerField/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
@@ -8,7 +8,8 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importPlannerFieldFromXML = (
-  configurationSettings: ConfigurationSettings, xml: PlannerFieldXML | undefined
+  configurationSettings: Context,
+  xml: PlannerFieldXML | undefined
 ): PlannerField | undefined => {
   if (!xml) return undefined
 

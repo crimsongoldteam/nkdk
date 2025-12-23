@@ -1,5 +1,5 @@
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { TrackBarField, TrackBarFieldXML } from "~/lib/metadata/forms/elements/trackBarField/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
@@ -7,7 +7,8 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportTrackBarFieldToXML = (
-  configurationSettings: ConfigurationSettings, data: TrackBarField | undefined
+  configurationSettings: Context,
+  data: TrackBarField | undefined
 ): TrackBarFieldXML | undefined => {
   if (!data) return undefined
 

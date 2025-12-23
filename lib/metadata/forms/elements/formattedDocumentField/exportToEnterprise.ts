@@ -2,7 +2,7 @@ import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/
 import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/lib/metadata/commonObjects/font/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import {
   FormattedDocumentField,
   FormattedDocumentFieldEnterprise,
@@ -15,7 +15,8 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportFormattedDocumentFieldToEnterprise = (
-  configurationSettings: ConfigurationSettings, data: FormattedDocumentField | undefined
+  configurationSettings: Context,
+  data: FormattedDocumentField | undefined
 ): FormattedDocumentFieldEnterprise | undefined => {
   if (!data) return undefined
 

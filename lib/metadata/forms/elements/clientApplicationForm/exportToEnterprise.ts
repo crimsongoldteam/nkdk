@@ -1,12 +1,12 @@
 import { formatElements } from "~/lib/format/formatFactory"
 import { IFormatElementResult } from "~/lib/format/types"
 import { exportFormAttributesToEnterprise } from "~/lib/metadata/commonObjects/formAttributes/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { getAllElements } from "./getAllElements"
 import { ClientApplicationForm } from "./types"
 
 export const exportClientApplicationFormToEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   element: ClientApplicationForm
 ): IFormatElementResult => {
   const childItems = element.childItems ?? []

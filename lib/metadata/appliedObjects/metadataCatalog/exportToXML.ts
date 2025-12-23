@@ -12,7 +12,7 @@ import { exportMetadataFieldsToXML } from "~/lib/metadata/commonObjects/metadata
 import { exportMetadataItemLinksToXML } from "~/lib/metadata/commonObjects/metadataItemLink/exportToXML"
 import { exportPredefinedItemsToXML } from "~/lib/metadata/commonObjects/predifined/exportToXML"
 import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportInternalInfoToXML } from "../../commonObjects/internalInfo/exportToXML"
 import { exportMetadataAttributesToXML } from "../../commonObjects/metadataAttribute/exportToXML"
@@ -21,7 +21,7 @@ import { MetadataCommandsXML } from "../metadataCommand/types"
 import { getDefaults } from "./defaults"
 
 export const exportMetadataCatalogToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: MetadataCatalog | undefined
 ): MetadataCatalogXML | undefined => {
   if (!data) return undefined

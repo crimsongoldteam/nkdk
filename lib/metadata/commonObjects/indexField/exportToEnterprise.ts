@@ -1,8 +1,8 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { IndexField, IndexFieldEnterprise, IndexFields, IndexFieldsEnterprise } from "./types"
 
 export const exportIndexFieldToEnterprise = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   data: IndexField | undefined
 ): IndexFieldEnterprise | undefined => {
   if (!data) return undefined
@@ -11,7 +11,7 @@ export const exportIndexFieldToEnterprise = (
 }
 
 export const exportIndexFieldsToEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: IndexFields | undefined
 ): IndexFieldsEnterprise | undefined => {
   if (!data) return undefined

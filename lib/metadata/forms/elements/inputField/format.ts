@@ -1,6 +1,6 @@
 import { formatElementName } from "~/lib/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import * as t from "~/lib/parser/lexer"
 import { isMultiline } from "./helpers"
 import { InputField } from "./types"
@@ -10,7 +10,7 @@ const COLON = t.Colon.LABEL as string
 
 export const formatInputField: FormatElementFunction = (
   element: InputField,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: Context
 ): IFormatElementResult => {
   const hasTitle = element.title?.items.ru !== undefined
 

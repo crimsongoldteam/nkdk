@@ -1,9 +1,9 @@
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { ChoiceList, ChoiceListXML } from "./types"
 
 export const importChoiceListFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: ChoiceListXML | undefined
 ): ChoiceList | undefined => {
   if (!xml || xml.length === 0) return undefined

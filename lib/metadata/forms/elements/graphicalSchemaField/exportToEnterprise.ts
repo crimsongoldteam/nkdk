@@ -1,7 +1,7 @@
 import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import {
   GraphicalSchemaField,
@@ -14,7 +14,8 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportGraphicalSchemaFieldToEnterprise = (
-  configurationSettings: ConfigurationSettings, data: GraphicalSchemaField | undefined
+  configurationSettings: Context,
+  data: GraphicalSchemaField | undefined
 ): GraphicalSchemaFieldEnterprise | undefined => {
   if (!data) return undefined
 

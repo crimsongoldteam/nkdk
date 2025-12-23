@@ -4,7 +4,7 @@ import { exportFontToEnterprise } from "~/lib/metadata/commonObjects/font/export
 import { exportI8nTextToEnterprise } from "~/lib/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportPictureToEnterprise } from "~/lib/metadata/commonObjects/pictures/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportBaseElementToEnterprise } from "~/lib/metadata/forms/elements/baseElement/exportToEnterprise"
 import { Button, ButtonEnterprise } from "~/lib/metadata/forms/elements/button/types"
 import { exportFormDecorationToEnterprise } from "~/lib/metadata/forms/elements/formDecoration/exportToEnterprise"
@@ -14,7 +14,8 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportButtonToEnterprise = (
-  configurationSettings: ConfigurationSettings, data: Button | undefined
+  configurationSettings: Context,
+  data: Button | undefined
 ): ButtonEnterprise | undefined => {
   if (!data) return undefined
 
@@ -24,13 +25,25 @@ export const exportButtonToEnterprise = (
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
     АктивизироватьПоУмолчанию: exportBooleanToEnterprise(configurationSettings, data.defaultItem),
-    ВажностьПриОтображении: exportSystemEnumerationToEnterprise(configurationSettings, data.displayImportance, SE.DisplayImportanceToEnterprise),
-    ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(configurationSettings, data.verticalAlignInGroup, SE.ItemVerticalAlignToEnterprise),
+    ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.displayImportance,
+      SE.DisplayImportanceToEnterprise
+    ),
+    ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.verticalAlignInGroup,
+      SE.ItemVerticalAlignToEnterprise
+    ),
     Вид: exportSystemEnumerationToEnterprise(configurationSettings, data.type, SE.FormButtonTypeToEnterprise),
     Видимость: exportBooleanToEnterprise(configurationSettings, data.visible),
     Высота: data.height,
     ВысотаЗаголовка: data.titleHeight,
-    ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(configurationSettings, data.horizontalAlignInGroup, SE.ItemHorizontalLocationToEnterprise),
+    ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.horizontalAlignInGroup,
+      SE.ItemHorizontalLocationToEnterprise
+    ),
     Доступность: exportBooleanToEnterprise(configurationSettings, data.enabled),
     Заголовок: exportI8nTextToEnterprise(configurationSettings, data.title),
     ИмяКоманды: data.commandName,
@@ -38,11 +51,31 @@ export const exportButtonToEnterprise = (
     КнопкаПоУмолчанию: exportBooleanToEnterprise(configurationSettings, data.defaultButton),
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
-    Отображение: exportSystemEnumerationToEnterprise(configurationSettings, data.representation, SE.ButtonRepresentationToEnterprise),
-    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(configurationSettings, data.toolTipRepresentation, SE.ToolTipRepresentationToEnterprise),
-    ОтображениеФигуры: exportSystemEnumerationToEnterprise(configurationSettings, data.shapeRepresentation, SE.ButtonShapeRepresentationToEnterprise),
-    ПоложениеВКоманднойПанели: exportSystemEnumerationToEnterprise(configurationSettings, data.locationInCommandBar, SE.ButtonLocationInCommandBarToEnterprise),
-    ПоложениеКартинки: exportSystemEnumerationToEnterprise(configurationSettings, data.pictureLocation, SE.FormButtonPictureLocationToEnterprise),
+    Отображение: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.representation,
+      SE.ButtonRepresentationToEnterprise
+    ),
+    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.toolTipRepresentation,
+      SE.ToolTipRepresentationToEnterprise
+    ),
+    ОтображениеФигуры: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.shapeRepresentation,
+      SE.ButtonShapeRepresentationToEnterprise
+    ),
+    ПоложениеВКоманднойПанели: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.locationInCommandBar,
+      SE.ButtonLocationInCommandBarToEnterprise
+    ),
+    ПоложениеКартинки: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.pictureLocation,
+      SE.FormButtonPictureLocationToEnterprise
+    ),
     ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
     ПропускатьПриВводе: exportBooleanToEnterprise(configurationSettings, data.skipOnInput),
     ПутьКДанным: data.dataPath,

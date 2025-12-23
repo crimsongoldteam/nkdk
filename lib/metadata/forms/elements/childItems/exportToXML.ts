@@ -1,10 +1,10 @@
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { getOperationFunction } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 import { ChildItems, ChildItemsXML, ChildItemXML } from "./types"
 
 export const exportChildItemsToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: ChildItems | undefined
 ): ChildItemsXML | undefined => {
   if (!data || data.length === 0) return undefined

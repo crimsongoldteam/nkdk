@@ -1,9 +1,9 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
 export const importI8nTextFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: I8nTextXML | undefined
 ): I8nText | undefined => {
   if (!xml) return undefined

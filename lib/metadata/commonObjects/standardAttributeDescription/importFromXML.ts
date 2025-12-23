@@ -9,13 +9,13 @@ import {
 import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { compactObject, removeDefaults } from "~/lib/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { getDefaults } from "./defaults"
 
 export const importStandardAttributeDescriptionFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: StandardAttributeDescriptionXML | undefined
 ): StandardAttributeDescription | undefined => {
   if (!xml) return undefined
@@ -64,7 +64,7 @@ export const importStandardAttributeDescriptionFromXML = (
 }
 
 export const importStandardAttributeDescriptionsFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: StandardAttributeDescriptionsXML | undefined
 ): StandardAttributeDescriptions | undefined => {
   if (!xml) return undefined

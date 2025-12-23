@@ -1,11 +1,11 @@
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { FormAttribute, FormAttributeXML } from "./types"
 
 export default function exportAttributeToXML(
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   attribute: FormAttribute | undefined
 ): FormAttributeXML | undefined {
   if (!attribute) return undefined

@@ -1,9 +1,9 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { StandardAttributeDescription } from "./types"
 
 export const getDefaults = (
   _data: StandardAttributeDescription,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: Context
 ): Partial<StandardAttributeDescription> => {
   return {
     fillChecking: "DontCheck",

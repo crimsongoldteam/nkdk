@@ -4,7 +4,7 @@ import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/expo
 import { exportFontToEnterprise } from "~/lib/metadata/commonObjects/font/exportToEnterprise"
 import { exportPictureToEnterprise } from "~/lib/metadata/commonObjects/pictures/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { PictureField, PictureFieldEnterprise } from "~/lib/metadata/forms/elements/pictureField/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
@@ -14,7 +14,8 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportPictureFieldToEnterprise = (
-  configurationSettings: ConfigurationSettings, data: PictureField | undefined
+  configurationSettings: Context,
+  data: PictureField | undefined
 ): PictureFieldEnterprise | undefined => {
   if (!data) return undefined
 
@@ -31,13 +32,21 @@ export const exportPictureFieldToEnterprise = (
     Масштаб: data.scale,
     Масштабировать: exportBooleanToEnterprise(configurationSettings, data.zoomable),
     ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
-    РазмерКартинки: exportSystemEnumerationToEnterprise(configurationSettings, data.pictureSize, SE.PictureSizeToEnterprise),
+    РазмерКартинки: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.pictureSize,
+      SE.PictureSizeToEnterprise
+    ),
     РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(configurationSettings, data.enableStartDrag),
     РазрешитьПеретаскивание: exportBooleanToEnterprise(configurationSettings, data.enableDrag),
     Рамка: exportBorderToEnterprise(configurationSettings, data.border),
     РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
     РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
-    СпособПеретаскиванияФайлов: exportSystemEnumerationToEnterprise(configurationSettings, data.fileDragMode, SE.FileDragModeToEnterprise),
+    СпособПеретаскиванияФайлов: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.fileDragMode,
+      SE.FileDragModeToEnterprise
+    ),
     ТекстНевыбраннойКартинки: data.nonselectedPictureText,
     ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
     ЦветТекста: exportColorToEnterprise(configurationSettings, data.textColor),

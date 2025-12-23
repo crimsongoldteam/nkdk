@@ -2,7 +2,7 @@ import { importBorderFromXML } from "~/lib/metadata/commonObjects/border/importF
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importPictureFromXML } from "~/lib/metadata/commonObjects/pictures/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importFormDecorationFromXML } from "~/lib/metadata/forms/elements/formDecoration/importFromXML"
 import { PictureDecoration, PictureDecorationXML } from "~/lib/metadata/forms/elements/pictureDecoration/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
@@ -11,7 +11,8 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importPictureDecorationFromXML = (
-  configurationSettings: ConfigurationSettings, xml: PictureDecorationXML | undefined
+  configurationSettings: Context,
+  xml: PictureDecorationXML | undefined
 ): PictureDecoration | undefined => {
   if (!xml) return undefined
 

@@ -1,6 +1,6 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { GraphicalSchemaField, GraphicalSchemaFieldXML } from "~/lib/metadata/forms/elements/graphicalSchemaField/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
@@ -8,7 +8,7 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportGraphicalSchemaFieldToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: GraphicalSchemaField | undefined
 ): GraphicalSchemaFieldXML | undefined => {
   if (!data) return undefined

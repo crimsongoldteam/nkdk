@@ -9,13 +9,13 @@ import { importMetadataValueFromXML } from "~/lib/metadata/commonObjects/metadat
 import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { compactObject, removeDefaults } from "~/lib/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { getDefaults } from "./defaults"
 
 export const importMetadataAttributeFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: MetadataAttributeXML | undefined
 ): MetadataAttribute | undefined => {
   if (!xml) return undefined
@@ -68,7 +68,7 @@ export const importMetadataAttributeFromXML = (
 }
 
 export const importMetadataAttributesFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: MetadataAttributesXML | undefined
 ): MetadataAttributes | undefined => {
   if (!xml) return undefined

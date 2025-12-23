@@ -1,8 +1,8 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { IndexField, IndexFields, IndexFieldsXML, IndexFieldXML } from "./types"
 
 export const exportIndexFieldToXML = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   data: IndexField | undefined
 ): IndexFieldXML | undefined => {
   if (!data) return undefined
@@ -11,7 +11,7 @@ export const exportIndexFieldToXML = (
 }
 
 export const exportIndexFieldsToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: IndexFields | undefined
 ): IndexFieldsXML | undefined => {
   if (!data) return undefined

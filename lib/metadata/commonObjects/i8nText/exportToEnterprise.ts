@@ -1,8 +1,8 @@
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { I8nText, I8nTextEnterprise } from "./types"
 
 export const exportI8nTextToEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   title: I8nText | undefined
 ): I8nTextEnterprise | undefined => {
   if (!title) return undefined

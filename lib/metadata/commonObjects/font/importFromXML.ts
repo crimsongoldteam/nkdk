@@ -1,11 +1,8 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { compactObject } from "../../helpers/compactObject"
 import { Font, FontXML } from "./types"
 
-export const importFontFromXML = (
-  _configurationSettings: ConfigurationSettings,
-  xml: FontXML | undefined
-): Font | undefined => {
+export const importFontFromXML = (_configurationSettings: Context, xml: FontXML | undefined): Font | undefined => {
   if (!xml) return undefined
   return compactObject({
     ref: xml._ref,

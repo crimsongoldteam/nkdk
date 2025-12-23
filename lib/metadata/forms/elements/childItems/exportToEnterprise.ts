@@ -1,9 +1,9 @@
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { getOperationFunction } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { ChildItems, ChildItemsEnterprise } from "./types"
 
 export const exportChildItemsToEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: ChildItems | undefined
 ): ChildItemsEnterprise | undefined => {
   if (!data || data.length === 0) return undefined

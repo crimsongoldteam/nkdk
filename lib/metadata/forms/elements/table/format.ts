@@ -1,5 +1,5 @@
 import { FormatElementFunction, IFormatElementResult } from "~/lib/format/types"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import * as t from "~/lib/parser/lexer"
 import { FormElementType } from "../../../metadataFactory/types"
 import { BaseElement } from "../baseElement/types"
@@ -42,7 +42,7 @@ const formatTableRow = (columns: (InputField | ColumnGroup)[]): string => {
 
 export const formatTable: FormatElementFunction = (
   element: Table,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: Context
 ): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: [],

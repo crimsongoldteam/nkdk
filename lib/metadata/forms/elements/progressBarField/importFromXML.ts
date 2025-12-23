@@ -1,6 +1,6 @@
 import { importColorFromXML } from "~/lib/metadata/commonObjects/color/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { ProgressBarField, ProgressBarFieldXML } from "~/lib/metadata/forms/elements/progressBarField/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
@@ -9,7 +9,8 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importProgressBarFieldFromXML = (
-  configurationSettings: ConfigurationSettings, xml: ProgressBarFieldXML | undefined
+  configurationSettings: Context,
+  xml: ProgressBarFieldXML | undefined
 ): ProgressBarField | undefined => {
   if (!xml) return undefined
 

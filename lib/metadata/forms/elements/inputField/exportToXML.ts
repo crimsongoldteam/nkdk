@@ -7,7 +7,7 @@ import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDes
 import { exportTypeLinkToXML } from "~/lib/metadata/commonObjects/typeLink/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { InputField, InputFieldXML } from "~/lib/metadata/forms/elements/inputField/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
@@ -15,7 +15,8 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportInputFieldToXML = (
-  configurationSettings: ConfigurationSettings, data: InputField | undefined
+  configurationSettings: Context,
+  data: InputField | undefined
 ): InputFieldXML | undefined => {
   if (!data) return undefined
 

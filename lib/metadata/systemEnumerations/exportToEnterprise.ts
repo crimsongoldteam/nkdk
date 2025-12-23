@@ -1,7 +1,7 @@
-import { ConfigurationSettings } from "../configurationSettings/types"
+import { Context } from "../context/types"
 
 export const exportSystemEnumerationToEnterprise = <T extends string>(
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   value: string | undefined,
   enumeration: Record<string, string>
 ): T | undefined => {

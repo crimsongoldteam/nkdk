@@ -1,10 +1,7 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { MetadataAttribute } from "./types"
 
-export function getDefaults(
-  _data: MetadataAttribute,
-  _configurationSettings: ConfigurationSettings
-): Partial<MetadataAttribute> {
+export function getDefaults(_data: MetadataAttribute, _configurationSettings: Context): Partial<MetadataAttribute> {
   return {
     passwordMode: false,
     markNegatives: false,

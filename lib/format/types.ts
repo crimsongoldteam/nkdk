@@ -1,4 +1,4 @@
-import { ConfigurationSettings } from "../metadata/configurationSettings/types"
+import { Context } from "../metadata/context/types"
 import { BaseElement } from "../metadata/forms/elements/baseElement/types"
 
 export enum WrapInGroupStrategy {
@@ -18,12 +18,7 @@ export interface IFormatElementResult {
   haveSimpleHorizontalGroup: boolean
 }
 
-export type FormatElementFunction = (
-  element: BaseElement,
-  configurationSettings: ConfigurationSettings
-) => IFormatElementResult
+export type FormatElementFunction = (element: BaseElement, configurationSettings: Context) => IFormatElementResult
 export type CheckFormatFunction<T = BaseElement> = (element: T) => boolean
 
-export type CheckIsOneLineElementFunction<T = BaseElement> = (
-  element: T
-) => boolean
+export type CheckIsOneLineElementFunction<T = BaseElement> = (element: T) => boolean

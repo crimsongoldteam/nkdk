@@ -1,8 +1,8 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { CommandSet, CommandSetXML } from "./types"
 
 export const importCommandSetFromXML = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   xml: CommandSetXML | undefined
 ): CommandSet | undefined => {
   if (!xml) return undefined

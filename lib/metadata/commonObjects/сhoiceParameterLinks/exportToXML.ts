@@ -1,8 +1,8 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
 
 export const exportChoiceParameterLinksToXML = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   links: ChoiceParameterLinks
 ): ChoiceParameterLinksXML | undefined => {
   if (!links || links.length === 0) return undefined

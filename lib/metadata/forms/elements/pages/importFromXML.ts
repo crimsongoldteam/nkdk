@@ -1,5 +1,5 @@
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importFormGroupFromXML } from "~/lib/metadata/forms/elements/formGroup/importFromXML"
 import { Pages, PagesXML } from "~/lib/metadata/forms/elements/pages/types"
 import { importTableFromXML } from "~/lib/metadata/forms/elements/table/importFromXML"
@@ -8,9 +8,7 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
-export const importPagesFromXML = (
-  configurationSettings: ConfigurationSettings, xml: PagesXML | undefined
-): Pages | undefined => {
+export const importPagesFromXML = (configurationSettings: Context, xml: PagesXML | undefined): Pages | undefined => {
   if (!xml) return undefined
 
   return compactObject({

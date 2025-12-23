@@ -1,4 +1,4 @@
-import { ConfigurationSettings } from "../metadata/configurationSettings/types"
+import { Context } from "../metadata/context/types"
 import { formatOtherElement } from "../metadata/forms/elements/baseElement/format"
 import { BaseElement } from "../metadata/forms/elements/baseElement/types"
 import { ChildItems } from "../metadata/forms/elements/childItems/types"
@@ -24,7 +24,7 @@ export const registerFormat = <T extends BaseElement>(
 
 export const formatElement = <T extends BaseElement>(
   element: T,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: Context
 ): IFormatElementResult => {
   // params = { ...defaultParams, ...params }
 
@@ -35,10 +35,7 @@ export const formatElement = <T extends BaseElement>(
   return result
 }
 
-export const formatElements = (
-  items: ChildItems,
-  configurationSettings: ConfigurationSettings
-): IFormatElementResult => {
+export const formatElements = (items: ChildItems, configurationSettings: Context): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,

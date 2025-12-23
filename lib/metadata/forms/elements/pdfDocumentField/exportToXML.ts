@@ -1,6 +1,6 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToXML } from "~/lib/metadata/forms/elements/formField/exportToXML"
 import { PdfDocumentField, PdfDocumentFieldXML } from "~/lib/metadata/forms/elements/pdfDocumentField/types"
 import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
@@ -8,7 +8,7 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPdfDocumentFieldToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: PdfDocumentField | undefined
 ): PdfDocumentFieldXML | undefined => {
   if (!data) return undefined

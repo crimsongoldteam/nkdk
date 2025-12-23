@@ -1,7 +1,7 @@
 import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import {
   FormattedDocumentField,
   FormattedDocumentFieldXML,
@@ -12,7 +12,7 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportFormattedDocumentFieldToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: FormattedDocumentField | undefined
 ): FormattedDocumentFieldXML | undefined => {
   if (!data) return undefined

@@ -10,13 +10,13 @@ import { exportMetadataItemLinkToXML } from "~/lib/metadata/commonObjects/metada
 import { MetadataItemLinkXML } from "~/lib/metadata/commonObjects/metadataItemLink/types"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
 
 export const exportMetadataCommandToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: MetadataCommand | undefined
 ): MetadataCommandXML | undefined => {
   if (!data) return undefined
@@ -49,7 +49,7 @@ export const exportMetadataCommandToXML = (
 }
 
 export const exportMetadataCommandsToXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: MetadataCommands | undefined
 ): MetadataCommandsXML | undefined => {
   if (!data) return undefined
@@ -58,7 +58,7 @@ export const exportMetadataCommandsToXML = (
 }
 
 const getGroup = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: MetadataCommand
 ): SE.StandardCommandsGroup | MetadataItemLinkXML => {
   if (data.group in SE.StandardCommandsGroupToEnterprise) {

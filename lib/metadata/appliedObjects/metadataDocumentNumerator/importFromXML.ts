@@ -3,11 +3,11 @@ import {
   MetadataDocumentNumeratorXML,
 } from "~/lib/metadata/appliedObjects/metadataDocumentNumerator/types"
 import { importI8nTextFromXML } from "~/lib/metadata/commonObjects/i8nText/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const importMetadataDocumentNumeratorFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: MetadataDocumentNumeratorXML | undefined
 ): MetadataDocumentNumerator | undefined => {
   if (!xml) return undefined

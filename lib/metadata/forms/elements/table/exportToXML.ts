@@ -2,7 +2,7 @@ import { exportColorToXML } from "~/lib/metadata/commonObjects/color/exportToXML
 import { exportFontToXML } from "~/lib/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/lib/metadata/commonObjects/userVisible/exportToXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportCommandSetToXML } from "~/lib/metadata/forms/commandSet/exportToXML"
 import { exportBaseElementToXML } from "~/lib/metadata/forms/elements/baseElement/exportToXML"
 import { exportChildItemsToXML } from "~/lib/metadata/forms/elements/childItems/exportToXML"
@@ -14,10 +14,7 @@ import { exportEventsToXML } from "~/lib/metadata/forms/events/exportToXML"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
-export const exportTableToXML = (
-  configurationSettings: ConfigurationSettings,
-  data: Table | undefined
-): TableXML | undefined => {
+export const exportTableToXML = (configurationSettings: Context, data: Table | undefined): TableXML | undefined => {
   if (!data) return undefined
 
   return compactObject({

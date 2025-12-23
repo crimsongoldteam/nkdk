@@ -7,7 +7,7 @@ import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeD
 import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/importFromXML"
 import { importUserVisibleFromXML } from "~/lib/metadata/commonObjects/userVisible/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importFormFieldFromXML } from "~/lib/metadata/forms/elements/formField/importFromXML"
 import { InputField, InputFieldXML } from "~/lib/metadata/forms/elements/inputField/types"
 import { importEventsFromXML } from "~/lib/metadata/forms/events/importFromXML"
@@ -16,7 +16,7 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importInputFieldFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: InputFieldXML | undefined
 ): InputField | undefined => {
   if (!xml) return undefined

@@ -1,7 +1,7 @@
 import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/lib/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportBaseElementToEnterprise } from "~/lib/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportChildItemsToEnterprise } from "~/lib/metadata/forms/elements/childItems/exportToEnterprise"
 import { exportCommandBarToEnterprise } from "~/lib/metadata/forms/elements/commandBar/exportToEnterprise"
@@ -13,22 +13,39 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportFormItemAdditionToEnterprise = (
-  configurationSettings: ConfigurationSettings, data: FormItemAddition | undefined
+  configurationSettings: Context,
+  data: FormItemAddition | undefined
 ): FormItemAdditionEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
     ...exportBaseElementToEnterprise(configurationSettings, data)!,
 
-    ВажностьПриОтображении: exportSystemEnumerationToEnterprise(configurationSettings, data.displayImportance, SE.DisplayImportanceToEnterprise),
-    ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(configurationSettings, data.verticalAlignInGroup, SE.ItemVerticalAlignToEnterprise),
+    ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.displayImportance,
+      SE.DisplayImportanceToEnterprise
+    ),
+    ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.verticalAlignInGroup,
+      SE.ItemVerticalAlignToEnterprise
+    ),
     Вид: exportSystemEnumerationToEnterprise(configurationSettings, data.type, SE.FormItemAdditionTypeToEnterprise),
     Видимость: exportBooleanToEnterprise(configurationSettings, data.visible),
-    ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(configurationSettings, data.horizontalAlignInGroup, SE.ItemHorizontalLocationToEnterprise),
+    ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.horizontalAlignInGroup,
+      SE.ItemHorizontalLocationToEnterprise
+    ),
     Доступность: exportBooleanToEnterprise(configurationSettings, data.enabled),
     Заголовок: exportI8nTextToEnterprise(configurationSettings, data.title),
     КонтекстноеМеню: exportCommandBarToEnterprise(configurationSettings, data.contextMenu),
-    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(configurationSettings, data.toolTipRepresentation, SE.ToolTipRepresentationToEnterprise),
+    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.toolTipRepresentation,
+      SE.ToolTipRepresentationToEnterprise
+    ),
     Подсказка: exportI8nTextToEnterprise(configurationSettings, data.toolTip),
     ПодчиненныеЭлементы: exportChildItemsToEnterprise(configurationSettings, data.childItems),
     ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),

@@ -8,7 +8,7 @@ import { importMetadataItemLinksFromXML } from "~/lib/metadata/commonObjects/met
 import { importMetadataTabularSectionsFromXML } from "~/lib/metadata/commonObjects/metadataTabularSection/importFromXML"
 import { importPredefinedItemsFromXML } from "~/lib/metadata/commonObjects/predifined/importFromXML"
 import { importStandardAttributeDescriptionsFromXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/importFromXML"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { importBooleanFromXML } from "../../commonObjects/boolean/importFromXML"
 import { importMetadataAttributesFromXML } from "../../commonObjects/metadataAttribute/importFromXML"
 import { MetadataAttributes } from "../../commonObjects/metadataAttribute/types"
@@ -18,7 +18,7 @@ import { MetadataCommands } from "../metadataCommand/types"
 import { getDefaults } from "./defaults"
 
 export const importMetadataCatalogFromXML = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   xml: MetadataCatalogXML | undefined
 ): MetadataCatalog | undefined => {
   if (!xml || !xml.Catalog?.Properties) return undefined

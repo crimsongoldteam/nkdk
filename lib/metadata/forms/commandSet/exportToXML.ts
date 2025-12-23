@@ -1,8 +1,8 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { CommandSet, CommandSetXML } from "./types"
 
 export const exportCommandSetToXML = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   data: CommandSet | undefined
 ): CommandSetXML | undefined => {
   if (!data || data.length === 0) return undefined

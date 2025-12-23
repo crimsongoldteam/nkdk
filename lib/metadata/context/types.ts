@@ -1,4 +1,4 @@
-export interface ConfigurationSettings {
+export interface Context {
   defaultLanguage: string
   context?: object
 }

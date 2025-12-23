@@ -1,4 +1,4 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
 
 const extractDataPath = (dataPath: string | { "#text"?: string; "_xsi:type"?: string }): string => {
@@ -9,7 +9,7 @@ const extractDataPath = (dataPath: string | { "#text"?: string; "_xsi:type"?: st
 }
 
 export const importChoiceParameterLinksFromXML = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   xml: ChoiceParameterLinksXML | undefined
 ): ChoiceParameterLinks => {
   if (!xml) return undefined

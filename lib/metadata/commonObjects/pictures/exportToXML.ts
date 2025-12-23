@@ -1,8 +1,8 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { Picture, PictureXML } from "./types"
 
 export const exportPictureToXML = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   picture: Picture | undefined
 ): PictureXML | undefined => {
   if (!picture) return undefined

@@ -3,7 +3,7 @@ import { exportChoiceListToEnterprise } from "~/lib/metadata/commonObjects/choic
 import { exportColorToEnterprise } from "~/lib/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/lib/metadata/commonObjects/font/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { RadioButtonField, RadioButtonFieldEnterprise } from "~/lib/metadata/forms/elements/radioButtonField/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
@@ -13,14 +13,19 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportRadioButtonFieldToEnterprise = (
-  configurationSettings: ConfigurationSettings, data: RadioButtonField | undefined
+  configurationSettings: Context,
+  data: RadioButtonField | undefined
 ): RadioButtonFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
     ...exportFormFieldToEnterprise(configurationSettings, data)!,
 
-    ВидПереключателя: exportSystemEnumerationToEnterprise(configurationSettings, data.radioButtonType, SE.RadioButtonTypeToEnterprise),
+    ВидПереключателя: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.radioButtonType,
+      SE.RadioButtonTypeToEnterprise
+    ),
     ВысотаЗаголовкаЭлемента: data.itemTitleHeight,
     ВысотаЭлемента: data.itemHeight,
     КоличествоКолонок: data.columnsCount,

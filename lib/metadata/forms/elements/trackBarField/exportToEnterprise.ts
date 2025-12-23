@@ -1,6 +1,6 @@
 import { exportBooleanToEnterprise } from "~/lib/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/lib/metadata/commonObjects/userVisible/exportToEnterprise"
-import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/types"
+import { Context } from "~/lib/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/lib/metadata/forms/elements/formField/exportToEnterprise"
 import { TrackBarField, TrackBarFieldEnterprise } from "~/lib/metadata/forms/elements/trackBarField/types"
 import { exportEventsToEnterprise } from "~/lib/metadata/forms/events/exportToEnterprise"
@@ -10,7 +10,8 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportTrackBarFieldToEnterprise = (
-  configurationSettings: ConfigurationSettings, data: TrackBarField | undefined
+  configurationSettings: Context,
+  data: TrackBarField | undefined
 ): TrackBarFieldEnterprise | undefined => {
   if (!data) return undefined
 
@@ -25,8 +26,16 @@ export const exportTrackBarFieldToEnterprise = (
     МаксимальнаяШирина: data.maxWidth,
     МаксимальноеЗначение: data.maxValue,
     МинимальноеЗначение: data.minValue,
-    Ориентация: exportSystemEnumerationToEnterprise(configurationSettings, data.orientation, SE.FormItemOrientationToEnterprise),
-    ОтображениеРазметки: exportSystemEnumerationToEnterprise(configurationSettings, data.markingAppearance, SE.TrackBarMarkingAppearanceToEnterprise),
+    Ориентация: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.orientation,
+      SE.FormItemOrientationToEnterprise
+    ),
+    ОтображениеРазметки: exportSystemEnumerationToEnterprise(
+      configurationSettings,
+      data.markingAppearance,
+      SE.TrackBarMarkingAppearanceToEnterprise
+    ),
     ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
     РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
     РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),

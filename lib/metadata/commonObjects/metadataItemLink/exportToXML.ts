@@ -1,8 +1,8 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { MetadataItemLink, MetadataItemLinks, MetadataItemLinksXML, MetadataItemLinkXML } from "./types"
 
 export function exportMetadataItemLinkToXML(
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   data: MetadataItemLink | undefined
 ): MetadataItemLinkXML | undefined {
   if (!data) return undefined
@@ -14,7 +14,7 @@ export function exportMetadataItemLinkToXML(
 }
 
 export function exportMetadataItemLinksToXML(
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: MetadataItemLinks | undefined
 ): MetadataItemLinksXML | undefined {
   if (!data) return undefined

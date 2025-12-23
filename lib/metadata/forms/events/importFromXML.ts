@@ -1,4 +1,4 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { Events, EventsXML } from "./types"
 
 function toCamelCase(str: string): string {
@@ -7,7 +7,7 @@ function toCamelCase(str: string): string {
 }
 
 export const importEventsFromXML = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   xml: EventsXML | undefined
 ): Events | undefined => {
   if (!xml || xml.length === 0) return undefined

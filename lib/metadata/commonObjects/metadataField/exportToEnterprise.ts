@@ -1,4 +1,4 @@
-import { ConfigurationSettings } from "../../configurationSettings/types"
+import { Context } from "../../context/types"
 import { PredefinedNameToEnterprise } from "../standardAttributeDescription/types"
 import { AppliedTypeToEnterprise } from "../typeDescription/types"
 import { MetadataField, MetadataFieldEnterprise, MetadataFields, MetadataFieldsEnterprise } from "./types"
@@ -12,7 +12,7 @@ const FiledsMap = {
 } as const
 
 export const exportMetadataFieldToEnterprise = (
-  _configurationSettings: ConfigurationSettings,
+  _configurationSettings: Context,
   data: MetadataField | undefined
 ): MetadataFieldEnterprise | undefined => {
   if (!data) return undefined
@@ -61,7 +61,7 @@ export const exportMetadataFieldToEnterprise = (
 }
 
 export const exportMetadataFieldsToEnterprise = (
-  configurationSettings: ConfigurationSettings,
+  configurationSettings: Context,
   data: MetadataFields | undefined
 ): MetadataFieldsEnterprise | undefined => {
   if (!data) return undefined
