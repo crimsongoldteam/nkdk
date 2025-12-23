@@ -32,6 +32,7 @@ function buildXml(parsedData: any): string {
     textNodeName: "#text",
     format: true,
     suppressEmptyNode: true,
+    suppressBooleanAttributes: false,
     indentBy: "\t",
     processEntities: false,
   })
@@ -121,14 +122,14 @@ function processAttributes(attrs: Record<string, any>): Record<string, any> | un
 }
 
 function replaceUuidInAttribute(key: string, value: any): any {
-  if (isTypeIdOrValueId(key) && value) {
+  if (shouldReplaceUuid(key) && value) {
     return TARGET_UUID
   }
   return value
 }
 
 function replaceUuidInValue(key: string, value: any): any {
-  if (!isTypeIdOrValueId(key)) {
+  if (!shouldReplaceUuid(key)) {
     return value
   }
 
@@ -145,8 +146,15 @@ function replaceUuidInValue(key: string, value: any): any {
   return value
 }
 
-function isTypeIdOrValueId(key: string): boolean {
-  return key === "TypeId" || key === "ValueId" || key.endsWith(":TypeId") || key.endsWith(":ValueId")
+function shouldReplaceUuid(key: string): boolean {
+  return (
+    key === "TypeId" ||
+    key === "ValueId" ||
+    key === "uuid" ||
+    key.endsWith(":TypeId") ||
+    key.endsWith(":ValueId") ||
+    key.endsWith(":uuid")
+  )
 }
 
 function isEmptyNode(value: any): boolean {
