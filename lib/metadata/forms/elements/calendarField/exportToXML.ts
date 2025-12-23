@@ -10,24 +10,24 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportCalendarFieldToXML = (
-  data: CalendarField | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: CalendarField | undefined
 ): CalendarFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(data, configurationSettings)!,
+    ...exportFormFieldToXML(configurationSettings, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
     BeginOfRepresentationPeriod: data.beginOfRepresentationPeriod,
-    Border: exportBorderToXML(data.border, configurationSettings),
-    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
+    Border: exportBorderToXML(configurationSettings, data.border),
+    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
     CalendarNavigation: data.calendarNavigation,
     EnableDrag: data.enableDrag,
     EnableStartDrag: data.enableStartDrag,
     EndOfRepresentationPeriod: data.endOfRepresentationPeriod,
-    Font: exportFontToXML(data.font, configurationSettings),
+    Font: exportFontToXML(configurationSettings, data.font),
     Height: data.height,
     HeightInMonths: data.heightInMonths,
     HorizontalStretch: data.horizontalStretch,
@@ -36,11 +36,11 @@ export const exportCalendarFieldToXML = (
     SelectionMode: data.selectionMode,
     ShowCurrentDate: data.showCurrentDate,
     ShowMonthsPanel: data.showMonthsPanel,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     WidthInMonths: data.widthInMonths,
-    Events: exportEventsToXML(data.events, configurationSettings),
+    Events: exportEventsToXML(configurationSettings, data.events),
   })
 }
 

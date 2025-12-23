@@ -32,7 +32,7 @@ describe("importClientApplicationFormFromXML", () => {
     }
 
     const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
-    const element = importClientApplicationFormFromXML(xmlData.Form, mockConfigurationSettings)
+    const element = importClientApplicationFormFromXML(mockConfigurationSettings, xmlData.Form)
 
     expect(element).toEqual(mockElement)
   })
@@ -60,7 +60,7 @@ describe("importClientApplicationFormFromXML", () => {
     }
 
     const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
-    const element = importClientApplicationFormFromXML(xmlData.Form, mockConfigurationSettings)
+    const element = importClientApplicationFormFromXML(mockConfigurationSettings, xmlData.Form)
 
     expect(element).toEqual(mockElement)
   })
@@ -93,7 +93,7 @@ describe("importClientApplicationFormFromXML", () => {
     }
 
     const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
-    const form = importClientApplicationFormFromXML(xmlData.Form, mockConfigurationSettings)
+    const form = importClientApplicationFormFromXML(mockConfigurationSettings, xmlData.Form)
 
     expect(form).toEqual(mockElement)
   })
@@ -134,7 +134,7 @@ describe("importClientApplicationFormFromXML", () => {
 
     const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
 
-    const form = importClientApplicationFormFromXML(xmlData.Form, mockConfigurationSettings)
+    const form = importClientApplicationFormFromXML(mockConfigurationSettings, xmlData.Form)
 
     expect(form).toEqual(mockElement)
   })
@@ -179,7 +179,7 @@ describe("importClientApplicationFormFromXML", () => {
 
     const xmlData = xmlImport<{ Form: ClientApplicationFormXML }>(mockXml)
 
-    const form = importClientApplicationFormFromXML(xmlData.Form, mockConfigurationSettings)
+    const form = importClientApplicationFormFromXML(mockConfigurationSettings, xmlData.Form)
 
     expect(form).toEqual(mockElement)
   })

@@ -7,8 +7,8 @@ function toPascalCase(str: string): string {
 }
 
 export const exportEventsToXML = (
-  data: Events | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  data: Events | undefined
 ): EventsXML | undefined => {
   if (!data || Object.keys(data).length === 0) return undefined
 

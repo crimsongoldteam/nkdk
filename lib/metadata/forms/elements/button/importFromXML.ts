@@ -12,19 +12,19 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importButtonFromXML = (
-  xml: ButtonXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: ButtonXML | undefined
 ): Button | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importBaseElementFromXML(xml, configurationSettings)!,
+    ...importBaseElementFromXML(configurationSettings, xml)!,
     elementType: FormElementType.Button,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    backColor: importColorFromXML(xml.BackColor, configurationSettings),
-    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
+    backColor: importColorFromXML(configurationSettings, xml.BackColor),
+    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
     commandName: xml.CommandName,
     commandUniqueness: xml.CommandUniqueness,
     dataPath: xml.DataPath,
@@ -32,8 +32,8 @@ export const importButtonFromXML = (
     defaultItem: xml.DefaultItem,
     displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
-    extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip, configurationSettings),
-    font: importFontFromXML(xml.Font, configurationSettings),
+    extendedTooltip: importFormDecorationFromXML(configurationSettings, xml.ExtendedTooltip),
+    font: importFontFromXML(configurationSettings, xml.Font),
     height: xml.Height,
     horizontalAlignInGroup: xml.HorizontalAlignInGroup,
     horizontalStretch: xml.HorizontalStretch,
@@ -41,19 +41,19 @@ export const importButtonFromXML = (
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
     onlyInAllActions: xml.OnlyInAllActions,
-    picture: importPictureFromXML(xml.Picture, configurationSettings),
+    picture: importPictureFromXML(configurationSettings, xml.Picture),
     pictureLocation: xml.PictureLocation,
     representation: xml.Representation,
     shape: xml.Shape,
     shapeRepresentation: xml.ShapeRepresentation,
     shortcut: xml.Shortcut,
     skipOnInput: xml.SkipOnInput,
-    textColor: importColorFromXML(xml.TextColor, configurationSettings),
-    title: importI8nTextFromXML(xml.Title, configurationSettings),
+    textColor: importColorFromXML(configurationSettings, xml.TextColor),
+    title: importI8nTextFromXML(configurationSettings, xml.Title),
     titleHeight: xml.TitleHeight,
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,

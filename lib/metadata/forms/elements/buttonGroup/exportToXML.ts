@@ -6,16 +6,16 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportButtonGroupToXML = (
-  data: ButtonGroup | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: ButtonGroup | undefined
 ): ButtonGroupXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToXML(data, configurationSettings)!,
+    ...exportFormGroupToXML(configurationSettings, data)!,
 
     Representation: data.representation,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
   })
 }
 

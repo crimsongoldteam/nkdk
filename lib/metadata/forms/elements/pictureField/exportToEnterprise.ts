@@ -14,45 +14,36 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportPictureFieldToEnterprise = (
-  data: PictureField | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: PictureField | undefined
 ): PictureFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(data, configurationSettings)!,
+    ...exportFormFieldToEnterprise(configurationSettings, data)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
     Высота: data.height,
-    Гиперссылка: exportBooleanToEnterprise(data.hyperlink, configurationSettings),
-    КартинкаЗначений: exportPictureToEnterprise(data.valuesPicture, configurationSettings),
+    Гиперссылка: exportBooleanToEnterprise(configurationSettings, data.hyperlink),
+    КартинкаЗначений: exportPictureToEnterprise(configurationSettings, data.valuesPicture),
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
     Масштаб: data.scale,
-    Масштабировать: exportBooleanToEnterprise(data.zoomable, configurationSettings),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    РазмерКартинки: exportSystemEnumerationToEnterprise(
-      data.pictureSize,
-      SE.PictureSizeToEnterprise,
-      configurationSettings
-    ),
-    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(data.enableStartDrag, configurationSettings),
-    РазрешитьПеретаскивание: exportBooleanToEnterprise(data.enableDrag, configurationSettings),
-    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
-    СпособПеретаскиванияФайлов: exportSystemEnumerationToEnterprise(
-      data.fileDragMode,
-      SE.FileDragModeToEnterprise,
-      configurationSettings
-    ),
+    Масштабировать: exportBooleanToEnterprise(configurationSettings, data.zoomable),
+    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    РазмерКартинки: exportSystemEnumerationToEnterprise(configurationSettings, data.pictureSize, SE.PictureSizeToEnterprise),
+    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(configurationSettings, data.enableStartDrag),
+    РазрешитьПеретаскивание: exportBooleanToEnterprise(configurationSettings, data.enableDrag),
+    Рамка: exportBorderToEnterprise(configurationSettings, data.border),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
+    СпособПеретаскиванияФайлов: exportSystemEnumerationToEnterprise(configurationSettings, data.fileDragMode, SE.FileDragModeToEnterprise),
     ТекстНевыбраннойКартинки: data.nonselectedPictureText,
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
-    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
+    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
+    ЦветТекста: exportColorToEnterprise(configurationSettings, data.textColor),
     Ширина: data.width,
-    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
-    События: exportEventsToEnterprise(data.events, configurationSettings),
+    Шрифт: exportFontToEnterprise(configurationSettings, data.font),
+    События: exportEventsToEnterprise(configurationSettings, data.events),
   })
 }
 

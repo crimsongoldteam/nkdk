@@ -50,14 +50,14 @@ describe("exportChoiceListToXML", () => {
 	</xr:Item>
 </ChoiceList>`
 
-    const result = { ChoiceList: exportChoiceListToXML(mockChoiceList, mockConfigurationSettings) }
+    const result = { ChoiceList: exportChoiceListToXML(mockConfigurationSettings, mockChoiceList) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportChoiceListToXML(undefined, mockConfigurationSettings)
+    const result = exportChoiceListToXML(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -91,8 +91,8 @@ describe("exportChoiceListToXML", () => {
 </ChoiceList>`
 
     const xml = xmlImport<{ ChoiceList: ChoiceListXML }>(originalXml)
-    const imported = importChoiceListFromXML(xml.ChoiceList, mockConfigurationSettings)
-    const exported = exportChoiceListToXML(imported, mockConfigurationSettings)
+    const imported = importChoiceListFromXML(mockConfigurationSettings, xml.ChoiceList)
+    const exported = exportChoiceListToXML(mockConfigurationSettings, imported)
     const resultXml = xmlExport({ ChoiceList: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

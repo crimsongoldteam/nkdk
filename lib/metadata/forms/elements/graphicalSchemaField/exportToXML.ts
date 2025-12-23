@@ -8,27 +8,27 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportGraphicalSchemaFieldToXML = (
-  data: GraphicalSchemaField | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: GraphicalSchemaField | undefined
 ): GraphicalSchemaFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(data, configurationSettings)!,
+    ...exportFormFieldToXML(configurationSettings, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
+    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
     Edit: data.edit,
     Height: data.height,
     HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
     Output: data.output,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Events: exportEventsToXML(data.events, configurationSettings),
+    Events: exportEventsToXML(configurationSettings, data.events),
   })
 }
 

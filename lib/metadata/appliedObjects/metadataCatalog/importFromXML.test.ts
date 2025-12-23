@@ -15,7 +15,7 @@ describe("importMetadataCatalogFromXML", () => {
 
     expect(assertEquals<MetadataCatalogXML>(xmlData.MetaDataObject)).toEqual(xmlData.MetaDataObject)
 
-    const result = importMetadataCatalogFromXML(xmlData.MetaDataObject, mockConfigurationSettings)
+    const result = importMetadataCatalogFromXML(mockConfigurationSettings, xmlData.MetaDataObject)
 
     expect(result).toEqual(expectedResult)
   })
@@ -27,7 +27,7 @@ describe("importMetadataCatalogFromXML", () => {
 
     expect(assertEquals<MetadataCatalogXML>(xmlData.MetaDataObject)).toEqual(xmlData.MetaDataObject)
 
-    const result = importMetadataCatalogFromXML(xmlData.MetaDataObject, mockConfigurationSettings)
+    const result = importMetadataCatalogFromXML(mockConfigurationSettings, xmlData.MetaDataObject)
 
     expect(result).toEqual(expectedResult)
   })

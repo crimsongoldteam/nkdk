@@ -22,7 +22,7 @@ describe("importStandardAttributeDescriptionFromXML", () => {
 
     const xmlData = xmlImport<{ "xr:StandardAttribute": StandardAttributeDescriptionXML }>(xml)
 
-    const result = importStandardAttributeDescriptionFromXML(xmlData["xr:StandardAttribute"], mockConfigurationSettings)
+    const result = importStandardAttributeDescriptionFromXML(mockConfigurationSettings, xmlData["xr:StandardAttribute"])
     expect(result).toEqual(expectedResult)
   })
 
@@ -31,7 +31,7 @@ describe("importStandardAttributeDescriptionFromXML", () => {
 
     const xmlData = xmlImport<{ "xr:StandardAttribute": StandardAttributeDescriptionXML }>(xml)
 
-    const result = importStandardAttributeDescriptionFromXML(xmlData["xr:StandardAttribute"], mockConfigurationSettings)
+    const result = importStandardAttributeDescriptionFromXML(mockConfigurationSettings, xmlData["xr:StandardAttribute"])
     expect(result).toBeUndefined()
   })
 
@@ -52,10 +52,7 @@ describe("importStandardAttributeDescriptionFromXML", () => {
 
     const xmlData = xmlImport<{ "xr:StandardAttribute": StandardAttributeDescriptionsXML }>(xml)
 
-    const result = importStandardAttributeDescriptionsFromXML(
-      xmlData["xr:StandardAttribute"],
-      mockConfigurationSettings
-    )
+    const result = importStandardAttributeDescriptionsFromXML(mockConfigurationSettings, xmlData["xr:StandardAttribute"])
     expect(result).toEqual(expectedResult)
   })
 
@@ -64,10 +61,7 @@ describe("importStandardAttributeDescriptionFromXML", () => {
 
     const xmlData = xmlImport<{ "xr:StandardAttribute": StandardAttributeDescriptionsXML }>(xml)
 
-    const result = importStandardAttributeDescriptionsFromXML(
-      xmlData["xr:StandardAttribute"],
-      mockConfigurationSettings
-    )
+    const result = importStandardAttributeDescriptionsFromXML(mockConfigurationSettings, xmlData["xr:StandardAttribute"])
     expect(result).toBeUndefined()
   })
 })

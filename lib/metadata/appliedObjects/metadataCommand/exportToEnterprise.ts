@@ -17,18 +17,18 @@ import { exportTypeDescriptionToEnterprise } from "../../commonObjects/typeDescr
 import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
 
 export const exportMetadataCommandToEnterprise = (
-  data: MetadataCommand | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataCommand | undefined
 ): MetadataCommandEnterprise | undefined => {
   if (!data) return undefined
 
-  const group = getGroup(data, configurationSettings)
+  const group = getGroup(configurationSettings, data)
 
   if (!group) {
     return undefined
   }
 
-  let synonym = exportI8nTextToEnterprise(data.synonym, configurationSettings)
+  let synonym = exportI8nTextToEnterprise(configurationSettings, data.synonym)
 
   const excludeSynonym = isSynonymEqualToName(synonym, data.name)
 
@@ -43,31 +43,31 @@ export const exportMetadataCommandToEnterprise = (
   const result: MetadataCommandEnterprise = {
     Группа: group,
     Синоним: synonym,
-    ИзменяетДанные: exportBooleanToEnterprise(data.modifiesData, configurationSettings),
-    Картинка: exportPictureToEnterprise(data.picture, configurationSettings),
+    ИзменяетДанные: exportBooleanToEnterprise(configurationSettings, data.modifiesData),
+    Картинка: exportPictureToEnterprise(configurationSettings, data.picture),
     Комментарий: data.comment,
     Отображение: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.representation,
-      SE.ButtonRepresentationToEnterprise,
-      configurationSettings
+      SE.ButtonRepresentationToEnterprise
     ),
-    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
+    Подсказка: exportI8nTextToEnterprise(configurationSettings, data.toolTip),
     ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.objectBelonging,
-      SE.ObjectBelongingToEnterprise,
-      configurationSettings
+      SE.ObjectBelongingToEnterprise
     ),
     РежимИспользованияПараметра: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.parameterUseMode,
-      SE.CommandParameterUseModeToEnterprise,
-      configurationSettings
+      SE.CommandParameterUseModeToEnterprise
     ),
     СочетаниеКлавиш: data.shortcut,
-    ТипПараметраКоманды: exportTypeDescriptionToEnterprise(data.commandParameterType, configurationSettings),
+    ТипПараметраКоманды: exportTypeDescriptionToEnterprise(configurationSettings, data.commandParameterType),
     ПоведениеПриНедоступностиОсновногоСервера: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.onMainServerUnavalableBehavior,
-      SE.OnMainServerUnavalableBehaviorToEnterprise,
-      configurationSettings
+      SE.OnMainServerUnavalableBehaviorToEnterprise
     ),
   }
 
@@ -75,14 +75,14 @@ export const exportMetadataCommandToEnterprise = (
 }
 
 export const exportMetadataCommandsToEnterprise = (
-  data: MetadataCommands | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataCommands | undefined
 ): MetadataCommandsEnterprise | undefined => {
   if (!data) return undefined
 
   const result: MetadataCommandsEnterprise = {}
   for (const command of data) {
-    const enterprise = exportMetadataCommandToEnterprise(command, configurationSettings)
+    const enterprise = exportMetadataCommandToEnterprise(configurationSettings, command)
     if (enterprise) {
       result[command.name] = enterprise
     }
@@ -109,12 +109,12 @@ const canUseShortFormat = (data: MetadataCommand, isSynonymEqualToName: boolean)
 }
 
 const getGroup = (
-  data: MetadataCommand,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataCommand
 ): MetadataCommandGroupEnterprise | undefined => {
   if (!data.group) return undefined
   if (typeof data.group === "string" && data.group in SE.StandardCommandsGroupToEnterprise) {
-    return exportSystemEnumerationToEnterprise(data.group, SE.StandardCommandsGroupToEnterprise, configurationSettings)!
+    return exportSystemEnumerationToEnterprise(configurationSettings, data.group, SE.StandardCommandsGroupToEnterprise)!
   }
-  return exportMetadataItemLinkToEnterprise(data.group, configurationSettings)!
+  return exportMetadataItemLinkToEnterprise(configurationSettings, data.group)!
 }

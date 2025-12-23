@@ -14,7 +14,7 @@ describe("exportMetadataAttributesToXML", () => {
   it("should export single attribute to XML", () => {
     const expectedResult = readXMLFileAsString("metadataAttribute/single.xml")
 
-    const xmlData = exportMetadataAttributesToXML(singleAttribute, mockConfigurationSettings)
+    const xmlData = exportMetadataAttributesToXML(mockConfigurationSettings, singleAttribute)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 
@@ -24,7 +24,7 @@ describe("exportMetadataAttributesToXML", () => {
   it("should export multiple attributes to XML", () => {
     const expectedResult = readXMLFileAsString("metadataAttribute/multiple.xml")
 
-    const xmlData = exportMetadataAttributesToXML(multipleAttributes, mockConfigurationSettings)
+    const xmlData = exportMetadataAttributesToXML(mockConfigurationSettings, multipleAttributes)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 

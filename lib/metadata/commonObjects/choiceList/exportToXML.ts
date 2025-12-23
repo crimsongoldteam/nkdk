@@ -3,8 +3,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { ChoiceList, ChoiceListXML } from "./types"
 
 export const exportChoiceListToXML = (
-  choiceList: ChoiceList | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  choiceList: ChoiceList | undefined
 ): ChoiceListXML | undefined => {
   if (!choiceList) return undefined
 
@@ -14,7 +14,7 @@ export const exportChoiceListToXML = (
       "xr:CheckState": item.checkState,
       "xr:Value": {
         "_xsi:type": "FormChoiceListDesTimeValue",
-        Presentation: exportI8nTextToXML(item.presentation, configurationSettings),
+        Presentation: exportI8nTextToXML(configurationSettings, item.presentation),
         Value: {
           "_xsi:type": "xs:string",
           "#text": item.value,

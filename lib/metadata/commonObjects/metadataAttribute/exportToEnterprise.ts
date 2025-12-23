@@ -17,14 +17,14 @@ import * as SE from "~/lib/metadata/systemEnumerations/types"
 import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
 
 export const exportMetadataAttributeToEnterprise = (
-  data: MetadataAttribute | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataAttribute | undefined
 ): MetadataAttributeEnterprise | undefined => {
   if (!data) return undefined
 
-  const type = exportTypeDescriptionToEnterprise(data.type, configurationSettings)!
+  const type = exportTypeDescriptionToEnterprise(configurationSettings, data.type)!
 
-  let synonym = exportI8nTextToEnterprise(data.synonym, configurationSettings)
+  let synonym = exportI8nTextToEnterprise(configurationSettings, data.synonym)
 
   const excludeSynonym = isSynonymEqualToName(synonym, data.name)
 
@@ -40,88 +40,88 @@ export const exportMetadataAttributeToEnterprise = (
     Тип: type,
     Синоним: synonym,
     БыстрыйВыбор: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.quickChoice,
-      SE.UseQuickChoiceToEnterprise,
-      configurationSettings
+      SE.UseQuickChoiceToEnterprise
     ),
     ВыборГруппИЭлементов: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.choiceFoldersAndItems,
-      SE.FoldersAndItemsUseToEnterprise,
-      configurationSettings
+      SE.FoldersAndItemsUseToEnterprise
     ),
-    ВыделятьОтрицательные: exportBooleanToEnterprise(data.markNegatives, configurationSettings),
-    ЗаполнятьИзДанныхЗаполнения: exportBooleanToEnterprise(data.fillFromFillingValue, configurationSettings),
-    ЗначениеЗаполнения: exportMetadataValueToEnterprise(data.fillingValue, configurationSettings),
-    Индексирование: exportSystemEnumerationToEnterprise(data.indexing, SE.IndexingToEnterprise, configurationSettings),
-    Использование: exportSystemEnumerationToEnterprise(data.use, SE.AttributeUseToEnterprise, configurationSettings),
+    ВыделятьОтрицательные: exportBooleanToEnterprise(configurationSettings, data.markNegatives),
+    ЗаполнятьИзДанныхЗаполнения: exportBooleanToEnterprise(configurationSettings, data.fillFromFillingValue),
+    ЗначениеЗаполнения: exportMetadataValueToEnterprise(configurationSettings, data.fillingValue),
+    Индексирование: exportSystemEnumerationToEnterprise(configurationSettings, data.indexing, SE.IndexingToEnterprise),
+    Использование: exportSystemEnumerationToEnterprise(configurationSettings, data.use, SE.AttributeUseToEnterprise),
     ИспользованиеХраненияВХранилищеДвоичныхДанных: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.binaryDataStorageLocationUse,
-      SE.BinaryDataStorageLocationUseToEnterprise,
-      configurationSettings
+      SE.BinaryDataStorageLocationUseToEnterprise
     ),
     ИсторияВыбораПриВводе: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.choiceHistoryOnInput,
-      SE.ChoiceHistoryOnInputToEnterprise,
-      configurationSettings
+      SE.ChoiceHistoryOnInputToEnterprise
     ),
     ИсторияДанных: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.dataHistory,
-      SE.DataHistoryUseToEnterprise,
-      configurationSettings
+      SE.DataHistoryUseToEnterprise
     ),
     Комментарий: data.comment,
     МаксимальноеЗначение: data.maxValue,
     Маска: data.mask,
     МинимальноеЗначение: data.minValue,
-    МногострочныйРежим: exportBooleanToEnterprise(data.multiLine, configurationSettings),
-    ПараметрыВыбора: exportChoiceParameterLinksToEnterprise(data.choiceParameters, configurationSettings),
-    Подсказка: exportI8nTextToEnterprise(data.tooltip, configurationSettings),
+    МногострочныйРежим: exportBooleanToEnterprise(configurationSettings, data.multiLine),
+    ПараметрыВыбора: exportChoiceParameterLinksToEnterprise(configurationSettings, data.choiceParameters),
+    Подсказка: exportI8nTextToEnterprise(configurationSettings, data.tooltip),
     ПолеИспользованияХраненияВХранилищеДвоичныхДанных: exportBooleanToEnterprise(
-      data.binaryDataStorageLocationUseField,
-      configurationSettings
+      configurationSettings,
+      data.binaryDataStorageLocationUseField
     ),
     ПолнотекстовыйПоиск: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.fullTextSearch,
-      SE.UseFullTextSearchToEnterprise,
-      configurationSettings
+      SE.UseFullTextSearchToEnterprise
     ),
     ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.objectBelonging,
-      SE.ObjectBelongingToEnterprise,
-      configurationSettings
+      SE.ObjectBelongingToEnterprise
     ),
     ПроверкаЗаполнения: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.fillChecking,
-      SE.FillCheckingToEnterprise,
-      configurationSettings
+      SE.FillCheckingToEnterprise
     ),
-    РасширенноеРедактирование: exportBooleanToEnterprise(data.extendedEdit, configurationSettings),
-    РежимПароля: exportBooleanToEnterprise(data.passwordMode, configurationSettings),
-    СвязиПараметровВыбора: exportChoiceParameterLinksToEnterprise(data.choiceParameterLinks, configurationSettings),
-    СвязьПоТипу: exportTypeLinkToEnterprise(data.linkByType, configurationSettings),
+    РасширенноеРедактирование: exportBooleanToEnterprise(configurationSettings, data.extendedEdit),
+    РежимПароля: exportBooleanToEnterprise(configurationSettings, data.passwordMode),
+    СвязиПараметровВыбора: exportChoiceParameterLinksToEnterprise(configurationSettings, data.choiceParameterLinks),
+    СвязьПоТипу: exportTypeLinkToEnterprise(configurationSettings, data.linkByType),
     СозданиеПриВводе: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.createOnInput,
-      SE.CreateOnInputToEnterprise,
-      configurationSettings
+      SE.CreateOnInputToEnterprise
     ),
     ФормаВыбора: data.choiceForm,
-    Формат: exportI8nTextToEnterprise(data.format, configurationSettings),
-    ФорматРедактирования: exportI8nTextToEnterprise(data.editFormat, configurationSettings),
+    Формат: exportI8nTextToEnterprise(configurationSettings, data.format),
+    ФорматРедактирования: exportI8nTextToEnterprise(configurationSettings, data.editFormat),
   }
 
   return compactObject(result) as MetadataAttributeEnterprise
 }
 
 export const exportMetadataAttributesToEnterprise = (
-  data: MetadataAttributes | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataAttributes | undefined
 ): MetadataAttributesEnterprise | undefined => {
   if (!data) return undefined
 
   return Object.fromEntries(
     data.map((value: MetadataAttribute) => [
       value.name,
-      exportMetadataAttributeToEnterprise(value, configurationSettings)!,
+      exportMetadataAttributeToEnterprise(configurationSettings, value)!,
     ])
   )
 }

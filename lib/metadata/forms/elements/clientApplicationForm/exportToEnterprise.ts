@@ -6,8 +6,8 @@ import { getAllElements } from "./getAllElements"
 import { ClientApplicationForm } from "./types"
 
 export const exportClientApplicationFormToEnterprise = (
-  element: ClientApplicationForm,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  element: ClientApplicationForm
 ): IFormatElementResult => {
   const childItems = element.childItems ?? []
   const result: IFormatElementResult = {
@@ -29,7 +29,7 @@ export const exportClientApplicationFormToEnterprise = (
 
   if (element.attributes) {
     result.strings.push(...formatSectionHeader("Реквизиты"))
-    result.strings.push(...exportFormAttributesToEnterprise(element.attributes, configurationSettings))
+    result.strings.push(...exportFormAttributesToEnterprise(configurationSettings, element.attributes))
   }
 
   if (allElements.length > 0) {

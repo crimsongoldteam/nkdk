@@ -12,31 +12,31 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importFormGroupFromXML = (
-  xml: FormGroupXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: FormGroupXML | undefined
 ): FormGroup | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importBaseElementFromXML(xml, configurationSettings)!,
+    ...importBaseElementFromXML(configurationSettings, xml)!,
     elementType: FormElementType.FormGroup,
 
-    childItems: importChildItemsFromXML(xml.ChildItems, configurationSettings),
+    childItems: importChildItemsFromXML(configurationSettings, xml.ChildItems),
     enableContentChange: xml.EnableContentChange,
     enabled: xml.Enabled,
-    extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip, configurationSettings),
+    extendedTooltip: importFormDecorationFromXML(configurationSettings, xml.ExtendedTooltip),
     height: xml.Height,
     horizontalAlignInGroup: xml.HorizontalAlignInGroup,
     horizontalStretch: xml.HorizontalStretch,
     readOnly: xml.ReadOnly,
     shortcut: xml.Shortcut,
-    title: importI8nTextFromXML(xml.Title, configurationSettings),
-    titleFont: importFontFromXML(xml.TitleFont, configurationSettings),
-    titleTextColor: importColorFromXML(xml.TitleTextColor, configurationSettings),
-    toolTip: importI8nTextFromXML(xml.ToolTip, configurationSettings),
+    title: importI8nTextFromXML(configurationSettings, xml.Title),
+    titleFont: importFontFromXML(configurationSettings, xml.TitleFont),
+    titleTextColor: importColorFromXML(configurationSettings, xml.TitleTextColor),
+    toolTip: importI8nTextFromXML(configurationSettings, xml.ToolTip),
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,
@@ -44,4 +44,4 @@ export const importFormGroupFromXML = (
   })
 }
 
-registerMetadata("ImportFromXML", "FormGroup", importFormGroupFromXML)
+registerMetadata<FormGroupXML>("ImportFromXML", "FormGroup", importFormGroupFromXML)

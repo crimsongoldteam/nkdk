@@ -27,7 +27,7 @@ describe("importButtonFromXML", () => {
 
     const xml = xmlImport<{ Button: ButtonXML }>(mockXml)
 
-    const result = importButtonFromXML(xml.Button, mockConfigurationSettings)
+    const result = importButtonFromXML(mockConfigurationSettings, xml.Button)
 
     expect(result).toEqual(expectedResult)
   })

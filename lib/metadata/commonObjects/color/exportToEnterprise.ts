@@ -4,10 +4,10 @@ import * as SE from "../../systemEnumerations/types"
 import { Color } from "./types"
 
 export const exportColorToEnterprise = (
-  color: Color | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  color: Color | undefined
 ): string | undefined => {
   if (!color) return undefined
 
-  return exportSystemEnumerationToEnterprise(color, SE.ColorTypeToEnterprise, _configurationSettings)
+  return exportSystemEnumerationToEnterprise(_configurationSettings, color, SE.ColorTypeToEnterprise)
 }

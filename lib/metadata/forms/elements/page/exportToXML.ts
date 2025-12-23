@@ -9,28 +9,28 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPageToXML = (
-  data: Page | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: Page | undefined
 ): PageXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToXML(data, configurationSettings)!,
+    ...exportFormGroupToXML(configurationSettings, data)!,
 
-    BackColor: exportColorToXML(data.backColor, configurationSettings),
+    BackColor: exportColorToXML(configurationSettings, data.backColor),
     ChildItemsHorizontalAlign: data.childItemsHorizontalAlign,
     ChildItemsVerticalAlign: data.childItemsVerticalAlign,
     _DisplayImportance: data.displayImportance,
-    Format: exportI8nTextToXML(data.format, configurationSettings),
+    Format: exportI8nTextToXML(configurationSettings, data.format),
     Group: data.group,
     HorizontalSpacing: data.horizontalSpacing,
     ItemsAndTitlesAlign: data.itemsAndTitlesAlign,
-    Picture: exportPictureToXML(data.picture, configurationSettings),
+    Picture: exportPictureToXML(configurationSettings, data.picture),
     ScrollOnCompress: data.scrollOnCompress,
     ShowTitle: data.showTitle,
     SlaveItemsWidth: data.slaveItemsWidth,
     TitleDataPath: data.titleDataPath,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
     VerticalAlign: data.verticalAlign,
     VerticalScrollOnReduceSize: data.verticalScrollOnReduceSize,
     VerticalSpacing: data.verticalSpacing,

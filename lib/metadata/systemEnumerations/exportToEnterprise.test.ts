@@ -8,11 +8,7 @@ describe("exportSystemEnumerationToEnterprise", () => {
     const mockValue = "Vertical"
     const expectedResult = "Вертикальная"
 
-    const result = exportSystemEnumerationToEnterprise(
-      mockValue,
-      SE.ChildFormItemsGroupToEnterprise,
-      mockConfigurationSettings
-    )
+    const result = exportSystemEnumerationToEnterprise(mockConfigurationSettings, mockValue, SE.ChildFormItemsGroupToEnterprise)
 
     expect(result).toBe(expectedResult)
   })

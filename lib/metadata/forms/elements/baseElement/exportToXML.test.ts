@@ -16,14 +16,14 @@ describe("exportBaseElementToXML", () => {
 
     const expectedResult = `<BaseElement id="16" name="ИмяПоля"/>`
 
-    const result = { BaseElement: exportBaseElementToXML(mockElement, mockConfigurationSettings) }
+    const result = { BaseElement: exportBaseElementToXML(mockConfigurationSettings, mockElement) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportBaseElementToXML(undefined, mockConfigurationSettings)
+    const result = exportBaseElementToXML(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -32,8 +32,8 @@ describe("exportBaseElementToXML", () => {
     const originalXml = `<BaseElement id="16" name="ИмяПоля"/>`
 
     const xml = xmlImport<{ BaseElement: BaseElementXML }>(originalXml)
-    const imported = importBaseElementFromXML(xml.BaseElement, mockConfigurationSettings)
-    const exported = exportBaseElementToXML(imported, mockConfigurationSettings)
+    const imported = importBaseElementFromXML(mockConfigurationSettings, xml.BaseElement)
+    const exported = exportBaseElementToXML(mockConfigurationSettings, imported)
     const resultXml = xmlExport({ BaseElement: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

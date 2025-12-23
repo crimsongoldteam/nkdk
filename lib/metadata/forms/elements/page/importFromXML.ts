@@ -10,29 +10,29 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importPageFromXML = (
-  xml: PageXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: PageXML | undefined
 ): Page | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormGroupFromXML(xml, configurationSettings)!,
+    ...importFormGroupFromXML(configurationSettings, xml)!,
     elementType: FormElementType.Page,
 
-    backColor: importColorFromXML(xml.BackColor, configurationSettings),
+    backColor: importColorFromXML(configurationSettings, xml.BackColor),
     childItemsHorizontalAlign: xml.ChildItemsHorizontalAlign,
     childItemsVerticalAlign: xml.ChildItemsVerticalAlign,
     displayImportance: xml._DisplayImportance,
-    format: importI8nTextFromXML(xml.Format, configurationSettings),
+    format: importI8nTextFromXML(configurationSettings, xml.Format),
     group: xml.Group,
     horizontalSpacing: xml.HorizontalSpacing,
     itemsAndTitlesAlign: xml.ItemsAndTitlesAlign,
-    picture: importPictureFromXML(xml.Picture, configurationSettings),
+    picture: importPictureFromXML(configurationSettings, xml.Picture),
     scrollOnCompress: xml.ScrollOnCompress,
     showTitle: xml.ShowTitle,
     slaveItemsWidth: xml.SlaveItemsWidth,
     titleDataPath: xml.TitleDataPath,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     verticalAlign: xml.VerticalAlign,
     verticalScrollOnReduceSize: xml.VerticalScrollOnReduceSize,
     verticalSpacing: xml.VerticalSpacing,

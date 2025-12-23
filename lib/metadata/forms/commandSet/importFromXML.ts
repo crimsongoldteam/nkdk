@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { CommandSet, CommandSetXML } from "./types"
 
 export const importCommandSetFromXML = (
-  xml: CommandSetXML | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  xml: CommandSetXML | undefined
 ): CommandSet | undefined => {
   if (!xml) return undefined
 

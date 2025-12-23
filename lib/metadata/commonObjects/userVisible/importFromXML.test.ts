@@ -22,7 +22,7 @@ describe("importUserVisibleFromXML", () => {
       ],
     }
 
-    const result = importUserVisibleFromXML(xml.UserVisible, mockConfigurationSettings)
+    const result = importUserVisibleFromXML(mockConfigurationSettings, xml.UserVisible)
 
     expect(result).toEqual(expectedResult)
   })
@@ -35,13 +35,13 @@ describe("importUserVisibleFromXML", () => {
       values: [],
     }
 
-    const result = importUserVisibleFromXML(xml.UserVisible, mockConfigurationSettings)
+    const result = importUserVisibleFromXML(mockConfigurationSettings, xml.UserVisible)
 
     expect(result).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = importUserVisibleFromXML(undefined, mockConfigurationSettings)
+    const result = importUserVisibleFromXML(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -59,7 +59,7 @@ describe("importUserVisibleFromXML", () => {
       ],
     }
 
-    const result = importUserVisibleFromXML(xml.UserVisible, mockConfigurationSettings)
+    const result = importUserVisibleFromXML(mockConfigurationSettings, xml.UserVisible)
 
     expect(result).toEqual(expectedResult)
   })

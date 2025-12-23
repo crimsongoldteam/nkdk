@@ -15,7 +15,7 @@ describe("importMetadataCommandFromXML", () => {
 
     expect(assertEquals<MetadataCommandXML>(xmlData.Command)).toEqual(xmlData.Command)
 
-    const result = importMetadataCommandFromXML(xmlData.Command, mockConfigurationSettings)
+    const result = importMetadataCommandFromXML(mockConfigurationSettings, xmlData.Command)
 
     expect(result).toEqual(expectedResult)
   })
@@ -23,8 +23,8 @@ describe("importMetadataCommandFromXML", () => {
   it("should export and import simple command correctly (round-trip)", () => {
     const originalCommand: MetadataCommand = simpleCommand
 
-    const exported = exportMetadataCommandToXML(originalCommand, mockConfigurationSettings)
-    const imported = importMetadataCommandFromXML(exported, mockConfigurationSettings)
+    const exported = exportMetadataCommandToXML(mockConfigurationSettings, originalCommand)
+    const imported = importMetadataCommandFromXML(mockConfigurationSettings, exported)
 
     expect(imported).toEqual(originalCommand)
   })
@@ -41,8 +41,8 @@ describe("importMetadataCommandFromXML", () => {
       shortcut: "Ctrl+T",
     }
 
-    const exported = exportMetadataCommandToXML(originalCommand, mockConfigurationSettings)
-    const imported = importMetadataCommandFromXML(exported, mockConfigurationSettings)
+    const exported = exportMetadataCommandToXML(mockConfigurationSettings, originalCommand)
+    const imported = importMetadataCommandFromXML(mockConfigurationSettings, exported)
 
     expect(imported).toEqual(originalCommand)
   })
@@ -53,8 +53,8 @@ describe("importMetadataCommandFromXML", () => {
       group: "FormNavigationPanelImportant",
     }
 
-    const exported = exportMetadataCommandToXML(originalCommand, mockConfigurationSettings)
-    const imported = importMetadataCommandFromXML(exported, mockConfigurationSettings)
+    const exported = exportMetadataCommandToXML(mockConfigurationSettings, originalCommand)
+    const imported = importMetadataCommandFromXML(mockConfigurationSettings, exported)
 
     expect(imported).toEqual(originalCommand)
   })

@@ -9,16 +9,16 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportUsualGroupToXML = (
-  data: UsualGroup | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: UsualGroup | undefined
 ): UsualGroupXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToXML(data, configurationSettings)!,
+    ...exportFormGroupToXML(configurationSettings, data)!,
 
-    AssociatedTable: exportTableToXML(data.associatedTable, configurationSettings),
-    BackColor: exportColorToXML(data.backColor, configurationSettings),
+    AssociatedTable: exportTableToXML(configurationSettings, data.associatedTable),
+    BackColor: exportColorToXML(configurationSettings, data.backColor),
     Behavior: data.behavior,
     ChildItemsHorizontalAlign: data.childItemsHorizontalAlign,
     ChildItemsVerticalAlign: data.childItemsVerticalAlign,
@@ -26,13 +26,13 @@ export const exportUsualGroupToXML = (
     ControlRepresentation: data.controlRepresentation,
     CurrentRowUse: data.currentRowUse,
     _DisplayImportance: data.displayImportance,
-    Format: exportI8nTextToXML(data.format, configurationSettings),
+    Format: exportI8nTextToXML(configurationSettings, data.format),
     Group: data.group,
     GroupHorizontalAlign: data.groupHorizontalAlign,
     GroupVerticalAlign: data.groupVerticalAlign,
     HiddenRepresentationTitleBackColor: exportColorToXML(
-      data.hiddenRepresentationTitleBackColor,
-      configurationSettings
+      configurationSettings,
+      data.hiddenRepresentationTitleBackColor
     ),
     HorizontalSpacing: data.horizontalSpacing,
     ItemsAndTitlesAlign: data.itemsAndTitlesAlign,
@@ -43,7 +43,7 @@ export const exportUsualGroupToXML = (
     ThroughAlign: data.throughAlign,
     TitleDataPath: data.titleDataPath,
     United: data.united,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
     VerticalAlign: data.verticalAlign,
     VerticalSpacing: data.verticalSpacing,
   })

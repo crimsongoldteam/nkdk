@@ -11,22 +11,21 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPictureFieldToXML = (
-  data: PictureField | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: PictureField | undefined
 ): PictureFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(data, configurationSettings)!,
+    ...exportFormFieldToXML(configurationSettings, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    Border: exportBorderToXML(data.border, configurationSettings),
-    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
+    Border: exportBorderToXML(configurationSettings, data.border),
+    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
     EnableDrag: data.enableDrag,
     EnableStartDrag: data.enableStartDrag,
     FileDragMode: data.fileDragMode,
-    Font: exportFontToXML(data.font, configurationSettings),
+    Font: exportFontToXML(configurationSettings, data.font),
     Height: data.height,
     HorizontalStretch: data.horizontalStretch,
     Hyperlink: data.hyperlink,
@@ -35,13 +34,13 @@ export const exportPictureFieldToXML = (
     NonselectedPictureText: data.nonselectedPictureText,
     PictureSize: data.pictureSize,
     Scale: data.scale,
-    TextColor: exportColorToXML(data.textColor, configurationSettings),
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
-    ValuesPicture: exportPictureToXML(data.valuesPicture, configurationSettings),
+    TextColor: exportColorToXML(configurationSettings, data.textColor),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    ValuesPicture: exportPictureToXML(configurationSettings, data.valuesPicture),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     Zoomable: data.zoomable,
-    Events: exportEventsToXML(data.events, configurationSettings),
+    Events: exportEventsToXML(configurationSettings, data.events),
   })
 }
 

@@ -12,36 +12,23 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportLabelDecorationToEnterprise = (
-  data: LabelDecoration | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: LabelDecoration | undefined
 ): LabelDecorationEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormDecorationToEnterprise(data, configurationSettings)!,
+    ...exportFormDecorationToEnterprise(configurationSettings, data)!,
 
-    ВертикальноеВыравниваниеГруппы: exportSystemEnumerationToEnterprise(
-      data.groupVerticalAlign,
-      SE.ItemVerticalAlignToEnterprise,
-      configurationSettings
-    ),
-    ВертикальноеПоложение: exportSystemEnumerationToEnterprise(
-      data.verticalAlign,
-      SE.ItemVerticalAlignToEnterprise,
-      configurationSettings
-    ),
+    ВертикальноеВыравниваниеГруппы: exportSystemEnumerationToEnterprise(configurationSettings, data.groupVerticalAlign, SE.ItemVerticalAlignToEnterprise),
+    ВертикальноеПоложение: exportSystemEnumerationToEnterprise(configurationSettings, data.verticalAlign, SE.ItemVerticalAlignToEnterprise),
     ВысотаЗаголовка: data.titleHeight,
-    Гиперссылка: exportBooleanToEnterprise(data.hyperlink, configurationSettings),
-    ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
-      data.horizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise,
-      configurationSettings
-    ),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
-    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
-    События: exportEventsToEnterprise(data.events, configurationSettings),
+    Гиперссылка: exportBooleanToEnterprise(configurationSettings, data.hyperlink),
+    ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(configurationSettings, data.horizontalAlign, SE.ItemHorizontalLocationToEnterprise),
+    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    Рамка: exportBorderToEnterprise(configurationSettings, data.border),
+    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
+    ЦветФона: exportColorToEnterprise(configurationSettings, data.backColor),
+    События: exportEventsToEnterprise(configurationSettings, data.events),
   })
 }
 

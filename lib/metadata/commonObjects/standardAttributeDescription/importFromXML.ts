@@ -15,38 +15,38 @@ import { importBooleanFromXML } from "../boolean/importFromXML"
 import { getDefaults } from "./defaults"
 
 export const importStandardAttributeDescriptionFromXML = (
-  xml: StandardAttributeDescriptionXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: StandardAttributeDescriptionXML | undefined
 ): StandardAttributeDescription | undefined => {
   if (!xml) return undefined
 
   const result = {
     choiceForm: xml["xr:ChoiceForm"],
     choiceHistoryOnInput: xml["xr:ChoiceHistoryOnInput"],
-    choiceParameterLinks: importChoiceParameterLinksFromXML(xml["xr:ChoiceParameterLinks"], configurationSettings),
-    choiceParameters: importChoiceParameterLinksFromXML(xml["xr:ChoiceParameters"], configurationSettings),
+    choiceParameterLinks: importChoiceParameterLinksFromXML(configurationSettings, xml["xr:ChoiceParameterLinks"]),
+    choiceParameters: importChoiceParameterLinksFromXML(configurationSettings, xml["xr:ChoiceParameters"]),
     comment: xml["xr:Comment"],
     createOnInput: xml["xr:CreateOnInput"],
     dataHistory: xml["xr:DataHistory"],
-    editFormat: importI8nTextFromXML(xml["xr:EditFormat"], configurationSettings),
-    extendedEdit: importBooleanFromXML(xml["xr:ExtendedEdit"], configurationSettings),
+    editFormat: importI8nTextFromXML(configurationSettings, xml["xr:EditFormat"]),
+    extendedEdit: importBooleanFromXML(configurationSettings, xml["xr:ExtendedEdit"]),
     fillChecking: xml["xr:FillChecking"],
     fillFromFillingValue: xml["xr:FillFromFillingValue"],
-    fillValue: importMetadataValueFromXML(xml["xr:FillValue"], configurationSettings),
-    format: importI8nTextFromXML(xml["xr:Format"], configurationSettings),
+    fillValue: importMetadataValueFromXML(configurationSettings, xml["xr:FillValue"]),
+    format: importI8nTextFromXML(configurationSettings, xml["xr:Format"]),
     fullTextSearch: xml["xr:FullTextSearch"],
-    linkByType: importTypeLinkFromXML(xml["xr:LinkByType"], configurationSettings),
+    linkByType: importTypeLinkFromXML(configurationSettings, xml["xr:LinkByType"]),
     markNegatives: xml["xr:MarkNegatives"],
     mask: xml["xr:Mask"],
     maxValue: xml["xr:MaxValue"],
     minValue: xml["xr:MinValue"],
-    multiLine: importBooleanFromXML(xml["xr:MultiLine"], configurationSettings),
+    multiLine: importBooleanFromXML(configurationSettings, xml["xr:MultiLine"]),
     name: xml._name,
-    passwordMode: importBooleanFromXML(xml["xr:PasswordMode"], configurationSettings),
+    passwordMode: importBooleanFromXML(configurationSettings, xml["xr:PasswordMode"]),
     quickChoice: xml["xr:QuickChoice"],
-    synonym: importI8nTextFromXML(xml["xr:Synonym"], configurationSettings),
-    toolTip: importI8nTextFromXML(xml["xr:ToolTip"], configurationSettings),
-    type: importTypeDescriptionFromXML(xml["xr:Type"], configurationSettings),
+    synonym: importI8nTextFromXML(configurationSettings, xml["xr:Synonym"]),
+    toolTip: importI8nTextFromXML(configurationSettings, xml["xr:ToolTip"]),
+    type: importTypeDescriptionFromXML(configurationSettings, xml["xr:Type"]),
     typeReductionMode: xml["xr:TypeReductionMode"],
   }
 
@@ -64,8 +64,8 @@ export const importStandardAttributeDescriptionFromXML = (
 }
 
 export const importStandardAttributeDescriptionsFromXML = (
-  xml: StandardAttributeDescriptionsXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: StandardAttributeDescriptionsXML | undefined
 ): StandardAttributeDescriptions | undefined => {
   if (!xml) return undefined
 
@@ -74,7 +74,7 @@ export const importStandardAttributeDescriptionsFromXML = (
   const result: StandardAttributeDescriptions = []
 
   items.forEach((value: StandardAttributeDescriptionXML) => {
-    const item = importStandardAttributeDescriptionFromXML(value, configurationSettings)
+    const item = importStandardAttributeDescriptionFromXML(configurationSettings, value)
     if (item) {
       result.push(item)
     }

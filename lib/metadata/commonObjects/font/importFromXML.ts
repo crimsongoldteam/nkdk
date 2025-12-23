@@ -3,8 +3,8 @@ import { compactObject } from "../../helpers/compactObject"
 import { Font, FontXML } from "./types"
 
 export const importFontFromXML = (
-  xml: FontXML | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  xml: FontXML | undefined
 ): Font | undefined => {
   if (!xml) return undefined
   return compactObject({

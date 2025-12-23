@@ -11,27 +11,26 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPeriodFieldToEnterprise = (
-  data: PeriodField | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: PeriodField | undefined
 ): PeriodFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(data, configurationSettings)!,
+    ...exportFormFieldToEnterprise(configurationSettings, data)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
     Высота: data.height,
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    Рамка: exportBorderToEnterprise(configurationSettings, data.border),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
+    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
     Ширина: data.width,
-    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
-    События: exportEventsToEnterprise(data.events, configurationSettings),
+    Шрифт: exportFontToEnterprise(configurationSettings, data.font),
+    События: exportEventsToEnterprise(configurationSettings, data.events),
   })
 }
 

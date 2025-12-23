@@ -17,7 +17,7 @@ describe("exportTypeDescriptionToXML", () => {
 
     const expectedXml = readXMLFileAsString("typeDescription/stringType.xml")
 
-    const result = exportTypeDescriptionToXML(mockTypeDescription, mockConfigurationSettings)
+    const result = exportTypeDescriptionToXML(mockConfigurationSettings, mockTypeDescription)
     const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -35,7 +35,7 @@ describe("exportTypeDescriptionToXML", () => {
 
     const expectedXml = readXMLFileAsString("typeDescription/numberType.xml")
 
-    const result = exportTypeDescriptionToXML(mockTypeDescription, mockConfigurationSettings)
+    const result = exportTypeDescriptionToXML(mockConfigurationSettings, mockTypeDescription)
     const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -51,7 +51,7 @@ describe("exportTypeDescriptionToXML", () => {
 
     const expectedXml = readXMLFileAsString("typeDescription/dateType.xml")
 
-    const result = exportTypeDescriptionToXML(mockTypeDescription, mockConfigurationSettings)
+    const result = exportTypeDescriptionToXML(mockConfigurationSettings, mockTypeDescription)
     const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -64,7 +64,7 @@ describe("exportTypeDescriptionToXML", () => {
 
     const expectedXml = readXMLFileAsString("typeDescription/complexType.xml")
 
-    const result = exportTypeDescriptionToXML(mockTypeDescription, mockConfigurationSettings)
+    const result = exportTypeDescriptionToXML(mockConfigurationSettings, mockTypeDescription)
     const xmlString = xmlExport({ TypeDescription: result }, false)
 
     expect(xmlString).toEqual(expectedXml)

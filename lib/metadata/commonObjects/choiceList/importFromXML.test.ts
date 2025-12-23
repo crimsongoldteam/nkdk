@@ -37,7 +37,7 @@ describe("importChoiceListFromXML", () => {
 		</ChoiceList>`
 
     const xml = xmlImport<{ ChoiceList: ChoiceListXML }>(mockXml)
-    const input = importChoiceListFromXML(xml.ChoiceList, mockConfigurationSettings)
+    const input = importChoiceListFromXML(mockConfigurationSettings, xml.ChoiceList)
 
     expect(input).toEqual({
       items: [
@@ -80,7 +80,7 @@ describe("importChoiceListFromXML", () => {
     }
 
     const xml = xmlImport<{ ChoiceList: ChoiceListXML }>(mockXml)
-    const input = importChoiceListFromXML(xml.ChoiceList, mockConfigurationSettings)
+    const input = importChoiceListFromXML(mockConfigurationSettings, xml.ChoiceList)
 
     expect(input).toEqual(expectedResult)
   })

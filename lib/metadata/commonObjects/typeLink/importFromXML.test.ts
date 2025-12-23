@@ -6,7 +6,7 @@ import { TypeLink, TypeLinkXML } from "./types"
 
 describe("importTypeLinkFromXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importTypeLinkFromXML(undefined, mockConfigurationSettings)
+    const result = importTypeLinkFromXML(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -24,7 +24,7 @@ describe("importTypeLinkFromXML", () => {
 
     const xml = xmlImport<{ TypeLink: TypeLinkXML }>(xmlData)
 
-    const result = importTypeLinkFromXML(xml.TypeLink, mockConfigurationSettings)
+    const result = importTypeLinkFromXML(mockConfigurationSettings, xml.TypeLink)
 
     expect(result).toEqual(expectedResult)
   })

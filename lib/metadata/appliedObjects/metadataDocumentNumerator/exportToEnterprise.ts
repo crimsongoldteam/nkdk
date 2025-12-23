@@ -10,36 +10,20 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportMetadataDocumentNumeratorToEnterprise = (
-  data: MetadataDocumentNumerator | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataDocumentNumerator | undefined
 ): MetadataDocumentNumeratorEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
     ДлинаНомера: data.numberLength,
-    ДопустимаяДлинаНомера: exportSystemEnumerationToEnterprise(
-      data.numberAllowedLength,
-      SE.AllowedLengthToEnterprise,
-      configurationSettings
-    ),
+    ДопустимаяДлинаНомера: exportSystemEnumerationToEnterprise(configurationSettings, data.numberAllowedLength, SE.AllowedLengthToEnterprise),
     Имя: data.name,
     Комментарий: data.comment,
-    КонтрольУникальности: exportBooleanToEnterprise(data.checkUnique, configurationSettings),
-    ПериодичностьНомера: exportSystemEnumerationToEnterprise(
-      data.numberPeriodicity,
-      SE.BusinessProcessNumberPeriodicityToEnterprise,
-      configurationSettings
-    ),
-    ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
-      data.objectBelonging,
-      SE.ObjectBelongingToEnterprise,
-      configurationSettings
-    ),
-    Синоним: exportI8nTextToEnterprise(data.synonym, configurationSettings),
-    ТипНомера: exportSystemEnumerationToEnterprise(
-      data.numberType,
-      SE.DocumentNumberTypeToEnterprise,
-      configurationSettings
-    ),
+    КонтрольУникальности: exportBooleanToEnterprise(configurationSettings, data.checkUnique),
+    ПериодичностьНомера: exportSystemEnumerationToEnterprise(configurationSettings, data.numberPeriodicity, SE.BusinessProcessNumberPeriodicityToEnterprise),
+    ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(configurationSettings, data.objectBelonging, SE.ObjectBelongingToEnterprise),
+    Синоним: exportI8nTextToEnterprise(configurationSettings, data.synonym),
+    ТипНомера: exportSystemEnumerationToEnterprise(configurationSettings, data.numberType, SE.DocumentNumberTypeToEnterprise),
   })
 }

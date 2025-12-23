@@ -5,7 +5,7 @@ import { I8nText } from "./types"
 
 describe("exportI8nTextToEnterprise", () => {
   it("should format empty text as undefined", () => {
-    const result = exportI8nTextToEnterprise(undefined, mockConfigurationSettings)
+    const result = exportI8nTextToEnterprise(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -14,7 +14,7 @@ describe("exportI8nTextToEnterprise", () => {
     const mockI8nText: I8nText = { items: { ru: "Поле" } }
     const expectedResult = "Поле"
 
-    const result = exportI8nTextToEnterprise(mockI8nText, mockConfigurationSettings)
+    const result = exportI8nTextToEnterprise(mockConfigurationSettings, mockI8nText)
 
     expect(result).toEqual(expectedResult)
   })
@@ -23,7 +23,7 @@ describe("exportI8nTextToEnterprise", () => {
     const mockI8nText: I8nText = { items: { en: "Поле" } }
     const expectedResult = { en: "Поле" }
 
-    const result = exportI8nTextToEnterprise(mockI8nText, mockConfigurationSettings)
+    const result = exportI8nTextToEnterprise(mockConfigurationSettings, mockI8nText)
 
     expect(result).toEqual(expectedResult)
   })
@@ -32,7 +32,7 @@ describe("exportI8nTextToEnterprise", () => {
     const mockI8nText: I8nText = { items: { ru: "Поле", en: "Field" } }
     const expectedResult = { ru: "Поле", en: "Field" }
 
-    const result = exportI8nTextToEnterprise(mockI8nText, mockConfigurationSettings)
+    const result = exportI8nTextToEnterprise(mockConfigurationSettings, mockI8nText)
 
     expect(result).toEqual(expectedResult)
   })

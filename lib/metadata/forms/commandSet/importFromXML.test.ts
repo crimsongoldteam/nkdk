@@ -14,7 +14,7 @@ describe("importCommandSetFromXML", () => {
 
     const xml = xmlImport<{ CommandSet: CommandSetXML }>(mockXml)
 
-    const result = importCommandSetFromXML(xml.CommandSet, mockConfigurationSettings)
+    const result = importCommandSetFromXML(mockConfigurationSettings, xml.CommandSet)
 
     expect(result).toEqual(expectedResult)
   })
@@ -30,7 +30,7 @@ describe("importCommandSetFromXML", () => {
 
     const xml = xmlImport<{ CommandSet: CommandSetXML }>(mockXml)
 
-    const result = importCommandSetFromXML(xml.CommandSet, mockConfigurationSettings)
+    const result = importCommandSetFromXML(mockConfigurationSettings, xml.CommandSet)
 
     expect(result).toEqual(expectedResult)
   })

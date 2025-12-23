@@ -10,32 +10,19 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportPagesToEnterprise = (
-  data: Pages | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: Pages | undefined
 ): PagesEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToEnterprise(data, configurationSettings)!,
+    ...exportFormGroupToEnterprise(configurationSettings, data)!,
 
-    ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
-      data.currentRowUse,
-      SE.CurrentRowUseToEnterprise,
-      configurationSettings
-    ),
-    ИспользуемаяТаблица: exportTableToEnterprise(data.associatedTable, configurationSettings),
-    ОтображениеСтраниц: exportSystemEnumerationToEnterprise(
-      data.pagesRepresentation,
-      SE.FormPagesRepresentationToEnterprise,
-      configurationSettings
-    ),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    ТекущееСостояниеСтраниц: exportSystemEnumerationToEnterprise(
-      data.currentPagesState,
-      SE.FormPagesStateToEnterprise,
-      configurationSettings
-    ),
-    События: exportEventsToEnterprise(data.events, configurationSettings),
+    ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(configurationSettings, data.currentRowUse, SE.CurrentRowUseToEnterprise),
+    ИспользуемаяТаблица: exportTableToEnterprise(configurationSettings, data.associatedTable),
+    ОтображениеСтраниц: exportSystemEnumerationToEnterprise(configurationSettings, data.pagesRepresentation, SE.FormPagesRepresentationToEnterprise),
+    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    ТекущееСостояниеСтраниц: exportSystemEnumerationToEnterprise(configurationSettings, data.currentPagesState, SE.FormPagesStateToEnterprise),
+    События: exportEventsToEnterprise(configurationSettings, data.events),
   })
 }
 

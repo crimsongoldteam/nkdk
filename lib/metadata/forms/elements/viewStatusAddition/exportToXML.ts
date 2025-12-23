@@ -9,27 +9,27 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportViewStatusAdditionToXML = (
-  data: ViewStatusAddition | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: ViewStatusAddition | undefined
 ): ViewStatusAdditionXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormItemAdditionToXML(data, configurationSettings)!,
+    ...exportFormItemAdditionToXML(configurationSettings, data)!,
 
     AutoMaxWidth: data.autoMaxWidth,
-    BackColor: exportColorToXML(data.backColor, configurationSettings),
-    Border: exportBorderToXML(data.border, configurationSettings),
-    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
-    ButtonsBackColor: exportColorToXML(data.buttonsBackColor, configurationSettings),
-    Font: exportFontToXML(data.font, configurationSettings),
+    BackColor: exportColorToXML(configurationSettings, data.backColor),
+    Border: exportBorderToXML(configurationSettings, data.border),
+    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
+    ButtonsBackColor: exportColorToXML(configurationSettings, data.buttonsBackColor),
+    Font: exportFontToXML(configurationSettings, data.font),
     HorizontalAlign: data.horizontalAlign,
     HorizontalStretch: data.horizontalStretch,
     MaxWidth: data.maxWidth,
-    TextColor: exportColorToXML(data.textColor, configurationSettings),
-    TitleFont: exportFontToXML(data.titleFont, configurationSettings),
-    TitleTextColor: exportColorToXML(data.titleTextColor, configurationSettings),
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    TextColor: exportColorToXML(configurationSettings, data.textColor),
+    TitleFont: exportFontToXML(configurationSettings, data.titleFont),
+    TitleTextColor: exportColorToXML(configurationSettings, data.titleTextColor),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
     Width: data.width,
   })
 }

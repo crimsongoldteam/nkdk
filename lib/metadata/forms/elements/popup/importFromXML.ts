@@ -9,22 +9,22 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importPopupFromXML = (
-  xml: PopupXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: PopupXML | undefined
 ): Popup | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormGroupFromXML(xml, configurationSettings)!,
+    ...importFormGroupFromXML(configurationSettings, xml)!,
     elementType: FormElementType.Popup,
 
-    backColor: importColorFromXML(xml.BackColor, configurationSettings),
-    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
-    picture: importPictureFromXML(xml.Picture, configurationSettings),
+    backColor: importColorFromXML(configurationSettings, xml.BackColor),
+    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
+    picture: importPictureFromXML(configurationSettings, xml.Picture),
     representation: xml.Representation,
     shape: xml.Shape,
     shapeRepresentation: xml.ShapeRepresentation,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
   })
 }
 

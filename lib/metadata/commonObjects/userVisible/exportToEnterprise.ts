@@ -3,14 +3,14 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { UserVisibleEnterprise, UserVisibleKeysEnterprise, type UserVisible } from "./types"
 
 export const exportUserVisibleToEnterprise = (
-  userVisible: UserVisible | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  userVisible: UserVisible | undefined
 ): Partial<Record<UserVisibleKeysEnterprise, UserVisibleEnterprise>> | undefined => {
   if (!userVisible) return undefined
 
   const values: UserVisibleEnterprise = {}
   userVisible.values.forEach((item) => {
-    values[item.name] = exportBooleanToEnterprise(item.value, configurationSettings)!
+    values[item.name] = exportBooleanToEnterprise(configurationSettings, item.value)!
   })
 
   const key: UserVisibleKeysEnterprise = userVisible.common

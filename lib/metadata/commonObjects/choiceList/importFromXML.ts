@@ -3,8 +3,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { ChoiceList, ChoiceListXML } from "./types"
 
 export const importChoiceListFromXML = (
-  xml: ChoiceListXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: ChoiceListXML | undefined
 ): ChoiceList | undefined => {
   if (!xml || xml.length === 0) return undefined
 
@@ -12,7 +12,7 @@ export const importChoiceListFromXML = (
     const choiceListItem = item["xr:Item"]
     const checkStateRaw = choiceListItem["xr:CheckState"]
     const valueNode = choiceListItem["xr:Value"]
-    const presentation = importI8nTextFromXML(valueNode.Presentation, configurationSettings)
+    const presentation = importI8nTextFromXML(configurationSettings, valueNode.Presentation)
 
     const value = valueNode.Value["#text"]
     // Преобразуем boolean в string для совместимости

@@ -12,107 +12,39 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportUsualGroupToEnterprise = (
-  data: UsualGroup | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: UsualGroup | undefined
 ): UsualGroupEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToEnterprise(data, configurationSettings)!,
+    ...exportFormGroupToEnterprise(configurationSettings, data)!,
 
-    ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
-      data.displayImportance,
-      SE.DisplayImportanceToEnterprise,
-      configurationSettings
-    ),
-    ВертикальноеВыравниваниеГруппы: exportSystemEnumerationToEnterprise(
-      data.groupVerticalAlign,
-      SE.ItemVerticalAlignToEnterprise,
-      configurationSettings
-    ),
-    ВертикальноеПоложение: exportSystemEnumerationToEnterprise(
-      data.verticalAlign,
-      SE.ItemVerticalAlignToEnterprise,
-      configurationSettings
-    ),
-    ВертикальноеПоложениеПодчиненных: exportSystemEnumerationToEnterprise(
-      data.childItemsVerticalAlign,
-      SE.ItemVerticalAlignToEnterprise,
-      configurationSettings
-    ),
-    ВертикальныйИнтервал: exportSystemEnumerationToEnterprise(
-      data.verticalSpacing,
-      SE.FormItemSpacingToEnterprise,
-      configurationSettings
-    ),
-    ВыравниваниеЭлементовИЗаголовков: exportSystemEnumerationToEnterprise(
-      data.itemsAndTitlesAlign,
-      SE.ItemsAndTitlesAlignVariantToEnterprise,
-      configurationSettings
-    ),
-    ГоризонтальноеВыравниваниеГруппы: exportSystemEnumerationToEnterprise(
-      data.groupHorizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise,
-      configurationSettings
-    ),
-    ГоризонтальноеПоложениеПодчиненных: exportSystemEnumerationToEnterprise(
-      data.childItemsHorizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise,
-      configurationSettings
-    ),
-    ГоризонтальныйИнтервал: exportSystemEnumerationToEnterprise(
-      data.horizontalSpacing,
-      SE.FormItemSpacingToEnterprise,
-      configurationSettings
-    ),
-    Группировка: exportSystemEnumerationToEnterprise(
-      data.group,
-      SE.ChildFormItemsGroupToEnterprise,
-      configurationSettings
-    ),
+    ВажностьПриОтображении: exportSystemEnumerationToEnterprise(configurationSettings, data.displayImportance, SE.DisplayImportanceToEnterprise),
+    ВертикальноеВыравниваниеГруппы: exportSystemEnumerationToEnterprise(configurationSettings, data.groupVerticalAlign, SE.ItemVerticalAlignToEnterprise),
+    ВертикальноеПоложение: exportSystemEnumerationToEnterprise(configurationSettings, data.verticalAlign, SE.ItemVerticalAlignToEnterprise),
+    ВертикальноеПоложениеПодчиненных: exportSystemEnumerationToEnterprise(configurationSettings, data.childItemsVerticalAlign, SE.ItemVerticalAlignToEnterprise),
+    ВертикальныйИнтервал: exportSystemEnumerationToEnterprise(configurationSettings, data.verticalSpacing, SE.FormItemSpacingToEnterprise),
+    ВыравниваниеЭлементовИЗаголовков: exportSystemEnumerationToEnterprise(configurationSettings, data.itemsAndTitlesAlign, SE.ItemsAndTitlesAlignVariantToEnterprise),
+    ГоризонтальноеВыравниваниеГруппы: exportSystemEnumerationToEnterprise(configurationSettings, data.groupHorizontalAlign, SE.ItemHorizontalLocationToEnterprise),
+    ГоризонтальноеПоложениеПодчиненных: exportSystemEnumerationToEnterprise(configurationSettings, data.childItemsHorizontalAlign, SE.ItemHorizontalLocationToEnterprise),
+    ГоризонтальныйИнтервал: exportSystemEnumerationToEnterprise(configurationSettings, data.horizontalSpacing, SE.FormItemSpacingToEnterprise),
+    Группировка: exportSystemEnumerationToEnterprise(configurationSettings, data.group, SE.ChildFormItemsGroupToEnterprise),
     ЗаголовокСвернутогоОтображения: data.collapsedRepresentationTitle,
-    ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
-      data.currentRowUse,
-      SE.CurrentRowUseToEnterprise,
-      configurationSettings
-    ),
-    ИспользуемаяТаблица: exportTableToEnterprise(data.associatedTable, configurationSettings),
-    Объединенная: exportBooleanToEnterprise(data.united, configurationSettings),
-    ОтображатьЗаголовок: exportBooleanToEnterprise(data.showTitle, configurationSettings),
-    ОтображатьОтступСлева: exportBooleanToEnterprise(data.showLeftMargin, configurationSettings),
-    Отображение: exportSystemEnumerationToEnterprise(
-      data.representation,
-      SE.UsualGroupRepresentationToEnterprise,
-      configurationSettings
-    ),
-    ОтображениеУправления: exportSystemEnumerationToEnterprise(
-      data.controlRepresentation,
-      SE.UsualGroupControlRepresentationToEnterprise,
-      configurationSettings
-    ),
-    Поведение: exportSystemEnumerationToEnterprise(
-      data.behavior,
-      SE.UsualGroupBehaviorToEnterprise,
-      configurationSettings
-    ),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(configurationSettings, data.currentRowUse, SE.CurrentRowUseToEnterprise),
+    ИспользуемаяТаблица: exportTableToEnterprise(configurationSettings, data.associatedTable),
+    Объединенная: exportBooleanToEnterprise(configurationSettings, data.united),
+    ОтображатьЗаголовок: exportBooleanToEnterprise(configurationSettings, data.showTitle),
+    ОтображатьОтступСлева: exportBooleanToEnterprise(configurationSettings, data.showLeftMargin),
+    Отображение: exportSystemEnumerationToEnterprise(configurationSettings, data.representation, SE.UsualGroupRepresentationToEnterprise),
+    ОтображениеУправления: exportSystemEnumerationToEnterprise(configurationSettings, data.controlRepresentation, SE.UsualGroupControlRepresentationToEnterprise),
+    Поведение: exportSystemEnumerationToEnterprise(configurationSettings, data.behavior, SE.UsualGroupBehaviorToEnterprise),
+    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
     ПутьКДаннымЗаголовка: data.titleDataPath,
-    СквозноеВыравнивание: exportSystemEnumerationToEnterprise(
-      data.throughAlign,
-      SE.ThroughAlignToEnterprise,
-      configurationSettings
-    ),
-    Формат: exportI8nTextToEnterprise(data.format, configurationSettings),
-    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
-    ЦветФонаЗаголовкаСкрытогоОтображения: exportColorToEnterprise(
-      data.hiddenRepresentationTitleBackColor,
-      configurationSettings
-    ),
-    ШиринаПодчиненныхЭлементов: exportSystemEnumerationToEnterprise(
-      data.slaveItemsWidth,
-      SE.ChildFormItemsWidthToEnterprise,
-      configurationSettings
-    ),
+    СквозноеВыравнивание: exportSystemEnumerationToEnterprise(configurationSettings, data.throughAlign, SE.ThroughAlignToEnterprise),
+    Формат: exportI8nTextToEnterprise(configurationSettings, data.format),
+    ЦветФона: exportColorToEnterprise(configurationSettings, data.backColor),
+    ЦветФонаЗаголовкаСкрытогоОтображения: exportColorToEnterprise(configurationSettings, data.hiddenRepresentationTitleBackColor),
+    ШиринаПодчиненныхЭлементов: exportSystemEnumerationToEnterprise(configurationSettings, data.slaveItemsWidth, SE.ChildFormItemsWidthToEnterprise),
   })
 }
 

@@ -10,17 +10,17 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importUsualGroupFromXML = (
-  xml: UsualGroupXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: UsualGroupXML | undefined
 ): UsualGroup | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormGroupFromXML(xml, configurationSettings)!,
+    ...importFormGroupFromXML(configurationSettings, xml)!,
     elementType: FormElementType.UsualGroup,
 
-    associatedTable: importTableFromXML(xml.AssociatedTable, configurationSettings),
-    backColor: importColorFromXML(xml.BackColor, configurationSettings),
+    associatedTable: importTableFromXML(configurationSettings, xml.AssociatedTable),
+    backColor: importColorFromXML(configurationSettings, xml.BackColor),
     behavior: xml.Behavior,
     childItemsHorizontalAlign: xml.ChildItemsHorizontalAlign,
     childItemsVerticalAlign: xml.ChildItemsVerticalAlign,
@@ -28,13 +28,13 @@ export const importUsualGroupFromXML = (
     controlRepresentation: xml.ControlRepresentation,
     currentRowUse: xml.CurrentRowUse,
     displayImportance: xml._DisplayImportance,
-    format: importI8nTextFromXML(xml.Format, configurationSettings),
+    format: importI8nTextFromXML(configurationSettings, xml.Format),
     group: xml.Group,
     groupHorizontalAlign: xml.GroupHorizontalAlign,
     groupVerticalAlign: xml.GroupVerticalAlign,
     hiddenRepresentationTitleBackColor: importColorFromXML(
-      xml.HiddenRepresentationTitleBackColor,
-      configurationSettings
+      configurationSettings,
+      xml.HiddenRepresentationTitleBackColor
     ),
     horizontalSpacing: xml.HorizontalSpacing,
     itemsAndTitlesAlign: xml.ItemsAndTitlesAlign,
@@ -45,7 +45,7 @@ export const importUsualGroupFromXML = (
     throughAlign: xml.ThroughAlign,
     titleDataPath: xml.TitleDataPath,
     united: xml.United,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     verticalAlign: xml.VerticalAlign,
     verticalSpacing: xml.VerticalSpacing,
   })

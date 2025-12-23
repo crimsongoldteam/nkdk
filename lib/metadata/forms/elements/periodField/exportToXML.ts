@@ -10,27 +10,26 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPeriodFieldToXML = (
-  data: PeriodField | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: PeriodField | undefined
 ): PeriodFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(data, configurationSettings)!,
+    ...exportFormFieldToXML(configurationSettings, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    Border: exportBorderToXML(data.border, configurationSettings),
-    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
-    Font: exportFontToXML(data.font, configurationSettings),
+    Border: exportBorderToXML(configurationSettings, data.border),
+    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
+    Font: exportFontToXML(configurationSettings, data.font),
     Height: data.height,
     HorizontalStretch: data.horizontalStretch,
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Events: exportEventsToXML(data.events, configurationSettings),
+    Events: exportEventsToXML(configurationSettings, data.events),
   })
 }
 

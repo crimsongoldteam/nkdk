@@ -14,27 +14,26 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportGraphicalSchemaFieldToEnterprise = (
-  data: GraphicalSchemaField | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: GraphicalSchemaField | undefined
 ): GraphicalSchemaFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(data, configurationSettings)!,
+    ...exportFormFieldToEnterprise(configurationSettings, data)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
-    Вывод: exportSystemEnumerationToEnterprise(data.output, SE.UseOutputToEnterprise, configurationSettings),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
+    Вывод: exportSystemEnumerationToEnterprise(configurationSettings, data.output, SE.UseOutputToEnterprise),
     Высота: data.height,
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
-    Редактирование: exportBooleanToEnterprise(data.edit, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
+    Редактирование: exportBooleanToEnterprise(configurationSettings, data.edit),
+    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
     Ширина: data.width,
-    События: exportEventsToEnterprise(data.events, configurationSettings),
+    События: exportEventsToEnterprise(configurationSettings, data.events),
   })
 }
 

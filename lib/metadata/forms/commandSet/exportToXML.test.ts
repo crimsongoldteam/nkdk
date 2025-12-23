@@ -12,7 +12,7 @@ describe("exportCommandSetToXML", () => {
 	<ExcludedCommand>WriteAndClose</ExcludedCommand>
 </CommandSet>`
 
-    const exported = exportCommandSetToXML(mockData, mockConfigurationSettings)
+    const exported = exportCommandSetToXML(mockConfigurationSettings, mockData)
     const resultXml = xmlExport({ CommandSet: exported }, false)
     expect(resultXml).toEqual(expectedResult)
   })
@@ -25,8 +25,8 @@ describe("exportCommandSetToXML", () => {
 </CommandSet>`
 
     const xml = xmlImport<{ CommandSet: CommandSetXML }>(mockXml)
-    const imported = importCommandSetFromXML(xml.CommandSet, mockConfigurationSettings)
-    const exported = exportCommandSetToXML(imported, mockConfigurationSettings)
+    const imported = importCommandSetFromXML(mockConfigurationSettings, xml.CommandSet)
+    const exported = exportCommandSetToXML(mockConfigurationSettings, imported)
 
     const resultXml = xmlExport({ CommandSet: exported }, false)
     expect(resultXml).toEqual(mockXml)

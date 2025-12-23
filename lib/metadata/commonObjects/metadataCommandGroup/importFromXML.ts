@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { MetadataCommandGroup, MetadataCommandGroupXML } from "./types"
 
 export const importMetadataCommandGroupFromXML = (
-  data: MetadataCommandGroupXML | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  data: MetadataCommandGroupXML | undefined
 ): MetadataCommandGroup | undefined => {
   if (!data) return undefined
 

@@ -8,20 +8,20 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportSearchStringAdditionToXML = (
-  data: SearchStringAddition | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: SearchStringAddition | undefined
 ): SearchStringAdditionXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormItemAdditionToXML(data, configurationSettings)!,
+    ...exportFormItemAdditionToXML(configurationSettings, data)!,
 
-    BackColor: exportColorToXML(data.backColor, configurationSettings),
-    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
-    Font: exportFontToXML(data.font, configurationSettings),
+    BackColor: exportColorToXML(configurationSettings, data.backColor),
+    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
+    Font: exportFontToXML(configurationSettings, data.font),
     HorizontalStretch: data.horizontalStretch,
-    TextColor: exportColorToXML(data.textColor, configurationSettings),
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    TextColor: exportColorToXML(configurationSettings, data.textColor),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
     Width: data.width,
   })
 }

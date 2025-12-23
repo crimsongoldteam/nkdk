@@ -13,31 +13,26 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportRadioButtonFieldToEnterprise = (
-  data: RadioButtonField | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: RadioButtonField | undefined
 ): RadioButtonFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(data, configurationSettings)!,
+    ...exportFormFieldToEnterprise(configurationSettings, data)!,
 
-    ВидПереключателя: exportSystemEnumerationToEnterprise(
-      data.radioButtonType,
-      SE.RadioButtonTypeToEnterprise,
-      configurationSettings
-    ),
+    ВидПереключателя: exportSystemEnumerationToEnterprise(configurationSettings, data.radioButtonType, SE.RadioButtonTypeToEnterprise),
     ВысотаЗаголовкаЭлемента: data.itemTitleHeight,
     ВысотаЭлемента: data.itemHeight,
     КоличествоКолонок: data.columnsCount,
-    ОдинаковаяШиринаКолонок: exportBooleanToEnterprise(data.equalColumnsWidth, configurationSettings),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    СписокВыбора: exportChoiceListToEnterprise(data.choiceList, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
-    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
-    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
+    ОдинаковаяШиринаКолонок: exportBooleanToEnterprise(configurationSettings, data.equalColumnsWidth),
+    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    СписокВыбора: exportChoiceListToEnterprise(configurationSettings, data.choiceList),
+    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
+    ЦветТекста: exportColorToEnterprise(configurationSettings, data.textColor),
+    ЦветФона: exportColorToEnterprise(configurationSettings, data.backColor),
     ШиринаЭлемента: data.itemWidth,
-    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
-    События: exportEventsToEnterprise(data.events, configurationSettings),
+    Шрифт: exportFontToEnterprise(configurationSettings, data.font),
+    События: exportEventsToEnterprise(configurationSettings, data.events),
   })
 }
 

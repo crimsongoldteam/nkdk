@@ -18,7 +18,7 @@ describe("importFormAttributeFromXML", () => {
       title: { items: { ru: "Заголовок поля" } },
     }
 
-    const result = importFormAttributeFromXML(xmlData, mockConfigurationSettings)
+    const result = importFormAttributeFromXML(mockConfigurationSettings, xmlData)
 
     expect(result).toEqual(mockResult)
   })
@@ -31,7 +31,7 @@ describe("importFormAttributeFromXML", () => {
       id: "1",
     }
 
-    const result = importFormAttributeFromXML(xmlData, mockConfigurationSettings)
+    const result = importFormAttributeFromXML(mockConfigurationSettings, xmlData)
 
     expect(result).toEqual(mockResult)
   })
@@ -47,7 +47,7 @@ describe("importFormAttributeFromXML", () => {
       storedData: true,
     }
 
-    const result = importFormAttributeFromXML(xmlData, mockConfigurationSettings)
+    const result = importFormAttributeFromXML(mockConfigurationSettings, xmlData)
 
     expect(result).toEqual(mockResult)
   })
@@ -55,7 +55,7 @@ describe("importFormAttributeFromXML", () => {
   it("should ignore ConditionalAppearance from XML", () => {
     const xmlData = readAndParseXMLFile<{ Attributes: FormAttributesXML }>("formAttributes/conditionalAppearance.xml")
 
-    const result = importFormAttributeFromXML(xmlData.Attributes?.[0] as FormAttributeXML, mockConfigurationSettings)
+    const result = importFormAttributeFromXML(mockConfigurationSettings, xmlData.Attributes?.[0] as FormAttributeXML)
 
     expect(result).toBeUndefined()
   })

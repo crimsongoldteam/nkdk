@@ -23,7 +23,7 @@ describe("importI8nTextFromXML", () => {
     }
 
     const importedXml = xmlImport<{ Title: I8nTextXML }>(xml)
-    const result = importI8nTextFromXML(importedXml.Title, mockConfigurationSettings)
+    const result = importI8nTextFromXML(mockConfigurationSettings, importedXml.Title)
 
     expect(assertEquals<I8nTextXML>(importedXml.Title)).toEqual(importedXml.Title)
     expect(result).toEqual(expectedResult)
@@ -36,7 +36,7 @@ describe("importI8nTextFromXML", () => {
 
     const importedXml = xmlImport<{ Title: I8nTextXML }>(xml)
 
-    const result = importI8nTextFromXML(importedXml.Title, mockConfigurationSettings)
+    const result = importI8nTextFromXML(mockConfigurationSettings, importedXml.Title)
 
     expect(assertEquals<I8nTextXML>(importedXml.Title)).toEqual(importedXml.Title)
 
@@ -47,7 +47,7 @@ describe("importI8nTextFromXML", () => {
     const originalContent = `<Title/>`
 
     const importedXml = xmlImport<{ Title: I8nTextXML }>(originalContent)
-    const result = importI8nTextFromXML(importedXml.Title, mockConfigurationSettings)
+    const result = importI8nTextFromXML(mockConfigurationSettings, importedXml.Title)
 
     expect(result).toBeUndefined()
   })

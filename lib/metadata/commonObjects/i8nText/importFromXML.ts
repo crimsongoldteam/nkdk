@@ -3,8 +3,8 @@ import { importBooleanFromXML } from "../boolean/importFromXML"
 import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
 export const importI8nTextFromXML = (
-  xml: I8nTextXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: I8nTextXML | undefined
 ): I8nText | undefined => {
   if (!xml) return undefined
 
@@ -19,7 +19,7 @@ export const importI8nTextFromXML = (
   }
 
   if (xml._formatted) {
-    result.formatted = importBooleanFromXML(xml._formatted, configurationSettings)
+    result.formatted = importBooleanFromXML(configurationSettings, xml._formatted)
   }
 
   for (const item of items) {

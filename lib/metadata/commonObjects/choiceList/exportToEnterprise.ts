@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { ChoiceList, ChoiceListEnterprise } from "./types"
 
 export const exportChoiceListToEnterprise = (
-  data: ChoiceList | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  data: ChoiceList | undefined
 ): ChoiceListEnterprise | undefined => {
   if (!data) return undefined
 

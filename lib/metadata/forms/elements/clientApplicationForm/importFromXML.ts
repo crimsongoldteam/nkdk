@@ -8,19 +8,19 @@ import { importCommandBarFromXML } from "../commandBar/importFromXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
 export const importClientApplicationFormFromXML = (
-  xml: ClientApplicationFormXML,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: ClientApplicationFormXML
 ): ClientApplicationForm => {
   return {
     elementType: FormElementType.ClientApplicationForm,
     // attributes:
     //   xml.Attributes?.map((attribute) =>
     //     "Attribute" in attribute
-    //       ? importAttributeFromXML(attribute as FormAttributeXML, configurationSettings)
+    //       ? importAttributeFromXML(configurationSettings, attribute as FormAttributeXML)
     //       : undefined
     //   ).filter((attr): attr is FormAttribute => attr !== undefined) ?? [],
-    autoCommandBar: importCommandBarFromXML(xml.AutoCommandBar, configurationSettings),
-    commandSet: importCommandSetFromXML(xml.CommandSet, configurationSettings),
+    autoCommandBar: importCommandBarFromXML(configurationSettings, xml.AutoCommandBar),
+    commandSet: importCommandSetFromXML(configurationSettings, xml.CommandSet),
     autoTitle: xml.AutoTitle,
     autoSaveDataInSettings: xml.AutoSaveDataInSettings,
     autoURL: xml.AutoURL,
@@ -32,14 +32,14 @@ export const importClientApplicationFormFromXML = (
     horizontalSpacing: xml.HorizontalSpacing,
     group: xml.Group,
     enabled: xml.Enabled,
-    title: importI8nTextFromXML(xml.Title, configurationSettings),
+    title: importI8nTextFromXML(configurationSettings, xml.Title),
     closeOnChoice: xml.CloseOnChoice,
     closeOnOwnerClose: xml.CloseOnOwnerClose,
     formName: xml.FormName,
     usedFormServer: xml.UsedFormServer,
     purposeUseKey: xml.PurposeUseKey,
     windowOptionsKey: xml.WindowOptionsKey,
-    commandBar: importCommandBarFromXML(xml.CommandBar, configurationSettings),
+    commandBar: importCommandBarFromXML(configurationSettings, xml.CommandBar),
     // commands: xml.Commands,
     scale: xml.Scale,
     modalMode: xml.ModalMode,
@@ -49,7 +49,7 @@ export const importClientApplicationFormFromXML = (
     showCloseButton: xml.ShowCloseButton,
     conversationsRepresentation: xml.ConversationsRepresentation,
     enterKeyBehavior: xml.EnterKeyBehavior,
-    childItems: importChildItemsFromXML(xml.ChildItems, configurationSettings),
+    childItems: importChildItemsFromXML(configurationSettings, xml.ChildItems),
     commandBarLocation: xml.CommandBarLocation,
     autoFillCheck: xml.AutoFillCheck,
     formWindowOpeningMode: xml.FormWindowOpeningMode,
@@ -62,7 +62,7 @@ export const importClientApplicationFormFromXML = (
     width: xml.Width,
     useForFoldersAndItems: xml.UseForFoldersAndItems,
     slaveItemsWidth: xml.SlaveItemsWidth,
-    events: importEventsFromXML(xml.Events, configurationSettings),
+    events: importEventsFromXML(configurationSettings, xml.Events),
   }
 }
 

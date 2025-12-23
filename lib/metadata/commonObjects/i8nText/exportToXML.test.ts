@@ -15,7 +15,7 @@ describe("exportI8nTextToXML", () => {
 
     const originalContent = twoLangsI8nText
 
-    const exported = exportI8nTextToXML(originalContent, mockConfigurationSettings)
+    const exported = exportI8nTextToXML(mockConfigurationSettings, originalContent)
 
     const xml = xmlExport({ Title: exported }, false)
 
@@ -29,7 +29,7 @@ describe("exportI8nTextToXML", () => {
 
     const originalContent = oneLangI8nText
 
-    const exported = exportI8nTextToXML(originalContent, mockConfigurationSettings)
+    const exported = exportI8nTextToXML(mockConfigurationSettings, originalContent)
 
     const xml = xmlExport({ Title: exported }, false)
 

@@ -4,8 +4,8 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { ConditionalAppearanceXML, FormAttribute, FormAttributes, FormAttributesXML, FormAttributeXML } from "./types"
 
 export const importFormAttributeFromXML = (
-  xml: FormAttributeXML,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: FormAttributeXML
 ): FormAttribute | undefined => {
   if (!xml.Attribute) {
     return undefined
@@ -14,18 +14,23 @@ export const importFormAttributeFromXML = (
   return {
     name: xml.Attribute._name,
     id: xml.Attribute._id,
-    valueType: importTypeDescriptionFromXML(xml.Attribute.Type, configurationSettings),
+    valueType: importTypeDescriptionFromXML(configurationSettings, xml.Attribute.Type),
     mainAttribute: xml.Attribute.MainAttribute,
     storedData: xml.Attribute.StoredData,
-    title: importI8nTextFromXML(xml.Attribute.Title, configurationSettings),
+    title: importI8nTextFromXML(configurationSettings, xml.Attribute.Title),
   }
 }
 
 export const importFormAttributesFromXML = (
-  xml: FormAttributesXML,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: FormAttributesXML
 ): FormAttributes => {
-  return xml.map((item: FormAttributeXML | ConditionalAppearanceXML) =>
-    importFormAttributeFromXML(item, configurationSettings)
-  )
+  return xml
+    .map((item: FormAttributeXML | ConditionalAppearanceXML) => {
+      if ("Attribute" in item) {
+        return importFormAttributeFromXML(configurationSettings, item as FormAttributeXML)
+      }
+      return undefined
+    })
+    .filter((item): item is FormAttribute => item !== undefined)
 }

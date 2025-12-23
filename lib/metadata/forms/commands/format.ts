@@ -20,16 +20,12 @@ const formatCommand = (command: Command, configurationSettings: ConfigurationSet
   let result: CommandEnterprise = {}
 
   return {
-    Заголовок: exportI8nTextToEnterprise(command.title, configurationSettings),
-    Подсказка: exportI8nTextToEnterprise(command.toolTip, configurationSettings),
+    Заголовок: exportI8nTextToEnterprise(configurationSettings, command.title),
+    Подсказка: exportI8nTextToEnterprise(configurationSettings, command.toolTip),
     СочетаниеКлавиш: command.shortcut,
     Действие: command.action,
     ОтображениеКнопки: command.representation,
-    ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
-      command.currentRowUse,
-      SE.CurrentRowUseToEnterprise,
-      configurationSettings
-    ),
+    ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(configurationSettings, command.currentRowUse, SE.CurrentRowUseToEnterprise),
     ИзменяемыеДанные: command.modifiesSavedData,
   }
 

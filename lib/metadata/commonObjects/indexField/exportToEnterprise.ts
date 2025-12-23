@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { IndexField, IndexFieldEnterprise, IndexFields, IndexFieldsEnterprise } from "./types"
 
 export const exportIndexFieldToEnterprise = (
-  data: IndexField | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  data: IndexField | undefined
 ): IndexFieldEnterprise | undefined => {
   if (!data) return undefined
 
@@ -11,10 +11,10 @@ export const exportIndexFieldToEnterprise = (
 }
 
 export const exportIndexFieldsToEnterprise = (
-  data: IndexFields | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: IndexFields | undefined
 ): IndexFieldsEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => exportIndexFieldToEnterprise(item, configurationSettings)!)
+  return data.map((item) => exportIndexFieldToEnterprise(configurationSettings, item)!)
 }

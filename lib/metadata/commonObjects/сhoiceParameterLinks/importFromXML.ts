@@ -9,8 +9,8 @@ const extractDataPath = (dataPath: string | { "#text"?: string; "_xsi:type"?: st
 }
 
 export const importChoiceParameterLinksFromXML = (
-  xml: ChoiceParameterLinksXML | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  xml: ChoiceParameterLinksXML | undefined
 ): ChoiceParameterLinks => {
   if (!xml) return undefined
 

@@ -17,7 +17,7 @@ describe("formatClientApplicationForm", () => {
       childItems: [],
     }
 
-    const result = exportClientApplicationFormToEnterprise(form, mockConfigurationSettings)
+    const result = exportClientApplicationFormToEnterprise(mockConfigurationSettings, form)
 
     expect(result.strings).toEqual(["--- Форма ---"])
   })
@@ -35,7 +35,7 @@ describe("formatClientApplicationForm", () => {
       childItems: [input],
     }
 
-    const result = exportClientApplicationFormToEnterprise(form, mockConfigurationSettings)
+    const result = exportClientApplicationFormToEnterprise(mockConfigurationSettings, form)
 
     expect(result.strings).toEqual(["Поле: {ИмяПоля}"])
   })
@@ -62,7 +62,7 @@ describe("formatClientApplicationForm", () => {
       ],
     }
 
-    const result = exportClientApplicationFormToEnterprise(form, mockConfigurationSettings)
+    const result = exportClientApplicationFormToEnterprise(mockConfigurationSettings, form)
 
     expect(result.strings.join("\n").trim()).toEqual(expectedResult)
   })

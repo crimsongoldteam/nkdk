@@ -16,7 +16,7 @@ describe("exportMetadataTabularSectionToEnterprise", () => {
       ПроверкаЗаполнения: "НеПроверять",
     }
 
-    const result = exportMetadataTabularSectionToEnterprise(metadataTabularSection, mockConfigurationSettings)
+    const result = exportMetadataTabularSectionToEnterprise(mockConfigurationSettings, metadataTabularSection)
     expect(result).toEqual(expectedResult)
   })
 
@@ -31,7 +31,7 @@ describe("exportMetadataTabularSectionToEnterprise", () => {
       ПроверкаЗаполнения: "НеПроверять",
     }
 
-    const result = exportMetadataTabularSectionToEnterprise(metadataTabularSection, mockConfigurationSettings)
+    const result = exportMetadataTabularSectionToEnterprise(mockConfigurationSettings, metadataTabularSection)
     expect(result).toEqual(expectedResult)
   })
 })

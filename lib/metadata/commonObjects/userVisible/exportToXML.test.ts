@@ -28,7 +28,7 @@ describe("exportUserVisibleToXML", () => {
 	<xr:Value name="Role.Пользователь">false</xr:Value>
 </UserVisible>`
 
-    const exported = exportUserVisibleToXML(mockUserVisible, mockConfigurationSettings)
+    const exported = exportUserVisibleToXML(mockConfigurationSettings, mockUserVisible)
     const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
@@ -44,14 +44,14 @@ describe("exportUserVisibleToXML", () => {
 	<xr:Common>false</xr:Common>
 </UserVisible>`
 
-    const exported = exportUserVisibleToXML(mockUserVisible, mockConfigurationSettings)
+    const exported = exportUserVisibleToXML(mockConfigurationSettings, mockUserVisible)
     const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportUserVisibleToXML(undefined, mockConfigurationSettings)
+    const result = exportUserVisibleToXML(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -72,7 +72,7 @@ describe("exportUserVisibleToXML", () => {
 	<xr:Value name="Role.Менеджер">true</xr:Value>
 </UserVisible>`
 
-    const exported = exportUserVisibleToXML(mockUserVisible, mockConfigurationSettings)
+    const exported = exportUserVisibleToXML(mockConfigurationSettings, mockUserVisible)
     const xmlString = xmlExport({ UserVisible: exported }, false)
 
     expect(xmlString).toEqual(expectedResult)
@@ -86,8 +86,8 @@ describe("exportUserVisibleToXML", () => {
 </UserVisible>`
 
     const xml = xmlImport<{ UserVisible: UserVisibleXML }>(originalXml)
-    const imported = importUserVisibleFromXML(xml.UserVisible, mockConfigurationSettings)
-    const exported = exportUserVisibleToXML(imported, mockConfigurationSettings)
+    const imported = importUserVisibleFromXML(mockConfigurationSettings, xml.UserVisible)
+    const exported = exportUserVisibleToXML(mockConfigurationSettings, imported)
     const resultXml = xmlExport({ UserVisible: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

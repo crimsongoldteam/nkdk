@@ -15,28 +15,28 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportMetadataCommandToXML = (
-  data: MetadataCommand | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataCommand | undefined
 ): MetadataCommandXML | undefined => {
   if (!data) return undefined
 
-  let group = getGroup(data, configurationSettings)
+  let group = getGroup(configurationSettings, data)
 
   const result: MetadataCommandXML = {
     _uuid: v4(),
     Properties: {
-      CommandParameterType: exportTypeDescriptionToXML(data.commandParameterType, configurationSettings),
+      CommandParameterType: exportTypeDescriptionToXML(configurationSettings, data.commandParameterType),
       Comment: data.comment,
       Group: group,
       ModifiesData: data.modifiesData,
       Name: data.name,
       ObjectBelonging: data.objectBelonging,
       ParameterUseMode: data.parameterUseMode,
-      Picture: exportPictureToXML(data.picture, configurationSettings),
+      Picture: exportPictureToXML(configurationSettings, data.picture),
       Representation: data.representation,
       Shortcut: data.shortcut,
-      Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
-      ToolTip: exportI8nTextToXML(data.toolTip, configurationSettings),
+      Synonym: exportI8nTextToXML(configurationSettings, data.synonym),
+      ToolTip: exportI8nTextToXML(configurationSettings, data.toolTip),
       OnMainServerUnavalableBehavior: data.onMainServerUnavalableBehavior,
     },
   }
@@ -45,20 +45,20 @@ export const exportMetadataCommandToXML = (
 }
 
 export const exportMetadataCommandsToXML = (
-  data: MetadataCommands | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataCommands | undefined
 ): MetadataCommandsXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value: MetadataCommand) => exportMetadataCommandToXML(value, configurationSettings)!)
+  return data.map((value: MetadataCommand) => exportMetadataCommandToXML(configurationSettings, value)!)
 }
 
 const getGroup = (
-  data: MetadataCommand,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataCommand
 ): SE.StandardCommandsGroup | MetadataItemLinkXML => {
   if (data.group in SE.StandardCommandsGroupToEnterprise) {
     return data.group as SE.StandardCommandsGroup
   }
-  return exportMetadataItemLinkToXML(data.group, configurationSettings)!
+  return exportMetadataItemLinkToXML(configurationSettings, data.group)!
 }

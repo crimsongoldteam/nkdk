@@ -16,7 +16,7 @@ describe("exportEventsToXML", () => {
       onChange: "ОбработкаИзменения",
     }
 
-    const result = exportEventsToXML(mockData as Events, mockConfigurationSettings)
+    const result = exportEventsToXML(mockConfigurationSettings, mockData as Events)
     const resultXml = xmlExport({ Events: result }, false)
 
     expect(resultXml).toEqual(expectedResult)

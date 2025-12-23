@@ -12,7 +12,7 @@ it("should import color from XML", () => {
   const xml = xmlImport<{ Color: ColorXML }>(mockXml)
   const value = xml.Color
 
-  const result = importColorFromXML(value, mockConfigurationSettings)
+  const result = importColorFromXML(mockConfigurationSettings, value)
 
   expect(result).toEqual(mockResult)
 })

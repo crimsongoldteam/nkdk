@@ -11,28 +11,27 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importPictureDecorationFromXML = (
-  xml: PictureDecorationXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, xml: PictureDecorationXML | undefined
 ): PictureDecoration | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormDecorationFromXML(xml, configurationSettings)!,
+    ...importFormDecorationFromXML(configurationSettings, xml)!,
     elementType: FormElementType.PictureDecoration,
 
-    border: importBorderFromXML(xml.Border, configurationSettings),
-    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
+    border: importBorderFromXML(configurationSettings, xml.Border),
+    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
     enableDrag: xml.EnableDrag,
     enableStartDrag: xml.EnableStartDrag,
     fileDragMode: xml.FileDragMode,
     hyperlink: xml.Hyperlink,
     nonselectedPictureText: xml.NonselectedPictureText,
-    picture: importPictureFromXML(xml.Picture, configurationSettings),
+    picture: importPictureFromXML(configurationSettings, xml.Picture),
     pictureSize: xml.PictureSize,
     scale: xml.Scale,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     zoomable: xml.Zoomable,
-    events: importEventsFromXML(xml.Events, configurationSettings),
+    events: importEventsFromXML(configurationSettings, xml.Events),
   })
 }
 

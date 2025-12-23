@@ -12,14 +12,14 @@ describe("exportColorToXML", () => {
 
     const mockColor: Color = "style:NegativeTextColor"
 
-    const result = { Color: exportColorToXML(mockColor, mockConfigurationSettings) }
+    const result = { Color: exportColorToXML(mockConfigurationSettings, mockColor) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportColorToXML(undefined, mockConfigurationSettings)
+    const result = exportColorToXML(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -28,8 +28,8 @@ describe("exportColorToXML", () => {
     const originalXml = `<Color>style:NegativeTextColor</Color>`
 
     const xml = xmlImport<{ Color: ColorXML }>(originalXml)
-    const imported = importColorFromXML(xml.Color, mockConfigurationSettings)
-    const exported = exportColorToXML(imported, mockConfigurationSettings)
+    const imported = importColorFromXML(mockConfigurationSettings, xml.Color)
+    const exported = exportColorToXML(mockConfigurationSettings, imported)
     const resultXml = xmlExport({ Color: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

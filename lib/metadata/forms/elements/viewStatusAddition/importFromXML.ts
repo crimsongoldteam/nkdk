@@ -10,28 +10,28 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importViewStatusAdditionFromXML = (
-  xml: ViewStatusAdditionXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: ViewStatusAdditionXML | undefined
 ): ViewStatusAddition | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormItemAdditionFromXML(xml, configurationSettings)!,
+    ...importFormItemAdditionFromXML(configurationSettings, xml)!,
     elementType: FormElementType.ViewStatusAddition,
 
     autoMaxWidth: xml.AutoMaxWidth,
-    backColor: importColorFromXML(xml.BackColor, configurationSettings),
-    border: importBorderFromXML(xml.Border, configurationSettings),
-    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
-    buttonsBackColor: importColorFromXML(xml.ButtonsBackColor, configurationSettings),
-    font: importFontFromXML(xml.Font, configurationSettings),
+    backColor: importColorFromXML(configurationSettings, xml.BackColor),
+    border: importBorderFromXML(configurationSettings, xml.Border),
+    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
+    buttonsBackColor: importColorFromXML(configurationSettings, xml.ButtonsBackColor),
+    font: importFontFromXML(configurationSettings, xml.Font),
     horizontalAlign: xml.HorizontalAlign,
     horizontalStretch: xml.HorizontalStretch,
     maxWidth: xml.MaxWidth,
-    textColor: importColorFromXML(xml.TextColor, configurationSettings),
-    titleFont: importFontFromXML(xml.TitleFont, configurationSettings),
-    titleTextColor: importColorFromXML(xml.TitleTextColor, configurationSettings),
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    textColor: importColorFromXML(configurationSettings, xml.TextColor),
+    titleFont: importFontFromXML(configurationSettings, xml.TitleFont),
+    titleTextColor: importColorFromXML(configurationSettings, xml.TitleTextColor),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     width: xml.Width,
   })
 }

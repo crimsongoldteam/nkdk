@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { BaseElement, BaseElementEnterprise } from "./types"
 
 export const exportBaseElementToEnterprise = (
-  _data: BaseElement | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  _data: BaseElement | undefined
 ): BaseElementEnterprise | undefined => {
   return {}
 }

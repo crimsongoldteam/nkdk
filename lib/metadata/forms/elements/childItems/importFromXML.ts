@@ -4,8 +4,8 @@ import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 import { ChildItems, ChildItemsXML } from "./types"
 
 export const importChildItemsFromXML = (
-  xml: ChildItemsXML | undefined,
-  _configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: ChildItemsXML | undefined
 ): ChildItems => {
   if (!xml) return []
 
@@ -15,7 +15,7 @@ export const importChildItemsFromXML = (
     const importFunction = getOperationFunction("ImportFromXML", elementType)
     if (!importFunction) throw new Error(`Import function not found for element type: ${elementType}`)
 
-    result.push(importFunction(item[elementType], _configurationSettings)!)
+    result.push(importFunction(configurationSettings, item[elementType])!)
   }
 
   return result

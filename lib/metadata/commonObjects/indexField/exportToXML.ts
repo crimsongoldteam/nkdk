@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { IndexField, IndexFields, IndexFieldsXML, IndexFieldXML } from "./types"
 
 export const exportIndexFieldToXML = (
-  data: IndexField | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  data: IndexField | undefined
 ): IndexFieldXML | undefined => {
   if (!data) return undefined
 
@@ -11,10 +11,10 @@ export const exportIndexFieldToXML = (
 }
 
 export const exportIndexFieldsToXML = (
-  data: IndexFields | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: IndexFields | undefined
 ): IndexFieldsXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value) => exportIndexFieldToXML(value, configurationSettings)!)
+  return data.map((value) => exportIndexFieldToXML(configurationSettings, value)!)
 }

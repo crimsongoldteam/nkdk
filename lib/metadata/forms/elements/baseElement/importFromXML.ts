@@ -3,8 +3,8 @@ import { FormElementType } from "../../../metadataFactory/types"
 import { BaseElement, BaseElementXML } from "./types"
 
 export const importBaseElementFromXML = (
-  xml: BaseElementXML,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  xml: BaseElementXML
 ): BaseElement => {
   return {
     name: xml._name,

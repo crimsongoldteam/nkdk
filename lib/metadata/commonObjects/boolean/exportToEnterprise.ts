@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { StringboolEnterprise } from "./types"
 
 export const exportBooleanToEnterprise = (
-  value: boolean | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  value: boolean | undefined
 ): StringboolEnterprise | undefined => {
   if (value === undefined) return undefined
   return value ? "Истина" : "Ложь"

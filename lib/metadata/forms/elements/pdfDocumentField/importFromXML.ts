@@ -9,18 +9,17 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importPdfDocumentFieldFromXML = (
-  xml: PdfDocumentFieldXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, xml: PdfDocumentFieldXML | undefined
 ): PdfDocumentField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(xml, configurationSettings)!,
+    ...importFormFieldFromXML(configurationSettings, xml)!,
     elementType: FormElementType.PdfDocumentField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
+    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
     currentPageNumber: xml.CurrentPageNumber,
     height: xml.Height,
     horizontalStretch: xml.HorizontalStretch,
@@ -30,11 +29,11 @@ export const importPdfDocumentFieldFromXML = (
     output: xml.Output,
     scale: xml.Scale,
     usedFileName: xml.UsedFileName,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     viewStatusLocation: xml.ViewStatusLocation,
     width: xml.Width,
-    events: importEventsFromXML(xml.Events, configurationSettings),
+    events: importEventsFromXML(configurationSettings, xml.Events),
   })
 }
 

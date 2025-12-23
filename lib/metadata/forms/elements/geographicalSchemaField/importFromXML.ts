@@ -12,27 +12,26 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importGeographicalSchemaFieldFromXML = (
-  xml: GeographicalSchemaFieldXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, xml: GeographicalSchemaFieldXML | undefined
 ): GeographicalSchemaField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(xml, configurationSettings)!,
+    ...importFormFieldFromXML(configurationSettings, xml)!,
     elementType: FormElementType.GeographicalSchemaField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
+    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
     height: xml.Height,
     horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
     output: xml.Output,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: importEventsFromXML(xml.Events, configurationSettings),
+    events: importEventsFromXML(configurationSettings, xml.Events),
   })
 }
 

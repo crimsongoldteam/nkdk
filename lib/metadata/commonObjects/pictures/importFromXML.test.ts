@@ -5,7 +5,7 @@ import { PictureXML } from "./types"
 
 describe("importPictureFromXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importPictureFromXML(undefined, mockConfigurationSettings)
+    const result = importPictureFromXML(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -22,7 +22,7 @@ describe("importPictureFromXML", () => {
       loadTransparent: true,
     }
 
-    const result = importPictureFromXML(xmlData, mockConfigurationSettings)
+    const result = importPictureFromXML(mockConfigurationSettings, xmlData)
 
     expect(result).toEqual(expectedResult)
   })
@@ -39,7 +39,7 @@ describe("importPictureFromXML", () => {
       loadTransparent: true,
     }
 
-    const result = importPictureFromXML(xmlData, mockConfigurationSettings)
+    const result = importPictureFromXML(mockConfigurationSettings, xmlData)
 
     expect(result).toEqual(expectedResult)
   })

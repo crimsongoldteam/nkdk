@@ -6,7 +6,7 @@ import { ChoiceParameterLinksXML } from "./types"
 
 describe("importChoiceParameterLinksFromXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importChoiceParameterLinksFromXML(undefined, mockConfigurationSettings)
+    const result = importChoiceParameterLinksFromXML(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -29,7 +29,7 @@ describe("importChoiceParameterLinksFromXML", () => {
     ]
 
     const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(xmlData)
-    const result = importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks, mockConfigurationSettings)
+    const result = importChoiceParameterLinksFromXML(mockConfigurationSettings, xml.ChoiceParameterLinks)
 
     expect(result).toEqual(expectedResult)
   })
@@ -61,7 +61,7 @@ describe("importChoiceParameterLinksFromXML", () => {
     ]
 
     const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(xmlData)
-    const result = importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks, mockConfigurationSettings)
+    const result = importChoiceParameterLinksFromXML(mockConfigurationSettings, xml.ChoiceParameterLinks)
 
     expect(result).toEqual(expectedResult)
   })
@@ -83,7 +83,7 @@ describe("importChoiceParameterLinksFromXML", () => {
     ]
 
     const xml = xmlImport<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(xmlData)
-    const result = importChoiceParameterLinksFromXML(xml.ChoiceParameterLinks, mockConfigurationSettings)
+    const result = importChoiceParameterLinksFromXML(mockConfigurationSettings, xml.ChoiceParameterLinks)
 
     expect(result).toEqual(expectedResult)
   })

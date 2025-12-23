@@ -13,8 +13,8 @@ import { MetadataAttributes } from "../metadataAttribute/types"
 import { getDefaults } from "./defaults"
 
 export const importMetadataTabularSectionFromXML = (
-  xml: MetadataTabularSectionXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: MetadataTabularSectionXML | undefined
 ): MetadataTabularSection | undefined => {
   if (!xml) return undefined
 
@@ -22,7 +22,7 @@ export const importMetadataTabularSectionFromXML = (
 
   let attributes: MetadataAttributes | undefined
   if (xml.ChildObjects?.Attribute) {
-    attributes = importMetadataAttributesFromXML(xml.ChildObjects.Attribute, configurationSettings)
+    attributes = importMetadataAttributesFromXML(configurationSettings, xml.ChildObjects.Attribute)
   }
 
   const result = {
@@ -32,9 +32,9 @@ export const importMetadataTabularSectionFromXML = (
     lineNumberLength: props.LineNumberLength,
     name: props.Name!,
     objectBelonging: props.ObjectBelonging,
-    standardAttributes: importStandardAttributeDescriptionsFromXML(props.StandardAttributes, configurationSettings),
-    synonym: importI8nTextFromXML(props.Synonym, configurationSettings),
-    tooltip: importI8nTextFromXML(props.Tooltip, configurationSettings),
+    standardAttributes: importStandardAttributeDescriptionsFromXML(configurationSettings, props.StandardAttributes),
+    synonym: importI8nTextFromXML(configurationSettings, props.Synonym),
+    tooltip: importI8nTextFromXML(configurationSettings, props.Tooltip),
     use: props.Use,
   }
 
@@ -44,12 +44,12 @@ export const importMetadataTabularSectionFromXML = (
 }
 
 export const importMetadataTabularSectionsFromXML = (
-  xml: MetadataTabularSectionsXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: MetadataTabularSectionsXML | undefined
 ): MetadataTabularSections | undefined => {
   if (!xml) return undefined
 
   return xml.map(
-    (value: MetadataTabularSectionXML) => importMetadataTabularSectionFromXML(value, configurationSettings)!
+    (value: MetadataTabularSectionXML) => importMetadataTabularSectionFromXML(configurationSettings, value)!
   )
 }

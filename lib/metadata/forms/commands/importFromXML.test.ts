@@ -6,7 +6,7 @@ import { Command, CommandXML } from "./types"
 
 describe("importCommandFromXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importCommandFromXML(undefined, mockConfigurationSettings)
+    const result = importCommandFromXML(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -40,7 +40,7 @@ describe("importCommandFromXML", () => {
 
     const xmlData = xmlImport<{ Command: CommandXML }>(mockXml)
 
-    const result = importCommandFromXML(xmlData.Command, mockConfigurationSettings)
+    const result = importCommandFromXML(mockConfigurationSettings, xmlData.Command)
 
     expect(result).toEqual(expectedResult)
   })

@@ -4,19 +4,19 @@ import { exportBooleanToEnterprise } from "./exportToEnterprise"
 
 describe("exportBooleanToEnterprise", () => {
   it("should return undefined when value is undefined", () => {
-    const result = exportBooleanToEnterprise(undefined, mockConfigurationSettings)
+    const result = exportBooleanToEnterprise(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should return 'Истина' when value is true", () => {
-    const result = exportBooleanToEnterprise(true, mockConfigurationSettings)
+    const result = exportBooleanToEnterprise(mockConfigurationSettings, true)
 
     expect(result).toBe("Истина")
   })
 
   it("should return 'Ложь' when value is false", () => {
-    const result = exportBooleanToEnterprise(false, mockConfigurationSettings)
+    const result = exportBooleanToEnterprise(mockConfigurationSettings, false)
 
     expect(result).toBe("Ложь")
   })

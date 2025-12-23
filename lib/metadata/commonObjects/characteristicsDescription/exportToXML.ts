@@ -11,34 +11,34 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const exportCharacteristicsDescriptionToXML = (
-  data: CharacteristicsDescription | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: CharacteristicsDescription | undefined
 ): CharacteristicsDescriptionXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    CharacteristicTypes: exportMetadataItemLinkToXML(data.characteristicTypes, configurationSettings),
-    CharacteristicValues: exportMetadataValueToXML(data.characteristicValues, configurationSettings),
-    DataPathField: exportMetadataFieldToXML(data.dataPathField, configurationSettings),
-    KeyField: exportMetadataFieldToXML(data.keyField, configurationSettings),
-    MultipleValuesKeyField: exportMetadataFieldToXML(data.multipleValuesKeyField, configurationSettings),
-    MultipleValuesOrderField: exportMetadataFieldToXML(data.multipleValuesOrderField, configurationSettings),
-    MultipleValuesUseField: exportMetadataFieldToXML(data.multipleValuesUseField, configurationSettings),
-    ObjectField: exportMetadataFieldToXML(data.objectField, configurationSettings),
-    TypeField: exportMetadataFieldToXML(data.typeField, configurationSettings),
-    TypesFilterField: exportMetadataFieldToXML(data.typesFilterField, configurationSettings),
-    TypesFilterValue: exportMetadataValueToXML(data.typesFilterValue, configurationSettings),
-    ValueField: exportMetadataFieldToXML(data.valueField, configurationSettings),
+    CharacteristicTypes: exportMetadataItemLinkToXML(configurationSettings, data.characteristicTypes),
+    CharacteristicValues: exportMetadataValueToXML(configurationSettings, data.characteristicValues),
+    DataPathField: exportMetadataFieldToXML(configurationSettings, data.dataPathField),
+    KeyField: exportMetadataFieldToXML(configurationSettings, data.keyField),
+    MultipleValuesKeyField: exportMetadataFieldToXML(configurationSettings, data.multipleValuesKeyField),
+    MultipleValuesOrderField: exportMetadataFieldToXML(configurationSettings, data.multipleValuesOrderField),
+    MultipleValuesUseField: exportMetadataFieldToXML(configurationSettings, data.multipleValuesUseField),
+    ObjectField: exportMetadataFieldToXML(configurationSettings, data.objectField),
+    TypeField: exportMetadataFieldToXML(configurationSettings, data.typeField),
+    TypesFilterField: exportMetadataFieldToXML(configurationSettings, data.typesFilterField),
+    TypesFilterValue: exportMetadataValueToXML(configurationSettings, data.typesFilterValue),
+    ValueField: exportMetadataFieldToXML(configurationSettings, data.valueField),
   })
 }
 
 export const exportCharacteristicsDescriptionsToXML = (
-  data: CharacteristicsDescriptions | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: CharacteristicsDescriptions | undefined
 ): CharacteristicsDescriptionsXML | undefined => {
   if (!data) return undefined
 
   return data.map(
-    (value: CharacteristicsDescription) => exportCharacteristicsDescriptionToXML(value, configurationSettings)!
+    (value: CharacteristicsDescription) => exportCharacteristicsDescriptionToXML(configurationSettings, value)!
   )
 }

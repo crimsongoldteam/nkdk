@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { StringboolXML } from "./types"
 
 export const importBooleanFromXML = (
-  xml: StringboolXML | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  xml: StringboolXML | undefined
 ): boolean | undefined => {
   if (xml === undefined) return undefined
 

@@ -3,8 +3,8 @@ import { AppliedType, AppliedTypeToEnterprise } from "../typeDescription/types"
 import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinks, MetadataItemLinksEnterprise } from "./types"
 
 export const exportMetadataItemLinkToEnterprise = (
-  data: MetadataItemLink | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  data: MetadataItemLink | undefined
 ): MetadataItemLinkEnterprise | undefined => {
   if (!data) return undefined
 
@@ -14,10 +14,10 @@ export const exportMetadataItemLinkToEnterprise = (
 }
 
 export const exportMetadataItemLinksToEnterprise = (
-  data: MetadataItemLinks | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  data: MetadataItemLinks | undefined
 ): MetadataItemLinksEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => exportMetadataItemLinkToEnterprise(item, _configurationSettings)!)
+  return data.map((item) => exportMetadataItemLinkToEnterprise(_configurationSettings, item)!)
 }

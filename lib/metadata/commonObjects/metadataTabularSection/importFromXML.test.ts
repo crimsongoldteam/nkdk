@@ -25,7 +25,7 @@ describe("importMetadataTabularSectionFromXML", () => {
         },
       ],
     }
-    const result = importMetadataTabularSectionFromXML(xmlData.TabularSection, mockConfigurationSettings)
+    const result = importMetadataTabularSectionFromXML(mockConfigurationSettings, xmlData.TabularSection)
     expect(result).toEqual(expectedResult)
   })
 
@@ -59,7 +59,7 @@ describe("importMetadataTabularSectionFromXML", () => {
       ],
     }
 
-    const result = importMetadataTabularSectionFromXML(xmlData.TabularSection, mockConfigurationSettings)
+    const result = importMetadataTabularSectionFromXML(mockConfigurationSettings, xmlData.TabularSection)
     expect(result).toEqual(expectedResult)
   })
 })

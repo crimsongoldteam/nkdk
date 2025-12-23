@@ -7,8 +7,8 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const exportMetadataDocumentNumeratorToXML = (
-  data: MetadataDocumentNumerator | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataDocumentNumerator | undefined
 ): MetadataDocumentNumeratorXML | undefined => {
   if (!data) return undefined
 
@@ -21,6 +21,6 @@ export const exportMetadataDocumentNumeratorToXML = (
     NumberPeriodicity: data.numberPeriodicity,
     NumberType: data.numberType,
     ObjectBelonging: data.objectBelonging,
-    Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
+    Synonym: exportI8nTextToXML(configurationSettings, data.synonym),
   })
 }

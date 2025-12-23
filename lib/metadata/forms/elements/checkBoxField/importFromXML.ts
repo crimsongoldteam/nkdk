@@ -11,28 +11,28 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importCheckBoxFieldFromXML = (
-  xml: CheckBoxFieldXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: CheckBoxFieldXML | undefined
 ): CheckBoxField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(xml, configurationSettings)!,
+    ...importFormFieldFromXML(configurationSettings, xml)!,
     elementType: FormElementType.CheckBoxField,
 
-    backColor: importColorFromXML(xml.BackColor, configurationSettings),
-    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
+    backColor: importColorFromXML(configurationSettings, xml.BackColor),
+    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
     checkBoxType: xml.CheckBoxType,
-    editFormat: importI8nTextFromXML(xml.EditFormat, configurationSettings),
+    editFormat: importI8nTextFromXML(configurationSettings, xml.EditFormat),
     equalItemsWidth: xml.EqualItemsWidth,
-    font: importFontFromXML(xml.Font, configurationSettings),
+    font: importFontFromXML(configurationSettings, xml.Font),
     itemHeight: xml.ItemHeight,
     itemTitleHeight: xml.ItemTitleHeight,
     itemWidth: xml.ItemWidth,
-    textColor: importColorFromXML(xml.TextColor, configurationSettings),
+    textColor: importColorFromXML(configurationSettings, xml.TextColor),
     threeState: xml.ThreeState,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
-    events: importEventsFromXML(xml.Events, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    events: importEventsFromXML(configurationSettings, xml.Events),
   })
 }
 

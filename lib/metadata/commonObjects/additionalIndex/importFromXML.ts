@@ -9,24 +9,24 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const importAdditionalIndexFromXML = (
-  xml: AdditionalIndexXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: AdditionalIndexXML | undefined
 ): AdditionalIndex | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    additionalFields: importIndexFieldsFromXML(xml.AdditionalFields, configurationSettings),
-    indexedFields: importIndexFieldsFromXML(xml.IndexedFields, configurationSettings),
+    additionalFields: importIndexFieldsFromXML(configurationSettings, xml.AdditionalFields),
+    indexedFields: importIndexFieldsFromXML(configurationSettings, xml.IndexedFields),
     name: xml.Name,
     table: xml.Table,
   })
 }
 
 export const importAdditionalIndexesFromXML = (
-  xml: AdditionalIndexesXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: AdditionalIndexesXML | undefined
 ): AdditionalIndexes | undefined => {
   if (!xml) return undefined
 
-  return xml.map((value: AdditionalIndexXML) => importAdditionalIndexFromXML(value, configurationSettings)!)
+  return xml.map((value: AdditionalIndexXML) => importAdditionalIndexFromXML(configurationSettings, value)!)
 }

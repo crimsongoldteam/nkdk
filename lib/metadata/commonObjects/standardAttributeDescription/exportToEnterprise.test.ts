@@ -24,7 +24,7 @@ describe("exportStandardAttributeDescriptionToEnterprise", () => {
       ПроверкаЗаполнения: "ВыдаватьОшибку",
     }
 
-    const result = exportStandardAttributeDescriptionToEnterprise(data, mockConfigurationSettings)
+    const result = exportStandardAttributeDescriptionToEnterprise(mockConfigurationSettings, data)
 
     expect(result).toEqual(expectedResult)
   })
@@ -45,7 +45,7 @@ describe("exportStandardAttributeDescriptionToEnterprise", () => {
       },
     }
 
-    const result = exportStandardAttributeDescriptionsToEnterprise(data, mockConfigurationSettings)
+    const result = exportStandardAttributeDescriptionsToEnterprise(mockConfigurationSettings, data)
 
     expect(result).toEqual(expectedResult)
   })

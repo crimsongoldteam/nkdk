@@ -19,7 +19,7 @@ describe("importCharacteristicsDescriptionFromXML", () => {
         multipleValuesUseField: "ChartOfCharacteristicTypes.РеквизитыДляСписка.Attribute.Множественный",
       },
     ]
-    const result = importCharacteristicsDescriptionsFromXML(xmlData.Characteristics, mockConfigurationSettings)
+    const result = importCharacteristicsDescriptionsFromXML(mockConfigurationSettings, xmlData.Characteristics)
     expect(result).toEqual(expectedResult)
   })
 
@@ -55,7 +55,7 @@ describe("importCharacteristicsDescriptionFromXML", () => {
         valueField: "InformationRegister.ДополнительныеСведения.Resource.Значение",
       },
     ]
-    const result = importCharacteristicsDescriptionsFromXML(xmlData.Characteristics, mockConfigurationSettings)
+    const result = importCharacteristicsDescriptionsFromXML(mockConfigurationSettings, xmlData.Characteristics)
     expect(result).toEqual(expectedResult)
   })
 })

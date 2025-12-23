@@ -14,12 +14,12 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportMetadataTabularSectionToEnterprise = (
-  data: MetadataTabularSection | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataTabularSection | undefined
 ): MetadataTabularSectionEnterprise | undefined => {
   if (!data) return undefined
 
-  let synonym = exportI8nTextToEnterprise(data.synonym, configurationSettings)
+  let synonym = exportI8nTextToEnterprise(configurationSettings, data.synonym)
 
   const excludeSynonym = isSynonymEqualToName(synonym, data.name)
 
@@ -30,37 +30,37 @@ export const exportMetadataTabularSectionToEnterprise = (
   return compactObject({
     Синоним: synonym,
     ДлинаНомераСтроки: data.lineNumberLength,
-    Использование: exportSystemEnumerationToEnterprise(data.use, SE.AttributeUseToEnterprise, configurationSettings),
+    Использование: exportSystemEnumerationToEnterprise(configurationSettings, data.use, SE.AttributeUseToEnterprise),
     Комментарий: data.comment,
-    Подсказка: exportI8nTextToEnterprise(data.tooltip, configurationSettings),
+    Подсказка: exportI8nTextToEnterprise(configurationSettings, data.tooltip),
     ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.objectBelonging,
-      SE.ObjectBelongingToEnterprise,
-      configurationSettings
+      SE.ObjectBelongingToEnterprise
     ),
     ПроверкаЗаполнения: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.fillChecking,
-      SE.FillCheckingToEnterprise,
-      configurationSettings
+      SE.FillCheckingToEnterprise
     ),
     СтандартныеРеквизиты: exportStandardAttributeDescriptionsToEnterprise(
-      data.standardAttributes,
-      configurationSettings
+      configurationSettings,
+      data.standardAttributes
     ),
-    Реквизиты: exportMetadataAttributesToEnterprise(data.attributes, configurationSettings),
+    Реквизиты: exportMetadataAttributesToEnterprise(configurationSettings, data.attributes),
   })
 }
 
 export const exportMetadataTabularSectionsToEnterprise = (
-  data: MetadataTabularSections | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataTabularSections | undefined
 ): MetadataTabularSectionsEnterprise | undefined => {
   if (!data) return undefined
 
   return Object.fromEntries(
     data.map((value: MetadataTabularSection) => [
       value.name,
-      exportMetadataTabularSectionToEnterprise(value, configurationSettings)!,
+      exportMetadataTabularSectionToEnterprise(configurationSettings, value)!,
     ])
   )
 }

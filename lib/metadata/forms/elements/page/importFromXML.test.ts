@@ -29,7 +29,7 @@ describe("importPageFromXML", () => {
 
     const xmlData = xmlImport<{ Page: PageXML }>(mockXml)
 
-    const input = importPageFromXML(xmlData.Page, mockConfigurationSettings)
+    const input = importPageFromXML(mockConfigurationSettings, xmlData.Page)
 
     expect(input).toEqual(expectedResult)
   })

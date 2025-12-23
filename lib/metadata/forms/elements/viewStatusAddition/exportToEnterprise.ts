@@ -15,32 +15,32 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportViewStatusAdditionToEnterprise = (
-  data: ViewStatusAddition | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: ViewStatusAddition | undefined
 ): ViewStatusAdditionEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormItemAdditionToEnterprise(data, configurationSettings)!,
+    ...exportFormItemAdditionToEnterprise(configurationSettings, data)!,
 
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
     ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
+      configurationSettings,
       data.horizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise,
-      configurationSettings
+      SE.ItemHorizontalLocationToEnterprise
     ),
     МаксимальнаяШирина: data.maxWidth,
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
-    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
-    ЦветТекстаЗаголовка: exportColorToEnterprise(data.titleTextColor, configurationSettings),
-    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
-    ЦветФонаКнопок: exportColorToEnterprise(data.buttonsBackColor, configurationSettings),
+    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    Рамка: exportBorderToEnterprise(configurationSettings, data.border),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
+    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
+    ЦветТекста: exportColorToEnterprise(configurationSettings, data.textColor),
+    ЦветТекстаЗаголовка: exportColorToEnterprise(configurationSettings, data.titleTextColor),
+    ЦветФона: exportColorToEnterprise(configurationSettings, data.backColor),
+    ЦветФонаКнопок: exportColorToEnterprise(configurationSettings, data.buttonsBackColor),
     Ширина: data.width,
-    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
-    ШрифтЗаголовка: exportFontToEnterprise(data.titleFont, configurationSettings),
+    Шрифт: exportFontToEnterprise(configurationSettings, data.font),
+    ШрифтЗаголовка: exportFontToEnterprise(configurationSettings, data.titleFont),
   })
 }
 

@@ -5,8 +5,8 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { FormAttribute, FormAttributeXML } from "./types"
 
 export default function exportAttributeToXML(
-  attribute: FormAttribute | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  attribute: FormAttribute | undefined
 ): FormAttributeXML | undefined {
   if (!attribute) return undefined
 
@@ -14,11 +14,11 @@ export default function exportAttributeToXML(
     Attribute: {
       _name: attribute.name,
       _id: attribute.id,
-      Title: exportI8nTextToXML(attribute.title, configurationSettings),
-      Type: exportTypeDescriptionToXML(attribute.valueType, configurationSettings),
+      Title: exportI8nTextToXML(configurationSettings, attribute.title),
+      Type: exportTypeDescriptionToXML(configurationSettings, attribute.valueType),
       MainAttribute: attribute.mainAttribute,
       StoredData: attribute.storedData,
-      Use: exportUserVisibleToXML(attribute.use, configurationSettings),
+      Use: exportUserVisibleToXML(configurationSettings, attribute.use),
     },
   }
 }

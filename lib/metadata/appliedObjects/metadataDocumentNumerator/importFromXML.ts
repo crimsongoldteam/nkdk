@@ -7,8 +7,8 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const importMetadataDocumentNumeratorFromXML = (
-  xml: MetadataDocumentNumeratorXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: MetadataDocumentNumeratorXML | undefined
 ): MetadataDocumentNumerator | undefined => {
   if (!xml) return undefined
 
@@ -21,6 +21,6 @@ export const importMetadataDocumentNumeratorFromXML = (
     numberPeriodicity: xml.NumberPeriodicity,
     numberType: xml.NumberType,
     objectBelonging: xml.ObjectBelonging,
-    synonym: importI8nTextFromXML(xml.Synonym, configurationSettings),
+    synonym: importI8nTextFromXML(configurationSettings, xml.Synonym),
   })
 }

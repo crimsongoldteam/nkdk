@@ -18,7 +18,7 @@ describe("exportMetadataCommandToEnterprise", () => {
       РежимИспользованияПараметра: "Одиночный",
     }
 
-    const result = exportMetadataCommandToEnterprise(metadataCommand, mockConfigurationSettings)
+    const result = exportMetadataCommandToEnterprise(mockConfigurationSettings, metadataCommand)
 
     expect(result).toEqual(expectedResult)
   })
@@ -35,7 +35,7 @@ describe("exportMetadataCommandToEnterprise", () => {
       Группа: "ГруппаКоманд.Печать",
     }
 
-    const result = exportMetadataCommandToEnterprise(metadataCommand, mockConfigurationSettings)
+    const result = exportMetadataCommandToEnterprise(mockConfigurationSettings, metadataCommand)
 
     expect(result).toEqual(expectedResult)
   })
@@ -53,7 +53,7 @@ describe("exportMetadataCommandToEnterprise", () => {
       Группа: "ПанельНавигацииВажное",
     }
 
-    const result = exportMetadataCommandToEnterprise(metadataCommand, mockConfigurationSettings)
+    const result = exportMetadataCommandToEnterprise(mockConfigurationSettings, metadataCommand)
 
     expect(result).toEqual(expectedResult)
   })

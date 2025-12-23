@@ -10,7 +10,7 @@ export const exportPictureToEnterprise = (
   if (!picture) return undefined
 
   if (picture.type === "StandardPicture") {
-    const result = exportSystemEnumerationToEnterprise(picture.ref, SE.PictureLibToEnterprise, configurationSettings)
+    const result = exportSystemEnumerationToEnterprise(configurationSettings, picture.ref, SE.PictureLibToEnterprise)
 
     if (!result) throw new Error(`Picture ref ${picture.ref} not found in PictureLibToEnterprise`)
 

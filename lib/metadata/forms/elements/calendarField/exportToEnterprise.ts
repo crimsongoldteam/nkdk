@@ -13,41 +13,36 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportCalendarFieldToEnterprise = (
-  data: CalendarField | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: CalendarField | undefined
 ): CalendarFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(data, configurationSettings)!,
+    ...exportFormFieldToEnterprise(configurationSettings, data)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
     Высота: data.height,
     ВысотаВМесяцах: data.heightInMonths,
     КонецПериодаОтображения: data.endOfRepresentationPeriod,
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
     НачалоПериодаОтображения: data.beginOfRepresentationPeriod,
-    ОтображатьПанельМесяцев: exportBooleanToEnterprise(data.showMonthsPanel, configurationSettings),
-    ОтображатьТекущуюДату: exportBooleanToEnterprise(data.showCurrentDate, configurationSettings),
-    ПеремещениеПоКалендарю: exportBooleanToEnterprise(data.calendarNavigation, configurationSettings),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(data.enableStartDrag, configurationSettings),
-    РазрешитьПеретаскивание: exportBooleanToEnterprise(data.enableDrag, configurationSettings),
-    Рамка: exportBorderToEnterprise(data.border, configurationSettings),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
-    РежимВыделения: exportSystemEnumerationToEnterprise(
-      data.selectionMode,
-      SE.DateSelectionModeToEnterprise,
-      configurationSettings
-    ),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
+    ОтображатьПанельМесяцев: exportBooleanToEnterprise(configurationSettings, data.showMonthsPanel),
+    ОтображатьТекущуюДату: exportBooleanToEnterprise(configurationSettings, data.showCurrentDate),
+    ПеремещениеПоКалендарю: exportBooleanToEnterprise(configurationSettings, data.calendarNavigation),
+    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(configurationSettings, data.enableStartDrag),
+    РазрешитьПеретаскивание: exportBooleanToEnterprise(configurationSettings, data.enableDrag),
+    Рамка: exportBorderToEnterprise(configurationSettings, data.border),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
+    РежимВыделения: exportSystemEnumerationToEnterprise(configurationSettings, data.selectionMode, SE.DateSelectionModeToEnterprise),
+    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
     Ширина: data.width,
     ШиринаВМесяцах: data.widthInMonths,
-    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
-    События: exportEventsToEnterprise(data.events, configurationSettings),
+    Шрифт: exportFontToEnterprise(configurationSettings, data.font),
+    События: exportEventsToEnterprise(configurationSettings, data.events),
   })
 }
 

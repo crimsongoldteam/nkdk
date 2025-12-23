@@ -20,7 +20,7 @@ describe("exportUserVisibleToEnterprise", () => {
       },
     }
 
-    const result = exportUserVisibleToEnterprise(use, mockConfigurationSettings)
+    const result = exportUserVisibleToEnterprise(mockConfigurationSettings, use)
 
     expect(result).toEqual(expectedResult)
   })
@@ -41,7 +41,7 @@ describe("exportUserVisibleToEnterprise", () => {
       },
     }
 
-    const result = exportUserVisibleToEnterprise(use, mockConfigurationSettings)
+    const result = exportUserVisibleToEnterprise(mockConfigurationSettings, use)
 
     expect(result).toEqual(expectedResult)
   })

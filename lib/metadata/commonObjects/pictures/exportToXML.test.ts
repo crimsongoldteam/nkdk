@@ -18,7 +18,7 @@ describe("exportPictureToXML", () => {
 \t<xr:LoadTransparent>true</xr:LoadTransparent>
 </Picture>`
 
-    const result = { Picture: exportPictureToXML(mockPicture, mockConfigurationSettings) }
+    const result = { Picture: exportPictureToXML(mockConfigurationSettings, mockPicture) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
@@ -36,14 +36,14 @@ describe("exportPictureToXML", () => {
 \t<xr:LoadTransparent>true</xr:LoadTransparent>
 </Picture>`
 
-    const result = { Picture: exportPictureToXML(mockPicture, mockConfigurationSettings) }
+    const result = { Picture: exportPictureToXML(mockConfigurationSettings, mockPicture) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportPictureToXML(undefined, mockConfigurationSettings)
+    const result = exportPictureToXML(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -55,8 +55,8 @@ describe("exportPictureToXML", () => {
 </Picture>`
 
     const xml = xmlImport<{ Picture: PictureXML }>(originalXml)
-    const imported = importPictureFromXML(xml.Picture, mockConfigurationSettings)
-    const exported = exportPictureToXML(imported, mockConfigurationSettings)
+    const imported = importPictureFromXML(mockConfigurationSettings, xml.Picture)
+    const exported = exportPictureToXML(mockConfigurationSettings, imported)
     const resultXml = xmlExport({ Picture: exported }, false)
 
     expect(resultXml).toEqual(originalXml)
@@ -69,8 +69,8 @@ describe("exportPictureToXML", () => {
 </Picture>`
 
     const xml = xmlImport<{ Picture: PictureXML }>(originalXml)
-    const imported = importPictureFromXML(xml.Picture, mockConfigurationSettings)
-    const exported = exportPictureToXML(imported, mockConfigurationSettings)
+    const imported = importPictureFromXML(mockConfigurationSettings, xml.Picture)
+    const exported = exportPictureToXML(mockConfigurationSettings, imported)
     const resultXml = xmlExport({ Picture: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

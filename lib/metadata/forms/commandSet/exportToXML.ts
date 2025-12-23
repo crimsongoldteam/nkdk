@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { CommandSet, CommandSetXML } from "./types"
 
 export const exportCommandSetToXML = (
-  data: CommandSet | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  data: CommandSet | undefined
 ): CommandSetXML | undefined => {
   if (!data || data.length === 0) return undefined
 

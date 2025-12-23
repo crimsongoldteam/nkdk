@@ -25,7 +25,7 @@ describe("importInputFieldFromXML", () => {
 
     const xml = xmlImport<{ InputField: InputFieldXML }>(mockXml)
 
-    const input = importInputFieldFromXML(xml.InputField, mockConfigurationSettings)
+    const input = importInputFieldFromXML(mockConfigurationSettings, xml.InputField)
 
     expect(input).toEqual(expectedResult)
   })

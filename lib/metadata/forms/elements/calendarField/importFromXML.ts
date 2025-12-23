@@ -11,25 +11,25 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importCalendarFieldFromXML = (
-  xml: CalendarFieldXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: CalendarFieldXML | undefined
 ): CalendarField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(xml, configurationSettings)!,
+    ...importFormFieldFromXML(configurationSettings, xml)!,
     elementType: FormElementType.CalendarField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     beginOfRepresentationPeriod: xml.BeginOfRepresentationPeriod,
-    border: importBorderFromXML(xml.Border, configurationSettings),
-    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
+    border: importBorderFromXML(configurationSettings, xml.Border),
+    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
     calendarNavigation: xml.CalendarNavigation,
     enableDrag: xml.EnableDrag,
     enableStartDrag: xml.EnableStartDrag,
     endOfRepresentationPeriod: xml.EndOfRepresentationPeriod,
-    font: importFontFromXML(xml.Font, configurationSettings),
+    font: importFontFromXML(configurationSettings, xml.Font),
     height: xml.Height,
     heightInMonths: xml.HeightInMonths,
     horizontalStretch: xml.HorizontalStretch,
@@ -38,11 +38,11 @@ export const importCalendarFieldFromXML = (
     selectionMode: xml.SelectionMode,
     showCurrentDate: xml.ShowCurrentDate,
     showMonthsPanel: xml.ShowMonthsPanel,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     widthInMonths: xml.WidthInMonths,
-    events: importEventsFromXML(xml.Events, configurationSettings),
+    events: importEventsFromXML(configurationSettings, xml.Events),
   })
 }
 

@@ -8,7 +8,7 @@ describe("exportMetadataItemLinkToEnterprise", () => {
     const metadataItemLink: MetadataItemLink = "CatalogRef.Организации"
     const expectedResult = "Справочник.Организации"
 
-    const result = exportMetadataItemLinkToEnterprise(metadataItemLink, mockConfigurationSettings)
+    const result = exportMetadataItemLinkToEnterprise(mockConfigurationSettings, metadataItemLink)
 
     expect(result).toEqual(expectedResult)
   })

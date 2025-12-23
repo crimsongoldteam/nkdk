@@ -9,24 +9,24 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const exportAdditionalIndexToEnterprise = (
-  data: AdditionalIndex | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: AdditionalIndex | undefined
 ): AdditionalIndexEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ДополнительныеПоля: exportIndexFieldsToEnterprise(data.additionalFields, configurationSettings),
+    ДополнительныеПоля: exportIndexFieldsToEnterprise(configurationSettings, data.additionalFields),
     Имя: data.name,
-    ИндексируемыеПоля: exportIndexFieldsToEnterprise(data.indexedFields, configurationSettings),
+    ИндексируемыеПоля: exportIndexFieldsToEnterprise(configurationSettings, data.indexedFields),
     Таблица: data.table,
   })
 }
 
 export const exportAdditionalIndexesToEnterprise = (
-  data: AdditionalIndexes | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: AdditionalIndexes | undefined
 ): AdditionalIndexesEnterprise | undefined => {
   if (!data) return undefined
 
-  return data.map((value: AdditionalIndex) => exportAdditionalIndexToEnterprise(value, configurationSettings)!)
+  return data.map((value: AdditionalIndex) => exportAdditionalIndexToEnterprise(configurationSettings, value)!)
 }

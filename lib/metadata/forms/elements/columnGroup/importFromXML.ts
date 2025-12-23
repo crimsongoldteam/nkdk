@@ -9,13 +9,12 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importColumnGroupFromXML = (
-  xml: ColumnGroupXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, xml: ColumnGroupXML | undefined
 ): ColumnGroup | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormGroupFromXML(xml, configurationSettings)!,
+    ...importFormGroupFromXML(configurationSettings, xml)!,
     elementType: FormElementType.ColumnGroup,
 
     fixingInTable: xml.FixingInTable,
@@ -23,11 +22,11 @@ export const importColumnGroupFromXML = (
     headerDataPath: xml.HeaderDataPath,
     headerFormat: xml.HeaderFormat,
     headerHorizontalAlign: xml.HeaderHorizontalAlign,
-    headerPicture: importPictureFromXML(xml.HeaderPicture, configurationSettings),
+    headerPicture: importPictureFromXML(configurationSettings, xml.HeaderPicture),
     showInHeader: xml.ShowInHeader,
     showTitle: xml.ShowTitle,
-    titleBackColor: importColorFromXML(xml.TitleBackColor, configurationSettings),
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    titleBackColor: importColorFromXML(configurationSettings, xml.TitleBackColor),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
   })
 }
 

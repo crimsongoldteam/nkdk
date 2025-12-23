@@ -11,22 +11,22 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importFormDecorationFromXML = (
-  xml: FormDecorationXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: FormDecorationXML | undefined
 ): FormDecoration | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importBaseElementFromXML(xml, configurationSettings)!,
+    ...importBaseElementFromXML(configurationSettings, xml)!,
     elementType: FormElementType.FormDecoration,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    contextMenu: importCommandBarFromXML(xml.ContextMenu, configurationSettings),
+    contextMenu: importCommandBarFromXML(configurationSettings, xml.ContextMenu),
     displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
-    extendedTooltip: importFormDecorationFromXML(xml.ExtendedTooltip, configurationSettings),
-    font: importFontFromXML(xml.Font, configurationSettings),
+    extendedTooltip: importFormDecorationFromXML(configurationSettings, xml.ExtendedTooltip),
+    font: importFontFromXML(configurationSettings, xml.Font),
     height: xml.Height,
     horizontalAlignInGroup: xml.HorizontalAlignInGroup,
     horizontalStretch: xml.HorizontalStretch,
@@ -34,12 +34,12 @@ export const importFormDecorationFromXML = (
     maxWidth: xml.MaxWidth,
     shortcut: xml.Shortcut,
     skipOnInput: xml.SkipOnInput,
-    textColor: importColorFromXML(xml.TextColor, configurationSettings),
-    title: importI8nTextFromXML(xml.Title, configurationSettings),
-    toolTip: importI8nTextFromXML(xml.ToolTip, configurationSettings),
+    textColor: importColorFromXML(configurationSettings, xml.TextColor),
+    title: importI8nTextFromXML(configurationSettings, xml.Title),
+    toolTip: importI8nTextFromXML(configurationSettings, xml.ToolTip),
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,

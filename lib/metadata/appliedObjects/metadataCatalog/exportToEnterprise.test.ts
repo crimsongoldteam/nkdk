@@ -57,7 +57,7 @@ describe("exportMetadataCatalogToEnterprise", () => {
       },
     }
 
-    const result = exportMetadataCatalogToEnterprise(mock, mockConfigurationSettings)
+    const result = exportMetadataCatalogToEnterprise(mockConfigurationSettings, mock)
     expect(result).toEqual(expectedResult)
   })
 })

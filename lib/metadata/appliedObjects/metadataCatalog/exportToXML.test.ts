@@ -16,7 +16,7 @@ describe("exportMetadataCatalogToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataCatalog/simple.xml")
 
-    const xmlData = exportMetadataCatalogToXML(mock, mockConfigurationSettings)
+    const xmlData = exportMetadataCatalogToXML(mockConfigurationSettings, mock)
 
     // expect(assertEquals<MetadataCatalogXML>(xmlData)).toEqual(xmlData)
 
@@ -30,7 +30,7 @@ describe("exportMetadataCatalogToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataCatalog/withAttributes.xml")
 
-    const xmlData = exportMetadataCatalogToXML(mock, mockConfigurationSettings)
+    const xmlData = exportMetadataCatalogToXML(mockConfigurationSettings, mock)
 
     // expect(assertEquals<MetadataCatalogXML>(xmlData)).toEqual(xmlData)
 

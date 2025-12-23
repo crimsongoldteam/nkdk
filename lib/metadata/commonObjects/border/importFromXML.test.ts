@@ -14,7 +14,7 @@ describe("importBorderFromXML", () => {
 
     const xml = xmlImport<{ Border: BorderXML }>(mockXml)
 
-    const result = importBorderFromXML(xml.Border, mockConfigurationSettings)
+    const result = importBorderFromXML(mockConfigurationSettings, xml.Border)
 
     expect(result).toEqual(expected)
   })
@@ -31,7 +31,7 @@ describe("importBorderFromXML", () => {
 
     const xml = xmlImport<{ Border: BorderXML }>(mockXml)
 
-    const result = importBorderFromXML(xml.Border, mockConfigurationSettings)
+    const result = importBorderFromXML(mockConfigurationSettings, xml.Border)
 
     expect(result).toEqual(expected)
   })

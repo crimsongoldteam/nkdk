@@ -7,13 +7,12 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPlannerFieldToXML = (
-  data: PlannerField | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: PlannerField | undefined
 ): PlannerFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(data, configurationSettings)!,
+    ...exportFormFieldToXML(configurationSettings, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -25,11 +24,11 @@ export const exportPlannerFieldToXML = (
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
     TimeScaleItemHyperlink: data.timeScaleItemHyperlink,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     WrappedTimeScaleHeaderHyperlink: data.wrappedTimeScaleHeaderHyperlink,
-    Events: exportEventsToXML(data.events, configurationSettings),
+    Events: exportEventsToXML(configurationSettings, data.events),
   })
 }
 

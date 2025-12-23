@@ -37,14 +37,14 @@ describe("exportUsualGroupToXML", () => {
 	</Title>
 </UsualGroup>`
 
-    const result = { UsualGroup: exportUsualGroupToXML(mockElement, mockConfigurationSettings) }
+    const result = { UsualGroup: exportUsualGroupToXML(mockConfigurationSettings, mockElement) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportUsualGroupToXML(undefined, mockConfigurationSettings)
+    const result = exportUsualGroupToXML(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -64,8 +64,8 @@ describe("exportUsualGroupToXML", () => {
 </UsualGroup>`
 
     const xml = xmlImport<{ UsualGroup: UsualGroupXML }>(originalXml)
-    const imported = importUsualGroupFromXML(xml.UsualGroup, mockConfigurationSettings)
-    const exported = exportUsualGroupToXML(imported, mockConfigurationSettings)
+    const imported = importUsualGroupFromXML(mockConfigurationSettings, xml.UsualGroup)
+    const exported = exportUsualGroupToXML(mockConfigurationSettings, imported)
     const resultXml = xmlExport({ UsualGroup: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

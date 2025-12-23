@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { AppliedTypeToEnterprise, TypeDescription } from "./types"
 
 export const exportTypeDescriptionToEnterprise = (
-  typeDescription: TypeDescription | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  typeDescription: TypeDescription | undefined
 ): string | undefined => {
   if (!typeDescription) {
     return undefined

@@ -11,18 +11,17 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportSpreadSheetDocumentFieldToXML = (
-  data: SpreadSheetDocumentField | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: SpreadSheetDocumentField | undefined
 ): SpreadSheetDocumentFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(data, configurationSettings)!,
+    ...exportFormFieldToXML(configurationSettings, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
     BlackAndWhiteView: data.blackAndWhiteView,
-    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
+    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
     DrawingSelectionShowMode: data.drawingSelectionShowMode,
     Edit: data.edit,
     EnableDrag: data.enableDrag,
@@ -43,12 +42,12 @@ export const exportSpreadSheetDocumentFieldToXML = (
     ShowRowAndColumnNames: data.showRowAndColumnNames,
     StatePresentation: data.statePresentation,
     UsedFileName: data.usedFileName,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
     VerticalScrollBar: data.verticalScrollBar,
     VerticalStretch: data.verticalStretch,
     ViewScalingMode: data.viewScalingMode,
     Width: data.width,
-    Events: exportEventsToXML(data.events, configurationSettings),
+    Events: exportEventsToXML(configurationSettings, data.events),
   })
 }
 

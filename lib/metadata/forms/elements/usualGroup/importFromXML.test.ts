@@ -27,7 +27,7 @@ describe("importUsualGroupFromXML", () => {
     const xmlData = xmlImport<{ UsualGroup: UsualGroupXML }>(mockXml)
     const value = xmlData.UsualGroup
 
-    const input = importUsualGroupFromXML(value, mockConfigurationSettings)
+    const input = importUsualGroupFromXML(mockConfigurationSettings, value)
 
     expect(input).toEqual(mockResult)
   })
@@ -56,7 +56,7 @@ describe("importUsualGroupFromXML", () => {
     const xmlData = xmlImport<{ UsualGroup: UsualGroupXML }>(mockXml)
     const value = xmlData.UsualGroup
 
-    const input = importUsualGroupFromXML(value, mockConfigurationSettings)
+    const input = importUsualGroupFromXML(mockConfigurationSettings, value)
 
     expect(input).toEqual(mockResult)
   })

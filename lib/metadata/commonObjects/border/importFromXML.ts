@@ -3,8 +3,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { Border, BorderXML } from "./types"
 
 export const importBorderFromXML = (
-  xml: BorderXML | { Border: BorderXML } | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  xml: BorderXML | { Border: BorderXML } | undefined
 ): Border | undefined => {
   if (!xml) return undefined
 

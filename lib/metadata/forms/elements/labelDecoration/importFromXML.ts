@@ -10,25 +10,24 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importLabelDecorationFromXML = (
-  xml: LabelDecorationXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, xml: LabelDecorationXML | undefined
 ): LabelDecoration | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormDecorationFromXML(xml, configurationSettings)!,
+    ...importFormDecorationFromXML(configurationSettings, xml)!,
     elementType: FormElementType.LabelDecoration,
 
-    backColor: importColorFromXML(xml.BackColor, configurationSettings),
-    border: importBorderFromXML(xml.Border, configurationSettings),
-    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
+    backColor: importColorFromXML(configurationSettings, xml.BackColor),
+    border: importBorderFromXML(configurationSettings, xml.Border),
+    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
     groupVerticalAlign: xml.GroupVerticalAlign,
     horizontalAlign: xml.HorizontalAlign,
     hyperlink: xml.Hyperlink,
     titleHeight: xml.TitleHeight,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     verticalAlign: xml.VerticalAlign,
-    events: importEventsFromXML(xml.Events, configurationSettings),
+    events: importEventsFromXML(configurationSettings, xml.Events),
   })
 }
 

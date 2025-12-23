@@ -21,7 +21,7 @@ describe("importFontFromXML", () => {
     const xml = xmlImport<{ Font: FontXML }>(mockXml)
     const value = xml.Font
 
-    const result = importFontFromXML(value, mockConfigurationSettings)
+    const result = importFontFromXML(mockConfigurationSettings, value)
 
     expect(result).toEqual(mockResult)
   })

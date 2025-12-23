@@ -15,8 +15,8 @@ import { MetadataItemLink, MetadataItemLinkXML } from "../../commonObjects/metad
 import { getDefaults } from "./defaults"
 
 export const importMetadataCommandFromXML = (
-  xml: MetadataCommandXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: MetadataCommandXML | undefined
 ): MetadataCommand | undefined => {
   if (!xml) return undefined
 
@@ -26,22 +26,22 @@ export const importMetadataCommandFromXML = (
   if (typeof props.Group === "string" && props.Group in SE.StandardCommandsGroupToEnterprise) {
     group = props.Group
   } else {
-    group = importMetadataItemLinkFromXML(props.Group as MetadataItemLinkXML, configurationSettings)!
+    group = importMetadataItemLinkFromXML(configurationSettings, props.Group as MetadataItemLinkXML)!
   }
 
   const result: MetadataCommand = {
-    commandParameterType: importTypeDescriptionFromXML(props.CommandParameterType, configurationSettings),
+    commandParameterType: importTypeDescriptionFromXML(configurationSettings, props.CommandParameterType),
     comment: props.Comment,
     group: group,
     modifiesData: props.ModifiesData,
     name: props.Name,
     objectBelonging: props.ObjectBelonging,
     parameterUseMode: props.ParameterUseMode,
-    picture: importPictureFromXML(props.Picture, configurationSettings),
+    picture: importPictureFromXML(configurationSettings, props.Picture),
     representation: props.Representation,
     shortcut: props.Shortcut,
-    synonym: importI8nTextFromXML(props.Synonym, configurationSettings),
-    toolTip: importI8nTextFromXML(props.ToolTip, configurationSettings),
+    synonym: importI8nTextFromXML(configurationSettings, props.Synonym),
+    toolTip: importI8nTextFromXML(configurationSettings, props.ToolTip),
     onMainServerUnavalableBehavior: props.OnMainServerUnavalableBehavior,
   }
 
@@ -51,10 +51,10 @@ export const importMetadataCommandFromXML = (
 }
 
 export const importMetadataCommandsFromXML = (
-  xml: MetadataCommandsXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: MetadataCommandsXML | undefined
 ): MetadataCommands | undefined => {
   if (!xml) return undefined
 
-  return xml.map((value: MetadataCommandXML) => importMetadataCommandFromXML(value, configurationSettings)!)
+  return xml.map((value: MetadataCommandXML) => importMetadataCommandFromXML(configurationSettings, value)!)
 }

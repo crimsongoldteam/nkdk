@@ -13,31 +13,27 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportCheckBoxFieldToEnterprise = (
-  data: CheckBoxField | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: CheckBoxField | undefined
 ): CheckBoxFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(data, configurationSettings)!,
+    ...exportFormFieldToEnterprise(configurationSettings, data)!,
 
-    ВидФлажка: exportSystemEnumerationToEnterprise(
-      data.checkBoxType,
-      SE.CheckBoxTypeToEnterprise,
-      configurationSettings
-    ),
+    ВидФлажка: exportSystemEnumerationToEnterprise(configurationSettings, data.checkBoxType, SE.CheckBoxTypeToEnterprise),
     ВысотаЗаголовкаЭлемента: data.itemTitleHeight,
     ВысотаЭлемента: data.itemHeight,
-    ОдинаковаяШиринаЭлементов: exportBooleanToEnterprise(data.equalItemsWidth, configurationSettings),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    ТриСостояния: exportBooleanToEnterprise(data.threeState, configurationSettings),
-    ФорматРедактирования: exportI8nTextToEnterprise(data.editFormat, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
-    ЦветТекста: exportColorToEnterprise(data.textColor, configurationSettings),
-    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
+    ОдинаковаяШиринаЭлементов: exportBooleanToEnterprise(configurationSettings, data.equalItemsWidth),
+    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    ТриСостояния: exportBooleanToEnterprise(configurationSettings, data.threeState),
+    ФорматРедактирования: exportI8nTextToEnterprise(configurationSettings, data.editFormat),
+    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
+    ЦветТекста: exportColorToEnterprise(configurationSettings, data.textColor),
+    ЦветФона: exportColorToEnterprise(configurationSettings, data.backColor),
     ШиринаЭлемента: data.itemWidth,
-    Шрифт: exportFontToEnterprise(data.font, configurationSettings),
-    События: exportEventsToEnterprise(data.events, configurationSettings),
+    Шрифт: exportFontToEnterprise(configurationSettings, data.font),
+    События: exportEventsToEnterprise(configurationSettings, data.events),
   })
 }
 

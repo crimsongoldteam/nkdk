@@ -11,28 +11,27 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importRadioButtonFieldFromXML = (
-  xml: RadioButtonFieldXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, xml: RadioButtonFieldXML | undefined
 ): RadioButtonField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(xml, configurationSettings)!,
+    ...importFormFieldFromXML(configurationSettings, xml)!,
     elementType: FormElementType.RadioButtonField,
 
-    backColor: importColorFromXML(xml.BackColor, configurationSettings),
-    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
-    choiceList: importChoiceListFromXML(xml.ChoiceList, configurationSettings),
+    backColor: importColorFromXML(configurationSettings, xml.BackColor),
+    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
+    choiceList: importChoiceListFromXML(configurationSettings, xml.ChoiceList),
     columnsCount: xml.ColumnsCount,
     equalColumnsWidth: xml.EqualColumnsWidth,
-    font: importFontFromXML(xml.Font, configurationSettings),
+    font: importFontFromXML(configurationSettings, xml.Font),
     itemHeight: xml.ItemHeight,
     itemTitleHeight: xml.ItemTitleHeight,
     itemWidth: xml.ItemWidth,
     radioButtonType: xml.RadioButtonType,
-    textColor: importColorFromXML(xml.TextColor, configurationSettings),
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
-    events: importEventsFromXML(xml.Events, configurationSettings),
+    textColor: importColorFromXML(configurationSettings, xml.TextColor),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    events: importEventsFromXML(configurationSettings, xml.Events),
   })
 }
 

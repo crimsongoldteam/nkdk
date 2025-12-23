@@ -19,14 +19,14 @@ describe("exportFontToXML", () => {
       kind: "WindowsFont",
     }
 
-    const result = { Font: exportFontToXML(mockFont, mockConfigurationSettings) }
+    const result = { Font: exportFontToXML(mockConfigurationSettings, mockFont) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportFontToXML(undefined, mockConfigurationSettings)
+    const result = exportFontToXML(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -35,8 +35,8 @@ describe("exportFontToXML", () => {
     const originalXml = `<Font ref="sys:ANSIVariableFont" height="12" bold="true" italic="true" underline="true" strikeout="true" kind="WindowsFont"/>`
 
     const xml = xmlImport<{ Font: FontXML }>(originalXml)
-    const imported = importFontFromXML(xml.Font, mockConfigurationSettings)
-    const exported = exportFontToXML(imported, mockConfigurationSettings)
+    const imported = importFontFromXML(mockConfigurationSettings, xml.Font)
+    const exported = exportFontToXML(mockConfigurationSettings, imported)
     const resultXml = xmlExport({ Font: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

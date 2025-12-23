@@ -10,29 +10,21 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportPopupToEnterprise = (
-  data: Popup | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: Popup | undefined
 ): PopupEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToEnterprise(data, configurationSettings)!,
+    ...exportFormGroupToEnterprise(configurationSettings, data)!,
 
-    Картинка: exportPictureToEnterprise(data.picture, configurationSettings),
-    Отображение: exportSystemEnumerationToEnterprise(
-      data.representation,
-      SE.ButtonRepresentationToEnterprise,
-      configurationSettings
-    ),
-    ОтображениеФигуры: exportSystemEnumerationToEnterprise(
-      data.shapeRepresentation,
-      SE.ButtonShapeRepresentationToEnterprise,
-      configurationSettings
-    ),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    Фигура: exportSystemEnumerationToEnterprise(data.shape, SE.ButtonShapeToEnterprise, configurationSettings),
-    ЦветРамки: exportColorToEnterprise(data.borderColor, configurationSettings),
-    ЦветФона: exportColorToEnterprise(data.backColor, configurationSettings),
+    Картинка: exportPictureToEnterprise(configurationSettings, data.picture),
+    Отображение: exportSystemEnumerationToEnterprise(configurationSettings, data.representation, SE.ButtonRepresentationToEnterprise),
+    ОтображениеФигуры: exportSystemEnumerationToEnterprise(configurationSettings, data.shapeRepresentation, SE.ButtonShapeRepresentationToEnterprise),
+    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    Фигура: exportSystemEnumerationToEnterprise(configurationSettings, data.shape, SE.ButtonShapeToEnterprise),
+    ЦветРамки: exportColorToEnterprise(configurationSettings, data.borderColor),
+    ЦветФона: exportColorToEnterprise(configurationSettings, data.backColor),
   })
 }
 

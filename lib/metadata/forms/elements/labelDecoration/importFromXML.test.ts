@@ -26,7 +26,7 @@ it("should import name from XML", () => {
 
   const xml = xmlImport<{ LabelDecoration: LabelDecorationXML }>(mockXml)
 
-  const input = importLabelDecorationFromXML(xml.LabelDecoration, mockConfigurationSettings)
+  const input = importLabelDecorationFromXML(mockConfigurationSettings, xml.LabelDecoration)
 
   expect(input).toEqual(expectedResult)
 })

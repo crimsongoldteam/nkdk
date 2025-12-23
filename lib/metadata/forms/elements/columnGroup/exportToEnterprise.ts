@@ -11,32 +11,23 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportColumnGroupToEnterprise = (
-  data: ColumnGroup | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: ColumnGroup | undefined
 ): ColumnGroupEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToEnterprise(data, configurationSettings)!,
+    ...exportFormGroupToEnterprise(configurationSettings, data)!,
 
-    ГоризонтальноеПоложениеВШапке: exportSystemEnumerationToEnterprise(
-      data.headerHorizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise,
-      configurationSettings
-    ),
-    Группировка: exportSystemEnumerationToEnterprise(data.group, SE.ColumnsGroupToEnterprise, configurationSettings),
-    КартинкаШапки: exportPictureToEnterprise(data.headerPicture, configurationSettings),
-    ОтображатьВШапке: exportBooleanToEnterprise(data.showInHeader, configurationSettings),
-    ОтображатьЗаголовок: exportBooleanToEnterprise(data.showTitle, configurationSettings),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
+    ГоризонтальноеПоложениеВШапке: exportSystemEnumerationToEnterprise(configurationSettings, data.headerHorizontalAlign, SE.ItemHorizontalLocationToEnterprise),
+    Группировка: exportSystemEnumerationToEnterprise(configurationSettings, data.group, SE.ColumnsGroupToEnterprise),
+    КартинкаШапки: exportPictureToEnterprise(configurationSettings, data.headerPicture),
+    ОтображатьВШапке: exportBooleanToEnterprise(configurationSettings, data.showInHeader),
+    ОтображатьЗаголовок: exportBooleanToEnterprise(configurationSettings, data.showTitle),
+    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
     ПутьКДаннымШапки: data.headerDataPath,
-    ФиксацияВТаблице: exportSystemEnumerationToEnterprise(
-      data.fixingInTable,
-      SE.FixingInTableToEnterprise,
-      configurationSettings
-    ),
+    ФиксацияВТаблице: exportSystemEnumerationToEnterprise(configurationSettings, data.fixingInTable, SE.FixingInTableToEnterprise),
     ФорматШапки: data.headerFormat,
-    ЦветФонаЗаголовка: exportColorToEnterprise(data.titleBackColor, configurationSettings),
+    ЦветФонаЗаголовка: exportColorToEnterprise(configurationSettings, data.titleBackColor),
   })
 }
 

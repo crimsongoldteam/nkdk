@@ -16,7 +16,7 @@ describe("exportMetadataAttributeToEnterprise", () => {
       Синоним: "Какой-то тестовый реквизит",
     }
 
-    const result = exportMetadataAttributeToEnterprise(metadataAttribute, mockConfigurationSettings)
+    const result = exportMetadataAttributeToEnterprise(mockConfigurationSettings, metadataAttribute)
 
     expect(result).toEqual(expectedResult)
   })
@@ -30,7 +30,7 @@ describe("exportMetadataAttributeToEnterprise", () => {
 
     const expectedResult: MetadataAttributeEnterprise = "Строка"
 
-    const result = exportMetadataAttributeToEnterprise(metadataAttribute, mockConfigurationSettings)
+    const result = exportMetadataAttributeToEnterprise(mockConfigurationSettings, metadataAttribute)
 
     expect(result).toEqual(expectedResult)
   })

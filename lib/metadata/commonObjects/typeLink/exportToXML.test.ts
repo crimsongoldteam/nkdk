@@ -17,14 +17,14 @@ describe("exportTypeLinkToXML", () => {
 \t<xr:LinkItem>0</xr:LinkItem>
 </TypeLink>`
 
-    const result = { TypeLink: exportTypeLinkToXML(mockTypeLink, mockConfigurationSettings) }
+    const result = { TypeLink: exportTypeLinkToXML(mockConfigurationSettings, mockTypeLink) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportTypeLinkToXML(undefined, mockConfigurationSettings)
+    const result = exportTypeLinkToXML(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -36,8 +36,8 @@ describe("exportTypeLinkToXML", () => {
 </TypeLink>`
 
     const xml = xmlImport<{ TypeLink: TypeLinkXML }>(originalXml)
-    const imported = importTypeLinkFromXML(xml.TypeLink, mockConfigurationSettings)
-    const exported = exportTypeLinkToXML(imported, mockConfigurationSettings)
+    const imported = importTypeLinkFromXML(mockConfigurationSettings, xml.TypeLink)
+    const exported = exportTypeLinkToXML(mockConfigurationSettings, imported)
     const resultXml = xmlExport({ TypeLink: exported }, false)
 
     expect(resultXml).toEqual(originalXml)

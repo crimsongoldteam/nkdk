@@ -12,23 +12,22 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importPictureFieldFromXML = (
-  xml: PictureFieldXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, xml: PictureFieldXML | undefined
 ): PictureField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(xml, configurationSettings)!,
+    ...importFormFieldFromXML(configurationSettings, xml)!,
     elementType: FormElementType.PictureField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    border: importBorderFromXML(xml.Border, configurationSettings),
-    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
+    border: importBorderFromXML(configurationSettings, xml.Border),
+    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
     enableDrag: xml.EnableDrag,
     enableStartDrag: xml.EnableStartDrag,
     fileDragMode: xml.FileDragMode,
-    font: importFontFromXML(xml.Font, configurationSettings),
+    font: importFontFromXML(configurationSettings, xml.Font),
     height: xml.Height,
     horizontalStretch: xml.HorizontalStretch,
     hyperlink: xml.Hyperlink,
@@ -37,13 +36,13 @@ export const importPictureFieldFromXML = (
     nonselectedPictureText: xml.NonselectedPictureText,
     pictureSize: xml.PictureSize,
     scale: xml.Scale,
-    textColor: importColorFromXML(xml.TextColor, configurationSettings),
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
-    valuesPicture: importPictureFromXML(xml.ValuesPicture, configurationSettings),
+    textColor: importColorFromXML(configurationSettings, xml.TextColor),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    valuesPicture: importPictureFromXML(configurationSettings, xml.ValuesPicture),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
     zoomable: xml.Zoomable,
-    events: importEventsFromXML(xml.Events, configurationSettings),
+    events: importEventsFromXML(configurationSettings, xml.Events),
   })
 }
 

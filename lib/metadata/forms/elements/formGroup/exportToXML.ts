@@ -11,30 +11,30 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportFormGroupToXML = (
-  data: FormGroup | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: FormGroup | undefined
 ): FormGroupXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportBaseElementToXML(data, configurationSettings)!,
+    ...exportBaseElementToXML(configurationSettings, data)!,
 
-    ChildItems: exportChildItemsToXML(data.childItems, configurationSettings),
+    ChildItems: exportChildItemsToXML(configurationSettings, data.childItems),
     EnableContentChange: data.enableContentChange,
     Enabled: data.enabled,
-    ExtendedTooltip: exportFormDecorationToXML(data.extendedTooltip, configurationSettings),
+    ExtendedTooltip: exportFormDecorationToXML(configurationSettings, data.extendedTooltip),
     Height: data.height,
     HorizontalAlignInGroup: data.horizontalAlignInGroup,
     HorizontalStretch: data.horizontalStretch,
     ReadOnly: data.readOnly,
     Shortcut: data.shortcut,
-    Title: exportI8nTextToXML(data.title, configurationSettings),
-    TitleFont: exportFontToXML(data.titleFont, configurationSettings),
-    TitleTextColor: exportColorToXML(data.titleTextColor, configurationSettings),
-    ToolTip: exportI8nTextToXML(data.toolTip, configurationSettings),
+    Title: exportI8nTextToXML(configurationSettings, data.title),
+    TitleFont: exportFontToXML(configurationSettings, data.titleFont),
+    TitleTextColor: exportColorToXML(configurationSettings, data.titleTextColor),
+    ToolTip: exportI8nTextToXML(configurationSettings, data.toolTip),
     ToolTipRepresentation: data.toolTipRepresentation,
     Type: data.type,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,
@@ -42,4 +42,4 @@ export const exportFormGroupToXML = (
   })
 }
 
-registerMetadata("ExportToXML", "FormGroup", exportFormGroupToXML)
+registerMetadata<FormGroup>("ExportToXML", "FormGroup", exportFormGroupToXML)

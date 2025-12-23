@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
 export const exportI8nTextToXML = (
-  data: I8nText | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  data: I8nText | undefined
 ): I8nTextXML | undefined => {
   if (!data) return undefined
 

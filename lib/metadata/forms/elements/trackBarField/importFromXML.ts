@@ -8,13 +8,12 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importTrackBarFieldFromXML = (
-  xml: TrackBarFieldXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, xml: TrackBarFieldXML | undefined
 ): TrackBarField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(xml, configurationSettings)!,
+    ...importFormFieldFromXML(configurationSettings, xml)!,
     elementType: FormElementType.TrackBarField,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -30,10 +29,10 @@ export const importTrackBarFieldFromXML = (
     minValue: xml.MinValue,
     orientation: xml.Orientation,
     step: xml.Step,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: importEventsFromXML(xml.Events, configurationSettings),
+    events: importEventsFromXML(configurationSettings, xml.Events),
   })
 }
 

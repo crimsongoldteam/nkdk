@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { MetadataValue, MetadataValueEnterprise } from "./types"
 
 export const exportMetadataValueToEnterprise = (
-  data: MetadataValue | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  data: MetadataValue | undefined
 ): MetadataValueEnterprise | undefined => {
   if (!data) return undefined
 

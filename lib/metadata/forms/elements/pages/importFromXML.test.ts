@@ -26,7 +26,7 @@ it("should import pages from XML", () => {
 
   const xmlData = xmlImport<{ Pages: PagesXML }>(mockXml)
 
-  const result = importPagesFromXML(xmlData.Pages, mockConfigurationSettings)
+  const result = importPagesFromXML(mockConfigurationSettings, xmlData.Pages)
 
   expect(result).toEqual(mockResult)
 })

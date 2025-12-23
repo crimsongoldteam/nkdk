@@ -16,7 +16,7 @@ it("should decode element from XML", () => {
 
   const xml = xmlImport<{ BaseElement: BaseElementXML }>(mockXml)
 
-  const result = importBaseElementFromXML(xml.BaseElement, mockConfigurationSettings)
+  const result = importBaseElementFromXML(mockConfigurationSettings, xml.BaseElement)
 
   expect(result).toEqual(mockResult)
 })

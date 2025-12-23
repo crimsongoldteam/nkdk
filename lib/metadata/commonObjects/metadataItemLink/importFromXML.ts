@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { MetadataItemLink, MetadataItemLinks, MetadataItemLinksXML, MetadataItemLinkXML } from "./types"
 
 export function importMetadataItemLinkFromXML(
-  data: MetadataItemLinkXML | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  data: MetadataItemLinkXML | undefined
 ): MetadataItemLink | undefined {
   if (!data) return undefined
 
@@ -11,10 +11,10 @@ export function importMetadataItemLinkFromXML(
 }
 
 export function importMetadataItemLinksFromXML(
-  data: MetadataItemLinksXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataItemLinksXML | undefined
 ): MetadataItemLinks | undefined {
   if (!data) return undefined
 
-  return data.map((value) => importMetadataItemLinkFromXML(value, configurationSettings)!)
+  return data.map((value) => importMetadataItemLinkFromXML(configurationSettings, value)!)
 }

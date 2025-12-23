@@ -7,8 +7,8 @@ function toCamelCase(str: string): string {
 }
 
 export const importEventsFromXML = (
-  xml: EventsXML | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  xml: EventsXML | undefined
 ): Events | undefined => {
   if (!xml || xml.length === 0) return undefined
 

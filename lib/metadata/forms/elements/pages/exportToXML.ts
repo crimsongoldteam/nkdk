@@ -8,20 +8,19 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPagesToXML = (
-  data: Pages | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: Pages | undefined
 ): PagesXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToXML(data, configurationSettings)!,
+    ...exportFormGroupToXML(configurationSettings, data)!,
 
-    AssociatedTable: exportTableToXML(data.associatedTable, configurationSettings),
+    AssociatedTable: exportTableToXML(configurationSettings, data.associatedTable),
     CurrentPagesState: data.currentPagesState,
     CurrentRowUse: data.currentRowUse,
     PagesRepresentation: data.pagesRepresentation,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
-    Events: exportEventsToXML(data.events, configurationSettings),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
+    Events: exportEventsToXML(configurationSettings, data.events),
   })
 }
 

@@ -3,8 +3,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { Command, CommandXML } from "./types"
 
 export default function exportCommandToXML(
-  command: Command | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  command: Command | undefined
 ): CommandXML | undefined {
   if (!command) return undefined
 
@@ -14,11 +14,11 @@ export default function exportCommandToXML(
   }
 
   if (command.title !== undefined) {
-    result.Title = exportI8nTextToXML(command.title, configurationSettings)
+    result.Title = exportI8nTextToXML(configurationSettings, command.title)
   }
 
   if (command.toolTip !== undefined) {
-    result.ToolTip = exportI8nTextToXML(command.toolTip, configurationSettings)
+    result.ToolTip = exportI8nTextToXML(configurationSettings, command.toolTip)
   }
 
   if (command.shortcut !== undefined) {

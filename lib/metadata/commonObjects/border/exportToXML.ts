@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { Border, BorderXML } from "./types"
 
 export const exportBorderToXML = (
-  border: Border | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  border: Border | undefined
 ): BorderXML | undefined => {
   if (!border) return undefined
 

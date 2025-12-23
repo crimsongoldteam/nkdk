@@ -33,7 +33,7 @@ describe("exportChildItemsToXML", () => {
 	<InputField id="3" name="Input3"/>
 </ChildItems>`
 
-    const result = exportChildItemsToXML(mockChildItems, mockConfigurationSettings)
+    const result = exportChildItemsToXML(mockConfigurationSettings, mockChildItems)
 
     const xml = xmlExport({ ChildItems: result }, false)
     expect(xml).toEqual(expectedResult)

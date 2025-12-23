@@ -6,7 +6,7 @@ import { Command } from "./types"
 
 describe("exportCommandToXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = exportCommandToXML(undefined, mockConfigurationSettings)
+    const result = exportCommandToXML(mockConfigurationSettings, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -21,7 +21,7 @@ describe("exportCommandToXML", () => {
       currentRowUse: "DontUse",
     }
 
-    const result = exportCommandToXML(command, mockConfigurationSettings)
+    const result = exportCommandToXML(mockConfigurationSettings, command)
 
     const xmlString = xmlExport({ Command: result! }, false)
 

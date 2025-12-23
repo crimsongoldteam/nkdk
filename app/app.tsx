@@ -29,7 +29,7 @@ export const App = () => {
       .then((response) => response.text())
       .then((originalContent) => {
         const importedXml = xmlImport<ClientApplicationFormXML>(originalContent)
-        const importedForm = importClientApplicationFormFromXML(importedXml, configurationSettings)
+        const importedForm = importClientApplicationFormFromXML(configurationSettings, importedXml)
         setForm(importedForm)
       })
   }, [])

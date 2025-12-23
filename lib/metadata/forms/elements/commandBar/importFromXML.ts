@@ -7,20 +7,20 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importCommandBarFromXML = (
-  xml: CommandBarXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: CommandBarXML | undefined
 ): CommandBar | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormGroupFromXML(xml, configurationSettings)!,
+    ...importFormGroupFromXML(configurationSettings, xml)!,
     elementType: FormElementType.CommandBar,
 
     autofill: xml.Autofill,
     displayImportance: xml._DisplayImportance,
     horizontalAlign: xml.HorizontalAlign,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
   })
 }
 
-registerMetadata("ImportFromXML", "CommandBar", importCommandBarFromXML)
+registerMetadata<CommandBarXML>("ImportFromXML", "CommandBar", importCommandBarFromXML)

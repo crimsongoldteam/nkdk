@@ -8,24 +8,24 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportColumnGroupToXML = (
-  data: ColumnGroup | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: ColumnGroup | undefined
 ): ColumnGroupXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToXML(data, configurationSettings)!,
+    ...exportFormGroupToXML(configurationSettings, data)!,
 
     FixingInTable: data.fixingInTable,
     Group: data.group,
     HeaderDataPath: data.headerDataPath,
     HeaderFormat: data.headerFormat,
     HeaderHorizontalAlign: data.headerHorizontalAlign,
-    HeaderPicture: exportPictureToXML(data.headerPicture, configurationSettings),
+    HeaderPicture: exportPictureToXML(configurationSettings, data.headerPicture),
     ShowInHeader: data.showInHeader,
     ShowTitle: data.showTitle,
-    TitleBackColor: exportColorToXML(data.titleBackColor, configurationSettings),
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    TitleBackColor: exportColorToXML(configurationSettings, data.titleBackColor),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
   })
 }
 

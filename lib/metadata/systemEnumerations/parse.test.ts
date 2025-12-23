@@ -23,11 +23,7 @@ describe("parseSystemEnumeration", () => {
   it("should be inverse of formatSystemEnumeration", () => {
     const originalValue = "Vertical"
 
-    const formatted = exportSystemEnumerationToEnterprise(
-      originalValue,
-      SE.ChildFormItemsGroupToEnterprise,
-      mockConfigurationSettings
-    )
+    const formatted = exportSystemEnumerationToEnterprise(mockConfigurationSettings, originalValue, SE.ChildFormItemsGroupToEnterprise)
     const parsed = parseSystemEnumeration(formatted, SE.ChildFormItemsGroupFromEnterprise)
 
     expect(parsed).toBe(originalValue)

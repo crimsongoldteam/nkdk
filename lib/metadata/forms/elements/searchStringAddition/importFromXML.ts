@@ -9,21 +9,21 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importSearchStringAdditionFromXML = (
-  xml: SearchStringAdditionXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: SearchStringAdditionXML | undefined
 ): SearchStringAddition | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormItemAdditionFromXML(xml, configurationSettings)!,
+    ...importFormItemAdditionFromXML(configurationSettings, xml)!,
     elementType: FormElementType.SearchStringAddition,
 
-    backColor: importColorFromXML(xml.BackColor, configurationSettings),
-    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
-    font: importFontFromXML(xml.Font, configurationSettings),
+    backColor: importColorFromXML(configurationSettings, xml.BackColor),
+    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
+    font: importFontFromXML(configurationSettings, xml.Font),
     horizontalStretch: xml.HorizontalStretch,
-    textColor: importColorFromXML(xml.TextColor, configurationSettings),
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    textColor: importColorFromXML(configurationSettings, xml.TextColor),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     width: xml.Width,
   })
 }

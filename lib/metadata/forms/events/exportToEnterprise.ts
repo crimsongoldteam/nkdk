@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { Events, EventsEnterprise } from "./types"
 
 export const exportEventsToEnterprise = (
-  data: Events | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  data: Events | undefined
 ): EventsEnterprise | undefined => {
   if (!data || Object.keys(data).length === 0) return undefined
 

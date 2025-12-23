@@ -25,8 +25,8 @@ const extractFieldValue = (field: MetadataFieldXML | string | number | undefined
 }
 
 export const importCharacteristicsDescriptionFromXML = (
-  xml: CharacteristicsDescriptionXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: CharacteristicsDescriptionXML | undefined
 ): CharacteristicsDescription | undefined => {
   if (!xml) return undefined
 
@@ -34,8 +34,8 @@ export const importCharacteristicsDescriptionFromXML = (
   const characteristicValues = xml["xr:CharacteristicValues"]
 
   const typesFilterValueData = importMetadataValueFromXML(
-    characteristicTypes?.["xr:TypesFilterValue"],
-    configurationSettings
+    configurationSettings,
+    characteristicTypes?.["xr:TypesFilterValue"]
   )
 
   return compactObject<CharacteristicsDescription>({
@@ -55,8 +55,8 @@ export const importCharacteristicsDescriptionFromXML = (
 }
 
 export const importCharacteristicsDescriptionsFromXML = (
-  xml: CharacteristicsDescriptionsXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: CharacteristicsDescriptionsXML | undefined
 ): CharacteristicsDescriptions | undefined => {
   if (!xml) return undefined
 
@@ -64,6 +64,6 @@ export const importCharacteristicsDescriptionsFromXML = (
   const items = Array.isArray(characteristics) ? characteristics : [characteristics]
 
   return items.map(
-    (value: CharacteristicsDescriptionXML) => importCharacteristicsDescriptionFromXML(value, configurationSettings)!
+    (value: CharacteristicsDescriptionXML) => importCharacteristicsDescriptionFromXML(configurationSettings, value)!
   )
 }

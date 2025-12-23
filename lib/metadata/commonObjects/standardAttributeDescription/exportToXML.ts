@@ -13,27 +13,27 @@ import { ConfigurationSettings } from "~/lib/metadata/configurationSettings/type
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 
 export const exportStandardAttributeDescriptionToXML = (
-  data: StandardAttributeDescription | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: StandardAttributeDescription | undefined
 ): StandardAttributeDescriptionXML | undefined => {
   if (!data) return undefined
 
   const compacted = compactObject({
     "xr:ChoiceForm": data.choiceForm,
     "xr:ChoiceHistoryOnInput": data.choiceHistoryOnInput,
-    "xr:ChoiceParameterLinks": exportChoiceParameterLinksToXML(data.choiceParameterLinks, configurationSettings),
-    "xr:ChoiceParameters": exportChoiceParameterLinksToXML(data.choiceParameters, configurationSettings),
+    "xr:ChoiceParameterLinks": exportChoiceParameterLinksToXML(configurationSettings, data.choiceParameterLinks),
+    "xr:ChoiceParameters": exportChoiceParameterLinksToXML(configurationSettings, data.choiceParameters),
     "xr:Comment": data.comment,
     "xr:CreateOnInput": data.createOnInput,
     "xr:DataHistory": data.dataHistory,
-    "xr:EditFormat": exportI8nTextToXML(data.editFormat, configurationSettings),
+    "xr:EditFormat": exportI8nTextToXML(configurationSettings, data.editFormat),
     "xr:ExtendedEdit": data.extendedEdit,
     "xr:FillChecking": data.fillChecking,
     "xr:FillFromFillingValue": data.fillFromFillingValue,
-    "xr:FillValue": exportMetadataValueToXML(data.fillValue, configurationSettings),
-    "xr:Format": exportI8nTextToXML(data.format, configurationSettings),
+    "xr:FillValue": exportMetadataValueToXML(configurationSettings, data.fillValue),
+    "xr:Format": exportI8nTextToXML(configurationSettings, data.format),
     "xr:FullTextSearch": data.fullTextSearch,
-    "xr:LinkByType": exportTypeLinkToXML(data.linkByType, configurationSettings),
+    "xr:LinkByType": exportTypeLinkToXML(configurationSettings, data.linkByType),
     "xr:MarkNegatives": data.markNegatives,
     "xr:Mask": data.mask,
     "xr:MaxValue": data.maxValue,
@@ -41,9 +41,9 @@ export const exportStandardAttributeDescriptionToXML = (
     "xr:MultiLine": data.multiLine,
     "xr:PasswordMode": data.passwordMode,
     "xr:QuickChoice": data.quickChoice,
-    "xr:Synonym": exportI8nTextToXML(data.synonym, configurationSettings),
-    "xr:ToolTip": exportI8nTextToXML(data.toolTip, configurationSettings),
-    "xr:Type": exportTypeDescriptionToXML(data.type, configurationSettings),
+    "xr:Synonym": exportI8nTextToXML(configurationSettings, data.synonym),
+    "xr:ToolTip": exportI8nTextToXML(configurationSettings, data.toolTip),
+    "xr:Type": exportTypeDescriptionToXML(configurationSettings, data.type),
     "xr:TypeReductionMode": data.typeReductionMode,
   })
 
@@ -54,12 +54,12 @@ export const exportStandardAttributeDescriptionToXML = (
 }
 
 export const exportStandardAttributeDescriptionsToXML = (
-  data: StandardAttributeDescriptions | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: StandardAttributeDescriptions | undefined
 ): StandardAttributeDescriptionsXML | undefined => {
   if (!data) return undefined
 
   return data.map(
-    (value: StandardAttributeDescription) => exportStandardAttributeDescriptionToXML(value, configurationSettings)!
+    (value: StandardAttributeDescription) => exportStandardAttributeDescriptionToXML(configurationSettings, value)!
   )
 }

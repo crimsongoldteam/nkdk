@@ -13,7 +13,7 @@ describe("exportToEnterprise", () => {
       },
     ]
 
-    const result = exportChoiceParameterLinksToEnterprise(mock, mockConfigurationSettings)
+    const result = exportChoiceParameterLinksToEnterprise(mockConfigurationSettings, mock)
     expect(result).toEqual(
       "Отбор.Владелец(Справочник.ВетеринарноСопроводительныйДокументВЕТИС.Реквизит.ГрузоотправительХозяйствующийСубъект)"
     )
@@ -33,7 +33,7 @@ describe("exportToEnterprise", () => {
       },
     ]
 
-    const result = exportChoiceParameterLinksToEnterprise(mock, mockConfigurationSettings)
+    const result = exportChoiceParameterLinksToEnterprise(mockConfigurationSettings, mock)
     expect(result).toEqual(
       "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1), Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)"
     )
@@ -48,7 +48,7 @@ describe("exportToEnterprise", () => {
       },
     ]
 
-    const result = exportChoiceParameterLinksToEnterprise(mock, mockConfigurationSettings)
+    const result = exportChoiceParameterLinksToEnterprise(mockConfigurationSettings, mock)
     expect(result).toEqual("Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1, НеИзменять)")
   })
 })

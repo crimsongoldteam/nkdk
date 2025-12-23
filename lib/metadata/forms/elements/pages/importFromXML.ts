@@ -9,21 +9,20 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importPagesFromXML = (
-  xml: PagesXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, xml: PagesXML | undefined
 ): Pages | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormGroupFromXML(xml, configurationSettings)!,
+    ...importFormGroupFromXML(configurationSettings, xml)!,
     elementType: FormElementType.Pages,
 
-    associatedTable: importTableFromXML(xml.AssociatedTable, configurationSettings),
+    associatedTable: importTableFromXML(configurationSettings, xml.AssociatedTable),
     currentPagesState: xml.CurrentPagesState,
     currentRowUse: xml.CurrentRowUse,
     pagesRepresentation: xml.PagesRepresentation,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
-    events: importEventsFromXML(xml.Events, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
+    events: importEventsFromXML(configurationSettings, xml.Events),
   })
 }
 

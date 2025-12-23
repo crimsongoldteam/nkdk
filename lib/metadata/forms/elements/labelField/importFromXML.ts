@@ -12,22 +12,21 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importLabelFieldFromXML = (
-  xml: LabelFieldXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, xml: LabelFieldXML | undefined
 ): LabelField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(xml, configurationSettings)!,
+    ...importFormFieldFromXML(configurationSettings, xml)!,
     elementType: FormElementType.LabelField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
-    backColor: importColorFromXML(xml.BackColor, configurationSettings),
-    border: importBorderFromXML(xml.Border, configurationSettings),
-    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
-    font: importFontFromXML(xml.Font, configurationSettings),
-    format: importI8nTextFromXML(xml.Format, configurationSettings),
+    backColor: importColorFromXML(configurationSettings, xml.BackColor),
+    border: importBorderFromXML(configurationSettings, xml.Border),
+    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
+    font: importFontFromXML(configurationSettings, xml.Font),
+    format: importI8nTextFromXML(configurationSettings, xml.Format),
     height: xml.Height,
     horizontalStretch: xml.HorizontalStretch,
     hyperlink: xml.Hyperlink,
@@ -35,11 +34,11 @@ export const importLabelFieldFromXML = (
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
     passwordMode: xml.PasswordMode,
-    textColor: importColorFromXML(xml.TextColor, configurationSettings),
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    textColor: importColorFromXML(configurationSettings, xml.TextColor),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: importEventsFromXML(xml.Events, configurationSettings),
+    events: importEventsFromXML(configurationSettings, xml.Events),
   })
 }
 

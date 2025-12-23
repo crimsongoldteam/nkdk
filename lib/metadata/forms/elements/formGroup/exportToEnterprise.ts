@@ -14,46 +14,34 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportFormGroupToEnterprise = (
-  data: FormGroup | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: FormGroup | undefined
 ): FormGroupEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportBaseElementToEnterprise(data, configurationSettings)!,
+    ...exportBaseElementToEnterprise(configurationSettings, data)!,
 
-    ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      data.verticalAlignInGroup,
-      SE.ItemVerticalAlignToEnterprise,
-      configurationSettings
-    ),
-    Вид: exportSystemEnumerationToEnterprise(data.type, SE.FormGroupTypeToEnterprise, configurationSettings),
-    Видимость: exportBooleanToEnterprise(data.visible, configurationSettings),
+    ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(configurationSettings, data.verticalAlignInGroup, SE.ItemVerticalAlignToEnterprise),
+    Вид: exportSystemEnumerationToEnterprise(configurationSettings, data.type, SE.FormGroupTypeToEnterprise),
+    Видимость: exportBooleanToEnterprise(configurationSettings, data.visible),
     Высота: data.height,
-    ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      data.horizontalAlignInGroup,
-      SE.ItemHorizontalLocationToEnterprise,
-      configurationSettings
-    ),
-    Доступность: exportBooleanToEnterprise(data.enabled, configurationSettings),
-    Заголовок: exportI8nTextToEnterprise(data.title, configurationSettings),
-    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
-      data.toolTipRepresentation,
-      SE.ToolTipRepresentationToEnterprise,
-      configurationSettings
-    ),
-    Подсказка: exportI8nTextToEnterprise(data.toolTip, configurationSettings),
-    ПодчиненныеЭлементы: exportChildItemsToEnterprise(data.childItems, configurationSettings),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    РазрешитьИзменениеСостава: exportBooleanToEnterprise(data.enableContentChange, configurationSettings),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(data.extendedTooltip, configurationSettings),
+    ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(configurationSettings, data.horizontalAlignInGroup, SE.ItemHorizontalLocationToEnterprise),
+    Доступность: exportBooleanToEnterprise(configurationSettings, data.enabled),
+    Заголовок: exportI8nTextToEnterprise(configurationSettings, data.title),
+    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(configurationSettings, data.toolTipRepresentation, SE.ToolTipRepresentationToEnterprise),
+    Подсказка: exportI8nTextToEnterprise(configurationSettings, data.toolTip),
+    ПодчиненныеЭлементы: exportChildItemsToEnterprise(configurationSettings, data.childItems),
+    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    РазрешитьИзменениеСостава: exportBooleanToEnterprise(configurationSettings, data.enableContentChange),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
+    РасширеннаяПодсказка: exportFormDecorationToEnterprise(configurationSettings, data.extendedTooltip),
     СочетаниеКлавиш: data.shortcut,
-    ТолькоПросмотр: exportBooleanToEnterprise(data.readOnly, configurationSettings),
-    ЦветТекстаЗаголовка: exportColorToEnterprise(data.titleTextColor, configurationSettings),
+    ТолькоПросмотр: exportBooleanToEnterprise(configurationSettings, data.readOnly),
+    ЦветТекстаЗаголовка: exportColorToEnterprise(configurationSettings, data.titleTextColor),
     Ширина: data.width,
-    ШрифтЗаголовка: exportFontToEnterprise(data.titleFont, configurationSettings),
+    ШрифтЗаголовка: exportFontToEnterprise(configurationSettings, data.titleFont),
   })
 }
 

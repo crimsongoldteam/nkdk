@@ -8,13 +8,13 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importChartFieldFromXML = (
-  xml: ChartFieldXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: ChartFieldXML | undefined
 ): ChartField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(xml, configurationSettings)!,
+    ...importFormFieldFromXML(configurationSettings, xml)!,
     elementType: FormElementType.ChartField,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -23,10 +23,10 @@ export const importChartFieldFromXML = (
     horizontalStretch: xml.HorizontalStretch,
     maxHeight: xml.MaxHeight,
     maxWidth: xml.MaxWidth,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: importEventsFromXML(xml.Events, configurationSettings),
+    events: importEventsFromXML(configurationSettings, xml.Events),
   })
 }
 

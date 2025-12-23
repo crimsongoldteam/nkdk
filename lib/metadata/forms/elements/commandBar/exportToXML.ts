@@ -6,19 +6,19 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportCommandBarToXML = (
-  data: CommandBar | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: CommandBar | undefined
 ): CommandBarXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormGroupToXML(data, configurationSettings)!,
+    ...exportFormGroupToXML(configurationSettings, data)!,
 
     Autofill: data.autofill,
     _DisplayImportance: data.displayImportance,
     HorizontalAlign: data.horizontalAlign,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
   })
 }
 
-registerMetadata("ExportToXML", "CommandBar", exportCommandBarToXML)
+registerMetadata<CommandBar>("ExportToXML", "CommandBar", exportCommandBarToXML)

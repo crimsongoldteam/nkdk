@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { CommandSet, CommandSetEnterprise } from "./types"
 
 export const importCommandSetFromEnterprise = (
-  data: CommandSetEnterprise | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  data: CommandSetEnterprise | undefined
 ): CommandSet | undefined => {
   if (!data) return undefined
 

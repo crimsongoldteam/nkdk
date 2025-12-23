@@ -12,19 +12,18 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importSpreadSheetDocumentFieldFromXML = (
-  xml: SpreadSheetDocumentFieldXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, xml: SpreadSheetDocumentFieldXML | undefined
 ): SpreadSheetDocumentField | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importFormFieldFromXML(xml, configurationSettings)!,
+    ...importFormFieldFromXML(configurationSettings, xml)!,
     elementType: FormElementType.SpreadSheetDocumentField,
 
     autoMaxHeight: xml.AutoMaxHeight,
     autoMaxWidth: xml.AutoMaxWidth,
     blackAndWhiteView: xml.BlackAndWhiteView,
-    borderColor: importColorFromXML(xml.BorderColor, configurationSettings),
+    borderColor: importColorFromXML(configurationSettings, xml.BorderColor),
     drawingSelectionShowMode: xml.DrawingSelectionShowMode,
     edit: xml.Edit,
     enableDrag: xml.EnableDrag,
@@ -45,12 +44,12 @@ export const importSpreadSheetDocumentFieldFromXML = (
     showRowAndColumnNames: xml.ShowRowAndColumnNames,
     statePresentation: xml.StatePresentation,
     usedFileName: xml.UsedFileName,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     verticalScrollBar: xml.VerticalScrollBar,
     verticalStretch: xml.VerticalStretch,
     viewScalingMode: xml.ViewScalingMode,
     width: xml.Width,
-    events: importEventsFromXML(xml.Events, configurationSettings),
+    events: importEventsFromXML(configurationSettings, xml.Events),
   })
 }
 

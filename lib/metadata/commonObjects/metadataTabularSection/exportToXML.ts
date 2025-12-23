@@ -12,8 +12,8 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportInternalInfoToXML } from "../internalInfo/exportToXML"
 
 export const exportMetadataTabularSectionToXML = (
-  data: MetadataTabularSection | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataTabularSection | undefined
 ): MetadataTabularSectionXML | undefined => {
   if (!data) return undefined
 
@@ -28,22 +28,22 @@ export const exportMetadataTabularSectionToXML = (
       LineNumberLength: data.lineNumberLength,
       Name: data.name!,
       ObjectBelonging: data.objectBelonging,
-      StandardAttributes: exportStandardAttributeDescriptionsToXML(data.standardAttributes, configurationSettings),
-      Synonym: exportI8nTextToXML(data.synonym, configurationSettings),
-      Tooltip: exportI8nTextToXML(data.tooltip, configurationSettings),
+      StandardAttributes: exportStandardAttributeDescriptionsToXML(configurationSettings, data.standardAttributes),
+      Synonym: exportI8nTextToXML(configurationSettings, data.synonym),
+      Tooltip: exportI8nTextToXML(configurationSettings, data.tooltip),
       Use: data.use,
     },
     ChildObjects: {
-      Attribute: exportMetadataAttributesToXML(data.attributes, configurationSettings),
+      Attribute: exportMetadataAttributesToXML(configurationSettings, data.attributes),
     },
   })
 }
 
 export const exportMetadataTabularSectionsToXML = (
-  data: MetadataTabularSections | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: MetadataTabularSections | undefined
 ): MetadataTabularSectionsXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value: MetadataTabularSection) => exportMetadataTabularSectionToXML(value, configurationSettings)!)
+  return data.map((value: MetadataTabularSection) => exportMetadataTabularSectionToXML(configurationSettings, value)!)
 }

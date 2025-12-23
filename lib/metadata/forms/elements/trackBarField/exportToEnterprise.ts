@@ -10,39 +10,30 @@ import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumer
 import * as SE from "~/lib/metadata/systemEnumerations/types"
 
 export const exportTrackBarFieldToEnterprise = (
-  data: TrackBarField | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: TrackBarField | undefined
 ): TrackBarFieldEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToEnterprise(data, configurationSettings)!,
+    ...exportFormFieldToEnterprise(configurationSettings, data)!,
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(data.autoMaxHeight, configurationSettings),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(data.autoMaxWidth, configurationSettings),
+    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(configurationSettings, data.autoMaxHeight),
+    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(configurationSettings, data.autoMaxWidth),
     БольшойШаг: data.largeStep,
     Высота: data.height,
     МаксимальнаяВысота: data.maxHeight,
     МаксимальнаяШирина: data.maxWidth,
     МаксимальноеЗначение: data.maxValue,
     МинимальноеЗначение: data.minValue,
-    Ориентация: exportSystemEnumerationToEnterprise(
-      data.orientation,
-      SE.FormItemOrientationToEnterprise,
-      configurationSettings
-    ),
-    ОтображениеРазметки: exportSystemEnumerationToEnterprise(
-      data.markingAppearance,
-      SE.TrackBarMarkingAppearanceToEnterprise,
-      configurationSettings
-    ),
-    ...exportUserVisibleToEnterprise(data.userVisible, configurationSettings),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(data.verticalStretch, configurationSettings),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(data.horizontalStretch, configurationSettings),
+    Ориентация: exportSystemEnumerationToEnterprise(configurationSettings, data.orientation, SE.FormItemOrientationToEnterprise),
+    ОтображениеРазметки: exportSystemEnumerationToEnterprise(configurationSettings, data.markingAppearance, SE.TrackBarMarkingAppearanceToEnterprise),
+    ...exportUserVisibleToEnterprise(configurationSettings, data.userVisible),
+    РастягиватьПоВертикали: exportBooleanToEnterprise(configurationSettings, data.verticalStretch),
+    РастягиватьПоГоризонтали: exportBooleanToEnterprise(configurationSettings, data.horizontalStretch),
     Шаг: data.step,
     ШагРазметки: data.markingStep,
     Ширина: data.width,
-    События: exportEventsToEnterprise(data.events, configurationSettings),
+    События: exportEventsToEnterprise(configurationSettings, data.events),
   })
 }
 

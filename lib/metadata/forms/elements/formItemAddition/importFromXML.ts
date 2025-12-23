@@ -11,26 +11,26 @@ import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/lib/metadata/metadataFactory/types"
 
 export const importFormItemAdditionFromXML = (
-  xml: FormItemAdditionXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: FormItemAdditionXML | undefined
 ): FormItemAddition | undefined => {
   if (!xml) return undefined
 
   return compactObject({
-    ...importBaseElementFromXML(xml, configurationSettings)!,
+    ...importBaseElementFromXML(configurationSettings, xml)!,
     elementType: FormElementType.FormItemAddition,
 
-    childItems: importChildItemsFromXML(xml.ChildItems, configurationSettings),
-    contextMenu: importCommandBarFromXML(xml.ContextMenu, configurationSettings),
+    childItems: importChildItemsFromXML(configurationSettings, xml.ChildItems),
+    contextMenu: importCommandBarFromXML(configurationSettings, xml.ContextMenu),
     displayImportance: xml._DisplayImportance,
     enabled: xml.Enabled,
-    extendedToolTip: importFormDecorationFromXML(xml.ExtendedToolTip, configurationSettings),
+    extendedToolTip: importFormDecorationFromXML(configurationSettings, xml.ExtendedToolTip),
     horizontalAlignInGroup: xml.HorizontalAlignInGroup,
-    title: importI8nTextFromXML(xml.Title, configurationSettings),
-    toolTip: importI8nTextFromXML(xml.ToolTip, configurationSettings),
+    title: importI8nTextFromXML(configurationSettings, xml.Title),
+    toolTip: importI8nTextFromXML(configurationSettings, xml.ToolTip),
     toolTipRepresentation: xml.ToolTipRepresentation,
     type: xml.Type,
-    userVisible: importUserVisibleFromXML(xml.UserVisible, configurationSettings),
+    userVisible: importUserVisibleFromXML(configurationSettings, xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     visible: xml.Visible,
   })

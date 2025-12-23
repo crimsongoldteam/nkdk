@@ -15,8 +15,8 @@ import { importBooleanFromXML } from "../boolean/importFromXML"
 import { getDefaults } from "./defaults"
 
 export const importMetadataAttributeFromXML = (
-  xml: MetadataAttributeXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: MetadataAttributeXML | undefined
 ): MetadataAttribute | undefined => {
   if (!xml) return undefined
 
@@ -25,38 +25,38 @@ export const importMetadataAttributeFromXML = (
   const result = {
     binaryDataStorageLocationUse: props.BinaryDataStorageLocationUse,
     binaryDataStorageLocationUseField: importBooleanFromXML(
-      props.BinaryDataStorageLocationUseField,
-      configurationSettings
+      configurationSettings,
+      props.BinaryDataStorageLocationUseField
     ),
     choiceFoldersAndItems: props.ChoiceFoldersAndItems,
     choiceForm: props.ChoiceForm,
     choiceHistoryOnInput: props.ChoiceHistoryOnInput,
-    choiceParameterLinks: importChoiceParameterLinksFromXML(props.ChoiceParameterLinks, configurationSettings),
-    choiceParameters: importChoiceParameterLinksFromXML(props.ChoiceParameters, configurationSettings),
+    choiceParameterLinks: importChoiceParameterLinksFromXML(configurationSettings, props.ChoiceParameterLinks),
+    choiceParameters: importChoiceParameterLinksFromXML(configurationSettings, props.ChoiceParameters),
     comment: props.Comment,
     createOnInput: props.CreateOnInput,
     dataHistory: props.DataHistory,
-    editFormat: importI8nTextFromXML(props.EditFormat, configurationSettings),
-    extendedEdit: importBooleanFromXML(props.ExtendedEdit, configurationSettings),
+    editFormat: importI8nTextFromXML(configurationSettings, props.EditFormat),
+    extendedEdit: importBooleanFromXML(configurationSettings, props.ExtendedEdit),
     fillChecking: props.FillChecking,
-    fillFromFillingValue: importBooleanFromXML(props.FillFromFillingValue, configurationSettings),
-    fillingValue: importMetadataValueFromXML(props.FillingValue, configurationSettings),
-    format: importI8nTextFromXML(props.Format, configurationSettings),
+    fillFromFillingValue: importBooleanFromXML(configurationSettings, props.FillFromFillingValue),
+    fillingValue: importMetadataValueFromXML(configurationSettings, props.FillingValue),
+    format: importI8nTextFromXML(configurationSettings, props.Format),
     fullTextSearch: props.FullTextSearch,
     indexing: props.Indexing,
-    linkByType: importTypeLinkFromXML(props.LinkByType, configurationSettings),
-    markNegatives: importBooleanFromXML(props.MarkNegatives, configurationSettings),
+    linkByType: importTypeLinkFromXML(configurationSettings, props.LinkByType),
+    markNegatives: importBooleanFromXML(configurationSettings, props.MarkNegatives),
     mask: props.Mask,
     maxValue: props.MaxValue,
     minValue: props.MinValue,
-    multiLine: importBooleanFromXML(props.MultiLine, configurationSettings),
+    multiLine: importBooleanFromXML(configurationSettings, props.MultiLine),
     name: props.Name!,
     objectBelonging: props.ObjectBelonging,
-    passwordMode: importBooleanFromXML(props.PasswordMode, configurationSettings),
+    passwordMode: importBooleanFromXML(configurationSettings, props.PasswordMode),
     quickChoice: props.QuickChoice,
-    synonym: importI8nTextFromXML(props.Synonym, configurationSettings),
-    tooltip: importI8nTextFromXML(props.Tooltip, configurationSettings),
-    type: importTypeDescriptionFromXML(props.Type, configurationSettings)!,
+    synonym: importI8nTextFromXML(configurationSettings, props.Synonym),
+    tooltip: importI8nTextFromXML(configurationSettings, props.Tooltip),
+    type: importTypeDescriptionFromXML(configurationSettings, props.Type)!,
     use: props.Use,
   }
 
@@ -68,12 +68,12 @@ export const importMetadataAttributeFromXML = (
 }
 
 export const importMetadataAttributesFromXML = (
-  xml: MetadataAttributesXML | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  xml: MetadataAttributesXML | undefined
 ): MetadataAttributes | undefined => {
   if (!xml) return undefined
 
   const items = Array.isArray(xml) ? xml : [xml]
 
-  return items.map((value: MetadataAttributeXML) => importMetadataAttributeFromXML(value, configurationSettings)!)
+  return items.map((value: MetadataAttributeXML) => importMetadataAttributeFromXML(configurationSettings, value)!)
 }

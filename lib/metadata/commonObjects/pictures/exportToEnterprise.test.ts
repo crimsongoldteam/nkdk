@@ -12,7 +12,7 @@ it("should format standard picture", () => {
 
   const expectedResult = `БизнесПроцесс`
 
-  const result = exportPictureToEnterprise(data, mockConfigurationSettings)
+  const result = exportPictureToEnterprise(mockConfigurationSettings, data)
 
   expect(result).toEqual(expectedResult)
 })
@@ -26,7 +26,7 @@ it("should format standard picture Print", () => {
 
   const expectedResult = `Печать`
 
-  const result = exportPictureToEnterprise(data, mockConfigurationSettings)
+  const result = exportPictureToEnterprise(mockConfigurationSettings, data)
 
   expect(result).toEqual(expectedResult)
 })
@@ -40,7 +40,7 @@ it("should format common picture", () => {
 
   const expectedResult = `ОбщаяКартинка1`
 
-  const result = exportPictureToEnterprise(data, mockConfigurationSettings)
+  const result = exportPictureToEnterprise(mockConfigurationSettings, data)
 
   expect(result).toEqual(expectedResult)
 })

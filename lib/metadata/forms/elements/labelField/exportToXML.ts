@@ -11,21 +11,20 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportLabelFieldToXML = (
-  data: LabelField | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: LabelField | undefined
 ): LabelFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormFieldToXML(data, configurationSettings)!,
+    ...exportFormFieldToXML(configurationSettings, data)!,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
-    BackColor: exportColorToXML(data.backColor, configurationSettings),
-    Border: exportBorderToXML(data.border, configurationSettings),
-    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
-    Font: exportFontToXML(data.font, configurationSettings),
-    Format: exportI8nTextToXML(data.format, configurationSettings),
+    BackColor: exportColorToXML(configurationSettings, data.backColor),
+    Border: exportBorderToXML(configurationSettings, data.border),
+    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
+    Font: exportFontToXML(configurationSettings, data.font),
+    Format: exportI8nTextToXML(configurationSettings, data.format),
     Height: data.height,
     HorizontalStretch: data.horizontalStretch,
     Hyperlink: data.hyperlink,
@@ -33,11 +32,11 @@ export const exportLabelFieldToXML = (
     MaxHeight: data.maxHeight,
     MaxWidth: data.maxWidth,
     PasswordMode: data.passwordMode,
-    TextColor: exportColorToXML(data.textColor, configurationSettings),
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    TextColor: exportColorToXML(configurationSettings, data.textColor),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Events: exportEventsToXML(data.events, configurationSettings),
+    Events: exportEventsToXML(configurationSettings, data.events),
   })
 }
 

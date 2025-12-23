@@ -10,27 +10,26 @@ import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { registerMetadata } from "~/lib/metadata/metadataFactory/metadataFactory"
 
 export const exportPictureDecorationToXML = (
-  data: PictureDecoration | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings, data: PictureDecoration | undefined
 ): PictureDecorationXML | undefined => {
   if (!data) return undefined
 
   return compactObject({
-    ...exportFormDecorationToXML(data, configurationSettings)!,
+    ...exportFormDecorationToXML(configurationSettings, data)!,
 
-    Border: exportBorderToXML(data.border, configurationSettings),
-    BorderColor: exportColorToXML(data.borderColor, configurationSettings),
+    Border: exportBorderToXML(configurationSettings, data.border),
+    BorderColor: exportColorToXML(configurationSettings, data.borderColor),
     EnableDrag: data.enableDrag,
     EnableStartDrag: data.enableStartDrag,
     FileDragMode: data.fileDragMode,
     Hyperlink: data.hyperlink,
     NonselectedPictureText: data.nonselectedPictureText,
-    Picture: exportPictureToXML(data.picture, configurationSettings),
+    Picture: exportPictureToXML(configurationSettings, data.picture),
     PictureSize: data.pictureSize,
     Scale: data.scale,
-    UserVisible: exportUserVisibleToXML(data.userVisible, configurationSettings),
+    UserVisible: exportUserVisibleToXML(configurationSettings, data.userVisible),
     Zoomable: data.zoomable,
-    Events: exportEventsToXML(data.events, configurationSettings),
+    Events: exportEventsToXML(configurationSettings, data.events),
   })
 }
 

@@ -12,8 +12,8 @@ import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterp
 import { MetadataValue } from "../metadataValue/types"
 
 export const exportCharacteristicsDescriptionToEnterprise = (
-  data: CharacteristicsDescription | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: CharacteristicsDescription | undefined
 ): CharacteristicsDescriptionEnterprise | undefined => {
   if (!data) return undefined
 
@@ -26,34 +26,34 @@ export const exportCharacteristicsDescriptionToEnterprise = (
     : undefined
 
   return compactObject<CharacteristicsDescriptionEnterprise>({
-    ВидыХарактеристик: exportMetadataItemLinkToEnterprise(data.characteristicTypes, configurationSettings),
-    ЗначениеОтбораВидов: exportMetadataValueToEnterprise(typesFilterValueMetadata, configurationSettings),
-    ЗначенияХарактеристик: exportMetadataValueToEnterprise(characteristicValuesMetadata, configurationSettings),
-    ПолеВида: exportMetadataFieldToEnterprise(data.typeField, configurationSettings),
-    ПолеЗначения: exportMetadataFieldToEnterprise(data.valueField, configurationSettings),
+    ВидыХарактеристик: exportMetadataItemLinkToEnterprise(configurationSettings, data.characteristicTypes),
+    ЗначениеОтбораВидов: exportMetadataValueToEnterprise(configurationSettings, typesFilterValueMetadata),
+    ЗначенияХарактеристик: exportMetadataValueToEnterprise(configurationSettings, characteristicValuesMetadata),
+    ПолеВида: exportMetadataFieldToEnterprise(configurationSettings, data.typeField),
+    ПолеЗначения: exportMetadataFieldToEnterprise(configurationSettings, data.valueField),
     ПолеИспользованияМножественныхЗначений: exportMetadataFieldToEnterprise(
-      data.multipleValuesUseField,
-      configurationSettings
+      configurationSettings,
+      data.multipleValuesUseField
     ),
-    ПолеКлюча: exportMetadataFieldToEnterprise(data.keyField, configurationSettings),
-    ПолеКлючаМножественныхЗначений: exportMetadataFieldToEnterprise(data.multipleValuesKeyField, configurationSettings),
-    ПолеОбъекта: exportMetadataFieldToEnterprise(data.objectField, configurationSettings),
-    ПолеОтбораВидов: exportMetadataFieldToEnterprise(data.typesFilterField, configurationSettings),
+    ПолеКлюча: exportMetadataFieldToEnterprise(configurationSettings, data.keyField),
+    ПолеКлючаМножественныхЗначений: exportMetadataFieldToEnterprise(configurationSettings, data.multipleValuesKeyField),
+    ПолеОбъекта: exportMetadataFieldToEnterprise(configurationSettings, data.objectField),
+    ПолеОтбораВидов: exportMetadataFieldToEnterprise(configurationSettings, data.typesFilterField),
     ПолеПорядкаМножественныхЗначений: exportMetadataFieldToEnterprise(
-      data.multipleValuesOrderField,
-      configurationSettings
+      configurationSettings,
+      data.multipleValuesOrderField
     ),
-    ПолеПутиКДанным: exportMetadataFieldToEnterprise(data.dataPathField, configurationSettings),
+    ПолеПутиКДанным: exportMetadataFieldToEnterprise(configurationSettings, data.dataPathField),
   })
 }
 
 export const exportCharacteristicsDescriptionsToEnterprise = (
-  data: CharacteristicsDescriptions | undefined,
-  configurationSettings: ConfigurationSettings
+  configurationSettings: ConfigurationSettings,
+  data: CharacteristicsDescriptions | undefined
 ): CharacteristicsDescriptionsEnterprise | undefined => {
   if (!data) return undefined
 
   return data.map(
-    (value: CharacteristicsDescription) => exportCharacteristicsDescriptionToEnterprise(value, configurationSettings)!
+    (value: CharacteristicsDescription) => exportCharacteristicsDescriptionToEnterprise(configurationSettings, value)!
   )
 }

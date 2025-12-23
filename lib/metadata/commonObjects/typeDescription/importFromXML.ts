@@ -2,8 +2,8 @@ import { ConfigurationSettings } from "../../configurationSettings/types"
 import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLItem } from "./types"
 
 export const importTypeDescriptionFromXML = (
-  xml: TypeDescriptionXML | TypeDescriptionXML[number] | undefined,
-  _configurationSettings: ConfigurationSettings
+  _configurationSettings: ConfigurationSettings,
+  xml: TypeDescriptionXML | TypeDescriptionXML[number] | undefined
 ): TypeDescription | undefined => {
   if (!xml) return undefined
 

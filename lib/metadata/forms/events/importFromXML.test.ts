@@ -19,7 +19,7 @@ describe("importEventsFromXML", () => {
     }
 
     const xml = xmlImport<{ Events: EventsXML }>(mockXml)
-    const result = importEventsFromXML(xml.Events, mockConfigurationSettings)
+    const result = importEventsFromXML(mockConfigurationSettings, xml.Events)
 
     expect(result).toEqual(expectedResult)
   })
