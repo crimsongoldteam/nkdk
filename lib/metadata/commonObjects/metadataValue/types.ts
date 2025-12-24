@@ -87,7 +87,7 @@ export interface MetadataSimpleValueXML {
     | "v8:FixedArray"
     | "FormChoiceListDesTimeValue"
 
-  "#text": string
+  "#text": string | boolean | number
 }
 
 export interface MetadataFixedArrayValueXML {

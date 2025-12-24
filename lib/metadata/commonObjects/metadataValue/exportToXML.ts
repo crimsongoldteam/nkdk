@@ -1,10 +1,10 @@
 import { Context } from "../../context/types"
 import {
-  MetadataValue,
-  MetadataValueXML,
-  MetadataSimpleValueXML,
   MetadataFixedArrayValueXML,
   MetadataFormChoiceListDesTimeValueXML,
+  MetadataSimpleValueXML,
+  MetadataValue,
+  MetadataValueXML,
 } from "./types"
 
 export const exportMetadataValueToXML = (
@@ -13,77 +13,52 @@ export const exportMetadataValueToXML = (
 ): MetadataValueXML | undefined => {
   if (!data) return undefined
 
-  switch (data.type) {
-    case "string": {
-      const result: MetadataSimpleValueXML = {
-        "_xsi:type": "xs:string",
-        "#text": data.value,
-      }
-      return result
-    }
-    case "number": {
-      const result: MetadataSimpleValueXML = {
-        "_xsi:type": "xs:number",
-        "#text": String(data.value),
-      }
-      return result
-    }
-    case "dateTime": {
-      const result: MetadataSimpleValueXML = {
-        "_xsi:type": "xs:dateTime",
-        "#text": data.value,
-      }
-      return result
-    }
-    case "boolean": {
-      const result: MetadataSimpleValueXML = {
-        "_xsi:type": "xs:boolean",
-        "#text": String(data.value),
-      }
-      return result
-    }
-    case "designTimeRef": {
-      const result: MetadataSimpleValueXML = {
-        "_xsi:type": "xr:DesignTimeRef",
-        "#text": data.value,
-      }
-      return result
-    }
-    case "ref": {
-      const result: MetadataSimpleValueXML = {
-        "_xsi:type": "xr:DesignTimeRef",
-        "#text": data.value,
-      }
-      return result
-    }
-    case "ApplicationUsePurpose": {
-      const result: MetadataSimpleValueXML = {
-        "_xsi:type": "app:ApplicationUsePurpose",
-        "#text": data.value,
-      }
-      return result
-    }
-    case "fixedArray": {
-      const result: MetadataFixedArrayValueXML = {
-        "_xsi:type": "v8:FixedArray",
-        "v8:Value": data.value.map((v) =>
-          exportMetadataValueToXML(context, v)
-        ).filter((v): v is MetadataValueXML => v !== undefined),
-      }
-      return result
-    }
-    case "formChoiceListDesTimeValue": {
-      const value = exportMetadataValueToXML(context, data.value)
-      if (!value) return undefined
-      const result: MetadataFormChoiceListDesTimeValueXML = {
-        "_xsi:type": "FormChoiceListDesTimeValue",
-        Value: value,
-      }
-      return result
-    }
-    default:
-      return undefined
+  if (data.type === "fixedArray") {
+    const values = data.value.map((v) => exportMetadataValueToXML(context, v)!)
+    return {
+      "_xsi:type": "v8:FixedArray",
+      "v8:Value": values.length === 1 ? values[0] : values,
+    } as MetadataFixedArrayValueXML
   }
+
+  if (data.type === "formChoiceListDesTimeValue") {
+    const value = exportMetadataValueToXML(context, data.value)
+    if (!value) return undefined
+    return {
+      "_xsi:type": "FormChoiceListDesTimeValue",
+      Value: value,
+    } as MetadataFormChoiceListDesTimeValueXML
+  }
+
+  if (data.type === "string") {
+    return createSimpleValue("xs:string", data.value)
+  }
+
+  if (data.type === "decimal") {
+    return createSimpleValue("xs:decimal" as any, String(data.value))
+  }
+
+  if (data.type === "dateTime") {
+    return createSimpleValue("xs:dateTime", data.value)
+  }
+
+  if (data.type === "boolean") {
+    return createSimpleValue("xs:boolean", data.value)
+  }
+
+  if (data.type === "designTimeRef" || (data.type === "ref" && isDesignTimeRef(data.value))) {
+    return createSimpleValue("xr:DesignTimeRef", data.value)
+  }
+
+  if (data.type === "ref") {
+    return createSimpleValue("xr:MDObjectRef", data.value)
+  }
+
+  if (data.type === "ApplicationUsePurpose") {
+    return createSimpleValue("app:ApplicationUsePurpose", data.value)
+  }
+
+  return undefined
 }
 
 export const exportMetadataValuesToXML = (
@@ -94,3 +69,14 @@ export const exportMetadataValuesToXML = (
 
   return data.map((value) => exportMetadataValueToXML(context, value)!)
 }
+
+const createSimpleValue = (
+  xsiType: MetadataSimpleValueXML["_xsi:type"],
+  text: string | boolean | number
+): MetadataSimpleValueXML => ({
+  "_xsi:type": xsiType,
+  "#text": text,
+})
+
+const isDesignTimeRef = (value: string): boolean =>
+  value.includes("Enum.") || value.includes("Catalog.") || value.includes("EmptyRef")

@@ -29,14 +29,14 @@ export const importMetadataValueFromXML = (
   const textValue = (data as MetadataSimpleValueXML)["#text"]
   const type = removePrefix(xsiType)
 
-  if (type === "string") return { type: "string", value: textValue }
+  if (type === "string") return { type: "string", value: textValue as string }
   if (type === "decimal") return { type: "decimal", value: Number(textValue) }
-  if (type === "dateTime") return { type: "dateTime", value: textValue }
+  if (type === "dateTime") return { type: "dateTime", value: textValue as string }
   if (type === "boolean")
     return { type: "boolean", value: importBooleanFromXML(context, textValue as "true" | "false")! }
-  if (type === "designTimeRef") return { type: "ref", value: textValue }
-  if (type === "mDObjectRef") return { type: "ref", value: textValue }
-  if (xsiType === "app:ApplicationUsePurpose") return { type: "ApplicationUsePurpose", value: textValue }
+  if (type === "designTimeRef") return { type: "ref", value: textValue as string }
+  if (type === "mDObjectRef") return { type: "ref", value: textValue as string }
+  if (xsiType === "app:ApplicationUsePurpose") return { type: "ApplicationUsePurpose", value: textValue as string }
 
   return undefined
 }
