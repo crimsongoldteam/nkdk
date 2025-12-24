@@ -8,6 +8,8 @@ export type MetadataValueType =
   | "dateTime"
   | "boolean"
   | "designTimeRef"
+  | "ref"
+  | "ApplicationUsePurpose"
   | "fixedArray"
   | "formChoiceListDesTimeValue"
 
@@ -27,7 +29,7 @@ export interface MetadataNumberValue {
 
 export interface MetadataDateTimeValue {
   type: "dateTime"
-  value: Date
+  value: string
 }
 
 export interface MetadataBooleanValue {
@@ -37,6 +39,16 @@ export interface MetadataBooleanValue {
 
 export interface MetadataRefValue {
   type: "designTimeRef"
+  value: string
+}
+
+export interface MetadataRefValueNew {
+  type: "ref"
+  value: string
+}
+
+export interface MetadataApplicationUsePurposeValue {
+  type: "ApplicationUsePurpose"
   value: string
 }
 
@@ -56,13 +68,25 @@ export type MetadataValue =
   | MetadataDateTimeValue
   | MetadataBooleanValue
   | MetadataRefValue
+  | MetadataRefValueNew
+  | MetadataApplicationUsePurposeValue
   | MetadataFixedArrayValue
   | MetadataFormChoiceListValue
 
 //#region MetadataValueXML
 
 export interface MetadataSimpleValueXML {
-  "_xsi:type": "xs:string" | "xs:number" | "xs:dateTime" | "xs:boolean" | "xr:DesignTimeRef"
+  "_xsi:type":
+    | "xs:string"
+    | "xs:number"
+    | "xs:dateTime"
+    | "xs:boolean"
+    | "xr:DesignTimeRef"
+    | "xr:MDObjectRef"
+    | "app:ApplicationUsePurpose"
+    | "v8:FixedArray"
+    | "FormChoiceListDesTimeValue"
+
   "#text": string
 }
 

@@ -1,0 +1,134 @@
+import { describe, expect, it } from "vitest"
+import { mockСontext } from "~/lib/tests/mockContext"
+import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
+import { importMetadataValueFromXML } from "./importFromXML"
+import { MetadataValueXML } from "./types"
+
+describe("importMetadataValueFromXML", () => {
+  it("should import string value from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/string.xml")
+
+    const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
+
+    expect(result).toEqual({
+      type: "string",
+      value: "Текстовое значение",
+    })
+  })
+
+  it("should import boolean value from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/boolean.xml")
+
+    const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
+
+    expect(result).toEqual({
+      type: "boolean",
+      value: true,
+    })
+  })
+
+  it("should import decimal value from XML as number", () => {
+    const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/decimal.xml")
+
+    const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
+
+    expect(result).toEqual({
+      type: "number",
+      value: 0,
+    })
+  })
+
+  it("should import dateTime value from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/dateTime.xml")
+    const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
+
+    expect(result).toEqual({
+      type: "dateTime",
+      value: "2025-12-24T12:00:00",
+    })
+  })
+
+  it("should import enum (DesignTimeRef) value from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/enum.xml")
+
+    const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
+
+    expect(result).toEqual({
+      type: "ref",
+      value: "Enum.ВидыДоговоров.EnumValue.СПоставщиком",
+    })
+  })
+
+  it("should import catalog (DesignTimeRef) value from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/catalog.xml")
+
+    const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
+
+    expect(result).toEqual({
+      type: "ref",
+      value: "Catalog.Пользователи.EmptyRef",
+    })
+  })
+
+  it("should import fixedArray value from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/fixedArray.xml")
+
+    const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
+
+    expect(result).toEqual({
+      type: "fixedArray",
+      value: [
+        {
+          type: "ref",
+          value: "Enum.ТипыСчетов.EnumValue.КосвенныеЗатраты",
+        },
+        {
+          type: "ref",
+          value: "Enum.ТипыСчетов.EnumValue.Расходы",
+        },
+      ],
+    })
+  })
+
+  it("should import FormChoiceListDesTimeValue from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/formChoiceListDesTimeValue.xml")
+
+    const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
+
+    expect(result).toEqual({
+      type: "formChoiceListDesTimeValue",
+      value: {
+        type: "string",
+        value: "ФЛ",
+      },
+    })
+  })
+
+  it("should return string for unsupported types (xr:MDObjectRef)", () => {
+    const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/metadataRef.xml")
+
+    const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
+
+    expect(result).toEqual({
+      type: "ref",
+      value: "ChartOfCharacteristicTypes.ДополнительныеРеквизитыИСведения",
+    })
+  })
+
+  it("should return string for app:ApplicationUsePurpose type", () => {
+    const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/appUsePurpose.xml")
+
+    const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
+
+    expect(result).toEqual({
+      type: "ApplicationUsePurpose",
+      value: "PlatformApplication",
+    })
+  })
+
+  it("should return undefined for undefined input", () => {
+    const result = importMetadataValueFromXML(mockСontext, undefined)
+
+    expect(result).toBeUndefined()
+  })
+})

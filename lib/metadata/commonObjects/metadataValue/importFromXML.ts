@@ -1,119 +1,40 @@
 import { Context } from "../../context/types"
+import { importBooleanFromXML } from "../boolean/importFromXML"
 import {
-  MetadataValue,
-  MetadataValueXML,
-  MetadataSimpleValueXML,
   MetadataFixedArrayValueXML,
   MetadataFormChoiceListDesTimeValueXML,
+  MetadataSimpleValueXML,
+  MetadataValue,
+  MetadataValueXML,
 } from "./types"
-
-const mapXMLTypeToType = (
-  xmlType: string
-): MetadataValue["type"] | undefined => {
-  switch (xmlType) {
-    case "xs:string":
-      return "string"
-    case "xs:number":
-      return "number"
-    case "xs:dateTime":
-      return "dateTime"
-    case "xs:boolean":
-      return "boolean"
-    case "xr:DesignTimeRef":
-      return "designTimeRef"
-    case "v8:FixedArray":
-      return "fixedArray"
-    case "FormChoiceListDesTimeValue":
-      return "formChoiceListDesTimeValue"
-    default:
-      return undefined
-  }
-}
 
 export const importMetadataValueFromXML = (
   context: Context,
-  data: MetadataValueXML | string | undefined
+  data: MetadataValueXML | undefined
 ): MetadataValue | undefined => {
   if (!data) return undefined
 
-  // Если data - строка, возвращаем объект с этой строкой как значением
-  if (typeof data === "string") {
-    return {
-      type: "string",
-      value: data,
-    }
+  const xsiType = data["_xsi:type"]
+
+  if (xsiType === "v8:FixedArray") {
+    return importFixedArrayFromXML(context, data as MetadataFixedArrayValueXML)
   }
 
-  // Обработка простых типов с "#text"
-  if (
-    data["_xsi:type"] === "xs:string" ||
-    data["_xsi:type"] === "xs:number" ||
-    data["_xsi:type"] === "xs:dateTime" ||
-    data["_xsi:type"] === "xs:boolean" ||
-    data["_xsi:type"] === "xr:DesignTimeRef"
-  ) {
-    const xmlType = data["_xsi:type"]
-    const type = mapXMLTypeToType(xmlType)
-    if (!type) return undefined
-
-    const textValue = (data as MetadataSimpleValueXML)["#text"]
-
-    if (type === "string") {
-      return {
-        type: "string",
-        value: textValue,
-      }
-    }
-    if (type === "number") {
-      return {
-        type: "number",
-        value: Number(textValue),
-      }
-    }
-    if (type === "dateTime") {
-      return {
-        type: "dateTime",
-        value: new Date(textValue),
-      }
-    }
-    if (type === "boolean") {
-      return {
-        type: "boolean",
-        value: textValue === "true",
-      }
-    }
-    if (type === "designTimeRef") {
-      return {
-        type: "designTimeRef",
-        value: textValue,
-      }
-    }
+  if (xsiType === "FormChoiceListDesTimeValue") {
+    return importFormChoiceListDesTimeValueFromXML(context, data as MetadataFormChoiceListDesTimeValueXML)
   }
 
-  // Обработка FixedArray
-  if (data["_xsi:type"] === "v8:FixedArray") {
-    const fixedArrayData = data as MetadataFixedArrayValueXML
-    const values = Array.isArray(fixedArrayData["v8:Value"])
-      ? fixedArrayData["v8:Value"]
-      : [fixedArrayData["v8:Value"]]
-    return {
-      type: "fixedArray",
-      value: values
-        .map((v) => importMetadataValueFromXML(context, v))
-        .filter((v): v is MetadataValue => v !== undefined),
-    }
-  }
+  if (!xsiType) return undefined
 
-  // Обработка FormChoiceListDesTimeValue
-  if (data["_xsi:type"] === "FormChoiceListDesTimeValue") {
-    const formChoiceData = data as MetadataFormChoiceListDesTimeValueXML
-    const value = importMetadataValueFromXML(context, formChoiceData.Value)
-    if (!value) return undefined
-    return {
-      type: "formChoiceListDesTimeValue",
-      value,
-    }
-  }
+  const textValue = (data as MetadataSimpleValueXML)["#text"]
+  const type = removePrefix(xsiType)
+
+  if (type === "string") return { type: "string", value: textValue }
+  if (type === "number") return { type: "number", value: Number(textValue) }
+  if (type === "dateTime") return { type: "dateTime", value: textValue }
+  if (type === "boolean")
+    return { type: "boolean", value: importBooleanFromXML(context, textValue as "true" | "false")! }
+  if (type === "designTimeRef") return { type: "ref", value: textValue }
 
   return undefined
 }
@@ -125,4 +46,29 @@ export const importMetadataValuesFromXML = (
   if (!data) return undefined
 
   return data.map((value) => importMetadataValueFromXML(context, value)!)
+}
+
+const removePrefix = (xmlType: string): string => {
+  const withoutPrefix = xmlType.replace(/^[^:]+:/, "")
+  return withoutPrefix.charAt(0).toLowerCase() + withoutPrefix.slice(1)
+}
+
+const importFixedArrayFromXML = (
+  context: Context,
+  data: MetadataFixedArrayValueXML | { "v8:Value": string | string[] }
+): MetadataValue => {
+  const values = Array.isArray(data["v8:Value"]) ? data["v8:Value"] : [data["v8:Value"]]
+  return {
+    type: "fixedArray",
+    value: values.map((v) => importMetadataValueFromXML(context, v as MetadataValueXML)!),
+  }
+}
+
+const importFormChoiceListDesTimeValueFromXML = (
+  context: Context,
+  data: MetadataFormChoiceListDesTimeValueXML
+): MetadataValue | undefined => {
+  const value = importMetadataValueFromXML(context, data.Value)
+  if (!value) return undefined
+  return { type: "formChoiceListDesTimeValue", value }
 }

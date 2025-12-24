@@ -31,7 +31,7 @@ export const exportMetadataValueToXML = (
     case "dateTime": {
       const result: MetadataSimpleValueXML = {
         "_xsi:type": "xs:dateTime",
-        "#text": data.value.toISOString(),
+        "#text": data.value,
       }
       return result
     }
@@ -45,6 +45,20 @@ export const exportMetadataValueToXML = (
     case "designTimeRef": {
       const result: MetadataSimpleValueXML = {
         "_xsi:type": "xr:DesignTimeRef",
+        "#text": data.value,
+      }
+      return result
+    }
+    case "ref": {
+      const result: MetadataSimpleValueXML = {
+        "_xsi:type": "xr:DesignTimeRef",
+        "#text": data.value,
+      }
+      return result
+    }
+    case "ApplicationUsePurpose": {
+      const result: MetadataSimpleValueXML = {
+        "_xsi:type": "app:ApplicationUsePurpose",
         "#text": data.value,
       }
       return result
