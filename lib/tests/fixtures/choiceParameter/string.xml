@@ -1,0 +1,5 @@
+<ChoiceParameters>
+	<app:item name="Дополнительно.ТипВладельца">
+		<app:value xsi:type="xs:string">ЗаказПокупателя</app:value>
+	</app:item>
+</ChoiceParameters>

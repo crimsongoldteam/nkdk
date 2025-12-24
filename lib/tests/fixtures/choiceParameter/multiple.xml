@@ -1,0 +1,8 @@
+<ChoiceParameters>
+	<app:item name="Отбор.ВАрхиве">
+		<app:value xsi:type="xs:boolean">false</app:value>
+	</app:item>
+	<app:item name="Отбор.Недействителен">
+		<app:value xsi:type="xs:boolean">false</app:value>
+	</app:item>
+</ChoiceParameters>

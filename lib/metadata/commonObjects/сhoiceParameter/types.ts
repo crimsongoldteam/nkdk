@@ -1,12 +1,7 @@
 import { I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { MetadataField, MetadataFieldXML } from "../metadataField/types"
-
-export interface ChoiceParameterLinkXML {
-  "xr:Name": string
-  "xr:DataPath": MetadataField
-  "xr:ValueChange"?: SE.LinkedValueChangeMode
-}
+import { MetadataFieldXML } from "../metadataField/types"
+import { ChoiceParameterLinkXML, ChoiceParameterLink } from "../сhoiceParameterLinks/types"
 
 export interface ChoiceParameterLinkValueXML {
   "_xsi:type"?: string
@@ -19,7 +14,7 @@ export interface ChoiceParameterAppItemXML {
   "app:value": ChoiceParameterLinkValueXML
 }
 
-export interface ChoiceParameterLink {
+export interface ChoiceParameter {
   name: string
   dataPath: string
   valueChange?: SE.LinkedValueChangeMode

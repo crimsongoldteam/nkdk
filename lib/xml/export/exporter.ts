@@ -1,6 +1,6 @@
 import { XMLBuilder } from "fast-xml-parser"
 
-const ARRAY_FIELDS = ["v8:item", "xr:GeneratedType", "InternalInfo"]
+const ARRAY_FIELDS = ["v8:item", "xr:GeneratedType", "InternalInfo", "xr:Link"]
 
 export const xmlExport = (data: Record<string, any>, addDeclaration: boolean = true): string => {
   const fixedData = fixArraysExport(data, ARRAY_FIELDS)

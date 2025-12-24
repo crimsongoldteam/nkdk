@@ -1,0 +1,5 @@
+<ChoiceParameters>
+	<app:item name="Отбор.ТипСчета">
+		<app:value xsi:type="xr:DesignTimeRef">Enum.ТипыСчетов.EnumValue.ВнеоборотныеАктивы</app:value>
+	</app:item>
+</ChoiceParameters>

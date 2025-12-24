@@ -1,0 +1,9 @@
+<ChoiceParameters>
+	<app:item name="Отбор.ТипСтруктурнойЕдиницы">
+		<app:value xsi:type="v8:FixedArray">
+			<v8:Value xsi:type="xr:DesignTimeRef">Enum.ТипыСтруктурныхЕдиниц.EnumValue.Склад</v8:Value>
+			<v8:Value xsi:type="xr:DesignTimeRef">Enum.ТипыСтруктурныхЕдиниц.EnumValue.Розница</v8:Value>
+			<v8:Value xsi:type="xr:DesignTimeRef">Enum.ТипыСтруктурныхЕдиниц.EnumValue.РозницаСуммовойУчет</v8:Value>
+		</app:value>
+	</app:item>
+</ChoiceParameters>
