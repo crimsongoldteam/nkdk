@@ -30,11 +30,13 @@ export const importMetadataValueFromXML = (
   const type = removePrefix(xsiType)
 
   if (type === "string") return { type: "string", value: textValue }
-  if (type === "number") return { type: "number", value: Number(textValue) }
+  if (type === "decimal") return { type: "decimal", value: Number(textValue) }
   if (type === "dateTime") return { type: "dateTime", value: textValue }
   if (type === "boolean")
     return { type: "boolean", value: importBooleanFromXML(context, textValue as "true" | "false")! }
   if (type === "designTimeRef") return { type: "ref", value: textValue }
+  if (type === "mDObjectRef") return { type: "ref", value: textValue }
+  if (xsiType === "app:ApplicationUsePurpose") return { type: "ApplicationUsePurpose", value: textValue }
 
   return undefined
 }

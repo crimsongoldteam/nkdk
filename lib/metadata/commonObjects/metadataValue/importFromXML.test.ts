@@ -33,7 +33,7 @@ describe("importMetadataValueFromXML", () => {
     const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
 
     expect(result).toEqual({
-      type: "number",
+      type: "decimal",
       value: 0,
     })
   })

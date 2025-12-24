@@ -23,7 +23,7 @@ export interface MetadataStringValue {
 }
 
 export interface MetadataNumberValue {
-  type: "number"
+  type: "decimal"
   value: number
 }
 
