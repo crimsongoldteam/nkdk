@@ -1,54 +1,82 @@
 import { describe, expect, it } from "vitest"
+import { enumChoiceParameter } from "~/lib/tests/fixtures/choiceParameter/enum"
+import { fixedArrayChoiceParameter } from "~/lib/tests/fixtures/choiceParameter/fixedArray"
+import { formBooleanChoiceParameter } from "~/lib/tests/fixtures/choiceParameter/formBoolean"
+import { formEnumChoiceParameter } from "~/lib/tests/fixtures/choiceParameter/formEnum"
+import { multipleChoiceParameters } from "~/lib/tests/fixtures/choiceParameter/multiple"
+import { singleChoiceParameter } from "~/lib/tests/fixtures/choiceParameter/single"
+import { stringChoiceParameter } from "~/lib/tests/fixtures/choiceParameter/string"
 import { mockСontext } from "~/lib/tests/mockContext"
 import { exportChoiceParameterLinksToEnterprise } from "./exportToEnterprise"
-import { ChoiceParameterLinks } from "./types"
 
-describe("exportToEnterprise", () => {
-  it("should export single link", () => {
-    const mock: ChoiceParameterLinks = [
-      {
-        name: "Отбор.Владелец",
-        dataPath: "Catalog.ВетеринарноСопроводительныйДокументВЕТИС.Attribute.ГрузоотправительХозяйствующийСубъект",
-        valueChange: "Clear",
-      },
-    ]
+describe("exportChoiceParametersToEnterprise", () => {
+  it("should return undefined for undefined input", () => {
+    const result = exportChoiceParameterLinksToEnterprise(mockСontext, undefined)
 
-    const result = exportChoiceParameterLinksToEnterprise(mockСontext, mock)
-    expect(result).toEqual(
-      "Отбор.Владелец(Справочник.ВетеринарноСопроводительныйДокументВЕТИС.Реквизит.ГрузоотправительХозяйствующийСубъект)"
-    )
+    expect(result).toBeUndefined()
   })
 
-  it("should export multiple links to enterprise", () => {
-    const mock: ChoiceParameterLinks = [
-      {
-        name: "Отбор.Владелец",
-        dataPath: "Catalog.Справочник1.Attribute.Реквизит1",
-        valueChange: "Clear",
-      },
-      {
-        name: "Отбор.Владелец2",
-        dataPath: "Catalog.Справочник2.Attribute.Реквизит2",
-        valueChange: "Clear",
-      },
-    ]
+  it("should export single choice parameter to enterprise", () => {
+    const data = singleChoiceParameter
+    const expectedResult = "Отбор.ВАрхиве(Булево: Ложь)"
 
-    const result = exportChoiceParameterLinksToEnterprise(mockСontext, mock)
-    expect(result).toEqual(
-      "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1), Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)"
-    )
+    const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
+
+    expect(result).toEqual(expectedResult)
   })
 
-  it("should export with `DontChange` parameter", () => {
-    const mock: ChoiceParameterLinks = [
-      {
-        name: "Отбор.Владелец",
-        dataPath: "Catalog.Справочник1.Attribute.Реквизит1",
-        valueChange: "DontChange",
-      },
-    ]
+  it("should export multiple choice parameters to enterprise", () => {
+    const data = multipleChoiceParameters
+    const expectedResult = "Отбор.ВАрхиве(Булево:Ложь), Отбор.Недействителен(Булево:Ложь)"
 
-    const result = exportChoiceParameterLinksToEnterprise(mockСontext, mock)
-    expect(result).toEqual("Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1, НеИзменять)")
+    const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export choice parameters with enum value to enterprise", () => {
+    const data = enumChoiceParameter
+    const expectedResult = "Отбор.ТипСчета(Enum.ТипыСчетов.EnumValue.ВнеоборотныеАктивы)"
+
+    const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export choice parameters with string value to enterprise", () => {
+    const data = stringChoiceParameter
+    const expectedResult = "Дополнительно.ТипВладельца(ЗаказПокупателя)"
+
+    const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export choice parameters with fixedArray value to enterprise", () => {
+    const data = fixedArrayChoiceParameter
+    const expectedResult =
+      "Отбор.ТипСтруктурнойЕдиницы(Перечисление.ТипыСтруктурныхЕдиниц.Склад, Перечисление.ТипыСтруктурныхЕдиниц.Розница, Перечисление.ТипыСтруктурныхЕдиниц.РозницаСуммовойУчет)"
+
+    const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export choice parameters with form boolean value to enterprise", () => {
+    const data = formBooleanChoiceParameter
+    const expectedResult = "БезПроизводныхЗначений(Булево: Истина)"
+
+    const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export choice parameters with form enum value to enterprise", () => {
+    const data = formEnumChoiceParameter
+    const expectedResult = "Отбор.ТипСчета(Enum.ТипыСчетов.EnumValue.НераспределеннаяПрибыль)"
+
+    const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
+
+    expect(result).toEqual(expectedResult)
   })
 })

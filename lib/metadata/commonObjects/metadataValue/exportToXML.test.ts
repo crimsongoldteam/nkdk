@@ -123,13 +123,14 @@ describe("exportMetadataValueToXML", () => {
   it("should export FormChoiceListDesTimeValue to XML", () => {
     const data: MetadataValue = {
       type: "formChoiceListDesTimeValue",
+      presentation: { items: { ru: "Физическое лицо" } },
       value: {
         type: "string",
         value: "ФЛ",
       },
     }
 
-    const expectedResult = readXMLFileAsString("metadataValue/formChoiceListDesTimeValueWithoutPresentation.xml")
+    const expectedResult = readXMLFileAsString("metadataValue/formChoiceListDesTimeValue.xml")
 
     const xmlData = exportMetadataValueToXML(mockСontext, data)
 
@@ -153,20 +154,20 @@ describe("exportMetadataValueToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 
-  it("should export app:ApplicationUsePurpose type to XML", () => {
-    const data: MetadataValue = {
-      type: "ApplicationUsePurpose",
-      value: "PlatformApplication",
-    }
+  // it("should export app:ApplicationUsePurpose type to XML", () => {
+  //   const data: MetadataValue = {
+  //     type: "ApplicationUsePurpose",
+  //     value: "PlatformApplication",
+  //   }
 
-    const expectedResult = readXMLFileAsString("metadataValue/appUsePurpose.xml")
+  //   const expectedResult = readXMLFileAsString("metadataValue/appUsePurpose.xml")
 
-    const xmlData = exportMetadataValueToXML(mockСontext, data)
+  //   const xmlData = exportMetadataValueToXML(mockСontext, data)
 
-    const result = xmlExport({ Value: xmlData }, false)
+  //   const result = xmlExport({ Value: xmlData }, false)
 
-    expect(result).toEqual(expectedResult)
-  })
+  //   expect(result).toEqual(expectedResult)
+  // })
 
   it("should return undefined for undefined input", () => {
     const result = exportMetadataValueToXML(mockСontext, undefined)

@@ -1,4 +1,4 @@
-import { I8nTextXML } from "../i8nText/types"
+import { I8nText, I8nTextXML } from "../i8nText/types"
 
 //#region MetadataValue
 
@@ -59,6 +59,7 @@ export interface MetadataFixedArrayValue {
 
 export interface MetadataFormChoiceListValue {
   type: "formChoiceListDesTimeValue"
+  presentation?: I8nText
   value: MetadataValue
 }
 
@@ -112,3 +113,16 @@ export interface MetadataValueEnterprise {
   Тип: string
   Значение: string
 }
+
+export interface MetadataFormChoiceListDesTimeValueEnterprise {
+  Представление: string
+  Тип: string
+  Значение: string
+}
+
+export type MetadataValueEnterpriseResult =
+  | MetadataValueEnterprise
+  | MetadataFormChoiceListDesTimeValueEnterprise
+  | string
+  | string[]
+  | undefined
