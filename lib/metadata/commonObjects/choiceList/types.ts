@@ -1,34 +1,34 @@
-import { I8nText, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
+import { type } from "os"
+import { MetadataValue, MetadataValueXML } from "../metadataValue/types"
+import { ChoiceParameters } from "../сhoiceParameter/types"
 
-export interface ChoiceListItemValueXML {
-  "_xsi:type": "FormChoiceListDesTimeValue"
-  Presentation?: I8nTextXML
-  Value: {
-    "_xsi:type": "xs:string" | "xs:boolean"
-    "#text": string | boolean
-  }
+//#region ChoiceParameter
+export interface ChoiceParameter {
+  name: string
+  value: MetadataValue
 }
 
-export interface ChoiceListLineItemXML {
-  "xr:Presentation"?: I8nTextXML
-  "xr:CheckState": number
-  "xr:Value": ChoiceListItemValueXML
+export type ChoiceParameterItems = ChoiceParameter[]
+
+//#endregion
+
+//#region ChoiceParameterXML
+
+export interface ChoiceParameterXML {
+  "app:item: string
+  "xr:Value": MetadataValueXML
 }
 
-export interface ChoiceListItemXML {
-  "xr:Item": ChoiceListLineItemXML
+export interface ChoiceParameterItemsXML {
+  _name: string
+  "app:value": MetadataValueXML
 }
 
-export type ChoiceListXML = ChoiceListItemXML[]
+export type ChoiceParametersEnterprise = string
 
-export interface ChoiceListItem {
-  presentation?: I8nText
-  checkState: number
-  value: string
-}
 
-export interface ChoiceList {
-  items: ChoiceListItem[]
-}
-
-export type ChoiceListEnterprise = string
+<ChoiceParameters>
+	<app:item name="Отбор.ТипСчета">
+		<app:value xsi:type="xr:DesignTimeRef">Enum.ТипыСчетов.EnumValue.ВнеоборотныеАктивы</app:value>
+	</app:item>
+</ChoiceParameters>

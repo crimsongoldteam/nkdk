@@ -42,6 +42,7 @@ export const xmlImport = <T>(data: string): T => {
       // name === "TypeDescription" ||
       // name === "Type" ||
       name === "InternalInfo"
+      // name === "app:item"
       // name === "v8:Type"
       // name === "v8:item" ||
       // I8N_TEXT_FIELDS.includes(name)

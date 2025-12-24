@@ -1,41 +1,173 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/lib/tests/mockContext"
-import { readAndParseXMLFile, readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
+import { readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
-import { exportChoiceParameterLinksToXML } from "./exportToXML"
-import { importChoiceParameterLinksFromXML } from "./importFromXML"
-import { ChoiceParameterLinksXML } from "./types"
+import { ChoiceParameters } from "./types"
+import { exportChoiceParametersToXML } from "./exportToXML"
 
-describe("exportChoiceParameterLinksToXML", () => {
+describe("exportChoiceParametersToXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = exportChoiceParameterLinksToXML(mockСontext, undefined)
+    const result = exportChoiceParametersToXML(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
 
-  it("should export and import choice parameter links with single link correctly (round-trip)", () => {
-    const originalXml = readXMLFileAsString("сhoiceParameterLinks/exportSingle.xml").trimEnd()
+  it("should export choice parameters with single parameter correctly", () => {
+    const data: ChoiceParameters = [
+      {
+        name: "Отбор.ВАрхиве",
+        value: {
+          type: "boolean",
+          value: false,
+        },
+      },
+    ]
 
-    const xml = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
-      "сhoiceParameterLinks/exportSingle.xml"
-    )
-    const imported = importChoiceParameterLinksFromXML(mockСontext, xml.ChoiceParameterLinks)
-    const exported = exportChoiceParameterLinksToXML(mockСontext, imported)
-    const resultXml = xmlExport({ ChoiceParameterLinks: exported }, false)
+    const expectedResult = readXMLFileAsString("choiceParameter/single.xml")
 
-    expect(resultXml).toEqual(originalXml)
+    const xmlData = exportChoiceParametersToXML(mockСontext, data)
+    const result = xmlExport({ ChoiceParameters: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
   })
 
-  it("should export and import choice parameter links with multiple links correctly (round-trip)", () => {
-    const originalXml = readXMLFileAsString("сhoiceParameterLinks/exportMultiple.xml").trimEnd()
+  it("should export choice parameters with multiple parameters correctly", () => {
+    const data: ChoiceParameters = [
+      {
+        name: "Отбор.ВАрхиве",
+        value: {
+          type: "boolean",
+          value: false,
+        },
+      },
+      {
+        name: "Отбор.Недействителен",
+        value: {
+          type: "boolean",
+          value: false,
+        },
+      },
+    ]
 
-    const xml = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
-      "сhoiceParameterLinks/exportMultiple.xml"
-    )
-    const imported = importChoiceParameterLinksFromXML(mockСontext, xml.ChoiceParameterLinks)
-    const exported = exportChoiceParameterLinksToXML(mockСontext, imported)
-    const resultXml = xmlExport({ ChoiceParameterLinks: exported }, false)
+    const expectedResult = readXMLFileAsString("choiceParameter/multiple.xml")
 
-    expect(resultXml).toEqual(originalXml)
+    const xmlData = exportChoiceParametersToXML(mockСontext, data)
+    const result = xmlExport({ ChoiceParameters: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export choice parameters with enum value correctly", () => {
+    const data: ChoiceParameters = [
+      {
+        name: "Отбор.ТипСчета",
+        value: {
+          type: "ref",
+          value: "Enum.ТипыСчетов.EnumValue.ВнеоборотныеАктивы",
+        },
+      },
+    ]
+
+    const expectedResult = readXMLFileAsString("choiceParameter/enum.xml")
+
+    const xmlData = exportChoiceParametersToXML(mockСontext, data)
+    const result = xmlExport({ ChoiceParameters: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export choice parameters with fixedArray value correctly", () => {
+    const data: ChoiceParameters = [
+      {
+        name: "Отбор.ТипСтруктурнойЕдиницы",
+        value: {
+          type: "fixedArray",
+          value: [
+            {
+              type: "ref",
+              value: "Enum.ТипыСтруктурныхЕдиниц.EnumValue.Склад",
+            },
+            {
+              type: "ref",
+              value: "Enum.ТипыСтруктурныхЕдиниц.EnumValue.Розница",
+            },
+            {
+              type: "ref",
+              value: "Enum.ТипыСтруктурныхЕдиниц.EnumValue.РозницаСуммовойУчет",
+            },
+          ],
+        },
+      },
+    ]
+
+    const expectedResult = readXMLFileAsString("choiceParameter/fixedArray.xml")
+
+    const xmlData = exportChoiceParametersToXML(mockСontext, data)
+    const result = xmlExport({ ChoiceParameters: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export choice parameters with string value correctly", () => {
+    const data: ChoiceParameters = [
+      {
+        name: "Дополнительно.ТипВладельца",
+        value: {
+          type: "string",
+          value: "ЗаказПокупателя",
+        },
+      },
+    ]
+
+    const expectedResult = readXMLFileAsString("choiceParameter/string.xml")
+
+    const xmlData = exportChoiceParametersToXML(mockСontext, data)
+    const result = xmlExport({ ChoiceParameters: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export choice parameters with form boolean value correctly", () => {
+    const data: ChoiceParameters = [
+      {
+        name: "БезПроизводныхЗначений",
+        value: {
+          type: "formChoiceListDesTimeValue",
+          value: {
+            type: "boolean",
+            value: true,
+          },
+        },
+      },
+    ]
+
+    const expectedResult = readXMLFileAsString("choiceParameter/form/boolean.xml")
+
+    const xmlData = exportChoiceParametersToXML(mockСontext, data)
+    const result = xmlExport({ ChoiceParameters: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export choice parameters with form enum value correctly", () => {
+    const data: ChoiceParameters = [
+      {
+        name: "Отбор.ТипСчета",
+        value: {
+          type: "formChoiceListDesTimeValue",
+          value: {
+            type: "ref",
+            value: "Enum.ТипыСчетов.EnumValue.НераспределеннаяПрибыль",
+          },
+        },
+      },
+    ]
+
+    const expectedResult = readXMLFileAsString("choiceParameter/form/enum.xml")
+
+    const xmlData = exportChoiceParametersToXML(mockСontext, data)
+    const result = xmlExport({ ChoiceParameters: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
   })
 })

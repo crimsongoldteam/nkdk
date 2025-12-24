@@ -26,6 +26,7 @@ export const exportMetadataValueToXML = (
     if (!value) return undefined
     return {
       "_xsi:type": "FormChoiceListDesTimeValue",
+      Presentation: {},
       Value: value,
     } as MetadataFormChoiceListDesTimeValueXML
   }

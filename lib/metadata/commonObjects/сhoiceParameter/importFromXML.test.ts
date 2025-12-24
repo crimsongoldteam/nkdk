@@ -1,48 +1,157 @@
 import { describe, expect, it } from "vitest"
-import { multipleChoiceParameterLinks } from "~/lib/tests/fixtures/сhoiceParameterLinks/multiple"
-import { singleChoiceParameterLinks } from "~/lib/tests/fixtures/сhoiceParameterLinks/single"
-import { withStringDataPathChoiceParameterLinks } from "~/lib/tests/fixtures/сhoiceParameterLinks/withStringDataPath"
 import { mockСontext } from "~/lib/tests/mockContext"
 import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
-import { importChoiceParameterFromXML, importChoiceParameterLinksFromXML } from "./importFromXML"
-import { ChoiceParameterLinksXML } from "./types"
+import { importChoiceParametersFromXML } from "./importFromXML"
+import { ChoiceParameters, ChoiceParametersXML } from "./types"
 
-describe("importChoiceParameterFromXML", () => {
+describe("importChoiceParametersFromXML", () => {
   it("should return undefined for undefined input", () => {
-    const result = importChoiceParameterFromXML(mockСontext, undefined)
+    const result = importChoiceParametersFromXML(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
 
-  it("should import ChoiceParameterLinks with single Link", () => {
-    const xmlData = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
-      "сhoiceParameterLinks/single.xml"
-    )
-    const expectedResult = singleChoiceParameterLinks
+  it("should import choice parameters with single parameter correctly", () => {
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameter/single.xml")
+    const expectedResult: ChoiceParameters = [
+      {
+        name: "Отбор.ВАрхиве",
+        value: {
+          type: "boolean",
+          value: false,
+        },
+      },
+    ]
 
-    const result = importChoiceParameterLinksFromXML(mockСontext, xmlData.ChoiceParameterLinks)
-
-    expect(result).toEqual(expectedResult)
-  })
-
-  it("should import ChoiceParameterLinks with multiple Links", () => {
-    const xmlData = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
-      "сhoiceParameterLinks/multiple.xml"
-    )
-    const expectedResult = multipleChoiceParameterLinks
-
-    const result = importChoiceParameterLinksFromXML(mockСontext, xmlData.ChoiceParameterLinks)
+    const result = importChoiceParametersFromXML(mockСontext, xmlData.ChoiceParameters)
 
     expect(result).toEqual(expectedResult)
   })
 
-  it("should import ChoiceParameterLinks with DataPath as string", () => {
-    const xmlData = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
-      "сhoiceParameterLinks/withStringDataPath.xml"
-    )
-    const expectedResult = withStringDataPathChoiceParameterLinks
+  it("should import choice parameters with multiple parameters correctly", () => {
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameter/multiple.xml")
+    const expectedResult: ChoiceParameters = [
+      {
+        name: "Отбор.ВАрхиве",
+        value: {
+          type: "boolean",
+          value: false,
+        },
+      },
+      {
+        name: "Отбор.Недействителен",
+        value: {
+          type: "boolean",
+          value: false,
+        },
+      },
+    ]
 
-    const result = importChoiceParameterLinksFromXML(mockСontext, xmlData.ChoiceParameterLinks)
+    const result = importChoiceParametersFromXML(mockСontext, xmlData.ChoiceParameters)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should import choice parameters with enum value correctly", () => {
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameter/enum.xml")
+    const expectedResult: ChoiceParameters = [
+      {
+        name: "Отбор.ТипСчета",
+        value: {
+          type: "ref",
+          value: "Enum.ТипыСчетов.EnumValue.ВнеоборотныеАктивы",
+        },
+      },
+    ]
+
+    const result = importChoiceParametersFromXML(mockСontext, xmlData.ChoiceParameters)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should import choice parameters with fixedArray value correctly", () => {
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameter/fixedArray.xml")
+    const expectedResult: ChoiceParameters = [
+      {
+        name: "Отбор.ТипСтруктурнойЕдиницы",
+        value: {
+          type: "fixedArray",
+          value: [
+            {
+              type: "ref",
+              value: "Enum.ТипыСтруктурныхЕдиниц.EnumValue.Склад",
+            },
+            {
+              type: "ref",
+              value: "Enum.ТипыСтруктурныхЕдиниц.EnumValue.Розница",
+            },
+            {
+              type: "ref",
+              value: "Enum.ТипыСтруктурныхЕдиниц.EnumValue.РозницаСуммовойУчет",
+            },
+          ],
+        },
+      },
+    ]
+
+    const result = importChoiceParametersFromXML(mockСontext, xmlData.ChoiceParameters)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should import choice parameters with string value correctly", () => {
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameter/string.xml")
+    const expectedResult: ChoiceParameters = [
+      {
+        name: "Дополнительно.ТипВладельца",
+        value: {
+          type: "string",
+          value: "ЗаказПокупателя",
+        },
+      },
+    ]
+
+    const result = importChoiceParametersFromXML(mockСontext, xmlData.ChoiceParameters)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should import choice parameters with form boolean value correctly", () => {
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameter/form/boolean.xml")
+    const expectedResult: ChoiceParameters = [
+      {
+        name: "БезПроизводныхЗначений",
+        value: {
+          type: "formChoiceListDesTimeValue",
+          value: {
+            type: "boolean",
+            value: true,
+          },
+        },
+      },
+    ]
+
+    const result = importChoiceParametersFromXML(mockСontext, xmlData.ChoiceParameters)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should import choice parameters with form enum value correctly", () => {
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>("choiceParameter/form/enum.xml")
+    const expectedResult: ChoiceParameters = [
+      {
+        name: "Отбор.ТипСчета",
+        value: {
+          type: "formChoiceListDesTimeValue",
+          value: {
+            type: "ref",
+            value: "Enum.ТипыСчетов.EnumValue.НераспределеннаяПрибыль",
+          },
+        },
+      },
+    ]
+
+    const result = importChoiceParametersFromXML(mockСontext, xmlData.ChoiceParameters)
 
     expect(result).toEqual(expectedResult)
   })

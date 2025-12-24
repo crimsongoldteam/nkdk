@@ -129,7 +129,6 @@ describe("exportMetadataValueToXML", () => {
       },
     }
 
-    // Presentation опционален и не сохраняется при импорте, поэтому используем файл без Presentation
     const expectedResult = readXMLFileAsString("metadataValue/formChoiceListDesTimeValueWithoutPresentation.xml")
 
     const xmlData = exportMetadataValueToXML(mockСontext, data)

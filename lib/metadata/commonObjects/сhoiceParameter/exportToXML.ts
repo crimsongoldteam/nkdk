@@ -1,19 +1,19 @@
 import { Context } from "../../context/types"
-import { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
+import { exportMetadataValueToXML } from "../metadataValue/exportToXML"
+import { ChoiceParameters, ChoiceParametersXML } from "./types"
 
-export const exportChoiceParameterLinksToXML = (
-  _context: Context,
-  links: ChoiceParameterLinks
-): ChoiceParameterLinksXML | undefined => {
-  if (!links || links.length === 0) return undefined
+export const exportChoiceParametersToXML = (
+  context: Context,
+  parameters: ChoiceParameters | undefined
+): ChoiceParametersXML | undefined => {
+  if (!parameters || parameters.length === 0) return undefined
 
-  const exportLink = (link: { name: string; dataPath: string; valueChange?: string }) => ({
-    "xr:Name": link.name,
-    "xr:DataPath": link.dataPath,
-    "xr:ValueChange": link.valueChange,
-  })
-
-  return links.map((link) => ({
-    "xr:Link": exportLink(link),
+  const items = parameters.map((param) => ({
+    _name: param.name,
+    "app:value": exportMetadataValueToXML(context, param.value)!,
   }))
+
+  return {
+    "app:item": items,
+  }
 }
