@@ -2,6 +2,7 @@ import { tags } from "typia"
 import { StringboolEnterprise, StringboolXML } from "~/lib/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/lib/metadata/commonObjects/i8nText/types"
 import {
+  MetadataSimpleValueXML,
   MetadataValue,
   MetadataValueEnterprise,
   MetadataValueXML,
@@ -79,8 +80,8 @@ export interface MetadataAttributeXML {
     LinkByType?: TypeLinkXML
     MarkNegatives?: StringboolXML
     Mask?: string
-    MaxValue?: number
-    MinValue?: number
+    MaxValue?: MetadataSimpleValueXML
+    MinValue?: MetadataSimpleValueXML
     MultiLine?: StringboolXML
     Name: string
     ObjectBelonging?: SE.ObjectBelonging
@@ -107,9 +108,9 @@ export interface MetadataAttributeFullEnterprise {
   ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
   ИсторияДанных?: SE.DataHistoryUseEnterprise
   Комментарий?: string
-  МаксимальноеЗначение?: number
+  МаксимальноеЗначение?: MetadataValueEnterprise
   Маска?: string
-  МинимальноеЗначение?: number
+  МинимальноеЗначение?: MetadataValueEnterprise
   МногострочныйРежим?: StringboolEnterprise
   ПараметрыВыбора?: ChoiceParameterLinksEnterprise
   Подсказка?: I8nTextEnterprise

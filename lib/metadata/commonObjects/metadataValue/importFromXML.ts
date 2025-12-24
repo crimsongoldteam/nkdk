@@ -5,6 +5,9 @@ import {
   MetadataFormChoiceListDesTimeValueXML,
   MetadataSimpleValueXML,
   MetadataValue,
+  MetadataValueType,
+  MetadataValueTypeFromXML,
+  MetadataValueTypeXML,
   MetadataValueXML,
 } from "./types"
 
@@ -27,15 +30,15 @@ export const importMetadataValueFromXML = (
   if (!xsiType) return undefined
 
   const textValue = (data as MetadataSimpleValueXML)["#text"]
-  const type = removePrefix(xsiType)
+  const type = extractType(xsiType)
 
   if (type === "string") return { type: "string", value: textValue as string }
   if (type === "decimal") return { type: "decimal", value: Number(textValue) }
   if (type === "dateTime") return { type: "dateTime", value: textValue as string }
   if (type === "boolean")
     return { type: "boolean", value: importBooleanFromXML(context, textValue as "true" | "false")! }
-  if (type === "designTimeRef") return { type: "ref", value: textValue as string }
-  if (type === "mDObjectRef") return { type: "ref", value: textValue as string }
+  if (type === "ref") return { type: "ref", value: textValue as string }
+  if (type === "objectRef") return { type: "objectRef", value: textValue as string }
   if (xsiType === "app:ApplicationUsePurpose") return { type: "ApplicationUsePurpose", value: textValue as string }
 
   return undefined
@@ -50,9 +53,19 @@ export const importMetadataValuesFromXML = (
   return data.map((value) => importMetadataValueFromXML(context, value)!)
 }
 
-const removePrefix = (xmlType: string): string => {
-  const withoutPrefix = xmlType.replace(/^[^:]+:/, "")
-  return withoutPrefix.charAt(0).toLowerCase() + withoutPrefix.slice(1)
+export const importMetadataSimpleValueFromXML = (
+  context: Context,
+  data: MetadataSimpleValueXML | undefined
+): string | boolean | number | undefined => {
+  const result = importMetadataValueFromXML(context, data)
+  if (!result) return undefined
+
+  if (!isPrimitiveType(result.type)) throw new Error(`Invalid type: ${result.type}`)
+  return result.value as string | boolean | number
+}
+
+const extractType = (xmlType: MetadataValueTypeXML): MetadataValueType | undefined => {
+  return MetadataValueTypeFromXML(xmlType)
 }
 
 const importFixedArrayFromXML = (
@@ -73,4 +86,8 @@ const importFormChoiceListDesTimeValueFromXML = (
   const value = importMetadataValueFromXML(context, data.Value)
   if (!value) return undefined
   return { type: "formChoiceListDesTimeValue", value }
+}
+
+const isPrimitiveType = (type: MetadataValueType): boolean => {
+  return type === "string" || type === "decimal" || type === "dateTime" || type === "boolean"
 }

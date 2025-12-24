@@ -3,8 +3,10 @@ import { exportI8nTextToXML } from "../i8nText/exportToXML"
 import {
   MetadataFixedArrayValueXML,
   MetadataFormChoiceListDesTimeValueXML,
+  MetadataSimpleValue,
   MetadataSimpleValueXML,
   MetadataValue,
+  MetadataValueTypeToXML,
   MetadataValueXML,
 } from "./types"
 
@@ -14,53 +16,20 @@ export const exportMetadataValueToXML = (
 ): MetadataValueXML | undefined => {
   if (!data) return undefined
 
+  const xmlType = MetadataValueTypeToXML[data.type]
+
   if (data.type === "fixedArray") {
-    const values = data.value.map((v) => exportMetadataValueToXML(context, v)!)
-    return {
-      "_xsi:type": "v8:FixedArray",
-      "v8:Value": values.length === 1 ? values[0] : values,
-    } as MetadataFixedArrayValueXML
+    return exportFixedArrayValueToXML(context, data as Extract<MetadataValue, { type: "fixedArray" }>)
   }
 
   if (data.type === "formChoiceListDesTimeValue") {
-    const value = exportMetadataValueToXML(context, data.value)
-    if (!value) return undefined
-    return {
-      "_xsi:type": "FormChoiceListDesTimeValue",
-      Presentation: exportI8nTextToXML(context, data.presentation),
-      Value: value,
-    } as MetadataFormChoiceListDesTimeValueXML
+    return exportFormChoiceListDesTimeValueToXML(
+      context,
+      data as Extract<MetadataValue, { type: "formChoiceListDesTimeValue" }>
+    )
   }
 
-  if (data.type === "string") {
-    return createSimpleValue("xs:string", data.value)
-  }
-
-  if (data.type === "decimal") {
-    return createSimpleValue("xs:decimal" as any, String(data.value))
-  }
-
-  if (data.type === "dateTime") {
-    return createSimpleValue("xs:dateTime", data.value)
-  }
-
-  if (data.type === "boolean") {
-    return createSimpleValue("xs:boolean", data.value)
-  }
-
-  if (data.type === "designTimeRef" || (data.type === "ref" && isDesignTimeRef(data.value))) {
-    return createSimpleValue("xr:DesignTimeRef", data.value)
-  }
-
-  if (data.type === "ref") {
-    return createSimpleValue("xr:MDObjectRef", data.value)
-  }
-
-  if (data.type === "ApplicationUsePurpose") {
-    return createSimpleValue("app:ApplicationUsePurpose", data.value)
-  }
-
-  return undefined
+  return createSimpleValue(xmlType, data.value)
 }
 
 export const exportMetadataValuesToXML = (
@@ -72,6 +41,45 @@ export const exportMetadataValuesToXML = (
   return data.map((value) => exportMetadataValueToXML(context, value)!)
 }
 
+export const exportMetadataSimpleValueToXML = (
+  _context: Context,
+  value: string | boolean | number | undefined,
+  type: "string" | "decimal" | "dateTime" | "boolean"
+): MetadataValueXML | undefined => {
+  if (!value) return undefined
+
+  const data: MetadataSimpleValue = {
+    type,
+    value,
+  }
+
+  return exportMetadataValueToXML(_context, data)
+}
+
+const exportFixedArrayValueToXML = (
+  context: Context,
+  data: Extract<MetadataValue, { type: "fixedArray" }>
+): MetadataFixedArrayValueXML => {
+  const values = data.value.map((v) => exportMetadataValueToXML(context, v)!)
+  return {
+    "_xsi:type": "v8:FixedArray",
+    "v8:Value": values.length === 1 ? values[0] : values,
+  } as MetadataFixedArrayValueXML
+}
+
+const exportFormChoiceListDesTimeValueToXML = (
+  context: Context,
+  data: Extract<MetadataValue, { type: "formChoiceListDesTimeValue" }>
+): MetadataFormChoiceListDesTimeValueXML | undefined => {
+  const value = exportMetadataValueToXML(context, data.value)
+  if (!value) return undefined
+  return {
+    "_xsi:type": "FormChoiceListDesTimeValue",
+    Presentation: exportI8nTextToXML(context, data.presentation),
+    Value: value,
+  } as MetadataFormChoiceListDesTimeValueXML
+}
+
 const createSimpleValue = (
   xsiType: MetadataSimpleValueXML["_xsi:type"],
   text: string | boolean | number
@@ -79,6 +87,3 @@ const createSimpleValue = (
   "_xsi:type": xsiType,
   "#text": text,
 })
-
-const isDesignTimeRef = (value: string): boolean =>
-  value.includes("Enum.") || value.includes("Catalog.") || value.includes("EmptyRef")

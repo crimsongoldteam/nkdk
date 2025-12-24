@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/lib/tests/mockContext"
 import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
-import { importMetadataValueFromXML } from "./importFromXML"
-import { MetadataValueXML } from "./types"
+import { importMetadataSimpleValueFromXML, importMetadataValueFromXML } from "./importFromXML"
+import { MetadataSimpleValueXML, MetadataValueXML } from "./types"
 
 describe("importMetadataValueFromXML", () => {
   it("should import string value from XML", () => {
@@ -34,7 +34,7 @@ describe("importMetadataValueFromXML", () => {
 
     expect(result).toEqual({
       type: "decimal",
-      value: 0,
+      value: 10,
     })
   })
 
@@ -130,5 +130,15 @@ describe("importMetadataValueFromXML", () => {
     const result = importMetadataValueFromXML(mockСontext, undefined)
 
     expect(result).toBeUndefined()
+  })
+})
+
+describe("importMetadataSimpleValueFromXML", () => {
+  it("should import string value from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Value: MetadataSimpleValueXML }>("metadataValue/numberAsString.xml")
+
+    const result = importMetadataSimpleValueFromXML(mockСontext, xmlData.Value)
+
+    expect(result).toEqual(11)
   })
 })

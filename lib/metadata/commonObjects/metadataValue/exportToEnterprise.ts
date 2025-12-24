@@ -2,15 +2,9 @@ import { format } from "date-fns"
 import { Context } from "../../context/types"
 import { AppliedTypeToEnterprise } from "../typeDescription/types"
 import {
-  MetadataApplicationUsePurposeValue,
-  MetadataBooleanValue,
-  MetadataDateTimeValue,
   MetadataFixedArrayValue,
   MetadataFormChoiceListValue,
-  MetadataNumberValue,
-  MetadataRefValue,
-  MetadataRefValueNew,
-  MetadataStringValue,
+  MetadataSimpleValue,
   MetadataValue,
   MetadataValueEnterprise,
   MetadataValueEnterpriseResult,
@@ -52,14 +46,14 @@ const formatDateTime = (dateTime: string): string => {
   return format(date, "dd.MM.yyyy HH:mm:ss")
 }
 
-const exportStringValueToEnterprise = (data: MetadataStringValue): MetadataValueEnterprise => {
+const exportStringValueToEnterprise = (data: MetadataSimpleValue): MetadataValueEnterprise => {
   return {
     Тип: "Строка",
     Значение: data.value,
   }
 }
 
-const exportDecimalValueToEnterprise = (data: MetadataNumberValue): MetadataValueEnterprise => {
+const exportDecimalValueToEnterprise = (data: MetadataDecimalValue): MetadataValueEnterprise => {
   return {
     Тип: "Число",
     Значение: String(data.value),
@@ -81,6 +75,10 @@ const exportBooleanValueToEnterprise = (data: MetadataBooleanValue): MetadataVal
 }
 
 const exportRefValueToEnterprise = (data: MetadataRefValue | MetadataRefValueNew): string => {
+  return convertRefToEnterprise(data.value)
+}
+
+const exportObjectRefValueToEnterprise = (data: MetadataValue): MetadataValueEnterprise => {
   return convertRefToEnterprise(data.value)
 }
 
@@ -150,8 +148,9 @@ export const exportMetadataValueToEnterprise = (
     case "boolean":
       return exportBooleanValueToEnterprise(data)
     case "ref":
-    case "designTimeRef":
       return exportRefValueToEnterprise(data)
+    case "objectRef":
+      return exportObjectRefValueToEnterprise(data)
     case "ApplicationUsePurpose":
       return exportApplicationUsePurposeValueToEnterprise(data)
     case "fixedArray":

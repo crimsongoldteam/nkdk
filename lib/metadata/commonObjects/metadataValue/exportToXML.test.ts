@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/lib/tests/mockContext"
 import { readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { xmlExport } from "~/lib/xml/export/exporter"
-import { exportMetadataValueToXML } from "./exportToXML"
+import { exportMetadataSimpleValueToXML, exportMetadataValueToXML } from "./exportToXML"
 import { MetadataValue } from "./types"
 
 describe("exportMetadataValueToXML", () => {
@@ -39,7 +39,7 @@ describe("exportMetadataValueToXML", () => {
   it("should export decimal value to XML as number", () => {
     const data: MetadataValue = {
       type: "decimal",
-      value: 0,
+      value: 10,
     }
 
     const expectedResult = readXMLFileAsString("metadataValue/decimal.xml")
@@ -141,7 +141,7 @@ describe("exportMetadataValueToXML", () => {
 
   it("should export metadataRef (xr:MDObjectRef) value to XML", () => {
     const data: MetadataValue = {
-      type: "ref",
+      type: "objectRef",
       value: "ChartOfCharacteristicTypes.ДополнительныеРеквизитыИСведения",
     }
 
@@ -173,5 +173,17 @@ describe("exportMetadataValueToXML", () => {
     const result = exportMetadataValueToXML(mockСontext, undefined)
 
     expect(result).toBeUndefined()
+  })
+})
+
+describe("export primitive values to XML", () => {
+  it("should export string value to XML", () => {
+    const expectedResult = readXMLFileAsString("metadataValue/numberAsString.xml")
+
+    const xmlData = exportMetadataSimpleValueToXML(mockСontext, 11, "string")
+
+    const result = xmlExport({ Value: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
   })
 })

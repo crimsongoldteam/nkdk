@@ -5,7 +5,10 @@ import {
   MetadataAttributesXML,
   MetadataAttributeXML,
 } from "~/lib/metadata/commonObjects/metadataAttribute/types"
-import { importMetadataValueFromXML } from "~/lib/metadata/commonObjects/metadataValue/importFromXML"
+import {
+  importMetadataSimpleValueFromXML,
+  importMetadataValueFromXML,
+} from "~/lib/metadata/commonObjects/metadataValue/importFromXML"
 import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeDescription/importFromXML"
 import { importTypeLinkFromXML } from "~/lib/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/lib/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
@@ -44,8 +47,8 @@ export const importMetadataAttributeFromXML = (
     linkByType: importTypeLinkFromXML(context, props.LinkByType),
     markNegatives: importBooleanFromXML(context, props.MarkNegatives),
     mask: props.Mask,
-    maxValue: props.MaxValue,
-    minValue: props.MinValue,
+    maxValue: Number(importMetadataSimpleValueFromXML(context, props.MaxValue)),
+    minValue: Number(importMetadataSimpleValueFromXML(context, props.MinValue)),
     multiLine: importBooleanFromXML(context, props.MultiLine),
     name: props.Name!,
     objectBelonging: props.ObjectBelonging,

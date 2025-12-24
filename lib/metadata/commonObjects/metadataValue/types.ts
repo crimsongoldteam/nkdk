@@ -2,92 +2,55 @@ import { I8nText, I8nTextXML } from "../i8nText/types"
 
 //#region MetadataValue
 
-export type MetadataValueType =
-  | "string"
-  | "number"
-  | "dateTime"
-  | "boolean"
-  | "designTimeRef"
-  | "ref"
-  | "ApplicationUsePurpose"
-  | "fixedArray"
-  | "formChoiceListDesTimeValue"
+export const MetadataValueTypeToXML = {
+  string: "xs:string",
+  decimal: "xs:decimal",
+  dateTime: "xs:dateTime",
+  boolean: "xs:boolean",
+  ref: "xr:DesignTimeRef",
+  objectRef: "xr:MDObjectRef",
+  ApplicationUsePurpose: "app:ApplicationUsePurpose",
+  fixedArray: "v8:FixedArray",
+  formChoiceListDesTimeValue: "FormChoiceListDesTimeValue",
+} as const
+
+export const MetadataValueTypeFromXML = (xmlType: MetadataValueTypeXML): MetadataValueType | undefined => {
+  return Object.keys(MetadataValueTypeToXML).find(
+    (key) => MetadataValueTypeToXML[key as keyof typeof MetadataValueTypeToXML] === xmlType
+  ) as MetadataValueType | undefined
+}
+
+export type MetadataValueType = keyof typeof MetadataValueTypeToXML
+export type MetadataPrimitiveValueType = Extract<MetadataValueType, "string" | "decimal" | "dateTime" | "boolean">
+
+export type MetadataValueTypeXML = (typeof MetadataValueTypeToXML)[keyof typeof MetadataValueTypeToXML]
 
 export interface MetadataAbstractValue {
   type: MetadataValueType
 }
 
-export interface MetadataStringValue {
-  type: "string"
-  value: string
+export interface MetadataSimpleValue {
+  type: MetadataValueType
+  value: string | boolean | number
 }
 
-export interface MetadataNumberValue {
-  type: "decimal"
-  value: number
-}
-
-export interface MetadataDateTimeValue {
-  type: "dateTime"
-  value: string
-}
-
-export interface MetadataBooleanValue {
-  type: "boolean"
-  value: boolean
-}
-
-export interface MetadataRefValue {
-  type: "designTimeRef"
-  value: string
-}
-
-export interface MetadataRefValueNew {
-  type: "ref"
-  value: string
-}
-
-export interface MetadataApplicationUsePurposeValue {
-  type: "ApplicationUsePurpose"
-  value: string
-}
-
-export interface MetadataFixedArrayValue {
+export interface MetadataFixedArrayValue extends MetadataAbstractValue {
   type: "fixedArray"
   value: MetadataValue[]
 }
 
-export interface MetadataFormChoiceListValue {
+export interface MetadataFormChoiceListValue extends MetadataAbstractValue {
   type: "formChoiceListDesTimeValue"
   presentation?: I8nText
   value: MetadataValue
 }
 
-export type MetadataValue =
-  | MetadataStringValue
-  | MetadataNumberValue
-  | MetadataDateTimeValue
-  | MetadataBooleanValue
-  | MetadataRefValue
-  | MetadataRefValueNew
-  | MetadataApplicationUsePurposeValue
-  | MetadataFixedArrayValue
-  | MetadataFormChoiceListValue
+export type MetadataValue = MetadataSimpleValue | MetadataFixedArrayValue | MetadataFormChoiceListValue
 
 //#region MetadataValueXML
 
 export interface MetadataSimpleValueXML {
-  "_xsi:type":
-    | "xs:string"
-    | "xs:number"
-    | "xs:dateTime"
-    | "xs:boolean"
-    | "xr:DesignTimeRef"
-    | "xr:MDObjectRef"
-    | "app:ApplicationUsePurpose"
-    | "v8:FixedArray"
-    | "FormChoiceListDesTimeValue"
-
+  "_xsi:type": MetadataValueTypeXML
   "#text": string | boolean | number
 }
 
