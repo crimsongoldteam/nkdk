@@ -13,6 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "commander": "^14.0.2",
     "fast-xml-parser": "^5.3.3"
   },
   "devDependencies": {
