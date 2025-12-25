@@ -13,10 +13,12 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "cli-progress": "^3.12.0",
     "commander": "^14.0.2",
     "fast-xml-parser": "^5.3.3"
   },
   "devDependencies": {
+    "@types/cli-progress": "^3.11.6",
     "@types/node": "^24.10.1",
     "tsx": "^4.19.2",
     "typescript": "~5.9.3",

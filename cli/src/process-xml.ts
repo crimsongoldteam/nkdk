@@ -1,7 +1,8 @@
 #!/usr/bin/env node
+import cliProgress from "cli-progress"
 import { Command } from "commander"
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "fs"
-import { dirname, join } from "path"
+import { dirname, join, relative } from "path"
 import { processXmlContent } from "./xmlProcessor.js"
 
 const program = new Command()
@@ -35,68 +36,142 @@ function isFile(path: string): boolean {
 }
 
 function processXmlFile(inputFile: string, outputFile: string): void {
-  try {
-    // Читаем XML файл
-    const xmlContent = readFileSync(inputFile, "utf-8")
+  const xmlContent = readFileSync(inputFile, "utf-8")
+  const processedXml = processXmlContent(xmlContent)
+  const outputDir = dirname(outputFile)
+  mkdirSync(outputDir, { recursive: true })
+  writeFileSync(outputFile, processedXml, "utf-8")
+}
 
-    // Обрабатываем XML
-    const processedXml = processXmlContent(xmlContent)
+function collectXmlFiles(dir: string, baseDir: string = dir): Array<{ input: string; output: string }> {
+  const files: Array<{ input: string; output: string }> = []
+  const entries = readdirSync(dir, { withFileTypes: true })
+  const excludedFiles = ["Form.xml", "Template.xml"]
 
-    // Создаем директорию для выходного файла, если её нет
-    const outputDir = dirname(outputFile)
-    mkdirSync(outputDir, { recursive: true })
+  for (const entry of entries) {
+    const entryPath = join(dir, entry.name)
 
-    // Сохраняем в файл
-    writeFileSync(outputFile, processedXml, "utf-8")
-    console.log(`✓ ${inputFile} -> ${outputFile}`)
-  } catch (error) {
-    console.error(`Ошибка при обработке ${inputFile}:`, error)
-    throw error
+    if (entry.isDirectory()) {
+      files.push(...collectXmlFiles(entryPath, baseDir))
+    } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".xml")) {
+      if (excludedFiles.includes(entry.name)) {
+        continue
+      }
+      const relativePath = relative(baseDir, entryPath)
+      files.push({
+        input: entryPath,
+        output: relativePath,
+      })
+    }
   }
+
+  return files
 }
 
 function processDirectory(inputDir: string, outputDir: string): void {
-  // Создаем выходную директорию, если её нет
   mkdirSync(outputDir, { recursive: true })
+  const xmlFiles = collectXmlFiles(inputDir, inputDir)
 
-  // Получаем все элементы в директории
-  const entries = readdirSync(inputDir, { withFileTypes: true })
+  if (xmlFiles.length === 0) {
+    console.log("XML файлы не найдены")
+    return
+  }
 
-  for (const entry of entries) {
-    const inputEntryPath = join(inputDir, entry.name)
-    const outputEntryPath = join(outputDir, entry.name)
+  const progressBar = new cliProgress.SingleBar(
+    {
+      format: "Обработка |{bar}| {percentage}% | {value}/{total} файлов | {file}",
+      barCompleteChar: "\u2588",
+      barIncompleteChar: "\u2591",
+      hideCursor: true,
+    },
+    cliProgress.Presets.shades_classic
+  )
 
-    if (entry.isDirectory()) {
-      // Рекурсивно обрабатываем подкаталоги
-      processDirectory(inputEntryPath, outputEntryPath)
-    } else if (entry.isFile() && entry.name.toLowerCase().endsWith(".xml")) {
-      // Обрабатываем XML файлы
-      processXmlFile(inputEntryPath, outputEntryPath)
+  progressBar.start(xmlFiles.length, 0, { file: "" })
+
+  const errors: Array<{ file: string; error: string }> = []
+  let processedCount = 0
+
+  try {
+    for (let i = 0; i < xmlFiles.length; i++) {
+      const file = xmlFiles[i]
+      const outputFile = join(outputDir, file.output)
+      const fileName = file.input.split(/[/\\]/).pop() || file.input
+
+      try {
+        processXmlFile(file.input, outputFile)
+        processedCount++
+      } catch (error) {
+        let errorMessage = "Неизвестная ошибка"
+        if (error instanceof Error) {
+          errorMessage = error.message
+          const firstLine = errorMessage.split("\n")[0]
+          errorMessage = firstLine.length > 100 ? firstLine.substring(0, 97) + "..." : firstLine
+        } else {
+          errorMessage = String(error).split("\n")[0]
+        }
+        errors.push({ file: file.input, error: errorMessage })
+      }
+
+      progressBar.update(i + 1, { file: fileName })
     }
+  } finally {
+    progressBar.stop()
+  }
+
+  console.log("")
+  if (errors.length > 0) {
+    console.log(`⚠  Обработано: ${processedCount}/${xmlFiles.length} файлов`)
+    console.log(`❌ Ошибок: ${errors.length}`)
+    console.log("")
+    console.log("Файлы с ошибками:")
+    errors.forEach((err, index) => {
+      const relativePath = relative(process.cwd(), err.file)
+      console.log(`  ${index + 1}. ${relativePath}`)
+      console.log(`     ${err.error}`)
+      if (index < errors.length - 1) {
+        console.log("")
+      }
+    })
+  } else {
+    console.log(`✓ Успешно обработано: ${processedCount}/${xmlFiles.length} файлов`)
   }
 }
 
 function processPaths(inputPath: string, outputPath: string): void {
   try {
     if (isFile(inputPath)) {
-      // Обработка одного файла
-      if (isDirectory(outputPath)) {
-        // Если выходной путь - директория, сохраняем файл с тем же именем
-        const fileName = inputPath.split(/[/\\]/).pop() || "output.xml"
-        const outputFile = join(outputPath, fileName)
-        processXmlFile(inputPath, outputFile)
-      } else {
-        // Если выходной путь - файл, сохраняем туда
-        processXmlFile(inputPath, outputPath)
+      const progressBar = new cliProgress.SingleBar(
+        {
+          format: "Обработка |{bar}| {percentage}% | {file}",
+          barCompleteChar: "\u2588",
+          barIncompleteChar: "\u2591",
+          hideCursor: true,
+        },
+        cliProgress.Presets.shades_classic
+      )
+
+      const fileName = inputPath.split(/[/\\]/).pop() || inputPath
+      progressBar.start(1, 0, { file: fileName })
+
+      try {
+        if (isDirectory(outputPath)) {
+          const outputFile = join(outputPath, fileName)
+          processXmlFile(inputPath, outputFile)
+        } else {
+          processXmlFile(inputPath, outputPath)
+        }
+        progressBar.update(1, { file: fileName })
+      } finally {
+        progressBar.stop()
+        console.log(`✓ ${inputPath} -> ${isDirectory(outputPath) ? join(outputPath, fileName) : outputPath}`)
       }
     } else if (isDirectory(inputPath)) {
-      // Обработка каталога
       if (!isDirectory(outputPath)) {
-        // Если выходной путь не существует или это файл, создаем директорию
         mkdirSync(outputPath, { recursive: true })
       }
       processDirectory(inputPath, outputPath)
-      console.log(`\nОбработка завершена: ${inputPath} -> ${outputPath}`)
+      console.log(`\n✓ Обработка завершена: ${inputPath} -> ${outputPath}`)
     } else {
       console.error(`Ошибка: ${inputPath} не является файлом или каталогом`)
       process.exit(1)

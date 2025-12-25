@@ -9,7 +9,8 @@ export function processXmlContent(xmlContent: string): string {
 }
 
 function parseXml(xmlContent: string): any {
-  const parser = new XMLParser({
+  // Основные настройки парсера
+  const primaryOptions = {
     preserveOrder: false,
     ignoreAttributes: false,
     attributeNamePrefix: "",
@@ -18,9 +19,45 @@ function parseXml(xmlContent: string): any {
     trimValues: true,
     parseTagValue: true,
     parseAttributeValue: false,
-  })
+    processEntities: true,
+    htmlEntities: true,
+    ignoreDeclaration: false,
+    ignorePiTags: false,
+  }
 
-  return parser.parse(xmlContent)
+  // Пробуем основной парсер
+  try {
+    const parser = new XMLParser(primaryOptions)
+    return parser.parse(xmlContent)
+  } catch (error) {
+    // Если не получилось, пробуем с preserveOrder: true (как в importer.ts)
+    try {
+      const fallbackParser = new XMLParser({
+        ...primaryOptions,
+        preserveOrder: true,
+      })
+      return fallbackParser.parse(xmlContent)
+    } catch (fallbackError) {
+      // Если и это не помогло, пробуем еще более мягкие настройки
+      try {
+        const softParser = new XMLParser({
+          preserveOrder: true,
+          ignoreAttributes: false,
+          attributeNamePrefix: "",
+          attributesGroupName: "@attributes",
+          textNodeName: "#text",
+          trimValues: false,
+          parseTagValue: false,
+          parseAttributeValue: false,
+        })
+        return softParser.parse(xmlContent)
+      } catch (softError) {
+        // Если все попытки не удались, выбрасываем оригинальную ошибку
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        throw new Error(`Ошибка парсинга XML: ${errorMessage}`)
+      }
+    }
+  }
 }
 
 function buildXml(parsedData: any): string {
