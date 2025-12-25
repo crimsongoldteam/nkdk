@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/lib/tests/mockContext"
 import { readAndParseXMLFile } from "~/lib/tests/readAndParseXMLFile"
 import { importMetadataSimpleValueFromXML, importMetadataValueFromXML } from "./importFromXML"
-import { MetadataSimpleValueXML, MetadataValueXML } from "./types"
+import { MetadataSimpleValueXML, MetadataValue, MetadataValueXML } from "./types"
 
 describe("importMetadataValueFromXML", () => {
   it("should import string value from XML", () => {
@@ -107,12 +107,14 @@ describe("importMetadataValueFromXML", () => {
   it("should return string for unsupported types (xr:MDObjectRef)", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/metadataRef.xml")
 
+    const expectedResult: MetadataValue = {
+      type: "objectRef",
+      value: "ChartOfCharacteristicTypes.ДополнительныеРеквизитыИСведения",
+    }
+
     const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
 
-    expect(result).toEqual({
-      type: "ref",
-      value: "ChartOfCharacteristicTypes.ДополнительныеРеквизитыИСведения",
-    })
+    expect(result).toEqual(expectedResult)
   })
 
   it("should return string for app:ApplicationUsePurpose type", () => {

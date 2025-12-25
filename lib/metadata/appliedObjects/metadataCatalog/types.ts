@@ -29,7 +29,7 @@ import {
   MetadataItemLinks,
   MetadataItemLinksEnterprise,
   MetadataItemLinksXML,
-} from "~/lib/metadata/commonObjects/metadataItemLink/types"
+} from "~/lib/metadata/commonObjects/metadataRef/types"
 import {
   MetadataTabularSections,
   MetadataTabularSectionsEnterprise,

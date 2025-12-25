@@ -10,8 +10,8 @@ import { importTypeDescriptionFromXML } from "~/lib/metadata/commonObjects/typeD
 import { Context } from "~/lib/metadata/context/types"
 import { compactObject, removeDefaults } from "~/lib/metadata/helpers/compactObject"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { importMetadataItemLinkFromXML } from "../../commonObjects/metadataItemLink/importFromXML"
-import { MetadataItemLink, MetadataItemLinkXML } from "../../commonObjects/metadataItemLink/types"
+import { importMetadataItemLinkFromXML } from "../../commonObjects/metadataRef/importFromXML"
+import { MetadataItemLink, MetadataItemLinkXML } from "../../commonObjects/metadataRef/types"
 import { getDefaults } from "./defaults"
 
 export const importMetadataCommandFromXML = (

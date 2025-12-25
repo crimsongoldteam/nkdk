@@ -6,7 +6,7 @@ import { exportCharacteristicsDescriptionsToXML } from "~/lib/metadata/commonObj
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportMetadataAttributesToXML } from "~/lib/metadata/commonObjects/metadataAttribute/exportToXML"
 import { exportMetadataFieldsToXML } from "~/lib/metadata/commonObjects/metadataField/exportToXML"
-import { exportMetadataItemLinksToXML } from "~/lib/metadata/commonObjects/metadataItemLink/exportToXML"
+import { exportMetadataItemLinksToXML } from "~/lib/metadata/commonObjects/metadataRef/exportToXML"
 import { exportMetadataTabularSectionsToXML } from "~/lib/metadata/commonObjects/metadataTabularSection/exportToXML"
 import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { Context } from "~/lib/metadata/context/types"

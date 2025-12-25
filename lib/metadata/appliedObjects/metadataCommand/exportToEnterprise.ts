@@ -12,7 +12,7 @@ import { Context } from "~/lib/metadata/context/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/lib/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/lib/metadata/systemEnumerations/types"
-import { exportMetadataItemLinkToEnterprise } from "../../commonObjects/metadataItemLink/exportToEnterprise"
+import { exportMetadataItemLinkToEnterprise } from "../../commonObjects/metadataRef/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "../../commonObjects/typeDescription/exportToEnterprise"
 import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
 

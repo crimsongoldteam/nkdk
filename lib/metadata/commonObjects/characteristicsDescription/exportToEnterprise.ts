@@ -5,7 +5,7 @@ import {
   CharacteristicsDescriptionsEnterprise,
 } from "~/lib/metadata/commonObjects/characteristicsDescription/types"
 import { exportMetadataFieldToEnterprise } from "~/lib/metadata/commonObjects/metadataField/exportToEnterprise"
-import { exportMetadataItemLinkToEnterprise } from "~/lib/metadata/commonObjects/metadataItemLink/exportToEnterprise"
+import { exportMetadataItemLinkToEnterprise } from "~/lib/metadata/commonObjects/metadataRef/exportToEnterprise"
 import { Context } from "~/lib/metadata/context/types"
 import { compactObject } from "~/lib/metadata/helpers/compactObject"
 import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterprise"

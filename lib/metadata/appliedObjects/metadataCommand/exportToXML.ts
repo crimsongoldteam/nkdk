@@ -6,8 +6,8 @@ import {
   MetadataCommandXML,
 } from "~/lib/metadata/appliedObjects/metadataCommand/types"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
-import { exportMetadataItemLinkToXML } from "~/lib/metadata/commonObjects/metadataItemLink/exportToXML"
-import { MetadataItemLinkXML } from "~/lib/metadata/commonObjects/metadataItemLink/types"
+import { exportMetadataItemLinkToXML } from "~/lib/metadata/commonObjects/metadataRef/exportToXML"
+import { MetadataItemLinkXML } from "~/lib/metadata/commonObjects/metadataRef/types"
 import { exportPictureToXML } from "~/lib/metadata/commonObjects/pictures/exportToXML"
 import { exportTypeDescriptionToXML } from "~/lib/metadata/commonObjects/typeDescription/exportToXML"
 import { Context } from "~/lib/metadata/context/types"

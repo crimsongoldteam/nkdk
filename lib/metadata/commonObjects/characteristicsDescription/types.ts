@@ -3,7 +3,7 @@ import {
   MetadataFieldEnterprise,
   MetadataFieldXML,
 } from "~/lib/metadata/commonObjects/metadataField/types"
-import { MetadataItemLink, MetadataItemLinkEnterprise } from "~/lib/metadata/commonObjects/metadataItemLink/types"
+import { MetadataItemLink, MetadataItemLinkEnterprise } from "~/lib/metadata/commonObjects/metadataRef/types"
 import { MetadataValueEnterprise, MetadataValueXML } from "~/lib/metadata/commonObjects/metadataValue/types"
 
 export interface CharacteristicsDescription {

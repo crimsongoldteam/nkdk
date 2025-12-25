@@ -12,7 +12,7 @@ import {
   MetadataItemLink,
   MetadataItemLinkEnterprise,
   MetadataItemLinkXML,
-} from "../../commonObjects/metadataItemLink/types"
+} from "../../commonObjects/metadataRef/types"
 
 export interface MetadataCommand {
   commandParameterType?: TypeDescription

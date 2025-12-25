@@ -9,7 +9,7 @@ import { exportAdditionalIndexesToXML } from "~/lib/metadata/commonObjects/addit
 import { exportCharacteristicsDescriptionsToXML } from "~/lib/metadata/commonObjects/characteristicsDescription/exportToXML"
 import { exportI8nTextToXML } from "~/lib/metadata/commonObjects/i8nText/exportToXML"
 import { exportMetadataFieldsToXML } from "~/lib/metadata/commonObjects/metadataField/exportToXML"
-import { exportMetadataItemLinksToXML } from "~/lib/metadata/commonObjects/metadataItemLink/exportToXML"
+import { exportMetadataItemLinksToXML } from "~/lib/metadata/commonObjects/metadataRef/exportToXML"
 import { exportPredefinedItemsToXML } from "~/lib/metadata/commonObjects/predifined/exportToXML"
 import { exportStandardAttributeDescriptionsToXML } from "~/lib/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { Context } from "~/lib/metadata/context/types"
