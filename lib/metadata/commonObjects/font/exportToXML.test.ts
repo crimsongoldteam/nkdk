@@ -1,25 +1,17 @@
 import { describe, expect, it } from "vitest"
 import { xmlExport, xmlImport } from "~/lib"
+import { system } from "~/lib/tests/fixtures/font/system"
 import { mockСontext } from "~/lib/tests/mockContext"
+import { readXMLFileAsString } from "~/lib/tests/readAndParseXMLFile"
 import { exportFontToXML } from "./exportToXML"
 import { importFontFromXML } from "./importFromXML"
-import { Font, FontXML } from "./types"
+import { FontXML } from "./types"
 
 describe("exportFontToXML", () => {
   it("should export font to XML", () => {
-    const expectedResult = `<Font ref="sys:ANSIVariableFont" height="12" bold="true" italic="true" underline="true" strikeout="true" kind="WindowsFont"/>`
+    const expectedResult = readXMLFileAsString("font/full.xml")
 
-    const mockFont: Font = {
-      ref: "sys:ANSIVariableFont",
-      height: 12,
-      bold: true,
-      italic: true,
-      underline: true,
-      strikeout: true,
-      kind: "WindowsFont",
-    }
-
-    const result = { Font: exportFontToXML(mockСontext, mockFont) }
+    const result = { Font: exportFontToXML(mockСontext, system) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
@@ -32,7 +24,7 @@ describe("exportFontToXML", () => {
   })
 
   it("should export and import font correctly (round-trip)", () => {
-    const originalXml = `<Font ref="sys:ANSIVariableFont" height="12" bold="true" italic="true" underline="true" strikeout="true" kind="WindowsFont"/>`
+    const originalXml = readXMLFileAsString("font/full.xml")
 
     const xml = xmlImport<{ Font: FontXML }>(originalXml)
     const imported = importFontFromXML(mockСontext, xml.Font)
