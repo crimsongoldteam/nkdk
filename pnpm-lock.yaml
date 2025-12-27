@@ -203,6 +203,9 @@ importers:
         specifier: ^2.8.2
         version: 2.8.2
     devDependencies:
+      '@ryoppippi/unplugin-typia':
+        specifier: ^2.6.5
+        version: 2.6.5(rollup@4.53.3)(typescript@5.9.3)(typia@10.1.0(@types/node@24.10.4)(typescript@5.9.3))(vite@7.2.6(@types/node@24.10.4)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
       '@types/node':
         specifier: ^24.10.1
         version: 24.10.4
@@ -3968,6 +3971,26 @@ snapshots:
     transitivePeerDependencies:
       - rollup
 
+  '@ryoppippi/unplugin-typia@2.6.5(rollup@4.53.3)(typescript@5.9.3)(typia@10.1.0(@types/node@24.10.4)(typescript@5.9.3))(vite@7.2.6(@types/node@24.10.4)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))':
+    dependencies:
+      '@rollup/pluginutils': 5.3.0(rollup@4.53.3)
+      bun-only: 0.0.1
+      consola: 3.4.2
+      defu: 6.1.4
+      diff-match-patch-es: 1.0.1
+      find-cache-dir: 5.0.0
+      magic-string: 0.30.21
+      pathe: 2.0.3
+      pkg-types: 2.3.0
+      type-fest: 4.41.0
+      typescript: 5.9.3
+      typia: 10.1.0(@types/node@24.10.4)(typescript@5.9.3)
+      unplugin: 2.3.11
+    optionalDependencies:
+      vite: 7.2.6(@types/node@24.10.4)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+    transitivePeerDependencies:
+      - rollup
+
   '@samchon/openapi@5.1.0': {}
 
   '@standard-schema/spec@1.0.0': {}
@@ -4131,6 +4154,14 @@ snapshots:
       magic-string: 0.30.21
     optionalDependencies:
       vite: 7.2.6(@types/node@24.10.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
+
+  '@vitest/mocker@4.0.15(vite@7.2.6(@types/node@24.10.4)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))':
+    dependencies:
+      '@vitest/spy': 4.0.15
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 7.2.6(@types/node@24.10.4)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
 
   '@vitest/pretty-format@4.0.15':
     dependencies:
@@ -5770,7 +5801,7 @@ snapshots:
   vitest@4.0.15(@types/node@24.10.4)(jsdom@27.2.0)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.15
-      '@vitest/mocker': 4.0.15(vite@7.2.6(@types/node@24.10.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
+      '@vitest/mocker': 4.0.15(vite@7.2.6(@types/node@24.10.4)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
       '@vitest/pretty-format': 4.0.15
       '@vitest/runner': 4.0.15
       '@vitest/snapshot': 4.0.15

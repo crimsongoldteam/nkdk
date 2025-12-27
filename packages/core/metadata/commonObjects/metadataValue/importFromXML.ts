@@ -31,7 +31,7 @@ export const importMetadataValueFromXML = (
     return importFormChoiceListDesTimeValueFromXML(context, data as MetadataFormChoiceListDesTimeValueXML)
   }
 
-  const textValue = (data as MetadataSimpleValueXML)["#text"]
+  const textValue = (data as MetadataSimpleValueXML)["#text"] as string | boolean | number | undefined
 
   const simpleValueTypes: MetadataSimpleValue["type"][] = [
     "string",
@@ -61,15 +61,15 @@ export const importMetadataValueFromXMLAsPrimitive = (
 
 const importSimpleValueFromXML = (
   context: Context,
-  textValue: string | undefined,
+  textValue: string | boolean | number | undefined,
   type: MetadataValueType
 ): string | boolean | number | undefined => {
-  if (type === "string") return importMetadataStringValueFromXML(context, textValue)
-  if (type === "decimal") return importMetadataDecimalValueFromXML(context, textValue)
-  if (type === "dateTime") return importMetadataDateTimeValueFromXML(context, textValue)
-  if (type === "boolean") return importMetadataBooleanValueFromXML(context, textValue)
-  if (type === "ref") return importMetadataRefValueFromXML(context, textValue)
-  if (type === "objectRef") return importMetadataObjectRefValueFromXML(context, textValue)
+  if (type === "string") return importMetadataStringValueFromXML(context, textValue as string | undefined)
+  if (type === "decimal") return importMetadataDecimalValueFromXML(context, textValue as string | undefined)
+  if (type === "dateTime") return importMetadataDateTimeValueFromXML(context, textValue as string | undefined)
+  if (type === "boolean") return importMetadataBooleanValueFromXML(context, textValue as string | boolean | undefined)
+  if (type === "ref") return importMetadataRefValueFromXML(context, textValue as string | undefined)
+  if (type === "objectRef") return importMetadataObjectRefValueFromXML(context, textValue as string | undefined)
 }
 
 export const importMetadataValuesFromXML = (
@@ -107,8 +107,13 @@ export const importMetadataDateTimeValueFromXML = (
   return value
 }
 
-export const importMetadataBooleanValueFromXML = (context: Context, value: string | undefined): boolean | undefined => {
-  return value ? importBooleanFromXML(context, value as "true" | "false")! : undefined
+export const importMetadataBooleanValueFromXML = (
+  context: Context,
+  value: string | boolean | undefined
+): boolean | undefined => {
+  if (value === undefined) return undefined
+  if (typeof value === "boolean") return value
+  return importBooleanFromXML(context, value as "true" | "false")!
 }
 
 export const importMetadataRefValueFromXML = (_context: Context, value: string | undefined): string | undefined => {

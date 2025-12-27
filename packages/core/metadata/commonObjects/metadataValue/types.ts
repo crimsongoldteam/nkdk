@@ -85,7 +85,7 @@ export type MetadataValue = MetadataSimpleValue | MetadataFixedArrayValue | Meta
 
 export interface MetadataSimpleValueXML {
   "_xsi:type": MetadataValueTypeXML
-  "#text": string
+  "#text": string | boolean | number
 }
 
 export interface MetadataFixedArrayValueXML {
