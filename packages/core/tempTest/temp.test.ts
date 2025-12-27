@@ -1,14 +1,21 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
-import { describe, it } from "vitest"
+import { describe, it, vi } from "vitest"
 import { stringify } from "yaml"
 import { exportMetadataCatalogToEnterprise } from "../metadata/appliedObjects/metadataCatalog/exportToEnterprise"
+import { exportMetadataCatalogToXML } from "../metadata/appliedObjects/metadataCatalog/exportToXML"
+import { importMetadataCatalogFromEnterprise } from "../metadata/appliedObjects/metadataCatalog/importFromEnterprise"
 import { importMetadataCatalogFromXML } from "../metadata/appliedObjects/metadataCatalog/importFromXML"
 import { MetadataCatalogXML } from "../metadata/appliedObjects/metadataCatalog/types"
 import "../metadata/forms/elements/exportToXML"
 import "../metadata/forms/elements/importFromXML"
 import { mockСontext } from "../tests/mockContext"
+import { xmlExport } from "../xml/export/exporter"
 import xmlImport from "../xml/import/importer"
+
+vi.mock("uuid", () => ({
+  v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
+}))
 
 // const originalContent = readFileSync(join(__dirname, "Form.xml"), "utf-8")
 const metadataCatalogContent = readFileSync(join(__dirname, "Before/Контрагенты.xml"), "utf-8")
@@ -27,6 +34,13 @@ describe("DO test", () => {
     }).trim()
 
     writeFileSync(join(__dirname, "After/Контрагенты.yml"), yamlString, "utf-8")
+
+    const newData = importMetadataCatalogFromEnterprise(mockСontext, exportedEnterprise, "Контрагенты")
+    const newXml = exportMetadataCatalogToXML(mockСontext, newData)
+
+    const newXmlString = xmlExport({ MetaDataObject: newXml })
+
+    writeFileSync(join(__dirname, "Before/Контрагенты.xml"), newXmlString, "utf-8")
   })
 
   // it("should export schema ", () => {

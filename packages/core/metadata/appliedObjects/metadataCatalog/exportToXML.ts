@@ -59,7 +59,6 @@ export const exportMetadataCatalogToXML = (
   }
 
   const result: MetadataCatalogXML = {
-    _xmlns: "http://v8.1c.ru/8.3/MDClasses",
     "_xmlns:app": "http://v8.1c.ru/8.2/managed-application/core",
     "_xmlns:cfg": "http://v8.1c.ru/8.1/data/enterprise/current-config",
     "_xmlns:cmi": "http://v8.1c.ru/8.2/managed-application/cmi",
@@ -76,6 +75,7 @@ export const exportMetadataCatalogToXML = (
     "_xmlns:xr": "http://v8.1c.ru/8.3/xcf/readable",
     "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+    _xmlns: "http://v8.1c.ru/8.3/MDClasses",
     _version: "2.20",
     Catalog: compactObject<MetadataCatalogXML["Catalog"]>({
       _uuid: v4(),
@@ -143,5 +143,5 @@ export const exportMetadataCatalogToXML = (
     }),
   }
 
-  return result
+  return compactObject<MetadataCatalogXML>(result)
 }
