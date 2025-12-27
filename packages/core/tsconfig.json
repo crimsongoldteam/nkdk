@@ -2,10 +2,11 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node16",
     "lib": ["ES2020"],
     "strict": true,
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
@@ -25,6 +26,6 @@
       "~/*": ["./*"]
     }
   },
-  "include": ["**/*.ts"],
-  "exclude": ["node_modules", "dist", "**/*.config.ts", "tempTest"]
+  "include": ["**/*.ts", "vitest.config.ts"],
+  "exclude": ["node_modules", "dist", "tempTest"]
 }

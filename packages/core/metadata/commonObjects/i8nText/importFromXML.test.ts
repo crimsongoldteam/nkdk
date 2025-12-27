@@ -1,10 +1,10 @@
 import { assertEquals } from "typia"
 import { describe, expect, it } from "vitest"
-import { xmlImport } from "~/packages/core"
 import { oneLangI8nText } from "~/tests/fixtures/i8nText/oneLang"
 import { twoLangsI8nText } from "~/tests/fixtures/i8nText/twoLangs"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
+import { xmlImport } from "~/xml/import/importer"
 import { importI8nTextFromXML } from "./importFromXML"
 import { I8nTextXML } from "./types"
 
