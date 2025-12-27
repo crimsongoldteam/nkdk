@@ -55,10 +55,7 @@ export const importTypeDescriptionFromEnterprise = (
     cleanedResult.numberQualifiers = undefined
   }
 
-  // Удаляем dateQualifiers, если они равны дефолтным значениям
-  if (cleanedResult.dateQualifiers && cleanedResult.dateQualifiers.dateFractions === "Date") {
-    cleanedResult.dateQualifiers = undefined
-  }
+  // Не удаляем dateQualifiers, так как они нужны для различения типов дат
 
   return compactObject(cleanedResult)
 }

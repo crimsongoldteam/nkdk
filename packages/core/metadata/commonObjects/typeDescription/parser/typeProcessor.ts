@@ -1,6 +1,6 @@
 import { cleanString } from "~/helpers/cleanString"
 import { AllowedLength } from "~/metadata/systemEnumerations/types"
-import { TypeDescription } from "../types"
+import { AppliedTypeToEnterprise, TypeDescription } from "../types"
 
 export const visitTypeProcessor = (types: any): TypeDescription => {
   const result: TypeDescription = {
@@ -30,17 +30,28 @@ export const visitTypeProcessor = (types: any): TypeDescription => {
 
     // Для базовых типов используем английские названия
     const baseTypeMap: Record<string, string> = {
-      Число: "number",
+      Число: "decimal",
       Строка: "string",
-      Дата: "date",
+      Дата: "dateTime",
+      Булево: "boolean",
     }
 
     const baseType = baseTypeMap[aliase]
 
-    // Если это базовый тип, используем английское название, иначе используем алиас с kind
-    const resultType = baseType ? baseType : kind ? `${aliase}.${kind}` : aliase
-
-    result.type.push(resultType)
+    // Если это базовый тип, используем английское название
+    if (baseType) {
+      result.type.push(baseType)
+    } else if (kind) {
+      // Для прикладных объектов преобразуем русское название в английский префикс
+      const appliedTypePrefix = getAppliedTypePrefix(aliase)
+      if (appliedTypePrefix) {
+        result.type.push(`${appliedTypePrefix}.${kind}`)
+      } else {
+        result.type.push(`${aliase}.${kind}`)
+      }
+    } else {
+      result.type.push(aliase)
+    }
 
     const processor = getTypeProcessor(aliase)
     if (processor) {
@@ -138,6 +149,29 @@ const getAliase = (type: string): string | undefined => {
   }
 
   return pairs[typeLower]
+}
+
+const getAppliedTypePrefix = (enterpriseName: string): string | undefined => {
+  // Преобразуем русское название прикладного объекта в английский префикс
+  // Используем AppliedTypeToEnterprise для обратного преобразования
+  // При наличии нескольких вариантов (например, Catalog и CatalogRef) выбираем Ref версию
+
+  const matchingKeys: string[] = []
+
+  // Находим все ключи, которые соответствуют данному русскому названию
+  for (const [key, value] of Object.entries(AppliedTypeToEnterprise)) {
+    if (value === enterpriseName) {
+      matchingKeys.push(key)
+    }
+  }
+
+  if (matchingKeys.length === 0) {
+    return undefined
+  }
+
+  // Если есть версия с Ref, выбираем её, иначе первый найденный ключ
+  const refKey = matchingKeys.find((key) => key.endsWith("Ref"))
+  return refKey || matchingKeys[0]
 }
 
 const getTypeProcessor = (
