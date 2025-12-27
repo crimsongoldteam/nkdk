@@ -27,7 +27,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "components", "lib", "**/*.ts", "**/*.tsx", "playground/components/monacoEditor"],
+  "include": ["src", "components", "packages/core", "**/*.ts", "**/*.tsx", "playground/components/monacoEditor"],
   "exclude": ["node_modules", "dist", "**/*.config.ts", "vite.config.*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

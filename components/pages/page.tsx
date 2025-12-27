@@ -1,5 +1,5 @@
 import React from "react"
-import { Page } from "~/lib/metadata/forms/elements/page/types"
+import { Page } from "~/packages/core/metadata/forms/elements/page/types"
 import { components } from "../components"
 
 export function PageComponent(props: Readonly<Page>): React.ReactNode {

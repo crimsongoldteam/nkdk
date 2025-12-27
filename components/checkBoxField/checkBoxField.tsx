@@ -1,6 +1,6 @@
 import { Checkbox, Form, Switch, Typography } from "antd"
 import type React from "react"
-import { CheckBoxField } from "~/lib/metadata/forms/elements/checkBoxField/types"
+import { CheckBoxField } from "~/packages/core/metadata/forms/elements/checkBoxField/types"
 
 export function CheckBoxFieldComponent(props: Readonly<CheckBoxField>): React.ReactNode {
   const isRightHeader = props.headerHorizontalAlign === "Right"

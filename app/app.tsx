@@ -6,14 +6,14 @@ import {
   xmlImport,
   type ClientApplicationForm,
   type ClientApplicationFormXML,
-} from "~/lib"
-import "~/lib/metadata/forms/elements/button/registration"
-import "~/lib/metadata/forms/elements/inputField/registration"
-import "~/lib/metadata/forms/elements/labelDecoration/registration"
-import "~/lib/metadata/forms/elements/page/registration"
-import "~/lib/metadata/forms/elements/pages/registration"
-import "~/lib/metadata/forms/elements/pictureDecoration/registration"
-import "~/lib/metadata/forms/elements/usualGroup/registration"
+} from "~/packages/core"
+import "~/packages/core/metadata/forms/elements/button/registration"
+import "~/packages/core/metadata/forms/elements/inputField/registration"
+import "~/packages/core/metadata/forms/elements/labelDecoration/registration"
+import "~/packages/core/metadata/forms/elements/page/registration"
+import "~/packages/core/metadata/forms/elements/pages/registration"
+import "~/packages/core/metadata/forms/elements/pictureDecoration/registration"
+import "~/packages/core/metadata/forms/elements/usualGroup/registration"
 
 const context = {
   defaultLanguage: "ru",

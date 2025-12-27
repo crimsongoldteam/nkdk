@@ -1,0 +1,32 @@
+{
+  "name": "@nakidka/core",
+  "version": "1.0.0",
+  "description": "Ядро библиотеки Nakidka для работы с метаданными и XML",
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.ts"
+    }
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "change-case": "^5.4.4",
+    "chevrotain": "^11.0.3",
+    "date-fns": "^4.1.0",
+    "fast-xml-parser": "^5.3.3",
+    "uuid": "^13.0.0",
+    "yaml": "^2.8.2"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "~5.9.3",
+    "vitest": "^4.0.15"
+  }
+}

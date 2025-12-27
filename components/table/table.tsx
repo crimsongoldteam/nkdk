@@ -1,6 +1,6 @@
 import { Table } from "antd"
 import React from "react"
-import { Table as TableElement } from "~/lib/metadata/forms/elements/table/types"
+import { Table as TableElement } from "~/packages/core/metadata/forms/elements/table/types"
 
 export function TableComponent(props: Readonly<TableElement>): React.ReactNode {
   const { childItems } = props

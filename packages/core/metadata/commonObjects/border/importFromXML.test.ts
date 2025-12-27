@@ -1,0 +1,38 @@
+import { describe, expect, it } from "vitest"
+import { mockСontext } from "~/packages/core/tests/mockContext"
+import xmlImport from "~/packages/core/xml/import/importer"
+import { importBorderFromXML } from "./importFromXML"
+import { Border, BorderXML } from "./types"
+
+describe("importBorderFromXML", () => {
+  it("should import Border by ref", () => {
+    const mockXml = `<Border ref="style:ControlBorder"/>`
+
+    const expected: Border = {
+      ref: "style:ControlBorder",
+    }
+
+    const xml = xmlImport<{ Border: BorderXML }>(mockXml)
+
+    const result = importBorderFromXML(mockСontext, xml.Border)
+
+    expect(result).toEqual(expected)
+  })
+
+  it("should import Border with width and style", () => {
+    const mockXml = `<Border width="1">
+    <v8ui:style xsi:type="v8ui:ControlBorderType">Indented</v8ui:style>
+  </Border>`
+
+    const expected: Border = {
+      width: 1,
+      controlBorderType: "Indented",
+    }
+
+    const xml = xmlImport<{ Border: BorderXML }>(mockXml)
+
+    const result = importBorderFromXML(mockСontext, xml.Border)
+
+    expect(result).toEqual(expected)
+  })
+})

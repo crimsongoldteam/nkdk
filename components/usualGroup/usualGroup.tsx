@@ -1,7 +1,7 @@
-import React from "react"
 import { Flex } from "antd"
+import React from "react"
+import { UsualGroup } from "~/packages/core/metadata/forms/elements/usualGroup/types"
 import { components } from "../components"
-import { UsualGroup } from "~/lib/metadata/forms/elements/usualGroup/types"
 
 export function UsualGroupComponent(props: Readonly<UsualGroup>): React.ReactNode {
   const name = props.name

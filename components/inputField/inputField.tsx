@@ -7,7 +7,7 @@ import {
 } from "@ant-design/icons"
 import { Button, Form, Input, Space } from "antd"
 import type React from "react"
-import { InputField } from "~/lib"
+import { InputField } from "~/packages/core"
 
 export function InputFieldComponent(props: Readonly<InputField>): React.ReactNode {
   const title = props.title?.items.ru || ""

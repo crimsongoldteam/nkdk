@@ -1,0 +1,77 @@
+import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
+import { Border, BorderEnterprise, BorderXML } from "~/packages/core/metadata/commonObjects/border/types"
+import { Color, ColorEnterprise, ColorXML } from "~/packages/core/metadata/commonObjects/color/types"
+import { Picture, PictureEnterprise, PictureXML } from "~/packages/core/metadata/commonObjects/pictures/types"
+import {
+  UserVisible,
+  UserVisibleEnterprise,
+  UserVisibleXML,
+} from "~/packages/core/metadata/commonObjects/userVisible/types"
+import {
+  FormDecoration,
+  FormDecorationEnterprise,
+  FormDecorationXML,
+} from "~/packages/core/metadata/forms/elements/formDecoration/types"
+import { EventsXML } from "~/packages/core/metadata/forms/events/types"
+import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+
+export interface PictureDecoration extends FormDecoration {
+  border?: Border
+  borderColor?: Color
+  enableDrag?: boolean
+  enableStartDrag?: boolean
+  fileDragMode?: SE.FileDragMode
+  hyperlink?: boolean
+  nonselectedPictureText?: string
+  picture?: Picture
+  pictureSize?: SE.PictureSize
+  scale?: number
+  userVisible?: UserVisible
+  zoomable?: boolean
+  events?: {
+    click?: string
+    dragStart?: string
+    dragEnd?: string
+    drag?: string
+    dragCheck?: string
+  }
+}
+
+export interface PictureDecorationXML extends FormDecorationXML {
+  Border?: BorderXML
+  BorderColor?: ColorXML
+  EnableDrag?: boolean
+  EnableStartDrag?: boolean
+  FileDragMode?: SE.FileDragMode
+  Hyperlink?: boolean
+  NonselectedPictureText?: string
+  Picture?: PictureXML
+  PictureSize?: SE.PictureSize
+  Scale?: number
+  UserVisible?: UserVisibleXML
+  Zoomable?: boolean
+  Events?: EventsXML
+}
+
+export interface PictureDecorationEnterprise extends FormDecorationEnterprise {
+  Гиперссылка?: StringboolEnterprise
+  Картинка?: PictureEnterprise
+  Масштаб?: number
+  Масштабировать?: StringboolEnterprise
+  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
+  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазмерКартинки?: SE.PictureSizeEnterprise
+  РазрешитьНачалоПеретаскивания?: StringboolEnterprise
+  РазрешитьПеретаскивание?: StringboolEnterprise
+  Рамка?: BorderEnterprise
+  СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise
+  ТекстНевыбраннойКартинки?: string
+  ЦветРамки?: ColorEnterprise
+  События?: {
+    Нажатие?: string
+    НачалоПеретаскивания?: string
+    ОкончаниеПеретаскивания?: string
+    Перетаскивание?: string
+    ПроверкаПеретаскивания?: string
+  }
+}

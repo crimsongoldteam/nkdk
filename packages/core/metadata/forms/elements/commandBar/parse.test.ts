@@ -1,0 +1,61 @@
+import { describe, expect, it } from "vitest"
+import type { DetectedTreeNode } from "~/packages/core/parser/detector/detectTree"
+import { parseElement } from "~/packages/core/parser/elementsParser/parse"
+import { lexer } from "~/packages/core/parser/lexer"
+import { ParseElementType } from "~/packages/core/parser/types"
+import { mockСontext } from "~/packages/core/tests/mockContext"
+import { FormElementType } from "../../../metadataFactory/types"
+import { CommandBar } from "./types"
+
+describe("parse CommandBar", () => {
+  it("should parse command bar with buttons", () => {
+    const mock = `<Button1|Button2|Button3>`
+
+    const expectedResult: CommandBar = {
+      name: "CommandBar",
+      id: "1",
+      elementType: FormElementType.CommandBar,
+      childItems: [
+        {
+          elementType: FormElementType.Button,
+          name: "Button1",
+          id: "1",
+          title: {
+            items: { ru: "Button1" },
+          },
+        },
+        {
+          elementType: FormElementType.Button,
+          name: "Button2",
+          id: "2",
+          title: {
+            items: { ru: "Button2" },
+          },
+        },
+        {
+          elementType: FormElementType.Button,
+          name: "Button3",
+          id: "3",
+          title: {
+            items: { ru: "Button3" },
+          },
+        },
+      ],
+    }
+
+    const result = parseCommandBar(mock)
+    expect(result).toEqual(expectedResult)
+  })
+})
+
+const parseCommandBar = (mock: string) => {
+  const tokens = lexer.tokenize(mock).tokens
+
+  const node: DetectedTreeNode = {
+    tokens,
+    type: ParseElementType.CommandBar,
+    childItems: [],
+  }
+
+  return parseElement(node, mockСontext)
+}
