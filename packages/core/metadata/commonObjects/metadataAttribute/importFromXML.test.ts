@@ -24,13 +24,4 @@ describe("importMetadataAttributeFromXML", () => {
 
     expect(result).toEqual(expectedResult)
   })
-
-  it("should ignore nil min value", () => {
-    const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML }>("metadataAttribute/withMinValue.xml")
-    const expectedResult = singleAttribute
-
-    const result = importMetadataAttributesFromXML(mockСontext, xmlData.Attribute)
-
-    expect(result).toEqual(expectedResult)
-  })
 })

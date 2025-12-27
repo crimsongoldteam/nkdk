@@ -5,16 +5,14 @@ import {
   MetadataAttributesXML,
   MetadataAttributeXML,
 } from "~/metadata/commonObjects/metadataAttribute/types"
-import {
-  importMetadataSimpleValueFromXML,
-  importMetadataValueFromXML,
-} from "~/metadata/commonObjects/metadataValue/importFromXML"
+import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { importTypeLinkFromXML } from "~/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
 import { Context } from "~/metadata/context/types"
 import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML"
+import { importMetadataValueFromXMLAsPrimitive } from "../metadataValue/importFromXML.ts"
 import { getDefaults } from "./defaults"
 
 export const importMetadataAttributeFromXML = (
@@ -25,7 +23,7 @@ export const importMetadataAttributeFromXML = (
 
   const props = xml.Properties
 
-  const result = {
+  const result: MetadataAttribute = {
     binaryDataStorageLocationUse: props.BinaryDataStorageLocationUse,
     binaryDataStorageLocationUseField: importBooleanFromXML(context, props.BinaryDataStorageLocationUseField),
     choiceFoldersAndItems: props.ChoiceFoldersAndItems,
@@ -47,8 +45,8 @@ export const importMetadataAttributeFromXML = (
     linkByType: importTypeLinkFromXML(context, props.LinkByType),
     markNegatives: importBooleanFromXML(context, props.MarkNegatives),
     mask: props.Mask,
-    maxValue: Number(importMetadataSimpleValueFromXML(context, props.MaxValue)),
-    minValue: Number(importMetadataSimpleValueFromXML(context, props.MinValue)),
+    maxValue: importMetadataValueFromXMLAsPrimitive(context, props.MaxValue, "decimal") as number | undefined,
+    minValue: importMetadataValueFromXMLAsPrimitive(context, props.MinValue, "decimal") as number | undefined,
     multiLine: importBooleanFromXML(context, props.MultiLine),
     name: props.Name!,
     objectBelonging: props.ObjectBelonging,
@@ -60,7 +58,7 @@ export const importMetadataAttributeFromXML = (
     use: props.Use,
   }
 
-  const compactedResult = compactObject(result)
+  const compactedResult = compactObject<MetadataAttribute>(result)
 
   const defaults = getDefaults(compactedResult, context)
 

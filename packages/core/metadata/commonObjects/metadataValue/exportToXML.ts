@@ -46,7 +46,7 @@ export const exportMetadataSimpleValueToXML = (
   _context: Context,
   value: string | boolean | number | undefined,
   type: MetadataPrimitiveValueType
-): MetadataValueXML | undefined => {
+): MetadataSimpleValueXML | undefined => {
   if (!value) return undefined
 
   const data = {
@@ -54,7 +54,7 @@ export const exportMetadataSimpleValueToXML = (
     value,
   } as MetadataSimpleValue
 
-  return exportMetadataValueToXML(_context, data)
+  return exportMetadataValueToXML(_context, data) as MetadataSimpleValueXML
 }
 
 const exportFixedArrayValueToXML = (

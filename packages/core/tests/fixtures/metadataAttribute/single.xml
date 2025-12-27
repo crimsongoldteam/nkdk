@@ -10,11 +10,11 @@
 		<FullTextSearch>Use</FullTextSearch>
 		<Indexing>DontIndex</Indexing>
 		<MarkNegatives>false</MarkNegatives>
+		<MaxValue xsi:type="xs:string">3</MaxValue>
+		<MinValue xsi:type="xs:string">1</MinValue>
 		<MultiLine>false</MultiLine>
 		<Name>РеквизитОбъекта</Name>
-		<MinValue xsi:type="xs:string">1</MinValue>
-		<MaxValue xsi:type="xs:string">3</MaxValue>
-	<PasswordMode>false</PasswordMode>
+		<PasswordMode>false</PasswordMode>
 		<QuickChoice>Auto</QuickChoice>
 		<Synonym>
 			<v8:item>

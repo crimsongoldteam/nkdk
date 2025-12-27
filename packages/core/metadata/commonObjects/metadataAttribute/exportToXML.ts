@@ -24,7 +24,7 @@ export const exportMetadataAttributeToXML = (
   if (!data) return undefined
 
   const defaults = getDefaults(data, context)
-  const mergedData = { ...defaults, ...data }
+  const mergedData: MetadataAttribute = { ...defaults, ...data }
 
   const result: MetadataAttributeXML = {
     _uuid: v4(),
