@@ -1,44 +1,37 @@
 import { format } from "date-fns"
 import { Context } from "../../context/types"
-import { AppliedTypeToEnterprise } from "../typeDescription/types"
+import { AppliedType, AppliedTypeToEnterprise } from "../typeDescription/types"
+import { MetadataFixedArrayValue, MetadataFormChoiceListValue, MetadataSimpleValue, MetadataValue } from "./types"
 import {
-  MetadataFixedArrayValue,
-  MetadataFormChoiceListValue,
-  MetadataSimpleValue,
-  MetadataValue,
+  MetadataBooleanValue,
+  MetadataDateTimeValue,
+  MetadataDecimalValue,
+  MetadataFixedArrayValueEnterprise,
+  MetadataFormChoiceListDesTimeValueEnterprise,
+  MetadataObjectRefValue,
+  MetadataObjectRefValueEnterprise,
+  MetadataRefValue,
+  MetadataRefValueEnterprise,
+  MetadataSimpleValueEnterprise,
   MetadataValueEnterprise,
-  MetadataValueEnterpriseResult,
-} from "./types"
+} from "./types.ts"
 
-const convertRefToEnterprise = (value: string): string => {
-  // Обработка Enum: Enum.ВидыДоговоров.EnumValue.СПоставщиком -> Перечисление.ВидыДоговоров.СПоставщиком
-  if (value.startsWith("Enum.")) {
-    const parts = value.split(".")
-    if (parts.length >= 4 && parts[2] === "EnumValue") {
-      const enumName = parts[1]
-      const enumValue = parts.slice(3).join(".")
-      return `Перечисление.${enumName}.${enumValue}`
-    }
-  }
+export const exportMetadataValueToEnterprise = (
+  context: Context,
+  data: MetadataValue | undefined
+): MetadataValueEnterprise | undefined => {
+  if (!data) return undefined
 
-  // Обработка Catalog: Catalog.Пользователи.EmptyRef -> Справочник.Пользователи.ПустаяСсылка
-  if (value.startsWith("Catalog.")) {
-    const parts = value.split(".")
-    if (parts.length === 3 && parts[2] === "EmptyRef") {
-      const catalogName = parts[1]
-      return `Справочник.${catalogName}.ПустаяСсылка`
-    }
-  }
-
-  // Обработка других типов через AppliedTypeToEnterprise
-  for (const [prefix, enterpriseName] of Object.entries(AppliedTypeToEnterprise)) {
-    if (value.startsWith(`${prefix}.`)) {
-      const objectName = value.substring(prefix.length + 1)
-      return `${enterpriseName}.${objectName}`
-    }
-  }
-
-  return value
+  if (data.type === "fixedArray") return exportFixedArrayValueToEnterprise(context, data)
+  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListDesTimeValueToEnterprise(context, data)
+  if (data.type === "string") return exportStringValueToEnterprise(data)
+  if (data.type === "decimal") return exportDecimalValueToEnterprise(data)
+  if (data.type === "dateTime") return exportDateTimeValueToEnterprise(data)
+  if (data.type === "boolean") return exportBooleanValueToEnterprise(data)
+  if (data.type === "ref") return exportRefValueToEnterprise(data)
+  if (data.type === "objectRef") return exportObjectRefValueToEnterprise(data)
+  // if (data.type === "ApplicationUsePurpose") return exportApplicationUsePurposeValueToEnterprise(data)
+  throw new Error(`Invalid type`)
 }
 
 const formatDateTime = (dateTime: string): string => {
@@ -49,7 +42,7 @@ const formatDateTime = (dateTime: string): string => {
 const exportStringValueToEnterprise = (data: MetadataSimpleValue): MetadataValueEnterprise => {
   return {
     Тип: "Строка",
-    Значение: data.value,
+    Значение: data.value as string,
   }
 }
 
@@ -74,90 +67,57 @@ const exportBooleanValueToEnterprise = (data: MetadataBooleanValue): MetadataVal
   }
 }
 
-const exportRefValueToEnterprise = (data: MetadataRefValue | MetadataRefValueNew): string => {
-  return convertRefToEnterprise(data.value)
+const exportRefValueToEnterprise = (data: MetadataRefValue): MetadataRefValueEnterprise => {
+  return exportRefToEnterprise(data.value)
 }
 
-const exportObjectRefValueToEnterprise = (data: MetadataValue): MetadataValueEnterprise => {
-  return convertRefToEnterprise(data.value)
+const exportObjectRefValueToEnterprise = (data: MetadataObjectRefValue): MetadataObjectRefValueEnterprise => {
+  return exportRefToEnterprise(data.value)
 }
 
-const exportApplicationUsePurposeValueToEnterprise = (
-  data: MetadataApplicationUsePurposeValue
+const exportFixedArrayValueToEnterprise = (
+  context: Context,
+  data: MetadataFixedArrayValue
 ): MetadataValueEnterprise => {
-  return {
-    Тип: "ApplicationUsePurpose",
-    Значение: data.value,
-  }
-}
-
-const exportFixedArrayValueToEnterprise = (context: Context, data: MetadataFixedArrayValue): string[] => {
-  return data.value.map((v) => {
-    const result = exportMetadataValueToEnterprise(context, v)
-    if (typeof result === "string") {
-      return result
-    }
-    if (result && typeof result === "object" && "Значение" in result) {
-      return result.Значение
-    }
-    return String(result)
-  })
+  return data.value.map((v) => exportMetadataValueToEnterprise(context, v)!) as MetadataFixedArrayValueEnterprise
 }
 
 const exportFormChoiceListDesTimeValueToEnterprise = (
   context: Context,
   data: MetadataFormChoiceListValue
-): MetadataValueEnterpriseResult => {
-  const valueResult = exportMetadataValueToEnterprise(context, data.value)
-  let тип: string
-  let значение: string
-
-  if (typeof valueResult === "string") {
-    тип = "Строка"
-    значение = valueResult
-  } else if (valueResult && typeof valueResult === "object" && "Тип" in valueResult && "Значение" in valueResult) {
-    тип = valueResult.Тип
-    значение = valueResult.Значение
-  } else {
-    тип = "Строка"
-    значение = String(valueResult)
-  }
+): MetadataValueEnterprise => {
+  const valueResult = exportMetadataValueToEnterprise(context, data.value) as MetadataSimpleValueEnterprise
 
   const presentation = data.presentation?.items?.[context.defaultLanguage] || data.presentation?.items?.ru || ""
 
   return {
     Представление: presentation,
-    Тип: тип,
-    Значение: значение,
-  }
+    ...valueResult,
+  } as MetadataFormChoiceListDesTimeValueEnterprise
 }
 
-export const exportMetadataValueToEnterprise = (
-  context: Context,
-  data: MetadataValue | undefined
-): MetadataValueEnterpriseResult => {
-  if (!data) return undefined
+const exportRefToEnterprise = (value: string): string => {
+  const parts = value.split(".")
 
-  switch (data.type) {
-    case "string":
-      return exportStringValueToEnterprise(data)
-    case "decimal":
-      return exportDecimalValueToEnterprise(data)
-    case "dateTime":
-      return exportDateTimeValueToEnterprise(data)
-    case "boolean":
-      return exportBooleanValueToEnterprise(data)
-    case "ref":
-      return exportRefValueToEnterprise(data)
-    case "objectRef":
-      return exportObjectRefValueToEnterprise(data)
-    case "ApplicationUsePurpose":
-      return exportApplicationUsePurposeValueToEnterprise(data)
-    case "fixedArray":
-      return exportFixedArrayValueToEnterprise(context, data)
-    case "formChoiceListDesTimeValue":
-      return exportFormChoiceListDesTimeValueToEnterprise(context, data)
-    default:
-      return undefined
+  const appliedType = parts[0] as AppliedType
+
+  const partsResult = []
+
+  const appliedTypeEnterprise = AppliedTypeToEnterprise[appliedType]
+  if (!appliedTypeEnterprise) throw new Error(`Invalid type for ref: ${value}`)
+  partsResult.push(appliedTypeEnterprise)
+
+  const objectName = parts[1]
+  if (!objectName) throw new Error(`Invalid object name for ref: ${value}`)
+
+  partsResult.push(objectName)
+  if (appliedType === "Enum" && parts.length >= 4) {
+    partsResult.push(parts[3])
   }
+
+  if (appliedType === "Catalog" && parts.length >= 3) {
+    partsResult.push("ПустаяСсылка")
+  }
+
+  return partsResult.join(".")
 }

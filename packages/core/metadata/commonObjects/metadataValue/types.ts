@@ -29,10 +29,43 @@ export interface MetadataAbstractValue {
   type: MetadataValueType
 }
 
-export interface MetadataSimpleValue {
-  type: MetadataValueType
-  value: string | boolean | number
+export interface MetadataStringValue extends MetadataAbstractValue {
+  type: "string"
+  value: string
 }
+
+export interface MetadataDecimalValue extends MetadataAbstractValue {
+  type: "decimal"
+  value: number
+}
+
+export interface MetadataDateTimeValue extends MetadataAbstractValue {
+  type: "dateTime"
+  value: string
+}
+
+export interface MetadataBooleanValue extends MetadataAbstractValue {
+  type: "boolean"
+  value: boolean
+}
+
+export interface MetadataRefValue extends MetadataAbstractValue {
+  type: "ref"
+  value: string
+}
+
+export interface MetadataObjectRefValue extends MetadataAbstractValue {
+  type: "objectRef"
+  value: string
+}
+
+export type MetadataSimpleValue =
+  | MetadataStringValue
+  | MetadataDecimalValue
+  | MetadataDateTimeValue
+  | MetadataBooleanValue
+  | MetadataRefValue
+  | MetadataObjectRefValue
 
 export interface MetadataFixedArrayValue extends MetadataAbstractValue {
   type: "fixedArray"
@@ -51,7 +84,7 @@ export type MetadataValue = MetadataSimpleValue | MetadataFixedArrayValue | Meta
 
 export interface MetadataSimpleValueXML {
   "_xsi:type": MetadataValueTypeXML
-  "#text": string | boolean | number
+  "#text": string
 }
 
 export interface MetadataFixedArrayValueXML {
@@ -72,20 +105,28 @@ export type MetadataValueXML =
 
 //#endregion
 
-export interface MetadataValueEnterprise {
+//#region MetadataValueEnterprise
+
+export interface MetadataSimpleValueEnterprise {
   Тип: string
   Значение: string
 }
+
+export type MetadataRefValueEnterprise = string
+export type MetadataObjectRefValueEnterprise = string
 
 export interface MetadataFormChoiceListDesTimeValueEnterprise {
-  Представление: string
-  Тип: string
-  Значение: string
+  Представление?: string
+  Тип: "ЗначениеСпискаЗначений"
+  Значение: MetadataValueEnterprise
 }
 
-export type MetadataValueEnterpriseResult =
-  | MetadataValueEnterprise
+export type MetadataFixedArrayValueEnterprise = MetadataSimpleValueEnterprise[]
+
+export type MetadataValueEnterprise =
+  | MetadataSimpleValueEnterprise
   | MetadataFormChoiceListDesTimeValueEnterprise
-  | string
-  | string[]
-  | undefined
+  | MetadataFixedArrayValueEnterprise
+  | MetadataRefValueEnterprise
+  | MetadataObjectRefValueEnterprise
+//#endregion

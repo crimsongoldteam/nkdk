@@ -9,6 +9,7 @@ import {
   MetadataValueTypeToXML,
   MetadataValueXML,
 } from "./types"
+import { MetadataPrimitiveValueType } from "./types.ts"
 
 export const exportMetadataValueToXML = (
   context: Context,
@@ -29,7 +30,7 @@ export const exportMetadataValueToXML = (
     )
   }
 
-  return createSimpleValue(xmlType, data.value)
+  return exportSimpleValue(xmlType, String(data.value))
 }
 
 export const exportMetadataValuesToXML = (
@@ -44,14 +45,14 @@ export const exportMetadataValuesToXML = (
 export const exportMetadataSimpleValueToXML = (
   _context: Context,
   value: string | boolean | number | undefined,
-  type: "string" | "decimal" | "dateTime" | "boolean"
+  type: MetadataPrimitiveValueType
 ): MetadataValueXML | undefined => {
   if (!value) return undefined
 
-  const data: MetadataSimpleValue = {
+  const data = {
     type,
     value,
-  }
+  } as MetadataSimpleValue
 
   return exportMetadataValueToXML(_context, data)
 }
@@ -80,10 +81,7 @@ const exportFormChoiceListDesTimeValueToXML = (
   } as MetadataFormChoiceListDesTimeValueXML
 }
 
-const createSimpleValue = (
-  xsiType: MetadataSimpleValueXML["_xsi:type"],
-  text: string | boolean | number
-): MetadataSimpleValueXML => ({
+const exportSimpleValue = (xsiType: MetadataSimpleValueXML["_xsi:type"], text: string): MetadataSimpleValueXML => ({
   "_xsi:type": xsiType,
   "#text": text,
 })

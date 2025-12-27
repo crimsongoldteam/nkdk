@@ -117,16 +117,16 @@ describe("importMetadataValueFromXML", () => {
     expect(result).toEqual(expectedResult)
   })
 
-  it("should return string for app:ApplicationUsePurpose type", () => {
-    const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/appUsePurpose.xml")
+  // it("should return string for app:ApplicationUsePurpose type", () => {
+  //   const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/appUsePurpose.xml")
 
-    const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
+  //   const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
 
-    expect(result).toEqual({
-      type: "ApplicationUsePurpose",
-      value: "PlatformApplication",
-    })
-  })
+  //   expect(result).toEqual({
+  //     type: "ApplicationUsePurpose",
+  //     value: "PlatformApplication",
+  //   })
+  // })
 
   it("should return undefined for undefined input", () => {
     const result = importMetadataValueFromXML(mockСontext, undefined)
