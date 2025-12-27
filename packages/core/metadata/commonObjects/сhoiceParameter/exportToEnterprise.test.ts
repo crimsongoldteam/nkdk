@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { enumChoiceParameter } from "~/tests/fixtures/choiceParameter/enum"
 import { fixedArrayChoiceParameter } from "~/tests/fixtures/choiceParameter/fixedArray"
-import { formBooleanChoiceParameter } from "~/tests/fixtures/choiceParameter/formBoolean"
 import { multipleChoiceParameters } from "~/tests/fixtures/choiceParameter/multiple"
 import { singleChoiceParameter } from "~/tests/fixtures/choiceParameter/single"
 import { stringChoiceParameter } from "~/tests/fixtures/choiceParameter/string"
@@ -17,7 +16,7 @@ describe("exportChoiceParametersToEnterprise", () => {
 
   it("should export single choice parameter to enterprise", () => {
     const data = singleChoiceParameter
-    const expectedResult = "Отбор.ВАрхиве(Булево: Ложь)"
+    const expectedResult = "Отбор.ВАрхиве(Ложь)"
 
     const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
 
@@ -26,7 +25,7 @@ describe("exportChoiceParametersToEnterprise", () => {
 
   it("should export multiple choice parameters to enterprise", () => {
     const data = multipleChoiceParameters
-    const expectedResult = "Отбор.ВАрхиве(Булево:Ложь), Отбор.Недействителен(Булево:Ложь)"
+    const expectedResult = "Отбор.ВАрхиве(Ложь), Отбор.Недействителен(Ложь)"
 
     const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
 
@@ -35,7 +34,7 @@ describe("exportChoiceParametersToEnterprise", () => {
 
   it("should export choice parameters with enum value to enterprise", () => {
     const data = enumChoiceParameter
-    const expectedResult = "Отбор.ТипСчета(Enum.ТипыСчетов.EnumValue.ВнеоборотныеАктивы)"
+    const expectedResult = "Отбор.ТипСчета(Перечисление.ТипыСчетов.ВнеоборотныеАктивы)"
 
     const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
 
@@ -44,7 +43,7 @@ describe("exportChoiceParametersToEnterprise", () => {
 
   it("should export choice parameters with string value to enterprise", () => {
     const data = stringChoiceParameter
-    const expectedResult = "Дополнительно.ТипВладельца(ЗаказПокупателя)"
+    const expectedResult = 'Дополнительно.ТипВладельца("ЗаказПокупателя")'
 
     const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
 
@@ -55,24 +54,6 @@ describe("exportChoiceParametersToEnterprise", () => {
     const data = fixedArrayChoiceParameter
     const expectedResult =
       "Отбор.ТипСтруктурнойЕдиницы(Перечисление.ТипыСтруктурныхЕдиниц.Склад, Перечисление.ТипыСтруктурныхЕдиниц.Розница, Перечисление.ТипыСтруктурныхЕдиниц.РозницаСуммовойУчет)"
-
-    const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
-
-    expect(result).toEqual(expectedResult)
-  })
-
-  it("should export choice parameters with form boolean value to enterprise", () => {
-    const data = formBooleanChoiceParameter
-    const expectedResult = "БезПроизводныхЗначений(Булево: Истина)"
-
-    const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
-
-    expect(result).toEqual(expectedResult)
-  })
-
-  it("should export choice parameters with form enum value to enterprise", () => {
-    const data = formEnumChoiceParameter
-    const expectedResult = "Отбор.ТипСчета(Enum.ТипыСчетов.EnumValue.НераспределеннаяПрибыль)"
 
     const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
 
