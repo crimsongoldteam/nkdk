@@ -108,26 +108,18 @@ export type MetadataValueXML =
 
 //#region MetadataValueEnterprise
 
-export interface MetadataSimpleValueEnterprise {
-  Тип: string
-  Значение: string
-}
+export type MetadataSingleValueEnterprise = string
 
-export type MetadataRefValueEnterprise = string
-export type MetadataObjectRefValueEnterprise = string
+export type MetadataFixedArrayValueEnterprise = MetadataSingleValueEnterprise[]
 
 export interface MetadataFormChoiceListDesTimeValueEnterprise {
-  Представление?: I8nTextEnterprise
-  Тип: string
+  Представление: I8nTextEnterprise
   Значение: MetadataValueEnterprise
 }
 
-export type MetadataFixedArrayValueEnterprise = MetadataValueEnterprise[]
-
 export type MetadataValueEnterprise =
-  | MetadataSimpleValueEnterprise
-  | MetadataFormChoiceListDesTimeValueEnterprise
+  | MetadataSingleValueEnterprise
   | MetadataFixedArrayValueEnterprise
-  | MetadataRefValueEnterprise
-  | MetadataObjectRefValueEnterprise
+  | MetadataFormChoiceListDesTimeValueEnterprise
+
 //#endregion

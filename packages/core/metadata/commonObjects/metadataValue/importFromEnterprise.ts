@@ -1,49 +1,38 @@
 import { format, parse } from "date-fns"
 import { Context } from "../../context/types"
-import { parseBoolean } from "../boolean/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
 import { AppliedTypeEnterprise, AppliedTypeFromEnterprise } from "../typeDescription/types.ts"
 import { MetadataFormChoiceListDesTimeValueEnterprise, MetadataValue, MetadataValueEnterprise } from "./types"
-import {
-  MetadataFixedArrayValueEnterprise,
-  MetadataRefValueEnterprise,
-  MetadataSimpleValueEnterprise,
-} from "./types.ts"
+import { MetadataFixedArrayValueEnterprise } from "./types.ts"
 
 export const importMetadataValueFromEnterprise = (
   context: Context,
   data: MetadataValueEnterprise | undefined
 ): MetadataValue | undefined => {
-  if (!data) return undefined
+  if (data === undefined) return undefined
 
-  if (data && typeof data === "object" && "Представление" in data)
+  if (typeof data === "object" && !Array.isArray(data) && "Представление" in data) {
     return importFormChoiceListDesTimeValueFromEnterprise(context, data as MetadataFormChoiceListDesTimeValueEnterprise)
+  }
 
-  return importSimpleValueFromEnterprise(context, data as MetadataSimpleValueEnterprise)
-}
+  if (Array.isArray(data)) {
+    return importFixedArrayValueFromEnterprise(context, data)
+  }
 
-const importSimpleValueFromEnterprise = (context: Context, data: MetadataValueEnterprise): MetadataValue => {
-  if (typeof data === "string") return importRefValueFromEnterprise(data)
-
-  if (Array.isArray(data)) return importFixedArrayValueFromEnterprise(context, data)
-  if (data && typeof data === "object" && "Тип" in data && "Значение" in data && typeof data.Значение === "string") {
-    const type = data.Тип.trim()
-    if (type === "Строка") {
-      return importStringValueFromEnterprise(data as MetadataSimpleValueEnterprise)
-    }
-    if (type === "Число") {
-      return importDecimalValueFromEnterprise(data as MetadataSimpleValueEnterprise)
-    }
-    if (type === "Дата") {
-      return importDateTimeValueFromEnterprise(data as MetadataSimpleValueEnterprise)
-    }
-    if (type === "Булево " || type === "Булево") {
-      return importBooleanValueFromEnterprise(data as MetadataSimpleValueEnterprise)
+  if (typeof data === "number") {
+    return {
+      type: "decimal",
+      value: data,
     }
   }
 
-  throw new Error(`Invalid simple value ${JSON.stringify(data)}`)
+  if (typeof data === "string") {
+    return importStringValueFromEnterprise(data)
+  }
+
+  throw new Error(`Invalid value ${JSON.stringify(data)}`)
 }
+
 const parseDateTime = (dateTime: string): string => {
   try {
     const date = parse(dateTime, "dd.MM.yyyy HH:mm:ss", new Date())
@@ -60,48 +49,67 @@ const parseDateTime = (dateTime: string): string => {
   }
 }
 
-const importStringValueFromEnterprise = (data: MetadataSimpleValueEnterprise): MetadataValue => {
-  return {
-    type: "string",
-    value: data.Значение as string,
+const importStringValueFromEnterprise = (data: string): MetadataValue => {
+  // Проверяем на FormChoiceListDesTimeValue: формат "значение"(представление)
+  const formChoiceListMatch = data.match(/^"([^"]+)"\(([^)]+)\)$/)
+  if (formChoiceListMatch) {
+    const [, value, presentation] = formChoiceListMatch
+    return {
+      type: "formChoiceListDesTimeValue",
+      presentation: {
+        items: {
+          ru: presentation,
+        },
+      },
+      value: {
+        type: "string",
+        value: value,
+      },
+    }
   }
-}
 
-const importDecimalValueFromEnterprise = (data: MetadataSimpleValueEnterprise): MetadataValue => {
-  return {
-    type: "decimal",
-    value: Number(data.Значение as string),
+  // Проверяем на строку в кавычках
+  if (data.startsWith('"') && data.endsWith('"')) {
+    const value = data.slice(1, -1)
+    return {
+      type: "string",
+      value: value,
+    }
   }
-}
 
-const importDateTimeValueFromEnterprise = (data: MetadataSimpleValueEnterprise): MetadataValue => {
-  return {
-    type: "dateTime",
-    value: parseDateTime(data.Значение),
+  // Проверяем на булево значение
+  if (data === "Истина" || data === "Ложь") {
+    return {
+      type: "boolean",
+      value: data === "Истина",
+    }
   }
-}
 
-const importBooleanValueFromEnterprise = (data: MetadataSimpleValueEnterprise): MetadataValue => {
-  const booleanValue = parseBoolean(data.Значение as "Истина" | "Ложь", {} as Context)
-  return {
-    type: "boolean",
-    value: booleanValue ?? false,
+  // Проверяем на дату в формате dd.MM.yyyy HH:mm:ss или dd.MM.yyyy
+  const dateTimeMatch = data.match(/^\d{2}\.\d{2}\.\d{4}(\s+\d{2}:\d{2}:\d{2})?$/)
+  if (dateTimeMatch) {
+    return {
+      type: "dateTime",
+      value: parseDateTime(data),
+    }
   }
-}
 
-const importRefValueFromEnterprise = (value: MetadataRefValueEnterprise): MetadataValue => {
-  return {
-    type: "ref",
-    value: importRefFromEnterprise(value),
+  // Проверяем на числовое значение (после проверки даты, чтобы не конфликтовать)
+  if (!isNaN(Number(data)) && data.trim() !== "" && !isNaN(parseFloat(data))) {
+    return {
+      type: "decimal",
+      value: Number(data),
+    }
   }
-}
 
-// const importApplicationUsePurposeValueFromEnterprise = (data: MetadataValueEnterprise): MetadataValue => {
-//   return {
-//     type: "ApplicationUsePurpose",
-//     value: data.Значение,
-//   }
-// }
+  // Проверяем на ref (Перечисление.XXX.YYY или Справочник.XXX.ПустаяСсылка)
+  const refMatch = data.match(/^(Перечисление|Справочник)\./)
+  if (refMatch) {
+    return importRefFromEnterprise(data)
+  }
+
+  throw new Error(`Cannot determine type for string value: ${data}`)
+}
 
 const importFixedArrayValueFromEnterprise = (
   context: Context,
@@ -117,7 +125,7 @@ const importFormChoiceListDesTimeValueFromEnterprise = (
   context: Context,
   data: MetadataFormChoiceListDesTimeValueEnterprise
 ): MetadataValue => {
-  let value = importSimpleValueFromEnterprise(context, data)!
+  const value = importMetadataValueFromEnterprise(context, data.Значение)!
   return {
     type: "formChoiceListDesTimeValue",
     presentation: importI8nTextFromEnterprise(context, data.Представление),
@@ -125,7 +133,7 @@ const importFormChoiceListDesTimeValueFromEnterprise = (
   }
 }
 
-const importRefFromEnterprise = (value: string): string => {
+const importRefFromEnterprise = (value: string): MetadataValue => {
   const parts = value.split(".")
 
   const appliedTypeEnterprise = parts[0] as AppliedTypeEnterprise
@@ -140,14 +148,17 @@ const importRefFromEnterprise = (value: string): string => {
   if (!objectName) throw new Error(`Invalid object name for ref: ${value}`)
 
   partsResult.push(objectName)
-  if (appliedType === "Enum" && parts.length >= 2) {
+  if (appliedType === "Enum" && parts.length >= 3) {
     partsResult.push("EnumValue")
     partsResult.push(parts[2])
   }
 
-  if (appliedType === "Catalog" && parts.length >= 2) {
+  if (appliedType === "Catalog" && parts.length >= 3 && parts[2] === "ПустаяСсылка") {
     partsResult.push("EmptyRef")
   }
 
-  return partsResult.join(".")
+  return {
+    type: "ref",
+    value: partsResult.join("."),
+  }
 }

@@ -2,18 +2,11 @@ import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { importMetadataValueFromEnterprise } from "./importFromEnterprise"
 import { MetadataValueEnterprise } from "./types"
-import {
-  MetadataFixedArrayValueEnterprise,
-  MetadataFormChoiceListDesTimeValueEnterprise,
-  MetadataRefValueEnterprise,
-} from "./types.ts"
+import { MetadataFixedArrayValueEnterprise, MetadataFormChoiceListDesTimeValueEnterprise } from "./types.ts"
 
 describe("importMetadataValueFromEnterprise", () => {
   it("should import string value from Enterprise", () => {
-    const data: MetadataValueEnterprise = {
-      Тип: "Строка",
-      Значение: "Текстовое значение",
-    }
+    const data: MetadataValueEnterprise = '"Текстовое значение"'
 
     const result = importMetadataValueFromEnterprise(mockСontext, data)
 
@@ -24,10 +17,7 @@ describe("importMetadataValueFromEnterprise", () => {
   })
 
   it("should import boolean value from Enterprise", () => {
-    const data: MetadataValueEnterprise = {
-      Тип: "Булево ",
-      Значение: "Истина",
-    }
+    const data: MetadataValueEnterprise = "Истина"
 
     const result = importMetadataValueFromEnterprise(mockСontext, data)
 
@@ -38,10 +28,7 @@ describe("importMetadataValueFromEnterprise", () => {
   })
 
   it("should import decimal value from Enterprise", () => {
-    const data: MetadataValueEnterprise = {
-      Тип: "Число",
-      Значение: "0",
-    }
+    const data: MetadataValueEnterprise = "0"
 
     const result = importMetadataValueFromEnterprise(mockСontext, data)
 
@@ -52,10 +39,7 @@ describe("importMetadataValueFromEnterprise", () => {
   })
 
   it("should import dateTime value from Enterprise", () => {
-    const data: MetadataValueEnterprise = {
-      Тип: "Дата",
-      Значение: "24.12.2025 12:00:00",
-    }
+    const data: MetadataValueEnterprise = "24.12.2025 12:00:00"
 
     const result = importMetadataValueFromEnterprise(mockСontext, data)
 
@@ -66,7 +50,7 @@ describe("importMetadataValueFromEnterprise", () => {
   })
 
   it("should import enum (ref) value from Enterprise", () => {
-    const data: MetadataRefValueEnterprise = "Перечисление.ВидыДоговоров.СПоставщиком"
+    const data: MetadataValueEnterprise = "Перечисление.ВидыДоговоров.СПоставщиком"
 
     const result = importMetadataValueFromEnterprise(mockСontext, data)
 
@@ -77,7 +61,7 @@ describe("importMetadataValueFromEnterprise", () => {
   })
 
   it("should import catalog (ref) value from Enterprise", () => {
-    const data: MetadataRefValueEnterprise = "Справочник.Пользователи.ПустаяСсылка"
+    const data: MetadataValueEnterprise = "Справочник.Пользователи.ПустаяСсылка"
 
     const result = importMetadataValueFromEnterprise(mockСontext, data)
 
@@ -111,10 +95,31 @@ describe("importMetadataValueFromEnterprise", () => {
   })
 
   it("should import FormChoiceListDesTimeValue from Enterprise", () => {
+    const data: MetadataValueEnterprise = '"ФЛ"(Физическое лицо)'
+
+    const result = importMetadataValueFromEnterprise(mockСontext, data)
+
+    expect(result).toEqual({
+      type: "formChoiceListDesTimeValue",
+      presentation: {
+        items: {
+          ru: "Физическое лицо",
+        },
+      },
+      value: {
+        type: "string",
+        value: "ФЛ",
+      },
+    })
+  })
+
+  it("should import multilanguage FormChoiceListDesTimeValue from Enterprise", () => {
     const data: MetadataFormChoiceListDesTimeValueEnterprise = {
-      Представление: "Физическое лицо",
-      Тип: "Строка",
-      Значение: "ФЛ",
+      Представление: {
+        ru: "Физическое лицо",
+        en: "Physical person",
+      },
+      Значение: '"ФЛ"',
     }
 
     const result = importMetadataValueFromEnterprise(mockСontext, data)
@@ -124,6 +129,7 @@ describe("importMetadataValueFromEnterprise", () => {
       presentation: {
         items: {
           ru: "Физическое лицо",
+          en: "Physical person",
         },
       },
       value: {

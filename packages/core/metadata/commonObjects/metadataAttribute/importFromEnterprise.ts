@@ -1,5 +1,4 @@
 import { parseBoolean } from "~/metadata/commonObjects/boolean/importFromEnterprise"
-import { parseI8nText } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import {
   MetadataAttribute,
   MetadataAttributeEnterprise,
@@ -12,6 +11,7 @@ import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
+import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
 import { getDefaults } from "./defaults"
 
 const importMetadataValueFromEnterprise = (
@@ -104,7 +104,7 @@ export const importMetadataAttributeFromEnterprise = (
 
   const compactedType = removeDefaultQualifiers(type)
 
-  const synonym = parseI8nText(data.Синоним, context)
+  const synonym = importI8nTextFromEnterprise(context, data.Синоним)
   const excludeSynonym = isSynonymEqualToName(typeof data.Синоним === "string" ? data.Синоним : undefined, name)
 
   const result: MetadataAttribute = {
@@ -139,7 +139,7 @@ export const importMetadataAttributeFromEnterprise = (
     minValue: data.МинимальноеЗначение,
     multiLine: parseBoolean(data.МногострочныйРежим, context),
     choiceParameters: importChoiceParameterLinksFromEnterprise(context, data.ПараметрыВыбора),
-    tooltip: parseI8nText(data.Подсказка, context),
+    tooltip: importI8nTextFromEnterprise(context, data.Подсказка),
     binaryDataStorageLocationUseField: parseBoolean(data.ПолеИспользованияХраненияВХранилищеДвоичныхДанных, context),
     fullTextSearch: importSystemEnumerationFromEnterprise(
       context,
