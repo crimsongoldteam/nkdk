@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { xmlImport } from "~/packages/core"
 import { mockСontext } from "~/tests/mockContext"
+import { xmlImport } from "~/xml/import/importer"
 import { FormElementType } from "../../../metadataFactory/types"
 import { importUsualGroupFromXML } from "./importFromXML"
 import { UsualGroup, UsualGroupXML } from "./types"

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { xmlImport } from "~/packages/core"
 import { system } from "~/tests/fixtures/font/system"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { importFontFromXML } from "./importFromXML"
 import { FontXML } from "./types"
+import { xmlImport } from "~/index.ts"
 
 describe("importFontFromXML", () => {
   it("should import system font from XML", () => {

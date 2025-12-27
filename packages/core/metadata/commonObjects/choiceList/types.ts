@@ -1,6 +1,7 @@
 import { type } from "os"
 import { MetadataValue, MetadataValueXML } from "../metadataValue/types"
 import { ChoiceParameters } from "../сhoiceParameter/types"
+import { name } from "assert"
 
 //#region ChoiceParameter
 export interface ChoiceParameter {
@@ -27,8 +28,8 @@ export interface ChoiceParameterItemsXML {
 export type ChoiceParametersEnterprise = string
 
 
-<ChoiceParameters>
-	<app:item name="Отбор.ТипСчета">
-		<app:value xsi:type="xr:DesignTimeRef">Enum.ТипыСчетов.EnumValue.ВнеоборотныеАктивы</app:value>
-	</app:item>
-</ChoiceParameters>
+// <ChoiceParameters>
+// 	<app:item name="Отбор.ТипСчета">
+// 		<app:value xsi:type="xr:DesignTimeRef">Enum.ТипыСчетов.EnumValue.ВнеоборотныеАктивы</app:value>
+// 	</app:item>
+// </ChoiceParameters>

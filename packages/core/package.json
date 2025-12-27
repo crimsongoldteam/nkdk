@@ -4,17 +4,16 @@
   "description": "Ядро библиотеки Nakidka для работы с метаданными и XML",
   "type": "module",
   "main": "./index.ts",
-  "types": "./index.d.ts",
   "exports": {
     ".": {
-      "types": "./index.d.ts",
       "import": "./index.ts"
     }
   },
   "scripts": {
     "test": "vitest run",
     "test:ui": "vitest --ui",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "prepare": "ts-patch install && typia patch"
   },
   "dependencies": {
     "change-case": "^5.4.4",
@@ -26,7 +25,9 @@
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
+    "ts-patch": "^3.3.0",
     "typescript": "~5.9.3",
+    "typia": "^10.1.0",
     "vitest": "^4.0.15"
   }
 }

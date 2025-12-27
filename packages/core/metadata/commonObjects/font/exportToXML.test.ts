@@ -2,9 +2,9 @@ import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { xmlImport } from "~/xml/import/importer"
-import { exportBorderToXML } from "./exportToXML"
-import { importBorderFromXML } from "./importFromXML"
-import { Border, BorderXML } from "./types"
+import { exportBorderToXML } from "../border/exportToXML.ts"
+import { importBorderFromXML } from "../border/importFromXML.ts"
+import { Border, BorderXML } from "../border/types.ts"
 
 describe("exportBorderToXML", () => {
   it("should export border by ref", () => {

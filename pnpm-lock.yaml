@@ -206,9 +206,15 @@ importers:
       '@types/node':
         specifier: ^24.10.1
         version: 24.10.4
+      ts-patch:
+        specifier: ^3.3.0
+        version: 3.3.0
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
+      typia:
+        specifier: ^10.1.0
+        version: 10.1.0(@types/node@24.10.4)(typescript@5.9.3)
       vitest:
         specifier: ^4.0.15
         version: 4.0.15(@types/node@24.10.4)(jsdom@27.2.0)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
@@ -3402,6 +3408,13 @@ snapshots:
     optionalDependencies:
       '@types/node': 24.10.1
 
+  '@inquirer/external-editor@1.0.3(@types/node@24.10.4)':
+    dependencies:
+      chardet: 2.1.1
+      iconv-lite: 0.7.0
+    optionalDependencies:
+      '@types/node': 24.10.4
+
   '@isaacs/balanced-match@4.0.1': {}
 
   '@isaacs/brace-expansion@5.0.0':
@@ -4888,6 +4901,26 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
+  inquirer@8.2.7(@types/node@24.10.4):
+    dependencies:
+      '@inquirer/external-editor': 1.0.3(@types/node@24.10.4)
+      ansi-escapes: 4.3.2
+      chalk: 4.1.2
+      cli-cursor: 3.1.0
+      cli-width: 3.0.0
+      figures: 3.2.0
+      lodash: 4.17.21
+      mute-stream: 0.0.8
+      ora: 5.4.1
+      run-async: 2.4.1
+      rxjs: 7.8.2
+      string-width: 4.2.3
+      strip-ansi: 6.0.1
+      through: 2.3.8
+      wrap-ansi: 6.2.0
+    transitivePeerDependencies:
+      - '@types/node'
+
   is-binary-path@2.1.0:
     dependencies:
       binary-extensions: 2.3.0
@@ -5590,6 +5623,19 @@ snapshots:
       commander: 10.0.1
       comment-json: 4.4.1
       inquirer: 8.2.7(@types/node@24.10.1)
+      package-manager-detector: 0.2.11
+      randexp: 0.5.3
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - '@types/node'
+
+  typia@10.1.0(@types/node@24.10.4)(typescript@5.9.3):
+    dependencies:
+      '@samchon/openapi': 5.1.0
+      '@standard-schema/spec': 1.0.0
+      commander: 10.0.1
+      comment-json: 4.4.1
+      inquirer: 8.2.7(@types/node@24.10.4)
       package-manager-detector: 0.2.11
       randexp: 0.5.3
       typescript: 5.9.3
