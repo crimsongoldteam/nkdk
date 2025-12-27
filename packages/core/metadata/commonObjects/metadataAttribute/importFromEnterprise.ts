@@ -6,6 +6,7 @@ import {
   MetadataAttributesEnterprise,
 } from "~/metadata/commonObjects/metadataAttribute/types"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
+import { importChoiceParametersFromEnterprise } from "~/metadata/commonObjects/сhoiceParameter/importFromEnterprise"
 import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
 import { Context } from "~/metadata/context/types"
 import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"

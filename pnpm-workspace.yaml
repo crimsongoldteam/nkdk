@@ -1,5 +1,2 @@
 packages:
-  - "cli"
-  - "extension"
-  - "packages/core"
-
+  - "packages/*"
