@@ -1,19 +1,24 @@
 import { Context } from "../../context/types"
-import { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
+import { ChoiceParameterLink, ChoiceParameterLinks, ChoiceParameterLinksXML, ChoiceParameterLinkXML } from "./types"
 
-export const exportChoiceParameterLinksToXML = (
+export const exportChoiceParameterLinkToXML = (
   _context: Context,
-  links: ChoiceParameterLinks
-): ChoiceParameterLinksXML | undefined => {
-  if (!links || links.length === 0) return undefined
-
-  const exportLink = (link: { name: string; dataPath: string; valueChange?: string }) => ({
+  link: ChoiceParameterLink
+): ChoiceParameterLinkXML => {
+  return {
     "xr:Name": link.name,
     "xr:DataPath": link.dataPath,
     "xr:ValueChange": link.valueChange,
-  })
+  }
+}
 
-  return links.map((link) => ({
-    "xr:Link": exportLink(link),
-  }))
+export const exportChoiceParameterLinksToXML = (
+  context: Context,
+  links: ChoiceParameterLinks | undefined
+): ChoiceParameterLinksXML | undefined => {
+  if (!links || links.length === 0) return undefined
+
+  return {
+    "xr:Link": links.map((link) => exportChoiceParameterLinkToXML(context, link)),
+  }
 }

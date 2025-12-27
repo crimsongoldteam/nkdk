@@ -35,17 +35,9 @@ export const xmlImport = <T>(data: string): T => {
       name === "Attributes" ||
       name === "CommandSet" ||
       name === "Events" ||
-      // name === "UserVisible" ||
-      name === "ChoiceParameterLinks" ||
       name === "ChoiceParameters" ||
       name === "ChoiceList" ||
-      // name === "TypeDescription" ||
-      // name === "Type" ||
       name === "InternalInfo"
-      // name === "app:item"
-      // name === "v8:Type"
-      // name === "v8:item" ||
-      // I8N_TEXT_FIELDS.includes(name)
     )
   }
 

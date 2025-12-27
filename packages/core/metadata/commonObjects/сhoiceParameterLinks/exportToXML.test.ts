@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest"
+import { multipleChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/multiple"
+import { singleChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/single"
+import { withStringDataPathChoiceParameterLinks } from "~/tests/fixtures/сhoiceParameterLinks/withStringDataPath"
 import { mockСontext } from "~/tests/mockContext"
-import { readAndParseXMLFile, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportChoiceParameterLinksToXML } from "./exportToXML"
-import { importChoiceParameterLinksFromXML } from "./importFromXML"
-import { ChoiceParameterLinksXML } from "./types"
 
 describe("exportChoiceParameterLinksToXML", () => {
   it("should return undefined for undefined input", () => {
@@ -13,29 +14,39 @@ describe("exportChoiceParameterLinksToXML", () => {
     expect(result).toBeUndefined()
   })
 
-  it("should export and import choice parameter links with single link correctly (round-trip)", () => {
-    const originalXml = readXMLFileAsString("сhoiceParameterLinks/exportSingle.xml").trimEnd()
+  it("should return undefined for empty array", () => {
+    const result = exportChoiceParameterLinksToXML(mockСontext, [])
 
-    const xml = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
-      "сhoiceParameterLinks/exportSingle.xml"
-    )
-    const imported = importChoiceParameterLinksFromXML(mockСontext, xml.ChoiceParameterLinks)
-    const exported = exportChoiceParameterLinksToXML(mockСontext, imported)
-    const resultXml = xmlExport({ ChoiceParameterLinks: exported }, false)
-
-    expect(resultXml).toEqual(originalXml)
+    expect(result).toBeUndefined()
   })
 
-  it("should export and import choice parameter links with multiple links correctly (round-trip)", () => {
-    const originalXml = readXMLFileAsString("сhoiceParameterLinks/exportMultiple.xml").trimEnd()
+  it("should export ChoiceParameterLinks with single Link", () => {
+    const data = singleChoiceParameterLinks
+    const expectedResult = readXMLFileAsString("сhoiceParameterLinks/exportSingle.xml").trimEnd()
 
-    const xml = readAndParseXMLFile<{ ChoiceParameterLinks: ChoiceParameterLinksXML }>(
-      "сhoiceParameterLinks/exportMultiple.xml"
-    )
-    const imported = importChoiceParameterLinksFromXML(mockСontext, xml.ChoiceParameterLinks)
-    const exported = exportChoiceParameterLinksToXML(mockСontext, imported)
-    const resultXml = xmlExport({ ChoiceParameterLinks: exported }, false)
+    const exported = exportChoiceParameterLinksToXML(mockСontext, data)
+    const xmlString = xmlExport({ ChoiceParameterLinks: exported }, false)
 
-    expect(resultXml).toEqual(originalXml)
+    expect(xmlString).toEqual(expectedResult)
+  })
+
+  it("should export ChoiceParameterLinks with multiple Links", () => {
+    const data = multipleChoiceParameterLinks
+    const expectedResult = readXMLFileAsString("сhoiceParameterLinks/exportMultiple.xml").trimEnd()
+
+    const exported = exportChoiceParameterLinksToXML(mockСontext, data)
+    const xmlString = xmlExport({ ChoiceParameterLinks: exported }, false)
+
+    expect(xmlString).toEqual(expectedResult)
+  })
+
+  it("should export ChoiceParameterLinks with DataPath as string", () => {
+    const data = withStringDataPathChoiceParameterLinks
+    const expectedResult = readXMLFileAsString("сhoiceParameterLinks/withStringDataPath.xml").trimEnd()
+
+    const exported = exportChoiceParameterLinksToXML(mockСontext, data)
+    const xmlString = xmlExport({ ChoiceParameterLinks: exported }, false)
+
+    expect(xmlString).toEqual(expectedResult)
   })
 })

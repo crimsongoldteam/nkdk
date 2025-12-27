@@ -1,23 +1,7 @@
-import { I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { MetadataField, MetadataFieldXML } from "../metadataField/types"
+import { MetadataFieldXML } from "../metadataField/types"
 
-export interface ChoiceParameterLinkXML {
-  "xr:Name": string
-  "xr:DataPath": MetadataField
-  "xr:ValueChange"?: SE.LinkedValueChangeMode
-}
-
-export interface ChoiceParameterLinkValueXML {
-  "_xsi:type"?: string
-  Presentation?: I8nTextXML
-  Value: MetadataFieldXML
-}
-
-export interface ChoiceParameterAppItemXML {
-  _name: string
-  "app:value": ChoiceParameterLinkValueXML
-}
+//#region ChoiceParameterLink
 
 export interface ChoiceParameterLink {
   name: string
@@ -25,19 +9,27 @@ export interface ChoiceParameterLink {
   valueChange?: SE.LinkedValueChangeMode
 }
 
-export interface ChoiceParameterLinksXMLItem {
+export type ChoiceParameterLinks = ChoiceParameterLink[]
+//#endregion
+
+//#region ChoiceParameterLinkXML
+
+export interface ChoiceParameterLinkXML {
+  "xr:Name": string
+  "xr:DataPath": MetadataFieldXML | string
+  "xr:ValueChange"?: SE.LinkedValueChangeMode
+}
+
+export interface ChoiceParameterLinksXML {
   "xr:Link": ChoiceParameterLinkXML[]
 }
 
-export interface ChoiceParameterLinksXMLAppItem {
-  "app:item": ChoiceParameterAppItemXML | ChoiceParameterAppItemXML[]
-}
+//#endregion
 
-export type ChoiceParameterLinksXML =
-  | ChoiceParameterLinksXMLItem[]
-  | ChoiceParameterLinksXMLAppItem
-  | ChoiceParameterLinksXMLAppItem[]
+//#region ChoiceParameterLinkEnterprise
 
-export type ChoiceParameterLinks = ChoiceParameterLink[] | undefined
+export type ChoiceParameterLinkEnterprise = string
 
 export type ChoiceParameterLinksEnterprise = string
+
+//#endregion

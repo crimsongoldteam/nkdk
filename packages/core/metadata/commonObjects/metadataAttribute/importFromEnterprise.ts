@@ -6,12 +6,13 @@ import {
   MetadataAttributesEnterprise,
 } from "~/metadata/commonObjects/metadataAttribute/types"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
+import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
 import { Context } from "~/metadata/context/types"
 import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
-import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
+import { importI8nTextFromEnterprise, parseI8nText } from "../i8nText/importFromEnterprise.ts"
 import { getDefaults } from "./defaults"
 
 const importMetadataValueFromEnterprise = (
@@ -33,16 +34,6 @@ const importTypeLinkFromEnterprise = (
   if (!value) return undefined
 
   // TODO: Реализовать парсинг строки в TypeLink
-  return undefined
-}
-
-const importChoiceParameterLinksFromEnterprise = (
-  _context: Context,
-  value: string | undefined
-): Array<{ name: string; dataPath: string; valueChange?: string }> | undefined => {
-  if (!value) return undefined
-
-  // TODO: Реализовать парсинг строки в ChoiceParameterLinks
   return undefined
 }
 
