@@ -3,13 +3,13 @@ import {
   MetadataCommands,
   MetadataCommandsXML,
   MetadataCommandXML,
-} from "~/packages/core/metadata/appliedObjects/metadataCommand/types"
-import { importI8nTextFromXML } from "~/packages/core/metadata/commonObjects/i8nText/importFromXML"
-import { importPictureFromXML } from "~/packages/core/metadata/commonObjects/pictures/importFromXML"
-import { importTypeDescriptionFromXML } from "~/packages/core/metadata/commonObjects/typeDescription/importFromXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject, removeDefaults } from "~/packages/core/metadata/helpers/compactObject"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+} from "~/metadata/appliedObjects/metadataCommand/types"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
+import { importPictureFromXML } from "~/metadata/commonObjects/pictures/importFromXML"
+import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
+import { Context } from "~/metadata/context/types"
+import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
+import * as SE from "~/metadata/systemEnumerations/types"
 import { importMetadataItemLinkFromXML } from "../../commonObjects/metadataRef/importFromXML"
 import { MetadataItemLink, MetadataItemLinkXML } from "../../commonObjects/metadataRef/types"
 import { getDefaults } from "./defaults"

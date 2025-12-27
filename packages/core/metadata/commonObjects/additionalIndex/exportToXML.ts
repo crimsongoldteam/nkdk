@@ -3,10 +3,10 @@ import {
   AdditionalIndexes,
   AdditionalIndexesXML,
   AdditionalIndexXML,
-} from "~/packages/core/metadata/commonObjects/additionalIndex/types"
-import { exportIndexFieldsToXML } from "~/packages/core/metadata/commonObjects/indexField/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
+} from "~/metadata/commonObjects/additionalIndex/types"
+import { exportIndexFieldsToXML } from "~/metadata/commonObjects/indexField/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
 
 export const exportAdditionalIndexToXML = (
   context: Context,

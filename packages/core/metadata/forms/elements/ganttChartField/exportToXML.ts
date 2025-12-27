@@ -1,10 +1,10 @@
-import { exportUserVisibleToXML } from "~/packages/core/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { exportFormFieldToXML } from "~/packages/core/metadata/forms/elements/formField/exportToXML"
-import { GanttChartField, GanttChartFieldXML } from "~/packages/core/metadata/forms/elements/ganttChartField/types"
-import { exportEventsToXML } from "~/packages/core/metadata/forms/events/exportToXML"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
+import { GanttChartField, GanttChartFieldXML } from "~/metadata/forms/elements/ganttChartField/types"
+import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportGanttChartFieldToXML = (
   context: Context,

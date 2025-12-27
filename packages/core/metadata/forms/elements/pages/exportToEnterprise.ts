@@ -1,13 +1,13 @@
-import { exportUserVisibleToEnterprise } from "~/packages/core/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/packages/core/metadata/context/types"
-import { exportFormGroupToEnterprise } from "~/packages/core/metadata/forms/elements/formGroup/exportToEnterprise"
-import { Pages, PagesEnterprise } from "~/packages/core/metadata/forms/elements/pages/types"
-import { exportTableToEnterprise } from "~/packages/core/metadata/forms/elements/table/exportToEnterprise"
-import { exportEventsToEnterprise } from "~/packages/core/metadata/forms/events/exportToEnterprise"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
-import { exportSystemEnumerationToEnterprise } from "~/packages/core/metadata/systemEnumerations/exportToEnterprise"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
+import { Context } from "~/metadata/context/types"
+import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
+import { Pages, PagesEnterprise } from "~/metadata/forms/elements/pages/types"
+import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
+import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportPagesToEnterprise = (context: Context, data: Pages | undefined): PagesEnterprise | undefined => {
   if (!data) return undefined

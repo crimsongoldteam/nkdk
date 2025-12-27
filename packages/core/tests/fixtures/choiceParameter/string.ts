@@ -1,4 +1,4 @@
-import { ChoiceParameters } from "~/packages/core/metadata/commonObjects/сhoiceParameter/types"
+import { ChoiceParameters } from "~/metadata/commonObjects/сhoiceParameter/types"
 
 export const stringChoiceParameter: ChoiceParameters = [
   {

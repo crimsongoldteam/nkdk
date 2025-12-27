@@ -1,16 +1,16 @@
-import { importI8nTextFromXML } from "~/packages/core/metadata/commonObjects/i8nText/importFromXML"
-import { importMetadataValueFromXML } from "~/packages/core/metadata/commonObjects/metadataValue/importFromXML"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
+import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import {
   StandardAttributeDescription,
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionXML,
-} from "~/packages/core/metadata/commonObjects/standardAttributeDescription/types"
-import { importTypeDescriptionFromXML } from "~/packages/core/metadata/commonObjects/typeDescription/importFromXML"
-import { importTypeLinkFromXML } from "~/packages/core/metadata/commonObjects/typeLink/importFromXML"
-import { importChoiceParameterLinksFromXML } from "~/packages/core/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject, removeDefaults } from "~/packages/core/metadata/helpers/compactObject"
+} from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
+import { importTypeLinkFromXML } from "~/metadata/commonObjects/typeLink/importFromXML"
+import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
+import { Context } from "~/metadata/context/types"
+import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { getDefaults } from "./defaults"
 

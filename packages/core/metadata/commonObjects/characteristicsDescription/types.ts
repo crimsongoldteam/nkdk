@@ -1,10 +1,6 @@
-import {
-  MetadataField,
-  MetadataFieldEnterprise,
-  MetadataFieldXML,
-} from "~/packages/core/metadata/commonObjects/metadataField/types"
-import { MetadataItemLink, MetadataItemLinkEnterprise } from "~/packages/core/metadata/commonObjects/metadataRef/types"
-import { MetadataValueEnterprise, MetadataValueXML } from "~/packages/core/metadata/commonObjects/metadataValue/types"
+import { MetadataField, MetadataFieldEnterprise, MetadataFieldXML } from "~/metadata/commonObjects/metadataField/types"
+import { MetadataItemLink, MetadataItemLinkEnterprise } from "~/metadata/commonObjects/metadataRef/types"
+import { MetadataValueEnterprise, MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 
 export interface CharacteristicsDescription {
   characteristicTypes?: MetadataItemLink

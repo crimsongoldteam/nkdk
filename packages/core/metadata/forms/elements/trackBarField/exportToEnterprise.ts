@@ -1,13 +1,13 @@
-import { exportBooleanToEnterprise } from "~/packages/core/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportUserVisibleToEnterprise } from "~/packages/core/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/packages/core/metadata/context/types"
-import { exportFormFieldToEnterprise } from "~/packages/core/metadata/forms/elements/formField/exportToEnterprise"
-import { TrackBarField, TrackBarFieldEnterprise } from "~/packages/core/metadata/forms/elements/trackBarField/types"
-import { exportEventsToEnterprise } from "~/packages/core/metadata/forms/events/exportToEnterprise"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
-import { exportSystemEnumerationToEnterprise } from "~/packages/core/metadata/systemEnumerations/exportToEnterprise"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
+import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
+import { Context } from "~/metadata/context/types"
+import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
+import { TrackBarField, TrackBarFieldEnterprise } from "~/metadata/forms/elements/trackBarField/types"
+import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportTrackBarFieldToEnterprise = (
   context: Context,

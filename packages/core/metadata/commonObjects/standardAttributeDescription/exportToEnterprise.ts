@@ -1,20 +1,20 @@
-import { exportBooleanToEnterprise } from "~/packages/core/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/packages/core/metadata/commonObjects/i8nText/exportToEnterprise"
-import { exportMetadataValueToEnterprise } from "~/packages/core/metadata/commonObjects/metadataValue/exportToEnterprise"
+import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
+import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportMetadataValueToEnterprise } from "~/metadata/commonObjects/metadataValue/exportToEnterprise"
 import {
   PredefinedNameToEnterprise,
   StandardAttributeDescription,
   StandardAttributeDescriptionEnterprise,
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsEnterprise,
-} from "~/packages/core/metadata/commonObjects/standardAttributeDescription/types"
-import { exportTypeDescriptionToEnterprise } from "~/packages/core/metadata/commonObjects/typeDescription/exportToEnterprise"
-import { exportTypeLinkToEnterprise } from "~/packages/core/metadata/commonObjects/typeLink/exportToEnterprise"
-import { exportChoiceParameterLinksToEnterprise } from "~/packages/core/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { exportSystemEnumerationToEnterprise } from "~/packages/core/metadata/systemEnumerations/exportToEnterprise"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+} from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
+import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/exportToEnterprise"
+import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
+import { Context } from "~/metadata/context/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportStandardAttributeDescriptionToEnterprise = (
   context: Context,

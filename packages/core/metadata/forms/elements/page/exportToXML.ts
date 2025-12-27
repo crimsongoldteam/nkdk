@@ -1,12 +1,12 @@
-import { exportColorToXML } from "~/packages/core/metadata/commonObjects/color/exportToXML"
-import { exportI8nTextToXML } from "~/packages/core/metadata/commonObjects/i8nText/exportToXML"
-import { exportPictureToXML } from "~/packages/core/metadata/commonObjects/pictures/exportToXML"
-import { exportUserVisibleToXML } from "~/packages/core/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { exportFormGroupToXML } from "~/packages/core/metadata/forms/elements/formGroup/exportToXML"
-import { Page, PageXML } from "~/packages/core/metadata/forms/elements/page/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
+import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
+import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportPictureToXML } from "~/metadata/commonObjects/pictures/exportToXML"
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
+import { Page, PageXML } from "~/metadata/forms/elements/page/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportPageToXML = (context: Context, data: Page | undefined): PageXML | undefined => {
   if (!data) return undefined

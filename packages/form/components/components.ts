@@ -1,4 +1,4 @@
-import { FormElementType } from "~/packages/core/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/types"
 import { ButtonComponent } from "./button/button"
 import { CheckBoxFieldComponent } from "./checkBoxField/checkBoxField"
 import { CommandBarComponent } from "./commandBar/commandBar"

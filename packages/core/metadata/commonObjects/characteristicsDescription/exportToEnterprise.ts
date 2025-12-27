@@ -3,11 +3,11 @@ import {
   CharacteristicsDescriptionEnterprise,
   CharacteristicsDescriptions,
   CharacteristicsDescriptionsEnterprise,
-} from "~/packages/core/metadata/commonObjects/characteristicsDescription/types"
-import { exportMetadataFieldToEnterprise } from "~/packages/core/metadata/commonObjects/metadataField/exportToEnterprise"
-import { exportMetadataItemLinkToEnterprise } from "~/packages/core/metadata/commonObjects/metadataRef/exportToEnterprise"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
+} from "~/metadata/commonObjects/characteristicsDescription/types"
+import { exportMetadataFieldToEnterprise } from "~/metadata/commonObjects/metadataField/exportToEnterprise"
+import { exportMetadataItemLinkToEnterprise } from "~/metadata/commonObjects/metadataRef/exportToEnterprise"
+import { Context } from "~/metadata/context/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterprise"
 import { MetadataValue } from "../metadataValue/types"
 

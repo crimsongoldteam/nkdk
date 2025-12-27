@@ -1,14 +1,14 @@
-import { importI8nTextFromXML } from "~/packages/core/metadata/commonObjects/i8nText/importFromXML"
-import { importMetadataAttributesFromXML } from "~/packages/core/metadata/commonObjects/metadataAttribute/importFromXML"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
+import { importMetadataAttributesFromXML } from "~/metadata/commonObjects/metadataAttribute/importFromXML"
 import {
   MetadataTabularSection,
   MetadataTabularSections,
   MetadataTabularSectionsXML,
   MetadataTabularSectionXML,
-} from "~/packages/core/metadata/commonObjects/metadataTabularSection/types"
-import { importStandardAttributeDescriptionsFromXML } from "~/packages/core/metadata/commonObjects/standardAttributeDescription/importFromXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject, removeDefaults } from "~/packages/core/metadata/helpers/compactObject"
+} from "~/metadata/commonObjects/metadataTabularSection/types"
+import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/importFromXML"
+import { Context } from "~/metadata/context/types"
+import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
 import { MetadataAttributes } from "../metadataAttribute/types"
 import { getDefaults } from "./defaults"
 

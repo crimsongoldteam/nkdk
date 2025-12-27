@@ -1,7 +1,7 @@
-import { exportI8nTextToXML } from "~/packages/core/metadata/commonObjects/i8nText/exportToXML"
-import { exportTypeDescriptionToXML } from "~/packages/core/metadata/commonObjects/typeDescription/exportToXML"
-import { exportUserVisibleToXML } from "~/packages/core/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
+import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { Context } from "~/metadata/context/types"
 import { FormAttribute, FormAttributeXML } from "./types"
 
 export default function exportAttributeToXML(

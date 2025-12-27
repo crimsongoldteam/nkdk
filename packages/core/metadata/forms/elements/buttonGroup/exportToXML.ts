@@ -1,9 +1,9 @@
-import { exportUserVisibleToXML } from "~/packages/core/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { ButtonGroup, ButtonGroupXML } from "~/packages/core/metadata/forms/elements/buttonGroup/types"
-import { exportFormGroupToXML } from "~/packages/core/metadata/forms/elements/formGroup/exportToXML"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { ButtonGroup, ButtonGroupXML } from "~/metadata/forms/elements/buttonGroup/types"
+import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportButtonGroupToXML = (context: Context, data: ButtonGroup | undefined): ButtonGroupXML | undefined => {
   if (!data) return undefined

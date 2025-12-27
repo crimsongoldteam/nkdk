@@ -15,8 +15,16 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "plugins": [
+      {
+        "transform": "typia/lib/transform"
+      }
+    ],
+    "paths": {
+      "~/*": ["./*"]
+    }
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.config.ts", "tempTest"]
+  "exclude": ["node_modules", "dist", "**/*.config.ts", "tempTest"]
 }

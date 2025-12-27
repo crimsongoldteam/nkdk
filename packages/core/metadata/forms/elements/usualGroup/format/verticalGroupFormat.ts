@@ -1,9 +1,9 @@
-import { formatElements } from "~/packages/core/format/formatFactory"
-import { formatElementTitleAndName } from "~/packages/core/format/helpers"
-import { IFormatElementResult } from "~/packages/core/format/types"
-import { Context } from "~/packages/core/metadata/context/types"
-import { UsualGroupBehavior, UsualGroupRepresentation } from "~/packages/core/metadata/systemEnumerations/types"
-import * as t from "~/packages/core/parser/lexer"
+import { formatElements } from "~/format/formatFactory"
+import { formatElementTitleAndName } from "~/format/helpers"
+import { IFormatElementResult } from "~/format/types"
+import { Context } from "~/metadata/context/types"
+import { UsualGroupBehavior, UsualGroupRepresentation } from "~/metadata/systemEnumerations/types"
+import * as t from "~/parser/lexer"
 import { UsualGroup } from "../types"
 
 export const formatVerticalGroup = (element: UsualGroup, context: Context): IFormatElementResult => {

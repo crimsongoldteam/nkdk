@@ -1,32 +1,24 @@
-import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
-import {
-  ChoiceList,
-  ChoiceListEnterprise,
-  ChoiceListXML,
-} from "~/packages/core/metadata/commonObjects/choiceList/types"
-import { Color, ColorEnterprise, ColorXML } from "~/packages/core/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/packages/core/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/packages/core/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PictureXML } from "~/packages/core/metadata/commonObjects/pictures/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { ChoiceList, ChoiceListEnterprise, ChoiceListXML } from "~/metadata/commonObjects/choiceList/types"
+import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/pictures/types"
 import {
   TypeDescription,
   TypeDescriptionEnterprise,
   TypeDescriptionXML,
-} from "~/packages/core/metadata/commonObjects/typeDescription/types"
-import { TypeLink, TypeLinkEnterprise, TypeLinkXML } from "~/packages/core/metadata/commonObjects/typeLink/types"
-import {
-  UserVisible,
-  UserVisibleEnterprise,
-  UserVisibleXML,
-} from "~/packages/core/metadata/commonObjects/userVisible/types"
+} from "~/metadata/commonObjects/typeDescription/types"
+import { TypeLink, TypeLinkEnterprise, TypeLinkXML } from "~/metadata/commonObjects/typeLink/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import {
   ChoiceParameterLinks,
   ChoiceParameterLinksEnterprise,
   ChoiceParameterLinksXML,
-} from "~/packages/core/metadata/commonObjects/сhoiceParameterLinks/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "~/packages/core/metadata/forms/elements/formField/types"
-import { EventsXML } from "~/packages/core/metadata/forms/events/types"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+} from "~/metadata/commonObjects/сhoiceParameterLinks/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/elements/formField/types"
+import { EventsXML } from "~/metadata/forms/events/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface InputField extends FormField {
   allowInputEmptyMultipleValues?: boolean

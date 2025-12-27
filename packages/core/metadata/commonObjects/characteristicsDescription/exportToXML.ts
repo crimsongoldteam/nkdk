@@ -3,11 +3,11 @@ import {
   CharacteristicsDescriptions,
   CharacteristicsDescriptionsXML,
   CharacteristicsDescriptionXML,
-} from "~/packages/core/metadata/commonObjects/characteristicsDescription/types"
-import { MetadataField } from "~/packages/core/metadata/commonObjects/metadataField/types"
-import { exportMetadataValueToXML } from "~/packages/core/metadata/commonObjects/metadataValue/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
+} from "~/metadata/commonObjects/characteristicsDescription/types"
+import { MetadataField } from "~/metadata/commonObjects/metadataField/types"
+import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
 
 const exportFieldValue = (field: MetadataField | undefined, defaultValue: string = "-1"): string | undefined => {
   if (!field) return defaultValue

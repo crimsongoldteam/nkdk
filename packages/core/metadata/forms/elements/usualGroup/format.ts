@@ -1,5 +1,5 @@
-import { FormatElementFunction, IFormatElementResult } from "~/packages/core/format/types"
-import { Context } from "~/packages/core/metadata/context/types"
+import { FormatElementFunction, IFormatElementResult } from "~/format/types"
+import { Context } from "~/metadata/context/types"
 import { BaseElement } from "../baseElement/types"
 import { formatHorizontalGroup } from "./format/horizontalGroupFormat"
 import { formatOneLineGroup } from "./format/oneLineGroupFormat"

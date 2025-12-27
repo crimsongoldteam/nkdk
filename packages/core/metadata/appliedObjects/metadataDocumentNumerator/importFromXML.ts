@@ -1,10 +1,10 @@
 import {
   MetadataDocumentNumerator,
   MetadataDocumentNumeratorXML,
-} from "~/packages/core/metadata/appliedObjects/metadataDocumentNumerator/types"
-import { importI8nTextFromXML } from "~/packages/core/metadata/commonObjects/i8nText/importFromXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
+} from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
+import { Context } from "~/metadata/context/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
 
 export const importMetadataDocumentNumeratorFromXML = (
   context: Context,

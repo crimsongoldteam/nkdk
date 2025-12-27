@@ -1,4 +1,4 @@
-import { FormElementType } from "~/packages/core/metadata/metadataFactory/types"
+import { FormElementType } from "~/metadata/metadataFactory/types"
 import { Button, ButtonEnterprise, ButtonXML } from "../button/types"
 import { ButtonGroup, ButtonGroupEnterprise, ButtonGroupXML } from "../buttonGroup/types"
 import { CalendarField, CalendarFieldEnterprise, CalendarFieldXML } from "../calendarField/types"

@@ -4,8 +4,8 @@ import {
   fullMetadataAttributeEnterprise,
   shortMetadataAttribute,
   shortMetadataAttributeEnterprise,
-} from "~/packages/core/tests/fixtures/metadataAttribute/enterprise"
-import { mockСontext } from "~/packages/core/tests/mockContext"
+} from "~/tests/fixtures/metadataAttribute/enterprise"
+import { mockСontext } from "~/tests/mockContext"
 import { importMetadataAttributeFromEnterprise } from "./importFromEnterprise"
 
 describe("importMetadataAttributeFromEnterprise", () => {

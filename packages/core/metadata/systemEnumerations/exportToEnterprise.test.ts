@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
-import { mockСontext } from "~/packages/core/tests/mockContext"
+import * as SE from "~/metadata/systemEnumerations/types"
+import { mockСontext } from "~/tests/mockContext"
 import { exportSystemEnumerationToEnterprise } from "./exportToEnterprise"
 
 describe("exportSystemEnumerationToEnterprise", () => {

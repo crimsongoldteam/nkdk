@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { simpleCatalog } from "~/packages/core/tests/fixtures/metadataCatalog/simple"
-import { withAttributesCatalog } from "~/packages/core/tests/fixtures/metadataCatalog/withAttributes"
-import { mockСontext } from "~/packages/core/tests/mockContext"
-import { readAndParseXMLFile } from "~/packages/core/tests/readAndParseXMLFile"
+import { simpleCatalog } from "~/tests/fixtures/metadataCatalog/simple"
+import { withAttributesCatalog } from "~/tests/fixtures/metadataCatalog/withAttributes"
+import { mockСontext } from "~/tests/mockContext"
+import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importMetadataCatalogFromXML } from "./importFromXML"
 import { MetadataCatalogXML } from "./types"
 

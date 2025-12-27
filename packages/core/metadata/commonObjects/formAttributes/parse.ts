@@ -1,9 +1,9 @@
 import { parse } from "yaml"
-import { parseBoolean } from "~/packages/core/metadata/commonObjects/boolean/importFromEnterprise"
-import { parseI8nText } from "~/packages/core/metadata/commonObjects/i8nText/importFromEnterprise"
-import { importTypeDescriptionFromEnterprise } from "~/packages/core/metadata/commonObjects/typeDescription/importFromEnterprise"
-import { parseUserVisible } from "~/packages/core/metadata/commonObjects/userVisible/parse"
-import { Context } from "~/packages/core/metadata/context/types"
+import { parseBoolean } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { parseI8nText } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
+import { parseUserVisible } from "~/metadata/commonObjects/userVisible/parse"
+import { Context } from "~/metadata/context/types"
 import { FormAttribute } from "../types"
 
 export const parseAttributes = (yamlContent: string, context: Context): FormAttribute[] => {

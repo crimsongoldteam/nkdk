@@ -1,12 +1,12 @@
-import { exportBorderToXML } from "~/packages/core/metadata/commonObjects/border/exportToXML"
-import { exportColorToXML } from "~/packages/core/metadata/commonObjects/color/exportToXML"
-import { exportUserVisibleToXML } from "~/packages/core/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { exportFormDecorationToXML } from "~/packages/core/metadata/forms/elements/formDecoration/exportToXML"
-import { LabelDecoration, LabelDecorationXML } from "~/packages/core/metadata/forms/elements/labelDecoration/types"
-import { exportEventsToXML } from "~/packages/core/metadata/forms/events/exportToXML"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
+import { exportBorderToXML } from "~/metadata/commonObjects/border/exportToXML"
+import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecoration/exportToXML"
+import { LabelDecoration, LabelDecorationXML } from "~/metadata/forms/elements/labelDecoration/types"
+import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportLabelDecorationToXML = (
   context: Context,

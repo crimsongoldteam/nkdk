@@ -1,4 +1,4 @@
-import { I8nTextEnterprise } from "~/packages/core/metadata/commonObjects/i8nText/types"
+import { I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { canConvertToPascalCase } from "./canConvertToPascalCase"
 
 /**

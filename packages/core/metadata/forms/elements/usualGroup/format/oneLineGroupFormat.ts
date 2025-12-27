@@ -1,7 +1,7 @@
-import { formatElement } from "~/packages/core/format/formatFactory"
-import { formatElementName } from "~/packages/core/format/helpers"
-import { IFormatElementResult } from "~/packages/core/format/types"
-import { Context } from "~/packages/core/metadata/context/types"
+import { formatElement } from "~/format/formatFactory"
+import { formatElementName } from "~/format/helpers"
+import { IFormatElementResult } from "~/format/types"
+import { Context } from "~/metadata/context/types"
 import { BaseElement } from "../../baseElement/types"
 import { UsualGroup } from "../types"
 

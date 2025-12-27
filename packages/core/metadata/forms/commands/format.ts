@@ -1,5 +1,5 @@
 import { stringify } from "yaml"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 import { exportI8nTextToEnterprise } from "../../commonObjects/i8nText/exportToEnterprise"
 import { Context } from "../../context/types"
 import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"

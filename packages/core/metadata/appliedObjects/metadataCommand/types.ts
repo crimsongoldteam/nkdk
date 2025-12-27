@@ -1,13 +1,13 @@
 import { tags } from "typia"
-import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/packages/core/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PictureXML } from "~/packages/core/metadata/commonObjects/pictures/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/pictures/types"
 import {
   TypeDescription,
   TypeDescriptionEnterprise,
   TypeDescriptionXML,
-} from "~/packages/core/metadata/commonObjects/typeDescription/types"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+} from "~/metadata/commonObjects/typeDescription/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 import {
   MetadataItemLink,
   MetadataItemLinkEnterprise,

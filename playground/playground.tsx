@@ -1,9 +1,9 @@
 import { ConfigProvider, Splitter } from "antd"
 import { useState } from "react"
-import { ClientFormApplication } from "~/components/clientFormApplication/clientFormApplication"
-import type { ClientApplicationForm } from "~/packages/core/metadata/forms/elements/clientApplicationForm/types"
-import { FormElementType } from "~/packages/core/metadata/metadataFactory/types"
-import { parse } from "~/packages/core/parser/parser"
+import type { ClientApplicationForm } from "~/metadata/forms/elements/clientApplicationForm/types"
+import { FormElementType } from "~/metadata/metadataFactory/types"
+import { ClientFormApplication } from "~/packages/form/components/clientFormApplication/clientFormApplication"
+import { parse } from "~/parser/parser"
 import { MonacoEditor } from "~/playground/components/monacoEditor/monacoEditor"
 
 export const Playground = () => {

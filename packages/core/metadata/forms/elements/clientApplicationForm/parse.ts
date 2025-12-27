@@ -1,4 +1,4 @@
-import type { Context } from "~/packages/core/metadata/context/types"
+import type { Context } from "~/metadata/context/types"
 import { FormElementType } from "../../../metadataFactory/types"
 import type { ClientApplicationForm } from "./types"
 

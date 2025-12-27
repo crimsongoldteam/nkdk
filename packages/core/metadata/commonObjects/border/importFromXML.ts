@@ -1,4 +1,4 @@
-import type { ControlBorderType } from "~/packages/core/metadata/systemEnumerations/types"
+import type { ControlBorderType } from "~/metadata/systemEnumerations/types"
 import { Context } from "../../context/types"
 import { Border, BorderXML } from "./types"
 

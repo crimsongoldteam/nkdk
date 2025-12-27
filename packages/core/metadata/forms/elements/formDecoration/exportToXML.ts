@@ -1,13 +1,13 @@
-import { exportColorToXML } from "~/packages/core/metadata/commonObjects/color/exportToXML"
-import { exportFontToXML } from "~/packages/core/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/packages/core/metadata/commonObjects/i8nText/exportToXML"
-import { exportUserVisibleToXML } from "~/packages/core/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { exportBaseElementToXML } from "~/packages/core/metadata/forms/elements/baseElement/exportToXML"
-import { exportCommandBarToXML } from "~/packages/core/metadata/forms/elements/commandBar/exportToXML"
-import { FormDecoration, FormDecorationXML } from "~/packages/core/metadata/forms/elements/formDecoration/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
+import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
+import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
+import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
+import { exportCommandBarToXML } from "~/metadata/forms/elements/commandBar/exportToXML"
+import { FormDecoration, FormDecorationXML } from "~/metadata/forms/elements/formDecoration/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportFormDecorationToXML = (
   context: Context,

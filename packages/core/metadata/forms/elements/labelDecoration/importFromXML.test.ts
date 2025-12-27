@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
 import { xmlImport } from "~/packages/core"
-import { mockСontext } from "~/packages/core/tests/mockContext"
+import { mockСontext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { importLabelDecorationFromXML } from "./importFromXML"
 import { LabelDecoration, LabelDecorationXML } from "./types"

@@ -1,6 +1,6 @@
-import { importI8nTextFromXML } from "~/packages/core/metadata/commonObjects/i8nText/importFromXML"
-import { importTypeDescriptionFromXML } from "~/packages/core/metadata/commonObjects/typeDescription/importFromXML"
-import { Context } from "~/packages/core/metadata/context/types"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
+import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
+import { Context } from "~/metadata/context/types"
 import { ConditionalAppearanceXML, FormAttribute, FormAttributes, FormAttributesXML, FormAttributeXML } from "./types"
 
 export const importFormAttributeFromXML = (context: Context, xml: FormAttributeXML): FormAttribute | undefined => {

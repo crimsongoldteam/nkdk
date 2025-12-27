@@ -1,5 +1,5 @@
-import { parseBoolean } from "~/packages/core/metadata/commonObjects/boolean/importFromEnterprise"
-import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
+import { parseBoolean } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Context } from "../../context/types"
 import { type UserVisible } from "./types"
 

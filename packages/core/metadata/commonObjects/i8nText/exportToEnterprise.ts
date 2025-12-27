@@ -1,4 +1,4 @@
-import { Context } from "~/packages/core/metadata/context/types"
+import { Context } from "~/metadata/context/types"
 import { I8nText, I8nTextEnterprise } from "./types"
 
 export const exportI8nTextToEnterprise = (

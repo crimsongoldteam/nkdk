@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "~/packages/core/tests/mockContext"
+import { mockСontext } from "~/tests/mockContext"
 import { exportI8nTextToEnterprise } from "./exportToEnterprise"
 import { I8nText } from "./types"
 

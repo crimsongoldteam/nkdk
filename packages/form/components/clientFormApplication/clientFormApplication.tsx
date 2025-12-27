@@ -1,6 +1,6 @@
 import { Form } from "antd"
 import type React from "react"
-import { ClientApplicationForm } from "~/packages/core/metadata/forms/elements/clientApplicationForm/types"
+import { ClientApplicationForm } from "~/metadata/forms/elements/clientApplicationForm/types"
 import { components } from "../components"
 
 export function ClientFormApplication(props: Readonly<ClientApplicationForm>): React.ReactNode {

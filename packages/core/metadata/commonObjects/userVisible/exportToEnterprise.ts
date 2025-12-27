@@ -1,4 +1,4 @@
-import { exportBooleanToEnterprise } from "~/packages/core/metadata/commonObjects/boolean/exportToEnterprise"
+import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { Context } from "../../context/types"
 import { UserVisibleEnterprise, UserVisibleKeysEnterprise, type UserVisible } from "./types"
 

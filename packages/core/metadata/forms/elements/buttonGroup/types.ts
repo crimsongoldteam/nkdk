@@ -1,10 +1,6 @@
-import {
-  UserVisible,
-  UserVisibleEnterprise,
-  UserVisibleXML,
-} from "~/packages/core/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/packages/core/metadata/forms/elements/formGroup/types"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface ButtonGroup extends FormGroup {
   representation?: SE.ButtonGroupRepresentation

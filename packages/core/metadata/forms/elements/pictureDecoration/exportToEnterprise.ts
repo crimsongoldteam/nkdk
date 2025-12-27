@@ -1,19 +1,16 @@
-import { exportBooleanToEnterprise } from "~/packages/core/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportBorderToEnterprise } from "~/packages/core/metadata/commonObjects/border/exportToEnterprise"
-import { exportColorToEnterprise } from "~/packages/core/metadata/commonObjects/color/exportToEnterprise"
-import { exportPictureToEnterprise } from "~/packages/core/metadata/commonObjects/pictures/exportToEnterprise"
-import { exportUserVisibleToEnterprise } from "~/packages/core/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/packages/core/metadata/context/types"
-import { exportFormDecorationToEnterprise } from "~/packages/core/metadata/forms/elements/formDecoration/exportToEnterprise"
-import {
-  PictureDecoration,
-  PictureDecorationEnterprise,
-} from "~/packages/core/metadata/forms/elements/pictureDecoration/types"
-import { exportEventsToEnterprise } from "~/packages/core/metadata/forms/events/exportToEnterprise"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
-import { exportSystemEnumerationToEnterprise } from "~/packages/core/metadata/systemEnumerations/exportToEnterprise"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
+import { exportBorderToEnterprise } from "~/metadata/commonObjects/border/exportToEnterprise"
+import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
+import { exportPictureToEnterprise } from "~/metadata/commonObjects/pictures/exportToEnterprise"
+import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
+import { Context } from "~/metadata/context/types"
+import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
+import { PictureDecoration, PictureDecorationEnterprise } from "~/metadata/forms/elements/pictureDecoration/types"
+import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportPictureDecorationToEnterprise = (
   context: Context,

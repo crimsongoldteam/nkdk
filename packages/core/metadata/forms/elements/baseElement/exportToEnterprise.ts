@@ -1,4 +1,4 @@
-import { Context } from "~/packages/core/metadata/context/types"
+import { Context } from "~/metadata/context/types"
 import { BaseElement, BaseElementEnterprise } from "./types"
 
 export const exportBaseElementToEnterprise = (

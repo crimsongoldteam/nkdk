@@ -1,19 +1,14 @@
 import { v4 } from "uuid"
-import {
-  MetadataCommand,
-  MetadataCommands,
-  MetadataCommandsXML,
-  MetadataCommandXML,
-} from "~/packages/core/metadata/appliedObjects/metadataCommand/types"
-import { exportI8nTextToXML } from "~/packages/core/metadata/commonObjects/i8nText/exportToXML"
-import { exportMetadataItemLinkToXML } from "~/packages/core/metadata/commonObjects/metadataRef/exportToXML"
-import { MetadataItemLinkXML } from "~/packages/core/metadata/commonObjects/metadataRef/types"
-import { exportPictureToXML } from "~/packages/core/metadata/commonObjects/pictures/exportToXML"
-import { exportTypeDescriptionToXML } from "~/packages/core/metadata/commonObjects/typeDescription/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportMetadataItemLinkToXML } from "~/metadata/commonObjects/metadataRef/exportToXML"
+import { MetadataItemLinkXML } from "~/metadata/commonObjects/metadataRef/types"
+import { exportPictureToXML } from "~/metadata/commonObjects/pictures/exportToXML"
+import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
+import { MetadataCommand, MetadataCommandXML, MetadataCommands, MetadataCommandsXML } from "./types"
 
 export const exportMetadataCommandToXML = (
   context: Context,

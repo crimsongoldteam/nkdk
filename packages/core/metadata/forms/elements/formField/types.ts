@@ -1,36 +1,24 @@
-import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorXML } from "~/packages/core/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/packages/core/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/packages/core/metadata/commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PictureXML } from "~/packages/core/metadata/commonObjects/pictures/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/pictures/types"
 import {
   TypeDescription,
   TypeDescriptionEnterprise,
   TypeDescriptionXML,
-} from "~/packages/core/metadata/commonObjects/typeDescription/types"
-import {
-  UserVisible,
-  UserVisibleEnterprise,
-  UserVisibleXML,
-} from "~/packages/core/metadata/commonObjects/userVisible/types"
-import {
-  BaseElement,
-  BaseElementEnterprise,
-  BaseElementXML,
-} from "~/packages/core/metadata/forms/elements/baseElement/types"
-import {
-  CommandBar,
-  CommandBarEnterprise,
-  CommandBarXML,
-} from "~/packages/core/metadata/forms/elements/commandBar/types"
+} from "~/metadata/commonObjects/typeDescription/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
 import {
   FormDecoration,
   FormDecorationEnterprise,
   FormDecorationXML,
-} from "~/packages/core/metadata/forms/elements/formDecoration/types"
-import { Table, TableEnterprise, TableXML } from "~/packages/core/metadata/forms/elements/table/types"
-import { EventsXML } from "~/packages/core/metadata/forms/events/types"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+} from "~/metadata/forms/elements/formDecoration/types"
+import { Table, TableEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
+import { EventsXML } from "~/metadata/forms/events/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface FormField extends BaseElement {
   autoCellHeight?: boolean

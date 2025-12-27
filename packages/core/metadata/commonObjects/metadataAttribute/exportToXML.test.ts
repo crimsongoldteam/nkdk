@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest"
-import { multipleAttributes } from "~/packages/core/tests/fixtures/metadataAttribute/multiple"
-import { singleAttribute } from "~/packages/core/tests/fixtures/metadataAttribute/single"
-import { mockСontext } from "~/packages/core/tests/mockContext"
-import { readXMLFileAsString } from "~/packages/core/tests/readAndParseXMLFile"
-import { xmlExport } from "~/packages/core/xml/export/exporter"
+import { multipleAttributes } from "~/tests/fixtures/metadataAttribute/multiple"
+import { singleAttribute } from "~/tests/fixtures/metadataAttribute/single"
+import { mockСontext } from "~/tests/mockContext"
+import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { xmlExport } from "~/xml/export/exporter"
 import { exportMetadataAttributesToXML } from "./exportToXML"
 
 vi.mock("uuid", () => ({

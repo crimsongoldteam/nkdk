@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
-import { readXMLFileAsString } from "~/packages/core/tests/readAndParseXMLFile"
-import { xmlExport } from "~/packages/core/xml/export/exporter"
+import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { xmlExport } from "~/xml/export/exporter"
 import { exportInternalInfoToXML } from "./exportToXML"
 
 vi.mock("uuid", () => ({

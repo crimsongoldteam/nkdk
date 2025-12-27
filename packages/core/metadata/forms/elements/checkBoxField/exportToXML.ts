@@ -1,13 +1,13 @@
-import { exportColorToXML } from "~/packages/core/metadata/commonObjects/color/exportToXML"
-import { exportFontToXML } from "~/packages/core/metadata/commonObjects/font/exportToXML"
-import { exportI8nTextToXML } from "~/packages/core/metadata/commonObjects/i8nText/exportToXML"
-import { exportUserVisibleToXML } from "~/packages/core/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { CheckBoxField, CheckBoxFieldXML } from "~/packages/core/metadata/forms/elements/checkBoxField/types"
-import { exportFormFieldToXML } from "~/packages/core/metadata/forms/elements/formField/exportToXML"
-import { exportEventsToXML } from "~/packages/core/metadata/forms/events/exportToXML"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
+import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
+import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
+import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { CheckBoxField, CheckBoxFieldXML } from "~/metadata/forms/elements/checkBoxField/types"
+import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
+import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportCheckBoxFieldToXML = (
   context: Context,

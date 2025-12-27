@@ -1,19 +1,15 @@
-import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
-import { Border, BorderEnterprise, BorderXML } from "~/packages/core/metadata/commonObjects/border/types"
-import { Color, ColorEnterprise, ColorXML } from "~/packages/core/metadata/commonObjects/color/types"
-import { Picture, PictureEnterprise, PictureXML } from "~/packages/core/metadata/commonObjects/pictures/types"
-import {
-  UserVisible,
-  UserVisibleEnterprise,
-  UserVisibleXML,
-} from "~/packages/core/metadata/commonObjects/userVisible/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { Border, BorderEnterprise, BorderXML } from "~/metadata/commonObjects/border/types"
+import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/pictures/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import {
   FormDecoration,
   FormDecorationEnterprise,
   FormDecorationXML,
-} from "~/packages/core/metadata/forms/elements/formDecoration/types"
-import { EventsXML } from "~/packages/core/metadata/forms/events/types"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+} from "~/metadata/forms/elements/formDecoration/types"
+import { EventsXML } from "~/metadata/forms/events/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface PictureDecoration extends FormDecoration {
   border?: Border

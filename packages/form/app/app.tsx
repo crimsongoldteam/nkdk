@@ -1,19 +1,19 @@
 import { ConfigProvider } from "antd"
 import { useEffect, useState } from "react"
-import { ClientFormApplication } from "~/components/clientFormApplication/clientFormApplication"
+import "~/metadata/forms/elements/button/registration"
+import "~/metadata/forms/elements/inputField/registration"
+import "~/metadata/forms/elements/labelDecoration/registration"
+import "~/metadata/forms/elements/page/registration"
+import "~/metadata/forms/elements/pages/registration"
+import "~/metadata/forms/elements/pictureDecoration/registration"
+import "~/metadata/forms/elements/usualGroup/registration"
 import {
   importClientApplicationFormFromXML,
   xmlImport,
   type ClientApplicationForm,
   type ClientApplicationFormXML,
 } from "~/packages/core"
-import "~/packages/core/metadata/forms/elements/button/registration"
-import "~/packages/core/metadata/forms/elements/inputField/registration"
-import "~/packages/core/metadata/forms/elements/labelDecoration/registration"
-import "~/packages/core/metadata/forms/elements/page/registration"
-import "~/packages/core/metadata/forms/elements/pages/registration"
-import "~/packages/core/metadata/forms/elements/pictureDecoration/registration"
-import "~/packages/core/metadata/forms/elements/usualGroup/registration"
+import { ClientFormApplication } from "~/packages/form/components/clientFormApplication/clientFormApplication"
 
 const context = {
   defaultLanguage: "ru",

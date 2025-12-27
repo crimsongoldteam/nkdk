@@ -1,4 +1,4 @@
-import { importI8nTextFromXML } from "~/packages/core/metadata/commonObjects/i8nText/importFromXML"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { Context } from "../../context/types"
 import { ChoiceList, ChoiceListXML } from "./types"
 

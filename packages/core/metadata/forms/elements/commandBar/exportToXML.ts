@@ -1,9 +1,9 @@
-import { exportUserVisibleToXML } from "~/packages/core/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { CommandBar, CommandBarXML } from "~/packages/core/metadata/forms/elements/commandBar/types"
-import { exportFormGroupToXML } from "~/packages/core/metadata/forms/elements/formGroup/exportToXML"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { CommandBar, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
+import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportCommandBarToXML = (context: Context, data: CommandBar | undefined): CommandBarXML | undefined => {
   if (!data) return undefined

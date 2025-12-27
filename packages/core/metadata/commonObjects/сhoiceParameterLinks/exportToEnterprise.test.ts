@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "~/packages/core/tests/mockContext"
+import { mockСontext } from "~/tests/mockContext"
 import { exportChoiceParameterLinksToEnterprise } from "./exportToEnterprise"
 import { ChoiceParameterLinks } from "./types"
 

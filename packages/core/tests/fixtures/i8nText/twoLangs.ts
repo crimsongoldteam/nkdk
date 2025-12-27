@@ -1,4 +1,4 @@
-import { I8nText } from "~/packages/core/metadata/commonObjects/i8nText/types"
+import { I8nText } from "~/metadata/commonObjects/i8nText/types"
 
 export const twoLangsI8nText: I8nText = {
   formatted: false,

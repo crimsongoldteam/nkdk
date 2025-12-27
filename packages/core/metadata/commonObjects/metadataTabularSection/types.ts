@@ -1,15 +1,15 @@
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/packages/core/metadata/commonObjects/i8nText/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import {
   MetadataAttributes,
   MetadataAttributesEnterprise,
   MetadataAttributesXML,
-} from "~/packages/core/metadata/commonObjects/metadataAttribute/types"
+} from "~/metadata/commonObjects/metadataAttribute/types"
 import {
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsEnterprise,
   StandardAttributeDescriptionsXML,
-} from "~/packages/core/metadata/commonObjects/standardAttributeDescription/types"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+} from "~/metadata/commonObjects/standardAttributeDescription/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 import { InternalInfoItemsXML } from "../internalInfo/types"
 import { MetadataName } from "../metadataName/types"
 

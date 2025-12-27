@@ -1,6 +1,6 @@
-import { formatElementName } from "~/packages/core/format/helpers"
-import { FormatElementFunction, IFormatElementResult } from "~/packages/core/format/types"
-import { Context } from "~/packages/core/metadata/context/types"
+import { formatElementName } from "~/format/helpers"
+import { FormatElementFunction, IFormatElementResult } from "~/format/types"
+import { Context } from "~/metadata/context/types"
 import { LabelDecoration } from "./types"
 
 export const formatLabelDecoration: FormatElementFunction = (

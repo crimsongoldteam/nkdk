@@ -1,5 +1,5 @@
 import { CstNode, CstParser } from "chevrotain"
-import * as t from "~/packages/core/parser/lexer"
+import * as t from "~/parser/lexer"
 
 export class TypeDescriptionParser extends CstParser {
   constructor() {

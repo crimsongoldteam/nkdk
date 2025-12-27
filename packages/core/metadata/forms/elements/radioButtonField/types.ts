@@ -1,19 +1,11 @@
-import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
-import {
-  ChoiceList,
-  ChoiceListEnterprise,
-  ChoiceListXML,
-} from "~/packages/core/metadata/commonObjects/choiceList/types"
-import { Color, ColorEnterprise, ColorXML } from "~/packages/core/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/packages/core/metadata/commonObjects/font/types"
-import {
-  UserVisible,
-  UserVisibleEnterprise,
-  UserVisibleXML,
-} from "~/packages/core/metadata/commonObjects/userVisible/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "~/packages/core/metadata/forms/elements/formField/types"
-import { EventsXML } from "~/packages/core/metadata/forms/events/types"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { ChoiceList, ChoiceListEnterprise, ChoiceListXML } from "~/metadata/commonObjects/choiceList/types"
+import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/elements/formField/types"
+import { EventsXML } from "~/metadata/forms/events/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface RadioButtonField extends FormField {
   backColor?: Color

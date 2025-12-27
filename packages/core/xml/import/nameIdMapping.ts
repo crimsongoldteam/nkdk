@@ -1,5 +1,5 @@
+import { ChildItem } from "~/metadata/forms/elements/childItems/types"
 import { ClientApplicationForm } from "~/packages/core"
-import { ChildItem } from "~/packages/core/metadata/forms/elements/childItems/types"
 
 export type NameIdMapping = Map<string, string>
 

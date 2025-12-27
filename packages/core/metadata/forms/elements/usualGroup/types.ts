@@ -1,14 +1,10 @@
-import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorXML } from "~/packages/core/metadata/commonObjects/color/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/packages/core/metadata/commonObjects/i8nText/types"
-import {
-  UserVisible,
-  UserVisibleEnterprise,
-  UserVisibleXML,
-} from "~/packages/core/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/packages/core/metadata/forms/elements/formGroup/types"
-import { Table, TableEnterprise, TableXML } from "~/packages/core/metadata/forms/elements/table/types"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { Table, TableEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface UsualGroup extends FormGroup {
   associatedTable?: Table

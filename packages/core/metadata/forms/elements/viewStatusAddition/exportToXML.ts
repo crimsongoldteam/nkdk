@@ -1,15 +1,12 @@
-import { exportBorderToXML } from "~/packages/core/metadata/commonObjects/border/exportToXML"
-import { exportColorToXML } from "~/packages/core/metadata/commonObjects/color/exportToXML"
-import { exportFontToXML } from "~/packages/core/metadata/commonObjects/font/exportToXML"
-import { exportUserVisibleToXML } from "~/packages/core/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { exportFormItemAdditionToXML } from "~/packages/core/metadata/forms/elements/formItemAddition/exportToXML"
-import {
-  ViewStatusAddition,
-  ViewStatusAdditionXML,
-} from "~/packages/core/metadata/forms/elements/viewStatusAddition/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
+import { exportBorderToXML } from "~/metadata/commonObjects/border/exportToXML"
+import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
+import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { exportFormItemAdditionToXML } from "~/metadata/forms/elements/formItemAddition/exportToXML"
+import { ViewStatusAddition, ViewStatusAdditionXML } from "~/metadata/forms/elements/viewStatusAddition/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportViewStatusAdditionToXML = (
   context: Context,

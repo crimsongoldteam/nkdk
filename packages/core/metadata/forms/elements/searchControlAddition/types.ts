@@ -1,16 +1,12 @@
-import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorXML } from "~/packages/core/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/packages/core/metadata/commonObjects/font/types"
-import {
-  UserVisible,
-  UserVisibleEnterprise,
-  UserVisibleXML,
-} from "~/packages/core/metadata/commonObjects/userVisible/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import {
   FormItemAddition,
   FormItemAdditionEnterprise,
   FormItemAdditionXML,
-} from "~/packages/core/metadata/forms/elements/formItemAddition/types"
+} from "~/metadata/forms/elements/formItemAddition/types"
 
 export interface SearchControlAddition extends FormItemAddition {
   autoMaxWidth?: boolean

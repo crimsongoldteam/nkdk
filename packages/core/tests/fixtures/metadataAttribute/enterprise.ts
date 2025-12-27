@@ -1,7 +1,4 @@
-import {
-  MetadataAttribute,
-  MetadataAttributeEnterprise,
-} from "~/packages/core/metadata/commonObjects/metadataAttribute/types"
+import { MetadataAttribute, MetadataAttributeEnterprise } from "~/metadata/commonObjects/metadataAttribute/types"
 
 export const fullMetadataAttribute: MetadataAttribute = {
   name: "ТестовыйРеквизит",

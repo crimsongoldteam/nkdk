@@ -1,13 +1,13 @@
 import {
   MetadataDocumentNumerator,
   MetadataDocumentNumeratorEnterprise,
-} from "~/packages/core/metadata/appliedObjects/metadataDocumentNumerator/types"
-import { exportBooleanToEnterprise } from "~/packages/core/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/packages/core/metadata/commonObjects/i8nText/exportToEnterprise"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { exportSystemEnumerationToEnterprise } from "~/packages/core/metadata/systemEnumerations/exportToEnterprise"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+} from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
+import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
+import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { Context } from "~/metadata/context/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataDocumentNumeratorToEnterprise = (
   context: Context,

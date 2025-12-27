@@ -1,12 +1,12 @@
-import { importColorFromXML } from "~/packages/core/metadata/commonObjects/color/importFromXML"
-import { importPictureFromXML } from "~/packages/core/metadata/commonObjects/pictures/importFromXML"
-import { importUserVisibleFromXML } from "~/packages/core/metadata/commonObjects/userVisible/importFromXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { importFormGroupFromXML } from "~/packages/core/metadata/forms/elements/formGroup/importFromXML"
-import { Popup, PopupXML } from "~/packages/core/metadata/forms/elements/popup/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/packages/core/metadata/metadataFactory/types"
+import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
+import { importPictureFromXML } from "~/metadata/commonObjects/pictures/importFromXML"
+import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
+import { Context } from "~/metadata/context/types"
+import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
+import { Popup, PopupXML } from "~/metadata/forms/elements/popup/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const importPopupFromXML = (context: Context, xml: PopupXML | undefined): Popup | undefined => {
   if (!xml) return undefined

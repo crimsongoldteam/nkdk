@@ -1,5 +1,5 @@
-import { registerFormat } from "~/packages/core/format/formatFactory"
-import { registerIsOneLineElementCheck } from "~/packages/core/format/isOneLineElementCheckFactory"
+import { registerFormat } from "~/format/formatFactory"
+import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { FormElementType } from "../../../metadataFactory/types"
 import { formatPictureDecoration } from "./format"
 import { PictureDecoration } from "./types"

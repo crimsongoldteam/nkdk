@@ -1,22 +1,19 @@
-import { exportMetadataCommandsToEnterprise } from "~/packages/core/metadata/appliedObjects/metadataCommand/exportToEnterprise"
-import {
-  MetadataDocument,
-  MetadataDocumentEnterprise,
-} from "~/packages/core/metadata/appliedObjects/metadataDocument/types"
-import { exportMetadataDocumentNumeratorToEnterprise } from "~/packages/core/metadata/appliedObjects/metadataDocumentNumerator/exportToEnterprise"
-import { exportAdditionalIndexesToEnterprise } from "~/packages/core/metadata/commonObjects/additionalIndex/exportToEnterprise"
-import { exportBooleanToEnterprise } from "~/packages/core/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportCharacteristicsDescriptionsToEnterprise } from "~/packages/core/metadata/commonObjects/characteristicsDescription/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/packages/core/metadata/commonObjects/i8nText/exportToEnterprise"
-import { exportMetadataAttributesToEnterprise } from "~/packages/core/metadata/commonObjects/metadataAttribute/exportToEnterprise"
-import { exportMetadataFieldsToEnterprise } from "~/packages/core/metadata/commonObjects/metadataField/exportToEnterprise"
-import { exportMetadataItemLinksToEnterprise } from "~/packages/core/metadata/commonObjects/metadataRef/exportToEnterprise"
-import { exportMetadataTabularSectionsToEnterprise } from "~/packages/core/metadata/commonObjects/metadataTabularSection/exportToEnterprise"
-import { exportStandardAttributeDescriptionsToEnterprise } from "~/packages/core/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { exportSystemEnumerationToEnterprise } from "~/packages/core/metadata/systemEnumerations/exportToEnterprise"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+import { exportMetadataCommandsToEnterprise } from "~/metadata/appliedObjects/metadataCommand/exportToEnterprise"
+import { MetadataDocument, MetadataDocumentEnterprise } from "~/metadata/appliedObjects/metadataDocument/types"
+import { exportMetadataDocumentNumeratorToEnterprise } from "~/metadata/appliedObjects/metadataDocumentNumerator/exportToEnterprise"
+import { exportAdditionalIndexesToEnterprise } from "~/metadata/commonObjects/additionalIndex/exportToEnterprise"
+import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
+import { exportCharacteristicsDescriptionsToEnterprise } from "~/metadata/commonObjects/characteristicsDescription/exportToEnterprise"
+import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportMetadataAttributesToEnterprise } from "~/metadata/commonObjects/metadataAttribute/exportToEnterprise"
+import { exportMetadataFieldsToEnterprise } from "~/metadata/commonObjects/metadataField/exportToEnterprise"
+import { exportMetadataItemLinksToEnterprise } from "~/metadata/commonObjects/metadataRef/exportToEnterprise"
+import { exportMetadataTabularSectionsToEnterprise } from "~/metadata/commonObjects/metadataTabularSection/exportToEnterprise"
+import { exportStandardAttributeDescriptionsToEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
+import { Context } from "~/metadata/context/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataDocumentToEnterprise = (
   context: Context,

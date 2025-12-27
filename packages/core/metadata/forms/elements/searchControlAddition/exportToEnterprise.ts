@@ -1,15 +1,15 @@
-import { exportBooleanToEnterprise } from "~/packages/core/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportColorToEnterprise } from "~/packages/core/metadata/commonObjects/color/exportToEnterprise"
-import { exportFontToEnterprise } from "~/packages/core/metadata/commonObjects/font/exportToEnterprise"
-import { exportUserVisibleToEnterprise } from "~/packages/core/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/packages/core/metadata/context/types"
-import { exportFormItemAdditionToEnterprise } from "~/packages/core/metadata/forms/elements/formItemAddition/exportToEnterprise"
+import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
+import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
+import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
+import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
+import { Context } from "~/metadata/context/types"
+import { exportFormItemAdditionToEnterprise } from "~/metadata/forms/elements/formItemAddition/exportToEnterprise"
 import {
   SearchControlAddition,
   SearchControlAdditionEnterprise,
-} from "~/packages/core/metadata/forms/elements/searchControlAddition/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
+} from "~/metadata/forms/elements/searchControlAddition/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportSearchControlAdditionToEnterprise = (
   context: Context,

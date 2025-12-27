@@ -1,4 +1,4 @@
-import { MetadataAttributes } from "~/packages/core/metadata/commonObjects/metadataAttribute/types"
+import { MetadataAttributes } from "~/metadata/commonObjects/metadataAttribute/types"
 
 export const multipleAttributes: MetadataAttributes = [
   {

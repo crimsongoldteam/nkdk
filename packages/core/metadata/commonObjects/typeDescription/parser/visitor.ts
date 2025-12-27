@@ -1,5 +1,5 @@
 import { CstChildrenDictionary, CstElement, IToken } from "chevrotain"
-import { joinTokens, visitAll } from "~/packages/core/parser/visitorUtils"
+import { joinTokens, visitAll } from "~/parser/visitorUtils"
 import { TypeDescriptionParser } from "./parser"
 import { visitTypeProcessor } from "./typeProcessor"
 

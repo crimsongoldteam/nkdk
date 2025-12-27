@@ -1,14 +1,11 @@
-import { exportBooleanToEnterprise } from "~/packages/core/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportUserVisibleToEnterprise } from "~/packages/core/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/packages/core/metadata/context/types"
-import {
-  DendrogramField,
-  DendrogramFieldEnterprise,
-} from "~/packages/core/metadata/forms/elements/dendrogramField/types"
-import { exportFormFieldToEnterprise } from "~/packages/core/metadata/forms/elements/formField/exportToEnterprise"
-import { exportEventsToEnterprise } from "~/packages/core/metadata/forms/events/exportToEnterprise"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
+import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
+import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
+import { Context } from "~/metadata/context/types"
+import { DendrogramField, DendrogramFieldEnterprise } from "~/metadata/forms/elements/dendrogramField/types"
+import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
+import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportDendrogramFieldToEnterprise = (
   context: Context,

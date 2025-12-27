@@ -1,17 +1,17 @@
-import { exportI8nTextToEnterprise } from "~/packages/core/metadata/commonObjects/i8nText/exportToEnterprise"
-import { exportMetadataAttributesToEnterprise } from "~/packages/core/metadata/commonObjects/metadataAttribute/exportToEnterprise"
+import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportMetadataAttributesToEnterprise } from "~/metadata/commonObjects/metadataAttribute/exportToEnterprise"
 import {
   MetadataTabularSection,
   MetadataTabularSectionEnterprise,
   MetadataTabularSections,
   MetadataTabularSectionsEnterprise,
-} from "~/packages/core/metadata/commonObjects/metadataTabularSection/types"
-import { exportStandardAttributeDescriptionsToEnterprise } from "~/packages/core/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { isSynonymEqualToName } from "~/packages/core/metadata/helpers/isSynonymEqualToName"
-import { exportSystemEnumerationToEnterprise } from "~/packages/core/metadata/systemEnumerations/exportToEnterprise"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+} from "~/metadata/commonObjects/metadataTabularSection/types"
+import { exportStandardAttributeDescriptionsToEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
+import { Context } from "~/metadata/context/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { isSynonymEqualToName } from "~/metadata/helpers/isSynonymEqualToName"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataTabularSectionToEnterprise = (
   context: Context,

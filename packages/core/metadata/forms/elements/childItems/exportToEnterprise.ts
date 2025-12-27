@@ -1,5 +1,5 @@
-import { Context } from "~/packages/core/metadata/context/types"
-import { getOperationFunction } from "~/packages/core/metadata/metadataFactory/metadataFactory"
+import { Context } from "~/metadata/context/types"
+import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { ChildItems, ChildItemsEnterprise } from "./types"
 
 export const exportChildItemsToEnterprise = (

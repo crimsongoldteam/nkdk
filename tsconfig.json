@@ -15,9 +15,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "paths": {
-      "~/*": ["./*"]
-    },
     "plugins": [
       {
         "transform": "typia/lib/transform"
@@ -27,7 +24,14 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "components", "packages/core", "**/*.ts", "**/*.tsx", "playground/components/monacoEditor"],
+  "include": [
+    "src",
+    "packages/form/components",
+    "packages/core",
+    "**/*.ts",
+    "**/*.tsx",
+    "playground/components/monacoEditor"
+  ],
   "exclude": ["node_modules", "dist", "**/*.config.ts", "vite.config.*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

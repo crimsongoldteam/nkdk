@@ -1,4 +1,4 @@
-import { ChoiceParameterLinks } from "~/packages/core/metadata/commonObjects/сhoiceParameterLinks/types"
+import { ChoiceParameterLinks } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 
 export const withStringDataPathChoiceParameterLinks: ChoiceParameterLinks = [
   {

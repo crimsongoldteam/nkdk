@@ -1,13 +1,13 @@
-import { exportBorderToXML } from "~/packages/core/metadata/commonObjects/border/exportToXML"
-import { exportColorToXML } from "~/packages/core/metadata/commonObjects/color/exportToXML"
-import { exportFontToXML } from "~/packages/core/metadata/commonObjects/font/exportToXML"
-import { exportUserVisibleToXML } from "~/packages/core/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { exportFormFieldToXML } from "~/packages/core/metadata/forms/elements/formField/exportToXML"
-import { PeriodField, PeriodFieldXML } from "~/packages/core/metadata/forms/elements/periodField/types"
-import { exportEventsToXML } from "~/packages/core/metadata/forms/events/exportToXML"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
+import { exportBorderToXML } from "~/metadata/commonObjects/border/exportToXML"
+import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
+import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
+import { PeriodField, PeriodFieldXML } from "~/metadata/forms/elements/periodField/types"
+import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportPeriodFieldToXML = (context: Context, data: PeriodField | undefined): PeriodFieldXML | undefined => {
   if (!data) return undefined

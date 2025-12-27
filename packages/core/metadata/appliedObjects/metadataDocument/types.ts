@@ -2,50 +2,50 @@ import {
   MetadataCommands,
   MetadataCommandsEnterprise,
   MetadataCommandsXML,
-} from "~/packages/core/metadata/appliedObjects/metadataCommand/types"
+} from "~/metadata/appliedObjects/metadataCommand/types"
 import {
   MetadataDocumentNumerator,
   MetadataDocumentNumeratorEnterprise,
   MetadataDocumentNumeratorXML,
-} from "~/packages/core/metadata/appliedObjects/metadataDocumentNumerator/types"
+} from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
 import {
   AdditionalIndexes,
   AdditionalIndexesEnterprise,
   AdditionalIndexesXML,
-} from "~/packages/core/metadata/commonObjects/additionalIndex/types"
-import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
+} from "~/metadata/commonObjects/additionalIndex/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import {
   CharacteristicsDescriptions,
   CharacteristicsDescriptionsEnterprise,
   CharacteristicsDescriptionsXML,
-} from "~/packages/core/metadata/commonObjects/characteristicsDescription/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/packages/core/metadata/commonObjects/i8nText/types"
+} from "~/metadata/commonObjects/characteristicsDescription/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import {
   MetadataAttributes,
   MetadataAttributesEnterprise,
   MetadataAttributesXML,
-} from "~/packages/core/metadata/commonObjects/metadataAttribute/types"
+} from "~/metadata/commonObjects/metadataAttribute/types"
 import {
   MetadataFields,
   MetadataFieldsEnterprise,
   MetadataFieldsXML,
-} from "~/packages/core/metadata/commonObjects/metadataField/types"
+} from "~/metadata/commonObjects/metadataField/types"
 import {
   MetadataItemLinks,
   MetadataItemLinksEnterprise,
   MetadataItemLinksXML,
-} from "~/packages/core/metadata/commonObjects/metadataRef/types"
+} from "~/metadata/commonObjects/metadataRef/types"
 import {
   MetadataTabularSections,
   MetadataTabularSectionsEnterprise,
   MetadataTabularSectionsXML,
-} from "~/packages/core/metadata/commonObjects/metadataTabularSection/types"
+} from "~/metadata/commonObjects/metadataTabularSection/types"
 import {
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsEnterprise,
   StandardAttributeDescriptionsXML,
-} from "~/packages/core/metadata/commonObjects/standardAttributeDescription/types"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+} from "~/metadata/commonObjects/standardAttributeDescription/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface MetadataDocument {
   actionsWritingOnPost?: SE.RegisterRecordsWritingOnPost

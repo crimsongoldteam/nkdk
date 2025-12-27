@@ -1,4 +1,4 @@
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface Border {
   ref?: string

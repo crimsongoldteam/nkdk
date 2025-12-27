@@ -1,16 +1,16 @@
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/packages/core/metadata/commonObjects/i8nText/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import {
   TypeDescription,
   TypeDescriptionEnterprise,
   TypeDescriptionXML,
   TypeDescriptionXMLItem,
-} from "~/packages/core/metadata/commonObjects/typeDescription/types"
+} from "~/metadata/commonObjects/typeDescription/types"
 import {
   UserVisible,
   UserVisibleEnterprise,
   UserVisibleKeysEnterprise,
   UserVisibleXML,
-} from "~/packages/core/metadata/commonObjects/userVisible/types"
+} from "~/metadata/commonObjects/userVisible/types"
 import { StringboolEnterprise } from "../boolean/types"
 
 export interface FormAttribute {

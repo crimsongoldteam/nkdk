@@ -1,6 +1,6 @@
-import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/packages/core/metadata/commonObjects/i8nText/types"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface MetadataDocumentNumerator {
   checkUnique?: boolean

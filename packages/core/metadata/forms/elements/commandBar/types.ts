@@ -1,11 +1,7 @@
-import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
-import {
-  UserVisible,
-  UserVisibleEnterprise,
-  UserVisibleXML,
-} from "~/packages/core/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/packages/core/metadata/forms/elements/formGroup/types"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface CommandBar extends FormGroup {
   autofill?: boolean

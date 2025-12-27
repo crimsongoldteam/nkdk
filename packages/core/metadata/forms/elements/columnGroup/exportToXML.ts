@@ -1,11 +1,11 @@
-import { exportColorToXML } from "~/packages/core/metadata/commonObjects/color/exportToXML"
-import { exportPictureToXML } from "~/packages/core/metadata/commonObjects/pictures/exportToXML"
-import { exportUserVisibleToXML } from "~/packages/core/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { ColumnGroup, ColumnGroupXML } from "~/packages/core/metadata/forms/elements/columnGroup/types"
-import { exportFormGroupToXML } from "~/packages/core/metadata/forms/elements/formGroup/exportToXML"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
+import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
+import { exportPictureToXML } from "~/metadata/commonObjects/pictures/exportToXML"
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { ColumnGroup, ColumnGroupXML } from "~/metadata/forms/elements/columnGroup/types"
+import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportColumnGroupToXML = (context: Context, data: ColumnGroup | undefined): ColumnGroupXML | undefined => {
   if (!data) return undefined

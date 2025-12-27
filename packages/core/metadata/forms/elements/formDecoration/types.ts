@@ -1,23 +1,11 @@
-import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorXML } from "~/packages/core/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/packages/core/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/packages/core/metadata/commonObjects/i8nText/types"
-import {
-  UserVisible,
-  UserVisibleEnterprise,
-  UserVisibleXML,
-} from "~/packages/core/metadata/commonObjects/userVisible/types"
-import {
-  BaseElement,
-  BaseElementEnterprise,
-  BaseElementXML,
-} from "~/packages/core/metadata/forms/elements/baseElement/types"
-import {
-  CommandBar,
-  CommandBarEnterprise,
-  CommandBarXML,
-} from "~/packages/core/metadata/forms/elements/commandBar/types"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface FormDecoration extends BaseElement {
   autoMaxHeight?: boolean

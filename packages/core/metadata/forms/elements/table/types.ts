@@ -1,40 +1,24 @@
-import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
-import { Color, ColorEnterprise, ColorXML } from "~/packages/core/metadata/commonObjects/color/types"
-import { Font, FontEnterprise, FontXML } from "~/packages/core/metadata/commonObjects/font/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/packages/core/metadata/commonObjects/i8nText/types"
-import {
-  UserVisible,
-  UserVisibleEnterprise,
-  UserVisibleXML,
-} from "~/packages/core/metadata/commonObjects/userVisible/types"
-import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/packages/core/metadata/forms/commandSet/types"
-import {
-  BaseElement,
-  BaseElementEnterprise,
-  BaseElementXML,
-} from "~/packages/core/metadata/forms/elements/baseElement/types"
-import {
-  ChildItems,
-  ChildItemsEnterprise,
-  ChildItemsXML,
-} from "~/packages/core/metadata/forms/elements/childItems/types"
-import {
-  CommandBar,
-  CommandBarEnterprise,
-  CommandBarXML,
-} from "~/packages/core/metadata/forms/elements/commandBar/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
+import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
+import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/metadata/forms/elements/childItems/types"
+import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
 import {
   FormDecoration,
   FormDecorationEnterprise,
   FormDecorationXML,
-} from "~/packages/core/metadata/forms/elements/formDecoration/types"
+} from "~/metadata/forms/elements/formDecoration/types"
 import {
   FormItemAddition,
   FormItemAdditionEnterprise,
   FormItemAdditionXML,
-} from "~/packages/core/metadata/forms/elements/formItemAddition/types"
-import { EventsXML } from "~/packages/core/metadata/forms/events/types"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+} from "~/metadata/forms/elements/formItemAddition/types"
+import { EventsXML } from "~/metadata/forms/events/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface Table extends BaseElement {
   autoAddIncomplete?: boolean

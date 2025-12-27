@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { BaseElement } from "~/packages/core/metadata/forms/elements/baseElement/types"
-import { mockСontext } from "~/packages/core/tests/mockContext"
+import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
+import { mockСontext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { formatInputField } from "./format"
 import { InputField } from "./types"

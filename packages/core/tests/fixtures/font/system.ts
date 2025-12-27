@@ -1,4 +1,4 @@
-import { Font } from "~/packages/core/metadata/commonObjects/font/types"
+import { Font } from "~/metadata/commonObjects/font/types"
 
 export const system: Font = {
   bold: true,

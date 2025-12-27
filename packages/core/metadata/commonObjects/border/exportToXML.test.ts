@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { xmlExport, xmlImport } from "~/packages/core"
-import { mockСontext } from "~/packages/core/tests/mockContext"
+import { mockСontext } from "~/tests/mockContext"
 import { exportBorderToXML } from "./exportToXML"
 import { importBorderFromXML } from "./importFromXML"
 import { Border, BorderXML } from "./types"

@@ -1,5 +1,5 @@
-import { cleanString } from "~/packages/core/helpers/cleanString"
-import { AllowedLength } from "~/packages/core/metadata/systemEnumerations/types"
+import { cleanString } from "~/helpers/cleanString"
+import { AllowedLength } from "~/metadata/systemEnumerations/types"
 import { TypeDescription } from "../types"
 
 export const visitTypeProcessor = (types: any): TypeDescription => {

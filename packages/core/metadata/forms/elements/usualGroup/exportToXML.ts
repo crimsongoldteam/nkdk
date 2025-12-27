@@ -1,12 +1,12 @@
-import { exportColorToXML } from "~/packages/core/metadata/commonObjects/color/exportToXML"
-import { exportI8nTextToXML } from "~/packages/core/metadata/commonObjects/i8nText/exportToXML"
-import { exportUserVisibleToXML } from "~/packages/core/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { exportFormGroupToXML } from "~/packages/core/metadata/forms/elements/formGroup/exportToXML"
-import { exportTableToXML } from "~/packages/core/metadata/forms/elements/table/exportToXML"
-import { UsualGroup, UsualGroupXML } from "~/packages/core/metadata/forms/elements/usualGroup/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
+import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
+import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
+import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
+import { UsualGroup, UsualGroupXML } from "~/metadata/forms/elements/usualGroup/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportUsualGroupToXML = (context: Context, data: UsualGroup | undefined): UsualGroupXML | undefined => {
   if (!data) return undefined

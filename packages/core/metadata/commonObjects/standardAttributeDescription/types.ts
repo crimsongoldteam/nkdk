@@ -1,22 +1,18 @@
-import { StringboolEnterprise } from "~/packages/core/metadata/commonObjects/boolean/types"
-import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/packages/core/metadata/commonObjects/i8nText/types"
-import {
-  MetadataValue,
-  MetadataValueEnterprise,
-  MetadataValueXML,
-} from "~/packages/core/metadata/commonObjects/metadataValue/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { MetadataValue, MetadataValueEnterprise, MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 import {
   TypeDescription,
   TypeDescriptionEnterprise,
   TypeDescriptionXML,
-} from "~/packages/core/metadata/commonObjects/typeDescription/types"
-import { TypeLink, TypeLinkEnterprise, TypeLinkXML } from "~/packages/core/metadata/commonObjects/typeLink/types"
+} from "~/metadata/commonObjects/typeDescription/types"
+import { TypeLink, TypeLinkEnterprise, TypeLinkXML } from "~/metadata/commonObjects/typeLink/types"
 import {
   ChoiceParameterLinks,
   ChoiceParameterLinksEnterprise,
   ChoiceParameterLinksXML,
-} from "~/packages/core/metadata/commonObjects/сhoiceParameterLinks/types"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+} from "~/metadata/commonObjects/сhoiceParameterLinks/types"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export const PredefinedNameToEnterprise = {
   Owner: "Владелец",

@@ -1,15 +1,12 @@
-import { importColorFromXML } from "~/packages/core/metadata/commonObjects/color/importFromXML"
-import { importFontFromXML } from "~/packages/core/metadata/commonObjects/font/importFromXML"
-import { importUserVisibleFromXML } from "~/packages/core/metadata/commonObjects/userVisible/importFromXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { importFormItemAdditionFromXML } from "~/packages/core/metadata/forms/elements/formItemAddition/importFromXML"
-import {
-  SearchStringAddition,
-  SearchStringAdditionXML,
-} from "~/packages/core/metadata/forms/elements/searchStringAddition/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/packages/core/metadata/metadataFactory/types"
+import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
+import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
+import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
+import { Context } from "~/metadata/context/types"
+import { importFormItemAdditionFromXML } from "~/metadata/forms/elements/formItemAddition/importFromXML"
+import { SearchStringAddition, SearchStringAdditionXML } from "~/metadata/forms/elements/searchStringAddition/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const importSearchStringAdditionFromXML = (
   context: Context,

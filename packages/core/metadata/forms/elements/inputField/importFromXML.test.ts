@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { xmlImport } from "~/packages/core"
-import { mockСontext } from "~/packages/core/tests/mockContext"
+import { mockСontext } from "~/tests/mockContext"
+import { xmlImport } from "~/xml/import/importer"
 import { FormElementType } from "../../../metadataFactory/types"
 import { importInputFieldFromXML } from "./importFromXML"
 import { InputField, InputFieldXML } from "./types"

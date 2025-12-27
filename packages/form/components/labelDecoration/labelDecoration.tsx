@@ -1,7 +1,7 @@
 import { Typography } from "antd"
 import type React from "react"
 import { useState } from "react"
-import { LabelDecoration } from "~/packages/core/metadata/forms/elements/labelDecoration/types"
+import { LabelDecoration } from "~/metadata/forms/elements/labelDecoration/types"
 
 export function LabelDecorationComponent(props: Readonly<LabelDecoration>): React.ReactNode {
   const [title] = useState(props.title?.items.ru || "")

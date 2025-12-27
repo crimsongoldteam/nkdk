@@ -1,16 +1,16 @@
-import { parseBoolean } from "~/packages/core/metadata/commonObjects/boolean/importFromEnterprise"
-import { parseI8nText } from "~/packages/core/metadata/commonObjects/i8nText/importFromEnterprise"
+import { parseBoolean } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { parseI8nText } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import {
   MetadataAttribute,
   MetadataAttributeEnterprise,
   MetadataAttributes,
   MetadataAttributesEnterprise,
-} from "~/packages/core/metadata/commonObjects/metadataAttribute/types"
-import { importTypeDescriptionFromEnterprise } from "~/packages/core/metadata/commonObjects/typeDescription/importFromEnterprise"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject, removeDefaults } from "~/packages/core/metadata/helpers/compactObject"
-import { importSystemEnumerationFromEnterprise } from "~/packages/core/metadata/systemEnumerations/importFromEnterprise"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+} from "~/metadata/commonObjects/metadataAttribute/types"
+import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
+import { Context } from "~/metadata/context/types"
+import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
 import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
 import { getDefaults } from "./defaults"
 

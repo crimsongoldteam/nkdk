@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
-import { multipleAttributes } from "~/packages/core/tests/fixtures/metadataAttribute/multiple"
-import { singleAttribute } from "~/packages/core/tests/fixtures/metadataAttribute/single"
-import { mockСontext } from "~/packages/core/tests/mockContext"
-import { readAndParseXMLFile } from "~/packages/core/tests/readAndParseXMLFile"
+import { multipleAttributes } from "~/tests/fixtures/metadataAttribute/multiple"
+import { singleAttribute } from "~/tests/fixtures/metadataAttribute/single"
+import { mockСontext } from "~/tests/mockContext"
+import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importMetadataAttributesFromXML } from "./importFromXML"
 import { MetadataAttributeXML } from "./types"
 

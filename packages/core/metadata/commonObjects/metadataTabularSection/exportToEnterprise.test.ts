@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "~/packages/core/tests/mockContext"
+import { mockСontext } from "~/tests/mockContext"
 import { exportMetadataTabularSectionToEnterprise } from "./exportToEnterprise"
 import { MetadataTabularSection, MetadataTabularSectionEnterprise } from "./types"
 

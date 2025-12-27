@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "~/packages/core/tests/mockContext"
-import { readAndParseXMLFile } from "~/packages/core/tests/readAndParseXMLFile"
+import { mockСontext } from "~/tests/mockContext"
+import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importFormAttributeFromXML } from "./importFromXML"
 import { FormAttribute, FormAttributeXML, FormAttributesXML } from "./types"
 

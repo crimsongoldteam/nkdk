@@ -1,16 +1,16 @@
-import { exportI8nTextToXML } from "~/packages/core/metadata/commonObjects/i8nText/exportToXML"
-import { exportMetadataValueToXML } from "~/packages/core/metadata/commonObjects/metadataValue/exportToXML"
+import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 import {
   StandardAttributeDescription,
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionXML,
-} from "~/packages/core/metadata/commonObjects/standardAttributeDescription/types"
-import { exportTypeDescriptionToXML } from "~/packages/core/metadata/commonObjects/typeDescription/exportToXML"
-import { exportTypeLinkToXML } from "~/packages/core/metadata/commonObjects/typeLink/exportToXML"
-import { exportChoiceParameterLinksToXML } from "~/packages/core/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
+} from "~/metadata/commonObjects/standardAttributeDescription/types"
+import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
+import { exportTypeLinkToXML } from "~/metadata/commonObjects/typeLink/exportToXML"
+import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
 import { getDefaults } from "./defaults"
 
 export const exportStandardAttributeDescriptionToXML = (

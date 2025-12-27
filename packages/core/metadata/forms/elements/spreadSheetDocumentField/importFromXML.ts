@@ -1,15 +1,15 @@
-import { importColorFromXML } from "~/packages/core/metadata/commonObjects/color/importFromXML"
-import { importUserVisibleFromXML } from "~/packages/core/metadata/commonObjects/userVisible/importFromXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { importFormFieldFromXML } from "~/packages/core/metadata/forms/elements/formField/importFromXML"
+import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
+import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
+import { Context } from "~/metadata/context/types"
+import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/importFromXML"
 import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldXML,
-} from "~/packages/core/metadata/forms/elements/spreadSheetDocumentField/types"
-import { importEventsFromXML } from "~/packages/core/metadata/forms/events/importFromXML"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/packages/core/metadata/metadataFactory/types"
+} from "~/metadata/forms/elements/spreadSheetDocumentField/types"
+import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const importSpreadSheetDocumentFieldFromXML = (
   context: Context,

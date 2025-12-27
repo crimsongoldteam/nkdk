@@ -1,6 +1,6 @@
 import { expect, it } from "vitest"
-import { mockСontext } from "~/packages/core/tests/mockContext"
-import { xmlImport } from "~/packages/core/xml/import/importer"
+import { mockСontext } from "~/tests/mockContext"
+import { xmlImport } from "~/xml/import/importer"
 import { importColorFromXML } from "./importFromXML"
 import { Color, ColorXML } from "./types"
 

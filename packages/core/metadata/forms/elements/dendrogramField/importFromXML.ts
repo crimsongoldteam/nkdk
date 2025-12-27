@@ -1,11 +1,11 @@
-import { importUserVisibleFromXML } from "~/packages/core/metadata/commonObjects/userVisible/importFromXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { DendrogramField, DendrogramFieldXML } from "~/packages/core/metadata/forms/elements/dendrogramField/types"
-import { importFormFieldFromXML } from "~/packages/core/metadata/forms/elements/formField/importFromXML"
-import { importEventsFromXML } from "~/packages/core/metadata/forms/events/importFromXML"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/packages/core/metadata/metadataFactory/types"
+import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
+import { Context } from "~/metadata/context/types"
+import { DendrogramField, DendrogramFieldXML } from "~/metadata/forms/elements/dendrogramField/types"
+import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/importFromXML"
+import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const importDendrogramFieldFromXML = (
   context: Context,

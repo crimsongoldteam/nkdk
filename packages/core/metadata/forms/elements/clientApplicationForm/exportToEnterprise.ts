@@ -1,7 +1,7 @@
-import { formatElements } from "~/packages/core/format/formatFactory"
-import { IFormatElementResult } from "~/packages/core/format/types"
-import { exportFormAttributesToEnterprise } from "~/packages/core/metadata/commonObjects/formAttributes/exportToEnterprise"
-import { Context } from "~/packages/core/metadata/context/types"
+import { formatElements } from "~/format/formatFactory"
+import { IFormatElementResult } from "~/format/types"
+import { exportFormAttributesToEnterprise } from "~/metadata/commonObjects/formAttributes/exportToEnterprise"
+import { Context } from "~/metadata/context/types"
 import { getAllElements } from "./getAllElements"
 import { ClientApplicationForm } from "./types"
 

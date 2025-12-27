@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType } from "~/packages/core/metadata/metadataFactory/types"
-import { simlifyDetectedTreeNodes } from "~/packages/core/tests/simlifyToken"
+import { FormElementType } from "~/metadata/metadataFactory/types"
+import { simlifyDetectedTreeNodes } from "~/tests/simlifyToken"
 import type { TreeNode } from "../treeParser/parseTree"
 import { ParseElementType } from "../types"
 import { detectTreeNodes } from "./detectTree"

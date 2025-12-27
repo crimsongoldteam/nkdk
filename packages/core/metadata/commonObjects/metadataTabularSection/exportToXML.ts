@@ -1,15 +1,15 @@
 import { v4 } from "uuid"
-import { exportI8nTextToXML } from "~/packages/core/metadata/commonObjects/i8nText/exportToXML"
-import { exportMetadataAttributesToXML } from "~/packages/core/metadata/commonObjects/metadataAttribute/exportToXML"
+import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportMetadataAttributesToXML } from "~/metadata/commonObjects/metadataAttribute/exportToXML"
 import {
   MetadataTabularSection,
   MetadataTabularSections,
   MetadataTabularSectionsXML,
   MetadataTabularSectionXML,
-} from "~/packages/core/metadata/commonObjects/metadataTabularSection/types"
-import { exportStandardAttributeDescriptionsToXML } from "~/packages/core/metadata/commonObjects/standardAttributeDescription/exportToXML"
-import { Context } from "~/packages/core/metadata/context/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
+} from "~/metadata/commonObjects/metadataTabularSection/types"
+import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportInternalInfoToXML } from "../internalInfo/exportToXML"
 import { getDefaults } from "./defaults"
 

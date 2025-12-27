@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { mockСontext } from "~/packages/core/tests/mockContext"
-import { readXMLFileAsString } from "~/packages/core/tests/readAndParseXMLFile"
-import { xmlExport } from "~/packages/core/xml/export/exporter"
+import { mockСontext } from "~/tests/mockContext"
+import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { xmlExport } from "~/xml/export/exporter"
 import { exportMetadataSimpleValueToXML, exportMetadataValueToXML } from "./exportToXML"
 import { MetadataValue } from "./types"
 

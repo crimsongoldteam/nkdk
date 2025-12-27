@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { withMultipleValuesUserVisible } from "~/packages/core/tests/fixtures/userVisible/withMultipleValues"
-import { mockСontext } from "~/packages/core/tests/mockContext"
-import { readAndParseXMLFile } from "~/packages/core/tests/readAndParseXMLFile"
+import { withMultipleValuesUserVisible } from "~/tests/fixtures/userVisible/withMultipleValues"
+import { mockСontext } from "~/tests/mockContext"
+import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importUserVisibleFromXML } from "./importFromXML"
 import { UserVisible, UserVisibleXML } from "./types"
 

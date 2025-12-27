@@ -1,6 +1,6 @@
-import { Context } from "~/packages/core/metadata/context/types"
-import { getOperationFunction } from "~/packages/core/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/packages/core/metadata/metadataFactory/types"
+import { Context } from "~/metadata/context/types"
+import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/metadata/metadataFactory/types"
 import { ChildItems, ChildItemsXML, ChildItemXML } from "./types"
 
 export const exportChildItemsToXML = (context: Context, data: ChildItems | undefined): ChildItemsXML | undefined => {

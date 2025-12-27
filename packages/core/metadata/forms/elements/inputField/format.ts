@@ -1,7 +1,7 @@
-import { formatElementName } from "~/packages/core/format/helpers"
-import { FormatElementFunction, IFormatElementResult } from "~/packages/core/format/types"
-import { Context } from "~/packages/core/metadata/context/types"
-import * as t from "~/packages/core/parser/lexer"
+import { formatElementName } from "~/format/helpers"
+import { FormatElementFunction, IFormatElementResult } from "~/format/types"
+import { Context } from "~/metadata/context/types"
+import * as t from "~/parser/lexer"
 import { isMultiline } from "./helpers"
 import { InputField } from "./types"
 

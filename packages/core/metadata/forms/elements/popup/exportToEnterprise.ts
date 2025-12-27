@@ -1,13 +1,13 @@
-import { exportColorToEnterprise } from "~/packages/core/metadata/commonObjects/color/exportToEnterprise"
-import { exportPictureToEnterprise } from "~/packages/core/metadata/commonObjects/pictures/exportToEnterprise"
-import { exportUserVisibleToEnterprise } from "~/packages/core/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/packages/core/metadata/context/types"
-import { exportFormGroupToEnterprise } from "~/packages/core/metadata/forms/elements/formGroup/exportToEnterprise"
-import { Popup, PopupEnterprise } from "~/packages/core/metadata/forms/elements/popup/types"
-import { compactObject } from "~/packages/core/metadata/helpers/compactObject"
-import { registerMetadata } from "~/packages/core/metadata/metadataFactory/metadataFactory"
-import { exportSystemEnumerationToEnterprise } from "~/packages/core/metadata/systemEnumerations/exportToEnterprise"
-import * as SE from "~/packages/core/metadata/systemEnumerations/types"
+import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
+import { exportPictureToEnterprise } from "~/metadata/commonObjects/pictures/exportToEnterprise"
+import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
+import { Context } from "~/metadata/context/types"
+import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
+import { Popup, PopupEnterprise } from "~/metadata/forms/elements/popup/types"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportPopupToEnterprise = (context: Context, data: Popup | undefined): PopupEnterprise | undefined => {
   if (!data) return undefined

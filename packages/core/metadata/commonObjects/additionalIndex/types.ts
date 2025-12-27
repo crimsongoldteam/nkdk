@@ -1,8 +1,4 @@
-import {
-  IndexFields,
-  IndexFieldsEnterprise,
-  IndexFieldsXML,
-} from "~/packages/core/metadata/commonObjects/indexField/types"
+import { IndexFields, IndexFieldsEnterprise, IndexFieldsXML } from "~/metadata/commonObjects/indexField/types"
 
 export interface AdditionalIndex {
   additionalFields?: IndexFields
