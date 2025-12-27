@@ -14,6 +14,7 @@ import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importMetadataValueFromXMLAsPrimitive } from "../metadataValue/importFromXML.ts"
 import { getDefaults } from "./defaults"
+import { importChoiceParametersFromXML } from "../сhoiceParameter/importFromXML.ts"
 
 export const importMetadataAttributeFromXML = (
   context: Context,
@@ -30,7 +31,7 @@ export const importMetadataAttributeFromXML = (
     choiceForm: props.ChoiceForm,
     choiceHistoryOnInput: props.ChoiceHistoryOnInput,
     choiceParameterLinks: importChoiceParameterLinksFromXML(context, props.ChoiceParameterLinks),
-    choiceParameters: importChoiceParameterLinksFromXML(context, props.ChoiceParameters),
+    choiceParameters: importChoiceParametersFromXML(context, props.ChoiceParameters),
     comment: props.Comment,
     createOnInput: props.CreateOnInput,
     dataHistory: props.DataHistory,

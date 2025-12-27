@@ -16,6 +16,7 @@ import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoic
 import { Context } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
 import { getDefaults } from "./defaults"
+import { exportChoiceParametersToXML } from "../сhoiceParameter/exportToXML"
 
 export const exportMetadataAttributeToXML = (
   context: Context,
@@ -35,7 +36,7 @@ export const exportMetadataAttributeToXML = (
       ChoiceForm: mergedData.choiceForm,
       ChoiceHistoryOnInput: mergedData.choiceHistoryOnInput,
       ChoiceParameterLinks: exportChoiceParameterLinksToXML(context, mergedData.choiceParameterLinks),
-      ChoiceParameters: exportChoiceParameterLinksToXML(context, mergedData.choiceParameters),
+      ChoiceParameters: exportChoiceParametersToXML(context, mergedData.choiceParameters),
       Comment: mergedData.comment,
       CreateOnInput: mergedData.createOnInput,
       DataHistory: mergedData.dataHistory,

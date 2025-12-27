@@ -15,6 +15,7 @@ import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
+import { exportChoiceParametersToEnterprise } from "../сhoiceParameter/exportToEnterprise"
 
 export const exportMetadataAttributeToEnterprise = (
   context: Context,
@@ -66,7 +67,7 @@ export const exportMetadataAttributeToEnterprise = (
     Маска: data.mask,
     МинимальноеЗначение: data.minValue,
     МногострочныйРежим: exportBooleanToEnterprise(context, data.multiLine),
-    ПараметрыВыбора: exportChoiceParameterLinksToEnterprise(context, data.choiceParameters),
+    ПараметрыВыбора: exportChoiceParametersToEnterprise(context, data.choiceParameters),
     Подсказка: exportI8nTextToEnterprise(context, data.tooltip),
     ПолеИспользованияХраненияВХранилищеДвоичныхДанных: exportBooleanToEnterprise(
       context,

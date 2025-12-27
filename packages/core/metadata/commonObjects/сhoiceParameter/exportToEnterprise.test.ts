@@ -5,11 +5,11 @@ import { multipleChoiceParameters } from "~/tests/fixtures/choiceParameter/multi
 import { singleChoiceParameter } from "~/tests/fixtures/choiceParameter/single"
 import { stringChoiceParameter } from "~/tests/fixtures/choiceParameter/string"
 import { mockСontext } from "~/tests/mockContext"
-import { exportChoiceParameterLinksToEnterprise } from "./exportToEnterprise"
+import { exportChoiceParametersToEnterprise } from "./exportToEnterprise"
 
 describe("exportChoiceParametersToEnterprise", () => {
   it("should return undefined for undefined input", () => {
-    const result = exportChoiceParameterLinksToEnterprise(mockСontext, undefined)
+    const result = exportChoiceParametersToEnterprise(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
@@ -18,7 +18,7 @@ describe("exportChoiceParametersToEnterprise", () => {
     const data = singleChoiceParameter
     const expectedResult = "Отбор.ВАрхиве(Ложь)"
 
-    const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
+    const result = exportChoiceParametersToEnterprise(mockСontext, data)
 
     expect(result).toEqual(expectedResult)
   })
@@ -27,7 +27,7 @@ describe("exportChoiceParametersToEnterprise", () => {
     const data = multipleChoiceParameters
     const expectedResult = "Отбор.ВАрхиве(Ложь), Отбор.Недействителен(Ложь)"
 
-    const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
+    const result = exportChoiceParametersToEnterprise(mockСontext, data)
 
     expect(result).toEqual(expectedResult)
   })
@@ -36,7 +36,7 @@ describe("exportChoiceParametersToEnterprise", () => {
     const data = enumChoiceParameter
     const expectedResult = "Отбор.ТипСчета(Перечисление.ТипыСчетов.ВнеоборотныеАктивы)"
 
-    const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
+    const result = exportChoiceParametersToEnterprise(mockСontext, data)
 
     expect(result).toEqual(expectedResult)
   })
@@ -45,7 +45,7 @@ describe("exportChoiceParametersToEnterprise", () => {
     const data = stringChoiceParameter
     const expectedResult = 'Дополнительно.ТипВладельца("ЗаказПокупателя")'
 
-    const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
+    const result = exportChoiceParametersToEnterprise(mockСontext, data)
 
     expect(result).toEqual(expectedResult)
   })
@@ -55,7 +55,7 @@ describe("exportChoiceParametersToEnterprise", () => {
     const expectedResult =
       "Отбор.ТипСтруктурнойЕдиницы(Перечисление.ТипыСтруктурныхЕдиниц.Склад, Перечисление.ТипыСтруктурныхЕдиниц.Розница, Перечисление.ТипыСтруктурныхЕдиниц.РозницаСуммовойУчет)"
 
-    const result = exportChoiceParameterLinksToEnterprise(mockСontext, data)
+    const result = exportChoiceParametersToEnterprise(mockСontext, data)
 
     expect(result).toEqual(expectedResult)
   })

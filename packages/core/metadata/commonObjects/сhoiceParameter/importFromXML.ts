@@ -23,7 +23,9 @@ export const importChoiceParametersFromXML = (
 ): ChoiceParameters | undefined => {
   if (!xml) return undefined
 
-  const items = Array.isArray(xml) ? xml.map((item) => item["app:item"]) : [xml["app:item"]]
+  const appItems = xml["app:item"]
+
+  const items = Array.isArray(appItems) ? appItems : [appItems]
 
   return items.map((item) => importChoiceParameterFromXML(context, item)!)
 }

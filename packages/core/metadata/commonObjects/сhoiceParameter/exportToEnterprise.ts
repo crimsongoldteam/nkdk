@@ -3,7 +3,7 @@ import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterp
 import { ChoiceParameterLinksEnterprise } from "../сhoiceParameterLinks/types"
 import { ChoiceParameters } from "./types"
 
-export const exportChoiceParameterLinksToEnterprise = (
+export const exportChoiceParametersToEnterprise = (
   context: Context,
   data: ChoiceParameters | undefined
 ): ChoiceParameterLinksEnterprise | undefined => {

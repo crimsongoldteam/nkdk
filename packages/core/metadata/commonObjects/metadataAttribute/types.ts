@@ -20,6 +20,7 @@ import {
 } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { MetadataName } from "../metadataName/types"
+import { ChoiceParameters, ChoiceParametersEnterprise, ChoiceParametersXML } from "../сhoiceParameter/types"
 
 export interface MetadataAttribute {
   binaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse
@@ -28,7 +29,7 @@ export interface MetadataAttribute {
   choiceForm?: string
   choiceHistoryOnInput?: SE.ChoiceHistoryOnInput
   choiceParameterLinks?: ChoiceParameterLinks
-  choiceParameters?: ChoiceParameterLinks
+  choiceParameters?: ChoiceParameters
   comment?: string
   createOnInput?: SE.CreateOnInput
   dataHistory?: SE.DataHistoryUse
@@ -65,7 +66,7 @@ export interface MetadataAttributeXML {
     ChoiceForm?: string
     ChoiceHistoryOnInput?: SE.ChoiceHistoryOnInput
     ChoiceParameterLinks?: ChoiceParameterLinksXML
-    ChoiceParameters?: ChoiceParameterLinksXML
+    ChoiceParameters?: ChoiceParametersXML
     Comment?: string
     CreateOnInput?: SE.CreateOnInput
     DataHistory?: SE.DataHistoryUse
@@ -112,7 +113,7 @@ export interface MetadataAttributeFullEnterprise {
   Маска?: string
   МинимальноеЗначение?: MetadataValueEnterprise
   МногострочныйРежим?: StringboolEnterprise
-  ПараметрыВыбора?: ChoiceParameterLinksEnterprise
+  ПараметрыВыбора?: ChoiceParametersEnterprise
   Подсказка?: I8nTextEnterprise
   ПолеИспользованияХраненияВХранилищеДвоичныхДанных?: StringboolEnterprise
   ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
