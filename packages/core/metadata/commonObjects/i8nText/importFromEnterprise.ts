@@ -1,18 +1,21 @@
 import { Context } from "~/metadata/context/types"
 import { I8nText, I8nTextEnterprise } from "./types"
 
-export const parseI8nText = (value: I8nTextEnterprise | undefined, context: Context): I8nText | undefined => {
-  if (value === undefined) return undefined
+export const importI8nTextFromEnterprise = (
+  context: Context,
+  data: I8nTextEnterprise | undefined
+): I8nText | undefined => {
+  if (data === undefined) return undefined
 
-  if (typeof value === "string") {
+  if (typeof data === "string") {
     return {
       items: {
-        [context.defaultLanguage]: value,
+        [context.defaultLanguage]: data,
       },
     }
   }
 
   return {
-    items: value,
+    items: data,
   }
 }

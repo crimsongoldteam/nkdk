@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { importMetadataValueFromEnterprise } from "./importFromEnterprise"
-import { MetadataValueEnterprise, MetadataValueEnterpriseResult } from "./types"
+import { MetadataValueEnterprise } from "./types"
+import {
+  MetadataFixedArrayValueEnterprise,
+  MetadataFormChoiceListDesTimeValueEnterprise,
+  MetadataRefValueEnterprise,
+} from "./types.ts"
 
 describe("importMetadataValueFromEnterprise", () => {
   it("should import string value from Enterprise", () => {
@@ -61,7 +66,7 @@ describe("importMetadataValueFromEnterprise", () => {
   })
 
   it("should import enum (ref) value from Enterprise", () => {
-    const data: MetadataValueEnterpriseResult = "Перечисление.ВидыДоговоров.СПоставщиком"
+    const data: MetadataRefValueEnterprise = "Перечисление.ВидыДоговоров.СПоставщиком"
 
     const result = importMetadataValueFromEnterprise(mockСontext, data)
 
@@ -72,7 +77,7 @@ describe("importMetadataValueFromEnterprise", () => {
   })
 
   it("should import catalog (ref) value from Enterprise", () => {
-    const data: MetadataValueEnterpriseResult = "Справочник.Пользователи.ПустаяСсылка"
+    const data: MetadataRefValueEnterprise = "Справочник.Пользователи.ПустаяСсылка"
 
     const result = importMetadataValueFromEnterprise(mockСontext, data)
 
@@ -83,7 +88,7 @@ describe("importMetadataValueFromEnterprise", () => {
   })
 
   it("should import fixedArray value from Enterprise", () => {
-    const data: MetadataValueEnterpriseResult = [
+    const data: MetadataFixedArrayValueEnterprise = [
       "Перечисление.ТипыСчетов.КосвенныеЗатраты",
       "Перечисление.ТипыСчетов.Расходы",
     ]
@@ -106,7 +111,7 @@ describe("importMetadataValueFromEnterprise", () => {
   })
 
   it("should import FormChoiceListDesTimeValue from Enterprise", () => {
-    const data: MetadataValueEnterpriseResult = {
+    const data: MetadataFormChoiceListDesTimeValueEnterprise = {
       Представление: "Физическое лицо",
       Тип: "Строка",
       Значение: "ФЛ",

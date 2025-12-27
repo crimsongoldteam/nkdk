@@ -1,4 +1,5 @@
 import { I8nText, I8nTextXML } from "../i8nText/types"
+import { I8nTextEnterprise } from "../i8nText/types.ts"
 
 //#region MetadataValue
 
@@ -116,12 +117,12 @@ export type MetadataRefValueEnterprise = string
 export type MetadataObjectRefValueEnterprise = string
 
 export interface MetadataFormChoiceListDesTimeValueEnterprise {
-  Представление?: string
-  Тип: "ЗначениеСпискаЗначений"
+  Представление?: I8nTextEnterprise
+  Тип: string
   Значение: MetadataValueEnterprise
 }
 
-export type MetadataFixedArrayValueEnterprise = MetadataSimpleValueEnterprise[]
+export type MetadataFixedArrayValueEnterprise = MetadataValueEnterprise[]
 
 export type MetadataValueEnterprise =
   | MetadataSimpleValueEnterprise
