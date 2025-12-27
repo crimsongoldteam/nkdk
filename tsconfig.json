@@ -1,37 +1,3 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "moduleResolution": "bundler",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "plugins": [
-      {
-        "transform": "typia/lib/transform"
-      }
-    ],
-    "strictNullChecks": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
-  },
-  "include": [
-    "src",
-    "packages/form/components",
-    "packages/core",
-    "**/*.ts",
-    "**/*.tsx",
-    "playground/components/monacoEditor"
-  ],
-  "exclude": ["node_modules", "dist", "**/*.config.ts", "vite.config.*"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "compilerOptions": {}
 }
