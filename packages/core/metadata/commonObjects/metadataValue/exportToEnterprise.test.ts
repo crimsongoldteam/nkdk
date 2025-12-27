@@ -12,10 +12,7 @@ describe("exportMetadataValueToEnterprise", () => {
 
     const result = exportMetadataValueToEnterprise(mockСontext, data)
 
-    expect(result).toEqual({
-      Тип: "Строка",
-      Значение: "Текстовое значение",
-    })
+    expect(result).toEqual('"Текстовое значение"')
   })
 
   it("should export boolean value to Enterprise", () => {
@@ -26,10 +23,7 @@ describe("exportMetadataValueToEnterprise", () => {
 
     const result = exportMetadataValueToEnterprise(mockСontext, data)
 
-    expect(result).toEqual({
-      Тип: "Булево ",
-      Значение: "Истина",
-    })
+    expect(result).toEqual("Истина")
   })
 
   it("should export decimal value to Enterprise", () => {
@@ -40,10 +34,7 @@ describe("exportMetadataValueToEnterprise", () => {
 
     const result = exportMetadataValueToEnterprise(mockСontext, data)
 
-    expect(result).toEqual({
-      Тип: "Число",
-      Значение: "0",
-    })
+    expect(result).toEqual("0")
   })
 
   it("should export dateTime value to Enterprise", () => {
@@ -54,10 +45,7 @@ describe("exportMetadataValueToEnterprise", () => {
 
     const result = exportMetadataValueToEnterprise(mockСontext, data)
 
-    expect(result).toEqual({
-      Тип: "Дата",
-      Значение: "24.12.2025 12:00:00",
-    })
+    expect(result).toEqual("24.12.2025 12:00:00")
   })
 
   it("should export enum (ref) value to Enterprise", () => {
@@ -114,10 +102,24 @@ describe("exportMetadataValueToEnterprise", () => {
 
     const result = exportMetadataValueToEnterprise(mockСontext, data)
 
+    expect(result).toEqual('"ФЛ"(Физическое лицо)')
+  })
+
+  it("should export multilanguage FormChoiceListDesTimeValue to Enterprise", () => {
+    const data: MetadataValue = {
+      type: "formChoiceListDesTimeValue",
+      presentation: { items: { ru: "Физическое лицо", en: "Physical person" } },
+      value: {
+        type: "string",
+        value: "ФЛ",
+      },
+    }
+
+    const result = exportMetadataValueToEnterprise(mockСontext, data)
+
     expect(result).toEqual({
-      Представление: "Физическое лицо",
-      Тип: "Строка",
-      Значение: "ФЛ",
+      Представление: { ru: "Физическое лицо", en: "Physical person" },
+      Значение: '"ФЛ"',
     })
   })
 

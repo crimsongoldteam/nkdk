@@ -1,5 +1,6 @@
 import { format } from "date-fns"
 import { Context } from "../../context/types"
+import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise.ts"
 import { AppliedType, AppliedTypeToEnterprise } from "../typeDescription/types"
 import { MetadataFixedArrayValue, MetadataFormChoiceListValue, MetadataSimpleValue, MetadataValue } from "./types"
 import {
@@ -7,12 +8,8 @@ import {
   MetadataDateTimeValue,
   MetadataDecimalValue,
   MetadataFixedArrayValueEnterprise,
-  MetadataFormChoiceListDesTimeValueEnterprise,
   MetadataObjectRefValue,
-  MetadataObjectRefValueEnterprise,
   MetadataRefValue,
-  MetadataRefValueEnterprise,
-  MetadataSimpleValueEnterprise,
   MetadataValueEnterprise,
 } from "./types.ts"
 
@@ -27,7 +24,7 @@ export const exportMetadataValueToEnterprise = (
   if (data.type === "string") return exportStringValueToEnterprise(data)
   if (data.type === "decimal") return exportDecimalValueToEnterprise(data)
   if (data.type === "dateTime") return exportDateTimeValueToEnterprise(data)
-  if (data.type === "boolean") return exportBooleanValueToEnterprise(data)
+  if (data.type === "boolean") return exportBooleanValueToEnterprise(context, data)
   if (data.type === "ref") return exportRefValueToEnterprise(data)
   if (data.type === "objectRef") return exportObjectRefValueToEnterprise(data)
   // if (data.type === "ApplicationUsePurpose") return exportApplicationUsePurposeValueToEnterprise(data)
@@ -40,38 +37,26 @@ const formatDateTime = (dateTime: string): string => {
 }
 
 const exportStringValueToEnterprise = (data: MetadataSimpleValue): MetadataValueEnterprise => {
-  return {
-    Тип: "Строка",
-    Значение: data.value as string,
-  }
+  return `"${data.value as string}"`
 }
 
 const exportDecimalValueToEnterprise = (data: MetadataDecimalValue): MetadataValueEnterprise => {
-  return {
-    Тип: "Число",
-    Значение: String(data.value),
-  }
+  return String(data.value)
 }
 
 const exportDateTimeValueToEnterprise = (data: MetadataDateTimeValue): MetadataValueEnterprise => {
-  return {
-    Тип: "Дата",
-    Значение: formatDateTime(data.value),
-  }
+  return formatDateTime(data.value)
 }
 
-const exportBooleanValueToEnterprise = (data: MetadataBooleanValue): MetadataValueEnterprise => {
-  return {
-    Тип: "Булево ",
-    Значение: data.value ? "Истина" : "Ложь",
-  }
+const exportBooleanValueToEnterprise = (context: Context, data: MetadataBooleanValue): MetadataValueEnterprise => {
+  return exportBooleanToEnterprise(context, data.value)!
 }
 
-const exportRefValueToEnterprise = (data: MetadataRefValue): MetadataRefValueEnterprise => {
+const exportRefValueToEnterprise = (data: MetadataRefValue): MetadataValueEnterprise => {
   return exportRefToEnterprise(data.value)
 }
 
-const exportObjectRefValueToEnterprise = (data: MetadataObjectRefValue): MetadataObjectRefValueEnterprise => {
+const exportObjectRefValueToEnterprise = (data: MetadataObjectRefValue): MetadataValueEnterprise => {
   return exportRefToEnterprise(data.value)
 }
 
@@ -86,14 +71,26 @@ const exportFormChoiceListDesTimeValueToEnterprise = (
   context: Context,
   data: MetadataFormChoiceListValue
 ): MetadataValueEnterprise => {
-  const valueResult = exportMetadataValueToEnterprise(context, data.value) as MetadataSimpleValueEnterprise
+  const valueResult = exportMetadataValueToEnterprise(context, data.value) as string
 
-  const presentation = data.presentation?.items?.[context.defaultLanguage] || data.presentation?.items?.ru || ""
+  const presentationItems = data.presentation?.items
+  const hasMultipleLanguages = presentationItems && Object.keys(presentationItems).length > 1
 
-  return {
-    Представление: presentation,
-    ...valueResult,
-  } as MetadataFormChoiceListDesTimeValueEnterprise
+  // Если есть несколько языков, возвращаем объект
+  if (hasMultipleLanguages && presentationItems) {
+    return {
+      Представление: presentationItems,
+      Значение: valueResult,
+    }
+  }
+
+  // Иначе возвращаем строку в формате "значение"(представление)
+  const presentation = presentationItems?.[context.defaultLanguage] || presentationItems?.ru || ""
+
+  // Если значение уже в кавычках, используем его как есть, иначе добавляем кавычки
+  const valueString = valueResult.startsWith('"') && valueResult.endsWith('"') ? valueResult : `"${valueResult}"`
+
+  return `${valueString}(${presentation})`
 }
 
 const exportRefToEnterprise = (value: string): string => {
