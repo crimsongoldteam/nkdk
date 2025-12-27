@@ -52,7 +52,7 @@ export interface MetadataAttribute {
   passwordMode?: boolean
   quickChoice?: SE.UseQuickChoice
   synonym?: I8nText
-  tooltip?: I8nText
+  toolTip?: I8nText
   type: TypeDescription
   use?: SE.AttributeUse
 }
@@ -89,7 +89,7 @@ export interface MetadataAttributeXML {
     PasswordMode?: StringboolXML
     QuickChoice?: SE.UseQuickChoice
     Synonym?: I8nTextXML
-    Tooltip?: I8nTextXML
+    ToolTip?: I8nTextXML
     Type: TypeDescriptionXML
     Use?: SE.AttributeUse
   }

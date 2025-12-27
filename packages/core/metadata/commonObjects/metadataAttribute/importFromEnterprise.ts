@@ -73,8 +73,8 @@ export const importMetadataAttributeFromEnterprise = (
     mask: data.Маска,
     minValue: data.МинимальноеЗначение,
     multiLine: parseBoolean(data.МногострочныйРежим, context),
-    choiceParameters: importChoiceParameterLinksFromEnterprise(context, data.ПараметрыВыбора),
-    tooltip: importI8nTextFromEnterprise(context, data.Подсказка),
+    choiceParameters: importChoiceParametersFromEnterprise(context, data.ПараметрыВыбора),
+    toolTip: importI8nTextFromEnterprise(context, data.Подсказка),
     binaryDataStorageLocationUseField: parseBoolean(data.ПолеИспользованияХраненияВХранилищеДвоичныхДанных, context),
     fullTextSearch: importSystemEnumerationFromEnterprise(
       context,

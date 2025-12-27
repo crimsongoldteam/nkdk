@@ -15,8 +15,8 @@ import { exportTypeLinkToXML } from "~/metadata/commonObjects/typeLink/exportToX
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
 import { Context } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
-import { getDefaults } from "./defaults"
 import { exportChoiceParametersToXML } from "../сhoiceParameter/exportToXML"
+import { getDefaults } from "./defaults"
 
 export const exportMetadataAttributeToXML = (
   context: Context,
@@ -59,7 +59,7 @@ export const exportMetadataAttributeToXML = (
       PasswordMode: mergedData.passwordMode,
       QuickChoice: mergedData.quickChoice,
       Synonym: exportI8nTextToXML(context, mergedData.synonym),
-      Tooltip: exportI8nTextToXML(context, mergedData.tooltip),
+      ToolTip: exportI8nTextToXML(context, mergedData.toolTip),
       Type: exportTypeDescriptionToXML(context, mergedData.type)!,
       Use: mergedData.use,
     })!,

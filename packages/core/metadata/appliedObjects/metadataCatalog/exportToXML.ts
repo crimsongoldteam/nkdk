@@ -79,6 +79,7 @@ export const exportMetadataCatalogToXML = (
     _version: "2.20",
     Catalog: compactObject<MetadataCatalogXML["Catalog"]>({
       _uuid: v4(),
+      ChildObjects: childObjects,
       InternalInfo: internalInfo,
       Properties: compactObject<MetadataCatalogXML["Catalog"]["Properties"]>({
         AdditionalIndexes: exportAdditionalIndexesToXML(context, mergedData.additionalIndexes),
@@ -139,7 +140,6 @@ export const exportMetadataCatalogToXML = (
         UpdateDataHistoryImmediatelyAfterWrite: mergedData.updateDataHistoryImmediatelyAfterWrite,
         UseStandardCommands: mergedData.useStandardCommands,
       })!,
-      ChildObjects: childObjects,
     }),
   }
 

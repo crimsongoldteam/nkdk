@@ -68,7 +68,7 @@ export const exportMetadataAttributeToEnterprise = (
     МинимальноеЗначение: data.minValue,
     МногострочныйРежим: exportBooleanToEnterprise(context, data.multiLine),
     ПараметрыВыбора: exportChoiceParametersToEnterprise(context, data.choiceParameters),
-    Подсказка: exportI8nTextToEnterprise(context, data.tooltip),
+    Подсказка: exportI8nTextToEnterprise(context, data.toolTip),
     ПолеИспользованияХраненияВХранилищеДвоичныхДанных: exportBooleanToEnterprise(
       context,
       data.binaryDataStorageLocationUseField

@@ -13,8 +13,8 @@ import { Context } from "~/metadata/context/types"
 import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importMetadataValueFromXMLAsPrimitive } from "../metadataValue/importFromXML.ts"
-import { getDefaults } from "./defaults"
 import { importChoiceParametersFromXML } from "../сhoiceParameter/importFromXML.ts"
+import { getDefaults } from "./defaults"
 
 export const importMetadataAttributeFromXML = (
   context: Context,
@@ -54,7 +54,7 @@ export const importMetadataAttributeFromXML = (
     passwordMode: importBooleanFromXML(context, props.PasswordMode),
     quickChoice: props.QuickChoice,
     synonym: importI8nTextFromXML(context, props.Synonym),
-    tooltip: importI8nTextFromXML(context, props.Tooltip),
+    toolTip: importI8nTextFromXML(context, props.ToolTip),
     type: importTypeDescriptionFromXML(context, props.Type)!,
     use: props.Use,
   }
