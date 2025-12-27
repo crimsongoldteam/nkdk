@@ -1,10 +1,10 @@
-import { MetadataField, MetadataFieldEnterprise, MetadataFieldXML } from "~/metadata/commonObjects/metadataField/types"
+import { MetadataField, MetadataFieldEnterprise } from "~/metadata/commonObjects/metadataField/types"
 import { MetadataItemLink, MetadataItemLinkEnterprise } from "~/metadata/commonObjects/metadataRef/types"
-import { MetadataValueEnterprise, MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
+import { MetadataValue, MetadataValueEnterprise, MetadataValueXML } from "~/metadata/commonObjects/metadataValue/types"
 
 export interface CharacteristicsDescription {
   characteristicTypes?: MetadataItemLink
-  characteristicValues?: string
+  characteristicValues?: MetadataItemLink
   dataPathField?: MetadataField
   keyField?: MetadataField
   multipleValuesKeyField?: MetadataField
@@ -13,26 +13,26 @@ export interface CharacteristicsDescription {
   objectField?: MetadataField
   typeField?: MetadataField
   typesFilterField?: MetadataField
-  typesFilterValue?: string
+  typesFilterValue?: MetadataValue
   valueField?: MetadataField
 }
 
 export interface CharacteristicsDescriptionXML {
   "xr:CharacteristicTypes"?: {
     _from?: string
-    "xr:KeyField"?: MetadataFieldXML | string
-    "xr:TypesFilterField"?: MetadataFieldXML | string
+    "xr:KeyField"?: string
+    "xr:TypesFilterField"?: string
     "xr:TypesFilterValue"?: MetadataValueXML
-    "xr:DataPathField"?: MetadataFieldXML | string | number
-    "xr:MultipleValuesUseField"?: MetadataFieldXML | string
+    "xr:DataPathField"?: string
+    "xr:MultipleValuesUseField"?: string
   }
   "xr:CharacteristicValues"?: {
     _from?: string
-    "xr:ObjectField"?: MetadataFieldXML | string
-    "xr:TypeField"?: MetadataFieldXML | string
-    "xr:ValueField"?: MetadataFieldXML | string
-    "xr:MultipleValuesKeyField"?: MetadataFieldXML | string | number
-    "xr:MultipleValuesOrderField"?: MetadataFieldXML | string | number
+    "xr:ObjectField"?: string
+    "xr:TypeField"?: string
+    "xr:ValueField"?: string
+    "xr:MultipleValuesKeyField"?: string
+    "xr:MultipleValuesOrderField"?: string
   }
 }
 

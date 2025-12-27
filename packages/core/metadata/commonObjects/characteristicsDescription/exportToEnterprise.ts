@@ -7,9 +7,7 @@ import {
 import { exportMetadataFieldToEnterprise } from "~/metadata/commonObjects/metadataField/exportToEnterprise"
 import { exportMetadataItemLinkToEnterprise } from "~/metadata/commonObjects/metadataRef/exportToEnterprise"
 import { Context } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterprise"
-import { MetadataValue } from "../metadataValue/types"
 
 export const exportCharacteristicsDescriptionToEnterprise = (
   context: Context,
@@ -17,28 +15,60 @@ export const exportCharacteristicsDescriptionToEnterprise = (
 ): CharacteristicsDescriptionEnterprise | undefined => {
   if (!data) return undefined
 
-  const typesFilterValueMetadata: MetadataValue | undefined = data.typesFilterValue
-    ? { type: "xs:string", value: data.typesFilterValue }
-    : undefined
+  const result: CharacteristicsDescriptionEnterprise = {}
 
-  const characteristicValuesMetadata: MetadataValue | undefined = data.characteristicValues
-    ? { type: "xs:string", value: data.characteristicValues }
-    : undefined
+  if (data.characteristicTypes) {
+    result.ВидыХарактеристик = exportMetadataItemLinkToEnterprise(context, data.characteristicTypes)
+  }
 
-  return compactObject<CharacteristicsDescriptionEnterprise>({
-    ВидыХарактеристик: exportMetadataItemLinkToEnterprise(context, data.characteristicTypes),
-    ЗначениеОтбораВидов: exportMetadataValueToEnterprise(context, typesFilterValueMetadata),
-    ЗначенияХарактеристик: exportMetadataValueToEnterprise(context, characteristicValuesMetadata),
-    ПолеВида: exportMetadataFieldToEnterprise(context, data.typeField),
-    ПолеЗначения: exportMetadataFieldToEnterprise(context, data.valueField),
-    ПолеИспользованияМножественныхЗначений: exportMetadataFieldToEnterprise(context, data.multipleValuesUseField),
-    ПолеКлюча: exportMetadataFieldToEnterprise(context, data.keyField),
-    ПолеКлючаМножественныхЗначений: exportMetadataFieldToEnterprise(context, data.multipleValuesKeyField),
-    ПолеОбъекта: exportMetadataFieldToEnterprise(context, data.objectField),
-    ПолеОтбораВидов: exportMetadataFieldToEnterprise(context, data.typesFilterField),
-    ПолеПорядкаМножественныхЗначений: exportMetadataFieldToEnterprise(context, data.multipleValuesOrderField),
-    ПолеПутиКДанным: exportMetadataFieldToEnterprise(context, data.dataPathField),
-  })
+  if (data.typesFilterValue) {
+    result.ЗначениеОтбораВидов = exportMetadataValueToEnterprise(context, data.typesFilterValue)
+  }
+
+  if (data.characteristicValues) {
+    result.ЗначенияХарактеристик = exportMetadataItemLinkToEnterprise(context, data.characteristicValues)
+  }
+
+  if (data.typeField) {
+    result.ПолеВида = exportMetadataFieldToEnterprise(context, data.typeField)
+  }
+
+  if (data.valueField) {
+    result.ПолеЗначения = exportMetadataFieldToEnterprise(context, data.valueField)
+  }
+
+  if (data.multipleValuesUseField) {
+    result.ПолеИспользованияМножественныхЗначений = exportMetadataFieldToEnterprise(
+      context,
+      data.multipleValuesUseField
+    )
+  }
+
+  if (data.keyField) {
+    result.ПолеКлюча = exportMetadataFieldToEnterprise(context, data.keyField)
+  }
+
+  if (data.multipleValuesKeyField) {
+    result.ПолеКлючаМножественныхЗначений = exportMetadataFieldToEnterprise(context, data.multipleValuesKeyField)
+  }
+
+  if (data.objectField) {
+    result.ПолеОбъекта = exportMetadataFieldToEnterprise(context, data.objectField)
+  }
+
+  if (data.typesFilterField) {
+    result.ПолеОтбораВидов = exportMetadataFieldToEnterprise(context, data.typesFilterField)
+  }
+
+  if (data.multipleValuesOrderField) {
+    result.ПолеПорядкаМножественныхЗначений = exportMetadataFieldToEnterprise(context, data.multipleValuesOrderField)
+  }
+
+  if (data.dataPathField) {
+    result.ПолеПутиКДанным = exportMetadataFieldToEnterprise(context, data.dataPathField)
+  }
+
+  return result
 }
 
 export const exportCharacteristicsDescriptionsToEnterprise = (

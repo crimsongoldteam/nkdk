@@ -33,8 +33,6 @@ export const importCharacteristicsDescriptionFromXML = (
   const characteristicTypes = xml["xr:CharacteristicTypes"]
   const characteristicValues = xml["xr:CharacteristicValues"]
 
-  const typesFilterValueData = importMetadataValueFromXML(context, characteristicTypes?.["xr:TypesFilterValue"])
-
   return compactObject<CharacteristicsDescription>({
     characteristicTypes: characteristicTypes?._from,
     characteristicValues: characteristicValues?._from,
@@ -46,7 +44,7 @@ export const importCharacteristicsDescriptionFromXML = (
     objectField: extractFieldValue(characteristicValues?.["xr:ObjectField"]),
     typeField: extractFieldValue(characteristicValues?.["xr:TypeField"]),
     typesFilterField: extractFieldValue(characteristicTypes?.["xr:TypesFilterField"]),
-    typesFilterValue: typesFilterValueData?.value,
+    typesFilterValue: importMetadataValueFromXML(context, characteristicTypes?.["xr:TypesFilterValue"]),
     valueField: extractFieldValue(characteristicValues?.["xr:ValueField"]),
   })
 }

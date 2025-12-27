@@ -15,7 +15,7 @@ describe("importCharacteristicsDescriptionFromXML", () => {
         characteristicTypes: "ChartOfCharacteristicTypes.РеквизитыДляСписка",
         keyField: "ChartOfCharacteristicTypes.РеквизитыДляСписка.StandardAttribute.Ref",
         typesFilterField: "ChartOfCharacteristicTypes.РеквизитыДляСписка.StandardAttribute.PredefinedDataName",
-        typesFilterValue: "СегментыНоменклатуры",
+        typesFilterValue: { type: "string", value: "СегментыНоменклатуры" },
         multipleValuesUseField: "ChartOfCharacteristicTypes.РеквизитыДляСписка.Attribute.Множественный",
       },
     ]
@@ -36,7 +36,7 @@ describe("importCharacteristicsDescriptionFromXML", () => {
           "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство",
         typesFilterField:
           "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.ИмяПредопределенногоНабора",
-        typesFilterValue: "Справочник_Номенклатура",
+        typesFilterValue: { type: "string", value: "Справочник_Номенклатура" },
 
         objectField: "Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.StandardAttribute.Ref",
         typeField: "Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство",
@@ -49,7 +49,7 @@ describe("importCharacteristicsDescriptionFromXML", () => {
           "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.Свойство",
         typesFilterField:
           "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.ИмяПредопределенногоНабора",
-        typesFilterValue: "Справочник_Номенклатура",
+        typesFilterValue: { type: "string", value: "Справочник_Номенклатура" },
         objectField: "InformationRegister.ДополнительныеСведения.Dimension.Объект",
         typeField: "InformationRegister.ДополнительныеСведения.Dimension.Свойство",
         valueField: "InformationRegister.ДополнительныеСведения.Resource.Значение",

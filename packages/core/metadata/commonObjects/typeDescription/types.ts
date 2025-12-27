@@ -79,6 +79,7 @@ export const AppliedTypeToEnterprise = {
   ChartOfAccount: "ПланСчетов",
   ChartOfCharacteristicTypesRef: "ПланВидовХарактеристик",
   ChartOfCharacteristicType: "ПланВидовХарактеристик",
+  ChartOfCharacteristicTypes: "ПланВидовХарактеристик",
   ChartOfCalculationType: "ПланВидовРасчета",
   ExchangePlan: "ПланОбмена",
   Characteristic: "Характеристика",

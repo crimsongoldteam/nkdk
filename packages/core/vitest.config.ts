@@ -1,9 +1,12 @@
 import UnpluginTypia from "@ryoppippi/unplugin-typia/vite"
-import { resolve } from "path"
+import { dirname, resolve } from "path"
+import { fileURLToPath } from "url"
 import { defineConfig } from "vitest/config"
 
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
 export default defineConfig({
-  plugins: [UnpluginTypia()],
+  plugins: [UnpluginTypia() as any],
   esbuild: {
     target: "es2020",
   },
@@ -14,7 +17,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "~": resolve(process.cwd(), "./"),
+      "~": resolve(__dirname, "./"),
     },
   },
 })

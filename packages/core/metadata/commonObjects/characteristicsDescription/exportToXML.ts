@@ -7,10 +7,9 @@ import {
 import { MetadataField } from "~/metadata/commonObjects/metadataField/types"
 import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 import { Context } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 
-const exportFieldValue = (field: MetadataField | undefined, defaultValue: string = "-1"): string | undefined => {
-  if (!field) return defaultValue
+const exportFieldValue = (field: MetadataField | undefined): string => {
+  if (!field) return "-1"
   return field
 }
 
@@ -20,16 +19,55 @@ export const exportCharacteristicsDescriptionToXML = (
 ): CharacteristicsDescriptionXML | undefined => {
   if (!data) return undefined
 
-  const characteristicTypesData = compactObject({
-    _from: data.characteristicTypes,
-    "xr:KeyField": data.keyField || undefined,
-    "xr:TypesFilterField": data.typesFilterField || undefined,
-    "xr:TypesFilterValue": data.typesFilterValue
-      ? exportMetadataValueToXML(context, { type: "xs:string", value: data.typesFilterValue })
-      : undefined,
-    "xr:DataPathField": exportFieldValue(data.dataPathField),
-    "xr:MultipleValuesUseField": exportFieldValue(data.multipleValuesUseField),
-  })
+  const characteristicTypesData: CharacteristicsDescriptionXML["xr:CharacteristicTypes"] = {}
+
+  if (data.characteristicTypes) {
+    characteristicTypesData._from = data.characteristicTypes
+  }
+
+  if (data.keyField) {
+    characteristicTypesData["xr:KeyField"] = exportFieldValue(data.keyField)
+  }
+
+  if (data.typesFilterField) {
+    characteristicTypesData["xr:TypesFilterField"] = exportFieldValue(data.typesFilterField)
+  }
+
+  if (data.typesFilterValue) {
+    characteristicTypesData["xr:TypesFilterValue"] = exportMetadataValueToXML(context, data.typesFilterValue)
+  }
+
+  characteristicTypesData["xr:DataPathField"] = exportFieldValue(data.dataPathField)
+
+  characteristicTypesData["xr:MultipleValuesUseField"] = exportFieldValue(data.multipleValuesUseField)
+
+  const characteristicValuesData: CharacteristicsDescriptionXML["xr:CharacteristicValues"] = {}
+
+  if (data.characteristicValues) {
+    characteristicValuesData._from = data.characteristicValues
+  }
+
+  if (data.objectField) {
+    characteristicValuesData["xr:ObjectField"] = exportFieldValue(data.objectField)
+  }
+
+  if (data.typeField) {
+    characteristicValuesData["xr:TypeField"] = exportFieldValue(data.typeField)
+  }
+
+  if (data.valueField) {
+    characteristicValuesData["xr:ValueField"] = exportFieldValue(data.valueField)
+  }
+
+  characteristicValuesData["xr:MultipleValuesKeyField"] = exportFieldValue(data.multipleValuesKeyField)
+
+  characteristicValuesData["xr:MultipleValuesOrderField"] = exportFieldValue(data.multipleValuesOrderField)
+
+  const result: CharacteristicsDescriptionXML = {}
+
+  if (Object.keys(characteristicTypesData).length > 0) {
+    result["xr:CharacteristicTypes"] = characteristicTypesData
+  }
 
   const hasCharacteristicValues =
     data.characteristicValues ||
@@ -39,21 +77,11 @@ export const exportCharacteristicsDescriptionToXML = (
     data.multipleValuesKeyField ||
     data.multipleValuesOrderField
 
-  const characteristicValuesData = hasCharacteristicValues
-    ? compactObject({
-        _from: data.characteristicValues,
-        "xr:ObjectField": data.objectField || undefined,
-        "xr:TypeField": data.typeField || undefined,
-        "xr:ValueField": data.valueField || undefined,
-        "xr:MultipleValuesKeyField": exportFieldValue(data.multipleValuesKeyField),
-        "xr:MultipleValuesOrderField": exportFieldValue(data.multipleValuesOrderField),
-      })
-    : undefined
+  if (hasCharacteristicValues && Object.keys(characteristicValuesData).length > 0) {
+    result["xr:CharacteristicValues"] = characteristicValuesData
+  }
 
-  return compactObject({
-    "xr:CharacteristicTypes": characteristicTypesData,
-    "xr:CharacteristicValues": characteristicValuesData,
-  })
+  return result
 }
 
 export const exportCharacteristicsDescriptionsToXML = (

@@ -1,7 +1,4 @@
-import { type } from "os"
 import { MetadataValue, MetadataValueXML } from "../metadataValue/types"
-import { ChoiceParameters } from "../сhoiceParameter/types"
-import { name } from "assert"
 
 //#region ChoiceParameter
 export interface ChoiceParameter {
