@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest"
-import { formEnumChoiceParameter } from "~/lib/tests/fixtures/choiceParameter/formEnum"
 import { enumChoiceParameter } from "~/tests/fixtures/choiceParameter/enum"
 import { fixedArrayChoiceParameter } from "~/tests/fixtures/choiceParameter/fixedArray"
 import { formBooleanChoiceParameter } from "~/tests/fixtures/choiceParameter/formBoolean"
