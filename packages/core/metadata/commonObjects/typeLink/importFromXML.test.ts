@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { xmlImport } from "~/packages/core"
 import { mockСontext } from "~/tests/mockContext"
+import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import xmlImport from "~/xml/import/importer"
 import { importTypeLinkFromXML } from "./importFromXML"
 import { TypeLink, TypeLinkXML } from "./types"
 
@@ -12,10 +13,7 @@ describe("importTypeLinkFromXML", () => {
   })
 
   it("should import TypeLink with numeric LinkItem", () => {
-    const xmlData = `<TypeLink>
-\t<xr:DataPath>Реквизит1</xr:DataPath>
-\t<xr:LinkItem>1</xr:LinkItem>
-</TypeLink>`
+    const xmlData = readXMLFileAsString("typeLink/withNumericLinkItem.xml").trimEnd()
 
     const expectedResult: TypeLink = {
       dataPath: "Реквизит1",
