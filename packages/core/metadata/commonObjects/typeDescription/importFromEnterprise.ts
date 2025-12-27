@@ -1,6 +1,7 @@
 import { Lexer } from "chevrotain"
 import { multiModeLexerDefinition } from "~/parser/lexer"
 import { Context } from "../../context/types"
+import { compactObject } from "../../helpers/compactObject"
 import { TypeDescriptionParser } from "./parser/parser"
 import { TypeDescriptionVisitor } from "./parser/visitor"
 import { TypeDescription } from "./types"
@@ -32,5 +33,32 @@ export const importTypeDescriptionFromEnterprise = (
   const visitor = new TypeDescriptionVisitor()
   const result = visitor.visit(cst) as TypeDescription
 
-  return result
+  // Удаляем дефолтные квалификаторы
+  const cleanedResult = { ...result }
+
+  // Удаляем stringQualifiers, если они равны дефолтным значениям
+  if (
+    cleanedResult.stringQualifiers &&
+    cleanedResult.stringQualifiers.length === 0 &&
+    cleanedResult.stringQualifiers.allowedLength === "Variable"
+  ) {
+    cleanedResult.stringQualifiers = undefined
+  }
+
+  // Удаляем numberQualifiers, если они равны дефолтным значениям
+  if (
+    cleanedResult.numberQualifiers &&
+    cleanedResult.numberQualifiers.digits === 0 &&
+    cleanedResult.numberQualifiers.fractionDigits === 0 &&
+    cleanedResult.numberQualifiers.allowedSign === undefined
+  ) {
+    cleanedResult.numberQualifiers = undefined
+  }
+
+  // Удаляем dateQualifiers, если они равны дефолтным значениям
+  if (cleanedResult.dateQualifiers && cleanedResult.dateQualifiers.dateFractions === "Date") {
+    cleanedResult.dateQualifiers = undefined
+  }
+
+  return compactObject(cleanedResult)
 }

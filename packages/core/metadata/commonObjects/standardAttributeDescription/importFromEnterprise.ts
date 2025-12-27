@@ -1,67 +1,35 @@
 import { parseBoolean } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import { importMetadataValueFromEnterprise } from "~/metadata/commonObjects/metadataValue/importFromEnterprise"
 import {
-  MetadataAttribute,
-  MetadataAttributeEnterprise,
-  MetadataAttributes,
-  MetadataAttributesEnterprise,
-} from "~/metadata/commonObjects/metadataAttribute/types"
+  PredefinedNameFromEnterprise,
+  StandardAttributeDescription,
+  StandardAttributeDescriptionEnterprise,
+  StandardAttributeDescriptions,
+  StandardAttributeDescriptionsEnterprise,
+} from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
+import { importTypeLinkFromEnterprise } from "~/metadata/commonObjects/typeLink/importFromEnterprise"
 import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
 import { Context } from "~/metadata/context/types"
 import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
-import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
-import { importMetadataValueFromEnterprise } from "../metadataValue/importFromEnterprise.ts"
-import { importTypeLinkFromEnterprise } from "../typeLink/importFromEnterprise.ts"
 import { getDefaults } from "./defaults"
 
-export const importMetadataAttributeFromEnterprise = (
+export const importStandardAttributeDescriptionFromEnterprise = (
   context: Context,
-  data: MetadataAttributeEnterprise | undefined,
+  data: StandardAttributeDescriptionEnterprise | undefined,
   name: string
-): MetadataAttribute | undefined => {
+): StandardAttributeDescription | undefined => {
   if (!data) return undefined
 
-  // Если data - строка, это короткий формат (только тип)
-  if (typeof data === "string") {
-    const type = importTypeDescriptionFromEnterprise(context, data)
-    if (!type) return undefined
-
-    return {
-      name,
-      type,
-    }
-  }
-
-  // Полный формат - объект
-  const type = importTypeDescriptionFromEnterprise(context, data.Тип)
-  if (!type) return undefined
-
-  const synonym = importI8nTextFromEnterprise(context, data.Синоним)
-  const excludeSynonym = isSynonymEqualToName(typeof data.Синоним === "string" ? data.Синоним : undefined, name)
-
-  const result: MetadataAttribute = {
-    name,
-    type,
-    synonym: excludeSynonym ? undefined : synonym,
+  const result: StandardAttributeDescription = {
+    name: PredefinedNameFromEnterprise(name) as any,
     quickChoice: importSystemEnumerationFromEnterprise(context, data.БыстрыйВыбор, SE.UseQuickChoiceFromEnterprise),
-    choiceFoldersAndItems: importSystemEnumerationFromEnterprise(
-      context,
-      data.ВыборГруппИЭлементов,
-      SE.FoldersAndItemsUseFromEnterprise
-    ),
     markNegatives: parseBoolean(data.ВыделятьОтрицательные, context),
     fillFromFillingValue: parseBoolean(data.ЗаполнятьИзДанныхЗаполнения, context),
-    fillingValue: importMetadataValueFromEnterprise(context, data.ЗначениеЗаполнения),
-    indexing: importSystemEnumerationFromEnterprise(context, data.Индексирование, SE.IndexingFromEnterprise),
-    use: importSystemEnumerationFromEnterprise(context, data.Использование, SE.AttributeUseFromEnterprise),
-    binaryDataStorageLocationUse: importSystemEnumerationFromEnterprise(
-      context,
-      data.ИспользованиеХраненияВХранилищеДвоичныхДанных,
-      SE.BinaryDataStorageLocationUseFromEnterprise
-    ),
+    fillValue: importMetadataValueFromEnterprise(context, data.ЗначениеЗаполнения),
     choiceHistoryOnInput: importSystemEnumerationFromEnterprise(
       context,
       data.ИсторияВыбораПриВводе,
@@ -74,17 +42,11 @@ export const importMetadataAttributeFromEnterprise = (
     minValue: data.МинимальноеЗначение,
     multiLine: parseBoolean(data.МногострочныйРежим, context),
     choiceParameters: importChoiceParameterLinksFromEnterprise(context, data.ПараметрыВыбора),
-    tooltip: importI8nTextFromEnterprise(context, data.Подсказка),
-    binaryDataStorageLocationUseField: parseBoolean(data.ПолеИспользованияХраненияВХранилищеДвоичныхДанных, context),
+    toolTip: importI8nTextFromEnterprise(context, data.Подсказка),
     fullTextSearch: importSystemEnumerationFromEnterprise(
       context,
       data.ПолнотекстовыйПоиск,
       SE.UseFullTextSearchFromEnterprise
-    ),
-    objectBelonging: importSystemEnumerationFromEnterprise(
-      context,
-      data.ПринадлежностьОбъекта,
-      SE.ObjectBelongingFromEnterprise
     ),
     fillChecking: importSystemEnumerationFromEnterprise(
       context,
@@ -93,13 +55,20 @@ export const importMetadataAttributeFromEnterprise = (
     ),
     extendedEdit: parseBoolean(data.РасширенноеРедактирование, context),
     passwordMode: parseBoolean(data.РежимПароля, context),
+    typeReductionMode: importSystemEnumerationFromEnterprise(
+      context,
+      data.РежимСокращенияТипа,
+      SE.TypeReductionModeFromEnterprise
+    ),
     choiceParameterLinks: importChoiceParameterLinksFromEnterprise(context, data.СвязиПараметровВыбора),
     linkByType: importTypeLinkFromEnterprise(context, data.СвязьПоТипу),
+    synonym: importI8nTextFromEnterprise(context, data.Синоним),
     createOnInput: importSystemEnumerationFromEnterprise(
       context,
       data.СозданиеПриВводе,
       SE.CreateOnInputFromEnterprise
     ),
+    type: importTypeDescriptionFromEnterprise(context, data.Тип),
     choiceForm: data.ФормаВыбора,
     format: importI8nTextFromEnterprise(context, data.Формат),
     editFormat: importI8nTextFromEnterprise(context, data.ФорматРедактирования),
@@ -110,13 +79,22 @@ export const importMetadataAttributeFromEnterprise = (
   return removeDefaults(compactedResult, defaults)
 }
 
-export const importMetadataAttributesFromEnterprise = (
+export const importStandardAttributeDescriptionsFromEnterprise = (
   context: Context,
-  data: MetadataAttributesEnterprise | undefined
-): MetadataAttributes | undefined => {
+  data: StandardAttributeDescriptionsEnterprise | undefined
+): StandardAttributeDescriptions | undefined => {
   if (!data) return undefined
 
-  return Object.entries(data)
-    .map(([name, value]) => importMetadataAttributeFromEnterprise(context, value, name))
-    .filter((item): item is MetadataAttribute => item !== undefined)
+  const result: StandardAttributeDescriptions = []
+
+  Object.entries(data).forEach(([name, value]) => {
+    const item = importStandardAttributeDescriptionFromEnterprise(context, value, name)
+    if (item) {
+      result.push(item)
+    }
+  })
+
+  if (result.length === 0) return undefined
+
+  return result
 }

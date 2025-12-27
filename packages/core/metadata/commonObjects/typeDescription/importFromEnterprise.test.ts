@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
-import { exportTypeDescriptionToEnterprise } from "./exportToEnterprise"
 import { importTypeDescriptionFromEnterprise } from "./importFromEnterprise"
 import { TypeDescription } from "./types"
 
@@ -26,9 +25,7 @@ describe("importTypeDescriptionFromEnterprise", () => {
         type: ["string"],
         stringQualifiers: { length: 10, allowedLength: "Variable" },
       }
-      const enterpriseString = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterpriseString!)
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "Строка(10)")
 
       expect(result).toEqual(mockTypeDescription)
     })
@@ -36,11 +33,8 @@ describe("importTypeDescriptionFromEnterprise", () => {
     it("should parse unlimited string", () => {
       const mockTypeDescription: TypeDescription = {
         type: ["string"],
-        stringQualifiers: { length: 0, allowedLength: "Variable" },
       }
-      const enterpriseString = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterpriseString!)
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "Строка")
 
       expect(result).toEqual(mockTypeDescription)
     })
@@ -50,9 +44,7 @@ describe("importTypeDescriptionFromEnterprise", () => {
         type: ["string"],
         stringQualifiers: { length: 100, allowedLength: "Fixed" },
       }
-      const enterpriseString = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterpriseString!)
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "ФиксированнаяСтрока(100)")
 
       expect(result).toEqual(mockTypeDescription)
     })
@@ -64,14 +56,9 @@ describe("importTypeDescriptionFromEnterprise", () => {
         type: ["decimal"],
         numberQualifiers: { digits: 10, fractionDigits: 2 },
       }
-      const enterpriseString = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "Число(10,2)")
 
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterpriseString!)
-
-      expect(result).toEqual({
-        type: ["number"],
-        numberQualifiers: { digits: 10, fractionDigits: 2 },
-      })
+      expect(result).toEqual(mockTypeDescription)
     })
 
     it("should parse non-negative number", () => {
@@ -79,14 +66,9 @@ describe("importTypeDescriptionFromEnterprise", () => {
         type: ["decimal"],
         numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Nonnegative" },
       }
-      const enterpriseString = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "ПоложительноеЧисло(10,2)")
 
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterpriseString!)
-
-      expect(result).toEqual({
-        type: ["number"],
-        numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Nonnegative" },
-      })
+      expect(result).toEqual(mockTypeDescription)
     })
   })
 
@@ -96,14 +78,10 @@ describe("importTypeDescriptionFromEnterprise", () => {
         type: ["dateTime"],
         dateQualifiers: { dateFractions: "Date" },
       }
-      const enterpriseString = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
 
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterpriseString!)
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "Дата")
 
-      expect(result).toEqual({
-        type: ["date"],
-        dateQualifiers: { dateFractions: "Date" },
-      })
+      expect(result).toEqual(mockTypeDescription)
     })
 
     it("should parse time", () => {
@@ -111,14 +89,9 @@ describe("importTypeDescriptionFromEnterprise", () => {
         type: ["dateTime"],
         dateQualifiers: { dateFractions: "Time" },
       }
-      const enterpriseString = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "Время")
 
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterpriseString!)
-
-      expect(result).toEqual({
-        type: ["date"],
-        dateQualifiers: { dateFractions: "Time" },
-      })
+      expect(result).toEqual(mockTypeDescription)
     })
 
     it("should parse date and time", () => {
@@ -126,14 +99,9 @@ describe("importTypeDescriptionFromEnterprise", () => {
         type: ["dateTime"],
         dateQualifiers: { dateFractions: "DateTime" },
       }
-      const enterpriseString = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "ДатаВремя")
 
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterpriseString!)
-
-      expect(result).toEqual({
-        type: ["date"],
-        dateQualifiers: { dateFractions: "DateTime" },
-      })
+      expect(result).toEqual(mockTypeDescription)
     })
   })
 
@@ -142,13 +110,9 @@ describe("importTypeDescriptionFromEnterprise", () => {
       const mockTypeDescription: TypeDescription = {
         type: ["boolean"],
       }
-      const enterpriseString = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "Булево")
 
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterpriseString!)
-
-      expect(result).toEqual({
-        type: ["Булево"],
-      })
+      expect(result).toEqual(mockTypeDescription)
     })
   })
 
@@ -157,9 +121,7 @@ describe("importTypeDescriptionFromEnterprise", () => {
       const mockTypeDescription: TypeDescription = {
         type: ["тип1", "тип2"],
       }
-      const enterpriseString = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterpriseString!)
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "тип1, тип2")
 
       expect(result).toEqual(mockTypeDescription)
     })
@@ -170,15 +132,9 @@ describe("importTypeDescriptionFromEnterprise", () => {
         stringQualifiers: { length: 10, allowedLength: "Variable" },
         numberQualifiers: { digits: 10, fractionDigits: 2 },
       }
-      const enterpriseString = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "Строка(10), Число(10,2)")
 
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterpriseString!)
-
-      expect(result).toEqual({
-        type: ["string", "number"],
-        stringQualifiers: { length: 10, allowedLength: "Variable" },
-        numberQualifiers: { digits: 10, fractionDigits: 2 },
-      })
+      expect(result).toEqual(mockTypeDescription)
     })
   })
 
@@ -187,39 +143,27 @@ describe("importTypeDescriptionFromEnterprise", () => {
       const mockTypeDescription: TypeDescription = {
         type: ["CatalogRef.Контрагенты"],
       }
-      const enterpriseString = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "Справочник.Контрагенты")
 
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterpriseString!)
-
-      expect(result).toEqual({
-        type: ["Справочник.Контрагенты"],
-      })
+      expect(result).toEqual(mockTypeDescription)
     })
 
     it("should parse document", () => {
       const mockTypeDescription: TypeDescription = {
         type: ["DocumentRef.ПоступлениеТоваровНаСклад"],
       }
-      const enterpriseString = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "Документ.ПоступлениеТоваровНаСклад")
 
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterpriseString!)
-
-      expect(result).toEqual({
-        type: ["Документ.ПоступлениеТоваровНаСклад"],
-      })
+      expect(result).toEqual(mockTypeDescription)
     })
 
     it("should parse enum", () => {
       const mockTypeDescription: TypeDescription = {
         type: ["EnumRef.ТипыДокументов"],
       }
-      const enterpriseString = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "Перечисление.ТипыДокументов")
 
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterpriseString!)
-
-      expect(result).toEqual({
-        type: ["Перечисление.ТипыДокументов"],
-      })
+      expect(result).toEqual(mockTypeDescription)
     })
   })
 })

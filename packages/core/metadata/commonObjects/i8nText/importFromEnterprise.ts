@@ -19,3 +19,5 @@ export const importI8nTextFromEnterprise = (
     items: data,
   }
 }
+
+export const parseI8nText = importI8nTextFromEnterprise

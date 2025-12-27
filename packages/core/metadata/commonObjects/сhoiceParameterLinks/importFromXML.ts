@@ -14,6 +14,8 @@ export const importChoiceParameterLinksFromXML = (
 ): ChoiceParameterLinks | undefined => {
   if (!xml) return undefined
 
+  if (Array.isArray(xml) && xml.length === 0) return undefined
+
   const links = xml["xr:Link"]
 
   const items = Array.isArray(links) ? links : [links]
