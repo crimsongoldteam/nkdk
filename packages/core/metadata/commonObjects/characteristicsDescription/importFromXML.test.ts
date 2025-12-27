@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest"
+import { multipleCharacteristics } from "~/tests/fixtures/characteristicsDescription/multiple"
+import { singleCharacteristic } from "~/tests/fixtures/characteristicsDescription/single"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importCharacteristicsDescriptionsFromXML } from "./importFromXML"
-import { CharacteristicsDescriptions, CharacteristicsDescriptionsXML } from "./types"
+import { CharacteristicsDescriptionsXML } from "./types"
 
 describe("importCharacteristicsDescriptionFromXML", () => {
   it("should import single characteristic", () => {
@@ -10,15 +12,7 @@ describe("importCharacteristicsDescriptionFromXML", () => {
       "characteristicsDescription/simple.xml"
     )
 
-    const expectedResult: CharacteristicsDescriptions = [
-      {
-        characteristicTypes: "ChartOfCharacteristicTypes.РеквизитыДляСписка",
-        keyField: "ChartOfCharacteristicTypes.РеквизитыДляСписка.StandardAttribute.Ref",
-        typesFilterField: "ChartOfCharacteristicTypes.РеквизитыДляСписка.StandardAttribute.PredefinedDataName",
-        typesFilterValue: { type: "string", value: "СегментыНоменклатуры" },
-        multipleValuesUseField: "ChartOfCharacteristicTypes.РеквизитыДляСписка.Attribute.Множественный",
-      },
-    ]
+    const expectedResult = singleCharacteristic
     const result = importCharacteristicsDescriptionsFromXML(mockСontext, xmlData.Characteristics)
     expect(result).toEqual(expectedResult)
   })
@@ -28,33 +22,7 @@ describe("importCharacteristicsDescriptionFromXML", () => {
       "characteristicsDescription/multiple.xml"
     )
 
-    const expectedResult: CharacteristicsDescriptions = [
-      {
-        characteristicTypes: "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты",
-        characteristicValues: "Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты",
-        keyField:
-          "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство",
-        typesFilterField:
-          "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.ИмяПредопределенногоНабора",
-        typesFilterValue: { type: "string", value: "Справочник_Номенклатура" },
-
-        objectField: "Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.StandardAttribute.Ref",
-        typeField: "Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство",
-        valueField: "Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.Attribute.Значение",
-      },
-      {
-        characteristicTypes: "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения",
-        characteristicValues: "InformationRegister.ДополнительныеСведения",
-        keyField:
-          "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.Свойство",
-        typesFilterField:
-          "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.ИмяПредопределенногоНабора",
-        typesFilterValue: { type: "string", value: "Справочник_Номенклатура" },
-        objectField: "InformationRegister.ДополнительныеСведения.Dimension.Объект",
-        typeField: "InformationRegister.ДополнительныеСведения.Dimension.Свойство",
-        valueField: "InformationRegister.ДополнительныеСведения.Resource.Значение",
-      },
-    ]
+    const expectedResult = multipleCharacteristics
     const result = importCharacteristicsDescriptionsFromXML(mockСontext, xmlData.Characteristics)
     expect(result).toEqual(expectedResult)
   })

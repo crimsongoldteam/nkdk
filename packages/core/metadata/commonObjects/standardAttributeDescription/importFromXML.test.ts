@@ -12,7 +12,7 @@ import {
 describe("importStandardAttributeDescriptionFromXML", () => {
   it("should import with single value", () => {
     const xml = readAndParseXMLFile<{ "xr:StandardAttribute": StandardAttributeDescriptionXML }>(
-      "standartAttribute/single.xml"
+      "standartAttribute/singleImport.xml"
     )
 
     const expectedResult: StandardAttributeDescription = {

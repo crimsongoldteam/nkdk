@@ -1,11 +1,18 @@
 <Characteristics>
 	<xr:Characteristic>
-		<xr:CharacteristicTypes from="ChartOfCharacteristicTypes.РеквизитыДляСписка">
-			<xr:KeyField>ChartOfCharacteristicTypes.РеквизитыДляСписка.StandardAttribute.Ref</xr:KeyField>
-			<xr:TypesFilterField>ChartOfCharacteristicTypes.РеквизитыДляСписка.StandardAttribute.PredefinedDataName</xr:TypesFilterField>
-			<xr:TypesFilterValue xsi:type="xs:string">СегментыНоменклатуры</xr:TypesFilterValue>
+		<xr:CharacteristicTypes from="Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения">
 			<xr:DataPathField>-1</xr:DataPathField>
-			<xr:MultipleValuesUseField>ChartOfCharacteristicTypes.РеквизитыДляСписка.Attribute.Множественный</xr:MultipleValuesUseField>
+			<xr:KeyField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.Свойство</xr:KeyField>
+			<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
+			<xr:TypesFilterField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.ИмяПредопределенногоНабора</xr:TypesFilterField>
+			<xr:TypesFilterValue xsi:type="xs:string">Справочник_БанковскиеСчетаОрганизаций</xr:TypesFilterValue>
 		</xr:CharacteristicTypes>
+		<xr:CharacteristicValues from="InformationRegister.ДополнительныеСведения">
+			<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
+			<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
+			<xr:ObjectField>InformationRegister.ДополнительныеСведения.Dimension.Объект</xr:ObjectField>
+			<xr:TypeField>InformationRegister.ДополнительныеСведения.Dimension.Свойство</xr:TypeField>
+			<xr:ValueField>InformationRegister.ДополнительныеСведения.Resource.Значение</xr:ValueField>
+		</xr:CharacteristicValues>
 	</xr:Characteristic>
 </Characteristics>

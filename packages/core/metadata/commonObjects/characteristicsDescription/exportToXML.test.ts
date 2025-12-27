@@ -1,21 +1,14 @@
 import { describe, expect, it } from "vitest"
+import { multipleCharacteristics } from "~/tests/fixtures/characteristicsDescription/multiple"
+import { singleCharacteristic } from "~/tests/fixtures/characteristicsDescription/single"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportCharacteristicsDescriptionsToXML } from "./exportToXML"
-import { CharacteristicsDescriptions } from "./types"
 
 describe("exportCharacteristicsDescriptionToXML", () => {
   it("should export single characteristic", () => {
-    const mockData: CharacteristicsDescriptions = [
-      {
-        characteristicTypes: "ChartOfCharacteristicTypes.РеквизитыДляСписка",
-        keyField: "ChartOfCharacteristicTypes.РеквизитыДляСписка.StandardAttribute.Ref",
-        typesFilterField: "ChartOfCharacteristicTypes.РеквизитыДляСписка.StandardAttribute.PredefinedDataName",
-        typesFilterValue: { type: "string", value: "СегментыНоменклатуры" },
-        multipleValuesUseField: "ChartOfCharacteristicTypes.РеквизитыДляСписка.Attribute.Множественный",
-      },
-    ]
+    const mockData = singleCharacteristic
 
     const expectedXml = readXMLFileAsString("characteristicsDescription/simple.xml")
 
@@ -26,32 +19,7 @@ describe("exportCharacteristicsDescriptionToXML", () => {
   })
 
   it("should export multiple characteristics", () => {
-    const mockData: CharacteristicsDescriptions = [
-      {
-        characteristicTypes: "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты",
-        characteristicValues: "Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты",
-        keyField:
-          "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство",
-        typesFilterField:
-          "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.ИмяПредопределенногоНабора",
-        typesFilterValue: { type: "string", value: "Справочник_Номенклатура" },
-        objectField: "Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.StandardAttribute.Ref",
-        typeField: "Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство",
-        valueField: "Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.Attribute.Значение",
-      },
-      {
-        characteristicTypes: "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения",
-        characteristicValues: "InformationRegister.ДополнительныеСведения",
-        keyField:
-          "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.Свойство",
-        typesFilterField:
-          "Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.ИмяПредопределенногоНабора",
-        typesFilterValue: { type: "string", value: "Справочник_Номенклатура" },
-        objectField: "InformationRegister.ДополнительныеСведения.Dimension.Объект",
-        typeField: "InformationRegister.ДополнительныеСведения.Dimension.Свойство",
-        valueField: "InformationRegister.ДополнительныеСведения.Resource.Значение",
-      },
-    ]
+    const mockData = multipleCharacteristics
 
     const expectedXml = readXMLFileAsString("characteristicsDescription/multiple.xml")
 

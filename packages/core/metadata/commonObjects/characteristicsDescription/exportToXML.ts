@@ -25,9 +25,13 @@ export const exportCharacteristicsDescriptionToXML = (
     characteristicTypesData._from = data.characteristicTypes
   }
 
+  characteristicTypesData["xr:DataPathField"] = exportFieldValue(data.dataPathField)
+
   if (data.keyField) {
     characteristicTypesData["xr:KeyField"] = exportFieldValue(data.keyField)
   }
+
+  characteristicTypesData["xr:MultipleValuesUseField"] = exportFieldValue(data.multipleValuesUseField)
 
   if (data.typesFilterField) {
     characteristicTypesData["xr:TypesFilterField"] = exportFieldValue(data.typesFilterField)
@@ -37,15 +41,15 @@ export const exportCharacteristicsDescriptionToXML = (
     characteristicTypesData["xr:TypesFilterValue"] = exportMetadataValueToXML(context, data.typesFilterValue)
   }
 
-  characteristicTypesData["xr:DataPathField"] = exportFieldValue(data.dataPathField)
-
-  characteristicTypesData["xr:MultipleValuesUseField"] = exportFieldValue(data.multipleValuesUseField)
-
   const characteristicValuesData: CharacteristicsDescriptionXML["xr:CharacteristicValues"] = {}
 
   if (data.characteristicValues) {
     characteristicValuesData._from = data.characteristicValues
   }
+
+  characteristicValuesData["xr:MultipleValuesKeyField"] = exportFieldValue(data.multipleValuesKeyField)
+
+  characteristicValuesData["xr:MultipleValuesOrderField"] = exportFieldValue(data.multipleValuesOrderField)
 
   if (data.objectField) {
     characteristicValuesData["xr:ObjectField"] = exportFieldValue(data.objectField)
@@ -58,10 +62,6 @@ export const exportCharacteristicsDescriptionToXML = (
   if (data.valueField) {
     characteristicValuesData["xr:ValueField"] = exportFieldValue(data.valueField)
   }
-
-  characteristicValuesData["xr:MultipleValuesKeyField"] = exportFieldValue(data.multipleValuesKeyField)
-
-  characteristicValuesData["xr:MultipleValuesOrderField"] = exportFieldValue(data.multipleValuesOrderField)
 
   const result: CharacteristicsDescriptionXML = {}
 

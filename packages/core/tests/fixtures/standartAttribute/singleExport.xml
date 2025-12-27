@@ -1,0 +1,14 @@
+<xr:StandardAttribute name="PredefinedDataName">
+	<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+	<xr:CreateOnInput>Auto</xr:CreateOnInput>
+	<xr:DataHistory>Use</xr:DataHistory>
+	<xr:ExtendedEdit>false</xr:ExtendedEdit>
+	<xr:FillChecking>ShowError</xr:FillChecking>
+	<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+	<xr:FullTextSearch>Use</xr:FullTextSearch>
+	<xr:MarkNegatives>false</xr:MarkNegatives>
+	<xr:MultiLine>false</xr:MultiLine>
+	<xr:PasswordMode>false</xr:PasswordMode>
+	<xr:QuickChoice>Auto</xr:QuickChoice>
+	<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+</xr:StandardAttribute>
