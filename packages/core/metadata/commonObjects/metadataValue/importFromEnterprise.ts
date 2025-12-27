@@ -42,7 +42,7 @@ const importSimpleValueFromEnterprise = (context: Context, data: MetadataValueEn
     }
   }
 
-  throw new Error(`Invalid simple value`)
+  throw new Error(`Invalid simple value ${JSON.stringify(data)}`)
 }
 const parseDateTime = (dateTime: string): string => {
   try {

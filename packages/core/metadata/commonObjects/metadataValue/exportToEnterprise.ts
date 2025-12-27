@@ -31,7 +31,7 @@ export const exportMetadataValueToEnterprise = (
   if (data.type === "ref") return exportRefValueToEnterprise(data)
   if (data.type === "objectRef") return exportObjectRefValueToEnterprise(data)
   // if (data.type === "ApplicationUsePurpose") return exportApplicationUsePurposeValueToEnterprise(data)
-  throw new Error(`Invalid type`)
+  throw new Error(`Invalid type ${JSON.stringify(data)}`)
 }
 
 const formatDateTime = (dateTime: string): string => {
