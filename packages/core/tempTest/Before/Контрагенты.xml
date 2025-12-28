@@ -1,6 +1,314 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<MetaDataObject xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20">
+<MetaDataObject xmlns="http://v8.1c.ru/8.3/MDClasses" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
 	<Catalog uuid="11111111-1111-4111-8111-111111111111">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.Номенклатура" category="Object">
+				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.Номенклатура" category="Ref">
+				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.Номенклатура" category="Selection">
+				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.Номенклатура" category="List">
+				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.Номенклатура" category="Manager">
+				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<Autonumbering>true</Autonumbering>
+			<Characteristics>
+				<xr:Characteristic>
+					<xr:CharacteristicTypes from="Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты">
+						<xr:KeyField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:KeyField>
+						<xr:TypesFilterField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.ИмяПредопределенногоНабора</xr:TypesFilterField>
+						<xr:TypesFilterValue xsi:type="xs:string">Справочник_Номенклатура</xr:TypesFilterValue>
+						<xr:DataPathField>-1</xr:DataPathField>
+						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
+					</xr:CharacteristicTypes>
+					<xr:CharacteristicValues from="Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты">
+						<xr:ObjectField>Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.StandardAttribute.Ref</xr:ObjectField>
+						<xr:TypeField>Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:TypeField>
+						<xr:ValueField>Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.Attribute.Значение</xr:ValueField>
+						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
+						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
+					</xr:CharacteristicValues>
+				</xr:Characteristic>
+				<xr:Characteristic>
+					<xr:CharacteristicTypes from="Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения">
+						<xr:KeyField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.Свойство</xr:KeyField>
+						<xr:TypesFilterField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.ИмяПредопределенногоНабора</xr:TypesFilterField>
+						<xr:TypesFilterValue xsi:type="xs:string">Справочник_Номенклатура</xr:TypesFilterValue>
+						<xr:DataPathField>-1</xr:DataPathField>
+						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
+					</xr:CharacteristicTypes>
+					<xr:CharacteristicValues from="InformationRegister.ДополнительныеСведения">
+						<xr:ObjectField>InformationRegister.ДополнительныеСведения.Dimension.Объект</xr:ObjectField>
+						<xr:TypeField>InformationRegister.ДополнительныеСведения.Dimension.Свойство</xr:TypeField>
+						<xr:ValueField>InformationRegister.ДополнительныеСведения.Resource.Значение</xr:ValueField>
+						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
+						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
+					</xr:CharacteristicValues>
+				</xr:Characteristic>
+			</Characteristics>
+			<CheckUnique>true</CheckUnique>
+			<ChoiceDataGetModeOnInputByString>Directly</ChoiceDataGetModeOnInputByString>
+			<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+			<ChoiceMode>FromForm</ChoiceMode>
+			<CodeAllowedLength>Fixed</CodeAllowedLength>
+			<CodeLength>11</CodeLength>
+			<CodeSeries>WholeCatalog</CodeSeries>
+			<CodeType>String</CodeType>
+			<CreateOnInput>Use</CreateOnInput>
+			<DataHistory>DontUse</DataHistory>
+			<DataLockControlMode>Managed</DataLockControlMode>
+			<DefaultChoiceForm>Catalog.Номенклатура.Form.ФормаВыбора</DefaultChoiceForm>
+			<DefaultFolderChoiceForm>Catalog.Номенклатура.Form.ФормаВыбораГруппы</DefaultFolderChoiceForm>
+			<DefaultFolderForm>Catalog.Номенклатура.Form.ФормаГруппы</DefaultFolderForm>
+			<DefaultListForm>Catalog.Номенклатура.Form.ФормаСписка</DefaultListForm>
+			<DefaultObjectForm>Catalog.Номенклатура.Form.ФормаЭлемента</DefaultObjectForm>
+			<DefaultPresentation>AsDescription</DefaultPresentation>
+			<DescriptionLength>100</DescriptionLength>
+			<EditType>BothWays</EditType>
+			<ExecuteAfterWriteDataHistoryVersionProcessing>false</ExecuteAfterWriteDataHistoryVersionProcessing>
+			<Explanation>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Список позиций номенклатуры (товары, услуги и т.д.). Для позиции номенклатуры могут быть заданы дополнительные свойства: характеристики, упаковка, аналоги, ценовые группы и т.д.</v8:content>
+				</v8:item>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>List of product items (goods, services, etc.). Additional properties can be specified for a product item, such as: item variants, packaging unit, alternative products or services, price groups, etc.</v8:content>
+				</v8:item>
+			</Explanation>
+			<FoldersOnTop>true</FoldersOnTop>
+			<FullTextSearch>Use</FullTextSearch>
+			<FullTextSearchOnInputByString>DontUse</FullTextSearchOnInputByString>
+			<Hierarchical>true</Hierarchical>
+			<HierarchyType>HierarchyFoldersAndItems</HierarchyType>
+			<IncludeHelpInContents>false</IncludeHelpInContents>
+			<InputByString>
+				<xr:Field>Catalog.Номенклатура.StandardAttribute.Description</xr:Field>
+				<xr:Field>Catalog.Номенклатура.StandardAttribute.Code</xr:Field>
+				<xr:Field>Catalog.Номенклатура.Attribute.Артикул</xr:Field>
+			</InputByString>
+			<LevelCount>2</LevelCount>
+			<LimitLevelCount>false</LimitLevelCount>
+			<Name>Номенклатура</Name>
+			<ObjectPresentation>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Номенклатура</v8:content>
+				</v8:item>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Products</v8:content>
+				</v8:item>
+			</ObjectPresentation>
+			<PredefinedDataUpdate>Auto</PredefinedDataUpdate>
+			<QuickChoice>false</QuickChoice>
+			<SearchStringModeOnInputByString>AnyPart</SearchStringModeOnInputByString>
+			<StandardAttributes>
+				<xr:StandardAttribute name="PredefinedDataName">
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Predefined">
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Ref">
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="DeletionMark">
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="IsFolder">
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Owner">
+					<xr:FillChecking>ShowError</xr:FillChecking>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:FillFromFillingValue>true</xr:FillFromFillingValue>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:TypeReductionMode>Deny</xr:TypeReductionMode>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Parent">
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:FillFromFillingValue>true</xr:FillFromFillingValue>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+					<xr:ToolTip>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Группа, в которую входит данная позиция номенклатуры.</v8:content>
+						</v8:item>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group into which this item of products is included.</v8:content>
+						</v8:item>
+					</xr:ToolTip>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Группа</v8:content>
+						</v8:item>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Group</v8:content>
+						</v8:item>
+					</xr:Synonym>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:FillValue xsi:type="xr:DesignTimeRef">Catalog.Номенклатура.EmptyRef</xr:FillValue>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Description">
+					<xr:FillChecking>ShowError</xr:FillChecking>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+					<xr:ToolTip>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Используется для быстрой визуальной идентификации номенклатуры в процессе работы с программой.</v8:content>
+						</v8:item>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Used for quick visual identification of products in the application.</v8:content>
+						</v8:item>
+					</xr:ToolTip>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Code">
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+					<xr:ToolTip>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Уникальный идентификатор номенклатуры.</v8:content>
+						</v8:item>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Unique ID of an item.</v8:content>
+						</v8:item>
+					</xr:ToolTip>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Код</v8:content>
+						</v8:item>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Code</v8:content>
+						</v8:item>
+					</xr:Synonym>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+				</xr:StandardAttribute>
+			</StandardAttributes>
+			<SubordinationUse>ToItems</SubordinationUse>
+			<Synonym>
+				<v8:item>
+					<v8:lang>ru</v8:lang>
+					<v8:content>Номенклатура</v8:content>
+				</v8:item>
+				<v8:item>
+					<v8:lang>en</v8:lang>
+					<v8:content>Items</v8:content>
+				</v8:item>
+			</Synonym>
+			<UpdateDataHistoryImmediatelyAfterWrite>false</UpdateDataHistoryImmediatelyAfterWrite>
+			<UseStandardCommands>false</UseStandardCommands>
+		</Properties>
 		<ChildObjects>
 			<Attribute uuid="11111111-1111-4111-8111-111111111111">
 				<Properties>
@@ -20,22 +328,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Единица хранения</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Единица хранения</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Stock UOM</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Stock UOM</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>В этой единице измерения ведется учет складских остатков товаров и указывается количество номенклатуры в одной упаковке.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>В этой единице измерения ведется учет складских остатков товаров и указывается количество номенклатуры в одной упаковке.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Unit of measure of warehouse stock and quantity of items in one packaging unit.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Unit of measure of warehouse stock and quantity of items in one packaging unit.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -62,30 +370,30 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Артикул</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Артикул</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Item ID</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Item ID</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Артикул номенклатуры.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Артикул номенклатуры.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Item ID.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Item ID.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
-						<v8:StringQualifiers>
-							<v8:AllowedLength>Variable</v8:AllowedLength>
-							<v8:Length>50</v8:Length>
-						</v8:StringQualifiers>
 						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>50</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -109,22 +417,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Оформление продажи</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Оформление продажи</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Register sale</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Register sale</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Содержит информацию каким документом будет оформляться данная услуга</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Содержит информацию каким документом будет оформляться данная услуга</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Contains information on the document to issue for the service</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Contains information on the document to issue for the service</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -156,12 +464,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Единица измерения веса</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Единица измерения веса</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Unit of weight</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Unit of weight</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -189,21 +497,21 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Вес (знаменатель)</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Вес (знаменатель)</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Weight (denominator)</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Weight (denominator)</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
+						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
-						<v8:Type>xs:decimal</v8:Type>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -226,12 +534,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Вес</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Вес</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Weight</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Weight</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -258,12 +566,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Вес можно указывать в документах</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Вес можно указывать в документах</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>You can specify weight in documents</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>You can specify weight in documents</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -290,21 +598,21 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Вес (числитель)</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Вес (числитель)</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Weight (numerator)</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Weight (numerator)</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
+						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
-						<v8:Type>xs:decimal</v8:Type>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -328,12 +636,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Импортный товар (учет по ГТД)</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Импортный товар (учет по ГТД)</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Imported goods (CCD accounting)</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Imported goods (CCD accounting)</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -360,22 +668,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Вести учет сертификатов номенклатуры</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Вести учет сертификатов номенклатуры</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Keep records of quality certificates</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Keep records of quality certificates</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Признак того, что для элемента номенклатуры используются сертификаты номенклатуры.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Признак того, что для элемента номенклатуры используются сертификаты номенклатуры.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Indicates whether quality certificates are used for the item.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Indicates whether quality certificates are used for the item.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -402,22 +710,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Вид алкогольной (спиртосодержащей) продукции</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Вид алкогольной (спиртосодержащей) продукции</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Kind of alcohol containing products</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Kind of alcohol containing products</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Вид алкогольной продукции, используется в декларации по алкогольной продукции</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Вид алкогольной продукции, используется в декларации по алкогольной продукции</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Kind of alcohol containing products used in the declaration of alcohol containing products</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Kind of alcohol containing products used in the declaration of alcohol containing products</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -432,8 +740,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.StandardAttribute.Ref</xr:DataPath>
 							<xr:Name>Номенклатура</xr:Name>
+							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.StandardAttribute.Ref</xr:DataPath>
 							<xr:ValueChange>DontChange</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -452,22 +760,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Вид номенклатуры</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Вид номенклатуры</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Item kind</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Item kind</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Указывается вид, к которому следует отнести данную позицию номенклатуры.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Указывается вид, к которому следует отнести данную позицию номенклатуры.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Specifies a kind to which the current item belongs.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Specifies a kind to which the current item belongs.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -495,22 +803,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Группа доступа</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Группа доступа</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Access group</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Access group</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Определяет группу доступа к элементам справочника.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Определяет группу доступа к элементам справочника.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Determines an access group to the catalog items.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Determines an access group to the catalog items.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -537,12 +845,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Алкогольная (спиртосодержащая) продукция</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Алкогольная (спиртосодержащая) продукция</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Alcohol containing products</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Alcohol containing products</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -570,30 +878,30 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Наименование для печати</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Наименование для печати</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Print name</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Print name</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Наименование номенклатуры, которое будет печататься во всех документах.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Наименование номенклатуры, которое будет печататься во всех документах.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Item name to be printed in all documents.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Item name to be printed in all documents.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
-						<v8:StringQualifiers>
-							<v8:AllowedLength>Variable</v8:AllowedLength>
-							<v8:Length>1024</v8:Length>
-						</v8:StringQualifiers>
 						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>1024</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -604,8 +912,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ВидНоменклатуры</xr:DataPath>
 							<xr:Name>ВидНоменклатуры</xr:Name>
+							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ВидНоменклатуры</xr:DataPath>
 							<xr:ValueChange>DontChange</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -624,12 +932,12 @@
 					<QuickChoice>Use</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Единица измерения срока годности</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Единица измерения срока годности</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Shelf life unit of measure</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Shelf life unit of measure</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -656,12 +964,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Есть товары другого качества</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Есть товары другого качества</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>There are nonconforming products</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>There are nonconforming products</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -688,22 +996,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Импортная алкогольная (спиртосодержащая) продукция</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Импортная алкогольная (спиртосодержащая) продукция</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Imported alcohol containing products</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Imported alcohol containing products</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Отечественное либо импортное происхождение, используется при заполнении деклараций по алкогольной продукции</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Отечественное либо импортное происхождение, используется при заполнении деклараций по алкогольной продукции</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Domestic or import origin, used when filling out the alcohol containing products declaration</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Domestic or import origin, used when filling out the alcohol containing products declaration</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -735,12 +1043,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Единица измерения длины</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Единица измерения длины</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Unit of length</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Unit of length</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -767,21 +1075,21 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Длина (знаменатель)</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Длина (знаменатель)</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Length (denominator)</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Length (denominator)</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
+						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
-						<v8:Type>xs:decimal</v8:Type>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -804,12 +1112,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Длина</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Длина</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Length</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Length</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -836,12 +1144,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Длину можно указывать в документах</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Длину можно указывать в документах</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>You can specify length in documents</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>You can specify length in documents</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -868,21 +1176,21 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Длина (числитель)</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Длина (числитель)</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Length (numerator)</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Length (numerator)</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
+						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
-						<v8:Type>xs:decimal</v8:Type>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -905,12 +1213,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Использование характеристик</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Использование характеристик</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Use variants</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Use variants</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -937,12 +1245,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Использовать индивидуальный шаблон ценника</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Использовать индивидуальный шаблон ценника</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Use custom price tag template</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Use custom price tag template</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -969,12 +1277,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Использовать индивидуальный шаблон этикетки</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Использовать индивидуальный шаблон этикетки</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Use custom label template</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Use custom label template</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -1001,12 +1309,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Использовать упаковки</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Использовать упаковки</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Use packaging units</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Use packaging units</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -1034,12 +1342,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Качество</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Качество</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Quality</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Quality</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -1066,20 +1374,20 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Код для поиска</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код для поиска</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Search code</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Search code</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
-						<v8:StringQualifiers>
-							<v8:AllowedLength>Variable</v8:AllowedLength>
-							<v8:Length>11</v8:Length>
-						</v8:StringQualifiers>
 						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>11</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
 					</Type>
 					<Use>ForFolderAndItem</Use>
 				</Properties>
@@ -1090,8 +1398,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.Производитель</xr:DataPath>
 							<xr:Name>Отбор.Производитель</xr:Name>
+							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.Производитель</xr:DataPath>
 							<xr:ValueChange>Clear</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -1109,12 +1417,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Марка (бренд)</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Марка (бренд)</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Brand</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Brand</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -1141,22 +1449,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Набор упаковок</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Набор упаковок</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Packaging group</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Packaging group</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Набор упаковок для данной номенклатуры. Если указано значение "Индивидуальный набор упаковок", то упаковки ведутся отдельно для этой позиции номенклатуры, если значение не заполнено, то упаковки для этой позиции не используются.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Набор упаковок для данной номенклатуры. Если указано значение "Индивидуальный набор упаковок", то упаковки ведутся отдельно для этой позиции номенклатуры, если значение не заполнено, то упаковки для этой позиции не используются.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Packaging group for the product. If "Custom set of packaging units" is selected, individual packaging unit is used specifically for the product; if nothing is selected, no packaging units are used for the product.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Packaging group for the product. If "Custom set of packaging units" is selected, individual packaging unit is used specifically for the product; if nothing is selected, no packaging units are used for the product.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -1183,22 +1491,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Группа настроек фин. учета</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Группа настроек фин. учета</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Financial accounting settings group</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Financial accounting settings group</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Группа настроек фин. учета</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Группа настроек фин. учета</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Financial accounting settings group</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Financial accounting settings group</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -1230,22 +1538,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Многооборотная тара</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Многооборотная тара</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Reusable packaging</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Reusable packaging</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Многооборотная тара, в которой транспортируется товар</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Многооборотная тара, в которой транспортируется товар</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Reusable packaging in which the goods are transported</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Reusable packaging in which the goods are transported</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -1272,21 +1580,21 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Объем в декалитрах</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Объем в декалитрах</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Volume in decaliters</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Volume in decaliters</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
+						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>18</v8:Digits>
 							<v8:FractionDigits>6</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
-						<v8:Type>xs:decimal</v8:Type>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -1309,20 +1617,20 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Текстовое описание</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Текстовое описание</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Text description</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Text description</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
-						<v8:StringQualifiers>
-							<v8:AllowedLength>Variable</v8:AllowedLength>
-							<v8:Length>0</v8:Length>
-						</v8:StringQualifiers>
 						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>0</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -1345,12 +1653,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>(не используется) Подакцизный товар</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>(не используется) Подакцизный товар</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>(not used) Excisable goods</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>(not used) Excisable goods</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -1377,22 +1685,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Поставляется в многооборотной таре</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Поставляется в многооборотной таре</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Supplied in reusable packaging</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Supplied in reusable packaging</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Товар транспортируется в многооборотной таре</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Товар транспортируется в многооборотной таре</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>The goods are transported in reusable packaging</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>The goods are transported in reusable packaging</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -1419,12 +1727,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Производитель</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Производитель</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Manufacturer</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Manufacturer</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -1451,22 +1759,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Производитель (импортер) алкогольной (спиртосодержащей) продукции</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Производитель (импортер) алкогольной (спиртосодержащей) продукции</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Manufacturer (importer) of alcohol containing products</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Manufacturer (importer) of alcohol containing products</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Производитель для отечественной, импортер для импортной продукции</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Производитель для отечественной, импортер для импортной продукции</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Manufacturer for domestic products, importer for the imported ones</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Manufacturer for domestic products, importer for the imported ones</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -1481,13 +1789,13 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ОбособленнаяЗакупкаПродажа</xr:DataPath>
 							<xr:Name>ОбособленнаяЗакупкаПродажа</xr:Name>
+							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ОбособленнаяЗакупкаПродажа</xr:DataPath>
 							<xr:ValueChange>Clear</xr:ValueChange>
 						</xr:Link>
 						<xr:Link>
-							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ТипНоменклатуры</xr:DataPath>
 							<xr:Name>Отбор.ТипНоменклатуры</xr:Name>
+							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ТипНоменклатуры</xr:DataPath>
 							<xr:ValueChange>Clear</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -1505,22 +1813,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Складская группа</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Складская группа</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Warehouse group</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Warehouse group</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Классификация номенклатуры по признакам складской обработки. В разрезе складских групп номенклатуры задаются правила автоматического размещения номенклатуры на складе с адресным хранением остатков.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Классификация номенклатуры по признакам складской обработки. В разрезе складских групп номенклатуры задаются правила автоматического размещения номенклатуры на складе с адресным хранением остатков.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Product classification by warehousing flags. In dimension of warehouse groups of items, rules are set for automatic products put-away in the warehouse with the bin location system of inventory.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Product classification by warehousing flags. In dimension of warehouse groups of items, rules are set for automatic products put-away in the warehouse with the bin location system of inventory.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -1547,31 +1855,31 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Срок годности</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Срок годности</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Expiration date</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Expiration date</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Срок годности товара</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Срок годности товара</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Goods shelf life</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Goods shelf life</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
+						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>0</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
-						<v8:Type>xs:decimal</v8:Type>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -1599,22 +1907,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Ставка НДС</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Ставка НДС</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>VAT rate</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>VAT rate</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Определяется ставка НДС товара или услуги</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Определяется ставка НДС товара или услуги</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Goods or service VAT rate is determined</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Goods or service VAT rate is determined</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -1642,22 +1950,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Тип номенклатуры</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Тип номенклатуры</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Item type</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Item type</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Содержит тип, к которому относится номенклатура. Данный реквизит копируется из вида номенклатуры. В элементе номенклатуры реквизит не может быть изменен пользователем.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Содержит тип, к которому относится номенклатура. Данный реквизит копируется из вида номенклатуры. В элементе номенклатуры реквизит не может быть изменен пользователем.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Contains item type. This attribute is copied from the item kind. The attribute is not user-editable in the product item.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Contains item type. This attribute is copied from the item kind. The attribute is not user-editable in the product item.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -1672,13 +1980,13 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ВидНоменклатуры</xr:DataPath>
 							<xr:Name>Отбор.Владелец</xr:Name>
+							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ВидНоменклатуры</xr:DataPath>
 							<xr:ValueChange>DontChange</xr:ValueChange>
 						</xr:Link>
 						<xr:Link>
-							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ВладелецТоварныхКатегорий</xr:DataPath>
 							<xr:Name>Отбор.ВладелецТоварныхКатегорий</xr:Name>
+							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ВладелецТоварныхКатегорий</xr:DataPath>
 							<xr:ValueChange>DontChange</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -1696,12 +2004,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Товарная категория</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Товарная категория</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Product category</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Product category</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -1716,8 +2024,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.StandardAttribute.Ref</xr:DataPath>
 							<xr:Name>ВладелецФайла</xr:Name>
+							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.StandardAttribute.Ref</xr:DataPath>
 							<xr:ValueChange>Clear</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -1736,22 +2044,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Файл картинки</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Файл картинки</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Image file</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Image file</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Ссылка на файл картинки номенклатуры</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Ссылка на файл картинки номенклатуры</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Link to product picture</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Link to product picture</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -1778,12 +2086,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Файл описания для сайта</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Файл описания для сайта</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Description file for the website</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Description file for the website</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -1815,12 +2123,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Единица измерения объема</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Единица измерения объема</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Unit of volume</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Unit of volume</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -1847,21 +2155,21 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Объем (знаменатель)</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Объем (знаменатель)</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Volume (denominator)</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Volume (denominator)</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
+						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
-						<v8:Type>xs:decimal</v8:Type>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -1884,12 +2192,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Объем</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Объем</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Volume</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Volume</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -1916,12 +2224,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Объем можно указывать в документах</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Объем можно указывать в документах</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>You can specify volume in the documents</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>You can specify volume in the documents</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -1948,21 +2256,21 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Объем (числитель)</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Объем (числитель)</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Volume (numerator)</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Volume (numerator)</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
+						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
-						<v8:Type>xs:decimal</v8:Type>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -1973,8 +2281,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.НоменклатураМногооборотнаяТара</xr:DataPath>
 							<xr:Name>Номенклатура</xr:Name>
+							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.НоменклатураМногооборотнаяТара</xr:DataPath>
 							<xr:ValueChange>DontChange</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -1992,22 +2300,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Характеристика тары</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Характеристика тары</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Package variant</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Package variant</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Характеристика многооборотной тары, в которой транспортируется товар</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Характеристика многооборотной тары, в которой транспортируется товар</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Variants of a reusable packaging used to transport goods</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Variants of a reusable packaging used to transport goods</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -2039,12 +2347,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Единица измерения площади</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Единица измерения площади</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Unit of area</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Unit of area</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -2071,21 +2379,21 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Площадь (знаменатель)</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Площадь (знаменатель)</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Area (denominator)</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Area (denominator)</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
+						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
-						<v8:Type>xs:decimal</v8:Type>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -2108,12 +2416,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Схема обеспечения</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Схема обеспечения</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Supply scheme</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Supply scheme</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -2149,12 +2457,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Способ обеспечения потребностей</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Способ обеспечения потребностей</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Procurement strategy</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Procurement strategy</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -2181,12 +2489,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Площадь</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Площадь</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Area</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Area</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -2213,12 +2521,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Площадь можно указывать в документах</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Площадь можно указывать в документах</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>You can specify an area in documents</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>You can specify an area in documents</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -2245,21 +2553,21 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Площадь (числитель)</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Площадь (числитель)</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Area (numerator)</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Area (numerator)</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
+						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
-						<v8:Type>xs:decimal</v8:Type>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -2283,22 +2591,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Ценовая группа</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Ценовая группа</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Price group</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Price group</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Определяет ценовую группу, к которой относится номенклатурная позиция.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Определяет ценовую группу, к которой относится номенклатурная позиция.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Determines the price group to which the products belong.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Determines the price group to which the products belong.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -2330,12 +2638,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Шаблон ценника</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Шаблон ценника</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Price tag template</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Price tag template</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -2362,22 +2670,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Единица для отчетов</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Единица для отчетов</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Report unit</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Report unit</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>В отчетах можно сопоставить между собой количества товаров, пересчитанные в эту единицу из единицы хранения с указанным коэффициентом.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>В отчетах можно сопоставить между собой количества товаров, пересчитанные в эту единицу из единицы хранения с указанным коэффициентом.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>In the reports, you can map a number of goods converted into this unit from the storage unit with the specified factor.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>In the reports, you can map a number of goods converted into this unit from the storage unit with the specified factor.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -2405,31 +2713,31 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Коэффициент единицы для отчетов</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Коэффициент единицы для отчетов</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Report UOM conversion ratio</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Report UOM conversion ratio</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Коэффициент пересчета единицы хранения в единицу для отчетов.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Коэффициент пересчета единицы хранения в единицу для отчетов.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Stock UOM—Report UOM conversion ratio.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Stock UOM—Report UOM conversion ratio.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
+						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
-						<v8:Type>xs:decimal</v8:Type>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -2457,12 +2765,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Шаблон этикетки</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Шаблон этикетки</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Label template</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Label template</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -2489,22 +2797,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Сезонная группа</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Сезонная группа</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Seasonal group</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Seasonal group</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Определяет сезонную группу, к которой относится номенклатурная позиция.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Определяет сезонную группу, к которой относится номенклатурная позиция.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Determines a seasonal group to which the products belong.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Determines a seasonal group to which the products belong.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -2531,22 +2839,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Коллекция (сезон)</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Коллекция (сезон)</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Collection (season)</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Collection (season)</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Коллекция (сезон) к которому принадлежит данный товар.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Коллекция (сезон) к которому принадлежит данный товар.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Collection (season) to which this product belongs.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Collection (season) to which this product belongs.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -2578,22 +2886,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Принципал</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Принципал</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Principal</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Principal</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Принципал - поставщик, которому продавец услуги предоставляет отчет</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Принципал - поставщик, которому продавец услуги предоставляет отчет</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Principal - a vendor the service provider reports to</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Principal - a vendor the service provider reports to</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -2609,8 +2917,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.Принципал</xr:DataPath>
 							<xr:Name>Отбор.Партнер</xr:Name>
+							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.Принципал</xr:DataPath>
 							<xr:ValueChange>Clear</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -2628,22 +2936,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Контрагент</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Контрагент</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Counterparty</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Counterparty</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Контрагент данного принципала, используется для проводок</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Контрагент данного принципала, используется для проводок</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Counterparty of this principal is used for transactions</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Counterparty of this principal is used for transactions</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -2671,22 +2979,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Рейтинг продаж</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Рейтинг продаж</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Sales rank</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Sales rank</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Рейтинг продажи, с которым продается товар.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Рейтинг продажи, с которым продается товар.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Goods sales rank.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Goods sales rank.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -2713,12 +3021,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Обособленное обеспечение</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Обособленное обеспечение</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Assigned fulfillment</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Assigned fulfillment</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -2745,22 +3053,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Группа аналитического учета</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Группа аналитического учета</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Analytical group</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Analytical group</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Группа аналитического учета</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Группа аналитического учета</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Analytical group</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Analytical group</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -2788,22 +3096,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>ТН ВЭД</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>ТН ВЭД</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>FEACN</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>FEACN</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Код по товарной номенклатуре внешнеэкономической деятельности Таможенного союза</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код по товарной номенклатуре внешнеэкономической деятельности Таможенного союза</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Code in Foreign Economic Activity Commodity Nomenclature classification of the Customs Union</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Code in Foreign Economic Activity Commodity Nomenclature classification of the Customs Union</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -2830,22 +3138,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Код ОКВЭД</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код ОКВЭД</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>OKVED code</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>OKVED code</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Код по общероссийскому классификатору видов экономической деятельности</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код по общероссийскому классификатору видов экономической деятельности</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Code in All-Russian Classifier of Types of Economic Activity</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Code in All-Russian Classifier of Types of Economic Activity</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -2872,22 +3180,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Код ОКП</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код ОКП</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>RNCP code</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>RNCP code</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Код по общероссийскому классификатору продукции</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код по общероссийскому классификатору продукции</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Code in All-Russian Classifier of Products</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Code in All-Russian Classifier of Products</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -2914,12 +3222,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Облагается НДПИ по процентной ставке</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Облагается НДПИ по процентной ставке</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Subject to mineral extraction tax at rate</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Subject to mineral extraction tax at rate</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -2934,8 +3242,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.StandardAttribute.Ref</xr:DataPath>
 							<xr:Name>ТекущийВид</xr:Name>
+							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.StandardAttribute.Ref</xr:DataPath>
 							<xr:ValueChange>DontChange</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -2961,12 +3269,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Владелец серий</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Владелец серий</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Batch owner</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Batch owner</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -2981,8 +3289,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.StandardAttribute.Ref</xr:DataPath>
 							<xr:Name>ТекущийВид</xr:Name>
+							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.StandardAttribute.Ref</xr:DataPath>
 							<xr:ValueChange>DontChange</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -3005,12 +3313,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Владелец характеристик</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Владелец характеристик</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Item variants owner</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Item variants owner</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3037,12 +3345,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Владелец товарных категорий</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Владелец товарных категорий</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Product category owner</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Product category owner</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3070,21 +3378,21 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Крепость</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Крепость</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Strength</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Strength</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
+						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>5</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
-						<v8:Type>xs:decimal</v8:Type>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -3108,12 +3416,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Особенность учета</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Особенность учета</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Accounting particularity</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Accounting particularity</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3140,12 +3448,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Продукция, маркируемая для ГИСМ</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Продукция, маркируемая для ГИСМ</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Products marked for SPMS</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Products marked for SPMS</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3172,12 +3480,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Контрольный (идентификационный) знак ГИСМ</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Контрольный (идентификационный) знак ГИСМ</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Control (identification) SPMS mark</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Control (identification) SPMS mark</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3204,12 +3512,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Вид КиЗ ГИСМ</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Вид КиЗ ГИСМ</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>CIM SPMS kind</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>CIM SPMS kind</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3236,12 +3544,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Способ выпуска в оборот КиЗ ГИСМ</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Способ выпуска в оборот КиЗ ГИСМ</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Release into circulation method CIM SPMS</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Release into circulation method CIM SPMS</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3268,12 +3576,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>GTIN, записываемый эмитентом в КиЗ ГИСМ</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>GTIN, записываемый эмитентом в КиЗ ГИСМ</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>GTIN recorded by issuer in CIM SPMS</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>GTIN recorded by issuer in CIM SPMS</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3300,12 +3608,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Размер КиЗ ГИСМ</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Размер КиЗ ГИСМ</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>CIM SPMS amount</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>CIM SPMS amount</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3332,12 +3640,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Подконтрольная продукция ВетИС</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Подконтрольная продукция ВетИС</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Products under VetIS control</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Products under VetIS control</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3364,12 +3672,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Алкогольная продукция во вскрытой таре</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Алкогольная продукция во вскрытой таре</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Alcohol containing products in open package</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Alcohol containing products in open package</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3396,22 +3704,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Код для раздела 7 декларации по НДС</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код для раздела 7 декларации по НДС</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Code for section 7 of VAT declaration</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Code for section 7 of VAT declaration</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Код операции для заполнения раздела 7 декларации по НДС</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код операции для заполнения раздела 7 декларации по НДС</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Operation code to fill in section 7 of VAT declaration</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Operation code to fill in section 7 of VAT declaration</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -3438,22 +3746,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Облагается НДС у покупателя товара</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Облагается НДС у покупателя товара</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Subject to VAT at goods customer</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Subject to VAT at goods customer</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Товар относится к списку товаров с обратным обложением НДС (п. 8 ст. 161 НК)</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Товар относится к списку товаров с обратным обложением НДС (п. 8 ст. 161 НК)</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Goods are included in the list of goods with reverse VAT charge (cl.8 art. 161 of TC)</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Goods are included in the list of goods with reverse VAT charge (cl.8 art. 161 of TC)</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -3480,12 +3788,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Код ОКВЭД2</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код ОКВЭД2</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>OKVED2 code</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>OKVED2 code</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3512,12 +3820,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Код ОКПД2</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код ОКПД2</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>RNCPA2 code</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>RNCPA2 code</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3544,20 +3852,20 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Код вида номенклатурной классификации</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код вида номенклатурной классификации</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Product classification type code</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Product classification type code</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
-						<v8:StringQualifiers>
-							<v8:AllowedLength>Variable</v8:AllowedLength>
-							<v8:Length>13</v8:Length>
-						</v8:StringQualifiers>
 						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>13</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -3580,20 +3888,20 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Наименование вида номенклатурной классификации</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Наименование вида номенклатурной классификации</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Product classification type description</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Product classification type description</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
-						<v8:StringQualifiers>
-							<v8:AllowedLength>Variable</v8:AllowedLength>
-							<v8:Length>150</v8:Length>
-						</v8:StringQualifiers>
 						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>150</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -3616,22 +3924,22 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Единица измерения ТН ВЭД</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Единица измерения ТН ВЭД</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>FEACN unit of measure</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>FEACN unit of measure</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>В этой единице измерения ведется учет остатков импортных товаров организации, подлежащих прослеживаемости.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>В этой единице измерения ведется учет остатков импортных товаров организации, подлежащих прослеживаемости.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>This unit of measure is used to account the balance of goods imported by company, which are subject to traceability.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>This unit of measure is used to account the balance of goods imported by company, which are subject to traceability.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -3658,12 +3966,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Страна происхождения</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Страна происхождения</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Country of origin</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Country of origin</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3690,12 +3998,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Прослеживаемый товар</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Прослеживаемый товар</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Traceable goods</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Traceable goods</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3722,12 +4030,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Переносить РНПТ материала</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Переносить РНПТ материала</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Transfer RNPT of material</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Transfer RNPT of material</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3754,20 +4062,20 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Код ТРУ</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код ТРУ</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Goods/works/services code</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Goods/works/services code</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
-						<v8:StringQualifiers>
-							<v8:AllowedLength>Variable</v8:AllowedLength>
-							<v8:Length>255</v8:Length>
-						</v8:StringQualifiers>
 						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>255</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -3790,20 +4098,20 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Код по КВПД</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код по КВПД</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Code by kinds of business activity classifier</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Code by kinds of business activity classifier</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
-						<v8:StringQualifiers>
-							<v8:AllowedLength>Variable</v8:AllowedLength>
-							<v8:Length>6</v8:Length>
-						</v8:StringQualifiers>
 						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>6</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -3826,20 +4134,20 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Код ОКВЭД 2</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Код ОКВЭД 2</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>OKVED 2 code</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>OKVED 2 code</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
-						<v8:StringQualifiers>
-							<v8:AllowedLength>Variable</v8:AllowedLength>
-							<v8:Length>8</v8:Length>
-						</v8:StringQualifiers>
 						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:Length>8</v8:Length>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -3862,12 +4170,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Продается по разрешению</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Продается по разрешению</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Sold by permission</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Sold by permission</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3894,12 +4202,12 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Операции НДС 0%</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Операции НДС 0%</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>0% VAT transactions</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>0% VAT transactions</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -3908,202 +4216,13 @@
 					<Use>ForItem</Use>
 				</Properties>
 			</Attribute>
-			<Command uuid="11111111-1111-4111-8111-111111111111">
-				<Properties>
-					<Group>ActionsPanelCreate</Group>
-					<ModifiesData>false</ModifiesData>
-					<Name>НовыйЭлемент</Name>
-					<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
-					<ParameterUseMode>Single</ParameterUseMode>
-					<Representation>Auto</Representation>
-					<Synonym>
-						<v8:item>
-							<v8:content>Номенклатура</v8:content>
-							<v8:lang>ru</v8:lang>
-						</v8:item>
-						<v8:item>
-							<v8:content>Items</v8:content>
-							<v8:lang>en</v8:lang>
-						</v8:item>
-					</Synonym>
-				</Properties>
-			</Command>
-			<Command uuid="11111111-1111-4111-8111-111111111111">
-				<Properties>
-					<Group>NavigationPanelOrdinary</Group>
-					<ModifiesData>false</ModifiesData>
-					<Name>Номенклатура</Name>
-					<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
-					<ParameterUseMode>Single</ParameterUseMode>
-					<Representation>Auto</Representation>
-					<Synonym>
-						<v8:item>
-							<v8:content>Номенклатура</v8:content>
-							<v8:lang>ru</v8:lang>
-						</v8:item>
-						<v8:item>
-							<v8:content>Items</v8:content>
-							<v8:lang>en</v8:lang>
-						</v8:item>
-					</Synonym>
-				</Properties>
-			</Command>
-			<Form>ФормаЭлемента</Form>
-			<Form>ФормаГруппы</Form>
-			<Form>ФормаСписка</Form>
-			<Form>ФормаВыбора</Form>
-			<Form>ФормаВыбораГруппы</Form>
-			<Form>ФормаВыбораГруппИЭлементов</Form>
-			<Form>ФормаВыбораНекачественнойНоменклатуры</Form>
-			<Form>ИсторияЦенНоменклатуры</Form>
-			<Form>НастройкаВариантаПоиска</Form>
-			<Form>СовместныеПродажи</Form>
-			<Form>РазблокированиеРеквизитов</Form>
-			<Form>ФормаУстановкиИнтервала</Form>
-			<Form>ФормаУстановкиЗначенийОтбора</Form>
-			<Form>КонтрольУникальности</Form>
-			<Form>НастройкиПараметровКопированияДополнительныхДанных</Form>
-			<Form>СоглашенияСПоставщикамиПоХарактеристикам</Form>
 			<TabularSection uuid="11111111-1111-4111-8111-111111111111">
-				<ChildObjects>
-					<Attribute uuid="11111111-1111-4111-8111-111111111111">
-						<Properties>
-							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
-							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
-							<CreateOnInput>Use</CreateOnInput>
-							<DataHistory>Use</DataHistory>
-							<ExtendedEdit>false</ExtendedEdit>
-							<FillChecking>DontCheck</FillChecking>
-							<FullTextSearch>Use</FullTextSearch>
-							<Indexing>Index</Indexing>
-							<MarkNegatives>false</MarkNegatives>
-							<MultiLine>false</MultiLine>
-							<Name>Свойство</Name>
-							<PasswordMode>false</PasswordMode>
-							<QuickChoice>DontUse</QuickChoice>
-							<Synonym>
-								<v8:item>
-									<v8:content>Свойство</v8:content>
-									<v8:lang>ru</v8:lang>
-								</v8:item>
-								<v8:item>
-									<v8:content>Property</v8:content>
-									<v8:lang>en</v8:lang>
-								</v8:item>
-							</Synonym>
-							<ToolTip>
-								<v8:item>
-									<v8:content>Дополнительный реквизит</v8:content>
-									<v8:lang>ru</v8:lang>
-								</v8:item>
-								<v8:item>
-									<v8:content>Additional attribute</v8:content>
-									<v8:lang>en</v8:lang>
-								</v8:item>
-							</ToolTip>
-							<Type>
-								<v8:Type>cfg:ChartOfCharacteristicTypesRef.ДополнительныеРеквизитыИСведения</v8:Type>
-							</Type>
-						</Properties>
-					</Attribute>
-					<Attribute uuid="11111111-1111-4111-8111-111111111111">
-						<Properties>
-							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
-							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
-							<ChoiceParameterLinks>
-								<xr:Link>
-									<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:DataPath>
-									<xr:Name>Отбор.Владелец</xr:Name>
-									<xr:ValueChange>Clear</xr:ValueChange>
-								</xr:Link>
-							</ChoiceParameterLinks>
-							<CreateOnInput>Use</CreateOnInput>
-							<DataHistory>Use</DataHistory>
-							<ExtendedEdit>false</ExtendedEdit>
-							<FillChecking>DontCheck</FillChecking>
-							<FullTextSearch>Use</FullTextSearch>
-							<Indexing>DontIndex</Indexing>
-							<MarkNegatives>false</MarkNegatives>
-							<MultiLine>false</MultiLine>
-							<Name>Значение</Name>
-							<PasswordMode>false</PasswordMode>
-							<QuickChoice>DontUse</QuickChoice>
-							<Synonym>
-								<v8:item>
-									<v8:content>Значение</v8:content>
-									<v8:lang>ru</v8:lang>
-								</v8:item>
-								<v8:item>
-									<v8:content>Value</v8:content>
-									<v8:lang>en</v8:lang>
-								</v8:item>
-							</Synonym>
-							<ToolTip>
-								<v8:item>
-									<v8:content>Значение дополнительного реквизита</v8:content>
-									<v8:lang>ru</v8:lang>
-								</v8:item>
-								<v8:item>
-									<v8:content>Value</v8:content>
-									<v8:lang>en</v8:lang>
-								</v8:item>
-							</ToolTip>
-							<Type>
-								<v8:TypeSet>cfg:Characteristic.ДополнительныеРеквизитыИСведения</v8:TypeSet>
-							</Type>
-						</Properties>
-					</Attribute>
-					<Attribute uuid="11111111-1111-4111-8111-111111111111">
-						<Properties>
-							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
-							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
-							<CreateOnInput>Auto</CreateOnInput>
-							<DataHistory>Use</DataHistory>
-							<ExtendedEdit>false</ExtendedEdit>
-							<FillChecking>DontCheck</FillChecking>
-							<FullTextSearch>Use</FullTextSearch>
-							<Indexing>DontIndex</Indexing>
-							<MarkNegatives>false</MarkNegatives>
-							<MultiLine>false</MultiLine>
-							<Name>ТекстоваяСтрока</Name>
-							<PasswordMode>false</PasswordMode>
-							<QuickChoice>Auto</QuickChoice>
-							<Synonym>
-								<v8:item>
-									<v8:content>Текстовая строка</v8:content>
-									<v8:lang>ru</v8:lang>
-								</v8:item>
-								<v8:item>
-									<v8:content>Text string</v8:content>
-									<v8:lang>en</v8:lang>
-								</v8:item>
-							</Synonym>
-							<ToolTip>
-								<v8:item>
-									<v8:content>Полный текст строкового дополнительного реквизита</v8:content>
-									<v8:lang>ru</v8:lang>
-								</v8:item>
-								<v8:item>
-									<v8:content>Text of the additional string attribute</v8:content>
-									<v8:lang>en</v8:lang>
-								</v8:item>
-							</ToolTip>
-							<Type>
-								<v8:StringQualifiers>
-									<v8:AllowedLength>Variable</v8:AllowedLength>
-									<v8:Length>0</v8:Length>
-								</v8:StringQualifiers>
-								<v8:Type>xs:string</v8:Type>
-							</Type>
-						</Properties>
-					</Attribute>
-				</ChildObjects>
 				<InternalInfo>
-					<xr:GeneratedType category="TabularSection" name="CatalogTabularSection.Номенклатура.ДополнительныеРеквизиты">
+					<xr:GeneratedType name="CatalogTabularSection.Номенклатура.ДополнительныеРеквизиты" category="TabularSection">
 						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 					</xr:GeneratedType>
-					<xr:GeneratedType category="TabularSectionRow" name="CatalogTabularSectionRow.Номенклатура.ДополнительныеРеквизиты">
+					<xr:GeneratedType name="CatalogTabularSectionRow.Номенклатура.ДополнительныеРеквизиты" category="TabularSectionRow">
 						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 					</xr:GeneratedType>
@@ -4130,66 +4249,64 @@
 					</StandardAttributes>
 					<Synonym>
 						<v8:item>
-							<v8:content>Дополнительные реквизиты</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Дополнительные реквизиты</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Additional attributes</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Additional attributes</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Набор реквизитов, состав которого определяется компанией.</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Набор реквизитов, состав которого определяется компанией.</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Set of attributes determined by the company.</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Set of attributes determined by the company.</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Use>ForItem</Use>
 				</Properties>
-			</TabularSection>
-			<TabularSection uuid="11111111-1111-4111-8111-111111111111">
 				<ChildObjects>
 					<Attribute uuid="11111111-1111-4111-8111-111111111111">
 						<Properties>
 							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
 							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
-							<CreateOnInput>Auto</CreateOnInput>
+							<CreateOnInput>Use</CreateOnInput>
 							<DataHistory>Use</DataHistory>
 							<ExtendedEdit>false</ExtendedEdit>
-							<FillChecking>ShowError</FillChecking>
+							<FillChecking>DontCheck</FillChecking>
 							<FullTextSearch>Use</FullTextSearch>
-							<Indexing>DontIndex</Indexing>
+							<Indexing>Index</Indexing>
 							<MarkNegatives>false</MarkNegatives>
 							<MultiLine>false</MultiLine>
-							<Name>ДрагоценныйМатериал</Name>
+							<Name>Свойство</Name>
 							<PasswordMode>false</PasswordMode>
-							<QuickChoice>Auto</QuickChoice>
+							<QuickChoice>DontUse</QuickChoice>
 							<Synonym>
 								<v8:item>
-									<v8:content>Драгоценный металл/камень</v8:content>
 									<v8:lang>ru</v8:lang>
+									<v8:content>Свойство</v8:content>
 								</v8:item>
 								<v8:item>
-									<v8:content>Precious metal/stone</v8:content>
 									<v8:lang>en</v8:lang>
+									<v8:content>Property</v8:content>
 								</v8:item>
 							</Synonym>
 							<ToolTip>
 								<v8:item>
-									<v8:content>Драгоценный металл или камень входящий в состав единицы номенклатуры</v8:content>
 									<v8:lang>ru</v8:lang>
+									<v8:content>Дополнительный реквизит</v8:content>
 								</v8:item>
 								<v8:item>
-									<v8:content>Precious metal or stone included in product item</v8:content>
 									<v8:lang>en</v8:lang>
+									<v8:content>Additional attribute</v8:content>
 								</v8:item>
 							</ToolTip>
 							<Type>
-								<v8:Type>cfg:CatalogRef.ДрагоценныеМатериалы</v8:Type>
+								<v8:Type>cfg:ChartOfCharacteristicTypesRef.ДополнительныеРеквизитыИСведения</v8:Type>
 							</Type>
 						</Properties>
 					</Attribute>
@@ -4197,109 +4314,46 @@
 						<Properties>
 							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
 							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
-							<CreateOnInput>Auto</CreateOnInput>
+							<ChoiceParameterLinks>
+								<xr:Link>
+									<xr:Name>Отбор.Владелец</xr:Name>
+									<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:DataPath>
+									<xr:ValueChange>Clear</xr:ValueChange>
+								</xr:Link>
+							</ChoiceParameterLinks>
+							<CreateOnInput>Use</CreateOnInput>
 							<DataHistory>Use</DataHistory>
 							<ExtendedEdit>false</ExtendedEdit>
-							<FillChecking>ShowError</FillChecking>
+							<FillChecking>DontCheck</FillChecking>
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
 							<MultiLine>false</MultiLine>
-							<Name>Количество</Name>
+							<Name>Значение</Name>
 							<PasswordMode>false</PasswordMode>
-							<QuickChoice>Auto</QuickChoice>
+							<QuickChoice>DontUse</QuickChoice>
 							<Synonym>
 								<v8:item>
-									<v8:content>Количество</v8:content>
 									<v8:lang>ru</v8:lang>
+									<v8:content>Значение</v8:content>
 								</v8:item>
 								<v8:item>
-									<v8:content>Quantity</v8:content>
 									<v8:lang>en</v8:lang>
+									<v8:content>Value</v8:content>
 								</v8:item>
 							</Synonym>
 							<ToolTip>
 								<v8:item>
-									<v8:content>Количество драгоценного металла или камня в составе номенклатуры</v8:content>
 									<v8:lang>ru</v8:lang>
+									<v8:content>Значение дополнительного реквизита</v8:content>
 								</v8:item>
 								<v8:item>
-									<v8:content>Quantity of precious metal or stone in products</v8:content>
 									<v8:lang>en</v8:lang>
+									<v8:content>Value</v8:content>
 								</v8:item>
 							</ToolTip>
 							<Type>
-								<v8:NumberQualifiers>
-									<v8:AllowedSign>Nonnegative</v8:AllowedSign>
-									<v8:Digits>15</v8:Digits>
-									<v8:FractionDigits>3</v8:FractionDigits>
-								</v8:NumberQualifiers>
-								<v8:Type>xs:decimal</v8:Type>
-							</Type>
-						</Properties>
-					</Attribute>
-					<Attribute uuid="11111111-1111-4111-8111-111111111111">
-						<Properties>
-							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
-							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
-							<ChoiceParameters>
-								<app:item name="Отбор.ТипИзмеряемойВеличины">
-									<app:value xsi:type="xr:DesignTimeRef">Enum.ТипыИзмеряемыхВеличин.EnumValue.Вес</app:value>
-								</app:item>
-							</ChoiceParameters>
-							<CreateOnInput>Auto</CreateOnInput>
-							<DataHistory>Use</DataHistory>
-							<ExtendedEdit>false</ExtendedEdit>
-							<FillChecking>ShowError</FillChecking>
-							<FullTextSearch>Use</FullTextSearch>
-							<Indexing>DontIndex</Indexing>
-							<MarkNegatives>false</MarkNegatives>
-							<MultiLine>false</MultiLine>
-							<Name>ЕдиницаИзмерения</Name>
-							<PasswordMode>false</PasswordMode>
-							<QuickChoice>Auto</QuickChoice>
-							<Synonym>
-								<v8:item>
-									<v8:content>Единица измерения</v8:content>
-									<v8:lang>ru</v8:lang>
-								</v8:item>
-								<v8:item>
-									<v8:content>Unit of measure</v8:content>
-									<v8:lang>en</v8:lang>
-								</v8:item>
-							</Synonym>
-							<Type>
-								<v8:Type>cfg:CatalogRef.УпаковкиЕдиницыИзмерения</v8:Type>
-							</Type>
-						</Properties>
-					</Attribute>
-					<Attribute uuid="11111111-1111-4111-8111-111111111111">
-						<Properties>
-							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
-							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
-							<CreateOnInput>Auto</CreateOnInput>
-							<DataHistory>Use</DataHistory>
-							<ExtendedEdit>false</ExtendedEdit>
-							<FillChecking>ShowError</FillChecking>
-							<FullTextSearch>Use</FullTextSearch>
-							<Indexing>DontIndex</Indexing>
-							<MarkNegatives>false</MarkNegatives>
-							<MultiLine>false</MultiLine>
-							<Name>Расположение</Name>
-							<PasswordMode>false</PasswordMode>
-							<QuickChoice>Auto</QuickChoice>
-							<Synonym>
-								<v8:item>
-									<v8:content>Классификация для 1-ДМ</v8:content>
-									<v8:lang>ru</v8:lang>
-								</v8:item>
-								<v8:item>
-									<v8:content>1-DM classification</v8:content>
-									<v8:lang>en</v8:lang>
-								</v8:item>
-							</Synonym>
-							<Type>
-								<v8:Type>cfg:EnumRef.РасположениеДрагоценныхКамней</v8:Type>
+								<v8:TypeSet>cfg:Characteristic.ДополнительныеРеквизитыИСведения</v8:TypeSet>
 							</Type>
 						</Properties>
 					</Attribute>
@@ -4315,35 +4369,47 @@
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
 							<MultiLine>false</MultiLine>
-							<Name>Комментарий</Name>
+							<Name>ТекстоваяСтрока</Name>
 							<PasswordMode>false</PasswordMode>
 							<QuickChoice>Auto</QuickChoice>
 							<Synonym>
 								<v8:item>
-									<v8:content>Комментарий</v8:content>
 									<v8:lang>ru</v8:lang>
+									<v8:content>Текстовая строка</v8:content>
 								</v8:item>
 								<v8:item>
-									<v8:content>Comment</v8:content>
 									<v8:lang>en</v8:lang>
+									<v8:content>Text string</v8:content>
 								</v8:item>
 							</Synonym>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Полный текст строкового дополнительного реквизита</v8:content>
+								</v8:item>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Text of the additional string attribute</v8:content>
+								</v8:item>
+							</ToolTip>
 							<Type>
-								<v8:StringQualifiers>
-									<v8:AllowedLength>Variable</v8:AllowedLength>
-									<v8:Length>1000</v8:Length>
-								</v8:StringQualifiers>
 								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:Length>0</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+								</v8:StringQualifiers>
 							</Type>
 						</Properties>
 					</Attribute>
 				</ChildObjects>
+			</TabularSection>
+			<TabularSection uuid="11111111-1111-4111-8111-111111111111">
 				<InternalInfo>
-					<xr:GeneratedType category="TabularSection" name="CatalogTabularSection.Номенклатура.ДрагоценныеМатериалы">
+					<xr:GeneratedType name="CatalogTabularSection.Номенклатура.ДрагоценныеМатериалы" category="TabularSection">
 						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 					</xr:GeneratedType>
-					<xr:GeneratedType category="TabularSectionRow" name="CatalogTabularSectionRow.Номенклатура.ДрагоценныеМатериалы">
+					<xr:GeneratedType name="CatalogTabularSectionRow.Номенклатура.ДрагоценныеМатериалы" category="TabularSectionRow">
 						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 					</xr:GeneratedType>
@@ -4370,28 +4436,26 @@
 					</StandardAttributes>
 					<Synonym>
 						<v8:item>
-							<v8:content>Драгоценные металлы и камни</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Драгоценные металлы и камни</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Precious metals and stones</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Precious metals and stones</v8:content>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:content>Содержание драгоценных металлов и камней в составе единицы номенклатуры</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Содержание драгоценных металлов и камней в составе единицы номенклатуры</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Content of precious metal or gem in product item</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Content of precious metal or gem in product item</v8:content>
 						</v8:item>
 					</ToolTip>
 					<Use>ForItem</Use>
 				</Properties>
-			</TabularSection>
-			<TabularSection uuid="11111111-1111-4111-8111-111111111111">
 				<ChildObjects>
 					<Attribute uuid="11111111-1111-4111-8111-111111111111">
 						<Properties>
@@ -4400,30 +4464,146 @@
 							<CreateOnInput>Auto</CreateOnInput>
 							<DataHistory>Use</DataHistory>
 							<ExtendedEdit>false</ExtendedEdit>
-							<FillChecking>DontCheck</FillChecking>
+							<FillChecking>ShowError</FillChecking>
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
 							<MultiLine>false</MultiLine>
-							<Name>КодЯзыка</Name>
+							<Name>ДрагоценныйМатериал</Name>
 							<PasswordMode>false</PasswordMode>
 							<QuickChoice>Auto</QuickChoice>
 							<Synonym>
 								<v8:item>
-									<v8:content>Код языка</v8:content>
 									<v8:lang>ru</v8:lang>
+									<v8:content>Драгоценный металл/камень</v8:content>
 								</v8:item>
 								<v8:item>
-									<v8:content>Language code</v8:content>
 									<v8:lang>en</v8:lang>
+									<v8:content>Precious metal/stone</v8:content>
+								</v8:item>
+							</Synonym>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Драгоценный металл или камень входящий в состав единицы номенклатуры</v8:content>
+								</v8:item>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Precious metal or stone included in product item</v8:content>
+								</v8:item>
+							</ToolTip>
+							<Type>
+								<v8:Type>cfg:CatalogRef.ДрагоценныеМатериалы</v8:Type>
+							</Type>
+						</Properties>
+					</Attribute>
+					<Attribute uuid="11111111-1111-4111-8111-111111111111">
+						<Properties>
+							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+							<CreateOnInput>Auto</CreateOnInput>
+							<DataHistory>Use</DataHistory>
+							<ExtendedEdit>false</ExtendedEdit>
+							<FillChecking>ShowError</FillChecking>
+							<FullTextSearch>Use</FullTextSearch>
+							<Indexing>DontIndex</Indexing>
+							<MarkNegatives>false</MarkNegatives>
+							<MultiLine>false</MultiLine>
+							<Name>Количество</Name>
+							<PasswordMode>false</PasswordMode>
+							<QuickChoice>Auto</QuickChoice>
+							<Synonym>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Количество</v8:content>
+								</v8:item>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Quantity</v8:content>
+								</v8:item>
+							</Synonym>
+							<ToolTip>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Количество драгоценного металла или камня в составе номенклатуры</v8:content>
+								</v8:item>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Quantity of precious metal or stone in products</v8:content>
+								</v8:item>
+							</ToolTip>
+							<Type>
+								<v8:Type>xs:decimal</v8:Type>
+								<v8:NumberQualifiers>
+									<v8:Digits>15</v8:Digits>
+									<v8:FractionDigits>3</v8:FractionDigits>
+									<v8:AllowedSign>Nonnegative</v8:AllowedSign>
+								</v8:NumberQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+					<Attribute uuid="11111111-1111-4111-8111-111111111111">
+						<Properties>
+							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+							<ChoiceParameters>
+								<app:item name="Отбор.ТипИзмеряемойВеличины">
+									<app:value xsi:type="xr:DesignTimeRef">Enum.ТипыИзмеряемыхВеличин.EnumValue.Вес</app:value>
+								</app:item>
+							</ChoiceParameters>
+							<CreateOnInput>Auto</CreateOnInput>
+							<DataHistory>Use</DataHistory>
+							<ExtendedEdit>false</ExtendedEdit>
+							<FillChecking>ShowError</FillChecking>
+							<FullTextSearch>Use</FullTextSearch>
+							<Indexing>DontIndex</Indexing>
+							<MarkNegatives>false</MarkNegatives>
+							<MultiLine>false</MultiLine>
+							<Name>ЕдиницаИзмерения</Name>
+							<PasswordMode>false</PasswordMode>
+							<QuickChoice>Auto</QuickChoice>
+							<Synonym>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Единица измерения</v8:content>
+								</v8:item>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Unit of measure</v8:content>
 								</v8:item>
 							</Synonym>
 							<Type>
-								<v8:StringQualifiers>
-									<v8:AllowedLength>Variable</v8:AllowedLength>
-									<v8:Length>10</v8:Length>
-								</v8:StringQualifiers>
-								<v8:Type>xs:string</v8:Type>
+								<v8:Type>cfg:CatalogRef.УпаковкиЕдиницыИзмерения</v8:Type>
+							</Type>
+						</Properties>
+					</Attribute>
+					<Attribute uuid="11111111-1111-4111-8111-111111111111">
+						<Properties>
+							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+							<CreateOnInput>Auto</CreateOnInput>
+							<DataHistory>Use</DataHistory>
+							<ExtendedEdit>false</ExtendedEdit>
+							<FillChecking>ShowError</FillChecking>
+							<FullTextSearch>Use</FullTextSearch>
+							<Indexing>DontIndex</Indexing>
+							<MarkNegatives>false</MarkNegatives>
+							<MultiLine>false</MultiLine>
+							<Name>Расположение</Name>
+							<PasswordMode>false</PasswordMode>
+							<QuickChoice>Auto</QuickChoice>
+							<Synonym>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Классификация для 1-ДМ</v8:content>
+								</v8:item>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>1-DM classification</v8:content>
+								</v8:item>
+							</Synonym>
+							<Type>
+								<v8:Type>cfg:EnumRef.РасположениеДрагоценныхКамней</v8:Type>
 							</Type>
 						</Properties>
 					</Attribute>
@@ -4439,35 +4619,37 @@
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
 							<MultiLine>false</MultiLine>
-							<Name>НаименованиеПолное</Name>
+							<Name>Комментарий</Name>
 							<PasswordMode>false</PasswordMode>
 							<QuickChoice>Auto</QuickChoice>
 							<Synonym>
 								<v8:item>
-									<v8:content>Наименование полное</v8:content>
 									<v8:lang>ru</v8:lang>
+									<v8:content>Комментарий</v8:content>
 								</v8:item>
 								<v8:item>
-									<v8:content>Full name</v8:content>
 									<v8:lang>en</v8:lang>
+									<v8:content>Comment</v8:content>
 								</v8:item>
 							</Synonym>
 							<Type>
-								<v8:StringQualifiers>
-									<v8:AllowedLength>Variable</v8:AllowedLength>
-									<v8:Length>1024</v8:Length>
-								</v8:StringQualifiers>
 								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:Length>1000</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+								</v8:StringQualifiers>
 							</Type>
 						</Properties>
 					</Attribute>
 				</ChildObjects>
+			</TabularSection>
+			<TabularSection uuid="11111111-1111-4111-8111-111111111111">
 				<InternalInfo>
-					<xr:GeneratedType category="TabularSection" name="CatalogTabularSection.Номенклатура.Представления">
+					<xr:GeneratedType name="CatalogTabularSection.Номенклатура.Представления" category="TabularSection">
 						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 					</xr:GeneratedType>
-					<xr:GeneratedType category="TabularSectionRow" name="CatalogTabularSectionRow.Номенклатура.Представления">
+					<xr:GeneratedType name="CatalogTabularSectionRow.Номенклатура.Представления" category="TabularSectionRow">
 						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 					</xr:GeneratedType>
@@ -4494,328 +4676,146 @@
 					</StandardAttributes>
 					<Synonym>
 						<v8:item>
-							<v8:content>Представления</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Представления</v8:content>
 						</v8:item>
 						<v8:item>
-							<v8:content>Presentations</v8:content>
 							<v8:lang>en</v8:lang>
+							<v8:content>Presentations</v8:content>
 						</v8:item>
 					</Synonym>
 					<Use>ForFolderAndItem</Use>
 				</Properties>
+				<ChildObjects>
+					<Attribute uuid="11111111-1111-4111-8111-111111111111">
+						<Properties>
+							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+							<CreateOnInput>Auto</CreateOnInput>
+							<DataHistory>Use</DataHistory>
+							<ExtendedEdit>false</ExtendedEdit>
+							<FillChecking>DontCheck</FillChecking>
+							<FullTextSearch>Use</FullTextSearch>
+							<Indexing>DontIndex</Indexing>
+							<MarkNegatives>false</MarkNegatives>
+							<MultiLine>false</MultiLine>
+							<Name>КодЯзыка</Name>
+							<PasswordMode>false</PasswordMode>
+							<QuickChoice>Auto</QuickChoice>
+							<Synonym>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Код языка</v8:content>
+								</v8:item>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Language code</v8:content>
+								</v8:item>
+							</Synonym>
+							<Type>
+								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:Length>10</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+								</v8:StringQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+					<Attribute uuid="11111111-1111-4111-8111-111111111111">
+						<Properties>
+							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+							<CreateOnInput>Auto</CreateOnInput>
+							<DataHistory>Use</DataHistory>
+							<ExtendedEdit>false</ExtendedEdit>
+							<FillChecking>DontCheck</FillChecking>
+							<FullTextSearch>Use</FullTextSearch>
+							<Indexing>DontIndex</Indexing>
+							<MarkNegatives>false</MarkNegatives>
+							<MultiLine>false</MultiLine>
+							<Name>НаименованиеПолное</Name>
+							<PasswordMode>false</PasswordMode>
+							<QuickChoice>Auto</QuickChoice>
+							<Synonym>
+								<v8:item>
+									<v8:lang>ru</v8:lang>
+									<v8:content>Наименование полное</v8:content>
+								</v8:item>
+								<v8:item>
+									<v8:lang>en</v8:lang>
+									<v8:content>Full name</v8:content>
+								</v8:item>
+							</Synonym>
+							<Type>
+								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:Length>1024</v8:Length>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+								</v8:StringQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+				</ChildObjects>
 			</TabularSection>
+			<Form>ФормаЭлемента</Form>
+			<Form>ФормаГруппы</Form>
+			<Form>ФормаСписка</Form>
+			<Form>ФормаВыбора</Form>
+			<Form>ФормаВыбораГруппы</Form>
+			<Form>ФормаВыбораГруппИЭлементов</Form>
+			<Form>ФормаВыбораНекачественнойНоменклатуры</Form>
+			<Form>ИсторияЦенНоменклатуры</Form>
+			<Form>НастройкаВариантаПоиска</Form>
+			<Form>СовместныеПродажи</Form>
+			<Form>РазблокированиеРеквизитов</Form>
+			<Form>ФормаУстановкиИнтервала</Form>
+			<Form>ФормаУстановкиЗначенийОтбора</Form>
+			<Form>КонтрольУникальности</Form>
+			<Form>НастройкиПараметровКопированияДополнительныхДанных</Form>
+			<Form>СоглашенияСПоставщикамиПоХарактеристикам</Form>
 			<Template>ПФ_MXL_КарточкаНоменклатуры</Template>
 			<Template>ПФ_MXL_КарточкаНоменклатурыЛокализация</Template>
 			<Template>ЗагрузкаИзФайла</Template>
+			<Command uuid="11111111-1111-4111-8111-111111111111">
+				<Properties>
+					<Group>ActionsPanelCreate</Group>
+					<ModifiesData>false</ModifiesData>
+					<Name>НовыйЭлемент</Name>
+					<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
+					<ParameterUseMode>Single</ParameterUseMode>
+					<Representation>Auto</Representation>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Номенклатура</v8:content>
+						</v8:item>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Items</v8:content>
+						</v8:item>
+					</Synonym>
+				</Properties>
+			</Command>
+			<Command uuid="11111111-1111-4111-8111-111111111111">
+				<Properties>
+					<Group>NavigationPanelOrdinary</Group>
+					<ModifiesData>false</ModifiesData>
+					<Name>Номенклатура</Name>
+					<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
+					<ParameterUseMode>Single</ParameterUseMode>
+					<Representation>Auto</Representation>
+					<Synonym>
+						<v8:item>
+							<v8:lang>ru</v8:lang>
+							<v8:content>Номенклатура</v8:content>
+						</v8:item>
+						<v8:item>
+							<v8:lang>en</v8:lang>
+							<v8:content>Items</v8:content>
+						</v8:item>
+					</Synonym>
+				</Properties>
+			</Command>
 		</ChildObjects>
-		<InternalInfo>
-			<xr:GeneratedType category="Object" name="CatalogObject.Номенклатура">
-				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
-				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
-			</xr:GeneratedType>
-			<xr:GeneratedType category="Ref" name="CatalogRef.Номенклатура">
-				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
-				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
-			</xr:GeneratedType>
-			<xr:GeneratedType category="Selection" name="CatalogSelection.Номенклатура">
-				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
-				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
-			</xr:GeneratedType>
-			<xr:GeneratedType category="List" name="CatalogList.Номенклатура">
-				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
-				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
-			</xr:GeneratedType>
-			<xr:GeneratedType category="Manager" name="CatalogManager.Номенклатура">
-				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
-				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
-			</xr:GeneratedType>
-		</InternalInfo>
-		<Properties>
-			<Autonumbering>true</Autonumbering>
-			<Characteristics>
-				<xr:Characteristic>
-					<xr:CharacteristicTypes from="Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты">
-						<xr:DataPathField>-1</xr:DataPathField>
-						<xr:KeyField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:KeyField>
-						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
-						<xr:TypesFilterField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.ИмяПредопределенногоНабора</xr:TypesFilterField>
-						<xr:TypesFilterValue xsi:type="xs:string">Справочник_Номенклатура</xr:TypesFilterValue>
-					</xr:CharacteristicTypes>
-					<xr:CharacteristicValues from="Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты">
-						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
-						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
-						<xr:ObjectField>Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.StandardAttribute.Ref</xr:ObjectField>
-						<xr:TypeField>Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:TypeField>
-						<xr:ValueField>Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.Attribute.Значение</xr:ValueField>
-					</xr:CharacteristicValues>
-				</xr:Characteristic>
-				<xr:Characteristic>
-					<xr:CharacteristicTypes from="Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения">
-						<xr:DataPathField>-1</xr:DataPathField>
-						<xr:KeyField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.Свойство</xr:KeyField>
-						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
-						<xr:TypesFilterField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.ИмяПредопределенногоНабора</xr:TypesFilterField>
-						<xr:TypesFilterValue xsi:type="xs:string">Справочник_Номенклатура</xr:TypesFilterValue>
-					</xr:CharacteristicTypes>
-					<xr:CharacteristicValues from="InformationRegister.ДополнительныеСведения">
-						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
-						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
-						<xr:ObjectField>InformationRegister.ДополнительныеСведения.Dimension.Объект</xr:ObjectField>
-						<xr:TypeField>InformationRegister.ДополнительныеСведения.Dimension.Свойство</xr:TypeField>
-						<xr:ValueField>InformationRegister.ДополнительныеСведения.Resource.Значение</xr:ValueField>
-					</xr:CharacteristicValues>
-				</xr:Characteristic>
-			</Characteristics>
-			<CheckUnique>true</CheckUnique>
-			<ChoiceDataGetModeOnInputByString>Directly</ChoiceDataGetModeOnInputByString>
-			<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
-			<ChoiceMode>FromForm</ChoiceMode>
-			<CodeAllowedLength>Fixed</CodeAllowedLength>
-			<CodeLength>11</CodeLength>
-			<CodeSeries>WholeCatalog</CodeSeries>
-			<CodeType>String</CodeType>
-			<CreateOnInput>Use</CreateOnInput>
-			<DataHistory>DontUse</DataHistory>
-			<DataLockControlMode>Managed</DataLockControlMode>
-			<DefaultChoiceForm>Catalog.Номенклатура.Form.ФормаВыбора</DefaultChoiceForm>
-			<DefaultFolderChoiceForm>Catalog.Номенклатура.Form.ФормаВыбораГруппы</DefaultFolderChoiceForm>
-			<DefaultFolderForm>Catalog.Номенклатура.Form.ФормаГруппы</DefaultFolderForm>
-			<DefaultListForm>Catalog.Номенклатура.Form.ФормаСписка</DefaultListForm>
-			<DefaultObjectForm>Catalog.Номенклатура.Form.ФормаЭлемента</DefaultObjectForm>
-			<DefaultPresentation>AsDescription</DefaultPresentation>
-			<DescriptionLength>100</DescriptionLength>
-			<EditType>BothWays</EditType>
-			<ExecuteAfterWriteDataHistoryVersionProcessing>false</ExecuteAfterWriteDataHistoryVersionProcessing>
-			<Explanation>
-				<v8:item>
-					<v8:content>Список позиций номенклатуры (товары, услуги и т.д.). Для позиции номенклатуры могут быть заданы дополнительные свойства: характеристики, упаковка, аналоги, ценовые группы и т.д.</v8:content>
-					<v8:lang>ru</v8:lang>
-				</v8:item>
-				<v8:item>
-					<v8:content>List of product items (goods, services, etc.). Additional properties can be specified for a product item, such as: item variants, packaging unit, alternative products or services, price groups, etc.</v8:content>
-					<v8:lang>en</v8:lang>
-				</v8:item>
-			</Explanation>
-			<FoldersOnTop>true</FoldersOnTop>
-			<FullTextSearch>Use</FullTextSearch>
-			<FullTextSearchOnInputByString>DontUse</FullTextSearchOnInputByString>
-			<Hierarchical>true</Hierarchical>
-			<HierarchyType>HierarchyFoldersAndItems</HierarchyType>
-			<IncludeHelpInContents>false</IncludeHelpInContents>
-			<InputByString>
-				<xr:Field>Catalog.Номенклатура.StandardAttribute.Description</xr:Field>
-				<xr:Field>Catalog.Номенклатура.StandardAttribute.Code</xr:Field>
-				<xr:Field>Catalog.Номенклатура.Attribute.Артикул</xr:Field>
-			</InputByString>
-			<LevelCount>2</LevelCount>
-			<LimitLevelCount>false</LimitLevelCount>
-			<Name>Номенклатура</Name>
-			<ObjectPresentation>
-				<v8:item>
-					<v8:content>Номенклатура</v8:content>
-					<v8:lang>ru</v8:lang>
-				</v8:item>
-				<v8:item>
-					<v8:content>Products</v8:content>
-					<v8:lang>en</v8:lang>
-				</v8:item>
-			</ObjectPresentation>
-			<PredefinedDataUpdate>Auto</PredefinedDataUpdate>
-			<QuickChoice>false</QuickChoice>
-			<SearchStringModeOnInputByString>AnyPart</SearchStringModeOnInputByString>
-			<StandardAttributes>
-				<xr:StandardAttribute name="PredefinedDataName">
-					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:DataHistory>Use</xr:DataHistory>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:FillChecking>DontCheck</xr:FillChecking>
-					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:PasswordMode>false</xr:PasswordMode>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="Predefined">
-					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:DataHistory>Use</xr:DataHistory>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:FillChecking>DontCheck</xr:FillChecking>
-					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:PasswordMode>false</xr:PasswordMode>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="Ref">
-					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:DataHistory>Use</xr:DataHistory>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:FillChecking>DontCheck</xr:FillChecking>
-					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:PasswordMode>false</xr:PasswordMode>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="DeletionMark">
-					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:DataHistory>Use</xr:DataHistory>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:FillChecking>DontCheck</xr:FillChecking>
-					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:PasswordMode>false</xr:PasswordMode>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="IsFolder">
-					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:DataHistory>Use</xr:DataHistory>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:FillChecking>DontCheck</xr:FillChecking>
-					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:PasswordMode>false</xr:PasswordMode>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="Owner">
-					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:DataHistory>Use</xr:DataHistory>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:FillChecking>ShowError</xr:FillChecking>
-					<xr:FillFromFillingValue>true</xr:FillFromFillingValue>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:PasswordMode>false</xr:PasswordMode>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
-					<xr:TypeReductionMode>Deny</xr:TypeReductionMode>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="Parent">
-					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:DataHistory>Use</xr:DataHistory>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:FillChecking>DontCheck</xr:FillChecking>
-					<xr:FillFromFillingValue>true</xr:FillFromFillingValue>
-					<xr:FillValue xsi:type="xr:DesignTimeRef">Catalog.Номенклатура.EmptyRef</xr:FillValue>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:PasswordMode>false</xr:PasswordMode>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
-					<xr:Synonym>
-						<v8:item>
-							<v8:content>Группа</v8:content>
-							<v8:lang>ru</v8:lang>
-						</v8:item>
-						<v8:item>
-							<v8:content>Group</v8:content>
-							<v8:lang>en</v8:lang>
-						</v8:item>
-					</xr:Synonym>
-					<xr:ToolTip>
-						<v8:item>
-							<v8:content>Группа, в которую входит данная позиция номенклатуры.</v8:content>
-							<v8:lang>ru</v8:lang>
-						</v8:item>
-						<v8:item>
-							<v8:content>Group into which this item of products is included.</v8:content>
-							<v8:lang>en</v8:lang>
-						</v8:item>
-					</xr:ToolTip>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="Description">
-					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:DataHistory>Use</xr:DataHistory>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:FillChecking>ShowError</xr:FillChecking>
-					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:PasswordMode>false</xr:PasswordMode>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
-					<xr:ToolTip>
-						<v8:item>
-							<v8:content>Используется для быстрой визуальной идентификации номенклатуры в процессе работы с программой.</v8:content>
-							<v8:lang>ru</v8:lang>
-						</v8:item>
-						<v8:item>
-							<v8:content>Used for quick visual identification of products in the application.</v8:content>
-							<v8:lang>en</v8:lang>
-						</v8:item>
-					</xr:ToolTip>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="Code">
-					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:DataHistory>Use</xr:DataHistory>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:FillChecking>DontCheck</xr:FillChecking>
-					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:PasswordMode>false</xr:PasswordMode>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
-					<xr:Synonym>
-						<v8:item>
-							<v8:content>Код</v8:content>
-							<v8:lang>ru</v8:lang>
-						</v8:item>
-						<v8:item>
-							<v8:content>Code</v8:content>
-							<v8:lang>en</v8:lang>
-						</v8:item>
-					</xr:Synonym>
-					<xr:ToolTip>
-						<v8:item>
-							<v8:content>Уникальный идентификатор номенклатуры.</v8:content>
-							<v8:lang>ru</v8:lang>
-						</v8:item>
-						<v8:item>
-							<v8:content>Unique ID of an item.</v8:content>
-							<v8:lang>en</v8:lang>
-						</v8:item>
-					</xr:ToolTip>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
-				</xr:StandardAttribute>
-			</StandardAttributes>
-			<SubordinationUse>ToItems</SubordinationUse>
-			<Synonym>
-				<v8:item>
-					<v8:content>Номенклатура</v8:content>
-					<v8:lang>ru</v8:lang>
-				</v8:item>
-				<v8:item>
-					<v8:content>Items</v8:content>
-					<v8:lang>en</v8:lang>
-				</v8:item>
-			</Synonym>
-			<UpdateDataHistoryImmediatelyAfterWrite>false</UpdateDataHistoryImmediatelyAfterWrite>
-			<UseStandardCommands>false</UseStandardCommands>
-		</Properties>
 	</Catalog>
 </MetaDataObject>
