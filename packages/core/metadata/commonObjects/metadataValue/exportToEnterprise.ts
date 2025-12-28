@@ -41,7 +41,7 @@ const exportStringValueToEnterprise = (data: MetadataSimpleValue): MetadataValue
 }
 
 const exportDecimalValueToEnterprise = (data: MetadataDecimalValue): MetadataValueEnterprise => {
-  return String(data.value)
+  return data.value
 }
 
 const exportDateTimeValueToEnterprise = (data: MetadataDateTimeValue): MetadataValueEnterprise => {

@@ -97,7 +97,7 @@ export const importMetadataStringValueFromXML = (_context: Context, value: strin
 }
 
 export const importMetadataDecimalValueFromXML = (_context: Context, value: string | undefined): number | undefined => {
-  return value ? Number(value) : undefined
+  return value !== undefined ? Number(value) : undefined
 }
 
 export const importMetadataDateTimeValueFromXML = (

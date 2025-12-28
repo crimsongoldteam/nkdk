@@ -108,7 +108,7 @@ export type MetadataValueXML =
 
 //#region MetadataValueEnterprise
 
-export type MetadataSingleValueEnterprise = string
+export type MetadataSingleValueEnterprise = string | number
 
 export type MetadataFixedArrayValueEnterprise = MetadataSingleValueEnterprise[]
 

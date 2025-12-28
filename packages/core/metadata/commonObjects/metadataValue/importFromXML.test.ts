@@ -39,6 +39,17 @@ describe("importMetadataValueFromXML", () => {
     })
   })
 
+  it("should import decimal zero value from XML as number", () => {
+    const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/decimalZero.xml")
+
+    const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
+
+    expect(result).toEqual({
+      type: "decimal",
+      value: 0,
+    })
+  })
+
   it("should import dateTime value from XML", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/dateTime.xml")
     const result = importMetadataValueFromXML(mockСontext, xmlData.Value)

@@ -29,12 +29,23 @@ describe("exportMetadataValueToEnterprise", () => {
   it("should export decimal value to Enterprise", () => {
     const data: MetadataValue = {
       type: "decimal",
+      value: 10,
+    }
+
+    const result = exportMetadataValueToEnterprise(mockСontext, data)
+
+    expect(result).toEqual(10)
+  })
+
+  it("should export decimal zero value to Enterprise", () => {
+    const data: MetadataValue = {
+      type: "decimal",
       value: 0,
     }
 
     const result = exportMetadataValueToEnterprise(mockСontext, data)
 
-    expect(result).toEqual("0")
+    expect(result).toEqual(0)
   })
 
   it("should export dateTime value to Enterprise", () => {

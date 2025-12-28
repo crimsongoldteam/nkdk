@@ -10,6 +10,8 @@ import { exportCharacteristicsDescriptionsToXML } from "~/metadata/commonObjects
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportMetadataFieldsToXML } from "~/metadata/commonObjects/metadataField/exportToXML"
 import { exportMetadataItemLinksToXML } from "~/metadata/commonObjects/metadataRef/exportToXML"
+import { exportMetadataTabularSectionsToXML } from "~/metadata/commonObjects/metadataTabularSection/exportToXML"
+import { MetadataTabularSectionsXML } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { exportPredefinedItemsToXML } from "~/metadata/commonObjects/predifined/exportToXML"
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { Context } from "~/metadata/context/types"
@@ -47,14 +49,22 @@ export const exportMetadataCatalogToXML = (
     commands = exportMetadataCommandsToXML(context, mergedData.commands)
   }
 
+  let tabularSections: MetadataTabularSectionsXML | undefined
+  if (mergedData.tabularSections) {
+    tabularSections = exportMetadataTabularSectionsToXML(context, mergedData.tabularSections)
+  }
+
   let childObjects: MetadataCatalogXML["Catalog"]["ChildObjects"] | undefined
-  if (attributes || commands) {
+  if (attributes || commands || tabularSections) {
     childObjects = {}
     if (attributes) {
       childObjects.Attribute = attributes
     }
     if (commands) {
       childObjects.Command = commands
+    }
+    if (tabularSections) {
+      childObjects.TabularSection = tabularSections
     }
   }
 
