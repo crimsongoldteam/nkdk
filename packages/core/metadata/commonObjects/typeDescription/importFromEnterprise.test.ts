@@ -165,5 +165,14 @@ describe("importTypeDescriptionFromEnterprise", () => {
 
       expect(result).toEqual(mockTypeDescription)
     })
+
+    it("should parse defined type", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["DefinedType.GTIN"],
+      }
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "ОпределенныйТип.GTIN")
+
+      expect(result).toEqual(mockTypeDescription)
+    })
   })
 })

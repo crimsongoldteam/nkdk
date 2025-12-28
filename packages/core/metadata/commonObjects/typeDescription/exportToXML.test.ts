@@ -82,4 +82,17 @@ describe("exportTypeDescriptionToXML", () => {
 
     expect(xmlString).toEqual(expectedXml)
   })
+
+  it("should export defined type to XML", () => {
+    const mockTypeDescription: TypeDescription = {
+      type: ["DefinedType.GTIN"],
+    }
+
+    const expectedXml = readXMLFileAsString("typeDescription/definedType.xml")
+
+    const result = exportTypeDescriptionToXML(mockСontext, mockTypeDescription)
+    const xmlString = xmlExport({ TypeDescription: result }, false)
+
+    expect(xmlString).toEqual(expectedXml)
+  })
 })

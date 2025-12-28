@@ -1,6 +1,12 @@
 import { cleanString } from "~/helpers/cleanString"
 import { AllowedLength } from "~/metadata/systemEnumerations/types"
-import { AppliedTypeToEnterprise, TypeDescription } from "../types"
+import {
+  AppliedTypeFromEnterprise,
+  AppliedTypeToEnterprise,
+  PrimitiveTypeFromEnterprise,
+  PrimitiveTypeToEnterprise,
+  TypeDescription,
+} from "../types"
 
 export const visitTypeProcessor = (types: any): TypeDescription => {
   const result: TypeDescription = {
@@ -15,7 +21,7 @@ export const visitTypeProcessor = (types: any): TypeDescription => {
 
     let { type, kind } = processType(value)
 
-    let aliase = getAliase(type)
+    let aliase = getAliase(type, value)
 
     // Если нет алиаса, значит это произвольный тип (например, "тип1", "тип2")
     if (!aliase) {
@@ -125,30 +131,37 @@ const processDateType = (result: TypeDescription, _typeInfo: any, originalValue:
   }
 }
 
-const getAliase = (type: string): string | undefined => {
+const getAliase = (type: string, originalValue: string): string | undefined => {
+  const originalValueLower = originalValue.toLowerCase()
   const typeLower = type.toLowerCase()
 
-  const pairs: { [key: string]: string } = {
-    справочник: "Справочник",
-    справочники: "Справочник",
-    спр: "Справочник",
-    документ: "Документ",
-    документы: "Документ",
-    док: "Документ",
-    перечисление: "Перечисление",
-    перечисления: "Перечисление",
-    переч: "Перечисление",
-    число: "Число",
-    положительноечисло: "Число",
-    строка: "Строка",
-    фиксированнаястрока: "Строка",
-    дата: "Дата",
-    время: "Дата",
-    датавремя: "Дата",
-    булево: "Булево",
+  if (originalValueLower.startsWith("строка") || originalValueLower.startsWith("фиксированнаястрока")) {
+    return "Строка"
+  }
+  if (originalValueLower.startsWith("число") || originalValueLower.startsWith("положительноечисло")) {
+    return "Число"
+  }
+  if (["дата", "время", "датавремя"].includes(originalValueLower)) {
+    return "Дата"
+  }
+  if (originalValueLower === "булево") {
+    return "Булево"
+  }
+  if (["определенныйтип", "определяемыйтип"].includes(typeLower)) {
+    return "ОпределяемыйТип"
   }
 
-  return pairs[typeLower]
+  const appliedType = AppliedTypeFromEnterprise(type)
+  if (appliedType) {
+    return AppliedTypeToEnterprise[appliedType]
+  }
+
+  const primitiveType = PrimitiveTypeFromEnterprise(type)
+  if (primitiveType) {
+    return PrimitiveTypeToEnterprise[primitiveType]
+  }
+
+  return undefined
 }
 
 const getAppliedTypePrefix = (enterpriseName: string): string | undefined => {

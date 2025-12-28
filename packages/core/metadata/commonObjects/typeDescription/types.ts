@@ -43,7 +43,7 @@ export interface TypeDescriptionDateQualifiers {
   dateFractions?: "Date" | "Time" | "DateTime"
 }
 
-const PrimitiveTypeToEnterprise = {
+export const PrimitiveTypeToEnterprise = {
   string: "Строка",
   decimal: "Число",
   date: "Дата",

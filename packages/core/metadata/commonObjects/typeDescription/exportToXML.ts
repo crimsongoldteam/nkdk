@@ -14,11 +14,20 @@ export const exportTypeDescriptionToXML = (
       ? { allowedLength: "Variable" as const, length: 0 }
       : typeDescription.stringQualifiers
 
+  const mappedTypes = typeDescription.type.map((type) => mapType(type))
+
+  // TypeSet используется для определенных типов (DefinedType, Characteristic) когда это единственный тип
+  const shouldUseTypeSet =
+    typeDescription.type.length === 1 &&
+    (typeDescription.type[0].startsWith("DefinedType.") || typeDescription.type[0].startsWith("Characteristic."))
+
   const result = compactObject<TypeDescriptionXML>({
     "v8:StringQualifiers": getStringQualifiers(stringQualifiers),
     "v8:NumberQualifiers": getNumberQualifiers(typeDescription.numberQualifiers),
     "v8:DateQualifiers": getDateQualifiers(typeDescription.dateQualifiers),
-    "v8:Type": typeDescription.type.map((type) => mapType(type)),
+    ...(shouldUseTypeSet
+      ? { "v8:TypeSet": mappedTypes[0] }
+      : { "v8:Type": mappedTypes.length === 1 ? mappedTypes[0] : mappedTypes }),
   })
 
   return result
