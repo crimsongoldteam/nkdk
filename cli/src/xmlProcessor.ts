@@ -2,6 +2,9 @@ import { XMLBuilder, XMLParser } from "fast-xml-parser"
 
 const TARGET_UUID = "11111111-1111-4111-8111-111111111111"
 
+// Теги, внутри которых нужно сортировать дочерние элементы (без иерархии - только на первом уровне)
+const SORTABLE_TAGS = ["Properties", "xr:Properties", "xr:StandardAttribute"]
+
 export function processXmlContent(xmlContent: string): string {
   const parsedData = parseXml(xmlContent)
   const processedData = processObject(parsedData)
@@ -25,38 +28,12 @@ function parseXml(xmlContent: string): any {
     ignorePiTags: false,
   }
 
-  // Пробуем основной парсер
   try {
     const parser = new XMLParser(primaryOptions)
     return parser.parse(xmlContent)
   } catch (error) {
-    // Если не получилось, пробуем с preserveOrder: true (как в importer.ts)
-    try {
-      const fallbackParser = new XMLParser({
-        ...primaryOptions,
-        preserveOrder: true,
-      })
-      return fallbackParser.parse(xmlContent)
-    } catch (fallbackError) {
-      // Если и это не помогло, пробуем еще более мягкие настройки
-      try {
-        const softParser = new XMLParser({
-          preserveOrder: true,
-          ignoreAttributes: false,
-          attributeNamePrefix: "",
-          attributesGroupName: "@attributes",
-          textNodeName: "#text",
-          trimValues: false,
-          parseTagValue: false,
-          parseAttributeValue: false,
-        })
-        return softParser.parse(xmlContent)
-      } catch (softError) {
-        // Если все попытки не удались, выбрасываем оригинальную ошибку
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        throw new Error(`Ошибка парсинга XML: ${errorMessage}`)
-      }
-    }
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    throw new Error(`Ошибка парсинга XML: ${errorMessage}`)
   }
 }
 
@@ -88,7 +65,7 @@ function buildXml(parsedData: any): string {
   return outputXml
 }
 
-function processObject(obj: any): any {
+function processObject(obj: any, isPropertiesNode: boolean = false): any {
   if (obj === null || obj === undefined) {
     return undefined
   }
@@ -100,57 +77,42 @@ function processObject(obj: any): any {
 
   // Если это массив, обрабатываем каждый элемент и создаем новый массив
   if (Array.isArray(obj)) {
-    const processed = obj.map((item) => processObject(item)).filter((item) => !isEmptyNode(item))
+    const processed = obj.map((item) => processObject(item, false)).filter((item) => !isEmptyNode(item))
     return processed.length > 0 ? processed : undefined
   }
 
   // Создаем новый объект для результата
   const result: Record<string, any> = {}
 
-  // Обрабатываем атрибуты (создаем новый объект атрибутов)
+  // Обрабатываем атрибуты
   if (obj["@attributes"]) {
     const processedAttrs = processAttributes(obj["@attributes"])
-    if (processedAttrs && Object.keys(processedAttrs).length > 0) {
+    if (processedAttrs) {
       result["@attributes"] = processedAttrs
     }
   }
 
-  // Обрабатываем остальные свойства (создаем новые значения)
-  const sortedKeys = Object.keys(obj)
-    .filter((key) => key !== "@attributes")
-    .sort()
+  // Получаем все ключи (кроме @attributes)
+  const allKeys = Object.keys(obj).filter((key) => key !== "@attributes")
+
+  // Сортируем ключи только если мы находимся внутри ноды Properties (без иерархии - только на текущем уровне)
+  const sortedKeys = isPropertiesNode ? allKeys.sort() : allKeys
 
   for (const key of sortedKeys) {
     const originalValue = obj[key]
 
     // Специальная обработка для FillValue: исключаем элементы без значения
-    if (key === "FillValue" || key === "xr:FillValue") {
-      // Если это объект, проверяем наличие текстового содержимого
-      if (typeof originalValue === "object" && originalValue !== null) {
-        const hasText =
-          originalValue["#text"] !== undefined &&
-          originalValue["#text"] !== null &&
-          (typeof originalValue["#text"] !== "string" || originalValue["#text"].trim() !== "")
-        // Если нет текстового содержимого, пропускаем элемент
-        if (!hasText) {
-          continue
-        }
-      }
-      // Если это примитив (строка), проверяем, что она не пустая
-      if (typeof originalValue === "string" && originalValue.trim() === "") {
-        continue
-      }
-      // Если это null или undefined, пропускаем
-      if (originalValue === null || originalValue === undefined) {
-        continue
-      }
+    if ((key === "FillValue" || key === "xr:FillValue") && isEmptyFillValue(originalValue)) {
+      continue
     }
 
     // Заменяем UUID в полях TypeId/ValueId (создаем новое значение)
     const valueWithReplacedUuid = replaceUuidInValue(key, originalValue)
 
-    // Рекурсивно обрабатываем значение (создаем новый объект)
-    const processedValue = processObject(valueWithReplacedUuid)
+    // Рекурсивно обрабатываем значение
+    // Передаем isPropertiesNode=true только для прямых дочерних элементов сортируемых тегов (без иерархии)
+    const nextIsProperties = !isPropertiesNode && (SORTABLE_TAGS.includes(key) || key.endsWith(":Properties"))
+    const processedValue = processObject(valueWithReplacedUuid, nextIsProperties)
 
     // Пропускаем пустые ноды
     if (isEmptyNode(processedValue)) {
@@ -169,16 +131,11 @@ function processObject(obj: any): any {
 }
 
 function processAttributes(attrs: Record<string, any>): Record<string, any> | undefined {
-  const sortedAttrs: Record<string, any> = {}
-  const sortedKeys = Object.keys(attrs).sort()
-
-  for (const key of sortedKeys) {
-    const originalValue = attrs[key]
-    const processedValue = replaceUuidInAttribute(key, originalValue)
-    sortedAttrs[key] = processedValue
+  const processedAttrs: Record<string, any> = {}
+  for (const key in attrs) {
+    processedAttrs[key] = replaceUuidInAttribute(key, attrs[key])
   }
-
-  return Object.keys(sortedAttrs).length > 0 ? sortedAttrs : undefined
+  return Object.keys(processedAttrs).length > 0 ? processedAttrs : undefined
 }
 
 function replaceUuidInAttribute(key: string, value: any): any {
@@ -215,6 +172,20 @@ function shouldReplaceUuid(key: string): boolean {
     key.endsWith(":ValueId") ||
     key.endsWith(":uuid")
   )
+}
+
+function isEmptyFillValue(value: any): boolean {
+  if (value === null || value === undefined) {
+    return true
+  }
+  if (typeof value === "string") {
+    return value.trim() === ""
+  }
+  if (typeof value === "object") {
+    const text = value["#text"]
+    return text === undefined || text === null || (typeof text === "string" && text.trim() === "")
+  }
+  return false
 }
 
 function isEmptyNode(value: any): boolean {
@@ -259,15 +230,13 @@ function isEmptyNode(value: any): boolean {
     // Если есть только #text и он пустой, считаем ноду пустой
     if (keys.length === 1 && keys[0] === "#text") {
       const text = value["#text"]
-      return text === null || text === undefined || (typeof text === "string" && text.trim() === "")
+      return !text || (typeof text === "string" && text.trim() === "")
     }
     // Если есть только @attributes и #text, проверяем оба
     if (keys.length === 2 && keys.includes("@attributes") && keys.includes("#text")) {
       const attrs = value["@attributes"]
       const text = value["#text"]
-      const attrsEmpty = !attrs || Object.keys(attrs).length === 0
-      const textEmpty = text === null || text === undefined || (typeof text === "string" && text.trim() === "")
-      return attrsEmpty && textEmpty
+      return (!attrs || Object.keys(attrs).length === 0) && (!text || (typeof text === "string" && text.trim() === ""))
     }
   }
 
