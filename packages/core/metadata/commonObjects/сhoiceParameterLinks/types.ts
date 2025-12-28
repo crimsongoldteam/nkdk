@@ -1,5 +1,5 @@
 import * as SE from "~/metadata/systemEnumerations/types"
-import { MetadataFieldXML } from "../metadataField/types"
+import { MetadataValueXML } from "../metadataValue/types"
 
 //#region ChoiceParameterLink
 
@@ -16,7 +16,7 @@ export type ChoiceParameterLinks = ChoiceParameterLink[]
 
 export interface ChoiceParameterLinkXML {
   "xr:Name": string
-  "xr:DataPath": MetadataFieldXML | string
+  "xr:DataPath": MetadataValueXML
   "xr:ValueChange"?: SE.LinkedValueChangeMode
 }
 

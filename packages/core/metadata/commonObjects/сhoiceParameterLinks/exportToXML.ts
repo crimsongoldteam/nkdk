@@ -1,13 +1,13 @@
 import { Context } from "../../context/types"
+import { exportMetadataSimpleValueToXML } from "../metadataValue/exportToXML"
 import { ChoiceParameterLink, ChoiceParameterLinks, ChoiceParameterLinksXML, ChoiceParameterLinkXML } from "./types"
 
-export const exportChoiceParameterLinkToXML = (
-  _context: Context,
-  link: ChoiceParameterLink
-): ChoiceParameterLinkXML => {
+export const exportChoiceParameterLinkToXML = (context: Context, link: ChoiceParameterLink): ChoiceParameterLinkXML => {
+  const dataPath = exportMetadataSimpleValueToXML(context, link.dataPath, "string")!
+
   return {
+    "xr:DataPath": dataPath,
     "xr:Name": link.name,
-    "xr:DataPath": link.dataPath,
     "xr:ValueChange": link.valueChange,
   }
 }
