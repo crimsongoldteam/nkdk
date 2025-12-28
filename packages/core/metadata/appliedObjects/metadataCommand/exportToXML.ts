@@ -30,13 +30,13 @@ export const exportMetadataCommandToXML = (
       ModifiesData: mergedData.modifiesData,
       Name: mergedData.name,
       ObjectBelonging: mergedData.objectBelonging,
+      OnMainServerUnavalableBehavior: mergedData.onMainServerUnavalableBehavior,
       ParameterUseMode: mergedData.parameterUseMode,
       Picture: exportPictureToXML(context, mergedData.picture),
       Representation: mergedData.representation,
       Shortcut: mergedData.shortcut,
       Synonym: exportI8nTextToXML(context, mergedData.synonym),
       ToolTip: exportI8nTextToXML(context, mergedData.toolTip),
-      OnMainServerUnavalableBehavior: mergedData.onMainServerUnavalableBehavior,
     },
   }
 

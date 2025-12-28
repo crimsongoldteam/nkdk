@@ -4,7 +4,7 @@ import { withAttributesCatalog } from "~/tests/fixtures/metadataCatalog/withAttr
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportMetadataCatalogToXML } from "./exportToXML"
+import { exportMetadataCatalogToXML, MetadataCatalogContext } from "./exportToXML"
 import { importMetadataCatalogFromXML } from "./importFromXML"
 import { MetadataCatalogXML } from "./types"
 
@@ -12,13 +12,20 @@ vi.mock("uuid", () => ({
   v4: vi.fn(() => "8f93c5cf-a2f6-4d79-ab40-83f36042b478"),
 }))
 
+const mockMetadataCatalogContext: MetadataCatalogContext = {
+  ...mockСontext,
+  context: {
+    forms: [],
+  },
+}
+
 describe("exportMetadataCatalogToXML", () => {
   it("should export metadata catalog to XML", () => {
     const mock = simpleCatalog
 
     const expectedResult = readXMLFileAsString("metadataCatalog/simple.xml")
 
-    const xmlData = exportMetadataCatalogToXML(mockСontext, mock)
+    const xmlData = exportMetadataCatalogToXML(mockMetadataCatalogContext, mock)
 
     const result = xmlExport({ MetaDataObject: xmlData })
 
@@ -30,7 +37,26 @@ describe("exportMetadataCatalogToXML", () => {
 
     const expectedResult = readXMLFileAsString("metadataCatalog/withAttributes.xml")
 
-    const xmlData = exportMetadataCatalogToXML(mockСontext, mock)
+    const xmlData = exportMetadataCatalogToXML(mockMetadataCatalogContext, mock)
+
+    const result = xmlExport({ MetaDataObject: xmlData })
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export metadata catalog with forms to XML", () => {
+    const mock = simpleCatalog
+
+    const expectedResult = readXMLFileAsString("metadataCatalog/withForms.xml")
+
+    const context: MetadataCatalogContext = {
+      ...mockСontext,
+      context: {
+        forms: ["ФормаЭлемента", "ФормаСписка"],
+      },
+    }
+
+    const xmlData = exportMetadataCatalogToXML(context, mock)
 
     const result = xmlExport({ MetaDataObject: xmlData })
 
@@ -46,7 +72,7 @@ describe("importMetadataCatalogFromXML - exportMetadataCatalogToXML roundtrip", 
     const importedCatalog = importMetadataCatalogFromXML(mockСontext, xmlData.MetaDataObject)
     expect(importedCatalog).toBeDefined()
 
-    const exportedXMLData = exportMetadataCatalogToXML(mockСontext, importedCatalog!)
+    const exportedXMLData = exportMetadataCatalogToXML(mockMetadataCatalogContext, importedCatalog!)
     const exportedXML = xmlExport({ MetaDataObject: exportedXMLData })
 
     expect(exportedXML).toEqual(originalXML)
@@ -59,7 +85,7 @@ describe("importMetadataCatalogFromXML - exportMetadataCatalogToXML roundtrip", 
     const importedCatalog = importMetadataCatalogFromXML(mockСontext, xmlData.MetaDataObject)
     expect(importedCatalog).toBeDefined()
 
-    const exportedXMLData = exportMetadataCatalogToXML(mockСontext, importedCatalog!)
+    const exportedXMLData = exportMetadataCatalogToXML(mockMetadataCatalogContext, importedCatalog!)
     const exportedXML = xmlExport({ MetaDataObject: exportedXMLData })
 
     expect(exportedXML).toEqual(originalXML)

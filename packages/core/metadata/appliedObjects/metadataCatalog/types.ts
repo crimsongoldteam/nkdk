@@ -206,8 +206,9 @@ export interface MetadataCatalogXML {
     }
     ChildObjects?: {
       Attribute?: MetadataAttributesXML
-      TabularSection?: MetadataTabularSectionsXML
       Command?: MetadataCommandsXML
+      Form?: string[]
+      TabularSection?: MetadataTabularSectionsXML
     }
   }
 }

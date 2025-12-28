@@ -22,8 +22,14 @@ import { MetadataAttributesXML } from "../../commonObjects/metadataAttribute/typ
 import { MetadataCommandsXML } from "../metadataCommand/types"
 import { getDefaults } from "./defaults"
 
+export interface MetadataCatalogContext extends Context {
+  context: {
+    forms: string[]
+  }
+}
+
 export const exportMetadataCatalogToXML = (
-  context: Context,
+  context: MetadataCatalogContext,
   data: MetadataCatalog | undefined
 ): MetadataCatalogXML | undefined => {
   if (!data) return undefined
@@ -54,8 +60,10 @@ export const exportMetadataCatalogToXML = (
     tabularSections = exportMetadataTabularSectionsToXML(context, mergedData.tabularSections)
   }
 
+  const forms = getFormsFromContext(context as MetadataCatalogContext)
+
   let childObjects: MetadataCatalogXML["Catalog"]["ChildObjects"] | undefined
-  if (attributes || commands || tabularSections) {
+  if (attributes || commands || tabularSections || forms) {
     childObjects = {}
     if (attributes) {
       childObjects.Attribute = attributes
@@ -63,6 +71,11 @@ export const exportMetadataCatalogToXML = (
     if (commands) {
       childObjects.Command = commands
     }
+
+    if (forms) {
+      childObjects.Form = forms
+    }
+
     if (tabularSections) {
       childObjects.TabularSection = tabularSections
     }
@@ -154,4 +167,10 @@ export const exportMetadataCatalogToXML = (
   }
 
   return compactObject<MetadataCatalogXML>(result)
+}
+
+const getFormsFromContext = (context: MetadataCatalogContext): string[] | undefined => {
+  if (!context.context) throw new Error("Context is not defined")
+
+  return context.context.forms.length > 0 ? context.context.forms : undefined
 }
