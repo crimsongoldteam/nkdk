@@ -24,10 +24,6 @@ export const exportMetadataCommandToEnterprise = (
 
   const group = getGroup(context, data)
 
-  if (!group) {
-    return undefined
-  }
-
   let synonym = exportI8nTextToEnterprise(context, data.synonym)
 
   const excludeSynonym = isSynonymEqualToName(synonym, data.name)

@@ -52,7 +52,7 @@ export interface MetadataCommandXML {
 export type MetadataCommandGroupEnterprise = SE.StandardCommandsGroupEnterprise | MetadataItemLinkEnterprise
 
 export interface MetadataCommandFullEnterprise {
-  Группа: MetadataCommandGroupEnterprise
+  Группа?: MetadataCommandGroupEnterprise
   ИзменяетДанные?: StringboolEnterprise
   Картинка?: PictureEnterprise
   Комментарий?: string
