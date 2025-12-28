@@ -8,8 +8,14 @@ export const exportTypeDescriptionToXML = (
 ): TypeDescriptionXML | undefined => {
   if (!typeDescription) return undefined
 
+  const hasStringType = typeDescription.type.includes("string")
+  const stringQualifiers =
+    hasStringType && !typeDescription.stringQualifiers
+      ? { allowedLength: "Variable" as const, length: 0 }
+      : typeDescription.stringQualifiers
+
   const result = compactObject<TypeDescriptionXML>({
-    "v8:StringQualifiers": getStringQualifiers(typeDescription.stringQualifiers),
+    "v8:StringQualifiers": getStringQualifiers(stringQualifiers),
     "v8:NumberQualifiers": getNumberQualifiers(typeDescription.numberQualifiers),
     "v8:DateQualifiers": getDateQualifiers(typeDescription.dateQualifiers),
     "v8:Type": typeDescription.type.map((type) => mapType(type)),

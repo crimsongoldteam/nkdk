@@ -23,6 +23,19 @@ describe("exportTypeDescriptionToXML", () => {
     expect(xmlString).toEqual(expectedXml)
   })
 
+  it("should export unlimited string type to XML", () => {
+    const mockTypeDescription: TypeDescription = {
+      type: ["string"],
+    }
+
+    const expectedXml = readXMLFileAsString("typeDescription/stringUnlimited.xml")
+
+    const result = exportTypeDescriptionToXML(mockСontext, mockTypeDescription)
+    const xmlString = xmlExport({ TypeDescription: result }, false)
+
+    expect(xmlString).toEqual(expectedXml)
+  })
+
   it("should export number type to XML", () => {
     const mockTypeDescription: TypeDescription = {
       type: ["decimal"],
