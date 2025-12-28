@@ -1,6 +1,6 @@
 import { MetadataAttributes } from "~/metadata/commonObjects/metadataAttribute/types"
 
-export const singleAttribute: MetadataAttributes = [
+export const singleAttributes: MetadataAttributes = [
   {
     name: "РеквизитОбъекта",
     synonym: { items: { ru: "Реквизит какого-то объекта" } },

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { multipleAttributes } from "~/tests/fixtures/metadataAttribute/multiple"
-import { singleAttribute } from "~/tests/fixtures/metadataAttribute/single"
+import { singleAttributes } from "~/tests/fixtures/metadataAttribute/single"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importMetadataAttributesFromXML } from "./importFromXML"
@@ -9,7 +9,7 @@ import { MetadataAttributeXML } from "./types"
 describe("importMetadataAttributeFromXML", () => {
   it("should import single attribute from XML", () => {
     const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML }>("metadataAttribute/single.xml")
-    const expectedResult = singleAttribute
+    const expectedResult = singleAttributes
 
     const result = importMetadataAttributesFromXML(mockСontext, xmlData.Attribute)
 

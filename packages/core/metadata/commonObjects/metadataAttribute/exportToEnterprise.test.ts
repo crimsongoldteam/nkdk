@@ -4,9 +4,11 @@ import {
   fullMetadataAttributeEnterprise,
   shortMetadataAttributeEnterprise,
   shortMetadataAttributeWithSynonym,
+  singleAttributesEnterprise,
 } from "~/tests/fixtures/metadataAttribute/enterprise"
 import { mockСontext } from "~/tests/mockContext"
-import { exportMetadataAttributeToEnterprise } from "./exportToEnterprise"
+import { singleAttributes } from "../../../tests/fixtures/metadataAttribute/single"
+import { exportMetadataAttributesToEnterprise, exportMetadataAttributeToEnterprise } from "./exportToEnterprise"
 
 describe("exportMetadataAttributeToEnterprise", () => {
   it("should export metadata attribute to enterprise", () => {
@@ -25,6 +27,14 @@ describe("exportMetadataAttributeToEnterprise", () => {
     const expectedResult = shortMetadataAttributeEnterprise
 
     const result = exportMetadataAttributeToEnterprise(mockСontext, metadataAttribute)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export metadata attribute to enterprise with single format", () => {
+    const expectedResult = singleAttributesEnterprise
+
+    const result = exportMetadataAttributesToEnterprise(mockСontext, singleAttributes)
 
     expect(result).toEqual(expectedResult)
   })

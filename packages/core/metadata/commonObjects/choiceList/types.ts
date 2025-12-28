@@ -13,7 +13,7 @@ export type ChoiceParameterItems = ChoiceParameter[]
 //#region ChoiceParameterXML
 
 export interface ChoiceParameterXML {
-  "app:item: string
+  "app:item": string
   "xr:Value": MetadataValueXML
 }
 
@@ -23,7 +23,6 @@ export interface ChoiceParameterItemsXML {
 }
 
 export type ChoiceParametersEnterprise = string
-
 
 // <ChoiceParameters>
 // 	<app:item name="Отбор.ТипСчета">
