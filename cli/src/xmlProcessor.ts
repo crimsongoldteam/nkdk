@@ -123,6 +123,29 @@ function processObject(obj: any): any {
   for (const key of sortedKeys) {
     const originalValue = obj[key]
 
+    // Специальная обработка для FillValue: исключаем элементы без значения
+    if (key === "FillValue" || key === "xr:FillValue") {
+      // Если это объект, проверяем наличие текстового содержимого
+      if (typeof originalValue === "object" && originalValue !== null) {
+        const hasText =
+          originalValue["#text"] !== undefined &&
+          originalValue["#text"] !== null &&
+          (typeof originalValue["#text"] !== "string" || originalValue["#text"].trim() !== "")
+        // Если нет текстового содержимого, пропускаем элемент
+        if (!hasText) {
+          continue
+        }
+      }
+      // Если это примитив (строка), проверяем, что она не пустая
+      if (typeof originalValue === "string" && originalValue.trim() === "") {
+        continue
+      }
+      // Если это null или undefined, пропускаем
+      if (originalValue === null || originalValue === undefined) {
+        continue
+      }
+    }
+
     // Заменяем UUID в полях TypeId/ValueId (создаем новое значение)
     const valueWithReplacedUuid = replaceUuidInValue(key, originalValue)
 

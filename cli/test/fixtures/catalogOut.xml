@@ -169,7 +169,6 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:type="xs:string"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
