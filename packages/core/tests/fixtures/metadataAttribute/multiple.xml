@@ -16,8 +16,8 @@
 		<QuickChoice>Auto</QuickChoice>
 		<Synonym>
 			<v8:item>
-				<v8:lang>ru</v8:lang>
 				<v8:content>Реквизит какого-то объекта 1</v8:content>
+				<v8:lang>ru</v8:lang>
 			</v8:item>
 		</Synonym>
 		<Type>
@@ -44,8 +44,8 @@
 		<QuickChoice>Auto</QuickChoice>
 		<Synonym>
 			<v8:item>
-				<v8:lang>ru</v8:lang>
 				<v8:content>Реквизит какого-то объекта 2</v8:content>
+				<v8:lang>ru</v8:lang>
 			</v8:item>
 		</Synonym>
 		<Type>
