@@ -15,8 +15,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ДатаНачала</Name>
 					<PasswordMode>false</PasswordMode>
@@ -55,8 +53,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ДатаОкончания</Name>
 					<PasswordMode>false</PasswordMode>
@@ -100,8 +96,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>Контрагент</Name>
 					<PasswordMode>false</PasswordMode>
@@ -144,8 +138,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>Договор</Name>
 					<PasswordMode>false</PasswordMode>
@@ -181,8 +173,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>Комментарий</Name>
 					<PasswordMode>false</PasswordMode>
@@ -218,12 +208,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>Недействителен</Name>
 					<PasswordMode>false</PasswordMode>
@@ -262,8 +249,6 @@
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
-							<MaxValue xsi:nil="true"/>
-							<MinValue xsi:nil="true"/>
 							<MultiLine>false</MultiLine>
 							<Name>Свойство</Name>
 							<PasswordMode>false</PasswordMode>
@@ -303,8 +288,6 @@
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
-							<MaxValue xsi:nil="true"/>
-							<MinValue xsi:nil="true"/>
 							<MultiLine>false</MultiLine>
 							<Name>Значение</Name>
 							<PasswordMode>false</PasswordMode>
@@ -337,8 +320,6 @@
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
-							<MaxValue xsi:nil="true"/>
-							<MinValue xsi:nil="true"/>
 							<MultiLine>false</MultiLine>
 							<Name>ТекстоваяСтрока</Name>
 							<PasswordMode>false</PasswordMode>
@@ -390,8 +371,6 @@
 							<xr:FillValue xsi:type="xs:decimal">0</xr:FillValue>
 							<xr:FullTextSearch>Use</xr:FullTextSearch>
 							<xr:MarkNegatives>false</xr:MarkNegatives>
-							<xr:MaxValue xsi:nil="true"/>
-							<xr:MinValue xsi:nil="true"/>
 							<xr:MultiLine>false</xr:MultiLine>
 							<xr:PasswordMode>false</xr:PasswordMode>
 							<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -525,11 +504,8 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>DontCheck</xr:FillChecking>
 					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FillValue xsi:nil="true"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -542,11 +518,8 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>DontCheck</xr:FillChecking>
 					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FillValue xsi:nil="true"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -571,11 +544,8 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>DontCheck</xr:FillChecking>
 					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FillValue xsi:nil="true"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -600,11 +570,8 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>DontCheck</xr:FillChecking>
 					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FillValue xsi:nil="true"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -629,11 +596,8 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>DontCheck</xr:FillChecking>
 					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FillValue xsi:nil="true"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -658,11 +622,8 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>ShowError</xr:FillChecking>
 					<xr:FillFromFillingValue>true</xr:FillFromFillingValue>
-					<xr:FillValue xsi:nil="true"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -690,8 +651,6 @@
 					<xr:FillValue xsi:type="xr:DesignTimeRef">Catalog.Проекты.EmptyRef</xr:FillValue>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -716,11 +675,8 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>ShowError</xr:FillChecking>
 					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FillValue xsi:nil="true"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -745,11 +701,8 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>DontCheck</xr:FillChecking>
 					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FillValue xsi:nil="true"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>

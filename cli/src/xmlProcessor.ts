@@ -209,6 +209,21 @@ function isEmptyNode(value: any): boolean {
 
   if (typeof value === "object") {
     const keys = Object.keys(value)
+
+    // Проверяем наличие атрибута xsi:nil="true"
+    if (value["@attributes"]) {
+      const attrs = value["@attributes"]
+      // Проверяем все ключи атрибутов, которые могут содержать "nil"
+      for (const attrKey of Object.keys(attrs)) {
+        if (attrKey.endsWith(":nil") || attrKey === "nil") {
+          const nilValue = attrs[attrKey]
+          if (nilValue === "true" || nilValue === true) {
+            return true
+          }
+        }
+      }
+    }
+
     // Если есть только атрибуты, но они пустые, или нет вообще свойств
     if (keys.length === 0) {
       return true
