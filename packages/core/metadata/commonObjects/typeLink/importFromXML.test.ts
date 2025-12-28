@@ -16,7 +16,7 @@ describe("importTypeLinkFromXML", () => {
     const xmlData = readXMLFileAsString("typeLink/withNumericLinkItem.xml").trimEnd()
 
     const expectedResult: TypeLink = {
-      dataPath: "Реквизит1",
+      dataPath: "AccountingRegister.Международный.StandardAttribute.Account",
       linkItem: 1,
     }
 

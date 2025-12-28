@@ -7,7 +7,7 @@
 		<ExtendedEdit>false</ExtendedEdit>
 		<FillChecking>DontCheck</FillChecking>
 		<FillFromFillingValue>false</FillFromFillingValue>
-		<FillingValue xsi:type="xr:DesignTimeRef">Enum.ТипыНоменклатуры.EnumValue.Товар</FillingValue>
+		<FillValue xsi:type="xr:DesignTimeRef">Enum.ТипыНоменклатуры.EnumValue.Товар</FillValue>
 		<FullTextSearch>Use</FullTextSearch>
 		<Indexing>DontIndex</Indexing>
 		<MarkNegatives>false</MarkNegatives>
