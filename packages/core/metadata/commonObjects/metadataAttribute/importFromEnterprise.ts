@@ -1,4 +1,4 @@
-import { parseBoolean } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import {
   MetadataAttribute,
   MetadataAttributeEnterprise,
@@ -53,8 +53,8 @@ export const importMetadataAttributeFromEnterprise = (
       data.ВыборГруппИЭлементов,
       SE.FoldersAndItemsUseFromEnterprise
     ),
-    markNegatives: parseBoolean(data.ВыделятьОтрицательные, context),
-    fillFromFillingValue: parseBoolean(data.ЗаполнятьИзДанныхЗаполнения, context),
+    markNegatives: importBooleanFromEnterprise(data.ВыделятьОтрицательные, context),
+    fillFromFillingValue: importBooleanFromEnterprise(data.ЗаполнятьИзДанныхЗаполнения, context),
     fillingValue: importMetadataValueFromEnterprise(context, data.ЗначениеЗаполнения),
     indexing: importSystemEnumerationFromEnterprise(context, data.Индексирование, SE.IndexingFromEnterprise),
     use: importSystemEnumerationFromEnterprise(context, data.Использование, SE.AttributeUseFromEnterprise),
@@ -73,10 +73,13 @@ export const importMetadataAttributeFromEnterprise = (
     maxValue: data.МаксимальноеЗначение,
     mask: data.Маска,
     minValue: data.МинимальноеЗначение,
-    multiLine: parseBoolean(data.МногострочныйРежим, context),
+    multiLine: importBooleanFromEnterprise(data.МногострочныйРежим, context),
     choiceParameters: importChoiceParametersFromEnterprise(context, data.ПараметрыВыбора),
     toolTip: importI8nTextFromEnterprise(context, data.Подсказка),
-    binaryDataStorageLocationUseField: parseBoolean(data.ПолеИспользованияХраненияВХранилищеДвоичныхДанных, context),
+    binaryDataStorageLocationUseField: importBooleanFromEnterprise(
+      data.ПолеИспользованияХраненияВХранилищеДвоичныхДанных,
+      context
+    ),
     fullTextSearch: importSystemEnumerationFromEnterprise(
       context,
       data.ПолнотекстовыйПоиск,
@@ -92,8 +95,8 @@ export const importMetadataAttributeFromEnterprise = (
       data.ПроверкаЗаполнения,
       SE.FillCheckingFromEnterprise
     ),
-    extendedEdit: parseBoolean(data.РасширенноеРедактирование, context),
-    passwordMode: parseBoolean(data.РежимПароля, context),
+    extendedEdit: importBooleanFromEnterprise(data.РасширенноеРедактирование, context),
+    passwordMode: importBooleanFromEnterprise(data.РежимПароля, context),
     choiceParameterLinks: importChoiceParameterLinksFromEnterprise(context, data.СвязиПараметровВыбора),
     linkByType: importTypeLinkFromEnterprise(context, data.СвязьПоТипу),
     createOnInput: importSystemEnumerationFromEnterprise(

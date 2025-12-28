@@ -1,5 +1,5 @@
 import { parse } from "yaml"
-import { parseBoolean } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { parseI8nText } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { parseUserVisible } from "~/metadata/commonObjects/userVisible/parse"
@@ -29,12 +29,12 @@ export const parseAttributes = (yamlContent: string, context: Context): FormAttr
 
       // Обработка ОсновнойАтрибут
       if ("ОсновнойАтрибут" in data) {
-        attribute.mainAttribute = parseBoolean(data.ОсновнойАтрибут, context)
+        attribute.mainAttribute = importBooleanFromEnterprise(data.ОсновнойАтрибут, context)
       }
 
       // Обработка СохраняемыеДанные
       if ("СохраняемыеДанные" in data) {
-        attribute.storedData = parseBoolean(data.СохраняемыеДанные, context)
+        attribute.storedData = importBooleanFromEnterprise(data.СохраняемыеДанные, context)
       }
 
       if ("РазрешитьИспользование" in data || "ЗапретитьИспользование" in data) {

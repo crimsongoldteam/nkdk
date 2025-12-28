@@ -1,7 +1,7 @@
 import { Context } from "../../context/types"
 import { PredefinedNameFromEnterprise } from "../standardAttributeDescription/types"
 import { AppliedTypeFromEnterprise } from "../typeDescription/types"
-import { MetadataField, MetadataFieldEnterprise } from "./types"
+import { MetadataField, MetadataFieldEnterprise, MetadataFields, MetadataFieldsEnterprise } from "./types"
 
 const FieldsMapFromEnterprise = {
   Реквизит: "Attribute",
@@ -59,4 +59,13 @@ export const importMetadataFieldFromEnterprise = (
   }
 
   return result.join(".")
+}
+
+export const importMetadataFieldsFromEnterprise = (
+  context: Context,
+  data: MetadataFieldsEnterprise | undefined
+): MetadataFields | undefined => {
+  if (!data) return undefined
+
+  return data.map((item) => importMetadataFieldFromEnterprise(context, item)!)
 }

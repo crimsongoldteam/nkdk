@@ -1,22 +1,22 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
-import { parseBoolean } from "./importFromEnterprise"
+import { importBooleanFromEnterprise } from "./importFromEnterprise"
 
-describe("parseBoolean", () => {
+describe("importBooleanFromEnterprise", () => {
   it("should return undefined when value is undefined", () => {
-    const result = parseBoolean(undefined, mockСontext)
+    const result = importBooleanFromEnterprise(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should return true when value is 'Истина'", () => {
-    const result = parseBoolean("Истина", mockСontext)
+    const result = importBooleanFromEnterprise(mockСontext, "Истина")
 
     expect(result).toBe(true)
   })
 
   it("should return false when value is 'Ложь'", () => {
-    const result = parseBoolean("Ложь", mockСontext)
+    const result = importBooleanFromEnterprise(mockСontext, "Ложь")
 
     expect(result).toBe(false)
   })

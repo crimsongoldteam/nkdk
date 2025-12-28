@@ -39,7 +39,7 @@ export interface CharacteristicsDescriptionXML {
 export interface CharacteristicsDescriptionEnterprise {
   ВидыХарактеристик?: MetadataItemLinkEnterprise
   ЗначениеОтбораВидов?: MetadataValueEnterprise
-  ЗначенияХарактеристик?: MetadataValueEnterprise
+  ЗначенияХарактеристик?: MetadataItemLinkEnterprise
   ПолеВида?: MetadataFieldEnterprise
   ПолеЗначения?: MetadataFieldEnterprise
   ПолеИспользованияМножественныхЗначений?: MetadataFieldEnterprise

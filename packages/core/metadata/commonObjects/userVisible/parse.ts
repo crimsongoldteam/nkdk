@@ -1,4 +1,4 @@
-import { parseBoolean } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Context } from "../../context/types"
 import { type UserVisible } from "./types"
@@ -16,7 +16,7 @@ export const parseUserVisible = (
 
   const values = Object.entries(value).map(([key, val]) => {
     const name = key.replace(/^Role\./, "")
-    const parsedValue = parseBoolean(val, context)!
+    const parsedValue = importBooleanFromEnterprise(val, context)!
     return {
       name,
       value: parsedValue,

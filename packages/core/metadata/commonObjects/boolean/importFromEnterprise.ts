@@ -1,7 +1,10 @@
 import { Context } from "../../context/types"
 import { StringboolEnterprise } from "./types"
 
-export const parseBoolean = (value: StringboolEnterprise | undefined, _context: Context): boolean | undefined => {
+export const importBooleanFromEnterprise = (
+  _context: Context,
+  value: StringboolEnterprise | undefined
+): boolean | undefined => {
   if (value === undefined) return undefined
   return value === "Истина"
 }

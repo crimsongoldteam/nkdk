@@ -1,4 +1,4 @@
-import { parseBoolean } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importMetadataValueFromEnterprise } from "~/metadata/commonObjects/metadataValue/importFromEnterprise"
 import {
@@ -27,8 +27,8 @@ export const importStandardAttributeDescriptionFromEnterprise = (
   const result: StandardAttributeDescription = {
     name: PredefinedNameFromEnterprise(name) as any,
     quickChoice: importSystemEnumerationFromEnterprise(context, data.БыстрыйВыбор, SE.UseQuickChoiceFromEnterprise),
-    markNegatives: parseBoolean(data.ВыделятьОтрицательные, context),
-    fillFromFillingValue: parseBoolean(data.ЗаполнятьИзДанныхЗаполнения, context),
+    markNegatives: importBooleanFromEnterprise(data.ВыделятьОтрицательные, context),
+    fillFromFillingValue: importBooleanFromEnterprise(data.ЗаполнятьИзДанныхЗаполнения, context),
     fillValue: importMetadataValueFromEnterprise(context, data.ЗначениеЗаполнения),
     choiceHistoryOnInput: importSystemEnumerationFromEnterprise(
       context,
@@ -40,7 +40,7 @@ export const importStandardAttributeDescriptionFromEnterprise = (
     maxValue: data.МаксимальноеЗначение,
     mask: data.Маска,
     minValue: data.МинимальноеЗначение,
-    multiLine: parseBoolean(data.МногострочныйРежим, context),
+    multiLine: importBooleanFromEnterprise(data.МногострочныйРежим, context),
     choiceParameters: importChoiceParameterLinksFromEnterprise(context, data.ПараметрыВыбора),
     toolTip: importI8nTextFromEnterprise(context, data.Подсказка),
     fullTextSearch: importSystemEnumerationFromEnterprise(
@@ -53,8 +53,8 @@ export const importStandardAttributeDescriptionFromEnterprise = (
       data.ПроверкаЗаполнения,
       SE.FillCheckingFromEnterprise
     ),
-    extendedEdit: parseBoolean(data.РасширенноеРедактирование, context),
-    passwordMode: parseBoolean(data.РежимПароля, context),
+    extendedEdit: importBooleanFromEnterprise(data.РасширенноеРедактирование, context),
+    passwordMode: importBooleanFromEnterprise(data.РежимПароля, context),
     typeReductionMode: importSystemEnumerationFromEnterprise(
       context,
       data.РежимСокращенияТипа,
