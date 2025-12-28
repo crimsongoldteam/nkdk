@@ -109,9 +109,9 @@ export interface MetadataAttributeFullEnterprise {
   ИсторияВыбораПриВводе?: SE.ChoiceHistoryOnInputEnterprise
   ИсторияДанных?: SE.DataHistoryUseEnterprise
   Комментарий?: string
-  МаксимальноеЗначение?: MetadataValueEnterprise
+  МаксимальноеЗначение?: number
   Маска?: string
-  МинимальноеЗначение?: MetadataValueEnterprise
+  МинимальноеЗначение?: number
   МногострочныйРежим?: StringboolEnterprise
   ПараметрыВыбора?: ChoiceParametersEnterprise
   Подсказка?: I8nTextEnterprise

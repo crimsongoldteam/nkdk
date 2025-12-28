@@ -53,8 +53,8 @@ export const importMetadataAttributeFromEnterprise = (
       data.ВыборГруппИЭлементов,
       SE.FoldersAndItemsUseFromEnterprise
     ),
-    markNegatives: importBooleanFromEnterprise(data.ВыделятьОтрицательные, context),
-    fillFromFillingValue: importBooleanFromEnterprise(data.ЗаполнятьИзДанныхЗаполнения, context),
+    markNegatives: importBooleanFromEnterprise(context, data.ВыделятьОтрицательные),
+    fillFromFillingValue: importBooleanFromEnterprise(context, data.ЗаполнятьИзДанныхЗаполнения),
     fillingValue: importMetadataValueFromEnterprise(context, data.ЗначениеЗаполнения),
     indexing: importSystemEnumerationFromEnterprise(context, data.Индексирование, SE.IndexingFromEnterprise),
     use: importSystemEnumerationFromEnterprise(context, data.Использование, SE.AttributeUseFromEnterprise),
@@ -73,12 +73,12 @@ export const importMetadataAttributeFromEnterprise = (
     maxValue: data.МаксимальноеЗначение,
     mask: data.Маска,
     minValue: data.МинимальноеЗначение,
-    multiLine: importBooleanFromEnterprise(data.МногострочныйРежим, context),
+    multiLine: importBooleanFromEnterprise(context, data.МногострочныйРежим),
     choiceParameters: importChoiceParametersFromEnterprise(context, data.ПараметрыВыбора),
     toolTip: importI8nTextFromEnterprise(context, data.Подсказка),
     binaryDataStorageLocationUseField: importBooleanFromEnterprise(
-      data.ПолеИспользованияХраненияВХранилищеДвоичныхДанных,
-      context
+      context,
+      data.ПолеИспользованияХраненияВХранилищеДвоичныхДанных
     ),
     fullTextSearch: importSystemEnumerationFromEnterprise(
       context,
@@ -95,8 +95,8 @@ export const importMetadataAttributeFromEnterprise = (
       data.ПроверкаЗаполнения,
       SE.FillCheckingFromEnterprise
     ),
-    extendedEdit: importBooleanFromEnterprise(data.РасширенноеРедактирование, context),
-    passwordMode: importBooleanFromEnterprise(data.РежимПароля, context),
+    extendedEdit: importBooleanFromEnterprise(context, data.РасширенноеРедактирование),
+    passwordMode: importBooleanFromEnterprise(context, data.РежимПароля),
     choiceParameterLinks: importChoiceParameterLinksFromEnterprise(context, data.СвязиПараметровВыбора),
     linkByType: importTypeLinkFromEnterprise(context, data.СвязьПоТипу),
     createOnInput: importSystemEnumerationFromEnterprise(
