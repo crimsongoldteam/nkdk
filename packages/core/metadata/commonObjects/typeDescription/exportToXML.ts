@@ -1,4 +1,5 @@
 import { Context } from "../../context/types"
+import { compactObject } from "../../helpers/compactObject"
 import { TypeDescription, TypeDescriptionXML } from "./types"
 
 export const exportTypeDescriptionToXML = (
@@ -7,12 +8,12 @@ export const exportTypeDescriptionToXML = (
 ): TypeDescriptionXML | undefined => {
   if (!typeDescription) return undefined
 
-  const result: TypeDescriptionXML = {
-    "v8:Type": typeDescription.type.map((type) => mapType(type)),
+  const result = compactObject<TypeDescriptionXML>({
     "v8:StringQualifiers": getStringQualifiers(typeDescription.stringQualifiers),
     "v8:NumberQualifiers": getNumberQualifiers(typeDescription.numberQualifiers),
     "v8:DateQualifiers": getDateQualifiers(typeDescription.dateQualifiers),
-  }
+    "v8:Type": typeDescription.type.map((type) => mapType(type)),
+  })
 
   return result
 }
@@ -41,8 +42,8 @@ const getStringQualifiers = (
 ): TypeDescriptionXML["v8:StringQualifiers"] | undefined => {
   if (!stringQualifiers) return undefined
   return {
-    "v8:Length": stringQualifiers.length,
     "v8:AllowedLength": stringQualifiers.allowedLength,
+    "v8:Length": stringQualifiers.length,
   }
 }
 
@@ -51,9 +52,9 @@ const getNumberQualifiers = (
 ): TypeDescriptionXML["v8:NumberQualifiers"] | undefined => {
   if (!numberQualifiers) return undefined
   return {
+    "v8:AllowedSign": numberQualifiers.allowedSign,
     "v8:Digits": numberQualifiers.digits,
     "v8:FractionDigits": numberQualifiers.fractionDigits,
-    "v8:AllowedSign": numberQualifiers.allowedSign,
   }
 }
 
