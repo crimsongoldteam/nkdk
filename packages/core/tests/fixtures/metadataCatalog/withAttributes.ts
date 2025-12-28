@@ -13,3 +13,27 @@ export const withAttributesCatalog: MetadataCatalog = {
     },
   ],
 }
+
+export const withCommands: MetadataCatalog = {
+  name: "Контрагенты",
+  synonym: { items: { ru: "Контрагенты" } },
+  commands: [
+    {
+      group: "ActionsPanelCreate",
+      name: "Команда1",
+      synonym: {
+        items: {
+          ru: "Команда 1",
+        },
+      },
+    },
+    {
+      name: "Команда2",
+      synonym: {
+        items: {
+          ru: "Команда 2",
+        },
+      },
+    } as any,
+  ],
+}

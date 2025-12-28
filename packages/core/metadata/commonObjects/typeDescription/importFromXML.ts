@@ -1,4 +1,5 @@
 import { Context } from "../../context/types"
+import { compactObject } from "../../helpers/compactObject"
 import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
 
 const TypePrefixes = ["xs:", "cfg:", "mxl:"]
@@ -18,7 +19,31 @@ export const importTypeDescriptionFromXML = (
     dateQualifiers: getDateQualifiers(xml["v8:DateQualifiers"]),
   }
 
-  return result
+  // Удаляем дефолтные квалификаторы
+  const cleanedResult = { ...result }
+
+  // Удаляем stringQualifiers, если они равны дефолтным значениям
+  if (
+    cleanedResult.stringQualifiers &&
+    cleanedResult.stringQualifiers.length === 0 &&
+    cleanedResult.stringQualifiers.allowedLength === "Variable"
+  ) {
+    cleanedResult.stringQualifiers = undefined
+  }
+
+  // Удаляем numberQualifiers, если они равны дефолтным значениям
+  if (
+    cleanedResult.numberQualifiers &&
+    cleanedResult.numberQualifiers.digits === 0 &&
+    cleanedResult.numberQualifiers.fractionDigits === 0 &&
+    cleanedResult.numberQualifiers.allowedSign === undefined
+  ) {
+    cleanedResult.numberQualifiers = undefined
+  }
+
+  // Не удаляем dateQualifiers, так как они нужны для различения типов дат
+
+  return compactObject(cleanedResult)
 }
 
 export const extractTypes = (item: TypeDescriptionXML): string[] => {

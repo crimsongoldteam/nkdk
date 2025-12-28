@@ -20,6 +20,18 @@ describe("importTypeDescriptionFromXML", () => {
     expect(result).toEqual(mockResult)
   })
 
+  it("should import unlimited string type from XML", () => {
+    const xmlData = readAndParseXMLFile<{ TypeDescription?: TypeDescriptionXML }>("typeDescription/stringUnlimited.xml")
+
+    const mockResult: TypeDescription = {
+      type: ["string"],
+    }
+
+    const result = importTypeDescriptionFromXML(mockСontext, xmlData.TypeDescription)
+
+    expect(result).toEqual(mockResult)
+  })
+
   it("should import number type from XML", () => {
     const xmlData = readAndParseXMLFile<{ TypeDescription?: TypeDescriptionXML }>("typeDescription/numberType.xml")
 
