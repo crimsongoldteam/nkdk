@@ -23,7 +23,6 @@ export const importMetadataCommandFromEnterprise = (
 ): MetadataCommand | undefined => {
   if (!data) return undefined
 
-  // Если data - строка, это короткий формат (только группа)
   if (typeof data === "string") {
     let group: SE.StandardCommandsGroup | string
     if (data in SE.StandardCommandsGroupFromEnterprise) {
@@ -38,7 +37,6 @@ export const importMetadataCommandFromEnterprise = (
     }
   }
 
-  // Полный формат - объект
   const fullData = data as MetadataCommandFullEnterprise
 
   let group: SE.StandardCommandsGroup | string
@@ -53,7 +51,7 @@ export const importMetadataCommandFromEnterprise = (
     group: group as SE.StandardCommandsGroup | string,
     commandParameterType: importTypeDescriptionFromEnterprise(context, fullData.ТипПараметраКоманды),
     comment: fullData.Комментарий,
-    modifiesData: importBooleanFromEnterprise(fullData.ИзменяетДанные, context),
+    modifiesData: importBooleanFromEnterprise(context, fullData.ИзменяетДанные),
     objectBelonging: importSystemEnumerationFromEnterprise(
       context,
       fullData.ПринадлежностьОбъекта,
@@ -103,4 +101,3 @@ export const importMetadataCommandsFromEnterprise = (
 
   return result
 }
-

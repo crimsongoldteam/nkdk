@@ -19,7 +19,6 @@ describe("importMetadataTabularSectionFromXML", () => {
           synonym: { items: { ru: "Имя Фамилия" } },
           type: {
             type: ["string"],
-            stringQualifiers: { allowedLength: "Variable", length: 0 },
           },
           fullTextSearch: "DontUse",
         },
@@ -43,7 +42,6 @@ describe("importMetadataTabularSectionFromXML", () => {
           synonym: { items: { ru: "Имя Фамилия" } },
           type: {
             type: ["string"],
-            stringQualifiers: { allowedLength: "Variable", length: 0 },
           },
           fullTextSearch: "DontUse",
         },

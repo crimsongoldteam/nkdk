@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
+import { twoCommands, twoCommandsEnterprise } from "~/tests/fixtures/metadataCommand/fixtures"
 import { mockСontext } from "~/tests/mockContext"
-import { exportMetadataCommandToEnterprise } from "./exportToEnterprise"
+import { exportMetadataCommandsToEnterprise, exportMetadataCommandToEnterprise } from "./exportToEnterprise"
 import { MetadataCommand, MetadataCommandEnterprise } from "./types"
 
 describe("exportMetadataCommandToEnterprise", () => {
@@ -56,5 +57,11 @@ describe("exportMetadataCommandToEnterprise", () => {
     const result = exportMetadataCommandToEnterprise(mockСontext, metadataCommand)
 
     expect(result).toEqual(expectedResult)
+  })
+
+  it("should export two commands to enterprise", () => {
+    const result = exportMetadataCommandsToEnterprise(mockСontext, twoCommands)
+
+    expect(result).toEqual(twoCommandsEnterprise)
   })
 })
