@@ -11,6 +11,7 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
+					<FillValue xsi:type="xr:DesignTimeRef"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
@@ -53,6 +54,7 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
+					<FillValue xsi:type="xs:string"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>Index</Indexing>
 					<MarkNegatives>false</MarkNegatives>
@@ -561,6 +563,7 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
+					<FillValue xsi:type="xs:string"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
@@ -1057,6 +1060,7 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
+					<FillValue xsi:type="xs:string"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>IndexWithAdditionalOrder</Indexing>
 					<MarkNegatives>false</MarkNegatives>
@@ -1318,6 +1322,10 @@
 						</v8:item>
 					</Synonym>
 					<Type>
+						<v8:StringQualifiers>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+							<v8:Length>0</v8:Length>
+						</v8:StringQualifiers>
 						<v8:Type>xs:string</v8:Type>
 					</Type>
 					<Use>ForItem</Use>
@@ -2349,6 +2357,7 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
+					<FillValue xsi:type="xr:DesignTimeRef"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
@@ -3273,7 +3282,7 @@
 						</v8:item>
 					</Synonym>
 					<Type>
-						<v8:Type>cfg:ОпределяемыйТип.GTIN</v8:Type>
+						<v8:TypeSet>cfg:DefinedType.GTIN</v8:TypeSet>
 					</Type>
 					<Use>ForItem</Use>
 				</Properties>
@@ -3531,6 +3540,7 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
+					<FillValue xsi:type="xs:string"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
@@ -3567,6 +3577,7 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
+					<FillValue xsi:type="xs:string"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
@@ -3909,6 +3920,7 @@
 					<Group>ActionsPanelCreate</Group>
 					<ModifiesData>false</ModifiesData>
 					<Name>НовыйЭлемент</Name>
+					<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
 					<ParameterUseMode>Single</ParameterUseMode>
 					<Representation>Auto</Representation>
 					<Synonym>
@@ -3921,33 +3933,45 @@
 							<v8:lang>en</v8:lang>
 						</v8:item>
 					</Synonym>
-					<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
 				</Properties>
 			</Command>
-			<TabularSection uuid="11111111-1111-4111-8111-111111111111">
-				<InternalInfo>
-					<xr:GeneratedType name="CatalogTabularSection.undefined.ДополнительныеРеквизиты" category="TabularSection">
-						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
-						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
-					</xr:GeneratedType>
-					<xr:GeneratedType name="CatalogTabularSectionRow.undefined.ДополнительныеРеквизиты" category="TabularSectionRow">
-						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
-						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
-					</xr:GeneratedType>
-				</InternalInfo>
+			<Command uuid="11111111-1111-4111-8111-111111111111">
 				<Properties>
-					<Name>ДополнительныеРеквизиты</Name>
+					<Group>NavigationPanelOrdinary</Group>
+					<ModifiesData>false</ModifiesData>
+					<Name>Номенклатура</Name>
+					<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
+					<ParameterUseMode>Single</ParameterUseMode>
+					<Representation>Auto</Representation>
 					<Synonym>
 						<v8:item>
-							<v8:content>Дополнительные реквизиты</v8:content>
+							<v8:content>Номенклатура</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 						<v8:item>
-							<v8:content>Additional attributes</v8:content>
+							<v8:content>Items</v8:content>
 							<v8:lang>en</v8:lang>
 						</v8:item>
 					</Synonym>
 				</Properties>
+			</Command>
+			<Form>ФормаЭлемента</Form>
+			<Form>ФормаГруппы</Form>
+			<Form>ФормаСписка</Form>
+			<Form>ФормаВыбора</Form>
+			<Form>ФормаВыбораГруппы</Form>
+			<Form>ФормаВыбораГруппИЭлементов</Form>
+			<Form>ФормаВыбораНекачественнойНоменклатуры</Form>
+			<Form>ИсторияЦенНоменклатуры</Form>
+			<Form>НастройкаВариантаПоиска</Form>
+			<Form>СовместныеПродажи</Form>
+			<Form>РазблокированиеРеквизитов</Form>
+			<Form>ФормаУстановкиИнтервала</Form>
+			<Form>ФормаУстановкиЗначенийОтбора</Form>
+			<Form>КонтрольУникальности</Form>
+			<Form>НастройкиПараметровКопированияДополнительныхДанных</Form>
+			<Form>СоглашенияСПоставщикамиПоХарактеристикам</Form>
+			<TabularSection uuid="11111111-1111-4111-8111-111111111111">
 				<ChildObjects>
 					<Attribute uuid="11111111-1111-4111-8111-111111111111">
 						<Properties>
@@ -3957,7 +3981,6 @@
 							<DataHistory>Use</DataHistory>
 							<ExtendedEdit>false</ExtendedEdit>
 							<FillChecking>DontCheck</FillChecking>
-							<FillFromFillingValue>false</FillFromFillingValue>
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>Index</Indexing>
 							<MarkNegatives>false</MarkNegatives>
@@ -3986,9 +4009,8 @@
 								</v8:item>
 							</ToolTip>
 							<Type>
-								<v8:Type>cfg:ПланВидовХарактеристик.ДополнительныеРеквизитыИСведения</v8:Type>
+								<v8:Type>cfg:ChartOfCharacteristicTypesRef.ДополнительныеРеквизитыИСведения</v8:Type>
 							</Type>
-							<Use>ForItem</Use>
 						</Properties>
 					</Attribute>
 					<Attribute uuid="11111111-1111-4111-8111-111111111111">
@@ -4006,7 +4028,6 @@
 							<DataHistory>Use</DataHistory>
 							<ExtendedEdit>false</ExtendedEdit>
 							<FillChecking>DontCheck</FillChecking>
-							<FillFromFillingValue>false</FillFromFillingValue>
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
@@ -4035,9 +4056,8 @@
 								</v8:item>
 							</ToolTip>
 							<Type>
-								<v8:Type>cfg:Характеристика.ДополнительныеРеквизитыИСведения</v8:Type>
+								<v8:TypeSet>cfg:Characteristic.ДополнительныеРеквизитыИСведения</v8:TypeSet>
 							</Type>
-							<Use>ForItem</Use>
 						</Properties>
 					</Attribute>
 					<Attribute uuid="11111111-1111-4111-8111-111111111111">
@@ -4048,7 +4068,6 @@
 							<DataHistory>Use</DataHistory>
 							<ExtendedEdit>false</ExtendedEdit>
 							<FillChecking>DontCheck</FillChecking>
-							<FillFromFillingValue>false</FillFromFillingValue>
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
@@ -4077,37 +4096,69 @@
 								</v8:item>
 							</ToolTip>
 							<Type>
+								<v8:StringQualifiers>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+									<v8:Length>0</v8:Length>
+								</v8:StringQualifiers>
 								<v8:Type>xs:string</v8:Type>
 							</Type>
-							<Use>ForItem</Use>
 						</Properties>
 					</Attribute>
 				</ChildObjects>
-			</TabularSection>
-			<TabularSection uuid="11111111-1111-4111-8111-111111111111">
 				<InternalInfo>
-					<xr:GeneratedType name="CatalogTabularSection.undefined.ДрагоценныеМатериалы" category="TabularSection">
+					<xr:GeneratedType category="TabularSection" name="CatalogTabularSection.Номенклатура.ДополнительныеРеквизиты">
 						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 					</xr:GeneratedType>
-					<xr:GeneratedType name="CatalogTabularSectionRow.undefined.ДрагоценныеМатериалы" category="TabularSectionRow">
+					<xr:GeneratedType category="TabularSectionRow" name="CatalogTabularSectionRow.Номенклатура.ДополнительныеРеквизиты">
 						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 					</xr:GeneratedType>
 				</InternalInfo>
 				<Properties>
-					<Name>ДрагоценныеМатериалы</Name>
+					<FillChecking>DontCheck</FillChecking>
+					<LineNumberLength>5</LineNumberLength>
+					<Name>ДополнительныеРеквизиты</Name>
+					<StandardAttributes>
+						<xr:StandardAttribute name="LineNumber">
+							<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+							<xr:CreateOnInput>Auto</xr:CreateOnInput>
+							<xr:DataHistory>Use</xr:DataHistory>
+							<xr:ExtendedEdit>false</xr:ExtendedEdit>
+							<xr:FillChecking>DontCheck</xr:FillChecking>
+							<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+							<xr:FullTextSearch>Use</xr:FullTextSearch>
+							<xr:MarkNegatives>false</xr:MarkNegatives>
+							<xr:MultiLine>false</xr:MultiLine>
+							<xr:PasswordMode>false</xr:PasswordMode>
+							<xr:QuickChoice>Auto</xr:QuickChoice>
+							<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+						</xr:StandardAttribute>
+					</StandardAttributes>
 					<Synonym>
 						<v8:item>
-							<v8:content>Драгоценные металлы и камни</v8:content>
+							<v8:content>Дополнительные реквизиты</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 						<v8:item>
-							<v8:content>Precious metals and stones</v8:content>
+							<v8:content>Additional attributes</v8:content>
 							<v8:lang>en</v8:lang>
 						</v8:item>
 					</Synonym>
+					<ToolTip>
+						<v8:item>
+							<v8:content>Набор реквизитов, состав которого определяется компанией.</v8:content>
+							<v8:lang>ru</v8:lang>
+						</v8:item>
+						<v8:item>
+							<v8:content>Set of attributes determined by the company.</v8:content>
+							<v8:lang>en</v8:lang>
+						</v8:item>
+					</ToolTip>
+					<Use>ForItem</Use>
 				</Properties>
+			</TabularSection>
+			<TabularSection uuid="11111111-1111-4111-8111-111111111111">
 				<ChildObjects>
 					<Attribute uuid="11111111-1111-4111-8111-111111111111">
 						<Properties>
@@ -4117,7 +4168,6 @@
 							<DataHistory>Use</DataHistory>
 							<ExtendedEdit>false</ExtendedEdit>
 							<FillChecking>ShowError</FillChecking>
-							<FillFromFillingValue>false</FillFromFillingValue>
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
@@ -4148,7 +4198,6 @@
 							<Type>
 								<v8:Type>cfg:CatalogRef.ДрагоценныеМатериалы</v8:Type>
 							</Type>
-							<Use>ForItem</Use>
 						</Properties>
 					</Attribute>
 					<Attribute uuid="11111111-1111-4111-8111-111111111111">
@@ -4159,7 +4208,6 @@
 							<DataHistory>Use</DataHistory>
 							<ExtendedEdit>false</ExtendedEdit>
 							<FillChecking>ShowError</FillChecking>
-							<FillFromFillingValue>false</FillFromFillingValue>
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
@@ -4195,7 +4243,6 @@
 								</v8:NumberQualifiers>
 								<v8:Type>xs:decimal</v8:Type>
 							</Type>
-							<Use>ForItem</Use>
 						</Properties>
 					</Attribute>
 					<Attribute uuid="11111111-1111-4111-8111-111111111111">
@@ -4211,7 +4258,6 @@
 							<DataHistory>Use</DataHistory>
 							<ExtendedEdit>false</ExtendedEdit>
 							<FillChecking>ShowError</FillChecking>
-							<FillFromFillingValue>false</FillFromFillingValue>
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
@@ -4232,7 +4278,6 @@
 							<Type>
 								<v8:Type>cfg:CatalogRef.УпаковкиЕдиницыИзмерения</v8:Type>
 							</Type>
-							<Use>ForItem</Use>
 						</Properties>
 					</Attribute>
 					<Attribute uuid="11111111-1111-4111-8111-111111111111">
@@ -4243,7 +4288,6 @@
 							<DataHistory>Use</DataHistory>
 							<ExtendedEdit>false</ExtendedEdit>
 							<FillChecking>ShowError</FillChecking>
-							<FillFromFillingValue>false</FillFromFillingValue>
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
@@ -4264,7 +4308,6 @@
 							<Type>
 								<v8:Type>cfg:EnumRef.РасположениеДрагоценныхКамней</v8:Type>
 							</Type>
-							<Use>ForItem</Use>
 						</Properties>
 					</Attribute>
 					<Attribute uuid="11111111-1111-4111-8111-111111111111">
@@ -4275,7 +4318,6 @@
 							<DataHistory>Use</DataHistory>
 							<ExtendedEdit>false</ExtendedEdit>
 							<FillChecking>DontCheck</FillChecking>
-							<FillFromFillingValue>false</FillFromFillingValue>
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
@@ -4300,36 +4342,63 @@
 								</v8:StringQualifiers>
 								<v8:Type>xs:string</v8:Type>
 							</Type>
-							<Use>ForItem</Use>
 						</Properties>
 					</Attribute>
 				</ChildObjects>
-			</TabularSection>
-			<TabularSection uuid="11111111-1111-4111-8111-111111111111">
 				<InternalInfo>
-					<xr:GeneratedType name="CatalogTabularSection.undefined.Представления" category="TabularSection">
+					<xr:GeneratedType category="TabularSection" name="CatalogTabularSection.Номенклатура.ДрагоценныеМатериалы">
 						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 					</xr:GeneratedType>
-					<xr:GeneratedType name="CatalogTabularSectionRow.undefined.Представления" category="TabularSectionRow">
+					<xr:GeneratedType category="TabularSectionRow" name="CatalogTabularSectionRow.Номенклатура.ДрагоценныеМатериалы">
 						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 					</xr:GeneratedType>
 				</InternalInfo>
 				<Properties>
-					<Name>Представления</Name>
+					<FillChecking>DontCheck</FillChecking>
+					<LineNumberLength>5</LineNumberLength>
+					<Name>ДрагоценныеМатериалы</Name>
+					<StandardAttributes>
+						<xr:StandardAttribute name="LineNumber">
+							<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+							<xr:CreateOnInput>Auto</xr:CreateOnInput>
+							<xr:DataHistory>Use</xr:DataHistory>
+							<xr:ExtendedEdit>false</xr:ExtendedEdit>
+							<xr:FillChecking>DontCheck</xr:FillChecking>
+							<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+							<xr:FullTextSearch>Use</xr:FullTextSearch>
+							<xr:MarkNegatives>false</xr:MarkNegatives>
+							<xr:MultiLine>false</xr:MultiLine>
+							<xr:PasswordMode>false</xr:PasswordMode>
+							<xr:QuickChoice>Auto</xr:QuickChoice>
+							<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+						</xr:StandardAttribute>
+					</StandardAttributes>
 					<Synonym>
 						<v8:item>
-							<v8:content>Представления</v8:content>
+							<v8:content>Драгоценные металлы и камни</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 						<v8:item>
-							<v8:content>Presentations</v8:content>
+							<v8:content>Precious metals and stones</v8:content>
 							<v8:lang>en</v8:lang>
 						</v8:item>
 					</Synonym>
-					<Use>ForFolderAndItem</Use>
+					<ToolTip>
+						<v8:item>
+							<v8:content>Содержание драгоценных металлов и камней в составе единицы номенклатуры</v8:content>
+							<v8:lang>ru</v8:lang>
+						</v8:item>
+						<v8:item>
+							<v8:content>Content of precious metal or gem in product item</v8:content>
+							<v8:lang>en</v8:lang>
+						</v8:item>
+					</ToolTip>
+					<Use>ForItem</Use>
 				</Properties>
+			</TabularSection>
+			<TabularSection uuid="11111111-1111-4111-8111-111111111111">
 				<ChildObjects>
 					<Attribute uuid="11111111-1111-4111-8111-111111111111">
 						<Properties>
@@ -4339,7 +4408,6 @@
 							<DataHistory>Use</DataHistory>
 							<ExtendedEdit>false</ExtendedEdit>
 							<FillChecking>DontCheck</FillChecking>
-							<FillFromFillingValue>false</FillFromFillingValue>
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
@@ -4364,7 +4432,6 @@
 								</v8:StringQualifiers>
 								<v8:Type>xs:string</v8:Type>
 							</Type>
-							<Use>ForItem</Use>
 						</Properties>
 					</Attribute>
 					<Attribute uuid="11111111-1111-4111-8111-111111111111">
@@ -4375,7 +4442,6 @@
 							<DataHistory>Use</DataHistory>
 							<ExtendedEdit>false</ExtendedEdit>
 							<FillChecking>DontCheck</FillChecking>
-							<FillFromFillingValue>false</FillFromFillingValue>
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
@@ -4400,30 +4466,74 @@
 								</v8:StringQualifiers>
 								<v8:Type>xs:string</v8:Type>
 							</Type>
-							<Use>ForItem</Use>
 						</Properties>
 					</Attribute>
 				</ChildObjects>
+				<InternalInfo>
+					<xr:GeneratedType category="TabularSection" name="CatalogTabularSection.Номенклатура.Представления">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType category="TabularSectionRow" name="CatalogTabularSectionRow.Номенклатура.Представления">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<FillChecking>DontCheck</FillChecking>
+					<LineNumberLength>5</LineNumberLength>
+					<Name>Представления</Name>
+					<StandardAttributes>
+						<xr:StandardAttribute name="LineNumber">
+							<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+							<xr:CreateOnInput>Auto</xr:CreateOnInput>
+							<xr:DataHistory>Use</xr:DataHistory>
+							<xr:ExtendedEdit>false</xr:ExtendedEdit>
+							<xr:FillChecking>DontCheck</xr:FillChecking>
+							<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+							<xr:FullTextSearch>Use</xr:FullTextSearch>
+							<xr:MarkNegatives>false</xr:MarkNegatives>
+							<xr:MultiLine>false</xr:MultiLine>
+							<xr:PasswordMode>false</xr:PasswordMode>
+							<xr:QuickChoice>Auto</xr:QuickChoice>
+							<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+						</xr:StandardAttribute>
+					</StandardAttributes>
+					<Synonym>
+						<v8:item>
+							<v8:content>Представления</v8:content>
+							<v8:lang>ru</v8:lang>
+						</v8:item>
+						<v8:item>
+							<v8:content>Presentations</v8:content>
+							<v8:lang>en</v8:lang>
+						</v8:item>
+					</Synonym>
+					<Use>ForFolderAndItem</Use>
+				</Properties>
 			</TabularSection>
+			<Template>ПФ_MXL_КарточкаНоменклатуры</Template>
+			<Template>ПФ_MXL_КарточкаНоменклатурыЛокализация</Template>
+			<Template>ЗагрузкаИзФайла</Template>
 		</ChildObjects>
 		<InternalInfo>
-			<xr:GeneratedType name="CatalogObject.Контрагенты" category="Object">
+			<xr:GeneratedType category="Object" name="CatalogObject.Номенклатура">
 				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 			</xr:GeneratedType>
-			<xr:GeneratedType name="CatalogRef.Контрагенты" category="Ref">
+			<xr:GeneratedType category="Ref" name="CatalogRef.Номенклатура">
 				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 			</xr:GeneratedType>
-			<xr:GeneratedType name="CatalogSelection.Контрагенты" category="Selection">
+			<xr:GeneratedType category="Selection" name="CatalogSelection.Номенклатура">
 				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 			</xr:GeneratedType>
-			<xr:GeneratedType name="CatalogList.Контрагенты" category="List">
+			<xr:GeneratedType category="List" name="CatalogList.Номенклатура">
 				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 			</xr:GeneratedType>
-			<xr:GeneratedType name="CatalogManager.Контрагенты" category="Manager">
+			<xr:GeneratedType category="Manager" name="CatalogManager.Номенклатура">
 				<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
 				<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
 			</xr:GeneratedType>
@@ -4432,14 +4542,14 @@
 			<Autonumbering>true</Autonumbering>
 			<Characteristics>
 				<xr:Characteristic>
-					<xr:CharacteristicTypes from="Catalog.НаборыДополнительныхРеквизитовИСведений">
+					<xr:CharacteristicTypes from="Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты">
 						<xr:DataPathField>-1</xr:DataPathField>
 						<xr:KeyField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:KeyField>
 						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
 						<xr:TypesFilterField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.ИмяПредопределенногоНабора</xr:TypesFilterField>
 						<xr:TypesFilterValue xsi:type="xs:string">Справочник_Номенклатура</xr:TypesFilterValue>
 					</xr:CharacteristicTypes>
-					<xr:CharacteristicValues from="Catalog.Номенклатура">
+					<xr:CharacteristicValues from="Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты">
 						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
 						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
 						<xr:ObjectField>Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.StandardAttribute.Ref</xr:ObjectField>
@@ -4448,7 +4558,7 @@
 					</xr:CharacteristicValues>
 				</xr:Characteristic>
 				<xr:Characteristic>
-					<xr:CharacteristicTypes from="Catalog.НаборыДополнительныхРеквизитовИСведений">
+					<xr:CharacteristicTypes from="Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения">
 						<xr:DataPathField>-1</xr:DataPathField>
 						<xr:KeyField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.Свойство</xr:KeyField>
 						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
@@ -4500,9 +4610,14 @@
 			<Hierarchical>true</Hierarchical>
 			<HierarchyType>HierarchyFoldersAndItems</HierarchyType>
 			<IncludeHelpInContents>false</IncludeHelpInContents>
+			<InputByString>
+				<xr:Field>Catalog.Номенклатура.StandardAttribute.Description</xr:Field>
+				<xr:Field>Catalog.Номенклатура.StandardAttribute.Code</xr:Field>
+				<xr:Field>Catalog.Номенклатура.Attribute.Артикул</xr:Field>
+			</InputByString>
 			<LevelCount>2</LevelCount>
 			<LimitLevelCount>false</LimitLevelCount>
-			<Name>Контрагенты</Name>
+			<Name>Номенклатура</Name>
 			<ObjectPresentation>
 				<v8:item>
 					<v8:content>Номенклатура</v8:content>
@@ -4516,6 +4631,187 @@
 			<PredefinedDataUpdate>Auto</PredefinedDataUpdate>
 			<QuickChoice>false</QuickChoice>
 			<SearchStringModeOnInputByString>AnyPart</SearchStringModeOnInputByString>
+			<StandardAttributes>
+				<xr:StandardAttribute name="PredefinedDataName">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Predefined">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Ref">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="DeletionMark">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="IsFolder">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Owner">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>ShowError</xr:FillChecking>
+					<xr:FillFromFillingValue>true</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>Deny</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Parent">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>true</xr:FillFromFillingValue>
+					<xr:FillValue xsi:type="xr:DesignTimeRef">Catalog.Номенклатура.EmptyRef</xr:FillValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:Synonym>
+						<v8:item>
+							<v8:content>Группа</v8:content>
+							<v8:lang>ru</v8:lang>
+						</v8:item>
+						<v8:item>
+							<v8:content>Group</v8:content>
+							<v8:lang>en</v8:lang>
+						</v8:item>
+					</xr:Synonym>
+					<xr:ToolTip>
+						<v8:item>
+							<v8:content>Группа, в которую входит данная позиция номенклатуры.</v8:content>
+							<v8:lang>ru</v8:lang>
+						</v8:item>
+						<v8:item>
+							<v8:content>Group into which this item of products is included.</v8:content>
+							<v8:lang>en</v8:lang>
+						</v8:item>
+					</xr:ToolTip>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Description">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>ShowError</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FillValue xsi:type="xs:string"/>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:ToolTip>
+						<v8:item>
+							<v8:content>Используется для быстрой визуальной идентификации номенклатуры в процессе работы с программой.</v8:content>
+							<v8:lang>ru</v8:lang>
+						</v8:item>
+						<v8:item>
+							<v8:content>Used for quick visual identification of products in the application.</v8:content>
+							<v8:lang>en</v8:lang>
+						</v8:item>
+					</xr:ToolTip>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Code">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FillValue xsi:type="xs:string"/>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:Synonym>
+						<v8:item>
+							<v8:content>Код</v8:content>
+							<v8:lang>ru</v8:lang>
+						</v8:item>
+						<v8:item>
+							<v8:content>Code</v8:content>
+							<v8:lang>en</v8:lang>
+						</v8:item>
+					</xr:Synonym>
+					<xr:ToolTip>
+						<v8:item>
+							<v8:content>Уникальный идентификатор номенклатуры.</v8:content>
+							<v8:lang>ru</v8:lang>
+						</v8:item>
+						<v8:item>
+							<v8:content>Unique ID of an item.</v8:content>
+							<v8:lang>en</v8:lang>
+						</v8:item>
+					</xr:ToolTip>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+			</StandardAttributes>
 			<SubordinationUse>ToItems</SubordinationUse>
 			<Synonym>
 				<v8:item>
