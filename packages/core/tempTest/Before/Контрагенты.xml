@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <MetaDataObject xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20">
 	<Catalog uuid="11111111-1111-4111-8111-111111111111">
 		<ChildObjects>
@@ -15,8 +15,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ЕдиницаИзмерения</Name>
 					<PasswordMode>false</PasswordMode>
@@ -60,8 +58,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>Index</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>Артикул</Name>
 					<PasswordMode>false</PasswordMode>
@@ -109,8 +105,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ВариантОформленияПродажи</Name>
 					<PasswordMode>false</PasswordMode>
@@ -155,12 +149,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ВесЕдиницаИзмерения</Name>
 					<PasswordMode>false</PasswordMode>
@@ -190,11 +181,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
 					<MinValue xsi:type="xs:string">1</MinValue>
 					<MultiLine>false</MultiLine>
 					<Name>ВесЗнаменатель</Name>
@@ -230,12 +219,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ВесИспользовать</Name>
 					<PasswordMode>false</PasswordMode>
@@ -265,12 +251,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ВесМожноУказыватьВДокументах</Name>
 					<PasswordMode>false</PasswordMode>
@@ -300,12 +283,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ВесЧислитель</Name>
 					<PasswordMode>false</PasswordMode>
@@ -344,8 +324,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ВестиУчетПоГТД</Name>
 					<PasswordMode>false</PasswordMode>
@@ -375,12 +353,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ВестиУчетСертификатовНоменклатуры</Name>
 					<PasswordMode>false</PasswordMode>
@@ -420,12 +395,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ВидАлкогольнойПродукции</Name>
 					<PasswordMode>false</PasswordMode>
@@ -476,8 +448,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>IndexWithAdditionalOrder</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ВидНоменклатуры</Name>
 					<PasswordMode>false</PasswordMode>
@@ -521,8 +491,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ГруппаДоступа</Name>
 					<PasswordMode>false</PasswordMode>
@@ -562,12 +530,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>АлкогольнаяПродукция</Name>
 					<PasswordMode>false</PasswordMode>
@@ -602,8 +567,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>НаименованиеПолное</Name>
 					<PasswordMode>false</PasswordMode>
@@ -658,8 +621,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ЕдиницаИзмеренияСрокаГодности</Name>
 					<PasswordMode>false</PasswordMode>
@@ -689,12 +650,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ЕстьТоварыДругогоКачества</Name>
 					<PasswordMode>false</PasswordMode>
@@ -724,12 +682,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ИмпортнаяАлкогольнаяПродукция</Name>
 					<PasswordMode>false</PasswordMode>
@@ -774,12 +729,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ДлинаЕдиницаИзмерения</Name>
 					<PasswordMode>false</PasswordMode>
@@ -809,12 +761,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ДлинаЗнаменатель</Name>
 					<PasswordMode>false</PasswordMode>
@@ -849,12 +798,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ДлинаИспользовать</Name>
 					<PasswordMode>false</PasswordMode>
@@ -884,12 +830,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ДлинаМожноУказыватьВДокументах</Name>
 					<PasswordMode>false</PasswordMode>
@@ -919,12 +862,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ДлинаЧислитель</Name>
 					<PasswordMode>false</PasswordMode>
@@ -959,12 +899,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ИспользованиеХарактеристик</Name>
 					<PasswordMode>false</PasswordMode>
@@ -994,12 +931,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ИспользоватьИндивидуальныйШаблонЦенника</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1029,12 +963,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ИспользоватьИндивидуальныйШаблонЭтикетки</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1064,12 +995,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ИспользоватьУпаковки</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1103,8 +1031,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>Качество</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1138,8 +1064,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>IndexWithAdditionalOrder</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КодДляПоиска</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1180,12 +1104,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>Марка</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1215,12 +1136,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>НаборУпаковок</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1260,12 +1178,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ГруппаФинансовогоУчета</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1310,12 +1225,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>НоменклатураМногооборотнаяТара</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1355,12 +1267,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ОбъемДАЛ</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1395,12 +1304,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>Описание</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1434,12 +1340,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>УдалитьПодакцизныйТовар</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1469,12 +1372,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ПоставляетсяВМногооборотнойТаре</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1514,12 +1414,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>Производитель</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1549,12 +1446,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ПроизводительИмпортерКонтрагент</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1606,12 +1500,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>СкладскаяГруппа</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1651,12 +1542,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>СрокГодности</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1706,12 +1594,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>true</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>СтавкаНДС</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1755,8 +1640,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ТипНоменклатуры</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1808,12 +1691,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ТоварнаяКатегория</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1854,8 +1734,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ФайлКартинки</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1895,12 +1773,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ФайлОписанияДляСайта</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1935,12 +1810,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ОбъемЕдиницаИзмерения</Name>
 					<PasswordMode>false</PasswordMode>
@@ -1970,12 +1842,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ОбъемЗнаменатель</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2010,12 +1879,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ОбъемИспользовать</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2045,12 +1911,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ОбъемМожноУказыватьВДокументах</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2080,12 +1943,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ОбъемЧислитель</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2127,12 +1987,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ХарактеристикаМногооборотнаяТара</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2177,12 +2034,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ПлощадьЕдиницаИзмерения</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2212,12 +2066,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ПлощадьЗнаменатель</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2252,12 +2103,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>СхемаОбеспечения</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2296,12 +2144,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>СпособОбеспеченияПотребностей</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2331,12 +2176,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ПлощадьИспользовать</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2366,12 +2208,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ПлощадьМожноУказыватьВДокументах</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2401,12 +2240,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ПлощадьЧислитель</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2445,8 +2281,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ЦеноваяГруппа</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2491,12 +2325,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ШаблонЦенника</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2530,8 +2361,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ЕдиницаДляОтчетов</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2575,8 +2404,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КоэффициентЕдиницыДляОтчетов</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2626,12 +2453,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ШаблонЭтикетки</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2661,12 +2485,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>СезоннаяГруппа</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2706,12 +2527,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КоллекцияНоменклатуры</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2756,12 +2574,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>Принципал</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2809,12 +2624,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>Контрагент</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2855,12 +2667,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>true</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>РейтингПродаж</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2900,12 +2709,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ОбособленнаяЗакупкаПродажа</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2935,12 +2741,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ГруппаАналитическогоУчета</Name>
 					<PasswordMode>false</PasswordMode>
@@ -2981,12 +2784,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КодТНВЭД</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3026,12 +2826,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КодОКВЭД</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3071,12 +2868,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КодОКП</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3116,12 +2910,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ОблагаетсяНДПИПоПроцентнойСтавке</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3166,12 +2957,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ВладелецСерий</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3213,12 +3001,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ВладелецХарактеристик</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3248,12 +3033,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ВладелецТоварныхКатегорий</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3287,8 +3069,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>Крепость</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3327,8 +3107,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ОсобенностьУчета</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3358,12 +3136,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ПродукцияМаркируемаяДляГИСМ</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3393,12 +3168,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КиЗГИСМ</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3428,12 +3200,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КиЗГИСМВид</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3463,12 +3232,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КиЗГИСМСпособВыпускаВОборот</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3498,12 +3264,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КиЗГИСМGTIN</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3533,12 +3296,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КиЗГИСМРазмер</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3568,12 +3328,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ПодконтрольнаяПродукцияВЕТИС</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3603,12 +3360,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>АлкогольнаяПродукцияВоВскрытойТаре</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3638,12 +3392,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КодРаздел7ДекларацииНДС</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3683,12 +3434,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ОблагаетсяНДСУПокупателя</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3728,12 +3476,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>УдалитьКодОКВЭД2</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3763,12 +3508,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КодОКПД2</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3802,8 +3544,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КодВидаНоменклатурнойКлассификации</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3841,8 +3581,6 @@
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>НаименованиеВидаНоменклатурнойКлассификации</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3876,12 +3614,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ЕдиницаИзмеренияТНВЭД</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3921,12 +3656,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>СтранаПроисхождения</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3956,12 +3688,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ПрослеживаемыйТовар</Name>
 					<PasswordMode>false</PasswordMode>
@@ -3991,12 +3720,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ПереноситьРНПТМатериала</Name>
 					<PasswordMode>false</PasswordMode>
@@ -4026,12 +3752,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КодТРУ</Name>
 					<PasswordMode>false</PasswordMode>
@@ -4065,12 +3788,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КодПоКВПД</Name>
 					<PasswordMode>false</PasswordMode>
@@ -4104,12 +3824,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>КодОКВЭД2</Name>
 					<PasswordMode>false</PasswordMode>
@@ -4143,12 +3860,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>ПродаетсяПоРазрешению</Name>
 					<PasswordMode>false</PasswordMode>
@@ -4178,12 +3892,9 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:nil="true"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
-					<MaxValue xsi:nil="true"/>
-					<MinValue xsi:nil="true"/>
 					<MultiLine>false</MultiLine>
 					<Name>Операции0</Name>
 					<PasswordMode>false</PasswordMode>
@@ -4273,8 +3984,6 @@
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>Index</Indexing>
 							<MarkNegatives>false</MarkNegatives>
-							<MaxValue xsi:nil="true"/>
-							<MinValue xsi:nil="true"/>
 							<MultiLine>false</MultiLine>
 							<Name>Свойство</Name>
 							<PasswordMode>false</PasswordMode>
@@ -4322,8 +4031,6 @@
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
-							<MaxValue xsi:nil="true"/>
-							<MinValue xsi:nil="true"/>
 							<MultiLine>false</MultiLine>
 							<Name>Значение</Name>
 							<PasswordMode>false</PasswordMode>
@@ -4364,8 +4071,6 @@
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
-							<MaxValue xsi:nil="true"/>
-							<MinValue xsi:nil="true"/>
 							<MultiLine>false</MultiLine>
 							<Name>ТекстоваяСтрока</Name>
 							<PasswordMode>false</PasswordMode>
@@ -4422,11 +4127,8 @@
 							<xr:ExtendedEdit>false</xr:ExtendedEdit>
 							<xr:FillChecking>DontCheck</xr:FillChecking>
 							<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-							<xr:FillValue xsi:nil="true"/>
 							<xr:FullTextSearch>Use</xr:FullTextSearch>
 							<xr:MarkNegatives>false</xr:MarkNegatives>
-							<xr:MaxValue xsi:nil="true"/>
-							<xr:MinValue xsi:nil="true"/>
 							<xr:MultiLine>false</xr:MultiLine>
 							<xr:PasswordMode>false</xr:PasswordMode>
 							<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -4469,8 +4171,6 @@
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
-							<MaxValue xsi:nil="true"/>
-							<MinValue xsi:nil="true"/>
 							<MultiLine>false</MultiLine>
 							<Name>ДрагоценныйМатериал</Name>
 							<PasswordMode>false</PasswordMode>
@@ -4511,8 +4211,6 @@
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
-							<MaxValue xsi:nil="true"/>
-							<MinValue xsi:nil="true"/>
 							<MultiLine>false</MultiLine>
 							<Name>Количество</Name>
 							<PasswordMode>false</PasswordMode>
@@ -4563,8 +4261,6 @@
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
-							<MaxValue xsi:nil="true"/>
-							<MinValue xsi:nil="true"/>
 							<MultiLine>false</MultiLine>
 							<Name>ЕдиницаИзмерения</Name>
 							<PasswordMode>false</PasswordMode>
@@ -4595,8 +4291,6 @@
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
-							<MaxValue xsi:nil="true"/>
-							<MinValue xsi:nil="true"/>
 							<MultiLine>false</MultiLine>
 							<Name>Расположение</Name>
 							<PasswordMode>false</PasswordMode>
@@ -4627,8 +4321,6 @@
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
-							<MaxValue xsi:nil="true"/>
-							<MinValue xsi:nil="true"/>
 							<MultiLine>false</MultiLine>
 							<Name>Комментарий</Name>
 							<PasswordMode>false</PasswordMode>
@@ -4675,11 +4367,8 @@
 							<xr:ExtendedEdit>false</xr:ExtendedEdit>
 							<xr:FillChecking>DontCheck</xr:FillChecking>
 							<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-							<xr:FillValue xsi:nil="true"/>
 							<xr:FullTextSearch>Use</xr:FullTextSearch>
 							<xr:MarkNegatives>false</xr:MarkNegatives>
-							<xr:MaxValue xsi:nil="true"/>
-							<xr:MinValue xsi:nil="true"/>
 							<xr:MultiLine>false</xr:MultiLine>
 							<xr:PasswordMode>false</xr:PasswordMode>
 							<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -4722,8 +4411,6 @@
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
-							<MaxValue xsi:nil="true"/>
-							<MinValue xsi:nil="true"/>
 							<MultiLine>false</MultiLine>
 							<Name>КодЯзыка</Name>
 							<PasswordMode>false</PasswordMode>
@@ -4758,8 +4445,6 @@
 							<FullTextSearch>Use</FullTextSearch>
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
-							<MaxValue xsi:nil="true"/>
-							<MinValue xsi:nil="true"/>
 							<MultiLine>false</MultiLine>
 							<Name>НаименованиеПолное</Name>
 							<PasswordMode>false</PasswordMode>
@@ -4806,11 +4491,8 @@
 							<xr:ExtendedEdit>false</xr:ExtendedEdit>
 							<xr:FillChecking>DontCheck</xr:FillChecking>
 							<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-							<xr:FillValue xsi:nil="true"/>
 							<xr:FullTextSearch>Use</xr:FullTextSearch>
 							<xr:MarkNegatives>false</xr:MarkNegatives>
-							<xr:MaxValue xsi:nil="true"/>
-							<xr:MinValue xsi:nil="true"/>
 							<xr:MultiLine>false</xr:MultiLine>
 							<xr:PasswordMode>false</xr:PasswordMode>
 							<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -4957,11 +4639,8 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>DontCheck</xr:FillChecking>
 					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FillValue xsi:nil="true"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -4974,11 +4653,8 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>DontCheck</xr:FillChecking>
 					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FillValue xsi:nil="true"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -4991,11 +4667,8 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>DontCheck</xr:FillChecking>
 					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FillValue xsi:nil="true"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -5008,11 +4681,8 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>DontCheck</xr:FillChecking>
 					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FillValue xsi:nil="true"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -5025,11 +4695,8 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>DontCheck</xr:FillChecking>
 					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FillValue xsi:nil="true"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -5042,11 +4709,8 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>ShowError</xr:FillChecking>
 					<xr:FillFromFillingValue>true</xr:FillFromFillingValue>
-					<xr:FillValue xsi:nil="true"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -5062,8 +4726,6 @@
 					<xr:FillValue xsi:type="xr:DesignTimeRef">Catalog.Номенклатура.EmptyRef</xr:FillValue>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -5099,8 +4761,6 @@
 					<xr:FillValue xsi:type="xs:string"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
@@ -5126,8 +4786,6 @@
 					<xr:FillValue xsi:type="xs:string"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
-					<xr:MaxValue xsi:nil="true"/>
-					<xr:MinValue xsi:nil="true"/>
 					<xr:MultiLine>false</xr:MultiLine>
 					<xr:PasswordMode>false</xr:PasswordMode>
 					<xr:QuickChoice>Auto</xr:QuickChoice>
