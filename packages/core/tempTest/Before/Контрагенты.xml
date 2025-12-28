@@ -11,7 +11,6 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>ShowError</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:type="xr:DesignTimeRef"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
@@ -54,7 +53,6 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:type="xs:string"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>Index</Indexing>
 					<MarkNegatives>false</MarkNegatives>
@@ -563,7 +561,6 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:type="xs:string"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
@@ -1060,7 +1057,6 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:type="xs:string"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>IndexWithAdditionalOrder</Indexing>
 					<MarkNegatives>false</MarkNegatives>
@@ -2357,7 +2353,6 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:type="xr:DesignTimeRef"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
@@ -3540,7 +3535,6 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:type="xs:string"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
@@ -3577,7 +3571,6 @@
 					<ExtendedEdit>false</ExtendedEdit>
 					<FillChecking>DontCheck</FillChecking>
 					<FillFromFillingValue>false</FillFromFillingValue>
-					<FillValue xsi:type="xs:string"/>
 					<FullTextSearch>Use</FullTextSearch>
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
@@ -4758,7 +4751,6 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>ShowError</xr:FillChecking>
 					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FillValue xsi:type="xs:string"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
 					<xr:MultiLine>false</xr:MultiLine>
@@ -4783,7 +4775,6 @@
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
 					<xr:FillChecking>DontCheck</xr:FillChecking>
 					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:FillValue xsi:type="xs:string"/>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
 					<xr:MultiLine>false</xr:MultiLine>
