@@ -39,7 +39,7 @@ export const importMetadataAttributeFromXML = (
     extendedEdit: importBooleanFromXML(context, props.ExtendedEdit),
     fillChecking: props.FillChecking,
     fillFromFillingValue: importBooleanFromXML(context, props.FillFromFillingValue),
-    fillingValue: importMetadataValueFromXML(context, props.FillingValue),
+    fillValue: importMetadataValueFromXML(context, props.FillValue),
     format: importI8nTextFromXML(context, props.Format),
     fullTextSearch: props.FullTextSearch,
     indexing: props.Indexing,

@@ -37,7 +37,7 @@ export interface MetadataAttribute {
   extendedEdit?: boolean
   fillChecking?: SE.FillChecking
   fillFromFillingValue?: boolean
-  fillingValue?: MetadataValue
+  fillValue?: MetadataValue
   format?: I8nText
   fullTextSearch?: SE.UseFullTextSearch
   indexing?: SE.Indexing
@@ -74,7 +74,7 @@ export interface MetadataAttributeXML {
     ExtendedEdit?: StringboolXML
     FillChecking?: SE.FillChecking
     FillFromFillingValue?: StringboolXML
-    FillingValue?: MetadataValueXML
+    FillValue?: MetadataValueXML
     Format?: I8nTextXML
     FullTextSearch?: SE.UseFullTextSearch
     Indexing?: SE.Indexing

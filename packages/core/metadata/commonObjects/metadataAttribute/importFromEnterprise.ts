@@ -55,7 +55,7 @@ export const importMetadataAttributeFromEnterprise = (
     ),
     markNegatives: importBooleanFromEnterprise(context, data.ВыделятьОтрицательные),
     fillFromFillingValue: importBooleanFromEnterprise(context, data.ЗаполнятьИзДанныхЗаполнения),
-    fillingValue: importMetadataValueFromEnterprise(context, data.ЗначениеЗаполнения),
+    fillValue: importMetadataValueFromEnterprise(context, data.ЗначениеЗаполнения),
     indexing: importSystemEnumerationFromEnterprise(context, data.Индексирование, SE.IndexingFromEnterprise),
     use: importSystemEnumerationFromEnterprise(context, data.Использование, SE.AttributeUseFromEnterprise),
     binaryDataStorageLocationUse: importSystemEnumerationFromEnterprise(

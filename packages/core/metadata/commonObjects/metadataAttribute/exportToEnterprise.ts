@@ -48,7 +48,7 @@ export const exportMetadataAttributeToEnterprise = (
     ),
     ВыделятьОтрицательные: exportBooleanToEnterprise(context, data.markNegatives),
     ЗаполнятьИзДанныхЗаполнения: exportBooleanToEnterprise(context, data.fillFromFillingValue),
-    ЗначениеЗаполнения: exportMetadataValueToEnterprise(context, data.fillingValue),
+    ЗначениеЗаполнения: exportMetadataValueToEnterprise(context, data.fillValue),
     Индексирование: exportSystemEnumerationToEnterprise(context, data.indexing, SE.IndexingToEnterprise),
     Использование: exportSystemEnumerationToEnterprise(context, data.use, SE.AttributeUseToEnterprise),
     ИспользованиеХраненияВХранилищеДвоичныхДанных: exportSystemEnumerationToEnterprise(

@@ -44,7 +44,7 @@ export const exportMetadataAttributeToXML = (
       ExtendedEdit: mergedData.extendedEdit,
       FillChecking: mergedData.fillChecking,
       FillFromFillingValue: mergedData.fillFromFillingValue,
-      FillingValue: exportMetadataValueToXML(context, mergedData.fillingValue),
+      FillValue: exportMetadataValueToXML(context, mergedData.fillValue),
       Format: exportI8nTextToXML(context, mergedData.format),
       FullTextSearch: mergedData.fullTextSearch,
       Indexing: mergedData.indexing,
