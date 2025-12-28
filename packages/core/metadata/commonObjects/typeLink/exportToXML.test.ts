@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { exportTypeLinkToXML } from "./exportToXML"
+import { exportTypeLinkToXML, exportTypeLinkWithXSITypeToXML } from "./exportToXML"
 import { TypeLink } from "./types"
 
 describe("exportTypeLinkToXML", () => {
@@ -24,5 +24,21 @@ describe("exportTypeLinkToXML", () => {
     const result = exportTypeLinkToXML(mockСontext, undefined)
 
     expect(result).toBeUndefined()
+  })
+})
+
+describe("exportTypeLinkWithXSITypeToXML", () => {
+  it("should export type link with xsi:type to XML", () => {
+    const mockTypeLink: TypeLink = {
+      dataPath: "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит",
+      linkItem: 1,
+    }
+
+    const expectedResult = readXMLFileAsString("typeLink/withXSIType.xml").trimEnd()
+
+    const result = { TypeLink: exportTypeLinkWithXSITypeToXML(mockСontext, mockTypeLink) }
+    const xmlString = xmlExport(result, false)
+
+    expect(xmlString).toEqual(expectedResult)
   })
 })

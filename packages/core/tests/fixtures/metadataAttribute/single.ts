@@ -7,5 +7,9 @@ export const singleAttribute: MetadataAttributes = [
     type: { type: ["string"] },
     minValue: 1,
     maxValue: 3,
+    fillingValue: {
+      type: "ref",
+      value: "Enum.ТипыНоменклатуры.EnumValue.Товар",
+    },
   },
 ]
