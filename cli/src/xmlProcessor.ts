@@ -84,7 +84,7 @@ function processObject(obj: any, isPropertiesNode: boolean = false): any {
 
   // Если это массив, обрабатываем каждый элемент и создаем новый массив
   if (Array.isArray(obj)) {
-    const processed = obj.map((item) => processObject(item, false)).filter((item) => !isEmptyNode(item))
+    const processed = obj.map((item) => processObject(item, isPropertiesNode)).filter((item) => !isEmptyNode(item))
     return processed.length > 0 ? processed : undefined
   }
 
