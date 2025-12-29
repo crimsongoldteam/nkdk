@@ -72,7 +72,7 @@ function buildXml(parsedData: any): string {
   return outputXml
 }
 
-function processObject(obj: any, isPropertiesNode: boolean = false): any {
+function processObject(obj: any, isPropertiesNode: boolean = false, parentKey: string = ""): any {
   if (obj === null || obj === undefined) {
     return undefined
   }
@@ -83,8 +83,10 @@ function processObject(obj: any, isPropertiesNode: boolean = false): any {
   }
 
   // Если это массив, обрабатываем каждый элемент и создаем новый массив
+  // Если родительский ключ находится в SORTABLE_TAGS или заканчивается на :Properties, то элементы массива должны сортироваться
   if (Array.isArray(obj)) {
-    const processed = obj.map((item) => processObject(item, isPropertiesNode)).filter((item) => !isEmptyNode(item))
+    const shouldSortItems = SORTABLE_TAGS.includes(parentKey) || parentKey.endsWith(":Properties")
+    const processed = obj.map((item) => processObject(item, shouldSortItems, "")).filter((item) => !isEmptyNode(item))
     return processed.length > 0 ? processed : undefined
   }
 
@@ -119,7 +121,7 @@ function processObject(obj: any, isPropertiesNode: boolean = false): any {
     // Рекурсивно обрабатываем значение
     // Передаем isPropertiesNode=true только для прямых дочерних элементов сортируемых тегов (без иерархии)
     const nextIsProperties = !isPropertiesNode && (SORTABLE_TAGS.includes(key) || key.endsWith(":Properties"))
-    const processedValue = processObject(valueWithReplacedUuid, nextIsProperties)
+    const processedValue = processObject(valueWithReplacedUuid, nextIsProperties, key)
 
     // Пропускаем пустые ноды
     if (isEmptyNode(processedValue)) {
