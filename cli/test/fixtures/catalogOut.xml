@@ -106,227 +106,227 @@
 			<SearchStringModeOnInputByString>AnyPart</SearchStringModeOnInputByString>
 			<StandardAttributes>
 				<xr:StandardAttribute name="PredefinedDataName">
-					<xr:FillChecking>DontCheck</xr:FillChecking>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
 					<xr:DataHistory>Use</xr:DataHistory>
-					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 				</xr:StandardAttribute>
 				<xr:StandardAttribute name="Predefined">
-					<xr:FillChecking>DontCheck</xr:FillChecking>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
-					<xr:ToolTip>
-						<v8:item>
-							<v8:content>Признак предопределенного элемента</v8:content>
-							<v8:lang>ru</v8:lang>
-						</v8:item>
-					</xr:ToolTip>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
 					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
 							<v8:content>Предопределенный</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="Ref">
-					<xr:FillChecking>DontCheck</xr:FillChecking>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Ссылка на элемент</v8:content>
+							<v8:content>Признак предопределенного элемента</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Ref">
 					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
 					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
 							<v8:content>Ссылка</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="DeletionMark">
-					<xr:FillChecking>DontCheck</xr:FillChecking>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Пометка удаления элемента</v8:content>
+							<v8:content>Ссылка на элемент</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="DeletionMark">
 					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
 					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
 							<v8:content>Пометка удаления</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="IsFolder">
-					<xr:FillChecking>DontCheck</xr:FillChecking>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Признак группы проектов</v8:content>
+							<v8:content>Пометка удаления элемента</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="IsFolder">
 					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
 					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
 							<v8:content>Это группа</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="Owner">
-					<xr:FillChecking>ShowError</xr:FillChecking>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:FillFromFillingValue>true</xr:FillFromFillingValue>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:TypeReductionMode>Deny</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Владелец элемента</v8:content>
+							<v8:content>Признак группы проектов</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Owner">
 					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
 					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>ShowError</xr:FillChecking>
+					<xr:FillFromFillingValue>true</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
 							<v8:content>Владелец</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="Parent">
-					<xr:FillChecking>DontCheck</xr:FillChecking>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:FillFromFillingValue>true</xr:FillFromFillingValue>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Группа, в которую входит данный проект.</v8:content>
+							<v8:content>Владелец элемента</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>Deny</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Parent">
 					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
 					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>true</xr:FillFromFillingValue>
+					<xr:FillValue xsi:type="xr:DesignTimeRef">Catalog.Проекты.EmptyRef</xr:FillValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
 							<v8:content>Группа</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-					<xr:FillValue xsi:type="xr:DesignTimeRef">Catalog.Проекты.EmptyRef</xr:FillValue>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="Description">
-					<xr:FillChecking>ShowError</xr:FillChecking>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Наименование проекта</v8:content>
+							<v8:content>Группа, в которую входит данный проект.</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Description">
 					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
 					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>ShowError</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
 							<v8:content>Наименование</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
-				</xr:StandardAttribute>
-				<xr:StandardAttribute name="Code">
-					<xr:FillChecking>DontCheck</xr:FillChecking>
-					<xr:MultiLine>false</xr:MultiLine>
-					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-					<xr:CreateOnInput>Auto</xr:CreateOnInput>
-					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:content>Код проекта</v8:content>
+							<v8:content>Наименование проекта</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
-					<xr:ExtendedEdit>false</xr:ExtendedEdit>
-					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Code">
 					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
 					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
 					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
 							<v8:content>Код</v8:content>
 							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
-					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:ToolTip>
+						<v8:item>
+							<v8:content>Код проекта</v8:content>
+							<v8:lang>ru</v8:lang>
+						</v8:item>
+					</xr:ToolTip>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 				</xr:StandardAttribute>
 			</StandardAttributes>
 			<SubordinationUse>ToItems</SubordinationUse>
