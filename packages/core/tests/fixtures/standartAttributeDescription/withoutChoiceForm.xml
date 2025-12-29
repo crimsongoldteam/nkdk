@@ -1,0 +1,10 @@
+<xr:StandardAttribute name="PredefinedDataName">
+	<xr:FillChecking>ShowError</xr:FillChecking>
+	<xr:Synonym>
+		<v8:item>
+			<v8:content>Какой-то синоним</v8:content>
+			<v8:lang>ru</v8:lang>
+		</v8:item>
+	</xr:Synonym>
+</xr:StandardAttribute>
+

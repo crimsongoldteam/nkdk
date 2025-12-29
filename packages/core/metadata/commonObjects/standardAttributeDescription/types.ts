@@ -128,7 +128,7 @@ export interface StandardAttributeDescriptionEnterprise {
 
 export type StandardAttributeDescriptions = StandardAttributeDescription[]
 
-export type StandardAttributeDescriptionsXML = StandardAttributeDescriptionXML[]
+export type StandardAttributeDescriptionsXML = { "xr:StandardAttribute": StandardAttributeDescriptionXML[] }
 
 export type StandardAttributeDescriptionsEnterprise = Partial<
   Record<PredefinedNameEnterprise, StandardAttributeDescriptionEnterprise>

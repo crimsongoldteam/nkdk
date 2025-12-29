@@ -1,0 +1,66 @@
+<StandardAttributes>
+	<xr:StandardAttribute name="PredefinedDataName">
+		<xr:ChoiceForm/>
+		<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+		<xr:ChoiceParameterLinks/>
+		<xr:ChoiceParameters/>
+		<xr:Comment/>
+		<xr:CreateOnInput>Auto</xr:CreateOnInput>
+		<xr:DataHistory>Use</xr:DataHistory>
+		<xr:EditFormat/>
+		<xr:ExtendedEdit>false</xr:ExtendedEdit>
+		<xr:FillChecking>ShowError</xr:FillChecking>
+		<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+		<xr:FillValue xsi:nil="true"/>
+		<xr:Format/>
+		<xr:FullTextSearch>Use</xr:FullTextSearch>
+		<xr:LinkByType/>
+		<xr:MarkNegatives>false</xr:MarkNegatives>
+		<xr:Mask/>
+		<xr:MaxValue xsi:nil="true"/>
+		<xr:MinValue xsi:nil="true"/>
+		<xr:MultiLine>false</xr:MultiLine>
+		<xr:PasswordMode>false</xr:PasswordMode>
+		<xr:QuickChoice>Auto</xr:QuickChoice>
+		<xr:Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Какой-то синоним</v8:content>
+			</v8:item>
+		</xr:Synonym>
+		<xr:ToolTip/>
+		<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+	</xr:StandardAttribute>
+	<xr:StandardAttribute name="Predefined">
+		<xr:ChoiceForm/>
+		<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+		<xr:ChoiceParameterLinks/>
+		<xr:ChoiceParameters/>
+		<xr:Comment/>
+		<xr:CreateOnInput>Auto</xr:CreateOnInput>
+		<xr:DataHistory>Use</xr:DataHistory>
+		<xr:EditFormat/>
+		<xr:ExtendedEdit>false</xr:ExtendedEdit>
+		<xr:FillChecking>DontCheck</xr:FillChecking>
+		<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+		<xr:FillValue xsi:nil="true"/>
+		<xr:Format/>
+		<xr:FullTextSearch>Use</xr:FullTextSearch>
+		<xr:LinkByType/>
+		<xr:MarkNegatives>false</xr:MarkNegatives>
+		<xr:Mask/>
+		<xr:MaxValue xsi:nil="true"/>
+		<xr:MinValue xsi:nil="true"/>
+		<xr:MultiLine>false</xr:MultiLine>
+		<xr:PasswordMode>false</xr:PasswordMode>
+		<xr:QuickChoice>Auto</xr:QuickChoice>
+		<xr:Synonym>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Другой какой-то синоним</v8:content>
+			</v8:item>
+		</xr:Synonym>
+		<xr:ToolTip/>
+		<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+	</xr:StandardAttribute>
+</StandardAttributes>

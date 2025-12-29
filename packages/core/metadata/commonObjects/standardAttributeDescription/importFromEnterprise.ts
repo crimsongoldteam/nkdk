@@ -12,7 +12,7 @@ import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/ty
 import { importTypeLinkFromEnterprise } from "~/metadata/commonObjects/typeLink/importFromEnterprise"
 import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
 import { Context } from "~/metadata/context/types"
-import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
+import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
@@ -25,58 +25,109 @@ export const importStandardAttributeDescriptionFromEnterprise = (
   if (!data) return undefined
 
   const result: StandardAttributeDescription = {
-    name: PredefinedNameFromEnterprise(name) as any,
-    quickChoice: importSystemEnumerationFromEnterprise(context, data.БыстрыйВыбор, SE.UseQuickChoiceFromEnterprise),
-    markNegatives: importBooleanFromEnterprise(data.ВыделятьОтрицательные, context),
-    fillFromFillingValue: importBooleanFromEnterprise(data.ЗаполнятьИзДанныхЗаполнения, context),
-    fillValue: importMetadataValueFromEnterprise(context, data.ЗначениеЗаполнения),
-    choiceHistoryOnInput: importSystemEnumerationFromEnterprise(
-      context,
-      data.ИсторияВыбораПриВводе,
-      SE.ChoiceHistoryOnInputFromEnterprise
-    ),
-    dataHistory: importSystemEnumerationFromEnterprise(context, data.ИсторияДанных, SE.DataHistoryUseFromEnterprise),
-    comment: data.Комментарий,
-    maxValue: data.МаксимальноеЗначение,
-    mask: data.Маска,
-    minValue: data.МинимальноеЗначение,
-    multiLine: importBooleanFromEnterprise(data.МногострочныйРежим, context),
-    choiceParameters: importChoiceParameterLinksFromEnterprise(context, data.ПараметрыВыбора),
-    toolTip: importI8nTextFromEnterprise(context, data.Подсказка),
-    fullTextSearch: importSystemEnumerationFromEnterprise(
-      context,
-      data.ПолнотекстовыйПоиск,
-      SE.UseFullTextSearchFromEnterprise
-    ),
-    fillChecking: importSystemEnumerationFromEnterprise(
-      context,
-      data.ПроверкаЗаполнения,
-      SE.FillCheckingFromEnterprise
-    ),
-    extendedEdit: importBooleanFromEnterprise(data.РасширенноеРедактирование, context),
-    passwordMode: importBooleanFromEnterprise(data.РежимПароля, context),
-    typeReductionMode: importSystemEnumerationFromEnterprise(
-      context,
-      data.РежимСокращенияТипа,
-      SE.TypeReductionModeFromEnterprise
-    ),
-    choiceParameterLinks: importChoiceParameterLinksFromEnterprise(context, data.СвязиПараметровВыбора),
-    linkByType: importTypeLinkFromEnterprise(context, data.СвязьПоТипу),
-    synonym: importI8nTextFromEnterprise(context, data.Синоним),
-    createOnInput: importSystemEnumerationFromEnterprise(
-      context,
-      data.СозданиеПриВводе,
-      SE.CreateOnInputFromEnterprise
-    ),
-    type: importTypeDescriptionFromEnterprise(context, data.Тип),
-    choiceForm: data.ФормаВыбора,
-    format: importI8nTextFromEnterprise(context, data.Формат),
-    editFormat: importI8nTextFromEnterprise(context, data.ФорматРедактирования),
+    name: PredefinedNameFromEnterprise(name),
   }
 
-  const compactedResult = compactObject(result)
-  const defaults = getDefaults(compactedResult, context)
-  return removeDefaults(compactedResult, defaults)
+  const quickChoice = importSystemEnumerationFromEnterprise<SE.UseQuickChoice>(
+    context,
+    data.БыстрыйВыбор,
+    SE.UseQuickChoiceFromEnterprise
+  )
+  if (quickChoice) result.quickChoice = quickChoice
+
+  const markNegatives = importBooleanFromEnterprise(context, data.ВыделятьОтрицательные)
+  if (markNegatives !== undefined) result.markNegatives = markNegatives
+
+  const fillFromFillingValue = importBooleanFromEnterprise(context, data.ЗаполнятьИзДанныхЗаполнения)
+  if (fillFromFillingValue !== undefined) result.fillFromFillingValue = fillFromFillingValue
+
+  const fillValue = importMetadataValueFromEnterprise(context, data.ЗначениеЗаполнения)
+  if (fillValue) result.fillValue = fillValue
+
+  const choiceHistoryOnInput = importSystemEnumerationFromEnterprise<SE.ChoiceHistoryOnInput>(
+    context,
+    data.ИсторияВыбораПриВводе,
+    SE.ChoiceHistoryOnInputFromEnterprise
+  )
+  if (choiceHistoryOnInput) result.choiceHistoryOnInput = choiceHistoryOnInput
+
+  const dataHistory = importSystemEnumerationFromEnterprise<SE.DataHistoryUse>(
+    context,
+    data.ИсторияДанных,
+    SE.DataHistoryUseFromEnterprise
+  )
+  if (dataHistory) result.dataHistory = dataHistory
+
+  if (data.Комментарий) result.comment = data.Комментарий
+  if (data.МаксимальноеЗначение !== undefined) result.maxValue = data.МаксимальноеЗначение
+  if (data.Маска) result.mask = data.Маска
+  if (data.МинимальноеЗначение !== undefined) result.minValue = data.МинимальноеЗначение
+
+  const multiLine = importBooleanFromEnterprise(context, data.МногострочныйРежим)
+  if (multiLine !== undefined) result.multiLine = multiLine
+
+  const choiceParameters = importChoiceParameterLinksFromEnterprise(context, data.ПараметрыВыбора)
+  if (choiceParameters) result.choiceParameters = choiceParameters
+
+  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
+  if (toolTip) result.toolTip = toolTip
+
+  const fullTextSearch = importSystemEnumerationFromEnterprise<SE.UseFullTextSearch>(
+    context,
+    data.ПолнотекстовыйПоиск,
+    SE.UseFullTextSearchFromEnterprise
+  )
+  if (fullTextSearch) result.fullTextSearch = fullTextSearch
+
+  const fillChecking = importSystemEnumerationFromEnterprise<SE.FillChecking>(
+    context,
+    data.ПроверкаЗаполнения,
+    SE.FillCheckingFromEnterprise
+  )
+  if (fillChecking) result.fillChecking = fillChecking
+
+  const extendedEdit = importBooleanFromEnterprise(context, data.РасширенноеРедактирование)
+  if (extendedEdit !== undefined) result.extendedEdit = extendedEdit
+
+  const passwordMode = importBooleanFromEnterprise(context, data.РежимПароля)
+  if (passwordMode !== undefined) result.passwordMode = passwordMode
+
+  const typeReductionMode = importSystemEnumerationFromEnterprise<SE.TypeReductionMode>(
+    context,
+    data.РежимСокращенияТипа,
+    SE.TypeReductionModeFromEnterprise
+  )
+  if (typeReductionMode) result.typeReductionMode = typeReductionMode
+
+  const choiceParameterLinks = importChoiceParameterLinksFromEnterprise(context, data.СвязиПараметровВыбора)
+  if (choiceParameterLinks) result.choiceParameterLinks = choiceParameterLinks
+
+  const linkByType = importTypeLinkFromEnterprise(context, data.СвязьПоТипу)
+  if (linkByType) result.linkByType = linkByType
+
+  const synonym = importI8nTextFromEnterprise(context, data.Синоним)
+  if (synonym) result.synonym = synonym
+
+  const createOnInput = importSystemEnumerationFromEnterprise<SE.CreateOnInput>(
+    context,
+    data.СозданиеПриВводе,
+    SE.CreateOnInputFromEnterprise
+  )
+  if (createOnInput) result.createOnInput = createOnInput
+
+  const type = importTypeDescriptionFromEnterprise(context, data.Тип)
+  if (type) result.type = type
+
+  if (data.ФормаВыбора) result.choiceForm = data.ФормаВыбора
+
+  const format = importI8nTextFromEnterprise(context, data.Формат)
+  if (format) result.format = format
+
+  const editFormat = importI8nTextFromEnterprise(context, data.ФорматРедактирования)
+  if (editFormat) result.editFormat = editFormat
+
+  const defaults = getDefaults(result, context)
+  return removeDefaults(result, defaults)
 }
 
 export const importStandardAttributeDescriptionsFromEnterprise = (
