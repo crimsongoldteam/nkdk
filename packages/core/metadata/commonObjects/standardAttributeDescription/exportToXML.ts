@@ -18,9 +18,7 @@ export const exportStandardAttributeDescriptionsToXML = (
   data: StandardAttributeDescriptions | undefined,
   standartAttributeNames: PredefinedName[]
 ): StandardAttributeDescriptionsXML | undefined => {
-  if (!data) return undefined
-
-  const extendedData = getExtendedStandardAttributeDescriptions(data, standartAttributeNames)
+  const extendedData = getExtendedStandardAttributeDescriptions(data ?? [], standartAttributeNames)
 
   return {
     "xr:StandardAttribute": extendedData.map(

@@ -6,12 +6,12 @@ import { xmlExport } from "~/xml/export/exporter"
 import { exportStandardAttributeDescriptionsToXML } from "./exportToXML"
 
 describe("exportStandardAttributeDescriptionsToXML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportStandardAttributeDescriptionsToXML(mockСontext, undefined, [
-      "PredefinedDataName",
-      "Predefined",
-    ])
-    expect(result).toBeUndefined()
+  it("should export with default values when data is undefined", () => {
+    const expectedXml = readXMLFileAsString("standartAttributeDescription/default.xml")
+
+    const result = exportStandardAttributeDescriptionsToXML(mockСontext, undefined, ["PredefinedDataName"])
+    const xmlString = xmlExport({ StandardAttributes: result }, false)
+    expect(xmlString).toEqual(expectedXml)
   })
 
   it("should export all parameters", () => {
@@ -40,7 +40,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
     expect(xmlString).toEqual(expectedXml)
   })
 
-  it("should export with skipped default values", () => {
+  it("should export with default values", () => {
     const expectedXml = readXMLFileAsString("standartAttributeDescription/default.xml")
 
     const result = exportStandardAttributeDescriptionsToXML(mockСontext, [], ["PredefinedDataName"])

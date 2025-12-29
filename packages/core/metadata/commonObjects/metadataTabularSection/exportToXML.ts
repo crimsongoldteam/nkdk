@@ -36,7 +36,9 @@ export const exportMetadataTabularSectionToXML = (
       LineNumberLength: mergedData.lineNumberLength,
       Name: mergedData.name!,
       ObjectBelonging: mergedData.objectBelonging,
-      StandardAttributes: exportStandardAttributeDescriptionsToXML(context, mergedData.standardAttributes),
+      StandardAttributes: exportStandardAttributeDescriptionsToXML(context, mergedData.standardAttributes, [
+        "LineNumber",
+      ]),
       Synonym: exportI8nTextToXML(context, mergedData.synonym),
       ToolTip: exportI8nTextToXML(context, mergedData.toolTip),
       Use: mergedData.use,

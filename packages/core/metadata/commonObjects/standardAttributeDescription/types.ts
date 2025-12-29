@@ -24,6 +24,7 @@ export const PredefinedNameToEnterprise = {
   Parent: "Родитель",
   Ref: "Ссылка",
   IsFolder: "ЭтоГруппа",
+  LineNumber: "НомерСтроки",
 } as const
 
 export const PredefinedNameFromEnterprise = (name: string): PredefinedName => {
