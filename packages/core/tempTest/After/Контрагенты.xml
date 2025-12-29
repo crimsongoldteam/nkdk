@@ -391,8 +391,8 @@
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>
-							<v8:Length>50</v8:Length>
 							<v8:AllowedLength>Variable</v8:AllowedLength>
+							<v8:Length>50</v8:Length>
 						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -508,9 +508,9 @@
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -609,9 +609,9 @@
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -740,8 +740,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:Name>Номенклатура</xr:Name>
 							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.StandardAttribute.Ref</xr:DataPath>
+							<xr:Name>Номенклатура</xr:Name>
 							<xr:ValueChange>DontChange</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -899,8 +899,8 @@
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>
-							<v8:Length>1024</v8:Length>
 							<v8:AllowedLength>Variable</v8:AllowedLength>
+							<v8:Length>1024</v8:Length>
 						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -912,8 +912,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:Name>ВидНоменклатуры</xr:Name>
 							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ВидНоменклатуры</xr:DataPath>
+							<xr:Name>ВидНоменклатуры</xr:Name>
 							<xr:ValueChange>DontChange</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -1086,9 +1086,9 @@
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -1187,9 +1187,9 @@
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -1385,8 +1385,8 @@
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>
-							<v8:Length>11</v8:Length>
 							<v8:AllowedLength>Variable</v8:AllowedLength>
+							<v8:Length>11</v8:Length>
 						</v8:StringQualifiers>
 					</Type>
 					<Use>ForFolderAndItem</Use>
@@ -1398,8 +1398,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:Name>Отбор.Производитель</xr:Name>
 							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.Производитель</xr:DataPath>
+							<xr:Name>Отбор.Производитель</xr:Name>
 							<xr:ValueChange>Clear</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -1591,9 +1591,9 @@
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>18</v8:Digits>
 							<v8:FractionDigits>6</v8:FractionDigits>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -1628,8 +1628,8 @@
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>
-							<v8:Length>0</v8:Length>
 							<v8:AllowedLength>Variable</v8:AllowedLength>
+							<v8:Length>0</v8:Length>
 						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -1789,13 +1789,13 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:Name>ОбособленнаяЗакупкаПродажа</xr:Name>
 							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ОбособленнаяЗакупкаПродажа</xr:DataPath>
+							<xr:Name>ОбособленнаяЗакупкаПродажа</xr:Name>
 							<xr:ValueChange>Clear</xr:ValueChange>
 						</xr:Link>
 						<xr:Link>
-							<xr:Name>Отбор.ТипНоменклатуры</xr:Name>
 							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ТипНоменклатуры</xr:DataPath>
+							<xr:Name>Отбор.ТипНоменклатуры</xr:Name>
 							<xr:ValueChange>Clear</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -1876,9 +1876,9 @@
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>0</v8:FractionDigits>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -1980,13 +1980,13 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:Name>Отбор.Владелец</xr:Name>
 							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ВидНоменклатуры</xr:DataPath>
+							<xr:Name>Отбор.Владелец</xr:Name>
 							<xr:ValueChange>DontChange</xr:ValueChange>
 						</xr:Link>
 						<xr:Link>
-							<xr:Name>Отбор.ВладелецТоварныхКатегорий</xr:Name>
 							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.ВладелецТоварныхКатегорий</xr:DataPath>
+							<xr:Name>Отбор.ВладелецТоварныхКатегорий</xr:Name>
 							<xr:ValueChange>DontChange</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -2024,8 +2024,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:Name>ВладелецФайла</xr:Name>
 							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.StandardAttribute.Ref</xr:DataPath>
+							<xr:Name>ВладелецФайла</xr:Name>
 							<xr:ValueChange>Clear</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -2166,9 +2166,9 @@
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -2267,9 +2267,9 @@
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -2281,8 +2281,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:Name>Номенклатура</xr:Name>
 							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.НоменклатураМногооборотнаяТара</xr:DataPath>
+							<xr:Name>Номенклатура</xr:Name>
 							<xr:ValueChange>DontChange</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -2390,9 +2390,9 @@
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -2564,9 +2564,9 @@
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -2734,9 +2734,9 @@
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>15</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -2917,8 +2917,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:Name>Отбор.Партнер</xr:Name>
 							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.Attribute.Принципал</xr:DataPath>
+							<xr:Name>Отбор.Партнер</xr:Name>
 							<xr:ValueChange>Clear</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -3242,8 +3242,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:Name>ТекущийВид</xr:Name>
 							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.StandardAttribute.Ref</xr:DataPath>
+							<xr:Name>ТекущийВид</xr:Name>
 							<xr:ValueChange>DontChange</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -3289,8 +3289,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:Name>ТекущийВид</xr:Name>
 							<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.StandardAttribute.Ref</xr:DataPath>
+							<xr:Name>ТекущийВид</xr:Name>
 							<xr:ValueChange>DontChange</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -3389,9 +3389,9 @@
 					<Type>
 						<v8:Type>xs:decimal</v8:Type>
 						<v8:NumberQualifiers>
+							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 							<v8:Digits>5</v8:Digits>
 							<v8:FractionDigits>3</v8:FractionDigits>
-							<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 						</v8:NumberQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -3863,8 +3863,8 @@
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>
-							<v8:Length>13</v8:Length>
 							<v8:AllowedLength>Variable</v8:AllowedLength>
+							<v8:Length>13</v8:Length>
 						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -3899,8 +3899,8 @@
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>
-							<v8:Length>150</v8:Length>
 							<v8:AllowedLength>Variable</v8:AllowedLength>
+							<v8:Length>150</v8:Length>
 						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -4073,8 +4073,8 @@
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>
-							<v8:Length>255</v8:Length>
 							<v8:AllowedLength>Variable</v8:AllowedLength>
+							<v8:Length>255</v8:Length>
 						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -4109,8 +4109,8 @@
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>
-							<v8:Length>6</v8:Length>
 							<v8:AllowedLength>Variable</v8:AllowedLength>
+							<v8:Length>6</v8:Length>
 						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -4145,8 +4145,8 @@
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>
-							<v8:Length>8</v8:Length>
 							<v8:AllowedLength>Variable</v8:AllowedLength>
+							<v8:Length>8</v8:Length>
 						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -4316,8 +4316,8 @@
 							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 							<ChoiceParameterLinks>
 								<xr:Link>
-									<xr:Name>Отбор.Владелец</xr:Name>
 									<xr:DataPath xsi:type="xs:string">Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:DataPath>
+									<xr:Name>Отбор.Владелец</xr:Name>
 									<xr:ValueChange>Clear</xr:ValueChange>
 								</xr:Link>
 							</ChoiceParameterLinks>
@@ -4395,8 +4395,8 @@
 							<Type>
 								<v8:Type>xs:string</v8:Type>
 								<v8:StringQualifiers>
-									<v8:Length>0</v8:Length>
 									<v8:AllowedLength>Variable</v8:AllowedLength>
+									<v8:Length>0</v8:Length>
 								</v8:StringQualifiers>
 							</Type>
 						</Properties>
@@ -4535,9 +4535,9 @@
 							<Type>
 								<v8:Type>xs:decimal</v8:Type>
 								<v8:NumberQualifiers>
+									<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 									<v8:Digits>15</v8:Digits>
 									<v8:FractionDigits>3</v8:FractionDigits>
-									<v8:AllowedSign>Nonnegative</v8:AllowedSign>
 								</v8:NumberQualifiers>
 							</Type>
 						</Properties>
@@ -4635,8 +4635,8 @@
 							<Type>
 								<v8:Type>xs:string</v8:Type>
 								<v8:StringQualifiers>
-									<v8:Length>1000</v8:Length>
 									<v8:AllowedLength>Variable</v8:AllowedLength>
+									<v8:Length>1000</v8:Length>
 								</v8:StringQualifiers>
 							</Type>
 						</Properties>
@@ -4715,8 +4715,8 @@
 							<Type>
 								<v8:Type>xs:string</v8:Type>
 								<v8:StringQualifiers>
-									<v8:Length>10</v8:Length>
 									<v8:AllowedLength>Variable</v8:AllowedLength>
+									<v8:Length>10</v8:Length>
 								</v8:StringQualifiers>
 							</Type>
 						</Properties>
@@ -4749,8 +4749,8 @@
 							<Type>
 								<v8:Type>xs:string</v8:Type>
 								<v8:StringQualifiers>
-									<v8:Length>1024</v8:Length>
 									<v8:AllowedLength>Variable</v8:AllowedLength>
+									<v8:Length>1024</v8:Length>
 								</v8:StringQualifiers>
 							</Type>
 						</Properties>
