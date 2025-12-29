@@ -28,34 +28,34 @@
 			<Characteristics>
 				<xr:Characteristic>
 					<xr:CharacteristicTypes from="Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты">
+						<xr:DataPathField>-1</xr:DataPathField>
 						<xr:KeyField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:KeyField>
+						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
 						<xr:TypesFilterField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.ИмяПредопределенногоНабора</xr:TypesFilterField>
 						<xr:TypesFilterValue xsi:type="xs:string">Справочник_Номенклатура</xr:TypesFilterValue>
-						<xr:DataPathField>-1</xr:DataPathField>
-						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
 					</xr:CharacteristicTypes>
 					<xr:CharacteristicValues from="Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты">
+						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
+						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
 						<xr:ObjectField>Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.StandardAttribute.Ref</xr:ObjectField>
 						<xr:TypeField>Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:TypeField>
 						<xr:ValueField>Catalog.Номенклатура.TabularSection.ДополнительныеРеквизиты.Attribute.Значение</xr:ValueField>
-						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
-						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
 					</xr:CharacteristicValues>
 				</xr:Characteristic>
 				<xr:Characteristic>
 					<xr:CharacteristicTypes from="Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения">
+						<xr:DataPathField>-1</xr:DataPathField>
 						<xr:KeyField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.Свойство</xr:KeyField>
+						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
 						<xr:TypesFilterField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.ИмяПредопределенногоНабора</xr:TypesFilterField>
 						<xr:TypesFilterValue xsi:type="xs:string">Справочник_Номенклатура</xr:TypesFilterValue>
-						<xr:DataPathField>-1</xr:DataPathField>
-						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
 					</xr:CharacteristicTypes>
 					<xr:CharacteristicValues from="InformationRegister.ДополнительныеСведения">
+						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
+						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
 						<xr:ObjectField>InformationRegister.ДополнительныеСведения.Dimension.Объект</xr:ObjectField>
 						<xr:TypeField>InformationRegister.ДополнительныеСведения.Dimension.Свойство</xr:TypeField>
 						<xr:ValueField>InformationRegister.ДополнительныеСведения.Resource.Значение</xr:ValueField>
-						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
-						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
 					</xr:CharacteristicValues>
 				</xr:Characteristic>
 			</Characteristics>
