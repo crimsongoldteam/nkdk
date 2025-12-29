@@ -3,7 +3,7 @@ import { XMLBuilder, XMLParser } from "fast-xml-parser"
 const TARGET_UUID = "11111111-1111-4111-8111-111111111111"
 
 // Теги, внутри которых нужно сортировать дочерние элементы (без иерархии - только на первом уровне)
-const SORTABLE_TAGS = ["Properties", "xr:Properties", "xr:StandardAttribute"]
+const SORTABLE_TAGS = ["Properties", "xr:Properties", "xr:StandardAttribute", "v8:item"]
 
 export function processXmlContent(xmlContent: string): string {
   const parsedData = parseXml(xmlContent)

@@ -62,12 +62,12 @@ describe("DO test", () => {
 
     writeFileSync(join(__dirname, "After/Контрагенты.yml"), yamlString, "utf-8")
 
-    const newData = importMetadataCatalogFromEnterprise(mockСontext, exportedEnterprise, "Контрагенты")
+    const newData = importMetadataCatalogFromEnterprise(mockСontext, exportedEnterprise, "Номенклатура")
     const newXml = exportMetadataCatalogToXML(mockMetadataCatalogContext, newData)
 
     const newXmlString = xmlExport({ MetaDataObject: newXml })
 
-    writeFileSync(join(__dirname, "Before/Контрагенты.xml"), newXmlString, "utf-8")
+    writeFileSync(join(__dirname, "After/Контрагенты.xml"), newXmlString, "utf-8")
   })
 
   // it("should export schema ", () => {
