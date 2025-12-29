@@ -12,57 +12,8 @@ import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/type
 import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/exportToEnterprise"
 import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
 import { Context } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-
-export const exportStandardAttributeDescriptionToEnterprise = (
-  context: Context,
-  data: StandardAttributeDescription | undefined
-): StandardAttributeDescriptionEnterprise | undefined => {
-  if (!data) return undefined
-
-  return compactObject({
-    БыстрыйВыбор: exportSystemEnumerationToEnterprise(context, data.quickChoice, SE.UseQuickChoiceToEnterprise),
-    ВыделятьОтрицательные: exportBooleanToEnterprise(context, data.markNegatives),
-    ЗаполнятьИзДанныхЗаполнения: exportBooleanToEnterprise(context, data.fillFromFillingValue),
-    ЗначениеЗаполнения: exportMetadataValueToEnterprise(context, data.fillValue),
-    ИсторияВыбораПриВводе: exportSystemEnumerationToEnterprise(
-      context,
-      data.choiceHistoryOnInput,
-      SE.ChoiceHistoryOnInputToEnterprise
-    ),
-    ИсторияДанных: exportSystemEnumerationToEnterprise(context, data.dataHistory, SE.DataHistoryUseToEnterprise),
-    Комментарий: data.comment,
-    МаксимальноеЗначение: data.maxValue,
-    Маска: data.mask,
-    МинимальноеЗначение: data.minValue,
-    МногострочныйРежим: exportBooleanToEnterprise(context, data.multiLine),
-    ПараметрыВыбора: exportChoiceParameterLinksToEnterprise(context, data.choiceParameters),
-    Подсказка: exportI8nTextToEnterprise(context, data.toolTip),
-    ПолнотекстовыйПоиск: exportSystemEnumerationToEnterprise(
-      context,
-      data.fullTextSearch,
-      SE.UseFullTextSearchToEnterprise
-    ),
-    ПроверкаЗаполнения: exportSystemEnumerationToEnterprise(context, data.fillChecking, SE.FillCheckingToEnterprise),
-    РасширенноеРедактирование: exportBooleanToEnterprise(context, data.extendedEdit),
-    РежимПароля: exportBooleanToEnterprise(context, data.passwordMode),
-    РежимСокращенияТипа: exportSystemEnumerationToEnterprise(
-      context,
-      data.typeReductionMode,
-      SE.TypeReductionModeToEnterprise
-    ),
-    СвязиПараметровВыбора: exportChoiceParameterLinksToEnterprise(context, data.choiceParameterLinks),
-    СвязьПоТипу: exportTypeLinkToEnterprise(context, data.linkByType),
-    Синоним: exportI8nTextToEnterprise(context, data.synonym),
-    СозданиеПриВводе: exportSystemEnumerationToEnterprise(context, data.createOnInput, SE.CreateOnInputToEnterprise),
-    Тип: exportTypeDescriptionToEnterprise(context, data.type),
-    ФормаВыбора: data.choiceForm,
-    Формат: exportI8nTextToEnterprise(context, data.format),
-    ФорматРедактирования: exportI8nTextToEnterprise(context, data.editFormat),
-  })
-}
 
 export const exportStandardAttributeDescriptionsToEnterprise = (
   context: Context,
@@ -78,6 +29,113 @@ export const exportStandardAttributeDescriptionsToEnterprise = (
   )
 
   if (Object.keys(result).length === 0) return undefined
+
+  return result
+}
+
+const exportStandardAttributeDescriptionToEnterprise = (
+  context: Context,
+  data: StandardAttributeDescription
+): StandardAttributeDescriptionEnterprise => {
+  const result: StandardAttributeDescriptionEnterprise = {}
+
+  const quickChoice = exportSystemEnumerationToEnterprise<SE.UseQuickChoiceEnterprise>(
+    context,
+    data.quickChoice,
+    SE.UseQuickChoiceToEnterprise
+  )
+  if (quickChoice) result.БыстрыйВыбор = quickChoice
+
+  const markNegatives = exportBooleanToEnterprise(context, data.markNegatives)
+  if (markNegatives !== undefined) result.ВыделятьОтрицательные = markNegatives
+
+  const fillFromFillingValue = exportBooleanToEnterprise(context, data.fillFromFillingValue)
+  if (fillFromFillingValue !== undefined) result.ЗаполнятьИзДанныхЗаполнения = fillFromFillingValue
+
+  const fillValue = exportMetadataValueToEnterprise(context, data.fillValue)
+  if (fillValue) result.ЗначениеЗаполнения = fillValue
+
+  const choiceHistoryOnInput = exportSystemEnumerationToEnterprise<SE.ChoiceHistoryOnInputEnterprise>(
+    context,
+    data.choiceHistoryOnInput,
+    SE.ChoiceHistoryOnInputToEnterprise
+  )
+  if (choiceHistoryOnInput) result.ИсторияВыбораПриВводе = choiceHistoryOnInput
+
+  const dataHistory = exportSystemEnumerationToEnterprise<SE.DataHistoryUseEnterprise>(
+    context,
+    data.dataHistory,
+    SE.DataHistoryUseToEnterprise
+  )
+  if (dataHistory) result.ИсторияДанных = dataHistory
+
+  if (data.comment) result.Комментарий = data.comment
+  if (data.maxValue !== undefined) result.МаксимальноеЗначение = data.maxValue
+  if (data.mask) result.Маска = data.mask
+  if (data.minValue !== undefined) result.МинимальноеЗначение = data.minValue
+
+  const multiLine = exportBooleanToEnterprise(context, data.multiLine)
+  if (multiLine !== undefined) result.МногострочныйРежим = multiLine
+
+  const choiceParameters = exportChoiceParameterLinksToEnterprise(context, data.choiceParameters)
+  if (choiceParameters) result.ПараметрыВыбора = choiceParameters
+
+  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  if (toolTip) result.Подсказка = toolTip
+
+  const fullTextSearch = exportSystemEnumerationToEnterprise<SE.UseFullTextSearchEnterprise>(
+    context,
+    data.fullTextSearch,
+    SE.UseFullTextSearchToEnterprise
+  )
+  if (fullTextSearch) result.ПолнотекстовыйПоиск = fullTextSearch
+
+  const fillChecking = exportSystemEnumerationToEnterprise<SE.FillCheckingEnterprise>(
+    context,
+    data.fillChecking,
+    SE.FillCheckingToEnterprise
+  )
+  if (fillChecking) result.ПроверкаЗаполнения = fillChecking
+
+  const extendedEdit = exportBooleanToEnterprise(context, data.extendedEdit)
+  if (extendedEdit !== undefined) result.РасширенноеРедактирование = extendedEdit
+
+  const passwordMode = exportBooleanToEnterprise(context, data.passwordMode)
+  if (passwordMode !== undefined) result.РежимПароля = passwordMode
+
+  const typeReductionMode = exportSystemEnumerationToEnterprise<SE.TypeReductionModeEnterprise>(
+    context,
+    data.typeReductionMode,
+    SE.TypeReductionModeToEnterprise
+  )
+  if (typeReductionMode) result.РежимСокращенияТипа = typeReductionMode
+
+  const choiceParameterLinks = exportChoiceParameterLinksToEnterprise(context, data.choiceParameterLinks)
+  if (choiceParameterLinks) result.СвязиПараметровВыбора = choiceParameterLinks
+
+  const linkByType = exportTypeLinkToEnterprise(context, data.linkByType)
+  if (linkByType) result.СвязьПоТипу = linkByType
+
+  const synonym = exportI8nTextToEnterprise(context, data.synonym)
+  if (synonym) result.Синоним = synonym
+
+  const createOnInput = exportSystemEnumerationToEnterprise<SE.CreateOnInputEnterprise>(
+    context,
+    data.createOnInput,
+    SE.CreateOnInputToEnterprise
+  )
+  if (createOnInput) result.СозданиеПриВводе = createOnInput
+
+  const type = exportTypeDescriptionToEnterprise(context, data.type)
+  if (type) result.Тип = type
+
+  if (data.choiceForm) result.ФормаВыбора = data.choiceForm
+
+  const format = exportI8nTextToEnterprise(context, data.format)
+  if (format) result.Формат = format
+
+  const editFormat = exportI8nTextToEnterprise(context, data.editFormat)
+  if (editFormat) result.ФорматРедактирования = editFormat
 
   return result
 }

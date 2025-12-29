@@ -1,52 +1,32 @@
 import { describe, expect, it } from "vitest"
+import {
+  allParameters,
+  allParametersEnterprise,
+  necessaryParameters,
+  necessaryParametersEnterprise,
+} from "~/tests/fixtures/standartAttributeDescription/data"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportStandardAttributeDescriptionToEnterprise,
-  exportStandardAttributeDescriptionsToEnterprise,
-} from "./exportToEnterprise"
-import {
-  StandardAttributeDescription,
-  StandardAttributeDescriptionEnterprise,
-  StandardAttributeDescriptions,
-  StandardAttributeDescriptionsEnterprise,
-} from "./types"
+import { exportStandardAttributeDescriptionsToEnterprise } from "./exportToEnterprise"
 
 describe("exportStandardAttributeDescriptionToEnterprise", () => {
-  it("should export standard attribute description to enterprise", () => {
-    const data: StandardAttributeDescription = {
-      name: "PredefinedDataName",
-      fillChecking: "ShowError",
-      synonym: { items: { ru: "Какой-то синоним" } },
-    }
-
-    const expectedResult: StandardAttributeDescriptionEnterprise = {
-      Синоним: "Какой-то синоним",
-      ПроверкаЗаполнения: "ВыдаватьОшибку",
-    }
-
-    const result = exportStandardAttributeDescriptionToEnterprise(mockСontext, data)
-
-    expect(result).toEqual(expectedResult)
+  it("should return undefined when data is undefined", () => {
+    const result = exportStandardAttributeDescriptionsToEnterprise(mockСontext, undefined)
+    expect(result).toBeUndefined()
   })
 
-  it("should export standard attributes with name", () => {
-    const data: StandardAttributeDescriptions = [
-      {
-        name: "PredefinedDataName",
-        fillChecking: "ShowError",
-        synonym: { items: { ru: "Какой-то синоним" } },
-      },
-    ]
+  it("should return undefined when array is empty", () => {
+    const result = exportStandardAttributeDescriptionsToEnterprise(mockСontext, [])
+    expect(result).toBeUndefined()
+  })
 
-    const expectedResult: StandardAttributeDescriptionsEnterprise = {
-      ИмяПредопределенныхДанных: {
-        Синоним: "Какой-то синоним",
-        ПроверкаЗаполнения: "ВыдаватьОшибку",
-      },
-    }
+  it("should export all parameters to enterprise", () => {
+    const result = exportStandardAttributeDescriptionsToEnterprise(mockСontext, allParameters)
 
-    const result = exportStandardAttributeDescriptionsToEnterprise(mockСontext, data)
+    expect(result).toEqual(allParametersEnterprise)
+  })
 
-    expect(result).toEqual(expectedResult)
+  it("should export with only name", () => {
+    const result = exportStandardAttributeDescriptionsToEnterprise(mockСontext, necessaryParameters)
+    expect(result).toEqual(necessaryParametersEnterprise)
   })
 })

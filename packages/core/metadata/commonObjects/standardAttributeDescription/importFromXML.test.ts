@@ -5,7 +5,7 @@ import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importStandardAttributeDescriptionsFromXML } from "./importFromXML"
 import { StandardAttributeDescriptionsXML } from "./types"
 
-describe("importStandardAttributeDescriptionFromXML", () => {
+describe("importStandardAttributeDescriptionsFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importStandardAttributeDescriptionsFromXML(mockСontext, undefined)
     expect(result).toBeUndefined()
@@ -46,13 +46,4 @@ describe("importStandardAttributeDescriptionFromXML", () => {
     const result = importStandardAttributeDescriptionsFromXML(mockСontext, xml.StandardAttributes)
     expect(result).toEqual(multiple)
   })
-
-  // it("should import with multiple default values to undefined", () => {
-  //   const xml = readAndParseXMLFile<{ StandardAttributes: StandardAttributeDescriptionsXML }>(
-  //     "standartAttributeDescription/multipleDefault.xml"
-  //   )
-
-  //   const result = importStandardAttributeDescriptionsFromXML(mockСontext, xml["xr:StandardAttribute"])
-  //   expect(result).toBeUndefined()
-  // })
 })

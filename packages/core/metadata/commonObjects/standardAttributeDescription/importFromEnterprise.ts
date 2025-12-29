@@ -17,13 +17,28 @@ import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerat
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
 
-export const importStandardAttributeDescriptionFromEnterprise = (
+export const importStandardAttributeDescriptionsFromEnterprise = (
   context: Context,
-  data: StandardAttributeDescriptionEnterprise | undefined,
-  name: string
-): StandardAttributeDescription | undefined => {
+  data: StandardAttributeDescriptionsEnterprise | undefined
+): StandardAttributeDescriptions | undefined => {
   if (!data) return undefined
 
+  const result: StandardAttributeDescriptions = []
+
+  Object.entries(data).forEach(([name, value]) => {
+    result.push(importStandardAttributeDescriptionFromEnterprise(context, value, name)!)
+  })
+
+  if (result.length === 0) return undefined
+
+  return result
+}
+
+const importStandardAttributeDescriptionFromEnterprise = (
+  context: Context,
+  data: StandardAttributeDescriptionEnterprise,
+  name: string
+): StandardAttributeDescription => {
   const result: StandardAttributeDescription = {
     name: PredefinedNameFromEnterprise(name),
   }
@@ -128,24 +143,4 @@ export const importStandardAttributeDescriptionFromEnterprise = (
 
   const defaults = getDefaults(result, context)
   return removeDefaults(result, defaults)
-}
-
-export const importStandardAttributeDescriptionsFromEnterprise = (
-  context: Context,
-  data: StandardAttributeDescriptionsEnterprise | undefined
-): StandardAttributeDescriptions | undefined => {
-  if (!data) return undefined
-
-  const result: StandardAttributeDescriptions = []
-
-  Object.entries(data).forEach(([name, value]) => {
-    const item = importStandardAttributeDescriptionFromEnterprise(context, value, name)
-    if (item) {
-      result.push(item)
-    }
-  })
-
-  if (result.length === 0) return undefined
-
-  return result
 }

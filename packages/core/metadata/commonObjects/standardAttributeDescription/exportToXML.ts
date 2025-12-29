@@ -10,52 +10,7 @@ import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescrip
 import { exportTypeLinkToXML } from "~/metadata/commonObjects/typeLink/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
 import { Context } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { getDefaults } from "./defaults"
-
-export const exportStandardAttributeDescriptionToXML = (
-  context: Context,
-  data: StandardAttributeDescription | undefined
-): StandardAttributeDescriptionXML | undefined => {
-  if (!data) return undefined
-
-  const defaults = getDefaults(data, context)
-  const mergedData = { ...defaults, ...data }
-
-  const compacted = compactObject({
-    "xr:ChoiceForm": mergedData.choiceForm,
-    "xr:ChoiceHistoryOnInput": mergedData.choiceHistoryOnInput,
-    "xr:ChoiceParameterLinks": exportChoiceParameterLinksToXML(context, mergedData.choiceParameterLinks),
-    "xr:ChoiceParameters": exportChoiceParameterLinksToXML(context, mergedData.choiceParameters),
-    "xr:Comment": mergedData.comment,
-    "xr:CreateOnInput": mergedData.createOnInput,
-    "xr:DataHistory": mergedData.dataHistory,
-    "xr:EditFormat": exportI8nTextToXML(context, mergedData.editFormat),
-    "xr:ExtendedEdit": mergedData.extendedEdit,
-    "xr:FillChecking": mergedData.fillChecking,
-    "xr:FillFromFillingValue": mergedData.fillFromFillingValue,
-    "xr:FillValue": exportMetadataValueToXML(context, mergedData.fillValue),
-    "xr:Format": exportI8nTextToXML(context, mergedData.format),
-    "xr:FullTextSearch": mergedData.fullTextSearch,
-    "xr:LinkByType": exportTypeLinkToXML(context, mergedData.linkByType),
-    "xr:MarkNegatives": mergedData.markNegatives,
-    "xr:Mask": mergedData.mask,
-    "xr:MaxValue": mergedData.maxValue,
-    "xr:MinValue": mergedData.minValue,
-    "xr:MultiLine": mergedData.multiLine,
-    "xr:PasswordMode": mergedData.passwordMode,
-    "xr:QuickChoice": mergedData.quickChoice,
-    "xr:Synonym": exportI8nTextToXML(context, mergedData.synonym),
-    "xr:ToolTip": exportI8nTextToXML(context, mergedData.toolTip),
-    "xr:Type": exportTypeDescriptionToXML(context, mergedData.type),
-    "xr:TypeReductionMode": mergedData.typeReductionMode,
-  })
-
-  return {
-    _name: mergedData.name!,
-    ...compacted,
-  } as StandardAttributeDescriptionXML
-}
 
 export const exportStandardAttributeDescriptionsToXML = (
   context: Context,
@@ -63,5 +18,80 @@ export const exportStandardAttributeDescriptionsToXML = (
 ): StandardAttributeDescriptionsXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value: StandardAttributeDescription) => exportStandardAttributeDescriptionToXML(context, value)!)
+  return {
+    "xr:StandardAttribute": data.map(
+      (value: StandardAttributeDescription) => exportStandardAttributeDescriptionToXML(context, value)!
+    ),
+  }
+}
+
+const exportStandardAttributeDescriptionToXML = (
+  context: Context,
+  data: StandardAttributeDescription
+): StandardAttributeDescriptionXML => {
+  const defaults = getDefaults(data, context)
+  const mergedData = { ...defaults, ...data }
+
+  const result: StandardAttributeDescriptionXML = {
+    _name: mergedData.name!,
+  }
+
+  if (mergedData.choiceForm !== undefined) result["xr:ChoiceForm"] = mergedData.choiceForm
+
+  result["xr:ChoiceHistoryOnInput"] = mergedData.choiceHistoryOnInput
+
+  const choiceParameters = exportChoiceParameterLinksToXML(context, mergedData.choiceParameters)
+  if (choiceParameters) result["xr:ChoiceParameters"] = choiceParameters
+
+  const choiceParameterLinks = exportChoiceParameterLinksToXML(context, mergedData.choiceParameterLinks)
+  if (choiceParameterLinks) result["xr:ChoiceParameterLinks"] = choiceParameterLinks
+
+  if (mergedData.comment !== undefined) result["xr:Comment"] = mergedData.comment
+
+  result["xr:CreateOnInput"] = mergedData.createOnInput
+  result["xr:DataHistory"] = mergedData.dataHistory
+
+  const editFormat = exportI8nTextToXML(context, mergedData.editFormat)
+  if (editFormat) result["xr:EditFormat"] = editFormat
+
+  result["xr:ExtendedEdit"] = mergedData.extendedEdit
+
+  result["xr:FillChecking"] = mergedData.fillChecking
+  result["xr:FillFromFillingValue"] = mergedData.fillFromFillingValue
+
+  const fillValue = exportMetadataValueToXML(context, mergedData.fillValue)
+  if (fillValue) result["xr:FillValue"] = fillValue
+
+  const format = exportI8nTextToXML(context, mergedData.format)
+  if (format) result["xr:Format"] = format
+
+  result["xr:FullTextSearch"] = mergedData.fullTextSearch
+
+  const linkByType = exportTypeLinkToXML(context, mergedData.linkByType)
+  if (linkByType) result["xr:LinkByType"] = linkByType
+
+  result["xr:MarkNegatives"] = mergedData.markNegatives
+
+  if (mergedData.mask !== undefined) result["xr:Mask"] = mergedData.mask
+  if (mergedData.maxValue !== undefined) result["xr:MaxValue"] = mergedData.maxValue
+  if (mergedData.minValue !== undefined) result["xr:MinValue"] = mergedData.minValue
+
+  result["xr:MultiLine"] = mergedData.multiLine
+
+  result["xr:PasswordMode"] = mergedData.passwordMode
+
+  result["xr:QuickChoice"] = mergedData.quickChoice
+
+  const synonym = exportI8nTextToXML(context, mergedData.synonym)
+  if (synonym !== undefined) result["xr:Synonym"] = synonym
+
+  const toolTip = exportI8nTextToXML(context, mergedData.toolTip)
+  if (toolTip !== undefined) result["xr:ToolTip"] = toolTip
+
+  const type = exportTypeDescriptionToXML(context, mergedData.type)
+  if (type) result["xr:Type"] = type
+
+  result["xr:TypeReductionMode"] = mergedData.typeReductionMode
+
+  return result
 }

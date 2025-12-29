@@ -1,22 +1,24 @@
 import { Context } from "../../context/types"
 import { StandardAttributeDescription } from "./types"
 
+const defaults = {
+  choiceHistoryOnInput: "Auto",
+  createOnInput: "Auto",
+  dataHistory: "Use",
+  extendedEdit: false,
+  fillChecking: "DontCheck",
+  fillFromFillingValue: false,
+  fullTextSearch: "Use",
+  markNegatives: false,
+  multiLine: false,
+  passwordMode: false,
+  quickChoice: "Auto",
+  typeReductionMode: "TransformValues",
+} as const
+
 export const getDefaults = (
   _data: StandardAttributeDescription,
   _context: Context
-): Partial<StandardAttributeDescription> => {
-  return {
-    fillChecking: "DontCheck",
-    multiLine: false,
-    fillFromFillingValue: false,
-    createOnInput: "Auto",
-    typeReductionMode: "TransformValues",
-    extendedEdit: false,
-    quickChoice: "Auto",
-    choiceHistoryOnInput: "Auto",
-    passwordMode: false,
-    dataHistory: "Use",
-    markNegatives: false,
-    fullTextSearch: "Use",
-  }
+): Required<Pick<StandardAttributeDescription, keyof typeof defaults>> => {
+  return defaults
 }

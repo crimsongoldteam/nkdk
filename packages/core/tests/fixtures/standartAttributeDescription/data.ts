@@ -1,5 +1,4 @@
 import {
-  StandardAttributeDescription,
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsEnterprise,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
@@ -26,7 +25,7 @@ export const allParameters: StandardAttributeDescriptions = [
     comment: "Какой-то комментарий",
     createOnInput: "Use",
     dataHistory: "DontUse",
-    editFormat: { items: { ru: "Формат редактирования", en: "Edit format" } },
+    editFormat: { items: { ru: "Формат редактирования" } },
     extendedEdit: true,
     fillChecking: "ShowError",
     fillFromFillingValue: true,
@@ -46,7 +45,7 @@ export const allParameters: StandardAttributeDescriptions = [
     minValue: 0,
     multiLine: true,
     passwordMode: true,
-    quickChoice: "Use",
+    quickChoice: "DontUse",
     synonym: { items: { ru: "Какой-то синоним" } },
     toolTip: { items: { ru: "Подсказка для поля" } },
     type: {
@@ -61,12 +60,12 @@ export const allParametersEnterprise: StandardAttributeDescriptionsEnterprise = 
   ИмяПредопределенныхДанных: {
     Синоним: "Какой-то синоним",
     ПроверкаЗаполнения: "ВыдаватьОшибку",
-    БыстрыйВыбор: "Использовать",
+    БыстрыйВыбор: "НеИспользовать",
     ВыделятьОтрицательные: "Истина",
-    ЗаполнятьИзДанныхЗаполнения: "Ложь",
+    ЗаполнятьИзДанныхЗаполнения: "Истина",
     ЗначениеЗаполнения: '"Текстовое значение"',
-    ИсторияВыбораПриВводе: "Авто",
-    ИсторияДанных: "Использовать",
+    ИсторияВыбораПриВводе: "НеИспользовать",
+    ИсторияДанных: "НеИспользовать",
     Комментарий: "Какой-то комментарий",
     МаксимальноеЗначение: 100,
     Маска: "999",
@@ -74,23 +73,29 @@ export const allParametersEnterprise: StandardAttributeDescriptionsEnterprise = 
     МногострочныйРежим: "Истина",
     ПараметрыВыбора: "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1)",
     Подсказка: "Подсказка для поля",
-    ПолнотекстовыйПоиск: "Использовать",
-    РасширенноеРедактирование: "Ложь",
+    ПолнотекстовыйПоиск: "НеИспользовать",
+    РасширенноеРедактирование: "Истина",
     РежимПароля: "Истина",
     РежимСокращенияТипа: "Запрещать",
     СвязиПараметровВыбора: "Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)",
     СвязьПоТипу: "Справочник.КакойТоСправочник.Реквизит.КакойТоРеквизит",
-    СозданиеПриВводе: "Авто",
+    СозданиеПриВводе: "Использовать",
     Тип: "Строка(10)",
     ФормаВыбора: "ФормаВыбора",
     Формат: "Формат",
-    ФорматРедактирования: { ru: "Формат редактирования", en: "Edit format" },
+    ФорматРедактирования: "Формат редактирования",
   },
 }
 
-export const necessaryParameters: StandardAttributeDescription = {
-  name: "PredefinedDataName",
+export const necessaryParametersEnterprise: StandardAttributeDescriptionsEnterprise = {
+  ИмяПредопределенныхДанных: {},
 }
+
+export const necessaryParameters: StandardAttributeDescriptions = [
+  {
+    name: "PredefinedDataName",
+  },
+]
 
 export const multiple: StandardAttributeDescriptions = [
   {
