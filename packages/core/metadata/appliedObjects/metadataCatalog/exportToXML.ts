@@ -68,16 +68,14 @@ export const exportMetadataCatalogToXML = (
     if (attributes) {
       childObjects.Attribute = attributes
     }
-    if (commands) {
-      childObjects.Command = commands
+    if (tabularSections) {
+      childObjects.TabularSection = tabularSections
     }
-
     if (forms) {
       childObjects.Form = forms
     }
-
-    if (tabularSections) {
-      childObjects.TabularSection = tabularSections
+    if (commands) {
+      childObjects.Command = commands
     }
   }
 

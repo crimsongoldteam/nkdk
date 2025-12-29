@@ -22,12 +22,12 @@ export const exportTypeDescriptionToXML = (
     (typeDescription.type[0].startsWith("DefinedType.") || typeDescription.type[0].startsWith("Characteristic."))
 
   const result = compactObject<TypeDescriptionXML>({
-    "v8:StringQualifiers": getStringQualifiers(stringQualifiers),
-    "v8:NumberQualifiers": getNumberQualifiers(typeDescription.numberQualifiers),
-    "v8:DateQualifiers": getDateQualifiers(typeDescription.dateQualifiers),
     ...(shouldUseTypeSet
       ? { "v8:TypeSet": mappedTypes[0] }
       : { "v8:Type": mappedTypes.length === 1 ? mappedTypes[0] : mappedTypes }),
+    "v8:StringQualifiers": getStringQualifiers(stringQualifiers),
+    "v8:NumberQualifiers": getNumberQualifiers(typeDescription.numberQualifiers),
+    "v8:DateQualifiers": getDateQualifiers(typeDescription.dateQualifiers),
   })
 
   return result
