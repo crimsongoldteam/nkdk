@@ -28,34 +28,34 @@
 			<Characteristics>
 				<xr:Characteristic>
 					<xr:CharacteristicTypes from="Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты">
+						<xr:DataPathField>-1</xr:DataPathField>
 						<xr:KeyField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:KeyField>
+						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
 						<xr:TypesFilterField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.ИмяПредопределенногоНабора</xr:TypesFilterField>
 						<xr:TypesFilterValue xsi:type="xs:string">Справочник_Проекты</xr:TypesFilterValue>
-						<xr:DataPathField>-1</xr:DataPathField>
-						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
 					</xr:CharacteristicTypes>
 					<xr:CharacteristicValues from="Catalog.Проекты.TabularSection.ДополнительныеРеквизиты">
+						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
+						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
 						<xr:ObjectField>Catalog.Проекты.TabularSection.ДополнительныеРеквизиты.StandardAttribute.Ref</xr:ObjectField>
 						<xr:TypeField>Catalog.Проекты.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:TypeField>
 						<xr:ValueField>Catalog.Проекты.TabularSection.ДополнительныеРеквизиты.Attribute.Значение</xr:ValueField>
-						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
-						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
 					</xr:CharacteristicValues>
 				</xr:Characteristic>
 				<xr:Characteristic>
 					<xr:CharacteristicTypes from="Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения">
+						<xr:DataPathField>-1</xr:DataPathField>
 						<xr:KeyField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.Свойство</xr:KeyField>
+						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
 						<xr:TypesFilterField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеСведения.Attribute.ИмяПредопределенногоНабора</xr:TypesFilterField>
 						<xr:TypesFilterValue xsi:type="xs:string">Справочник_Проекты</xr:TypesFilterValue>
-						<xr:DataPathField>-1</xr:DataPathField>
-						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
 					</xr:CharacteristicTypes>
 					<xr:CharacteristicValues from="InformationRegister.ДополнительныеСведения">
+						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
+						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
 						<xr:ObjectField>InformationRegister.ДополнительныеСведения.Dimension.Объект</xr:ObjectField>
 						<xr:TypeField>InformationRegister.ДополнительныеСведения.Dimension.Свойство</xr:TypeField>
 						<xr:ValueField>InformationRegister.ДополнительныеСведения.Resource.Значение</xr:ValueField>
-						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
-						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
 					</xr:CharacteristicValues>
 				</xr:Characteristic>
 			</Characteristics>
@@ -79,8 +79,8 @@
 			<ExecuteAfterWriteDataHistoryVersionProcessing>false</ExecuteAfterWriteDataHistoryVersionProcessing>
 			<Explanation>
 				<v8:item>
-					<v8:lang>ru</v8:lang>
 					<v8:content>Проекты компании</v8:content>
+					<v8:lang>ru</v8:lang>
 				</v8:item>
 			</Explanation>
 			<FoldersOnTop>true</FoldersOnTop>
@@ -97,8 +97,8 @@
 			<Name>Проекты</Name>
 			<ObjectPresentation>
 				<v8:item>
-					<v8:lang>ru</v8:lang>
 					<v8:content>Проект</v8:content>
+					<v8:lang>ru</v8:lang>
 				</v8:item>
 			</ObjectPresentation>
 			<PredefinedDataUpdate>Auto</PredefinedDataUpdate>
@@ -127,8 +127,8 @@
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Признак предопределенного элемента</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
@@ -139,8 +139,8 @@
 					<xr:MarkNegatives>false</xr:MarkNegatives>
 					<xr:Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Предопределенный</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
@@ -153,8 +153,8 @@
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Ссылка на элемент</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
@@ -165,8 +165,8 @@
 					<xr:MarkNegatives>false</xr:MarkNegatives>
 					<xr:Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Ссылка</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
@@ -179,8 +179,8 @@
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Пометка удаления элемента</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
@@ -191,8 +191,8 @@
 					<xr:MarkNegatives>false</xr:MarkNegatives>
 					<xr:Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Пометка удаления</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
@@ -205,8 +205,8 @@
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Признак группы проектов</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
@@ -217,8 +217,8 @@
 					<xr:MarkNegatives>false</xr:MarkNegatives>
 					<xr:Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Это группа</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
@@ -231,8 +231,8 @@
 					<xr:TypeReductionMode>Deny</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Владелец элемента</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
@@ -243,8 +243,8 @@
 					<xr:MarkNegatives>false</xr:MarkNegatives>
 					<xr:Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Владелец</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
@@ -257,8 +257,8 @@
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Группа, в которую входит данный проект.</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
@@ -269,8 +269,8 @@
 					<xr:MarkNegatives>false</xr:MarkNegatives>
 					<xr:Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Группа</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
@@ -284,8 +284,8 @@
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Наименование проекта</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
@@ -296,8 +296,8 @@
 					<xr:MarkNegatives>false</xr:MarkNegatives>
 					<xr:Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Наименование</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
@@ -310,8 +310,8 @@
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 					<xr:ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Код проекта</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:ToolTip>
 					<xr:ExtendedEdit>false</xr:ExtendedEdit>
@@ -322,8 +322,8 @@
 					<xr:MarkNegatives>false</xr:MarkNegatives>
 					<xr:Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Код</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</xr:Synonym>
 					<xr:FullTextSearch>Use</xr:FullTextSearch>
@@ -332,8 +332,8 @@
 			<SubordinationUse>ToItems</SubordinationUse>
 			<Synonym>
 				<v8:item>
-					<v8:lang>ru</v8:lang>
 					<v8:content>Проекты</v8:content>
+					<v8:lang>ru</v8:lang>
 				</v8:item>
 			</Synonym>
 			<UpdateDataHistoryImmediatelyAfterWrite>false</UpdateDataHistoryImmediatelyAfterWrite>
@@ -359,14 +359,14 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Дата начала</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Начало проекта (этапа)</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -397,14 +397,14 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Дата окончания</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Окончание проекта (этапа)</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -440,14 +440,14 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Контрагент</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Заказчик проекта</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -482,14 +482,14 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Договор</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Договор на выполнение проекта</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -516,14 +516,14 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Комментарий</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Произвольный комментарий</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -554,15 +554,15 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Недействителен</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Номенклатура выведена из ассортимента, но сведения о ней сохранены.
 Недействительная номенклатура по умолчанию скрывается из всех списков программы.</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</ToolTip>
 					<Type>
@@ -605,14 +605,14 @@
 					</StandardAttributes>
 					<Synonym>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Дополнительные реквизиты</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</Synonym>
 					<ToolTip>
 						<v8:item>
-							<v8:lang>ru</v8:lang>
 							<v8:content>Дополнительные реквизиты партии запасов</v8:content>
+							<v8:lang>ru</v8:lang>
 						</v8:item>
 					</ToolTip>
 					<Use>ForItem</Use>
@@ -635,14 +635,14 @@
 							<QuickChoice>Auto</QuickChoice>
 							<Synonym>
 								<v8:item>
-									<v8:lang>ru</v8:lang>
 									<v8:content>Свойство</v8:content>
+									<v8:lang>ru</v8:lang>
 								</v8:item>
 							</Synonym>
 							<ToolTip>
 								<v8:item>
-									<v8:lang>ru</v8:lang>
 									<v8:content>Дополнительный реквизит</v8:content>
+									<v8:lang>ru</v8:lang>
 								</v8:item>
 							</ToolTip>
 							<Type>
@@ -674,14 +674,14 @@
 							<QuickChoice>Auto</QuickChoice>
 							<Synonym>
 								<v8:item>
-									<v8:lang>ru</v8:lang>
 									<v8:content>Значение</v8:content>
+									<v8:lang>ru</v8:lang>
 								</v8:item>
 							</Synonym>
 							<ToolTip>
 								<v8:item>
-									<v8:lang>ru</v8:lang>
 									<v8:content>Значение дополнительного реквизита</v8:content>
+									<v8:lang>ru</v8:lang>
 								</v8:item>
 							</ToolTip>
 							<Type>
@@ -706,14 +706,14 @@
 							<QuickChoice>Auto</QuickChoice>
 							<Synonym>
 								<v8:item>
-									<v8:lang>ru</v8:lang>
 									<v8:content>Текстовая строка</v8:content>
+									<v8:lang>ru</v8:lang>
 								</v8:item>
 							</Synonym>
 							<ToolTip>
 								<v8:item>
-									<v8:lang>ru</v8:lang>
 									<v8:content>Полный текст строкового дополнительного реквизита</v8:content>
+									<v8:lang>ru</v8:lang>
 								</v8:item>
 							</ToolTip>
 							<Type>
