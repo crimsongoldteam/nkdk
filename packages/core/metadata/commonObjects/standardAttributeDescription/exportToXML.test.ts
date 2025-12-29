@@ -7,14 +7,17 @@ import { exportStandardAttributeDescriptionsToXML } from "./exportToXML"
 
 describe("exportStandardAttributeDescriptionsToXML", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportStandardAttributeDescriptionsToXML(mockСontext, undefined)
+    const result = exportStandardAttributeDescriptionsToXML(mockСontext, undefined, [
+      "PredefinedDataName",
+      "Predefined",
+    ])
     expect(result).toBeUndefined()
   })
 
   it("should export all parameters", () => {
     const expectedXml = readXMLFileAsString("standartAttributeDescription/allParameters.xml")
 
-    const result = exportStandardAttributeDescriptionsToXML(mockСontext, allParameters)
+    const result = exportStandardAttributeDescriptionsToXML(mockСontext, allParameters, ["PredefinedDataName"])
     const xmlString = xmlExport({ StandardAttributes: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -22,7 +25,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
 
   it("should export XML with default values if only name is present", () => {
     const expectedXml = readXMLFileAsString("standartAttributeDescription/default.xml")
-    const result = exportStandardAttributeDescriptionsToXML(mockСontext, necessaryParameters)
+    const result = exportStandardAttributeDescriptionsToXML(mockСontext, necessaryParameters, ["PredefinedDataName"])
 
     const xmlString = xmlExport({ StandardAttributes: result }, false)
     expect(xmlString).toEqual(expectedXml)
@@ -31,7 +34,16 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
   it("should export with multiple values", () => {
     const expectedXml = readXMLFileAsString("standartAttributeDescription/multiple.xml")
 
-    const result = exportStandardAttributeDescriptionsToXML(mockСontext, multiple)
+    const result = exportStandardAttributeDescriptionsToXML(mockСontext, multiple, ["PredefinedDataName", "Predefined"])
+    const xmlString = xmlExport({ StandardAttributes: result }, false)
+
+    expect(xmlString).toEqual(expectedXml)
+  })
+
+  it("should export with skipped default values", () => {
+    const expectedXml = readXMLFileAsString("standartAttributeDescription/default.xml")
+
+    const result = exportStandardAttributeDescriptionsToXML(mockСontext, [], ["PredefinedDataName"])
     const xmlString = xmlExport({ StandardAttributes: result }, false)
 
     expect(xmlString).toEqual(expectedXml)

@@ -2,6 +2,7 @@ import { v4 } from "uuid"
 import {
   CatalogInternalInfoParamsXML,
   MetadataCatalog,
+  MetadataCatalogStandardAttributeNames,
   MetadataCatalogXML,
 } from "~/metadata/appliedObjects/metadataCatalog/types"
 import { exportMetadataCommandsToXML } from "~/metadata/appliedObjects/metadataCommand/exportToXML"
@@ -154,7 +155,11 @@ export const exportMetadataCatalogToXML = (
         PredefinedDataUpdate: mergedData.predefinedDataUpdate,
         QuickChoice: mergedData.quickChoice,
         SearchStringModeOnInputByString: mergedData.searchStringModeOnInputByString,
-        StandardAttributes: exportStandardAttributeDescriptionsToXML(context, mergedData.standardAttributes),
+        StandardAttributes: exportStandardAttributeDescriptionsToXML(
+          context,
+          mergedData.standardAttributes,
+          MetadataCatalogStandardAttributeNames
+        ),
         SubordinationUse: mergedData.subordinationUse,
         Synonym: exportI8nTextToXML(context, mergedData.synonym),
         UpdateDataHistoryImmediatelyAfterWrite: mergedData.updateDataHistoryImmediatelyAfterWrite,

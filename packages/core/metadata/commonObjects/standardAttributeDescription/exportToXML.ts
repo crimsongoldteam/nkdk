@@ -1,6 +1,7 @@
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 import {
+  PredefinedName,
   StandardAttributeDescription,
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsXML,
@@ -14,12 +15,15 @@ import { getDefaults } from "./defaults"
 
 export const exportStandardAttributeDescriptionsToXML = (
   context: Context,
-  data: StandardAttributeDescriptions | undefined
+  data: StandardAttributeDescriptions | undefined,
+  standartAttributeNames: PredefinedName[]
 ): StandardAttributeDescriptionsXML | undefined => {
   if (!data) return undefined
 
+  const extendedData = getExtendedStandardAttributeDescriptions(data, standartAttributeNames)
+
   return {
-    "xr:StandardAttribute": data.map(
+    "xr:StandardAttribute": extendedData.map(
       (value: StandardAttributeDescription) => exportStandardAttributeDescriptionToXML(context, value)!
     ),
   }
@@ -92,6 +96,35 @@ const exportStandardAttributeDescriptionToXML = (
   if (type) result["xr:Type"] = type
 
   result["xr:TypeReductionMode"] = mergedData.typeReductionMode
+
+  return result
+}
+
+const getExtendedStandardAttributeDescriptions = (
+  data: StandardAttributeDescriptions,
+  standartAttributeNames: PredefinedName[]
+): StandardAttributeDescriptions => {
+  const dataMap = new Map<PredefinedName, StandardAttributeDescription>()
+
+  for (const item of data) {
+    dataMap.set(item.name, item)
+  }
+
+  const result: StandardAttributeDescriptions = []
+
+  for (const name of standartAttributeNames) {
+    const existingItem = dataMap.get(name)
+
+    if (existingItem) {
+      result.push(existingItem)
+      continue
+    }
+
+    const defaultItem: StandardAttributeDescription = {
+      name,
+    }
+    result.push(defaultItem)
+  }
 
   return result
 }

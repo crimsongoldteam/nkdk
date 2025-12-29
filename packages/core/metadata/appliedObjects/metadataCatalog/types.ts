@@ -41,6 +41,7 @@ import {
   PredefinedItemsXML,
 } from "~/metadata/commonObjects/predifined/types"
 import {
+  PredefinedName,
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsEnterprise,
   StandardAttributeDescriptionsXML,
@@ -48,6 +49,18 @@ import {
 import * as SE from "~/metadata/systemEnumerations/types"
 
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
+
+export const MetadataCatalogStandardAttributeNames: PredefinedName[] = [
+  "PredefinedDataName",
+  "Predefined",
+  "Ref",
+  "DeletionMark",
+  "IsFolder",
+  "Owner",
+  "Parent",
+  "Description",
+  "Code",
+]
 
 export interface MetadataCatalog {
   additionalIndexes?: AdditionalIndexes
