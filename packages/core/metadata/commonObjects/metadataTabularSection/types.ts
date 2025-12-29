@@ -22,7 +22,7 @@ export interface MetadataTabularSection {
   objectBelonging?: SE.ObjectBelonging
   standardAttributes?: StandardAttributeDescriptions
   synonym?: I8nText
-  tooltip?: I8nText
+  toolTip?: I8nText
   use?: SE.AttributeUse
 }
 
@@ -42,7 +42,7 @@ export interface MetadataTabularSectionXML {
     ObjectBelonging?: SE.ObjectBelonging
     StandardAttributes?: StandardAttributeDescriptionsXML
     Synonym?: I8nTextXML
-    Tooltip?: I8nTextXML
+    ToolTip?: I8nTextXML
     Use?: SE.AttributeUse
   }
   ChildObjects?: {

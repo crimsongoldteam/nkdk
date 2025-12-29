@@ -34,7 +34,7 @@ export const importMetadataTabularSectionFromXML = (
     objectBelonging: props.ObjectBelonging,
     standardAttributes: importStandardAttributeDescriptionsFromXML(context, props.StandardAttributes),
     synonym: importI8nTextFromXML(context, props.Synonym),
-    tooltip: importI8nTextFromXML(context, props.Tooltip),
+    toolTip: importI8nTextFromXML(context, props.ToolTip),
     use: props.Use,
   }
 

@@ -34,7 +34,7 @@ export const importMetadataTabularSectionFromEnterprise = (
       data.ПринадлежностьОбъекта,
       SE.ObjectBelongingFromEnterprise
     ),
-    tooltip: importI8nTextFromEnterprise(context, data.Подсказка),
+    toolTip: importI8nTextFromEnterprise(context, data.Подсказка),
     standardAttributes: importStandardAttributeDescriptionsFromEnterprise(context, data.СтандартныеРеквизиты),
     attributes: importMetadataAttributesFromEnterprise(context, data.Реквизиты),
   }

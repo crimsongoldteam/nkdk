@@ -38,7 +38,7 @@ export const exportMetadataTabularSectionToXML = (
       ObjectBelonging: mergedData.objectBelonging,
       StandardAttributes: exportStandardAttributeDescriptionsToXML(context, mergedData.standardAttributes),
       Synonym: exportI8nTextToXML(context, mergedData.synonym),
-      Tooltip: exportI8nTextToXML(context, mergedData.tooltip),
+      ToolTip: exportI8nTextToXML(context, mergedData.toolTip),
       Use: mergedData.use,
     },
     ChildObjects: {

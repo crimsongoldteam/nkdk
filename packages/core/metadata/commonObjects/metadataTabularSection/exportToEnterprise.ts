@@ -32,7 +32,7 @@ export const exportMetadataTabularSectionToEnterprise = (
     ДлинаНомераСтроки: data.lineNumberLength,
     Использование: exportSystemEnumerationToEnterprise(context, data.use, SE.AttributeUseToEnterprise),
     Комментарий: data.comment,
-    Подсказка: exportI8nTextToEnterprise(context, data.tooltip),
+    Подсказка: exportI8nTextToEnterprise(context, data.toolTip),
     ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
       context,
       data.objectBelonging,
