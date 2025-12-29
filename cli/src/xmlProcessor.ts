@@ -10,7 +10,6 @@ const SORTABLE_TAGS = [
   "v8:item",
   "xr:CharacteristicTypes",
   "xr:CharacteristicValues",
-  "Type",
   "v8:StringQualifiers",
   "v8:NumberQualifiers",
   "v8:DateQualifiers",
