@@ -10,7 +10,7 @@ export const importMetadataItemLinkFromEnterprise = (
 
   const [type, object] = data.split(".") as [string, string]
 
-  const xmlType = MetadataTypeFromEnterprise(type)
+  const xmlType = MetadataTypeFromEnterprise[type as keyof typeof MetadataTypeFromEnterprise]
   if (!xmlType) return undefined
 
   return `${xmlType}.${object}` as MetadataItemLink

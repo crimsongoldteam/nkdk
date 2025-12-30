@@ -24,7 +24,7 @@ export const importMetadataFieldFromEnterprise = (
   // Преобразуем тип объекта (Справочник -> Catalog, Документ -> Document и т.д.)
   if (parts.length > 0) {
     const firstPart = parts[0]
-    const xmlType = MetadataTypeFromEnterprise(firstPart)
+    const xmlType = MetadataTypeFromEnterprise[firstPart as keyof typeof MetadataTypeFromEnterprise]
     // Если тип найден в маппинге - используем преобразованное значение, иначе оставляем как есть
     result.push(xmlType ?? firstPart)
   }

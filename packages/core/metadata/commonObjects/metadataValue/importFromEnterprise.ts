@@ -140,7 +140,7 @@ export const importMetadataRefFromEnterprise = (value: string): MetadataValue =>
 
   const partsResult = []
 
-  const appliedType = MetadataTypeFromEnterprise(appliedTypeEnterprise)
+  const appliedType = MetadataTypeFromEnterprise[appliedTypeEnterprise as keyof typeof MetadataTypeFromEnterprise]
   if (!appliedType) throw new Error(`Invalid type for ref: ${value}`)
   partsResult.push(appliedType)
 

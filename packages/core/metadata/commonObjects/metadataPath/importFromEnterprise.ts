@@ -9,7 +9,7 @@ export const importMetadataTypeFromEnterprise = (_context: Context, name: string
   const type = parts[0]
   const object = parts[1]
 
-  const metadataType = MetadataTypeFromEnterprise(type)
+  const metadataType = MetadataTypeFromEnterprise[type as keyof typeof MetadataTypeFromEnterprise]
   if (!metadataType) return undefined
 
   return `${metadataType}.${object}`

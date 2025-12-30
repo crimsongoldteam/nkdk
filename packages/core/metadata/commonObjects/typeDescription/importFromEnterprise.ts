@@ -1,61 +1,142 @@
-import { Lexer } from "chevrotain"
-import { multiModeLexerDefinition } from "~/parser/lexer"
 import { Context } from "../../context/types"
-import { compactObject } from "../../helpers/compactObject"
-import { TypeDescriptionParser } from "./parser/parser"
-import { TypeDescriptionVisitor } from "./parser/visitor"
-import { TypeDescription } from "./types"
+import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
+import { AllowedLength } from "../../systemEnumerations/types"
+import { importMetadataTypeFromEnterprise } from "../metadataPath/importFromEnterprise"
+import {
+  PrimitiveTypeFromEnterprise,
+  TypeDescription,
+  TypeDescriptionDateQualifiers,
+  TypeDescriptionEnterprise,
+  TypeDescriptionNumberQualifiers,
+  TypeDescriptionStringQualifiers,
+} from "./types"
 
 export const importTypeDescriptionFromEnterprise = (
   _context: Context,
-  value: string | undefined
+  value: TypeDescriptionEnterprise | undefined
 ): TypeDescription | undefined => {
-  if (value === undefined || value.trim() === "") {
+  if (value === undefined) {
     return undefined
   }
 
-  const lexer = new Lexer(multiModeLexerDefinition)
-  const lexingResult = lexer.tokenize(value, "properties_mode")
+  const result: TypeDescription = {
+    type: [],
+  }
 
-  if (lexingResult.errors.length > 0) {
+  // Обрабатываем массив или строку
+  const stringValues = Array.isArray(value) ? value : [value]
+
+  for (const stringValue of stringValues) {
+    if (!stringValue || stringValue.trim() === "") {
+      continue
+    }
+
+    const parsed = formulaFormatParser(stringValue)
+    const type = parsed.formula
+    const parameters = parsed.parameters
+
+    // Обрабатываем строки
+    if (type === "Строка" || type === "ФиксированнаяСтрока") {
+      const primitiveType = PrimitiveTypeFromEnterprise("Строка")
+      result.type.push(primitiveType)
+      const stringQualifiers = getStringQualifiers(parameters, type)
+      if (stringQualifiers) {
+        result.stringQualifiers = stringQualifiers
+      }
+      continue
+    }
+
+    // Обрабатываем числа
+    if (type === "Число" || type === "ПоложительноеЧисло") {
+      const primitiveType = PrimitiveTypeFromEnterprise("Число")
+      result.type.push(primitiveType)
+      const numberQualifiers = getNumberQualifiers(parameters, type)
+      if (numberQualifiers) {
+        result.numberQualifiers = numberQualifiers
+      }
+      continue
+    }
+
+    // Обрабатываем даты
+    if (type === "Дата" || type === "Время" || type === "ДатаВремя") {
+      result.type.push("dateTime")
+      const dateQualifiers = getDateQualifiers(type)
+      if (dateQualifiers) {
+        result.dateQualifiers = dateQualifiers
+      }
+      continue
+    }
+
+    if (type === "Булево") {
+      const primitiveType = PrimitiveTypeFromEnterprise("Булево")
+      result.type.push(primitiveType)
+      continue
+    }
+
+    const metadataType = importMetadataTypeFromEnterprise(_context, type)
+    if (metadataType) {
+      result.type.push(metadataType)
+      continue
+    }
+
+    result.type.push(stringValue)
+  }
+
+  if (result.type.length === 0) {
     return undefined
   }
 
-  const parser = new TypeDescriptionParser()
-  parser.input = lexingResult.tokens
+  return result
+}
 
-  const cst = parser.parseTypeDescription()
+const getStringQualifiers = (parameters: string[], type: string): TypeDescriptionStringQualifiers | undefined => {
+  const stringQualifiers: TypeDescriptionStringQualifiers = { length: 0, allowedLength: "Variable" }
+  if (parameters && parameters.length > 0) {
+    stringQualifiers.length = parseInt(parameters[0])
+  }
+  if (parameters && parameters.length > 1) {
+    stringQualifiers.allowedLength = parameters[1] as AllowedLength
+  }
+  if (type === "ФиксированнаяСтрока") {
+    stringQualifiers.allowedLength = "Fixed"
+  }
 
-  if (!cst) {
+  if (stringQualifiers.length === 0 && stringQualifiers.allowedLength === "Variable") {
     return undefined
   }
 
-  const visitor = new TypeDescriptionVisitor()
-  const result = visitor.visit(cst) as TypeDescription
+  return stringQualifiers
+}
 
-  // Удаляем дефолтные квалификаторы
-  const cleanedResult = { ...result }
+const getNumberQualifiers = (parameters: string[], type: string): TypeDescriptionNumberQualifiers | undefined => {
+  const numberQualifiers: TypeDescriptionNumberQualifiers = { digits: 0, fractionDigits: 0 }
+  if (parameters && parameters.length > 0) {
+    numberQualifiers.digits = parseInt(parameters[0])
+  }
+  if (parameters && parameters.length > 1) {
+    numberQualifiers.fractionDigits = parseInt(parameters[1])
+  }
+  if (type === "ПоложительноеЧисло") {
+    numberQualifiers.allowedSign = "Nonnegative"
+  }
 
-  // Удаляем stringQualifiers, если они равны дефолтным значениям
   if (
-    cleanedResult.stringQualifiers &&
-    cleanedResult.stringQualifiers.length === 0 &&
-    cleanedResult.stringQualifiers.allowedLength === "Variable"
+    numberQualifiers.digits === 0 &&
+    numberQualifiers.fractionDigits === 0 &&
+    numberQualifiers.allowedSign === undefined
   ) {
-    cleanedResult.stringQualifiers = undefined
+    return undefined
   }
 
-  // Удаляем numberQualifiers, если они равны дефолтным значениям
-  if (
-    cleanedResult.numberQualifiers &&
-    cleanedResult.numberQualifiers.digits === 0 &&
-    cleanedResult.numberQualifiers.fractionDigits === 0 &&
-    cleanedResult.numberQualifiers.allowedSign === undefined
-  ) {
-    cleanedResult.numberQualifiers = undefined
+  return numberQualifiers
+}
+
+const getDateQualifiers = (type: string): TypeDescriptionDateQualifiers | undefined => {
+  if (type === "Время") {
+    return { dateFractions: "Time" }
   }
-
-  // Не удаляем dateQualifiers, так как они нужны для различения типов дат
-
-  return compactObject(cleanedResult)
+  if (type === "ДатаВремя") {
+    return { dateFractions: "DateTime" }
+  }
+  return { dateFractions: "Date" }
 }

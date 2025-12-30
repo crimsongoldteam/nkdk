@@ -66,4 +66,4 @@ export interface TypeDescription {
   dateQualifiers?: TypeDescriptionDateQualifiers
 }
 
-export type TypeDescriptionEnterprise = string
+export type TypeDescriptionEnterprise = string | string[]

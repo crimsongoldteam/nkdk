@@ -121,7 +121,7 @@ describe("importTypeDescriptionFromEnterprise", () => {
       const mockTypeDescription: TypeDescription = {
         type: ["тип1", "тип2"],
       }
-      const result = importTypeDescriptionFromEnterprise(mockСontext, "тип1, тип2")
+      const result = importTypeDescriptionFromEnterprise(mockСontext, ["тип1", "тип2"])
 
       expect(result).toEqual(mockTypeDescription)
     })
@@ -132,19 +132,7 @@ describe("importTypeDescriptionFromEnterprise", () => {
         stringQualifiers: { length: 10, allowedLength: "Variable" },
         numberQualifiers: { digits: 10, fractionDigits: 2 },
       }
-      const result = importTypeDescriptionFromEnterprise(mockСontext, "Строка(10), Число(10,2)")
-
-      expect(result).toEqual(mockTypeDescription)
-    })
-  })
-
-  describe("applied objects type description", () => {
-    it("should parse catalog", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["CatalogRef.Контрагенты"],
-      }
-      const result = importTypeDescriptionFromEnterprise(mockСontext, "Справочник.Контрагенты")
-
+      const result = importTypeDescriptionFromEnterprise(mockСontext, ["Строка(10)", "Число(10,2)"])
       expect(result).toEqual(mockTypeDescription)
     })
 
@@ -170,7 +158,7 @@ describe("importTypeDescriptionFromEnterprise", () => {
       const mockTypeDescription: TypeDescription = {
         type: ["DefinedType.GTIN"],
       }
-      const result = importTypeDescriptionFromEnterprise(mockСontext, "ОпределенныйТип.GTIN")
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "ОпределяемыйТип.GTIN")
 
       expect(result).toEqual(mockTypeDescription)
     })

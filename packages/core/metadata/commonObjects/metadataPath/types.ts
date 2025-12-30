@@ -75,11 +75,12 @@ export const MetatatTypeToEnterprise = {
   ...OtherTypeToEnterprise,
 } as const
 
-export const MetadataTypeFromEnterprise = (name: string): MetadataType => {
-  return Object.keys(MetatatTypeToEnterprise).find(
-    (key) => MetatatTypeToEnterprise[key as MetadataType] === name
-  ) as MetadataType
-}
+export const MetadataTypeFromEnterprise = Object.fromEntries(
+  Object.entries(MetatatTypeToEnterprise).map(([key, value]) => [value, key])
+) as Record<
+  (typeof MetatatTypeToEnterprise)[keyof typeof MetatatTypeToEnterprise],
+  keyof typeof MetatatTypeToEnterprise
+>
 
 export type MetadataType = keyof typeof MetatatTypeToEnterprise
 export type MetadataTypeEnterprise = (typeof MetatatTypeToEnterprise)[keyof typeof MetatatTypeToEnterprise]
