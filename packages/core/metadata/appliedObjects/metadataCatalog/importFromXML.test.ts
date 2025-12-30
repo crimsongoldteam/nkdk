@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { full } from "~/tests/fixtures/metadataCatalog/data"
+import { full, minimal } from "~/tests/fixtures/metadataCatalog/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importMetadataCatalogFromXML } from "./importFromXML"
@@ -11,5 +11,21 @@ describe("importMetadataCatalogFromXML", () => {
     const result = importMetadataCatalogFromXML(mockСontext, xmlData.MetaDataObject)
 
     expect(result).toEqual(full)
+  })
+
+  it("should import minimal nodes", () => {
+    const xmlData = readAndParseXMLFile<{ MetaDataObject: MetadataCatalogXML }>("metadataCatalog/minimal.xml")
+
+    const result = importMetadataCatalogFromXML(mockСontext, xmlData.MetaDataObject)
+
+    expect(result).toEqual(minimal)
+  })
+
+  it("should import defaults nodes", () => {
+    const xmlData = readAndParseXMLFile<{ MetaDataObject: MetadataCatalogXML }>("metadataCatalog/defaults.xml")
+
+    const result = importMetadataCatalogFromXML(mockСontext, xmlData.MetaDataObject)
+
+    expect(result).toEqual(minimal)
   })
 })

@@ -8,5 +8,7 @@ export interface MetadataFieldXML {
 export type MetadataFieldEnterprise = string
 
 export type MetadataFields = MetadataField[]
-export type MetadataFieldsXML = MetadataFieldXML[]
+export type MetadataFieldsXML = {
+  "xr:Field": MetadataFieldXML | MetadataFieldXML[]
+}
 export type MetadataFieldsEnterprise = MetadataFieldEnterprise[]

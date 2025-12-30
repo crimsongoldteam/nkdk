@@ -26,11 +26,6 @@ import {
   MetadataFieldsXML,
 } from "~/metadata/commonObjects/metadataField/types"
 import {
-  MetadataItemLinks,
-  MetadataItemLinksEnterprise,
-  MetadataItemLinksXML,
-} from "~/metadata/commonObjects/metadataRef/types"
-import {
   MetadataTabularSections,
   MetadataTabularSectionsEnterprise,
   MetadataTabularSectionsXML,
@@ -48,6 +43,11 @@ import {
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
+import {
+  MetadataValueCollection,
+  MetadataValueCollectionEnterprise,
+  MetadataValueCollectionXML,
+} from "~/metadata/commonObjects/metadataValueCollection/types"
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 
 export const MetadataCatalogStandardAttributeNames: PredefinedName[] = [
@@ -71,7 +71,7 @@ export interface MetadataCatalog {
   auxiliaryFolderForm?: string
   auxiliaryListForm?: string
   auxiliaryObjectForm?: string
-  basedOn?: MetadataItemLinks
+  basedOn?: MetadataValueCollection
   characteristics?: CharacteristicsDescriptions
   checkUnique?: boolean
   choiceDataGetModeOnInputByString?: SE.ChoiceDataGetModeOnInputByString
@@ -112,7 +112,7 @@ export interface MetadataCatalog {
   name: string
   objectBelonging?: SE.ObjectBelonging
   objectPresentation?: I8nText
-  owners?: MetadataItemLinks
+  owners?: MetadataValueCollection
   predefined?: PredefinedItems
   predefinedDataUpdate?: SE.PredefinedDataUpdate
   quickChoice?: boolean
@@ -166,7 +166,7 @@ export interface MetadataCatalogXML {
       AuxiliaryFolderForm?: string
       AuxiliaryListForm?: string
       AuxiliaryObjectForm?: string
-      BasedOn?: MetadataItemLinksXML
+      BasedOn?: MetadataValueCollectionXML
       Characteristics?: CharacteristicsDescriptionsXML
       CheckUnique?: boolean
       ChoiceDataGetModeOnInputByString?: SE.ChoiceDataGetModeOnInputByString
@@ -206,7 +206,7 @@ export interface MetadataCatalogXML {
       Name: string
       ObjectBelonging?: SE.ObjectBelonging
       ObjectPresentation?: I8nTextXML
-      Owners?: MetadataItemLinksXML
+      Owners?: MetadataValueCollectionXML
       Predefined?: PredefinedItemsXML
       PredefinedDataUpdate?: SE.PredefinedDataUpdate
       QuickChoice?: boolean
@@ -234,11 +234,11 @@ export const defaults: Partial<MetadataCatalog> = {
 export interface MetadataCatalogEnterprise {
   Автонумерация?: StringboolEnterprise
   БыстрыйВыбор?: StringboolEnterprise
-  ВводитсяНаОсновании?: MetadataItemLinksEnterprise
+  ВводитсяНаОсновании?: MetadataValueCollectionEnterprise
   ВводПоСтроке?: MetadataFieldsEnterprise
   ВидИерархии?: SE.HierarchyTypeEnterprise
   ВключатьСправкуВСодержание?: StringboolEnterprise
-  Владельцы?: MetadataItemLinksEnterprise
+  Владельцы?: MetadataValueCollectionEnterprise
   ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных?: StringboolEnterprise
   ГруппыСверху?: StringboolEnterprise
   ДлинаКода?: number

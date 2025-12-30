@@ -3,20 +3,26 @@ import { MetadataField, MetadataFields, MetadataFieldsXML, MetadataFieldXML } fr
 
 export const importMetadataFieldFromXML = (
   _context: Context,
-  data: MetadataFieldXML | undefined
+  data: MetadataFieldXML | string | undefined
 ): MetadataField | undefined => {
   if (!data) return undefined
+
+  if (typeof data === "string") return data
 
   return data["#text"]
 }
 
 export const importMetadataFieldsFromXML = (
-  _context: Context,
+  context: Context,
   data: MetadataFieldsXML | undefined
 ): MetadataFields | undefined => {
   if (!data) return undefined
 
-  return undefined
+  const fields = data["xr:Field"]
 
-  // return data.map((value) => importMetadataFieldFromXML(context, value)!)
+  const items = Array.isArray(fields) ? fields : [fields]
+
+  const result = items.map((value) => importMetadataFieldFromXML(context, value)!)
+
+  return result
 }
