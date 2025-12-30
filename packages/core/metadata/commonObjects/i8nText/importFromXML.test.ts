@@ -7,6 +7,7 @@ import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { xmlImport } from "~/xml/import/importer"
 import { importI8nTextFromXML } from "./importFromXML"
 import { I8nTextXML } from "./types"
+import { withoutTextI8nText } from "~/tests/fixtures/i8nText/data"
 
 describe("importI8nTextFromXML", () => {
   it("should import I8nText from XML with one language", () => {
@@ -38,5 +39,13 @@ describe("importI8nTextFromXML", () => {
     const result = importI8nTextFromXML(mockСontext, importedXml.Title)
 
     expect(result).toBeUndefined()
+  })
+
+  it("should import I8nText from XML without text", () => {
+    const xmlData = readAndParseXMLFile<{ Title: I8nTextXML }>("i8nText/withoutText.xml")
+
+    const result = importI8nTextFromXML(mockСontext, xmlData.Title)
+
+    expect(result).toEqual(withoutTextI8nText)
   })
 })

@@ -1,4 +1,4 @@
-import { MetadataAttributes } from "~/metadata/commonObjects/metadataAttribute/types"
+import { MetadataAttributes, MetadataAttributesEnterprise } from "~/metadata/commonObjects/metadataAttribute/types"
 
 export const full: MetadataAttributes = [
   {
@@ -56,20 +56,106 @@ export const full: MetadataAttributes = [
   },
 ]
 
+export const fullEnterprise: MetadataAttributesEnterprise = {
+  ТестовыйРеквизит: {
+    Тип: "Строка",
+    Синоним: "Какой-то тестовый реквизит",
+    БыстрыйВыбор: "НеИспользовать",
+    ВыборГруппИЭлементов: "Группы",
+    ВыделятьОтрицательные: "Истина",
+    ЗаполнятьИзДанныхЗаполнения: "Истина",
+    ЗначениеЗаполнения: '"Значение заполнения"',
+    Индексирование: "Индексировать",
+    Использование: "ДляГруппыИЭлемента",
+    ИспользованиеХраненияВХранилищеДвоичныхДанных: "Использовать",
+    ИсторияВыбораПриВводе: "НеИспользовать",
+    ИсторияДанных: "НеИспользовать",
+    Комментарий: "Комментарий к реквизиту",
+    МаксимальноеЗначение: 100,
+    Маска: "999",
+    МинимальноеЗначение: 10,
+    МногострочныйРежим: "Истина",
+    ПараметрыВыбора: 'Отбор.Параметр("Значение")',
+    Подсказка: "Подсказка для реквизита",
+    ПолеИспользованияХраненияВХранилищеДвоичныхДанных: "Истина",
+    ПолнотекстовыйПоиск: "НеИспользовать",
+    ПроверкаЗаполнения: "ВыдаватьОшибку",
+    РасширенноеРедактирование: "Истина",
+    РежимПароля: "Истина",
+    СвязиПараметровВыбора: "Отбор.Владелец(Справочник.Справочник.Реквизит.Реквизит)",
+    СвязьПоТипу: "Справочник.Справочник.Реквизит.Реквизит(1)",
+    СозданиеПриВводе: "Использовать",
+    ФормаВыбора: "Catalog.Справочник.Form.ФормаВыбора",
+    Формат: "Формат отображения",
+    ФорматРедактирования: "Формат редактирования",
+  },
+}
+
 export const minimal: MetadataAttributes = [
   {
     name: "ТестовыйРеквизит",
     type: { type: ["string"] },
+    synonym: { items: { ru: "" } },
   },
 ]
 
+// export const minimalEnterprise: MetadataAttributesEnterprise = {
+//   ТестовыйРеквизит: { Тип: "Строка", Синоним: { ru: "" } },
+// }
+
 export const multiple: MetadataAttributes = [
   {
-    name: "ТестовыйРеквизит 1",
+    name: "ТестовыйРеквизит1",
+    synonym: { items: { ru: "N1" } },
     type: { type: ["string"] },
   },
   {
-    name: "ТестовыйРеквизит 2",
+    name: "ТестовыйРеквизит2",
+    synonym: { items: { ru: "N2" } },
     type: { type: ["string"] },
   },
 ]
+
+export const short: MetadataAttributes = [
+  {
+    name: "ТестовыйРеквизит",
+    type: { type: ["string"] },
+    synonym: { items: { ru: "Тестовый реквизит" } },
+  },
+]
+
+export const shortEnterprise: MetadataAttributesEnterprise = {
+  ТестовыйРеквизит: "Строка",
+}
+
+export const skipSynonym: MetadataAttributes = [
+  {
+    name: "ТестовыйРеквизит1",
+    type: { type: ["string"] },
+    comment: "Комментарий к реквизиту",
+    synonym: { items: { ru: "Тестовый реквизит 1" } },
+  },
+  {
+    name: "ТестовыйРеквизит2",
+    type: { type: ["string"] },
+    quickChoice: "DontUse",
+    synonym: { items: { ru: "Тестовый реквизит 2" } },
+  },
+]
+
+export const skipSynonymEnterprise: MetadataAttributesEnterprise = {
+  ТестовыйРеквизит1: { Тип: "Строка", Комментарий: "Комментарий к реквизиту" },
+  ТестовыйРеквизит2: { Тип: "Строка", БыстрыйВыбор: "НеИспользовать" },
+}
+
+export const shortMultilanguage: MetadataAttributes = [
+  {
+    name: "ТестовыйРеквизит",
+    type: { type: ["string"] },
+    synonym: { items: { ru: "Тестовый реквизит", en: "Test attribute" } },
+  },
+]
+
+export const shortMultilanguageEnterprise: MetadataAttributesEnterprise = {
+  ТестовыйРеквизит: { Тип: "Строка", Синоним: { en: "Test attribute" } },
+}

@@ -92,8 +92,7 @@ export const exportMetadataAttributeToXML = (context: Context, data: MetadataAtt
 
   result.Properties.QuickChoice = mergedData.quickChoice
 
-  const synonym = exportI8nTextToXML(context, mergedData.synonym)
-  if (synonym !== undefined) result.Properties.Synonym = synonym
+  result.Properties.Synonym = exportI8nTextToXML(context, mergedData.synonym)!
 
   const toolTip = exportI8nTextToXML(context, mergedData.toolTip)
   if (toolTip !== undefined) result.Properties.ToolTip = toolTip

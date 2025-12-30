@@ -103,7 +103,8 @@ const importMetadataAttributeFromXML = (context: Context, xml: MetadataAttribute
   if (props.QuickChoice !== undefined) result.quickChoice = props.QuickChoice
 
   const synonym = importI8nTextFromXML(context, props.Synonym)
-  if (synonym !== undefined) result.synonym = synonym
+  if (synonym == undefined) result.synonym = { items: { [context.defaultLanguage]: "" } }
+  else result.synonym = synonym
 
   const toolTip = importI8nTextFromXML(context, props.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip

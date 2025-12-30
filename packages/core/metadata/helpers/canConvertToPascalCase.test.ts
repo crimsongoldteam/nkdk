@@ -3,6 +3,10 @@ import { canConvertToPascalCase } from "./canConvertToPascalCase"
 
 describe("canConvertToPascalCase", () => {
   describe("Latin characters", () => {
+    it("should return true when string is empty", () => {
+      expect(canConvertToPascalCase("", "")).toBeTruthy()
+    })
+
     it("should return true when single word matches PascalCase", () => {
       expect(canConvertToPascalCase("Test", "Test")).toBeTruthy()
     })
@@ -25,6 +29,24 @@ describe("canConvertToPascalCase", () => {
 
     it("should return true when string is already in PascalCase", () => {
       expect(canConvertToPascalCase("TestTest", "TestTest")).toBeFalsy()
+    })
+
+    it("should return true when string contains numbers", () => {
+      expect(canConvertToPascalCase("Test1Test", "Test1Test")).toBeTruthy()
+    })
+
+    it("should return when when string contains other characters", () => {
+      expect(canConvertToPascalCase("Test1Test!", "Test1Test!")).toBeFalsy()
+    })
+
+    it("should handle string with only special characters (currentWord remains empty)", () => {
+      // When pascalStr contains only special characters that are ignored,
+      // currentWord remains empty and condition on line 94-96 doesn't execute
+      expect(canConvertToPascalCase("!!!", "!!!")).toBeFalsy()
+    })
+
+    it("should handle string with only special characters and spaces", () => {
+      expect(canConvertToPascalCase("!@#$%", "!@#$%")).toBeFalsy()
     })
   })
 

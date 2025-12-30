@@ -51,7 +51,7 @@ export interface MetadataAttribute {
   objectBelonging?: SE.ObjectBelonging
   passwordMode?: boolean
   quickChoice?: SE.UseQuickChoice
-  synonym?: I8nText
+  synonym: I8nText
   toolTip?: I8nText
   type: TypeDescription
   use?: SE.AttributeUse
@@ -88,7 +88,7 @@ export interface MetadataAttributeXML {
     ObjectBelonging?: SE.ObjectBelonging
     PasswordMode?: StringboolXML
     QuickChoice?: SE.UseQuickChoice
-    Synonym?: I8nTextXML
+    Synonym: I8nTextXML
     ToolTip?: I8nTextXML
     Type: TypeDescriptionXML
     Use?: SE.AttributeUse

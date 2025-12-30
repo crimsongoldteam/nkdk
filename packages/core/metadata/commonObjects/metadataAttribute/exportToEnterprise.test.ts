@@ -1,41 +1,48 @@
 import { describe, expect, it } from "vitest"
 import {
-  fullMetadataAttribute,
-  fullMetadataAttributeEnterprise,
-  shortMetadataAttributeEnterprise,
-  shortMetadataAttributeWithSynonym,
-  singleAttributesEnterprise,
-} from "~/tests/fixtures/metadataAttribute/enterprise"
+  full,
+  fullEnterprise,
+  short,
+  shortEnterprise,
+  skipSynonym,
+  skipSynonymEnterprise,
+} from "~/tests/fixtures/metadataAttribute/data"
 import { mockСontext } from "~/tests/mockContext"
-import { singleAttributes } from "../../../tests/fixtures/metadataAttribute/single"
-import { exportMetadataAttributesToEnterprise, exportMetadataAttributeToEnterprise } from "./exportToEnterprise"
+import { exportMetadataAttributesToEnterprise } from "./exportToEnterprise"
 
 describe("exportMetadataAttributeToEnterprise", () => {
-  it("should export metadata attribute to enterprise", () => {
-    const metadataAttribute = fullMetadataAttribute
-
-    const expectedResult = fullMetadataAttributeEnterprise
-
-    const result = exportMetadataAttributeToEnterprise(mockСontext, metadataAttribute)
-
-    expect(result).toEqual(expectedResult)
+  it("should export undefined when data is undefined", () => {
+    const result = exportMetadataAttributesToEnterprise(mockСontext, undefined)
+    expect(result).toBeUndefined()
   })
 
-  it("should export metadata attribute to enterprise with short format", () => {
-    const metadataAttribute = shortMetadataAttributeWithSynonym
+  it("should export full", () => {
+    const result = exportMetadataAttributesToEnterprise(mockСontext, full)
 
-    const expectedResult = shortMetadataAttributeEnterprise
-
-    const result = exportMetadataAttributeToEnterprise(mockСontext, metadataAttribute)
-
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(fullEnterprise)
   })
 
-  it("should export metadata attribute to enterprise with single format", () => {
-    const expectedResult = singleAttributesEnterprise
+  // it("should export minimal", () => {
+  //   const result = exportMetadataAttributesToEnterprise(mockСontext, minimal)
 
-    const result = exportMetadataAttributesToEnterprise(mockСontext, singleAttributes)
+  //   expect(result).toEqual(minimalEnterprise)
+  // })
 
-    expect(result).toEqual(expectedResult)
+  it("should export with short format", () => {
+    const result = exportMetadataAttributesToEnterprise(mockСontext, short)
+
+    expect(result).toEqual(shortEnterprise)
   })
+
+  it("should skip synonym if it is equal to name", () => {
+    const result = exportMetadataAttributesToEnterprise(mockСontext, skipSynonym)
+
+    expect(result).toEqual(skipSynonymEnterprise)
+  })
+
+  // it("should export with short multilanguage format", () => {
+  //   const result = exportMetadataAttributesToEnterprise(mockСontext, shortMultilanguage)
+
+  //   expect(result).toEqual(shortMultilanguageEnterprise)
+  // })
 })

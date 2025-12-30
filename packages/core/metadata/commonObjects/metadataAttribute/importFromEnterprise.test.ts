@@ -1,43 +1,37 @@
 import { describe, expect, it } from "vitest"
 import {
-  fullMetadataAttribute,
-  fullMetadataAttributeEnterprise,
-  shortMetadataAttribute,
-  shortMetadataAttributeEnterprise,
-  singleAttributesEnterprise,
+  full,
+  fullEnterprise,
+  minimal,
+  minimalEnterprise,
+  short,
+  shortEnterprise,
 } from "~/tests/fixtures/metadataAttribute/data"
-import { singleAttributes } from "~/tests/fixtures/metadataAttribute/single"
 import { mockСontext } from "~/tests/mockContext"
-import { importMetadataAttributeFromEnterprise, importMetadataAttributesFromEnterprise } from "./importFromEnterprise"
+import { exportMetadataAttributesToEnterprise } from "./exportToEnterprise"
+import { importMetadataAttributesFromEnterprise } from "./importFromEnterprise"
 
 describe("importMetadataAttributeFromEnterprise", () => {
-  it("should import metadata attribute from enterprise", () => {
-    const enterpriseData = fullMetadataAttributeEnterprise
-
-    const expectedResult = fullMetadataAttribute
-
-    const result = importMetadataAttributeFromEnterprise(mockСontext, enterpriseData, "ТестовыйРеквизит")
-
-    expect(result).toEqual(expectedResult)
+  it("shouldreturn undefined when data is undefined", () => {
+    const result = importMetadataAttributesFromEnterprise(mockСontext, undefined)
+    expect(result).toBeUndefined()
   })
 
-  it("should import metadata attribute from enterprise with short format", () => {
-    const enterpriseData = shortMetadataAttributeEnterprise
+  it("should import full", () => {
+    const result = importMetadataAttributesFromEnterprise(mockСontext, fullEnterprise)
 
-    const expectedResult = shortMetadataAttribute
-
-    const result = importMetadataAttributeFromEnterprise(mockСontext, enterpriseData, "ТестовыйРеквизит")
-
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(full)
   })
 
-  it("should import metadata attribute from enterprise with single format", () => {
-    const enterpriseData = singleAttributesEnterprise
+  it("should import minimal", () => {
+    const result = importMetadataAttributesFromEnterprise(mockСontext, minimalEnterprise)
 
-    const expectedResult = singleAttributes
+    expect(result).toEqual(minimal)
+  })
 
-    const result = importMetadataAttributesFromEnterprise(mockСontext, enterpriseData)
+  it("should import with short format", () => {
+    const result = exportMetadataAttributesToEnterprise(mockСontext, short)
 
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(shortEnterprise)
   })
 })

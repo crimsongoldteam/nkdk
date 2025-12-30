@@ -44,11 +44,14 @@ function splitPascalCase(str: string): string {
   let currentWord = ""
   // Track if current word is an abbreviation (all uppercase) to avoid regex checks
   let isCurrentAbbreviation = true
+  // Track if current word contains a digit
+  let hasDigit = false
 
   for (let i = 0; i < str.length; i++) {
     const char = str[i]
     const isUpper = UPPER_CASE_LETTERS.test(char)
     const isLower = LOWER_CASE_LETTERS.test(char)
+    const isDigit = /^[0-9]$/.test(char)
 
     if (isUpper) {
       if (currentWord.length > 0) {
@@ -56,23 +59,35 @@ function splitPascalCase(str: string): string {
           // Current word is an abbreviation and next char is uppercase:
           // continue the abbreviation (e.g., "USSR" -> keep together)
           currentWord += char
+        } else if (hasDigit) {
+          // Current word has a digit and lowercase letters, and next char is uppercase:
+          // continue the word (e.g., "Test1Test" -> keep as one word)
+          currentWord += char
         } else {
-          // Current word has lowercase letters, start a new word
+          // Current word has lowercase letters (no digit), start a new word
           words.push(currentWord)
           currentWord = char
           isCurrentAbbreviation = true
+          hasDigit = false
         }
       } else {
         // Start of the string
         currentWord = char
         isCurrentAbbreviation = true
+        hasDigit = false
       }
     } else if (isLower) {
       // Lowercase letter found: current word is not an abbreviation
       currentWord += char
       isCurrentAbbreviation = false
+    } else if (isDigit) {
+      // Digit found: add to current word
+      currentWord += char
+      hasDigit = true
+      // Digits make the word not an abbreviation (if it was)
+      isCurrentAbbreviation = false
     }
-    // Ignore non-letter characters (they shouldn't appear in PascalCase, but handle gracefully)
+    // Ignore other non-letter characters (they shouldn't appear in PascalCase, but handle gracefully)
   }
 
   // Add the last word if exists

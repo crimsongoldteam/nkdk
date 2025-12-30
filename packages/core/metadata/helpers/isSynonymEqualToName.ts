@@ -1,5 +1,5 @@
-import { I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
-import { canConvertToPascalCase } from "./canConvertToPascalCase"
+import { I8nTextEnterprise } from "../commonObjects/i8nText/types"
+import { canConvertToPascalCase } from "../helpers/canConvertToPascalCase"
 
 /**
  * Checks if a synonym (description) matches the name in PascalCase format.

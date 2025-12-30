@@ -14,6 +14,12 @@
 		<Name>ТестовыйРеквизит</Name>
 		<PasswordMode>false</PasswordMode>
 		<QuickChoice>Auto</QuickChoice>
+		<Synonym>
+			<v8:item>
+				<v8:content/>
+				<v8:lang>ru</v8:lang>
+			</v8:item>
+		</Synonym>
 		<Type>
 			<v8:Type>xs:string</v8:Type>
 			<v8:StringQualifiers>
