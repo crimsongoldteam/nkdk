@@ -53,10 +53,7 @@ export const importMetadataCatalogFromXML = (
   if (props.CodeSeries !== undefined) result.codeSeries = props.CodeSeries
   if (props.CodeType !== undefined) result.codeType = props.CodeType
 
-  if (childObjects?.Command) {
-    const commands = importMetadataCommandsFromXML(context, childObjects.Command)
-    if (commands) result.commands = commands
-  }
+  if (childObjects?.Command) result.commands = importMetadataCommandsFromXML(context, childObjects.Command)
 
   if (props.Comment !== undefined) result.comment = props.Comment
   if (props.CreateOnInput !== undefined) result.createOnInput = props.CreateOnInput

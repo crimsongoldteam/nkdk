@@ -52,9 +52,11 @@ export const importMetadataCommandFromXML = (
 
 export const importMetadataCommandsFromXML = (
   context: Context,
-  xml: MetadataCommandsXML | undefined
+  xml: MetadataCommandsXML | MetadataCommandXML | undefined
 ): MetadataCommands | undefined => {
   if (!xml) return undefined
 
-  return xml.map((value: MetadataCommandXML) => importMetadataCommandFromXML(context, value)!)
+  const items = Array.isArray(xml) ? xml : [xml]
+
+  return items.map((value: MetadataCommandXML) => importMetadataCommandFromXML(context, value)!)
 }

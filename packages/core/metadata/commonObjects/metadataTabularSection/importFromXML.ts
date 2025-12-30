@@ -45,9 +45,11 @@ export const importMetadataTabularSectionFromXML = (
 
 export const importMetadataTabularSectionsFromXML = (
   context: Context,
-  xml: MetadataTabularSectionsXML | undefined
+  xml: MetadataTabularSectionsXML | MetadataTabularSectionXML | undefined
 ): MetadataTabularSections | undefined => {
   if (!xml) return undefined
 
-  return xml.map((value: MetadataTabularSectionXML) => importMetadataTabularSectionFromXML(context, value)!)
+  const items = Array.isArray(xml) ? xml : [xml]
+
+  return items.map((value: MetadataTabularSectionXML) => importMetadataTabularSectionFromXML(context, value)!)
 }

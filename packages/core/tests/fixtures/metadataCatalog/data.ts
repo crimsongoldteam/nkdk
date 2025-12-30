@@ -33,6 +33,17 @@ export const full: MetadataCatalog = {
   codeLength: 10,
   codeSeries: "WithinSubordination",
   codeType: "Number",
+  commands: [
+    {
+      group: "ActionsPanelCreate",
+      name: "НовыйЭлемент",
+      synonym: {
+        items: {
+          ru: "Контрагенты",
+        },
+      },
+    },
+  ],
   comment: "Комментарий к справочнику",
   createOnInput: "DontUse",
   dataHistory: "Use",
@@ -74,6 +85,29 @@ export const full: MetadataCatalog = {
   ],
   subordinationUse: "ToFolders",
   synonym: { items: { ru: "Контрагенты" } },
+  tabularSections: [
+    {
+      attributes: [
+        {
+          name: "РеквизитТабличнойЧасти",
+          synonym: {
+            items: {
+              ru: "Реквизит табличной части",
+            },
+          },
+          type: {
+            type: ["string"],
+          },
+        },
+      ],
+      name: "ДополнительныеРеквизиты",
+      synonym: {
+        items: {
+          ru: "Дополнительные реквизиты",
+        },
+      },
+    },
+  ],
   updateDataHistoryImmediatelyAfterWrite: true,
   useStandardCommands: false,
   attributes: [
