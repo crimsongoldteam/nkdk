@@ -10,17 +10,14 @@ import { exportAdditionalIndexesToXML } from "~/metadata/commonObjects/additiona
 import { exportCharacteristicsDescriptionsToXML } from "~/metadata/commonObjects/characteristicsDescription/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportMetadataFieldsToXML } from "~/metadata/commonObjects/metadataField/exportToXML"
-import { exportMetadataItemLinksToXML } from "~/metadata/commonObjects/metadataRef/exportToXML"
 import { exportMetadataTabularSectionsToXML } from "~/metadata/commonObjects/metadataTabularSection/exportToXML"
-import { MetadataTabularSectionsXML } from "~/metadata/commonObjects/metadataTabularSection/types"
+import { exportMetadataValueCollectionToXML } from "~/metadata/commonObjects/metadataValueCollection/exportToXML"
 import { exportPredefinedItemsToXML } from "~/metadata/commonObjects/predifined/exportToXML"
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { Context } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportInternalInfoToXML } from "../../commonObjects/internalInfo/exportToXML"
 import { exportMetadataAttributesToXML } from "../../commonObjects/metadataAttribute/exportToXML"
-import { MetadataAttributesXML } from "../../commonObjects/metadataAttribute/types"
-import { MetadataCommandsXML } from "../metadataCommand/types"
 import { getDefaults } from "./defaults"
 
 export interface MetadataCatalogContext extends Context {
@@ -46,39 +43,158 @@ export const exportMetadataCatalogToXML = (
     { name: `CatalogManager.${mergedData.name}`, category: "Manager" },
   ])
 
-  let attributes: MetadataAttributesXML | undefined
-  if (mergedData.attributes) {
-    attributes = exportMetadataAttributesToXML(context, mergedData.attributes)
+  const properties: MetadataCatalogXML["Catalog"]["Properties"] = {
+    Name: mergedData.name!,
   }
 
-  let commands: MetadataCommandsXML | undefined
-  if (mergedData.commands) {
-    commands = exportMetadataCommandsToXML(context, mergedData.commands)
-  }
+  const additionalIndexes = exportAdditionalIndexesToXML(context, mergedData.additionalIndexes)
+  if (additionalIndexes) properties.AdditionalIndexes = additionalIndexes
 
-  let tabularSections: MetadataTabularSectionsXML | undefined
-  if (mergedData.tabularSections) {
-    tabularSections = exportMetadataTabularSectionsToXML(context, mergedData.tabularSections)
-  }
+  if (mergedData.autonumbering !== undefined) properties.Autonumbering = mergedData.autonumbering
 
-  const forms = getFormsFromContext(context as MetadataCatalogContext)
+  if (mergedData.auxiliaryChoiceForm !== undefined) properties.AuxiliaryChoiceForm = mergedData.auxiliaryChoiceForm
 
-  let childObjects: MetadataCatalogXML["Catalog"]["ChildObjects"] | undefined
-  if (attributes || commands || tabularSections || forms) {
-    childObjects = {}
-    if (attributes) {
-      childObjects.Attribute = attributes
-    }
-    if (tabularSections) {
-      childObjects.TabularSection = tabularSections
-    }
-    if (forms) {
-      childObjects.Form = forms
-    }
-    if (commands) {
-      childObjects.Command = commands
-    }
-  }
+  if (mergedData.auxiliaryFolderChoiceForm !== undefined)
+    properties.AuxiliaryFolderChoiceForm = mergedData.auxiliaryFolderChoiceForm
+
+  if (mergedData.auxiliaryFolderForm !== undefined) properties.AuxiliaryFolderForm = mergedData.auxiliaryFolderForm
+
+  if (mergedData.auxiliaryListForm !== undefined) properties.AuxiliaryListForm = mergedData.auxiliaryListForm
+
+  if (mergedData.auxiliaryObjectForm !== undefined) properties.AuxiliaryObjectForm = mergedData.auxiliaryObjectForm
+
+  const basedOn = exportMetadataValueCollectionToXML(context, mergedData.basedOn)
+  if (basedOn) properties.BasedOn = basedOn
+
+  const characteristics = exportCharacteristicsDescriptionsToXML(context, mergedData.characteristics)
+  if (characteristics) properties.Characteristics = characteristics
+
+  if (mergedData.checkUnique !== undefined) properties.CheckUnique = mergedData.checkUnique
+
+  if (mergedData.choiceDataGetModeOnInputByString !== undefined)
+    properties.ChoiceDataGetModeOnInputByString = mergedData.choiceDataGetModeOnInputByString
+
+  if (mergedData.choiceHistoryOnInput !== undefined) properties.ChoiceHistoryOnInput = mergedData.choiceHistoryOnInput
+
+  if (mergedData.choiceMode !== undefined) properties.ChoiceMode = mergedData.choiceMode
+
+  if (mergedData.codeAllowedLength !== undefined) properties.CodeAllowedLength = mergedData.codeAllowedLength
+
+  if (mergedData.codeLength !== undefined) properties.CodeLength = mergedData.codeLength
+
+  if (mergedData.codeSeries !== undefined) properties.CodeSeries = mergedData.codeSeries
+
+  if (mergedData.codeType !== undefined) properties.CodeType = mergedData.codeType
+
+  if (mergedData.comment !== undefined) properties.Comment = mergedData.comment
+
+  if (mergedData.createOnInput !== undefined) properties.CreateOnInput = mergedData.createOnInput
+
+  if (mergedData.dataHistory !== undefined) properties.DataHistory = mergedData.dataHistory
+
+  if (mergedData.dataLockControlMode !== undefined) properties.DataLockControlMode = mergedData.dataLockControlMode
+
+  const dataLockFields = exportMetadataFieldsToXML(context, mergedData.dataLockFields)
+  if (dataLockFields) properties.DataLockFields = dataLockFields
+
+  if (mergedData.defaultChoiceForm !== undefined) properties.DefaultChoiceForm = mergedData.defaultChoiceForm
+
+  if (mergedData.defaultFolderChoiceForm !== undefined)
+    properties.DefaultFolderChoiceForm = mergedData.defaultFolderChoiceForm
+
+  if (mergedData.defaultFolderForm !== undefined) properties.DefaultFolderForm = mergedData.defaultFolderForm
+
+  if (mergedData.defaultListForm !== undefined) properties.DefaultListForm = mergedData.defaultListForm
+
+  if (mergedData.defaultObjectForm !== undefined) properties.DefaultObjectForm = mergedData.defaultObjectForm
+
+  if (mergedData.defaultPresentation !== undefined) properties.DefaultPresentation = mergedData.defaultPresentation
+
+  if (mergedData.descriptionLength !== undefined) properties.DescriptionLength = mergedData.descriptionLength
+
+  if (mergedData.editType !== undefined) properties.EditType = mergedData.editType
+
+  if (mergedData.executeAfterWriteDataHistoryVersionProcessing !== undefined)
+    properties.ExecuteAfterWriteDataHistoryVersionProcessing = mergedData.executeAfterWriteDataHistoryVersionProcessing
+
+  const explanation = exportI8nTextToXML(context, mergedData.explanation)
+  if (explanation !== undefined) properties.Explanation = explanation
+
+  const extendedListPresentation = exportI8nTextToXML(context, mergedData.extendedListPresentation)
+  if (extendedListPresentation !== undefined) properties.ExtendedListPresentation = extendedListPresentation
+
+  const extendedObjectPresentation = exportI8nTextToXML(context, mergedData.extendedObjectPresentation)
+  if (extendedObjectPresentation !== undefined) properties.ExtendedObjectPresentation = extendedObjectPresentation
+
+  if (mergedData.foldersOnTop !== undefined) properties.FoldersOnTop = mergedData.foldersOnTop
+
+  if (mergedData.fullTextSearch !== undefined) properties.FullTextSearch = mergedData.fullTextSearch
+
+  if (mergedData.fullTextSearchOnInputByString !== undefined)
+    properties.FullTextSearchOnInputByString = mergedData.fullTextSearchOnInputByString
+
+  if (mergedData.hierarchical !== undefined) properties.Hierarchical = mergedData.hierarchical
+
+  if (mergedData.hierarchyType !== undefined) properties.HierarchyType = mergedData.hierarchyType
+
+  if (mergedData.includeHelpInContents !== undefined)
+    properties.IncludeHelpInContents = mergedData.includeHelpInContents
+
+  const inputByString = exportMetadataFieldsToXML(context, mergedData.inputByString)
+  if (inputByString) properties.InputByString = inputByString
+
+  if (mergedData.levelCount !== undefined) properties.LevelCount = mergedData.levelCount
+
+  if (mergedData.limitLevelCount !== undefined) properties.LimitLevelCount = mergedData.limitLevelCount
+
+  const listPresentation = exportI8nTextToXML(context, mergedData.listPresentation)
+  if (listPresentation !== undefined) properties.ListPresentation = listPresentation
+
+  if (mergedData.objectBelonging !== undefined) properties.ObjectBelonging = mergedData.objectBelonging
+
+  const objectPresentation = exportI8nTextToXML(context, mergedData.objectPresentation)
+  if (objectPresentation !== undefined) properties.ObjectPresentation = objectPresentation
+
+  const owners = exportMetadataValueCollectionToXML(context, mergedData.owners)
+  if (owners) properties.Owners = owners
+
+  const predefined = exportPredefinedItemsToXML(context, mergedData.predefined)
+  if (predefined) properties.Predefined = predefined
+
+  if (mergedData.predefinedDataUpdate !== undefined) properties.PredefinedDataUpdate = mergedData.predefinedDataUpdate
+
+  if (mergedData.quickChoice !== undefined) properties.QuickChoice = mergedData.quickChoice
+
+  if (mergedData.searchStringModeOnInputByString !== undefined)
+    properties.SearchStringModeOnInputByString = mergedData.searchStringModeOnInputByString
+
+  const standardAttributes = exportStandardAttributeDescriptionsToXML(
+    context,
+    mergedData.standardAttributes,
+    MetadataCatalogStandardAttributeNames
+  )
+  if (standardAttributes) properties.StandardAttributes = standardAttributes
+
+  if (mergedData.subordinationUse !== undefined) properties.SubordinationUse = mergedData.subordinationUse
+
+  const synonym = exportI8nTextToXML(context, mergedData.synonym)
+  if (synonym !== undefined) properties.Synonym = synonym
+
+  if (mergedData.updateDataHistoryImmediatelyAfterWrite !== undefined)
+    properties.UpdateDataHistoryImmediatelyAfterWrite = mergedData.updateDataHistoryImmediatelyAfterWrite
+
+  if (mergedData.useStandardCommands !== undefined) properties.UseStandardCommands = mergedData.useStandardCommands
+
+  const attributes = exportMetadataAttributesToXML(context, mergedData.attributes)
+  const commands = exportMetadataCommandsToXML(context, mergedData.commands)
+  const tabularSections = exportMetadataTabularSectionsToXML(context, mergedData.tabularSections)
+  const forms = getFormsFromContext(context)
+
+  const childObjects: MetadataCatalogXML["Catalog"]["ChildObjects"] = {}
+  if (attributes) childObjects.Attribute = attributes
+  if (tabularSections) childObjects.TabularSection = tabularSections
+  if (forms) childObjects.Form = forms
+  if (commands) childObjects.Command = commands
 
   const result: MetadataCatalogXML = {
     "_xmlns:app": "http://v8.1c.ru/8.2/managed-application/core",
@@ -99,74 +215,12 @@ export const exportMetadataCatalogToXML = (
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
     _xmlns: "http://v8.1c.ru/8.3/MDClasses",
     _version: "2.20",
-    Catalog: compactObject<MetadataCatalogXML["Catalog"]>({
+    Catalog: {
       _uuid: v4(),
       InternalInfo: internalInfo,
-      Properties: compactObject<MetadataCatalogXML["Catalog"]["Properties"]>({
-        AdditionalIndexes: exportAdditionalIndexesToXML(context, mergedData.additionalIndexes),
-        Autonumbering: mergedData.autonumbering,
-        AuxiliaryChoiceForm: mergedData.auxiliaryChoiceForm,
-        AuxiliaryFolderChoiceForm: mergedData.auxiliaryFolderChoiceForm,
-        AuxiliaryFolderForm: mergedData.auxiliaryFolderForm,
-        AuxiliaryListForm: mergedData.auxiliaryListForm,
-        AuxiliaryObjectForm: mergedData.auxiliaryObjectForm,
-        BasedOn: exportMetadataItemLinksToXML(context, mergedData.basedOn),
-        Characteristics: exportCharacteristicsDescriptionsToXML(context, mergedData.characteristics),
-        CheckUnique: mergedData.checkUnique,
-        ChoiceDataGetModeOnInputByString: mergedData.choiceDataGetModeOnInputByString,
-        ChoiceHistoryOnInput: mergedData.choiceHistoryOnInput,
-        ChoiceMode: mergedData.choiceMode,
-        CodeAllowedLength: mergedData.codeAllowedLength,
-        CodeLength: mergedData.codeLength,
-        CodeSeries: mergedData.codeSeries,
-        CodeType: mergedData.codeType,
-        Comment: mergedData.comment,
-        CreateOnInput: mergedData.createOnInput,
-        DataHistory: mergedData.dataHistory,
-        DataLockControlMode: mergedData.dataLockControlMode,
-        DataLockFields: exportMetadataFieldsToXML(context, mergedData.dataLockFields),
-        DefaultChoiceForm: mergedData.defaultChoiceForm,
-        DefaultFolderChoiceForm: mergedData.defaultFolderChoiceForm,
-        DefaultFolderForm: mergedData.defaultFolderForm,
-        DefaultListForm: mergedData.defaultListForm,
-        DefaultObjectForm: mergedData.defaultObjectForm,
-        DefaultPresentation: mergedData.defaultPresentation,
-        DescriptionLength: mergedData.descriptionLength,
-        EditType: mergedData.editType,
-        ExecuteAfterWriteDataHistoryVersionProcessing: mergedData.executeAfterWriteDataHistoryVersionProcessing,
-        Explanation: exportI8nTextToXML(context, mergedData.explanation),
-        ExtendedListPresentation: exportI8nTextToXML(context, mergedData.extendedListPresentation),
-        ExtendedObjectPresentation: exportI8nTextToXML(context, mergedData.extendedObjectPresentation),
-        FoldersOnTop: mergedData.foldersOnTop,
-        FullTextSearch: mergedData.fullTextSearch,
-        FullTextSearchOnInputByString: mergedData.fullTextSearchOnInputByString,
-        Hierarchical: mergedData.hierarchical,
-        HierarchyType: mergedData.hierarchyType,
-        IncludeHelpInContents: mergedData.includeHelpInContents,
-        InputByString: exportMetadataFieldsToXML(context, mergedData.inputByString),
-        LevelCount: mergedData.levelCount,
-        LimitLevelCount: mergedData.limitLevelCount,
-        ListPresentation: exportI8nTextToXML(context, mergedData.listPresentation),
-        Name: mergedData.name!,
-        ObjectBelonging: mergedData.objectBelonging,
-        ObjectPresentation: exportI8nTextToXML(context, mergedData.objectPresentation),
-        Owners: exportMetadataItemLinksToXML(context, mergedData.owners),
-        Predefined: exportPredefinedItemsToXML(context, mergedData.predefined),
-        PredefinedDataUpdate: mergedData.predefinedDataUpdate,
-        QuickChoice: mergedData.quickChoice,
-        SearchStringModeOnInputByString: mergedData.searchStringModeOnInputByString,
-        StandardAttributes: exportStandardAttributeDescriptionsToXML(
-          context,
-          mergedData.standardAttributes,
-          MetadataCatalogStandardAttributeNames
-        ),
-        SubordinationUse: mergedData.subordinationUse,
-        Synonym: exportI8nTextToXML(context, mergedData.synonym),
-        UpdateDataHistoryImmediatelyAfterWrite: mergedData.updateDataHistoryImmediatelyAfterWrite,
-        UseStandardCommands: mergedData.useStandardCommands,
-      })!,
-      ChildObjects: childObjects,
-    }),
+      Properties: properties,
+      ...(Object.keys(childObjects).length > 0 ? { ChildObjects: childObjects } : {}),
+    },
   }
 
   return compactObject<MetadataCatalogXML>(result)
