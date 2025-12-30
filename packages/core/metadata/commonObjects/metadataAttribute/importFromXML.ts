@@ -97,8 +97,6 @@ const importMetadataAttributeFromXML = (context: Context, xml: MetadataAttribute
 
   result.name = props.Name!
 
-  if (props.ObjectBelonging !== undefined) result.objectBelonging = props.ObjectBelonging
-
   const passwordMode = importBooleanFromXML(context, props.PasswordMode)
   if (passwordMode !== undefined) result.passwordMode = passwordMode
 

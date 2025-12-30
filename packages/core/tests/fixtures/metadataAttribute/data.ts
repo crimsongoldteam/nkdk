@@ -62,3 +62,14 @@ export const minimal: MetadataAttributes = [
     type: { type: ["string"] },
   },
 ]
+
+export const multiple: MetadataAttributes = [
+  {
+    name: "ТестовыйРеквизит 1",
+    type: { type: ["string"] },
+  },
+  {
+    name: "ТестовыйРеквизит 2",
+    type: { type: ["string"] },
+  },
+]
