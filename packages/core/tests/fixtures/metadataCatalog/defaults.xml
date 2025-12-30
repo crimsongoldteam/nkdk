@@ -24,7 +24,6 @@
 			</xr:GeneratedType>
 		</InternalInfo>
 		<Properties>
-			<Name>Контрагенты</Name>
 			<Autonumbering>true</Autonumbering>
 			<CheckUnique>true</CheckUnique>
 			<ChoiceDataGetModeOnInputByString>Directly</ChoiceDataGetModeOnInputByString>
@@ -49,6 +48,7 @@
 			<IncludeHelpInContents>false</IncludeHelpInContents>
 			<LevelCount>2</LevelCount>
 			<LimitLevelCount>false</LimitLevelCount>
+			<Name>Контрагенты</Name>
 			<PredefinedDataUpdate>Auto</PredefinedDataUpdate>
 			<QuickChoice>false</QuickChoice>
 			<SearchStringModeOnInputByString>Begin</SearchStringModeOnInputByString>

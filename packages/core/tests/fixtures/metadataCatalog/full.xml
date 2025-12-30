@@ -24,7 +24,6 @@
 			</xr:GeneratedType>
 		</InternalInfo>
 		<Properties>
-			<Name>Контрагенты</Name>
 			<Autonumbering>false</Autonumbering>
 			<AuxiliaryChoiceForm>Catalog.Контрагенты.Form.ФормаВыбора</AuxiliaryChoiceForm>
 			<AuxiliaryFolderChoiceForm>Catalog.Контрагенты.Form.ФормаВыбораГруппы</AuxiliaryFolderChoiceForm>
@@ -112,6 +111,7 @@
 					<v8:lang>ru</v8:lang>
 				</v8:item>
 			</ListPresentation>
+			<Name>Контрагенты</Name>
 			<ObjectPresentation>
 				<v8:item>
 					<v8:content>Представление объекта</v8:content>
@@ -271,7 +271,6 @@
 		<ChildObjects>
 			<Attribute uuid="11111111-1111-4111-8111-111111111111">
 				<Properties>
-					<Name>РеквизитОбъекта</Name>
 					<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<CreateOnInput>Auto</CreateOnInput>
@@ -283,6 +282,7 @@
 					<Indexing>DontIndex</Indexing>
 					<MarkNegatives>false</MarkNegatives>
 					<MultiLine>false</MultiLine>
+					<Name>РеквизитОбъекта</Name>
 					<PasswordMode>false</PasswordMode>
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
@@ -313,9 +313,9 @@
 					</xr:GeneratedType>
 				</InternalInfo>
 				<Properties>
-					<Name>ДополнительныеРеквизиты</Name>
 					<FillChecking>DontCheck</FillChecking>
 					<LineNumberLength>5</LineNumberLength>
+					<Name>ДополнительныеРеквизиты</Name>
 					<StandardAttributes>
 						<xr:StandardAttribute name="LineNumber">
 							<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
@@ -342,7 +342,6 @@
 				<ChildObjects>
 					<Attribute uuid="11111111-1111-4111-8111-111111111111">
 						<Properties>
-							<Name>РеквизитТабличнойЧасти</Name>
 							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
 							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 							<CreateOnInput>Auto</CreateOnInput>
@@ -353,6 +352,7 @@
 							<Indexing>DontIndex</Indexing>
 							<MarkNegatives>false</MarkNegatives>
 							<MultiLine>false</MultiLine>
+							<Name>РеквизитТабличнойЧасти</Name>
 							<PasswordMode>false</PasswordMode>
 							<QuickChoice>Auto</QuickChoice>
 							<Synonym>
@@ -374,9 +374,9 @@
 			</TabularSection>
 			<Command uuid="11111111-1111-4111-8111-111111111111">
 				<Properties>
-					<Name>НовыйЭлемент</Name>
 					<Group>ActionsPanelCreate</Group>
 					<ModifiesData>false</ModifiesData>
+					<Name>НовыйЭлемент</Name>
 					<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
 					<ParameterUseMode>Single</ParameterUseMode>
 					<Representation>Auto</Representation>
