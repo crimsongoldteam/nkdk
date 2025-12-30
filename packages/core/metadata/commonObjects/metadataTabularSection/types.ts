@@ -35,10 +35,10 @@ export interface MetadataTabularSectionXML {
   _uuid?: string
   InternalInfo?: InternalInfoItemsXML<TabularSectionInternalInfoParamsXML>
   Properties: {
+    Name: string
     Comment?: string
     FillChecking?: SE.FillChecking
     LineNumberLength?: number
-    Name: string
     ObjectBelonging?: SE.ObjectBelonging
     StandardAttributes?: StandardAttributeDescriptionsXML
     Synonym?: I8nTextXML

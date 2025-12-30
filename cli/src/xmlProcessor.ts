@@ -16,8 +16,6 @@ const SORTABLE_TAGS = [
   "xr:Link",
 ]
 
-const FIRST_ORDER_TAGS = ["Name"]
-
 export function processXmlContent(xmlContent: string): string {
   const parsedData = parseXml(xmlContent)
   const processedData = processObject(parsedData)
@@ -111,15 +109,7 @@ function processObject(obj: any, isPropertiesNode: boolean = false, parentKey: s
   const allKeys = Object.keys(obj).filter((key) => key !== "@attributes")
 
   // Сортируем ключи только если мы находимся внутри ноды Properties (без иерархии - только на текущем уровне)
-  // Элементы из FIRST_ORDER_TAGS всегда идут первыми
-  let sortedKeys: string[]
-  if (isPropertiesNode) {
-    const firstOrderKeys = allKeys.filter((key) => FIRST_ORDER_TAGS.includes(key))
-    const otherKeys = allKeys.filter((key) => !FIRST_ORDER_TAGS.includes(key)).sort()
-    sortedKeys = [...firstOrderKeys, ...otherKeys]
-  } else {
-    sortedKeys = allKeys
-  }
+  const sortedKeys = isPropertiesNode ? allKeys.sort() : allKeys
 
   for (const key of sortedKeys) {
     const originalValue = obj[key]

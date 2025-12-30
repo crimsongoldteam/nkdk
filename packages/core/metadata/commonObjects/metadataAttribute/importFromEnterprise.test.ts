@@ -5,10 +5,10 @@ import {
   shortMetadataAttribute,
   shortMetadataAttributeEnterprise,
   singleAttributesEnterprise,
-} from "~/tests/fixtures/metadataAttribute/enterprise"
+} from "~/tests/fixtures/metadataAttribute/data"
+import { singleAttributes } from "~/tests/fixtures/metadataAttribute/single"
 import { mockСontext } from "~/tests/mockContext"
 import { importMetadataAttributeFromEnterprise, importMetadataAttributesFromEnterprise } from "./importFromEnterprise"
-import { singleAttributes } from "~/tests/fixtures/metadataAttribute/single"
 
 describe("importMetadataAttributeFromEnterprise", () => {
   it("should import metadata attribute from enterprise", () => {

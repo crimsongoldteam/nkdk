@@ -10,7 +10,7 @@ import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescr
 import { importTypeLinkFromXML } from "~/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
 import { Context } from "~/metadata/context/types"
-import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
+import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importMetadataValueFromXMLAsPrimitive } from "../metadataValue/importFromXML.ts"
 import { importChoiceParametersFromXML } from "../сhoiceParameter/importFromXML.ts"
@@ -24,46 +24,93 @@ export const importMetadataAttributeFromXML = (
 
   const props = xml.Properties
 
-  const result: MetadataAttribute = {
-    binaryDataStorageLocationUse: props.BinaryDataStorageLocationUse,
-    binaryDataStorageLocationUseField: importBooleanFromXML(context, props.BinaryDataStorageLocationUseField),
-    choiceFoldersAndItems: props.ChoiceFoldersAndItems,
-    choiceForm: props.ChoiceForm,
-    choiceHistoryOnInput: props.ChoiceHistoryOnInput,
-    choiceParameterLinks: importChoiceParameterLinksFromXML(context, props.ChoiceParameterLinks),
-    choiceParameters: importChoiceParametersFromXML(context, props.ChoiceParameters),
-    comment: props.Comment,
-    createOnInput: props.CreateOnInput,
-    dataHistory: props.DataHistory,
-    editFormat: importI8nTextFromXML(context, props.EditFormat),
-    extendedEdit: importBooleanFromXML(context, props.ExtendedEdit),
-    fillChecking: props.FillChecking,
-    fillFromFillingValue: importBooleanFromXML(context, props.FillFromFillingValue),
-    fillValue: importMetadataValueFromXML(context, props.FillValue),
-    format: importI8nTextFromXML(context, props.Format),
-    fullTextSearch: props.FullTextSearch,
-    indexing: props.Indexing,
-    linkByType: importTypeLinkFromXML(context, props.LinkByType),
-    markNegatives: importBooleanFromXML(context, props.MarkNegatives),
-    mask: props.Mask,
-    maxValue: importMetadataValueFromXMLAsPrimitive(context, props.MaxValue, "decimal") as number | undefined,
-    minValue: importMetadataValueFromXMLAsPrimitive(context, props.MinValue, "decimal") as number | undefined,
-    multiLine: importBooleanFromXML(context, props.MultiLine),
-    name: props.Name!,
-    objectBelonging: props.ObjectBelonging,
-    passwordMode: importBooleanFromXML(context, props.PasswordMode),
-    quickChoice: props.QuickChoice,
-    synonym: importI8nTextFromXML(context, props.Synonym),
-    toolTip: importI8nTextFromXML(context, props.ToolTip),
-    type: importTypeDescriptionFromXML(context, props.Type)!,
-    use: props.Use,
-  }
+  const result: MetadataAttribute = {} as MetadataAttribute
 
-  const compactedResult = compactObject<MetadataAttribute>(result)
+  if (props.BinaryDataStorageLocationUse !== undefined)
+    result.binaryDataStorageLocationUse = props.BinaryDataStorageLocationUse
 
-  const defaults = getDefaults(compactedResult, context)
+  const binaryDataStorageLocationUseField = importBooleanFromXML(context, props.BinaryDataStorageLocationUseField)
+  if (binaryDataStorageLocationUseField !== undefined)
+    result.binaryDataStorageLocationUseField = binaryDataStorageLocationUseField
 
-  return removeDefaults(compactedResult, defaults)
+  if (props.ChoiceFoldersAndItems !== undefined) result.choiceFoldersAndItems = props.ChoiceFoldersAndItems
+
+  if (props.ChoiceForm !== undefined) result.choiceForm = props.ChoiceForm
+
+  if (props.ChoiceHistoryOnInput !== undefined) result.choiceHistoryOnInput = props.ChoiceHistoryOnInput
+
+  const choiceParameterLinks = importChoiceParameterLinksFromXML(context, props.ChoiceParameterLinks)
+  if (choiceParameterLinks) result.choiceParameterLinks = choiceParameterLinks
+
+  const choiceParameters = importChoiceParametersFromXML(context, props.ChoiceParameters)
+  if (choiceParameters) result.choiceParameters = choiceParameters
+
+  if (props.Comment !== undefined) result.comment = props.Comment
+
+  if (props.CreateOnInput !== undefined) result.createOnInput = props.CreateOnInput
+
+  if (props.DataHistory !== undefined) result.dataHistory = props.DataHistory
+
+  const editFormat = importI8nTextFromXML(context, props.EditFormat)
+  if (editFormat) result.editFormat = editFormat
+
+  const extendedEdit = importBooleanFromXML(context, props.ExtendedEdit)
+  if (extendedEdit !== undefined) result.extendedEdit = extendedEdit
+
+  if (props.FillChecking !== undefined) result.fillChecking = props.FillChecking
+
+  const fillFromFillingValue = importBooleanFromXML(context, props.FillFromFillingValue)
+  if (fillFromFillingValue !== undefined) result.fillFromFillingValue = fillFromFillingValue
+
+  const fillValue = importMetadataValueFromXML(context, props.FillValue)
+  if (fillValue) result.fillValue = fillValue
+
+  const format = importI8nTextFromXML(context, props.Format)
+  if (format) result.format = format
+
+  if (props.FullTextSearch !== undefined) result.fullTextSearch = props.FullTextSearch
+
+  if (props.Indexing !== undefined) result.indexing = props.Indexing
+
+  const linkByType = importTypeLinkFromXML(context, props.LinkByType)
+  if (linkByType) result.linkByType = linkByType
+
+  const markNegatives = importBooleanFromXML(context, props.MarkNegatives)
+  if (markNegatives !== undefined) result.markNegatives = markNegatives
+
+  if (props.Mask !== undefined) result.mask = String(props.Mask)
+
+  const maxValue = importMetadataValueFromXMLAsPrimitive(context, props.MaxValue, "decimal") as number | undefined
+  if (maxValue !== undefined) result.maxValue = maxValue
+
+  const minValue = importMetadataValueFromXMLAsPrimitive(context, props.MinValue, "decimal") as number | undefined
+  if (minValue !== undefined) result.minValue = minValue
+
+  const multiLine = importBooleanFromXML(context, props.MultiLine)
+  if (multiLine !== undefined) result.multiLine = multiLine
+
+  result.name = props.Name!
+
+  if (props.ObjectBelonging !== undefined) result.objectBelonging = props.ObjectBelonging
+
+  const passwordMode = importBooleanFromXML(context, props.PasswordMode)
+  if (passwordMode !== undefined) result.passwordMode = passwordMode
+
+  if (props.QuickChoice !== undefined) result.quickChoice = props.QuickChoice
+
+  const synonym = importI8nTextFromXML(context, props.Synonym)
+  if (synonym !== undefined) result.synonym = synonym
+
+  const toolTip = importI8nTextFromXML(context, props.ToolTip)
+  if (toolTip !== undefined) result.toolTip = toolTip
+
+  result.type = importTypeDescriptionFromXML(context, props.Type)!
+
+  if (props.Use !== undefined) result.use = props.Use
+
+  const defaults = getDefaults(result, context)
+
+  return removeDefaults(result, defaults)
 }
 
 export const importMetadataAttributesFromXML = (
