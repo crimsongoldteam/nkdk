@@ -53,11 +53,11 @@ const exportBooleanValueToEnterprise = (context: Context, data: MetadataBooleanV
 }
 
 const exportRefValueToEnterprise = (data: MetadataRefValue): MetadataValueEnterprise => {
-  return exportRefToEnterprise(data.value)
+  return exportMedatataRefToEnterprise(data.value)
 }
 
 const exportObjectRefValueToEnterprise = (data: MetadataObjectRefValue): MetadataValueEnterprise => {
-  return exportRefToEnterprise(data.value)
+  return exportMedatataRefToEnterprise(data.value)
 }
 
 const exportFixedArrayValueToEnterprise = (
@@ -93,7 +93,7 @@ const exportFormChoiceListDesTimeValueToEnterprise = (
   return `${valueString}(${presentation})`
 }
 
-const exportRefToEnterprise = (value: string): string => {
+export const exportMedatataRefToEnterprise = (value: string): string => {
   const parts = value.split(".")
 
   const appliedType = parts[0] as AppliedType

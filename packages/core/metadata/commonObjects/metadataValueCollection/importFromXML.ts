@@ -13,12 +13,10 @@ export const importMetadataValueCollectionFromXML = (
 
   const items = Array.isArray(xrItems) ? xrItems : [xrItems]
 
-  const result: MetadataValueCollection = items
-    .map((item: MetadataSimpleValueXML) => {
-      const metadataValue = importMetadataValueFromXML(context, item)!
-      return String(metadataValue.value)
-    })
-    .filter((item): item is string => item !== undefined)
+  const result: MetadataValueCollection = items.map((item: MetadataSimpleValueXML) => {
+    const metadataValue = importMetadataValueFromXML(context, item)!
+    return String(metadataValue.value)
+  })
 
-  return result.length > 0 ? result : undefined
+  return result
 }

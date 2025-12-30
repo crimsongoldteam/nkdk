@@ -105,7 +105,7 @@ const importStringValueFromEnterprise = (data: string): MetadataValue => {
   // Проверяем на ref (Перечисление.XXX.YYY или Справочник.XXX.ПустаяСсылка)
   const refMatch = data.match(/^(Перечисление|Справочник)\./)
   if (refMatch) {
-    return importRefFromEnterprise(data)
+    return importMetadataRefFromEnterprise(data)
   }
 
   throw new Error(`Cannot determine type for string value: ${data}`)
@@ -133,7 +133,7 @@ const importFormChoiceListDesTimeValueFromEnterprise = (
   }
 }
 
-const importRefFromEnterprise = (value: string): MetadataValue => {
+export const importMetadataRefFromEnterprise = (value: string): MetadataValue => {
   const parts = value.split(".")
 
   const appliedTypeEnterprise = parts[0] as AppliedTypeEnterprise
