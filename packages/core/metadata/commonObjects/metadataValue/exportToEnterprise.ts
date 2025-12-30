@@ -1,7 +1,7 @@
 import { format } from "date-fns"
 import { Context } from "../../context/types"
 import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise.ts"
-import { AppliedType, AppliedTypeToEnterprise } from "../typeDescription/types"
+import { MetadataType, MetatatTypeToEnterprise } from "../metadataPath/types.ts"
 import { MetadataFixedArrayValue, MetadataFormChoiceListValue, MetadataSimpleValue, MetadataValue } from "./types"
 import {
   MetadataBooleanValue,
@@ -96,11 +96,11 @@ const exportFormChoiceListDesTimeValueToEnterprise = (
 export const exportMedatataRefToEnterprise = (value: string): string => {
   const parts = value.split(".")
 
-  const appliedType = parts[0] as AppliedType
+  const appliedType = parts[0] as MetadataType
 
   const partsResult = []
 
-  const appliedTypeEnterprise = AppliedTypeToEnterprise[appliedType]
+  const appliedTypeEnterprise = MetatatTypeToEnterprise[appliedType]
   if (!appliedTypeEnterprise) throw new Error(`Invalid type for ref: ${value}`)
   partsResult.push(appliedTypeEnterprise)
 

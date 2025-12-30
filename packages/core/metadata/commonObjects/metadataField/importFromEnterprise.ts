@@ -1,6 +1,6 @@
 import { Context } from "../../context/types"
+import { MetadataTypeFromEnterprise } from "../metadataPath/types"
 import { PredefinedNameFromEnterprise } from "../standardAttributeDescription/types"
-import { AppliedTypeFromEnterprise } from "../typeDescription/types"
 import { MetadataField, MetadataFieldEnterprise, MetadataFields, MetadataFieldsEnterprise } from "./types"
 
 const FieldsMapFromEnterprise = {
@@ -24,7 +24,7 @@ export const importMetadataFieldFromEnterprise = (
   // Преобразуем тип объекта (Справочник -> Catalog, Документ -> Document и т.д.)
   if (parts.length > 0) {
     const firstPart = parts[0]
-    const xmlType = AppliedTypeFromEnterprise(firstPart)
+    const xmlType = MetadataTypeFromEnterprise(firstPart)
     // Если тип найден в маппинге - используем преобразованное значение, иначе оставляем как есть
     result.push(xmlType ?? firstPart)
   }

@@ -1,12 +1,7 @@
-import { cleanString } from "~/helpers/cleanString"
-import { AllowedLength } from "~/metadata/systemEnumerations/types"
-import {
-  AppliedTypeFromEnterprise,
-  AppliedTypeToEnterprise,
-  PrimitiveTypeFromEnterprise,
-  PrimitiveTypeToEnterprise,
-  TypeDescription,
-} from "../types"
+import { cleanString } from "../../../helpers/cleanString"
+import { AllowedLength } from "../../../systemEnumerations/types"
+import { MetadataTypeFromEnterprise, MetatatTypeToEnterprise } from "../../metadataPath/types"
+import { PrimitiveTypeFromEnterprise, PrimitiveTypeToEnterprise, TypeDescription } from "../types"
 
 export const visitTypeProcessor = (types: any): TypeDescription => {
   const result: TypeDescription = {
@@ -34,24 +29,15 @@ export const visitTypeProcessor = (types: any): TypeDescription => {
       if (kind === "") continue
     }
 
-    // Для базовых типов используем английские названия
-    const baseTypeMap: Record<string, string> = {
-      Число: "decimal",
-      Строка: "string",
-      Дата: "dateTime",
-      Булево: "boolean",
-    }
-
-    const baseType = baseTypeMap[aliase]
-
-    // Если это базовый тип, используем английское название
-    if (baseType) {
-      result.type.push(baseType)
+    // Для базовых типов используем PrimitiveTypeFromEnterprise
+    const primitiveType = PrimitiveTypeFromEnterprise(aliase)
+    if (primitiveType) {
+      result.type.push(primitiveType)
     } else if (kind) {
-      // Для прикладных объектов преобразуем русское название в английский префикс
-      const appliedTypePrefix = getAppliedTypePrefix(aliase)
-      if (appliedTypePrefix) {
-        result.type.push(`${appliedTypePrefix}.${kind}`)
+      // Для прикладных объектов используем MetadataTypeFromEnterprise для префикса
+      const typePrefix = MetadataTypeFromEnterprise(aliase)
+      if (typePrefix) {
+        result.type.push(`${typePrefix}.${kind}`)
       } else {
         result.type.push(`${aliase}.${kind}`)
       }
@@ -151,40 +137,19 @@ const getAliase = (type: string, originalValue: string): string | undefined => {
     return "ОпределяемыйТип"
   }
 
-  const appliedType = AppliedTypeFromEnterprise(type)
-  if (appliedType) {
-    return AppliedTypeToEnterprise[appliedType]
+  // Проверяем прикладные типы через MetadataTypeFromEnterprise
+  const metadataType = MetadataTypeFromEnterprise(type)
+  if (metadataType) {
+    return MetatatTypeToEnterprise[metadataType]
   }
 
+  // Проверяем примитивные типы через PrimitiveTypeFromEnterprise
   const primitiveType = PrimitiveTypeFromEnterprise(type)
   if (primitiveType) {
     return PrimitiveTypeToEnterprise[primitiveType]
   }
 
   return undefined
-}
-
-const getAppliedTypePrefix = (enterpriseName: string): string | undefined => {
-  // Преобразуем русское название прикладного объекта в английский префикс
-  // Используем AppliedTypeToEnterprise для обратного преобразования
-  // При наличии нескольких вариантов (например, Catalog и CatalogRef) выбираем Ref версию
-
-  const matchingKeys: string[] = []
-
-  // Находим все ключи, которые соответствуют данному русскому названию
-  for (const [key, value] of Object.entries(AppliedTypeToEnterprise)) {
-    if (value === enterpriseName) {
-      matchingKeys.push(key)
-    }
-  }
-
-  if (matchingKeys.length === 0) {
-    return undefined
-  }
-
-  // Если есть версия с Ref, выбираем её, иначе первый найденный ключ
-  const refKey = matchingKeys.find((key) => key.endsWith("Ref"))
-  return refKey || matchingKeys[0]
 }
 
 const getTypeProcessor = (

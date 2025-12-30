@@ -1,5 +1,6 @@
 import { Context } from "../../context/types"
-import { AppliedTypeToEnterprise, TypeDescription } from "./types"
+import { MetatatTypeToEnterprise } from "../metadataPath/types"
+import { TypeDescription } from "./types"
 
 export const exportTypeDescriptionToEnterprise = (
   _context: Context,
@@ -63,7 +64,7 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
   }
 
   // Обработка прикладных типов (CatalogRef, DocumentRef, EnumRef)
-  for (const [prefix, enterpriseName] of Object.entries(AppliedTypeToEnterprise)) {
+  for (const [prefix, enterpriseName] of Object.entries(MetatatTypeToEnterprise)) {
     if (type.startsWith(`${prefix}.`)) {
       const objectName = type.substring(prefix.length + 1)
       return `${enterpriseName}.${objectName}`

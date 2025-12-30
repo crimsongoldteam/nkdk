@@ -1,5 +1,5 @@
 import { Context } from "../../context/types"
-import { AppliedType, AppliedTypeToEnterprise } from "../typeDescription/types"
+import { MetadataType, MetatatTypeToEnterprise } from "../metadataPath/types"
 import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinks, MetadataItemLinksEnterprise } from "./types"
 
 export const exportMetadataItemLinkToEnterprise = (
@@ -8,9 +8,9 @@ export const exportMetadataItemLinkToEnterprise = (
 ): MetadataItemLinkEnterprise | undefined => {
   if (!data) return undefined
 
-  const [type, object] = data.split(".") as [AppliedType, string]
+  const [type, object] = data.split(".") as [MetadataType, string]
 
-  return `${AppliedTypeToEnterprise[type]}.${object}`
+  return `${MetatatTypeToEnterprise[type]}.${object}`
 }
 
 export const exportMetadataItemLinksToEnterprise = (

@@ -1,7 +1,7 @@
 import { format, parse } from "date-fns"
 import { Context } from "../../context/types"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
-import { AppliedTypeEnterprise, AppliedTypeFromEnterprise } from "../typeDescription/types.ts"
+import { MetadataTypeEnterprise, MetadataTypeFromEnterprise } from "../metadataPath/types.ts"
 import { MetadataFormChoiceListDesTimeValueEnterprise, MetadataValue, MetadataValueEnterprise } from "./types"
 import { MetadataFixedArrayValueEnterprise } from "./types.ts"
 
@@ -136,11 +136,11 @@ const importFormChoiceListDesTimeValueFromEnterprise = (
 export const importMetadataRefFromEnterprise = (value: string): MetadataValue => {
   const parts = value.split(".")
 
-  const appliedTypeEnterprise = parts[0] as AppliedTypeEnterprise
+  const appliedTypeEnterprise = parts[0] as MetadataTypeEnterprise
 
   const partsResult = []
 
-  const appliedType = AppliedTypeFromEnterprise(appliedTypeEnterprise)
+  const appliedType = MetadataTypeFromEnterprise(appliedTypeEnterprise)
   if (!appliedType) throw new Error(`Invalid type for ref: ${value}`)
   partsResult.push(appliedType)
 

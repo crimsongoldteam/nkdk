@@ -1,5 +1,5 @@
 import { Context } from "../../context/types"
-import { AppliedTypeFromEnterprise } from "../typeDescription/types"
+import { MetadataTypeFromEnterprise } from "../metadataPath/types"
 import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinks, MetadataItemLinksEnterprise } from "./types"
 
 export const importMetadataItemLinkFromEnterprise = (
@@ -10,7 +10,7 @@ export const importMetadataItemLinkFromEnterprise = (
 
   const [type, object] = data.split(".") as [string, string]
 
-  const xmlType = AppliedTypeFromEnterprise(type)
+  const xmlType = MetadataTypeFromEnterprise(type)
   if (!xmlType) return undefined
 
   return `${xmlType}.${object}` as MetadataItemLink
@@ -22,6 +22,7 @@ export const importMetadataItemLinksFromEnterprise = (
 ): MetadataItemLinks | undefined => {
   if (!data) return undefined
 
-  return data.map((item) => importMetadataItemLinkFromEnterprise(context, item)!).filter((item): item is MetadataItemLink => item !== undefined)
+  return data
+    .map((item) => importMetadataItemLinkFromEnterprise(context, item)!)
+    .filter((item): item is MetadataItemLink => item !== undefined)
 }
-
