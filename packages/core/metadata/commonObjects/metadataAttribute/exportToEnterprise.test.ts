@@ -5,7 +5,7 @@ import {
   shortMetadataAttributeEnterprise,
   shortMetadataAttributeWithSynonym,
   singleAttributesEnterprise,
-} from "~/tests/fixtures/metadataAttribute/data"
+} from "~/tests/fixtures/metadataAttribute/enterprise"
 import { mockСontext } from "~/tests/mockContext"
 import { singleAttributes } from "../../../tests/fixtures/metadataAttribute/single"
 import { exportMetadataAttributesToEnterprise, exportMetadataAttributeToEnterprise } from "./exportToEnterprise"

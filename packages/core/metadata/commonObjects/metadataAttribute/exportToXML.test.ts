@@ -1,30 +1,34 @@
 import { describe, expect, it, vi } from "vitest"
-import { multipleAttributes } from "~/tests/fixtures/metadataAttribute/multiple"
+import { full, minimal } from "~/tests/fixtures/metadataAttribute/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { singleAttributes } from "../../../tests/fixtures/metadataAttribute/single"
 import { exportMetadataAttributesToXML } from "./exportToXML"
 
 vi.mock("uuid", () => ({
-  v4: vi.fn(() => "8f93c5cf-a2f6-4d79-ab40-83f36042b478"),
+  v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
 }))
 
 describe("exportMetadataAttributesToXML", () => {
-  it("should export single attribute to XML", () => {
-    const expectedResult = readXMLFileAsString("metadataAttribute/single.xml")
+  it("should export undefined when data is undefined", () => {
+    const result = exportMetadataAttributesToXML(mockСontext, undefined)
+    expect(result).toBeUndefined()
+  })
 
-    const xmlData = exportMetadataAttributesToXML(mockСontext, singleAttributes)
+  it("should export full", () => {
+    const expectedResult = readXMLFileAsString("metadataAttribute/full.xml")
+
+    const xmlData = exportMetadataAttributesToXML(mockСontext, full)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 
     expect(result).toEqual(expectedResult)
   })
 
-  it("should export multiple attributes to XML", () => {
-    const expectedResult = readXMLFileAsString("metadataAttribute/multiple.xml")
+  it("should export defaults", () => {
+    const expectedResult = readXMLFileAsString("metadataAttribute/defaults.xml")
 
-    const xmlData = exportMetadataAttributesToXML(mockСontext, multipleAttributes)
+    const xmlData = exportMetadataAttributesToXML(mockСontext, minimal)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 
