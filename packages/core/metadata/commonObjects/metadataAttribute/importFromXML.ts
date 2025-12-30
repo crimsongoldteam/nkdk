@@ -16,12 +16,18 @@ import { importMetadataValueFromXMLAsPrimitive } from "../metadataValue/importFr
 import { importChoiceParametersFromXML } from "../сhoiceParameter/importFromXML.ts"
 import { getDefaults } from "./defaults"
 
-export const importMetadataAttributeFromXML = (
+export const importMetadataAttributesFromXML = (
   context: Context,
-  xml: MetadataAttributeXML | undefined
-): MetadataAttribute | undefined => {
+  xml: MetadataAttributesXML | undefined
+): MetadataAttributes | undefined => {
   if (!xml) return undefined
 
+  const items = Array.isArray(xml) ? xml : [xml]
+
+  return items.map((value: MetadataAttributeXML) => importMetadataAttributeFromXML(context, value)!)
+}
+
+const importMetadataAttributeFromXML = (context: Context, xml: MetadataAttributeXML): MetadataAttribute => {
   const props = xml.Properties
 
   const result: MetadataAttribute = {} as MetadataAttribute
@@ -111,15 +117,4 @@ export const importMetadataAttributeFromXML = (
   const defaults = getDefaults(result, context)
 
   return removeDefaults(result, defaults)
-}
-
-export const importMetadataAttributesFromXML = (
-  context: Context,
-  xml: MetadataAttributesXML | undefined
-): MetadataAttributes | undefined => {
-  if (!xml) return undefined
-
-  const items = Array.isArray(xml) ? xml : [xml]
-
-  return items.map((value: MetadataAttributeXML) => importMetadataAttributeFromXML(context, value)!)
 }

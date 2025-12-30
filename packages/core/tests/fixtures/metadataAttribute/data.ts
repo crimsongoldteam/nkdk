@@ -55,3 +55,10 @@ export const full: MetadataAttributes = [
     use: "ForFolderAndItem",
   },
 ]
+
+export const minimal: MetadataAttributes = [
+  {
+    name: "ТестовыйРеквизит",
+    type: { type: ["string"] },
+  },
+]
