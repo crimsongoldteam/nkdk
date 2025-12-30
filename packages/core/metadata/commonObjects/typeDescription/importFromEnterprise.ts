@@ -1,6 +1,6 @@
+import { length } from "assert"
 import { Context } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
-import { AllowedLength } from "../../systemEnumerations/types"
 import { importMetadataTypeFromEnterprise } from "../metadataPath/importFromEnterprise"
 import {
   PrimitiveTypeFromEnterprise,
@@ -60,10 +60,8 @@ export const importTypeDescriptionFromEnterprise = (
     // Обрабатываем даты
     if (type === "Дата" || type === "Время" || type === "ДатаВремя") {
       result.type.push("dateTime")
-      const dateQualifiers = getDateQualifiers(type)
-      if (dateQualifiers) {
-        result.dateQualifiers = dateQualifiers
-      }
+      result.dateQualifiers = getDateQualifiers(type)
+
       continue
     }
 
@@ -94,9 +92,7 @@ const getStringQualifiers = (parameters: string[], type: string): TypeDescriptio
   if (parameters && parameters.length > 0) {
     stringQualifiers.length = parseInt(parameters[0])
   }
-  if (parameters && parameters.length > 1) {
-    stringQualifiers.allowedLength = parameters[1] as AllowedLength
-  }
+
   if (type === "ФиксированнаяСтрока") {
     stringQualifiers.allowedLength = "Fixed"
   }

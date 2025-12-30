@@ -54,6 +54,14 @@ describe("importTypeDescriptionFromEnterprise", () => {
     it("should parse number", () => {
       const mockTypeDescription: TypeDescription = {
         type: ["decimal"],
+      }
+      const result = importTypeDescriptionFromEnterprise(mockСontext, "Число")
+
+      expect(result).toEqual(mockTypeDescription)
+    })
+    it("should parse number with digits and fraction digits", () => {
+      const mockTypeDescription: TypeDescription = {
+        type: ["decimal"],
         numberQualifiers: { digits: 10, fractionDigits: 2 },
       }
       const result = importTypeDescriptionFromEnterprise(mockСontext, "Число(10,2)")

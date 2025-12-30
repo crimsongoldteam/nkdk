@@ -73,8 +73,6 @@ describe("importTypeDescriptionFromXML", () => {
       type: ["boolean", "EnumRef.Статусы"],
     }
 
-    // expect(assertEquals<TypeDescriptionXML>(xmlData.TypeDescription)).toEqual(xmlData.TypeDescription)
-
     const result = importTypeDescriptionFromXML(mockСontext, xmlData.TypeDescription)
 
     expect(result).toEqual(mockResult)
@@ -86,8 +84,6 @@ describe("importTypeDescriptionFromXML", () => {
     const mockResult: TypeDescription = {
       type: ["CatalogRef.Сотрудники", "CatalogRef.Контрагенты", "CatalogRef.Пользователи"],
     }
-
-    // expect(assertEquals<TypeDescriptionXML>(xmlData.TypeDescription)).toEqual(xmlData.TypeDescription)
 
     const result = importTypeDescriptionFromXML(mockСontext, xmlData.TypeDescription)
 
@@ -103,8 +99,6 @@ describe("importTypeDescriptionFromXML", () => {
       type: ["SpreadsheetDocument"],
     }
 
-    // expect(assertEquals<TypeDescriptionXML>(xmlData.TypeDescription)).toEqual(xmlData.TypeDescription)
-
     const result = importTypeDescriptionFromXML(mockСontext, xmlData.TypeDescription)
 
     expect(result).toEqual(mockResult)
@@ -116,8 +110,6 @@ describe("importTypeDescriptionFromXML", () => {
     const mockResult: TypeDescription = {
       type: ["Characteristic.ДополнительныеРеквизитыИСведения"],
     }
-
-    // expect(assertEquals<TypeDescriptionXML>(xmlData.TypeDescription)).toEqual(xmlData.TypeDescription)
 
     const result = importTypeDescriptionFromXML(mockСontext, xmlData.TypeDescription)
 
