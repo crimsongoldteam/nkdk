@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  allParameters,
-  allParametersEnterprise,
-  necessaryParameters,
-  necessaryParametersEnterprise,
-} from "~/tests/fixtures/standartAttributeDescription/data"
+import { all, allEnterprise, minimal, minimalEnterprise } from "~/tests/fixtures/standartAttributeDescription/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importStandardAttributeDescriptionsFromEnterprise } from "./importFromEnterprise"
 
@@ -20,13 +15,13 @@ describe("importStandardAttributeDescriptionFromEnterprise", () => {
   })
 
   it("should import all parameters from enterprise", () => {
-    const result = importStandardAttributeDescriptionsFromEnterprise(mockСontext, allParametersEnterprise)
+    const result = importStandardAttributeDescriptionsFromEnterprise(mockСontext, allEnterprise)
 
-    expect(result).toEqual(allParameters)
+    expect(result).toEqual(all)
   })
 
   it("should import with only name", () => {
-    const result = importStandardAttributeDescriptionsFromEnterprise(mockСontext, necessaryParametersEnterprise)
-    expect(result).toEqual(necessaryParameters)
+    const result = importStandardAttributeDescriptionsFromEnterprise(mockСontext, minimalEnterprise)
+    expect(result).toEqual(minimal)
   })
 })

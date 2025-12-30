@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { allParameters, multiple } from "~/tests/fixtures/standartAttributeDescription/data"
+import { all, multiple } from "~/tests/fixtures/standartAttributeDescription/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importStandardAttributeDescriptionsFromXML } from "./importFromXML"
@@ -13,16 +13,16 @@ describe("importStandardAttributeDescriptionsFromXML", () => {
 
   it("should import all parameters", () => {
     const xml = readAndParseXMLFile<{ StandardAttributes: StandardAttributeDescriptionsXML }>(
-      "standartAttributeDescription/allParameters.xml"
+      "standartAttributeDescription/all.xml"
     )
 
     const result = importStandardAttributeDescriptionsFromXML(mockСontext, xml.StandardAttributes)
-    expect(result).toEqual(allParameters)
+    expect(result).toEqual(all)
   })
 
   it("should return undefined when only name is present", () => {
     const xml = readAndParseXMLFile<{ StandardAttributes: StandardAttributeDescriptionsXML }>(
-      "standartAttributeDescription/necessaryParameters.xml"
+      "standartAttributeDescription/minimal.xml"
     )
 
     const result = importStandardAttributeDescriptionsFromXML(mockСontext, xml.StandardAttributes)

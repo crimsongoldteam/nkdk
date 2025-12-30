@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  allParameters,
-  allParametersEnterprise,
-  necessaryParameters,
-  necessaryParametersEnterprise,
-} from "~/tests/fixtures/standartAttributeDescription/data"
+import { all, allEnterprise, minimal, minimalEnterprise } from "~/tests/fixtures/standartAttributeDescription/data"
 import { mockСontext } from "~/tests/mockContext"
 import { exportStandardAttributeDescriptionsToEnterprise } from "./exportToEnterprise"
 
@@ -20,13 +15,13 @@ describe("exportStandardAttributeDescriptionToEnterprise", () => {
   })
 
   it("should export all parameters to enterprise", () => {
-    const result = exportStandardAttributeDescriptionsToEnterprise(mockСontext, allParameters)
+    const result = exportStandardAttributeDescriptionsToEnterprise(mockСontext, all)
 
-    expect(result).toEqual(allParametersEnterprise)
+    expect(result).toEqual(allEnterprise)
   })
 
   it("should export with only name", () => {
-    const result = exportStandardAttributeDescriptionsToEnterprise(mockСontext, necessaryParameters)
-    expect(result).toEqual(necessaryParametersEnterprise)
+    const result = exportStandardAttributeDescriptionsToEnterprise(mockСontext, minimal)
+    expect(result).toEqual(minimalEnterprise)
   })
 })

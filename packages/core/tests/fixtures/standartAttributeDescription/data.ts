@@ -3,7 +3,7 @@ import {
   StandardAttributeDescriptionsEnterprise,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 
-export const allParameters: StandardAttributeDescriptions = [
+export const all: StandardAttributeDescriptions = [
   {
     name: "PredefinedDataName",
     choiceForm: "ФормаВыбора",
@@ -56,7 +56,7 @@ export const allParameters: StandardAttributeDescriptions = [
   },
 ]
 
-export const allParametersEnterprise: StandardAttributeDescriptionsEnterprise = {
+export const allEnterprise: StandardAttributeDescriptionsEnterprise = {
   ИмяПредопределенныхДанных: {
     Синоним: "Какой-то синоним",
     ПроверкаЗаполнения: "ВыдаватьОшибку",
@@ -87,15 +87,15 @@ export const allParametersEnterprise: StandardAttributeDescriptionsEnterprise = 
   },
 }
 
-export const necessaryParametersEnterprise: StandardAttributeDescriptionsEnterprise = {
-  ИмяПредопределенныхДанных: {},
-}
-
-export const necessaryParameters: StandardAttributeDescriptions = [
+export const minimal: StandardAttributeDescriptions = [
   {
     name: "PredefinedDataName",
   },
 ]
+
+export const minimalEnterprise: StandardAttributeDescriptionsEnterprise = {
+  ИмяПредопределенныхДанных: {},
+}
 
 export const multiple: StandardAttributeDescriptions = [
   {

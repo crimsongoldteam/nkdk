@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { allParameters, multiple, necessaryParameters } from "~/tests/fixtures/standartAttributeDescription/data"
+import { all, minimal, multiple } from "~/tests/fixtures/standartAttributeDescription/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
@@ -15,9 +15,9 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
   })
 
   it("should export all parameters", () => {
-    const expectedXml = readXMLFileAsString("standartAttributeDescription/allParameters.xml")
+    const expectedXml = readXMLFileAsString("standartAttributeDescription/all.xml")
 
-    const result = exportStandardAttributeDescriptionsToXML(mockСontext, allParameters, ["PredefinedDataName"])
+    const result = exportStandardAttributeDescriptionsToXML(mockСontext, all, ["PredefinedDataName"])
     const xmlString = xmlExport({ StandardAttributes: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
@@ -25,7 +25,7 @@ describe("exportStandardAttributeDescriptionsToXML", () => {
 
   it("should export XML with default values if only name is present", () => {
     const expectedXml = readXMLFileAsString("standartAttributeDescription/default.xml")
-    const result = exportStandardAttributeDescriptionsToXML(mockСontext, necessaryParameters, ["PredefinedDataName"])
+    const result = exportStandardAttributeDescriptionsToXML(mockСontext, minimal, ["PredefinedDataName"])
 
     const xmlString = xmlExport({ StandardAttributes: result }, false)
     expect(xmlString).toEqual(expectedXml)
