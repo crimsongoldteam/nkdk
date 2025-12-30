@@ -145,11 +145,9 @@ describe("exportTypeDescriptionToEnterprise", () => {
         type: ["тип1", "тип2"],
       }
 
-      const expectedResult = "тип1, тип2"
-
       const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
 
-      expect(result).toEqual(expectedResult)
+      expect(result).toEqual(["тип1", "тип2"])
     })
 
     it("should format parametrical types composite", () => {
@@ -159,11 +157,9 @@ describe("exportTypeDescriptionToEnterprise", () => {
         numberQualifiers: { digits: 10, fractionDigits: 2 },
       }
 
-      const expectedResult = "Строка(10), Число(10, 2)"
-
       const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
 
-      expect(result).toEqual(expectedResult)
+      expect(result).toEqual(["Строка(10)", "Число(10, 2)"])
     })
   })
 

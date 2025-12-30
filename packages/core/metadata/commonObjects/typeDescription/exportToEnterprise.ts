@@ -1,20 +1,20 @@
 import { Context } from "../../context/types"
-import { MetatatTypeToEnterprise } from "../metadataPath/types"
-import { TypeDescription } from "./types"
+import { exportMetadataTypeToEnterprise } from "../metadataPath/exportToEnterprise"
+import { TypeDescription, TypeDescriptionEnterprise } from "./types"
 
 export const exportTypeDescriptionToEnterprise = (
-  _context: Context,
+  context: Context,
   typeDescription: TypeDescription | undefined
-): string | undefined => {
+): TypeDescriptionEnterprise | undefined => {
   if (!typeDescription) {
     return undefined
   }
 
   if (typeDescription.type.length > 1) {
-    return typeDescription.type.map((type) => formatSingleType(type, typeDescription)).join(", ")
+    return typeDescription.type.map((type) => formatSingleType(context, type, typeDescription))
   }
 
-  return formatSingleType(typeDescription.type[0], typeDescription)
+  return formatSingleType(context, typeDescription.type[0], typeDescription)
 }
 
 const formatStringQualifier = (stringQualifiers: NonNullable<TypeDescription["stringQualifiers"]>): string => {
@@ -55,20 +55,12 @@ const formatDateQualifier = (dateQualifiers: NonNullable<TypeDescription["dateQu
   }
 }
 
-const formatSingleType = (type: string, typeDescription: TypeDescription): string => {
+const formatSingleType = (context: Context, type: string, typeDescription: TypeDescription): string => {
   const typeMap: Record<string, string> = {
     string: "Строка",
     decimal: "Число",
     date: "Дата",
     boolean: "Булево",
-  }
-
-  // Обработка прикладных типов (CatalogRef, DocumentRef, EnumRef)
-  for (const [prefix, enterpriseName] of Object.entries(MetatatTypeToEnterprise)) {
-    if (type.startsWith(`${prefix}.`)) {
-      const objectName = type.substring(prefix.length + 1)
-      return `${enterpriseName}.${objectName}`
-    }
   }
 
   if (type === "string" && typeDescription.stringQualifiers) {
@@ -81,6 +73,11 @@ const formatSingleType = (type: string, typeDescription: TypeDescription): strin
 
   if ((type === "date" || type === "dateTime") && typeDescription.dateQualifiers) {
     return formatDateQualifier(typeDescription.dateQualifiers)
+  }
+
+  const metadataType = exportMetadataTypeToEnterprise(context, type)
+  if (metadataType) {
+    return metadataType
   }
 
   return typeMap[type] || type
