@@ -1,4 +1,3 @@
-import { length } from "assert"
 import { Context } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
 import { importMetadataTypeFromEnterprise } from "../metadataPath/importFromEnterprise"
@@ -23,7 +22,6 @@ export const importTypeDescriptionFromEnterprise = (
     type: [],
   }
 
-  // Обрабатываем массив или строку
   const stringValues = Array.isArray(value) ? value : [value]
 
   for (const stringValue of stringValues) {
@@ -35,7 +33,6 @@ export const importTypeDescriptionFromEnterprise = (
     const type = parsed.formula
     const parameters = parsed.parameters
 
-    // Обрабатываем строки
     if (type === "Строка" || type === "ФиксированнаяСтрока") {
       const primitiveType = PrimitiveTypeFromEnterprise("Строка")
       result.type.push(primitiveType)
@@ -46,7 +43,6 @@ export const importTypeDescriptionFromEnterprise = (
       continue
     }
 
-    // Обрабатываем числа
     if (type === "Число" || type === "ПоложительноеЧисло") {
       const primitiveType = PrimitiveTypeFromEnterprise("Число")
       result.type.push(primitiveType)
@@ -57,7 +53,6 @@ export const importTypeDescriptionFromEnterprise = (
       continue
     }
 
-    // Обрабатываем даты
     if (type === "Дата" || type === "Время" || type === "ДатаВремя") {
       result.type.push("dateTime")
       result.dateQualifiers = getDateQualifiers(type)

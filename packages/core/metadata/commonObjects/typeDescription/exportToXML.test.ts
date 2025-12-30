@@ -6,6 +6,11 @@ import { exportTypeDescriptionToXML } from "./exportToXML"
 import { TypeDescription } from "./types"
 
 describe("exportTypeDescriptionToXML", () => {
+  it("should export undefined type description to XML", () => {
+    const result = exportTypeDescriptionToXML(mockСontext, undefined)
+    expect(result).toBeUndefined()
+  })
+
   it("should export string type to XML", () => {
     const mockTypeDescription: TypeDescription = {
       type: ["string"],

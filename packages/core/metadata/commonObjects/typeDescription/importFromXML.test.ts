@@ -5,6 +5,11 @@ import { importTypeDescriptionFromXML } from "./importFromXML"
 import { TypeDescription, TypeDescriptionXML } from "./types"
 
 describe("importTypeDescriptionFromXML", () => {
+  it("should import undefined type description from XML", () => {
+    const result = importTypeDescriptionFromXML(mockСontext, undefined)
+    expect(result).toBeUndefined()
+  })
+
   it("should import string type from XML", () => {
     const xmlData = readAndParseXMLFile<{ TypeDescription?: TypeDescriptionXML }>("typeDescription/stringType.xml")
 
