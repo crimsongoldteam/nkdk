@@ -73,7 +73,7 @@ function buildXml(parsedData: any): string {
     return '<?xml version="1.0" encoding="UTF-8"?>\n' + outputXml
   }
 
-  return outputXml
+  return outputXml.trimEnd()
 }
 
 function processObject(obj: any, isPropertiesNode: boolean = false, parentKey: string = ""): any {
