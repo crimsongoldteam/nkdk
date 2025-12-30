@@ -24,6 +24,7 @@
 			</xr:GeneratedType>
 		</InternalInfo>
 		<Properties>
+			<Name>Контрагенты</Name>
 			<Autonumbering>true</Autonumbering>
 			<CheckUnique>true</CheckUnique>
 			<ChoiceDataGetModeOnInputByString>Directly</ChoiceDataGetModeOnInputByString>
@@ -48,14 +49,140 @@
 			<IncludeHelpInContents>false</IncludeHelpInContents>
 			<LevelCount>2</LevelCount>
 			<LimitLevelCount>false</LimitLevelCount>
-			<Name>Контрагенты</Name>
 			<PredefinedDataUpdate>Auto</PredefinedDataUpdate>
 			<QuickChoice>false</QuickChoice>
 			<SearchStringModeOnInputByString>Begin</SearchStringModeOnInputByString>
+			<StandardAttributes>
+				<xr:StandardAttribute name="PredefinedDataName">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Predefined">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Ref">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="DeletionMark">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="IsFolder">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Owner">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Parent">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Description">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+				<xr:StandardAttribute name="Code">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+				</xr:StandardAttribute>
+			</StandardAttributes>
 			<SubordinationUse>ToItems</SubordinationUse>
 			<UpdateDataHistoryImmediatelyAfterWrite>false</UpdateDataHistoryImmediatelyAfterWrite>
 			<UseStandardCommands>true</UseStandardCommands>
 		</Properties>
 	</Catalog>
 </MetaDataObject>
-
