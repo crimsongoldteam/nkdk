@@ -1,16 +1,10 @@
 import { Context } from "../../context/types"
-import { MetadataField, MetadataFields, MetadataFieldsXML, MetadataFieldXML } from "./types"
+import { MetadataField, MetadataFields, MetadataFieldsXML } from "./types"
 
-export const exportMetadataFieldToXML = (
-  _context: Context,
-  data: MetadataField | undefined
-): MetadataFieldXML | undefined => {
+export const exportMetadataFieldToXML = (_context: Context, data: MetadataField | undefined): string | undefined => {
   if (!data) return undefined
 
-  return {
-    "#text": data,
-    "xsi:type": "xr:MDObjectRef",
-  }
+  return String(data)
 }
 
 export const exportMetadataFieldsToXML = (
@@ -19,5 +13,9 @@ export const exportMetadataFieldsToXML = (
 ): MetadataFieldsXML | undefined => {
   if (!data) return undefined
 
-  return data.map((value) => exportMetadataFieldToXML(context, value)!)
+  const items = Array.isArray(data) ? data : [data]
+
+  return {
+    "xr:Field": items.map((value) => exportMetadataFieldToXML(context, value)!),
+  }
 }

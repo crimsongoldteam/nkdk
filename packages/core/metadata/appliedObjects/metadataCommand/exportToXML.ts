@@ -24,11 +24,11 @@ export const exportMetadataCommandToXML = (
   const result: MetadataCommandXML = {
     _uuid: v4(),
     Properties: {
+      Name: mergedData.name,
       CommandParameterType: exportTypeDescriptionToXML(context, mergedData.commandParameterType),
       Comment: mergedData.comment,
       Group: group,
       ModifiesData: mergedData.modifiesData,
-      Name: mergedData.name,
       ObjectBelonging: mergedData.objectBelonging,
       OnMainServerUnavalableBehavior: mergedData.onMainServerUnavalableBehavior,
       ParameterUseMode: mergedData.parameterUseMode,

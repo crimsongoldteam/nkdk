@@ -44,7 +44,7 @@ export const exportMetadataCatalogToXML = (
   ])
 
   const properties: MetadataCatalogXML["Catalog"]["Properties"] = {
-    Name: mergedData.name!,
+    Name: mergedData.name,
   }
 
   const additionalIndexes = exportAdditionalIndexesToXML(context, mergedData.additionalIndexes)

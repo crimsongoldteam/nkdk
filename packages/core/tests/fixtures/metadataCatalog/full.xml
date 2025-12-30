@@ -24,6 +24,7 @@
 			</xr:GeneratedType>
 		</InternalInfo>
 		<Properties>
+			<Name>Контрагенты</Name>
 			<Autonumbering>false</Autonumbering>
 			<AuxiliaryChoiceForm>Catalog.Контрагенты.Form.ФормаВыбора</AuxiliaryChoiceForm>
 			<AuxiliaryFolderChoiceForm>Catalog.Контрагенты.Form.ФормаВыбораГруппы</AuxiliaryFolderChoiceForm>
@@ -64,7 +65,7 @@
 			<DataHistory>Use</DataHistory>
 			<DataLockControlMode>Automatic</DataLockControlMode>
 			<DataLockFields>
-				<xr:Field xsi:type="xs:string">Catalog.Контрагенты.Attribute.РеквизитОбъекта</xr:Field>
+				<xr:Field>Catalog.Контрагенты.Attribute.РеквизитОбъекта</xr:Field>
 			</DataLockFields>
 			<DefaultChoiceForm>Catalog.Контрагенты.Form.ФормаВыбора</DefaultChoiceForm>
 			<DefaultFolderChoiceForm>Catalog.Контрагенты.Form.ФормаВыбораГруппы</DefaultFolderChoiceForm>
@@ -111,7 +112,6 @@
 					<v8:lang>ru</v8:lang>
 				</v8:item>
 			</ListPresentation>
-			<Name>Контрагенты</Name>
 			<ObjectPresentation>
 				<v8:item>
 					<v8:content>Представление объекта</v8:content>
@@ -258,136 +258,136 @@
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
 				</xr:StandardAttribute>
 			</StandardAttributes>
-		<SubordinationUse>ToFolders</SubordinationUse>
-		<Synonym>
-			<v8:item>
-				<v8:content>Контрагенты</v8:content>
-				<v8:lang>ru</v8:lang>
-			</v8:item>
-		</Synonym>
-		<UpdateDataHistoryImmediatelyAfterWrite>true</UpdateDataHistoryImmediatelyAfterWrite>
-		<UseStandardCommands>false</UseStandardCommands>
-	</Properties>
-	<ChildObjects>
-		<Attribute uuid="11111111-1111-4111-8111-111111111111">
-			<Properties>
-				<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
-				<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
-				<CreateOnInput>Auto</CreateOnInput>
-				<DataHistory>Use</DataHistory>
-				<ExtendedEdit>false</ExtendedEdit>
-				<FillChecking>DontCheck</FillChecking>
-				<FillFromFillingValue>false</FillFromFillingValue>
-				<FullTextSearch>Use</FullTextSearch>
-				<Indexing>DontIndex</Indexing>
-				<MarkNegatives>false</MarkNegatives>
-				<MultiLine>false</MultiLine>
-				<Name>РеквизитОбъекта</Name>
-				<PasswordMode>false</PasswordMode>
-				<QuickChoice>Auto</QuickChoice>
-				<Synonym>
-					<v8:item>
-						<v8:content>Реквизит объекта</v8:content>
-						<v8:lang>ru</v8:lang>
-					</v8:item>
-				</Synonym>
-				<Type>
-					<v8:Type>xs:string</v8:Type>
-					<v8:StringQualifiers>
-						<v8:AllowedLength>Variable</v8:AllowedLength>
-						<v8:Length>0</v8:Length>
-					</v8:StringQualifiers>
-				</Type>
-				<Use>ForItem</Use>
-			</Properties>
-		</Attribute>
-		<TabularSection uuid="11111111-1111-4111-8111-111111111111">
-			<InternalInfo>
-				<xr:GeneratedType name="CatalogTabularSection.Контрагенты.ДополнительныеРеквизиты" category="TabularSection">
-					<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
-					<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
-				</xr:GeneratedType>
-				<xr:GeneratedType name="CatalogTabularSectionRow.Контрагенты.ДополнительныеРеквизиты" category="TabularSectionRow">
-					<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
-					<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
-				</xr:GeneratedType>
-			</InternalInfo>
-			<Properties>
-				<FillChecking>DontCheck</FillChecking>
-				<LineNumberLength>5</LineNumberLength>
-				<Name>ДополнительныеРеквизиты</Name>
-				<StandardAttributes>
-					<xr:StandardAttribute name="LineNumber">
-						<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
-						<xr:CreateOnInput>Auto</xr:CreateOnInput>
-						<xr:DataHistory>Use</xr:DataHistory>
-						<xr:ExtendedEdit>false</xr:ExtendedEdit>
-						<xr:FillChecking>DontCheck</xr:FillChecking>
-						<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
-						<xr:FullTextSearch>Use</xr:FullTextSearch>
-						<xr:MarkNegatives>false</xr:MarkNegatives>
-						<xr:MultiLine>false</xr:MultiLine>
-						<xr:PasswordMode>false</xr:PasswordMode>
-						<xr:QuickChoice>Auto</xr:QuickChoice>
-						<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
-					</xr:StandardAttribute>
-				</StandardAttributes>
-				<Synonym>
-					<v8:item>
-						<v8:content>Дополнительные реквизиты</v8:content>
-						<v8:lang>ru</v8:lang>
-					</v8:item>
-				</Synonym>
-			</Properties>
-			<ChildObjects>
-				<Attribute uuid="11111111-1111-4111-8111-111111111111">
-					<Properties>
-						<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
-						<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
-						<CreateOnInput>Auto</CreateOnInput>
-						<DataHistory>Use</DataHistory>
-						<ExtendedEdit>false</ExtendedEdit>
-						<FillChecking>DontCheck</FillChecking>
-						<FullTextSearch>Use</FullTextSearch>
-						<Indexing>DontIndex</Indexing>
-						<MarkNegatives>false</MarkNegatives>
-						<MultiLine>false</MultiLine>
-						<Name>РеквизитТабличнойЧасти</Name>
-						<PasswordMode>false</PasswordMode>
-						<QuickChoice>Auto</QuickChoice>
-						<Synonym>
-							<v8:item>
-								<v8:content>Реквизит табличной части</v8:content>
-								<v8:lang>ru</v8:lang>
-							</v8:item>
-						</Synonym>
-						<Type>
-							<v8:Type>xs:string</v8:Type>
-							<v8:StringQualifiers>
-								<v8:AllowedLength>Variable</v8:AllowedLength>
-								<v8:Length>0</v8:Length>
-							</v8:StringQualifiers>
-						</Type>
-					</Properties>
-				</Attribute>
-			</ChildObjects>
-		</TabularSection>
-		<Command uuid="11111111-1111-4111-8111-111111111111">
-			<Properties>
-				<Group>ActionsPanelCreate</Group>
-				<ModifiesData>false</ModifiesData>
-				<Name>НовыйЭлемент</Name>
-				<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
-				<ParameterUseMode>Single</ParameterUseMode>
-				<Representation>Auto</Representation>
-				<Synonym>
-					<v8:item>
-						<v8:content>Контрагенты</v8:content>
-						<v8:lang>ru</v8:lang>
-					</v8:item>
-				</Synonym>
-			</Properties>
-		</Command>
-	</ChildObjects>
+			<SubordinationUse>ToFolders</SubordinationUse>
+			<Synonym>
+				<v8:item>
+					<v8:content>Контрагенты</v8:content>
+					<v8:lang>ru</v8:lang>
+				</v8:item>
+			</Synonym>
+			<UpdateDataHistoryImmediatelyAfterWrite>true</UpdateDataHistoryImmediatelyAfterWrite>
+			<UseStandardCommands>false</UseStandardCommands>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="11111111-1111-4111-8111-111111111111">
+				<Properties>
+					<Name>РеквизитОбъекта</Name>
+					<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+					<CreateOnInput>Auto</CreateOnInput>
+					<DataHistory>Use</DataHistory>
+					<ExtendedEdit>false</ExtendedEdit>
+					<FillChecking>DontCheck</FillChecking>
+					<FillFromFillingValue>false</FillFromFillingValue>
+					<FullTextSearch>Use</FullTextSearch>
+					<Indexing>DontIndex</Indexing>
+					<MarkNegatives>false</MarkNegatives>
+					<MultiLine>false</MultiLine>
+					<PasswordMode>false</PasswordMode>
+					<QuickChoice>Auto</QuickChoice>
+					<Synonym>
+						<v8:item>
+							<v8:content>Реквизит объекта</v8:content>
+							<v8:lang>ru</v8:lang>
+						</v8:item>
+					</Synonym>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+							<v8:Length>0</v8:Length>
+						</v8:StringQualifiers>
+					</Type>
+					<Use>ForItem</Use>
+				</Properties>
+			</Attribute>
+			<TabularSection uuid="11111111-1111-4111-8111-111111111111">
+				<InternalInfo>
+					<xr:GeneratedType name="CatalogTabularSection.Контрагенты.ДополнительныеРеквизиты" category="TabularSection">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+					<xr:GeneratedType name="CatalogTabularSectionRow.Контрагенты.ДополнительныеРеквизиты" category="TabularSectionRow">
+						<xr:TypeId>11111111-1111-4111-8111-111111111111</xr:TypeId>
+						<xr:ValueId>11111111-1111-4111-8111-111111111111</xr:ValueId>
+					</xr:GeneratedType>
+				</InternalInfo>
+				<Properties>
+					<Name>ДополнительныеРеквизиты</Name>
+					<FillChecking>DontCheck</FillChecking>
+					<LineNumberLength>5</LineNumberLength>
+					<StandardAttributes>
+						<xr:StandardAttribute name="LineNumber">
+							<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+							<xr:CreateOnInput>Auto</xr:CreateOnInput>
+							<xr:DataHistory>Use</xr:DataHistory>
+							<xr:ExtendedEdit>false</xr:ExtendedEdit>
+							<xr:FillChecking>DontCheck</xr:FillChecking>
+							<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+							<xr:FullTextSearch>Use</xr:FullTextSearch>
+							<xr:MarkNegatives>false</xr:MarkNegatives>
+							<xr:MultiLine>false</xr:MultiLine>
+							<xr:PasswordMode>false</xr:PasswordMode>
+							<xr:QuickChoice>Auto</xr:QuickChoice>
+							<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
+						</xr:StandardAttribute>
+					</StandardAttributes>
+					<Synonym>
+						<v8:item>
+							<v8:content>Дополнительные реквизиты</v8:content>
+							<v8:lang>ru</v8:lang>
+						</v8:item>
+					</Synonym>
+				</Properties>
+				<ChildObjects>
+					<Attribute uuid="11111111-1111-4111-8111-111111111111">
+						<Properties>
+							<Name>РеквизитТабличнойЧасти</Name>
+							<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+							<CreateOnInput>Auto</CreateOnInput>
+							<DataHistory>Use</DataHistory>
+							<ExtendedEdit>false</ExtendedEdit>
+							<FillChecking>DontCheck</FillChecking>
+							<FullTextSearch>Use</FullTextSearch>
+							<Indexing>DontIndex</Indexing>
+							<MarkNegatives>false</MarkNegatives>
+							<MultiLine>false</MultiLine>
+							<PasswordMode>false</PasswordMode>
+							<QuickChoice>Auto</QuickChoice>
+							<Synonym>
+								<v8:item>
+									<v8:content>Реквизит табличной части</v8:content>
+									<v8:lang>ru</v8:lang>
+								</v8:item>
+							</Synonym>
+							<Type>
+								<v8:Type>xs:string</v8:Type>
+								<v8:StringQualifiers>
+									<v8:AllowedLength>Variable</v8:AllowedLength>
+									<v8:Length>0</v8:Length>
+								</v8:StringQualifiers>
+							</Type>
+						</Properties>
+					</Attribute>
+				</ChildObjects>
+			</TabularSection>
+			<Command uuid="11111111-1111-4111-8111-111111111111">
+				<Properties>
+					<Name>НовыйЭлемент</Name>
+					<Group>ActionsPanelCreate</Group>
+					<ModifiesData>false</ModifiesData>
+					<OnMainServerUnavalableBehavior>Auto</OnMainServerUnavalableBehavior>
+					<ParameterUseMode>Single</ParameterUseMode>
+					<Representation>Auto</Representation>
+					<Synonym>
+						<v8:item>
+							<v8:content>Контрагенты</v8:content>
+							<v8:lang>ru</v8:lang>
+						</v8:item>
+					</Synonym>
+				</Properties>
+			</Command>
+		</ChildObjects>
 	</Catalog>
 </MetaDataObject>

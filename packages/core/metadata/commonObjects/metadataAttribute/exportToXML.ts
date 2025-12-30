@@ -30,6 +30,7 @@ export const exportMetadataAttributeToXML = (
   const result: MetadataAttributeXML = {
     _uuid: v4(),
     Properties: compactObject<MetadataAttributeXML["Properties"]>({
+      Name: mergedData.name!,
       BinaryDataStorageLocationUse: mergedData.binaryDataStorageLocationUse,
       BinaryDataStorageLocationUseField: mergedData.binaryDataStorageLocationUseField,
       ChoiceFoldersAndItems: mergedData.choiceFoldersAndItems,
@@ -54,7 +55,6 @@ export const exportMetadataAttributeToXML = (
       MaxValue: exportMetadataSimpleValueToXML(context, mergedData.maxValue, "string"),
       MinValue: exportMetadataSimpleValueToXML(context, mergedData.minValue, "string"),
       MultiLine: mergedData.multiLine,
-      Name: mergedData.name!,
       ObjectBelonging: mergedData.objectBelonging,
       PasswordMode: mergedData.passwordMode,
       QuickChoice: mergedData.quickChoice,

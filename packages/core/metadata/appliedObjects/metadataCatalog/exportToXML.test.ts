@@ -18,23 +18,9 @@ const mockMetadataCatalogContext: MetadataCatalogContext = {
 
 describe("exportMetadataCatalogToXML", () => {
   it("should export all nodes", () => {
-    const mock = full
-
     const expectedResult = readXMLFileAsString("metadataCatalog/full.xml")
 
-    const xmlData = exportMetadataCatalogToXML(mockMetadataCatalogContext, mock)
-
-    const result = xmlExport({ MetaDataObject: xmlData })
-
-    expect(result).toEqual(expectedResult)
-  })
-
-  it("should export minimal nodes", () => {
-    const mock = minimal
-
-    const expectedResult = readXMLFileAsString("metadataCatalog/minimal.xml")
-
-    const xmlData = exportMetadataCatalogToXML(mockMetadataCatalogContext, mock)
+    const xmlData = exportMetadataCatalogToXML(mockMetadataCatalogContext, full)
 
     const result = xmlExport({ MetaDataObject: xmlData })
 

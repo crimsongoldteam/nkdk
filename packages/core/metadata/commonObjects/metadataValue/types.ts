@@ -22,7 +22,10 @@ export const MetadataValueTypeFromXML = (xmlType: MetadataValueTypeXML): Metadat
 }
 
 export type MetadataValueType = keyof typeof MetadataValueTypeToXML
-export type MetadataPrimitiveValueType = Extract<MetadataValueType, "string" | "decimal" | "dateTime" | "boolean">
+export type MetadataPrimitiveValueType = Extract<
+  MetadataValueType,
+  "string" | "decimal" | "dateTime" | "boolean" | "objectRef"
+>
 
 export type MetadataValueTypeXML = (typeof MetadataValueTypeToXML)[keyof typeof MetadataValueTypeToXML]
 
