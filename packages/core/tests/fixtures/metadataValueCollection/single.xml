@@ -1,0 +1,3 @@
+<BasedOn>
+	<xr:Item xsi:type="xr:MDObjectRef">Catalog.Контрагенты</xr:Item>
+</BasedOn>

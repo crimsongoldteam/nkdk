@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest"
+import { withAttributesCatalog } from "~/tests/fixtures/metadataCatalog/data"
 import { simpleCatalog } from "~/tests/fixtures/metadataCatalog/simple"
-import { withAttributesCatalog } from "~/tests/fixtures/metadataCatalog/withAttributes"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile, readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"

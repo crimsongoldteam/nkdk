@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaDataObject xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:cmi="http://v8.1c.ru/8.2/managed-application/cmi" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xen="http://v8.1c.ru/8.3/xcf/enums" xmlns:xpr="http://v8.1c.ru/8.3/xcf/predef" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://v8.1c.ru/8.3/MDClasses" version="2.20">
+	<Catalog uuid="8f93c5cf-a2f6-4d79-ab40-83f36042b478">
+		<InternalInfo>
+			<xr:GeneratedType name="CatalogObject.Контрагенты" category="Object">
+				<xr:TypeId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:TypeId>
+				<xr:ValueId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogRef.Контрагенты" category="Ref">
+				<xr:TypeId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:TypeId>
+				<xr:ValueId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogSelection.Контрагенты" category="Selection">
+				<xr:TypeId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:TypeId>
+				<xr:ValueId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogList.Контрагенты" category="List">
+				<xr:TypeId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:TypeId>
+				<xr:ValueId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:ValueId>
+			</xr:GeneratedType>
+			<xr:GeneratedType name="CatalogManager.Контрагенты" category="Manager">
+				<xr:TypeId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:TypeId>
+				<xr:ValueId>8f93c5cf-a2f6-4d79-ab40-83f36042b478</xr:ValueId>
+			</xr:GeneratedType>
+		</InternalInfo>
+		<Properties>
+			<Autonumbering>true</Autonumbering>
+			<AuxiliaryChoiceForm>Catalog.Контрагенты.Form.ФормаВыбора</AuxiliaryChoiceForm>
+			<AuxiliaryFolderChoiceForm>Catalog.Контрагенты.Form.ФормаВыбораГруппы</AuxiliaryFolderChoiceForm>
+			<AuxiliaryFolderForm>Catalog.Контрагенты.Form.ФормаГруппы</AuxiliaryFolderForm>
+			<AuxiliaryListForm>Catalog.Контрагенты.Form.ФормаСписка</AuxiliaryListForm>
+			<AuxiliaryObjectForm>Catalog.Контрагенты.Form.ФормаЭлемента</AuxiliaryObjectForm>
+			<BasedOn>
+				<xr:Item xsi:type="xr:MDObjectRef">Catalog.ДругойСправочник</xr:Item>
+			</BasedOn>
+			<Characteristics>
+				<xr:Characteristic>
+					<xr:CharacteristicTypes from="Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты">
+						<xr:DataPathField>-1</xr:DataPathField>
+						<xr:KeyField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:KeyField>
+						<xr:MultipleValuesUseField>-1</xr:MultipleValuesUseField>
+						<xr:TypesFilterField>Catalog.НаборыДополнительныхРеквизитовИСведений.TabularSection.ДополнительныеРеквизиты.Attribute.ИмяПредопределенногоНабора</xr:TypesFilterField>
+						<xr:TypesFilterValue xsi:type="xs:string">Справочник_Контрагенты</xr:TypesFilterValue>
+					</xr:CharacteristicTypes>
+					<xr:CharacteristicValues from="Catalog.Контрагенты.TabularSection.ДополнительныеРеквизиты">
+						<xr:MultipleValuesKeyField>-1</xr:MultipleValuesKeyField>
+						<xr:MultipleValuesOrderField>-1</xr:MultipleValuesOrderField>
+						<xr:ObjectField>Catalog.Контрагенты.TabularSection.ДополнительныеРеквизиты.StandardAttribute.Ref</xr:ObjectField>
+						<xr:TypeField>Catalog.Контрагенты.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:TypeField>
+						<xr:ValueField>Catalog.Контрагенты.TabularSection.ДополнительныеРеквизиты.Attribute.Значение</xr:ValueField>
+					</xr:CharacteristicValues>
+				</xr:Characteristic>
+			</Characteristics>
+			<CheckUnique>true</CheckUnique>
+			<ChoiceDataGetModeOnInputByString>Directly</ChoiceDataGetModeOnInputByString>
+			<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+			<ChoiceMode>BothWays</ChoiceMode>
+			<CodeAllowedLength>Variable</CodeAllowedLength>
+			<CodeLength>9</CodeLength>
+			<CodeSeries>WholeCatalog</CodeSeries>
+			<CodeType>String</CodeType>
+			<Comment>Комментарий к справочнику</Comment>
+			<CreateOnInput>Use</CreateOnInput>
+			<DataHistory>DontUse</DataHistory>
+			<DataLockControlMode>Managed</DataLockControlMode>
+			<DataLockFields>
+				<xr:Field xsi:type="xs:string">Catalog.Контрагенты.Attribute.РеквизитОбъекта</xr:Field>
+			</DataLockFields>
+			<DefaultChoiceForm>Catalog.Контрагенты.Form.ФормаВыбора</DefaultChoiceForm>
+			<DefaultFolderChoiceForm>Catalog.Контрагенты.Form.ФормаВыбораГруппы</DefaultFolderChoiceForm>
+			<DefaultFolderForm>Catalog.Контрагенты.Form.ФормаГруппы</DefaultFolderForm>
+			<DefaultListForm>Catalog.Контрагенты.Form.ФормаСписка</DefaultListForm>
+			<DefaultObjectForm>Catalog.Контрагенты.Form.ФормаЭлемента</DefaultObjectForm>
+			<DefaultPresentation>AsDescription</DefaultPresentation>
+			<DescriptionLength>25</DescriptionLength>
+			<EditType>InDialog</EditType>
+			<ExecuteAfterWriteDataHistoryVersionProcessing>false</ExecuteAfterWriteDataHistoryVersionProcessing>
+			<Explanation>
+				<v8:item>
+					<v8:content>Пояснение к справочнику</v8:content>
+					<v8:lang>ru</v8:lang>
+				</v8:item>
+			</Explanation>
+			<ExtendedListPresentation>
+				<v8:item>
+					<v8:content>Расширенное представление списка</v8:content>
+					<v8:lang>ru</v8:lang>
+				</v8:item>
+			</ExtendedListPresentation>
+			<ExtendedObjectPresentation>
+				<v8:item>
+					<v8:content>Расширенное представление объекта</v8:content>
+					<v8:lang>ru</v8:lang>
+				</v8:item>
+			</ExtendedObjectPresentation>
+			<FoldersOnTop>true</FoldersOnTop>
+			<FullTextSearch>Use</FullTextSearch>
+			<FullTextSearchOnInputByString>DontUse</FullTextSearchOnInputByString>
+			<Hierarchical>false</Hierarchical>
+			<HierarchyType>HierarchyFoldersAndItems</HierarchyType>
+			<IncludeHelpInContents>false</IncludeHelpInContents>
+			<InputByString>
+				<xr:Field>Catalog.Контрагенты.StandardAttribute.Description</xr:Field>
+				<xr:Field>Catalog.Контрагенты.StandardAttribute.Code</xr:Field>
+			</InputByString>
+			<LevelCount>2</LevelCount>
+			<LimitLevelCount>false</LimitLevelCount>
+			<ListPresentation>
+				<v8:item>
+					<v8:content>Представление списка</v8:content>
+					<v8:lang>ru</v8:lang>
+				</v8:item>
+			</ListPresentation>
+			<Name>Контрагенты</Name>
+			<ObjectBelonging>Independent</ObjectBelonging>
+			<ObjectPresentation>
+				<v8:item>
+					<v8:content>Представление объекта</v8:content>
+					<v8:lang>ru</v8:lang>
+				</v8:item>
+			</ObjectPresentation>
+			<Owners>
+				<xr:Ref xsi:type="xr:MDObjectRef">Catalog.Владелец</xr:Ref>
+			</Owners>
+			<PredefinedDataUpdate>Auto</PredefinedDataUpdate>
+			<QuickChoice>false</QuickChoice>
+			<SearchStringModeOnInputByString>Begin</SearchStringModeOnInputByString>
+			<StandardAttributes>
+				<xr:StandardAttribute name="PredefinedDataName">
+					<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
+					<xr:CreateOnInput>Auto</xr:CreateOnInput>
+					<xr:DataHistory>Use</xr:DataHistory>
+					<xr:ExtendedEdit>false</xr:ExtendedEdit>
+					<xr:FillChecking>DontCheck</xr:FillChecking>
+					<xr:FillFromFillingValue>false</xr:FillFromFillingValue>
+					<xr:FullTextSearch>Use</xr:FullTextSearch>
+					<xr:MarkNegatives>false</xr:MarkNegatives>
+					<xr:MultiLine>false</xr:MultiLine>
+					<xr:PasswordMode>false</xr:PasswordMode>
+					<xr:QuickChoice>Auto</xr:QuickChoice>
+				</xr:StandardAttribute>
+			</StandardAttributes>
+			<SubordinationUse>ToItems</SubordinationUse>
+			<Synonym>
+				<v8:item>
+					<v8:content>Контрагенты</v8:content>
+					<v8:lang>ru</v8:lang>
+				</v8:item>
+			</Synonym>
+			<UpdateDataHistoryImmediatelyAfterWrite>false</UpdateDataHistoryImmediatelyAfterWrite>
+			<UseStandardCommands>true</UseStandardCommands>
+		</Properties>
+		<ChildObjects>
+			<Attribute uuid="8f93c5cf-a2f6-4d79-ab40-83f36042b478">
+				<Properties>
+					<ChoiceFoldersAndItems>Items</ChoiceFoldersAndItems>
+					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
+					<CreateOnInput>Auto</CreateOnInput>
+					<DataHistory>Use</DataHistory>
+					<ExtendedEdit>false</ExtendedEdit>
+					<FillChecking>DontCheck</FillChecking>
+					<FillFromFillingValue>false</FillFromFillingValue>
+					<FullTextSearch>Use</FullTextSearch>
+					<Indexing>DontIndex</Indexing>
+					<MarkNegatives>false</MarkNegatives>
+					<MultiLine>false</MultiLine>
+					<Name>РеквизитОбъекта</Name>
+					<PasswordMode>false</PasswordMode>
+					<QuickChoice>Auto</QuickChoice>
+					<Synonym>
+						<v8:item>
+							<v8:content>Реквизит объекта</v8:content>
+							<v8:lang>ru</v8:lang>
+						</v8:item>
+					</Synonym>
+					<Type>
+						<v8:Type>xs:string</v8:Type>
+						<v8:StringQualifiers>
+							<v8:AllowedLength>Variable</v8:AllowedLength>
+							<v8:Length>0</v8:Length>
+						</v8:StringQualifiers>
+					</Type>
+					<Use>ForItem</Use>
+				</Properties>
+			</Attribute>
+		</ChildObjects>
+	</Catalog>
+</MetaDataObject>

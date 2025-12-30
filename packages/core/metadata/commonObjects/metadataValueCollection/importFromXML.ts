@@ -1,0 +1,24 @@
+import { Context } from "../../context/types"
+import { importMetadataValueFromXML } from "../metadataValue/importFromXML"
+import { MetadataSimpleValueXML } from "../metadataValue/types"
+import { MetadataValueCollection, MetadataValueCollectionXML } from "./types"
+
+export const importMetadataValueCollectionFromXML = (
+  context: Context,
+  data: MetadataValueCollectionXML | undefined
+): MetadataValueCollection | undefined => {
+  if (!data) return undefined
+
+  const xrItems = data["xr:Item"]
+
+  const items = Array.isArray(xrItems) ? xrItems : [xrItems]
+
+  const result: MetadataValueCollection = items
+    .map((item: MetadataSimpleValueXML) => {
+      const metadataValue = importMetadataValueFromXML(context, item)!
+      return String(metadataValue.value)
+    })
+    .filter((item): item is string => item !== undefined)
+
+  return result.length > 0 ? result : undefined
+}

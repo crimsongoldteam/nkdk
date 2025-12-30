@@ -1,0 +1,4 @@
+<BasedOn>
+	<xr:Item xsi:type="xr:MDObjectRef">Catalog.Контрагенты</xr:Item>
+	<xr:Item xsi:type="xr:MDObjectRef">Document.ПриемНаРаботу</xr:Item>
+</BasedOn>
