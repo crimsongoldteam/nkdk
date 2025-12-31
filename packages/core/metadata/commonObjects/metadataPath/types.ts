@@ -40,7 +40,7 @@ const OtherTypeToEnterprise = {
   FunctionalOptionParameter: "ПараметрФункциональныхОпций",
 } as const
 
-export const MetatatTypeToEnterprise = {
+export const MetadataTypeToEnterprise = {
   Constant: "Константа",
 
   CatalogObject: "СправочникОбъект",
@@ -76,11 +76,60 @@ export const MetatatTypeToEnterprise = {
 } as const
 
 export const MetadataTypeFromEnterprise = Object.fromEntries(
-  Object.entries(MetatatTypeToEnterprise).map(([key, value]) => [value, key])
+  Object.entries(MetadataTypeToEnterprise).map(([key, value]) => [value, key])
 ) as Record<
-  (typeof MetatatTypeToEnterprise)[keyof typeof MetatatTypeToEnterprise],
-  keyof typeof MetatatTypeToEnterprise
+  (typeof MetadataTypeToEnterprise)[keyof typeof MetadataTypeToEnterprise],
+  keyof typeof MetadataTypeToEnterprise
 >
 
-export type MetadataType = keyof typeof MetatatTypeToEnterprise
-export type MetadataTypeEnterprise = (typeof MetatatTypeToEnterprise)[keyof typeof MetatatTypeToEnterprise]
+export type MetadataType = keyof typeof MetadataTypeToEnterprise
+export type MetadataTypeEnterprise = (typeof MetadataTypeToEnterprise)[keyof typeof MetadataTypeToEnterprise]
+
+export const MetadataFieldTypeToEnterprise = {
+  Constant: "Константа",
+  Catalog: "Справочник",
+  Document: "Документ",
+  Enum: "Перечисление",
+  BusinessProcess: "БизнесПроцесс",
+  BusinessProcessRoutePoint: "ТочкаМаршрутаБизнесПроцесса",
+  Task: "Задача",
+  ...OtherTypeToEnterprise,
+}
+
+export const MetadataFieldTypeFromEnterprise = Object.fromEntries(
+  Object.entries(MetadataFieldTypeToEnterprise).map(([key, value]) => [value, key])
+) as Record<
+  (typeof MetadataFieldTypeToEnterprise)[keyof typeof MetadataFieldTypeToEnterprise],
+  keyof typeof MetadataFieldTypeToEnterprise
+>
+
+export type MetadataFieldType = keyof typeof MetadataFieldTypeToEnterprise
+export type MetadataFieldTypeEnterprise =
+  (typeof MetadataFieldTypeToEnterprise)[keyof typeof MetadataFieldTypeToEnterprise]
+
+// export type MetadataFieldType = keyof typeof MetadataFieldTypeToEnterprise
+// export type MetadataFieldTypeEnterprise =
+//   (typeof MetadataFieldTypeToEnterprise)[keyof typeof MetadataFieldTypeToEnterprise]
+// export const MetadataFieldsMap = {
+//   Catalog: {
+//     enterprise: "Справочник",
+//     hasObject: true,
+//     fields: {
+//       Attribute: "Реквизит",
+//       TabularSection: {
+//         enterprise: "ТабличнаяЧасть",
+//         fields: {
+//           Attribute: "Реквизит",
+//           StandardAttribute: { enterprise: "СтандартныйРеквизит", values: ["lineNumber"] },
+//         },
+//       },
+//       StandardAttribute: "СтандартныйРеквизит",
+//     },
+//   },
+//   Enum: {
+//     enterprise: "Перечисление",
+//     fields: {
+//       EnumValue: true,
+//     },
+//   },
+// } as const

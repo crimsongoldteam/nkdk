@@ -1,6 +1,6 @@
 import { Context } from "../../context/types"
 import { MetadataTypeFromEnterprise } from "../metadataPath/types"
-import { PredefinedNameFromEnterprise } from "../standardAttributeDescription/types"
+import { StandartAttributeNameFromEnterprise } from "../standardAttributeDescription/types"
 import { MetadataField, MetadataFieldEnterprise, MetadataFields, MetadataFieldsEnterprise } from "./types"
 
 const FieldsMapFromEnterprise = {
@@ -45,7 +45,7 @@ export const importMetadataFieldFromEnterprise = (
       // Если это СтандартныйРеквизит, следующая часть должна быть преобразована через PredefinedNameFromEnterprise
       if (part === "СтандартныйРеквизит" && partIndex + 1 < parts.length) {
         const nextPart = parts[partIndex + 1]
-        const xmlName = PredefinedNameFromEnterprise(nextPart)
+        const xmlName = StandartAttributeNameFromEnterprise(nextPart)
         if (xmlName) {
           result.push(xmlName)
           partIndex++ // Пропускаем следующую часть, так как мы её уже обработали

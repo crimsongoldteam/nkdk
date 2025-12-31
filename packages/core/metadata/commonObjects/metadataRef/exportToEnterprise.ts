@@ -1,5 +1,5 @@
 import { Context } from "../../context/types"
-import { MetadataType, MetatatTypeToEnterprise } from "../metadataPath/types"
+import { MetadataType, MetadataTypeToEnterprise } from "../metadataPath/types"
 import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinks, MetadataItemLinksEnterprise } from "./types"
 
 export const exportMetadataItemLinkToEnterprise = (
@@ -10,7 +10,7 @@ export const exportMetadataItemLinkToEnterprise = (
 
   const [type, object] = data.split(".") as [MetadataType, string]
 
-  return `${MetatatTypeToEnterprise[type]}.${object}`
+  return `${MetadataTypeToEnterprise[type]}.${object}`
 }
 
 export const exportMetadataItemLinksToEnterprise = (

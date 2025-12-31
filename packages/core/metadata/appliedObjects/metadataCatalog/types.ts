@@ -36,10 +36,10 @@ import {
   PredefinedItemsXML,
 } from "~/metadata/commonObjects/predifined/types"
 import {
-  PredefinedName,
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsEnterprise,
   StandardAttributeDescriptionsXML,
+  StandartAttributeName,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -50,7 +50,7 @@ import {
 } from "~/metadata/commonObjects/metadataValueCollection/types"
 import { InternalInfoItemsXML } from "../../commonObjects/internalInfo/types"
 
-export const MetadataCatalogStandardAttributeNames: PredefinedName[] = [
+export const MetadataCatalogStandardAttributeNames: StandartAttributeName[] = [
   "PredefinedDataName",
   "Predefined",
   "Ref",

@@ -1,7 +1,7 @@
 import { describe, expect, it, test } from "vitest"
-import { tableMetadataObjects } from "~/tests/fixtures/metadataPath/table"
+import { tableMetadataFields, tableMetadataObjects } from "~/tests/fixtures/metadataPath/table"
 import { mockСontext } from "~/tests/mockContext"
-import { importMetadataTypeFromEnterprise } from "./importFromEnterprise"
+import { importMetadataFieldFromEnterprise, importMetadataTypeFromEnterprise } from "./importFromEnterprise"
 
 describe("importMetadataTypeFromEnterprise", () => {
   test.each(tableMetadataObjects)("import %s from %s", (expected: string, enterpriseValue: string) => {
@@ -16,5 +16,12 @@ describe("importMetadataTypeFromEnterprise", () => {
   it("should return undefined for wrong type", () => {
     const result = importMetadataTypeFromEnterprise(mockСontext, "WrongType.Object")
     expect(result).toBeUndefined()
+  })
+})
+
+describe("importMetadataFieldFromEnterprise", () => {
+  test.each(tableMetadataFields)("import %s from %s", (expected: string, enterpriseValue: string) => {
+    const result = importMetadataFieldFromEnterprise(mockСontext, enterpriseValue)
+    expect(result).toEqual(expected)
   })
 })

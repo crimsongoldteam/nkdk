@@ -2,11 +2,11 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importMetadataValueFromEnterprise } from "~/metadata/commonObjects/metadataValue/importFromEnterprise"
 import {
-  PredefinedNameFromEnterprise,
   StandardAttributeDescription,
   StandardAttributeDescriptionEnterprise,
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsEnterprise,
+  StandartAttributeNameFromEnterprise,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { importTypeLinkFromEnterprise } from "~/metadata/commonObjects/typeLink/importFromEnterprise"
@@ -40,7 +40,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
   name: string
 ): StandardAttributeDescription => {
   const result: StandardAttributeDescription = {
-    name: PredefinedNameFromEnterprise(name),
+    name: StandartAttributeNameFromEnterprise(name),
   }
 
   const quickChoice = importSystemEnumerationFromEnterprise<SE.UseQuickChoice>(

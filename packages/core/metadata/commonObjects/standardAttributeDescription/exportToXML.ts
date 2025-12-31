@@ -1,11 +1,11 @@
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
 import {
-  PredefinedName,
   StandardAttributeDescription,
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsXML,
   StandardAttributeDescriptionXML,
+  StandartAttributeName,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportTypeLinkToXML } from "~/metadata/commonObjects/typeLink/exportToXML"
@@ -16,7 +16,7 @@ import { getDefaults } from "./defaults"
 export const exportStandardAttributeDescriptionsToXML = (
   context: Context,
   data: StandardAttributeDescriptions | undefined,
-  standartAttributeNames: PredefinedName[]
+  standartAttributeNames: StandartAttributeName[]
 ): StandardAttributeDescriptionsXML | undefined => {
   const extendedData = getExtendedStandardAttributeDescriptions(data ?? [], standartAttributeNames)
 
@@ -100,9 +100,9 @@ const exportStandardAttributeDescriptionToXML = (
 
 const getExtendedStandardAttributeDescriptions = (
   data: StandardAttributeDescriptions,
-  standartAttributeNames: PredefinedName[]
+  standartAttributeNames: StandartAttributeName[]
 ): StandardAttributeDescriptions => {
-  const dataMap = new Map<PredefinedName, StandardAttributeDescription>()
+  const dataMap = new Map<StandartAttributeName, StandardAttributeDescription>()
 
   for (const item of data) {
     dataMap.set(item.name, item)

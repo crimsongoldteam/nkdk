@@ -2,11 +2,13 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportMetadataValueToEnterprise } from "~/metadata/commonObjects/metadataValue/exportToEnterprise"
 import {
-  PredefinedNameToEnterprise,
   StandardAttributeDescription,
   StandardAttributeDescriptionEnterprise,
   StandardAttributeDescriptions,
   StandardAttributeDescriptionsEnterprise,
+  StandartAttributeEnterprise,
+  StandartAttributeName,
+  StandartAttributeNameToEnterprise,
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/exportToEnterprise"
@@ -14,6 +16,10 @@ import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects
 import { Context } from "~/metadata/context/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+
+export const exportStandartAttributeNameToEnterprise = (name: StandartAttributeName): StandartAttributeEnterprise => {
+  return StandartAttributeNameToEnterprise[name]
+}
 
 export const exportStandardAttributeDescriptionsToEnterprise = (
   context: Context,
@@ -23,7 +29,7 @@ export const exportStandardAttributeDescriptionsToEnterprise = (
 
   const result: StandardAttributeDescriptionsEnterprise = Object.fromEntries(
     data.map((value: StandardAttributeDescription) => [
-      PredefinedNameToEnterprise[value.name],
+      StandartAttributeNameToEnterprise[value.name],
       exportStandardAttributeDescriptionToEnterprise(context, value)!,
     ])
   )

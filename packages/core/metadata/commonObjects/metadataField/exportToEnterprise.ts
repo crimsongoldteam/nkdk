@@ -1,6 +1,6 @@
 import { Context } from "../../context/types"
-import { MetatatTypeToEnterprise } from "../metadataPath/types"
-import { PredefinedNameToEnterprise } from "../standardAttributeDescription/types"
+import { MetadataTypeToEnterprise } from "../metadataPath/types"
+import { StandartAttributeNameToEnterprise } from "../standardAttributeDescription/types"
 import { MetadataField, MetadataFieldEnterprise, MetadataFields, MetadataFieldsEnterprise } from "./types"
 
 const FiledsMap = {
@@ -24,7 +24,7 @@ export const exportMetadataFieldToEnterprise = (
   // Преобразуем тип объекта (Catalog -> Справочник, Document -> Документ и т.д.)
   if (parts.length > 0) {
     const firstPart = parts[0]
-    const enterpriseType = MetatatTypeToEnterprise[firstPart as keyof typeof MetatatTypeToEnterprise]
+    const enterpriseType = MetadataTypeToEnterprise[firstPart as keyof typeof MetadataTypeToEnterprise]
     // Если тип найден в маппинге - используем преобразованное значение, иначе оставляем как есть
     result.push(enterpriseType ?? firstPart)
   }
@@ -45,8 +45,8 @@ export const exportMetadataFieldToEnterprise = (
       // Если это StandardAttribute, следующая часть должна быть преобразована через PredefinedNameToEnterprise
       if (part === "StandardAttribute" && partIndex + 1 < parts.length) {
         const nextPart = parts[partIndex + 1]
-        if (nextPart in PredefinedNameToEnterprise) {
-          result.push(PredefinedNameToEnterprise[nextPart as keyof typeof PredefinedNameToEnterprise])
+        if (nextPart in StandartAttributeNameToEnterprise) {
+          result.push(StandartAttributeNameToEnterprise[nextPart as keyof typeof StandartAttributeNameToEnterprise])
           partIndex++ // Пропускаем следующую часть, так как мы её уже обработали
           continue
         }

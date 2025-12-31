@@ -14,7 +14,7 @@ import {
 } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const PredefinedNameToEnterprise = {
+export const StandartAttributeNameToEnterprise = {
   Owner: "Владелец",
   PredefinedDataName: "ИмяПредопределенныхДанных",
   Code: "Код",
@@ -27,14 +27,15 @@ export const PredefinedNameToEnterprise = {
   LineNumber: "НомерСтроки",
 } as const
 
-export const PredefinedNameFromEnterprise = (name: string): PredefinedName => {
-  return Object.keys(PredefinedNameToEnterprise).find(
-    (key) => PredefinedNameToEnterprise[key as PredefinedName] === name
-  ) as PredefinedName
+export const StandartAttributeNameFromEnterprise = (name: string): StandartAttributeName => {
+  return Object.keys(StandartAttributeNameToEnterprise).find(
+    (key) => StandartAttributeNameToEnterprise[key as StandartAttributeName] === name
+  ) as StandartAttributeName
 }
 
-export type PredefinedName = keyof typeof PredefinedNameToEnterprise
-export type PredefinedNameEnterprise = (typeof PredefinedNameToEnterprise)[keyof typeof PredefinedNameToEnterprise]
+export type StandartAttributeName = keyof typeof StandartAttributeNameToEnterprise
+export type StandartAttributeEnterprise =
+  (typeof StandartAttributeNameToEnterprise)[keyof typeof StandartAttributeNameToEnterprise]
 
 // export const PredefinedNameToEnterprise
 
@@ -59,7 +60,7 @@ export interface StandardAttributeDescription {
   maxValue?: number
   minValue?: number
   multiLine?: boolean
-  name: PredefinedName
+  name: StandartAttributeName
   passwordMode?: boolean
   quickChoice?: SE.UseQuickChoice
   synonym?: I8nText
@@ -69,7 +70,7 @@ export interface StandardAttributeDescription {
 }
 
 export interface StandardAttributeDescriptionXML {
-  _name: PredefinedName
+  _name: StandartAttributeName
   "xr:ChoiceForm"?: string
   "xr:ChoiceHistoryOnInput"?: SE.ChoiceHistoryOnInput
   "xr:ChoiceParameterLinks"?: ChoiceParameterLinksXML
@@ -132,5 +133,5 @@ export type StandardAttributeDescriptions = StandardAttributeDescription[]
 export type StandardAttributeDescriptionsXML = { "xr:StandardAttribute": StandardAttributeDescriptionXML[] }
 
 export type StandardAttributeDescriptionsEnterprise = Partial<
-  Record<PredefinedNameEnterprise, StandardAttributeDescriptionEnterprise>
+  Record<StandartAttributeEnterprise, StandardAttributeDescriptionEnterprise>
 >
