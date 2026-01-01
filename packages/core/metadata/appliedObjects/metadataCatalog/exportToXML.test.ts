@@ -13,6 +13,8 @@ const mockMetadataCatalogContext: MetadataCatalogContext = {
   ...mockСontext,
   context: {
     forms: [],
+    templates: [],
+    parentName: "Контрагенты",
   },
 }
 

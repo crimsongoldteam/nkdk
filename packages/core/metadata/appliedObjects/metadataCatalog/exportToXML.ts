@@ -24,6 +24,7 @@ export interface MetadataCatalogContext extends Context {
   context: {
     forms: string[]
     templates: string[]
+    parentName: string
   }
 }
 
