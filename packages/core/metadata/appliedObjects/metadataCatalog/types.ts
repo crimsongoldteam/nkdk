@@ -221,6 +221,7 @@ export interface MetadataCatalogXML {
       Attribute?: MetadataAttributesXML
       Command?: MetadataCommandsXML
       Form?: string[]
+      Template?: string[]
       TabularSection?: MetadataTabularSectionsXML
     }
   }

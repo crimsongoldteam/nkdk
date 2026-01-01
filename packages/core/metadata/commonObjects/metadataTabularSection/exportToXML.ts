@@ -27,9 +27,9 @@ export const exportMetadataTabularSectionToXML = (
   data: MetadataTabularSection
 ): MetadataTabularSectionXML => {
   const defaults = getDefaults(context, data)
-  const mergedData = mergeIgnoringUndefined(defaults, data)
+  const mergedData = mergeIgnoringUndefined(data, defaults)
 
-  const parentName = context.context
+  const parentName = (context.context as { parentName?: string }).parentName ?? ""
 
   const properties: MetadataTabularSectionXML["Properties"] = {} as MetadataTabularSectionXML["Properties"]
 

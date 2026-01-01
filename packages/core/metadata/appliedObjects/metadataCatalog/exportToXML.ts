@@ -23,6 +23,7 @@ import { getDefaults } from "./defaults"
 export interface MetadataCatalogContext extends Context {
   context: {
     forms: string[]
+    templates: string[]
   }
 }
 
@@ -189,11 +190,13 @@ export const exportMetadataCatalogToXML = (
   const commands = exportMetadataCommandsToXML(context, mergedData.commands)
   const tabularSections = exportMetadataTabularSectionsToXML(context, mergedData.tabularSections)
   const forms = getFormsFromContext(context)
+  const templates = getTemplatesFromContext(context)
 
   const childObjects: MetadataCatalogXML["Catalog"]["ChildObjects"] = {}
   if (attributes) childObjects.Attribute = attributes
   if (tabularSections) childObjects.TabularSection = tabularSections
   if (forms) childObjects.Form = forms
+  if (templates) childObjects.Template = templates
   if (commands) childObjects.Command = commands
 
   const result: MetadataCatalogXML = {
@@ -230,4 +233,10 @@ const getFormsFromContext = (context: MetadataCatalogContext): string[] | undefi
   if (!context.context) throw new Error("Context is not defined")
 
   return context.context.forms.length > 0 ? context.context.forms : undefined
+}
+
+const getTemplatesFromContext = (context: MetadataCatalogContext): string[] | undefined => {
+  if (!context.context) throw new Error("Context is not defined")
+
+  return context.context.templates.length > 0 ? context.context.templates : undefined
 }

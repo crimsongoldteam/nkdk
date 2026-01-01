@@ -30,7 +30,7 @@ export const removeDefaults = <T extends Record<string, any>>(obj: T, defaults?:
  * @param source - source object (data)
  * @returns merged object where undefined values from source don't override target values
  */
-export const mergeIgnoringUndefined = <T extends Record<string, any>>(target: Partial<T>, source: Partial<T>): T => {
+export const mergeIgnoringUndefined = <T extends Record<string, any>>(source: T, target: Partial<T>): T => {
   const result: Record<string, any> = { ...target }
   for (const key of Object.keys(source)) {
     if (source[key] !== undefined) {
