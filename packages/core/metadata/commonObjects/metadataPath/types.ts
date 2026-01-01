@@ -1,4 +1,4 @@
-import { createMetadataTypesRules, swapMetadataFieldsRulesKeys } from "./helper"
+import { createMetadataTypesRules, createMetadataValuesRules, swapMetadataFieldsRulesKeys } from "./helper"
 
 const OtherTypeToEnterprise = {
   Characteristic: "Характеристика",
@@ -110,7 +110,7 @@ export type MetadataFieldType = keyof typeof MetadataFieldTypeToEnterprise
 export type MetadataFieldTypeEnterprise =
   (typeof MetadataFieldTypeToEnterprise)[keyof typeof MetadataFieldTypeToEnterprise]
 
-export type IncludeToType = "Ref" | "Both" | "Same"
+export type IncludeToType = "Ref" | "Both" | "Save"
 
 export interface MetadataMapItem {
   name: string
@@ -204,6 +204,10 @@ export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
     name: "ПланСчетов",
     includeToType: "Both",
   },
+  ChartOfAccounts: {
+    name: "ПланСчетов",
+    includeToType: "Both",
+  },
   ChartOfCharacteristicTypes: {
     name: "ПланВидовХарактеристик",
     includeToType: "Both",
@@ -216,9 +220,16 @@ export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
     name: "Перечисление",
     includeToType: "Ref",
   },
+  DefinedType: {
+    name: "ОпределяемыйТип",
+    includeToType: "Save",
+  },
 } as const
+
+export const MetadataFieldsRulesFromEnterprise = swapMetadataFieldsRulesKeys(MetadataFieldsRulesToEnterprise)!
 
 export const MetadataTypesRulesToEnterprise = createMetadataTypesRules(MetadataFieldsRulesToEnterprise)!
 export const MetadataTypesRulesFromEnterprise = swapMetadataFieldsRulesKeys(MetadataTypesRulesToEnterprise)!
 
-export const MetadataFieldsRulesFromEnterprise = swapMetadataFieldsRulesKeys(MetadataFieldsRulesToEnterprise)!
+export const MetadataValuesRulesToEnterprise = createMetadataValuesRules(MetadataFieldsRulesToEnterprise)!
+export const MetadataValuesRulesFromEnterprise = swapMetadataFieldsRulesKeys(MetadataValuesRulesToEnterprise)!

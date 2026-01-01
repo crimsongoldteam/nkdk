@@ -1,17 +1,20 @@
 import { format } from "date-fns"
-import { Context } from "../../context/types"
-import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise.ts"
-import { MetadataType, MetadataTypeToEnterprise } from "../metadataPath/types.ts"
-import { MetadataFixedArrayValue, MetadataFormChoiceListValue, MetadataSimpleValue, MetadataValue } from "./types"
+import { Context } from "~/metadata/context/types"
+import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
+import { MetadataType, MetadataTypeToEnterprise } from "../metadataPath/types"
 import {
   MetadataBooleanValue,
   MetadataDateTimeValue,
   MetadataDecimalValue,
+  MetadataFixedArrayValue,
   MetadataFixedArrayValueEnterprise,
+  MetadataFormChoiceListValue,
   MetadataObjectRefValue,
   MetadataRefValue,
+  MetadataSimpleValue,
+  MetadataValue,
   MetadataValueEnterprise,
-} from "./types.ts"
+} from "./types"
 
 export const exportMetadataValueToEnterprise = (
   context: Context,
