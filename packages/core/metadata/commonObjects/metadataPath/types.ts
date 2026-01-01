@@ -134,7 +134,7 @@ export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
         name: "ТабличнаяЧасть",
         fields: {
           Attribute: "Реквизит",
-          StandardAttribute: { name: "СтандартныйРеквизит", fields: { LineNumber: "НомерСтроки" } },
+          StandardAttribute: { name: "СтандартныйРеквизит", fields: { LineNumber: "НомерСтроки", Ref: "Ссылка" } },
         },
       },
       StandardAttribute: {
@@ -163,7 +163,7 @@ export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
         name: "ТабличнаяЧасть",
         fields: {
           Attribute: "Реквизит",
-          StandardAttribute: { name: "СтандартныйРеквизит", fields: { LineNumber: "НомерСтроки" } },
+          StandardAttribute: { name: "СтандартныйРеквизит", fields: { LineNumber: "НомерСтроки", Ref: "Ссылка" } },
         },
       },
     },
@@ -222,6 +222,10 @@ export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
   },
   DefinedType: {
     name: "ОпределяемыйТип",
+    includeToType: "Save",
+  },
+  Characteristic: {
+    name: "Характеристика",
     includeToType: "Save",
   },
 } as const

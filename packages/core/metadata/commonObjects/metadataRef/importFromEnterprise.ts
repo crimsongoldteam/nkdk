@@ -1,19 +1,14 @@
 import { Context } from "../../context/types"
-import { MetadataTypeFromEnterprise } from "../metadataPath/types"
+import { importMetadataFieldStringFromEnterprise } from "../metadataPath/importFromEnterprise"
 import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinks, MetadataItemLinksEnterprise } from "./types"
 
 export const importMetadataItemLinkFromEnterprise = (
-  _context: Context,
+  context: Context,
   data: MetadataItemLinkEnterprise | undefined
 ): MetadataItemLink | undefined => {
   if (!data) return undefined
 
-  const [type, object] = data.split(".") as [string, string]
-
-  const xmlType = MetadataTypeFromEnterprise[type as keyof typeof MetadataTypeFromEnterprise]
-  if (!xmlType) return undefined
-
-  return `${xmlType}.${object}` as MetadataItemLink
+  return importMetadataFieldStringFromEnterprise(context, data)
 }
 
 export const importMetadataItemLinksFromEnterprise = (
