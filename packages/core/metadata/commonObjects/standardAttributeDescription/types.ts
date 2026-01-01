@@ -25,6 +25,9 @@ export const StandartAttributeNameToEnterprise = {
   Ref: "Ссылка",
   IsFolder: "ЭтоГруппа",
   LineNumber: "НомерСтроки",
+  Active: "Активность",
+  Recorder: "Регистратор",
+  Period: "Период",
 } as const
 
 export const StandartAttributeNameFromEnterprise = (name: string): StandartAttributeName => {

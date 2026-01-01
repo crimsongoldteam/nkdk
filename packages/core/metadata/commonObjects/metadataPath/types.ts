@@ -1,3 +1,5 @@
+import { swapMetadataFieldsRulesKeys } from "./helper"
+
 const OtherTypeToEnterprise = {
   Characteristic: "Характеристика",
 
@@ -93,6 +95,7 @@ export const MetadataFieldTypeToEnterprise = {
   BusinessProcess: "БизнесПроцесс",
   BusinessProcessRoutePoint: "ТочкаМаршрутаБизнесПроцесса",
   Task: "Задача",
+  ExchangePlan: "ПланОбмена",
   ...OtherTypeToEnterprise,
 }
 
@@ -107,29 +110,59 @@ export type MetadataFieldType = keyof typeof MetadataFieldTypeToEnterprise
 export type MetadataFieldTypeEnterprise =
   (typeof MetadataFieldTypeToEnterprise)[keyof typeof MetadataFieldTypeToEnterprise]
 
-// export type MetadataFieldType = keyof typeof MetadataFieldTypeToEnterprise
-// export type MetadataFieldTypeEnterprise =
-//   (typeof MetadataFieldTypeToEnterprise)[keyof typeof MetadataFieldTypeToEnterprise]
-// export const MetadataFieldsMap = {
-//   Catalog: {
-//     enterprise: "Справочник",
-//     hasObject: true,
-//     fields: {
-//       Attribute: "Реквизит",
-//       TabularSection: {
-//         enterprise: "ТабличнаяЧасть",
-//         fields: {
-//           Attribute: "Реквизит",
-//           StandardAttribute: { enterprise: "СтандартныйРеквизит", values: ["lineNumber"] },
-//         },
-//       },
-//       StandardAttribute: "СтандартныйРеквизит",
-//     },
-//   },
-//   Enum: {
-//     enterprise: "Перечисление",
-//     fields: {
-//       EnumValue: true,
-//     },
-//   },
-// } as const
+export interface MetadataMapItem {
+  name: string
+  fields: {
+    [key: string]: string | MetadataMapItem
+  }
+}
+
+export type MetadataFieldsRulesItem = string | MetadataMapItem
+
+export type MetadataFieldsRules = Record<string, MetadataFieldsRulesItem>
+
+export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
+  Catalog: {
+    name: "Справочник",
+    fields: {
+      Attribute: "Реквизит",
+      TabularSection: {
+        name: "ТабличнаяЧасть",
+        fields: {
+          Attribute: "Реквизит",
+          StandardAttribute: { name: "СтандартныйРеквизит", fields: { LineNumber: "НомерСтроки" } },
+        },
+      },
+      StandardAttribute: "СтандартныйРеквизит",
+    },
+  },
+  Document: {
+    name: "Документ",
+    fields: {
+      Attribute: "Реквизит",
+      StandardAttribute: "СтандартныйРеквизит",
+      TabularSection: {
+        name: "ТабличнаяЧасть",
+        fields: {
+          Attribute: "Реквизит",
+          StandardAttribute: { name: "СтандартныйРеквизит", fields: { LineNumber: "НомерСтроки" } },
+        },
+      },
+    },
+  },
+  InformationRegister: {
+    name: "РегистрСведений",
+    fields: {
+      Attribute: "Реквизит",
+      StandardAttribute: {
+        name: "СтандартныйРеквизит",
+        fields: { Active: "Активность", LineNumber: "НомерСтроки", Recorder: "Регистратор", Period: "Период" },
+      },
+      Dimension: "Измерение",
+      Resource: "Ресурс",
+    },
+  },
+  Enum: "Перечисление",
+} as const
+
+export const MetadataFieldsRulesFromEnterprise = swapMetadataFieldsRulesKeys(MetadataFieldsRulesToEnterprise)
