@@ -21,119 +21,237 @@ export const exportMetadataCatalogToEnterprise = (
 ): MetadataCatalogEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    Автонумерация: exportBooleanToEnterprise(context, data.autonumbering),
-    БыстрыйВыбор: exportBooleanToEnterprise(context, data.quickChoice),
-    ВводитсяНаОсновании: exportMetadataItemLinksToEnterprise(context, data.basedOn),
-    ВводПоСтроке: exportMetadataFieldsToEnterprise(context, data.inputByString),
-    ВидИерархии: exportSystemEnumerationToEnterprise(context, data.hierarchyType, SE.HierarchyTypeToEnterprise),
-    ВключатьСправкуВСодержание: exportBooleanToEnterprise(context, data.includeHelpInContents),
-    Владельцы: exportMetadataItemLinksToEnterprise(context, data.owners),
-    ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных: exportBooleanToEnterprise(
-      context,
-      data.executeAfterWriteDataHistoryVersionProcessing
-    ),
-    ГруппыСверху: exportBooleanToEnterprise(context, data.foldersOnTop),
-    ДлинаКода: data.codeLength,
-    ДлинаНаименования: data.descriptionLength,
-    ДополнительнаяФормаГруппы: data.auxiliaryFolderForm,
-    ДополнительнаяФормаДляВыбора: data.auxiliaryChoiceForm,
-    ДополнительнаяФормаДляВыбораГруппы: data.auxiliaryFolderChoiceForm,
-    ДополнительнаяФормаОбъекта: data.auxiliaryObjectForm,
-    ДополнительнаяФормаСписка: data.auxiliaryListForm,
-    ДополнительныеИндексы: exportAdditionalIndexesToEnterprise(context, data.additionalIndexes),
-    ДопустимаяДлинаКода: exportSystemEnumerationToEnterprise(
-      context,
-      data.codeAllowedLength,
-      SE.AllowedLengthToEnterprise
-    ),
-    Иерархический: exportBooleanToEnterprise(context, data.hierarchical),
-    ИспользованиеПодчинения: exportSystemEnumerationToEnterprise(
-      context,
-      data.subordinationUse,
-      SE.SubordinationUseToEnterprise
-    ),
-    ИспользоватьСтандартныеКоманды: exportBooleanToEnterprise(context, data.useStandardCommands),
-    ИсторияВыбораПриВводе: exportSystemEnumerationToEnterprise(
-      context,
-      data.choiceHistoryOnInput,
-      SE.ChoiceHistoryOnInputToEnterprise
-    ),
-    ИсторияДанных: exportSystemEnumerationToEnterprise(context, data.dataHistory, SE.DataHistoryUseToEnterprise),
-    КоличествоУровней: data.levelCount,
-    Комментарий: data.comment,
-    КонтрольУникальности: exportBooleanToEnterprise(context, data.checkUnique),
-    ОбновлениеПредопределенныхДанных: exportSystemEnumerationToEnterprise(
-      context,
-      data.predefinedDataUpdate,
-      SE.PredefinedDataUpdateToEnterprise
-    ),
-    ОбновлятьИсториюДанныхСразуПослеЗаписи: exportBooleanToEnterprise(
-      context,
-      data.updateDataHistoryImmediatelyAfterWrite
-    ),
-    ОграничиватьКоличествоУровней: exportBooleanToEnterprise(context, data.limitLevelCount),
-    ОсновнаяФормаГруппы: data.defaultFolderForm,
-    ОсновнаяФормаДляВыбора: data.defaultChoiceForm,
-    ОсновнаяФормаДляВыбораГруппы: data.defaultFolderChoiceForm,
-    ОсновнаяФормаОбъекта: data.defaultObjectForm,
-    ОсновнаяФормаСписка: data.defaultListForm,
-    ОсновноеПредставление: exportSystemEnumerationToEnterprise(
-      context,
-      data.defaultPresentation,
-      SE.CatalogMainPresentationToEnterprise
-    ),
-    ПолнотекстовыйПоиск: exportSystemEnumerationToEnterprise(
-      context,
-      data.fullTextSearch,
-      SE.UseFullTextSearchToEnterprise
-    ),
-    ПолнотекстовыйПоискПриВводеПоСтроке: exportSystemEnumerationToEnterprise(
-      context,
-      data.fullTextSearchOnInputByString,
-      SE.FullTextSearchOnInputByStringToEnterprise
-    ),
-    ПоляБлокировкиДанных: exportMetadataFieldsToEnterprise(context, data.dataLockFields),
-    Пояснение: exportI8nTextToEnterprise(context, data.explanation),
-    Предопределенные: exportPredefinedItemsToEnterprise(context, data.predefined),
-    ПредставлениеОбъекта: exportI8nTextToEnterprise(context, data.objectPresentation),
-    ПредставлениеСписка: exportI8nTextToEnterprise(context, data.listPresentation),
-    ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
-      context,
-      data.objectBelonging,
-      SE.ObjectBelongingToEnterprise
-    ),
-    РасширенноеПредставлениеОбъекта: exportI8nTextToEnterprise(context, data.extendedObjectPresentation),
-    РасширенноеПредставлениеСписка: exportI8nTextToEnterprise(context, data.extendedListPresentation),
-    РежимПолученияДанныхВыбораПриВводеПоСтроке: exportSystemEnumerationToEnterprise(
-      context,
-      data.choiceDataGetModeOnInputByString,
-      SE.ChoiceDataGetModeOnInputByStringToEnterprise
-    ),
-    РежимУправленияБлокировкойДанных: exportSystemEnumerationToEnterprise(
-      context,
-      data.dataLockControlMode,
-      SE.DefaultDataLockControlModeToEnterprise
-    ),
-    СерииКодов: exportSystemEnumerationToEnterprise(
-      context,
-      data.codeSeries,
-      SE.CharacteristicKindCodesSeriesToEnterprise
-    ),
-    Синоним: exportI8nTextToEnterprise(context, data.synonym),
-    СозданиеПриВводе: exportSystemEnumerationToEnterprise(context, data.createOnInput, SE.CreateOnInputToEnterprise),
-    СпособВыбора: exportSystemEnumerationToEnterprise(context, data.choiceMode, SE.ChoiceModeToEnterprise),
-    СпособПоискаСтрокиПриВводеПоСтроке: exportSystemEnumerationToEnterprise(
-      context,
-      data.searchStringModeOnInputByString,
-      SE.SearchStringModeOnInputByStringToEnterprise
-    ),
-    СпособРедактирования: exportSystemEnumerationToEnterprise(context, data.editType, SE.EditTypeToEnterprise),
-    СтандартныеРеквизиты: exportStandardAttributeDescriptionsToEnterprise(context, data.standardAttributes),
-    ТипКода: exportSystemEnumerationToEnterprise(context, data.codeType, SE.CatalogCodeTypeToEnterprise),
-    Характеристики: exportCharacteristicsDescriptionsToEnterprise(context, data.characteristics),
-    Реквизиты: exportMetadataAttributesToEnterprise(context, data.attributes),
-    ТабличныеЧасти: exportMetadataTabularSectionsToEnterprise(context, data.tabularSections),
-    Команды: exportMetadataCommandsToEnterprise(context, data.commands),
-  })
+  const result: MetadataCatalogEnterprise = {}
+
+  const autonumbering = exportBooleanToEnterprise(context, data.autonumbering)
+  if (autonumbering !== undefined) result.Автонумерация = autonumbering
+
+  const quickChoice = exportBooleanToEnterprise(context, data.quickChoice)
+  if (quickChoice !== undefined) result.БыстрыйВыбор = quickChoice
+
+  const basedOn = exportMetadataItemLinksToEnterprise(context, data.basedOn)
+  if (basedOn !== undefined) result.ВводитсяНаОсновании = basedOn
+
+  const inputByString = exportMetadataFieldsToEnterprise(context, data.inputByString)
+  if (inputByString !== undefined) result.ВводПоСтроке = inputByString
+
+  const hierarchyType = exportSystemEnumerationToEnterprise(context, data.hierarchyType, SE.HierarchyTypeToEnterprise)
+  if (hierarchyType !== undefined) result.ВидИерархии = hierarchyType as SE.HierarchyTypeEnterprise
+
+  const includeHelpInContents = exportBooleanToEnterprise(context, data.includeHelpInContents)
+  if (includeHelpInContents !== undefined) result.ВключатьСправкуВСодержание = includeHelpInContents
+
+  const owners = exportMetadataItemLinksToEnterprise(context, data.owners)
+  if (owners !== undefined) result.Владельцы = owners
+
+  const executeAfterWriteDataHistoryVersionProcessing = exportBooleanToEnterprise(
+    context,
+    data.executeAfterWriteDataHistoryVersionProcessing
+  )
+  if (executeAfterWriteDataHistoryVersionProcessing !== undefined)
+    result.ВыполнятьОбработкуПослеЗаписиВерсииИсторииДанных = executeAfterWriteDataHistoryVersionProcessing
+
+  const foldersOnTop = exportBooleanToEnterprise(context, data.foldersOnTop)
+  if (foldersOnTop !== undefined) result.ГруппыСверху = foldersOnTop
+
+  if (data.codeLength !== undefined) result.ДлинаКода = data.codeLength
+
+  if (data.descriptionLength !== undefined) result.ДлинаНаименования = data.descriptionLength
+
+  if (data.auxiliaryFolderForm !== undefined) result.ДополнительнаяФормаГруппы = data.auxiliaryFolderForm
+
+  if (data.auxiliaryChoiceForm !== undefined) result.ДополнительнаяФормаДляВыбора = data.auxiliaryChoiceForm
+
+  if (data.auxiliaryFolderChoiceForm !== undefined)
+    result.ДополнительнаяФормаДляВыбораГруппы = data.auxiliaryFolderChoiceForm
+
+  if (data.auxiliaryObjectForm !== undefined) result.ДополнительнаяФормаОбъекта = data.auxiliaryObjectForm
+
+  if (data.auxiliaryListForm !== undefined) result.ДополнительнаяФормаСписка = data.auxiliaryListForm
+
+  const additionalIndexes = exportAdditionalIndexesToEnterprise(context, data.additionalIndexes)
+  if (additionalIndexes !== undefined) result.ДополнительныеИндексы = additionalIndexes
+
+  const codeAllowedLength = exportSystemEnumerationToEnterprise(
+    context,
+    data.codeAllowedLength,
+    SE.AllowedLengthToEnterprise
+  )
+  if (codeAllowedLength !== undefined) result.ДопустимаяДлинаКода = codeAllowedLength as SE.AllowedLengthEnterprise
+
+  const hierarchical = exportBooleanToEnterprise(context, data.hierarchical)
+  if (hierarchical !== undefined) result.Иерархический = hierarchical
+
+  const subordinationUse = exportSystemEnumerationToEnterprise(
+    context,
+    data.subordinationUse,
+    SE.SubordinationUseToEnterprise
+  )
+  if (subordinationUse !== undefined) result.ИспользованиеПодчинения = subordinationUse as SE.SubordinationUseEnterprise
+
+  const useStandardCommands = exportBooleanToEnterprise(context, data.useStandardCommands)
+  if (useStandardCommands !== undefined) result.ИспользоватьСтандартныеКоманды = useStandardCommands
+
+  const choiceHistoryOnInput = exportSystemEnumerationToEnterprise(
+    context,
+    data.choiceHistoryOnInput,
+    SE.ChoiceHistoryOnInputToEnterprise
+  )
+  if (choiceHistoryOnInput !== undefined)
+    result.ИсторияВыбораПриВводе = choiceHistoryOnInput as SE.ChoiceHistoryOnInputEnterprise
+
+  const dataHistory = exportSystemEnumerationToEnterprise(context, data.dataHistory, SE.DataHistoryUseToEnterprise)
+  if (dataHistory !== undefined) result.ИсторияДанных = dataHistory as SE.DataHistoryUseEnterprise
+
+  if (data.levelCount !== undefined) result.КоличествоУровней = data.levelCount
+
+  if (data.comment !== undefined) result.Комментарий = data.comment
+
+  const checkUnique = exportBooleanToEnterprise(context, data.checkUnique)
+  if (checkUnique !== undefined) result.КонтрольУникальности = checkUnique
+
+  const predefinedDataUpdate = exportSystemEnumerationToEnterprise(
+    context,
+    data.predefinedDataUpdate,
+    SE.PredefinedDataUpdateToEnterprise
+  )
+  if (predefinedDataUpdate !== undefined)
+    result.ОбновлениеПредопределенныхДанных = predefinedDataUpdate as SE.PredefinedDataUpdateEnterprise
+
+  const updateDataHistoryImmediatelyAfterWrite = exportBooleanToEnterprise(
+    context,
+    data.updateDataHistoryImmediatelyAfterWrite
+  )
+  if (updateDataHistoryImmediatelyAfterWrite !== undefined)
+    result.ОбновлятьИсториюДанныхСразуПослеЗаписи = updateDataHistoryImmediatelyAfterWrite
+
+  const limitLevelCount = exportBooleanToEnterprise(context, data.limitLevelCount)
+  if (limitLevelCount !== undefined) result.ОграничиватьКоличествоУровней = limitLevelCount
+
+  if (data.defaultFolderForm !== undefined) result.ОсновнаяФормаГруппы = data.defaultFolderForm
+
+  if (data.defaultChoiceForm !== undefined) result.ОсновнаяФормаДляВыбора = data.defaultChoiceForm
+
+  if (data.defaultFolderChoiceForm !== undefined) result.ОсновнаяФормаДляВыбораГруппы = data.defaultFolderChoiceForm
+
+  if (data.defaultObjectForm !== undefined) result.ОсновнаяФормаОбъекта = data.defaultObjectForm
+
+  if (data.defaultListForm !== undefined) result.ОсновнаяФормаСписка = data.defaultListForm
+
+  const defaultPresentation = exportSystemEnumerationToEnterprise(
+    context,
+    data.defaultPresentation,
+    SE.CatalogMainPresentationToEnterprise
+  )
+  if (defaultPresentation !== undefined)
+    result.ОсновноеПредставление = defaultPresentation as SE.CatalogMainPresentationEnterprise
+
+  const fullTextSearch = exportSystemEnumerationToEnterprise(
+    context,
+    data.fullTextSearch,
+    SE.UseFullTextSearchToEnterprise
+  )
+  if (fullTextSearch !== undefined) result.ПолнотекстовыйПоиск = fullTextSearch as SE.UseFullTextSearchEnterprise
+
+  const fullTextSearchOnInputByString = exportSystemEnumerationToEnterprise(
+    context,
+    data.fullTextSearchOnInputByString,
+    SE.FullTextSearchOnInputByStringToEnterprise
+  )
+  if (fullTextSearchOnInputByString !== undefined)
+    result.ПолнотекстовыйПоискПриВводеПоСтроке =
+      fullTextSearchOnInputByString as SE.FullTextSearchOnInputByStringEnterprise
+
+  const dataLockFields = exportMetadataFieldsToEnterprise(context, data.dataLockFields)
+  if (dataLockFields !== undefined) result.ПоляБлокировкиДанных = dataLockFields
+
+  const explanation = exportI8nTextToEnterprise(context, data.explanation)
+  if (explanation !== undefined) result.Пояснение = explanation
+
+  const predefined = exportPredefinedItemsToEnterprise(context, data.predefined)
+  if (predefined !== undefined) result.Предопределенные = predefined
+
+  const objectPresentation = exportI8nTextToEnterprise(context, data.objectPresentation)
+  if (objectPresentation !== undefined) result.ПредставлениеОбъекта = objectPresentation
+
+  const listPresentation = exportI8nTextToEnterprise(context, data.listPresentation)
+  if (listPresentation !== undefined) result.ПредставлениеСписка = listPresentation
+
+  const objectBelonging = exportSystemEnumerationToEnterprise(
+    context,
+    data.objectBelonging,
+    SE.ObjectBelongingToEnterprise
+  )
+  if (objectBelonging !== undefined) result.ПринадлежностьОбъекта = objectBelonging as SE.ObjectBelongingEnterprise
+
+  const extendedObjectPresentation = exportI8nTextToEnterprise(context, data.extendedObjectPresentation)
+  if (extendedObjectPresentation !== undefined) result.РасширенноеПредставлениеОбъекта = extendedObjectPresentation
+
+  const extendedListPresentation = exportI8nTextToEnterprise(context, data.extendedListPresentation)
+  if (extendedListPresentation !== undefined) result.РасширенноеПредставлениеСписка = extendedListPresentation
+
+  const choiceDataGetModeOnInputByString = exportSystemEnumerationToEnterprise(
+    context,
+    data.choiceDataGetModeOnInputByString,
+    SE.ChoiceDataGetModeOnInputByStringToEnterprise
+  )
+  if (choiceDataGetModeOnInputByString !== undefined)
+    result.РежимПолученияДанныхВыбораПриВводеПоСтроке =
+      choiceDataGetModeOnInputByString as SE.ChoiceDataGetModeOnInputByStringEnterprise
+
+  const dataLockControlMode = exportSystemEnumerationToEnterprise(
+    context,
+    data.dataLockControlMode,
+    SE.DefaultDataLockControlModeToEnterprise
+  )
+  if (dataLockControlMode !== undefined)
+    result.РежимУправленияБлокировкойДанных = dataLockControlMode as SE.DefaultDataLockControlModeEnterprise
+
+  const codeSeries = exportSystemEnumerationToEnterprise(
+    context,
+    data.codeSeries,
+    SE.CharacteristicKindCodesSeriesToEnterprise
+  )
+  if (codeSeries !== undefined) result.СерииКодов = codeSeries as SE.CatalogCodesSeriesEnterprise
+
+  const synonym = exportI8nTextToEnterprise(context, data.synonym)
+  if (synonym !== undefined) result.Синоним = synonym
+
+  const createOnInput = exportSystemEnumerationToEnterprise(context, data.createOnInput, SE.CreateOnInputToEnterprise)
+  if (createOnInput !== undefined) result.СозданиеПриВводе = createOnInput as SE.CreateOnInputEnterprise
+
+  const choiceMode = exportSystemEnumerationToEnterprise(context, data.choiceMode, SE.ChoiceModeToEnterprise)
+  if (choiceMode !== undefined) result.СпособВыбора = choiceMode as SE.ChoiceModeEnterprise
+
+  const searchStringModeOnInputByString = exportSystemEnumerationToEnterprise(
+    context,
+    data.searchStringModeOnInputByString,
+    SE.SearchStringModeOnInputByStringToEnterprise
+  )
+  if (searchStringModeOnInputByString !== undefined)
+    result.СпособПоискаСтрокиПриВводеПоСтроке =
+      searchStringModeOnInputByString as SE.SearchStringModeOnInputByStringEnterprise
+
+  const editType = exportSystemEnumerationToEnterprise(context, data.editType, SE.EditTypeToEnterprise)
+  if (editType !== undefined) result.СпособРедактирования = editType as SE.EditTypeEnterprise
+
+  const standardAttributes = exportStandardAttributeDescriptionsToEnterprise(context, data.standardAttributes)
+  if (standardAttributes !== undefined) result.СтандартныеРеквизиты = standardAttributes
+
+  const codeType = exportSystemEnumerationToEnterprise(context, data.codeType, SE.CatalogCodeTypeToEnterprise)
+  if (codeType !== undefined) result.ТипКода = codeType as SE.CatalogCodeTypeEnterprise
+
+  const characteristics = exportCharacteristicsDescriptionsToEnterprise(context, data.characteristics)
+  if (characteristics !== undefined) result.Характеристики = characteristics
+
+  const attributes = exportMetadataAttributesToEnterprise(context, data.attributes)
+  if (attributes !== undefined) result.Реквизиты = attributes
+
+  const tabularSections = exportMetadataTabularSectionsToEnterprise(context, data.tabularSections)
+  if (tabularSections !== undefined) result.ТабличныеЧасти = tabularSections
+
+  const commands = exportMetadataCommandsToEnterprise(context, data.commands)
+  if (commands !== undefined) result.Команды = commands
+
+  return compactObject(result)
 }
