@@ -17,8 +17,8 @@ const defaults = {
 } as const
 
 export const getDefaults = (
-  _data: StandardAttributeDescription,
-  _context: Context
+  _context: Context,
+  _data: StandardAttributeDescription
 ): Required<Pick<StandardAttributeDescription, keyof typeof defaults>> => {
   return defaults
 }

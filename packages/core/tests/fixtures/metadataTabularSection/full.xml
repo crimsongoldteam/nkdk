@@ -10,10 +10,10 @@
 		</xr:GeneratedType>
 	</InternalInfo>
 	<Properties>
+		<Comment>Комментарий к табличной части</Comment>
 		<FillChecking>ShowError</FillChecking>
 		<LineNumberLength>6</LineNumberLength>
 		<Name>ДополнительныеРеквизиты</Name>
-		<Comment>Комментарий к табличной части</Comment>
 		<StandardAttributes>
 			<xr:StandardAttribute name="LineNumber">
 				<xr:ChoiceHistoryOnInput>Auto</xr:ChoiceHistoryOnInput>
@@ -83,4 +83,3 @@
 		</Attribute>
 	</ChildObjects>
 </TabularSection>
-

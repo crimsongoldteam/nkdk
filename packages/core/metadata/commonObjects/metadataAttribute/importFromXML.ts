@@ -14,7 +14,7 @@ import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importMetadataValueFromXMLAsPrimitive } from "../metadataValue/importFromXML.ts"
 import { importChoiceParametersFromXML } from "../сhoiceParameter/importFromXML.ts"
-import { getDefaults } from "./defaults"
+import { getDefaultsAttribute } from "./defaults"
 
 export const importMetadataAttributesFromXML = (
   context: Context,
@@ -113,7 +113,7 @@ const importMetadataAttributeFromXML = (context: Context, xml: MetadataAttribute
 
   if (props.Use !== undefined) result.use = props.Use
 
-  const defaults = getDefaults(result, context)
+  const defaults = getDefaultsAttribute(context, result)
 
   return removeDefaults(result, defaults)
 }

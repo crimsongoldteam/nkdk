@@ -1,6 +1,5 @@
 import { v4 } from "uuid"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
-import { exportMetadataAttributesToXML } from "~/metadata/commonObjects/metadataAttribute/exportToXML"
 import {
   MetadataTabularSection,
   MetadataTabularSections,
@@ -9,45 +8,10 @@ import {
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { Context } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
+import { mergeIgnoringUndefined } from "~/metadata/helpers/compactObject"
 import { exportInternalInfoToXML } from "../internalInfo/exportToXML"
+import { exportMetadataTabularSectionAttributesToXML } from "../metadataAttribute/exportToXML"
 import { getDefaults } from "./defaults"
-
-export const exportMetadataTabularSectionToXML = (
-  context: Context,
-  data: MetadataTabularSection | undefined
-): MetadataTabularSectionXML | undefined => {
-  if (!data) return undefined
-
-  const defaults = getDefaults(data, context)
-  const mergedData = { ...defaults, ...data }
-
-  const parentName = context.context
-
-  return compactObject<MetadataTabularSectionXML>({
-    _uuid: v4(),
-    InternalInfo: exportInternalInfoToXML([
-      { name: `CatalogTabularSection.${parentName}.${mergedData.name}`, category: "TabularSection" },
-      { name: `CatalogTabularSectionRow.${parentName}.${mergedData.name}`, category: "TabularSectionRow" },
-    ]),
-    Properties: {
-      Comment: mergedData.comment,
-      FillChecking: mergedData.fillChecking,
-      LineNumberLength: mergedData.lineNumberLength,
-      Name: mergedData.name!,
-      ObjectBelonging: mergedData.objectBelonging,
-      StandardAttributes: exportStandardAttributeDescriptionsToXML(context, mergedData.standardAttributes, [
-        "LineNumber",
-      ]),
-      Synonym: exportI8nTextToXML(context, mergedData.synonym),
-      ToolTip: exportI8nTextToXML(context, mergedData.toolTip),
-      Use: mergedData.use,
-    },
-    ChildObjects: {
-      Attribute: exportMetadataAttributesToXML(context, mergedData.attributes),
-    },
-  })
-}
 
 export const exportMetadataTabularSectionsToXML = (
   context: Context,
@@ -56,4 +20,62 @@ export const exportMetadataTabularSectionsToXML = (
   if (!data) return undefined
 
   return data.map((value: MetadataTabularSection) => exportMetadataTabularSectionToXML(context, value)!)
+}
+
+export const exportMetadataTabularSectionToXML = (
+  context: Context,
+  data: MetadataTabularSection
+): MetadataTabularSectionXML => {
+  const defaults = getDefaults(context, data)
+  const mergedData = mergeIgnoringUndefined(defaults, data)
+
+  const parentName = context.context
+
+  const properties: MetadataTabularSectionXML["Properties"] = {} as MetadataTabularSectionXML["Properties"]
+
+  if (mergedData.comment !== undefined) {
+    properties.Comment = mergedData.comment
+  }
+
+  properties.FillChecking = mergedData.fillChecking
+
+  properties.LineNumberLength = mergedData.lineNumberLength
+
+  properties.Name = mergedData.name!
+  if (mergedData.objectBelonging !== undefined) {
+    properties.ObjectBelonging = mergedData.objectBelonging
+  }
+
+  properties.StandardAttributes = exportStandardAttributeDescriptionsToXML(context, mergedData.standardAttributes, [
+    "LineNumber",
+  ])
+
+  if (mergedData.synonym !== undefined) {
+    properties.Synonym = exportI8nTextToXML(context, mergedData.synonym)
+  }
+  if (mergedData.toolTip !== undefined) {
+    properties.ToolTip = exportI8nTextToXML(context, mergedData.toolTip)
+  }
+
+  properties.Use = mergedData.use
+
+  const result: MetadataTabularSectionXML = {
+    _uuid: v4(),
+    InternalInfo: exportInternalInfoToXML([
+      { name: `CatalogTabularSection.${parentName}.${mergedData.name}`, category: "TabularSection" },
+      { name: `CatalogTabularSectionRow.${parentName}.${mergedData.name}`, category: "TabularSectionRow" },
+    ]),
+    Properties: properties,
+  }
+
+  if (mergedData.attributes !== undefined) {
+    const attributes = exportMetadataTabularSectionAttributesToXML(context, mergedData.attributes)
+    if (attributes !== undefined) {
+      result.ChildObjects = {
+        Attribute: attributes,
+      }
+    }
+  }
+
+  return result
 }

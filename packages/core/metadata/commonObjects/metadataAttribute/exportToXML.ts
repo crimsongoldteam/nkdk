@@ -15,10 +15,40 @@ import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoic
 import { Context } from "~/metadata/context/types"
 import { exportTypeLinkWithXSITypeToXML } from "../typeLink/exportToXML"
 import { exportChoiceParametersToXML } from "../сhoiceParameter/exportToXML"
-import { getDefaults } from "./defaults"
+import { getDefaultsAttribute, getDefaultsTabularSectionAttribute } from "./defaults"
 
-export const exportMetadataAttributeToXML = (context: Context, data: MetadataAttribute): MetadataAttributeXML => {
-  const defaults = getDefaults(data, context)
+export const exportMetadataAttributesToXML = (
+  context: Context,
+  data: MetadataAttributes | undefined
+): MetadataAttributesXML | undefined => {
+  if (!data) return undefined
+
+  const result = data.map(
+    (value: MetadataAttribute) => exportMetadataAttributeToXML(context, value, getDefaultsAttribute(context, value))!
+  )
+
+  return result
+}
+
+export const exportMetadataTabularSectionAttributesToXML = (
+  context: Context,
+  data: MetadataAttributes | undefined
+): MetadataAttributesXML | undefined => {
+  if (!data) return undefined
+
+  const result = data.map(
+    (value: MetadataAttribute) =>
+      exportMetadataAttributeToXML(context, value, getDefaultsTabularSectionAttribute(context, value))!
+  )
+
+  return result
+}
+
+const exportMetadataAttributeToXML = (
+  context: Context,
+  data: MetadataAttribute,
+  defaults: Partial<MetadataAttribute>
+): MetadataAttributeXML => {
   const mergedData = { ...defaults, ...data }
 
   const type = exportTypeDescriptionToXML(context, mergedData.type)!
@@ -100,17 +130,6 @@ export const exportMetadataAttributeToXML = (context: Context, data: MetadataAtt
   result.Properties.Type = type
 
   result.Properties.Use = mergedData.use
-
-  return result
-}
-
-export const exportMetadataAttributesToXML = (
-  context: Context,
-  data: MetadataAttributes | undefined
-): MetadataAttributesXML | undefined => {
-  if (!data) return undefined
-
-  const result = data.map((value: MetadataAttribute) => exportMetadataAttributeToXML(context, value)!)
 
   return result
 }

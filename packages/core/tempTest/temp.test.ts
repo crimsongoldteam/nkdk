@@ -41,6 +41,7 @@ const mockMetadataCatalogContext = {
       "НастройкиПараметровКопированияДополнительныхДанных",
       "СоглашенияСПоставщикамиПоХарактеристикам",
     ],
+    catalog: "Номенклатура",
   },
 } as MetadataCatalogContext
 

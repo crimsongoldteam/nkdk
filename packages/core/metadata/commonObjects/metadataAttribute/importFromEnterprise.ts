@@ -16,7 +16,7 @@ import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
 import { importMetadataValueFromEnterprise } from "../metadataValue/importFromEnterprise.ts"
 import { importTypeLinkFromEnterprise } from "../typeLink/importFromEnterprise.ts"
-import { getDefaults } from "./defaults"
+import { getDefaultsAttribute } from "./defaults"
 
 export const importMetadataAttributesFromEnterprise = (
   context: Context,
@@ -188,6 +188,6 @@ const importMetadataAttributeFromEnterprise = (
   const editFormat = importI8nTextFromEnterprise(context, data.ФорматРедактирования)
   if (editFormat !== undefined) result.editFormat = editFormat
 
-  const defaults = getDefaults(result, context)
+  const defaults = getDefaultsAttribute(result, context)
   return removeDefaults(result, defaults)
 }

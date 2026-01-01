@@ -52,6 +52,6 @@ const importMetadataTabularSectionFromXML = (
 
   if (props.Use !== undefined) result.use = props.Use
 
-  const defaults = getDefaults(result, context)
+  const defaults = getDefaults(context, result)
   return removeDefaults(result, defaults)
 }
