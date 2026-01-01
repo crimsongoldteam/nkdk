@@ -3,13 +3,13 @@ import { importMetadataRefFromEnterprise } from "../metadataValue/importFromEnte
 import { MetadataValueCollection, MetadataValueCollectionEnterprise } from "./types"
 
 export const importMetadataValueCollectionFromEnterprise = (
-  _context: Context,
+  context: Context,
   data: MetadataValueCollectionEnterprise | undefined
 ): MetadataValueCollection | undefined => {
   if (!data || data.length === 0) return undefined
 
   return data.map((item) => {
-    const metadataValue = importMetadataRefFromEnterprise(item)
+    const metadataValue = importMetadataRefFromEnterprise(context, item)
     return metadataValue.value as string
   })
 }
