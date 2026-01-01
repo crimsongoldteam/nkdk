@@ -1,63 +1,26 @@
 import { describe, expect, it } from "vitest"
+import { fullTabularSections, minimalTabularSections } from "~/tests/fixtures/metadataTabularSection/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { importMetadataTabularSectionFromXML } from "./importFromXML"
-import { MetadataTabularSection, MetadataTabularSectionXML } from "./types"
+import { importMetadataTabularSectionsFromXML } from "./importFromXML"
+import { MetadataTabularSectionXML } from "./types"
 
 describe("importMetadataTabularSectionFromXML", () => {
-  it("should import with one attribute", () => {
+  it("should import all possible properties", () => {
     const xmlData = readAndParseXMLFile<{ TabularSection: MetadataTabularSectionXML }>(
-      "metadataTabularSection/oneAttribute.xml"
+      "metadataTabularSection/full.xml"
     )
 
-    const expectedResult: MetadataTabularSection = {
-      name: "Контакты",
-      synonym: { items: { ru: "Контакты" } },
-      attributes: [
-        {
-          name: "Наименование",
-          synonym: { items: { ru: "Имя Фамилия" } },
-          type: {
-            type: ["string"],
-          },
-          fullTextSearch: "DontUse",
-        },
-      ],
-    }
-    const result = importMetadataTabularSectionFromXML(mockСontext, xmlData.TabularSection)
-    expect(result).toEqual(expectedResult)
+    const result = importMetadataTabularSectionsFromXML(mockСontext, xmlData.TabularSection)
+    expect(result).toEqual(fullTabularSections)
   })
 
-  it("should import with two attributes", () => {
+  it("should import minimal properties", () => {
     const xmlData = readAndParseXMLFile<{ TabularSection: MetadataTabularSectionXML }>(
-      "metadataTabularSection/twoAttributes.xml"
+      "metadataTabularSection/minimal.xml"
     )
 
-    const expectedResult: MetadataTabularSection = {
-      name: "Контакты",
-      synonym: { items: { ru: "Контакты" } },
-      attributes: [
-        {
-          name: "Наименование",
-          synonym: { items: { ru: "Имя Фамилия" } },
-          type: {
-            type: ["string"],
-          },
-          fullTextSearch: "DontUse",
-        },
-        {
-          name: "ИдентификаторСтрокиТабличнойЧасти",
-          synonym: { items: { ru: "Идентификатор строки табличной части" } },
-          type: {
-            type: ["decimal"],
-            numberQualifiers: { digits: 7, fractionDigits: 0, allowedSign: "Any" },
-          },
-          fullTextSearch: "DontUse",
-        },
-      ],
-    }
-
-    const result = importMetadataTabularSectionFromXML(mockСontext, xmlData.TabularSection)
-    expect(result).toEqual(expectedResult)
+    const result = importMetadataTabularSectionsFromXML(mockСontext, xmlData.TabularSection)
+    expect(result).toEqual(minimalTabularSections)
   })
 })

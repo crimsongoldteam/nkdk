@@ -8,40 +8,8 @@ import {
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/importFromXML"
 import { Context } from "~/metadata/context/types"
-import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
-import { MetadataAttributes } from "../metadataAttribute/types"
+import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { getDefaults } from "./defaults"
-
-export const importMetadataTabularSectionFromXML = (
-  context: Context,
-  xml: MetadataTabularSectionXML | undefined
-): MetadataTabularSection | undefined => {
-  if (!xml) return undefined
-
-  const props = xml.Properties
-
-  let attributes: MetadataAttributes | undefined
-  if (xml.ChildObjects?.Attribute) {
-    attributes = importMetadataAttributesFromXML(context, xml.ChildObjects.Attribute)
-  }
-
-  const result = {
-    attributes: attributes,
-    comment: props.Comment,
-    fillChecking: props.FillChecking,
-    lineNumberLength: props.LineNumberLength,
-    name: props.Name!,
-    objectBelonging: props.ObjectBelonging,
-    standardAttributes: importStandardAttributeDescriptionsFromXML(context, props.StandardAttributes),
-    synonym: importI8nTextFromXML(context, props.Synonym),
-    toolTip: importI8nTextFromXML(context, props.ToolTip),
-    use: props.Use,
-  }
-
-  const compactedResult = compactObject(result)
-  const defaults = getDefaults(compactedResult, context)
-  return removeDefaults(compactedResult, defaults)
-}
 
 export const importMetadataTabularSectionsFromXML = (
   context: Context,
@@ -52,4 +20,38 @@ export const importMetadataTabularSectionsFromXML = (
   const items = Array.isArray(xml) ? xml : [xml]
 
   return items.map((value: MetadataTabularSectionXML) => importMetadataTabularSectionFromXML(context, value)!)
+}
+
+const importMetadataTabularSectionFromXML = (
+  context: Context,
+  xml: MetadataTabularSectionXML
+): MetadataTabularSection => {
+  const props = xml.Properties
+
+  const result: MetadataTabularSection = {
+    name: props.Name!,
+  }
+
+  if (xml.ChildObjects?.Attribute) {
+    result.attributes = importMetadataAttributesFromXML(context, xml.ChildObjects.Attribute)
+  }
+
+  if (props.Comment !== undefined) result.comment = props.Comment
+  if (props.FillChecking !== undefined) result.fillChecking = props.FillChecking
+  if (props.LineNumberLength !== undefined) result.lineNumberLength = props.LineNumberLength
+  // if (props.ObjectBelonging !== undefined) result.objectBelonging = props.ObjectBelonging
+
+  const standardAttributes = importStandardAttributeDescriptionsFromXML(context, props.StandardAttributes)
+  if (standardAttributes) result.standardAttributes = standardAttributes
+
+  const synonym = importI8nTextFromXML(context, props.Synonym)
+  if (synonym !== undefined) result.synonym = synonym
+
+  const toolTip = importI8nTextFromXML(context, props.ToolTip)
+  if (toolTip !== undefined) result.toolTip = toolTip
+
+  if (props.Use !== undefined) result.use = props.Use
+
+  const defaults = getDefaults(result, context)
+  return removeDefaults(result, defaults)
 }
