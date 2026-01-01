@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
+import { twoAttributes } from "~/tests/fixtures/metadataTabularSection/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
@@ -41,30 +42,7 @@ describe("exportMetadataTabularSectionToXML", () => {
   })
 
   it("should export tabular section with two attributes", () => {
-    const data: MetadataTabularSection = {
-      name: "Контакты",
-      synonym: { items: { ru: "Контакты" } },
-      attributes: [
-        {
-          name: "Наименование",
-          synonym: { items: { ru: "Имя Фамилия" } },
-          type: {
-            type: ["string"],
-            stringQualifiers: { allowedLength: "Variable", length: 0 },
-          },
-          fullTextSearch: "DontUse",
-        },
-        {
-          name: "ИдентификаторСтрокиТабличнойЧасти",
-          synonym: { items: { ru: "Идентификатор строки табличной части" } },
-          type: {
-            type: ["decimal"],
-            numberQualifiers: { digits: 7, fractionDigits: 0, allowedSign: "Any" },
-          },
-          fullTextSearch: "DontUse",
-        },
-      ],
-    }
+    const data = twoAttributes
 
     const expectedResult = readXMLFileAsString("metadataTabularSection/twoAttributes.xml")
 
