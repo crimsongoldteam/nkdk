@@ -32,16 +32,22 @@ describe("canConvertToPascalCase", () => {
     })
 
     it("should return true when string contains numbers", () => {
-      expect(canConvertToPascalCase("Test1Test", "Test1Test")).toBeTruthy()
+      expect(canConvertToPascalCase("Test 1 test", "Test1Test")).toBeTruthy()
     })
 
-    it("should return when when string contains other characters", () => {
-      expect(canConvertToPascalCase("Test1Test!", "Test1Test!")).toBeFalsy()
+    it("should return true when string contains numbers", () => {
+      expect(canConvertToPascalCase("Test 111 test", "Test111Test")).toBeTruthy()
+    })
+
+    it("should return false when string contains other characters", () => {
+      expect(canConvertToPascalCase("Test!", "Test!")).toBeFalsy()
+    })
+
+    it("should return when string ends with number characters", () => {
+      expect(canConvertToPascalCase("Test test 1", "TestTest1")).toBeTruthy()
     })
 
     it("should handle string with only special characters (currentWord remains empty)", () => {
-      // When pascalStr contains only special characters that are ignored,
-      // currentWord remains empty and condition on line 94-96 doesn't execute
       expect(canConvertToPascalCase("!!!", "!!!")).toBeFalsy()
     })
 

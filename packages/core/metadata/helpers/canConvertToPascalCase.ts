@@ -2,6 +2,7 @@
 const UPPER_CASE_LETTERS = /^[A-ZА-ЯЁ]/
 const ALL_UPPER_CASE = /^[A-ZА-ЯЁ]+$/
 const LOWER_CASE_LETTERS = /^[a-zа-яё]/
+const DIGIT = /^[0-9]$/
 
 /**
  * Функция проверяет можно ли однозначно по строке str определить pascalStr
@@ -47,46 +48,82 @@ function splitPascalCase(str: string): string {
   // Track if current word contains a digit
   let hasDigit = false
 
+  const startNewWord = (char: string) => {
+    if (currentWord.length > 0) {
+      words.push(currentWord)
+    }
+    currentWord = char
+    isCurrentAbbreviation = true
+    hasDigit = false
+  }
+
+  const addDigitToWord = (char: string) => {
+    currentWord += char
+    hasDigit = true
+    isCurrentAbbreviation = false
+  }
+
   for (let i = 0; i < str.length; i++) {
     const char = str[i]
     const isUpper = UPPER_CASE_LETTERS.test(char)
     const isLower = LOWER_CASE_LETTERS.test(char)
-    const isDigit = /^[0-9]$/.test(char)
+    const isDigit = DIGIT.test(char)
 
     if (isUpper) {
-      if (currentWord.length > 0) {
-        if (isCurrentAbbreviation) {
-          // Current word is an abbreviation and next char is uppercase:
-          // continue the abbreviation (e.g., "USSR" -> keep together)
-          currentWord += char
-        } else if (hasDigit) {
-          // Current word has a digit and lowercase letters, and next char is uppercase:
-          // continue the word (e.g., "Test1Test" -> keep as one word)
-          currentWord += char
-        } else {
-          // Current word has lowercase letters (no digit), start a new word
-          words.push(currentWord)
-          currentWord = char
-          isCurrentAbbreviation = true
-          hasDigit = false
-        }
-      } else {
+      if (currentWord.length === 0) {
         // Start of the string
         currentWord = char
         isCurrentAbbreviation = true
         hasDigit = false
+        continue
       }
-    } else if (isLower) {
+
+      if (isCurrentAbbreviation) {
+        // Current word is an abbreviation and next char is uppercase:
+        // continue the abbreviation (e.g., "USSR" -> keep together)
+        currentWord += char
+        continue
+      }
+
+      // Current word has lowercase letters or digits, start a new word
+      startNewWord(char)
+      continue
+    }
+
+    if (isLower) {
       // Lowercase letter found: current word is not an abbreviation
       currentWord += char
       isCurrentAbbreviation = false
-    } else if (isDigit) {
-      // Digit found: add to current word
-      currentWord += char
-      hasDigit = true
-      // Digits make the word not an abbreviation (if it was)
-      isCurrentAbbreviation = false
+      continue
     }
+
+    if (isDigit) {
+      // Digit found: check if next non-digit char is uppercase (if exists)
+      // If current word has letters, digit should be a separate word
+      let nextNonDigitChar: string | null = null
+      for (let j = i + 1; j < str.length; j++) {
+        const nextChar = str[j]
+        if (!DIGIT.test(nextChar)) {
+          nextNonDigitChar = nextChar
+          break
+        }
+      }
+      const nextIsUpper = nextNonDigitChar ? UPPER_CASE_LETTERS.test(nextNonDigitChar) : false
+
+      if (currentWord.length > 0 && !hasDigit && (nextIsUpper || nextNonDigitChar === null)) {
+        // Current word has letters (no digits yet) and next non-digit char is uppercase or end of string:
+        // finish current word and start new word with digit
+        startNewWord(char)
+        hasDigit = true
+        isCurrentAbbreviation = false
+        continue
+      }
+
+      // Add digit to current word (either word already has digits, or it's the start)
+      addDigitToWord(char)
+      continue
+    }
+
     // Ignore other non-letter characters (they shouldn't appear in PascalCase, but handle gracefully)
   }
 
@@ -108,10 +145,11 @@ function splitPascalCase(str: string): string {
     // Check if word is abbreviation only once (optimization)
     if (ALL_UPPER_CASE.test(word)) {
       result += " " + word
-    } else {
-      // Convert first letter to lowercase
-      result += " " + word.charAt(0).toLowerCase() + word.slice(1)
+      continue
     }
+
+    // Convert first letter to lowercase
+    result += " " + word.charAt(0).toLowerCase() + word.slice(1)
   }
 
   return result
