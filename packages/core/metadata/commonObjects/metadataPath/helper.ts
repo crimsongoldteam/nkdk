@@ -29,26 +29,18 @@ export const convertPath = (rules: MetadataFieldsRules, path: string): string =>
       const rule = currentRules[part]
 
       if (typeof rule === "string") {
-        // Простая замена строкой
         result.push(rule)
-        // После строки больше нет вложенных правил
         currentRules = undefined
-        i++
-        // Пропускаем следующую часть пути (имя конкретного поля)
-        if (i < parts.length) {
-          i++
-        }
-        continue
-      } else {
-        // Объект с name и fields
-        result.push(rule.name)
-        currentRules = rule.fields as MetadataFieldsRules
         i++
         continue
       }
+
+      result.push(rule.name)
+      currentRules = rule.fields as MetadataFieldsRules
+      i++
+      continue
     }
 
-    // Часть не найдена в rules - это имя конкретного объекта/поля, оставляем как есть
     result.push(part)
     i++
   }

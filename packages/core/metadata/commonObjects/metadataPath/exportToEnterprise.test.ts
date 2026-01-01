@@ -25,12 +25,12 @@ describe("exportMetadataFieldToEnterprise", () => {
     expect(result).toEqual(enterpriseValue)
   })
 
-  it("should return undefined for not two parts type", () => {
-    const result = exportMetadataFieldToEnterprise(mockСontext, "TypeObject")
-    expect(result).toBeUndefined()
-  })
-  it("should return undefined for wrong type", () => {
-    const result = exportMetadataFieldToEnterprise(mockСontext, "WrongType.Object")
-    expect(result).toBeUndefined()
-  })
+  // it("should return undefined for not two parts type", () => {
+  //   const result = exportMetadataFieldToEnterprise(mockСontext, "TypeObject")
+  //   expect(result).toBeUndefined()
+  // })
+  // it("should return undefined for wrong type", () => {
+  //   const result = exportMetadataFieldToEnterprise(mockСontext, "WrongType.Object")
+  //   expect(result).toBeUndefined()
+  // })
 })

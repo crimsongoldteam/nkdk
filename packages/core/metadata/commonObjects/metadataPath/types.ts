@@ -133,7 +133,20 @@ export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
           StandardAttribute: { name: "СтандартныйРеквизит", fields: { LineNumber: "НомерСтроки" } },
         },
       },
-      StandardAttribute: "СтандартныйРеквизит",
+      StandardAttribute: {
+        name: "СтандартныйРеквизит",
+        fields: {
+          PredefinedDataName: "ИмяПредопределенныхДанных",
+          Predefined: "Предопределенный",
+          Ref: "Ссылка",
+          DeletionMark: "ПометкаУдаления",
+          IsFolder: "ЭтоГруппа",
+          Owner: "Владелец",
+          Parent: "Родитель",
+          Description: "Наименование",
+          Code: "Код",
+        },
+      },
     },
   },
   Document: {
@@ -160,6 +173,13 @@ export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
       },
       Dimension: "Измерение",
       Resource: "Ресурс",
+    },
+  },
+  ExchangePlan: {
+    name: "ПланОбмена",
+    fields: {
+      Attribute: "Реквизит",
+      StandardAttribute: { name: "СтандартныйРеквизит", fields: { LineNumber: "НомерСтроки" } },
     },
   },
   Enum: "Перечисление",

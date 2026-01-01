@@ -41,7 +41,7 @@ describe("swapMetadataFieldsRulesKeys", () => {
 describe("convertPath", () => {
   it("should convert path to enterprise", () => {
     const result = convertPath(mockRules, "Catalog.КакойТоСправочник.Attribute.КакойТоРеквизит")
-    expect(result).toEqual("Справочник.КакойТоСправочник.Реквизит")
+    expect(result).toEqual("Справочник.КакойТоСправочник.Реквизит.КакойТоРеквизит")
   })
 
   it("should convert path to enterprise with tabular section", () => {
@@ -49,6 +49,6 @@ describe("convertPath", () => {
       mockRules,
       "Catalog.КакойТоСправочник.TabularSection.КакаяТоТаблица.Attribute.КакойТоРеквизит"
     )
-    expect(result).toEqual("Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.Реквизит")
+    expect(result).toEqual("Справочник.КакойТоСправочник.ТабличнаяЧасть.КакаяТоТаблица.Реквизит.КакойТоРеквизит")
   })
 })
