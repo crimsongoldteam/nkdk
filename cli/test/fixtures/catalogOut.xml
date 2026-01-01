@@ -462,8 +462,8 @@
 					<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 					<ChoiceParameterLinks>
 						<xr:Link>
-							<xr:Name>Отбор.Владелец</xr:Name>
 							<xr:DataPath xsi:type="xs:string">Catalog.Проекты.Attribute.Контрагент</xr:DataPath>
+							<xr:Name>Отбор.Владелец</xr:Name>
 							<xr:ValueChange>Clear</xr:ValueChange>
 						</xr:Link>
 					</ChoiceParameterLinks>
@@ -529,8 +529,8 @@
 					<Type>
 						<v8:Type>xs:string</v8:Type>
 						<v8:StringQualifiers>
-							<v8:Length>0</v8:Length>
 							<v8:AllowedLength>Variable</v8:AllowedLength>
+							<v8:Length>0</v8:Length>
 						</v8:StringQualifiers>
 					</Type>
 					<Use>ForItem</Use>
@@ -656,8 +656,8 @@
 							<ChoiceHistoryOnInput>Auto</ChoiceHistoryOnInput>
 							<ChoiceParameterLinks>
 								<xr:Link>
-									<xr:Name>Отбор.Владелец</xr:Name>
 									<xr:DataPath xsi:type="xs:string">Catalog.Проекты.TabularSection.ДополнительныеРеквизиты.Attribute.Свойство</xr:DataPath>
+									<xr:Name>Отбор.Владелец</xr:Name>
 									<xr:ValueChange>Clear</xr:ValueChange>
 								</xr:Link>
 							</ChoiceParameterLinks>
@@ -719,8 +719,8 @@
 							<Type>
 								<v8:Type>xs:string</v8:Type>
 								<v8:StringQualifiers>
-									<v8:Length>0</v8:Length>
 									<v8:AllowedLength>Variable</v8:AllowedLength>
+									<v8:Length>0</v8:Length>
 								</v8:StringQualifiers>
 							</Type>
 						</Properties>
