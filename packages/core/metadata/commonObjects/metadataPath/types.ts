@@ -1,4 +1,4 @@
-import { swapMetadataFieldsRulesKeys } from "./helper"
+import { createMetadataTypesRules, swapMetadataFieldsRulesKeys } from "./helper"
 
 const OtherTypeToEnterprise = {
   Characteristic: "Характеристика",
@@ -110,9 +110,12 @@ export type MetadataFieldType = keyof typeof MetadataFieldTypeToEnterprise
 export type MetadataFieldTypeEnterprise =
   (typeof MetadataFieldTypeToEnterprise)[keyof typeof MetadataFieldTypeToEnterprise]
 
+export type IncludeToType = "Ref" | "Both" | "Same"
+
 export interface MetadataMapItem {
   name: string
-  fields: {
+  includeToType?: IncludeToType
+  fields?: {
     [key: string]: string | MetadataMapItem
   }
 }
@@ -124,6 +127,7 @@ export type MetadataFieldsRules = Record<string, MetadataFieldsRulesItem>
 export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
   Catalog: {
     name: "Справочник",
+    includeToType: "Both",
     fields: {
       Attribute: "Реквизит",
       TabularSection: {
@@ -151,6 +155,7 @@ export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
   },
   Document: {
     name: "Документ",
+    includeToType: "Both",
     fields: {
       Attribute: "Реквизит",
       StandardAttribute: "СтандартныйРеквизит",
@@ -177,12 +182,43 @@ export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
   },
   ExchangePlan: {
     name: "ПланОбмена",
+    includeToType: "Both",
     fields: {
       Attribute: "Реквизит",
       StandardAttribute: { name: "СтандартныйРеквизит", fields: { LineNumber: "НомерСтроки" } },
     },
   },
-  Enum: "Перечисление",
+  Task: {
+    name: "Задача",
+    includeToType: "Both",
+  },
+  BusinessProcess: {
+    name: "БизнесПроцесс",
+    includeToType: "Both",
+  },
+  BusinessProcessRoutePoint: {
+    name: "ТочкаМаршрутаБизнесПроцесса",
+    includeToType: "Both",
+  },
+  ChartOfAccount: {
+    name: "ПланСчетов",
+    includeToType: "Both",
+  },
+  ChartOfCharacteristicTypes: {
+    name: "ПланВидовХарактеристик",
+    includeToType: "Both",
+  },
+  ChartOfCalculationTypes: {
+    name: "ПланВидовРасчета",
+    includeToType: "Both",
+  },
+  Enum: {
+    name: "Перечисление",
+    includeToType: "Ref",
+  },
 } as const
 
-export const MetadataFieldsRulesFromEnterprise = swapMetadataFieldsRulesKeys(MetadataFieldsRulesToEnterprise)
+export const MetadataTypesRulesToEnterprise = createMetadataTypesRules(MetadataFieldsRulesToEnterprise)!
+export const MetadataTypesRulesFromEnterprise = swapMetadataFieldsRulesKeys(MetadataTypesRulesToEnterprise)!
+
+export const MetadataFieldsRulesFromEnterprise = swapMetadataFieldsRulesKeys(MetadataFieldsRulesToEnterprise)!

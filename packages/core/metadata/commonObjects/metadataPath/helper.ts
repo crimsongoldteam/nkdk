@@ -1,6 +1,9 @@
 import { MetadataFieldsRules } from "./types"
 
-export const swapMetadataFieldsRulesKeys = (rules: MetadataFieldsRules): MetadataFieldsRules => {
+export const swapMetadataFieldsRulesKeys = (
+  rules: MetadataFieldsRules | undefined
+): MetadataFieldsRules | undefined => {
+  if (!rules) return undefined
   const result: MetadataFieldsRules = {}
 
   for (const [key, value] of Object.entries(rules)) {
@@ -10,7 +13,24 @@ export const swapMetadataFieldsRulesKeys = (rules: MetadataFieldsRules): Metadat
     }
 
     const fields = swapMetadataFieldsRulesKeys(value.fields)
-    result[value.name] = { name: key, fields }
+    result[value.name] = { name: key, ...(fields ? { fields } : {}) }
+  }
+
+  return result
+}
+
+export const createMetadataTypesRules = (rules: MetadataFieldsRules): MetadataFieldsRules => {
+  const result: MetadataFieldsRules = {}
+
+  for (const [key, rule] of Object.entries(rules)) {
+    if (typeof rule === "string") continue
+    if (rule.includeToType === undefined) continue
+
+    result[`${key}Ref`] = rule.name
+
+    if (rule.includeToType !== "Both") continue
+
+    result[`${key}Object`] = `${rule.name}Объект`
   }
 
   return result

@@ -1,23 +1,9 @@
 import { Context } from "vm"
 import { convertPath } from "./helper"
-import { MetadataFieldsRulesFromEnterprise, MetadataTypeFromEnterprise } from "./types"
-
-const FALLBACK_FIELD_MAP: Record<string, string> = {
-  Реквизит: "Attribute",
-  ТабличнаяЧасть: "TabularSection",
-  СтандартныйРеквизит: "StandardAttribute",
-  Измерение: "Dimension",
-  Ресурс: "Resource",
-}
+import { MetadataFieldsRulesFromEnterprise, MetadataTypesRulesFromEnterprise } from "./types"
 
 export const importMetadataTypeFromEnterprise = (_context: Context, name: string): string | undefined => {
-  const parts = name.split(".")
-  if (parts.length === 1) {
-    return MetadataTypeFromEnterprise[parts[0] as keyof typeof MetadataTypeFromEnterprise]
-  }
-  if (parts.length !== 2) return undefined
-  const metadataType = MetadataTypeFromEnterprise[parts[0] as keyof typeof MetadataTypeFromEnterprise]
-  return metadataType ? `${metadataType}.${parts[1]}` : undefined
+  return convertPath(MetadataTypesRulesFromEnterprise, name)
 }
 
 export const importMetadataFieldFromEnterprise = (_context: Context, name: string): string | undefined => {

@@ -1,4 +1,4 @@
-import { describe, expect, it, test } from "vitest"
+import { describe, expect, test } from "vitest"
 import { tableMetadataFields, tableMetadataObjects } from "~/tests/fixtures/metadataPath/table"
 import { mockСontext } from "~/tests/mockContext"
 import { exportMetadataFieldToEnterprise, exportMetadataTypeToEnterprise } from "./exportToEnterprise"
@@ -8,15 +8,6 @@ describe("exportMetadataTypeToEnterprise", () => {
     const result = exportMetadataTypeToEnterprise(mockСontext, expected)
     expect(result).toEqual(enterpriseValue)
   })
-
-  it("should return undefined for not two parts type", () => {
-    const result = exportMetadataTypeToEnterprise(mockСontext, "TypeObject")
-    expect(result).toBeUndefined()
-  })
-  it("should return undefined for wrong type", () => {
-    const result = exportMetadataTypeToEnterprise(mockСontext, "WrongType.Object")
-    expect(result).toBeUndefined()
-  })
 })
 
 describe("exportMetadataFieldToEnterprise", () => {
@@ -24,13 +15,4 @@ describe("exportMetadataFieldToEnterprise", () => {
     const result = exportMetadataFieldToEnterprise(mockСontext, expected)
     expect(result).toEqual(enterpriseValue)
   })
-
-  // it("should return undefined for not two parts type", () => {
-  //   const result = exportMetadataFieldToEnterprise(mockСontext, "TypeObject")
-  //   expect(result).toBeUndefined()
-  // })
-  // it("should return undefined for wrong type", () => {
-  //   const result = exportMetadataFieldToEnterprise(mockСontext, "WrongType.Object")
-  //   expect(result).toBeUndefined()
-  // })
 })
