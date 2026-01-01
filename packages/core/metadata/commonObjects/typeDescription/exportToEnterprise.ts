@@ -1,6 +1,6 @@
 import { Context } from "../../context/types"
 import { exportMetadataTypeStringToEnterprise } from "../metadataPath/exportToEnterprise"
-import { TypeDescription, TypeDescriptionEnterprise } from "./types"
+import { PrimitiveTypeToEnterprise, TypeDescription, TypeDescriptionEnterprise } from "./types"
 
 export const exportTypeDescriptionToEnterprise = (
   context: Context,
@@ -56,20 +56,29 @@ const formatDateQualifier = (dateQualifiers: NonNullable<TypeDescription["dateQu
 }
 
 const formatSingleType = (context: Context, type: string, typeDescription: TypeDescription): string => {
-  if (type === "string" && typeDescription.stringQualifiers) {
-    return formatStringQualifier(typeDescription.stringQualifiers)
+  if (type === "string") {
+    if (typeDescription.stringQualifiers) {
+      return formatStringQualifier(typeDescription.stringQualifiers)
+    }
+    return PrimitiveTypeToEnterprise.string
   }
 
-  if (type === "decimal" && typeDescription.numberQualifiers) {
-    return formatNumberQualifier(typeDescription.numberQualifiers)
+  if (type === "decimal") {
+    if (typeDescription.numberQualifiers) {
+      return formatNumberQualifier(typeDescription.numberQualifiers)
+    }
+    return PrimitiveTypeToEnterprise.decimal
   }
 
-  if ((type === "date" || type === "dateTime") && typeDescription.dateQualifiers) {
-    return formatDateQualifier(typeDescription.dateQualifiers)
+  if (type === "date" || type === "dateTime") {
+    if (typeDescription.dateQualifiers) {
+      return formatDateQualifier(typeDescription.dateQualifiers)
+    }
+    return PrimitiveTypeToEnterprise.date
   }
 
   if (type === "boolean") {
-    return "Булево"
+    return PrimitiveTypeToEnterprise.boolean
   }
 
   return exportMetadataTypeStringToEnterprise(context, type)!
