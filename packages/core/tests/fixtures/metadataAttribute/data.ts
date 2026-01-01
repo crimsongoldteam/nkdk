@@ -99,9 +99,9 @@ export const minimal: MetadataAttributes = [
   },
 ]
 
-// export const minimalEnterprise: MetadataAttributesEnterprise = {
-//   ТестовыйРеквизит: { Тип: "Строка", Синоним: { ru: "" } },
-// }
+export const minimalEnterprise: MetadataAttributesEnterprise = {
+  ТестовыйРеквизит: { Тип: "Строка", Синоним: "" },
+}
 
 export const multiple: MetadataAttributes = [
   {
