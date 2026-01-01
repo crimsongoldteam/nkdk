@@ -11,7 +11,9 @@ vi.mock("uuid", () => ({
 
 const mockContextWithParent = {
   ...mockСontext,
-  context: "Контрагенты",
+  context: {
+    parentName: "Контрагенты",
+  },
 }
 
 describe("exportMetadataTabularSectionsToXML", () => {
@@ -19,7 +21,7 @@ describe("exportMetadataTabularSectionsToXML", () => {
     const expectedXml = readXMLFileAsString("metadataTabularSection/full.xml")
 
     const result = exportMetadataTabularSectionsToXML(mockContextWithParent, fullTabularSections)
-    const xmlString = xmlExport({ TabularSection: result?.[0] }, false)
+    const xmlString = xmlExport({ TabularSection: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
   })
@@ -28,7 +30,7 @@ describe("exportMetadataTabularSectionsToXML", () => {
     const expectedXml = readXMLFileAsString("metadataTabularSection/defaults.xml")
 
     const result = exportMetadataTabularSectionsToXML(mockContextWithParent, minimalTabularSections)
-    const xmlString = xmlExport({ TabularSection: result?.[0] }, false)
+    const xmlString = xmlExport({ TabularSection: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
   })
