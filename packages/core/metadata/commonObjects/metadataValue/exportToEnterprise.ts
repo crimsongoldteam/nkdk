@@ -1,7 +1,8 @@
 import { format } from "date-fns"
+import { Context as VMContext } from "vm"
 import { Context } from "~/metadata/context/types"
 import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
-import { MetadataType, MetadataTypeToEnterprise } from "../metadataPath/types"
+import { exportMetadataValueStringToEnterprise as exportMetadataPathValueToEnterprise } from "../metadataPath/exportToEnterprise"
 import {
   MetadataBooleanValue,
   MetadataDateTimeValue,
@@ -97,27 +98,7 @@ const exportFormChoiceListDesTimeValueToEnterprise = (
 }
 
 export const exportMedatataRefToEnterprise = (value: string): string => {
-  const parts = value.split(".")
-
-  const appliedType = parts[0] as MetadataType
-
-  const partsResult = []
-
-  const appliedTypeEnterprise = MetadataTypeToEnterprise[appliedType]
-  if (!appliedTypeEnterprise) throw new Error(`Invalid type for ref: ${value}`)
-  partsResult.push(appliedTypeEnterprise)
-
-  const objectName = parts[1]
-  if (!objectName) throw new Error(`Invalid object name for ref: ${value}`)
-
-  partsResult.push(objectName)
-  if (appliedType === "Enum" && parts.length >= 4) {
-    partsResult.push(parts[3])
-  }
-
-  if (appliedType === "Catalog" && parts.length >= 3) {
-    partsResult.push("ПустаяСсылка")
-  }
-
-  return partsResult.join(".")
+  const result = exportMetadataPathValueToEnterprise({} as VMContext, value)
+  if (!result) throw new Error(`Invalid type for ref: ${value}`)
+  return result
 }

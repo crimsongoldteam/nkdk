@@ -1,5 +1,5 @@
 import { Context } from "../../context/types"
-import { exportMetadataFieldToEnterprise as exportMetadataFieldToEnterprisePath } from "../metadataPath/exportToEnterprise"
+import { exportMetadataFieldStringToEnterprise as exportMetadataFieldToEnterprisePath } from "../metadataPath/exportToEnterprise"
 import { MetadataField, MetadataFieldEnterprise, MetadataFields, MetadataFieldsEnterprise } from "./types"
 
 export const exportMetadataFieldsToEnterprise = (

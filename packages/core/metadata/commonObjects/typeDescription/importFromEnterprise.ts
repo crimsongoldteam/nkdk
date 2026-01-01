@@ -1,6 +1,6 @@
 import { Context } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
-import { importMetadataTypeFromEnterprise } from "../metadataPath/importFromEnterprise"
+import { importMetadataTypeStringFromEnterprise } from "../metadataPath/importFromEnterprise"
 import {
   PrimitiveTypeFromEnterprise,
   TypeDescription,
@@ -66,7 +66,7 @@ export const importTypeDescriptionFromEnterprise = (
       continue
     }
 
-    const metadataType = importMetadataTypeFromEnterprise(_context, type)
+    const metadataType = importMetadataTypeStringFromEnterprise(_context, type)
     if (metadataType) {
       result.type.push(metadataType)
       continue

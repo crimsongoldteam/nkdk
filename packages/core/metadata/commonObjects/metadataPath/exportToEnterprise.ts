@@ -6,15 +6,15 @@ import {
   MetadataValuesRulesToEnterprise,
 } from "./types"
 
-export const exportMetadataTypeToEnterprise = (_context: Context, name: string): string | undefined => {
+export const exportMetadataTypeStringToEnterprise = (_context: Context, name: string): string | undefined => {
   return convertPath(MetadataTypesRulesToEnterprise, name)
 }
 
-export const exportMetadataFieldToEnterprise = (_context: Context, name: string): string | undefined => {
+export const exportMetadataFieldStringToEnterprise = (_context: Context, name: string): string | undefined => {
   return convertPath(MetadataFieldsRulesToEnterprise, name)
 }
 
-export const exportMetadataValueToEnterprise = (_context: Context, name: string): string | undefined => {
+export const exportMetadataValueStringToEnterprise = (_context: Context, name: string): string | undefined => {
   let processedPath = name
   if (name.startsWith("Enum.")) {
     const parts = name.split(".")

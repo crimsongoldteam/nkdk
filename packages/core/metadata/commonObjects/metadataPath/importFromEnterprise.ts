@@ -6,15 +6,15 @@ import {
   MetadataValuesRulesFromEnterprise,
 } from "./types"
 
-export const importMetadataTypeFromEnterprise = (_context: Context, name: string): string | undefined => {
+export const importMetadataTypeStringFromEnterprise = (_context: Context, name: string): string | undefined => {
   return convertPath(MetadataTypesRulesFromEnterprise, name)
 }
 
-export const importMetadataFieldFromEnterprise = (_context: Context, name: string): string | undefined => {
+export const importMetadataFieldStringFromEnterprise = (_context: Context, name: string): string | undefined => {
   return convertPath(MetadataFieldsRulesFromEnterprise, name)
 }
 
-export const importMetadataValueFromEnterprise = (_context: Context, name: string): string | undefined => {
+export const importMetadataValueStringFromEnterprise = (_context: Context, name: string): string | undefined => {
   const convertedPath = convertPath(MetadataValuesRulesFromEnterprise, name)
 
   // Добавляем EnumValue для перечислений (Enum.*)

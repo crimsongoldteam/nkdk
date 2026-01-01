@@ -1,9 +1,13 @@
 import { format, parse } from "date-fns"
 import { Context } from "../../context/types"
-import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
-import { MetadataTypeEnterprise, MetadataTypeFromEnterprise } from "../metadataPath/types.ts"
-import { MetadataFormChoiceListDesTimeValueEnterprise, MetadataValue, MetadataValueEnterprise } from "./types"
-import { MetadataFixedArrayValueEnterprise } from "./types.ts"
+import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
+import { importMetadataValueStringFromEnterprise } from "../metadataPath/importFromEnterprise"
+import {
+  MetadataFixedArrayValueEnterprise,
+  MetadataFormChoiceListDesTimeValueEnterprise,
+  MetadataValue,
+  MetadataValueEnterprise,
+} from "./types"
 
 export const importMetadataValueFromEnterprise = (
   context: Context,
@@ -27,7 +31,7 @@ export const importMetadataValueFromEnterprise = (
   }
 
   if (typeof data === "string") {
-    return importStringValueFromEnterprise(data)
+    return importStringValueFromEnterprise(context, data)
   }
 
   throw new Error(`Invalid value ${JSON.stringify(data)}`)
@@ -49,7 +53,7 @@ const parseDateTime = (dateTime: string): string => {
   }
 }
 
-const importStringValueFromEnterprise = (data: string): MetadataValue => {
+const importStringValueFromEnterprise = (context: Context, data: string): MetadataValue => {
   // Проверяем на FormChoiceListDesTimeValue: формат "значение"(представление)
   const formChoiceListMatch = data.match(/^"([^"]+)"\(([^)]+)\)$/)
   if (formChoiceListMatch) {
@@ -102,13 +106,7 @@ const importStringValueFromEnterprise = (data: string): MetadataValue => {
     }
   }
 
-  // Проверяем на ref (Перечисление.XXX.YYY или Справочник.XXX.ПустаяСсылка)
-  const refMatch = data.match(/^(Перечисление|Справочник)\./)
-  if (refMatch) {
-    return importMetadataRefFromEnterprise(data)
-  }
-
-  throw new Error(`Cannot determine type for string value: ${data}`)
+  return importMetadataRefFromEnterprise(context, data)
 }
 
 const importFixedArrayValueFromEnterprise = (
@@ -133,32 +131,12 @@ const importFormChoiceListDesTimeValueFromEnterprise = (
   }
 }
 
-export const importMetadataRefFromEnterprise = (value: string): MetadataValue => {
-  const parts = value.split(".")
-
-  const appliedTypeEnterprise = parts[0] as MetadataTypeEnterprise
-
-  const partsResult = []
-
-  const appliedType = MetadataTypeFromEnterprise[appliedTypeEnterprise as keyof typeof MetadataTypeFromEnterprise]
-  if (!appliedType) throw new Error(`Invalid type for ref: ${value}`)
-  partsResult.push(appliedType)
-
-  const objectName = parts[1]
-  if (!objectName) throw new Error(`Invalid object name for ref: ${value}`)
-
-  partsResult.push(objectName)
-  if (appliedType === "Enum" && parts.length >= 3) {
-    partsResult.push("EnumValue")
-    partsResult.push(parts[2])
-  }
-
-  if (appliedType === "Catalog" && parts.length >= 3 && parts[2] === "ПустаяСсылка") {
-    partsResult.push("EmptyRef")
-  }
+export const importMetadataRefFromEnterprise = (context: Context, value: string): MetadataValue => {
+  const convertedValue = importMetadataValueStringFromEnterprise(context, value)
+  if (!convertedValue) throw new Error(`Invalid type for ref: ${value}`)
 
   return {
     type: "ref",
-    value: partsResult.join("."),
+    value: convertedValue,
   }
 }
