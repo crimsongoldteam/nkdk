@@ -43,9 +43,7 @@ export const exportMetadataCatalogToXML = (
     { name: `CatalogManager.${mergedData.name}`, category: "Manager" },
   ])
 
-  const properties: MetadataCatalogXML["Catalog"]["Properties"] = {
-    Name: mergedData.name,
-  }
+  const properties: MetadataCatalogXML["Catalog"]["Properties"] = {} as MetadataCatalogXML["Catalog"]["Properties"]
 
   const additionalIndexes = exportAdditionalIndexesToXML(context, mergedData.additionalIndexes)
   if (additionalIndexes) properties.AdditionalIndexes = additionalIndexes
@@ -149,6 +147,8 @@ export const exportMetadataCatalogToXML = (
 
   const listPresentation = exportI8nTextToXML(context, mergedData.listPresentation)
   if (listPresentation !== undefined) properties.ListPresentation = listPresentation
+
+  properties.Name = mergedData.name
 
   if (mergedData.objectBelonging !== undefined) properties.ObjectBelonging = mergedData.objectBelonging
 
