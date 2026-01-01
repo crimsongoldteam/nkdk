@@ -23,4 +23,13 @@ describe("importMetadataTabularSectionFromXML", () => {
     const result = importMetadataTabularSectionsFromXML(mockСontext, xmlData.TabularSection)
     expect(result).toEqual(minimalTabularSections)
   })
+
+  it("should import defaults", () => {
+    const xmlData = readAndParseXMLFile<{ TabularSection: MetadataTabularSectionXML }>(
+      "metadataTabularSection/defaults.xml"
+    )
+
+    const result = importMetadataTabularSectionsFromXML(mockСontext, xmlData.TabularSection)
+    expect(result).toEqual(minimalTabularSections)
+  })
 })
