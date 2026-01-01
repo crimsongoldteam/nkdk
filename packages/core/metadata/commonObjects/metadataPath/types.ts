@@ -211,6 +211,30 @@ export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
   ChartOfCharacteristicTypes: {
     name: "ПланВидовХарактеристик",
     includeToType: "Both",
+    fields: {
+      Attribute: "Реквизит",
+      TabularSection: {
+        name: "ТабличнаяЧасть",
+        fields: {
+          Attribute: "Реквизит",
+          StandardAttribute: { name: "СтандартныйРеквизит", fields: { LineNumber: "НомерСтроки", Ref: "Ссылка" } },
+        },
+      },
+      StandardAttribute: {
+        name: "СтандартныйРеквизит",
+        fields: {
+          PredefinedDataName: "ИмяПредопределенныхДанных",
+          Predefined: "Предопределенный",
+          Ref: "Ссылка",
+          DeletionMark: "ПометкаУдаления",
+          IsFolder: "ЭтоГруппа",
+          Owner: "Владелец",
+          Parent: "Родитель",
+          Description: "Наименование",
+          Code: "Код",
+        },
+      },
+    },
   },
   ChartOfCalculationTypes: {
     name: "ПланВидовРасчета",
@@ -226,6 +250,10 @@ export const MetadataFieldsRulesToEnterprise: MetadataFieldsRules = {
   },
   Characteristic: {
     name: "Характеристика",
+    includeToType: "Save",
+  },
+  CommandGroup: {
+    name: "ГруппаКоманд",
     includeToType: "Save",
   },
 } as const
