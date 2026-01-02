@@ -3,7 +3,6 @@ import {
   TypeDescription,
   TypeDescriptionEnterprise,
   TypeDescriptionXML,
-  TypeDescriptionXMLItem,
 } from "~/metadata/commonObjects/typeDescription/types"
 import {
   UserVisible,
@@ -27,7 +26,7 @@ export interface FormAttributeItemXML {
   _name: string
   _id: string
   Title?: I8nTextXML
-  Type?: TypeDescriptionXML | TypeDescriptionXMLItem
+  Type?: TypeDescriptionXML
   MainAttribute?: boolean
   StoredData?: boolean
   Use?: UserVisibleXML

@@ -10,8 +10,6 @@ import {
 import { importMetadataCatalogFromEnterprise } from "../metadata/appliedObjects/metadataCatalog/importFromEnterprise"
 import { importMetadataCatalogFromXML } from "../metadata/appliedObjects/metadataCatalog/importFromXML"
 import { MetadataCatalogXML } from "../metadata/appliedObjects/metadataCatalog/types"
-import "../metadata/forms/elements/exportToXML"
-import "../metadata/forms/elements/importFromXML"
 import { mockСontext } from "../tests/mockContext"
 import { xmlExport } from "../xml/export/exporter"
 import xmlImport from "../xml/import/importer"

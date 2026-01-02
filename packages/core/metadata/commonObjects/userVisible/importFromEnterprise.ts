@@ -3,10 +3,10 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Context } from "../../context/types"
 import { type UserVisible } from "./types"
 
-export const parseUserVisible = (
+export const importFromEnterprise = (
+  context: Context,
   value: Record<string, StringboolEnterprise> | undefined,
-  usageType: "РазрешитьИспользование" | "ЗапретитьИспользование" | undefined,
-  context: Context
+  usageType: "РазрешитьИспользование" | "ЗапретитьИспользование" | undefined
 ): UserVisible | undefined => {
   if (value === undefined || typeof usageType === "boolean") {
     return undefined
@@ -16,7 +16,7 @@ export const parseUserVisible = (
 
   const values = Object.entries(value).map(([key, val]) => {
     const name = key.replace(/^Role\./, "")
-    const parsedValue = importBooleanFromEnterprise(val, context)!
+    const parsedValue = importBooleanFromEnterprise(context, val)!
     return {
       name,
       value: parsedValue,

@@ -1,8 +1,8 @@
 import { MetadataField } from "../metadataField/types"
-import { MetadataValueXML } from "../metadataValue/types"
+import { MetadataSimpleValueXML } from "../metadataValue/types"
 
 export interface TypeLinkXML {
-  "xr:DataPath": string | MetadataValueXML
+  "xr:DataPath": string | MetadataSimpleValueXML
   "xr:LinkItem": number
 }
 
