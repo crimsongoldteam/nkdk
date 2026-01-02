@@ -112,10 +112,12 @@ export type MetadataSingleValueEnterprise = string | number
 
 export type MetadataFixedArrayValueEnterprise = MetadataSingleValueEnterprise[]
 
-export interface MetadataFormChoiceListValueEnterprise {
+export interface MetadataFormChoiceListComplexValueEnterprise {
   Представление: I8nTextEnterprise
   Значение: MetadataValueEnterprise
 }
+
+export type MetadataFormChoiceListValueEnterprise = MetadataFormChoiceListComplexValueEnterprise | string
 
 export type MetadataValueEnterprise =
   | MetadataSingleValueEnterprise

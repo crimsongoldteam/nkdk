@@ -11,12 +11,7 @@ export const oneItemChoiceList: ChoiceList = [
   },
 ]
 
-export const oneItemChoiceListEnterprise: ChoiceListEnterprise = [
-  {
-    Представление: "Значение 1",
-    Значение: "Значение1",
-  },
-]
+export const oneItemChoiceListEnterprise: ChoiceListEnterprise = ['"Значение1"(Значение 1)']
 
 export const twoItemsChoiceList: ChoiceList = [
   {
@@ -37,13 +32,4 @@ export const twoItemsChoiceList: ChoiceList = [
   },
 ]
 
-export const twoItemsChoiceListEnterprise: ChoiceListEnterprise = [
-  {
-    Представление: "Значение 1",
-    Значение: "Значение1",
-  },
-  {
-    Представление: "Значение 2",
-    Значение: 2,
-  },
-]
+export const twoItemsChoiceListEnterprise: ChoiceListEnterprise = ['"Значение1"(Значение 1)', "2(Значение 2)"]

@@ -10,6 +10,7 @@ import {
   MetadataFixedArrayValue,
   MetadataFixedArrayValueEnterprise,
   MetadataFormChoiceListValue,
+  MetadataFormChoiceListValueEnterprise,
   MetadataObjectRefValue,
   MetadataRefValue,
   MetadataSimpleValue,
@@ -24,7 +25,7 @@ export const exportMetadataValueToEnterprise = (
   if (!data) return undefined
 
   if (data.type === "fixedArray") return exportFixedArrayValueToEnterprise(context, data)
-  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListDesTimeValueToEnterprise(context, data)
+  if (data.type === "formChoiceListDesTimeValue") return exportFormChoiceListValueToEnterprise(context, data)
   if (data.type === "string") return exportStringValueToEnterprise(data)
   if (data.type === "decimal") return exportDecimalValueToEnterprise(data)
   if (data.type === "dateTime") return exportDateTimeValueToEnterprise(data)
@@ -71,10 +72,10 @@ const exportFixedArrayValueToEnterprise = (
   return data.value.map((v) => exportMetadataValueToEnterprise(context, v)!) as MetadataFixedArrayValueEnterprise
 }
 
-const exportFormChoiceListDesTimeValueToEnterprise = (
+export const exportFormChoiceListValueToEnterprise = (
   context: Context,
   data: MetadataFormChoiceListValue
-): MetadataValueEnterprise => {
+): MetadataFormChoiceListValueEnterprise => {
   const valueResult = exportMetadataValueToEnterprise(context, data.value) as string
 
   const presentationItems = data.presentation?.items
@@ -91,10 +92,7 @@ const exportFormChoiceListDesTimeValueToEnterprise = (
   // Иначе возвращаем строку в формате "значение"(представление)
   const presentation = presentationItems?.[context.defaultLanguage] || presentationItems?.ru || ""
 
-  // Если значение уже в кавычках, используем его как есть, иначе добавляем кавычки
-  const valueString = valueResult.startsWith('"') && valueResult.endsWith('"') ? valueResult : `"${valueResult}"`
-
-  return `${valueString}(${presentation})`
+  return `${valueResult}(${presentation})`
 }
 
 export const exportMedatataRefToEnterprise = (value: string): string => {
