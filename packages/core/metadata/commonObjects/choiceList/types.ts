@@ -12,8 +12,8 @@ export type ChoiceList = MetadataFormChoiceListValue[]
 //#region ChoiceListXML
 
 export interface ChoiceListItemXML {
-  "xr:Presentation": undefined
-  "xr:CheckState": number
+  "xr:Presentation": ""
+  "xr:CheckState": 0
   "xr:Value": MetadataFormChoiceListValueXML
 }
 
