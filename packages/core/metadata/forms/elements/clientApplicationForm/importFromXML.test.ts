@@ -1,13 +1,10 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/importFromXML"
-import {
-  ClientApplicationForm,
-  ClientApplicationFormXML,
-  importClientApplicationFormFromXML,
-  xmlImport,
-} from "~/packages/core"
 import { mockСontext } from "~/tests/mockContext"
+import xmlImport from "~/xml/import/importer"
 import { FormElementType } from "../../../metadataFactory/types"
+import { importClientApplicationFormFromXML } from "./importFromXML"
+import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
 describe("importClientApplicationFormFromXML", () => {
   it("should import title from XML", () => {

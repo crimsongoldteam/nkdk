@@ -141,6 +141,6 @@ const importStandardAttributeDescriptionFromEnterprise = (
   const editFormat = importI8nTextFromEnterprise(context, data.ФорматРедактирования)
   if (editFormat) result.editFormat = editFormat
 
-  const defaults = getDefaults(result, context)
+  const defaults = getDefaults(context, result)
   return removeDefaults(result, defaults)
 }

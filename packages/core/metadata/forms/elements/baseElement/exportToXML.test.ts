@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
+import { xmlExport } from "~/xml/export/exporter"
+import { xmlImport } from "~/xml/import/importer"
 import { FormElementType } from "../../../metadataFactory/types"
 import { exportBaseElementToXML } from "./exportToXML"
 import { importBaseElementFromXML } from "./importFromXML"
 import { BaseElement, BaseElementXML } from "./types"
-import { xmlExport, xmlImport } from "~/index.ts"
 
 describe("exportBaseElementToXML", () => {
   it("should export base element to XML", () => {

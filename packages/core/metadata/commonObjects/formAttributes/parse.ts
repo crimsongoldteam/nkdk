@@ -4,7 +4,7 @@ import { parseI8nText } from "~/metadata/commonObjects/i8nText/importFromEnterpr
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { parseUserVisible } from "~/metadata/commonObjects/userVisible/parse"
 import { Context } from "~/metadata/context/types"
-import { FormAttribute } from "../types"
+import { FormAttribute } from "./types"
 
 export const parseAttributes = (yamlContent: string, context: Context): FormAttribute[] => {
   const parsed = parse(yamlContent) as Record<string, any>
@@ -19,22 +19,22 @@ export const parseAttributes = (yamlContent: string, context: Context): FormAttr
     if (data && typeof data === "object") {
       // Обработка Заголовок
       if ("Заголовок" in data) {
-        attribute.title = parseI8nText(data.Заголовок, context)
+        attribute.title = parseI8nText(context, data.Заголовок)
       }
 
       // Обработка Тип
       if ("Тип" in data && typeof data.Тип === "string") {
-        attribute.type = importTypeDescriptionFromEnterprise(context, data.Тип)
+        attribute.valueType = importTypeDescriptionFromEnterprise(context, data.Тип)
       }
 
       // Обработка ОсновнойАтрибут
       if ("ОсновнойАтрибут" in data) {
-        attribute.mainAttribute = importBooleanFromEnterprise(data.ОсновнойАтрибут, context)
+        attribute.mainAttribute = importBooleanFromEnterprise(context, data.ОсновнойАтрибут)
       }
 
       // Обработка СохраняемыеДанные
       if ("СохраняемыеДанные" in data) {
-        attribute.storedData = importBooleanFromEnterprise(data.СохраняемыеДанные, context)
+        attribute.storedData = importBooleanFromEnterprise(context, data.СохраняемыеДанные)
       }
 
       if ("РазрешитьИспользование" in data || "ЗапретитьИспользование" in data) {

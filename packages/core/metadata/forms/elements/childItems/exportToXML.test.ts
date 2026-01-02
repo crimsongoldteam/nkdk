@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/button/exportToXML"
 import "~/metadata/forms/elements/inputField/exportToXML"
-import { xmlExport } from "~/packages/core"
-import { mockСontext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { exportChildItemsToXML } from "./exportToXML"
 import { ChildItems } from "./types"
+import { mockСontext } from "~/tests/mockContext"
+import { xmlExport } from "~/xml/export/exporter"
 
 describe("exportChildItemsToXML", () => {
   it("should export child items to XML", () => {

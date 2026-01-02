@@ -1,9 +1,9 @@
 import { expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
+import xmlImport from "~/xml/import/importer"
 import { FormElementType } from "../../../metadataFactory/types"
 import { importBaseElementFromXML } from "./importFromXML"
 import { BaseElement, BaseElementXML } from "./types"
-import { xmlImport } from "~/index.ts"
 
 it("should decode element from XML", () => {
   const mockXml = `<BaseElement name="ИмяПоля" id="16">`

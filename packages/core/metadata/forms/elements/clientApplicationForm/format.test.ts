@@ -4,10 +4,11 @@ import "~/metadata/forms/elements/elements"
 import "~/metadata/forms/elements/exportToXML"
 import "~/metadata/forms/elements/importFromXML"
 import "~/metadata/forms/elements/inputField/registration"
-import { ClientApplicationForm, InputField } from "~/packages/core"
 import { mockСontext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { exportClientApplicationFormToEnterprise } from "./exportToEnterprise"
+import { InputField } from "../inputField/types"
+import { ClientApplicationForm } from "./types"
 
 describe("formatClientApplicationForm", () => {
   it("should format form header", () => {

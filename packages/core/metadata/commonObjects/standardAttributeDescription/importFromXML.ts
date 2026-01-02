@@ -104,7 +104,7 @@ const importStandardAttributeDescriptionFromXML = (
 
   if (xml["xr:TypeReductionMode"] !== undefined) result.typeReductionMode = xml["xr:TypeReductionMode"]
 
-  const defaults = getDefaults(result, context)
+  const defaults = getDefaults(context, result)
   const resultWithoutDefaults = removeDefaults(result, defaults)
 
   const keyCount = Object.keys(resultWithoutDefaults).length
