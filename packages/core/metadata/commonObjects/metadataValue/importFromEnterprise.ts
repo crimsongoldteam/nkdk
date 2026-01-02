@@ -4,7 +4,7 @@ import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 import { importMetadataValueStringFromEnterprise } from "../metadataPath/importFromEnterprise"
 import {
   MetadataFixedArrayValueEnterprise,
-  MetadataFormChoiceListDesTimeValueEnterprise,
+  MetadataFormChoiceListValueEnterprise,
   MetadataValue,
   MetadataValueEnterprise,
 } from "./types"
@@ -16,7 +16,7 @@ export const importMetadataValueFromEnterprise = (
   if (data === undefined) return undefined
 
   if (typeof data === "object" && !Array.isArray(data) && "Представление" in data) {
-    return importFormChoiceListDesTimeValueFromEnterprise(context, data as MetadataFormChoiceListDesTimeValueEnterprise)
+    return importFormChoiceListDesTimeValueFromEnterprise(context, data as MetadataFormChoiceListValueEnterprise)
   }
 
   if (Array.isArray(data)) {
@@ -121,7 +121,7 @@ const importFixedArrayValueFromEnterprise = (
 
 const importFormChoiceListDesTimeValueFromEnterprise = (
   context: Context,
-  data: MetadataFormChoiceListDesTimeValueEnterprise
+  data: MetadataFormChoiceListValueEnterprise
 ): MetadataValue => {
   const value = importMetadataValueFromEnterprise(context, data.Значение)!
   return {

@@ -96,16 +96,13 @@ export interface MetadataFixedArrayValueXML {
   "v8:Value": MetadataValueXML | MetadataValueXML[]
 }
 
-export interface MetadataFormChoiceListDesTimeValueXML {
+export interface MetadataFormChoiceListValueXML {
   "_xsi:type": "FormChoiceListDesTimeValue"
   Presentation?: I8nTextXML
   Value: MetadataValueXML
 }
 
-export type MetadataValueXML =
-  | MetadataSimpleValueXML
-  | MetadataFixedArrayValueXML
-  | MetadataFormChoiceListDesTimeValueXML
+export type MetadataValueXML = MetadataSimpleValueXML | MetadataFixedArrayValueXML | MetadataFormChoiceListValueXML
 
 //#endregion
 
@@ -115,7 +112,7 @@ export type MetadataSingleValueEnterprise = string | number
 
 export type MetadataFixedArrayValueEnterprise = MetadataSingleValueEnterprise[]
 
-export interface MetadataFormChoiceListDesTimeValueEnterprise {
+export interface MetadataFormChoiceListValueEnterprise {
   Представление: I8nTextEnterprise
   Значение: MetadataValueEnterprise
 }
@@ -123,6 +120,6 @@ export interface MetadataFormChoiceListDesTimeValueEnterprise {
 export type MetadataValueEnterprise =
   | MetadataSingleValueEnterprise
   | MetadataFixedArrayValueEnterprise
-  | MetadataFormChoiceListDesTimeValueEnterprise
+  | MetadataFormChoiceListValueEnterprise
 
 //#endregion

@@ -109,6 +109,11 @@ describe("importMetadataValueFromXML", () => {
 
     expect(result).toEqual({
       type: "formChoiceListDesTimeValue",
+      presentation: {
+        items: {
+          ru: "Физическое лицо",
+        },
+      },
       value: {
         type: "string",
         value: "ФЛ",

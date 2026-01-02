@@ -1,31 +1,30 @@
-import { MetadataValue, MetadataValueXML } from "../metadataValue/types"
+import {
+  MetadataFormChoiceListValue,
+  MetadataFormChoiceListValueEnterprise,
+  MetadataFormChoiceListValueXML,
+} from "../metadataValue/types"
 
-//#region ChoiceParameter
-export interface ChoiceParameter {
-  name: string
-  value: MetadataValue
-}
-
-export type ChoiceParameterItems = ChoiceParameter[]
+//#region ChoiceList
+export type ChoiceList = MetadataFormChoiceListValue[]
 
 //#endregion
 
-//#region ChoiceParameterXML
+//#region ChoiceListXML
 
-export interface ChoiceParameterXML {
-  "app:item": string
-  "xr:Value": MetadataValueXML
+export interface ChoiceListItemXML {
+  "xr:Presentation": undefined
+  "xr:CheckState": number
+  "xr:Value": MetadataFormChoiceListValueXML
 }
 
-export interface ChoiceParameterItemsXML {
-  _name: string
-  "app:value": MetadataValueXML
+export interface ChoiceListXML {
+  "xr:Item": ChoiceListItemXML | ChoiceListItemXML[]
 }
 
-export type ChoiceParametersEnterprise = string
+//#endregion
 
-// <ChoiceParameters>
-// 	<app:item name="Отбор.ТипСчета">
-// 		<app:value xsi:type="xr:DesignTimeRef">Enum.ТипыСчетов.EnumValue.ВнеоборотныеАктивы</app:value>
-// 	</app:item>
-// </ChoiceParameters>
+//#region ChoiceListEnterprise
+
+export type ChoiceListEnterprise = MetadataFormChoiceListValueEnterprise[]
+
+//#endregion

@@ -36,7 +36,7 @@ export const xmlImport = <T>(data: string): T => {
       name === "CommandSet" ||
       name === "Events" ||
       // name === "ChoiceParameters" ||
-      name === "ChoiceList" ||
+      // name === "ChoiceList" ||
       name === "InternalInfo"
     )
   }

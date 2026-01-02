@@ -2,7 +2,7 @@ import { Context } from "../../context/types"
 import { exportI8nTextToXML } from "../i8nText/exportToXML"
 import {
   MetadataFixedArrayValueXML,
-  MetadataFormChoiceListDesTimeValueXML,
+  MetadataFormChoiceListValueXML,
   MetadataSimpleValue,
   MetadataSimpleValueXML,
   MetadataValue,
@@ -71,14 +71,14 @@ const exportFixedArrayValueToXML = (
 const exportFormChoiceListDesTimeValueToXML = (
   context: Context,
   data: Extract<MetadataValue, { type: "formChoiceListDesTimeValue" }>
-): MetadataFormChoiceListDesTimeValueXML | undefined => {
+): MetadataFormChoiceListValueXML | undefined => {
   const value = exportMetadataValueToXML(context, data.value)
   if (!value) return undefined
   return {
     "_xsi:type": "FormChoiceListDesTimeValue",
     Presentation: exportI8nTextToXML(context, data.presentation),
     Value: value,
-  } as MetadataFormChoiceListDesTimeValueXML
+  } as MetadataFormChoiceListValueXML
 }
 
 const exportSimpleValue = (xsiType: MetadataSimpleValueXML["_xsi:type"], text: string): MetadataSimpleValueXML => ({

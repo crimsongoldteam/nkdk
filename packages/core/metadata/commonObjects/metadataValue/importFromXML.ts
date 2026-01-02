@@ -1,8 +1,10 @@
 import { Context } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
+import { importI8nTextFromXML } from "../i8nText/importFromXML"
 import {
   MetadataFixedArrayValueXML,
-  MetadataFormChoiceListDesTimeValueXML,
+  MetadataFormChoiceListValue,
+  MetadataFormChoiceListValueXML,
   MetadataSimpleValue,
   MetadataSimpleValueXML,
   MetadataValue,
@@ -28,7 +30,7 @@ export const importMetadataValueFromXML = (
   }
 
   if (resultedType === "formChoiceListDesTimeValue") {
-    return importFormChoiceListDesTimeValueFromXML(context, data as MetadataFormChoiceListDesTimeValueXML)
+    return importFormChoiceListValueFromXML(context, data as MetadataFormChoiceListValueXML)
   }
 
   const textValue = (data as MetadataSimpleValueXML)["#text"] as string | boolean | number | undefined
@@ -142,13 +144,14 @@ const importFixedArrayFromXML = (
   }
 }
 
-const importFormChoiceListDesTimeValueFromXML = (
+export const importFormChoiceListValueFromXML = (
   context: Context,
-  data: MetadataFormChoiceListDesTimeValueXML
-): MetadataValue | undefined => {
+  data: MetadataFormChoiceListValueXML
+): MetadataFormChoiceListValue | undefined => {
   const value = importMetadataValueFromXML(context, data.Value)
+  const presentation = importI8nTextFromXML(context, data.Presentation)
   if (!value) return undefined
-  return { type: "formChoiceListDesTimeValue", value }
+  return { type: "formChoiceListDesTimeValue", value, presentation }
 }
 
 const isPrimitiveType = (type: MetadataValueType): boolean => {

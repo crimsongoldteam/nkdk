@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { importMetadataValueFromEnterprise } from "./importFromEnterprise"
 import { MetadataValueEnterprise } from "./types"
-import { MetadataFixedArrayValueEnterprise, MetadataFormChoiceListDesTimeValueEnterprise } from "./types.ts"
+import { MetadataFixedArrayValueEnterprise, MetadataFormChoiceListValueEnterprise } from "./types.ts"
 
 describe("importMetadataValueFromEnterprise", () => {
   it("should import string value from Enterprise", () => {
@@ -114,7 +114,7 @@ describe("importMetadataValueFromEnterprise", () => {
   })
 
   it("should import multilanguage FormChoiceListDesTimeValue from Enterprise", () => {
-    const data: MetadataFormChoiceListDesTimeValueEnterprise = {
+    const data: MetadataFormChoiceListValueEnterprise = {
       Представление: {
         ru: "Физическое лицо",
         en: "Physical person",
