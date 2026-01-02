@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import cliProgress from "cli-progress"
+import * as cliProgress from "cli-progress"
 import { Command } from "commander"
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "fs"
 import { dirname, join, relative } from "path"

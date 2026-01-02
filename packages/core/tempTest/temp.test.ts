@@ -2,14 +2,14 @@ import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { describe, it, vi } from "vitest"
 import { stringify } from "yaml"
-import { exportMetadataCatalogToEnterprise } from "../metadata/appliedObjects/metadataCatalog/exportToEnterprise"
 import {
-  exportMetadataCatalogToXML,
   MetadataCatalogContext,
-} from "../metadata/appliedObjects/metadataCatalog/exportToXML"
-import { importMetadataCatalogFromEnterprise } from "../metadata/appliedObjects/metadataCatalog/importFromEnterprise"
-import { importMetadataCatalogFromXML } from "../metadata/appliedObjects/metadataCatalog/importFromXML"
-import { MetadataCatalogXML } from "../metadata/appliedObjects/metadataCatalog/types"
+  MetadataCatalogXML,
+  exportMetadataCatalogToEnterprise,
+  exportMetadataCatalogToXML,
+  importMetadataCatalogFromEnterprise,
+  importMetadataCatalogFromXML,
+} from "../metadata/appliedObjects/metadataCatalog"
 import { mockСontext } from "../tests/mockContext"
 import { xmlExport } from "../xml/export/exporter"
 import xmlImport from "../xml/import/importer"
