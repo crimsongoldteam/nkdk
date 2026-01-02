@@ -2,26 +2,49 @@ import {
   exportMetadataCatalogToEnterprise,
   exportToYAML,
   importContentFromXML,
+  importMetadataCatalogFromXML,
   MetadataCatalogXML,
 } from "@nakidka/core"
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
-import { dirname, join } from "path"
+import { join } from "path"
 
 export const importCatalog = (inputPath: string, outputPath: string) => {
-  const context = {
-    defaultLanguage: "ru",
+  try {
+    const context = {
+      defaultLanguage: "ru",
+    }
+
+    const xmlContent = readFileSync(inputPath, "utf-8")
+
+    const importedXml = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(xmlContent)
+
+    if (!importedXml?.MetaDataObject) {
+      console.error(`Ошибка: не удалось распарсить XML из ${inputPath}`)
+      return
+    }
+
+    const catalogData = importMetadataCatalogFromXML(context, importedXml.MetaDataObject)
+
+    if (!catalogData) {
+      console.error(`Ошибка: не удалось импортировать каталог из ${inputPath}`)
+      return
+    }
+
+    const exportedEnterprise = exportMetadataCatalogToEnterprise(context, catalogData)
+
+    if (!exportedEnterprise) {
+      console.error(`Ошибка: не удалось экспортировать каталог из ${inputPath}`)
+      return
+    }
+
+    const yamlString = exportToYAML(exportedEnterprise)
+
+    writeFileSync(outputPath, yamlString, "utf-8")
+  } catch (error) {
+    console.error(`Ошибка при обработке ${inputPath}:`, error instanceof Error ? error.message : String(error))
+    // Не прерываем выполнение, продолжаем обработку остальных файлов
   }
-
-  const xmlContent = readFileSync(inputPath, "utf-8")
-
-  const importedXml = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(xmlContent)
-
-  const exportedEnterprise = exportMetadataCatalogToEnterprise(context, importedXml)
-
-  const yamlString = exportToYAML(exportedEnterprise!)
-
-  writeFileSync(outputPath, yamlString, "utf-8")
 }
 
 /**
@@ -41,12 +64,12 @@ export const importCatalogsFromDirectory = (inputPath: string, outputPath: strin
 
   for (const entry of xmlFiles) {
     const inputFile = join(catalogsPath, entry.name)
-    const outputFileName = entry.name.replace(/\.xml$/i, ".yml")
-    const outputFile = join(outputPath, "Catalogs", outputFileName)
+    const nameWithoutExtension = entry.name.replace(/\.xml$/i, "")
+    const outputFilePath = join(outputPath, "Catalogs", nameWithoutExtension)
+    const outputFileYmlPath = join(outputFilePath, "Item.yml")
 
-    // Создаем директорию для выходного файла, если она не существует
-    mkdirSync(dirname(outputFile), { recursive: true })
+    mkdirSync(outputFilePath, { recursive: true })
 
-    importCatalog(inputFile, outputFile)
+    importCatalog(inputFile, outputFileYmlPath)
   }
 }

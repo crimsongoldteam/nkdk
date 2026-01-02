@@ -14,7 +14,8 @@
     "declarationMap": true,
     "sourceMap": true,
     "paths": {
-      "@nakidka/core": ["../packages/core/index.ts"]
+      "@nakidka/core": ["../packages/core/index.ts"],
+      "~/*": ["../packages/core/*"]
     }
   },
   "include": ["src/**/*"],

@@ -14,7 +14,11 @@ export const exportMetadataFieldStringToEnterprise = (_context: Context, name: s
   return convertPath(MetadataFieldsRulesToEnterprise, name)
 }
 
-export const exportMetadataValueStringToEnterprise = (_context: Context, name: string): string | undefined => {
+export const exportMetadataValueStringToEnterprise = (
+  _context: Context,
+  name: string | undefined
+): string | undefined => {
+  if (!name) return undefined
   let processedPath = name
   if (name.startsWith("Enum.")) {
     const parts = name.split(".")
