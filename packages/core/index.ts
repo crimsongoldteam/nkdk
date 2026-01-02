@@ -1,3 +1,8 @@
-export * from "./metadata/appliedObjects/metadataCatalog"
-export * from "./xml/import/importer"
-export * from "./yaml/export"
+export {
+  exportMetadataCatalogToEnterprise,
+  importMetadataCatalogFromEnterprise,
+  type MetadataCatalog,
+  type MetadataCatalogXML,
+} from "./metadata/appliedObjects/metadataCatalog"
+export { importContentFromXML } from "./xml/import/importer"
+export { exportToYAML } from "./yaml/export"

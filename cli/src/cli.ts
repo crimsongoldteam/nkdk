@@ -3,7 +3,7 @@ import * as cliProgress from "cli-progress"
 import { Command } from "commander"
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "fs"
 import { dirname, join, relative } from "path"
-import { importConfig } from "./commands/importConfig.js"
+import { importConfigFromXml } from "./commands/importConfigFromXml.js"
 import { processXmlContent } from "./xmlProcessor.js"
 
 const program = new Command()
@@ -24,7 +24,7 @@ program
   .argument("<input>", "входящий каталог (содержит папку Catalogs)")
   .argument("<output>", "исходящий каталог (целевой каталог для копирования)")
   .action((inputPath: string, outputPath: string) => {
-    importConfig(inputPath, outputPath)
+    importConfigFromXml(inputPath, outputPath)
   })
 
 program.parse()
