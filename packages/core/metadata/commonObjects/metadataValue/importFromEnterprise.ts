@@ -1,9 +1,11 @@
 import { format, parse } from "date-fns"
+import { formulaFormatParser } from "~/metadata/helpers/formulaFormatParser/formulaFormatParser"
 import { Context } from "../../context/types"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 import { importMetadataValueStringFromEnterprise } from "../metadataPath/importFromEnterprise"
 import {
   MetadataFixedArrayValueEnterprise,
+  MetadataFormChoiceListValue,
   MetadataFormChoiceListValueEnterprise,
   MetadataValue,
   MetadataValueEnterprise,
@@ -16,7 +18,7 @@ export const importMetadataValueFromEnterprise = (
   if (data === undefined) return undefined
 
   if (typeof data === "object" && !Array.isArray(data) && "Представление" in data) {
-    return importFormChoiceListDesTimeValueFromEnterprise(context, data as MetadataFormChoiceListValueEnterprise)
+    return importFormChoiceListValueFromEnterprise(context, data as MetadataFormChoiceListValueEnterprise)
   }
 
   if (Array.isArray(data)) {
@@ -119,10 +121,21 @@ const importFixedArrayValueFromEnterprise = (
   }
 }
 
-const importFormChoiceListDesTimeValueFromEnterprise = (
+export const importFormChoiceListValueFromEnterprise = (
   context: Context,
   data: MetadataFormChoiceListValueEnterprise
-): MetadataValue => {
+): MetadataFormChoiceListValue => {
+  if (typeof data === "string") {
+    const parsed = formulaFormatParser(data)
+    const value = importMetadataValueFromEnterprise(context, parsed.formula)!
+    const presentation = importI8nTextFromEnterprise(context, parsed.parameters[0])
+
+    return {
+      type: "formChoiceListDesTimeValue",
+      presentation: presentation,
+      value: value,
+    }
+  }
   const value = importMetadataValueFromEnterprise(context, data.Значение)!
   return {
     type: "formChoiceListDesTimeValue",
