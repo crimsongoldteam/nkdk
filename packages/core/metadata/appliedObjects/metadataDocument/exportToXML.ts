@@ -1,6 +1,3 @@
-import { exportMetadataCommandsToXML } from "~/metadata/appliedObjects/metadataCommand/exportToXML"
-import { MetadataDocument, MetadataDocumentXML } from "~/metadata/appliedObjects/metadataDocument/types"
-import { exportMetadataDocumentNumeratorToXML } from "~/metadata/appliedObjects/metadataDocumentNumerator/exportToXML"
 import { exportAdditionalIndexesToXML } from "~/metadata/commonObjects/additionalIndex/exportToXML"
 import { exportCharacteristicsDescriptionsToXML } from "~/metadata/commonObjects/characteristicsDescription/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
@@ -11,6 +8,9 @@ import { exportMetadataTabularSectionsToXML } from "~/metadata/commonObjects/met
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { Context } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
+import { exportMetadataCommandsToXML } from "../metadataCommand/exportToXML"
+import { exportMetadataDocumentNumeratorToXML } from "../metadataDocumentNumerator/exportToXML"
+import { MetadataDocument, MetadataDocumentXML } from "./types"
 
 export const exportMetadataDocumentToXML = (
   context: Context,
@@ -65,7 +65,7 @@ export const exportMetadataDocumentToXML = (
     RegisterRecordsDeletion: data.registerRecordsDeletion,
     SearchStringModeOnInputByString: data.searchStringModeOnInputByString,
     SequenceFilling: data.sequenceFilling,
-    StandardAttributes: exportStandardAttributeDescriptionsToXML(context, data.standardAttributes),
+    StandardAttributes: exportStandardAttributeDescriptionsToXML(context, data.standardAttributes, ["Ref"]),
     Synonym: exportI8nTextToXML(context, data.synonym),
     TabularSections: exportMetadataTabularSectionsToXML(context, data.tabularSections),
     UpdateDataHistoryImmediatelyAfterWrite: data.updateDataHistoryImmediatelyAfterWrite,
