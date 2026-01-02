@@ -3,6 +3,7 @@ import * as cliProgress from "cli-progress"
 import { Command } from "commander"
 import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "fs"
 import { dirname, join, relative } from "path"
+import { importConfig } from "./commands/importConfig.js"
 import { processXmlContent } from "./xmlProcessor.js"
 
 const program = new Command()
@@ -15,6 +16,15 @@ program
   .argument("<output>", "выходной файл или каталог")
   .action((inputPath: string, outputPath: string) => {
     processPaths(inputPath, outputPath)
+  })
+
+program
+  .command("import")
+  .description("Импорт конфигурации: копирует модули из каталога Catalogs в целевой каталог")
+  .argument("<input>", "входящий каталог (содержит папку Catalogs)")
+  .argument("<output>", "исходящий каталог (целевой каталог для копирования)")
+  .action((inputPath: string, outputPath: string) => {
+    importConfig(inputPath, outputPath)
   })
 
 program.parse()

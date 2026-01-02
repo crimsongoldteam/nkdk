@@ -1,6 +1,6 @@
 import { readFileSync } from "fs"
 import { join } from "path"
-import { xmlImport } from "../xml/import/importer"
+import { importContentFromXML } from "../xml/import/importer"
 
 /**
  * Reads XML file from lib/tests/fixtures directory and parses it
@@ -10,7 +10,7 @@ import { xmlImport } from "../xml/import/importer"
 export const readAndParseXMLFile = <T>(filePath: string): T => {
   const fullPath = join(process.cwd(), "/tests/fixtures", filePath)
   const xml = readFileSync(fullPath, "utf-8")
-  return xmlImport<T>(xml)
+  return importContentFromXML<T>(xml)
 }
 
 /**

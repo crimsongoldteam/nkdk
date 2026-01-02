@@ -1,13 +1,13 @@
 import { assertEquals } from "typia"
 import { describe, expect, it } from "vitest"
+import { withoutTextI8nText } from "~/tests/fixtures/i8nText/data"
 import { oneLangI8nText } from "~/tests/fixtures/i8nText/oneLang"
 import { twoLangsI8nText } from "~/tests/fixtures/i8nText/twoLangs"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { xmlImport } from "~/xml/import/importer"
+import { importContentFromXML } from "~/xml/import/importer"
 import { importI8nTextFromXML } from "./importFromXML"
 import { I8nTextXML } from "./types"
-import { withoutTextI8nText } from "~/tests/fixtures/i8nText/data"
 
 describe("importI8nTextFromXML", () => {
   it("should import I8nText from XML with one language", () => {
@@ -35,7 +35,7 @@ describe("importI8nTextFromXML", () => {
   })
 
   it("should import empty I8nText from XML", () => {
-    const importedXml = xmlImport<{ Title: I8nTextXML }>(`<Title/>`)
+    const importedXml = importContentFromXML<{ Title: I8nTextXML }>(`<Title/>`)
     const result = importI8nTextFromXML(mockСontext, importedXml.Title)
 
     expect(result).toBeUndefined()

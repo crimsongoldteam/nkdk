@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
-import { xmlImport } from "~/xml/import/importer"
+import { importContentFromXML } from "~/xml/import/importer"
 import { exportBorderToXML } from "../border/exportToXML.ts"
 import { importBorderFromXML } from "../border/importFromXML.ts"
 import { Border, BorderXML } from "../border/types.ts"
@@ -45,7 +45,7 @@ describe("exportBorderToXML", () => {
   it("should export and import border by ref correctly (round-trip)", () => {
     const originalXml = `<Border ref="style:ControlBorder"/>`
 
-    const xml = xmlImport<{ Border: BorderXML }>(originalXml)
+    const xml = importContentFromXML<{ Border: BorderXML }>(originalXml)
     const imported = importBorderFromXML(mockСontext, xml.Border)
     const exported = exportBorderToXML(mockСontext, imported)
     const resultXml = xmlExport({ Border: exported }, false)
@@ -58,7 +58,7 @@ describe("exportBorderToXML", () => {
 	<v8ui:style xsi:type="v8ui:ControlBorderType">Indented</v8ui:style>
 </Border>`
 
-    const xml = xmlImport<{ Border: BorderXML }>(originalXml)
+    const xml = importContentFromXML<{ Border: BorderXML }>(originalXml)
     const imported = importBorderFromXML(mockСontext, xml.Border)
     const exported = exportBorderToXML(mockСontext, imported)
     const resultXml = xmlExport({ Border: exported }, false)

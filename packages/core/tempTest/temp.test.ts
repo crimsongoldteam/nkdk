@@ -12,7 +12,7 @@ import {
 } from "../metadata/appliedObjects/metadataCatalog"
 import { mockСontext } from "../tests/mockContext"
 import { xmlExport } from "../xml/export/exporter"
-import xmlImport from "../xml/import/importer"
+import importContentFromXML from "../xml/import/importer"
 
 vi.mock("uuid", () => ({
   v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
@@ -49,7 +49,7 @@ const metadataCatalogContent = readFileSync(join(__dirname, "Before/Контра
 
 describe("DO test", () => {
   it("should import metadata catalog from XML", () => {
-    const importedXml = xmlImport<{ MetaDataObject: MetadataCatalogXML }>(metadataCatalogContent)
+    const importedXml = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(metadataCatalogContent)
 
     const xmlData = importMetadataCatalogFromXML(mockСontext, importedXml.MetaDataObject)
 

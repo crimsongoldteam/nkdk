@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
-import xmlImport from "~/xml/import/importer"
+import importContentFromXML from "~/xml/import/importer"
 import { importBorderFromXML } from "./importFromXML"
 import { Border, BorderXML } from "./types"
 
@@ -12,7 +12,7 @@ describe("importBorderFromXML", () => {
       ref: "style:ControlBorder",
     }
 
-    const xml = xmlImport<{ Border: BorderXML }>(mockXml)
+    const xml = importContentFromXML<{ Border: BorderXML }>(mockXml)
 
     const result = importBorderFromXML(mockСontext, xml.Border)
 
@@ -29,7 +29,7 @@ describe("importBorderFromXML", () => {
       controlBorderType: "Indented",
     }
 
-    const xml = xmlImport<{ Border: BorderXML }>(mockXml)
+    const xml = importContentFromXML<{ Border: BorderXML }>(mockXml)
 
     const result = importBorderFromXML(mockСontext, xml.Border)
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
-import { xmlImport } from "~/xml/import/importer"
+import { importContentFromXML } from "~/xml/import/importer"
 import { exportColorToXML } from "./exportToXML"
 import { importColorFromXML } from "./importFromXML"
 import { Color, ColorXML } from "./types"
@@ -27,7 +27,7 @@ describe("exportColorToXML", () => {
   it("should export and import color correctly (round-trip)", () => {
     const originalXml = `<Color>style:NegativeTextColor</Color>`
 
-    const xml = xmlImport<{ Color: ColorXML }>(originalXml)
+    const xml = importContentFromXML<{ Color: ColorXML }>(originalXml)
     const imported = importColorFromXML(mockСontext, xml.Color)
     const exported = exportColorToXML(mockСontext, imported)
     const resultXml = xmlExport({ Color: exported }, false)

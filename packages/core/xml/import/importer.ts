@@ -19,7 +19,7 @@ export const I8N_TEXT_FIELDS = [
   "ExtendedObjectPresentation",
 ]
 
-export const xmlImport = <T>(data: string): T => {
+export const importContentFromXML = <T>(data: string): T => {
   const parser = new XMLParser({
     preserveOrder: true,
     attributeNamePrefix: "_",
@@ -204,4 +204,4 @@ function assignAttributes(obj: any, attrMap: any, jpath: string, options: any): 
   }
 }
 
-export default xmlImport
+export default importContentFromXML

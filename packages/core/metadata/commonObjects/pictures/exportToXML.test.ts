@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
-import { xmlImport } from "~/xml/import/importer"
+import { importContentFromXML } from "~/xml/import/importer"
 import { exportPictureToXML } from "./exportToXML"
 import { importPictureFromXML } from "./importFromXML"
 import { Picture, PictureXML } from "./types"
@@ -54,7 +54,7 @@ describe("exportPictureToXML", () => {
 \t<xr:LoadTransparent>true</xr:LoadTransparent>
 </Picture>`
 
-    const xml = xmlImport<{ Picture: PictureXML }>(originalXml)
+    const xml = importContentFromXML<{ Picture: PictureXML }>(originalXml)
     const imported = importPictureFromXML(mockСontext, xml.Picture)
     const exported = exportPictureToXML(mockСontext, imported)
     const resultXml = xmlExport({ Picture: exported }, false)
@@ -68,7 +68,7 @@ describe("exportPictureToXML", () => {
 \t<xr:LoadTransparent>true</xr:LoadTransparent>
 </Picture>`
 
-    const xml = xmlImport<{ Picture: PictureXML }>(originalXml)
+    const xml = importContentFromXML<{ Picture: PictureXML }>(originalXml)
     const imported = importPictureFromXML(mockСontext, xml.Picture)
     const exported = exportPictureToXML(mockСontext, imported)
     const resultXml = xmlExport({ Picture: exported }, false)

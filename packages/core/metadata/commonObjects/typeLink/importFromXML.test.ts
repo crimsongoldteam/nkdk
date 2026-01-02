@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
-import xmlImport from "~/xml/import/importer"
+import importContentFromXML from "~/xml/import/importer"
 import { importTypeLinkFromXML } from "./importFromXML"
 import { TypeLink, TypeLinkXML } from "./types"
 
@@ -20,7 +20,7 @@ describe("importTypeLinkFromXML", () => {
       linkItem: 1,
     }
 
-    const xml = xmlImport<{ TypeLink: TypeLinkXML }>(xmlData)
+    const xml = importContentFromXML<{ TypeLink: TypeLinkXML }>(xmlData)
 
     const result = importTypeLinkFromXML(mockСontext, xml.TypeLink)
 
