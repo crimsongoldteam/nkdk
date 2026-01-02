@@ -35,7 +35,7 @@ export const canConvertToPascalCase = (str: string, pascalStr: string): boolean 
  * @param str - PascalCase string to split
  * @returns String with words separated by spaces
  */
-function splitPascalCase(str: string): string {
+export const splitPascalCase = (str: string): string => {
   // Early return for empty strings
   if (str.length === 0) {
     return ""

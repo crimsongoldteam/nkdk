@@ -9,10 +9,10 @@ import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/ty
 import { importChoiceParametersFromEnterprise } from "~/metadata/commonObjects/сhoiceParameter/importFromEnterprise"
 import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
 import { Context } from "~/metadata/context/types"
+import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase.ts"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
 import { importMetadataValueFromEnterprise } from "../metadataValue/importFromEnterprise.ts"
 import { importTypeLinkFromEnterprise } from "../typeLink/importFromEnterprise.ts"
@@ -28,35 +28,34 @@ export const importMetadataAttributesFromEnterprise = (
     .map(([name, value]) => importMetadataAttributeFromEnterprise(context, value, name))
     .filter((item): item is MetadataAttribute => item !== undefined)
 }
+
 const importMetadataAttributeFromEnterprise = (
   context: Context,
-  data: MetadataAttributeEnterprise | undefined,
+  data: MetadataAttributeEnterprise,
   name: string
-): MetadataAttribute | undefined => {
-  if (!data) return undefined
-
-  // Short format (only type)
-  if (typeof data === "string") {
+): MetadataAttribute => {
+  if (typeof data === "string" || Array.isArray(data)) {
     const type = importTypeDescriptionFromEnterprise(context, data)
-    if (!type) return undefined
+    if (!type) throw new Error("Type is required")
 
     return {
       name,
       type,
+      synonym: { items: { [context.defaultLanguage]: splitPascalCase(name) } },
     }
   }
 
   const type = importTypeDescriptionFromEnterprise(context, data.Тип)!
 
-  const synonym = importI8nTextFromEnterprise(context, data.Синоним)
-  const excludeSynonym = isSynonymEqualToName(typeof data.Синоним === "string" ? data.Синоним : undefined, name)
+  const synonym = importI8nTextFromEnterprise(context, data.Синоним) ?? {
+    items: { [context.defaultLanguage]: splitPascalCase(name) },
+  }
 
   const result: MetadataAttribute = {
     name,
     type,
+    synonym,
   }
-
-  if (!excludeSynonym && synonym !== undefined) result.synonym = synonym
 
   const quickChoice = importSystemEnumerationFromEnterprise<SE.UseQuickChoice>(
     context,
@@ -188,6 +187,6 @@ const importMetadataAttributeFromEnterprise = (
   const editFormat = importI8nTextFromEnterprise(context, data.ФорматРедактирования)
   if (editFormat !== undefined) result.editFormat = editFormat
 
-  const defaults = getDefaultsAttribute(result, context)
+  const defaults = getDefaultsAttribute(context, result)
   return removeDefaults(result, defaults)
 }
