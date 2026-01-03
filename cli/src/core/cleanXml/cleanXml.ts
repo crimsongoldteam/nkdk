@@ -2,6 +2,28 @@ import { XMLBuilder, XMLParser } from "fast-xml-parser"
 
 const TARGET_UUID = "11111111-1111-4111-8111-111111111111"
 
+// Стандартные атрибуты для MetaDataObject
+const METADATA_OBJECT_ATTRIBUTES = {
+  "xmlns:app": "http://v8.1c.ru/8.2/managed-application/core",
+  "xmlns:cfg": "http://v8.1c.ru/8.1/data/enterprise/current-config",
+  "xmlns:cmi": "http://v8.1c.ru/8.2/managed-application/cmi",
+  "xmlns:ent": "http://v8.1c.ru/8.1/data/enterprise",
+  "xmlns:lf": "http://v8.1c.ru/8.2/managed-application/logform",
+  "xmlns:style": "http://v8.1c.ru/8.1/data/ui/style",
+  "xmlns:sys": "http://v8.1c.ru/8.1/data/ui/fonts/system",
+  "xmlns:v8": "http://v8.1c.ru/8.1/data/core",
+  "xmlns:v8ui": "http://v8.1c.ru/8.1/data/ui",
+  "xmlns:web": "http://v8.1c.ru/8.1/data/ui/colors/web",
+  "xmlns:win": "http://v8.1c.ru/8.1/data/ui/colors/windows",
+  "xmlns:xen": "http://v8.1c.ru/8.3/xcf/enums",
+  "xmlns:xpr": "http://v8.1c.ru/8.3/xcf/predef",
+  "xmlns:xr": "http://v8.1c.ru/8.3/xcf/readable",
+  "xmlns:xs": "http://www.w3.org/2001/XMLSchema",
+  "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+  xmlns: "http://v8.1c.ru/8.3/MDClasses",
+  version: "2.20",
+}
+
 // Теги, внутри которых нужно сортировать дочерние элементы (без иерархии - только на первом уровне)
 const SORTABLE_TAGS = [
   "Properties",
@@ -18,8 +40,27 @@ const SORTABLE_TAGS = [
 
 export function cleanXml(xmlContent: string): string {
   const parsedData = parseXml(xmlContent)
-  const processedData = processObject(parsedData)
+  // Добавляем стандартные атрибуты к MetaDataObject, если он присутствует
+  const dataWithAttributes = ensureMetaDataObjectAttributes(parsedData)
+  const processedData = processObject(dataWithAttributes)
   return buildXml(processedData)
+}
+
+function ensureMetaDataObjectAttributes(parsedData: any): any {
+  // Проверяем, есть ли корневой элемент MetaDataObject
+  if (parsedData && typeof parsedData === "object" && parsedData.MetaDataObject) {
+    const metaDataObject = parsedData.MetaDataObject
+
+    // Инициализируем @attributes, если их нет
+    if (!metaDataObject["@attributes"]) {
+      metaDataObject["@attributes"] = {}
+    }
+
+    // Используем стандартные атрибуты из METADATA_OBJECT_ATTRIBUTES
+    metaDataObject["@attributes"] = { ...METADATA_OBJECT_ATTRIBUTES }
+  }
+
+  return parsedData
 }
 
 function parseXml(xmlContent: string): any {
