@@ -82,6 +82,14 @@ describe("importMetadataValueFromXML", () => {
     })
   })
 
+  it("should import empty ref value from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/emptyRef.xml")
+
+    const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
+
+    expect(result).toBeUndefined()
+  })
+
   it("should import fixedArray value from XML", () => {
     const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/fixedArray.xml")
 

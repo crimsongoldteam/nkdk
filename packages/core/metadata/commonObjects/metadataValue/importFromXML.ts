@@ -47,9 +47,14 @@ export const importMetadataValueFromXML = (
     throw new Error(`Invalid simple value type: ${resultedType}`)
   }
 
+  const importedValue = importSimpleValueFromXML(context, textValue, resultedType)
+  if (importedValue === undefined) {
+    return undefined
+  }
+
   return {
     type: resultedType as MetadataSimpleValue["type"],
-    value: importSimpleValueFromXML(context, textValue, resultedType)!,
+    value: importedValue,
   } as MetadataSimpleValue
 }
 
