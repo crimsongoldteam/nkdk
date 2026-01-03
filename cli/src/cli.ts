@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 import { Command } from "commander"
 import { cleanXmlFiles } from "./commands/cleanXmlFiles.js"
+import { exportConfigFromYaml } from "./commands/exportConfigFromYaml.js"
 import { importConfigFromXml } from "./commands/importConfigFromXml.js"
 
 const program = new Command()
 
 program
   .name("clean-xml")
-  .description("CLI инструмент для обработки XML файлов и каталогов")
+  .description("Очищает XML файлы пустых нод, сортирует и заменяет UUID на константу")
   .version("1.0.0")
   .argument("<input>", "входной файл или каталог")
   .argument("<output>", "выходной файл или каталог")
@@ -17,11 +18,22 @@ program
 
 program
   .command("import")
-  .description("Импорт конфигурации: копирует модули из каталога Catalogs в целевой каталог")
-  .argument("<input>", "входящий каталог (содержит папку Catalogs)")
-  .argument("<output>", "исходящий каталог (целевой каталог для копирования)")
+  .description("Импорт конфигурации из XML файлов")
+  .argument("<input>", "входящий каталог")
+  .argument("<output>", "исходящий каталог")
   .action((inputPath: string, outputPath: string) => {
     importConfigFromXml(inputPath, outputPath)
   })
 
+program
+  .command("export")
+  .description("Экспорт конфигурации в XML файлы")
+  .argument("<input>", "входящий каталог")
+  .argument("<output>", "исходящий каталог")
+  .action((inputPath: string, outputPath: string) => {
+    exportConfigFromYaml(inputPath, outputPath)
+  })
+
 program.parse()
+
+// npm run cli export /Users/nikita/git/erp_nkdk /Users/nikita/git/erp_clean/xml

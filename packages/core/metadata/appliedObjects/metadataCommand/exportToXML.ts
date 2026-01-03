@@ -1,4 +1,3 @@
-import { v4 } from "uuid"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportMetadataItemLinkToXML } from "~/metadata/commonObjects/metadataRef/exportToXML"
 import { MetadataItemLinkXML } from "~/metadata/commonObjects/metadataRef/types"
@@ -7,6 +6,7 @@ import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescrip
 import { Context } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { getUUID } from "../../helpers/uuid"
 import { getDefaults } from "./defaults"
 import { MetadataCommand, MetadataCommandXML, MetadataCommands, MetadataCommandsXML } from "./types"
 
@@ -55,7 +55,7 @@ export const exportMetadataCommandToXML = (
   if (toolTip !== undefined) properties.ToolTip = toolTip
 
   const result: MetadataCommandXML = {
-    _uuid: v4(),
+    _uuid: getUUID(context),
     Properties: properties,
   }
 

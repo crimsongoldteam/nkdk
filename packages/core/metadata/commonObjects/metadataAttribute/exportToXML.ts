@@ -1,4 +1,3 @@
-import { v4 } from "uuid"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import {
   MetadataAttribute,
@@ -13,6 +12,7 @@ import {
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
 import { Context } from "~/metadata/context/types"
+import { getUUID } from "../../helpers/uuid"
 import { exportTypeLinkWithXSITypeToXML } from "../typeLink/exportToXML"
 import { exportChoiceParametersToXML } from "../сhoiceParameter/exportToXML"
 import { getDefaultsAttribute, getDefaultsTabularSectionAttribute } from "./defaults"
@@ -54,7 +54,7 @@ const exportMetadataAttributeToXML = (
   const type = exportTypeDescriptionToXML(context, mergedData.type)!
 
   const result: MetadataAttributeXML = {
-    _uuid: v4(),
+    _uuid: getUUID(context),
     Properties: {} as MetadataAttributeXML["Properties"],
   }
 

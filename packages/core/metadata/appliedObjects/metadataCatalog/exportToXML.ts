@@ -1,4 +1,3 @@
-import { v4 } from "uuid"
 import {
   CatalogInternalInfoParamsXML,
   MetadataCatalog,
@@ -18,6 +17,7 @@ import { Context } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportInternalInfoToXML } from "../../commonObjects/internalInfo/exportToXML"
 import { exportMetadataAttributesToXML } from "../../commonObjects/metadataAttribute/exportToXML"
+import { getUUID } from "../../helpers/uuid"
 import { getDefaults } from "./defaults"
 
 export interface MetadataCatalogContext extends Context {
@@ -37,7 +37,7 @@ export const exportMetadataCatalogToXML = (
   const defaults = getDefaults(data, context)
   const mergedData = { ...defaults, ...data }
 
-  const internalInfo = exportInternalInfoToXML<CatalogInternalInfoParamsXML>([
+  const internalInfo = exportInternalInfoToXML<CatalogInternalInfoParamsXML>(context, [
     { name: `CatalogObject.${mergedData.name}`, category: "Object" },
     { name: `CatalogRef.${mergedData.name}`, category: "Ref" },
     { name: `CatalogSelection.${mergedData.name}`, category: "Selection" },
@@ -220,7 +220,7 @@ export const exportMetadataCatalogToXML = (
     _xmlns: "http://v8.1c.ru/8.3/MDClasses",
     _version: "2.20",
     Catalog: {
-      _uuid: v4(),
+      _uuid: getUUID(context),
       InternalInfo: internalInfo,
       Properties: properties,
       ...(Object.keys(childObjects).length > 0 ? { ChildObjects: childObjects } : {}),

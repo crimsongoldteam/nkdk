@@ -1,4 +1,3 @@
-import { v4 } from "uuid"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import {
   MetadataTabularSection,
@@ -9,6 +8,7 @@ import {
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { Context } from "~/metadata/context/types"
 import { mergeIgnoringUndefined } from "~/metadata/helpers/compactObject"
+import { getUUID } from "../../helpers/uuid"
 import { exportInternalInfoToXML } from "../internalInfo/exportToXML"
 import { exportMetadataTabularSectionAttributesToXML } from "../metadataAttribute/exportToXML"
 import { getDefaults } from "./defaults"
@@ -60,8 +60,8 @@ export const exportMetadataTabularSectionToXML = (
   properties.Use = mergedData.use
 
   const result: MetadataTabularSectionXML = {
-    _uuid: v4(),
-    InternalInfo: exportInternalInfoToXML([
+    _uuid: getUUID(context),
+    InternalInfo: exportInternalInfoToXML(context, [
       { name: `CatalogTabularSection.${parentName}.${mergedData.name}`, category: "TabularSection" },
       { name: `CatalogTabularSectionRow.${parentName}.${mergedData.name}`, category: "TabularSectionRow" },
     ]),
