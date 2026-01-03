@@ -13,6 +13,7 @@ import {
   ChoiceParameterLinksXML,
 } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ChoiceParameters, ChoiceParametersEnterprise, ChoiceParametersXML } from "../сhoiceParameter/types"
 
 export const StandartAttributeNameToEnterprise = {
   Owner: "Владелец",
@@ -46,7 +47,7 @@ export interface StandardAttributeDescription {
   choiceForm?: string
   choiceHistoryOnInput?: SE.ChoiceHistoryOnInput
   choiceParameterLinks?: ChoiceParameterLinks
-  choiceParameters?: ChoiceParameterLinks
+  choiceParameters?: ChoiceParameters
   comment?: string
   createOnInput?: SE.CreateOnInput
   dataHistory?: SE.DataHistoryUse
@@ -77,7 +78,7 @@ export interface StandardAttributeDescriptionXML {
   "xr:ChoiceForm"?: string
   "xr:ChoiceHistoryOnInput"?: SE.ChoiceHistoryOnInput
   "xr:ChoiceParameterLinks"?: ChoiceParameterLinksXML
-  "xr:ChoiceParameters"?: ChoiceParameterLinksXML
+  "xr:ChoiceParameters"?: ChoiceParametersXML
   "xr:Comment"?: string
   "xr:CreateOnInput"?: SE.CreateOnInput
   "xr:DataHistory"?: SE.DataHistoryUse
@@ -114,7 +115,7 @@ export interface StandardAttributeDescriptionEnterprise {
   Маска?: string
   МинимальноеЗначение?: number
   МногострочныйРежим?: StringboolEnterprise
-  ПараметрыВыбора?: ChoiceParameterLinksEnterprise
+  ПараметрыВыбора?: ChoiceParametersEnterprise
   Подсказка?: I8nTextEnterprise
   ПолнотекстовыйПоиск?: SE.UseFullTextSearchEnterprise
   ПроверкаЗаполнения?: SE.FillCheckingEnterprise

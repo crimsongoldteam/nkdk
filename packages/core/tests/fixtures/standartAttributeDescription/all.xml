@@ -3,11 +3,9 @@
 		<xr:ChoiceForm>ФормаВыбора</xr:ChoiceForm>
 		<xr:ChoiceHistoryOnInput>DontUse</xr:ChoiceHistoryOnInput>
 		<xr:ChoiceParameters>
-			<xr:Link>
-				<xr:DataPath xsi:type="xs:string">Catalog.Справочник1.Attribute.Реквизит1</xr:DataPath>
-				<xr:Name>Отбор.Владелец</xr:Name>
-				<xr:ValueChange>Clear</xr:ValueChange>
-			</xr:Link>
+			<app:item name="Отбор.Владелец">
+				<app:value xsi:type="xs:string">Значение</app:value>
+			</app:item>
 		</xr:ChoiceParameters>
 		<xr:ChoiceParameterLinks>
 			<xr:Link>

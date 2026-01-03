@@ -8,7 +8,7 @@ import {
 
 import * as cliProgress from "cli-progress"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
-import { join } from "path"
+import { join, relative } from "path"
 
 export const importCatalog = (inputPath: string, outputPath: string): void => {
   const context = {
@@ -110,6 +110,16 @@ export const importCatalogsFromDirectory = (inputPath: string, outputPath: strin
   if (errors.length > 0) {
     console.log(`⚠  Обработано: ${processedCount}/${xmlFiles.length} файлов`)
     console.log(`❌ Ошибок: ${errors.length}`)
+    console.log("")
+    console.log("Файлы с ошибками:")
+    errors.forEach((err, index) => {
+      const relativePath = relative(process.cwd(), err.file)
+      console.log(`  ${index + 1}. ${relativePath}`)
+      console.log(`     ${err.error}`)
+      if (index < errors.length - 1) {
+        console.log("")
+      }
+    })
   } else {
     console.log(`✓ Успешно обработано: ${processedCount}/${xmlFiles.length} файлов`)
   }

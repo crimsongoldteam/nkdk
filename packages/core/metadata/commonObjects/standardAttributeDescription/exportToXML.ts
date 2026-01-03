@@ -12,6 +12,7 @@ import { exportTypeLinkToXML } from "~/metadata/commonObjects/typeLink/exportToX
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
 import { Context } from "~/metadata/context/types"
 import { getDefaults } from "./defaults"
+import { exportChoiceParametersToXML } from "../сhoiceParameter/exportToXML"
 
 export const exportStandardAttributeDescriptionsToXML = (
   context: Context,
@@ -42,7 +43,7 @@ const exportStandardAttributeDescriptionToXML = (
 
   result["xr:ChoiceHistoryOnInput"] = mergedData.choiceHistoryOnInput
 
-  const choiceParameters = exportChoiceParameterLinksToXML(context, mergedData.choiceParameters)
+  const choiceParameters = exportChoiceParametersToXML(context, mergedData.choiceParameters)
   if (choiceParameters) result["xr:ChoiceParameters"] = choiceParameters
 
   const choiceParameterLinks = exportChoiceParameterLinksToXML(context, mergedData.choiceParameterLinks)

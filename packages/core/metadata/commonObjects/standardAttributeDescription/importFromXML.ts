@@ -12,6 +12,7 @@ import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сho
 import { Context } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML"
+import { importChoiceParametersFromXML } from "../сhoiceParameter/importFromXML"
 import { getDefaults } from "./defaults"
 
 export const importStandardAttributeDescriptionsFromXML = (
@@ -53,7 +54,7 @@ const importStandardAttributeDescriptionFromXML = (
   const choiceParameterLinks = importChoiceParameterLinksFromXML(context, xml["xr:ChoiceParameterLinks"])
   if (choiceParameterLinks) result.choiceParameterLinks = choiceParameterLinks
 
-  const choiceParameters = importChoiceParameterLinksFromXML(context, xml["xr:ChoiceParameters"])
+  const choiceParameters = importChoiceParametersFromXML(context, xml["xr:ChoiceParameters"])
   if (choiceParameters) result.choiceParameters = choiceParameters
 
   if (xml["xr:Comment"] !== undefined) result.comment = xml["xr:Comment"]

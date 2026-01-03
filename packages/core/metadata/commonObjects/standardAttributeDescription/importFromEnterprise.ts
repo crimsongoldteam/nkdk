@@ -16,6 +16,7 @@ import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
+import { importChoiceParametersFromEnterprise } from "../сhoiceParameter/importFromEnterprise"
 
 export const importStandardAttributeDescriptionsFromEnterprise = (
   context: Context,
@@ -81,7 +82,7 @@ const importStandardAttributeDescriptionFromEnterprise = (
   const multiLine = importBooleanFromEnterprise(context, data.МногострочныйРежим)
   if (multiLine !== undefined) result.multiLine = multiLine
 
-  const choiceParameters = importChoiceParameterLinksFromEnterprise(context, data.ПараметрыВыбора)
+  const choiceParameters = importChoiceParametersFromEnterprise(context, data.ПараметрыВыбора)
   if (choiceParameters) result.choiceParameters = choiceParameters
 
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)

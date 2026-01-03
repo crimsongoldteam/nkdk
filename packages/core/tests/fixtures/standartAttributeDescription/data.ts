@@ -18,8 +18,10 @@ export const all: StandardAttributeDescriptions = [
     choiceParameters: [
       {
         name: "Отбор.Владелец",
-        dataPath: "Catalog.Справочник1.Attribute.Реквизит1",
-        valueChange: "Clear",
+        value: {
+          type: "string",
+          value: "Значение",
+        },
       },
     ],
     comment: "Какой-то комментарий",

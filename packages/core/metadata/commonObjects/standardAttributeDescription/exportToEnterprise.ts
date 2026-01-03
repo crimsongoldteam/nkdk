@@ -16,6 +16,7 @@ import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects
 import { Context } from "~/metadata/context/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { exportChoiceParametersToEnterprise } from "../сhoiceParameter/exportToEnterprise"
 
 export const exportStandartAttributeNameToEnterprise = (name: StandartAttributeName): StandartAttributeEnterprise => {
   return StandartAttributeNameToEnterprise[name]
@@ -83,7 +84,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const multiLine = exportBooleanToEnterprise(context, data.multiLine)
   if (multiLine !== undefined) result.МногострочныйРежим = multiLine
 
-  const choiceParameters = exportChoiceParameterLinksToEnterprise(context, data.choiceParameters)
+  const choiceParameters = exportChoiceParametersToEnterprise(context, data.choiceParameters)
   if (choiceParameters) result.ПараметрыВыбора = choiceParameters
 
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
