@@ -17,15 +17,15 @@ export const importMetadataFieldStringFromEnterprise = (_context: Context, name:
 export const importMetadataValueStringFromEnterprise = (_context: Context, name: string): string | undefined => {
   const convertedPath = convertPath(MetadataValuesRulesFromEnterprise, name)
 
-  // Добавляем EnumValue для перечислений (Enum.*)
   if (convertedPath && convertedPath.startsWith("Enum.")) {
     const parts = convertedPath.split(".")
-    // Если уже есть EnumValue, не добавляем
     if (!parts.includes("EnumValue") && parts.length >= 3) {
-      // Вставляем EnumValue перед последним сегментом
-      const lastPart = parts.pop()
-      parts.push("EnumValue", lastPart!)
-      return parts.join(".")
+      const lastPart = parts[parts.length - 1]
+      if (lastPart !== "EmptyRef") {
+        parts.pop()
+        parts.push("EnumValue", lastPart)
+        return parts.join(".")
+      }
     }
   }
 
