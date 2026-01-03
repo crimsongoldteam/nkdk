@@ -13,6 +13,15 @@ describe("extractDifferentSynonymParts", () => {
     expect(result).toEqual({ items: { ru: "Другой реквизит" } })
   })
 
+  it("should extract only default language synonym part", () => {
+    const result = extractDifferentSynonymPart(
+      mockСontext,
+      { items: { ru: "Тестовый реквизит", en: "Тестовый реквизит" } },
+      "ТестовыйРеквизит"
+    )
+    expect(result).toEqual({ items: { en: "Тестовый реквизит" } })
+  })
+
   it("should return synonym part when synonym is not equal to name in same language", () => {
     const result = extractDifferentSynonymPart(
       mockСontext,

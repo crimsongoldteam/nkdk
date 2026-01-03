@@ -25,8 +25,8 @@ export const exportTypeDescriptionToXML = (
     ...(shouldUseTypeSet
       ? { "v8:TypeSet": mappedTypes[0] }
       : { "v8:Type": mappedTypes.length === 1 ? mappedTypes[0] : mappedTypes }),
-    "v8:StringQualifiers": getStringQualifiers(stringQualifiers),
     "v8:NumberQualifiers": getNumberQualifiers(typeDescription.numberQualifiers),
+    "v8:StringQualifiers": getStringQualifiers(stringQualifiers),
     "v8:DateQualifiers": getDateQualifiers(typeDescription.dateQualifiers),
   })
 

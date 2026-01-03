@@ -8,7 +8,8 @@ import {
 
 import * as cliProgress from "cli-progress"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
-import { join, relative } from "path"
+import { basename, dirname, join, relative } from "path"
+import { importForm } from "./importForm.js"
 
 export const importCatalog = (inputPath: string, outputPath: string): void => {
   const context = {
@@ -38,6 +39,28 @@ export const importCatalog = (inputPath: string, outputPath: string): void => {
   const yamlString = exportToYAML(exportedEnterprise)
 
   writeFileSync(outputPath, yamlString, "utf-8")
+
+  copyTemplates(inputPath, outputPath)
+  const catalogDir = dirname(inputPath)
+  const catalogName = basename(inputPath, ".xml")
+  const inputCatalogDir = join(catalogDir, catalogName)
+  const outputDir = dirname(outputPath)
+  importForm(inputCatalogDir, outputDir)
+}
+
+const copyTemplates = (inputPath: string, outputPath: string) => {
+  const templatesPath = join(inputPath, "Templates")
+  if (!existsSync(templatesPath)) {
+    return
+  }
+  const entries = readdirSync(templatesPath, { withFileTypes: true })
+  const templateFiles = entries.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".xml"))
+  for (const entry of templateFiles) {
+    const outputTemplatesDir = join(outputPath, "Templates")
+    const outputFile = join(outputTemplatesDir, entry.name)
+    mkdirSync(outputTemplatesDir, { recursive: true })
+    writeFileSync(outputFile, "", "utf-8")
+  }
 }
 
 /**
@@ -87,6 +110,7 @@ export const importCatalogsFromDirectory = (inputPath: string, outputPath: strin
       try {
         mkdirSync(outputFilePath, { recursive: true })
         importCatalog(inputFile, outputFileYmlPath)
+        copyTemplates(join(catalogsPath, nameWithoutExtension), outputFilePath)
         processedCount++
       } catch (error) {
         let errorMessage = "Неизвестная ошибка"

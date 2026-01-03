@@ -2,15 +2,18 @@ import { I8nText, I8nTextEnterprise } from "../commonObjects/i8nText/types"
 import { Context } from "../context/types"
 import { canConvertToPascalCase, splitPascalCase } from "./canConvertToPascalCase"
 
-export const extractDifferentSynonymPart = (_context: Context, synonym: I8nText, name: string): I8nText | undefined => {
+export const extractDifferentSynonymPart = (context: Context, synonym: I8nText, name: string): I8nText | undefined => {
   const differentItems: Record<string, string> = {}
+  const defaultLanguage = context.defaultLanguage
 
   // Проверяем каждое значение в items
   for (const [lang, value] of Object.entries(synonym.items)) {
-    // Включаем только те языки, где значение не равно имени
-    if (!canConvertToPascalCase(value, name)) {
-      differentItems[lang] = value
+    // Исключаем только язык по умолчанию, если он равен имени
+    // Остальные языки оставляем, даже если они тоже равны имени
+    if (lang === defaultLanguage && canConvertToPascalCase(value, name)) {
+      continue
     }
+    differentItems[lang] = value
   }
 
   // Если все языки равны имени, возвращаем undefined
