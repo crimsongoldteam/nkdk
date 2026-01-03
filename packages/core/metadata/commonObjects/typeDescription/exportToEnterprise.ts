@@ -81,5 +81,9 @@ const formatSingleType = (context: Context, type: string, typeDescription: TypeD
     return PrimitiveTypeToEnterprise.boolean
   }
 
+  if (type === "ValueStorage") {
+    return PrimitiveTypeToEnterprise.ValueStorage
+  }
+
   return exportMetadataTypeStringToEnterprise(context, type)!
 }

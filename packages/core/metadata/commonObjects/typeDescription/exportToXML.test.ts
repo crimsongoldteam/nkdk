@@ -9,6 +9,7 @@ import {
   numberNonNegativeTypeDescription,
   stringUnlimitedTypeDescriptionWithoutQualifiers,
   stringVariableTypeDescription,
+  valueStorageTypeDescription,
 } from "../../../tests/fixtures/typeDescription/data"
 import { exportTypeDescriptionToXML } from "./exportToXML"
 
@@ -79,6 +80,17 @@ describe("exportTypeDescriptionToXML", () => {
 
     const result = exportTypeDescriptionToXML(mockСontext, definedTypeDescription)
     const xmlString = xmlExport({ TypeDescription: result }, false)
+
+    expect(xmlString).toEqual(expectedXml)
+  })
+  //#endregion
+
+  //#region Value Storage
+  it("should export value storage type to XML", () => {
+    const expectedXml = readXMLFileAsString("typeDescription/valueStorage.xml")
+
+    const result = exportTypeDescriptionToXML(mockСontext, valueStorageTypeDescription)
+    const xmlString = xmlExport({ Type: result }, false)
 
     expect(xmlString).toEqual(expectedXml)
   })

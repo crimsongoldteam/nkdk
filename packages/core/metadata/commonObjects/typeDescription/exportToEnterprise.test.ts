@@ -28,6 +28,8 @@ import {
   stringVariableTypeDescriptionEnterprise,
   timeTypeDescription,
   timeTypeDescriptionEnterprise,
+  valueStorageTypeDescription,
+  valueStorageTypeDescriptionEnterprise,
 } from "../../../tests/fixtures/typeDescription/data"
 import { mockСontext } from "../../../tests/mockContext"
 import { exportTypeDescriptionToEnterprise } from "./exportToEnterprise"
@@ -137,6 +139,14 @@ describe("exportTypeDescriptionToEnterprise", () => {
       const result = exportTypeDescriptionToEnterprise(mockСontext, enumTypeDescription)
 
       expect(result).toEqual(enumTypeDescriptionEnterprise)
+    })
+  })
+
+  describe("value storage type description", () => {
+    it("should format value storage", () => {
+      const result = exportTypeDescriptionToEnterprise(mockСontext, valueStorageTypeDescription)
+
+      expect(result).toEqual(valueStorageTypeDescriptionEnterprise)
     })
   })
 })

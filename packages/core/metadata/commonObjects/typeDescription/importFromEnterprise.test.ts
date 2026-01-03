@@ -31,6 +31,8 @@ import {
   stringVariableTypeDescriptionEnterprise,
   timeTypeDescription,
   timeTypeDescriptionEnterprise,
+  valueStorageTypeDescription,
+  valueStorageTypeDescriptionEnterprise,
 } from "../../../tests/fixtures/typeDescription/data"
 import { importTypeDescriptionFromEnterprise } from "./importFromEnterprise"
 
@@ -158,5 +160,13 @@ describe("importTypeDescriptionFromEnterprise", () => {
 
       expect(result).toEqual(definedTypeDescription)
     })
+  })
+})
+
+describe("value storage type description", () => {
+  it("should parse value storage", () => {
+    const result = importTypeDescriptionFromEnterprise(mockСontext, valueStorageTypeDescriptionEnterprise)
+
+    expect(result).toEqual(valueStorageTypeDescription)
   })
 })

@@ -10,6 +10,7 @@ import {
   stringVariableTypeDescription,
   threeTypesTypeDescription,
   typeSetTypeDescription,
+  valueStorageTypeDescription,
 } from "../../../tests/fixtures/typeDescription/data"
 import { importTypeDescriptionFromXML } from "./importFromXML"
 import { TypeDescriptionXML } from "./types"
@@ -84,5 +85,13 @@ describe("importTypeDescriptionFromXML", () => {
     const result = importTypeDescriptionFromXML(mockСontext, xmlData.TypeDescription)
 
     expect(result).toEqual(typeSetTypeDescription)
+  })
+
+  it("should import value storage type from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Type?: TypeDescriptionXML }>("typeDescription/valueStorage.xml")
+
+    const result = importTypeDescriptionFromXML(mockСontext, xmlData.Type)
+
+    expect(result).toEqual(valueStorageTypeDescription)
   })
 })

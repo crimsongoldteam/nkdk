@@ -148,3 +148,11 @@ export const typeSetTypeDescription: TypeDescription = {
   type: ["Characteristic.ДополнительныеРеквизитыИСведения"],
 }
 //#endregion
+
+//#region ValueStorage
+export const valueStorageTypeDescription: TypeDescription = {
+  type: ["ValueStorage"],
+}
+
+export const valueStorageTypeDescriptionEnterprise = "ХранилищеЗначения"
+//#endregion

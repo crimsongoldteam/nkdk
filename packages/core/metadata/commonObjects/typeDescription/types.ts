@@ -48,6 +48,7 @@ export const PrimitiveTypeToEnterprise = {
   decimal: "Число",
   date: "Дата",
   boolean: "Булево",
+  ValueStorage: "ХранилищеЗначения",
 } as const
 
 export const PrimitiveTypeFromEnterprise = (name: string): PrimitiveType => {

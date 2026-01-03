@@ -66,6 +66,11 @@ export const importTypeDescriptionFromEnterprise = (
       continue
     }
 
+    if (type === "ХранилищеЗначения") {
+      result.type.push("ValueStorage")
+      continue
+    }
+
     const metadataType = importMetadataTypeStringFromEnterprise(_context, type)
     if (metadataType) {
       result.type.push(metadataType)

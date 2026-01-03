@@ -38,6 +38,10 @@ const mapType = (type: string): string => {
     return `xs:${type}`
   }
 
+  if (type === "ValueStorage") {
+    return `v8:ValueStorage`
+  }
+
   if (
     type.startsWith("DataProcessorObject.") ||
     type.startsWith("CatalogObject.") ||

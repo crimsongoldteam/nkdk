@@ -2,7 +2,7 @@ import { Context } from "../../context/types"
 import { compactObject } from "../../helpers/compactObject"
 import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
 
-const TypePrefixes = ["xs:", "cfg:", "mxl:"]
+const TypePrefixes = ["xs:", "cfg:", "mxl:", "v8:"]
 
 export const importTypeDescriptionFromXML = (
   _context: Context,
