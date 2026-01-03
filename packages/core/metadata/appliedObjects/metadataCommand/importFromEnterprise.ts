@@ -11,6 +11,7 @@ import { importPictureFromEnterprise } from "~/metadata/commonObjects/pictures/i
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { Context } from "~/metadata/context/types"
 import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
+import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importMetadataItemLinkFromEnterprise } from "../../commonObjects/metadataRef/importFromEnterprise"
@@ -34,6 +35,7 @@ export const importMetadataCommandFromEnterprise = (
     return {
       name,
       group: group as SE.StandardCommandsGroup | string,
+      synonym: addDefaultLanguageNameToSynonym(context, undefined, name),
     }
   }
 
@@ -69,7 +71,7 @@ export const importMetadataCommandFromEnterprise = (
       SE.ButtonRepresentationFromEnterprise
     ),
     shortcut: fullData.СочетаниеКлавиш,
-    synonym: importI8nTextFromEnterprise(context, fullData.Синоним),
+    synonym: addDefaultLanguageNameToSynonym(context, importI8nTextFromEnterprise(context, fullData.Синоним), name),
     toolTip: importI8nTextFromEnterprise(context, fullData.Подсказка),
     onMainServerUnavalableBehavior: importSystemEnumerationFromEnterprise(
       context,

@@ -7,14 +7,15 @@ import {
 } from "~/metadata/appliedObjects/metadataCommand/types"
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/pictures/exportToEnterprise"
 import { Context } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
+import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportMetadataItemLinkToEnterprise } from "../../commonObjects/metadataRef/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "../../commonObjects/typeDescription/exportToEnterprise"
-import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
 
 export const exportMetadataCommandToEnterprise = (
   context: Context,
@@ -24,16 +25,11 @@ export const exportMetadataCommandToEnterprise = (
 
   const group = getGroup(context, data)
 
-  let synonym = exportI8nTextToEnterprise(context, data.synonym)
+  const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
+  const synonym = exportI8nTextToEnterprise(context, filteredSynonym)
 
-  const excludeSynonym = isSynonymEqualToName(synonym, data.name)
-
-  if (canUseShortFormat(data, excludeSynonym)) {
+  if (canUseShortFormat(data, synonym)) {
     return group
-  }
-
-  if (excludeSynonym) {
-    synonym = undefined
   }
 
   const result: MetadataCommandEnterprise = {
@@ -85,19 +81,12 @@ export const exportMetadataCommandsToEnterprise = (
   return result
 }
 
-const canUseShortFormat = (data: MetadataCommand, isSynonymEqualToName: boolean): boolean => {
-  for (const key in data) {
-    const value = data[key as keyof MetadataCommand]
-    if (value === undefined) continue
-
-    if (["name"].includes(key)) continue
-
-    if (key == "synonym" && isSynonymEqualToName) continue
-
-    return false
-  }
-
-  return true
+const canUseShortFormat = (data: MetadataCommand, synonym: I8nTextEnterprise | undefined): boolean => {
+  if (synonym !== undefined) return false
+  const filteredData = Object.fromEntries(
+    Object.entries(data).filter(([key, value]) => value !== undefined && !["name", "synonym"].includes(key))
+  )
+  return Object.keys(filteredData).length === 0
 }
 
 const getGroup = (context: Context, data: MetadataCommand): MetadataCommandGroupEnterprise | undefined => {

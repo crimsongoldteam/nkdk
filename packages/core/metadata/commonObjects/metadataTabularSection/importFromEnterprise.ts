@@ -9,6 +9,7 @@ import {
 import { importStandardAttributeDescriptionsFromEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/importFromEnterprise"
 import { Context } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
+import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
@@ -22,10 +23,8 @@ export const importMetadataTabularSectionFromEnterprise = (
 
   const result: MetadataTabularSection = {
     name,
+    synonym: addDefaultLanguageNameToSynonym(context, importI8nTextFromEnterprise(context, data.Синоним), name),
   }
-
-  const synonym = importI8nTextFromEnterprise(context, data.Синоним)
-  if (synonym !== undefined) result.synonym = synonym
 
   if (data.Комментарий !== undefined) result.comment = data.Комментарий
 

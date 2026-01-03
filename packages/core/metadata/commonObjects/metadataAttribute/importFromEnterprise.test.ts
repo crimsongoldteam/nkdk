@@ -1,14 +1,15 @@
 import { describe, expect, it } from "vitest"
 import {
-  full,
-  fullEnterprise,
-  minimal,
-  minimalEnterprise,
-  short,
-  shortEnterprise,
+  fullMetadataAttributes,
+  fullMetadataAttributesEnterprise,
+  minimalMetadataAttributes,
+  minimalMetadataAttributesEnterprise,
+  shortMetadataAttribute,
+  shortMetadataAttributeEnterprise,
+  shortMultilanguageMetadataAttribute,
+  shortMultilanguageMetadataAttributeEnterprise,
 } from "~/tests/fixtures/metadataAttribute/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportMetadataAttributesToEnterprise } from "./exportToEnterprise"
 import { importMetadataAttributesFromEnterprise } from "./importFromEnterprise"
 
 describe("importMetadataAttributeFromEnterprise", () => {
@@ -18,20 +19,26 @@ describe("importMetadataAttributeFromEnterprise", () => {
   })
 
   it("should import full", () => {
-    const result = importMetadataAttributesFromEnterprise(mockСontext, fullEnterprise)
+    const result = importMetadataAttributesFromEnterprise(mockСontext, fullMetadataAttributesEnterprise)
 
-    expect(result).toEqual(full)
+    expect(result).toEqual(fullMetadataAttributes)
   })
 
   it("should import minimal", () => {
-    const result = importMetadataAttributesFromEnterprise(mockСontext, minimalEnterprise)
+    const result = importMetadataAttributesFromEnterprise(mockСontext, minimalMetadataAttributesEnterprise)
 
-    expect(result).toEqual(minimal)
+    expect(result).toEqual(minimalMetadataAttributes)
   })
 
   it("should import with short format", () => {
-    const result = exportMetadataAttributesToEnterprise(mockСontext, short)
+    const result = importMetadataAttributesFromEnterprise(mockСontext, shortMetadataAttributeEnterprise)
 
-    expect(result).toEqual(shortEnterprise)
+    expect(result).toEqual(shortMetadataAttribute)
+  })
+
+  it("should import short multilanguage format", () => {
+    const result = importMetadataAttributesFromEnterprise(mockСontext, shortMultilanguageMetadataAttributeEnterprise)
+
+    expect(result).toEqual(shortMultilanguageMetadataAttribute)
   })
 })

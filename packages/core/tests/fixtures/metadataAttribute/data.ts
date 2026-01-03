@@ -1,6 +1,7 @@
 import { MetadataAttributes, MetadataAttributesEnterprise } from "~/metadata/commonObjects/metadataAttribute/types"
 
-export const full: MetadataAttributes = [
+//#region FullMetadataAttributes
+export const fullMetadataAttributes: MetadataAttributes = [
   {
     binaryDataStorageLocationUse: "Use",
     binaryDataStorageLocationUseField: true,
@@ -56,7 +57,7 @@ export const full: MetadataAttributes = [
   },
 ]
 
-export const fullEnterprise: MetadataAttributesEnterprise = {
+export const fullMetadataAttributesEnterprise: MetadataAttributesEnterprise = {
   ТестовыйРеквизит: {
     Тип: "Строка",
     Синоним: "Какой-то тестовый реквизит",
@@ -90,8 +91,10 @@ export const fullEnterprise: MetadataAttributesEnterprise = {
     ФорматРедактирования: "Формат редактирования",
   },
 }
+//#endregion
 
-export const minimal: MetadataAttributes = [
+//#region Minimal
+export const minimalMetadataAttributes: MetadataAttributes = [
   {
     name: "ТестовыйРеквизит",
     type: { type: ["string"] },
@@ -99,11 +102,13 @@ export const minimal: MetadataAttributes = [
   },
 ]
 
-export const minimalEnterprise: MetadataAttributesEnterprise = {
+export const minimalMetadataAttributesEnterprise: MetadataAttributesEnterprise = {
   ТестовыйРеквизит: { Тип: "Строка", Синоним: "" },
 }
+//#endregion
 
-export const multiple: MetadataAttributes = [
+//#region Multiple
+export const multipleMetadataAttributes: MetadataAttributes = [
   {
     name: "ТестовыйРеквизит1",
     synonym: { items: { ru: "N1" } },
@@ -115,8 +120,10 @@ export const multiple: MetadataAttributes = [
     type: { type: ["string"] },
   },
 ]
+//#endregion
 
-export const short: MetadataAttributes = [
+//#region Short
+export const shortMetadataAttribute: MetadataAttributes = [
   {
     name: "ТестовыйРеквизит",
     type: { type: ["string"] },
@@ -124,11 +131,13 @@ export const short: MetadataAttributes = [
   },
 ]
 
-export const shortEnterprise: MetadataAttributesEnterprise = {
+export const shortMetadataAttributeEnterprise: MetadataAttributesEnterprise = {
   ТестовыйРеквизит: "Строка",
 }
+//#endregion
 
-export const skipSynonym: MetadataAttributes = [
+//#region SkipSynonym
+export const skipSynonymFromMetadataAttribute: MetadataAttributes = [
   {
     name: "ТестовыйРеквизит1",
     type: { type: ["string"] },
@@ -143,12 +152,14 @@ export const skipSynonym: MetadataAttributes = [
   },
 ]
 
-export const skipSynonymEnterprise: MetadataAttributesEnterprise = {
+export const skipSynonymFromMetadataAttributeEnterprise: MetadataAttributesEnterprise = {
   ТестовыйРеквизит1: { Тип: "Строка", Комментарий: "Комментарий к реквизиту" },
   ТестовыйРеквизит2: { Тип: "Строка", БыстрыйВыбор: "НеИспользовать" },
 }
+//#endregion
 
-export const shortMultilanguage: MetadataAttributes = [
+//#region ShortMultilanguage
+export const shortMultilanguageMetadataAttribute: MetadataAttributes = [
   {
     name: "ТестовыйРеквизит",
     type: { type: ["string"] },
@@ -156,6 +167,7 @@ export const shortMultilanguage: MetadataAttributes = [
   },
 ]
 
-export const shortMultilanguageEnterprise: MetadataAttributesEnterprise = {
+export const shortMultilanguageMetadataAttributeEnterprise: MetadataAttributesEnterprise = {
   ТестовыйРеквизит: { Тип: "Строка", Синоним: { en: "Test attribute" } },
 }
+//#endregion

@@ -37,6 +37,7 @@ export const commandWithoutSynonym: MetadataCommand = {
   name: "ТестоваяКоманда",
   parameterUseMode: "Multiple",
   group: "NavigationPanelImportant",
+  synonym: { items: { ru: "Какая-то команда" } },
 }
 
 export const twoCommandsEnterprise: MetadataCommandsEnterprise = {

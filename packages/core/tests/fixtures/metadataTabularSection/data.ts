@@ -46,5 +46,10 @@ export const fullTabularSections: MetadataTabularSections = [
 export const minimalTabularSections: MetadataTabularSections = [
   {
     name: "ДополнительныеРеквизиты",
+    synonym: {
+      items: {
+        ru: "Дополнительные реквизиты",
+      },
+    },
   },
 ]

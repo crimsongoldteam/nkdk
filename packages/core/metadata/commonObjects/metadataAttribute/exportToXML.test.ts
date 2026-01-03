@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { full, minimal } from "~/tests/fixtures/metadataAttribute/data"
+import { fullMetadataAttributes, minimalMetadataAttributes } from "~/tests/fixtures/metadataAttribute/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
@@ -18,7 +18,7 @@ describe("exportMetadataAttributesToXML", () => {
   it("should export full", () => {
     const expectedResult = readXMLFileAsString("metadataAttribute/full.xml")
 
-    const xmlData = exportMetadataAttributesToXML(mockСontext, full)
+    const xmlData = exportMetadataAttributesToXML(mockСontext, fullMetadataAttributes)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 
@@ -28,7 +28,7 @@ describe("exportMetadataAttributesToXML", () => {
   it("should export defaults", () => {
     const expectedResult = readXMLFileAsString("metadataAttribute/defaults.xml")
 
-    const xmlData = exportMetadataAttributesToXML(mockСontext, minimal)
+    const xmlData = exportMetadataAttributesToXML(mockСontext, minimalMetadataAttributes)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 

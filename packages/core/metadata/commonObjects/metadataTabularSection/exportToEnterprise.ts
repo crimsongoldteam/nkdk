@@ -9,7 +9,7 @@ import {
 import { exportStandardAttributeDescriptionsToEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
 import { Context } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
-import { isSynonymEqualToName } from "~/metadata/helpers/isSynonymEqualToName"
+import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -19,13 +19,8 @@ export const exportMetadataTabularSectionToEnterprise = (
 ): MetadataTabularSectionEnterprise | undefined => {
   if (!data) return undefined
 
-  let synonym = exportI8nTextToEnterprise(context, data.synonym)
-
-  const excludeSynonym = isSynonymEqualToName(synonym, data.name)
-
-  if (excludeSynonym) {
-    synonym = undefined
-  }
+  const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
+  const synonym = exportI8nTextToEnterprise(context, filteredSynonym)
 
   return compactObject({
     Синоним: synonym,

@@ -51,6 +51,7 @@ describe("importMetadataCommandFromXML", () => {
     const originalCommand: MetadataCommand = {
       name: "КомандаСоСтандартнойГруппой",
       group: "FormNavigationPanelImportant",
+      synonym: { items: { ru: "Команда со стандартной группой" } },
     }
 
     const exported = exportMetadataCommandToXML(mockСontext, originalCommand)

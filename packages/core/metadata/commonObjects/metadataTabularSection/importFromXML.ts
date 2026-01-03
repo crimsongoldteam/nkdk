@@ -30,6 +30,7 @@ const importMetadataTabularSectionFromXML = (
 
   const result: MetadataTabularSection = {
     name: props.Name!,
+    synonym: importI8nTextFromXML(context, props.Synonym)!,
   }
 
   if (xml.ChildObjects?.Attribute) {
@@ -43,9 +44,6 @@ const importMetadataTabularSectionFromXML = (
 
   const standardAttributes = importStandardAttributeDescriptionsFromXML(context, props.StandardAttributes)
   if (standardAttributes) result.standardAttributes = standardAttributes
-
-  const synonym = importI8nTextFromXML(context, props.Synonym)
-  if (synonym !== undefined) result.synonym = synonym
 
   const toolTip = importI8nTextFromXML(context, props.ToolTip)
   if (toolTip !== undefined) result.toolTip = toolTip

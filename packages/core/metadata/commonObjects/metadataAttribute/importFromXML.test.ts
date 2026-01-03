@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest"
-import { full, minimal, multiple } from "~/tests/fixtures/metadataAttribute/data"
+import {
+  fullMetadataAttributes,
+  minimalMetadataAttributes,
+  multipleMetadataAttributes,
+} from "~/tests/fixtures/metadataAttribute/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importMetadataAttributesFromXML } from "./importFromXML"
@@ -16,7 +20,7 @@ describe("importMetadataAttributeFromXML", () => {
 
     const result = importMetadataAttributesFromXML(mockСontext, xmlData.Attribute)
 
-    expect(result).toEqual(full)
+    expect(result).toEqual(fullMetadataAttributes)
   })
 
   it("should import minimal", () => {
@@ -24,7 +28,7 @@ describe("importMetadataAttributeFromXML", () => {
 
     const result = importMetadataAttributesFromXML(mockСontext, xmlData.Attribute)
 
-    expect(result).toEqual(minimal)
+    expect(result).toEqual(minimalMetadataAttributes)
   })
 
   it("should import defaults", () => {
@@ -32,7 +36,7 @@ describe("importMetadataAttributeFromXML", () => {
 
     const result = importMetadataAttributesFromXML(mockСontext, xmlData.Attribute)
 
-    expect(result).toEqual(minimal)
+    expect(result).toEqual(minimalMetadataAttributes)
   })
 
   it("should import multiple attributes", () => {
@@ -40,6 +44,6 @@ describe("importMetadataAttributeFromXML", () => {
 
     const result = importMetadataAttributesFromXML(mockСontext, xmlData.Attribute)
 
-    expect(result).toEqual(multiple)
+    expect(result).toEqual(multipleMetadataAttributes)
   })
 })

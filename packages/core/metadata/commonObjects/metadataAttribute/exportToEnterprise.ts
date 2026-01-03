@@ -14,7 +14,7 @@ import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects
 import { Context } from "~/metadata/context/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { isSynonymEqualToName } from "../../helpers/isSynonymEqualToName"
+import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
 import { I8nTextEnterprise } from "../i8nText/types"
 import { exportChoiceParametersToEnterprise } from "../сhoiceParameter/exportToEnterprise"
 
@@ -35,13 +35,8 @@ const exportMetadataAttributeToEnterprise = (
 ): MetadataAttributeEnterprise => {
   const type = exportTypeDescriptionToEnterprise(context, data.type)!
 
-  let synonym = exportI8nTextToEnterprise(context, data.synonym)
-
-  const excludeSynonym = isSynonymEqualToName(synonym, data.name)
-
-  if (excludeSynonym) {
-    synonym = undefined
-  }
+  const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
+  const synonym = exportI8nTextToEnterprise(context, filteredSynonym)
 
   if (canUseShortFormat(data, synonym)) {
     return type

@@ -4,12 +4,12 @@
   "description": "CLI инструменты для обработки XML файлов",
   "type": "module",
   "bin": {
-    "process-xml": "./dist/process-xml.js"
+    "clean-xml": "./dist/process-xml.js"
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsx src/process-xml.ts",
-    "process-xml": "tsx src/process-xml.ts",
+    "dev": "tsx src/cli.ts",
+    "clean-xml": "tsx src/cli.ts",
     "test": "vitest run"
   },
   "dependencies": {

@@ -17,6 +17,7 @@ import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
 import { importMetadataValueFromEnterprise } from "../metadataValue/importFromEnterprise.ts"
 import { importTypeLinkFromEnterprise } from "../typeLink/importFromEnterprise.ts"
 import { getDefaultsAttribute } from "./defaults"
+import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers.ts"
 
 export const importMetadataAttributesFromEnterprise = (
   context: Context,
@@ -47,9 +48,7 @@ const importMetadataAttributeFromEnterprise = (
 
   const type = importTypeDescriptionFromEnterprise(context, data.Тип)!
 
-  const synonym = importI8nTextFromEnterprise(context, data.Синоним) ?? {
-    items: { [context.defaultLanguage]: splitPascalCase(name) },
-  }
+  const synonym = addDefaultLanguageNameToSynonym(context, importI8nTextFromEnterprise(context, data.Синоним), name)
 
   const result: MetadataAttribute = {
     name,

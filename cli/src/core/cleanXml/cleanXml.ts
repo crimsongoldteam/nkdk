@@ -16,7 +16,7 @@ const SORTABLE_TAGS = [
   "xr:Link",
 ]
 
-export function processXmlContent(xmlContent: string): string {
+export function cleanXml(xmlContent: string): string {
   const parsedData = parseXml(xmlContent)
   const processedData = processObject(parsedData)
   return buildXml(processedData)

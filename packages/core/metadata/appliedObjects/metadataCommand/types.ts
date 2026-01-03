@@ -25,7 +25,7 @@ export interface MetadataCommand {
   picture?: Picture
   representation?: SE.ButtonRepresentation
   shortcut?: string
-  synonym?: I8nText
+  synonym: I8nText
   toolTip?: I8nText
   onMainServerUnavalableBehavior?: SE.OnMainServerUnavalableBehavior
 }

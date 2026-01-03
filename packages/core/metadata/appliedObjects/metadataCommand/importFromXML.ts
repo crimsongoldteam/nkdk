@@ -40,7 +40,7 @@ export const importMetadataCommandFromXML = (
     picture: importPictureFromXML(context, props.Picture),
     representation: props.Representation,
     shortcut: props.Shortcut,
-    synonym: importI8nTextFromXML(context, props.Synonym),
+    synonym: importI8nTextFromXML(context, props.Synonym)!,
     toolTip: importI8nTextFromXML(context, props.ToolTip),
     onMainServerUnavalableBehavior: props.OnMainServerUnavalableBehavior,
   }

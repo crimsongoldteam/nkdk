@@ -21,7 +21,7 @@ export interface MetadataTabularSection {
   name: string
   objectBelonging?: SE.ObjectBelonging
   standardAttributes?: StandardAttributeDescriptions
-  synonym?: I8nText
+  synonym: I8nText
   toolTip?: I8nText
   use?: SE.AttributeUse
 }

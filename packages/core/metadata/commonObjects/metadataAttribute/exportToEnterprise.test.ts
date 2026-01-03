@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest"
 import {
-  full,
-  fullEnterprise,
-  short,
-  shortEnterprise,
-  skipSynonym,
-  skipSynonymEnterprise,
+  fullMetadataAttributes,
+  fullMetadataAttributesEnterprise,
+  shortMetadataAttribute,
+  shortMetadataAttributeEnterprise,
+  shortMultilanguageMetadataAttribute,
+  shortMultilanguageMetadataAttributeEnterprise,
+  skipSynonymFromMetadataAttribute,
+  skipSynonymFromMetadataAttributeEnterprise,
 } from "~/tests/fixtures/metadataAttribute/data"
 import { mockСontext } from "~/tests/mockContext"
 import { exportMetadataAttributesToEnterprise } from "./exportToEnterprise"
@@ -17,9 +19,9 @@ describe("exportMetadataAttributeToEnterprise", () => {
   })
 
   it("should export full", () => {
-    const result = exportMetadataAttributesToEnterprise(mockСontext, full)
+    const result = exportMetadataAttributesToEnterprise(mockСontext, fullMetadataAttributes)
 
-    expect(result).toEqual(fullEnterprise)
+    expect(result).toEqual(fullMetadataAttributesEnterprise)
   })
 
   // it("should export minimal", () => {
@@ -29,20 +31,20 @@ describe("exportMetadataAttributeToEnterprise", () => {
   // })
 
   it("should export with short format", () => {
-    const result = exportMetadataAttributesToEnterprise(mockСontext, short)
+    const result = exportMetadataAttributesToEnterprise(mockСontext, shortMetadataAttribute)
 
-    expect(result).toEqual(shortEnterprise)
+    expect(result).toEqual(shortMetadataAttributeEnterprise)
   })
 
   it("should skip synonym if it is equal to name", () => {
-    const result = exportMetadataAttributesToEnterprise(mockСontext, skipSynonym)
+    const result = exportMetadataAttributesToEnterprise(mockСontext, skipSynonymFromMetadataAttribute)
 
-    expect(result).toEqual(skipSynonymEnterprise)
+    expect(result).toEqual(skipSynonymFromMetadataAttributeEnterprise)
   })
 
-  // it("should export with short multilanguage format", () => {
-  //   const result = exportMetadataAttributesToEnterprise(mockСontext, shortMultilanguage)
+  it("should export with short multilanguage format", () => {
+    const result = exportMetadataAttributesToEnterprise(mockСontext, shortMultilanguageMetadataAttribute)
 
-  //   expect(result).toEqual(shortMultilanguageEnterprise)
-  // })
+    expect(result).toEqual(shortMultilanguageMetadataAttributeEnterprise)
+  })
 })
