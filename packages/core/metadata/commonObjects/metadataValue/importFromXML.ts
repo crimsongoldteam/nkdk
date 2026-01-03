@@ -100,7 +100,10 @@ export const importMetadataSimpleValueFromXML = (
 }
 
 export const importMetadataStringValueFromXML = (_context: Context, value: string | undefined): string | undefined => {
-  return String(value)
+  if (value === undefined || value === "") {
+    return undefined
+  }
+  return value
 }
 
 export const importMetadataDecimalValueFromXML = (_context: Context, value: string | undefined): number | undefined => {

@@ -1,7 +1,36 @@
 import { describe, expect, it } from "vitest"
+import {
+  booleanTypeDescription,
+  booleanTypeDescriptionEnterprise,
+  catalogTypeDescription,
+  catalogTypeDescriptionEnterprise,
+  compositeParametricalTypeDescription,
+  compositeParametricalTypeDescriptionEnterprise,
+  compositeSimpleTypeDescription,
+  compositeSimpleTypeDescriptionEnterprise,
+  dateTimeTypeDescription,
+  dateTimeTypeDescriptionEnterprise,
+  dateTypeDescription,
+  dateTypeDescriptionEnterprise,
+  documentTypeDescription,
+  documentTypeDescriptionEnterprise,
+  enumTypeDescription,
+  enumTypeDescriptionEnterprise,
+  numberDecimalTypeDescription,
+  numberDecimalTypeDescriptionEnterprise,
+  numberNonNegativeTypeDescription,
+  numberNonNegativeTypeDescriptionEnterprise,
+  stringFixedTypeDescription,
+  stringFixedTypeDescriptionEnterprise,
+  stringUnlimitedTypeDescription,
+  stringUnlimitedTypeDescriptionEnterprise,
+  stringVariableTypeDescription,
+  stringVariableTypeDescriptionEnterprise,
+  timeTypeDescription,
+  timeTypeDescriptionEnterprise,
+} from "../../../tests/fixtures/typeDescription/data"
 import { mockСontext } from "../../../tests/mockContext"
 import { exportTypeDescriptionToEnterprise } from "./exportToEnterprise"
-import { TypeDescription } from "./types"
 
 describe("exportTypeDescriptionToEnterprise", () => {
   it("should format undefined type description", () => {
@@ -11,187 +40,103 @@ describe("exportTypeDescriptionToEnterprise", () => {
 
   describe("string type description", () => {
     it("should format string", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["string"],
-        stringQualifiers: { length: 10, allowedLength: "Variable" },
-      }
-      const expectedResult = "Строка(10)"
+      const result = exportTypeDescriptionToEnterprise(mockСontext, stringVariableTypeDescription)
 
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual(expectedResult)
+      expect(result).toEqual(stringVariableTypeDescriptionEnterprise)
     })
 
     it("should format unlimited string", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["string"],
-        stringQualifiers: { length: 0, allowedLength: "Variable" },
-      }
-      const expectedResult = "Строка"
+      const result = exportTypeDescriptionToEnterprise(mockСontext, stringUnlimitedTypeDescription)
 
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual(expectedResult)
+      expect(result).toEqual(stringUnlimitedTypeDescriptionEnterprise)
     })
 
     it("should format fixed string", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["string"],
-        stringQualifiers: { length: 100, allowedLength: "Fixed" },
-      }
-      const expectedResult = "ФиксированнаяСтрока(100)"
+      const result = exportTypeDescriptionToEnterprise(mockСontext, stringFixedTypeDescription)
 
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual(expectedResult)
+      expect(result).toEqual(stringFixedTypeDescriptionEnterprise)
     })
   })
 
   describe("number type description", () => {
     it("should format number", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["decimal"],
-        numberQualifiers: { digits: 10, fractionDigits: 2 },
-      }
-      const expectedResult = "Число(10, 2)"
+      const result = exportTypeDescriptionToEnterprise(mockСontext, numberDecimalTypeDescription)
 
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual(expectedResult)
+      expect(result).toEqual(numberDecimalTypeDescriptionEnterprise)
     })
 
     it("should format non-negative number", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["decimal"],
-        numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Nonnegative" },
-      }
-      const expectedResult = "ПоложительноеЧисло(10, 2)"
+      const result = exportTypeDescriptionToEnterprise(mockСontext, numberNonNegativeTypeDescription)
 
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual(expectedResult)
+      expect(result).toEqual(numberNonNegativeTypeDescriptionEnterprise)
     })
   })
 
   describe("date type description", () => {
     it("should format date", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["dateTime"],
-        dateQualifiers: { dateFractions: "Date" },
-      }
+      const result = exportTypeDescriptionToEnterprise(mockСontext, dateTypeDescription)
 
-      const expectedResult = "Дата"
-
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual(expectedResult)
+      expect(result).toEqual(dateTypeDescriptionEnterprise)
     })
 
     it("should format time", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["dateTime"],
-        dateQualifiers: { dateFractions: "Time" },
-      }
+      const result = exportTypeDescriptionToEnterprise(mockСontext, timeTypeDescription)
 
-      const expectedResult = "Время"
-
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual(expectedResult)
+      expect(result).toEqual(timeTypeDescriptionEnterprise)
     })
 
     it("should format date and time", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["dateTime"],
-        dateQualifiers: { dateFractions: "DateTime" },
-      }
+      const result = exportTypeDescriptionToEnterprise(mockСontext, dateTimeTypeDescription)
 
-      const expectedResult = "ДатаВремя"
-
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual(expectedResult)
+      expect(result).toEqual(dateTimeTypeDescriptionEnterprise)
     })
 
     it("should format date", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["dateTime"],
-        dateQualifiers: { dateFractions: "Date" },
-      }
+      const result = exportTypeDescriptionToEnterprise(mockСontext, dateTypeDescription)
 
-      const expectedResult = "Дата"
-
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual(expectedResult)
+      expect(result).toEqual(dateTypeDescriptionEnterprise)
     })
   })
 
   describe("boolean type description", () => {
     it("should format boolean", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["boolean"],
-      }
+      const result = exportTypeDescriptionToEnterprise(mockСontext, booleanTypeDescription)
 
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual("Булево")
+      expect(result).toEqual(booleanTypeDescriptionEnterprise)
     })
   })
 
   describe("composite type description", () => {
     it("should format composite", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["тип1", "тип2"],
-      }
+      const result = exportTypeDescriptionToEnterprise(mockСontext, compositeSimpleTypeDescription)
 
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual(["тип1", "тип2"])
+      expect(result).toEqual(compositeSimpleTypeDescriptionEnterprise)
     })
 
     it("should format parametrical types composite", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["string", "decimal"],
-        stringQualifiers: { length: 10, allowedLength: "Variable" },
-        numberQualifiers: { digits: 10, fractionDigits: 2 },
-      }
+      const result = exportTypeDescriptionToEnterprise(mockСontext, compositeParametricalTypeDescription)
 
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual(["Строка(10)", "Число(10, 2)"])
+      expect(result).toEqual(compositeParametricalTypeDescriptionEnterprise)
     })
   })
 
   describe("applied objects type description", () => {
     it("should format catalog", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["CatalogRef.Контрагенты"],
-      }
+      const result = exportTypeDescriptionToEnterprise(mockСontext, catalogTypeDescription)
 
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual("Справочник.Контрагенты")
+      expect(result).toEqual(catalogTypeDescriptionEnterprise)
     })
 
     it("should format document", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["DocumentRef.ПоступлениеТоваровНаСклад"],
-      }
+      const result = exportTypeDescriptionToEnterprise(mockСontext, documentTypeDescription)
 
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual("Документ.ПоступлениеТоваровНаСклад")
+      expect(result).toEqual(documentTypeDescriptionEnterprise)
     })
 
     it("should format enum", () => {
-      const mockTypeDescription: TypeDescription = {
-        type: ["EnumRef.ТипыДокументов"],
-      }
+      const result = exportTypeDescriptionToEnterprise(mockСontext, enumTypeDescription)
 
-      const result = exportTypeDescriptionToEnterprise(mockСontext, mockTypeDescription)
-
-      expect(result).toEqual("Перечисление.ТипыДокументов")
+      expect(result).toEqual(enumTypeDescriptionEnterprise)
     })
   })
 })

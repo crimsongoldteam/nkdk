@@ -36,4 +36,5 @@ program
 
 program.parse()
 
-// npm run cli export /Users/nikita/git/erp_nkdk /Users/nikita/git/erp_clean/xml
+// cd /Users/nikita/git/nakidka-core/cli && npm run dev export /Users/nikita/git/erp_nkdk /Users/nikita/git/erp_clean/xml
+// cd /Users/nikita/git/nakidka-core/cli && npm run dev import /Users/nikita/git/small_full/xml /Users/nikita/git/erp_nkdk

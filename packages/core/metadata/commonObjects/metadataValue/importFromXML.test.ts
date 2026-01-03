@@ -158,6 +158,14 @@ describe("importMetadataValueFromXML", () => {
 
     expect(result).toBeUndefined()
   })
+
+  it("should return undefined for empty string input", () => {
+    const xmlData = readAndParseXMLFile<{ Value: MetadataValueXML }>("metadataValue/emptyString.xml")
+
+    const result = importMetadataValueFromXML(mockСontext, xmlData.Value)
+
+    expect(result).toBeUndefined()
+  })
 })
 
 describe("importMetadataSimpleValueFromXML", () => {

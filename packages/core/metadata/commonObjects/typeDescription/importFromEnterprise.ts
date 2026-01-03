@@ -100,7 +100,7 @@ const getStringQualifiers = (parameters: string[], type: string): TypeDescriptio
 }
 
 const getNumberQualifiers = (parameters: string[], type: string): TypeDescriptionNumberQualifiers | undefined => {
-  const numberQualifiers: TypeDescriptionNumberQualifiers = { digits: 0, fractionDigits: 0 }
+  const numberQualifiers: TypeDescriptionNumberQualifiers = { digits: 0, fractionDigits: 0, allowedSign: "Any" }
   if (parameters && parameters.length > 0) {
     numberQualifiers.digits = parseInt(parameters[0])
   }
@@ -114,7 +114,7 @@ const getNumberQualifiers = (parameters: string[], type: string): TypeDescriptio
   if (
     numberQualifiers.digits === 0 &&
     numberQualifiers.fractionDigits === 0 &&
-    numberQualifiers.allowedSign === undefined
+    numberQualifiers.allowedSign === "Any"
   ) {
     return undefined
   }

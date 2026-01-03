@@ -13,7 +13,7 @@ export interface TypeDescriptionXMLStringQualifiers {
 export interface TypeDescriptionXMLNumberQualifiers {
   "v8:Digits": number
   "v8:FractionDigits": number
-  "v8:AllowedSign"?: "Any" | "Nonnegative"
+  "v8:AllowedSign": "Any" | "Nonnegative"
 }
 
 export interface TypeDescriptionXMLDateQualifiers {
@@ -36,7 +36,7 @@ export interface TypeDescriptionStringQualifiers {
 export interface TypeDescriptionNumberQualifiers {
   digits: number
   fractionDigits: number
-  allowedSign?: "Any" | "Nonnegative"
+  allowedSign: "Any" | "Nonnegative"
 }
 
 export interface TypeDescriptionDateQualifiers {
