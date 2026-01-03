@@ -1,10 +1,10 @@
-import { MetadataValue, MetadataValueXML } from "../metadataValue/types"
+import { MetadataValue, MetadataValueEnterprise, MetadataValueXML } from "../metadataValue/types"
 
 //#region ChoiceParameter
 
 export interface ChoiceParameter {
   name: string
-  value: MetadataValue
+  value?: MetadataValue
 }
 
 export type ChoiceParameters = ChoiceParameter[]
@@ -26,6 +26,8 @@ export interface ChoiceParametersXML {
 
 //#region ChoiceParametersEnterprise
 
-export type ChoiceParametersEnterprise = string
+export type ChoiceParameterEnterprise = string
+
+export type ChoiceParametersEnterprise = Record<string, MetadataValueEnterprise | undefined>
 
 //#endregion

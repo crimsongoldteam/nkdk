@@ -1,9 +1,19 @@
 import { describe, expect, it } from "vitest"
-import { enumChoiceParameter } from "~/tests/fixtures/choiceParameter/enum"
-import { fixedArrayChoiceParameter } from "~/tests/fixtures/choiceParameter/fixedArray"
-import { multipleChoiceParameters } from "~/tests/fixtures/choiceParameter/multiple"
-import { singleChoiceParameter } from "~/tests/fixtures/choiceParameter/single"
-import { stringChoiceParameter } from "~/tests/fixtures/choiceParameter/string"
+
+import {
+  enumChoiceParameter,
+  enumChoiceParametersEnterprise,
+  fixedArrayChoiceParameter,
+  fixedArrayChoiceParametersEnterprise,
+  multipleChoiceParameters,
+  multipleChoiceParametersEnterprise,
+  nilChoiceParameters,
+  nilChoiceParametersEnterprise,
+  singleChoiceParameter,
+  singleChoiceParametersEnterprise,
+  stringChoiceParameter,
+  stringChoiceParametersEnterprise,
+} from "~/tests/fixtures/choiceParameter/data"
 import { mockСontext } from "~/tests/mockContext"
 import { exportChoiceParametersToEnterprise } from "./exportToEnterprise"
 
@@ -15,48 +25,38 @@ describe("exportChoiceParametersToEnterprise", () => {
   })
 
   it("should export single choice parameter to enterprise", () => {
-    const data = singleChoiceParameter
-    const expectedResult = "Отбор.ВАрхиве(Ложь)"
+    const result = exportChoiceParametersToEnterprise(mockСontext, singleChoiceParameter)
 
-    const result = exportChoiceParametersToEnterprise(mockСontext, data)
-
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(singleChoiceParametersEnterprise)
   })
 
   it("should export multiple choice parameters to enterprise", () => {
-    const data = multipleChoiceParameters
-    const expectedResult = "Отбор.ВАрхиве(Ложь), Отбор.Недействителен(Ложь)"
+    const result = exportChoiceParametersToEnterprise(mockСontext, multipleChoiceParameters)
 
-    const result = exportChoiceParametersToEnterprise(mockСontext, data)
-
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(multipleChoiceParametersEnterprise)
   })
 
   it("should export choice parameters with enum value to enterprise", () => {
-    const data = enumChoiceParameter
-    const expectedResult = "Отбор.ТипСчета(Перечисление.ТипыСчетов.ВнеоборотныеАктивы)"
+    const result = exportChoiceParametersToEnterprise(mockСontext, enumChoiceParameter)
 
-    const result = exportChoiceParametersToEnterprise(mockСontext, data)
-
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(enumChoiceParametersEnterprise)
   })
 
   it("should export choice parameters with string value to enterprise", () => {
-    const data = stringChoiceParameter
-    const expectedResult = 'Дополнительно.ТипВладельца("ЗаказПокупателя")'
+    const result = exportChoiceParametersToEnterprise(mockСontext, stringChoiceParameter)
 
-    const result = exportChoiceParametersToEnterprise(mockСontext, data)
-
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(stringChoiceParametersEnterprise)
   })
 
   it("should export choice parameters with fixedArray value to enterprise", () => {
-    const data = fixedArrayChoiceParameter
-    const expectedResult =
-      "Отбор.ТипСтруктурнойЕдиницы(Перечисление.ТипыСтруктурныхЕдиниц.Склад, Перечисление.ТипыСтруктурныхЕдиниц.Розница, Перечисление.ТипыСтруктурныхЕдиниц.РозницаСуммовойУчет)"
+    const result = exportChoiceParametersToEnterprise(mockСontext, fixedArrayChoiceParameter)
 
-    const result = exportChoiceParametersToEnterprise(mockСontext, data)
+    expect(result).toEqual(fixedArrayChoiceParametersEnterprise)
+  })
 
-    expect(result).toEqual(expectedResult)
+  it("should export choice parameters with nil value to enterprise", () => {
+    const result = exportChoiceParametersToEnterprise(mockСontext, nilChoiceParameters)
+
+    expect(result).toEqual(nilChoiceParametersEnterprise)
   })
 })
