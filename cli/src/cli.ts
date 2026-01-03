@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { Command } from "commander"
 import { cleanXmlFiles } from "./commands/cleanXmlFiles.js"
-import { exportConfigFromYaml } from "./commands/exportConfigFromYaml.js"
+import { exportConfigToXML } from "./commands/exportConfigToXml.js"
 import { importConfigFromXml } from "./commands/importConfigFromXml.js"
 
 const program = new Command()
@@ -31,7 +31,7 @@ program
   .argument("<input>", "входящий каталог")
   .argument("<output>", "исходящий каталог")
   .action((inputPath: string, outputPath: string) => {
-    exportConfigFromYaml(inputPath, outputPath)
+    exportConfigToXML(inputPath, outputPath)
   })
 
 program.parse()

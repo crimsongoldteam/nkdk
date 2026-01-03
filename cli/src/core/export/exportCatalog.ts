@@ -13,6 +13,7 @@ import { parse } from "yaml"
 export const exportCatalog = (inputPath: string, outputPath: string): void => {
   const context = {
     defaultLanguage: "ru",
+    testMode: true,
   }
 
   const yamlContent = readFileSync(inputPath, "utf-8")
