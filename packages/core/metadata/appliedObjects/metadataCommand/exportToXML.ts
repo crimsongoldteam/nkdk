@@ -1,11 +1,8 @@
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
-import { exportMetadataItemLinkToXML } from "~/metadata/commonObjects/metadataRef/exportToXML"
-import { MetadataItemLinkXML } from "~/metadata/commonObjects/metadataRef/types"
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { Context } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
-import * as SE from "~/metadata/systemEnumerations/types"
 import { getUUID } from "../../helpers/uuid"
 import { getDefaults } from "./defaults"
 import { MetadataCommand, MetadataCommandXML, MetadataCommands, MetadataCommandsXML } from "./types"
@@ -19,8 +16,6 @@ export const exportMetadataCommandToXML = (
   const defaults = getDefaults(data, context)
   const mergedData = { ...defaults, ...data }
 
-  let group = getGroup(context, mergedData)
-
   const properties: MetadataCommandXML["Properties"] = {} as MetadataCommandXML["Properties"]
 
   const commandParameterType = exportTypeDescriptionToXML(context, mergedData.commandParameterType)
@@ -28,7 +23,7 @@ export const exportMetadataCommandToXML = (
 
   if (mergedData.comment !== undefined) properties.Comment = mergedData.comment
 
-  properties.Group = group
+  properties.Group = mergedData.group
 
   if (mergedData.modifiesData !== undefined) properties.ModifiesData = mergedData.modifiesData
 
@@ -69,11 +64,4 @@ export const exportMetadataCommandsToXML = (
   if (!data) return undefined
 
   return data.map((value: MetadataCommand) => exportMetadataCommandToXML(context, value)!)
-}
-
-const getGroup = (context: Context, data: MetadataCommand): SE.StandardCommandsGroup | MetadataItemLinkXML => {
-  if (data.group in SE.StandardCommandsGroupToEnterprise) {
-    return data.group as SE.StandardCommandsGroup
-  }
-  return exportMetadataItemLinkToXML(context, data.group)!
 }

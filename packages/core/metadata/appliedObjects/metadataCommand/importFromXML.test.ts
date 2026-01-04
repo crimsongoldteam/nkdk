@@ -1,62 +1,43 @@
-import { assertEquals } from "typia"
 import { describe, expect, it } from "vitest"
-import { simpleCommand } from "~/tests/fixtures/metadataCommand/simple"
+import {
+  defaultMetadataCommands,
+  fullMetadataCommands,
+  minimalMetadataCommands,
+} from "~/tests/fixtures/metadataCommand/data"
+
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { exportMetadataCommandToXML } from "./exportToXML"
-import { importMetadataCommandFromXML } from "./importFromXML"
-import { MetadataCommand, MetadataCommandXML } from "./types"
+import { importMetadataCommandFromXML, importMetadataCommandsFromXML } from "./importFromXML"
+import { MetadataCommandsXML } from "./types"
 
 describe("importMetadataCommandFromXML", () => {
-  it("should import metadata command from XML", () => {
-    const xmlData = readAndParseXMLFile<{ Command: MetadataCommandXML }>("metadataCommand/simple.xml")
+  it("should return undefined when data is undefined", () => {
+    const result = importMetadataCommandFromXML(mockСontext, undefined)
 
-    const expectedResult = simpleCommand
-
-    expect(assertEquals<MetadataCommandXML>(xmlData.Command)).toEqual(xmlData.Command)
-
-    const result = importMetadataCommandFromXML(mockСontext, xmlData.Command)
-
-    expect(result).toEqual(expectedResult)
+    expect(result).toBeUndefined()
   })
 
-  it("should export and import simple command correctly (round-trip)", () => {
-    const originalCommand: MetadataCommand = simpleCommand
+  it("should import metadata command with all fields from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Command: MetadataCommandsXML }>("metadataCommand/full.xml")
 
-    const exported = exportMetadataCommandToXML(mockСontext, originalCommand)
-    const imported = importMetadataCommandFromXML(mockСontext, exported)
+    const result = importMetadataCommandsFromXML(mockСontext, xmlData.Command)
 
-    expect(imported).toEqual(originalCommand)
+    expect(result).toEqual(fullMetadataCommands)
   })
 
-  it("should export and import command with all fields correctly (round-trip)", () => {
-    const originalCommand: MetadataCommand = {
-      name: "ТестоваяКоманда",
-      synonym: { items: { ru: "Тестовая команда", en: "Test command" } },
-      toolTip: { items: { ru: "Подсказка для команды" } },
-      comment: "Комментарий к команде",
-      group: "FormNavigationPanelImportant",
-      modifiesData: true,
-      parameterUseMode: "Multiple",
-      shortcut: "Ctrl+T",
-    }
+  it("should import minimal nodes", () => {
+    const xmlData = readAndParseXMLFile<{ Command: MetadataCommandsXML }>("metadataCommand/minimal.xml")
 
-    const exported = exportMetadataCommandToXML(mockСontext, originalCommand)
-    const imported = importMetadataCommandFromXML(mockСontext, exported)
+    const result = importMetadataCommandsFromXML(mockСontext, xmlData.Command)
 
-    expect(imported).toEqual(originalCommand)
+    expect(result).toEqual(minimalMetadataCommands)
   })
 
-  it("should export and import command with standard group correctly (round-trip)", () => {
-    const originalCommand: MetadataCommand = {
-      name: "КомандаСоСтандартнойГруппой",
-      group: "FormNavigationPanelImportant",
-      synonym: { items: { ru: "Команда со стандартной группой" } },
-    }
+  it("should import defaults nodes", () => {
+    const xmlData = readAndParseXMLFile<{ Command: MetadataCommandsXML }>("metadataCommand/defaults.xml")
 
-    const exported = exportMetadataCommandToXML(mockСontext, originalCommand)
-    const imported = importMetadataCommandFromXML(mockСontext, exported)
+    const result = importMetadataCommandsFromXML(mockСontext, xmlData.Command)
 
-    expect(imported).toEqual(originalCommand)
+    expect(result).toEqual(defaultMetadataCommands)
   })
 })

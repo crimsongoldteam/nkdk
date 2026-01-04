@@ -8,11 +8,7 @@ import {
   TypeDescriptionXML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import {
-  MetadataItemLink,
-  MetadataItemLinkEnterprise,
-  MetadataItemLinkXML,
-} from "../../commonObjects/metadataRef/types"
+import { MetadataItemLink, MetadataItemLinkEnterprise } from "../../commonObjects/metadataRef/types"
 
 export interface MetadataCommand {
   commandParameterType?: TypeDescription
@@ -35,7 +31,7 @@ export interface MetadataCommandXML {
   Properties: {
     CommandParameterType?: TypeDescriptionXML
     Comment?: string
-    Group: SE.StandardCommandsGroup | MetadataItemLinkXML
+    Group: SE.StandardCommandsGroup | string
     ModifiesData?: boolean
     Name: string
     ObjectBelonging?: SE.ObjectBelonging
@@ -70,6 +66,6 @@ export type MetadataCommandEnterprise = MetadataCommandFullEnterprise | Metadata
 
 export type MetadataCommands = MetadataCommand[]
 
-export type MetadataCommandsXML = MetadataCommandXML[]
+export type MetadataCommandsXML = MetadataCommandXML | MetadataCommandXML[]
 
 export type MetadataCommandsEnterprise = Record<string, MetadataCommandEnterprise>
