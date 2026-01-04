@@ -1,13 +1,13 @@
 export type TypeModifier = "complex" | "typeset"
 
-export interface TypeDescriptionNamespaceSettings {
+export interface TypeDescriptionRule {
   enterprise: string
   prefix: string
   namespace?: string
   modifier?: TypeModifier
 }
 
-export const TypeDescriptionNamespaceMap: Record<string, TypeDescriptionNamespaceSettings> = {
+export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
   SpreadsheetDocument: {
     enterprise: "ТабличныйДокумент",
     prefix: "mxl",
@@ -278,7 +278,7 @@ export const TypeDescriptionNamespaceMap: Record<string, TypeDescriptionNamespac
   Characteristic: {
     enterprise: "Характеристика",
     prefix: "cfg",
-    modifier: "complex",
+    modifier: "typeset",
   },
   ExchangePlanRef: {
     enterprise: "ПланОбмена",
@@ -358,15 +358,16 @@ export const TypeDescriptionNamespaceMap: Record<string, TypeDescriptionNamespac
 } as const
 
 export const TypeDescriptionPrefixes = Object.fromEntries(
-  Object.values(TypeDescriptionNamespaceMap).map((settings) => [settings.prefix, settings.prefix])
+  Object.values(TypeDescriptionRules).map((settings) => [settings.prefix, settings.prefix])
 ) as Record<string, string>
 
-export interface TypeDescriptionXMLSpreadsheetDocument {
-  "_xmlns:mxl": "http://v8.1c.ru/8.2/data/spreadsheet"
-  "#text": "mxl:SpreadsheetDocument"
+export type TypeDescriptionTypeWithNamespaceXML<TNamespace extends string = string> = {
+  [K in `_xmlns:${TNamespace}`]: string
+} & {
+  "#text": string
 }
 
-export type TypeDescriptionXMLType = string | TypeDescriptionXMLSpreadsheetDocument
+export type TypeDescriptionXMLType = string | TypeDescriptionTypeWithNamespaceXML
 
 export interface TypeDescriptionXMLStringQualifiers {
   "v8:Length": number
@@ -385,7 +386,7 @@ export interface TypeDescriptionXMLDateQualifiers {
 
 export type TypeDescriptionXML = {
   "v8:Type"?: TypeDescriptionXMLType | TypeDescriptionXMLType[]
-  "v8:TypeSet"?: TypeDescriptionXMLType
+  "v8:TypeSet"?: TypeDescriptionXMLType | TypeDescriptionXMLType[]
   "v8:StringQualifiers"?: TypeDescriptionXMLStringQualifiers
   "v8:NumberQualifiers"?: TypeDescriptionXMLNumberQualifiers
   "v8:DateQualifiers"?: TypeDescriptionXMLDateQualifiers
@@ -423,8 +424,10 @@ export const PrimitiveTypeFromEnterprise = (name: string): PrimitiveType => {
 export type PrimitiveType = keyof typeof PrimitiveTypeToEnterprise
 export type PrimitiveTypeEnterprise = (typeof PrimitiveTypeToEnterprise)[keyof typeof PrimitiveTypeToEnterprise]
 
+export type TypeDescriptionType = string
+
 export interface TypeDescription {
-  type: (PrimitiveType | string)[]
+  type: TypeDescriptionType[] | TypeDescriptionType
   stringQualifiers?: TypeDescriptionStringQualifiers
   numberQualifiers?: TypeDescriptionNumberQualifiers
   dateQualifiers?: TypeDescriptionDateQualifiers

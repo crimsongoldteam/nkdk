@@ -1,65 +1,82 @@
 import { Context } from "../../context/types"
-import { compactObject } from "../../helpers/compactObject"
-import { TypeDescription, TypeDescriptionXML } from "./types"
+import { getTypeDescriptionRule } from "./helper"
+import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
 
 export const exportTypeDescriptionToXML = (
   _context: Context,
   typeDescription: TypeDescription | undefined
 ): TypeDescriptionXML | undefined => {
   if (!typeDescription) return undefined
+  const stringQualifiers = getStringQualifiers(typeDescription)
+  const numberQualifiers = getNumberQualifiers(typeDescription)
+  const dateQualifiers = getDateQualifiers(typeDescription)
 
-  const hasStringType = typeDescription.type.includes("string")
-  const stringQualifiers =
-    hasStringType && !typeDescription.stringQualifiers
-      ? { allowedLength: "Variable" as const, length: 0 }
-      : typeDescription.stringQualifiers
+  const typesXML = getTypesXML(typeDescription)
 
-  const mappedTypes = typeDescription.type.map((type) => mapType(type))
-
-  // TypeSet используется для определенных типов (DefinedType, Characteristic) когда это единственный тип
-  const shouldUseTypeSet =
-    typeDescription.type.length === 1 &&
-    (typeDescription.type[0].startsWith("DefinedType.") || typeDescription.type[0].startsWith("Characteristic."))
-
-  const result = compactObject<TypeDescriptionXML>({
-    ...(shouldUseTypeSet
-      ? { "v8:TypeSet": mappedTypes[0] }
-      : { "v8:Type": mappedTypes.length === 1 ? mappedTypes[0] : mappedTypes }),
-    "v8:NumberQualifiers": getNumberQualifiers(typeDescription.numberQualifiers),
-    "v8:StringQualifiers": getStringQualifiers(stringQualifiers),
-    "v8:DateQualifiers": getDateQualifiers(typeDescription.dateQualifiers),
-  })
+  const result = {
+    ...typesXML,
+    ...(numberQualifiers !== undefined ? { "v8:NumberQualifiers": numberQualifiers } : undefined),
+    ...(stringQualifiers !== undefined ? { "v8:StringQualifiers": stringQualifiers } : undefined),
+    ...(dateQualifiers !== undefined ? { "v8:DateQualifiers": dateQualifiers } : undefined),
+  }
 
   return result
 }
 
-const mapType = (type: string): string => {
-  if (type === "string" || type === "decimal" || type === "dateTime" || type === "boolean") {
-    return `xs:${type}`
+const getTypesXML = (
+  typeDescription: TypeDescription
+): {
+  "v8:Type"?: TypeDescriptionXMLType[] | TypeDescriptionXMLType
+  "v8:TypeSet"?: TypeDescriptionXMLType[] | TypeDescriptionXMLType
+} => {
+  const types = typeDescription.type
+
+  const typesXML: TypeDescriptionXMLType[] | TypeDescriptionXMLType = []
+  const typeSetXML: TypeDescriptionXMLType[] | TypeDescriptionXMLType = []
+
+  for (const type of types) {
+    const dotIndex = type.indexOf(".")
+    const isComplex = dotIndex !== -1
+    const baseType = isComplex ? type.substring(0, dotIndex) : type
+
+    const rule = getTypeDescriptionRule(baseType)
+    if (!rule) throw new Error(`Type ${type} not found in TypeDescriptionRules`)
+
+    const typeXML = `${rule.prefix}:${type}`
+    const item = rule.namespace
+      ? {
+          [`_xmlns:${rule.prefix}`]: rule.namespace,
+          "#text": typeXML,
+        }
+      : typeXML
+
+    if (rule.modifier === "typeset" || (rule.modifier === "complex" && !isComplex)) {
+      typeSetXML.push(item)
+    } else {
+      typesXML.push(item)
+    }
   }
 
-  if (type === "ValueStorage") {
-    return `v8:ValueStorage`
+  return {
+    ...(typesXML.length > 0 ? { "v8:Type": typesXML } : undefined),
+    ...(typeSetXML.length > 0 ? { "v8:TypeSet": typeSetXML } : undefined),
   }
-
-  if (
-    type.startsWith("DataProcessorObject.") ||
-    type.startsWith("CatalogObject.") ||
-    type.startsWith("DocumentObject.") ||
-    type.startsWith("BusinessProcessObject.") ||
-    type.startsWith("TaskObject.") ||
-    type.startsWith("EnumRef.")
-  ) {
-    return `cfg:${type}`
-  }
-
-  return `cfg:${type}`
 }
 
 const getStringQualifiers = (
-  stringQualifiers: TypeDescription["stringQualifiers"]
+  typeDescription: TypeDescription
 ): TypeDescriptionXML["v8:StringQualifiers"] | undefined => {
-  if (!stringQualifiers) return undefined
+  if (!typeDescription.type.includes("string")) return undefined
+
+  const stringQualifiers = typeDescription.stringQualifiers
+
+  if (!stringQualifiers) {
+    return {
+      "v8:AllowedLength": "Variable",
+      "v8:Length": 0,
+    }
+  }
+
   return {
     "v8:AllowedLength": stringQualifiers.allowedLength,
     "v8:Length": stringQualifiers.length,
@@ -67,9 +84,20 @@ const getStringQualifiers = (
 }
 
 const getNumberQualifiers = (
-  numberQualifiers: TypeDescription["numberQualifiers"]
+  typeDescription: TypeDescription
 ): TypeDescriptionXML["v8:NumberQualifiers"] | undefined => {
-  if (!numberQualifiers) return undefined
+  if (!typeDescription.type.includes("decimal")) return undefined
+
+  const numberQualifiers = typeDescription.numberQualifiers
+
+  if (!numberQualifiers) {
+    return {
+      "v8:AllowedSign": "Any",
+      "v8:Digits": 0,
+      "v8:FractionDigits": 0,
+    }
+  }
+
   return {
     "v8:AllowedSign": numberQualifiers.allowedSign,
     "v8:Digits": numberQualifiers.digits,
@@ -77,10 +105,17 @@ const getNumberQualifiers = (
   }
 }
 
-const getDateQualifiers = (
-  dateQualifiers: TypeDescription["dateQualifiers"]
-): TypeDescriptionXML["v8:DateQualifiers"] | undefined => {
-  if (!dateQualifiers) return undefined
+const getDateQualifiers = (typeDescription: TypeDescription): TypeDescriptionXML["v8:DateQualifiers"] | undefined => {
+  if (!typeDescription.type.includes("dateTime")) return undefined
+
+  const dateQualifiers = typeDescription.dateQualifiers
+
+  if (!dateQualifiers) {
+    return {
+      "v8:DateFractions": "DateTime",
+    }
+  }
+
   return {
     "v8:DateFractions": dateQualifiers.dateFractions,
   }
