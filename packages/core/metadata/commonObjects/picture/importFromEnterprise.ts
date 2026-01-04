@@ -5,7 +5,7 @@ import { importBooleanFromEnterprise } from "../boolean/importFromEnterprise"
 import { Picture, PictureEnterprise, PictureEnterpriseExtended } from "./types"
 
 function isPictureEnterpriseExtended(data: PictureEnterprise): data is PictureEnterpriseExtended {
-  return typeof data === "object" && data !== null && "Ссылка" in data && "ПрозрачныйФон" in data
+  return typeof data !== "string"
 }
 
 function tryImportStandardPicture(context: Context, ref: string): SE.PictureLib | undefined {
@@ -30,7 +30,7 @@ export const importPictureFromEnterprise = (
   if (!data) return undefined
 
   let ref: string
-  let loadTransparent = false
+  let loadTransparent = true
 
   if (isPictureEnterpriseExtended(data)) {
     ref = data.Ссылка as string

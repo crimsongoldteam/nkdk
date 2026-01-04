@@ -16,19 +16,13 @@ describe("importPictureFromEnterprise", () => {
   it("should import standard picture", () => {
     const result = importPictureFromEnterprise(mockСontext, standardPictureEnterprise)
 
-    expect(result).toEqual({
-      ...standardPicture,
-      loadTransparent: false, // При импорте строки loadTransparent всегда false
-    })
+    expect(result).toEqual(standardPicture)
   })
 
   it("should import common picture", () => {
     const result = importPictureFromEnterprise(mockСontext, commonPictureEnterprise)
 
-    expect(result).toEqual({
-      ...commonPicture,
-      loadTransparent: false, // При импорте строки loadTransparent всегда false
-    })
+    expect(result).toEqual(commonPicture)
   })
 
   it("should return undefined for undefined input", () => {
