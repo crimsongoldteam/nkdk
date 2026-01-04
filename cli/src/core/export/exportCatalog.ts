@@ -10,6 +10,42 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { basename, dirname, join, relative } from "path"
 import { parse } from "yaml"
 
+/**
+ * Находит все шаблоны в каталоге каталога
+ * @param catalogDirPath - путь к каталогу каталога (например, .../Catalogs/CatalogName)
+ * @returns массив имен шаблонов без расширения
+ */
+const findTemplates = (catalogDirPath: string): string[] => {
+  const templatesPath = join(catalogDirPath, "Templates")
+  if (!existsSync(templatesPath)) {
+    return []
+  }
+
+  const entries = readdirSync(templatesPath, { withFileTypes: true })
+  const templateFiles = entries.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".xml"))
+
+  return templateFiles.map((entry) => entry.name.replace(/\.xml$/i, "")).sort()
+}
+
+/**
+ * Находит все формы в каталоге каталога
+ * Формы находятся в подпапках внутри Forms (например, Forms/ФормаВыбора/)
+ * @param catalogDirPath - путь к каталогу каталога (например, .../Catalogs/CatalogName)
+ * @returns массив имен форм (имена подпапок в Forms)
+ */
+const findForms = (catalogDirPath: string): string[] => {
+  const formsPath = join(catalogDirPath, "Forms")
+  if (!existsSync(formsPath)) {
+    return []
+  }
+
+  const entries = readdirSync(formsPath, { withFileTypes: true })
+  // Формы находятся в подпапках, а не как XML файлы
+  const formDirs = entries.filter((entry) => entry.isDirectory())
+
+  return formDirs.map((entry) => entry.name).sort()
+}
+
 export const exportCatalog = (inputPath: string, outputPath: string): void => {
   const context = {
     defaultLanguage: "ru",
@@ -25,7 +61,8 @@ export const exportCatalog = (inputPath: string, outputPath: string): void => {
 
   // Получаем имя каталога из пути к файлу
   // Ожидаем структуру: .../Catalogs/CatalogName/Item.yml
-  const catalogDir = basename(dirname(inputPath))
+  const catalogDirPath = dirname(inputPath)
+  const catalogDir = basename(catalogDirPath)
   const catalogName = catalogDir
 
   const catalogData = importMetadataCatalogFromEnterprise(context, enterpriseData, catalogName)
@@ -34,13 +71,27 @@ export const exportCatalog = (inputPath: string, outputPath: string): void => {
     throw new Error("Не удалось импортировать каталог из Enterprise формата")
   }
 
+  // Находим все шаблоны и формы в каталоге
+  const templates = findTemplates(catalogDirPath)
+  const forms = findForms(catalogDirPath)
+
+  // Логируем найденные формы и шаблоны для отладки
+  if (forms.length > 0 || templates.length > 0) {
+    console.log(`\n[${catalogName}] Найдено форм: ${forms.length}, шаблонов: ${templates.length}`)
+    if (forms.length > 0) {
+      console.log(`  Формы: ${forms.join(", ")}`)
+    }
+    if (templates.length > 0) {
+      console.log(`  Шаблоны: ${templates.join(", ")}`)
+    }
+  }
+
   // Создаем контекст для экспорта в XML
-  // Формы и шаблоны пока не извлекаем, используем пустые массивы
   const xmlContext: MetadataCatalogContext = {
     ...context,
     context: {
-      forms: [],
-      templates: [],
+      forms,
+      templates,
       parentName: catalogName,
     },
   }
