@@ -1,10 +1,11 @@
 import { Context } from "../../context/types"
 import { importSystemEnumerationFromEnterprise } from "../../systemEnumerations/importFromEnterprise"
 import * as SE from "../../systemEnumerations/types"
+import { importBooleanFromEnterprise } from "../boolean/importFromEnterprise"
 import { Picture, PictureEnterprise, PictureEnterpriseExtended } from "./types"
 
 function isPictureEnterpriseExtended(data: PictureEnterprise): data is PictureEnterpriseExtended {
-  return typeof data === "object" && data !== null && "Ссылка" in data && "Прозрачность" in data
+  return typeof data === "object" && data !== null && "Ссылка" in data && "ПрозрачныйФон" in data
 }
 
 function tryImportStandardPicture(context: Context, ref: string): SE.PictureLib | undefined {
@@ -33,7 +34,7 @@ export const importPictureFromEnterprise = (
 
   if (isPictureEnterpriseExtended(data)) {
     ref = data.Ссылка as string
-    loadTransparent = data.Прозрачность
+    loadTransparent = importBooleanFromEnterprise(context, data.ПрозрачныйФон)!
   } else {
     ref = data as string
   }

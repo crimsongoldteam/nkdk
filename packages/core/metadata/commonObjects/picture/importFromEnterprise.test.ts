@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest"
 import {
   commonPicture,
   commonPictureEnterprise,
+  coommomPictureWithoutTransparent,
+  coommomPictureWithoutTransparentEnterprise,
   standardPicture,
   standardPictureEnterprise,
-  withoutTransparentPicture,
-  withoutTransparentPictureEnterprise,
+  standardPictureWithoutTransparent,
+  standardPictureWithoutTransparentEnterprise,
 } from "../../../tests/fixtures/picture/data"
 import { mockСontext } from "../../../tests/mockContext"
 import { importPictureFromEnterprise } from "./importFromEnterprise"
@@ -35,10 +37,15 @@ describe("importPictureFromEnterprise", () => {
     expect(result).toBeUndefined()
   })
 
-  it("should import picture without transparent", () => {
-    const result = importPictureFromEnterprise(mockСontext, withoutTransparentPictureEnterprise)
+  it("should import common picture without transparent", () => {
+    const result = importPictureFromEnterprise(mockСontext, coommomPictureWithoutTransparentEnterprise)
 
-    expect(result).toEqual(withoutTransparentPicture)
+    expect(result).toEqual(coommomPictureWithoutTransparent)
+  })
+
+  it("should import standard picture without transparent", () => {
+    const result = importPictureFromEnterprise(mockСontext, standardPictureWithoutTransparentEnterprise)
+
+    expect(result).toEqual(standardPictureWithoutTransparent)
   })
 })
-

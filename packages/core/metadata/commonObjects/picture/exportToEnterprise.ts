@@ -9,20 +9,24 @@ export function exportPictureToEnterprise(
 ): PictureEnterprise | undefined {
   if (!picture) return undefined
 
+  let ref: PictureEnterprise | undefined
+
   if (picture.type === "StandardPicture") {
     const result = exportSystemEnumerationToEnterprise(context, picture.ref, SE.PictureLibToEnterprise)
 
     if (!result) throw new Error(`Picture ref ${picture.ref} not found in PictureLibToEnterprise`)
 
-    return result
+    ref = result
+  } else {
+    ref = picture.ref
   }
 
   if (!picture.loadTransparent) {
     return {
-      Ссылка: picture.ref,
-      Прозрачность: false,
+      Ссылка: ref,
+      ПрозрачныйФон: "Ложь",
     }
   }
 
-  return picture.ref
+  return ref
 }

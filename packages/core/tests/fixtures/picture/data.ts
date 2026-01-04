@@ -20,16 +20,29 @@ export const commonPicture: Picture = {
 export const commonPictureEnterprise = `ОбщаяКартинка1`
 //#endregion
 
-//#region XML Fixtures
-export const withoutTransparentPicture: Picture = {
+//#region Common Picture Without Transparent
+export const coommomPictureWithoutTransparent: Picture = {
   ref: "Картинка1",
   type: "CommonPicture",
   loadTransparent: false,
 }
 
-export const withoutTransparentPictureEnterprise: PictureEnterprise = {
+export const coommomPictureWithoutTransparentEnterprise: PictureEnterprise = {
   Ссылка: "Картинка1",
-  Прозрачность: false,
+  ПрозрачныйФон: "Ложь",
 }
 
+//#endregion
+
+//#region Standard Picture Without Transparent
+export const standardPictureWithoutTransparent: Picture = {
+  ref: "Report",
+  type: "StandardPicture",
+  loadTransparent: false,
+}
+
+export const standardPictureWithoutTransparentEnterprise: PictureEnterprise = {
+  Ссылка: "Отчет",
+  ПрозрачныйФон: "Ложь",
+}
 //#endregion

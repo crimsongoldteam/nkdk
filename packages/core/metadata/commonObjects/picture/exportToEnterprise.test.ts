@@ -2,13 +2,16 @@ import { describe, expect, it } from "vitest"
 import {
   commonPicture,
   commonPictureEnterprise,
+  coommomPictureWithoutTransparent,
+  coommomPictureWithoutTransparentEnterprise,
   standardPicture,
   standardPictureEnterprise,
-  withoutTransparentPicture,
-  withoutTransparentPictureEnterprise,
+  standardPictureWithoutTransparent,
+  standardPictureWithoutTransparentEnterprise,
 } from "../../../tests/fixtures/picture/data"
 import { mockСontext } from "../../../tests/mockContext"
 import { exportPictureToEnterprise } from "./exportToEnterprise"
+import { Picture } from "./types"
 
 describe("exportPictureToEnterprise", () => {
   it("should format standard picture", () => {
@@ -29,9 +32,27 @@ describe("exportPictureToEnterprise", () => {
     expect(result).toBeUndefined()
   })
 
-  it("should export picture without transparent", () => {
-    const result = exportPictureToEnterprise(mockСontext, withoutTransparentPicture)
+  it("should export common picture without transparent", () => {
+    const result = exportPictureToEnterprise(mockСontext, coommomPictureWithoutTransparent)
 
-    expect(result).toEqual(withoutTransparentPictureEnterprise)
+    expect(result).toEqual(coommomPictureWithoutTransparentEnterprise)
+  })
+
+  it("should export standard picture without transparent", () => {
+    const result = exportPictureToEnterprise(mockСontext, standardPictureWithoutTransparent)
+
+    expect(result).toEqual(standardPictureWithoutTransparentEnterprise)
+  })
+
+  it("should throw error when standard picture  is not found", () => {
+    const invalidStandardPicture = {
+      ref: "NonExistentPicture",
+      type: "StandardPicture",
+      loadTransparent: true,
+    } as Picture
+
+    expect(() => {
+      exportPictureToEnterprise(mockСontext, invalidStandardPicture)
+    }).toThrowError()
   })
 })

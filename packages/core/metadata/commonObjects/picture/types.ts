@@ -1,4 +1,5 @@
 import * as SE from "../../systemEnumerations/types"
+import { StringboolEnterprise } from "../boolean/types"
 
 export interface PictureXML {
   "xr:Ref": string
@@ -15,7 +16,7 @@ export type PictureEnterpriseRef = string | SE.PictureLibEnterprise
 
 export interface PictureEnterpriseExtended {
   Ссылка: PictureEnterpriseRef
-  Прозрачность: boolean
+  ПрозрачныйФон: StringboolEnterprise
 }
 
 export type PictureEnterprise = PictureEnterpriseRef | PictureEnterpriseExtended

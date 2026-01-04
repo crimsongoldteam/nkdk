@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { commonPicture, standardPicture, withoutTransparentPicture } from "~/tests/fixtures/picture/data"
+import {
+  commonPicture,
+  coommomPictureWithoutTransparent,
+  standardPicture,
+  standardPictureWithoutTransparent,
+} from "~/tests/fixtures/picture/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importPictureFromXML } from "./importFromXML"
@@ -26,10 +31,17 @@ describe("importPictureFromXML", () => {
     expect(result).toEqual(commonPicture)
   })
 
-  it("should import picture without transparent", () => {
-    const xmlData = readAndParseXMLFile<{ Picture: PictureXML }>("picture/withoutTransparent.xml")
+  it("should import common picture without transparent", () => {
+    const xmlData = readAndParseXMLFile<{ Picture: PictureXML }>("picture/commonWithoutTransparent.xml")
     const result = importPictureFromXML(mockСontext, xmlData.Picture)
 
-    expect(result).toEqual(withoutTransparentPicture)
+    expect(result).toEqual(coommomPictureWithoutTransparent)
+  })
+
+  it("should import standard picture without transparent", () => {
+    const xmlData = readAndParseXMLFile<{ Picture: PictureXML }>("picture/standartWithoutTransparent.xml")
+    const result = importPictureFromXML(mockСontext, xmlData.Picture)
+
+    expect(result).toEqual(standardPictureWithoutTransparent)
   })
 })
