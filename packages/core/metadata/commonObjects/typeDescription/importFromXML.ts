@@ -92,7 +92,7 @@ function getNumberQualifiers(xml?: TypeDescriptionXML["v8:NumberQualifiers"]) {
   }
 
   // Возвращаем undefined для дефолтных значений
-  if (result.digits === 0 && result.fractionDigits === 0 && result.allowedSign === undefined) {
+  if (result.digits === 0 && result.fractionDigits === 0 && result.allowedSign === "Any") {
     return undefined
   }
 
