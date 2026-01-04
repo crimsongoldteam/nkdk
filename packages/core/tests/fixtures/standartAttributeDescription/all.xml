@@ -19,8 +19,8 @@
 		<xr:DataHistory>DontUse</xr:DataHistory>
 		<xr:EditFormat>
 			<v8:item>
-				<v8:content>Формат редактирования</v8:content>
 				<v8:lang>ru</v8:lang>
+				<v8:content>Формат редактирования</v8:content>
 			</v8:item>
 		</xr:EditFormat>
 		<xr:ExtendedEdit>true</xr:ExtendedEdit>
@@ -29,8 +29,8 @@
 		<xr:FillValue xsi:type="xs:string">Текстовое значение</xr:FillValue>
 		<xr:Format>
 			<v8:item>
-				<v8:content>Формат</v8:content>
 				<v8:lang>ru</v8:lang>
+				<v8:content>Формат</v8:content>
 			</v8:item>
 		</xr:Format>
 		<xr:FullTextSearch>DontUse</xr:FullTextSearch>
@@ -47,14 +47,14 @@
 		<xr:QuickChoice>DontUse</xr:QuickChoice>
 		<xr:Synonym>
 			<v8:item>
-				<v8:content>Какой-то синоним</v8:content>
 				<v8:lang>ru</v8:lang>
+				<v8:content>Какой-то синоним</v8:content>
 			</v8:item>
 		</xr:Synonym>
 		<xr:ToolTip>
 			<v8:item>
-				<v8:content>Подсказка для поля</v8:content>
 				<v8:lang>ru</v8:lang>
+				<v8:content>Подсказка для поля</v8:content>
 			</v8:item>
 		</xr:ToolTip>
 		<xr:Type>

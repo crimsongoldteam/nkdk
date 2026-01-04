@@ -49,7 +49,7 @@ const findForms = (catalogDirPath: string): string[] => {
 export const exportCatalog = (inputPath: string, outputPath: string): void => {
   const context = {
     defaultLanguage: "ru",
-    testMode: true,
+    // testMode: true,
   }
 
   const yamlContent = readFileSync(inputPath, "utf-8")

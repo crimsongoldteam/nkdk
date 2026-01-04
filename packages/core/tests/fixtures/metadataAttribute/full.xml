@@ -22,8 +22,8 @@
 		<DataHistory>DontUse</DataHistory>
 		<EditFormat>
 			<v8:item>
-				<v8:content>Формат редактирования</v8:content>
 				<v8:lang>ru</v8:lang>
+				<v8:content>Формат редактирования</v8:content>
 			</v8:item>
 		</EditFormat>
 		<ExtendedEdit>true</ExtendedEdit>
@@ -32,8 +32,8 @@
 		<FillValue xsi:type="xs:string">Значение заполнения</FillValue>
 		<Format>
 			<v8:item>
-				<v8:content>Формат отображения</v8:content>
 				<v8:lang>ru</v8:lang>
+				<v8:content>Формат отображения</v8:content>
 			</v8:item>
 		</Format>
 		<FullTextSearch>DontUse</FullTextSearch>
@@ -52,14 +52,14 @@
 		<QuickChoice>DontUse</QuickChoice>
 		<Synonym>
 			<v8:item>
-				<v8:content>Какой-то тестовый реквизит</v8:content>
 				<v8:lang>ru</v8:lang>
+				<v8:content>Какой-то тестовый реквизит</v8:content>
 			</v8:item>
 		</Synonym>
 		<ToolTip>
 			<v8:item>
-				<v8:content>Подсказка для реквизита</v8:content>
 				<v8:lang>ru</v8:lang>
+				<v8:content>Подсказка для реквизита</v8:content>
 			</v8:item>
 		</ToolTip>
 		<Type>

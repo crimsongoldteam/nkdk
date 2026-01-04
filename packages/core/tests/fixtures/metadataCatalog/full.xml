@@ -77,20 +77,20 @@
 			<ExecuteAfterWriteDataHistoryVersionProcessing>true</ExecuteAfterWriteDataHistoryVersionProcessing>
 			<Explanation>
 				<v8:item>
-					<v8:content>Пояснение к справочнику</v8:content>
 					<v8:lang>ru</v8:lang>
+					<v8:content>Пояснение к справочнику</v8:content>
 				</v8:item>
 			</Explanation>
 			<ExtendedListPresentation>
 				<v8:item>
-					<v8:content>Расширенное представление списка</v8:content>
 					<v8:lang>ru</v8:lang>
+					<v8:content>Расширенное представление списка</v8:content>
 				</v8:item>
 			</ExtendedListPresentation>
 			<ExtendedObjectPresentation>
 				<v8:item>
-					<v8:content>Расширенное представление объекта</v8:content>
 					<v8:lang>ru</v8:lang>
+					<v8:content>Расширенное представление объекта</v8:content>
 				</v8:item>
 			</ExtendedObjectPresentation>
 			<FoldersOnTop>false</FoldersOnTop>
@@ -107,15 +107,15 @@
 			<LimitLevelCount>true</LimitLevelCount>
 			<ListPresentation>
 				<v8:item>
-					<v8:content>Представление списка</v8:content>
 					<v8:lang>ru</v8:lang>
+					<v8:content>Представление списка</v8:content>
 				</v8:item>
 			</ListPresentation>
 			<Name>Контрагенты</Name>
 			<ObjectPresentation>
 				<v8:item>
-					<v8:content>Представление объекта</v8:content>
 					<v8:lang>ru</v8:lang>
+					<v8:content>Представление объекта</v8:content>
 				</v8:item>
 			</ObjectPresentation>
 			<Owners>
@@ -251,8 +251,8 @@
 					<xr:QuickChoice>Auto</xr:QuickChoice>
 					<xr:Synonym>
 						<v8:item>
-							<v8:content>Поле код</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Поле код</v8:content>
 						</v8:item>
 					</xr:Synonym>
 					<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
@@ -261,8 +261,8 @@
 			<SubordinationUse>ToFolders</SubordinationUse>
 			<Synonym>
 				<v8:item>
-					<v8:content>Контрагенты</v8:content>
 					<v8:lang>ru</v8:lang>
+					<v8:content>Контрагенты</v8:content>
 				</v8:item>
 			</Synonym>
 			<UpdateDataHistoryImmediatelyAfterWrite>true</UpdateDataHistoryImmediatelyAfterWrite>
@@ -287,8 +287,8 @@
 					<QuickChoice>Auto</QuickChoice>
 					<Synonym>
 						<v8:item>
-							<v8:content>Реквизит объекта</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Реквизит объекта</v8:content>
 						</v8:item>
 					</Synonym>
 					<Type>
@@ -334,8 +334,8 @@
 					</StandardAttributes>
 					<Synonym>
 						<v8:item>
-							<v8:content>Дополнительные реквизиты</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Дополнительные реквизиты</v8:content>
 						</v8:item>
 					</Synonym>
 					<Use>ForItem</Use>
@@ -358,8 +358,8 @@
 							<QuickChoice>Auto</QuickChoice>
 							<Synonym>
 								<v8:item>
-									<v8:content>Реквизит табличной части</v8:content>
 									<v8:lang>ru</v8:lang>
+									<v8:content>Реквизит табличной части</v8:content>
 								</v8:item>
 							</Synonym>
 							<Type>
@@ -383,8 +383,8 @@
 					<Representation>Auto</Representation>
 					<Synonym>
 						<v8:item>
-							<v8:content>Контрагенты</v8:content>
 							<v8:lang>ru</v8:lang>
+							<v8:content>Контрагенты</v8:content>
 						</v8:item>
 					</Synonym>
 				</Properties>

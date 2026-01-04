@@ -6,7 +6,7 @@ export const exportI8nTextToXML = (_context: Context, data: I8nText | undefined)
 
   const v8Items: I8nTextLanguageXML[] = []
   Object.entries(data.items).forEach(([lang, content]) => {
-    v8Items.push({ "v8:content": content, "v8:lang": lang })
+    v8Items.push({ "v8:lang": lang, "v8:content": content })
   })
 
   return { _formatted: data.formatted, "v8:item": v8Items }

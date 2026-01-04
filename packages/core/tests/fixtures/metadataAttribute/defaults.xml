@@ -16,8 +16,8 @@
 		<QuickChoice>Auto</QuickChoice>
 		<Synonym>
 			<v8:item>
-				<v8:content/>
 				<v8:lang>ru</v8:lang>
+				<v8:content/>
 			</v8:item>
 		</Synonym>
 		<Type>

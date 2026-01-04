@@ -39,3 +39,6 @@ program.parse()
 // npm run dev /Users/nikita/git/small_full/xml/Catalogs /Users/nikita/git/erp_clean/xml/Catalogs
 // cd /Users/nikita/git/nakidka-core/cli && npm run dev export /Users/nikita/git/erp_nkdk /Users/nikita/git/erp_clean/xml
 // cd /Users/nikita/git/nakidka-core/cli && npm run dev import /Users/nikita/git/small_full/xml /Users/nikita/git/erp_nkdk
+
+//npm run dev import /Users/nikita/git/ТестРаботы/xml /Users/nikita/git/ТестРаботы/nkdk
+//npm run dev export /Users/nikita/git/ТестРаботы/nkdk /Users/nikita/git/ТестРаботы/xml

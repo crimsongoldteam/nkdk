@@ -3,8 +3,8 @@
 		<Name>ТестовыйРеквизит1</Name>
 		<Synonym>
 			<v8:item>
-				<v8:content>N1</v8:content>
 				<v8:lang>ru</v8:lang>
+				<v8:content>N1</v8:content>
 			</v8:item>
 		</Synonym>
 		<Type>
@@ -21,8 +21,8 @@
 		<Name>ТестовыйРеквизит2</Name>
 		<Synonym>
 			<v8:item>
-				<v8:content>N2</v8:content>
 				<v8:lang>ru</v8:lang>
+				<v8:content>N2</v8:content>
 			</v8:item>
 		</Synonym>
 		<Type>

@@ -29,8 +29,8 @@
 				<xr:QuickChoice>Auto</xr:QuickChoice>
 				<xr:Synonym>
 					<v8:item>
-						<v8:content>Номер строки (изменен)</v8:content>
 						<v8:lang>ru</v8:lang>
+						<v8:content>Номер строки (изменен)</v8:content>
 					</v8:item>
 				</xr:Synonym>
 				<xr:TypeReductionMode>TransformValues</xr:TypeReductionMode>
@@ -38,14 +38,14 @@
 		</StandardAttributes>
 		<Synonym>
 			<v8:item>
-				<v8:content>Дополнительные реквизиты</v8:content>
 				<v8:lang>ru</v8:lang>
+				<v8:content>Дополнительные реквизиты</v8:content>
 			</v8:item>
 		</Synonym>
 		<ToolTip>
 			<v8:item>
-				<v8:content>Подсказка для табличной части</v8:content>
 				<v8:lang>ru</v8:lang>
+				<v8:content>Подсказка для табличной части</v8:content>
 			</v8:item>
 		</ToolTip>
 		<Use>ForFolderAndItem</Use>
@@ -68,8 +68,8 @@
 				<QuickChoice>Auto</QuickChoice>
 				<Synonym>
 					<v8:item>
-						<v8:content>Реквизит табличной части</v8:content>
 						<v8:lang>ru</v8:lang>
+						<v8:content>Реквизит табличной части</v8:content>
 					</v8:item>
 				</Synonym>
 				<Type>

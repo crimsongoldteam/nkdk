@@ -31,8 +31,8 @@
 		</StandardAttributes>
 		<Synonym>
 			<v8:item>
-				<v8:content>Дополнительные реквизиты</v8:content>
 				<v8:lang>ru</v8:lang>
+				<v8:content>Дополнительные реквизиты</v8:content>
 			</v8:item>
 		</Synonym>
 		<Use>ForItem</Use>
