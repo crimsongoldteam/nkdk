@@ -131,7 +131,19 @@ function processObject(obj: any, isPropertiesNode: boolean = false, parentKey: s
   // Если родительский ключ находится в SORTABLE_TAGS или заканчивается на :Properties, то элементы массива должны сортироваться
   if (Array.isArray(obj)) {
     const shouldSortItems = SORTABLE_TAGS.includes(parentKey) || parentKey.endsWith(":Properties")
-    const processed = obj.map((item) => processObject(item, shouldSortItems, "")).filter((item) => !isEmptyNode(item))
+    const processed = obj
+      .map((item) => processObject(item, shouldSortItems, parentKey))
+      .filter((item) => !isEmptyNode(item))
+
+    // Специальная сортировка для массивов Form и Template по алфавиту
+    if (parentKey === "Form" || parentKey === "Template") {
+      processed.sort((a, b) => {
+        const textA = extractTextFromElement(a)
+        const textB = extractTextFromElement(b)
+        return textA.localeCompare(textB, "ru")
+      })
+    }
+
     return processed.length > 0 ? processed : undefined
   }
 
@@ -240,6 +252,27 @@ function isEmptyFillValue(value: any): boolean {
     return text === undefined || text === null || (typeof text === "string" && text.trim() === "")
   }
   return false
+}
+
+/**
+ * Извлекает текстовое содержимое из элемента Form или Template
+ * Элемент может быть строкой или объектом с #text
+ */
+function extractTextFromElement(element: any): string {
+  if (typeof element === "string") {
+    return element
+  }
+  if (typeof element === "object" && element !== null) {
+    if (element["#text"]) {
+      return String(element["#text"])
+    }
+    // Если это объект без #text, пытаемся найти текстовое содержимое
+    const keys = Object.keys(element).filter((key) => key !== "@attributes")
+    if (keys.length === 1 && typeof element[keys[0]] === "string") {
+      return element[keys[0]]
+    }
+  }
+  return ""
 }
 
 function isEmptyNode(value: any): boolean {

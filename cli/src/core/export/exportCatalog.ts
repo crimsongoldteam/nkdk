@@ -75,17 +75,6 @@ export const exportCatalog = (inputPath: string, outputPath: string): void => {
   const templates = findTemplates(catalogDirPath)
   const forms = findForms(catalogDirPath)
 
-  // Логируем найденные формы и шаблоны для отладки
-  if (forms.length > 0 || templates.length > 0) {
-    console.log(`\n[${catalogName}] Найдено форм: ${forms.length}, шаблонов: ${templates.length}`)
-    if (forms.length > 0) {
-      console.log(`  Формы: ${forms.join(", ")}`)
-    }
-    if (templates.length > 0) {
-      console.log(`  Шаблоны: ${templates.join(", ")}`)
-    }
-  }
-
   // Создаем контекст для экспорта в XML
   const xmlContext: MetadataCatalogContext = {
     ...context,
