@@ -72,8 +72,8 @@ export const exportCatalog = (inputPath: string, outputPath: string): void => {
   }
 
   // Находим все шаблоны и формы в каталоге
-  const templates = findTemplates(catalogDirPath)
-  const forms = findForms(catalogDirPath)
+  const templates = findTemplates(catalogDirPath).sort()
+  const forms = findForms(catalogDirPath).sort()
 
   // Создаем контекст для экспорта в XML
   const xmlContext: MetadataCatalogContext = {

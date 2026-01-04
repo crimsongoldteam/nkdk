@@ -1,5 +1,7 @@
 import { MetadataCatalog, MetadataCatalogEnterprise } from "~/metadata/appliedObjects/metadataCatalog/types"
 
+//#region MetadataCatalog
+
 export const full: MetadataCatalog = {
   autonumbering: false,
   auxiliaryChoiceForm: "Catalog.Контрагенты.Form.ФормаВыбора",
@@ -163,6 +165,10 @@ export const withCommands: MetadataCatalog = {
   ],
 }
 
+//#endregion
+
+//#region MetadataCatalogEnterprise
+
 export const minimalEnterprise: MetadataCatalogEnterprise = {}
 
 export const fullEnterprise: MetadataCatalogEnterprise = {
@@ -263,3 +269,5 @@ export const fullEnterprise: MetadataCatalogEnterprise = {
     },
   },
 }
+
+//#endregion

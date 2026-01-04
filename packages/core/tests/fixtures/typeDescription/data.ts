@@ -126,7 +126,14 @@ export const typeFixturesTable: TypeFixture[] = [
 	</v8:DateQualifiers>
 </TypeDescription>`,
   },
-
+  {
+    internal: { type: ["EnumRef.ТипыДокументов", "AnyIBRef"] },
+    enterprise: ["Перечисление.ТипыДокументов", "ЛюбаяСсылка"],
+    xml: `<TypeDescription>
+	<v8:Type>cfg:EnumRef.ТипыДокументов</v8:Type>
+	<v8:TypeSet>cfg:AnyIBRef</v8:TypeSet>
+</TypeDescription>`,
+  },
   //#endregion
 
   //#region Applied Types

@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest"
-import { fullMetadataAttributes, minimalMetadataAttributes } from "~/tests/fixtures/metadataAttribute/data"
+import {
+  fullMetadataAttributes,
+  minimalMetadataAttributes,
+  withMinValueMetadataAttribute,
+} from "~/tests/fixtures/metadataAttribute/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
@@ -29,6 +33,16 @@ describe("exportMetadataAttributesToXML", () => {
     const expectedResult = readXMLFileAsString("metadataAttribute/defaults.xml")
 
     const xmlData = exportMetadataAttributesToXML(mockСontext, minimalMetadataAttributes)
+
+    const result = xmlExport({ Attribute: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export with min value", () => {
+    const expectedResult = readXMLFileAsString("metadataAttribute/withMinValue.xml")
+
+    const xmlData = exportMetadataAttributesToXML(mockСontext, withMinValueMetadataAttribute)
 
     const result = xmlExport({ Attribute: xmlData }, false)
 

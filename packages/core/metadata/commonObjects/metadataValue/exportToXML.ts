@@ -48,7 +48,7 @@ export const exportMetadataSimpleValueToXML = (
   value: string | boolean | number | undefined,
   type: MetadataPrimitiveValueType
 ): MetadataSimpleValueXML | undefined => {
-  if (!value) return undefined
+  if (value === undefined) return undefined
 
   const data = {
     type,

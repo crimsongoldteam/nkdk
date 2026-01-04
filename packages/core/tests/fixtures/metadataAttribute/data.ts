@@ -171,3 +171,15 @@ export const shortMultilanguageMetadataAttributeEnterprise: MetadataAttributesEn
   ТестовыйРеквизит: { Тип: "Строка", Синоним: { en: "Test attribute" } },
 }
 //#endregion
+
+//#region WithMinValue
+export const withMinValueMetadataAttribute: MetadataAttributes = [
+  {
+    name: "ТестовыйРеквизит",
+    type: { type: ["string"] },
+    synonym: { items: { ru: "Тестовый реквизит" } },
+    minValue: 0,
+  },
+]
+
+//#endregion

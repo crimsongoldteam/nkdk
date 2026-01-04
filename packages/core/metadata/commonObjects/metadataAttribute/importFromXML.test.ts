@@ -3,6 +3,7 @@ import {
   fullMetadataAttributes,
   minimalMetadataAttributes,
   multipleMetadataAttributes,
+  withMinValueMetadataAttribute,
 } from "~/tests/fixtures/metadataAttribute/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -45,5 +46,13 @@ describe("importMetadataAttributeFromXML", () => {
     const result = importMetadataAttributesFromXML(mockСontext, xmlData.Attribute)
 
     expect(result).toEqual(multipleMetadataAttributes)
+  })
+
+  it("should import with min value", () => {
+    const xmlData = readAndParseXMLFile<{ Attribute: MetadataAttributeXML }>("metadataAttribute/withMinValue.xml")
+
+    const result = importMetadataAttributesFromXML(mockСontext, xmlData.Attribute)
+
+    expect(result).toEqual(withMinValueMetadataAttribute)
   })
 })

@@ -25,12 +25,15 @@ export const importTypeDescriptionFromXML = (
 
 export const extractTypes = (item: TypeDescriptionXML): string[] => {
   const type = getTypes(item["v8:Type"])
-  if (type !== undefined) return type
-
   const typeSet = getTypes(item["v8:TypeSet"])
-  if (typeSet !== undefined) return typeSet
 
-  throw new Error("Type is undefined")
+  const result: string[] = []
+  if (type !== undefined) result.push(...type)
+  if (typeSet !== undefined) result.push(...typeSet)
+
+  if (result.length === 0) throw new Error("Type is undefined")
+
+  return result
 }
 
 export const getTypes = (type: TypeDescriptionXMLType | TypeDescriptionXMLType[] | undefined): string[] | undefined => {
