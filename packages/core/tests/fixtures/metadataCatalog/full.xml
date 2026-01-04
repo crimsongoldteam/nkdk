@@ -57,7 +57,7 @@
 			<ChoiceMode>QuickChoice</ChoiceMode>
 			<CodeAllowedLength>Fixed</CodeAllowedLength>
 			<CodeLength>10</CodeLength>
-			<CodeSeries>WithinSubordination</CodeSeries>
+			<CodeSeries>WithinOwnerSubordination</CodeSeries>
 			<CodeType>Number</CodeType>
 			<Comment>Комментарий к справочнику</Comment>
 			<CreateOnInput>DontUse</CreateOnInput>

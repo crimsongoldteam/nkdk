@@ -219,7 +219,7 @@ export const importMetadataCatalogFromEnterprise = (
   const codeSeries = importSystemEnumerationFromEnterprise<SE.CatalogCodesSeries>(
     context,
     data.СерииКодов,
-    SE.CharacteristicKindCodesSeriesFromEnterprise
+    SE.CatalogCodesSeriesFromEnterprise
   )
   if (codeSeries !== undefined) result.codeSeries = codeSeries
 

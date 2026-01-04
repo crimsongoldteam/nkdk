@@ -31,7 +31,7 @@ export const full: MetadataCatalog = {
   choiceMode: "QuickChoice",
   codeAllowedLength: "Fixed",
   codeLength: 10,
-  codeSeries: "WithinSubordination",
+  codeSeries: "WithinOwnerSubordination",
   codeType: "Number",
   commands: [
     {
@@ -213,7 +213,7 @@ export const fullEnterprise: MetadataCatalogEnterprise = {
   ],
   РежимПолученияДанныхВыбораПриВводеПоСтроке: "Фоновый",
   РежимУправленияБлокировкойДанных: "Автоматический",
-  СерииКодов: "ВПределахПодчинения",
+  СерииКодов: "ВПределахПодчиненияВладельцу",
   Синоним: "Контрагенты",
   СозданиеПриВводе: "НеИспользовать",
   СпособВыбора: "БыстрыйВыбор",
