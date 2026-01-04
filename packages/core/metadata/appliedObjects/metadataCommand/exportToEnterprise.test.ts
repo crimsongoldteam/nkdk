@@ -1,67 +1,31 @@
 import { describe, expect, it } from "vitest"
-import { twoCommands, twoCommandsEnterprise } from "~/tests/fixtures/metadataCommand/fixtures"
+import {
+  fullMetadataCommands,
+  fullMetadataCommandsEnterprise,
+  minimalMetadataCommands,
+} from "~/tests/fixtures/metadataCommand/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportMetadataCommandsToEnterprise, exportMetadataCommandToEnterprise } from "./exportToEnterprise"
-import { MetadataCommand, MetadataCommandEnterprise } from "./types"
+import { exportMetadataCommandsToEnterprise } from "./exportToEnterprise"
 
 describe("exportMetadataCommandToEnterprise", () => {
-  it("should export metadata command to enterprise", () => {
-    const metadataCommand: MetadataCommand = {
-      name: "ТестоваяКоманда",
-      synonym: { items: { ru: "Какая-то команда" } },
-      group: "NavigationPanelImportant",
-      parameterUseMode: "Single",
-    }
-
-    const expectedResult: MetadataCommandEnterprise = {
-      Синоним: "Какая-то команда",
-      Группа: "ПанельНавигацииВажное",
-      РежимИспользованияПараметра: "Одиночный",
-    }
-
-    const result = exportMetadataCommandToEnterprise(mockСontext, metadataCommand)
-
-    expect(result).toEqual(expectedResult)
+  it("should return undefined when data is undefined", () => {
+    const result = exportMetadataCommandsToEnterprise(mockСontext, undefined)
+    expect(result).toBeUndefined()
   })
 
-  it("should export with user group", () => {
-    const metadataCommand: MetadataCommand = {
-      name: "ТестоваяКоманда",
-      synonym: { items: { ru: "Какая-то команда" } },
-      group: "CommandGroup.Печать",
-    }
+  it("should export full", () => {
+    const result = exportMetadataCommandsToEnterprise(mockСontext, fullMetadataCommands)
 
-    const expectedResult: MetadataCommandEnterprise = {
-      Синоним: "Какая-то команда",
-      Группа: "ГруппаКоманд.Печать",
-    }
-
-    const result = exportMetadataCommandToEnterprise(mockСontext, metadataCommand)
-
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(fullMetadataCommandsEnterprise)
   })
 
-  it("should omit synonym if it is same as name", () => {
-    const metadataCommand: MetadataCommand = {
-      name: "ТестоваяКоманда",
-      synonym: { items: { ru: "Тестовая команда" } },
-      parameterUseMode: "Multiple",
-      group: "NavigationPanelImportant",
-    }
+  it("should export minimal", () => {
+    const result = exportMetadataCommandsToEnterprise(mockСontext, minimalMetadataCommands)
 
-    const expectedResult: MetadataCommandEnterprise = {
-      РежимИспользованияПараметра: "Множественный",
-      Группа: "ПанельНавигацииВажное",
-    }
-
-    const result = exportMetadataCommandToEnterprise(mockСontext, metadataCommand)
-
-    expect(result).toEqual(expectedResult)
-  })
-
-  it("should export two commands to enterprise", () => {
-    const result = exportMetadataCommandsToEnterprise(mockСontext, twoCommands)
-
-    expect(result).toEqual(twoCommandsEnterprise)
+    expect(result).toEqual({
+      Глоссарий: {
+        Группа: "ПанельНавигацииОбычное",
+      },
+    })
   })
 })

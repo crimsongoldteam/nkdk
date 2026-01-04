@@ -1,7 +1,6 @@
 import {
   MetadataCommand,
   MetadataCommandEnterprise,
-  MetadataCommandGroupEnterprise,
   MetadataCommands,
   MetadataCommandsEnterprise,
 } from "~/metadata/appliedObjects/metadataCommand/types"
@@ -10,12 +9,20 @@ import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/expo
 import { I8nTextEnterprise } from "~/metadata/commonObjects/i8nText/types"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { Context } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { extractDifferentSynonymPart } from "~/metadata/helpers/synonymHelpers"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportMetadataItemLinkToEnterprise } from "../../commonObjects/metadataRef/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "../../commonObjects/typeDescription/exportToEnterprise"
+
+export const exportMetadataCommandsToEnterprise = (
+  context: Context,
+  data: MetadataCommands | undefined
+): MetadataCommandsEnterprise | undefined => {
+  if (!data) return undefined
+
+  return Object.fromEntries(data.map((command) => [command.name, exportMetadataCommandToEnterprise(context, command)!]))
+}
 
 export const exportMetadataCommandToEnterprise = (
   context: Context,
@@ -23,7 +30,16 @@ export const exportMetadataCommandToEnterprise = (
 ): MetadataCommandEnterprise | undefined => {
   if (!data) return undefined
 
-  const group = getGroup(context, data)
+  let group: SE.StandardCommandsGroupEnterprise | string | undefined
+  if (typeof data.group === "string" && data.group in SE.StandardCommandsGroupToEnterprise) {
+    group = exportSystemEnumerationToEnterprise<SE.StandardCommandsGroupEnterprise>(
+      context,
+      data.group,
+      SE.StandardCommandsGroupToEnterprise
+    )!
+  } else {
+    group = exportMetadataItemLinkToEnterprise(context, data.group)
+  }
 
   const filteredSynonym = extractDifferentSynonymPart(context, data.synonym, data.name)
   const synonym = exportI8nTextToEnterprise(context, filteredSynonym)
@@ -32,51 +48,57 @@ export const exportMetadataCommandToEnterprise = (
     return group
   }
 
-  const result: MetadataCommandEnterprise = {
-    Группа: group,
-    Синоним: synonym,
-    ИзменяетДанные: exportBooleanToEnterprise(context, data.modifiesData),
-    Картинка: exportPictureToEnterprise(context, data.picture),
-    Комментарий: data.comment,
-    Отображение: exportSystemEnumerationToEnterprise(context, data.representation, SE.ButtonRepresentationToEnterprise),
-    Подсказка: exportI8nTextToEnterprise(context, data.toolTip),
-    ПринадлежностьОбъекта: exportSystemEnumerationToEnterprise(
-      context,
-      data.objectBelonging,
-      SE.ObjectBelongingToEnterprise
-    ),
-    РежимИспользованияПараметра: exportSystemEnumerationToEnterprise(
-      context,
-      data.parameterUseMode,
-      SE.CommandParameterUseModeToEnterprise
-    ),
-    СочетаниеКлавиш: data.shortcut,
-    ТипПараметраКоманды: exportTypeDescriptionToEnterprise(context, data.commandParameterType),
-    ПоведениеПриНедоступностиОсновногоСервера: exportSystemEnumerationToEnterprise(
+  const result: MetadataCommandEnterprise = {}
+
+  if (group !== undefined) result.Группа = group
+
+  if (synonym !== undefined) result.Синоним = synonym
+
+  const modifiesData = exportBooleanToEnterprise(context, data.modifiesData)
+  if (modifiesData !== undefined) result.ИзменяетДанные = modifiesData
+
+  const picture = exportPictureToEnterprise(context, data.picture)
+  if (picture !== undefined) result.Картинка = picture
+
+  if (data.comment !== undefined) result.Комментарий = data.comment
+
+  const representation = exportSystemEnumerationToEnterprise<SE.ButtonRepresentationEnterprise>(
+    context,
+    data.representation,
+    SE.ButtonRepresentationToEnterprise
+  )
+  if (representation !== undefined) result.Отображение = representation
+
+  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  if (toolTip !== undefined) result.Подсказка = toolTip
+
+  const objectBelonging = exportSystemEnumerationToEnterprise<SE.ObjectBelongingEnterprise>(
+    context,
+    data.objectBelonging,
+    SE.ObjectBelongingToEnterprise
+  )
+  if (objectBelonging !== undefined) result.ПринадлежностьОбъекта = objectBelonging
+
+  const parameterUseMode = exportSystemEnumerationToEnterprise<SE.CommandParameterUseModeEnterprise>(
+    context,
+    data.parameterUseMode,
+    SE.CommandParameterUseModeToEnterprise
+  )
+  if (parameterUseMode !== undefined) result.РежимИспользованияПараметра = parameterUseMode
+
+  if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
+
+  const commandParameterType = exportTypeDescriptionToEnterprise(context, data.commandParameterType)
+  if (commandParameterType !== undefined) result.ТипПараметраКоманды = commandParameterType
+
+  const onMainServerUnavalableBehavior =
+    exportSystemEnumerationToEnterprise<SE.OnMainServerUnavalableBehaviorEnterprise>(
       context,
       data.onMainServerUnavalableBehavior,
       SE.OnMainServerUnavalableBehaviorToEnterprise
-    ),
-  }
-
-  return compactObject(result) as MetadataCommandEnterprise
-}
-
-export const exportMetadataCommandsToEnterprise = (
-  context: Context,
-  data: MetadataCommands | undefined
-): MetadataCommandsEnterprise | undefined => {
-  if (!data) return undefined
-
-  const result: MetadataCommandsEnterprise = {}
-  for (const command of data) {
-    const enterprise = exportMetadataCommandToEnterprise(context, command)
-    if (enterprise) {
-      result[command.name] = enterprise
-    }
-  }
-
-  if (Object.keys(result).length === 0) return undefined
+    )
+  if (onMainServerUnavalableBehavior !== undefined)
+    result.ПоведениеПриНедоступностиОсновногоСервера = onMainServerUnavalableBehavior
 
   return result
 }
@@ -87,12 +109,4 @@ const canUseShortFormat = (data: MetadataCommand, synonym: I8nTextEnterprise | u
     Object.entries(data).filter(([key, value]) => value !== undefined && !["name", "synonym"].includes(key))
   )
   return Object.keys(filteredData).length === 0
-}
-
-const getGroup = (context: Context, data: MetadataCommand): MetadataCommandGroupEnterprise | undefined => {
-  if (!data.group) return undefined
-  if (typeof data.group === "string" && data.group in SE.StandardCommandsGroupToEnterprise) {
-    return exportSystemEnumerationToEnterprise(context, data.group, SE.StandardCommandsGroupToEnterprise)!
-  }
-  return exportMetadataItemLinkToEnterprise(context, data.group)!
 }

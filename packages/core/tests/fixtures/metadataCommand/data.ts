@@ -31,7 +31,7 @@ export const fullMetadataCommandsEnterprise: MetadataCommandsEnterprise = {
     Комментарий: "Комментарий к команде",
     Картинка: "Печать",
     СочетаниеКлавиш: "Ctrl+G",
-    ТипПараметраКоманды: ["Документ.КакойТоДокумент"],
+    ТипПараметраКоманды: "Документ.КакойТоДокумент",
     ИзменяетДанные: "Истина",
     Подсказка: "Подсказка для команды",
   },
@@ -52,6 +52,10 @@ export const defaultMetadataCommands: MetadataCommands = [
     group: "NavigationPanelImportant",
   },
 ]
+
+export const minimalMetadataCommandsEnterprise: MetadataCommandsEnterprise = {
+  Глоссарий: "ПанельНавигацииОбычное",
+}
 
 export const defaultMetadataCommandsEnterprise: MetadataCommandsEnterprise = {
   Глоссарий: "ПанельНавигацииВажное",

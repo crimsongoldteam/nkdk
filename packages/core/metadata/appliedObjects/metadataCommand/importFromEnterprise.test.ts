@@ -1,43 +1,27 @@
 import { describe, expect, it } from "vitest"
 import {
-  commandWithParameterUseMode,
-  commandWithParameterUseModeEnterprise,
-  commandWithUserGroup,
-  commandWithUserGroupEnterprise,
-  commandWithoutSynonym,
-  commandWithoutSynonymEnterprise,
-  twoCommands,
-  twoCommandsEnterprise,
-} from "~/tests/fixtures/metadataCommand/fixtures"
+  defaultMetadataCommands,
+  defaultMetadataCommandsEnterprise,
+  fullMetadataCommands,
+  fullMetadataCommandsEnterprise,
+} from "~/tests/fixtures/metadataCommand/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importMetadataCommandFromEnterprise, importMetadataCommandsFromEnterprise } from "./importFromEnterprise"
+import { importMetadataCommandsFromEnterprise } from "./importFromEnterprise"
 
 describe("importMetadataCommandFromEnterprise", () => {
-  it("should import metadata command from enterprise", () => {
-    const result = importMetadataCommandFromEnterprise(
-      mockСontext,
-      commandWithParameterUseModeEnterprise,
-      "ТестоваяКоманда"
-    )
-
-    expect(result).toEqual(commandWithParameterUseMode)
+  it("should return undefined when data is undefined", () => {
+    const result = importMetadataCommandsFromEnterprise(mockСontext, undefined)
+    expect(result).toBeUndefined()
   })
 
-  it("should import with user group", () => {
-    const result = importMetadataCommandFromEnterprise(mockСontext, commandWithUserGroupEnterprise, "ТестоваяКоманда")
+  it("should import full", () => {
+    const result = importMetadataCommandsFromEnterprise(mockСontext, fullMetadataCommandsEnterprise)
 
-    expect(result).toEqual(commandWithUserGroup)
+    expect(result).toEqual(fullMetadataCommands)
   })
 
-  it("should import without synonym when synonym is omitted", () => {
-    const result = importMetadataCommandFromEnterprise(mockСontext, commandWithoutSynonymEnterprise, "ТестоваяКоманда")
-
-    expect(result).toEqual(commandWithoutSynonym)
-  })
-
-  it("should import two commands from enterprise", () => {
-    const result = importMetadataCommandsFromEnterprise(mockСontext, twoCommandsEnterprise)
-
-    expect(result).toEqual(twoCommands)
+  it("should import defaults", () => {
+    const result = importMetadataCommandsFromEnterprise(mockСontext, defaultMetadataCommandsEnterprise)
+    expect(result).toEqual(defaultMetadataCommands)
   })
 })

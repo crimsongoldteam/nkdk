@@ -10,7 +10,7 @@ import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/im
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { Context } from "~/metadata/context/types"
-import { compactObject, removeDefaults } from "~/metadata/helpers/compactObject"
+import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -48,41 +48,61 @@ export const importMetadataCommandFromEnterprise = (
     group = importMetadataItemLinkFromEnterprise(context, fullData.Группа)!
   }
 
+  const synonym = addDefaultLanguageNameToSynonym(context, importI8nTextFromEnterprise(context, fullData.Синоним), name)
+
   const result: MetadataCommand = {
     name,
     group: group as SE.StandardCommandsGroup | string,
-    commandParameterType: importTypeDescriptionFromEnterprise(context, fullData.ТипПараметраКоманды),
-    comment: fullData.Комментарий,
-    modifiesData: importBooleanFromEnterprise(context, fullData.ИзменяетДанные),
-    objectBelonging: importSystemEnumerationFromEnterprise(
-      context,
-      fullData.ПринадлежностьОбъекта,
-      SE.ObjectBelongingFromEnterprise
-    ),
-    parameterUseMode: importSystemEnumerationFromEnterprise(
-      context,
-      fullData.РежимИспользованияПараметра,
-      SE.CommandParameterUseModeFromEnterprise
-    ),
-    picture: importPictureFromEnterprise(context, fullData.Картинка),
-    representation: importSystemEnumerationFromEnterprise(
-      context,
-      fullData.Отображение,
-      SE.ButtonRepresentationFromEnterprise
-    ),
-    shortcut: fullData.СочетаниеКлавиш,
-    synonym: addDefaultLanguageNameToSynonym(context, importI8nTextFromEnterprise(context, fullData.Синоним), name),
-    toolTip: importI8nTextFromEnterprise(context, fullData.Подсказка),
-    onMainServerUnavalableBehavior: importSystemEnumerationFromEnterprise(
-      context,
-      fullData.ПоведениеПриНедоступностиОсновногоСервера,
-      SE.OnMainServerUnavalableBehaviorFromEnterprise
-    ),
+    synonym,
   }
 
-  const compactedResult = compactObject(result)
-  const defaults = getDefaults(compactedResult, context)
-  return removeDefaults(compactedResult, defaults)
+  const commandParameterType = importTypeDescriptionFromEnterprise(context, fullData.ТипПараметраКоманды)
+  if (commandParameterType !== undefined) result.commandParameterType = commandParameterType
+
+  if (fullData.Комментарий !== undefined) result.comment = fullData.Комментарий
+
+  const modifiesData = importBooleanFromEnterprise(context, fullData.ИзменяетДанные)
+  if (modifiesData !== undefined) result.modifiesData = modifiesData
+
+  const objectBelonging = importSystemEnumerationFromEnterprise<SE.ObjectBelonging>(
+    context,
+    fullData.ПринадлежностьОбъекта,
+    SE.ObjectBelongingFromEnterprise
+  )
+  if (objectBelonging !== undefined) result.objectBelonging = objectBelonging
+
+  const parameterUseMode = importSystemEnumerationFromEnterprise<SE.CommandParameterUseMode>(
+    context,
+    fullData.РежимИспользованияПараметра,
+    SE.CommandParameterUseModeFromEnterprise
+  )
+  if (parameterUseMode !== undefined) result.parameterUseMode = parameterUseMode
+
+  const picture = importPictureFromEnterprise(context, fullData.Картинка)
+  if (picture !== undefined) result.picture = picture
+
+  const representation = importSystemEnumerationFromEnterprise<SE.ButtonRepresentation>(
+    context,
+    fullData.Отображение,
+    SE.ButtonRepresentationFromEnterprise
+  )
+  if (representation !== undefined) result.representation = representation
+
+  if (fullData.СочетаниеКлавиш !== undefined) result.shortcut = fullData.СочетаниеКлавиш
+
+  const toolTip = importI8nTextFromEnterprise(context, fullData.Подсказка)
+  if (toolTip !== undefined) result.toolTip = toolTip
+
+  const onMainServerUnavalableBehavior = importSystemEnumerationFromEnterprise<SE.OnMainServerUnavalableBehavior>(
+    context,
+    fullData.ПоведениеПриНедоступностиОсновногоСервера,
+    SE.OnMainServerUnavalableBehaviorFromEnterprise
+  )
+  if (onMainServerUnavalableBehavior !== undefined)
+    result.onMainServerUnavalableBehavior = onMainServerUnavalableBehavior
+
+  const defaults = getDefaults(result, context)
+  return removeDefaults(result, defaults)
 }
 
 export const importMetadataCommandsFromEnterprise = (
@@ -91,15 +111,5 @@ export const importMetadataCommandsFromEnterprise = (
 ): MetadataCommands | undefined => {
   if (!data) return undefined
 
-  const result: MetadataCommands = []
-  for (const [name, value] of Object.entries(data)) {
-    const command = importMetadataCommandFromEnterprise(context, value, name)
-    if (command) {
-      result.push(command)
-    }
-  }
-
-  if (result.length === 0) return undefined
-
-  return result
+  return Object.entries(data).map(([name, value]) => importMetadataCommandFromEnterprise(context, value, name)!)
 }
