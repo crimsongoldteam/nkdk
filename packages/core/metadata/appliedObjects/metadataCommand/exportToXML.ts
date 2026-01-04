@@ -1,7 +1,7 @@
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportMetadataItemLinkToXML } from "~/metadata/commonObjects/metadataRef/exportToXML"
 import { MetadataItemLinkXML } from "~/metadata/commonObjects/metadataRef/types"
-import { exportPictureToXML } from "~/metadata/commonObjects/pictures/exportToXML"
+import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { Context } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
