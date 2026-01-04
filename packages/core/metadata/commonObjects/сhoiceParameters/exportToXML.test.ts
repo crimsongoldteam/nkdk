@@ -7,6 +7,7 @@ import {
   multipleChoiceParameters,
   singleChoiceParameter,
   stringChoiceParameter,
+  withoutOneValueChoiceParameter,
   withoutValueChoiceParameter,
 } from "~/tests/fixtures/choiceParameters/data"
 import { mockСontext } from "~/tests/mockContext"
@@ -88,6 +89,15 @@ describe("exportChoiceParametersToXML", () => {
     const expectedResult = readXMLFileAsString("choiceParameters/withoutValue.xml")
 
     const xmlData = exportChoiceParametersToXML(mockСontext, withoutValueChoiceParameter)
+    const result = xmlExport({ ChoiceParameters: xmlData }, false)
+
+    expect(result).toEqual(expectedResult.trim())
+  })
+
+  it("should export choice parameters without one value", () => {
+    const expectedResult = readXMLFileAsString("choiceParameters/withoutOneValue.xml")
+
+    const xmlData = exportChoiceParametersToXML(mockСontext, withoutOneValueChoiceParameter)
     const result = xmlExport({ ChoiceParameters: xmlData }, false)
 
     expect(result).toEqual(expectedResult.trim())

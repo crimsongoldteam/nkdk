@@ -17,7 +17,7 @@ export const importMetadataValueFromEnterprise = (
 ): MetadataValue | undefined => {
   if (data === undefined) return undefined
 
-  if (typeof data === "object" && !Array.isArray(data) && "Представление" in data) {
+  if (typeof data === "object" && data !== null && !Array.isArray(data) && "Представление" in data) {
     return importFormChoiceListValueFromEnterprise(context, data as MetadataFormChoiceListValueEnterprise)
   }
 

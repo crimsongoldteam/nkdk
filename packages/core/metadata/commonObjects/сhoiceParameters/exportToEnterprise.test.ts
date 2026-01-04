@@ -13,6 +13,8 @@ import {
   singleChoiceParametersEnterprise,
   stringChoiceParameter,
   stringChoiceParametersEnterprise,
+  withoutOneValueChoiceParameter,
+  withoutOneValueChoiceParametersEnterprise,
   withoutValueChoiceParameter,
   withoutValueChoiceParametersEnterprise,
 } from "~/tests/fixtures/choiceParameters/data"
@@ -66,5 +68,11 @@ describe("exportChoiceParametersToEnterprise", () => {
     const result = exportChoiceParametersToEnterprise(mockСontext, withoutValueChoiceParameter)
 
     expect(result).toEqual(withoutValueChoiceParametersEnterprise)
+  })
+
+  it("should export choice parameters without one value to enterprise", () => {
+    const result = exportChoiceParametersToEnterprise(mockСontext, withoutOneValueChoiceParameter)
+
+    expect(result).toEqual(withoutOneValueChoiceParametersEnterprise)
   })
 })

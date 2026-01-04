@@ -13,6 +13,8 @@ import {
   singleChoiceParametersEnterprise,
   stringChoiceParameter,
   stringChoiceParametersEnterprise,
+  withoutOneValueChoiceParameter,
+  withoutOneValueChoiceParametersEnterprise,
   withoutValueChoiceParameter,
   withoutValueChoiceParametersEnterprise,
 } from "~/tests/fixtures/choiceParameters/data"
@@ -66,5 +68,11 @@ describe("importChoiceParametersFromEnterprise", () => {
     const result = importChoiceParametersFromEnterprise(mockСontext, withoutValueChoiceParametersEnterprise)
 
     expect(result).toEqual(withoutValueChoiceParameter)
+  })
+
+  it("should import choice parameters without one value from enterprise", () => {
+    const result = importChoiceParametersFromEnterprise(mockСontext, withoutOneValueChoiceParametersEnterprise)
+
+    expect(result).toEqual(withoutOneValueChoiceParameter)
   })
 })

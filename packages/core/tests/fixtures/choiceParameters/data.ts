@@ -166,3 +166,24 @@ export const withoutValueChoiceParametersEnterprise: ChoiceParametersEnterprise 
 }
 
 //#endregion
+
+//#region Without One Value
+export const withoutOneValueChoiceParameter: ChoiceParameters = [
+  {
+    name: "ВыборСчетовГоловнойОрганизации",
+  },
+  {
+    name: "Отбор.Закрыт",
+    value: {
+      type: "boolean",
+      value: false,
+    },
+  },
+]
+
+export const withoutOneValueChoiceParametersEnterprise: ChoiceParametersEnterprise = {
+  ВыборСчетовГоловнойОрганизации: undefined,
+  "Отбор.Закрыт": "Ложь",
+}
+
+//#endregion

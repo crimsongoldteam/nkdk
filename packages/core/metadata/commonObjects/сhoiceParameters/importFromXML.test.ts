@@ -8,6 +8,7 @@ import {
   nilChoiceParameters,
   singleChoiceParameter,
   stringChoiceParameter,
+  withoutOneValueChoiceParameter,
 } from "~/tests/fixtures/choiceParameters/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -91,5 +92,15 @@ describe("importChoiceParametersFromXML", () => {
     const result = importChoiceParametersFromXML(mockСontext, xmlData.ChoiceParameters)
 
     expect(result).toEqual(nilChoiceParameters)
+  })
+
+  it("should import choice parameters without one value correctly", () => {
+    const xmlData = readAndParseXMLFile<{ ChoiceParameters: ChoiceParametersXML }>(
+      "choiceParameters/withoutOneValue.xml"
+    )
+
+    const result = importChoiceParametersFromXML(mockСontext, xmlData.ChoiceParameters)
+
+    expect(result).toEqual(withoutOneValueChoiceParameter)
   })
 })

@@ -4,5 +4,7 @@ export const exportToYAML = <T>(data: T): string => {
   return stringify(data, {
     indent: 2,
     lineWidth: 0,
+    keepUndefined: true,
+    nullStr: "",
   }).trim()
 }

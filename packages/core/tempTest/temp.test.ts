@@ -1,9 +1,10 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { describe, it, vi } from "vitest"
-import { stringify } from "yaml"
+import { importFromYAML } from "~/yaml/import"
 import {
   MetadataCatalogContext,
+  MetadataCatalogEnterprise,
   MetadataCatalogXML,
   exportMetadataCatalogToEnterprise,
   exportMetadataCatalogToXML,
@@ -13,6 +14,7 @@ import {
 import { mockСontext } from "../tests/mockContext"
 import { xmlExport } from "../xml/export/exporter"
 import importContentFromXML from "../xml/import/importer"
+import { exportToYAML } from "../yaml/export"
 
 vi.mock("uuid", () => ({
   v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
@@ -55,14 +57,12 @@ describe("DO test", () => {
 
     const exportedEnterprise = exportMetadataCatalogToEnterprise(mockСontext, xmlData)
 
-    const yamlString = stringify(exportedEnterprise!, {
-      indent: 2,
-      lineWidth: 0,
-    }).trim()
-
+    const yamlString = exportToYAML(exportedEnterprise!)
     writeFileSync(join(__dirname, "After/Контрагенты.yml"), yamlString, "utf-8")
 
-    const newData = importMetadataCatalogFromEnterprise(mockСontext, exportedEnterprise, "Номенклатура")
+    const importedYAML = importFromYAML<MetadataCatalogEnterprise>(yamlString)
+
+    const newData = importMetadataCatalogFromEnterprise(mockСontext, importedYAML, "Номенклатура")
     const newXml = exportMetadataCatalogToXML(mockMetadataCatalogContext, newData)
 
     const newXmlString = xmlExport({ MetaDataObject: newXml })
