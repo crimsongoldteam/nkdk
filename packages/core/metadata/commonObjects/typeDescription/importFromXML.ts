@@ -1,8 +1,6 @@
 import { Context } from "../../context/types"
 import { compactObject } from "../../helpers/compactObject"
-import { TypeDescription, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
-
-const TypePrefixes = ["xs:", "cfg:", "mxl:", "v8:"]
+import { TypeDescription, TypeDescriptionPrefixes, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
 
 export const importTypeDescriptionFromXML = (
   _context: Context,
@@ -11,39 +9,18 @@ export const importTypeDescriptionFromXML = (
   if (!xml) return undefined
 
   const types = extractTypes(xml)
+  const stringQualifiers = getStringQualifiers(xml["v8:StringQualifiers"])
+  const numberQualifiers = getNumberQualifiers(xml["v8:NumberQualifiers"])
+  const dateQualifiers = getDateQualifiers(xml["v8:DateQualifiers"])
 
   const result: TypeDescription = {
     type: types,
-    stringQualifiers: getStringQualifiers(xml["v8:StringQualifiers"]),
-    numberQualifiers: getNumberQualifiers(xml["v8:NumberQualifiers"]),
-    dateQualifiers: getDateQualifiers(xml["v8:DateQualifiers"]),
+    ...(stringQualifiers !== undefined && { stringQualifiers }),
+    ...(numberQualifiers !== undefined && { numberQualifiers }),
+    ...(dateQualifiers !== undefined && { dateQualifiers }),
   }
 
-  // Удаляем дефолтные квалификаторы
-  const cleanedResult = { ...result }
-
-  // Удаляем stringQualifiers, если они равны дефолтным значениям
-  if (
-    cleanedResult.stringQualifiers &&
-    cleanedResult.stringQualifiers.length === 0 &&
-    cleanedResult.stringQualifiers.allowedLength === "Variable"
-  ) {
-    cleanedResult.stringQualifiers = undefined
-  }
-
-  // Удаляем numberQualifiers, если они равны дефолтным значениям
-  if (
-    cleanedResult.numberQualifiers &&
-    cleanedResult.numberQualifiers.digits === 0 &&
-    cleanedResult.numberQualifiers.fractionDigits === 0 &&
-    cleanedResult.numberQualifiers.allowedSign === undefined
-  ) {
-    cleanedResult.numberQualifiers = undefined
-  }
-
-  // Не удаляем dateQualifiers, так как они нужны для различения типов дат
-
-  return compactObject(cleanedResult)
+  return compactObject(result)
 }
 
 export const extractTypes = (item: TypeDescriptionXML): string[] => {
@@ -73,10 +50,15 @@ export const getType = (type: TypeDescriptionXMLType): string => {
 }
 
 const removeTypePrefix = (type: string): string => {
-  for (const prefix of TypePrefixes) {
-    if (type.startsWith(prefix)) return type.substring(prefix.length)
-  }
-  return type
+  const colonIndex = type.indexOf(":")
+  if (colonIndex === -1) return type
+
+  const prefix = type.substring(0, colonIndex)
+  const typeName = type.substring(colonIndex + 1)
+
+  if (TypeDescriptionPrefixes[prefix]) return typeName
+
+  return typeName
 }
 
 function getStringQualifiers(xml?: TypeDescriptionXML["v8:StringQualifiers"]):
@@ -86,20 +68,35 @@ function getStringQualifiers(xml?: TypeDescriptionXML["v8:StringQualifiers"]):
     }
   | undefined {
   if (xml === undefined) return undefined
-  return {
+
+  const result = {
     length: xml["v8:Length"],
     allowedLength: xml["v8:AllowedLength"],
   }
+
+  // Возвращаем undefined для дефолтных значений
+  if (result.length === 0 && result.allowedLength === "Variable") {
+    return undefined
+  }
+
+  return result
 }
 
 function getNumberQualifiers(xml?: TypeDescriptionXML["v8:NumberQualifiers"]) {
   if (!xml) return undefined
 
-  return {
+  const result = {
     digits: xml["v8:Digits"],
     fractionDigits: xml["v8:FractionDigits"],
     allowedSign: xml["v8:AllowedSign"],
   }
+
+  // Возвращаем undefined для дефолтных значений
+  if (result.digits === 0 && result.fractionDigits === 0 && result.allowedSign === undefined) {
+    return undefined
+  }
+
+  return result
 }
 
 function getDateQualifiers(xml?: TypeDescriptionXML["v8:DateQualifiers"]) {

@@ -133,6 +133,36 @@ export const typeFixturesTable: TypeFixture[] = [
     xml: "<TypeDescription>\n\t<v8:Type>cfg:EnumRef.ТипыДокументов</v8:Type>\n</TypeDescription>",
   },
   {
+    internal: { type: ["CatalogObject.ПрофессииРабочих"] },
+    enterprise: "СправочникОбъект.ПрофессииРабочих",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:CatalogObject.ПрофессииРабочих</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["DocumentObject.КорректировкаИзлишковНедостачПоТоварнымМестам"] },
+    enterprise: "ДокументОбъект.КорректировкаИзлишковНедостачПоТоварнымМестам",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:DocumentObject.КорректировкаИзлишковНедостачПоТоварнымМестам</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["BusinessProcessObject.ОбработкаЗаказов"] },
+    enterprise: "БизнесПроцессОбъект.ОбработкаЗаказов",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:BusinessProcessObject.ОбработкаЗаказов</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["ChartOfCharacteristicTypesObject.ДополнительныеРеквизитыИСведения"] },
+    enterprise: "ПланВидовХарактеристикОбъект.ДополнительныеРеквизитыИСведения",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:ChartOfCharacteristicTypesObject.ДополнительныеРеквизитыИСведения</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["ExchangePlanObject.ОбменСФилиалами"] },
+    enterprise: "ПланОбменаОбъект.ОбменСФилиалами",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:ExchangePlanObject.ОбменСФилиалами</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["ChartOfAccountObject.Основной"] },
+    enterprise: "ПланСчетовОбъект.Основной",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:ChartOfAccountObject.Основной</v8:Type>\n</TypeDescription>",
+  },
+  {
     internal: { type: ["DefinedType.GTIN"] },
     enterprise: "ОпределяемыйТип.GTIN",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:DefinedType.GTIN</v8:TypeSet>\n</TypeDescription>",
@@ -167,92 +197,92 @@ export const typeFixturesTable: TypeFixture[] = [
   //#region Namespace Types
   //#region Data Analysis Namespace
   {
-    internal: { type: ["d5p1:AssociationRulesDataSourceType"] },
+    internal: { type: ["AssociationRulesDataSourceType"] },
     enterprise: "AssociationRulesDataSourceType",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:AssociationRulesDataSourceType</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:AnalysisDataType"] },
+    internal: { type: ["AnalysisDataType"] },
     enterprise: "ТипИсточникаДанныхПоискаАссоциаций",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:AnalysisDataType</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:DataAnalysisDistanceMetricType"] },
+    internal: { type: ["DataAnalysisDistanceMetricType"] },
     enterprise: "ТипМерыРасстоянияАнализаДанных",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisDistanceMetricType</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:DataAnalysisColumnTypeAssociationRules"] },
+    internal: { type: ["DataAnalysisColumnTypeAssociationRules"] },
     enterprise: "ТипКолонкиАнализаДанныхПоискАссоциаций",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisColumnTypeAssociationRules</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:DataAnalysisResultTableFillType"] },
+    internal: { type: ["DataAnalysisResultTableFillType"] },
     enterprise: "ТипЗаполненияТаблицыРезультатаАнализаДанных",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisResultTableFillType</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:DataAnalysisNumericValueUseType"] },
+    internal: { type: ["DataAnalysisNumericValueUseType"] },
     enterprise: "ТипИспользованияЧисловыхЗначенийАнализаДанных",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisNumericValueUseType</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:DecisionTreeSimplificationType"] },
+    internal: { type: ["DecisionTreeSimplificationType"] },
     enterprise: "ТипУпрощенияДереваРешений",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DecisionTreeSimplificationType</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:DataAnalysisColumnTypeDecisionTree"] },
+    internal: { type: ["DataAnalysisColumnTypeDecisionTree"] },
     enterprise: "ТипКолонкиАнализаДанныхДеревоРешений",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisColumnTypeDecisionTree</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:DataAnalysisSequentialPatternsOrderType"] },
+    internal: { type: ["DataAnalysisSequentialPatternsOrderType"] },
     enterprise: "ТипУпорядочиванияШаблоновПоследовательностейАнализаДанных",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisSequentialPatternsOrderType</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:DataAnalysisTimeIntervalUnitType"] },
+    internal: { type: ["DataAnalysisTimeIntervalUnitType"] },
     enterprise: "ТипЕдиницыИнтервалаВремениАнализаДанных",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisTimeIntervalUnitType</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:DataAnalysisColumnTypeSequentialPatterns"] },
+    internal: { type: ["DataAnalysisColumnTypeSequentialPatterns"] },
     enterprise: "ТипКолонкиАнализаДанныхПоискПоследовательностей",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisColumnTypeSequentialPatterns</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:DataAnalysisStandardizationType"] },
+    internal: { type: ["DataAnalysisStandardizationType"] },
     enterprise: "ТипКолонкиАнализаДанныхПоискПоследовательностей",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisStandardizationType</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:PredictionModelColumnType"] },
+    internal: { type: ["PredictionModelColumnType"] },
     enterprise: "ТипКолонкиМоделиПрогноза",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:PredictionModelColumnType</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:ClusterizationMethod"] },
+    internal: { type: ["ClusterizationMethod"] },
     enterprise: "МетодКластеризации",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:ClusterizationMethod</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:DataAnalysisAssociationRulesOrderType"] },
+    internal: { type: ["DataAnalysisAssociationRulesOrderType"] },
     enterprise: "ТипУпорядочиванияПравилАссоциацииАнализаДанных",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisAssociationRulesOrderType</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:DataAnalysisColumnTypeSummaryStatistics"] },
+    internal: { type: ["DataAnalysisColumnTypeSummaryStatistics"] },
     enterprise: "ТипКолонкиАнализаДанныхОбщаяСтатистика",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisColumnTypeSummaryStatistics</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:AssociationRulesPruneType"] },
+    internal: { type: ["AssociationRulesPruneType"] },
     enterprise: "ТипОтсеченияПравилАссоциации",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:AssociationRulesPruneType</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:DataAnalysisColumnTypeClusterization"] },
+    internal: { type: ["DataAnalysisColumnTypeClusterization"] },
     enterprise: "ТипКолонкиАнализаДанныхКластеризация",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisColumnTypeClusterization</v8:Type>\n</TypeDescription>',
   },
@@ -260,37 +290,37 @@ export const typeFixturesTable: TypeFixture[] = [
 
   //#region UI Namespace
   {
-    internal: { type: ["v8ui:FormattedString"] },
+    internal: { type: ["FormattedString"] },
     enterprise: "ФорматированнаяСтрока",
     xml: "<TypeDescription>\n\t<v8:Type>v8ui:FormattedString</v8:Type>\n</TypeDescription>",
   },
   {
-    internal: { type: ["v8ui:HorizontalAlign"] },
+    internal: { type: ["HorizontalAlign"] },
     enterprise: "ГоризонтальноеПоложение",
     xml: "<TypeDescription>\n\t<v8:Type>v8ui:HorizontalAlign</v8:Type>\n</TypeDescription>",
   },
   {
-    internal: { type: ["v8ui:VerticalAlign"] },
+    internal: { type: ["VerticalAlign"] },
     enterprise: "ВертикальноеПоложение",
     xml: "<TypeDescription>\n\t<v8:Type>v8ui:VerticalAlign</v8:Type>\n</TypeDescription>",
   },
   {
-    internal: { type: ["v8ui:SizeChangeMode"] },
+    internal: { type: ["SizeChangeMode"] },
     enterprise: "РежимИзмененияРазмера",
     xml: "<TypeDescription>\n\t<v8:Type>v8ui:SizeChangeMode</v8:Type>\n</TypeDescription>",
   },
   {
-    internal: { type: ["v8ui:Color"] },
+    internal: { type: ["Color"] },
     enterprise: "Цвет",
     xml: "<TypeDescription>\n\t<v8:Type>v8ui:Color</v8:Type>\n</TypeDescription>",
   },
   {
-    internal: { type: ["v8ui:Font"] },
+    internal: { type: ["Font"] },
     enterprise: "Шрифт",
     xml: "<TypeDescription>\n\t<v8:Type>v8ui:Font</v8:Type>\n</TypeDescription>",
   },
   {
-    internal: { type: ["v8ui:Picture"] },
+    internal: { type: ["Picture"] },
     enterprise: "Картинка",
     xml: "<TypeDescription>\n\t<v8:Type>v8ui:Picture</v8:Type>\n</TypeDescription>",
   },
@@ -298,7 +328,7 @@ export const typeFixturesTable: TypeFixture[] = [
 
   //#region Formatted Document Namespace
   {
-    internal: { type: ["fd:FormattedDocument"] },
+    internal: { type: ["FormattedDocument"] },
     enterprise: "ФорматированныйДокумент",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:fd="http://v8.1c.ru/8.2/data/formatted-document">fd:FormattedDocument</v8:Type>\n</TypeDescription>',
   },
@@ -306,17 +336,17 @@ export const typeFixturesTable: TypeFixture[] = [
 
   //#region Chart Namespace
   {
-    internal: { type: ["d5p1:Dendrogram"] },
+    internal: { type: ["Dendrogram"] },
     enterprise: "Дендрограмма",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/chart">d5p1:Dendrogram</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:Chart"] },
+    internal: { type: ["Chart"] },
     enterprise: "Диаграмма",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/chart">d5p1:Chart</v8:Type>\n</TypeDescription>',
   },
   {
-    internal: { type: ["d5p1:GanttChart"] },
+    internal: { type: ["GanttChart"] },
     enterprise: "ДиаграммаГанта",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/chart">d5p1:GanttChart</v8:Type>\n</TypeDescription>',
   },
@@ -324,7 +354,7 @@ export const typeFixturesTable: TypeFixture[] = [
 
   //#region Planner Namespace
   {
-    internal: { type: ["pl:Planner"] },
+    internal: { type: ["Planner"] },
     enterprise: "Планировщик",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:pl="http://v8.1c.ru/8.3/data/planner">pl:Planner</v8:Type>\n</TypeDescription>',
   },
@@ -332,7 +362,7 @@ export const typeFixturesTable: TypeFixture[] = [
 
   //#region PDF Namespace
   {
-    internal: { type: ["pdfdoc:PDFDocument"] },
+    internal: { type: ["PDFDocument"] },
     enterprise: "ДокументPDF",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:pdfdoc="http://v8.1c.ru/8.3/data/pdf">pdfdoc:PDFDocument</v8:Type>\n</TypeDescription>',
   },
@@ -340,7 +370,7 @@ export const typeFixturesTable: TypeFixture[] = [
 
   //#region Graph Scheme Namespace
   {
-    internal: { type: ["d5p1:FlowchartContextType"] },
+    internal: { type: ["FlowchartContextType"] },
     enterprise: "ГрафическаяСхема",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/graphscheme">d5p1:FlowchartContextType</v8:Type>\n</TypeDescription>',
   },
@@ -348,7 +378,7 @@ export const typeFixturesTable: TypeFixture[] = [
 
   //#region Text Editor Namespace
   {
-    internal: { type: ["d5p1:TextDocument"] },
+    internal: { type: ["TextDocument"] },
     enterprise: "ТекстовыйДокумент",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.1/data/txtedt">d5p1:TextDocument</v8:Type>\n</TypeDescription>',
   },
@@ -356,7 +386,7 @@ export const typeFixturesTable: TypeFixture[] = [
 
   //#region Geographic Namespace
   {
-    internal: { type: ["d5p1:GeographicalSchema"] },
+    internal: { type: ["GeographicalSchema"] },
     enterprise: "ГеографическаяСхема",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/geo">d5p1:GeographicalSchema</v8:Type>\n</TypeDescription>',
   },
@@ -364,17 +394,17 @@ export const typeFixturesTable: TypeFixture[] = [
 
   //#region Enterprise Namespace
   {
-    internal: { type: ["ent:AccumulationRecordType"] },
+    internal: { type: ["AccumulationRecordType"] },
     enterprise: "ВидДвиженияНакопления",
     xml: "<TypeDescription>\n\t<v8:Type>ent:AccumulationRecordType</v8:Type>\n</TypeDescription>",
   },
   {
-    internal: { type: ["ent:AccountingRecordType"] },
+    internal: { type: ["AccountingRecordType"] },
     enterprise: "ВидДвиженияБухгалтерии",
     xml: "<TypeDescription>\n\t<v8:Type>ent:AccountingRecordType</v8:Type>\n</TypeDescription>",
   },
   {
-    internal: { type: ["ent:AccountType"] },
+    internal: { type: ["AccountType"] },
     enterprise: "ВидСчета",
     xml: "<TypeDescription>\n\t<v8:Type>ent:AccountType</v8:Type>\n</TypeDescription>",
   },
@@ -382,7 +412,7 @@ export const typeFixturesTable: TypeFixture[] = [
 
   //#region Settings Composer Namespace
   {
-    internal: { type: ["dcsset:SettingsComposer"] },
+    internal: { type: ["SettingsComposer"] },
     enterprise: "КомпоновщикНастроекКомпоновкиДанных",
     xml: "<TypeDescription>\n\t<v8:Type>dcsset:SettingsComposer</v8:Type>\n</TypeDescription>",
   },
