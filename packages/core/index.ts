@@ -11,3 +11,4 @@ export {
 export { xmlExport } from "./xml/export/exporter.js"
 export { importContentFromXML } from "./xml/import/importer.js"
 export { exportToYAML } from "./yaml/export.js"
+export { importFromYAML } from "./yaml/import.js"

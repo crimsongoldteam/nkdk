@@ -1,5 +1,6 @@
 import {
   exportMetadataCatalogToXML,
+  importFromYAML,
   importMetadataCatalogFromEnterprise,
   xmlExport,
   type MetadataCatalogContext,
@@ -8,7 +9,6 @@ import {
 import * as cliProgress from "cli-progress"
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import { basename, dirname, join, relative } from "path"
-import { parse } from "yaml"
 
 /**
  * Находит все шаблоны в каталоге каталога
@@ -24,7 +24,7 @@ const findTemplates = (catalogDirPath: string): string[] => {
   const entries = readdirSync(templatesPath, { withFileTypes: true })
   const templateFiles = entries.filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith(".xml"))
 
-  return templateFiles.map((entry) => entry.name.replace(/\.xml$/i, "")).sort()
+  return templateFiles.map((entry) => entry.name.replace(/\.xml$/i, "")).sort((a, b) => a.localeCompare(b, "ru"))
 }
 
 /**
@@ -43,7 +43,7 @@ const findForms = (catalogDirPath: string): string[] => {
   // Формы находятся в подпапках, а не как XML файлы
   const formDirs = entries.filter((entry) => entry.isDirectory())
 
-  return formDirs.map((entry) => entry.name).sort()
+  return formDirs.map((entry) => entry.name).sort((a, b) => a.localeCompare(b, "ru"))
 }
 
 export const exportCatalog = (inputPath: string, outputPath: string): void => {
@@ -53,7 +53,7 @@ export const exportCatalog = (inputPath: string, outputPath: string): void => {
   }
 
   const yamlContent = readFileSync(inputPath, "utf-8")
-  const enterpriseData = parse(yamlContent) as MetadataCatalogEnterprise
+  const enterpriseData = importFromYAML(yamlContent) as MetadataCatalogEnterprise
 
   if (!enterpriseData) {
     throw new Error("Не удалось распарсить YAML")
@@ -72,8 +72,8 @@ export const exportCatalog = (inputPath: string, outputPath: string): void => {
   }
 
   // Находим все шаблоны и формы в каталоге
-  const templates = findTemplates(catalogDirPath).sort()
-  const forms = findForms(catalogDirPath).sort()
+  const templates = findTemplates(catalogDirPath)
+  const forms = findForms(catalogDirPath)
 
   // Создаем контекст для экспорта в XML
   const xmlContext: MetadataCatalogContext = {

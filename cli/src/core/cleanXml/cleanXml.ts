@@ -180,12 +180,13 @@ function processObject(obj: any, isPropertiesNode: boolean = false, parentKey: s
     const nextIsProperties = !isPropertiesNode && (SORTABLE_TAGS.includes(key) || key.endsWith(":Properties"))
     const processedValue = processObject(valueWithReplacedUuid, nextIsProperties, key)
 
-    // Пропускаем пустые ноды
-    if (isEmptyNode(processedValue)) {
-      continue
+    // Пропускаем пустые ноды, но не удаляем v8:content
+    if (key === "v8:content") {
+      // Сохраняем v8:content даже если он пустой
+      result[key] = processedValue !== undefined ? processedValue : {}
+    } else if (!isEmptyNode(processedValue)) {
+      result[key] = processedValue
     }
-
-    result[key] = processedValue
   }
 
   // Если объект пустой (нет атрибутов и нет свойств), возвращаем undefined
