@@ -11,4 +11,11 @@ export interface Picture {
   loadTransparent: boolean
 }
 
-export type PictureEnterprise = string | SE.PictureLibEnterprise
+export type PictureEnterpriseRef = string | SE.PictureLibEnterprise
+
+export interface PictureEnterpriseExtended {
+  Ссылка: PictureEnterpriseRef
+  Прозрачность: boolean
+}
+
+export type PictureEnterprise = PictureEnterpriseRef | PictureEnterpriseExtended

@@ -1,0 +1,4 @@
+<Picture>
+	<xr:Ref>StdPicture.BusinessProcess</xr:Ref>
+	<xr:LoadTransparent>true</xr:LoadTransparent>
+</Picture>

@@ -1,0 +1,4 @@
+<Picture>
+	<xr:Ref>CommonPicture.ОбщаяКартинка1</xr:Ref>
+	<xr:LoadTransparent>true</xr:LoadTransparent>
+</Picture>

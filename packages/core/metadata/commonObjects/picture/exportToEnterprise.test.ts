@@ -1,46 +1,37 @@
-import { expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
+import {
+  commonPicture,
+  commonPictureEnterprise,
+  standardPicture,
+  standardPictureEnterprise,
+  withoutTransparentPicture,
+  withoutTransparentPictureEnterprise,
+} from "../../../tests/fixtures/picture/data"
 import { mockСontext } from "../../../tests/mockContext"
 import { exportPictureToEnterprise } from "./exportToEnterprise"
-import { Picture } from "./types"
 
-it("should format standard picture", () => {
-  const data: Picture = {
-    ref: "BusinessProcess",
-    type: "StandardPicture",
-    loadTransparent: true,
-  }
+describe("exportPictureToEnterprise", () => {
+  it("should format standard picture", () => {
+    const result = exportPictureToEnterprise(mockСontext, standardPicture)
 
-  const expectedResult = `БизнесПроцесс`
+    expect(result).toEqual(standardPictureEnterprise)
+  })
 
-  const result = exportPictureToEnterprise(mockСontext, data)
+  it("should format common picture", () => {
+    const result = exportPictureToEnterprise(mockСontext, commonPicture)
 
-  expect(result).toEqual(expectedResult)
-})
+    expect(result).toEqual(commonPictureEnterprise)
+  })
 
-it("should format standard picture Print", () => {
-  const data: Picture = {
-    ref: "Print",
-    type: "StandardPicture",
-    loadTransparent: true,
-  }
+  it("should return undefined for undefined input", () => {
+    const result = exportPictureToEnterprise(mockСontext, undefined)
 
-  const expectedResult = `Печать`
+    expect(result).toBeUndefined()
+  })
 
-  const result = exportPictureToEnterprise(mockСontext, data)
+  it("should export picture without transparent", () => {
+    const result = exportPictureToEnterprise(mockСontext, withoutTransparentPicture)
 
-  expect(result).toEqual(expectedResult)
-})
-
-it("should format common picture", () => {
-  const data: Picture = {
-    ref: "ОбщаяКартинка1",
-    type: "CommonPicture",
-    loadTransparent: true,
-  }
-
-  const expectedResult = `ОбщаяКартинка1`
-
-  const result = exportPictureToEnterprise(mockСontext, data)
-
-  expect(result).toEqual(expectedResult)
+    expect(result).toEqual(withoutTransparentPictureEnterprise)
+  })
 })

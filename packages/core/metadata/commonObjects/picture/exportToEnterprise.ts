@@ -1,9 +1,12 @@
 import { Context } from "../../context/types"
 import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
-import { type Picture } from "./types"
+import { type Picture, type PictureEnterprise } from "./types"
 
-export function exportPictureToEnterprise(context: Context, picture: Picture | undefined): string | undefined {
+export function exportPictureToEnterprise(
+  context: Context,
+  picture: Picture | undefined
+): PictureEnterprise | undefined {
   if (!picture) return undefined
 
   if (picture.type === "StandardPicture") {
@@ -14,9 +17,12 @@ export function exportPictureToEnterprise(context: Context, picture: Picture | u
     return result
   }
 
-  if (picture.type === "CommonPicture") {
-    return picture.ref as string
+  if (!picture.loadTransparent) {
+    return {
+      Ссылка: picture.ref,
+      Прозрачность: false,
+    }
   }
 
-  return picture.ref as string
+  return picture.ref
 }

@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest"
+import { commonPicture, standardPicture, withoutTransparentPicture } from "~/tests/fixtures/picture/data"
 import { mockСontext } from "~/tests/mockContext"
+import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importPictureFromXML } from "./importFromXML"
 import { PictureXML } from "./types"
 
@@ -11,36 +13,23 @@ describe("importPictureFromXML", () => {
   })
 
   it("should import standard picture", () => {
-    const xmlData: PictureXML = {
-      "xr:Ref": "StdPicture.BusinessProcess",
-      "xr:LoadTransparent": true,
-    }
+    const xmlData = readAndParseXMLFile<{ Picture: PictureXML }>("picture/standart.xml")
+    const result = importPictureFromXML(mockСontext, xmlData.Picture)
 
-    const expectedResult = {
-      ref: "BusinessProcess",
-      type: "StandardPicture",
-      loadTransparent: true,
-    }
-
-    const result = importPictureFromXML(mockСontext, xmlData)
-
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(standardPicture)
   })
 
   it("should import common picture", () => {
-    const xmlData: PictureXML = {
-      "xr:Ref": "CommonPicture.ОбщаяКартинка1",
-      "xr:LoadTransparent": true,
-    }
+    const xmlData = readAndParseXMLFile<{ Picture: PictureXML }>("picture/common.xml")
+    const result = importPictureFromXML(mockСontext, xmlData.Picture)
 
-    const expectedResult = {
-      ref: "ОбщаяКартинка1",
-      type: "CommonPicture",
-      loadTransparent: true,
-    }
+    expect(result).toEqual(commonPicture)
+  })
 
-    const result = importPictureFromXML(mockСontext, xmlData)
+  it("should import picture without transparent", () => {
+    const xmlData = readAndParseXMLFile<{ Picture: PictureXML }>("picture/withoutTransparent.xml")
+    const result = importPictureFromXML(mockСontext, xmlData.Picture)
 
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(withoutTransparentPicture)
   })
 })
