@@ -1,6 +1,6 @@
 import { Context } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
-import { importMetadataTypeStringFromEnterprise } from "../metadataPath/importFromEnterprise"
+import { getTypeFromEnterprise } from "./helper"
 import {
   PrimitiveTypeFromEnterprise,
   TypeDescription,
@@ -18,8 +18,9 @@ export const importTypeDescriptionFromEnterprise = (
     return undefined
   }
 
+  const types: string[] = []
   const result: TypeDescription = {
-    type: [],
+    type: types,
   }
 
   const stringValues = Array.isArray(value) ? value : [value]
@@ -35,7 +36,7 @@ export const importTypeDescriptionFromEnterprise = (
 
     if (type === "Строка" || type === "ФиксированнаяСтрока") {
       const primitiveType = PrimitiveTypeFromEnterprise("Строка")
-      result.type.push(primitiveType)
+      types.push(primitiveType)
       const stringQualifiers = getStringQualifiers(parameters, type)
       if (stringQualifiers) {
         result.stringQualifiers = stringQualifiers
@@ -45,7 +46,7 @@ export const importTypeDescriptionFromEnterprise = (
 
     if (type === "Число" || type === "ПоложительноеЧисло") {
       const primitiveType = PrimitiveTypeFromEnterprise("Число")
-      result.type.push(primitiveType)
+      types.push(primitiveType)
       const numberQualifiers = getNumberQualifiers(parameters, type)
       if (numberQualifiers) {
         result.numberQualifiers = numberQualifiers
@@ -54,7 +55,7 @@ export const importTypeDescriptionFromEnterprise = (
     }
 
     if (type === "Дата" || type === "Время" || type === "ДатаВремя") {
-      result.type.push("dateTime")
+      types.push("dateTime")
       result.dateQualifiers = getDateQualifiers(type)
 
       continue
@@ -62,25 +63,29 @@ export const importTypeDescriptionFromEnterprise = (
 
     if (type === "Булево") {
       const primitiveType = PrimitiveTypeFromEnterprise("Булево")
-      result.type.push(primitiveType)
+      types.push(primitiveType)
       continue
     }
 
-    if (type === "ХранилищеЗначения") {
-      result.type.push("ValueStorage")
-      continue
-    }
+    const dotIndex = type.indexOf(".")
+    const isComplex = dotIndex !== -1
+    const baseType = isComplex ? type.substring(0, dotIndex) : type
+    const detailType = isComplex ? type.substring(dotIndex + 1) : undefined
 
-    const metadataType = importMetadataTypeStringFromEnterprise(_context, type)
+    const metadataType = getTypeFromEnterprise(baseType)
     if (metadataType) {
-      result.type.push(metadataType)
+      if (isComplex) {
+        types.push(`${metadataType}.${detailType}`)
+      } else {
+        types.push(metadataType)
+      }
       continue
     }
 
-    result.type.push(stringValue)
+    types.push(stringValue)
   }
 
-  if (result.type.length === 0) {
+  if (types.length === 0) {
     return undefined
   }
 

@@ -107,7 +107,7 @@ export const typeFixturesTable: TypeFixture[] = [
       numberQualifiers: { digits: 10, fractionDigits: 2, allowedSign: "Any" },
       dateQualifiers: { dateFractions: "DateTime" },
     },
-    enterprise: ["Строка(10)", "Число(10, 2)"],
+    enterprise: ["Строка(10)", "Число(10, 2)", "ДатаВремя"],
     xml: `<TypeDescription>
 	<v8:Type>xs:string</v8:Type>
 	<v8:Type>xs:decimal</v8:Type>
@@ -266,7 +266,7 @@ export const typeFixturesTable: TypeFixture[] = [
   },
   {
     internal: { type: ["DataAnalysisStandardizationType"] },
-    enterprise: "ТипКолонкиАнализаДанныхПоискПоследовательностей",
+    enterprise: "ТипСтандартизацииАнализаДанных",
     xml: '<TypeDescription>\n\t<v8:Type xmlns:d5p1="http://v8.1c.ru/8.2/data/data-analysis">d5p1:DataAnalysisStandardizationType</v8:Type>\n</TypeDescription>',
   },
   {

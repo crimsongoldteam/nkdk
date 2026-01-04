@@ -19,19 +19,8 @@ describe("importTypeDescriptionFromEnterprise", () => {
     expect(result).toBeUndefined()
   })
 
-  it.each(typeFixturesTable.filter((fixture) => typeof fixture.enterprise === "string"))(
-    "should import type from Enterprise: $enterprise",
-    ({ internal, enterprise }) => {
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterprise as string)
-      expect(result).toEqual(internal)
-    }
-  )
-
-  it.each(typeFixturesTable.filter((fixture) => Array.isArray(fixture.enterprise)))(
-    "should import composite type from Enterprise: $enterprise",
-    ({ internal, enterprise }) => {
-      const result = importTypeDescriptionFromEnterprise(mockСontext, enterprise as string[])
-      expect(result).toEqual(internal)
-    }
-  )
+  it.each(typeFixturesTable)("should import type from Enterprise: $enterprise", ({ internal, enterprise }) => {
+    const result = importTypeDescriptionFromEnterprise(mockСontext, enterprise)
+    expect(result).toEqual(internal)
+  })
 })

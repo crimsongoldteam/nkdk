@@ -70,7 +70,7 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     namespace: "http://v8.1c.ru/8.2/data/data-analysis",
   },
   DataAnalysisStandardizationType: {
-    enterprise: "ТипКолонкиАнализаДанныхПоискПоследовательностей",
+    enterprise: "ТипСтандартизацииАнализаДанных",
     prefix: "d5p1",
     namespace: "http://v8.1c.ru/8.2/data/data-analysis",
   },
@@ -360,6 +360,10 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
 export const TypeDescriptionPrefixes = Object.fromEntries(
   Object.values(TypeDescriptionRules).map((settings) => [settings.prefix, settings.prefix])
 ) as Record<string, string>
+
+export const TypeDescriptionRulesFromEnterprise = Object.fromEntries(
+  Object.values(TypeDescriptionRules).map((settings) => [settings.enterprise, settings])
+) as Record<string, TypeDescriptionRule>
 
 export type TypeDescriptionTypeWithNamespaceXML<TNamespace extends string = string> = {
   [K in `_xmlns:${TNamespace}`]: string

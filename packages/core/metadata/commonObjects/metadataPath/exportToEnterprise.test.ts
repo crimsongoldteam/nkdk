@@ -1,18 +1,7 @@
 import { describe, expect, test } from "vitest"
-import { tableMetadataFields, tableMetadataTypes, tableMetadataValues } from "~/tests/fixtures/metadataPath/table"
+import { tableMetadataFields, tableMetadataValues } from "~/tests/fixtures/metadataPath/table"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportMetadataFieldStringToEnterprise,
-  exportMetadataTypeStringToEnterprise,
-  exportMetadataValueStringToEnterprise,
-} from "./exportToEnterprise"
-
-describe("exportMetadataTypeToEnterprise", () => {
-  test.each(tableMetadataTypes)("export %s to %s", (expected: string, enterpriseValue: string) => {
-    const result = exportMetadataTypeStringToEnterprise(mockСontext, expected)
-    expect(result).toEqual(enterpriseValue)
-  })
-})
+import { exportMetadataFieldStringToEnterprise, exportMetadataValueStringToEnterprise } from "./exportToEnterprise"
 
 describe("exportMetadataFieldToEnterprise", () => {
   test.each(tableMetadataFields)("export %s to %s", (expected: string, enterpriseValue: string) => {

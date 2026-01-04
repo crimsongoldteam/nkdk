@@ -1,14 +1,10 @@
 import { Context } from "vm"
 import { convertPath } from "./helper"
-import {
-  MetadataFieldsRulesToEnterprise,
-  MetadataTypesRulesToEnterprise,
-  MetadataValuesRulesToEnterprise,
-} from "./types"
+import { MetadataFieldsRulesToEnterprise, MetadataValuesRulesToEnterprise } from "./types"
 
-export const exportMetadataTypeStringToEnterprise = (_context: Context, name: string): string | undefined => {
-  return convertPath(MetadataTypesRulesToEnterprise, name)
-}
+// export const exportMetadataTypeStringToEnterprise = (_context: Context, name: string): string | undefined => {
+//   return convertPath(MetadataTypesRulesToEnterprise, name)
+// }
 
 export const exportMetadataFieldStringToEnterprise = (_context: Context, name: string): string | undefined => {
   return convertPath(MetadataFieldsRulesToEnterprise, name)

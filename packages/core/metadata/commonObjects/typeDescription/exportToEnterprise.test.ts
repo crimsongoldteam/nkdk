@@ -9,19 +9,8 @@ describe("exportTypeDescriptionToEnterprise", () => {
     expect(result).toBeUndefined()
   })
 
-  it.each(typeFixturesTable.filter((fixture) => typeof fixture.enterprise === "string"))(
-    "should export type to Enterprise: $enterprise",
-    ({ internal, enterprise }) => {
-      const result = exportTypeDescriptionToEnterprise(mockСontext, internal)
-      expect(result).toEqual(enterprise)
-    }
-  )
-
-  it.each(typeFixturesTable.filter((fixture) => Array.isArray(fixture.enterprise)))(
-    "should export composite type to Enterprise: $enterprise",
-    ({ internal, enterprise }) => {
-      const result = exportTypeDescriptionToEnterprise(mockСontext, internal)
-      expect(result).toEqual(enterprise)
-    }
-  )
+  it.each(typeFixturesTable)("should export composite type to Enterprise: $enterprise", ({ internal, enterprise }) => {
+    const result = exportTypeDescriptionToEnterprise(mockСontext, internal)
+    expect(result).toEqual(enterprise)
+  })
 })
