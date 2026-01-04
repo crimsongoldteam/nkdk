@@ -16,7 +16,7 @@ import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects
 import { Context } from "~/metadata/context/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportChoiceParametersToEnterprise } from "../сhoiceParameter/exportToEnterprise"
+import { exportChoiceParametersToEnterprise } from "../сhoiceParameters/exportToEnterprise"
 
 export const exportStandartAttributeNameToEnterprise = (name: StandartAttributeName): StandartAttributeEnterprise => {
   return StandartAttributeNameToEnterprise[name]

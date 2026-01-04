@@ -20,7 +20,7 @@ import {
 } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { MetadataName } from "../metadataName/types"
-import { ChoiceParameters, ChoiceParametersEnterprise, ChoiceParametersXML } from "../сhoiceParameter/types"
+import { ChoiceParameters, ChoiceParametersEnterprise, ChoiceParametersXML } from "../сhoiceParameters/types"
 
 export interface MetadataAttribute {
   binaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse

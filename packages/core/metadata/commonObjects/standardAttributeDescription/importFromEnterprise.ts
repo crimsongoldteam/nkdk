@@ -15,8 +15,8 @@ import { Context } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importChoiceParametersFromEnterprise } from "../сhoiceParameters/importFromEnterprise"
 import { getDefaults } from "./defaults"
-import { importChoiceParametersFromEnterprise } from "../сhoiceParameter/importFromEnterprise"
 
 export const importStandardAttributeDescriptionsFromEnterprise = (
   context: Context,

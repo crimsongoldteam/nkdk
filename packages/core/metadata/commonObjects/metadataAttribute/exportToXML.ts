@@ -14,7 +14,7 @@ import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoic
 import { Context } from "~/metadata/context/types"
 import { getUUID } from "../../helpers/uuid"
 import { exportTypeLinkToXML } from "../typeLink/exportToXML"
-import { exportChoiceParametersToXML } from "../сhoiceParameter/exportToXML"
+import { exportChoiceParametersToXML } from "../сhoiceParameters/exportToXML"
 import { getDefaultsAttribute, getDefaultsTabularSectionAttribute } from "./defaults"
 
 export const exportMetadataAttributesToXML = (

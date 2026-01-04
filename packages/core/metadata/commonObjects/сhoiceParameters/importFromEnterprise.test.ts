@@ -13,7 +13,9 @@ import {
   singleChoiceParametersEnterprise,
   stringChoiceParameter,
   stringChoiceParametersEnterprise,
-} from "~/tests/fixtures/choiceParameter/data"
+  withoutValueChoiceParameter,
+  withoutValueChoiceParametersEnterprise,
+} from "~/tests/fixtures/choiceParameters/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importChoiceParametersFromEnterprise } from "./importFromEnterprise"
 
@@ -58,5 +60,11 @@ describe("importChoiceParametersFromEnterprise", () => {
     const result = importChoiceParametersFromEnterprise(mockСontext, nilChoiceParametersEnterprise)
 
     expect(result).toEqual(nilChoiceParameters)
+  })
+
+  it("should import choice parameters without value from enterprise", () => {
+    const result = importChoiceParametersFromEnterprise(mockСontext, withoutValueChoiceParametersEnterprise)
+
+    expect(result).toEqual(withoutValueChoiceParameter)
   })
 })

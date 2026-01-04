@@ -6,18 +6,18 @@ import {
   MetadataAttributesEnterprise,
 } from "~/metadata/commonObjects/metadataAttribute/types"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
-import { importChoiceParametersFromEnterprise } from "~/metadata/commonObjects/сhoiceParameter/importFromEnterprise"
 import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
+import { importChoiceParametersFromEnterprise } from "~/metadata/commonObjects/сhoiceParameters/importFromEnterprise.ts"
 import { Context } from "~/metadata/context/types"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase.ts"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
+import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers.ts"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise.ts"
 import { importMetadataValueFromEnterprise } from "../metadataValue/importFromEnterprise.ts"
 import { importTypeLinkFromEnterprise } from "../typeLink/importFromEnterprise.ts"
 import { getDefaultsAttribute } from "./defaults"
-import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers.ts"
 
 export const importMetadataAttributesFromEnterprise = (
   context: Context,

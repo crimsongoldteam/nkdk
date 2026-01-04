@@ -13,7 +13,7 @@ import {
   ChoiceParameterLinksXML,
 } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ChoiceParameters, ChoiceParametersEnterprise, ChoiceParametersXML } from "../сhoiceParameter/types"
+import { ChoiceParameters, ChoiceParametersEnterprise, ChoiceParametersXML } from "../сhoiceParameters/types"
 
 export const StandartAttributeNameToEnterprise = {
   Owner: "Владелец",

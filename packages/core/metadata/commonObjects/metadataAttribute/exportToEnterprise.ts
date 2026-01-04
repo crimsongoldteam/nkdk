@@ -16,7 +16,7 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
 import { I8nTextEnterprise } from "../i8nText/types"
-import { exportChoiceParametersToEnterprise } from "../сhoiceParameter/exportToEnterprise"
+import { exportChoiceParametersToEnterprise } from "../сhoiceParameters/exportToEnterprise"
 
 export const exportMetadataAttributesToEnterprise = (
   context: Context,

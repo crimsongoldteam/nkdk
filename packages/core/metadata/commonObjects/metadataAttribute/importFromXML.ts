@@ -13,7 +13,7 @@ import { Context } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importMetadataValueFromXMLAsPrimitive } from "../metadataValue/importFromXML.ts"
-import { importChoiceParametersFromXML } from "../сhoiceParameter/importFromXML.ts"
+import { importChoiceParametersFromXML } from "../сhoiceParameters/importFromXML.ts"
 import { getDefaultsAttribute } from "./defaults"
 
 export const importMetadataAttributesFromXML = (

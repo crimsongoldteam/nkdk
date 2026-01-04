@@ -13,7 +13,9 @@ import {
   singleChoiceParametersEnterprise,
   stringChoiceParameter,
   stringChoiceParametersEnterprise,
-} from "~/tests/fixtures/choiceParameter/data"
+  withoutValueChoiceParameter,
+  withoutValueChoiceParametersEnterprise,
+} from "~/tests/fixtures/choiceParameters/data"
 import { mockСontext } from "~/tests/mockContext"
 import { exportChoiceParametersToEnterprise } from "./exportToEnterprise"
 
@@ -58,5 +60,11 @@ describe("exportChoiceParametersToEnterprise", () => {
     const result = exportChoiceParametersToEnterprise(mockСontext, nilChoiceParameters)
 
     expect(result).toEqual(nilChoiceParametersEnterprise)
+  })
+
+  it("should export choice parameters without value to enterprise", () => {
+    const result = exportChoiceParametersToEnterprise(mockСontext, withoutValueChoiceParameter)
+
+    expect(result).toEqual(withoutValueChoiceParametersEnterprise)
   })
 })

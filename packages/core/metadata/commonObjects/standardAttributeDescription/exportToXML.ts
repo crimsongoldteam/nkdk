@@ -11,7 +11,7 @@ import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescrip
 import { exportTypeLinkToXML } from "~/metadata/commonObjects/typeLink/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
 import { Context } from "~/metadata/context/types"
-import { exportChoiceParametersToXML } from "../сhoiceParameter/exportToXML"
+import { exportChoiceParametersToXML } from "../сhoiceParameters/exportToXML"
 import { getDefaults } from "./defaults"
 
 export const exportStandardAttributeDescriptionsToXML = (

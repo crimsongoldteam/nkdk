@@ -12,7 +12,7 @@ import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сho
 import { Context } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML"
-import { importChoiceParametersFromXML } from "../сhoiceParameter/importFromXML"
+import { importChoiceParametersFromXML } from "../сhoiceParameters/importFromXML"
 import { getDefaults } from "./defaults"
 
 export const importStandardAttributeDescriptionsFromXML = (

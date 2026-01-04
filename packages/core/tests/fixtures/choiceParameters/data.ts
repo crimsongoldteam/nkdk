@@ -1,4 +1,4 @@
-import { ChoiceParameters, ChoiceParametersEnterprise } from "~/metadata/commonObjects/сhoiceParameter/types"
+import { ChoiceParameters, ChoiceParametersEnterprise } from "~/metadata/commonObjects/сhoiceParameters/types"
 
 //#region Single
 export const singleChoiceParameter: ChoiceParameters = [
@@ -152,4 +152,17 @@ export const formEnumChoiceParameter: ChoiceParameters = [
 export const formEnumChoiceParametersEnterprise: ChoiceParametersEnterprise = {
   "Отбор.ТипСчета": "Перечисление.ТипыСчетов.НераспределеннаяПрибыль",
 }
+//#endregion
+
+//#region Without Value
+export const withoutValueChoiceParameter: ChoiceParameters = [
+  {
+    name: "ВыборСчетовГоловнойОрганизации",
+  },
+]
+
+export const withoutValueChoiceParametersEnterprise: ChoiceParametersEnterprise = {
+  ВыборСчетовГоловнойОрганизации: undefined,
+}
+
 //#endregion
