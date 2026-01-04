@@ -1,98 +1,27 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
-import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import {
-  complexTypeDescription,
-  dateTypeDescription,
-  definedTypeDescription,
-  numberNonNegativeTypeDescription,
-  stringUnlimitedTypeDescriptionWithoutQualifiers,
-  stringVariableTypeDescription,
-  valueStorageTypeDescription,
-} from "../../../tests/fixtures/typeDescription/data"
+import { importContentFromXML } from "~/xml/import/importer"
+import { typeFixturesTable } from "../../../tests/fixtures/typeDescription/data"
 import { exportTypeDescriptionToXML } from "./exportToXML"
+import { TypeDescriptionXML } from "./types"
 
 describe("exportTypeDescriptionToXML", () => {
-  //#region Undefined
   it("should export undefined type description to XML", () => {
     const result = exportTypeDescriptionToXML(mockСontext, undefined)
     expect(result).toBeUndefined()
   })
-  //#endregion
 
-  //#region String
-  it("should export string type to XML", () => {
-    const expectedXml = readXMLFileAsString("typeDescription/stringType.xml")
+  it.each(typeFixturesTable)("should export type to XML: $internal.type", ({ internal, xml }) => {
+    const result = exportTypeDescriptionToXML(mockСontext, internal)
 
-    const result = exportTypeDescriptionToXML(mockСontext, stringVariableTypeDescription)
-    const xmlString = xmlExport({ TypeDescription: result }, false)
+    // Determine the XML wrapper based on the original XML structure
+    const xmlData = importContentFromXML<{ TypeDescription?: TypeDescriptionXML; Type?: TypeDescriptionXML }>(xml)
+    const wrapper = xmlData.TypeDescription ? { TypeDescription: result } : { Type: result }
 
-    expect(xmlString).toEqual(expectedXml)
-  })
-
-  it("should export unlimited string type to XML", () => {
-    const expectedXml = readXMLFileAsString("typeDescription/stringUnlimited.xml")
-
-    const result = exportTypeDescriptionToXML(mockСontext, stringUnlimitedTypeDescriptionWithoutQualifiers)
-    const xmlString = xmlExport({ TypeDescription: result }, false)
+    const xmlString = xmlExport(wrapper, false)
+    const expectedXml = xml.trim()
 
     expect(xmlString).toEqual(expectedXml)
   })
-  //#endregion
-
-  //#region Number
-  it("should export number type to XML", () => {
-    const expectedXml = readXMLFileAsString("typeDescription/numberType.xml")
-
-    const result = exportTypeDescriptionToXML(mockСontext, numberNonNegativeTypeDescription)
-    const xmlString = xmlExport({ TypeDescription: result }, false)
-
-    expect(xmlString).toEqual(expectedXml)
-  })
-  //#endregion
-
-  //#region Date
-  it("should export date type to XML", () => {
-    const expectedXml = readXMLFileAsString("typeDescription/dateTimeType.xml")
-
-    const result = exportTypeDescriptionToXML(mockСontext, dateTypeDescription)
-    const xmlString = xmlExport({ TypeDescription: result }, false)
-
-    expect(xmlString).toEqual(expectedXml)
-  })
-  //#endregion
-
-  //#region Complex
-  it("should export complex type to XML", () => {
-    const expectedXml = readXMLFileAsString("typeDescription/complexType.xml")
-
-    const result = exportTypeDescriptionToXML(mockСontext, complexTypeDescription)
-    const xmlString = xmlExport({ TypeDescription: result }, false)
-
-    expect(xmlString).toEqual(expectedXml)
-  })
-  //#endregion
-
-  //#region Defined
-  it("should export defined type to XML", () => {
-    const expectedXml = readXMLFileAsString("typeDescription/definedType.xml")
-
-    const result = exportTypeDescriptionToXML(mockСontext, definedTypeDescription)
-    const xmlString = xmlExport({ TypeDescription: result }, false)
-
-    expect(xmlString).toEqual(expectedXml)
-  })
-  //#endregion
-
-  //#region Value Storage
-  it("should export value storage type to XML", () => {
-    const expectedXml = readXMLFileAsString("typeDescription/valueStorage.xml")
-
-    const result = exportTypeDescriptionToXML(mockСontext, valueStorageTypeDescription)
-    const xmlString = xmlExport({ Type: result }, false)
-
-    expect(xmlString).toEqual(expectedXml)
-  })
-  //#endregion
 })
