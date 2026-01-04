@@ -39,7 +39,7 @@
 		<FullTextSearch>DontUse</FullTextSearch>
 		<Indexing>Index</Indexing>
 		<LinkByType>
-			<xr:DataPath xsi:type="xs:string">Catalog.Справочник.Attribute.Реквизит</xr:DataPath>
+			<xr:DataPath>Catalog.Справочник.Attribute.Реквизит</xr:DataPath>
 			<xr:LinkItem>1</xr:LinkItem>
 		</LinkByType>
 		<MarkNegatives>true</MarkNegatives>

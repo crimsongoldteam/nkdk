@@ -13,7 +13,7 @@ import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescrip
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
 import { Context } from "~/metadata/context/types"
 import { getUUID } from "../../helpers/uuid"
-import { exportTypeLinkWithXSITypeToXML } from "../typeLink/exportToXML"
+import { exportTypeLinkToXML } from "../typeLink/exportToXML"
 import { exportChoiceParametersToXML } from "../сhoiceParameter/exportToXML"
 import { getDefaultsAttribute, getDefaultsTabularSectionAttribute } from "./defaults"
 
@@ -101,7 +101,7 @@ const exportMetadataAttributeToXML = (
 
   result.Properties.Indexing = mergedData.indexing
 
-  const linkByType = exportTypeLinkWithXSITypeToXML(context, mergedData.linkByType)
+  const linkByType = exportTypeLinkToXML(context, mergedData.linkByType)
   if (linkByType) result.Properties.LinkByType = linkByType
 
   result.Properties.MarkNegatives = mergedData.markNegatives
