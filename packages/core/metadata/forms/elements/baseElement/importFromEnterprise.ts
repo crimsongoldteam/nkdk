@@ -5,14 +5,12 @@ import { BaseElement, BaseElementEnterprise } from "./types"
 export const importBaseElementFromEnterprise = (
   _context: Context,
   _data: BaseElementEnterprise | undefined,
-  name?: string,
-  id?: string
+  name?: string
 ): BaseElement | undefined => {
   if (!name) return undefined
 
   return {
     elementType: FormElementType.BaseElement,
     name,
-    id,
   }
 }

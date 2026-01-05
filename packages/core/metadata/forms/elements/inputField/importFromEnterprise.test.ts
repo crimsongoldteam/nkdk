@@ -5,18 +5,14 @@ import { importInputFieldFromEnterprise } from "./importFromEnterprise"
 
 describe("importInputFieldFromEnterprise", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importInputFieldFromEnterprise(mockСontext, undefined)
+    const result = importInputFieldFromEnterprise(mockСontext, undefined, fullInputField.name)
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from Enterprise", () => {
-    const result = importInputFieldFromEnterprise(
-      mockСontext,
-      fullInputFieldEnterprise,
-      fullInputField.name,
-      fullInputField.id
-    )
+    const result = importInputFieldFromEnterprise(mockСontext, fullInputFieldEnterprise, fullInputField.name)
+    result!.id = "1"
 
     expect(result).toEqual(fullInputField)
   })

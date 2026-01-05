@@ -244,7 +244,7 @@ export const fullInputFieldEnterprise: InputFieldEnterprise = {
 export const minimalInputField: InputField = {
   elementType: FormElementType.InputField,
   name: "ПолеВвода",
-  id: "11111111-1111-4111-8111-111111111111",
+  id: "1",
 }
 
 export const minimalInputFieldEnterprise: InputFieldEnterprise = {}

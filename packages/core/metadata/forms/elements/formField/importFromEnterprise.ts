@@ -4,7 +4,7 @@ import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFr
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
-import { importFromEnterprise as importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
+import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { Context } from "~/metadata/context/types"
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importCommandBarFromEnterprise } from "~/metadata/forms/elements/commandBar/importFromEnterprise"
@@ -20,12 +20,11 @@ import * as SE from "~/metadata/systemEnumerations/types"
 export const importFormFieldFromEnterprise = (
   context: Context,
   data: FormFieldEnterprise | undefined,
-  name?: string,
-  id?: string
+  name: string
 ): FormField | undefined => {
   if (!data) return undefined
 
-  const baseElement = importBaseElementFromEnterprise(context, {}, name, id)
+  const baseElement = importBaseElementFromEnterprise(context, {}, name)
   if (!baseElement) return undefined
 
   const result: FormField = {

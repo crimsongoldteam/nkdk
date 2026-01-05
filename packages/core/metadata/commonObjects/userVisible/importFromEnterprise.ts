@@ -3,7 +3,7 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Context } from "../../context/types"
 import { type UserVisible } from "./types"
 
-export const importFromEnterprise = (
+export const importUserVisibleFromEnterprise = (
   context: Context,
   value: Record<string, StringboolEnterprise> | undefined,
   usageType: "РазрешитьИспользование" | "ЗапретитьИспользование" | undefined

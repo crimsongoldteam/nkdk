@@ -1,5 +1,3 @@
-import { name } from "assert"
-import { id } from "date-fns/locale"
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importChoiceListFromEnterprise } from "~/metadata/commonObjects/choiceList/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
@@ -8,25 +6,26 @@ import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/im
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { importTypeLinkFromEnterprise } from "~/metadata/commonObjects/typeLink/importFromEnterprise"
-import { importFromEnterprise as importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
+import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
 import { importChoiceParametersFromEnterprise } from "~/metadata/commonObjects/сhoiceParameters/importFromEnterprise"
 import { Context } from "~/metadata/context/types"
-import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import { InputField, InputFieldEnterprise } from "~/metadata/forms/elements/inputField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importFormFieldFromEnterprise } from "../formField/importFromEnterprise"
 
 export const importInputFieldFromEnterprise = (
   context: Context,
-  data: InputFieldEnterprise | undefined
+  data: InputFieldEnterprise | undefined,
+  name: string
 ): InputField | undefined => {
   if (!data) return undefined
 
-  const baseFields = importFormFieldFromEnterprise(context, data, name, id)!
+  const baseFields = importFormFieldFromEnterprise(context, data, name)!
   const { elementType: _, ...restFields } = baseFields
 
   const result: InputField = {
@@ -196,14 +195,18 @@ export const importInputFieldFromEnterprise = (
   const inputHint = importI8nTextFromEnterprise(context, data.ПодсказкаВвода)
   if (inputHint !== undefined) result.inputHint = inputHint
 
-  const userVisibleAllow = data.РазрешитьИспользование
-  const userVisibleDeny = data.ЗапретитьИспользование
-  const userVisible = importUserVisibleFromEnterprise(
+  const userVisibleAllow = importUserVisibleFromEnterprise(
     context,
-    userVisibleAllow || userVisibleDeny,
-    userVisibleAllow ? "РазрешитьИспользование" : userVisibleDeny ? "ЗапретитьИспользование" : undefined
+    data.РазрешитьИспользование,
+    "РазрешитьИспользование"
   )
-  if (userVisible !== undefined) result.userVisible = userVisible
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
+  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined)
+    result.userVisible = userVisibleAllow || userVisibleDeny
 
   const spellCheckingOnTextInput = importSystemEnumerationFromEnterprise<SE.SpellCheckingOnTextInput>(
     context,

@@ -249,8 +249,8 @@ export interface InputFieldEnterprise extends FormFieldEnterprise {
   ПараметрыВыбора?: ChoiceParametersEnterprise
   ПодсказкаАвтозаполнения?: SE.InputFieldAutofillHintEnterprise
   ПодсказкаВвода?: I8nTextEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   ПроверкаПравописанияПриВводеТекста?: SE.SpellCheckingOnTextInputEnterprise
   ПутьКДаннымЗначенияМножественногоЗначения?: string
   ПутьКДаннымКартинкиМножественногоЗначения?: string
