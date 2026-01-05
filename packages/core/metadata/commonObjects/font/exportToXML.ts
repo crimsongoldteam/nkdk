@@ -1,18 +1,24 @@
 import { Context } from "../../context/types"
-import { Font, FontXML } from "./types"
+import { Font, FontXML, PrefixedFontsToXML } from "./types"
 
 export const exportFontToXML = (_context: Context, font: Font | undefined): FontXML | undefined => {
   if (!font) return undefined
-  const result: FontXML = {
-    _ref: font.ref,
-    _faceName: font.faceName,
-    _scale: font.scale,
-    _height: font.height,
-    _bold: font.bold,
-    _italic: font.italic,
-    _underline: font.underline,
-    _strikeout: font.strikeout,
-    _kind: font.kind,
+
+  const result: any = {}
+
+  if (font.ref !== undefined) {
+    const prefixedRef = PrefixedFontsToXML[font.ref]
+    result._ref = prefixedRef
   }
-  return result
+
+  if (font.faceName !== undefined) result._faceName = font.faceName
+  if (font.height !== undefined) result._height = font.height
+  if (font.bold !== undefined) result._bold = font.bold
+  if (font.italic !== undefined) result._italic = font.italic
+  if (font.underline !== undefined) result._underline = font.underline
+  if (font.strikeout !== undefined) result._strikeout = font.strikeout
+  result._kind = font.kind
+  if (font.scale !== undefined) result._scale = font.scale
+
+  return result as FontXML
 }

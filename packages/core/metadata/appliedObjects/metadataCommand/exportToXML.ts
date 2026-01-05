@@ -2,7 +2,6 @@ import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { Context } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { getUUID } from "../../helpers/uuid"
 import { getDefaults } from "./defaults"
 import { MetadataCommand, MetadataCommandXML, MetadataCommands, MetadataCommandsXML } from "./types"
@@ -54,7 +53,7 @@ export const exportMetadataCommandToXML = (
     Properties: properties,
   }
 
-  return compactObject<MetadataCommandXML>(result)
+  return result
 }
 
 export const exportMetadataCommandsToXML = (

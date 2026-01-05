@@ -3,10 +3,8 @@ import { Font, FontEnterprise } from "~/metadata/commonObjects/font/types"
 // #region normalMinimalFont
 
 export const normalMinimalFont: Font = {
-  ref: "NormalTextFont",
   faceName: "Academy Engraved LET",
-  kind: "StyleItem",
-  scale: 100,
+  kind: "Absolute",
 }
 
 export const normalMinimalFontEnterprise: FontEnterprise = "Academy Engraved LET"
@@ -61,6 +59,29 @@ export const styleFullFontEnterprise: FontEnterprise = {
 }
 
 // #endregion
+
+// #region normalFullFont
+
+export const normalFullFont: Font = {
+  faceName: "Times New Roman",
+  kind: "Absolute",
+  height: 20,
+  bold: true,
+  italic: true,
+  underline: true,
+  strikeout: true,
+  scale: 200,
+}
+
+export const normalFullFontEnterprise: FontEnterprise = {
+  Имя: "Times New Roman",
+  Размер: 20,
+  Масштаб: 200,
+  Наклонный: "Истина",
+  Подчеркивание: "Истина",
+  Полужирный: "Истина",
+  Зачеркивание: "Истина",
+}
 
 // #region systemFullFont
 

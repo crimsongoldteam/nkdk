@@ -1,68 +1,75 @@
 import { describe, expect, it } from "vitest"
+import {
+  normalFullFont,
+  normalMinimalFont,
+  styleFullFont,
+  styleMinimalFont,
+  systemFullFont,
+  systemMinimalFont,
+} from "~/tests/fixtures/font/data"
 import { mockСontext } from "~/tests/mockContext"
+import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import { importContentFromXML } from "~/xml/import/importer"
-import { exportBorderToXML } from "../border/exportToXML.ts"
-import { importBorderFromXML } from "../border/importFromXML.ts"
-import { Border, BorderXML } from "../border/types.ts"
+import { exportFontToXML } from "./exportToXML"
 
-describe("exportBorderToXML", () => {
-  it("should export border by ref", () => {
-    const mockBorder: Border = {
-      ref: "style:ControlBorder",
-    }
+describe("exportFontToXML", () => {
+  it("should export normal minimal font to XML", () => {
+    const expectedResult = readXMLFileAsString("font/normalMinimal.xml")
 
-    const expectedResult = `<Border ref="style:ControlBorder"/>`
-
-    const result = { Border: exportBorderToXML(mockСontext, mockBorder) }
+    const result = { Font: exportFontToXML(mockСontext, normalMinimalFont) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
-  it("should export border with width and style", () => {
-    const mockBorder: Border = {
-      width: 1,
-      controlBorderType: "Indented",
-    }
+  it("should export system minimal font to XML", () => {
+    const expectedResult = readXMLFileAsString("font/systemMinimal.xml")
 
-    const expectedResult = `<Border width="1">
-	<v8ui:style xsi:type="v8ui:ControlBorderType">Indented</v8ui:style>
-</Border>`
+    const result = { Font: exportFontToXML(mockСontext, systemMinimalFont) }
+    const xmlString = xmlExport(result, false)
 
-    const result = { Border: exportBorderToXML(mockСontext, mockBorder) }
+    expect(xmlString).toEqual(expectedResult)
+  })
+
+  it("should export style minimal font to XML", () => {
+    const expectedResult = readXMLFileAsString("font/styleMinimal.xml")
+
+    const result = { Font: exportFontToXML(mockСontext, styleMinimalFont) }
+    const xmlString = xmlExport(result, false)
+
+    expect(xmlString).toEqual(expectedResult)
+  })
+
+  it("should export normal full font to XML", () => {
+    const expectedResult = readXMLFileAsString("font/normalFull.xml")
+
+    const result = { Font: exportFontToXML(mockСontext, normalFullFont) }
+    const xmlString = xmlExport(result, false)
+
+    expect(xmlString).toEqual(expectedResult)
+  })
+
+  it("should export style full font to XML", () => {
+    const expectedResult = readXMLFileAsString("font/styleFull.xml")
+
+    const result = { Font: exportFontToXML(mockСontext, styleFullFont) }
+    const xmlString = xmlExport(result, false)
+
+    expect(xmlString).toEqual(expectedResult)
+  })
+
+  it("should export system full font to XML", () => {
+    const expectedResult = readXMLFileAsString("font/systemFull.xml")
+
+    const result = { Font: exportFontToXML(mockСontext, systemFullFont) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportBorderToXML(mockСontext, undefined)
+    const result = exportFontToXML(mockСontext, undefined)
 
     expect(result).toBeUndefined()
-  })
-
-  it("should export and import border by ref correctly (round-trip)", () => {
-    const originalXml = `<Border ref="style:ControlBorder"/>`
-
-    const xml = importContentFromXML<{ Border: BorderXML }>(originalXml)
-    const imported = importBorderFromXML(mockСontext, xml.Border)
-    const exported = exportBorderToXML(mockСontext, imported)
-    const resultXml = xmlExport({ Border: exported }, false)
-
-    expect(resultXml).toEqual(originalXml)
-  })
-
-  it("should export and import border with width and style correctly (round-trip)", () => {
-    const originalXml = `<Border width="1">
-	<v8ui:style xsi:type="v8ui:ControlBorderType">Indented</v8ui:style>
-</Border>`
-
-    const xml = importContentFromXML<{ Border: BorderXML }>(originalXml)
-    const imported = importBorderFromXML(mockСontext, xml.Border)
-    const exported = exportBorderToXML(mockСontext, imported)
-    const resultXml = xmlExport({ Border: exported }, false)
-
-    expect(resultXml).toEqual(originalXml)
   })
 })

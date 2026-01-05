@@ -7,7 +7,7 @@ export const PrefixedFontsFromXML: Record<string, SE.StyleFonts | SE.WindowsFont
   "style:NormalTextFont": "NormalTextFont",
   "style:ExtraLargeTextFont": "ExtraLargeTextFont",
   "style:TextFont": "TextFont",
-  "sys: ANSIFixedFont": "ANSIFixedFont",
+  "sys:ANSIFixedFont": "ANSIFixedFont",
   "sys:ANSIVariableFont": "ANSIVariableFont",
   "sys:OEMFixedFont": "OEMFixedFont",
   "sys:SystemFont": "SystemFont",
@@ -33,6 +33,7 @@ export interface FontXML {
 }
 
 export interface Font {
+  kind: SE.FontType
   ref?: SE.StyleFonts | SE.WindowsFonts
   faceName?: string
   scale?: number
@@ -41,18 +42,17 @@ export interface Font {
   italic?: boolean
   underline?: boolean
   strikeout?: boolean
-  kind: SE.FontType
 }
 
 export interface FontFullEnterprise {
-  Имя: string
-  Масштаб: number
-  Размер: number
-  Наклонный: StringboolEnterprise
-  Подчеркивание: StringboolEnterprise
-  Полужирный: StringboolEnterprise
-  Зачеркивание: StringboolEnterprise
-  Вид: SE.StyleFontsEnterprise | SE.WindowsFontsEnterprise
+  Вид?: SE.StyleFontsEnterprise | SE.WindowsFontsEnterprise
+  Имя?: string
+  Масштаб?: number
+  Размер?: number
+  Наклонный?: StringboolEnterprise
+  Подчеркивание?: StringboolEnterprise
+  Полужирный?: StringboolEnterprise
+  Зачеркивание?: StringboolEnterprise
 }
 
 export type FontCompactEnterprise = string
