@@ -6,5 +6,17 @@ import { Color } from "./types"
 export const exportColorToEnterprise = (_context: Context, color: Color | undefined): string | undefined => {
   if (!color) return undefined
 
-  return exportSystemEnumerationToEnterprise(_context, color, SE.ColorTypeToEnterprise)
+  if (color.type === "StyleItem") {
+    return exportSystemEnumerationToEnterprise(_context, color.value, SE.StyleColorsToEnterprise)
+  }
+
+  if (color.type === "WindowsColor") {
+    return exportSystemEnumerationToEnterprise(_context, color.value, SE.WindowsColorsToEnterprise)
+  }
+
+  if (color.type === "WebColor") {
+    return exportSystemEnumerationToEnterprise(_context, color.value, SE.WebColorsToEnterprise)
+  }
+
+  return color.value
 }

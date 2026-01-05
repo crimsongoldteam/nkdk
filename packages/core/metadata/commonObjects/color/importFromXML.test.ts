@@ -1,18 +1,42 @@
-import { expect, it } from "vitest"
+import { describe, expect, it } from "vitest"
+import { absoluteColor, styleColor, webColor, winColor } from "~/tests/fixtures/color/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importContentFromXML } from "~/xml/import/importer"
+import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importColorFromXML } from "./importFromXML"
-import { Color, ColorXML } from "./types"
+import { ColorXML } from "./types"
 
-it("should import color from XML", () => {
-  const mockXml = `<Color>style:NegativeTextColor</Color>`
+describe("importColorFromXML", () => {
+  it("should import absolute color from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Color: ColorXML }>("color/absolute.xml")
+    const result = importColorFromXML(mockСontext, xmlData.Color)
 
-  const mockResult: Color = "style:NegativeTextColor"
+    expect(result).toEqual(absoluteColor)
+  })
 
-  const xml = importContentFromXML<{ Color: ColorXML }>(mockXml)
-  const value = xml.Color
+  it("should import Windows color from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Color: ColorXML }>("color/win.xml")
+    const result = importColorFromXML(mockСontext, xmlData.Color)
 
-  const result = importColorFromXML(mockСontext, value)
+    expect(result).toEqual(winColor)
+  })
 
-  expect(result).toEqual(mockResult)
+  it("should import Web color from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Color: ColorXML }>("color/web.xml")
+    const result = importColorFromXML(mockСontext, xmlData.Color)
+
+    expect(result).toEqual(webColor)
+  })
+
+  it("should import style color from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Color: ColorXML }>("color/style.xml")
+    const result = importColorFromXML(mockСontext, xmlData.Color)
+
+    expect(result).toEqual(styleColor)
+  })
+
+  it("should return undefined for undefined input", () => {
+    const result = importColorFromXML(mockСontext, undefined)
+
+    expect(result).toBeUndefined()
+  })
 })
