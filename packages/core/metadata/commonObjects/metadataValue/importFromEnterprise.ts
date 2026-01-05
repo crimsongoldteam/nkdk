@@ -1,6 +1,6 @@
 import { format, parse } from "date-fns"
 import { formulaFormatParser } from "~/metadata/helpers/formulaFormatParser/formulaFormatParser"
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
 import { importMetadataValueStringFromEnterprise } from "../metadataPath/importFromEnterprise"
 import {
@@ -12,7 +12,7 @@ import {
 } from "./types"
 
 export const importMetadataValueFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataValueEnterprise | undefined
 ): MetadataValue | undefined => {
   if (data === undefined) return undefined
@@ -55,7 +55,7 @@ const parseDateTime = (dateTime: string): string => {
   }
 }
 
-const importStringValueFromEnterprise = (context: Context, data: string): MetadataValue => {
+const importStringValueFromEnterprise = (context: ConfigurationContext, data: string): MetadataValue => {
   // Проверяем на FormChoiceListDesTimeValue: формат "значение"(представление)
   const formChoiceListMatch = data.match(/^"([^"]+)"\(([^)]+)\)$/)
   if (formChoiceListMatch) {
@@ -112,7 +112,7 @@ const importStringValueFromEnterprise = (context: Context, data: string): Metada
 }
 
 const importFixedArrayValueFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataFixedArrayValueEnterprise
 ): MetadataValue => {
   return {
@@ -122,7 +122,7 @@ const importFixedArrayValueFromEnterprise = (
 }
 
 export const importFormChoiceListValueFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataFormChoiceListValueEnterprise
 ): MetadataFormChoiceListValue => {
   if (typeof data === "string") {
@@ -144,7 +144,7 @@ export const importFormChoiceListValueFromEnterprise = (
   }
 }
 
-export const importMetadataRefFromEnterprise = (context: Context, value: string): MetadataValue => {
+export const importMetadataRefFromEnterprise = (context: ConfigurationContext, value: string): MetadataValue => {
   const convertedValue = importMetadataValueStringFromEnterprise(context, value)
   if (!convertedValue) throw new Error(`Invalid type for ref: ${value}`)
 

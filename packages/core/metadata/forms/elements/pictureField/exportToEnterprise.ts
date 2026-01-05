@@ -4,7 +4,7 @@ import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportTo
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import { PictureField, PictureFieldEnterprise } from "~/metadata/forms/elements/pictureField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
@@ -14,7 +14,7 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportPictureFieldToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: PictureField | undefined
 ): PictureFieldEnterprise | undefined => {
   if (!data) return undefined

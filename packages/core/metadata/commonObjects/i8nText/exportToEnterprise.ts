@@ -1,8 +1,8 @@
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { I8nText, I8nTextEnterprise } from "./types"
 
 export const exportI8nTextToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   title: I8nText | undefined
 ): I8nTextEnterprise | undefined => {
   if (!title) return undefined

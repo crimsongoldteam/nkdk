@@ -1,9 +1,9 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { importMetadataFieldStringFromEnterprise } from "../metadataPath/importFromEnterprise"
 import { MetadataItemLink, MetadataItemLinkEnterprise, MetadataItemLinks, MetadataItemLinksEnterprise } from "./types"
 
 export const importMetadataItemLinkFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataItemLinkEnterprise | undefined
 ): MetadataItemLink | undefined => {
   if (!data) return undefined
@@ -12,7 +12,7 @@ export const importMetadataItemLinkFromEnterprise = (
 }
 
 export const importMetadataItemLinksFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataItemLinksEnterprise | undefined
 ): MetadataItemLinks | undefined => {
   if (!data) return undefined

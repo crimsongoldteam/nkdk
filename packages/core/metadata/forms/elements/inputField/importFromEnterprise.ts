@@ -9,7 +9,7 @@ import { importTypeLinkFromEnterprise } from "~/metadata/commonObjects/typeLink/
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
 import { importChoiceParametersFromEnterprise } from "~/metadata/commonObjects/сhoiceParameters/importFromEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { InputField, InputFieldEnterprise } from "~/metadata/forms/elements/inputField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -19,7 +19,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { importFormFieldFromEnterprise } from "../formField/importFromEnterprise"
 
 export const importInputFieldFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: InputFieldEnterprise | undefined,
   name: string
 ): InputField | undefined => {

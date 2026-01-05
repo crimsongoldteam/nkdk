@@ -7,11 +7,11 @@ import {
 import { importMetadataFieldFromEnterprise } from "~/metadata/commonObjects/metadataField/importFromEnterprise"
 import { importMetadataItemLinkFromEnterprise } from "~/metadata/commonObjects/metadataRef/importFromEnterprise"
 import { importMetadataValueFromEnterprise } from "~/metadata/commonObjects/metadataValue/importFromEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
 
 export const importCharacteristicsDescriptionFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: CharacteristicsDescriptionEnterprise | undefined
 ): CharacteristicsDescription | undefined => {
   if (!data) return undefined
@@ -33,11 +33,14 @@ export const importCharacteristicsDescriptionFromEnterprise = (
 }
 
 export const importCharacteristicsDescriptionsFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: CharacteristicsDescriptionsEnterprise | undefined
 ): CharacteristicsDescriptions | undefined => {
   if (!data) return undefined
 
-  return data.map((value: CharacteristicsDescriptionEnterprise) => importCharacteristicsDescriptionFromEnterprise(context, value)!).filter((item): item is CharacteristicsDescription => item !== undefined)
+  return data
+    .map(
+      (value: CharacteristicsDescriptionEnterprise) => importCharacteristicsDescriptionFromEnterprise(context, value)!
+    )
+    .filter((item): item is CharacteristicsDescription => item !== undefined)
 }
-

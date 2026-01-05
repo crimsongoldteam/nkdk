@@ -1,9 +1,9 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { exportFormChoiceListValueToXML } from "../metadataValue/exportToXML"
 import { ChoiceList, ChoiceListItemXML, ChoiceListXML } from "./types"
 
 export const exportChoiceListToXML = (
-  context: Context,
+  context: ConfigurationContext,
   choiceList: ChoiceList | undefined
 ): ChoiceListXML | undefined => {
   if (!choiceList || choiceList.length === 0) return undefined

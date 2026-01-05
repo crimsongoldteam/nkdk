@@ -2,7 +2,7 @@ import { importBorderFromXML } from "~/metadata/commonObjects/border/importFromX
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/importFromXML"
 import { PeriodField, PeriodFieldXML } from "~/metadata/forms/elements/periodField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
@@ -11,7 +11,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const importPeriodFieldFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   xml: PeriodFieldXML | undefined
 ): PeriodField | undefined => {
   if (!xml) return undefined

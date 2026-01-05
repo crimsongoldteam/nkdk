@@ -1,9 +1,9 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { compactObject } from "../../helpers/compactObject"
 import { TypeDescription, TypeDescriptionPrefixes, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
 
 export const importTypeDescriptionFromXML = (
-  _context: Context,
+  _context: ConfigurationContext,
   xml: TypeDescriptionXML | undefined
 ): TypeDescription | undefined => {
   if (!xml) return undefined

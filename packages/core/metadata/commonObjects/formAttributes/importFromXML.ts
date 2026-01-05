@@ -1,9 +1,12 @@
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { ConditionalAppearanceXML, FormAttribute, FormAttributes, FormAttributesXML, FormAttributeXML } from "./types"
 
-export const importFormAttributeFromXML = (context: Context, xml: FormAttributeXML): FormAttribute | undefined => {
+export const importFormAttributeFromXML = (
+  context: ConfigurationContext,
+  xml: FormAttributeXML
+): FormAttribute | undefined => {
   if (!xml.Attribute) {
     return undefined
   }
@@ -18,7 +21,7 @@ export const importFormAttributeFromXML = (context: Context, xml: FormAttributeX
   }
 }
 
-export const importFormAttributesFromXML = (context: Context, xml: FormAttributesXML): FormAttributes => {
+export const importFormAttributesFromXML = (context: ConfigurationContext, xml: FormAttributesXML): FormAttributes => {
   return xml
     .map((item: FormAttributeXML | ConditionalAppearanceXML) => {
       if ("Attribute" in item) {

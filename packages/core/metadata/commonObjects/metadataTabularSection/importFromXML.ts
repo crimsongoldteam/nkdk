@@ -7,12 +7,12 @@ import {
   MetadataTabularSectionXML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/importFromXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { getDefaults } from "./defaults"
 
 export const importMetadataTabularSectionsFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   xml: MetadataTabularSectionsXML | MetadataTabularSectionXML | undefined
 ): MetadataTabularSections | undefined => {
   if (!xml) return undefined
@@ -23,7 +23,7 @@ export const importMetadataTabularSectionsFromXML = (
 }
 
 const importMetadataTabularSectionFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   xml: MetadataTabularSectionXML
 ): MetadataTabularSection => {
   const props = xml.Properties

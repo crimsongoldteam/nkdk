@@ -1,8 +1,8 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { MetadataItemLink, MetadataItemLinks, MetadataItemLinksXML, MetadataItemLinkXML } from "./types"
 
 export function importMetadataItemLinkFromXML(
-  _context: Context,
+  _context: ConfigurationContext,
   data: MetadataItemLinkXML | undefined
 ): MetadataItemLink | undefined {
   if (!data) return undefined
@@ -11,7 +11,7 @@ export function importMetadataItemLinkFromXML(
 }
 
 export function importMetadataItemLinksFromXML(
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataItemLinksXML | undefined
 ): MetadataItemLinks | undefined {
   if (!data) return undefined

@@ -1,4 +1,4 @@
-import { Context } from "../metadata/context/types"
+import { ConfigurationContext } from "../metadata/context/types"
 import { formatOtherElement } from "../metadata/forms/elements/baseElement/format"
 import { BaseElement } from "../metadata/forms/elements/baseElement/types"
 import { ChildItems } from "../metadata/forms/elements/childItems/types"
@@ -22,7 +22,10 @@ export const registerFormat = <T extends BaseElement>(
   })
 }
 
-export const formatElement = <T extends BaseElement>(element: T, context: Context): IFormatElementResult => {
+export const formatElement = <T extends BaseElement>(
+  element: T,
+  context: ConfigurationContext
+): IFormatElementResult => {
   // params = { ...defaultParams, ...params }
 
   const formatter = registry.find((f) => f.check(element)) as FormatRegistry[number]
@@ -32,7 +35,7 @@ export const formatElement = <T extends BaseElement>(element: T, context: Contex
   return result
 }
 
-export const formatElements = (items: ChildItems, context: Context): IFormatElementResult => {
+export const formatElements = (items: ChildItems, context: ConfigurationContext): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,

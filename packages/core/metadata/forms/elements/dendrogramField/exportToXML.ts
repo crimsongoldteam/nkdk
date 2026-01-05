@@ -1,5 +1,5 @@
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { DendrogramField, DendrogramFieldXML } from "~/metadata/forms/elements/dendrogramField/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
@@ -7,7 +7,7 @@ import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportDendrogramFieldToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: DendrogramField | undefined
 ): DendrogramFieldXML | undefined => {
   if (!data) return undefined

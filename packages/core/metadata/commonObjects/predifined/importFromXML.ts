@@ -1,7 +1,10 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { Predefined, PredefinedItems, PredefinedItemsXML, PredefinedXML } from "./types"
 
-export const importPredefinedFromXML = (_context: Context, data: PredefinedXML | undefined): Predefined | undefined => {
+export const importPredefinedFromXML = (
+  _context: ConfigurationContext,
+  data: PredefinedXML | undefined
+): Predefined | undefined => {
   if (!data) return undefined
 
   return {
@@ -13,7 +16,7 @@ export const importPredefinedFromXML = (_context: Context, data: PredefinedXML |
 }
 
 export const importPredefinedItemsFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: PredefinedItemsXML | undefined
 ): PredefinedItems | undefined => {
   if (!data) return undefined

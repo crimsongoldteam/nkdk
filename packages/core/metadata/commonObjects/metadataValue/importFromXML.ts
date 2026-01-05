@@ -1,4 +1,4 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importI8nTextFromXML } from "../i8nText/importFromXML"
 import {
@@ -15,7 +15,7 @@ import {
 } from "./types"
 
 export const importMetadataValueFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataValueXML | undefined,
   type?: MetadataValueType
 ): MetadataValue | undefined => {
@@ -59,7 +59,7 @@ export const importMetadataValueFromXML = (
 }
 
 export const importMetadataValueFromXMLAsPrimitive = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataValueXML | undefined,
   type: MetadataValueType
 ): string | boolean | number | undefined => {
@@ -67,7 +67,7 @@ export const importMetadataValueFromXMLAsPrimitive = (
 }
 
 const importSimpleValueFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   textValue: string | boolean | number | undefined,
   type: MetadataValueType
 ): string | boolean | number | undefined => {
@@ -80,7 +80,7 @@ const importSimpleValueFromXML = (
 }
 
 export const importMetadataValuesFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataValueXML[] | undefined
 ): MetadataValue[] | undefined => {
   if (!data) return undefined
@@ -89,7 +89,7 @@ export const importMetadataValuesFromXML = (
 }
 
 export const importMetadataSimpleValueFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataSimpleValueXML | undefined
 ): string | boolean | number | undefined => {
   const result = importMetadataValueFromXML(context, data)
@@ -99,26 +99,32 @@ export const importMetadataSimpleValueFromXML = (
   return result.value as string | boolean | number
 }
 
-export const importMetadataStringValueFromXML = (_context: Context, value: string | undefined): string | undefined => {
+export const importMetadataStringValueFromXML = (
+  _context: ConfigurationContext,
+  value: string | undefined
+): string | undefined => {
   if (value === undefined || value === "") {
     return undefined
   }
   return value
 }
 
-export const importMetadataDecimalValueFromXML = (_context: Context, value: string | undefined): number | undefined => {
+export const importMetadataDecimalValueFromXML = (
+  _context: ConfigurationContext,
+  value: string | undefined
+): number | undefined => {
   return value !== undefined ? Number(value) : undefined
 }
 
 export const importMetadataDateTimeValueFromXML = (
-  _context: Context,
+  _context: ConfigurationContext,
   value: string | undefined
 ): string | undefined => {
   return value
 }
 
 export const importMetadataBooleanValueFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   value: string | boolean | undefined
 ): boolean | undefined => {
   if (value === undefined) return undefined
@@ -126,12 +132,15 @@ export const importMetadataBooleanValueFromXML = (
   return importBooleanFromXML(context, value as "true" | "false")!
 }
 
-export const importMetadataRefValueFromXML = (_context: Context, value: string | undefined): string | undefined => {
+export const importMetadataRefValueFromXML = (
+  _context: ConfigurationContext,
+  value: string | undefined
+): string | undefined => {
   return value
 }
 
 export const importMetadataObjectRefValueFromXML = (
-  _context: Context,
+  _context: ConfigurationContext,
   value: string | undefined
 ): string | undefined => {
   return value
@@ -142,7 +151,7 @@ const extractType = (xmlType: MetadataValueTypeXML): MetadataValueType | undefin
 }
 
 const importFixedArrayFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataFixedArrayValueXML | { "v8:Value": string | string[] }
 ): MetadataValue => {
   const values = Array.isArray(data["v8:Value"]) ? data["v8:Value"] : [data["v8:Value"]]
@@ -153,7 +162,7 @@ const importFixedArrayFromXML = (
 }
 
 export const importFormChoiceListValueFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataFormChoiceListValueXML
 ): MetadataFormChoiceListValue | undefined => {
   const value = importMetadataValueFromXML(context, data.Value)

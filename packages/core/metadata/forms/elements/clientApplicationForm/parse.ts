@@ -1,8 +1,8 @@
-import type { Context } from "~/metadata/context/types"
+import type { ConfigurationContext } from "~/metadata/context/types"
 import { FormElementType } from "../../../metadataFactory/types"
 import type { ClientApplicationForm } from "./types"
 
-export const parseClientApplicationForm = (_text: string, _context: Context): ClientApplicationForm => {
+export const parseClientApplicationForm = (_text: string, _context: ConfigurationContext): ClientApplicationForm => {
   // const cst = parseRegions(text)
   // const visitor = new RegionsVisitor()
   // const sections = visitor.lines(cst)

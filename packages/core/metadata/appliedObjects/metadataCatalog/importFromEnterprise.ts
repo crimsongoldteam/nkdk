@@ -10,14 +10,14 @@ import { importMetadataItemLinksFromEnterprise } from "~/metadata/commonObjects/
 import { importMetadataTabularSectionsFromEnterprise } from "~/metadata/commonObjects/metadataTabularSection/importFromEnterprise"
 import { importPredefinedItemsFromEnterprise } from "~/metadata/commonObjects/predifined/importFromEnterprise"
 import { importStandardAttributeDescriptionsFromEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/importFromEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
 
 export const importMetadataCatalogFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataCatalogEnterprise | undefined,
   name: string
 ): MetadataCatalog | undefined => {

@@ -1,9 +1,9 @@
 import type { ControlBorderType } from "~/metadata/systemEnumerations/types"
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { Border, BorderXML } from "./types"
 
 export const importBorderFromXML = (
-  _context: Context,
+  _context: ConfigurationContext,
   xml: BorderXML | { Border: BorderXML } | undefined
 ): Border | undefined => {
   if (!xml) return undefined

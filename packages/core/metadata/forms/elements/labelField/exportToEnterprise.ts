@@ -4,7 +4,7 @@ import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportTo
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import { LabelField, LabelFieldEnterprise } from "~/metadata/forms/elements/labelField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
@@ -12,7 +12,7 @@ import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportLabelFieldToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: LabelField | undefined
 ): LabelFieldEnterprise | undefined => {
   if (!data) return undefined

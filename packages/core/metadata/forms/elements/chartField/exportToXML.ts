@@ -1,12 +1,15 @@
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { ChartField, ChartFieldXML } from "~/metadata/forms/elements/chartField/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
-export const exportChartFieldToXML = (context: Context, data: ChartField | undefined): ChartFieldXML | undefined => {
+export const exportChartFieldToXML = (
+  context: ConfigurationContext,
+  data: ChartField | undefined
+): ChartFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({

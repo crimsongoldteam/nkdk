@@ -1,8 +1,8 @@
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement, BaseElementXML } from "./types"
 
 export const exportBaseElementToXML = (
-  _context: Context,
+  _context: ConfigurationContext,
   data: BaseElement | undefined
 ): BaseElementXML | undefined => {
   if (!data) return undefined

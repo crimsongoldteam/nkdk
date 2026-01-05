@@ -13,7 +13,7 @@ import {
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/exportToEnterprise"
 import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportChoiceParametersToEnterprise } from "../сhoiceParameters/exportToEnterprise"
@@ -23,7 +23,7 @@ export const exportStandartAttributeNameToEnterprise = (name: StandartAttributeN
 }
 
 export const exportStandardAttributeDescriptionsToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: StandardAttributeDescriptions | undefined
 ): StandardAttributeDescriptionsEnterprise | undefined => {
   if (!data) return undefined
@@ -41,7 +41,7 @@ export const exportStandardAttributeDescriptionsToEnterprise = (
 }
 
 const exportStandardAttributeDescriptionToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: StandardAttributeDescription
 ): StandardAttributeDescriptionEnterprise => {
   const result: StandardAttributeDescriptionEnterprise = {}

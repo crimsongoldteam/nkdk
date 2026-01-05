@@ -1,10 +1,10 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { exportMetadataValueToXML } from "../metadataValue/exportToXML"
 import { MetadataSimpleValueXML, MetadataValue } from "../metadataValue/types"
 import { MetadataValueCollection, MetadataValueCollectionXML } from "./types"
 
 export const exportMetadataValueCollectionToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataValueCollection | undefined
 ): MetadataValueCollectionXML | undefined => {
   if (!data || data.length === 0) return undefined

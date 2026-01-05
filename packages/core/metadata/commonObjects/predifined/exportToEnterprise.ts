@@ -1,8 +1,8 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { Predefined, PredefinedEnterprise, PredefinedItems, PredefinedItemsEnterprise } from "./types"
 
 export const exportPredefinedToEnterprise = (
-  _context: Context,
+  _context: ConfigurationContext,
   data: Predefined | undefined
 ): PredefinedEnterprise | undefined => {
   if (!data) return undefined
@@ -15,7 +15,7 @@ export const exportPredefinedToEnterprise = (
 }
 
 export const exportPredefinedItemsToEnterprise = (
-  _context: Context,
+  _context: ConfigurationContext,
   data: PredefinedItems | undefined
 ): PredefinedItemsEnterprise | undefined => {
   if (!data) return undefined

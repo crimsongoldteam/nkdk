@@ -1,8 +1,11 @@
 import { importI8nTextFromXML } from "../../commonObjects/i8nText/importFromXML"
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { Command, CommandXML } from "./types"
 
-export default function importCommandFromXML(context: Context, xml: CommandXML | undefined): Command | undefined {
+export default function importCommandFromXML(
+  context: ConfigurationContext,
+  xml: CommandXML | undefined
+): Command | undefined {
   if (!xml) return undefined
 
   const result: Command = {

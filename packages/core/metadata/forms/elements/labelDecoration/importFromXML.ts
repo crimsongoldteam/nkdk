@@ -1,7 +1,7 @@
 import { importBorderFromXML } from "~/metadata/commonObjects/border/importFromXML"
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormDecorationFromXML } from "~/metadata/forms/elements/formDecoration/importFromXML"
 import { LabelDecoration, LabelDecorationXML } from "~/metadata/forms/elements/labelDecoration/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
@@ -10,7 +10,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const importLabelDecorationFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   xml: LabelDecorationXML | undefined
 ): LabelDecoration | undefined => {
   if (!xml) return undefined

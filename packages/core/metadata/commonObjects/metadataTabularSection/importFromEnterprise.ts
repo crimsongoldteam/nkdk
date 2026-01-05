@@ -7,7 +7,7 @@ import {
   MetadataTabularSectionsEnterprise,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { importStandardAttributeDescriptionsFromEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/importFromEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
@@ -15,7 +15,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { getDefaults } from "./defaults"
 
 export const importMetadataTabularSectionFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataTabularSectionEnterprise | undefined,
   name: string
 ): MetadataTabularSection | undefined => {
@@ -65,7 +65,7 @@ export const importMetadataTabularSectionFromEnterprise = (
 }
 
 export const importMetadataTabularSectionsFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataTabularSectionsEnterprise | undefined
 ): MetadataTabularSections | undefined => {
   if (!data) return undefined

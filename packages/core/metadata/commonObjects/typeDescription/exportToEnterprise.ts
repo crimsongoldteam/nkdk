@@ -1,9 +1,9 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { getTypeDescriptionRule } from "./helper"
 import { PrimitiveTypeToEnterprise, TypeDescription, TypeDescriptionEnterprise } from "./types"
 
 export const exportTypeDescriptionToEnterprise = (
-  _context: Context,
+  _context: ConfigurationContext,
   typeDescription: TypeDescription | undefined
 ): TypeDescriptionEnterprise | undefined => {
   if (!typeDescription) {

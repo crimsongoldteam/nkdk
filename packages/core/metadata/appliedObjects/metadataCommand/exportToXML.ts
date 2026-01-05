@@ -1,13 +1,13 @@
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { getUUID } from "../../helpers/uuid"
 import { getDefaults } from "./defaults"
 import { MetadataCommand, MetadataCommandXML, MetadataCommands, MetadataCommandsXML } from "./types"
 
 export const exportMetadataCommandToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataCommand | undefined
 ): MetadataCommandXML | undefined => {
   if (!data) return undefined
@@ -57,7 +57,7 @@ export const exportMetadataCommandToXML = (
 }
 
 export const exportMetadataCommandsToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataCommands | undefined
 ): MetadataCommandsXML | undefined => {
   if (!data) return undefined

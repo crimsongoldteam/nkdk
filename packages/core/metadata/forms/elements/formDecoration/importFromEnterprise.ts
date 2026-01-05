@@ -1,8 +1,8 @@
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { FormDecoration, FormDecorationEnterprise } from "./types"
 
 export const importFormDecorationFromEnterprise = (
-  _context: Context,
+  _context: ConfigurationContext,
   _data: FormDecorationEnterprise | undefined
 ): FormDecoration | undefined => {
   // TODO: Implement full import

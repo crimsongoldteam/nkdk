@@ -2,7 +2,7 @@ import { exportBorderToXML } from "~/metadata/commonObjects/border/exportToXML"
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { CalendarField, CalendarFieldXML } from "~/metadata/forms/elements/calendarField/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
@@ -10,7 +10,7 @@ import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportCalendarFieldToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: CalendarField | undefined
 ): CalendarFieldXML | undefined => {
   if (!data) return undefined

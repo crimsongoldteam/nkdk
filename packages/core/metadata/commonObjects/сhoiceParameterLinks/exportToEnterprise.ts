@@ -1,9 +1,9 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { exportMetadataFieldToEnterprise } from "../metadataField/exportToEnterprise"
 import { ChoiceParameterLinks, ChoiceParameterLinksEnterprise } from "./types"
 
 export const exportChoiceParameterLinksToEnterprise = (
-  _context: Context,
+  _context: ConfigurationContext,
   data: ChoiceParameterLinks | undefined
 ): ChoiceParameterLinksEnterprise | undefined => {
   if (!data) return undefined

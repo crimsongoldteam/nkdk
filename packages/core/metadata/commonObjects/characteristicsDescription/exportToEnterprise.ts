@@ -6,11 +6,11 @@ import {
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { exportMetadataFieldToEnterprise } from "~/metadata/commonObjects/metadataField/exportToEnterprise"
 import { exportMetadataItemLinkToEnterprise } from "~/metadata/commonObjects/metadataRef/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportMetadataValueToEnterprise } from "../metadataValue/exportToEnterprise"
 
 export const exportCharacteristicsDescriptionToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: CharacteristicsDescription | undefined
 ): CharacteristicsDescriptionEnterprise | undefined => {
   if (!data) return undefined
@@ -72,7 +72,7 @@ export const exportCharacteristicsDescriptionToEnterprise = (
 }
 
 export const exportCharacteristicsDescriptionsToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: CharacteristicsDescriptions | undefined
 ): CharacteristicsDescriptionsEnterprise | undefined => {
   if (!data) return undefined

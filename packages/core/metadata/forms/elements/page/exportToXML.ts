@@ -2,13 +2,13 @@ import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
 import { Page, PageXML } from "~/metadata/forms/elements/page/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
-export const exportPageToXML = (context: Context, data: Page | undefined): PageXML | undefined => {
+export const exportPageToXML = (context: ConfigurationContext, data: Page | undefined): PageXML | undefined => {
   if (!data) return undefined
 
   return compactObject({

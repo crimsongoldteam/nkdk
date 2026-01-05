@@ -1,10 +1,13 @@
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
 import { Font, FontEnterprise, FontFullEnterprise } from "./types"
 
-export const exportFontToEnterprise = (_context: Context, font: Font | undefined): FontEnterprise | undefined => {
+export const exportFontToEnterprise = (
+  _context: ConfigurationContext,
+  font: Font | undefined
+): FontEnterprise | undefined => {
   if (!font) return undefined
 
   const hasFullFormat =
@@ -45,7 +48,7 @@ export const exportFontToEnterprise = (_context: Context, font: Font | undefined
 }
 
 const convertRefToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   ref: SE.StyleFonts | SE.WindowsFonts | undefined,
   kind: SE.FontType
 ): SE.StyleFontsEnterprise | SE.WindowsFontsEnterprise | undefined => {

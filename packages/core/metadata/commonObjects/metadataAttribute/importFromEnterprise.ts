@@ -8,7 +8,7 @@ import {
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
 import { importChoiceParametersFromEnterprise } from "~/metadata/commonObjects/сhoiceParameters/importFromEnterprise.ts"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { splitPascalCase } from "~/metadata/helpers/canConvertToPascalCase.ts"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers.ts"
@@ -20,7 +20,7 @@ import { importTypeLinkFromEnterprise } from "../typeLink/importFromEnterprise.t
 import { getDefaultsAttribute } from "./defaults"
 
 export const importMetadataAttributesFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataAttributesEnterprise | undefined
 ): MetadataAttributes | undefined => {
   if (!data) return undefined
@@ -31,7 +31,7 @@ export const importMetadataAttributesFromEnterprise = (
 }
 
 const importMetadataAttributeFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataAttributeEnterprise,
   name: string
 ): MetadataAttribute => {

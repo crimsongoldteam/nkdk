@@ -5,11 +5,11 @@ import {
   AdditionalIndexesEnterprise,
 } from "~/metadata/commonObjects/additionalIndex/types"
 import { importIndexFieldsFromEnterprise } from "~/metadata/commonObjects/indexField/importFromEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
 
 export const importAdditionalIndexFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: AdditionalIndexEnterprise | undefined
 ): AdditionalIndex | undefined => {
   if (!data) return undefined
@@ -23,11 +23,12 @@ export const importAdditionalIndexFromEnterprise = (
 }
 
 export const importAdditionalIndexesFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: AdditionalIndexesEnterprise | undefined
 ): AdditionalIndexes | undefined => {
   if (!data) return undefined
 
-  return data.map((value: AdditionalIndexEnterprise) => importAdditionalIndexFromEnterprise(context, value)!).filter((item): item is AdditionalIndex => item !== undefined)
+  return data
+    .map((value: AdditionalIndexEnterprise) => importAdditionalIndexFromEnterprise(context, value)!)
+    .filter((item): item is AdditionalIndex => item !== undefined)
 }
-

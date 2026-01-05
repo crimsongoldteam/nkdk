@@ -9,11 +9,11 @@ import { importMetadataFieldsFromXML } from "~/metadata/commonObjects/metadataFi
 import { importMetadataItemLinksFromXML } from "~/metadata/commonObjects/metadataRef/importFromXML"
 import { importMetadataTabularSectionsFromXML } from "~/metadata/commonObjects/metadataTabularSection/importFromXML"
 import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/importFromXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
 
 export const importMetadataDocumentFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   xml: MetadataDocumentXML | undefined
 ): MetadataDocument | undefined => {
   if (!xml) return undefined

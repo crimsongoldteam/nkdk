@@ -1,9 +1,9 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { UserVisibleEnterprise, UserVisibleKeysEnterprise, type UserVisible } from "./types"
 
 export const exportUserVisibleToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   userVisible: UserVisible | undefined
 ): Partial<Record<UserVisibleKeysEnterprise, UserVisibleEnterprise>> | undefined => {
   if (!userVisible) return undefined

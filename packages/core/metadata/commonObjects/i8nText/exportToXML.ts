@@ -1,7 +1,10 @@
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
-export const exportI8nTextToXML = (_context: Context, data: I8nText | undefined): I8nTextXML | undefined => {
+export const exportI8nTextToXML = (
+  _context: ConfigurationContext,
+  data: I8nText | undefined
+): I8nTextXML | undefined => {
   if (!data) return undefined
 
   const v8Items: I8nTextLanguageXML[] = []

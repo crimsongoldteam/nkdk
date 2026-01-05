@@ -1,4 +1,4 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { formulaFormatParser } from "../../helpers/formulaFormatParser/formulaFormatParser"
 import { getTypeFromEnterprise } from "./helper"
 import {
@@ -11,7 +11,7 @@ import {
 } from "./types"
 
 export const importTypeDescriptionFromEnterprise = (
-  _context: Context,
+  _context: ConfigurationContext,
   value: TypeDescriptionEnterprise | undefined
 ): TypeDescription | undefined => {
   if (value === undefined) {

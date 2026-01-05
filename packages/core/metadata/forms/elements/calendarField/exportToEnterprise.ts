@@ -3,7 +3,7 @@ import { exportBorderToEnterprise } from "~/metadata/commonObjects/border/export
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { CalendarField, CalendarFieldEnterprise } from "~/metadata/forms/elements/calendarField/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
@@ -13,7 +13,7 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportCalendarFieldToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: CalendarField | undefined
 ): CalendarFieldEnterprise | undefined => {
   if (!data) return undefined

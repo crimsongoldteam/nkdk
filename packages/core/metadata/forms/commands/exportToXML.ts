@@ -1,8 +1,11 @@
 import { exportI8nTextToXML } from "../../commonObjects/i8nText/exportToXML"
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { Command, CommandXML } from "./types"
 
-export default function exportCommandToXML(context: Context, command: Command | undefined): CommandXML | undefined {
+export default function exportCommandToXML(
+  context: ConfigurationContext,
+  command: Command | undefined
+): CommandXML | undefined {
   if (!command) return undefined
 
   const result: CommandXML = {

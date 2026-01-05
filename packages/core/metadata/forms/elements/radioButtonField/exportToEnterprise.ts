@@ -3,7 +3,7 @@ import { exportChoiceListToEnterprise } from "~/metadata/commonObjects/choiceLis
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import { RadioButtonField, RadioButtonFieldEnterprise } from "~/metadata/forms/elements/radioButtonField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
@@ -13,7 +13,7 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportRadioButtonFieldToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: RadioButtonField | undefined
 ): RadioButtonFieldEnterprise | undefined => {
   if (!data) return undefined

@@ -1,9 +1,12 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { Color } from "./types"
 
-export const exportColorToEnterprise = (_context: Context, color: Color | undefined): string | undefined => {
+export const exportColorToEnterprise = (
+  _context: ConfigurationContext,
+  color: Color | undefined
+): string | undefined => {
   if (!color) return undefined
 
   if (color.type === "StyleItem") {

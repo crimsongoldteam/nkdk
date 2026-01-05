@@ -1,11 +1,11 @@
 import { formatElement } from "~/format/formatFactory"
 import { formatElementName } from "~/format/helpers"
 import { IFormatElementResult } from "~/format/types"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { BaseElement } from "../../baseElement/types"
 import { UsualGroup } from "../types"
 
-export const formatOneLineGroup = (element: UsualGroup, context: Context): IFormatElementResult => {
+export const formatOneLineGroup = (element: UsualGroup, context: ConfigurationContext): IFormatElementResult => {
   const separatorSymbol = ";"
   const separator = separatorSymbol + " "
 

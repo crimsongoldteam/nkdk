@@ -1,13 +1,13 @@
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
 import { Popup, PopupXML } from "~/metadata/forms/elements/popup/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
-export const exportPopupToXML = (context: Context, data: Popup | undefined): PopupXML | undefined => {
+export const exportPopupToXML = (context: ConfigurationContext, data: Popup | undefined): PopupXML | undefined => {
   if (!data) return undefined
 
   return compactObject({

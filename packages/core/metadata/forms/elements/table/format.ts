@@ -1,5 +1,5 @@
 import { FormatElementFunction, IFormatElementResult } from "~/format/types"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/parser/lexer"
 import { FormElementType } from "../../../metadataFactory/types"
 import { BaseElement } from "../baseElement/types"
@@ -40,7 +40,10 @@ const formatTableRow = (columns: (InputField | ColumnGroup)[]): string => {
   return `${V_BAR} ${headers.join(` ${V_BAR} `)} ${V_BAR}`
 }
 
-export const formatTable: FormatElementFunction = (element: Table, _context: Context): IFormatElementResult => {
+export const formatTable: FormatElementFunction = (
+  element: Table,
+  _context: ConfigurationContext
+): IFormatElementResult => {
   const result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,

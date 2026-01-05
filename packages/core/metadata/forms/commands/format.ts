@@ -1,11 +1,11 @@
 import { stringify } from "yaml"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportI8nTextToEnterprise } from "../../commonObjects/i8nText/exportToEnterprise"
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
 import { Command, CommandEnterprise } from "./types"
 
-export const formatCommands = (commands: Command[], context: Context): string[] => {
+export const formatCommands = (commands: Command[], context: ConfigurationContext): string[] => {
   const commandsEnterprise = commands.map((command) => formatCommand(command, context))
 
   return commandsEnterprise.map((command) =>
@@ -16,7 +16,7 @@ export const formatCommands = (commands: Command[], context: Context): string[] 
   )
 }
 
-const formatCommand = (command: Command, context: Context): CommandEnterprise => {
+const formatCommand = (command: Command, context: ConfigurationContext): CommandEnterprise => {
   let result: CommandEnterprise = {}
 
   return {

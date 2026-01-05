@@ -1,6 +1,6 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { CommandBar, CommandBarEnterprise } from "~/metadata/forms/elements/commandBar/types"
 import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
 import { compactObject } from "~/metadata/helpers/compactObject"
@@ -9,7 +9,7 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportCommandBarToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: CommandBar | undefined
 ): CommandBarEnterprise | undefined => {
   if (!data) return undefined

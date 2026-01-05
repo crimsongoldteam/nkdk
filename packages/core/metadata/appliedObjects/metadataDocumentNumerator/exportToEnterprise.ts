@@ -4,13 +4,13 @@ import {
 } from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportMetadataDocumentNumeratorToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataDocumentNumerator | undefined
 ): MetadataDocumentNumeratorEnterprise | undefined => {
   if (!data) return undefined

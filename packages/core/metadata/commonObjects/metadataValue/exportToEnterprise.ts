@@ -1,6 +1,6 @@
 import { format } from "date-fns"
 import { Context as VMContext } from "vm"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBooleanToEnterprise } from "../boolean/exportToEnterprise"
 import { exportMetadataValueStringToEnterprise as exportMetadataPathValueToEnterprise } from "../metadataPath/exportToEnterprise"
 import {
@@ -19,7 +19,7 @@ import {
 } from "./types"
 
 export const exportMetadataValueToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataValue | undefined
 ): MetadataValueEnterprise | undefined => {
   if (!data) return undefined
@@ -53,7 +53,10 @@ const exportDateTimeValueToEnterprise = (data: MetadataDateTimeValue): MetadataV
   return formatDateTime(data.value)
 }
 
-const exportBooleanValueToEnterprise = (context: Context, data: MetadataBooleanValue): MetadataValueEnterprise => {
+const exportBooleanValueToEnterprise = (
+  context: ConfigurationContext,
+  data: MetadataBooleanValue
+): MetadataValueEnterprise => {
   return exportBooleanToEnterprise(context, data.value)!
 }
 
@@ -66,14 +69,14 @@ const exportObjectRefValueToEnterprise = (data: MetadataObjectRefValue): Metadat
 }
 
 const exportFixedArrayValueToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataFixedArrayValue
 ): MetadataValueEnterprise => {
   return data.value.map((v) => exportMetadataValueToEnterprise(context, v)!) as MetadataFixedArrayValueEnterprise
 }
 
 export const exportFormChoiceListValueToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataFormChoiceListValue
 ): MetadataFormChoiceListValueEnterprise => {
   const valueResult = exportMetadataValueToEnterprise(context, data.value) as string

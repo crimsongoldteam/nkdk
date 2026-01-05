@@ -1,5 +1,5 @@
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { GanttChartField, GanttChartFieldXML } from "~/metadata/forms/elements/ganttChartField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
@@ -7,7 +7,7 @@ import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportGanttChartFieldToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: GanttChartField | undefined
 ): GanttChartFieldXML | undefined => {
   if (!data) return undefined

@@ -11,14 +11,14 @@ import {
 } from "~/metadata/commonObjects/metadataValue/exportToXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { getUUID } from "../../helpers/uuid"
 import { exportTypeLinkToXML } from "../typeLink/exportToXML"
 import { exportChoiceParametersToXML } from "../сhoiceParameters/exportToXML"
 import { getDefaultsAttribute, getDefaultsTabularSectionAttribute } from "./defaults"
 
 export const exportMetadataAttributesToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataAttributes | undefined
 ): MetadataAttributesXML | undefined => {
   if (!data) return undefined
@@ -31,7 +31,7 @@ export const exportMetadataAttributesToXML = (
 }
 
 export const exportMetadataTabularSectionAttributesToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataAttributes | undefined
 ): MetadataAttributesXML | undefined => {
   if (!data) return undefined
@@ -45,7 +45,7 @@ export const exportMetadataTabularSectionAttributesToXML = (
 }
 
 const exportMetadataAttributeToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataAttribute,
   defaults: Partial<MetadataAttribute>
 ): MetadataAttributeXML => {

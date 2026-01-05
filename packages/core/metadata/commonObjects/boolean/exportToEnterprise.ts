@@ -1,8 +1,8 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { StringboolEnterprise } from "./types"
 
 export const exportBooleanToEnterprise = (
-  _context: Context,
+  _context: ConfigurationContext,
   value: boolean | undefined
 ): StringboolEnterprise | undefined => {
   if (value === undefined) return undefined

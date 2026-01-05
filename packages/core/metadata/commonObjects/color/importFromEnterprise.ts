@@ -1,9 +1,12 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromEnterprise } from "../../systemEnumerations/importFromEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { Color, ColorEnterprise } from "./types"
 
-export const importColorFromEnterprise = (_context: Context, data: ColorEnterprise | undefined): Color | undefined => {
+export const importColorFromEnterprise = (
+  _context: ConfigurationContext,
+  data: ColorEnterprise | undefined
+): Color | undefined => {
   if (!data) return undefined
 
   // Проверяем, является ли это цветом из стиля

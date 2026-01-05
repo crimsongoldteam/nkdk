@@ -1,9 +1,9 @@
 import * as SE from "~/metadata/systemEnumerations/types"
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { Font, FontXML, PrefixedFontsFromXML } from "./types"
 
-export const importFontFromXML = (_context: Context, xml: FontXML | undefined): Font | undefined => {
+export const importFontFromXML = (_context: ConfigurationContext, xml: FontXML | undefined): Font | undefined => {
   if (!xml) return undefined
 
   const result: any = {}

@@ -1,8 +1,11 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { I8nText, I8nTextLanguageXML, I8nTextXML } from "./types"
 
-export const importI8nTextFromXML = (context: Context, xml: I8nTextXML | undefined): I8nText | undefined => {
+export const importI8nTextFromXML = (
+  context: ConfigurationContext,
+  xml: I8nTextXML | undefined
+): I8nText | undefined => {
   if (!xml) return undefined
 
   if (!xml["v8:item"]) return undefined

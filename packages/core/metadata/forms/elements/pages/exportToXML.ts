@@ -1,5 +1,5 @@
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
 import { Pages, PagesXML } from "~/metadata/forms/elements/pages/types"
 import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
@@ -7,7 +7,7 @@ import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
-export const exportPagesToXML = (context: Context, data: Pages | undefined): PagesXML | undefined => {
+export const exportPagesToXML = (context: ConfigurationContext, data: Pages | undefined): PagesXML | undefined => {
   if (!data) return undefined
 
   return compactObject({

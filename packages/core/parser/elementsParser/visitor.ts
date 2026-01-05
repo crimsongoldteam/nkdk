@@ -1,7 +1,7 @@
 import type { CstChildrenDictionary, CstNode, IToken } from "chevrotain"
 import type { ChoiceList } from "~/metadata/commonObjects/choiceList/types"
 import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
-import type { Context } from "~/metadata/context/types"
+import type { ConfigurationContext } from "~/metadata/context/types"
 import type { Button } from "~/metadata/forms/elements/button/types"
 import type { CheckBoxField } from "~/metadata/forms/elements/checkBoxField/types"
 import { ChildItem } from "~/metadata/forms/elements/childItems/types"
@@ -21,7 +21,7 @@ const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
 export class Visitor extends BaseVisitor {
   // #region labelDecoration
-  public labelDecoration(ctx: CstChildrenDictionary, context: Context): LabelDecoration {
+  public labelDecoration(ctx: CstChildrenDictionary, context: ConfigurationContext): LabelDecoration {
     const labelContent = joinTokens(ctx.LabelContent as IToken[]) || ""
 
     const titleText = labelContent
@@ -39,7 +39,7 @@ export class Visitor extends BaseVisitor {
 
   // #region inputField
 
-  inputField(ctx: CstChildrenDictionary, context: Context): InputField {
+  inputField(ctx: CstChildrenDictionary, context: ConfigurationContext): InputField {
     const titleText = joinTokens(ctx.InputHeader as IToken[])
 
     const name = this.visit(ctx.properties as CstNode[]) || titleText
@@ -98,7 +98,7 @@ export class Visitor extends BaseVisitor {
 
   // #region button
 
-  button(ctx: CstChildrenDictionary, context: Context): Button {
+  button(ctx: CstChildrenDictionary, context: ConfigurationContext): Button {
     const name = joinTokens(ctx.Button as IToken[]) || ""
     const titleText = joinTokens(ctx.Button as IToken[]) || ""
 
@@ -114,7 +114,7 @@ export class Visitor extends BaseVisitor {
   // #endregion
 
   // #region checkboxField
-  rightTitledCheckboxField(ctx: CstChildrenDictionary, context: Context): CheckBoxField {
+  rightTitledCheckboxField(ctx: CstChildrenDictionary, context: ConfigurationContext): CheckBoxField {
     const titleText = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
 
     const name = this.visit(ctx.properties as CstNode[]) || titleText
@@ -130,7 +130,7 @@ export class Visitor extends BaseVisitor {
     } as CheckBoxField
   }
 
-  leftTitledCheckboxField(ctx: CstChildrenDictionary, context: Context): CheckBoxField {
+  leftTitledCheckboxField(ctx: CstChildrenDictionary, context: ConfigurationContext): CheckBoxField {
     const titleText = joinTokens(ctx.CheckboxHeader as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
 
@@ -149,7 +149,7 @@ export class Visitor extends BaseVisitor {
 
   //  #region radioButtonField
 
-  radioButtonField(ctx: CstChildrenDictionary, context: Context): RadioButtonField {
+  radioButtonField(ctx: CstChildrenDictionary, context: ConfigurationContext): RadioButtonField {
     const titleText = joinTokens(ctx.RadioButtonHeader as IToken[]) || ""
 
     const name = this.visit(ctx.properties as CstNode[]) || titleText
@@ -190,7 +190,7 @@ export class Visitor extends BaseVisitor {
 
   // #region commandBar
 
-  commandBar(ctx: CstChildrenDictionary, context: Context): CommandBar {
+  commandBar(ctx: CstChildrenDictionary, context: ConfigurationContext): CommandBar {
     const childItems = visitAll(this, ctx.commandBarButton, context) as unknown as CommandBar["childItems"]
 
     // Добавляем id для кнопок
@@ -212,7 +212,7 @@ export class Visitor extends BaseVisitor {
     } as CommandBar
   }
 
-  commandBarButton(ctx: CstChildrenDictionary, context: Context): Button {
+  commandBarButton(ctx: CstChildrenDictionary, context: ConfigurationContext): Button {
     const name = joinTokens(ctx.Button as IToken[]) || ""
     const titleText = joinTokens(ctx.Button as IToken[]) || ""
 
@@ -309,7 +309,7 @@ export class Visitor extends BaseVisitor {
   // }
 
   // #region table
-  table(ctx: CstChildrenDictionary, context: Context): Table {
+  table(ctx: CstChildrenDictionary, context: ConfigurationContext): Table {
     // Обрабатываем tableLine - это массив из AT_LEAST_ONE
     // В Chevrotain AT_LEAST_ONE создает массив с именем правила
     const tableLineValue = ctx.tableLine
@@ -349,7 +349,10 @@ export class Visitor extends BaseVisitor {
     } as Table
   }
 
-  tableLine(ctx: CstChildrenDictionary, context: Context): { cells: Array<{ name: string; properties?: string }> } {
+  tableLine(
+    ctx: CstChildrenDictionary,
+    context: ConfigurationContext
+  ): { cells: Array<{ name: string; properties?: string }> } {
     // Обрабатываем ячейки из AT_LEAST_ONE_SEP
     // В Chevrotain AT_LEAST_ONE_SEP создает массив с именем правила (tableCell)
     const cells = visitAll(this, ctx.tableCell as CstNode[], context) as unknown as Array<{
@@ -360,7 +363,7 @@ export class Visitor extends BaseVisitor {
     return { cells }
   }
 
-  tableCell(ctx: CstChildrenDictionary, context: Context): { name: string; properties?: string } {
+  tableCell(ctx: CstChildrenDictionary, context: ConfigurationContext): { name: string; properties?: string } {
     const tableDataCellNodes = ctx.tableDataCell
       ? (Array.isArray(ctx.tableDataCell) ? ctx.tableDataCell : [ctx.tableDataCell]).filter(
           (item) => "children" in item
@@ -379,7 +382,7 @@ export class Visitor extends BaseVisitor {
     return tableDataCell
   }
 
-  tableDataCell(ctx: CstChildrenDictionary, _context: Context): { name: string; properties?: string } {
+  tableDataCell(ctx: CstChildrenDictionary, _context: ConfigurationContext): { name: string; properties?: string } {
     // TableCellContinue с LABEL: "TableCell" попадает в тот же массив
     const tableCellTokens = (ctx.TableCell as IToken[]) || []
     const cellName = joinTokens(tableCellTokens) || ""
@@ -401,7 +404,7 @@ export class Visitor extends BaseVisitor {
   // #endregion
 
   // #region pages
-  pages(ctx: CstChildrenDictionary, context: Context): Pages {
+  pages(ctx: CstChildrenDictionary, context: ConfigurationContext): Pages {
     const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
@@ -413,7 +416,7 @@ export class Visitor extends BaseVisitor {
     } as Pages
   }
 
-  page(ctx: CstChildrenDictionary, context: Context): Page {
+  page(ctx: CstChildrenDictionary, context: ConfigurationContext): Page {
     const titleText = joinTokens(ctx.PageHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
@@ -428,7 +431,7 @@ export class Visitor extends BaseVisitor {
   // #endregion
 
   // #region verticalGroup
-  verticalGroup(ctx: CstChildrenDictionary, context: Context): UsualGroup {
+  verticalGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): UsualGroup {
     const titleText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {
@@ -441,7 +444,7 @@ export class Visitor extends BaseVisitor {
     } as UsualGroup
   }
 
-  horizontalGroup(ctx: CstChildrenDictionary, context: Context): UsualGroup {
+  horizontalGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): UsualGroup {
     const titleText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
     const name = this.visit(ctx.properties as CstNode[]) || titleText
     return {

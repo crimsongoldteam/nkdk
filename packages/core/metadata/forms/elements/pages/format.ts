@@ -2,13 +2,16 @@ import { formatElements } from "~/format/formatFactory"
 import { formatElementName } from "~/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/format/types"
 import { addSimpleIndent } from "~/format/wrap/addIndents"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/parser/lexer"
 import { BaseElement } from "../baseElement/types"
 import { Pages } from "./types"
 const SLASH = (t.Slash.LABEL as string).repeat(2)
 
-export const formatPages: FormatElementFunction = (element: BaseElement, context: Context): IFormatElementResult => {
+export const formatPages: FormatElementFunction = (
+  element: BaseElement,
+  context: ConfigurationContext
+): IFormatElementResult => {
   const pagesElement = element as Pages
   const childItems = pagesElement.childItems ?? []
   const result: IFormatElementResult = {

@@ -6,7 +6,7 @@ import {
 } from "~/metadata/commonObjects/characteristicsDescription/types"
 import { MetadataField } from "~/metadata/commonObjects/metadataField/types"
 import { exportMetadataValueToXML } from "~/metadata/commonObjects/metadataValue/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 
 const exportFieldValue = (field: MetadataField | undefined): string => {
   if (!field) return "-1"
@@ -14,7 +14,7 @@ const exportFieldValue = (field: MetadataField | undefined): string => {
 }
 
 export const exportCharacteristicsDescriptionToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: CharacteristicsDescription | undefined
 ): CharacteristicsDescriptionXML | undefined => {
   if (!data) return undefined
@@ -85,7 +85,7 @@ export const exportCharacteristicsDescriptionToXML = (
 }
 
 export const exportCharacteristicsDescriptionsToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: CharacteristicsDescriptions | undefined
 ): CharacteristicsDescriptionsXML | undefined => {
   if (!data) return undefined

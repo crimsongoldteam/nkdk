@@ -1,9 +1,9 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { importFormChoiceListValueFromEnterprise } from "../metadataValue/importFromEnterprise"
 import { ChoiceList, ChoiceListEnterprise } from "./types"
 
 export const importChoiceListFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: ChoiceListEnterprise | undefined
 ): ChoiceList | undefined => {
   if (!data) return undefined

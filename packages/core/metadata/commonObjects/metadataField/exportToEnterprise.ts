@@ -1,9 +1,9 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { exportMetadataFieldStringToEnterprise as exportMetadataFieldToEnterprisePath } from "../metadataPath/exportToEnterprise"
 import { MetadataField, MetadataFieldEnterprise, MetadataFields, MetadataFieldsEnterprise } from "./types"
 
 export const exportMetadataFieldsToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataFields | undefined
 ): MetadataFieldsEnterprise | undefined => {
   if (!data) return undefined
@@ -12,7 +12,7 @@ export const exportMetadataFieldsToEnterprise = (
 }
 
 export const exportMetadataFieldToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataField | undefined
 ): MetadataFieldEnterprise | undefined => {
   if (!data) return undefined

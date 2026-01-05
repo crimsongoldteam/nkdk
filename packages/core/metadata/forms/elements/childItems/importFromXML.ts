@@ -1,9 +1,9 @@
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { ChildItems, ChildItemsXML } from "./types"
 
-export const importChildItemsFromXML = (context: Context, xml: ChildItemsXML | undefined): ChildItems => {
+export const importChildItemsFromXML = (context: ConfigurationContext, xml: ChildItemsXML | undefined): ChildItems => {
   if (!xml) return []
 
   const result: ChildItems = []

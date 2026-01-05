@@ -1,4 +1,4 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { importSystemEnumerationFromEnterprise } from "../../systemEnumerations/importFromEnterprise"
 import * as SE from "../../systemEnumerations/types"
 import { importBooleanFromEnterprise } from "../boolean/importFromEnterprise"
@@ -8,7 +8,7 @@ function isPictureEnterpriseExtended(data: PictureEnterprise): data is PictureEn
   return typeof data !== "string"
 }
 
-function tryImportStandardPicture(context: Context, ref: string): SE.PictureLib | undefined {
+function tryImportStandardPicture(context: ConfigurationContext, ref: string): SE.PictureLib | undefined {
   if (ref in SE.PictureLibFromEnterprise) {
     return importSystemEnumerationFromEnterprise(context, ref, SE.PictureLibFromEnterprise)
   }
@@ -24,7 +24,7 @@ function createPicture(
 }
 
 export const importPictureFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: PictureEnterprise | undefined
 ): Picture | undefined => {
   if (!data) return undefined

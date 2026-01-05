@@ -4,7 +4,7 @@ import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportCommandBarToXML } from "~/metadata/forms/elements/commandBar/exportToXML"
 import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecoration/exportToXML"
@@ -14,7 +14,10 @@ import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
-export const exportFormFieldToXML = (context: Context, data: FormField | undefined): FormFieldXML | undefined => {
+export const exportFormFieldToXML = (
+  context: ConfigurationContext,
+  data: FormField | undefined
+): FormFieldXML | undefined => {
   if (!data) return undefined
 
   return compactObject({

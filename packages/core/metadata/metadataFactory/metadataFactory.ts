@@ -1,9 +1,9 @@
-import { Context } from "../context/types"
+import { ConfigurationContext } from "../context/types"
 import { MetadataType } from "./types"
 
 export type ItemOperationType = "ExportToXML" | "ExportToEnterprise" | "ImportFromXML" | "ImportFromEnterprise"
 
-type OperationFunction<T = any> = (context: Context, data: T, name: string) => any
+type OperationFunction<T = any> = (context: ConfigurationContext, data: T, name: string) => any
 
 type OperationRegistry = Map<MetadataType, OperationFunction>
 
@@ -43,7 +43,7 @@ export const executeOperation = <T = any>(
   operationType: ItemOperationType,
   key: MetadataType,
   data: T,
-  context: Context,
+  context: ConfigurationContext,
   name: string
 ): any => {
   const operationFunction = getOperationFunction(operationType, key)

@@ -1,8 +1,11 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { exportMetadataSimpleValueToXML } from "../metadataValue/exportToXML"
 import { ChoiceParameterLink, ChoiceParameterLinks, ChoiceParameterLinksXML, ChoiceParameterLinkXML } from "./types"
 
-export const exportChoiceParameterLinkToXML = (context: Context, link: ChoiceParameterLink): ChoiceParameterLinkXML => {
+export const exportChoiceParameterLinkToXML = (
+  context: ConfigurationContext,
+  link: ChoiceParameterLink
+): ChoiceParameterLinkXML => {
   const dataPath = exportMetadataSimpleValueToXML(context, link.dataPath, "string")!
 
   return {
@@ -13,7 +16,7 @@ export const exportChoiceParameterLinkToXML = (context: Context, link: ChoicePar
 }
 
 export const exportChoiceParameterLinksToXML = (
-  context: Context,
+  context: ConfigurationContext,
   links: ChoiceParameterLinks | undefined
 ): ChoiceParameterLinksXML | undefined => {
   if (!links || links.length === 0) return undefined

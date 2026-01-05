@@ -10,12 +10,12 @@ import {
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportTypeLinkToXML } from "~/metadata/commonObjects/typeLink/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChoiceParametersToXML } from "../сhoiceParameters/exportToXML"
 import { getDefaults } from "./defaults"
 
 export const exportStandardAttributeDescriptionsToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: StandardAttributeDescriptions | undefined,
   standartAttributeNames: StandartAttributeName[]
 ): StandardAttributeDescriptionsXML | undefined => {
@@ -29,7 +29,7 @@ export const exportStandardAttributeDescriptionsToXML = (
 }
 
 const exportStandardAttributeDescriptionToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: StandardAttributeDescription
 ): StandardAttributeDescriptionXML => {
   const defaults = getDefaults(context, data)

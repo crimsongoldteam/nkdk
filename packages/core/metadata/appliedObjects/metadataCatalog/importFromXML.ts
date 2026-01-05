@@ -6,14 +6,14 @@ import { importMetadataFieldsFromXML } from "~/metadata/commonObjects/metadataFi
 import { importMetadataTabularSectionsFromXML } from "~/metadata/commonObjects/metadataTabularSection/importFromXML"
 import { importMetadataValueCollectionFromXML } from "~/metadata/commonObjects/metadataValueCollection/importFromXML"
 import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/importFromXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { importBooleanFromXML } from "../../commonObjects/boolean/importFromXML"
 import { importMetadataAttributesFromXML } from "../../commonObjects/metadataAttribute/importFromXML"
 import { removeDefaults } from "../../helpers/compactObject"
 import { getDefaults } from "./defaults"
 
 export const importMetadataCatalogFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   xml: MetadataCatalogXML
 ): MetadataCatalog | undefined => {
   const props = xml.Catalog.Properties

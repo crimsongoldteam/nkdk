@@ -1,5 +1,5 @@
 import type { CstNode } from "chevrotain"
-import type { Context } from "~/metadata/context/types"
+import type { ConfigurationContext } from "~/metadata/context/types"
 import type { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { ChildItems } from "~/metadata/forms/elements/childItems/types"
 import type { DetectedTreeNode } from "../detector/detectTree"
@@ -7,7 +7,7 @@ import { ParseElementType } from "../types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
 
-export const parseElement = (element: DetectedTreeNode, context: Context): BaseElement => {
+export const parseElement = (element: DetectedTreeNode, context: ConfigurationContext): BaseElement => {
   const ast = parseByElementType(element)
 
   const cst = visitor.visit(ast, context)
@@ -18,7 +18,7 @@ export const parseElement = (element: DetectedTreeNode, context: Context): BaseE
   return cst
 }
 
-const addChildItemsToResult = (cst: BaseElement, element: DetectedTreeNode, context: Context): void => {
+const addChildItemsToResult = (cst: BaseElement, element: DetectedTreeNode, context: ConfigurationContext): void => {
   if (!("childItems" in cst)) return
 
   if (element.type === ParseElementType.CommandBar) return

@@ -1,9 +1,9 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { exportMetadataFieldToEnterprise } from "../metadataField/exportToEnterprise"
 import { TypeLink, TypeLinkEnterprise } from "./types"
 
 export const exportTypeLinkToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: TypeLink | undefined
 ): TypeLinkEnterprise | undefined => {
   if (!data) return undefined

@@ -6,7 +6,7 @@ import {
   MetadataTabularSectionXML,
 } from "~/metadata/commonObjects/metadataTabularSection/types"
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { mergeIgnoringUndefined } from "~/metadata/helpers/compactObject"
 import { getUUID } from "../../helpers/uuid"
 import { exportInternalInfoToXML } from "../internalInfo/exportToXML"
@@ -14,7 +14,7 @@ import { exportMetadataTabularSectionAttributesToXML } from "../metadataAttribut
 import { getDefaults } from "./defaults"
 
 export const exportMetadataTabularSectionsToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataTabularSections | undefined
 ): MetadataTabularSectionsXML | undefined => {
   if (!data) return undefined
@@ -23,7 +23,7 @@ export const exportMetadataTabularSectionsToXML = (
 }
 
 export const exportMetadataTabularSectionToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataTabularSection
 ): MetadataTabularSectionXML => {
   const defaults = getDefaults(context, data)

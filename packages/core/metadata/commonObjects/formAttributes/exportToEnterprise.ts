@@ -2,13 +2,13 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { compactObject } from "../../helpers/compactObject"
 import { I8nTextEnterprise } from "../i8nText/types"
 import { FormAttribute, FormAttributeEnterprise, FormAttributes, FormAttributesEnterprise } from "./types"
 
 export const exportFormAttributeToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   attribute: FormAttribute | undefined
 ): FormAttributeEnterprise | undefined => {
   if (!attribute) return undefined
@@ -26,7 +26,7 @@ export const exportFormAttributeToEnterprise = (
 }
 
 export const exportFormAttributesToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: FormAttributes | undefined
 ): FormAttributesEnterprise | undefined => {
   if (!data) return undefined
@@ -68,7 +68,7 @@ const isUseShortFormat = (attribute: FormAttribute, title: I8nTextEnterprise | u
 //   return normalizedTitle.toLowerCase() === nameAsText.toLowerCase()
 // }
 
-const transformAttribute = (context: Context, attribute: FormAttribute): FormAttributeEnterprise => {
+const transformAttribute = (context: ConfigurationContext, attribute: FormAttribute): FormAttributeEnterprise => {
   return compactObject<FormAttributeEnterprise>({
     Заголовок: exportI8nTextToEnterprise(context, attribute.title),
     Тип: exportTypeDescriptionToEnterprise(context, attribute.valueType),

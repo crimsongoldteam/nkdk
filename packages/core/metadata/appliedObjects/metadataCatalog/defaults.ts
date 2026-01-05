@@ -1,4 +1,4 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { MetadataCatalog } from "./types"
 
 const defaults = {
@@ -36,7 +36,7 @@ const defaults = {
 
 export const getDefaults = (
   _data: MetadataCatalog,
-  _context: Context
+  _context: ConfigurationContext
 ): Required<Pick<MetadataCatalog, keyof typeof defaults>> => {
   return defaults
 }

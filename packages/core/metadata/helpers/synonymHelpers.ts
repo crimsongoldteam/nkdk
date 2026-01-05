@@ -1,8 +1,12 @@
 import { I8nText, I8nTextEnterprise } from "../commonObjects/i8nText/types"
-import { Context } from "../context/types"
+import { ConfigurationContext } from "../context/types"
 import { canConvertToPascalCase, splitPascalCase } from "./canConvertToPascalCase"
 
-export const extractDifferentSynonymPart = (context: Context, synonym: I8nText, name: string): I8nText | undefined => {
+export const extractDifferentSynonymPart = (
+  context: ConfigurationContext,
+  synonym: I8nText,
+  name: string
+): I8nText | undefined => {
   const differentItems: Record<string, string> = {}
   const defaultLanguage = context.defaultLanguage
 
@@ -30,7 +34,7 @@ export const extractDifferentSynonymPart = (context: Context, synonym: I8nText, 
 }
 
 export const addDefaultLanguageNameToSynonym = (
-  context: Context,
+  context: ConfigurationContext,
   synonym: I8nText | undefined,
   name: string
 ): I8nText => {

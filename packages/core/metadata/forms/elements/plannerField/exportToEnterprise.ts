@@ -1,6 +1,6 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import { PlannerField, PlannerFieldEnterprise } from "~/metadata/forms/elements/plannerField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
@@ -8,7 +8,7 @@ import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportPlannerFieldToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: PlannerField | undefined
 ): PlannerFieldEnterprise | undefined => {
   if (!data) return undefined

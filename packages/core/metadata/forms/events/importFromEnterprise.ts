@@ -1,4 +1,4 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { Events, EventsEnterprise } from "./types"
 
 const enterpriseEventNameMapping: Record<string, string> = {
@@ -21,7 +21,7 @@ const enterpriseEventNameMapping: Record<string, string> = {
 }
 
 export const importEventsFromEnterprise = (
-  _context: Context,
+  _context: ConfigurationContext,
   data: EventsEnterprise | undefined
 ): Events | undefined => {
   if (!data || Object.keys(data).length === 0) return undefined

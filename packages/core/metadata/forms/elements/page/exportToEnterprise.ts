@@ -3,7 +3,7 @@ import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportTo
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
 import { Page, PageEnterprise } from "~/metadata/forms/elements/page/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
@@ -11,7 +11,10 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportPageToEnterprise = (context: Context, data: Page | undefined): PageEnterprise | undefined => {
+export const exportPageToEnterprise = (
+  context: ConfigurationContext,
+  data: Page | undefined
+): PageEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({

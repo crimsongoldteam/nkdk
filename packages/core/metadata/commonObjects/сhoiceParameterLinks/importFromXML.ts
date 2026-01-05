@@ -1,10 +1,10 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { importMetadataSimpleValueFromXML } from "../metadataValue/importFromXML"
 import { MetadataSimpleValueXML } from "../metadataValue/types"
 import { ChoiceParameterLinks, ChoiceParameterLinksXML } from "./types"
 
 export const importChoiceParameterLinksFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   xml: ChoiceParameterLinksXML | undefined
 ): ChoiceParameterLinks | undefined => {
   if (!xml) return undefined
@@ -27,7 +27,7 @@ export const importChoiceParameterLinksFromXML = (
 }
 
 const extractDataPath = (
-  context: Context,
+  context: ConfigurationContext,
   dataPath: MetadataSimpleValueXML | string | undefined
 ): string | undefined => {
   if (!dataPath) return undefined

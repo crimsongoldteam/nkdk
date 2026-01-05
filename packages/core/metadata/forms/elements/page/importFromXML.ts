@@ -2,14 +2,14 @@ import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
 import { Page, PageXML } from "~/metadata/forms/elements/page/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const importPageFromXML = (context: Context, xml: PageXML | undefined): Page | undefined => {
+export const importPageFromXML = (context: ConfigurationContext, xml: PageXML | undefined): Page | undefined => {
   if (!xml) return undefined
 
   return compactObject({

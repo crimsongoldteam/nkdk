@@ -1,5 +1,5 @@
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { PlannerField, PlannerFieldXML } from "~/metadata/forms/elements/plannerField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
@@ -7,7 +7,7 @@ import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportPlannerFieldToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: PlannerField | undefined
 ): PlannerFieldXML | undefined => {
   if (!data) return undefined

@@ -6,14 +6,14 @@ import { exportMetadataFieldsToXML } from "~/metadata/commonObjects/metadataFiel
 import { exportMetadataItemLinksToXML } from "~/metadata/commonObjects/metadataRef/exportToXML"
 import { exportMetadataTabularSectionsToXML } from "~/metadata/commonObjects/metadataTabularSection/exportToXML"
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportMetadataCommandsToXML } from "../metadataCommand/exportToXML"
 import { exportMetadataDocumentNumeratorToXML } from "../metadataDocumentNumerator/exportToXML"
 import { MetadataDocument, MetadataDocumentXML } from "./types"
 
 export const exportMetadataDocumentToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataDocument | undefined
 ): MetadataDocumentXML | undefined => {
   if (!data) return undefined

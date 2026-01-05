@@ -1,9 +1,9 @@
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { FormElementType } from "../../../metadataFactory/types"
 import { BaseElement, BaseElementEnterprise } from "./types"
 
 export const importBaseElementFromEnterprise = (
-  _context: Context,
+  _context: ConfigurationContext,
   _data: BaseElementEnterprise | undefined,
   name?: string
 ): BaseElement | undefined => {

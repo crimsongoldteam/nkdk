@@ -1,5 +1,5 @@
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
 import { Pages, PagesEnterprise } from "~/metadata/forms/elements/pages/types"
 import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
@@ -9,7 +9,10 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportPagesToEnterprise = (context: Context, data: Pages | undefined): PagesEnterprise | undefined => {
+export const exportPagesToEnterprise = (
+  context: ConfigurationContext,
+  data: Pages | undefined
+): PagesEnterprise | undefined => {
   if (!data) return undefined
 
   return compactObject({

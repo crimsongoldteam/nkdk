@@ -9,7 +9,7 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
@@ -18,7 +18,7 @@ import { importMetadataItemLinkFromEnterprise } from "../../commonObjects/metada
 import { getDefaults } from "./defaults"
 
 export const importMetadataCommandFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataCommandEnterprise | undefined,
   name: string
 ): MetadataCommand | undefined => {
@@ -106,7 +106,7 @@ export const importMetadataCommandFromEnterprise = (
 }
 
 export const importMetadataCommandsFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataCommandsEnterprise | undefined
 ): MetadataCommands | undefined => {
   if (!data) return undefined

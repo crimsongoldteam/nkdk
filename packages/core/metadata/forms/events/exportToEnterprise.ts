@@ -1,4 +1,4 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { Events, EventsEnterprise } from "./types"
 
 const eventNameMapping: Record<string, string> = {
@@ -20,7 +20,10 @@ const eventNameMapping: Record<string, string> = {
   multipleValuesDelete: "УдалениеМножественныхЗначений",
 }
 
-export const exportEventsToEnterprise = (_context: Context, data: Events | undefined): EventsEnterprise | undefined => {
+export const exportEventsToEnterprise = (
+  _context: ConfigurationContext,
+  data: Events | undefined
+): EventsEnterprise | undefined => {
   if (!data || Object.keys(data).length === 0) return undefined
 
   const result: EventsEnterprise = {}

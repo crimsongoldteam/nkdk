@@ -1,4 +1,4 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { MetadataTabularSection } from "./types"
 
 const defaults = {
@@ -8,7 +8,7 @@ const defaults = {
 } as const
 
 export const getDefaults = (
-  _context: Context,
+  _context: ConfigurationContext,
   _data: MetadataTabularSection
 ): Required<Pick<MetadataTabularSection, keyof typeof defaults>> => {
   return defaults

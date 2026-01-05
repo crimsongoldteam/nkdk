@@ -1,4 +1,4 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { exportI8nTextToXML } from "../i8nText/exportToXML"
 import {
   MetadataFixedArrayValueXML,
@@ -13,7 +13,7 @@ import {
 import { MetadataPrimitiveValueType } from "./types.ts"
 
 export const exportMetadataValueToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataValue | undefined
 ): MetadataValueXML | undefined => {
   if (!data) return undefined
@@ -35,7 +35,7 @@ export const exportMetadataValueToXML = (
 }
 
 export const exportMetadataValuesToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataValue[] | undefined
 ): MetadataValueXML[] | undefined => {
   if (!data) return undefined
@@ -44,7 +44,7 @@ export const exportMetadataValuesToXML = (
 }
 
 export const exportMetadataSimpleValueToXML = (
-  _context: Context,
+  _context: ConfigurationContext,
   value: string | boolean | number | undefined,
   type: MetadataPrimitiveValueType
 ): MetadataSimpleValueXML | undefined => {
@@ -59,7 +59,7 @@ export const exportMetadataSimpleValueToXML = (
 }
 
 const exportFixedArrayValueToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: Extract<MetadataValue, { type: "fixedArray" }>
 ): MetadataFixedArrayValueXML => {
   const values = data.value.map((v) => exportMetadataValueToXML(context, v)!)
@@ -70,7 +70,7 @@ const exportFixedArrayValueToXML = (
 }
 
 export const exportFormChoiceListValueToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataFormChoiceListValue
 ): MetadataFormChoiceListValueXML => {
   const value = exportMetadataValueToXML(context, data.value)!

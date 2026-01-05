@@ -9,7 +9,7 @@ import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataVal
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { importTypeLinkFromXML } from "~/metadata/commonObjects/typeLink/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { importBooleanFromXML } from "../boolean/importFromXML"
 import { importMetadataValueFromXMLAsPrimitive } from "../metadataValue/importFromXML.ts"
@@ -17,7 +17,7 @@ import { importChoiceParametersFromXML } from "../сhoiceParameters/importFromXM
 import { getDefaultsAttribute } from "./defaults"
 
 export const importMetadataAttributesFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   xml: MetadataAttributesXML | undefined
 ): MetadataAttributes | undefined => {
   if (!xml) return undefined
@@ -27,7 +27,10 @@ export const importMetadataAttributesFromXML = (
   return items.map((value: MetadataAttributeXML) => importMetadataAttributeFromXML(context, value)!)
 }
 
-const importMetadataAttributeFromXML = (context: Context, xml: MetadataAttributeXML): MetadataAttribute => {
+const importMetadataAttributeFromXML = (
+  context: ConfigurationContext,
+  xml: MetadataAttributeXML
+): MetadataAttribute => {
   const props = xml.Properties
 
   const result: MetadataAttribute = {} as MetadataAttribute

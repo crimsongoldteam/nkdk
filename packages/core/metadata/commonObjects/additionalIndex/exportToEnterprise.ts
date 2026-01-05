@@ -5,11 +5,11 @@ import {
   AdditionalIndexesEnterprise,
 } from "~/metadata/commonObjects/additionalIndex/types"
 import { exportIndexFieldsToEnterprise } from "~/metadata/commonObjects/indexField/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
 
 export const exportAdditionalIndexToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: AdditionalIndex | undefined
 ): AdditionalIndexEnterprise | undefined => {
   if (!data) return undefined
@@ -23,7 +23,7 @@ export const exportAdditionalIndexToEnterprise = (
 }
 
 export const exportAdditionalIndexesToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: AdditionalIndexes | undefined
 ): AdditionalIndexesEnterprise | undefined => {
   if (!data) return undefined

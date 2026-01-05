@@ -1,4 +1,4 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { importMetadataFieldFromEnterprise } from "../metadataField/importFromEnterprise"
 import { ChoiceParameterLinks, ChoiceParameterLinksEnterprise } from "./types"
 
@@ -6,7 +6,7 @@ import { ChoiceParameterLinks, ChoiceParameterLinksEnterprise } from "./types"
  * Парсит строку вида "Отбор.Владелец(Справочник.Справочник1.Реквизит.Реквизит1), Отбор.Владелец2(Справочник.Справочник2.Реквизит.Реквизит2)"
  * в массив ChoiceParameterLinks
  */
-const parseChoiceParameterLinksString = (context: Context, value: string): ChoiceParameterLinks => {
+const parseChoiceParameterLinksString = (context: ConfigurationContext, value: string): ChoiceParameterLinks => {
   const result: ChoiceParameterLinks = []
   let currentIndex = 0
 
@@ -79,7 +79,7 @@ const parseChoiceParameterLinksString = (context: Context, value: string): Choic
 }
 
 export const importChoiceParameterLinksFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: ChoiceParameterLinksEnterprise | undefined
 ): ChoiceParameterLinks | undefined => {
   if (!data) return undefined

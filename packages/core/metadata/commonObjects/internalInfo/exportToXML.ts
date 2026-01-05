@@ -1,9 +1,9 @@
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { getUUID } from "../../helpers/uuid"
 import { InternalInfoItemsXML, InternalInfoParam } from "./types"
 
 export const exportInternalInfoToXML = <T extends InternalInfoParam[]>(
-  context: Context,
+  context: ConfigurationContext,
   data: T
 ): InternalInfoItemsXML<T> => {
   return {

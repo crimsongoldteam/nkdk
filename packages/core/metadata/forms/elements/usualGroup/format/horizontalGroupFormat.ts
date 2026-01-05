@@ -2,10 +2,10 @@ import { formatElement } from "~/format/formatFactory"
 import { formatElementName } from "~/format/helpers"
 import { IFormatElementResult } from "~/format/types"
 import { addSimpleIndent } from "~/format/wrap/addIndents"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { UsualGroup } from "../types"
 
-export const formatHorizontalGroup = (element: UsualGroup, context: Context): IFormatElementResult => {
+export const formatHorizontalGroup = (element: UsualGroup, context: ConfigurationContext): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: ["%" + formatElementName(element)],
     haveSimpleHorizontalGroup: false,
@@ -17,7 +17,7 @@ export const formatHorizontalGroup = (element: UsualGroup, context: Context): IF
   return result
 }
 
-const getVerticalItems = (element: UsualGroup, context: Context): string[][] => {
+const getVerticalItems = (element: UsualGroup, context: ConfigurationContext): string[][] => {
   let result: string[][] = []
 
   if (!element.childItems) return result

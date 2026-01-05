@@ -1,8 +1,8 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { Predefined, PredefinedEnterprise, PredefinedItems, PredefinedItemsEnterprise } from "./types"
 
 export const importPredefinedFromEnterprise = (
-  _context: Context,
+  _context: ConfigurationContext,
   data: PredefinedEnterprise | undefined,
   name: string
 ): Predefined | undefined => {
@@ -17,7 +17,7 @@ export const importPredefinedFromEnterprise = (
 }
 
 export const importPredefinedItemsFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: PredefinedItemsEnterprise | undefined
 ): PredefinedItems | undefined => {
   if (!data) return undefined
@@ -26,4 +26,3 @@ export const importPredefinedItemsFromEnterprise = (
     .map(([name, value]) => importPredefinedFromEnterprise(context, value, name))
     .filter((item): item is Predefined => item !== undefined)
 }
-

@@ -9,7 +9,7 @@ import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/ex
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
 import { exportChoiceParametersToEnterprise } from "~/metadata/commonObjects/сhoiceParameters/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import { InputField, InputFieldEnterprise } from "~/metadata/forms/elements/inputField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
@@ -18,7 +18,7 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportInputFieldToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: InputField | undefined
 ): InputFieldEnterprise | undefined => {
   if (!data) return undefined

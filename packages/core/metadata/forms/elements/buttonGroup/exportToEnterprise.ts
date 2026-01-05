@@ -1,5 +1,5 @@
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { ButtonGroup, ButtonGroupEnterprise } from "~/metadata/forms/elements/buttonGroup/types"
 import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
 import { compactObject } from "~/metadata/helpers/compactObject"
@@ -8,7 +8,7 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export const exportButtonGroupToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: ButtonGroup | undefined
 ): ButtonGroupEnterprise | undefined => {
   if (!data) return undefined

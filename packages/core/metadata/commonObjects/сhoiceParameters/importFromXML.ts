@@ -1,9 +1,9 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { importMetadataValueFromXML } from "../metadataValue/importFromXML"
 import { ChoiceParameter, ChoiceParameters, ChoiceParametersXML, ChoiceParameterXML } from "./types"
 
 export const importChoiceParametersFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   xml: ChoiceParametersXML | undefined
 ): ChoiceParameters | undefined => {
   if (!xml) return undefined
@@ -15,7 +15,7 @@ export const importChoiceParametersFromXML = (
   return items.map((item) => importChoiceParameterFromXML(context, item)!)
 }
 
-const importChoiceParameterFromXML = (context: Context, xml: ChoiceParameterXML): ChoiceParameter => {
+const importChoiceParameterFromXML = (context: ConfigurationContext, xml: ChoiceParameterXML): ChoiceParameter => {
   const value = importMetadataValueFromXML(context, xml["app:value"])
 
   return {

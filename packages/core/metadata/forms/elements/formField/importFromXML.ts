@@ -4,7 +4,7 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importCommandBarFromXML } from "~/metadata/forms/elements/commandBar/importFromXML"
 import { importFormDecorationFromXML } from "~/metadata/forms/elements/formDecoration/importFromXML"
@@ -15,7 +15,10 @@ import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const importFormFieldFromXML = (context: Context, xml: FormFieldXML | undefined): FormField | undefined => {
+export const importFormFieldFromXML = (
+  context: ConfigurationContext,
+  xml: FormFieldXML | undefined
+): FormField | undefined => {
   if (!xml) return undefined
 
   return compactObject({

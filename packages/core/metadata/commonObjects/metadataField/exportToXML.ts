@@ -1,14 +1,17 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { MetadataField, MetadataFields, MetadataFieldsXML } from "./types"
 
-export const exportMetadataFieldToXML = (_context: Context, data: MetadataField | undefined): string | undefined => {
+export const exportMetadataFieldToXML = (
+  _context: ConfigurationContext,
+  data: MetadataField | undefined
+): string | undefined => {
   if (!data) return undefined
 
   return String(data)
 }
 
 export const exportMetadataFieldsToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataFields | undefined
 ): MetadataFieldsXML | undefined => {
   if (!data) return undefined

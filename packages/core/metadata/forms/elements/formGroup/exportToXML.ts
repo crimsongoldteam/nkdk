@@ -2,7 +2,7 @@ import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportChildItemsToXML } from "~/metadata/forms/elements/childItems/exportToXML"
 import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecoration/exportToXML"
@@ -10,7 +10,10 @@ import { FormGroup, FormGroupXML } from "~/metadata/forms/elements/formGroup/typ
 import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
-export const exportFormGroupToXML = (context: Context, data: FormGroup | undefined): FormGroupXML | undefined => {
+export const exportFormGroupToXML = (
+  context: ConfigurationContext,
+  data: FormGroup | undefined
+): FormGroupXML | undefined => {
   if (!data) return undefined
 
   return compactObject({

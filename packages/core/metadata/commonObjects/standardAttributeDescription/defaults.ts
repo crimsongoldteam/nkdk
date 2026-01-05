@@ -1,4 +1,4 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { StandardAttributeDescription } from "./types"
 
 const defaults = {
@@ -17,7 +17,7 @@ const defaults = {
 } as const
 
 export const getDefaults = (
-  _context: Context,
+  _context: ConfigurationContext,
   _data: StandardAttributeDescription
 ): Required<Pick<StandardAttributeDescription, keyof typeof defaults>> => {
   return defaults

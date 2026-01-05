@@ -1,10 +1,13 @@
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { importBooleanFromEnterprise } from "../boolean/importFromEnterprise"
 import { Font, FontEnterprise, FontFullEnterprise } from "./types"
 
-export const importFontFromEnterprise = (_context: Context, data: FontEnterprise | undefined): Font | undefined => {
+export const importFontFromEnterprise = (
+  _context: ConfigurationContext,
+  data: FontEnterprise | undefined
+): Font | undefined => {
   if (!data) return undefined
 
   // Если данные - строка (компактный формат)

@@ -1,7 +1,7 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { Font, FontXML, PrefixedFontsToXML } from "./types"
 
-export const exportFontToXML = (_context: Context, font: Font | undefined): FontXML | undefined => {
+export const exportFontToXML = (_context: ConfigurationContext, font: Font | undefined): FontXML | undefined => {
   if (!font) return undefined
 
   const result: any = {}

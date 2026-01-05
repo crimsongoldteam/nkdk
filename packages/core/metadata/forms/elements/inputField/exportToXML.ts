@@ -8,14 +8,17 @@ import { exportTypeLinkToXML } from "~/metadata/commonObjects/typeLink/exportToX
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
 import { exportChoiceParametersToXML } from "~/metadata/commonObjects/сhoiceParameters/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { InputField, InputFieldXML } from "~/metadata/forms/elements/inputField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
-export const exportInputFieldToXML = (context: Context, data: InputField | undefined): InputFieldXML | undefined => {
+export const exportInputFieldToXML = (
+  context: ConfigurationContext,
+  data: InputField | undefined
+): InputFieldXML | undefined => {
   if (!data) return undefined
 
   const result: InputFieldXML = {

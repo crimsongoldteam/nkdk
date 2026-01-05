@@ -8,14 +8,17 @@ import { importTypeLinkFromXML } from "~/metadata/commonObjects/typeLink/importF
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
 import { importChoiceParametersFromXML } from "~/metadata/commonObjects/сhoiceParameters/importFromXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/importFromXML"
 import { InputField, InputFieldXML } from "~/metadata/forms/elements/inputField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const importInputFieldFromXML = (context: Context, xml: InputFieldXML | undefined): InputField | undefined => {
+export const importInputFieldFromXML = (
+  context: ConfigurationContext,
+  xml: InputFieldXML | undefined
+): InputField | undefined => {
   if (!xml) return undefined
 
   const baseFields = importFormFieldFromXML(context, xml)!

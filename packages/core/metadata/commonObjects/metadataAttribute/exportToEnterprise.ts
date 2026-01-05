@@ -11,7 +11,7 @@ import { exportMetadataValueToEnterprise } from "~/metadata/commonObjects/metada
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/exportToEnterprise"
 import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { extractDifferentSynonymPart } from "../../helpers/synonymHelpers"
@@ -19,7 +19,7 @@ import { I8nTextEnterprise } from "../i8nText/types"
 import { exportChoiceParametersToEnterprise } from "../сhoiceParameters/exportToEnterprise"
 
 export const exportMetadataAttributesToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataAttributes | undefined
 ): MetadataAttributesEnterprise | undefined => {
   if (!data) return undefined
@@ -30,7 +30,7 @@ export const exportMetadataAttributesToEnterprise = (
 }
 
 const exportMetadataAttributeToEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataAttribute
 ): MetadataAttributeEnterprise => {
   const type = exportTypeDescriptionToEnterprise(context, data.type)!

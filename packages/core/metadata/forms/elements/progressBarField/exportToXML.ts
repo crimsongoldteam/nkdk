@@ -1,6 +1,6 @@
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { ProgressBarField, ProgressBarFieldXML } from "~/metadata/forms/elements/progressBarField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
@@ -8,7 +8,7 @@ import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportProgressBarFieldToXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: ProgressBarField | undefined
 ): ProgressBarFieldXML | undefined => {
   if (!data) return undefined

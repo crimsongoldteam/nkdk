@@ -7,12 +7,12 @@ import {
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { removeDefaults } from "~/metadata/helpers/compactObject"
 import { getDefaults } from "./defaults"
 
 export const importMetadataCommandsFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   xml: MetadataCommandsXML | MetadataCommandXML | undefined
 ): MetadataCommands | undefined => {
   if (!xml) return undefined
@@ -23,7 +23,7 @@ export const importMetadataCommandsFromXML = (
 }
 
 export const importMetadataCommandFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   xml: MetadataCommandXML | undefined
 ): MetadataCommand | undefined => {
   if (!xml) return undefined

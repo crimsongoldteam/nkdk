@@ -13,14 +13,14 @@ import { exportMetadataTabularSectionsToXML } from "~/metadata/commonObjects/met
 import { exportMetadataValueCollectionToXML } from "~/metadata/commonObjects/metadataValueCollection/exportToXML"
 import { exportPredefinedItemsToXML } from "~/metadata/commonObjects/predifined/exportToXML"
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/exportToXML"
-import { Context } from "~/metadata/context/types"
+import { ConfigurationContext } from "~/metadata/context/types"
 import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportInternalInfoToXML } from "../../commonObjects/internalInfo/exportToXML"
 import { exportMetadataAttributesToXML } from "../../commonObjects/metadataAttribute/exportToXML"
 import { getUUID } from "../../helpers/uuid"
 import { getDefaults } from "./defaults"
 
-export interface MetadataCatalogContext extends Context {
+export interface MetadataCatalogContext extends ConfigurationContext {
   context: {
     forms: string[]
     templates: string[]

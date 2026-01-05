@@ -1,10 +1,10 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { importMetadataValueFromXML } from "../metadataValue/importFromXML"
 import { MetadataSimpleValueXML } from "../metadataValue/types"
 import { MetadataValueCollection, MetadataValueCollectionXML } from "./types"
 
 export const importMetadataValueCollectionFromXML = (
-  context: Context,
+  context: ConfigurationContext,
   data: MetadataValueCollectionXML | undefined
 ): MetadataValueCollection | undefined => {
   if (!data) return undefined

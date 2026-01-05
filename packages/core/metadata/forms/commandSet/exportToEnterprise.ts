@@ -1,8 +1,8 @@
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { CommandSet, CommandSetEnterprise } from "./types"
 
 export const exportCommandSetToEnterprise = (
-  _context: Context,
+  _context: ConfigurationContext,
   data: CommandSet | undefined
 ): CommandSetEnterprise | undefined => {
   if (!data) return undefined

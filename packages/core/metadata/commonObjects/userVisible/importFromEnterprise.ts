@@ -1,10 +1,10 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { Context } from "../../context/types"
+import { ConfigurationContext } from "../../context/types"
 import { type UserVisible } from "./types"
 
 export const importUserVisibleFromEnterprise = (
-  context: Context,
+  context: ConfigurationContext,
   value: Record<string, StringboolEnterprise> | undefined,
   usageType: "РазрешитьИспользование" | "ЗапретитьИспользование" | undefined
 ): UserVisible | undefined => {
