@@ -12,7 +12,6 @@ import { Context } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import { InputField, InputFieldEnterprise } from "~/metadata/forms/elements/inputField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -23,156 +22,313 @@ export const exportInputFieldToEnterprise = (
 ): InputFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
+  const result: InputFieldEnterprise = {
     ...exportFormFieldToEnterprise(context, data)!,
+  }
 
-    АвтоВыборНезаполненного: exportBooleanToEnterprise(context, data.autoChoiceIncomplete),
-    АвтоИзменениеРегистраПриВводеТекста: exportSystemEnumerationToEnterprise(
-      context,
-      data.autoCapitalizationOnTextInput,
-      SE.AutoCapitalizationOnTextInputToEnterprise
-    ),
-    АвтоИсправлениеПриВводеТекста: exportSystemEnumerationToEnterprise(
-      context,
-      data.autoCorrectionOnTextInput,
-      SE.AutoCorrectionOnTextInputToEnterprise
-    ),
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
-    АвтоОтметкаНезаполненного: exportBooleanToEnterprise(context, data.autoMarkIncomplete),
-    АвтоОтображениеКнопкиОткрытия: exportSystemEnumerationToEnterprise(
-      context,
-      data.autoShowOpenButton,
-      SE.AutoShowOpenButtonModeToEnterprise
-    ),
-    АвтоОтображениеКнопкиОчистки: exportSystemEnumerationToEnterprise(
-      context,
-      data.autoShowClearButton,
-      SE.AutoShowClearButtonModeToEnterprise
-    ),
-    АвтоПереносСтрок: exportBooleanToEnterprise(context, data.wrap),
-    БыстрыйВыбор: exportBooleanToEnterprise(context, data.quickChoice),
-    ВариантУправленияВысотой: exportSystemEnumerationToEnterprise(
-      context,
-      data.heightControlVariant,
-      SE.ItemHeightControlVariantToEnterprise
-    ),
-    ВыбиратьТип: exportBooleanToEnterprise(context, data.chooseType),
-    ВыборГруппИЭлементов: exportSystemEnumerationToEnterprise(
-      context,
-      data.choiceFoldersAndItems,
-      SE.FoldersAndItemsToEnterprise
-    ),
-    ВыделенныйТекст: data.selectedText,
-    ВыделятьОтрицательные: exportBooleanToEnterprise(context, data.markNegatives),
-    Высота: data.height,
-    ВысотаСпискаВыбора: data.choiceListHeight,
-    ГиперссылкаМножественныхЗначений: exportBooleanToEnterprise(context, data.multipleValuesHyperlink),
-    ДоступныеТипы: exportTypeDescriptionToEnterprise(context, data.availableTypes),
-    ИсторияВыбораПриВводе: exportSystemEnumerationToEnterprise(
-      context,
-      data.choiceHistoryOnInput,
-      SE.ChoiceHistoryOnInputToEnterprise
-    ),
-    КартинкаКнопкиВыбора: exportPictureToEnterprise(context, data.choiceButtonPicture),
-    КартинкаМножественныхЗначений: exportPictureToEnterprise(context, data.multipleValuesPicture),
-    КнопкаВыбора: exportBooleanToEnterprise(context, data.choiceButton),
-    КнопкаВыпадающегоСписка: exportBooleanToEnterprise(context, data.dropListButton),
-    КнопкаОткрытия: exportBooleanToEnterprise(context, data.openButton),
-    КнопкаОчистки: exportBooleanToEnterprise(context, data.clearButton),
-    КнопкаРегулирования: exportBooleanToEnterprise(context, data.spinButton),
-    КнопкаСоздания: exportBooleanToEnterprise(context, data.createButton),
-    КнопкаСпискаВыбора: exportBooleanToEnterprise(context, data.choiceListButton),
-    МаксимальнаяВысота: data.maxHeight,
-    МаксимальнаяШирина: data.maxWidth,
-    МаксимальноеЗначение: data.maxValue,
-    Маска: data.mask,
-    МинимальноеЗначение: data.minValue,
-    МногострочныйРежим: exportBooleanToEnterprise(context, data.multiLine),
-    ОбновлениеТекстаРедактирования: exportSystemEnumerationToEnterprise(
-      context,
-      data.editTextUpdate,
-      SE.EditTextUpdateToEnterprise
-    ),
-    ОтметкаНезаполненного: exportBooleanToEnterprise(context, data.markIncomplete),
-    ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений: exportBooleanToEnterprise(
-      context,
-      data.showCheckBoxesInDropListWhenInputMultipleValues
-    ),
-    ОтображениеКнопкиВыбора: exportSystemEnumerationToEnterprise(
-      context,
-      data.choiceButtonRepresentation,
-      SE.ChoiceButtonRepresentationToEnterprise
-    ),
-    ПараметрыВыбора: exportChoiceParameterLinksToEnterprise(context, data.choiceParameters),
-    ПодсказкаАвтозаполнения: exportSystemEnumerationToEnterprise(
-      context,
-      data.autoFillHint,
-      SE.InputFieldAutofillHintToEnterprise
-    ),
-    ПодсказкаВвода: exportI8nTextToEnterprise(context, data.inputHint),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    ПроверкаПравописанияПриВводеТекста: exportSystemEnumerationToEnterprise(
-      context,
-      data.spellCheckingOnTextInput,
-      SE.SpellCheckingOnTextInputToEnterprise
-    ),
-    ПутьКДаннымЗначенияМножественногоЗначения: data.multipleValueValueDataPath,
-    ПутьКДаннымКартинкиМножественногоЗначения: data.multipleValuePictureDataPath,
-    ПутьКДаннымПредставленияМножественногоЗначения: data.multipleValuePresentationDataPath,
-    РазмерКартинкиМножественногоЗначения: exportSystemEnumerationToEnterprise(
-      context,
-      data.multipleValuePictureSize,
-      SE.InputFieldMultipleValuePictureSizeToEnterprise
-    ),
-    РазрешитьВводПустыхМножественныхЗначений: exportBooleanToEnterprise(context, data.allowInputEmptyMultipleValues),
-    РазрешитьДублированиеМножественныхЗначений: exportBooleanToEnterprise(context, data.allowMultipleValuesDuplicates),
-    РазрешитьСоставнойТип: exportBooleanToEnterprise(context, data.typeDomainEnabled),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
-    РасширенноеРедактирование: exportBooleanToEnterprise(context, data.extendedEdit),
-    РасширенноеРедактированиеМножественныхЗначений: exportBooleanToEnterprise(context, data.multipleValuesExtendedEdit),
-    РедактированиеТекста: exportBooleanToEnterprise(context, data.textEdit),
-    РежимВыбораИзСписка: exportBooleanToEnterprise(context, data.listChoiceMode),
-    РежимВыбораНезаполненного: exportSystemEnumerationToEnterprise(
-      context,
-      data.incompleteChoiceMode,
-      SE.IncompleteChoiceModeToEnterprise
-    ),
-    РежимПароля: exportBooleanToEnterprise(context, data.passwordMode),
-    СвязиПараметровВыбора: exportChoiceParameterLinksToEnterprise(context, data.choiceParameterLinks),
-    СвязьПоТипу: exportTypeLinkToEnterprise(context, data.typeLink),
-    СпециальныйРежимВводаТекста: exportSystemEnumerationToEnterprise(
-      context,
-      data.specialTextInputMode,
-      SE.SpecialTextInputModeToEnterprise
-    ),
-    СписокВыбора: exportChoiceListToEnterprise(context, data.choiceList),
-    ТекстКнопкиВводаЭкраннойКлавиатуры: exportSystemEnumerationToEnterprise(
-      context,
-      data.onScreenKeyboardReturnKeyText,
-      SE.OnScreenKeyboardReturnKeyTextToEnterprise
-    ),
-    ТекстРедактирования: data.editText,
-    ФигураКартинкиМножественногоЗначения: exportSystemEnumerationToEnterprise(
+  const autoChoiceIncomplete = exportBooleanToEnterprise(context, data.autoChoiceIncomplete)
+  if (autoChoiceIncomplete !== undefined) result.АвтоВыборНезаполненного = autoChoiceIncomplete
+
+  const autoCapitalizationOnTextInput = exportSystemEnumerationToEnterprise<SE.AutoCapitalizationOnTextInputEnterprise>(
+    context,
+    data.autoCapitalizationOnTextInput,
+    SE.AutoCapitalizationOnTextInputToEnterprise
+  )
+  if (autoCapitalizationOnTextInput !== undefined)
+    result.АвтоИзменениеРегистраПриВводеТекста = autoCapitalizationOnTextInput
+
+  const autoCorrectionOnTextInput = exportSystemEnumerationToEnterprise<SE.AutoCorrectionOnTextInputEnterprise>(
+    context,
+    data.autoCorrectionOnTextInput,
+    SE.AutoCorrectionOnTextInputToEnterprise
+  )
+  if (autoCorrectionOnTextInput !== undefined) result.АвтоИсправлениеПриВводеТекста = autoCorrectionOnTextInput
+
+  const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
+  if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
+
+  const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
+  if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
+
+  const autoMarkIncomplete = exportBooleanToEnterprise(context, data.autoMarkIncomplete)
+  if (autoMarkIncomplete !== undefined) result.АвтоОтметкаНезаполненного = autoMarkIncomplete
+
+  const autoShowOpenButton = exportSystemEnumerationToEnterprise<SE.AutoShowOpenButtonModeEnterprise>(
+    context,
+    data.autoShowOpenButton,
+    SE.AutoShowOpenButtonModeToEnterprise
+  )
+  if (autoShowOpenButton !== undefined) result.АвтоОтображениеКнопкиОткрытия = autoShowOpenButton
+
+  const autoShowClearButton = exportSystemEnumerationToEnterprise<SE.AutoShowClearButtonModeEnterprise>(
+    context,
+    data.autoShowClearButton,
+    SE.AutoShowClearButtonModeToEnterprise
+  )
+  if (autoShowClearButton !== undefined) result.АвтоОтображениеКнопкиОчистки = autoShowClearButton
+
+  const wrap = exportBooleanToEnterprise(context, data.wrap)
+  if (wrap !== undefined) result.АвтоПереносСтрок = wrap
+
+  const quickChoice = exportBooleanToEnterprise(context, data.quickChoice)
+  if (quickChoice !== undefined) result.БыстрыйВыбор = quickChoice
+
+  const heightControlVariant = exportSystemEnumerationToEnterprise<SE.ItemHeightControlVariantEnterprise>(
+    context,
+    data.heightControlVariant,
+    SE.ItemHeightControlVariantToEnterprise
+  )
+  if (heightControlVariant !== undefined) result.ВариантУправленияВысотой = heightControlVariant
+
+  const chooseType = exportBooleanToEnterprise(context, data.chooseType)
+  if (chooseType !== undefined) result.ВыбиратьТип = chooseType
+
+  const choiceFoldersAndItems = exportSystemEnumerationToEnterprise<SE.FoldersAndItemsEnterprise>(
+    context,
+    data.choiceFoldersAndItems,
+    SE.FoldersAndItemsToEnterprise
+  )
+  if (choiceFoldersAndItems !== undefined) result.ВыборГруппИЭлементов = choiceFoldersAndItems
+
+  if (data.selectedText !== undefined) result.ВыделенныйТекст = data.selectedText
+
+  const markNegatives = exportBooleanToEnterprise(context, data.markNegatives)
+  if (markNegatives !== undefined) result.ВыделятьОтрицательные = markNegatives
+
+  if (data.height !== undefined) result.Высота = data.height
+
+  if (data.choiceListHeight !== undefined) result.ВысотаСпискаВыбора = data.choiceListHeight
+
+  const multipleValuesHyperlink = exportBooleanToEnterprise(context, data.multipleValuesHyperlink)
+  if (multipleValuesHyperlink !== undefined) result.ГиперссылкаМножественныхЗначений = multipleValuesHyperlink
+
+  const availableTypes = exportTypeDescriptionToEnterprise(context, data.availableTypes)
+  if (availableTypes !== undefined) result.ДоступныеТипы = availableTypes
+
+  const choiceHistoryOnInput = exportSystemEnumerationToEnterprise<SE.ChoiceHistoryOnInputEnterprise>(
+    context,
+    data.choiceHistoryOnInput,
+    SE.ChoiceHistoryOnInputToEnterprise
+  )
+  if (choiceHistoryOnInput !== undefined) result.ИсторияВыбораПриВводе = choiceHistoryOnInput
+
+  const choiceButtonPicture = exportPictureToEnterprise(context, data.choiceButtonPicture)
+  if (choiceButtonPicture !== undefined) result.КартинкаКнопкиВыбора = choiceButtonPicture
+
+  const multipleValuesPicture = exportPictureToEnterprise(context, data.multipleValuesPicture)
+  if (multipleValuesPicture !== undefined) result.КартинкаМножественныхЗначений = multipleValuesPicture
+
+  const choiceButton = exportBooleanToEnterprise(context, data.choiceButton)
+  if (choiceButton !== undefined) result.КнопкаВыбора = choiceButton
+
+  const dropListButton = exportBooleanToEnterprise(context, data.dropListButton)
+  if (dropListButton !== undefined) result.КнопкаВыпадающегоСписка = dropListButton
+
+  const openButton = exportBooleanToEnterprise(context, data.openButton)
+  if (openButton !== undefined) result.КнопкаОткрытия = openButton
+
+  const clearButton = exportBooleanToEnterprise(context, data.clearButton)
+  if (clearButton !== undefined) result.КнопкаОчистки = clearButton
+
+  const spinButton = exportBooleanToEnterprise(context, data.spinButton)
+  if (spinButton !== undefined) result.КнопкаРегулирования = spinButton
+
+  const createButton = exportBooleanToEnterprise(context, data.createButton)
+  if (createButton !== undefined) result.КнопкаСоздания = createButton
+
+  const choiceListButton = exportBooleanToEnterprise(context, data.choiceListButton)
+  if (choiceListButton !== undefined) result.КнопкаСпискаВыбора = choiceListButton
+
+  if (data.maxHeight !== undefined) result.МаксимальнаяВысота = data.maxHeight
+
+  if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
+
+  if (data.maxValue !== undefined) result.МаксимальноеЗначение = data.maxValue
+
+  if (data.mask !== undefined) result.Маска = data.mask
+
+  if (data.minValue !== undefined) result.МинимальноеЗначение = data.minValue
+
+  const multiLine = exportBooleanToEnterprise(context, data.multiLine)
+  if (multiLine !== undefined) result.МногострочныйРежим = multiLine
+
+  const editTextUpdate = exportSystemEnumerationToEnterprise<SE.EditTextUpdateEnterprise>(
+    context,
+    data.editTextUpdate,
+    SE.EditTextUpdateToEnterprise
+  )
+  if (editTextUpdate !== undefined) result.ОбновлениеТекстаРедактирования = editTextUpdate
+
+  const markIncomplete = exportBooleanToEnterprise(context, data.markIncomplete)
+  if (markIncomplete !== undefined) result.ОтметкаНезаполненного = markIncomplete
+
+  const showCheckBoxesInDropListWhenInputMultipleValues = exportBooleanToEnterprise(
+    context,
+    data.showCheckBoxesInDropListWhenInputMultipleValues
+  )
+  if (showCheckBoxesInDropListWhenInputMultipleValues !== undefined)
+    result.ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений =
+      showCheckBoxesInDropListWhenInputMultipleValues
+
+  const choiceButtonRepresentation = exportSystemEnumerationToEnterprise<SE.ChoiceButtonRepresentationEnterprise>(
+    context,
+    data.choiceButtonRepresentation,
+    SE.ChoiceButtonRepresentationToEnterprise
+  )
+  if (choiceButtonRepresentation !== undefined) result.ОтображениеКнопкиВыбора = choiceButtonRepresentation
+
+  const choiceParameters = exportChoiceParameterLinksToEnterprise(context, data.choiceParameters)
+  if (choiceParameters !== undefined) result.ПараметрыВыбора = choiceParameters
+
+  const autoFillHint = exportSystemEnumerationToEnterprise<SE.InputFieldAutofillHintEnterprise>(
+    context,
+    data.autoFillHint,
+    SE.InputFieldAutofillHintToEnterprise
+  )
+  if (autoFillHint !== undefined) result.ПодсказкаАвтозаполнения = autoFillHint
+
+  const inputHint = exportI8nTextToEnterprise(context, data.inputHint)
+  if (inputHint !== undefined) result.ПодсказкаВвода = inputHint
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  const spellCheckingOnTextInput = exportSystemEnumerationToEnterprise<SE.SpellCheckingOnTextInputEnterprise>(
+    context,
+    data.spellCheckingOnTextInput,
+    SE.SpellCheckingOnTextInputToEnterprise
+  )
+  if (spellCheckingOnTextInput !== undefined) result.ПроверкаПравописанияПриВводеТекста = spellCheckingOnTextInput
+
+  if (data.multipleValueValueDataPath !== undefined)
+    result.ПутьКДаннымЗначенияМножественногоЗначения = data.multipleValueValueDataPath
+
+  if (data.multipleValuePictureDataPath !== undefined)
+    result.ПутьКДаннымКартинкиМножественногоЗначения = data.multipleValuePictureDataPath
+
+  if (data.multipleValuePresentationDataPath !== undefined)
+    result.ПутьКДаннымПредставленияМножественногоЗначения = data.multipleValuePresentationDataPath
+
+  const multipleValuePictureSize = exportSystemEnumerationToEnterprise<SE.InputFieldMultipleValuePictureSizeEnterprise>(
+    context,
+    data.multipleValuePictureSize,
+    SE.InputFieldMultipleValuePictureSizeToEnterprise
+  )
+  if (multipleValuePictureSize !== undefined) result.РазмерКартинкиМножественногоЗначения = multipleValuePictureSize
+
+  const allowInputEmptyMultipleValues = exportBooleanToEnterprise(context, data.allowInputEmptyMultipleValues)
+  if (allowInputEmptyMultipleValues !== undefined)
+    result.РазрешитьВводПустыхМножественныхЗначений = allowInputEmptyMultipleValues
+
+  const allowMultipleValuesDuplicates = exportBooleanToEnterprise(context, data.allowMultipleValuesDuplicates)
+  if (allowMultipleValuesDuplicates !== undefined)
+    result.РазрешитьДублированиеМножественныхЗначений = allowMultipleValuesDuplicates
+
+  const typeDomainEnabled = exportBooleanToEnterprise(context, data.typeDomainEnabled)
+  if (typeDomainEnabled !== undefined) result.РазрешитьСоставнойТип = typeDomainEnabled
+
+  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
+
+  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
+
+  const extendedEdit = exportBooleanToEnterprise(context, data.extendedEdit)
+  if (extendedEdit !== undefined) result.РасширенноеРедактирование = extendedEdit
+
+  const multipleValuesExtendedEdit = exportBooleanToEnterprise(context, data.multipleValuesExtendedEdit)
+  if (multipleValuesExtendedEdit !== undefined)
+    result.РасширенноеРедактированиеМножественныхЗначений = multipleValuesExtendedEdit
+
+  const textEdit = exportBooleanToEnterprise(context, data.textEdit)
+  if (textEdit !== undefined) result.РедактированиеТекста = textEdit
+
+  const listChoiceMode = exportBooleanToEnterprise(context, data.listChoiceMode)
+  if (listChoiceMode !== undefined) result.РежимВыбораИзСписка = listChoiceMode
+
+  const incompleteChoiceMode = exportSystemEnumerationToEnterprise<SE.IncompleteChoiceModeEnterprise>(
+    context,
+    data.incompleteChoiceMode,
+    SE.IncompleteChoiceModeToEnterprise
+  )
+  if (incompleteChoiceMode !== undefined) result.РежимВыбораНезаполненного = incompleteChoiceMode
+
+  const passwordMode = exportBooleanToEnterprise(context, data.passwordMode)
+  if (passwordMode !== undefined) result.РежимПароля = passwordMode
+
+  const choiceParameterLinks = exportChoiceParameterLinksToEnterprise(context, data.choiceParameterLinks)
+  if (choiceParameterLinks !== undefined) result.СвязиПараметровВыбора = choiceParameterLinks
+
+  const typeLink = exportTypeLinkToEnterprise(context, data.typeLink)
+  if (typeLink !== undefined) result.СвязьПоТипу = typeLink
+
+  const specialTextInputMode = exportSystemEnumerationToEnterprise<SE.SpecialTextInputModeEnterprise>(
+    context,
+    data.specialTextInputMode,
+    SE.SpecialTextInputModeToEnterprise
+  )
+  if (specialTextInputMode !== undefined) result.СпециальныйРежимВводаТекста = specialTextInputMode
+
+  const choiceList = exportChoiceListToEnterprise(context, data.choiceList)
+  if (choiceList !== undefined) result.СписокВыбора = choiceList
+
+  const onScreenKeyboardReturnKeyText = exportSystemEnumerationToEnterprise<SE.OnScreenKeyboardReturnKeyTextEnterprise>(
+    context,
+    data.onScreenKeyboardReturnKeyText,
+    SE.OnScreenKeyboardReturnKeyTextToEnterprise
+  )
+  if (onScreenKeyboardReturnKeyText !== undefined)
+    result.ТекстКнопкиВводаЭкраннойКлавиатуры = onScreenKeyboardReturnKeyText
+
+  if (data.editText !== undefined) result.ТекстРедактирования = data.editText
+
+  const multipleValuePictureShape =
+    exportSystemEnumerationToEnterprise<SE.InputFieldMultipleValuePictureShapeEnterprise>(
       context,
       data.multipleValuePictureShape,
       SE.InputFieldMultipleValuePictureShapeToEnterprise
-    ),
-    ФормаВыбора: data.choiceForm,
-    Формат: exportI8nTextToEnterprise(context, data.format),
-    ФорматРедактирования: exportI8nTextToEnterprise(context, data.editFormat),
-    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
-    ЦветТекста: exportColorToEnterprise(context, data.textColor),
-    ЦветТекстаМножественныхЗначений: exportColorToEnterprise(context, data.multipleValuesTextColor),
-    ЦветФона: exportColorToEnterprise(context, data.backColor),
-    ЦветФонаМножественныхЗначений: exportColorToEnterprise(context, data.multipleValuesBackColor),
-    Ширина: data.width,
-    ШиринаВыпадающегоСписка: data.dropListWidth,
-    Шрифт: exportFontToEnterprise(context, data.font),
-    ШрифтМножественныхЗначений: exportFontToEnterprise(context, data.multipleValuesFont),
-    События: exportEventsToEnterprise(context, data.events),
-  })
+    )
+  if (multipleValuePictureShape !== undefined) result.ФигураКартинкиМножественногоЗначения = multipleValuePictureShape
+
+  if (data.choiceForm !== undefined) result.ФормаВыбора = data.choiceForm
+
+  const format = exportI8nTextToEnterprise(context, data.format)
+  if (format !== undefined) result.Формат = format
+
+  const editFormat = exportI8nTextToEnterprise(context, data.editFormat)
+  if (editFormat !== undefined) result.ФорматРедактирования = editFormat
+
+  const borderColor = exportColorToEnterprise(context, data.borderColor)
+  if (borderColor !== undefined) result.ЦветРамки = borderColor
+
+  const textColor = exportColorToEnterprise(context, data.textColor)
+  if (textColor !== undefined) result.ЦветТекста = textColor
+
+  const multipleValuesTextColor = exportColorToEnterprise(context, data.multipleValuesTextColor)
+  if (multipleValuesTextColor !== undefined) result.ЦветТекстаМножественныхЗначений = multipleValuesTextColor
+
+  const backColor = exportColorToEnterprise(context, data.backColor)
+  if (backColor !== undefined) result.ЦветФона = backColor
+
+  const multipleValuesBackColor = exportColorToEnterprise(context, data.multipleValuesBackColor)
+  if (multipleValuesBackColor !== undefined) result.ЦветФонаМножественныхЗначений = multipleValuesBackColor
+
+  if (data.width !== undefined) result.Ширина = data.width
+
+  if (data.dropListWidth !== undefined) result.ШиринаВыпадающегоСписка = data.dropListWidth
+
+  const font = exportFontToEnterprise(context, data.font)
+  if (font !== undefined) result.Шрифт = font
+
+  const multipleValuesFont = exportFontToEnterprise(context, data.multipleValuesFont)
+  if (multipleValuesFont !== undefined) result.ШрифтМножественныхЗначений = multipleValuesFont
+
+  const events = exportEventsToEnterprise(context, data.events)
+  if (events !== undefined) result.События = events
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "InputField", exportInputFieldToEnterprise)
