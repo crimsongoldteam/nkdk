@@ -8,6 +8,7 @@ import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/type
 import { exportTypeLinkToEnterprise } from "~/metadata/commonObjects/typeLink/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
+import { exportChoiceParametersToEnterprise } from "~/metadata/commonObjects/сhoiceParameters/exportToEnterprise"
 import { Context } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import { InputField, InputFieldEnterprise } from "~/metadata/forms/elements/inputField/types"
@@ -177,7 +178,7 @@ export const exportInputFieldToEnterprise = (
   )
   if (choiceButtonRepresentation !== undefined) result.ОтображениеКнопкиВыбора = choiceButtonRepresentation
 
-  const choiceParameters = exportChoiceParameterLinksToEnterprise(context, data.choiceParameters)
+  const choiceParameters = exportChoiceParametersToEnterprise(context, data.choiceParameters)
   if (choiceParameters !== undefined) result.ПараметрыВыбора = choiceParameters
 
   const autoFillHint = exportSystemEnumerationToEnterprise<SE.InputFieldAutofillHintEnterprise>(

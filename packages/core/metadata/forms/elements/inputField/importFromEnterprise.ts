@@ -1,0 +1,348 @@
+import { name } from "assert"
+import { id } from "date-fns/locale"
+import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { importChoiceListFromEnterprise } from "~/metadata/commonObjects/choiceList/importFromEnterprise"
+import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
+import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
+import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
+import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
+import { importTypeLinkFromEnterprise } from "~/metadata/commonObjects/typeLink/importFromEnterprise"
+import { importFromEnterprise as importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
+import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
+import { importChoiceParametersFromEnterprise } from "~/metadata/commonObjects/сhoiceParameters/importFromEnterprise"
+import { Context } from "~/metadata/context/types"
+import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { InputField, InputFieldEnterprise } from "~/metadata/forms/elements/inputField/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
+
+export const importInputFieldFromEnterprise = (
+  context: Context,
+  data: InputFieldEnterprise | undefined
+): InputField | undefined => {
+  if (!data) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, name, id)!
+  const { elementType: _, ...restFields } = baseFields
+
+  const result: InputField = {
+    elementType: FormElementType.InputField,
+    ...restFields,
+  }
+
+  const autoChoiceIncomplete = importBooleanFromEnterprise(context, data.АвтоВыборНезаполненного)
+  if (autoChoiceIncomplete !== undefined) result.autoChoiceIncomplete = autoChoiceIncomplete
+
+  const autoCapitalizationOnTextInput = importSystemEnumerationFromEnterprise<SE.AutoCapitalizationOnTextInput>(
+    context,
+    data.АвтоИзменениеРегистраПриВводеТекста,
+    SE.AutoCapitalizationOnTextInputFromEnterprise
+  )
+  if (autoCapitalizationOnTextInput !== undefined) result.autoCapitalizationOnTextInput = autoCapitalizationOnTextInput
+
+  const autoCorrectionOnTextInput = importSystemEnumerationFromEnterprise<SE.AutoCorrectionOnTextInput>(
+    context,
+    data.АвтоИсправлениеПриВводеТекста,
+    SE.AutoCorrectionOnTextInputFromEnterprise
+  )
+  if (autoCorrectionOnTextInput !== undefined) result.autoCorrectionOnTextInput = autoCorrectionOnTextInput
+
+  const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
+  if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
+
+  const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
+  if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
+
+  const autoMarkIncomplete = importBooleanFromEnterprise(context, data.АвтоОтметкаНезаполненного)
+  if (autoMarkIncomplete !== undefined) result.autoMarkIncomplete = autoMarkIncomplete
+
+  const autoShowOpenButton = importSystemEnumerationFromEnterprise<SE.AutoShowOpenButtonMode>(
+    context,
+    data.АвтоОтображениеКнопкиОткрытия,
+    SE.AutoShowOpenButtonModeFromEnterprise
+  )
+  if (autoShowOpenButton !== undefined) result.autoShowOpenButton = autoShowOpenButton
+
+  const autoShowClearButton = importSystemEnumerationFromEnterprise<SE.AutoShowClearButtonMode>(
+    context,
+    data.АвтоОтображениеКнопкиОчистки,
+    SE.AutoShowClearButtonModeFromEnterprise
+  )
+  if (autoShowClearButton !== undefined) result.autoShowClearButton = autoShowClearButton
+
+  const wrap = importBooleanFromEnterprise(context, data.АвтоПереносСтрок)
+  if (wrap !== undefined) result.wrap = wrap
+
+  const quickChoice = importBooleanFromEnterprise(context, data.БыстрыйВыбор)
+  if (quickChoice !== undefined) result.quickChoice = quickChoice
+
+  const heightControlVariant = importSystemEnumerationFromEnterprise<SE.ItemHeightControlVariant>(
+    context,
+    data.ВариантУправленияВысотой,
+    SE.ItemHeightControlVariantFromEnterprise
+  )
+  if (heightControlVariant !== undefined) result.heightControlVariant = heightControlVariant
+
+  const chooseType = importBooleanFromEnterprise(context, data.ВыбиратьТип)
+  if (chooseType !== undefined) result.chooseType = chooseType
+
+  const choiceFoldersAndItems = importSystemEnumerationFromEnterprise<SE.FoldersAndItems>(
+    context,
+    data.ВыборГруппИЭлементов,
+    SE.FoldersAndItemsFromEnterprise
+  )
+  if (choiceFoldersAndItems !== undefined) result.choiceFoldersAndItems = choiceFoldersAndItems
+
+  if (data.ВыделенныйТекст !== undefined) result.selectedText = data.ВыделенныйТекст
+
+  const markNegatives = importBooleanFromEnterprise(context, data.ВыделятьОтрицательные)
+  if (markNegatives !== undefined) result.markNegatives = markNegatives
+
+  if (data.Высота !== undefined) result.height = data.Высота
+
+  if (data.ВысотаСпискаВыбора !== undefined) result.choiceListHeight = data.ВысотаСпискаВыбора
+
+  const multipleValuesHyperlink = importBooleanFromEnterprise(context, data.ГиперссылкаМножественныхЗначений)
+  if (multipleValuesHyperlink !== undefined) result.multipleValuesHyperlink = multipleValuesHyperlink
+
+  const availableTypes = importTypeDescriptionFromEnterprise(context, data.ДоступныеТипы)
+  if (availableTypes !== undefined) result.availableTypes = availableTypes
+
+  const choiceHistoryOnInput = importSystemEnumerationFromEnterprise<SE.ChoiceHistoryOnInput>(
+    context,
+    data.ИсторияВыбораПриВводе,
+    SE.ChoiceHistoryOnInputFromEnterprise
+  )
+  if (choiceHistoryOnInput !== undefined) result.choiceHistoryOnInput = choiceHistoryOnInput
+
+  const choiceButtonPicture = importPictureFromEnterprise(context, data.КартинкаКнопкиВыбора)
+  if (choiceButtonPicture !== undefined) result.choiceButtonPicture = choiceButtonPicture
+
+  const multipleValuesPicture = importPictureFromEnterprise(context, data.КартинкаМножественныхЗначений)
+  if (multipleValuesPicture !== undefined) result.multipleValuesPicture = multipleValuesPicture
+
+  const choiceButton = importBooleanFromEnterprise(context, data.КнопкаВыбора)
+  if (choiceButton !== undefined) result.choiceButton = choiceButton
+
+  const dropListButton = importBooleanFromEnterprise(context, data.КнопкаВыпадающегоСписка)
+  if (dropListButton !== undefined) result.dropListButton = dropListButton
+
+  const openButton = importBooleanFromEnterprise(context, data.КнопкаОткрытия)
+  if (openButton !== undefined) result.openButton = openButton
+
+  const clearButton = importBooleanFromEnterprise(context, data.КнопкаОчистки)
+  if (clearButton !== undefined) result.clearButton = clearButton
+
+  const spinButton = importBooleanFromEnterprise(context, data.КнопкаРегулирования)
+  if (spinButton !== undefined) result.spinButton = spinButton
+
+  const createButton = importBooleanFromEnterprise(context, data.КнопкаСоздания)
+  if (createButton !== undefined) result.createButton = createButton
+
+  const choiceListButton = importBooleanFromEnterprise(context, data.КнопкаСпискаВыбора)
+  if (choiceListButton !== undefined) result.choiceListButton = choiceListButton
+
+  if (data.МаксимальнаяВысота !== undefined) result.maxHeight = data.МаксимальнаяВысота
+
+  if (data.МаксимальнаяШирина !== undefined) result.maxWidth = data.МаксимальнаяШирина
+
+  if (data.МаксимальноеЗначение !== undefined) result.maxValue = data.МаксимальноеЗначение
+
+  if (data.Маска !== undefined) result.mask = data.Маска
+
+  if (data.МинимальноеЗначение !== undefined) result.minValue = data.МинимальноеЗначение
+
+  const multiLine = importBooleanFromEnterprise(context, data.МногострочныйРежим)
+  if (multiLine !== undefined) result.multiLine = multiLine
+
+  const editTextUpdate = importSystemEnumerationFromEnterprise<SE.EditTextUpdate>(
+    context,
+    data.ОбновлениеТекстаРедактирования,
+    SE.EditTextUpdateFromEnterprise
+  )
+  if (editTextUpdate !== undefined) result.editTextUpdate = editTextUpdate
+
+  const markIncomplete = importBooleanFromEnterprise(context, data.ОтметкаНезаполненного)
+  if (markIncomplete !== undefined) result.markIncomplete = markIncomplete
+
+  const showCheckBoxesInDropListWhenInputMultipleValues = importBooleanFromEnterprise(
+    context,
+    data.ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений
+  )
+  if (showCheckBoxesInDropListWhenInputMultipleValues !== undefined)
+    result.showCheckBoxesInDropListWhenInputMultipleValues = showCheckBoxesInDropListWhenInputMultipleValues
+
+  const choiceButtonRepresentation = importSystemEnumerationFromEnterprise<SE.ChoiceButtonRepresentation>(
+    context,
+    data.ОтображениеКнопкиВыбора,
+    SE.ChoiceButtonRepresentationFromEnterprise
+  )
+  if (choiceButtonRepresentation !== undefined) result.choiceButtonRepresentation = choiceButtonRepresentation
+
+  const choiceParameters = importChoiceParametersFromEnterprise(context, data.ПараметрыВыбора)
+  if (choiceParameters !== undefined) result.choiceParameters = choiceParameters
+
+  const autoFillHint = importSystemEnumerationFromEnterprise<SE.InputFieldAutofillHint>(
+    context,
+    data.ПодсказкаАвтозаполнения,
+    SE.InputFieldAutofillHintFromEnterprise
+  )
+  if (autoFillHint !== undefined) result.autoFillHint = autoFillHint
+
+  const inputHint = importI8nTextFromEnterprise(context, data.ПодсказкаВвода)
+  if (inputHint !== undefined) result.inputHint = inputHint
+
+  const userVisibleAllow = data.РазрешитьИспользование
+  const userVisibleDeny = data.ЗапретитьИспользование
+  const userVisible = importUserVisibleFromEnterprise(
+    context,
+    userVisibleAllow || userVisibleDeny,
+    userVisibleAllow ? "РазрешитьИспользование" : userVisibleDeny ? "ЗапретитьИспользование" : undefined
+  )
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  const spellCheckingOnTextInput = importSystemEnumerationFromEnterprise<SE.SpellCheckingOnTextInput>(
+    context,
+    data.ПроверкаПравописанияПриВводеТекста,
+    SE.SpellCheckingOnTextInputFromEnterprise
+  )
+  if (spellCheckingOnTextInput !== undefined) result.spellCheckingOnTextInput = spellCheckingOnTextInput
+
+  if (data.ПутьКДаннымЗначенияМножественногоЗначения !== undefined)
+    result.multipleValueValueDataPath = data.ПутьКДаннымЗначенияМножественногоЗначения
+
+  if (data.ПутьКДаннымКартинкиМножественногоЗначения !== undefined)
+    result.multipleValuePictureDataPath = data.ПутьКДаннымКартинкиМножественногоЗначения
+
+  if (data.ПутьКДаннымПредставленияМножественногоЗначения !== undefined)
+    result.multipleValuePresentationDataPath = data.ПутьКДаннымПредставленияМножественногоЗначения
+
+  const multipleValuePictureSize = importSystemEnumerationFromEnterprise<SE.InputFieldMultipleValuePictureSize>(
+    context,
+    data.РазмерКартинкиМножественногоЗначения,
+    SE.InputFieldMultipleValuePictureSizeFromEnterprise
+  )
+  if (multipleValuePictureSize !== undefined) result.multipleValuePictureSize = multipleValuePictureSize
+
+  const allowInputEmptyMultipleValues = importBooleanFromEnterprise(
+    context,
+    data.РазрешитьВводПустыхМножественныхЗначений
+  )
+  if (allowInputEmptyMultipleValues !== undefined) result.allowInputEmptyMultipleValues = allowInputEmptyMultipleValues
+
+  const allowMultipleValuesDuplicates = importBooleanFromEnterprise(
+    context,
+    data.РазрешитьДублированиеМножественныхЗначений
+  )
+  if (allowMultipleValuesDuplicates !== undefined) result.allowMultipleValuesDuplicates = allowMultipleValuesDuplicates
+
+  const typeDomainEnabled = importBooleanFromEnterprise(context, data.РазрешитьСоставнойТип)
+  if (typeDomainEnabled !== undefined) result.typeDomainEnabled = typeDomainEnabled
+
+  const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
+  if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
+
+  const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
+  if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
+
+  const extendedEdit = importBooleanFromEnterprise(context, data.РасширенноеРедактирование)
+  if (extendedEdit !== undefined) result.extendedEdit = extendedEdit
+
+  const multipleValuesExtendedEdit = importBooleanFromEnterprise(
+    context,
+    data.РасширенноеРедактированиеМножественныхЗначений
+  )
+  if (multipleValuesExtendedEdit !== undefined) result.multipleValuesExtendedEdit = multipleValuesExtendedEdit
+
+  const textEdit = importBooleanFromEnterprise(context, data.РедактированиеТекста)
+  if (textEdit !== undefined) result.textEdit = textEdit
+
+  const listChoiceMode = importBooleanFromEnterprise(context, data.РежимВыбораИзСписка)
+  if (listChoiceMode !== undefined) result.listChoiceMode = listChoiceMode
+
+  const incompleteChoiceMode = importSystemEnumerationFromEnterprise<SE.IncompleteChoiceMode>(
+    context,
+    data.РежимВыбораНезаполненного,
+    SE.IncompleteChoiceModeFromEnterprise
+  )
+  if (incompleteChoiceMode !== undefined) result.incompleteChoiceMode = incompleteChoiceMode
+
+  const passwordMode = importBooleanFromEnterprise(context, data.РежимПароля)
+  if (passwordMode !== undefined) result.passwordMode = passwordMode
+
+  const choiceParameterLinks = importChoiceParameterLinksFromEnterprise(context, data.СвязиПараметровВыбора)
+  if (choiceParameterLinks !== undefined) result.choiceParameterLinks = choiceParameterLinks
+
+  const typeLink = importTypeLinkFromEnterprise(context, data.СвязьПоТипу)
+  if (typeLink !== undefined) result.typeLink = typeLink
+
+  const specialTextInputMode = importSystemEnumerationFromEnterprise<SE.SpecialTextInputMode>(
+    context,
+    data.СпециальныйРежимВводаТекста,
+    SE.SpecialTextInputModeFromEnterprise
+  )
+  if (specialTextInputMode !== undefined) result.specialTextInputMode = specialTextInputMode
+
+  const choiceList = importChoiceListFromEnterprise(context, data.СписокВыбора)
+  if (choiceList !== undefined) result.choiceList = choiceList
+
+  const onScreenKeyboardReturnKeyText = importSystemEnumerationFromEnterprise<SE.OnScreenKeyboardReturnKeyText>(
+    context,
+    data.ТекстКнопкиВводаЭкраннойКлавиатуры,
+    SE.OnScreenKeyboardReturnKeyTextFromEnterprise
+  )
+  if (onScreenKeyboardReturnKeyText !== undefined) result.onScreenKeyboardReturnKeyText = onScreenKeyboardReturnKeyText
+
+  if (data.ТекстРедактирования !== undefined) result.editText = data.ТекстРедактирования
+
+  const multipleValuePictureShape = importSystemEnumerationFromEnterprise<SE.InputFieldMultipleValuePictureShape>(
+    context,
+    data.ФигураКартинкиМножественногоЗначения,
+    SE.InputFieldMultipleValuePictureShapeFromEnterprise
+  )
+  if (multipleValuePictureShape !== undefined) result.multipleValuePictureShape = multipleValuePictureShape
+
+  if (data.ФормаВыбора !== undefined) result.choiceForm = data.ФормаВыбора
+
+  const format = importI8nTextFromEnterprise(context, data.Формат)
+  if (format !== undefined) result.format = format
+
+  const editFormat = importI8nTextFromEnterprise(context, data.ФорматРедактирования)
+  if (editFormat !== undefined) result.editFormat = editFormat
+
+  const borderColor = importColorFromEnterprise(context, data.ЦветРамки)
+  if (borderColor !== undefined) result.borderColor = borderColor
+
+  const textColor = importColorFromEnterprise(context, data.ЦветТекста)
+  if (textColor !== undefined) result.textColor = textColor
+
+  const multipleValuesTextColor = importColorFromEnterprise(context, data.ЦветТекстаМножественныхЗначений)
+  if (multipleValuesTextColor !== undefined) result.multipleValuesTextColor = multipleValuesTextColor
+
+  const backColor = importColorFromEnterprise(context, data.ЦветФона)
+  if (backColor !== undefined) result.backColor = backColor
+
+  const multipleValuesBackColor = importColorFromEnterprise(context, data.ЦветФонаМножественныхЗначений)
+  if (multipleValuesBackColor !== undefined) result.multipleValuesBackColor = multipleValuesBackColor
+
+  if (data.Ширина !== undefined) result.width = data.Ширина
+
+  if (data.ШиринаВыпадающегоСписка !== undefined) result.dropListWidth = data.ШиринаВыпадающегоСписка
+
+  const font = importFontFromEnterprise(context, data.Шрифт)
+  if (font !== undefined) result.font = font
+
+  const multipleValuesFont = importFontFromEnterprise(context, data.ШрифтМножественныхЗначений)
+  if (multipleValuesFont !== undefined) result.multipleValuesFont = multipleValuesFont
+
+  const events = importEventsFromEnterprise(context, data.События)
+  if (events !== undefined) result.events = events
+
+  return result
+}
+
+registerMetadata("ImportFromEnterprise", "InputField", importInputFieldFromEnterprise)
