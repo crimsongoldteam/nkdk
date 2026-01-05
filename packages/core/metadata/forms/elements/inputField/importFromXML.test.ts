@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 import { fullInputField } from "~/tests/fixtures/forms/inputField/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
-import { InputFieldXML } from "./types"
 import { importInputFieldFromXML } from "./importFromXML"
+import { InputFieldXML } from "./types"
 
 describe("importInputFieldFromXML", () => {
   it("should import all fields from XML", () => {

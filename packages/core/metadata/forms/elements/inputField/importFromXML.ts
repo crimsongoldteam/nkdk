@@ -18,9 +18,12 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const importInputFieldFromXML = (context: Context, xml: InputFieldXML | undefined): InputField | undefined => {
   if (!xml) return undefined
 
+  const baseFields = importFormFieldFromXML(context, xml)!
+  const { elementType: _, ...restFields } = baseFields
+
   const result: InputField = {
-    ...importFormFieldFromXML(context, xml)!,
     elementType: FormElementType.InputField,
+    ...restFields,
   }
 
   if (xml.AllowInputEmptyMultipleValues !== undefined)

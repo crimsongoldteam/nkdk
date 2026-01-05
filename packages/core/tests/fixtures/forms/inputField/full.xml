@@ -28,7 +28,15 @@
 		<xr:Item>
 			<xr:Presentation/>
 			<xr:CheckState>0</xr:CheckState>
-			<xr:Value xsi:type="xs:string">Значение1</xr:Value>
+			<xr:Value xsi:type="FormChoiceListDesTimeValue">
+				<Presentation>
+					<v8:item>
+						<v8:lang>ru</v8:lang>
+						<v8:content>Значение 1</v8:content>
+					</v8:item>
+				</Presentation>
+				<Value xsi:type="xs:string">Значение1</Value>
+			</xr:Value>
 		</xr:Item>
 	</ChoiceList>
 	<ChoiceListButton>true</ChoiceListButton>
