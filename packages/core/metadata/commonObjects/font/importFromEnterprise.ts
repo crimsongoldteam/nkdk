@@ -43,9 +43,7 @@ export const importFontFromEnterprise = (_context: Context, data: FontEnterprise
 
   // Если данные - объект (полный формат)
   const fullData = data as FontFullEnterprise
-  const result: Font = {
-    kind: "Absolute",
-  }
+  const result: any = {}
 
   // Конвертируем Вид в ref и kind
   if (fullData.Вид !== undefined) {
@@ -74,13 +72,13 @@ export const importFontFromEnterprise = (_context: Context, data: FontEnterprise
 
   if (fullData.Имя !== undefined) result.faceName = fullData.Имя
   if (fullData.Размер !== undefined) result.height = fullData.Размер
-  if (fullData.Масштаб !== undefined) result.scale = fullData.Масштаб
+  if (fullData.Полужирный !== undefined) result.bold = importBooleanFromEnterprise(_context, fullData.Полужирный)
   if (fullData.Наклонный !== undefined) result.italic = importBooleanFromEnterprise(_context, fullData.Наклонный)
   if (fullData.Подчеркивание !== undefined)
     result.underline = importBooleanFromEnterprise(_context, fullData.Подчеркивание)
-  if (fullData.Полужирный !== undefined) result.bold = importBooleanFromEnterprise(_context, fullData.Полужирный)
   if (fullData.Зачеркивание !== undefined)
     result.strikeout = importBooleanFromEnterprise(_context, fullData.Зачеркивание)
+  if (fullData.Масштаб !== undefined) result.scale = fullData.Масштаб
 
-  return result
+  return result as Font
 }
