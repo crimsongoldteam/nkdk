@@ -2,7 +2,7 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportBorderToEnterprise } from "~/metadata/commonObjects/border/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
-import { exportPictureToEnterprise } from "~/metadata/commonObjects/pictures/exportToEnterprise"
+import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { Context } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"

@@ -1,5 +1,5 @@
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/pictures/types"
+import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"

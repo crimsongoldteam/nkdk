@@ -1,6 +1,6 @@
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
-import { importPictureFromXML } from "~/metadata/commonObjects/pictures/importFromXML"
+import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { Context } from "~/metadata/context/types"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"

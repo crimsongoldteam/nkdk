@@ -1,7 +1,7 @@
 import { importBorderFromXML } from "~/metadata/commonObjects/border/importFromXML"
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
-import { importPictureFromXML } from "~/metadata/commonObjects/pictures/importFromXML"
+import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { Context } from "~/metadata/context/types"
 import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/importFromXML"

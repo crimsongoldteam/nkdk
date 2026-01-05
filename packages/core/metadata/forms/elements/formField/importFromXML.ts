@@ -1,7 +1,7 @@
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
-import { importPictureFromXML } from "~/metadata/commonObjects/pictures/importFromXML"
+import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescription/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { Context } from "~/metadata/context/types"
