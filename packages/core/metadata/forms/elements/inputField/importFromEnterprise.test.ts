@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { fullInputField, fullInputFieldEnterprise } from "~/tests/fixtures/forms/inputField/data"
+import {
+  fullInputField,
+  fullInputFieldEnterprise,
+  minimalInputField,
+  minimalInputFieldEnterprise,
+} from "~/tests/fixtures/forms/inputField/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importInputFieldFromEnterprise } from "./importFromEnterprise"
 
@@ -15,5 +20,12 @@ describe("importInputFieldFromEnterprise", () => {
     result!.id = "1"
 
     expect(result).toEqual(fullInputField)
+  })
+
+  it("should import minimal", () => {
+    const result = importInputFieldFromEnterprise(mockСontext, minimalInputFieldEnterprise, minimalInputField.name)
+    result!.id = "1"
+
+    expect(result).toEqual(minimalInputField)
   })
 })
