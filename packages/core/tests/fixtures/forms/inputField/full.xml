@@ -13,12 +13,8 @@
 	<AvailableTypes>
 		<v8:Type>cfg:DocumentRef.КакойТоДокумент</v8:Type>
 	</AvailableTypes>
-	<BackColor>
-		<xr:Value>16777215</xr:Value>
-	</BackColor>
-	<BorderColor>
-		<xr:Value>0</xr:Value>
-	</BorderColor>
+	<BackColor>web:Blue</BackColor>
+	<BorderColor>web:Green</BorderColor>
 	<ChoiceButton>true</ChoiceButton>
 	<ChoiceButtonPicture>
 		<xr:Ref>StdPicture.Print</xr:Ref>
@@ -63,9 +59,7 @@
 	<EditText>Текст редактирования</EditText>
 	<EditTextUpdate>OnValueChange</EditTextUpdate>
 	<ExtendedEdit>true</ExtendedEdit>
-	<Font>
-		<xr:Name>Обычный</xr:Name>
-	</Font>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<Format>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -96,21 +90,15 @@
 	<MultipleValuePictureSize>Large</MultipleValuePictureSize>
 	<MultipleValuePresentationDataPath>Объект.Presentation</MultipleValuePresentationDataPath>
 	<MultipleValueValueDataPath>Объект.Value</MultipleValueValueDataPath>
-	<MultipleValuesBackColor>
-		<xr:Value>16777215</xr:Value>
-	</MultipleValuesBackColor>
+	<MultipleValuesBackColor>web:Magenta</MultipleValuesBackColor>
 	<MultipleValuesExtendedEdit>true</MultipleValuesExtendedEdit>
-	<MultipleValuesFont>
-		<xr:Name>Обычный</xr:Name>
-	</MultipleValuesFont>
+	<MultipleValuesFont ref="style:NormalTextFont" kind="StyleItem"/>
 	<MultipleValuesHyperlink>true</MultipleValuesHyperlink>
 	<MultipleValuesPicture>
 		<xr:Ref>CommonPicture.ОбщаяКартинка</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</MultipleValuesPicture>
-	<MultipleValuesTextColor>
-		<xr:Value>0</xr:Value>
-	</MultipleValuesTextColor>
+	<MultipleValuesTextColor>web:Red</MultipleValuesTextColor>
 	<OnScreenKeyboardReturnKeyText>Done</OnScreenKeyboardReturnKeyText>
 	<OpenButton>true</OpenButton>
 	<PasswordMode>true</PasswordMode>
@@ -120,9 +108,7 @@
 	<SpecialTextInputMode>Email</SpecialTextInputMode>
 	<SpellCheckingOnTextInput>Use</SpellCheckingOnTextInput>
 	<SpinButton>true</SpinButton>
-	<TextColor>
-		<xr:Value>0</xr:Value>
-	</TextColor>
+	<TextColor>web:Yellow</TextColor>
 	<TextEdit>true</TextEdit>
 	<TypeDomainEnabled>true</TypeDomainEnabled>
 	<TypeLink>
@@ -131,27 +117,27 @@
 	</TypeLink>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Менеджер">true</xr:Value>
+		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalStretch>true</VerticalStretch>
 	<Width>200</Width>
 	<Wrap>true</Wrap>
 	<Events>
-		<AutoComplete>ПроцедураАвтоПодбора</AutoComplete>
-		<ChoiceProcessing>ПроцедураОбработкиВыбора</ChoiceProcessing>
-		<Clearing>ПроцедураОчистки</Clearing>
-		<CommandGenerateProcessing>ПроцедураОбработкиФормированияКоманд</CommandGenerateProcessing>
-		<Creating>ПроцедураСоздания</Creating>
-		<EditTextChange>ПроцедураИзмененияТекстаРедактирования</EditTextChange>
-		<MultipleValueOpening>ПроцедураОткрытияМножественногоЗначения</MultipleValueOpening>
-		<MultipleValueURLProcessing>ПроцедураОбработкиНавигационнойСсылкиМножественногоЗначения</MultipleValueURLProcessing>
-		<MultipleValuesAdd>ПроцедураДобавленияМножественныхЗначений</MultipleValuesAdd>
-		<MultipleValuesDelete>ПроцедураУдаленияМножественныхЗначений</MultipleValuesDelete>
-		<OnChange>ПроцедураПриИзменении</OnChange>
-		<Opening>ПроцедураОткрытия</Opening>
-		<StartChoice>ПроцедураНачалаВыбора</StartChoice>
-		<StartListChoice>ПроцедураНачалаВыбораИзСписка</StartListChoice>
-		<TextEditEnd>ПроцедураОкончанияВводаТекста</TextEditEnd>
-		<Tuning>ПроцедураРегулирования</Tuning>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="AutoComplete">ПроцедураАвтоПодбора</Event>
+		<Event name="MultipleValuesAdd">ПроцедураДобавленияМножественныхЗначений</Event>
+		<Event name="EditTextChange">ПроцедураИзмененияТекстаРедактирования</Event>
+		<Event name="StartChoice">ПроцедураНачалаВыбора</Event>
+		<Event name="StartListChoice">ПроцедураНачалаВыбораИзСписка</Event>
+		<Event name="ChoiceProcessing">ПроцедураОбработкиВыбора</Event>
+		<Event name="MultipleValueURLProcessing">ПроцедураОбработкиНавигационнойСсылкиМножественногоЗначения</Event>
+		<Event name="CommandGenerateProcessing">ПроцедураОбработкиФормированияКоманд</Event>
+		<Event name="TextEditEnd">ПроцедураОкончанияВводаТекста</Event>
+		<Event name="Opening">ПроцедураОткрытия</Event>
+		<Event name="MultipleValueOpening">ПроцедураОткрытияМножественногоЗначения</Event>
+		<Event name="Clearing">ПроцедураОчистки</Event>
+		<Event name="Tuning">ПроцедураРегулирования</Event>
+		<Event name="Creating">ПроцедураСоздания</Event>
+		<Event name="MultipleValuesDelete">ПроцедураУдаленияМножественныхЗначений</Event>
 	</Events>
 </InputField>

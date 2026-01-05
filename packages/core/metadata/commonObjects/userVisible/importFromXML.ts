@@ -17,7 +17,8 @@ export const importUserVisibleFromXML = (
   }
 
   if (xml["xr:Value"] !== undefined) {
-    for (const item of xml["xr:Value"]) {
+    const xrValues = Array.isArray(xml["xr:Value"]) ? xml["xr:Value"] : [xml["xr:Value"]]
+    for (const item of xrValues) {
       result.values.push({
         name: item["_name"].replace(/^Role\./, ""),
         value: item["#text"],

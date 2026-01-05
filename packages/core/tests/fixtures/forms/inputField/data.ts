@@ -17,8 +17,8 @@ export const fullInputField: InputField = {
   autoShowClearButton: "Always",
   autoShowOpenButton: "FilledOnly",
   availableTypes: { type: ["DocumentRef.КакойТоДокумент"] },
-  backColor: "White",
-  borderColor: "Black",
+  backColor: "Blue",
+  borderColor: "Green",
   choiceButton: true,
   choiceButtonPicture: {
     type: "StandardPicture",
@@ -51,7 +51,10 @@ export const fullInputField: InputField = {
   choiceParameters: [
     {
       name: "Отбор.Параметр",
-      dataPath: "Объект.Значение",
+      value: {
+        type: "string",
+        value: "Значение",
+      },
     },
   ],
   chooseType: true,
@@ -63,7 +66,7 @@ export const fullInputField: InputField = {
   editText: "Текст редактирования",
   editTextUpdate: "OnValueChange",
   extendedEdit: true,
-  font: { family: "Обычный" },
+  font: { kind: "StyleItem", ref: "NormalTextFont" },
   format: { items: { ru: "Формат отображения" } },
   height: 100,
   heightControlVariant: "UseContentHeight",
@@ -85,7 +88,7 @@ export const fullInputField: InputField = {
   multipleValuePresentationDataPath: "Объект.Presentation",
   multipleValuesBackColor: "Red",
   multipleValuesExtendedEdit: true,
-  multipleValuesFont: { family: "Обычный" },
+  multipleValuesFont: { kind: "StyleItem", ref: "NormalTextFont" },
   multipleValuesHyperlink: true,
   multipleValuesPicture: {
     type: "CommonPicture",
@@ -112,7 +115,7 @@ export const fullInputField: InputField = {
   },
   userVisible: {
     common: true,
-    values: [{ name: "Role.Менеджер", value: true }],
+    values: [{ name: "Администратор", value: true }],
   },
   verticalStretch: true,
   width: 200,
@@ -177,18 +180,12 @@ export const fullInputFieldEnterprise: InputFieldEnterprise = {
   ОтметкаНезаполненного: "Истина",
   ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений: "Истина",
   ОтображениеКнопкиВыбора: "ОтображатьВПолеВвода",
-  ПараметрыВыбора: [
-    {
-      Имя: "Отбор.Параметр",
-      Значение: "Значение",
-    },
-  ],
+  ПараметрыВыбора: {
+    "Отбор.Параметр": "Значение",
+  },
   ПодсказкаАвтозаполнения: "Email",
   ПодсказкаВвода: "Подсказка ввода",
-  ПользовательскаяВидимостьРазрешить: {
-    Общее: "Истина",
-    Значение: [{ Имя: "Role.Менеджер", Значение: "Истина" }],
-  },
+  ПользовательскаяВидимостьРазрешить: { Администратор: "Истина" },
   ПроверкаПравописанияПриВводеТекста: "Использовать",
   ПутьКДаннымЗначенияМножественногоЗначения: "Объект.Value",
   ПутьКДаннымКартинкиМножественногоЗначения: "Объект.Picture",
@@ -205,17 +202,8 @@ export const fullInputFieldEnterprise: InputFieldEnterprise = {
   РежимВыбораИзСписка: "Истина",
   РежимВыбораНезаполненного: "ПриАктивизации",
   РежимПароля: "Истина",
-  СвязиПараметровВыбора: [
-    {
-      Имя: "Отбор.Владелец",
-      ПутьКДанным: "Catalog.Справочник.Attribute.Реквизит",
-      ИзменениеЗначения: "Очистить",
-    },
-  ],
-  СвязьПоТипу: {
-    ПутьКДанным: "Catalog.КакойТоСправочник.Attribute.КакойТоРеквизит",
-    ЭлементСвязи: 1,
-  },
+  СвязиПараметровВыбора: "Отбор.Владелец(Справочник.Справочник.Реквизит.Реквизит)",
+  СвязьПоТипу: "Справочник.КакойТоСправочник.Реквизит.КакойТоРеквизит(1)",
   СпециальныйРежимВводаТекста: "Email",
   СписокВыбора: ['"Значение1"'],
   ТекстКнопкиВводаЭкраннойКлавиатуры: "Готово",
@@ -231,8 +219,8 @@ export const fullInputFieldEnterprise: InputFieldEnterprise = {
   ЦветФонаМножественныхЗначений: "White",
   Ширина: 200,
   ШиринаВыпадающегоСписка: 300,
-  Шрифт: "Обычный",
-  ШрифтМножественныхЗначений: "Обычный",
+  Шрифт: "ОбычныйШрифтТекста",
+  ШрифтМножественныхЗначений: "ОбычныйШрифтТекста",
   События: {
     ПриИзменении: "ПроцедураПриИзменении",
     АвтоПодбор: "ПроцедураАвтоПодбора",

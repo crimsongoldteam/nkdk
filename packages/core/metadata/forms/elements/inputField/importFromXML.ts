@@ -7,6 +7,7 @@ import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescr
 import { importTypeLinkFromXML } from "~/metadata/commonObjects/typeLink/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { importChoiceParameterLinksFromXML } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromXML"
+import { importChoiceParametersFromXML } from "~/metadata/commonObjects/сhoiceParameters/importFromXML"
 import { Context } from "~/metadata/context/types"
 import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/importFromXML"
 import { InputField, InputFieldXML } from "~/metadata/forms/elements/inputField/types"
@@ -79,7 +80,7 @@ export const importInputFieldFromXML = (context: Context, xml: InputFieldXML | u
   const choiceParameterLinks = importChoiceParameterLinksFromXML(context, xml.ChoiceParameterLinks)
   if (choiceParameterLinks !== undefined) result.choiceParameterLinks = choiceParameterLinks
 
-  const choiceParameters = importChoiceParameterLinksFromXML(context, xml.ChoiceParameters)
+  const choiceParameters = importChoiceParametersFromXML(context, xml.ChoiceParameters)
   if (choiceParameters !== undefined) result.choiceParameters = choiceParameters
 
   if (xml.ChooseType !== undefined) result.chooseType = xml.ChooseType
@@ -124,7 +125,7 @@ export const importInputFieldFromXML = (context: Context, xml: InputFieldXML | u
 
   if (xml.MarkNegatives !== undefined) result.markNegatives = xml.MarkNegatives
 
-  if (xml.Mask !== undefined) result.mask = xml.Mask
+  if (xml.Mask !== undefined) result.mask = String(xml.Mask)
 
   if (xml.MaxHeight !== undefined) result.maxHeight = xml.MaxHeight
 

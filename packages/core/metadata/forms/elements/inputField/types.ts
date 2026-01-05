@@ -16,6 +16,11 @@ import {
   ChoiceParameterLinksEnterprise,
   ChoiceParameterLinksXML,
 } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
+import {
+  ChoiceParameters,
+  ChoiceParametersEnterprise,
+  ChoiceParametersXML,
+} from "~/metadata/commonObjects/сhoiceParameters/types"
 import { FormField, FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -45,7 +50,7 @@ export interface InputField extends FormField {
   choiceListButton?: boolean
   choiceListHeight?: number
   choiceParameterLinks?: ChoiceParameterLinks
-  choiceParameters?: ChoiceParameterLinks
+  choiceParameters?: ChoiceParameters
   chooseType?: boolean
   clearButton?: boolean
   createButton?: boolean
@@ -144,7 +149,7 @@ export interface InputFieldXML extends FormFieldXML {
   ChoiceListButton?: boolean
   ChoiceListHeight?: number
   ChoiceParameterLinks?: ChoiceParameterLinksXML
-  ChoiceParameters?: ChoiceParameterLinksXML
+  ChoiceParameters?: ChoiceParametersXML
   ChooseType?: boolean
   ClearButton?: boolean
   CreateButton?: boolean
@@ -241,7 +246,7 @@ export interface InputFieldEnterprise extends FormFieldEnterprise {
   ОтметкаНезаполненного?: StringboolEnterprise
   ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений?: StringboolEnterprise
   ОтображениеКнопкиВыбора?: SE.ChoiceButtonRepresentationEnterprise
-  ПараметрыВыбора?: ChoiceParameterLinksEnterprise
+  ПараметрыВыбора?: ChoiceParametersEnterprise
   ПодсказкаАвтозаполнения?: SE.InputFieldAutofillHintEnterprise
   ПодсказкаВвода?: I8nTextEnterprise
   ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
