@@ -7,6 +7,7 @@ import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescrip
 import { exportTypeLinkToXML } from "~/metadata/commonObjects/typeLink/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { exportChoiceParameterLinksToXML } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToXML"
+import { exportChoiceParametersToXML } from "~/metadata/commonObjects/сhoiceParameters/exportToXML"
 import { Context } from "~/metadata/context/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { InputField, InputFieldXML } from "~/metadata/forms/elements/inputField/types"
@@ -77,7 +78,7 @@ export const exportInputFieldToXML = (context: Context, data: InputField | undef
   const choiceParameterLinks = exportChoiceParameterLinksToXML(context, data.choiceParameterLinks)
   if (choiceParameterLinks !== undefined) result.ChoiceParameterLinks = choiceParameterLinks
 
-  const choiceParameters = exportChoiceParameterLinksToXML(context, data.choiceParameters)
+  const choiceParameters = exportChoiceParametersToXML(context, data.choiceParameters)
   if (choiceParameters !== undefined) result.ChoiceParameters = choiceParameters
 
   if (data.chooseType !== undefined) result.ChooseType = data.chooseType
