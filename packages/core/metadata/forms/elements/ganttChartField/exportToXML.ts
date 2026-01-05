@@ -1,0 +1,36 @@
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
+import { Context } from "~/metadata/context/types"
+import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
+import { GanttChartField, GanttChartFieldXML } from "~/metadata/forms/elements/ganttChartField/types"
+import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { compactObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+
+export const exportGanttChartFieldToXML = (
+  context: Context,
+  data: GanttChartField | undefined
+): GanttChartFieldXML | undefined => {
+  if (!data) return undefined
+
+  return compactObject({
+    ...exportFormFieldToXML(context, data)!,
+
+    AutoMaxHeight: data.autoMaxHeight,
+    AutoMaxWidth: data.autoMaxWidth,
+    Height: data.height,
+    HorizontalLines: data.horizontalLines,
+    HorizontalStretch: data.horizontalStretch,
+    IntervalsSelectionMode: data.intervalsSelectionMode,
+    MaxHeight: data.maxHeight,
+    MaxWidth: data.maxWidth,
+    TableLocation: data.tableLocation,
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
+    ValuesSelectionMode: data.valuesSelectionMode,
+    VerticalLines: data.verticalLines,
+    VerticalStretch: data.verticalStretch,
+    Width: data.width,
+    Events: exportEventsToXML(context, data.events),
+  })
+}
+
+registerMetadata("ExportToXML", "GanttChartField", exportGanttChartFieldToXML)
