@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { fullInputField, fullInputFieldEnterprise } from "~/tests/fixtures/forms/inputField/data"
+import {
+  fullInputField,
+  fullInputFieldEnterprise,
+  minimalInputField,
+  minimalInputFieldEnterprise,
+} from "~/tests/fixtures/forms/inputField/data"
 import { mockСontext } from "~/tests/mockContext"
 import { exportInputFieldToEnterprise } from "./exportToEnterprise"
 
@@ -14,5 +19,11 @@ describe("exportInputFieldToEnterprise", () => {
     const result = exportInputFieldToEnterprise(mockСontext, fullInputField)
 
     expect(result).toEqual(fullInputFieldEnterprise)
+  })
+
+  it("should export minimal", () => {
+    const result = exportInputFieldToEnterprise(mockСontext, minimalInputField)
+
+    expect(result).toEqual(minimalInputFieldEnterprise)
   })
 })
