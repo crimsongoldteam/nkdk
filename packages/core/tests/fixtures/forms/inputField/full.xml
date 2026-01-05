@@ -43,8 +43,8 @@
 	<ChoiceListHeight>200</ChoiceListHeight>
 	<ChoiceParameterLinks>
 		<xr:Link>
-			<xr:Name>Отбор.Владелец</xr:Name>
 			<xr:DataPath xsi:type="xs:string">Catalog.Справочник.Attribute.Реквизит</xr:DataPath>
+			<xr:Name>Отбор.Владелец</xr:Name>
 			<xr:ValueChange>Clear</xr:ValueChange>
 		</xr:Link>
 	</ChoiceParameterLinks>
@@ -66,6 +66,24 @@
 	</EditFormat>
 	<EditText>Текст редактирования</EditText>
 	<EditTextUpdate>OnValueChange</EditTextUpdate>
+	<Events>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="AutoComplete">ПроцедураАвтоПодбора</Event>
+		<Event name="MultipleValuesAdd">ПроцедураДобавленияМножественныхЗначений</Event>
+		<Event name="EditTextChange">ПроцедураИзмененияТекстаРедактирования</Event>
+		<Event name="StartChoice">ПроцедураНачалаВыбора</Event>
+		<Event name="StartListChoice">ПроцедураНачалаВыбораИзСписка</Event>
+		<Event name="ChoiceProcessing">ПроцедураОбработкиВыбора</Event>
+		<Event name="MultipleValueURLProcessing">ПроцедураОбработкиНавигационнойСсылкиМножественногоЗначения</Event>
+		<Event name="CommandGenerateProcessing">ПроцедураОбработкиФормированияКоманд</Event>
+		<Event name="TextEditEnd">ПроцедураОкончанияВводаТекста</Event>
+		<Event name="Opening">ПроцедураОткрытия</Event>
+		<Event name="MultipleValueOpening">ПроцедураОткрытияМножественногоЗначения</Event>
+		<Event name="Clearing">ПроцедураОчистки</Event>
+		<Event name="Tuning">ПроцедураРегулирования</Event>
+		<Event name="Creating">ПроцедураСоздания</Event>
+		<Event name="MultipleValuesDelete">ПроцедураУдаленияМножественныхЗначений</Event>
+	</Events>
 	<ExtendedEdit>true</ExtendedEdit>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<Format>
@@ -130,22 +148,4 @@
 	<VerticalStretch>true</VerticalStretch>
 	<Width>200</Width>
 	<Wrap>true</Wrap>
-	<Events>
-		<Event name="OnChange">ПроцедураПриИзменении</Event>
-		<Event name="AutoComplete">ПроцедураАвтоПодбора</Event>
-		<Event name="MultipleValuesAdd">ПроцедураДобавленияМножественныхЗначений</Event>
-		<Event name="EditTextChange">ПроцедураИзмененияТекстаРедактирования</Event>
-		<Event name="StartChoice">ПроцедураНачалаВыбора</Event>
-		<Event name="StartListChoice">ПроцедураНачалаВыбораИзСписка</Event>
-		<Event name="ChoiceProcessing">ПроцедураОбработкиВыбора</Event>
-		<Event name="MultipleValueURLProcessing">ПроцедураОбработкиНавигационнойСсылкиМножественногоЗначения</Event>
-		<Event name="CommandGenerateProcessing">ПроцедураОбработкиФормированияКоманд</Event>
-		<Event name="TextEditEnd">ПроцедураОкончанияВводаТекста</Event>
-		<Event name="Opening">ПроцедураОткрытия</Event>
-		<Event name="MultipleValueOpening">ПроцедураОткрытияМножественногоЗначения</Event>
-		<Event name="Clearing">ПроцедураОчистки</Event>
-		<Event name="Tuning">ПроцедураРегулирования</Event>
-		<Event name="Creating">ПроцедураСоздания</Event>
-		<Event name="MultipleValuesDelete">ПроцедураУдаленияМножественныхЗначений</Event>
-	</Events>
 </InputField>

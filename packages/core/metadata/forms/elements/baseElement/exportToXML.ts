@@ -7,7 +7,7 @@ export const exportBaseElementToXML = (
 ): BaseElementXML | undefined => {
   if (!data) return undefined
   return {
-    _id: data.id ?? "",
     _name: data.name,
+    _id: data.id ?? "",
   }
 }

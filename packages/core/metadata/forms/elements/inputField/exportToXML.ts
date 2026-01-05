@@ -12,6 +12,7 @@ import { Context } from "~/metadata/context/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { InputField, InputFieldXML } from "~/metadata/forms/elements/inputField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportInputFieldToXML = (context: Context, data: InputField | undefined): InputFieldXML | undefined => {
@@ -205,7 +206,7 @@ export const exportInputFieldToXML = (context: Context, data: InputField | undef
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "InputField", exportInputFieldToXML)

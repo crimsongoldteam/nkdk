@@ -4,6 +4,7 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullInputField: InputField = {
   elementType: FormElementType.InputField,
   name: "ПолеВвода",
+  id: "1",
   allowInputEmptyMultipleValues: true,
   allowMultipleValuesDuplicates: false,
   autoCapitalizationOnTextInput: "AllCharacters",

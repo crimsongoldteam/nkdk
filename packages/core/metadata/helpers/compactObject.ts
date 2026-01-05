@@ -14,6 +14,18 @@ export const compactObject = <T extends Record<string, any>>(obj: T): T => {
   return result as T
 }
 
+export const sortObject = <T extends Record<string, any>>(obj: T): T => {
+  const keys = Object.keys(obj)
+  const regularKeys = keys.filter((key) => !key.startsWith("_")).sort()
+  const underscoreKeys = keys.filter((key) => key.startsWith("_"))
+  const sortedKeys = [...regularKeys, ...underscoreKeys]
+  const result: Record<string, any> = {}
+  for (const key of sortedKeys) {
+    result[key] = obj[key]
+  }
+  return result as T
+}
+
 export const removeDefaults = <T extends Record<string, any>>(obj: T, defaults?: Partial<T>): T => {
   let result: Record<string, any> = {}
   for (const key of Object.keys(obj)) {
