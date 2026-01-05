@@ -1,6 +1,6 @@
 import { BaseElement } from "../metadata/forms/elements/baseElement/types"
 import { FormGroup } from "../metadata/forms/elements/formGroup/types"
-import { pascalCase } from "change-case"
+import { camelCase, pascalCase } from "change-case"
 
 export const formatElementName = (element: BaseElement) => {
   // return ""
@@ -13,4 +13,8 @@ export const formatElementTitleAndName = (element: FormGroup) => {
 
   const result = `${title} {${element.name}}`
   return result.trim()
+}
+
+export const toCamelCase = (str: string): string => {
+  return camelCase(str)
 }

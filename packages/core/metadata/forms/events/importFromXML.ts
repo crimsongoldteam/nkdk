@@ -1,21 +1,19 @@
+import { camelCase } from "change-case"
 import { Context } from "../../context/types"
 import { Events, EventsXML } from "./types"
 
-function toCamelCase(str: string): string {
-  if (!str) return str
-  return str.charAt(0).toLowerCase() + str.slice(1)
-}
-
 export const importEventsFromXML = (_context: Context, xml: EventsXML | undefined): Events | undefined => {
-  if (!xml || xml.length === 0) return undefined
+  if (!xml) return undefined
 
-  const events: Events = {}
+  const events = Array.isArray(xml.Event) ? xml.Event : [xml.Event]
 
-  for (const event of xml) {
-    const eventName = toCamelCase(event.Event._name)
-    const eventValue = event.Event["#text"] ?? ""
-    events[eventName] = eventValue
+  const result: Events = {}
+
+  for (const event of events) {
+    const eventName = camelCase(event._name)
+    const eventValue = event["#text"] ?? ""
+    result[eventName] = eventValue
   }
 
-  return Object.keys(events).length > 0 ? events : undefined
+  return result
 }

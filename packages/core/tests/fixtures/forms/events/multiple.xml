@@ -1,0 +1,5 @@
+<Events>
+	<Event name="Click">РаспознаваниеДокументаНадписьНажатие</Event>
+	<Event name="OnChange">ОбработкаИзменения</Event>
+	<Event name="Opening">ПроцедураОткрытия</Event>
+</Events>

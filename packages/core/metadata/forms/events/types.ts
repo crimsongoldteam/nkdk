@@ -3,11 +3,9 @@ export interface EventXML {
   "#text"?: string
 }
 
-export interface EventsXMLItem {
-  Event: EventXML
+export type EventsXML = {
+  Event: EventXML[] | EventXML
 }
-
-export type EventsXML = EventsXMLItem[]
 
 export type Events = Record<string, string>
 

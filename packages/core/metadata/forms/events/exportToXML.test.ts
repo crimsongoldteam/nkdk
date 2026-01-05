@@ -1,24 +1,35 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
-import { xmlExport } from "~/xml/export/exporter"
 import { exportEventsToXML } from "./exportToXML"
-import { Events } from "./types"
+
+import { multipleEvents, singleEvent } from "~/tests/fixtures/forms/events/data"
+import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { xmlExport } from "~/xml/export/exporter"
 
 describe("exportEventsToXML", () => {
-  it("should export events", () => {
-    const expectedResult = `<Events>
-	<Event name="Click">РаспознаваниеДокументаНадписьНажатие</Event>
-	<Event name="OnChange">ОбработкаИзменения</Event>
-</Events>`
+  it("should return undefined for undefined input", () => {
+    const result = exportEventsToXML(mockСontext, undefined)
 
-    const mockData = {
-      click: "РаспознаваниеДокументаНадписьНажатие",
-      onChange: "ОбработкаИзменения",
-    }
+    expect(result).toBeUndefined()
+  })
 
-    const result = exportEventsToXML(mockСontext, mockData as Events)
-    const resultXml = xmlExport({ Events: result }, false)
+  it("should export single event", () => {
+    const expectedResult = readXMLFileAsString("forms/events/single.xml")
 
-    expect(resultXml).toEqual(expectedResult)
+    const xmlResult = exportEventsToXML(mockСontext, singleEvent)
+
+    const result = xmlExport({ Events: xmlResult }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export multiple events", () => {
+    const expectedResult = readXMLFileAsString("forms/events/multiple.xml")
+
+    const xmlResult = exportEventsToXML(mockСontext, multipleEvents)
+
+    const result = xmlExport({ Events: xmlResult }, false)
+
+    expect(result).toEqual(expectedResult)
   })
 })
