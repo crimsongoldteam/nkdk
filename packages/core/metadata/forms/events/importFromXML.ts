@@ -11,7 +11,7 @@ export const importEventsFromXML = (_context: Context, xml: EventsXML | undefine
 
   for (const event of events) {
     const eventName = camelCase(event._name)
-    const eventValue = event["#text"] ?? ""
+    const eventValue = event["#text"]
     result[eventName] = eventValue
   }
 

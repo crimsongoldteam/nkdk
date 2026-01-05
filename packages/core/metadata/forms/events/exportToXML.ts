@@ -7,7 +7,7 @@ export const exportEventsToXML = (_context: Context, data: Events | undefined): 
 
   const events: EventXML[] = Object.entries(data).map(([eventName, eventValue]) => ({
     _name: pascalCase(eventName),
-    "#text": eventValue ?? "",
+    "#text": eventValue,
   }))
 
   return {

@@ -1,6 +1,6 @@
 export interface EventXML {
   _name: string
-  "#text"?: string
+  "#text": string
 }
 
 export type EventsXML = {
