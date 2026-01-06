@@ -1,14 +1,14 @@
 import { ChildItems } from "~/metadata/forms/elements/childItems/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export interface ChildItemsExportFixture {
+export interface ChildItemsFixture {
   name: string
   element?: ChildItems
   structure?: string[]
   xmlPath?: string
 }
 
-export const childItemsExportFixturesTable: ChildItemsExportFixture[] = [
+export const childItemsFixturesTable: ChildItemsFixture[] = [
   // Undefined
   { name: "undefined", element: undefined, structure: undefined },
 

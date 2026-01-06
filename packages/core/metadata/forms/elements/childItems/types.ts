@@ -144,7 +144,9 @@ export type ChildItemXML =
   | UsualGroupXML
   | ViewStatusAdditionXML
 
-export type ChildItemsXML = Record<FormElementType, ChildItemXML>[]
+export type ChildItemRecordXML = Record<FormElementType, ChildItemXML>
+
+export type ChildItemsXML = ChildItemRecordXML | ChildItemRecordXML[]
 
 export type ChildItemEnterprise =
   | ButtonEnterprise

@@ -29,17 +29,9 @@ export const importContentFromXML = <T>(data: string): T => {
   const parsedData = parser.parse(data)
 
   let options = { ...defaultOptions }
-  // options.isArray = (name: string, _jPath: string, _isLeaf: boolean) => {
-  //   return (
-  //     name === "ChildItems" ||
-  //     name === "Attributes" ||
-  //     name === "CommandSet" ||
-  //     name === "Events" ||
-  //     // name === "ChoiceParameters" ||
-  //     // name === "ChoiceList" ||
-  //     name === "InternalInfo"
-  //   )
-  // }
+  options.isArray = (name: string, _jPath: string, _isLeaf: boolean) => {
+    return name === "ChildItems"
+  }
 
   let result = compress(parsedData, options, "")
 

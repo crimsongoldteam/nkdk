@@ -6,14 +6,12 @@ import { ChildItems, ChildItemsXML } from "./types"
 export const importChildItemsFromXML = (context: ConfigurationContext, xml: ChildItemsXML | undefined): ChildItems => {
   if (!xml) return []
 
-  const result: ChildItems = []
-  for (const item of xml) {
+  const items = Array.isArray(xml) ? xml : [xml]
+
+  return items.map((item) => {
     const elementType = Object.keys(item)[0] as FormElementType
     const importFunction = getOperationFunction("ImportFromXML", elementType)
     if (!importFunction) throw new Error(`Import function not found for element type: ${elementType}`)
-
-    result.push(importFunction(context, item[elementType])!)
-  }
-
-  return result
+    return importFunction(context, item[elementType])!
+  })
 }
