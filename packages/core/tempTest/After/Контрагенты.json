@@ -75,10 +75,16 @@
             ]
           },
           "ДлинаКода": {
-            "type": "number"
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 50,
+            "title": "Идентификатор элемента",
+            "description": "0 - если идентификатор не используется"
           },
           "ДлинаНаименования": {
-            "type": "number"
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 150
           },
           "ДополнительнаяФормаГруппы": {
             "type": "string"
@@ -117,10 +123,6 @@
                 "const": "Ложь"
               }
             ]
-          },
-          "Имя": {
-            "type": "string",
-            "pattern": "^[a-zA-Zа-яА-ЯёЁ_][a-zA-Zа-яА-ЯёЁ0-9_]*$"
           },
           "ИспользованиеПодчинения": {
             "oneOf": [
@@ -166,13 +168,16 @@
             ]
           },
           "КоличествоУровней": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10
           },
           "Команды": {
             "$ref": "#/components/schemas/MetadataCommandsEnterprise"
           },
           "Комментарий": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 255
           },
           "КонтрольУникальности": {
             "oneOf": [
