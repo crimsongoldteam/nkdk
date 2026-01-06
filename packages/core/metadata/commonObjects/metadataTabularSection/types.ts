@@ -11,7 +11,7 @@ import {
 } from "~/metadata/commonObjects/standardAttributeDescription/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { InternalInfoItemsXML } from "../internalInfo/types"
-import { MetadataName } from "../metadataName/types"
+import { MetadataEnterpriseName } from "../metadataName/types"
 
 export interface MetadataTabularSection {
   attributes?: MetadataAttributes
@@ -66,4 +66,4 @@ export type MetadataTabularSections = MetadataTabularSection[]
 
 export type MetadataTabularSectionsXML = MetadataTabularSectionXML[]
 
-export type MetadataTabularSectionsEnterprise = Record<MetadataName, MetadataTabularSectionEnterprise>
+export type MetadataTabularSectionsEnterprise = Record<MetadataEnterpriseName, MetadataTabularSectionEnterprise>

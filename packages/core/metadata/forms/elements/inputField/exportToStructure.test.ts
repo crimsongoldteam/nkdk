@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest"
-import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { mockСontext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
-import { formatInputField } from "./format"
+import { exportInputFieldToStructure } from "./exportToStructure"
 import { InputField } from "./types"
 
-describe("formatInputField", () => {
-  it("should format input field with title", () => {
+describe("exportInputFieldToStructure", () => {
+  it("should export input field with title", () => {
     const element: InputField = {
       name: "ИмяПоля",
       id: "1",
@@ -14,7 +13,7 @@ describe("formatInputField", () => {
       title: { items: { ru: "Поле" } },
     }
 
-    const result = formatInputField(element as BaseElement, mockСontext)
+    const result = exportInputFieldToStructure(mockСontext, element)
 
     expect(result.strings).toEqual(["Поле: {ИмяПоля}"])
   })
@@ -26,7 +25,7 @@ describe("formatInputField", () => {
       elementType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
     }
-    const result = formatInputField(element as BaseElement, mockСontext)
+    const result = exportInputFieldToStructure(mockСontext, element)
     expect(result.strings).toEqual(["Поле: {ИмяПоля}"])
   })
 
@@ -40,7 +39,7 @@ describe("formatInputField", () => {
       multiLine: true,
     }
 
-    const result = formatInputField(element as BaseElement, mockСontext)
+    const result = exportInputFieldToStructure(mockСontext, element)
 
     expect(result.strings).toEqual(["Поле: {ИмяПоля}", "      "])
   })
@@ -58,7 +57,7 @@ describe("formatInputField", () => {
       spinButton: true,
     }
 
-    const result = formatInputField(element as BaseElement, mockСontext)
+    const result = exportInputFieldToStructure(mockСontext, element)
 
     expect(result.strings).toEqual(["Поле: __ВСХОД {ИмяПоля}"])
   })
@@ -70,7 +69,7 @@ describe("formatInputField", () => {
       elementType: FormElementType.InputField,
     }
 
-    const result = formatInputField(element as BaseElement, mockСontext)
+    const result = exportInputFieldToStructure(mockСontext, element)
 
     expect(result.strings).toEqual(["{ИмяПоля}: "])
   })

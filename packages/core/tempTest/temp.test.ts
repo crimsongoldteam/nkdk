@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
+import typia from "typia"
 import { describe, it, vi } from "vitest"
 import { importFromYAML } from "~/yaml/import"
 import {
@@ -70,11 +71,12 @@ describe("DO test", () => {
     writeFileSync(join(__dirname, "After/Контрагенты.xml"), newXmlString, "utf-8")
   })
 
-  // it("should export schema ", () => {
-  //   const catalogSchema = typia.json.schemas<[MetadataCatalogEnterprise], "3.1">()
+  it("should export schema ", () => {
+    const catalogSchema = typia.json.schemas<[MetadataCatalogEnterprise], "3.1">()
 
-  //   writeFileSync(join(__dirname, "After/Контрагенты.json"), typia.json.stringify(catalogSchema), "utf-8")
-  // })
+    writeFileSync(join(__dirname, "After/Контрагенты.json"), JSON.stringify(catalogSchema, null, 2), "utf-8")
+  })
+
   // it("should round-trip DO XML", () => {
   //   const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(originalContent)
   //   const form = importClientApplicationFormFromXML(mockcontext, importedXml.Form)
