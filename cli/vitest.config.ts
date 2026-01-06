@@ -5,7 +5,7 @@ export default defineConfig({
     target: "es2020",
   },
   test: {
-    environment: "jsdom",
+    environment: "node",
     globals: true,
     watch: false,
   },
