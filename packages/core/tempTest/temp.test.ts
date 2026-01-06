@@ -1,21 +1,8 @@
-import { readFileSync, writeFileSync } from "fs"
+import { readFileSync } from "fs"
 import { join } from "path"
-import typia from "typia"
 import { describe, it, vi } from "vitest"
-import { importFromYAML } from "~/yaml/import"
-import {
-  MetadataCatalogContext,
-  MetadataCatalogEnterprise,
-  MetadataCatalogXML,
-  exportMetadataCatalogToEnterprise,
-  exportMetadataCatalogToXML,
-  importMetadataCatalogFromEnterprise,
-  importMetadataCatalogFromXML,
-} from "../metadata/appliedObjects/metadataCatalog"
+import { MetadataCatalogContext } from "../metadata/appliedObjects/metadataCatalog"
 import { mockСontext } from "../tests/mockContext"
-import { xmlExport } from "../xml/export/exporter"
-import importContentFromXML from "../xml/import/importer"
-import { exportToYAML } from "../yaml/export"
 
 vi.mock("uuid", () => ({
   v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
@@ -51,31 +38,31 @@ const mockMetadataCatalogContext = {
 const metadataCatalogContent = readFileSync(join(__dirname, "Before/Контрагенты.xml"), "utf-8")
 
 describe("DO test", () => {
-  it("should import metadata catalog from XML", () => {
-    const importedXml = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(metadataCatalogContent)
+  // it("should import metadata catalog from XML", () => {
+  //   const importedXml = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(metadataCatalogContent)
 
-    const xmlData = importMetadataCatalogFromXML(mockСontext, importedXml.MetaDataObject)
+  //   const xmlData = importMetadataCatalogFromXML(mockСontext, importedXml.MetaDataObject)
 
-    const exportedEnterprise = exportMetadataCatalogToEnterprise(mockСontext, xmlData)
+  //   const exportedEnterprise = exportMetadataCatalogToEnterprise(mockСontext, xmlData)
 
-    const yamlString = exportToYAML(exportedEnterprise!)
-    writeFileSync(join(__dirname, "After/Контрагенты.yml"), yamlString, "utf-8")
+  //   const yamlString = exportToYAML(exportedEnterprise!)
+  //   writeFileSync(join(__dirname, "After/Контрагенты.yml"), yamlString, "utf-8")
 
-    const importedYAML = importFromYAML<MetadataCatalogEnterprise>(yamlString)
+  //   const importedYAML = importFromYAML<MetadataCatalogEnterprise>(yamlString)
 
-    const newData = importMetadataCatalogFromEnterprise(mockСontext, importedYAML, "Номенклатура")
-    const newXml = exportMetadataCatalogToXML(mockMetadataCatalogContext, newData)
+  //   const newData = importMetadataCatalogFromEnterprise(mockСontext, importedYAML, "Номенклатура")
+  //   const newXml = exportMetadataCatalogToXML(mockMetadataCatalogContext, newData)
 
-    const newXmlString = xmlExport({ MetaDataObject: newXml })
+  //   const newXmlString = xmlExport({ MetaDataObject: newXml })
 
-    writeFileSync(join(__dirname, "After/Контрагенты.xml"), newXmlString, "utf-8")
-  })
+  //   writeFileSync(join(__dirname, "After/Контрагенты.xml"), newXmlString, "utf-8")
+  // })
 
-  it("should export schema ", () => {
-    const catalogSchema = typia.json.schemas<[MetadataCatalogEnterprise], "3.1">()
+  // it("should export schema ", () => {
+  //   const catalogSchema = typia.json.schemas<[MetadataCatalogEnterprise], "3.1">()
 
-    writeFileSync(join(__dirname, "After/Контрагенты.json"), JSON.stringify(catalogSchema, null, 2), "utf-8")
-  })
+  //   writeFileSync(join(__dirname, "After/Контрагенты.json"), JSON.stringify(catalogSchema, null, 2), "utf-8")
+  // })
 
   // it("should round-trip DO XML", () => {
   //   const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(originalContent)
