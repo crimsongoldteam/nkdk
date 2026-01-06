@@ -3,7 +3,7 @@ import { MetadataType } from "./types"
 
 export type ItemOperationType = "ExportToXML" | "ExportToEnterprise" | "ImportFromXML" | "ImportFromEnterprise"
 
-type OperationFunction<T = any> = (context: ConfigurationContext, data: T, name: string) => any
+type OperationFunction<T = any> = (context: ConfigurationContext, data: T, name?: string) => any
 
 type OperationRegistry = Map<MetadataType, OperationFunction>
 

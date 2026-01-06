@@ -1,9 +1,9 @@
 import { XMLBuilder } from "fast-xml-parser"
 
-const ARRAY_FIELDS = ["v8:item", "xr:GeneratedType", "InternalInfo", "xr:Link"]
+// const ARRAY_FIELDS = ["v8:item", "xr:GeneratedType", "InternalInfo", "xr:Link", "ChildItems"]
 
 export const xmlExport = (data: Record<string, any>, addDeclaration: boolean = true): string => {
-  const fixedData = fixArraysExport(data, ARRAY_FIELDS)
+  // const fixedData = fixArraysExport(data, ARRAY_FIELDS)
   const builder = new XMLBuilder({
     attributeNamePrefix: "_",
     ignoreAttributes: false,
@@ -18,7 +18,7 @@ export const xmlExport = (data: Record<string, any>, addDeclaration: boolean = t
   // @ts-ignore
   builder.options.attributesGroupName = "@attributes"
 
-  const xml = builder.build(fixedData)
+  const xml = builder.build(data)
   const declaration = addDeclaration ? '<?xml version="1.0" encoding="UTF-8"?>\n' : ""
   const result = declaration + xml
   return result.trimEnd()

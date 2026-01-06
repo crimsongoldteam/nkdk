@@ -1,0 +1,5 @@
+<ChildItems>
+	<InputField name="Input1" id="1"/>
+	<Button name="Button2" id="2"/>
+	<InputField name="Input3" id="3"/>
+</ChildItems>
