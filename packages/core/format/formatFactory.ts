@@ -26,12 +26,10 @@ export const formatElement = <T extends BaseElement>(
   element: T,
   context: ConfigurationContext
 ): IFormatElementResult => {
-  // params = { ...defaultParams, ...params }
-
   const formatter = registry.find((f) => f.check(element)) as FormatRegistry[number]
-  if (!formatter) return formatOtherElement(element as unknown as BaseElement, context)
+  if (!formatter) return formatOtherElement(context, element)
 
-  const result = formatter.format(element, context)
+  const result = formatter.format(context, element)
   return result
 }
 

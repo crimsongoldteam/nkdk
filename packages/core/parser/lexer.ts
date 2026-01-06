@@ -1,9 +1,4 @@
-﻿import {
-  createToken,
-  IMultiModeLexerDefinition,
-  Lexer,
-  TokenType,
-} from "chevrotain"
+﻿import { createToken, IMultiModeLexerDefinition, Lexer, TokenType } from "chevrotain"
 
 // #region combineTokens
 
@@ -117,12 +112,7 @@ function escapeRegExp(string: string): string {
 
 // empty matcher
 // @ts-ignore
-function matchType(
-  _text: any,
-  _offset: any,
-  _matchedTokens: any,
-  _groups: any
-): RegExpExecArray | null {
+function matchType(_text: any, _offset: any, _matchedTokens: any, _groups: any): RegExpExecArray | null {
   return null
 }
 
@@ -130,11 +120,7 @@ const excludeTokens = (...valuesToExclude: TokenType[]): TokenType[] => {
   return combineTokens.filter((item) => !valuesToExclude.includes(item))
 }
 
-const keyword = (
-  name: string,
-  keyword: string,
-  ...valuesToExclude: TokenType[]
-) => {
+const keyword = (name: string, keyword: string, ...valuesToExclude: TokenType[]) => {
   const keywordEscaped = escapeRegExp(keyword)
   return createToken({
     name: name,
@@ -243,6 +229,7 @@ export const LCurly = createToken({
     GroupHeaderText,
     PageHeaderText,
     LabelContent,
+    InputHeader,
     InputValue,
     InputModifiers,
     CheckboxHeader,
@@ -260,56 +247,23 @@ export const RCurly = createToken({
   pattern: /}[ \t]*/,
   label: "}",
   pop_mode: true,
-  categories: excludeTokens(PropertiesValueText, PropertiesNameText),
+  categories: excludeTokens(PropertiesValueText, PropertiesNameText, InputHeader),
 })
 
 export const LSquare = keyword("LSquare", "[", CheckboxHeader)
 export const RSquare = keyword("RSquare", "]", CheckboxHeader)
 
-export const LRound = keyword(
-  "LRound",
-  "(",
-  RadioButtonValueDescription,
-  PropertiesValueText
-)
-export const RRound = keyword(
-  "RRound",
-  ")",
-  RadioButtonValueDescription,
-  PropertiesValueOptionText
-)
+export const LRound = keyword("LRound", "(", RadioButtonValueDescription, PropertiesValueText)
+export const RRound = keyword("RRound", ")", RadioButtonValueDescription, PropertiesValueOptionText)
 
-export const Comma = keyword(
-  "Comma",
-  ",",
-  PropertiesValueText,
-  PropertiesValueOptionText
-)
+export const Comma = keyword("Comma", ",", PropertiesValueText, PropertiesValueOptionText)
 
 export const LAngle = keyword("LAngle", "<")
 export const RAngle = keyword("RAngle", ">", Button, Picture)
 
-export const Semicolon = keyword(
-  "Semicolon",
-  ";",
-  PropertiesValueText,
-  PropertiesValueOptionText
-)
-export const Colon = keyword(
-  "Colon",
-  ":",
-  InputHeader,
-  TableCell,
-  RadioButtonHeader
-)
-export const VBar = keyword(
-  "VBar",
-  "|",
-  Button,
-  Picture,
-  TableCell,
-  TableCellContinue
-)
+export const Semicolon = keyword("Semicolon", ";", PropertiesValueText, PropertiesValueOptionText)
+export const Colon = keyword("Colon", ":", InputHeader, TableCell, RadioButtonHeader)
+export const VBar = keyword("VBar", "|", Button, Picture, TableCell, TableCellContinue)
 export const Equals = keyword("Equals", "=", PropertiesNameText)
 
 export const Plus = createToken({
@@ -319,13 +273,7 @@ export const Plus = createToken({
   categories: excludeTokens(GroupHeaderText, PageHeaderText, InlineText),
 })
 
-export const Slash = keyword(
-  "Slash",
-  "/",
-  GroupHeaderText,
-  PageHeaderText,
-  InlineText
-)
+export const Slash = keyword("Slash", "/", GroupHeaderText, PageHeaderText, InlineText)
 export const Ampersand = keyword("Ampersand", "&", InlineText)
 export const Whitespace = createToken({ name: "Tab", pattern: /[ \t]+/ })
 

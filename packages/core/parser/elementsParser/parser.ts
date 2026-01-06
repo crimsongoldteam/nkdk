@@ -90,24 +90,39 @@ export class Parser extends CstParser {
   private readonly inputField = this.RULE("inputField", () => {
     // this.aligment("left")
 
-    this.MANY1(() => {
-      this.CONSUME(t.InputHeader)
-    })
+    this.choice(
+      1,
+      () => {
+        this.CONSUME(t.LCurly)
 
+        this.MANY1(() => {
+          this.CONSUME1(t.InputHeader, { LABEL: "InputHeaderName" })
+        })
+
+        this.OPTION1(() => {
+          this.CONSUME(t.RCurly)
+        })
+      },
+      () => {
+        this.MANY2(() => {
+          this.CONSUME2(t.InputHeader)
+        })
+      }
+    )
     this.CONSUME(t.Colon)
 
-    this.MANY2(() => {
+    this.MANY3(() => {
       this.CONSUME(t.InputValue)
     })
 
-    this.OPTION1(() => {
-      this.CONSUME(t.Underscore)
-      this.MANY3(() => {
-        this.CONSUME(t.InputModifiers)
-      })
-    })
+    // this.OPTION1(() => {
+    //   this.CONSUME(t.Underscore)
+    //   this.MANY3(() => {
+    //     this.CONSUME(t.InputModifiers)
+    //   })
+    // })
 
-    this.OPTION2(() => {
+    this.OPTION3(() => {
       this.SUBRULE(this.properties)
     })
 

@@ -42,7 +42,9 @@ export class Visitor extends BaseVisitor {
   inputField(ctx: CstChildrenDictionary, context: ConfigurationContext): InputField {
     const titleText = joinTokens(ctx.InputHeader as IToken[])
 
-    const name = this.visit(ctx.properties as CstNode[]) || titleText
+    const titleName = joinTokens(ctx.InputHeaderName as IToken[]) || titleText
+
+    const name = this.visit(ctx.properties as CstNode[]) || titleName
 
     const modifiers = joinTokens(ctx.InputModifiers as IToken[])
 
@@ -50,13 +52,16 @@ export class Visitor extends BaseVisitor {
 
     const modificators = this.addInputModifiers(modifiers)
 
-    const result = {
+    const result: InputField = {
       elementType: FormElementType.InputField,
       name: name,
-      id: undefined,
-      title: title,
       ...modificators,
-    } as InputField
+    }
+
+    if (title !== undefined) {
+      result.title = title
+    }
+
     return result
   }
 
@@ -159,15 +164,16 @@ export class Visitor extends BaseVisitor {
       description: string
     }[]
 
-    const choiceList: ChoiceList = {
-      items: items.map((item) => ({
+    const choiceList: ChoiceList = items.map((item) => ({
+      type: "formChoiceListDesTimeValue",
+      value: {
+        type: "string",
         value: item.description,
-        presentation: {
-          items: { [context.defaultLanguage]: item.description },
-        },
-        checkState: item.checked ? 1 : 2,
-      })),
-    }
+      },
+      presentation: {
+        items: { [context.defaultLanguage]: item.description },
+      },
+    }))
 
     const title = this.createTitle(titleText, context.defaultLanguage)
 

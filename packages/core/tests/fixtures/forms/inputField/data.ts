@@ -1,3 +1,4 @@
+import { IFormatElementResult } from "~/format/types"
 import { InputField, InputFieldEnterprise } from "~/metadata/forms/elements/inputField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -248,3 +249,35 @@ export const minimalInputField: InputField = {
 }
 
 export const minimalInputFieldEnterprise: InputFieldEnterprise = {}
+
+export interface InputFieldStructureFixture {
+  name: string
+  element: InputField
+  structured: IFormatElementResult
+}
+
+export const inputFieldStructureFixturesTable: InputFieldStructureFixture[] = [
+  {
+    name: "with title",
+    element: {
+      name: "ИмяПоля",
+      elementType: FormElementType.InputField,
+      title: { items: { ru: "Поле" } },
+    },
+    structured: {
+      strings: ["Поле: {ИмяПоля}"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "without title",
+    element: {
+      name: "ИмяПоля",
+      elementType: FormElementType.InputField,
+    },
+    structured: {
+      strings: ["{ИмяПоля}: "],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+]

@@ -14,24 +14,28 @@ describe("parse RadioButtonField", () => {
     const expectedResult: RadioButtonField = {
       elementType: FormElementType.RadioButtonField,
       name: "",
-      choiceList: {
-        items: [
-          {
+      choiceList: [
+        {
+          type: "formChoiceListDesTimeValue",
+          value: {
+            type: "string",
             value: "option 1",
-            presentation: {
-              items: { ru: "option 1" },
-            },
-            checkState: 1,
           },
-          {
+          presentation: {
+            items: { ru: "option 1" },
+          },
+        },
+        {
+          type: "formChoiceListDesTimeValue",
+          value: {
+            type: "string",
             value: "option 2",
-            presentation: {
-              items: { ru: "option 2" },
-            },
-            checkState: 2,
           },
-        ],
-      },
+          presentation: {
+            items: { ru: "option 2" },
+          },
+        },
+      ],
     }
 
     const result = parseRadioButtonField(mock)

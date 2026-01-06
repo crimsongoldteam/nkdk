@@ -18,7 +18,7 @@ export interface IFormatElementResult {
   haveSimpleHorizontalGroup: boolean
 }
 
-export type FormatElementFunction = (element: BaseElement, context: ConfigurationContext) => IFormatElementResult
+export type FormatElementFunction = (context: ConfigurationContext, element: BaseElement) => IFormatElementResult
 export type CheckFormatFunction<T = BaseElement> = (element: T) => boolean
 
 export type CheckIsOneLineElementFunction<T = BaseElement> = (element: T) => boolean

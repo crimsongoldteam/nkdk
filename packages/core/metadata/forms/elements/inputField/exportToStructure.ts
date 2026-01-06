@@ -1,6 +1,9 @@
+import { registerFormat } from "~/format/formatFactory"
 import { formatElementName } from "~/format/helpers"
+import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { IFormatElementResult } from "~/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { FormElementType } from "~/metadata/metadataFactory/types"
 import * as t from "~/parser/lexer"
 import { isMultiline } from "./helpers"
 import { InputField } from "./types"
@@ -85,3 +88,9 @@ function getModificators(element: InputField): string {
     .map(([_, value]) => value)
     .join("")
 }
+
+registerFormat<InputField>(
+  exportInputFieldToStructure,
+  (element: InputField) => element.elementType === FormElementType.InputField
+)
+registerIsOneLineElementCheck<InputField>(FormElementType.InputField, (element: InputField) => !isMultiline(element))

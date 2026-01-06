@@ -219,4 +219,4 @@ export type ChildItemEnterprise =
   | UsualGroupEnterprise
   | ViewStatusAdditionEnterprise
 
-export type ChildItemsEnterprise = ChildItemEnterprise[]
+export type ChildItemsEnterprise = Record<FormElementType, ChildItemEnterprise>
