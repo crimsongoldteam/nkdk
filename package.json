@@ -9,7 +9,8 @@
     "test": "vitest run --no-deprecation",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
-    "prepare": "ts-patch install && typia patch"
+    "prepare": "ts-patch install && typia patch",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
     "@ryoppippi/unplugin-typia": "^2.6.5",
@@ -26,7 +27,9 @@
     "concurrently": "^9.2.1",
     "jsdom": "^27.2.0",
     "organize-imports-cli": "^0.10.0",
+    "patch-package": "^8.0.1",
     "pointer-events-polyfill": "0.4.4-pre",
+    "postinstall-postinstall": "^2.1.0",
     "prettier": "^3.7.4",
     "resize-observer-polyfill": "^1.5.1",
     "terser": "^5.44.1",
