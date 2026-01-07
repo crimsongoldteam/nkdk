@@ -11,13 +11,11 @@ export const importGanttChartFieldFromXML = (
   xml: GanttChartFieldXML | undefined
 ): GanttChartField | undefined => {
   if (!xml) return undefined
-
-  return {
-    const baseFields = importFormFieldFromXML(context, xml)
+  const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
     elementType: FormElementType.GanttChartField,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -34,7 +32,8 @@ export const importGanttChartFieldFromXML = (
     verticalLines: xml.VerticalLines,
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: importEventsFromXML(context, xml.Events),  }
+    events: importEventsFromXML(context, xml.Events),
+  }
 }
 
 registerMetadata("ImportFromXML", "GanttChartField", importGanttChartFieldFromXML)

@@ -12,13 +12,11 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const importButtonFromXML = (context: ConfigurationContext, xml: ButtonXML | undefined): Button | undefined => {
   if (!xml) return undefined
-
-  return {
-    const baseFields = importBaseElementFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, xml)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
     elementType: FormElementType.Button,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -57,7 +55,8 @@ export const importButtonFromXML = (context: ConfigurationContext, xml: ButtonXM
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,
-    width: xml.Width,  }
+    width: xml.Width,
+  }
 }
 
 registerMetadata("ImportFromXML", "Button", importButtonFromXML)

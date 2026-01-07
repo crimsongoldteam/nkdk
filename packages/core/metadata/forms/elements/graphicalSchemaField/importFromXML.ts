@@ -12,13 +12,11 @@ export const importGraphicalSchemaFieldFromXML = (
   xml: GraphicalSchemaFieldXML | undefined
 ): GraphicalSchemaField | undefined => {
   if (!xml) return undefined
-
-  return {
-    const baseFields = importFormFieldFromXML(context, xml)
+  const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
     elementType: FormElementType.GraphicalSchemaField,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -33,7 +31,8 @@ export const importGraphicalSchemaFieldFromXML = (
     userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: importEventsFromXML(context, xml.Events),  }
+    events: importEventsFromXML(context, xml.Events),
+  }
 }
 
 registerMetadata("ImportFromXML", "GraphicalSchemaField", importGraphicalSchemaFieldFromXML)

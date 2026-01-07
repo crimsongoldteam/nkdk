@@ -15,13 +15,11 @@ export const importGeographicalSchemaFieldFromXML = (
   xml: GeographicalSchemaFieldXML | undefined
 ): GeographicalSchemaField | undefined => {
   if (!xml) return undefined
-
-  return {
-    const baseFields = importFormFieldFromXML(context, xml)
+  const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
     elementType: FormElementType.GeographicalSchemaField,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -35,7 +33,8 @@ export const importGeographicalSchemaFieldFromXML = (
     userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: importEventsFromXML(context, xml.Events),  }
+    events: importEventsFromXML(context, xml.Events),
+  }
 }
 
 registerMetadata("ImportFromXML", "GeographicalSchemaField", importGeographicalSchemaFieldFromXML)

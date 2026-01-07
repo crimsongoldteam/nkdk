@@ -19,15 +19,11 @@ export const importFormFieldFromXML = (
   xml: FormFieldXML | undefined
 ): FormField | undefined => {
   if (!xml) return undefined
-
-  return {
   const baseFields = importBaseElementFromXML(context, xml)
   if (!baseFields) return undefined
 
   return {
     ...baseFields,
-  return {
-    ...baseFields,,
     elementType: FormElementType.FormField,
 
     autoCellHeight: xml.AutoCellHeight,
@@ -73,7 +69,8 @@ export const importFormFieldFromXML = (
     visible: xml.Visible,
     warningOnEdit: importI8nTextFromXML(context, xml.WarningOnEdit),
     warningOnEditRepresentation: xml.WarningOnEditRepresentation,
-    events: importEventsFromXML(context, xml.Events),  }
+    events: importEventsFromXML(context, xml.Events),
+  }
 }
 
 registerMetadata("ImportFromXML", "FormField", importFormFieldFromXML)

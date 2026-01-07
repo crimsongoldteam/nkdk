@@ -14,13 +14,11 @@ export const importFormItemAdditionFromXML = (
   xml: FormItemAdditionXML | undefined
 ): FormItemAddition | undefined => {
   if (!xml) return undefined
-
-  return {
-    const baseFields = importBaseElementFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, xml)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
     elementType: FormElementType.FormItemAddition,
 
     childItems: importChildItemsFromXML(context, xml.ChildItems),
@@ -35,7 +33,8 @@ export const importFormItemAdditionFromXML = (
     type: xml.Type,
     userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
-    visible: xml.Visible,  }
+    visible: xml.Visible,
+  }
 }
 
 registerMetadata("ImportFromXML", "FormItemAddition", importFormItemAdditionFromXML)

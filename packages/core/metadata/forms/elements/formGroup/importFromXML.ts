@@ -15,13 +15,11 @@ export const importFormGroupFromXML = (
   xml: FormGroupXML | undefined
 ): FormGroup | undefined => {
   if (!xml) return undefined
-
-  return {
-    const baseFields = importBaseElementFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, xml)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
     elementType: FormElementType.FormGroup,
 
     childItems: importChildItemsFromXML(context, xml.ChildItems),
@@ -43,7 +41,8 @@ export const importFormGroupFromXML = (
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,
-    width: xml.Width,  }
+    width: xml.Width,
+  }
 }
 
 registerMetadata<FormGroupXML>("ImportFromXML", "FormGroup", importFormGroupFromXML)

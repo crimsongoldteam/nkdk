@@ -16,13 +16,11 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const importTableFromXML = (context: ConfigurationContext, xml: TableXML | undefined): Table | undefined => {
   if (!xml) return undefined
-
-  return {
-    const baseFields = importBaseElementFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, xml)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
     elementType: FormElementType.Table,
 
     autoAddIncomplete: xml.AutoAddIncomplete,
@@ -105,7 +103,8 @@ export const importTableFromXML = (context: ConfigurationContext, xml: TableXML 
     viewStatusRepresentation: importFormItemAdditionFromXML(context, xml.ViewStatusRepresentation),
     visible: xml.Visible,
     width: xml.Width,
-    events: importEventsFromXML(context, xml.Events),  }
+    events: importEventsFromXML(context, xml.Events),
+  }
 }
 
 registerMetadata("ImportFromXML", "Table", importTableFromXML)

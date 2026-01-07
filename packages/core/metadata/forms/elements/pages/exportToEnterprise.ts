@@ -14,12 +14,11 @@ export const exportPagesToEnterprise = (
 ): PagesEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormGroupToEnterprise(context, data)
+  const baseFields = exportFormGroupToEnterprise(context, data)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
 
     ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
       context,
@@ -38,7 +37,8 @@ export const exportPagesToEnterprise = (
       data.currentPagesState,
       SE.FormPagesStateToEnterprise
     ),
-    События: exportEventsToEnterprise(context, data.events),  }
+    События: exportEventsToEnterprise(context, data.events),
+  }
 }
 
 registerMetadata("ExportToEnterprise", "Pages", exportPagesToEnterprise)

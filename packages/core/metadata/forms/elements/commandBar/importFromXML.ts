@@ -10,19 +10,17 @@ export const importCommandBarFromXML = (
   xml: CommandBarXML | undefined
 ): CommandBar | undefined => {
   if (!xml) return undefined
-
-  return {
-    const baseFields = importFormGroupFromXML(context, xml)
+  const baseFields = importFormGroupFromXML(context, xml)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
     elementType: FormElementType.CommandBar,
-
     autofill: xml.Autofill,
     displayImportance: xml._DisplayImportance,
     horizontalAlign: xml.HorizontalAlign,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),  }
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
+  }
 }
 
 registerMetadata<CommandBarXML>("ImportFromXML", "CommandBar", importCommandBarFromXML)

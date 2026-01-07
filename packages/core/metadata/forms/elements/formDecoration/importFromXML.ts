@@ -14,13 +14,11 @@ export const importFormDecorationFromXML = (
   xml: FormDecorationXML | undefined
 ): FormDecoration | undefined => {
   if (!xml) return undefined
-
-  return {
-    const baseFields = importBaseElementFromXML(context, xml)
+  const baseFields = importBaseElementFromXML(context, xml)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
     elementType: FormElementType.FormDecoration,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -46,7 +44,8 @@ export const importFormDecorationFromXML = (
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,
-    width: xml.Width,  }
+    width: xml.Width,
+  }
 }
 
 registerMetadata("ImportFromXML", "FormDecoration", importFormDecorationFromXML)

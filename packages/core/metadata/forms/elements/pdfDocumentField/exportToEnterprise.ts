@@ -16,11 +16,7 @@ export const exportPdfDocumentFieldToEnterprise = (
   if (!data) return undefined
 
   return {
-    const baseFields = exportFormFieldToEnterprise(context, data)
-  if (!baseFields) return undefined
-
-  return {
-    ...baseFields,,
+    ...exportFormFieldToEnterprise(context, data),
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
@@ -42,7 +38,8 @@ export const exportPdfDocumentFieldToEnterprise = (
     РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
     ЦветРамки: exportColorToEnterprise(context, data.borderColor),
     Ширина: data.width,
-    События: exportEventsToEnterprise(context, data.events),  }
+    События: exportEventsToEnterprise(context, data.events),
+  }
 }
 
 registerMetadata("ExportToEnterprise", "PdfDocumentField", exportPdfDocumentFieldToEnterprise)
