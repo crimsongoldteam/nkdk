@@ -1,0 +1,8 @@
+<ButtonGroup name="ГруппаКнопок" id="1">
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<Representation>Compact</Representation>
+</ButtonGroup>
+

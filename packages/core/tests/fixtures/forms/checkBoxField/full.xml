@@ -1,0 +1,31 @@
+<CheckBoxField name="Флажок" id="1">
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Флажок формы</v8:content>
+		</v8:item>
+	</Title>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<Events>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+	</Events>
+	<BackColor>web:Blue</BackColor>
+	<BorderColor>web:Green</BorderColor>
+	<CheckBoxType>Switch</CheckBoxType>
+	<EditFormat>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Формат редактирования</v8:content>
+		</v8:item>
+	</EditFormat>
+	<EqualItemsWidth>true</EqualItemsWidth>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
+	<ItemHeight>20</ItemHeight>
+	<ItemTitleHeight>15</ItemTitleHeight>
+	<ItemWidth>100</ItemWidth>
+	<TextColor>web:Yellow</TextColor>
+	<ThreeState>true</ThreeState>
+</CheckBoxField>
