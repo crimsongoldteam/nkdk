@@ -30,4 +30,3 @@ describe("exportCalendarFieldToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 })
-

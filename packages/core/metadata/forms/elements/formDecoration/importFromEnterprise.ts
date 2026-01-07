@@ -15,7 +15,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 export const importFormDecorationFromEnterprise = (
   context: ConfigurationContext,
   data: FormDecorationEnterprise | undefined,
-  name: string
+  name?: string
 ): FormDecoration | undefined => {
   if (!data) return undefined
 
@@ -94,7 +94,11 @@ export const importFormDecorationFromEnterprise = (
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -108,7 +112,11 @@ export const importFormDecorationFromEnterprise = (
   const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const extendedTooltip = importFormDecorationFromEnterprise(context, data.РасширеннаяПодсказка, name + ".РасширеннаяПодсказка")
+  const extendedTooltip = importFormDecorationFromEnterprise(
+    context,
+    data.РасширеннаяПодсказка,
+    name + ".РасширеннаяПодсказка"
+  )
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш

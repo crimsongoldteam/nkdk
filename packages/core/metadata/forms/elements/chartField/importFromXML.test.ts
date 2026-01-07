@@ -28,4 +28,3 @@ describe("importChartFieldFromXML", () => {
     expect(result).toEqual(minimalChartField)
   })
 })
-

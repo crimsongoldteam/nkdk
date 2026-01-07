@@ -1,7 +1,6 @@
 import { exportBorderToXML } from "~/metadata/commonObjects/border/exportToXML"
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
-import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CalendarField, CalendarFieldXML } from "~/metadata/forms/elements/calendarField/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
@@ -36,7 +35,6 @@ export const exportCalendarFieldToXML = (
     SelectionMode: data.selectionMode,
     ShowCurrentDate: data.showCurrentDate,
     ShowMonthsPanel: data.showMonthsPanel,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     WidthInMonths: data.widthInMonths,

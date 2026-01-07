@@ -2,23 +2,48 @@ import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { FormAttribute, FormAttributeXML } from "./types"
+import { getDefaultsFormAttribute } from "./defaults"
+import { FormAttribute, FormAttributes, FormAttributesXML, FormAttributeXML } from "./types"
 
-export default function exportAttributeToXML(
+export const exportFormAttributesToXML = (
   context: ConfigurationContext,
-  attribute: FormAttribute | undefined
-): FormAttributeXML | undefined {
-  if (!attribute) return undefined
+  data: FormAttributes | undefined
+): FormAttributesXML | undefined => {
+  if (!data) return undefined
 
-  return {
-    Attribute: {
-      _name: attribute.name,
-      _id: attribute.id,
-      Title: exportI8nTextToXML(context, attribute.title),
-      Type: exportTypeDescriptionToXML(context, attribute.valueType),
-      MainAttribute: attribute.mainAttribute,
-      StoredData: attribute.storedData,
-      Use: exportUserVisibleToXML(context, attribute.use),
-    },
+  const result = data.map(
+    (value: FormAttribute) => exportFormAttributeToXML(context, value, getDefaultsFormAttribute(context, value))!
+  )
+
+  return result
+}
+
+const exportFormAttributeToXML = (
+  context: ConfigurationContext,
+  data: FormAttribute,
+  defaults: Partial<FormAttribute>
+): FormAttributeXML => {
+  const mergedData = { ...defaults, ...data }
+
+  const result: FormAttributeXML = {
+    Attribute: {} as FormAttributeXML["Attribute"],
   }
+
+  result.Attribute._name = mergedData.name
+  result.Attribute._id = mergedData.id
+
+  const title = exportI8nTextToXML(context, mergedData.title)
+  if (title) result.Attribute.Title = title
+
+  const type = exportTypeDescriptionToXML(context, mergedData.valueType)
+  if (type) result.Attribute.Type = type
+
+  if (mergedData.mainAttribute !== undefined) result.Attribute.MainAttribute = mergedData.mainAttribute
+
+  if (mergedData.storedData !== undefined) result.Attribute.StoredData = mergedData.storedData
+
+  const use = exportUserVisibleToXML(context, mergedData.use)
+  if (use) result.Attribute.Use = use
+
+  return result
 }
