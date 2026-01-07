@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../metadata/context/types"
-import { formatOtherElement } from "../metadata/forms/elements/baseElement/format"
+import { exportOtherElementToStructure } from "../metadata/forms/elements/baseElement/exportToStructure"
 import { BaseElement } from "../metadata/forms/elements/baseElement/types"
 import { ChildItems } from "../metadata/forms/elements/childItems/types"
 import { FormElementType } from "../metadata/metadataFactory/types"
@@ -27,7 +27,7 @@ export const formatElement = <T extends BaseElement>(
   context: ConfigurationContext
 ): IFormatElementResult => {
   const formatter = registry.find((f) => f.check(element)) as FormatRegistry[number]
-  if (!formatter) return formatOtherElement(context, element)
+  if (!formatter) return exportOtherElementToStructure(context, element)
 
   const result = formatter.format(context, element)
   return result
