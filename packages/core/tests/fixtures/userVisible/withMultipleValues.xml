@@ -3,4 +3,3 @@
 	<xr:Value name="Role.Администратор">true</xr:Value>
 	<xr:Value name="Role.Пользователь">false</xr:Value>
 </UserVisible>
-
