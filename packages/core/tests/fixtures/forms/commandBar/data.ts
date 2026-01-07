@@ -1,0 +1,75 @@
+import { IFormatElementResult } from "~/format/types"
+import { CommandBar, CommandBarEnterprise } from "~/metadata/forms/elements/commandBar/types"
+import { FormElementType } from "~/metadata/metadataFactory/types"
+
+export const fullCommandBar: CommandBar = {
+  elementType: FormElementType.CommandBar,
+  name: "КоманднаяПанель",
+  id: "1",
+  childItems: [],
+  autofill: true,
+  displayImportance: "High",
+  horizontalAlign: "Left",
+  userVisible: {
+    common: true,
+    values: [{ name: "Администратор", value: true }],
+  },
+}
+
+export const fullCommandBarEnterprise: CommandBarEnterprise = {
+  Автозаполнение: "Истина",
+  ВажностьПриОтображении: "Высокая",
+  ГоризонтальноеПоложение: "Лево",
+  РазрешитьИспользование: { Администратор: "Истина" },
+}
+
+export const minimalCommandBar: CommandBar = {
+  elementType: FormElementType.CommandBar,
+  name: "КоманднаяПанель",
+  id: "1",
+  childItems: [],
+}
+
+export const minimalCommandBarEnterprise: CommandBarEnterprise = {}
+
+export interface CommandBarStructureFixture {
+  name: string
+  element: CommandBar
+  structured: IFormatElementResult
+}
+
+export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
+  {
+    name: "with buttons",
+    element: {
+      name: "CommandBar",
+      elementType: FormElementType.CommandBar,
+      childItems: [
+        {
+          elementType: FormElementType.Button,
+          name: "Button1",
+          id: "1",
+          title: { items: { ru: "Button1" } },
+        },
+        {
+          elementType: FormElementType.Button,
+          name: "Button2",
+          id: "2",
+          title: { items: { ru: "Button2" } },
+        },
+        {
+          elementType: FormElementType.Button,
+          name: "Button3",
+          id: "3",
+          title: { items: { ru: "Button3" } },
+        },
+      ],
+      id: "1",
+    },
+    structured: {
+      strings: ["<Button1|Button2|Button3>"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+]
+

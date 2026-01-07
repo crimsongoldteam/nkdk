@@ -1,0 +1,18 @@
+<ColumnGroup name="ГруппаКолонок" id="1">
+	<FixingInTable>None</FixingInTable>
+	<Group>Auto</Group>
+	<HeaderDataPath>Объект.Реквизит</HeaderDataPath>
+	<HeaderFormat>Формат</HeaderFormat>
+	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
+	<HeaderPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</HeaderPicture>
+	<ShowInHeader>true</ShowInHeader>
+	<ShowTitle>true</ShowTitle>
+	<TitleBackColor>web:Blue</TitleBackColor>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+</ColumnGroup>

@@ -24,3 +24,10 @@
 	<MaxWidth>400</MaxWidth>
 	<SelectionMode>Single</SelectionMode>
 	<ShowCurrentDate>true</ShowCurrentDate>
+	<ShowMonthsPanel>true</ShowMonthsPanel>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<VerticalStretch>true</VerticalStretch>
+	<Width>300</Width>

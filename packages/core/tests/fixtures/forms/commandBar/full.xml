@@ -1,0 +1,8 @@
+<CommandBar name="КоманднаяПанель" id="1" DisplayImportance="High">
+	<Autofill>true</Autofill>
+	<HorizontalAlign>Left</HorizontalAlign>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+</CommandBar>

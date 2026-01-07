@@ -1,0 +1,25 @@
+<FormattedDocumentField name="ПолеФорматированногоДокумента" id="1">
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Поле форматированного документа</v8:content>
+		</v8:item>
+	</Title>
+	<AutoMaxHeight>true</AutoMaxHeight>
+	<AutoMaxWidth>true</AutoMaxWidth>
+	<BackColor>web:White</BackColor>
+	<BorderColor>web:Black</BorderColor>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
+	<Height>200</Height>
+	<HorizontalStretch>true</HorizontalStretch>
+	<MaxHeight>500</MaxHeight>
+	<MaxWidth>400</MaxWidth>
+	<Output>Use</Output>
+	<SelectedText>Выделенный текст</SelectedText>
+	<TextColor>web:Blue</TextColor>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<VerticalStretch>true</VerticalStretch>
+	<Width>300</Width>
