@@ -8,7 +8,6 @@ import {
   SearchControlAddition,
   SearchControlAdditionEnterprise,
 } from "~/metadata/forms/elements/searchControlAddition/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportSearchControlAdditionToEnterprise = (
@@ -17,8 +16,12 @@ export const exportSearchControlAdditionToEnterprise = (
 ): SearchControlAdditionEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormItemAdditionToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormItemAdditionToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
     МаксимальнаяШирина: data.maxWidth,
@@ -28,8 +31,7 @@ export const exportSearchControlAdditionToEnterprise = (
     ЦветТекста: exportColorToEnterprise(context, data.textColor),
     ЦветФона: exportColorToEnterprise(context, data.backColor),
     Ширина: data.width,
-    Шрифт: exportFontToEnterprise(context, data.font),
-  })
+    Шрифт: exportFontToEnterprise(context, data.font),  }
 }
 
 registerMetadata("ExportToEnterprise", "SearchControlAddition", exportSearchControlAdditionToEnterprise)

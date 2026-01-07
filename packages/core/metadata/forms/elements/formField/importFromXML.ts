@@ -11,7 +11,6 @@ import { importFormDecorationFromXML } from "~/metadata/forms/elements/formDecor
 import { FormField, FormFieldXML } from "~/metadata/forms/elements/formField/types"
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -21,8 +20,14 @@ export const importFormFieldFromXML = (
 ): FormField | undefined => {
   if (!xml) return undefined
 
-  return compactObject({
-    ...importBaseElementFromXML(context, xml)!,
+  return {
+  const baseFields = importBaseElementFromXML(context, xml)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,
+  return {
+    ...baseFields,,
     elementType: FormElementType.FormField,
 
     autoCellHeight: xml.AutoCellHeight,
@@ -68,8 +73,7 @@ export const importFormFieldFromXML = (
     visible: xml.Visible,
     warningOnEdit: importI8nTextFromXML(context, xml.WarningOnEdit),
     warningOnEditRepresentation: xml.WarningOnEditRepresentation,
-    events: importEventsFromXML(context, xml.Events),
-  })
+    events: importEventsFromXML(context, xml.Events),  }
 }
 
 registerMetadata("ImportFromXML", "FormField", importFormFieldFromXML)

@@ -11,15 +11,18 @@ import { importFormDecorationFromXML } from "~/metadata/forms/elements/formDecor
 import { importFormItemAdditionFromXML } from "~/metadata/forms/elements/formItemAddition/importFromXML"
 import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const importTableFromXML = (context: ConfigurationContext, xml: TableXML | undefined): Table | undefined => {
   if (!xml) return undefined
 
-  return compactObject({
-    ...importBaseElementFromXML(context, xml)!,
+  return {
+    const baseFields = importBaseElementFromXML(context, xml)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
     elementType: FormElementType.Table,
 
     autoAddIncomplete: xml.AutoAddIncomplete,
@@ -102,8 +105,7 @@ export const importTableFromXML = (context: ConfigurationContext, xml: TableXML 
     viewStatusRepresentation: importFormItemAdditionFromXML(context, xml.ViewStatusRepresentation),
     visible: xml.Visible,
     width: xml.Width,
-    events: importEventsFromXML(context, xml.Events),
-  })
+    events: importEventsFromXML(context, xml.Events),  }
 }
 
 registerMetadata("ImportFromXML", "Table", importTableFromXML)

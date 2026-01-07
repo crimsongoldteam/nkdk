@@ -24,7 +24,11 @@ export const exportInputFieldToEnterprise = (
   if (!data) return undefined
 
   const result: InputFieldEnterprise = {
-    ...exportFormFieldToEnterprise(context, data)!,
+    const baseFields = exportFormFieldToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
   }
 
   const autoChoiceIncomplete = exportBooleanToEnterprise(context, data.autoChoiceIncomplete)

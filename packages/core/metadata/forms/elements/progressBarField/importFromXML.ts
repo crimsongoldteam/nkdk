@@ -4,7 +4,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/importFromXML"
 import { ProgressBarField, ProgressBarFieldXML } from "~/metadata/forms/elements/progressBarField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -14,8 +13,12 @@ export const importProgressBarFieldFromXML = (
 ): ProgressBarField | undefined => {
   if (!xml) return undefined
 
-  return compactObject({
-    ...importFormFieldFromXML(context, xml)!,
+  return {
+    const baseFields = importFormFieldFromXML(context, xml)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
     elementType: FormElementType.ProgressBarField,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -33,8 +36,7 @@ export const importProgressBarFieldFromXML = (
     userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalStretch: xml.VerticalStretch,
     width: xml.Width,
-    events: importEventsFromXML(context, xml.Events),
-  })
+    events: importEventsFromXML(context, xml.Events),  }
 }
 
 registerMetadata("ImportFromXML", "ProgressBarField", importProgressBarFieldFromXML)

@@ -6,7 +6,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importCommandBarFromXML } from "~/metadata/forms/elements/commandBar/importFromXML"
 import { FormDecoration, FormDecorationXML } from "~/metadata/forms/elements/formDecoration/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -16,8 +15,12 @@ export const importFormDecorationFromXML = (
 ): FormDecoration | undefined => {
   if (!xml) return undefined
 
-  return compactObject({
-    ...importBaseElementFromXML(context, xml)!,
+  return {
+    const baseFields = importBaseElementFromXML(context, xml)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
     elementType: FormElementType.FormDecoration,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -43,8 +46,7 @@ export const importFormDecorationFromXML = (
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,
-    width: xml.Width,
-  })
+    width: xml.Width,  }
 }
 
 registerMetadata("ImportFromXML", "FormDecoration", importFormDecorationFromXML)

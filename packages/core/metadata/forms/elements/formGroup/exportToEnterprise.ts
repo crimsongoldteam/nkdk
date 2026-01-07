@@ -8,7 +8,6 @@ import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseEle
 import { exportChildItemsToEnterprise } from "~/metadata/forms/elements/childItems/exportToEnterprise"
 import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { FormGroup, FormGroupEnterprise } from "~/metadata/forms/elements/formGroup/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -19,8 +18,12 @@ export const exportFormGroupToEnterprise = (
 ): FormGroupEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportBaseElementToEnterprise(context, data)!,
+  return {
+    const baseFields = exportBaseElementToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
       context,
@@ -53,8 +56,7 @@ export const exportFormGroupToEnterprise = (
     ТолькоПросмотр: exportBooleanToEnterprise(context, data.readOnly),
     ЦветТекстаЗаголовка: exportColorToEnterprise(context, data.titleTextColor),
     Ширина: data.width,
-    ШрифтЗаголовка: exportFontToEnterprise(context, data.titleFont),
-  })
+    ШрифтЗаголовка: exportFontToEnterprise(context, data.titleFont),  }
 }
 
 registerMetadata("ExportToEnterprise", "FormGroup", exportFormGroupToEnterprise)

@@ -7,7 +7,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { PictureDecoration, PictureDecorationEnterprise } from "~/metadata/forms/elements/pictureDecoration/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -18,8 +17,12 @@ export const exportPictureDecorationToEnterprise = (
 ): PictureDecorationEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormDecorationToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormDecorationToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     Гиперссылка: exportBooleanToEnterprise(context, data.hyperlink),
     Картинка: exportPictureToEnterprise(context, data.picture),
@@ -37,8 +40,7 @@ export const exportPictureDecorationToEnterprise = (
     ),
     ТекстНевыбраннойКартинки: data.nonselectedPictureText,
     ЦветРамки: exportColorToEnterprise(context, data.borderColor),
-    События: exportEventsToEnterprise(context, data.events),
-  })
+    События: exportEventsToEnterprise(context, data.events),  }
 }
 
 registerMetadata("ExportToEnterprise", "PictureDecoration", exportPictureDecorationToEnterprise)

@@ -6,7 +6,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
 import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
 import { UsualGroup, UsualGroupEnterprise } from "~/metadata/forms/elements/usualGroup/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -17,8 +16,12 @@ export const exportUsualGroupToEnterprise = (
 ): UsualGroupEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormGroupToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormGroupToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
       context,
@@ -97,8 +100,7 @@ export const exportUsualGroupToEnterprise = (
       context,
       data.slaveItemsWidth,
       SE.ChildFormItemsWidthToEnterprise
-    ),
-  })
+    ),  }
 }
 
 registerMetadata("ExportToEnterprise", "UsualGroup", exportUsualGroupToEnterprise)

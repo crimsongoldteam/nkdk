@@ -7,7 +7,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportCommandBarToEnterprise } from "~/metadata/forms/elements/commandBar/exportToEnterprise"
 import { FormDecoration, FormDecorationEnterprise } from "~/metadata/forms/elements/formDecoration/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -18,8 +17,12 @@ export const exportFormDecorationToEnterprise = (
 ): FormDecorationEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportBaseElementToEnterprise(context, data)!,
+  return {
+    const baseFields = exportBaseElementToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
@@ -60,8 +63,7 @@ export const exportFormDecorationToEnterprise = (
     СочетаниеКлавиш: data.shortcut,
     ЦветТекста: exportColorToEnterprise(context, data.textColor),
     Ширина: data.width,
-    Шрифт: exportFontToEnterprise(context, data.font),
-  })
+    Шрифт: exportFontToEnterprise(context, data.font),  }
 }
 
 registerMetadata("ExportToEnterprise", "FormDecoration", exportFormDecorationToEnterprise)

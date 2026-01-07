@@ -7,15 +7,18 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { Button, ButtonXML } from "~/metadata/forms/elements/button/types"
 import { importFormDecorationFromXML } from "~/metadata/forms/elements/formDecoration/importFromXML"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const importButtonFromXML = (context: ConfigurationContext, xml: ButtonXML | undefined): Button | undefined => {
   if (!xml) return undefined
 
-  return compactObject({
-    ...importBaseElementFromXML(context, xml)!,
+  return {
+    const baseFields = importBaseElementFromXML(context, xml)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
     elementType: FormElementType.Button,
 
     autoMaxHeight: xml.AutoMaxHeight,
@@ -54,8 +57,7 @@ export const importButtonFromXML = (context: ConfigurationContext, xml: ButtonXM
     verticalAlignInGroup: xml.VerticalAlignInGroup,
     verticalStretch: xml.VerticalStretch,
     visible: xml.Visible,
-    width: xml.Width,
-  })
+    width: xml.Width,  }
 }
 
 registerMetadata("ImportFromXML", "Button", importButtonFromXML)

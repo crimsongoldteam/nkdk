@@ -4,7 +4,6 @@ import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup
 import { Pages, PagesEnterprise } from "~/metadata/forms/elements/pages/types"
 import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -15,8 +14,12 @@ export const exportPagesToEnterprise = (
 ): PagesEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormGroupToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormGroupToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
       context,
@@ -35,8 +38,7 @@ export const exportPagesToEnterprise = (
       data.currentPagesState,
       SE.FormPagesStateToEnterprise
     ),
-    События: exportEventsToEnterprise(context, data.events),
-  })
+    События: exportEventsToEnterprise(context, data.events),  }
 }
 
 registerMetadata("ExportToEnterprise", "Pages", exportPagesToEnterprise)

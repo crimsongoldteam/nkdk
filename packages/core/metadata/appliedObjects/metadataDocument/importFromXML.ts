@@ -10,7 +10,6 @@ import { importMetadataItemLinksFromXML } from "~/metadata/commonObjects/metadat
 import { importMetadataTabularSectionsFromXML } from "~/metadata/commonObjects/metadataTabularSection/importFromXML"
 import { importStandardAttributeDescriptionsFromXML } from "~/metadata/commonObjects/standardAttributeDescription/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 
 export const importMetadataDocumentFromXML = (
   context: ConfigurationContext,
@@ -18,7 +17,7 @@ export const importMetadataDocumentFromXML = (
 ): MetadataDocument | undefined => {
   if (!xml) return undefined
 
-  return compactObject({
+  return {
     actionsWritingOnPost: xml.ActionsWritingOnPost,
     additionalIndexes: importAdditionalIndexesFromXML(context, xml.AdditionalIndexes),
     attributes: importMetadataAttributesFromXML(context, xml.Attributes),
@@ -70,5 +69,5 @@ export const importMetadataDocumentFromXML = (
     tabularSections: importMetadataTabularSectionsFromXML(context, xml.TabularSections),
     updateDataHistoryImmediatelyAfterWrite: xml.UpdateDataHistoryImmediatelyAfterWrite,
     useStandardCommands: xml.UseStandardCommands,
-  })
+  }
 }

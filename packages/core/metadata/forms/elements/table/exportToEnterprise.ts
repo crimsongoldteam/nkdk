@@ -12,7 +12,6 @@ import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/form
 import { exportFormItemAdditionToEnterprise } from "~/metadata/forms/elements/formItemAddition/exportToEnterprise"
 import { Table, TableEnterprise } from "~/metadata/forms/elements/table/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -23,8 +22,12 @@ export const exportTableToEnterprise = (
 ): TableEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportBaseElementToEnterprise(context, data)!,
+  return {
+    const baseFields = exportBaseElementToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     АвтоВводНезаполненного: exportBooleanToEnterprise(context, data.autoAddIncomplete),
     АвтоВводНовойСтроки: exportBooleanToEnterprise(context, data.autoInsertNewRow),
@@ -186,8 +189,7 @@ export const exportTableToEnterprise = (
     Ширина: data.width,
     Шрифт: exportFontToEnterprise(context, data.font),
     ШрифтЗаголовка: exportFontToEnterprise(context, data.titleFont),
-    События: exportEventsToEnterprise(context, data.events),
-  })
+    События: exportEventsToEnterprise(context, data.events),  }
 }
 
 registerMetadata("ExportToEnterprise", "Table", exportTableToEnterprise)

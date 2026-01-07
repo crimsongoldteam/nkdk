@@ -8,7 +8,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import { PictureField, PictureFieldEnterprise } from "~/metadata/forms/elements/pictureField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -19,8 +18,12 @@ export const exportPictureFieldToEnterprise = (
 ): PictureFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormFieldToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormFieldToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
@@ -48,8 +51,7 @@ export const exportPictureFieldToEnterprise = (
     ЦветТекста: exportColorToEnterprise(context, data.textColor),
     Ширина: data.width,
     Шрифт: exportFontToEnterprise(context, data.font),
-    События: exportEventsToEnterprise(context, data.events),
-  })
+    События: exportEventsToEnterprise(context, data.events),  }
 }
 
 registerMetadata("ExportToEnterprise", "PictureField", exportPictureFieldToEnterprise)

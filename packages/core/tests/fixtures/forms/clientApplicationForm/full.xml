@@ -1,21 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
-	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1">
-		<Autofill>false</Autofill>
-	</AutoCommandBar>
-	<Title>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Поле</v8:content>
-		</v8:item>
-	</Title>
-	<ChildItems>
-		<UsualGroup name="Группа" id="1">
-			<ChildItems>
-				<InputField name="ПолеВвода" id="1"/>
-			</ChildItems>
-		</UsualGroup>
-	</ChildItems>
+	<CommandSet>
+		<ExcludedCommand>WriteAndClose</ExcludedCommand>
+	</CommandSet>
 	<Attributes>
 		<Attribute name="Объект" id="1">
 			<Type>
@@ -24,5 +11,84 @@
 			<MainAttribute>true</MainAttribute>
 		</Attribute>
 	</Attributes>
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1" DisplayImportance="High">
+		<Autofill>true</Autofill>
+		<HorizontalAlign>Left</HorizontalAlign>
+		<ChildItems>
+			<Button name="Кнопка1" id="1"/>
+		</ChildItems>
+	</AutoCommandBar>
+	<AutoTitle>true</AutoTitle>
+	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
+	<AutoURL>true</AutoURL>
+	<VerticalScroll>Use</VerticalScroll>
+	<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>
+	<VerticalSpacing>Single</VerticalSpacing>
+	<ItemsAndTitlesAlign>ItemsLeftTitlesLeft</ItemsAndTitlesAlign>
+	<Height>600</Height>
+	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>
+	<HorizontalSpacing>Double</HorizontalSpacing>
+	<Group>Horizontal</Group>
+	<Enabled>true</Enabled>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Полная форма приложения</v8:content>
+		</v8:item>
+	</Title>
+	<CloseOnChoice>true</CloseOnChoice>
+	<CloseOnOwnerClose>false</CloseOnOwnerClose>
+	<FormName>ПолнаяФорма</FormName>
+	<UsedFormServer>Main</UsedFormServer>
+	<PurposeUseKey>PurposeKey</PurposeUseKey>
+	<WindowOptionsKey>WindowOptionsKey</WindowOptionsKey>
+	<Scale>100</Scale>
+	<ModalMode>false</ModalMode>
+	<Modified>false</Modified>
+	<URL>https://example.com</URL>
+	<ShowTitle>true</ShowTitle>
+	<ShowCloseButton>true</ShowCloseButton>
+	<ConversationsRepresentation>Show</ConversationsRepresentation>
+	<EnterKeyBehavior>DefaultButton</EnterKeyBehavior>
+	<ChildItems>
+		<InputField name="ПолеВвода1" id="1"/>
+	</ChildItems>
+	<CommandBarLocation>Top</CommandBarLocation>
+	<AutoFillCheck>true</AutoFillCheck>
+	<FormWindowOpeningMode>LockOwnerWindow</FormWindowOpeningMode>
+	<CollapseItemsByImportance>Use</CollapseItemsByImportance>
+	<SaveDataInSettings>UseList</SaveDataInSettings>
+	<SavedInSettingsDataModified>true</SavedInSettingsDataModified>
+	<ReadOnly>false</ReadOnly>
+	<UUID>123e4567-e89b-12d3-a456-426614174000</UUID>
+	<Width>800</Width>
+	<SlaveItemsWidth>Auto</SlaveItemsWidth>
+	<UseForFoldersAndItems>FoldersAndItems</UseForFoldersAndItems>
+	<Events>
+		<Event name="CollaborationSystemUsersAutoComplete">Процедура1</Event>
+		<Event name="ExternalEvent">Процедура2</Event>
+		<Event name="ActivationProcessing">Процедура3</Event>
+		<Event name="ChoiceProcessing">Процедура4</Event>
+		<Event name="NewWriteProcessing">Процедура5</Event>
+		<Event name="URLProcessing">Процедура6</Event>
+		<Event name="NotificationProcessing">Процедура7</Event>
+		<Event name="NavigationProcessing">Процедура8</Event>
+		<Event name="URLGetProcessing">Процедура9</Event>
+		<Event name="URLListGetProcessing">Процедура10</Event>
+		<Event name="CollaborationSystemUsersChoiceFormGetProcessing">Процедура11</Event>
+		<Event name="FillCheckProcessingAtServer">Процедура12</Event>
+		<Event name="AddInDetachmentOnError">Процедура13</Event>
+		<Event name="BeforeLoadDataFromSettingsAtServer">Процедура14</Event>
+		<Event name="BeforeClose">Процедура15</Event>
+		<Event name="BeforeReopenFromOtherServer">Процедура16</Event>
+		<Event name="OnPasteFromClipboard">Процедура17</Event>
+		<Event name="OnLoadDataFromSettingsAtServer">Процедура18</Event>
+		<Event name="OnClose">Процедура19</Event>
+		<Event name="OnMainServerAvailabilityChange">Процедура20</Event>
+		<Event name="OnChangeDisplaySettings">Процедура21</Event>
+		<Event name="OnOpen">Процедура22</Event>
+		<Event name="OnReopenFromOtherServer">Процедура23</Event>
+		<Event name="OnCreateAtServer">Процедура24</Event>
+		<Event name="OnSaveDataInSettingsAtServer">Процедура25</Event>
+	</Events>
 </Form>
-

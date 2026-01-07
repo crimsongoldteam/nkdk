@@ -14,7 +14,6 @@ import { exportMetadataValueCollectionToXML } from "~/metadata/commonObjects/met
 import { exportPredefinedItemsToXML } from "~/metadata/commonObjects/predifined/exportToXML"
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportInternalInfoToXML } from "../../commonObjects/internalInfo/exportToXML"
 import { exportMetadataAttributesToXML } from "../../commonObjects/metadataAttribute/exportToXML"
 import { getUUID } from "../../helpers/uuid"
@@ -227,7 +226,7 @@ export const exportMetadataCatalogToXML = (
     },
   }
 
-  return compactObject<MetadataCatalogXML>(result)
+  return result
 }
 
 const getFormsFromContext = (context: MetadataCatalogContext): string[] | undefined => {

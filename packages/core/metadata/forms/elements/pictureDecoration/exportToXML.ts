@@ -6,7 +6,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecoration/exportToXML"
 import { PictureDecoration, PictureDecorationXML } from "~/metadata/forms/elements/pictureDecoration/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportPictureDecorationToXML = (
@@ -15,8 +14,12 @@ export const exportPictureDecorationToXML = (
 ): PictureDecorationXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormDecorationToXML(context, data)!,
+  return {
+    const baseFields = exportFormDecorationToXML(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     Border: exportBorderToXML(context, data.border),
     BorderColor: exportColorToXML(context, data.borderColor),
@@ -30,8 +33,7 @@ export const exportPictureDecorationToXML = (
     Scale: data.scale,
     UserVisible: exportUserVisibleToXML(context, data.userVisible),
     Zoomable: data.zoomable,
-    Events: exportEventsToXML(context, data.events),
-  })
+    Events: exportEventsToXML(context, data.events),  }
 }
 
 registerMetadata("ExportToXML", "PictureDecoration", exportPictureDecorationToXML)

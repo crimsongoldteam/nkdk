@@ -11,7 +11,6 @@ import { exportMetadataTabularSectionsToEnterprise } from "~/metadata/commonObje
 import { exportPredefinedItemsToEnterprise } from "~/metadata/commonObjects/predifined/exportToEnterprise"
 import { exportStandardAttributeDescriptionsToEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -272,5 +271,5 @@ export const exportMetadataCatalogToEnterprise = (
   const commands = exportMetadataCommandsToEnterprise(context, data.commands)
   if (commands !== undefined) result.Команды = commands
 
-  return compactObject(result)
+  return result
 }

@@ -7,7 +7,6 @@ import { exportChildItemsToEnterprise } from "~/metadata/forms/elements/childIte
 import { exportCommandBarToEnterprise } from "~/metadata/forms/elements/commandBar/exportToEnterprise"
 import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { FormItemAddition, FormItemAdditionEnterprise } from "~/metadata/forms/elements/formItemAddition/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -18,8 +17,12 @@ export const exportFormItemAdditionToEnterprise = (
 ): FormItemAdditionEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportBaseElementToEnterprise(context, data)!,
+  return {
+    const baseFields = exportBaseElementToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
       context,
@@ -49,8 +52,7 @@ export const exportFormItemAdditionToEnterprise = (
     Подсказка: exportI8nTextToEnterprise(context, data.toolTip),
     ПодчиненныеЭлементы: exportChildItemsToEnterprise(context, data.childItems),
     ...exportUserVisibleToEnterprise(context, data.userVisible),
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(context, data.extendedToolTip),
-  })
+    РасширеннаяПодсказка: exportFormDecorationToEnterprise(context, data.extendedToolTip),  }
 }
 
 registerMetadata("ExportToEnterprise", "FormItemAddition", exportFormItemAdditionToEnterprise)

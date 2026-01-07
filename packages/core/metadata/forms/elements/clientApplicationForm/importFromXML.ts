@@ -44,7 +44,7 @@ export const importClientApplicationFormFromXML = (
     scale: xml.Scale,
     modalMode: xml.ModalMode,
     modified: xml.Modified,
-    uRL: xml.URL,
+    url: xml.URL,
     showTitle: xml.ShowTitle,
     showCloseButton: xml.ShowCloseButton,
     conversationsRepresentation: xml.ConversationsRepresentation,

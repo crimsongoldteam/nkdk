@@ -11,14 +11,17 @@ import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecorat
 import { exportFormItemAdditionToXML } from "~/metadata/forms/elements/formItemAddition/exportToXML"
 import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportTableToXML = (context: ConfigurationContext, data: Table | undefined): TableXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportBaseElementToXML(context, data)!,
+  return {
+    const baseFields = exportBaseElementToXML(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     AutoAddIncomplete: data.autoAddIncomplete,
     AutoCommandBar: exportCommandBarToXML(context, data.autoCommandBar),
@@ -100,8 +103,7 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
     ViewStatusRepresentation: exportFormItemAdditionToXML(context, data.viewStatusRepresentation),
     Visible: data.visible,
     Width: data.width,
-    Events: exportEventsToXML(context, data.events),
-  })
+    Events: exportEventsToXML(context, data.events),  }
 }
 
 registerMetadata("ExportToXML", "Table", exportTableToXML)

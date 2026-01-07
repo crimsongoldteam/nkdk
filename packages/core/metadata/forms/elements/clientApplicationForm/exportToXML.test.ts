@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/inputField/exportToXML"
 import "~/metadata/forms/elements/usualGroup/exportToXML"
-import { fullClientApplicationForm, minimalClientApplicationForm } from "~/tests/fixtures/forms/clientApplicationForm/data"
+import {
+  fullClientApplicationForm,
+  minimalClientApplicationForm,
+} from "~/tests/fixtures/forms/clientApplicationForm/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
@@ -18,7 +21,7 @@ describe("exportClientApplicationFormToXML", () => {
     const expectedResult = readXMLFileAsString("forms/clientApplicationForm/full.xml")
     const xmlData = exportClientApplicationFormToXML(mockСontext, fullClientApplicationForm)
 
-    const result = xmlExport({ Form: xmlData }, false)
+    const result = xmlExport({ Form: xmlData })
 
     expect(result).toEqual(expectedResult)
   })
@@ -27,7 +30,7 @@ describe("exportClientApplicationFormToXML", () => {
     const expectedResult = readXMLFileAsString("forms/clientApplicationForm/minimal.xml")
     const xmlData = exportClientApplicationFormToXML(mockСontext, minimalClientApplicationForm)
 
-    const result = xmlExport({ Form: xmlData }, false)
+    const result = xmlExport({ Form: xmlData })
 
     expect(result).toEqual(expectedResult)
   })

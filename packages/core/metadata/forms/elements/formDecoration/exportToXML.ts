@@ -6,7 +6,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportCommandBarToXML } from "~/metadata/forms/elements/commandBar/exportToXML"
 import { FormDecoration, FormDecorationXML } from "~/metadata/forms/elements/formDecoration/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportFormDecorationToXML = (
@@ -15,8 +14,12 @@ export const exportFormDecorationToXML = (
 ): FormDecorationXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportBaseElementToXML(context, data)!,
+  return {
+    const baseFields = exportBaseElementToXML(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -41,8 +44,7 @@ export const exportFormDecorationToXML = (
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,
-    Width: data.width,
-  })
+    Width: data.width,  }
 }
 
 registerMetadata<FormDecoration>("ExportToXML", "FormDecoration", exportFormDecorationToXML)

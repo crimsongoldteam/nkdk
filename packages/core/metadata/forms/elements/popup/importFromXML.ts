@@ -4,15 +4,18 @@ import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/i
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
 import { Popup, PopupXML } from "~/metadata/forms/elements/popup/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const importPopupFromXML = (context: ConfigurationContext, xml: PopupXML | undefined): Popup | undefined => {
   if (!xml) return undefined
 
-  return compactObject({
-    ...importFormGroupFromXML(context, xml)!,
+  return {
+    const baseFields = importFormGroupFromXML(context, xml)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
     elementType: FormElementType.Popup,
 
     backColor: importColorFromXML(context, xml.BackColor),
@@ -21,8 +24,7 @@ export const importPopupFromXML = (context: ConfigurationContext, xml: PopupXML 
     representation: xml.Representation,
     shape: xml.Shape,
     shapeRepresentation: xml.ShapeRepresentation,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-  })
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),  }
 }
 
 registerMetadata("ImportFromXML", "Popup", importPopupFromXML)

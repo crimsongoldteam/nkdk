@@ -7,7 +7,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import { RadioButtonField, RadioButtonFieldEnterprise } from "~/metadata/forms/elements/radioButtonField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -18,8 +17,12 @@ export const exportRadioButtonFieldToEnterprise = (
 ): RadioButtonFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormFieldToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormFieldToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     ВидПереключателя: exportSystemEnumerationToEnterprise(
       context,
@@ -37,8 +40,7 @@ export const exportRadioButtonFieldToEnterprise = (
     ЦветФона: exportColorToEnterprise(context, data.backColor),
     ШиринаЭлемента: data.itemWidth,
     Шрифт: exportFontToEnterprise(context, data.font),
-    События: exportEventsToEnterprise(context, data.events),
-  })
+    События: exportEventsToEnterprise(context, data.events),  }
 }
 
 registerMetadata("ExportToEnterprise", "RadioButtonField", exportRadioButtonFieldToEnterprise)

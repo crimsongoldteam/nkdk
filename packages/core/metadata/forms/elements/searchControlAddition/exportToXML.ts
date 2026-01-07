@@ -4,7 +4,6 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormItemAdditionToXML } from "~/metadata/forms/elements/formItemAddition/exportToXML"
 import { SearchControlAddition, SearchControlAdditionXML } from "~/metadata/forms/elements/searchControlAddition/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportSearchControlAdditionToXML = (
@@ -13,8 +12,12 @@ export const exportSearchControlAdditionToXML = (
 ): SearchControlAdditionXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormItemAdditionToXML(context, data)!,
+  return {
+    const baseFields = exportFormItemAdditionToXML(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     AutoMaxWidth: data.autoMaxWidth,
     BackColor: exportColorToXML(context, data.backColor),
@@ -24,8 +27,7 @@ export const exportSearchControlAdditionToXML = (
     MaxWidth: data.maxWidth,
     TextColor: exportColorToXML(context, data.textColor),
     UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    Width: data.width,
-  })
+    Width: data.width,  }
 }
 
 registerMetadata("ExportToXML", "SearchControlAddition", exportSearchControlAdditionToXML)

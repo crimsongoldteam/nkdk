@@ -8,7 +8,6 @@ import {
   SpreadSheetDocumentFieldEnterprise,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -19,8 +18,12 @@ export const exportSpreadSheetDocumentFieldToEnterprise = (
 ): SpreadSheetDocumentFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormFieldToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormFieldToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
@@ -79,8 +82,7 @@ export const exportSpreadSheetDocumentFieldToEnterprise = (
     ЦветРамки: exportColorToEnterprise(context, data.borderColor),
     ЧерноБелыйПросмотр: exportBooleanToEnterprise(context, data.blackAndWhiteView),
     Ширина: data.width,
-    События: exportEventsToEnterprise(context, data.events),
-  })
+    События: exportEventsToEnterprise(context, data.events),  }
 }
 
 registerMetadata("ExportToEnterprise", "SpreadSheetDocumentField", exportSpreadSheetDocumentFieldToEnterprise)

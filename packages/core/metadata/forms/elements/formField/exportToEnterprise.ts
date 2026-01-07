@@ -12,7 +12,6 @@ import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/form
 import { FormField, FormFieldEnterprise } from "~/metadata/forms/elements/formField/types"
 import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -23,8 +22,12 @@ export const exportFormFieldToEnterprise = (
 ): FormFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportBaseElementToEnterprise(context, data)!,
+  return {
+    const baseFields = exportBaseElementToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     АвтоВысотаЯчейки: exportBooleanToEnterprise(context, data.autoCellHeight),
     АктивизироватьПоУмолчанию: exportBooleanToEnterprise(context, data.defaultItem),
@@ -109,8 +112,7 @@ export const exportFormFieldToEnterprise = (
     ЦветФонаПодвала: exportColorToEnterprise(context, data.footerBackColor),
     ШрифтЗаголовка: exportFontToEnterprise(context, data.titleFont),
     ШрифтПодвала: exportFontToEnterprise(context, data.footerFont),
-    События: exportEventsToEnterprise(context, data.events),
-  })
+    События: exportEventsToEnterprise(context, data.events),  }
 }
 
 registerMetadata("ExportToEnterprise", "FormField", exportFormFieldToEnterprise)

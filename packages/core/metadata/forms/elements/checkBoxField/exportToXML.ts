@@ -6,7 +6,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { CheckBoxField, CheckBoxFieldXML } from "~/metadata/forms/elements/checkBoxField/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportCheckBoxFieldToXML = (
@@ -15,8 +14,12 @@ export const exportCheckBoxFieldToXML = (
 ): CheckBoxFieldXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormFieldToXML(context, data)!,
+  return {
+    const baseFields = exportFormFieldToXML(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     BackColor: exportColorToXML(context, data.backColor),
     BorderColor: exportColorToXML(context, data.borderColor),
@@ -30,8 +33,7 @@ export const exportCheckBoxFieldToXML = (
     TextColor: exportColorToXML(context, data.textColor),
     ThreeState: data.threeState,
     UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    Events: exportEventsToXML(context, data.events),
-  })
+    Events: exportEventsToXML(context, data.events),  }
 }
 
 registerMetadata("ExportToXML", "CheckBoxField", exportCheckBoxFieldToXML)

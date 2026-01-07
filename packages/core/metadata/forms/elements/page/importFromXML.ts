@@ -5,15 +5,18 @@ import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/i
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
 import { Page, PageXML } from "~/metadata/forms/elements/page/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const importPageFromXML = (context: ConfigurationContext, xml: PageXML | undefined): Page | undefined => {
   if (!xml) return undefined
 
-  return compactObject({
-    ...importFormGroupFromXML(context, xml)!,
+  return {
+    const baseFields = importFormGroupFromXML(context, xml)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
     elementType: FormElementType.Page,
 
     backColor: importColorFromXML(context, xml.BackColor),
@@ -32,8 +35,7 @@ export const importPageFromXML = (context: ConfigurationContext, xml: PageXML | 
     userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalAlign: xml.VerticalAlign,
     verticalScrollOnReduceSize: xml.VerticalScrollOnReduceSize,
-    verticalSpacing: xml.VerticalSpacing,
-  })
+    verticalSpacing: xml.VerticalSpacing,  }
 }
 
 registerMetadata("ImportFromXML", "Page", importPageFromXML)

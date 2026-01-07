@@ -7,7 +7,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import { PeriodField, PeriodFieldEnterprise } from "~/metadata/forms/elements/periodField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportPeriodFieldToEnterprise = (
@@ -16,8 +15,12 @@ export const exportPeriodFieldToEnterprise = (
 ): PeriodFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormFieldToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormFieldToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
@@ -31,8 +34,7 @@ export const exportPeriodFieldToEnterprise = (
     ЦветРамки: exportColorToEnterprise(context, data.borderColor),
     Ширина: data.width,
     Шрифт: exportFontToEnterprise(context, data.font),
-    События: exportEventsToEnterprise(context, data.events),
-  })
+    События: exportEventsToEnterprise(context, data.events),  }
 }
 
 registerMetadata("ExportToEnterprise", "PeriodField", exportPeriodFieldToEnterprise)

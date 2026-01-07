@@ -7,7 +7,6 @@ import {
 import { MetadataField, MetadataFieldXML } from "~/metadata/commonObjects/metadataField/types"
 import { importMetadataValueFromXML } from "~/metadata/commonObjects/metadataValue/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 
 const extractFieldValue = (field: MetadataFieldXML | string | number | undefined): MetadataField | undefined => {
   if (field === undefined) return undefined
@@ -33,7 +32,7 @@ export const importCharacteristicsDescriptionFromXML = (
   const characteristicTypes = xml["xr:CharacteristicTypes"]
   const characteristicValues = xml["xr:CharacteristicValues"]
 
-  return compactObject<CharacteristicsDescription>({
+  return {
     characteristicTypes: characteristicTypes?._from,
     characteristicValues: characteristicValues?._from,
     dataPathField: extractFieldValue(characteristicTypes?.["xr:DataPathField"]),
@@ -46,7 +45,7 @@ export const importCharacteristicsDescriptionFromXML = (
     typesFilterField: extractFieldValue(characteristicTypes?.["xr:TypesFilterField"]),
     typesFilterValue: importMetadataValueFromXML(context, characteristicTypes?.["xr:TypesFilterValue"]),
     valueField: extractFieldValue(characteristicValues?.["xr:ValueField"]),
-  })
+  }
 }
 
 export const importCharacteristicsDescriptionsFromXML = (

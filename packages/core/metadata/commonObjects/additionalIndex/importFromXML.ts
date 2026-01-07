@@ -6,7 +6,6 @@ import {
 } from "~/metadata/commonObjects/additionalIndex/types"
 import { importIndexFieldsFromXML } from "~/metadata/commonObjects/indexField/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 
 export const importAdditionalIndexFromXML = (
   context: ConfigurationContext,
@@ -14,12 +13,12 @@ export const importAdditionalIndexFromXML = (
 ): AdditionalIndex | undefined => {
   if (!xml) return undefined
 
-  return compactObject({
+  return {
     additionalFields: importIndexFieldsFromXML(context, xml.AdditionalFields),
     indexedFields: importIndexFieldsFromXML(context, xml.IndexedFields),
     name: xml.Name,
     table: xml.Table,
-  })
+  }
 }
 
 export const importAdditionalIndexesFromXML = (

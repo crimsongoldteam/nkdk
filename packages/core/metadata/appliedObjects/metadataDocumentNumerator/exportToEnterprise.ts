@@ -5,7 +5,6 @@ import {
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -15,7 +14,7 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
 ): MetadataDocumentNumeratorEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
+  return {
     ДлинаНомера: data.numberLength,
     ДопустимаяДлинаНомера: exportSystemEnumerationToEnterprise(
       context,
@@ -37,5 +36,5 @@ export const exportMetadataDocumentNumeratorToEnterprise = (
     ),
     Синоним: exportI8nTextToEnterprise(context, data.synonym),
     ТипНомера: exportSystemEnumerationToEnterprise(context, data.numberType, SE.DocumentNumberTypeToEnterprise),
-  })
+  }
 }

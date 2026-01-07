@@ -2,7 +2,6 @@ import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/i
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ButtonGroup, ButtonGroupXML } from "~/metadata/forms/elements/buttonGroup/types"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -12,13 +11,16 @@ export const importButtonGroupFromXML = (
 ): ButtonGroup | undefined => {
   if (!xml) return undefined
 
-  return compactObject({
-    ...importFormGroupFromXML(context, xml)!,
+  return {
+    const baseFields = importFormGroupFromXML(context, xml)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
     elementType: FormElementType.ButtonGroup,
 
     representation: xml.Representation,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-  })
+    userVisible: importUserVisibleFromXML(context, xml.UserVisible),  }
 }
 
 registerMetadata("ImportFromXML", "ButtonGroup", importButtonGroupFromXML)

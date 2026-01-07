@@ -6,7 +6,6 @@ import { importChildItemsFromXML } from "~/metadata/forms/elements/childItems/im
 import { importCommandBarFromXML } from "~/metadata/forms/elements/commandBar/importFromXML"
 import { importFormDecorationFromXML } from "~/metadata/forms/elements/formDecoration/importFromXML"
 import { FormItemAddition, FormItemAdditionXML } from "~/metadata/forms/elements/formItemAddition/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -16,8 +15,12 @@ export const importFormItemAdditionFromXML = (
 ): FormItemAddition | undefined => {
   if (!xml) return undefined
 
-  return compactObject({
-    ...importBaseElementFromXML(context, xml)!,
+  return {
+    const baseFields = importBaseElementFromXML(context, xml)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
     elementType: FormElementType.FormItemAddition,
 
     childItems: importChildItemsFromXML(context, xml.ChildItems),
@@ -32,8 +35,7 @@ export const importFormItemAdditionFromXML = (
     type: xml.Type,
     userVisible: importUserVisibleFromXML(context, xml.UserVisible),
     verticalAlignInGroup: xml.VerticalAlignInGroup,
-    visible: xml.Visible,
-  })
+    visible: xml.Visible,  }
 }
 
 registerMetadata("ImportFromXML", "FormItemAddition", importFormItemAdditionFromXML)

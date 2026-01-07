@@ -5,7 +5,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecoration/exportToXML"
 import { LabelDecoration, LabelDecorationXML } from "~/metadata/forms/elements/labelDecoration/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportLabelDecorationToXML = (
@@ -14,8 +13,12 @@ export const exportLabelDecorationToXML = (
 ): LabelDecorationXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormDecorationToXML(context, data)!,
+  return {
+    const baseFields = exportFormDecorationToXML(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     BackColor: exportColorToXML(context, data.backColor),
     Border: exportBorderToXML(context, data.border),
@@ -26,8 +29,7 @@ export const exportLabelDecorationToXML = (
     TitleHeight: data.titleHeight,
     UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalAlign: data.verticalAlign,
-    Events: exportEventsToXML(context, data.events),
-  })
+    Events: exportEventsToXML(context, data.events),  }
 }
 
 registerMetadata("ExportToXML", "LabelDecoration", exportLabelDecorationToXML)

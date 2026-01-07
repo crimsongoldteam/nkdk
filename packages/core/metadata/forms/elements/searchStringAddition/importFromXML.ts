@@ -4,7 +4,6 @@ import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/i
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormItemAdditionFromXML } from "~/metadata/forms/elements/formItemAddition/importFromXML"
 import { SearchStringAddition, SearchStringAdditionXML } from "~/metadata/forms/elements/searchStringAddition/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -14,8 +13,12 @@ export const importSearchStringAdditionFromXML = (
 ): SearchStringAddition | undefined => {
   if (!xml) return undefined
 
-  return compactObject({
-    ...importFormItemAdditionFromXML(context, xml)!,
+  return {
+    const baseFields = importFormItemAdditionFromXML(context, xml)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
     elementType: FormElementType.SearchStringAddition,
 
     backColor: importColorFromXML(context, xml.BackColor),
@@ -24,8 +27,7 @@ export const importSearchStringAdditionFromXML = (
     horizontalStretch: xml.HorizontalStretch,
     textColor: importColorFromXML(context, xml.TextColor),
     userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    width: xml.Width,
-  })
+    width: xml.Width,  }
 }
 
 registerMetadata("ImportFromXML", "SearchStringAddition", importSearchStringAdditionFromXML)

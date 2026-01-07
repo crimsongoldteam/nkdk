@@ -2,7 +2,6 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CommandBar, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
 import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportCommandBarToXML = (
@@ -11,14 +10,17 @@ export const exportCommandBarToXML = (
 ): CommandBarXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormGroupToXML(context, data)!,
+  return {
+    const baseFields = exportFormGroupToXML(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     Autofill: data.autofill,
     _DisplayImportance: data.displayImportance,
     HorizontalAlign: data.horizontalAlign,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-  })
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),  }
 }
 
 registerMetadata<CommandBar>("ExportToXML", "CommandBar", exportCommandBarToXML)

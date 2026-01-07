@@ -6,7 +6,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { RadioButtonField, RadioButtonFieldXML } from "~/metadata/forms/elements/radioButtonField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportRadioButtonFieldToXML = (
@@ -15,8 +14,12 @@ export const exportRadioButtonFieldToXML = (
 ): RadioButtonFieldXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormFieldToXML(context, data)!,
+  return {
+    const baseFields = exportFormFieldToXML(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     BackColor: exportColorToXML(context, data.backColor),
     BorderColor: exportColorToXML(context, data.borderColor),
@@ -30,8 +33,7 @@ export const exportRadioButtonFieldToXML = (
     RadioButtonType: data.radioButtonType,
     TextColor: exportColorToXML(context, data.textColor),
     UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    Events: exportEventsToXML(context, data.events),
-  })
+    Events: exportEventsToXML(context, data.events),  }
 }
 
 registerMetadata("ExportToXML", "RadioButtonField", exportRadioButtonFieldToXML)

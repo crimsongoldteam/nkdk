@@ -3,7 +3,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { GanttChartField, GanttChartFieldXML } from "~/metadata/forms/elements/ganttChartField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportGanttChartFieldToXML = (
@@ -12,8 +11,12 @@ export const exportGanttChartFieldToXML = (
 ): GanttChartFieldXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormFieldToXML(context, data)!,
+  return {
+    const baseFields = exportFormFieldToXML(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -29,8 +32,7 @@ export const exportGanttChartFieldToXML = (
     VerticalLines: data.verticalLines,
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Events: exportEventsToXML(context, data.events),
-  })
+    Events: exportEventsToXML(context, data.events),  }
 }
 
 registerMetadata("ExportToXML", "GanttChartField", exportGanttChartFieldToXML)

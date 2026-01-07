@@ -8,7 +8,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
 import { Button, ButtonEnterprise } from "~/metadata/forms/elements/button/types"
 import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -19,8 +18,12 @@ export const exportButtonToEnterprise = (
 ): ButtonEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportBaseElementToEnterprise(context, data)!,
+  return {
+    const baseFields = exportBaseElementToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
@@ -86,8 +89,7 @@ export const exportButtonToEnterprise = (
     ЦветТекста: exportColorToEnterprise(context, data.textColor),
     ЦветФона: exportColorToEnterprise(context, data.backColor),
     Ширина: data.width,
-    Шрифт: exportFontToEnterprise(context, data.font),
-  })
+    Шрифт: exportFontToEnterprise(context, data.font),  }
 }
 
 registerMetadata("ExportToEnterprise", "Button", exportButtonToEnterprise)

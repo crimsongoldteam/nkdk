@@ -4,7 +4,6 @@ import {
 } from "~/metadata/appliedObjects/metadataDocumentNumerator/types"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 
 export const importMetadataDocumentNumeratorFromXML = (
   context: ConfigurationContext,
@@ -12,7 +11,7 @@ export const importMetadataDocumentNumeratorFromXML = (
 ): MetadataDocumentNumerator | undefined => {
   if (!xml) return undefined
 
-  return compactObject({
+  return {
     checkUnique: xml.CheckUnique,
     comment: xml.Comment,
     name: xml.Name,
@@ -22,5 +21,5 @@ export const importMetadataDocumentNumeratorFromXML = (
     numberType: xml.NumberType,
     objectBelonging: xml.ObjectBelonging,
     synonym: importI8nTextFromXML(context, xml.Synonym),
-  })
+  }
 }

@@ -6,7 +6,6 @@ import {
 } from "~/metadata/commonObjects/additionalIndex/types"
 import { importIndexFieldsFromEnterprise } from "~/metadata/commonObjects/indexField/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 
 export const importAdditionalIndexFromEnterprise = (
   context: ConfigurationContext,
@@ -14,12 +13,12 @@ export const importAdditionalIndexFromEnterprise = (
 ): AdditionalIndex | undefined => {
   if (!data) return undefined
 
-  return compactObject({
+  return {
     additionalFields: importIndexFieldsFromEnterprise(context, data.ДополнительныеПоля),
     indexedFields: importIndexFieldsFromEnterprise(context, data.ИндексируемыеПоля),
     name: data.Имя,
     table: data.Таблица,
-  })
+  }
 }
 
 export const importAdditionalIndexesFromEnterprise = (

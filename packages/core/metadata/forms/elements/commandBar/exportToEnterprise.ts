@@ -3,7 +3,6 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CommandBar, CommandBarEnterprise } from "~/metadata/forms/elements/commandBar/types"
 import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -14,8 +13,12 @@ export const exportCommandBarToEnterprise = (
 ): CommandBarEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormGroupToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormGroupToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     Автозаполнение: exportBooleanToEnterprise(context, data.autofill),
     ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
@@ -28,8 +31,7 @@ export const exportCommandBarToEnterprise = (
       data.horizontalAlign,
       SE.ItemHorizontalLocationToEnterprise
     ),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-  })
+    ...exportUserVisibleToEnterprise(context, data.userVisible),  }
 }
 
 registerMetadata("ExportToEnterprise", "CommandBar", exportCommandBarToEnterprise)

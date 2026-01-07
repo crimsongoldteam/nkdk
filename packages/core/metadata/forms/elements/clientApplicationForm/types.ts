@@ -64,7 +64,7 @@ export interface ClientApplicationForm {
   scale?: number
   modalMode?: boolean
   modified?: boolean
-  uRL?: string
+  url?: string
   showTitle?: boolean
   showCloseButton?: boolean
   conversationsRepresentation?: SE.FormConversationsRepresentation

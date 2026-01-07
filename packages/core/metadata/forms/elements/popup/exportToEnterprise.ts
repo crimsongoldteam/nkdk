@@ -4,7 +4,6 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
 import { Popup, PopupEnterprise } from "~/metadata/forms/elements/popup/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -15,8 +14,12 @@ export const exportPopupToEnterprise = (
 ): PopupEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormGroupToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormGroupToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     Картинка: exportPictureToEnterprise(context, data.picture),
     Отображение: exportSystemEnumerationToEnterprise(context, data.representation, SE.ButtonRepresentationToEnterprise),
@@ -28,8 +31,7 @@ export const exportPopupToEnterprise = (
     ...exportUserVisibleToEnterprise(context, data.userVisible),
     Фигура: exportSystemEnumerationToEnterprise(context, data.shape, SE.ButtonShapeToEnterprise),
     ЦветРамки: exportColorToEnterprise(context, data.borderColor),
-    ЦветФона: exportColorToEnterprise(context, data.backColor),
-  })
+    ЦветФона: exportColorToEnterprise(context, data.backColor),  }
 }
 
 registerMetadata("ExportToEnterprise", "Popup", exportPopupToEnterprise)

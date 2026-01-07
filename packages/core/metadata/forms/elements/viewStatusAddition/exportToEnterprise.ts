@@ -6,7 +6,6 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormItemAdditionToEnterprise } from "~/metadata/forms/elements/formItemAddition/exportToEnterprise"
 import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "~/metadata/forms/elements/viewStatusAddition/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -17,8 +16,12 @@ export const exportViewStatusAdditionToEnterprise = (
 ): ViewStatusAdditionEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormItemAdditionToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormItemAdditionToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
     ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
@@ -37,8 +40,7 @@ export const exportViewStatusAdditionToEnterprise = (
     ЦветФонаКнопок: exportColorToEnterprise(context, data.buttonsBackColor),
     Ширина: data.width,
     Шрифт: exportFontToEnterprise(context, data.font),
-    ШрифтЗаголовка: exportFontToEnterprise(context, data.titleFont),
-  })
+    ШрифтЗаголовка: exportFontToEnterprise(context, data.titleFont),  }
 }
 
 registerMetadata("ExportToEnterprise", "ViewStatusAddition", exportViewStatusAdditionToEnterprise)

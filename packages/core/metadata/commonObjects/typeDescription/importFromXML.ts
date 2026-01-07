@@ -1,5 +1,4 @@
 import { ConfigurationContext } from "../../context/types"
-import { compactObject } from "../../helpers/compactObject"
 import { TypeDescription, TypeDescriptionPrefixes, TypeDescriptionXML, TypeDescriptionXMLType } from "./types"
 
 export const importTypeDescriptionFromXML = (
@@ -20,7 +19,7 @@ export const importTypeDescriptionFromXML = (
     ...(dateQualifiers !== undefined && { dateQualifiers }),
   }
 
-  return compactObject(result)
+  return result
 }
 
 export const extractTypes = (item: TypeDescriptionXML): string[] => {

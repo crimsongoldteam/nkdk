@@ -4,7 +4,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import { PlannerField, PlannerFieldEnterprise } from "~/metadata/forms/elements/plannerField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportPlannerFieldToEnterprise = (
@@ -13,8 +12,12 @@ export const exportPlannerFieldToEnterprise = (
 ): PlannerFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormFieldToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormFieldToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
@@ -33,8 +36,7 @@ export const exportPlannerFieldToEnterprise = (
     РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
     РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
     Ширина: data.width,
-    События: exportEventsToEnterprise(context, data.events),
-  })
+    События: exportEventsToEnterprise(context, data.events),  }
 }
 
 registerMetadata("ExportToEnterprise", "PlannerField", exportPlannerFieldToEnterprise)

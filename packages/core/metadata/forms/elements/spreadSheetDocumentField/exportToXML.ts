@@ -7,7 +7,6 @@ import {
   SpreadSheetDocumentFieldXML,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportSpreadSheetDocumentFieldToXML = (
@@ -16,8 +15,12 @@ export const exportSpreadSheetDocumentFieldToXML = (
 ): SpreadSheetDocumentFieldXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormFieldToXML(context, data)!,
+  return {
+    const baseFields = exportFormFieldToXML(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -48,8 +51,7 @@ export const exportSpreadSheetDocumentFieldToXML = (
     VerticalStretch: data.verticalStretch,
     ViewScalingMode: data.viewScalingMode,
     Width: data.width,
-    Events: exportEventsToXML(context, data.events),
-  })
+    Events: exportEventsToXML(context, data.events),  }
 }
 
 registerMetadata("ExportToXML", "SpreadSheetDocumentField", exportSpreadSheetDocumentFieldToXML)

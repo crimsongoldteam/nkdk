@@ -5,14 +5,17 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
 import { Page, PageXML } from "~/metadata/forms/elements/page/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportPageToXML = (context: ConfigurationContext, data: Page | undefined): PageXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormGroupToXML(context, data)!,
+  return {
+    const baseFields = exportFormGroupToXML(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     BackColor: exportColorToXML(context, data.backColor),
     ChildItemsHorizontalAlign: data.childItemsHorizontalAlign,
@@ -30,8 +33,7 @@ export const exportPageToXML = (context: ConfigurationContext, data: Page | unde
     UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalAlign: data.verticalAlign,
     VerticalScrollOnReduceSize: data.verticalScrollOnReduceSize,
-    VerticalSpacing: data.verticalSpacing,
-  })
+    VerticalSpacing: data.verticalSpacing,  }
 }
 
 registerMetadata("ExportToXML", "Page", exportPageToXML)

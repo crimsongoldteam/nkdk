@@ -7,7 +7,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { LabelField, LabelFieldXML } from "~/metadata/forms/elements/labelField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportLabelFieldToXML = (
@@ -16,8 +15,12 @@ export const exportLabelFieldToXML = (
 ): LabelFieldXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormFieldToXML(context, data)!,
+  return {
+    const baseFields = exportFormFieldToXML(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -37,8 +40,7 @@ export const exportLabelFieldToXML = (
     UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalStretch: data.verticalStretch,
     Width: data.width,
-    Events: exportEventsToXML(context, data.events),
-  })
+    Events: exportEventsToXML(context, data.events),  }
 }
 
 registerMetadata("ExportToXML", "LabelField", exportLabelFieldToXML)

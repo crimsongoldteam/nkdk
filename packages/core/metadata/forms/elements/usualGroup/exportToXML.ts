@@ -5,7 +5,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
 import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { UsualGroup, UsualGroupXML } from "~/metadata/forms/elements/usualGroup/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportUsualGroupToXML = (
@@ -14,8 +13,12 @@ export const exportUsualGroupToXML = (
 ): UsualGroupXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormGroupToXML(context, data)!,
+  return {
+    const baseFields = exportFormGroupToXML(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     AssociatedTable: exportTableToXML(context, data.associatedTable),
     BackColor: exportColorToXML(context, data.backColor),
@@ -42,8 +45,7 @@ export const exportUsualGroupToXML = (
     United: data.united,
     UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalAlign: data.verticalAlign,
-    VerticalSpacing: data.verticalSpacing,
-  })
+    VerticalSpacing: data.verticalSpacing,  }
 }
 
 registerMetadata("ExportToXML", "UsualGroup", exportUsualGroupToXML)

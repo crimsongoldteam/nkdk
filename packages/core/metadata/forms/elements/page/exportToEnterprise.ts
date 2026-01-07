@@ -6,7 +6,6 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
 import { Page, PageEnterprise } from "~/metadata/forms/elements/page/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -17,8 +16,12 @@ export const exportPageToEnterprise = (
 ): PageEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormGroupToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormGroupToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
       context,
@@ -68,8 +71,7 @@ export const exportPageToEnterprise = (
       context,
       data.slaveItemsWidth,
       SE.ChildFormItemsWidthToEnterprise
-    ),
-  })
+    ),  }
 }
 
 registerMetadata("ExportToEnterprise", "Page", exportPageToEnterprise)

@@ -11,7 +11,6 @@ import { exportMetadataItemLinksToEnterprise } from "~/metadata/commonObjects/me
 import { exportMetadataTabularSectionsToEnterprise } from "~/metadata/commonObjects/metadataTabularSection/exportToEnterprise"
 import { exportStandardAttributeDescriptionsToEnterprise } from "~/metadata/commonObjects/standardAttributeDescription/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -21,7 +20,7 @@ export const exportMetadataDocumentToEnterprise = (
 ): MetadataDocumentEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
+  return {
     Автонумерация: exportBooleanToEnterprise(context, data.autonumbering),
     ВводитсяНаОсновании: exportMetadataItemLinksToEnterprise(context, data.basedOn),
     ВводПоСтроке: exportMetadataFieldsToEnterprise(context, data.inputByString),
@@ -130,5 +129,5 @@ export const exportMetadataDocumentToEnterprise = (
       SE.RegisterRecordsDeletionToEnterprise
     ),
     Характеристики: exportCharacteristicsDescriptionsToEnterprise(context, data.characteristics),
-  })
+  }
 }

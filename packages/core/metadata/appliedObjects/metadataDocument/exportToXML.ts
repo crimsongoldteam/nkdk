@@ -7,7 +7,6 @@ import { exportMetadataItemLinksToXML } from "~/metadata/commonObjects/metadataR
 import { exportMetadataTabularSectionsToXML } from "~/metadata/commonObjects/metadataTabularSection/exportToXML"
 import { exportStandardAttributeDescriptionsToXML } from "~/metadata/commonObjects/standardAttributeDescription/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { exportMetadataCommandsToXML } from "../metadataCommand/exportToXML"
 import { exportMetadataDocumentNumeratorToXML } from "../metadataDocumentNumerator/exportToXML"
 import { MetadataDocument, MetadataDocumentXML } from "./types"
@@ -18,7 +17,7 @@ export const exportMetadataDocumentToXML = (
 ): MetadataDocumentXML | undefined => {
   if (!data) return undefined
 
-  return compactObject({
+  return {
     ActionsWritingOnPost: data.actionsWritingOnPost,
     AdditionalIndexes: exportAdditionalIndexesToXML(context, data.additionalIndexes),
     Attributes: exportMetadataAttributesToXML(context, data.attributes),
@@ -70,5 +69,5 @@ export const exportMetadataDocumentToXML = (
     TabularSections: exportMetadataTabularSectionsToXML(context, data.tabularSections),
     UpdateDataHistoryImmediatelyAfterWrite: data.updateDataHistoryImmediatelyAfterWrite,
     UseStandardCommands: data.useStandardCommands,
-  })
+  }
 }

@@ -5,7 +5,6 @@ import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEn
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CalendarField, CalendarFieldEnterprise } from "~/metadata/forms/elements/calendarField/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -66,8 +65,12 @@ export const exportCalendarFieldToEnterprise = (
 ): CalendarFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormFieldToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormFieldToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
     АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
@@ -90,8 +93,7 @@ export const exportCalendarFieldToEnterprise = (
     Ширина: data.width,
     ШиринаВМесяцах: data.widthInMonths,
     Шрифт: exportFontToEnterprise(context, data.font),
-    События: exportCalendarFieldEventsToEnterprise(data.events),
-  })
+    События: exportCalendarFieldEventsToEnterprise(data.events),  }
 }
 
 registerMetadata("ExportToEnterprise", "CalendarField", exportCalendarFieldToEnterprise)

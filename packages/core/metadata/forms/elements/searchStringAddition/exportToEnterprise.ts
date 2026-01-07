@@ -8,7 +8,6 @@ import {
   SearchStringAddition,
   SearchStringAdditionEnterprise,
 } from "~/metadata/forms/elements/searchStringAddition/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportSearchStringAdditionToEnterprise = (
@@ -17,8 +16,12 @@ export const exportSearchStringAdditionToEnterprise = (
 ): SearchStringAdditionEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormItemAdditionToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormItemAdditionToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     ...exportUserVisibleToEnterprise(context, data.userVisible),
     РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
@@ -26,8 +29,7 @@ export const exportSearchStringAdditionToEnterprise = (
     ЦветТекста: exportColorToEnterprise(context, data.textColor),
     ЦветФона: exportColorToEnterprise(context, data.backColor),
     Ширина: data.width,
-    Шрифт: exportFontToEnterprise(context, data.font),
-  })
+    Шрифт: exportFontToEnterprise(context, data.font),  }
 }
 
 registerMetadata("ExportToEnterprise", "SearchStringAddition", exportSearchStringAdditionToEnterprise)

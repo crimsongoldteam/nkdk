@@ -21,7 +21,9 @@ export const importInputFieldFromXML = (
 ): InputField | undefined => {
   if (!xml) return undefined
 
-  const baseFields = importFormFieldFromXML(context, xml)!
+  const baseFields = importFormFieldFromXML(context, xml)
+  if (!baseFields) return undefined
+
   const { elementType: _, ...restFields } = baseFields
 
   const result: InputField = {

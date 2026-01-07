@@ -5,7 +5,6 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ColumnGroup, ColumnGroupEnterprise } from "~/metadata/forms/elements/columnGroup/types"
 import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -16,8 +15,12 @@ export const exportColumnGroupToEnterprise = (
 ): ColumnGroupEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormGroupToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormGroupToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     ГоризонтальноеПоложениеВШапке: exportSystemEnumerationToEnterprise(
       context,
@@ -32,8 +35,7 @@ export const exportColumnGroupToEnterprise = (
     ПутьКДаннымШапки: data.headerDataPath,
     ФиксацияВТаблице: exportSystemEnumerationToEnterprise(context, data.fixingInTable, SE.FixingInTableToEnterprise),
     ФорматШапки: data.headerFormat,
-    ЦветФонаЗаголовка: exportColorToEnterprise(context, data.titleBackColor),
-  })
+    ЦветФонаЗаголовка: exportColorToEnterprise(context, data.titleBackColor),  }
 }
 
 registerMetadata("ExportToEnterprise", "ColumnGroup", exportColumnGroupToEnterprise)

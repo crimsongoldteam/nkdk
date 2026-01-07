@@ -5,7 +5,6 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { LabelDecoration, LabelDecorationEnterprise } from "~/metadata/forms/elements/labelDecoration/types"
-import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -34,8 +33,12 @@ export const exportLabelDecorationToEnterprise = (
 ): LabelDecorationEnterprise | undefined => {
   if (!data) return undefined
 
-  return compactObject({
-    ...exportFormDecorationToEnterprise(context, data)!,
+  return {
+    const baseFields = exportFormDecorationToEnterprise(context, data)
+  if (!baseFields) return undefined
+
+  return {
+    ...baseFields,,
 
     ВертикальноеВыравниваниеГруппы: exportSystemEnumerationToEnterprise(
       context,
@@ -58,8 +61,7 @@ export const exportLabelDecorationToEnterprise = (
     Рамка: exportBorderToEnterprise(context, data.border),
     ЦветРамки: exportColorToEnterprise(context, data.borderColor),
     ЦветФона: exportColorToEnterprise(context, data.backColor),
-    События: exportLabelDecorationEventsToEnterprise(data.events),
-  })
+    События: exportLabelDecorationEventsToEnterprise(data.events),  }
 }
 
 registerMetadata("ExportToEnterprise", "LabelDecoration", exportLabelDecorationToEnterprise)
