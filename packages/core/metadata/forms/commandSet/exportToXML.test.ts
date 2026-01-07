@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
-import { xmlImport } from "~/xml/import/importer"
+import importContentFromXML from "~/xml/import/importer"
 import { exportCommandSetToXML } from "./exportToXML"
 import { importCommandSetFromXML } from "./importFromXML"
 import { CommandSet, CommandSetXML } from "./types"
@@ -25,7 +25,7 @@ describe("exportCommandSetToXML", () => {
 	<ExcludedCommand>Delete</ExcludedCommand>
 </CommandSet>`
 
-    const xml = xmlImport<{ CommandSet: CommandSetXML }>(mockXml)
+    const xml = importContentFromXML<{ CommandSet: CommandSetXML }>(mockXml)
     const imported = importCommandSetFromXML(mockСontext, xml.CommandSet)
     const exported = exportCommandSetToXML(mockСontext, imported)
 

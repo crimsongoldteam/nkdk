@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
-import { xmlImport } from "~/xml/import/importer"
+import importContentFromXML from "~/xml/import/importer"
 import { FormElementType } from "../../../metadataFactory/types"
 import { exportBaseElementToXML } from "./exportToXML"
 import { importBaseElementFromXML } from "./importFromXML"
@@ -32,7 +32,7 @@ describe("exportBaseElementToXML", () => {
   it("should export and import base element correctly (round-trip)", () => {
     const originalXml = `<BaseElement id="16" name="ИмяПоля"/>`
 
-    const xml = xmlImport<{ BaseElement: BaseElementXML }>(originalXml)
+    const xml = importContentFromXML<{ BaseElement: BaseElementXML }>(originalXml)
     const imported = importBaseElementFromXML(mockСontext, xml.BaseElement)
     const exported = exportBaseElementToXML(mockСontext, imported)
     const resultXml = xmlExport({ BaseElement: exported }, false)

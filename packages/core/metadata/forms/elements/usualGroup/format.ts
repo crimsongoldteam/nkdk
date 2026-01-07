@@ -8,8 +8,8 @@ import { isOneLineGroup, isVerticalGroup } from "./helpers"
 import { UsualGroup } from "./types"
 
 export const formatUsualGroup: FormatElementFunction = (
-  element: BaseElement,
-  context: ConfigurationContext
+  context: ConfigurationContext,
+  element: BaseElement
 ): IFormatElementResult => {
   const usualGroup = element as UsualGroup
   if (isVerticalGroup(usualGroup)) return formatVerticalGroup(usualGroup, context)

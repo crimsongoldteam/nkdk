@@ -19,7 +19,7 @@ describe("formatPictureDecoration", () => {
 
     const expectedResult = ["@Печать {ИмяПоля}"]
 
-    const result = formatPictureDecoration(element, mockСontext)
+    const result = formatPictureDecoration(mockСontext, element)
 
     expect(result.strings).toEqual(expectedResult)
   })

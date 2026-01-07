@@ -25,7 +25,7 @@ export const fullFormDecoration: FormDecoration = {
     items: { ru: "Подсказка" },
   },
   toolTipRepresentation: "None",
-  type: "Text",
+  type: "Label",
   userVisible: {
     common: true,
     values: [{ name: "Администратор", value: true }],
@@ -42,7 +42,7 @@ export const fullFormDecorationEnterprise: FormDecorationEnterprise = {
   АвтоМаксимальнаяШирина: "Истина",
   ВажностьПриОтображении: "Высокая",
   ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "Текст",
+  Вид: "Надпись",
   Видимость: "Истина",
   Высота: 200,
   ГоризонтальноеПоложениеВГруппе: "Лево",
@@ -68,4 +68,3 @@ export const minimalFormDecoration: FormDecoration = {
 }
 
 export const minimalFormDecorationEnterprise: FormDecorationEnterprise = {}
-

@@ -29,7 +29,7 @@ export const fullFormItemAdditionEnterprise: FormItemAdditionEnterprise = {
   Заголовок: "Добавление элемента формы",
   ВажностьПриОтображении: "Высокая",
   ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "ЭлементПоиска",
+  Вид: "УправлениеПоиском",
   Видимость: "Истина",
   ГоризонтальноеПоложениеВГруппе: "Лево",
   Доступность: "Истина",
@@ -46,4 +46,3 @@ export const minimalFormItemAddition: FormItemAddition = {
 }
 
 export const minimalFormItemAdditionEnterprise: FormItemAdditionEnterprise = {}
-

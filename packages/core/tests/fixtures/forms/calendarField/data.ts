@@ -14,7 +14,7 @@ export const fullCalendarField: CalendarField = {
   border: {
     ref: "NormalBorder",
     width: 1,
-    controlBorderType: "Raised",
+    controlBorderType: "DoubleUnderline",
   },
   borderColor: { type: "WebColor", value: "Green" },
   calendarNavigation: true,
@@ -84,4 +84,3 @@ export const minimalCalendarField: CalendarField = {
 }
 
 export const minimalCalendarFieldEnterprise: CalendarFieldEnterprise = {}
-

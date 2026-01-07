@@ -1,8 +1,8 @@
-import { HtmlDocumentField, HtmlDocumentFieldEnterprise } from "~/metadata/forms/elements/htmlDocumentField/types"
+import { HTMLDocumentField, HTMLDocumentFieldEnterprise } from "~/metadata/forms/elements/htmlDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const fullHtmlDocumentField: HtmlDocumentField = {
-  elementType: FormElementType.HtmlDocumentField,
+export const fullHtmlDocumentField: HTMLDocumentField = {
+  elementType: FormElementType.HTMLDocumentField,
   name: "ПолеHTMLДокумента",
   id: "1",
   title: {
@@ -22,7 +22,7 @@ export const fullHtmlDocumentField: HtmlDocumentField = {
   width: 300,
 }
 
-export const fullHtmlDocumentFieldEnterprise: HtmlDocumentFieldEnterprise = {
+export const fullHtmlDocumentFieldEnterprise: HTMLDocumentFieldEnterprise = {
   Заголовок: "Поле HTML документа",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -35,11 +35,10 @@ export const fullHtmlDocumentFieldEnterprise: HtmlDocumentFieldEnterprise = {
   Ширина: 300,
 }
 
-export const minimalHtmlDocumentField: HtmlDocumentField = {
-  elementType: FormElementType.HtmlDocumentField,
+export const minimalHtmlDocumentField: HTMLDocumentField = {
+  elementType: FormElementType.HTMLDocumentField,
   name: "ПолеHTMLДокумента",
   id: "1",
 }
 
-export const minimalHtmlDocumentFieldEnterprise: HtmlDocumentFieldEnterprise = {}
-
+export const minimalHtmlDocumentFieldEnterprise: HTMLDocumentFieldEnterprise = {}

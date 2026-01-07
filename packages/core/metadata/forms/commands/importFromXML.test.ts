@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
-import { xmlImport } from "~/xml/import/importer"
 import importCommandFromXML from "./importFromXML"
 import { Command, CommandXML } from "./types"
+import importContentFromXML from "~/xml/import/importer"
 
 describe("importCommandFromXML", () => {
   it("should return undefined for undefined input", () => {
@@ -38,7 +38,7 @@ describe("importCommandFromXML", () => {
       currentRowUse: "DontUse",
     }
 
-    const xmlData = xmlImport<{ Command: CommandXML }>(mockXml)
+    const xmlData = importContentFromXML<{ Command: CommandXML }>(mockXml)
 
     const result = importCommandFromXML(mockСontext, xmlData.Command)
 

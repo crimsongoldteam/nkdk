@@ -28,7 +28,7 @@ describe("formatUsualGroup", () => {
 
     const expectedResult = `%{Группа} {Элемент1}: ; {Элемент2}: `
 
-    const result = formatUsualGroup(mockElement, mockСontext)
+    const result = formatUsualGroup(mockСontext, mockElement)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -59,7 +59,7 @@ it("should format vertical group", () => {
   {Элемент1}: 
   {Элемент2}: `
 
-  const result = formatUsualGroup(mockElement, mockСontext)
+  const result = formatUsualGroup(mockСontext, mockElement)
 
   expect(result.strings.join("\n")).toEqual(expectedResult)
 })

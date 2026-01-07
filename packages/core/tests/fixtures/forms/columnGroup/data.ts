@@ -7,7 +7,7 @@ export const fullColumnGroup: ColumnGroup = {
   id: "1",
   childItems: [],
   fixingInTable: "None",
-  group: "Auto",
+  group: "Horizontal",
   headerDataPath: "Объект.Реквизит",
   headerFormat: "Формат",
   headerHorizontalAlign: "Left",
@@ -27,7 +27,7 @@ export const fullColumnGroup: ColumnGroup = {
 
 export const fullColumnGroupEnterprise: ColumnGroupEnterprise = {
   ГоризонтальноеПоложениеВШапке: "Лево",
-  Группировка: "Авто",
+  Группировка: "Горизонтальная",
   КартинкаШапки: "Печать",
   ОтображатьВШапке: "Истина",
   ОтображатьЗаголовок: "Истина",
@@ -46,4 +46,3 @@ export const minimalColumnGroup: ColumnGroup = {
 }
 
 export const minimalColumnGroupEnterprise: ColumnGroupEnterprise = {}
-

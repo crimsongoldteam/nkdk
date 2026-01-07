@@ -35,7 +35,7 @@ describe("formatPages", () => {
   /{Страница1}
     {Элемент1}: `
 
-    const result = formatPages(mockElement, mockСontext)
+    const result = formatPages(mockСontext, mockElement)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })

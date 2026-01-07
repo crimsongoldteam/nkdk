@@ -8,8 +8,8 @@ import { BaseElement } from "../baseElement/types"
 import { Page } from "./types"
 
 export const formatPage: FormatElementFunction = (
-  element: BaseElement,
-  context: ConfigurationContext
+  context: ConfigurationContext,
+  element: BaseElement
 ): IFormatElementResult => {
   const pageElement = element as Page
   const childItems = pageElement.childItems ?? []

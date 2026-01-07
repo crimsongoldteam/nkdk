@@ -1,4 +1,7 @@
-import { FormattedDocumentField, FormattedDocumentFieldEnterprise } from "~/metadata/forms/elements/formattedDocumentField/types"
+import {
+  FormattedDocumentField,
+  FormattedDocumentFieldEnterprise,
+} from "~/metadata/forms/elements/formattedDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullFormattedDocumentField: FormattedDocumentField = {
@@ -17,7 +20,7 @@ export const fullFormattedDocumentField: FormattedDocumentField = {
   horizontalStretch: true,
   maxHeight: 500,
   maxWidth: 400,
-  output: "Use",
+  output: "Enable",
   selectedText: "Выделенный текст",
   textColor: { type: "WebColor", value: "Blue" },
   userVisible: {
@@ -36,7 +39,7 @@ export const fullFormattedDocumentFieldEnterprise: FormattedDocumentFieldEnterpr
   Заголовок: "Поле форматированного документа",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
-  Вывод: "Использовать",
+  Вывод: "Разрешить",
   ВыделенныйТекст: "Выделенный текст",
   Высота: 200,
   МаксимальнаяВысота: 500,
@@ -62,4 +65,3 @@ export const minimalFormattedDocumentField: FormattedDocumentField = {
 }
 
 export const minimalFormattedDocumentFieldEnterprise: FormattedDocumentFieldEnterprise = {}
-

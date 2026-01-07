@@ -1,4 +1,7 @@
-import { GeographicalSchemaField, GeographicalSchemaFieldEnterprise } from "~/metadata/forms/elements/geographicalSchemaField/types"
+import {
+  GeographicalSchemaField,
+  GeographicalSchemaFieldEnterprise,
+} from "~/metadata/forms/elements/geographicalSchemaField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullGeographicalSchemaField: GeographicalSchemaField = {
@@ -26,7 +29,7 @@ export const fullGeographicalSchemaFieldEnterprise: GeographicalSchemaFieldEnter
   Заголовок: "Поле географической схемы",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
-  Вывод: "Использовать",
+  Вывод: "Разрешить",
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
@@ -44,4 +47,3 @@ export const minimalGeographicalSchemaField: GeographicalSchemaField = {
 }
 
 export const minimalGeographicalSchemaFieldEnterprise: GeographicalSchemaFieldEnterprise = {}
-

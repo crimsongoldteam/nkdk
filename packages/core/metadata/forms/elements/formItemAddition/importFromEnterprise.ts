@@ -77,7 +77,7 @@ export const importFormItemAdditionFromEnterprise = (
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы, name)
+  const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
   if (childItems !== undefined) result.childItems = childItems
 
   const userVisibleAllow = importUserVisibleFromEnterprise(
@@ -85,16 +85,23 @@ export const importFormItemAdditionFromEnterprise = (
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
 
-  const extendedToolTip = importFormDecorationFromEnterprise(context, data.РасширеннаяПодсказка, name + ".РасширеннаяПодсказка")
+  const extendedToolTip = importFormDecorationFromEnterprise(
+    context,
+    data.РасширеннаяПодсказка,
+    name + ".РасширеннаяПодсказка"
+  )
   if (extendedToolTip !== undefined) result.extendedToolTip = extendedToolTip
 
   return result
 }
 
 registerMetadata("ImportFromEnterprise", "FormItemAddition", importFormItemAdditionFromEnterprise)
-

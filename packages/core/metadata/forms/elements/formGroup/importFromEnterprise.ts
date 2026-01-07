@@ -82,7 +82,11 @@ export const importFormGroupFromEnterprise = (
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -116,4 +120,3 @@ export const importFormGroupFromEnterprise = (
 }
 
 registerMetadata("ImportFromEnterprise", "FormGroup", importFormGroupFromEnterprise)
-

@@ -13,7 +13,7 @@ export const fullFormField: FormField = {
   dataPath: "Объект.Реквизит",
   defaultItem: true,
   displayImportance: "High",
-  editMode: "Use",
+  editMode: "EnterOnInput",
   enabled: true,
   fixingInTable: "None",
   footerBackColor: { type: "WebColor", value: "White" },
@@ -85,7 +85,7 @@ export const fullFormFieldEnterprise: FormFieldEnterprise = {
   ОтображатьВПодвале: "Истина",
   ОтображатьВШапке: "Истина",
   ОтображениеПодсказки: "Нет",
-  ОтображениеПредупрежденияПриРедактировании: "None",
+  ОтображениеПредупрежденияПриРедактировании: "НеОтображать",
   Подсказка: "Подсказка",
   ПоложениеЗаголовка: "Лево",
   РазрешитьИспользование: { Администратор: "Истина" },
@@ -93,7 +93,7 @@ export const fullFormFieldEnterprise: FormFieldEnterprise = {
   ПропускатьПриВводе: "Ложь",
   ПутьКДанным: "Объект.Реквизит",
   ПутьКДаннымПодвала: "Объект.РеквизитПодвала",
-  РежимРедактирования: "Использовать",
+  РежимРедактирования: "Непосредственно",
   СочетаниеКлавиш: "Ctrl+S",
   ТекстПодвала: "Текст подвала",
   ТолькоПросмотр: "Ложь",
@@ -116,4 +116,3 @@ export const minimalFormField: FormField = {
 }
 
 export const minimalFormFieldEnterprise: FormFieldEnterprise = {}
-

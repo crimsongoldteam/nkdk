@@ -1,5 +1,5 @@
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "../../commonObjects/i8nText/types"
-import { Picture, PictureEnterprise, PictureXML } from "../../commonObjects/pictures/types"
+import { Picture, PictureEnterprise, PictureXML } from "../../commonObjects/picture/types"
 import { UserVisible, UserVisibleXML } from "../../commonObjects/userVisible/types"
 import { ButtonRepresentation, CurrentRowUse, CurrentRowUseEnterprise } from "../../systemEnumerations/types"
 

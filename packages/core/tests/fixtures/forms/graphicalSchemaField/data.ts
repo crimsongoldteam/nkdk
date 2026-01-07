@@ -1,4 +1,7 @@
-import { GraphicalSchemaField, GraphicalSchemaFieldEnterprise } from "~/metadata/forms/elements/graphicalSchemaField/types"
+import {
+  GraphicalSchemaField,
+  GraphicalSchemaFieldEnterprise,
+} from "~/metadata/forms/elements/graphicalSchemaField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullGraphicalSchemaField: GraphicalSchemaField = {
@@ -16,7 +19,7 @@ export const fullGraphicalSchemaField: GraphicalSchemaField = {
   horizontalStretch: true,
   maxHeight: 500,
   maxWidth: 400,
-  output: "Use",
+  output: "Enable",
   userVisible: {
     common: true,
     values: [{ name: "Администратор", value: true }],
@@ -29,7 +32,7 @@ export const fullGraphicalSchemaFieldEnterprise: GraphicalSchemaFieldEnterprise 
   Заголовок: "Поле графической схемы",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
-  Вывод: "Использовать",
+  Вывод: "Разрешить",
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
@@ -48,4 +51,3 @@ export const minimalGraphicalSchemaField: GraphicalSchemaField = {
 }
 
 export const minimalGraphicalSchemaFieldEnterprise: GraphicalSchemaFieldEnterprise = {}
-
