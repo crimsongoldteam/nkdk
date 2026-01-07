@@ -1,0 +1,26 @@
+<CalendarField name="ПолеКалендаря" id="1">
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Поле календаря</v8:content>
+		</v8:item>
+	</Title>
+	<AutoMaxHeight>true</AutoMaxHeight>
+	<AutoMaxWidth>true</AutoMaxWidth>
+	<BeginOfRepresentationPeriod>2024-01-01</BeginOfRepresentationPeriod>
+	<Border ref="NormalBorder" width="1">
+		<v8ui:style xsi:type="v8ui:ControlBorderType">Raised</v8ui:style>
+	</Border>
+	<BorderColor>web:Green</BorderColor>
+	<CalendarNavigation>true</CalendarNavigation>
+	<EnableDrag>true</EnableDrag>
+	<EnableStartDrag>true</EnableStartDrag>
+	<EndOfRepresentationPeriod>2024-12-31</EndOfRepresentationPeriod>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
+	<Height>200</Height>
+	<HeightInMonths>3</HeightInMonths>
+	<HorizontalStretch>true</HorizontalStretch>
+	<MaxHeight>500</MaxHeight>
+	<MaxWidth>400</MaxWidth>
+	<SelectionMode>Single</SelectionMode>
+	<ShowCurrentDate>true</ShowCurrentDate>
