@@ -14,40 +14,75 @@ export const importUsualGroupFromXML = (
 ): UsualGroup | undefined => {
   if (!xml) return undefined
 
-  return {
-    const baseFields = importFormGroupFromXML(context, xml)
+  const baseFields = importFormGroupFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
-    elementType: FormElementType.UsualGroup,
+  const { elementType: _, ...restFields } = baseFields
 
-    associatedTable: importTableFromXML(context, xml.AssociatedTable),
-    backColor: importColorFromXML(context, xml.BackColor),
-    behavior: xml.Behavior,
-    childItemsHorizontalAlign: xml.ChildItemsHorizontalAlign,
-    childItemsVerticalAlign: xml.ChildItemsVerticalAlign,
-    collapsedRepresentationTitle: xml.CollapsedRepresentationTitle,
-    controlRepresentation: xml.ControlRepresentation,
-    currentRowUse: xml.CurrentRowUse,
-    displayImportance: xml._DisplayImportance,
-    format: importI8nTextFromXML(context, xml.Format),
-    group: xml.Group,
-    groupHorizontalAlign: xml.GroupHorizontalAlign,
-    groupVerticalAlign: xml.GroupVerticalAlign,
-    hiddenRepresentationTitleBackColor: importColorFromXML(context, xml.HiddenRepresentationTitleBackColor),
-    horizontalSpacing: xml.HorizontalSpacing,
-    itemsAndTitlesAlign: xml.ItemsAndTitlesAlign,
-    representation: xml.Representation,
-    showLeftMargin: xml.ShowLeftMargin,
-    showTitle: xml.ShowTitle,
-    slaveItemsWidth: xml.SlaveItemsWidth,
-    throughAlign: xml.ThroughAlign,
-    titleDataPath: xml.TitleDataPath,
-    united: xml.United,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    verticalAlign: xml.VerticalAlign,
-    verticalSpacing: xml.VerticalSpacing,  }
+  const result: UsualGroup = {
+    elementType: FormElementType.UsualGroup,
+    ...restFields,
+  }
+
+  const associatedTable = importTableFromXML(context, xml.AssociatedTable)
+  if (associatedTable !== undefined) result.associatedTable = associatedTable
+
+  const backColor = importColorFromXML(context, xml.BackColor)
+  if (backColor !== undefined) result.backColor = backColor
+
+  if (xml.Behavior !== undefined) result.behavior = xml.Behavior
+
+  if (xml.ChildItemsHorizontalAlign !== undefined) result.childItemsHorizontalAlign = xml.ChildItemsHorizontalAlign
+
+  if (xml.ChildItemsVerticalAlign !== undefined) result.childItemsVerticalAlign = xml.ChildItemsVerticalAlign
+
+  if (xml.CollapsedRepresentationTitle !== undefined) result.collapsedRepresentationTitle = xml.CollapsedRepresentationTitle
+
+  if (xml.ControlRepresentation !== undefined) result.controlRepresentation = xml.ControlRepresentation
+
+  if (xml.CurrentRowUse !== undefined) result.currentRowUse = xml.CurrentRowUse
+
+  if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
+
+  const format = importI8nTextFromXML(context, xml.Format)
+  if (format !== undefined) result.format = format
+
+  if (xml.Group !== undefined) result.group = xml.Group
+
+  if (xml.GroupHorizontalAlign !== undefined) result.groupHorizontalAlign = xml.GroupHorizontalAlign
+
+  if (xml.GroupVerticalAlign !== undefined) result.groupVerticalAlign = xml.GroupVerticalAlign
+
+  const hiddenRepresentationTitleBackColor = importColorFromXML(context, xml.HiddenRepresentationTitleBackColor)
+  if (hiddenRepresentationTitleBackColor !== undefined)
+    result.hiddenRepresentationTitleBackColor = hiddenRepresentationTitleBackColor
+
+  if (xml.HorizontalSpacing !== undefined) result.horizontalSpacing = xml.HorizontalSpacing
+
+  if (xml.ItemsAndTitlesAlign !== undefined) result.itemsAndTitlesAlign = xml.ItemsAndTitlesAlign
+
+  if (xml.Representation !== undefined) result.representation = xml.Representation
+
+  if (xml.ShowLeftMargin !== undefined) result.showLeftMargin = xml.ShowLeftMargin
+
+  if (xml.ShowTitle !== undefined) result.showTitle = xml.ShowTitle
+
+  if (xml.SlaveItemsWidth !== undefined) result.slaveItemsWidth = xml.SlaveItemsWidth
+
+  if (xml.ThroughAlign !== undefined) result.throughAlign = xml.ThroughAlign
+
+  if (xml.TitleDataPath !== undefined) result.titleDataPath = xml.TitleDataPath
+
+  if (xml.United !== undefined) result.united = xml.United
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.VerticalAlign !== undefined) result.verticalAlign = xml.VerticalAlign
+
+  if (xml.VerticalSpacing !== undefined) result.verticalSpacing = xml.VerticalSpacing
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "UsualGroup", importUsualGroupFromXML)

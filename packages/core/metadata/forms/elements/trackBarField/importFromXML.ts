@@ -12,31 +12,53 @@ export const importTrackBarFieldFromXML = (
 ): TrackBarField | undefined => {
   if (!xml) return undefined
 
-  return {
-    const baseFields = importFormFieldFromXML(context, xml)
+  const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
-    elementType: FormElementType.TrackBarField,
+  const { elementType: _, ...restFields } = baseFields
 
-    autoMaxHeight: xml.AutoMaxHeight,
-    autoMaxWidth: xml.AutoMaxWidth,
-    height: xml.Height,
-    horizontalStretch: xml.HorizontalStretch,
-    largeStep: xml.LargeStep,
-    markingAppearance: xml.MarkingAppearance,
-    markingStep: xml.MarkingStep,
-    maxHeight: xml.MaxHeight,
-    maxValue: xml.MaxValue,
-    maxWidth: xml.MaxWidth,
-    minValue: xml.MinValue,
-    orientation: xml.Orientation,
-    step: xml.Step,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    verticalStretch: xml.VerticalStretch,
-    width: xml.Width,
-    events: importEventsFromXML(context, xml.Events),  }
+  const result: TrackBarField = {
+    elementType: FormElementType.TrackBarField,
+    ...restFields,
+  }
+
+  if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
+
+  if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
+
+  if (xml.Height !== undefined) result.height = xml.Height
+
+  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+
+  if (xml.LargeStep !== undefined) result.largeStep = xml.LargeStep
+
+  if (xml.MarkingAppearance !== undefined) result.markingAppearance = xml.MarkingAppearance
+
+  if (xml.MarkingStep !== undefined) result.markingStep = xml.MarkingStep
+
+  if (xml.MaxHeight !== undefined) result.maxHeight = xml.MaxHeight
+
+  if (xml.MaxValue !== undefined) result.maxValue = xml.MaxValue
+
+  if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
+
+  if (xml.MinValue !== undefined) result.minValue = xml.MinValue
+
+  if (xml.Orientation !== undefined) result.orientation = xml.Orientation
+
+  if (xml.Step !== undefined) result.step = xml.Step
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
+
+  if (xml.Width !== undefined) result.width = xml.Width
+
+  const events = importEventsFromXML(context, xml.Events)
+  if (events !== undefined) result.events = events
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "TrackBarField", importTrackBarFieldFromXML)

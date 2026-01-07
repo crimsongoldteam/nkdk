@@ -13,21 +13,36 @@ export const importSearchStringAdditionFromXML = (
 ): SearchStringAddition | undefined => {
   if (!xml) return undefined
 
-  return {
-    const baseFields = importFormItemAdditionFromXML(context, xml)
+  const baseFields = importFormItemAdditionFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
-    elementType: FormElementType.SearchStringAddition,
+  const { elementType: _, ...restFields } = baseFields
 
-    backColor: importColorFromXML(context, xml.BackColor),
-    borderColor: importColorFromXML(context, xml.BorderColor),
-    font: importFontFromXML(context, xml.Font),
-    horizontalStretch: xml.HorizontalStretch,
-    textColor: importColorFromXML(context, xml.TextColor),
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    width: xml.Width,  }
+  const result: SearchStringAddition = {
+    elementType: FormElementType.SearchStringAddition,
+    ...restFields,
+  }
+
+  const backColor = importColorFromXML(context, xml.BackColor)
+  if (backColor !== undefined) result.backColor = backColor
+
+  const borderColor = importColorFromXML(context, xml.BorderColor)
+  if (borderColor !== undefined) result.borderColor = borderColor
+
+  const font = importFontFromXML(context, xml.Font)
+  if (font !== undefined) result.font = font
+
+  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+
+  const textColor = importColorFromXML(context, xml.TextColor)
+  if (textColor !== undefined) result.textColor = textColor
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.Width !== undefined) result.width = xml.Width
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "SearchStringAddition", importSearchStringAdditionFromXML)

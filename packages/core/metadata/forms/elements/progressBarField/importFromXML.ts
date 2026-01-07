@@ -13,30 +13,52 @@ export const importProgressBarFieldFromXML = (
 ): ProgressBarField | undefined => {
   if (!xml) return undefined
 
-  return {
-    const baseFields = importFormFieldFromXML(context, xml)
+  const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
-    elementType: FormElementType.ProgressBarField,
+  const { elementType: _, ...restFields } = baseFields
 
-    autoMaxHeight: xml.AutoMaxHeight,
-    autoMaxWidth: xml.AutoMaxWidth,
-    borderColor: importColorFromXML(context, xml.BorderColor),
-    height: xml.Height,
-    horizontalStretch: xml.HorizontalStretch,
-    maxHeight: xml.MaxHeight,
-    maxValue: xml.MaxValue,
-    maxWidth: xml.MaxWidth,
-    minValue: xml.MinValue,
-    orientation: xml.Orientation,
-    representation: xml.Representation,
-    showPercent: xml.ShowPercent,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    verticalStretch: xml.VerticalStretch,
-    width: xml.Width,
-    events: importEventsFromXML(context, xml.Events),  }
+  const result: ProgressBarField = {
+    elementType: FormElementType.ProgressBarField,
+    ...restFields,
+  }
+
+  if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
+
+  if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
+
+  const borderColor = importColorFromXML(context, xml.BorderColor)
+  if (borderColor !== undefined) result.borderColor = borderColor
+
+  if (xml.Height !== undefined) result.height = xml.Height
+
+  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+
+  if (xml.MaxHeight !== undefined) result.maxHeight = xml.MaxHeight
+
+  if (xml.MaxValue !== undefined) result.maxValue = xml.MaxValue
+
+  if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
+
+  if (xml.MinValue !== undefined) result.minValue = xml.MinValue
+
+  if (xml.Orientation !== undefined) result.orientation = xml.Orientation
+
+  if (xml.Representation !== undefined) result.representation = xml.Representation
+
+  if (xml.ShowPercent !== undefined) result.showPercent = xml.ShowPercent
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
+
+  if (xml.Width !== undefined) result.width = xml.Width
+
+  const events = importEventsFromXML(context, xml.Events)
+  if (events !== undefined) result.events = events
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "ProgressBarField", importProgressBarFieldFromXML)

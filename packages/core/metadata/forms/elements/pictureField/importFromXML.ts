@@ -16,37 +16,70 @@ export const importPictureFieldFromXML = (
 ): PictureField | undefined => {
   if (!xml) return undefined
 
-  return {
-    const baseFields = importFormFieldFromXML(context, xml)
+  const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
-    elementType: FormElementType.PictureField,
+  const { elementType: _, ...restFields } = baseFields
 
-    autoMaxHeight: xml.AutoMaxHeight,
-    autoMaxWidth: xml.AutoMaxWidth,
-    border: importBorderFromXML(context, xml.Border),
-    borderColor: importColorFromXML(context, xml.BorderColor),
-    enableDrag: xml.EnableDrag,
-    enableStartDrag: xml.EnableStartDrag,
-    fileDragMode: xml.FileDragMode,
-    font: importFontFromXML(context, xml.Font),
-    height: xml.Height,
-    horizontalStretch: xml.HorizontalStretch,
-    hyperlink: xml.Hyperlink,
-    maxHeight: xml.MaxHeight,
-    maxWidth: xml.MaxWidth,
-    nonselectedPictureText: xml.NonselectedPictureText,
-    pictureSize: xml.PictureSize,
-    scale: xml.Scale,
-    textColor: importColorFromXML(context, xml.TextColor),
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    valuesPicture: importPictureFromXML(context, xml.ValuesPicture),
-    verticalStretch: xml.VerticalStretch,
-    width: xml.Width,
-    zoomable: xml.Zoomable,
-    events: importEventsFromXML(context, xml.Events),  }
+  const result: PictureField = {
+    elementType: FormElementType.PictureField,
+    ...restFields,
+  }
+
+  if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
+
+  if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
+
+  const border = importBorderFromXML(context, xml.Border)
+  if (border !== undefined) result.border = border
+
+  const borderColor = importColorFromXML(context, xml.BorderColor)
+  if (borderColor !== undefined) result.borderColor = borderColor
+
+  if (xml.EnableDrag !== undefined) result.enableDrag = xml.EnableDrag
+
+  if (xml.EnableStartDrag !== undefined) result.enableStartDrag = xml.EnableStartDrag
+
+  if (xml.FileDragMode !== undefined) result.fileDragMode = xml.FileDragMode
+
+  const font = importFontFromXML(context, xml.Font)
+  if (font !== undefined) result.font = font
+
+  if (xml.Height !== undefined) result.height = xml.Height
+
+  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+
+  if (xml.Hyperlink !== undefined) result.hyperlink = xml.Hyperlink
+
+  if (xml.MaxHeight !== undefined) result.maxHeight = xml.MaxHeight
+
+  if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
+
+  if (xml.NonselectedPictureText !== undefined) result.nonselectedPictureText = xml.NonselectedPictureText
+
+  if (xml.PictureSize !== undefined) result.pictureSize = xml.PictureSize
+
+  if (xml.Scale !== undefined) result.scale = xml.Scale
+
+  const textColor = importColorFromXML(context, xml.TextColor)
+  if (textColor !== undefined) result.textColor = textColor
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  const valuesPicture = importPictureFromXML(context, xml.ValuesPicture)
+  if (valuesPicture !== undefined) result.valuesPicture = valuesPicture
+
+  if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
+
+  if (xml.Width !== undefined) result.width = xml.Width
+
+  if (xml.Zoomable !== undefined) result.zoomable = xml.Zoomable
+
+  const events = importEventsFromXML(context, xml.Events)
+  if (events !== undefined) result.events = events
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "PictureField", importPictureFieldFromXML)

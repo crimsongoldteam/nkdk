@@ -14,28 +14,54 @@ export const importViewStatusAdditionFromXML = (
 ): ViewStatusAddition | undefined => {
   if (!xml) return undefined
 
-  return {
-    const baseFields = importFormItemAdditionFromXML(context, xml)
+  const baseFields = importFormItemAdditionFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
-    elementType: FormElementType.ViewStatusAddition,
+  const { elementType: _, ...restFields } = baseFields
 
-    autoMaxWidth: xml.AutoMaxWidth,
-    backColor: importColorFromXML(context, xml.BackColor),
-    border: importBorderFromXML(context, xml.Border),
-    borderColor: importColorFromXML(context, xml.BorderColor),
-    buttonsBackColor: importColorFromXML(context, xml.ButtonsBackColor),
-    font: importFontFromXML(context, xml.Font),
-    horizontalAlign: xml.HorizontalAlign,
-    horizontalStretch: xml.HorizontalStretch,
-    maxWidth: xml.MaxWidth,
-    textColor: importColorFromXML(context, xml.TextColor),
-    titleFont: importFontFromXML(context, xml.TitleFont),
-    titleTextColor: importColorFromXML(context, xml.TitleTextColor),
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    width: xml.Width,  }
+  const result: ViewStatusAddition = {
+    elementType: FormElementType.ViewStatusAddition,
+    ...restFields,
+  }
+
+  if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
+
+  const backColor = importColorFromXML(context, xml.BackColor)
+  if (backColor !== undefined) result.backColor = backColor
+
+  const border = importBorderFromXML(context, xml.Border)
+  if (border !== undefined) result.border = border
+
+  const borderColor = importColorFromXML(context, xml.BorderColor)
+  if (borderColor !== undefined) result.borderColor = borderColor
+
+  const buttonsBackColor = importColorFromXML(context, xml.ButtonsBackColor)
+  if (buttonsBackColor !== undefined) result.buttonsBackColor = buttonsBackColor
+
+  const font = importFontFromXML(context, xml.Font)
+  if (font !== undefined) result.font = font
+
+  if (xml.HorizontalAlign !== undefined) result.horizontalAlign = xml.HorizontalAlign
+
+  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+
+  if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
+
+  const textColor = importColorFromXML(context, xml.TextColor)
+  if (textColor !== undefined) result.textColor = textColor
+
+  const titleFont = importFontFromXML(context, xml.TitleFont)
+  if (titleFont !== undefined) result.titleFont = titleFont
+
+  const titleTextColor = importColorFromXML(context, xml.TitleTextColor)
+  if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.Width !== undefined) result.width = xml.Width
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "ViewStatusAddition", importViewStatusAdditionFromXML)

@@ -14,26 +14,46 @@ export const importGanttChartFieldFromXML = (
   const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,
-    elementType: FormElementType.GanttChartField,
+  const { elementType: _, ...restFields } = baseFields
 
-    autoMaxHeight: xml.AutoMaxHeight,
-    autoMaxWidth: xml.AutoMaxWidth,
-    height: xml.Height,
-    horizontalLines: xml.HorizontalLines,
-    horizontalStretch: xml.HorizontalStretch,
-    intervalsSelectionMode: xml.IntervalsSelectionMode,
-    maxHeight: xml.MaxHeight,
-    maxWidth: xml.MaxWidth,
-    tableLocation: xml.TableLocation,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    valuesSelectionMode: xml.ValuesSelectionMode,
-    verticalLines: xml.VerticalLines,
-    verticalStretch: xml.VerticalStretch,
-    width: xml.Width,
-    events: importEventsFromXML(context, xml.Events),
+  const result: GanttChartField = {
+    elementType: FormElementType.GanttChartField,
+    ...restFields,
   }
+
+  if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
+
+  if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
+
+  if (xml.Height !== undefined) result.height = xml.Height
+
+  if (xml.HorizontalLines !== undefined) result.horizontalLines = xml.HorizontalLines
+
+  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+
+  if (xml.IntervalsSelectionMode !== undefined) result.intervalsSelectionMode = xml.IntervalsSelectionMode
+
+  if (xml.MaxHeight !== undefined) result.maxHeight = xml.MaxHeight
+
+  if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
+
+  if (xml.TableLocation !== undefined) result.tableLocation = xml.TableLocation
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.ValuesSelectionMode !== undefined) result.valuesSelectionMode = xml.ValuesSelectionMode
+
+  if (xml.VerticalLines !== undefined) result.verticalLines = xml.VerticalLines
+
+  if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
+
+  if (xml.Width !== undefined) result.width = xml.Width
+
+  const events = importEventsFromXML(context, xml.Events)
+  if (events !== undefined) result.events = events
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "GanttChartField", importGanttChartFieldFromXML)

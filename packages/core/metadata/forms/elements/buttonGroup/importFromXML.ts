@@ -13,13 +13,19 @@ export const importButtonGroupFromXML = (
   const baseFields = importFormGroupFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,
-    elementType: FormElementType.ButtonGroup,
+  const { elementType: _, ...restFields } = baseFields
 
-    representation: xml.Representation,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
+  const result: ButtonGroup = {
+    elementType: FormElementType.ButtonGroup,
+    ...restFields,
   }
+
+  if (xml.Representation !== undefined) result.representation = xml.Representation
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "ButtonGroup", importButtonGroupFromXML)

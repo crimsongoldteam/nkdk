@@ -16,44 +16,80 @@ export const importSpreadSheetDocumentFieldFromXML = (
 ): SpreadSheetDocumentField | undefined => {
   if (!xml) return undefined
 
-  return {
-    const baseFields = importFormFieldFromXML(context, xml)
+  const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
-    elementType: FormElementType.SpreadSheetDocumentField,
+  const { elementType: _, ...restFields } = baseFields
 
-    autoMaxHeight: xml.AutoMaxHeight,
-    autoMaxWidth: xml.AutoMaxWidth,
-    blackAndWhiteView: xml.BlackAndWhiteView,
-    borderColor: importColorFromXML(context, xml.BorderColor),
-    drawingSelectionShowMode: xml.DrawingSelectionShowMode,
-    edit: xml.Edit,
-    enableDrag: xml.EnableDrag,
-    enableStartDrag: xml.EnableStartDrag,
-    height: xml.Height,
-    horizontalScrollBar: xml.HorizontalScrollBar,
-    horizontalStretch: xml.HorizontalStretch,
-    maxHeight: xml.MaxHeight,
-    maxWidth: xml.MaxWidth,
-    output: xml.Output,
-    pointerType: xml.PointerType,
-    protection: xml.Protection,
-    selectionShowMode: xml.SelectionShowMode,
-    showCellNames: xml.ShowCellNames,
-    showGrid: xml.ShowGrid,
-    showGroups: xml.ShowGroups,
-    showHeaders: xml.ShowHeaders,
-    showRowAndColumnNames: xml.ShowRowAndColumnNames,
-    statePresentation: xml.StatePresentation,
-    usedFileName: xml.UsedFileName,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    verticalScrollBar: xml.VerticalScrollBar,
-    verticalStretch: xml.VerticalStretch,
-    viewScalingMode: xml.ViewScalingMode,
-    width: xml.Width,
-    events: importEventsFromXML(context, xml.Events),  }
+  const result: SpreadSheetDocumentField = {
+    elementType: FormElementType.SpreadSheetDocumentField,
+    ...restFields,
+  }
+
+  if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
+
+  if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
+
+  if (xml.BlackAndWhiteView !== undefined) result.blackAndWhiteView = xml.BlackAndWhiteView
+
+  const borderColor = importColorFromXML(context, xml.BorderColor)
+  if (borderColor !== undefined) result.borderColor = borderColor
+
+  if (xml.DrawingSelectionShowMode !== undefined) result.drawingSelectionShowMode = xml.DrawingSelectionShowMode
+
+  if (xml.Edit !== undefined) result.edit = xml.Edit
+
+  if (xml.EnableDrag !== undefined) result.enableDrag = xml.EnableDrag
+
+  if (xml.EnableStartDrag !== undefined) result.enableStartDrag = xml.EnableStartDrag
+
+  if (xml.Height !== undefined) result.height = xml.Height
+
+  if (xml.HorizontalScrollBar !== undefined) result.horizontalScrollBar = xml.HorizontalScrollBar
+
+  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+
+  if (xml.MaxHeight !== undefined) result.maxHeight = xml.MaxHeight
+
+  if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
+
+  if (xml.Output !== undefined) result.output = xml.Output
+
+  if (xml.PointerType !== undefined) result.pointerType = xml.PointerType
+
+  if (xml.Protection !== undefined) result.protection = xml.Protection
+
+  if (xml.SelectionShowMode !== undefined) result.selectionShowMode = xml.SelectionShowMode
+
+  if (xml.ShowCellNames !== undefined) result.showCellNames = xml.ShowCellNames
+
+  if (xml.ShowGrid !== undefined) result.showGrid = xml.ShowGrid
+
+  if (xml.ShowGroups !== undefined) result.showGroups = xml.ShowGroups
+
+  if (xml.ShowHeaders !== undefined) result.showHeaders = xml.ShowHeaders
+
+  if (xml.ShowRowAndColumnNames !== undefined) result.showRowAndColumnNames = xml.ShowRowAndColumnNames
+
+  if (xml.StatePresentation !== undefined) result.statePresentation = xml.StatePresentation
+
+  if (xml.UsedFileName !== undefined) result.usedFileName = xml.UsedFileName
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.VerticalScrollBar !== undefined) result.verticalScrollBar = xml.VerticalScrollBar
+
+  if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
+
+  if (xml.ViewScalingMode !== undefined) result.viewScalingMode = xml.ViewScalingMode
+
+  if (xml.Width !== undefined) result.width = xml.Width
+
+  const events = importEventsFromXML(context, xml.Events)
+  if (events !== undefined) result.events = events
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "SpreadSheetDocumentField", importSpreadSheetDocumentFieldFromXML)

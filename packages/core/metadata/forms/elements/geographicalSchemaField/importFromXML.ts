@@ -18,23 +18,41 @@ export const importGeographicalSchemaFieldFromXML = (
   const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,
-    elementType: FormElementType.GeographicalSchemaField,
+  const { elementType: _, ...restFields } = baseFields
 
-    autoMaxHeight: xml.AutoMaxHeight,
-    autoMaxWidth: xml.AutoMaxWidth,
-    borderColor: importColorFromXML(context, xml.BorderColor),
-    height: xml.Height,
-    horizontalStretch: xml.HorizontalStretch,
-    maxHeight: xml.MaxHeight,
-    maxWidth: xml.MaxWidth,
-    output: xml.Output,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    verticalStretch: xml.VerticalStretch,
-    width: xml.Width,
-    events: importEventsFromXML(context, xml.Events),
+  const result: GeographicalSchemaField = {
+    elementType: FormElementType.GeographicalSchemaField,
+    ...restFields,
   }
+
+  if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
+
+  if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
+
+  const borderColor = importColorFromXML(context, xml.BorderColor)
+  if (borderColor !== undefined) result.borderColor = borderColor
+
+  if (xml.Height !== undefined) result.height = xml.Height
+
+  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+
+  if (xml.MaxHeight !== undefined) result.maxHeight = xml.MaxHeight
+
+  if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
+
+  if (xml.Output !== undefined) result.output = xml.Output
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
+
+  if (xml.Width !== undefined) result.width = xml.Width
+
+  const events = importEventsFromXML(context, xml.Events)
+  if (events !== undefined) result.events = events
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "GeographicalSchemaField", importGeographicalSchemaFieldFromXML)

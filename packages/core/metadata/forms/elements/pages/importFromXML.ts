@@ -10,20 +10,32 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const importPagesFromXML = (context: ConfigurationContext, xml: PagesXML | undefined): Pages | undefined => {
   if (!xml) return undefined
 
-  return {
-    const baseFields = importFormGroupFromXML(context, xml)
+  const baseFields = importFormGroupFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
-    elementType: FormElementType.Pages,
+  const { elementType: _, ...restFields } = baseFields
 
-    associatedTable: importTableFromXML(context, xml.AssociatedTable),
-    currentPagesState: xml.CurrentPagesState,
-    currentRowUse: xml.CurrentRowUse,
-    pagesRepresentation: xml.PagesRepresentation,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    events: importEventsFromXML(context, xml.Events),  }
+  const result: Pages = {
+    elementType: FormElementType.Pages,
+    ...restFields,
+  }
+
+  const associatedTable = importTableFromXML(context, xml.AssociatedTable)
+  if (associatedTable !== undefined) result.associatedTable = associatedTable
+
+  if (xml.CurrentPagesState !== undefined) result.currentPagesState = xml.CurrentPagesState
+
+  if (xml.CurrentRowUse !== undefined) result.currentRowUse = xml.CurrentRowUse
+
+  if (xml.PagesRepresentation !== undefined) result.pagesRepresentation = xml.PagesRepresentation
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  const events = importEventsFromXML(context, xml.Events)
+  if (events !== undefined) result.events = events
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "Pages", importPagesFromXML)

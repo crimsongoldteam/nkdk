@@ -10,21 +10,35 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const importPopupFromXML = (context: ConfigurationContext, xml: PopupXML | undefined): Popup | undefined => {
   if (!xml) return undefined
 
-  return {
-    const baseFields = importFormGroupFromXML(context, xml)
+  const baseFields = importFormGroupFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
-    elementType: FormElementType.Popup,
+  const { elementType: _, ...restFields } = baseFields
 
-    backColor: importColorFromXML(context, xml.BackColor),
-    borderColor: importColorFromXML(context, xml.BorderColor),
-    picture: importPictureFromXML(context, xml.Picture),
-    representation: xml.Representation,
-    shape: xml.Shape,
-    shapeRepresentation: xml.ShapeRepresentation,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),  }
+  const result: Popup = {
+    elementType: FormElementType.Popup,
+    ...restFields,
+  }
+
+  const backColor = importColorFromXML(context, xml.BackColor)
+  if (backColor !== undefined) result.backColor = backColor
+
+  const borderColor = importColorFromXML(context, xml.BorderColor)
+  if (borderColor !== undefined) result.borderColor = borderColor
+
+  const picture = importPictureFromXML(context, xml.Picture)
+  if (picture !== undefined) result.picture = picture
+
+  if (xml.Representation !== undefined) result.representation = xml.Representation
+
+  if (xml.Shape !== undefined) result.shape = xml.Shape
+
+  if (xml.ShapeRepresentation !== undefined) result.shapeRepresentation = xml.ShapeRepresentation
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "Popup", importPopupFromXML)

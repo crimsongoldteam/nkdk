@@ -13,14 +13,23 @@ export const importCommandBarFromXML = (
   const baseFields = importFormGroupFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,
+  const { elementType: _, ...restFields } = baseFields
+
+  const result: CommandBar = {
     elementType: FormElementType.CommandBar,
-    autofill: xml.Autofill,
-    displayImportance: xml._DisplayImportance,
-    horizontalAlign: xml.HorizontalAlign,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
+    ...restFields,
   }
+
+  if (xml.Autofill !== undefined) result.autofill = xml.Autofill
+
+  if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
+
+  if (xml.HorizontalAlign !== undefined) result.horizontalAlign = xml.HorizontalAlign
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  return result
 }
 
 registerMetadata<CommandBarXML>("ImportFromXML", "CommandBar", importCommandBarFromXML)

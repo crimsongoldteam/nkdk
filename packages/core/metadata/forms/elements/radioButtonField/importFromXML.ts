@@ -15,27 +15,50 @@ export const importRadioButtonFieldFromXML = (
 ): RadioButtonField | undefined => {
   if (!xml) return undefined
 
-  return {
-    const baseFields = importFormFieldFromXML(context, xml)
+  const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
-    elementType: FormElementType.RadioButtonField,
+  const { elementType: _, ...restFields } = baseFields
 
-    backColor: importColorFromXML(context, xml.BackColor),
-    borderColor: importColorFromXML(context, xml.BorderColor),
-    choiceList: importChoiceListFromXML(context, xml.ChoiceList),
-    columnsCount: xml.ColumnsCount,
-    equalColumnsWidth: xml.EqualColumnsWidth,
-    font: importFontFromXML(context, xml.Font),
-    itemHeight: xml.ItemHeight,
-    itemTitleHeight: xml.ItemTitleHeight,
-    itemWidth: xml.ItemWidth,
-    radioButtonType: xml.RadioButtonType,
-    textColor: importColorFromXML(context, xml.TextColor),
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    events: importEventsFromXML(context, xml.Events),  }
+  const result: RadioButtonField = {
+    elementType: FormElementType.RadioButtonField,
+    ...restFields,
+  }
+
+  const backColor = importColorFromXML(context, xml.BackColor)
+  if (backColor !== undefined) result.backColor = backColor
+
+  const borderColor = importColorFromXML(context, xml.BorderColor)
+  if (borderColor !== undefined) result.borderColor = borderColor
+
+  const choiceList = importChoiceListFromXML(context, xml.ChoiceList)
+  if (choiceList !== undefined) result.choiceList = choiceList
+
+  if (xml.ColumnsCount !== undefined) result.columnsCount = xml.ColumnsCount
+
+  if (xml.EqualColumnsWidth !== undefined) result.equalColumnsWidth = xml.EqualColumnsWidth
+
+  const font = importFontFromXML(context, xml.Font)
+  if (font !== undefined) result.font = font
+
+  if (xml.ItemHeight !== undefined) result.itemHeight = xml.ItemHeight
+
+  if (xml.ItemTitleHeight !== undefined) result.itemTitleHeight = xml.ItemTitleHeight
+
+  if (xml.ItemWidth !== undefined) result.itemWidth = xml.ItemWidth
+
+  if (xml.RadioButtonType !== undefined) result.radioButtonType = xml.RadioButtonType
+
+  const textColor = importColorFromXML(context, xml.TextColor)
+  if (textColor !== undefined) result.textColor = textColor
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  const events = importEventsFromXML(context, xml.Events)
+  if (events !== undefined) result.events = events
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "RadioButtonField", importRadioButtonFieldFromXML)

@@ -15,27 +15,48 @@ export const importPeriodFieldFromXML = (
 ): PeriodField | undefined => {
   if (!xml) return undefined
 
-  return {
-    const baseFields = importFormFieldFromXML(context, xml)
+  const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
-    elementType: FormElementType.PeriodField,
+  const { elementType: _, ...restFields } = baseFields
 
-    autoMaxHeight: xml.AutoMaxHeight,
-    autoMaxWidth: xml.AutoMaxWidth,
-    border: importBorderFromXML(context, xml.Border),
-    borderColor: importColorFromXML(context, xml.BorderColor),
-    font: importFontFromXML(context, xml.Font),
-    height: xml.Height,
-    horizontalStretch: xml.HorizontalStretch,
-    maxHeight: xml.MaxHeight,
-    maxWidth: xml.MaxWidth,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    verticalStretch: xml.VerticalStretch,
-    width: xml.Width,
-    events: importEventsFromXML(context, xml.Events),  }
+  const result: PeriodField = {
+    elementType: FormElementType.PeriodField,
+    ...restFields,
+  }
+
+  if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
+
+  if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
+
+  const border = importBorderFromXML(context, xml.Border)
+  if (border !== undefined) result.border = border
+
+  const borderColor = importColorFromXML(context, xml.BorderColor)
+  if (borderColor !== undefined) result.borderColor = borderColor
+
+  const font = importFontFromXML(context, xml.Font)
+  if (font !== undefined) result.font = font
+
+  if (xml.Height !== undefined) result.height = xml.Height
+
+  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+
+  if (xml.MaxHeight !== undefined) result.maxHeight = xml.MaxHeight
+
+  if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
+
+  if (xml.Width !== undefined) result.width = xml.Width
+
+  const events = importEventsFromXML(context, xml.Events)
+  if (events !== undefined) result.events = events
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "PeriodField", importPeriodFieldFromXML)

@@ -15,48 +15,96 @@ export const importButtonFromXML = (context: ConfigurationContext, xml: ButtonXM
   const baseFields = importBaseElementFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,
-    elementType: FormElementType.Button,
+  const { elementType: _, ...restFields } = baseFields
 
-    autoMaxHeight: xml.AutoMaxHeight,
-    autoMaxWidth: xml.AutoMaxWidth,
-    backColor: importColorFromXML(context, xml.BackColor),
-    borderColor: importColorFromXML(context, xml.BorderColor),
-    commandName: xml.CommandName,
-    commandUniqueness: xml.CommandUniqueness,
-    dataPath: xml.DataPath,
-    defaultButton: xml.DefaultButton,
-    defaultItem: xml.DefaultItem,
-    displayImportance: xml._DisplayImportance,
-    enabled: xml.Enabled,
-    extendedTooltip: importFormDecorationFromXML(context, xml.ExtendedTooltip),
-    font: importFontFromXML(context, xml.Font),
-    height: xml.Height,
-    horizontalAlignInGroup: xml.HorizontalAlignInGroup,
-    horizontalStretch: xml.HorizontalStretch,
-    locationInCommandBar: xml.LocationInCommandBar,
-    maxHeight: xml.MaxHeight,
-    maxWidth: xml.MaxWidth,
-    onlyInAllActions: xml.OnlyInAllActions,
-    picture: importPictureFromXML(context, xml.Picture),
-    pictureLocation: xml.PictureLocation,
-    representation: xml.Representation,
-    shape: xml.Shape,
-    shapeRepresentation: xml.ShapeRepresentation,
-    shortcut: xml.Shortcut,
-    skipOnInput: xml.SkipOnInput,
-    textColor: importColorFromXML(context, xml.TextColor),
-    title: importI8nTextFromXML(context, xml.Title),
-    titleHeight: xml.TitleHeight,
-    toolTipRepresentation: xml.ToolTipRepresentation,
-    type: xml.Type,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    verticalAlignInGroup: xml.VerticalAlignInGroup,
-    verticalStretch: xml.VerticalStretch,
-    visible: xml.Visible,
-    width: xml.Width,
+  const result: Button = {
+    elementType: FormElementType.Button,
+    ...restFields,
   }
+
+  if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
+
+  if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
+
+  const backColor = importColorFromXML(context, xml.BackColor)
+  if (backColor !== undefined) result.backColor = backColor
+
+  const borderColor = importColorFromXML(context, xml.BorderColor)
+  if (borderColor !== undefined) result.borderColor = borderColor
+
+  if (xml.CommandName !== undefined) result.commandName = xml.CommandName
+
+  if (xml.CommandUniqueness !== undefined) result.commandUniqueness = xml.CommandUniqueness
+
+  if (xml.DataPath !== undefined) result.dataPath = xml.DataPath
+
+  if (xml.DefaultButton !== undefined) result.defaultButton = xml.DefaultButton
+
+  if (xml.DefaultItem !== undefined) result.defaultItem = xml.DefaultItem
+
+  if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
+
+  if (xml.Enabled !== undefined) result.enabled = xml.Enabled
+
+  const extendedTooltip = importFormDecorationFromXML(context, xml.ExtendedTooltip)
+  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
+
+  const font = importFontFromXML(context, xml.Font)
+  if (font !== undefined) result.font = font
+
+  if (xml.Height !== undefined) result.height = xml.Height
+
+  if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup
+
+  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+
+  if (xml.LocationInCommandBar !== undefined) result.locationInCommandBar = xml.LocationInCommandBar
+
+  if (xml.MaxHeight !== undefined) result.maxHeight = xml.MaxHeight
+
+  if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
+
+  if (xml.OnlyInAllActions !== undefined) result.onlyInAllActions = xml.OnlyInAllActions
+
+  const picture = importPictureFromXML(context, xml.Picture)
+  if (picture !== undefined) result.picture = picture
+
+  if (xml.PictureLocation !== undefined) result.pictureLocation = xml.PictureLocation
+
+  if (xml.Representation !== undefined) result.representation = xml.Representation
+
+  if (xml.Shape !== undefined) result.shape = xml.Shape
+
+  if (xml.ShapeRepresentation !== undefined) result.shapeRepresentation = xml.ShapeRepresentation
+
+  if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut
+
+  if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
+
+  const textColor = importColorFromXML(context, xml.TextColor)
+  if (textColor !== undefined) result.textColor = textColor
+
+  const title = importI8nTextFromXML(context, xml.Title)
+  if (title !== undefined) result.title = title
+
+  if (xml.TitleHeight !== undefined) result.titleHeight = xml.TitleHeight
+
+  if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
+
+  if (xml.Type !== undefined) result.type = xml.Type
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
+
+  if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
+
+  if (xml.Visible !== undefined) result.visible = xml.Visible
+
+  if (xml.Width !== undefined) result.width = xml.Width
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "Button", importButtonFromXML)

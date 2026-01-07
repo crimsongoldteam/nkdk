@@ -18,31 +18,61 @@ export const importFormGroupFromXML = (
   const baseFields = importBaseElementFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,
-    elementType: FormElementType.FormGroup,
+  const { elementType: _, ...restFields } = baseFields
 
-    childItems: importChildItemsFromXML(context, xml.ChildItems),
-    enableContentChange: xml.EnableContentChange,
-    enabled: xml.Enabled,
-    extendedTooltip: importFormDecorationFromXML(context, xml.ExtendedTooltip),
-    height: xml.Height,
-    horizontalAlignInGroup: xml.HorizontalAlignInGroup,
-    horizontalStretch: xml.HorizontalStretch,
-    readOnly: xml.ReadOnly,
-    shortcut: xml.Shortcut,
-    title: importI8nTextFromXML(context, xml.Title),
-    titleFont: importFontFromXML(context, xml.TitleFont),
-    titleTextColor: importColorFromXML(context, xml.TitleTextColor),
-    toolTip: importI8nTextFromXML(context, xml.ToolTip),
-    toolTipRepresentation: xml.ToolTipRepresentation,
-    type: xml.Type,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    verticalAlignInGroup: xml.VerticalAlignInGroup,
-    verticalStretch: xml.VerticalStretch,
-    visible: xml.Visible,
-    width: xml.Width,
+  const result: FormGroup = {
+    elementType: FormElementType.FormGroup,
+    ...restFields,
   }
+
+  const childItems = importChildItemsFromXML(context, xml.ChildItems)
+  result.childItems = childItems
+
+  if (xml.EnableContentChange !== undefined) result.enableContentChange = xml.EnableContentChange
+
+  if (xml.Enabled !== undefined) result.enabled = xml.Enabled
+
+  const extendedTooltip = importFormDecorationFromXML(context, xml.ExtendedTooltip)
+  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
+
+  if (xml.Height !== undefined) result.height = xml.Height
+
+  if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup
+
+  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+
+  if (xml.ReadOnly !== undefined) result.readOnly = xml.ReadOnly
+
+  if (xml.Shortcut !== undefined) result.shortcut = xml.Shortcut
+
+  const title = importI8nTextFromXML(context, xml.Title)
+  if (title !== undefined) result.title = title
+
+  const titleFont = importFontFromXML(context, xml.TitleFont)
+  if (titleFont !== undefined) result.titleFont = titleFont
+
+  const titleTextColor = importColorFromXML(context, xml.TitleTextColor)
+  if (titleTextColor !== undefined) result.titleTextColor = titleTextColor
+
+  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  if (toolTip !== undefined) result.toolTip = toolTip
+
+  if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
+
+  if (xml.Type !== undefined) result.type = xml.Type
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
+
+  if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
+
+  if (xml.Visible !== undefined) result.visible = xml.Visible
+
+  if (xml.Width !== undefined) result.width = xml.Width
+
+  return result
 }
 
 registerMetadata<FormGroupXML>("ImportFromXML", "FormGroup", importFormGroupFromXML)

@@ -11,31 +11,55 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const importPageFromXML = (context: ConfigurationContext, xml: PageXML | undefined): Page | undefined => {
   if (!xml) return undefined
 
-  return {
-    const baseFields = importFormGroupFromXML(context, xml)
+  const baseFields = importFormGroupFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
-    elementType: FormElementType.Page,
+  const { elementType: _, ...restFields } = baseFields
 
-    backColor: importColorFromXML(context, xml.BackColor),
-    childItemsHorizontalAlign: xml.ChildItemsHorizontalAlign,
-    childItemsVerticalAlign: xml.ChildItemsVerticalAlign,
-    displayImportance: xml._DisplayImportance,
-    format: importI8nTextFromXML(context, xml.Format),
-    group: xml.Group,
-    horizontalSpacing: xml.HorizontalSpacing,
-    itemsAndTitlesAlign: xml.ItemsAndTitlesAlign,
-    picture: importPictureFromXML(context, xml.Picture),
-    scrollOnCompress: xml.ScrollOnCompress,
-    showTitle: xml.ShowTitle,
-    slaveItemsWidth: xml.SlaveItemsWidth,
-    titleDataPath: xml.TitleDataPath,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    verticalAlign: xml.VerticalAlign,
-    verticalScrollOnReduceSize: xml.VerticalScrollOnReduceSize,
-    verticalSpacing: xml.VerticalSpacing,  }
+  const result: Page = {
+    elementType: FormElementType.Page,
+    ...restFields,
+  }
+
+  const backColor = importColorFromXML(context, xml.BackColor)
+  if (backColor !== undefined) result.backColor = backColor
+
+  if (xml.ChildItemsHorizontalAlign !== undefined) result.childItemsHorizontalAlign = xml.ChildItemsHorizontalAlign
+
+  if (xml.ChildItemsVerticalAlign !== undefined) result.childItemsVerticalAlign = xml.ChildItemsVerticalAlign
+
+  if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
+
+  const format = importI8nTextFromXML(context, xml.Format)
+  if (format !== undefined) result.format = format
+
+  if (xml.Group !== undefined) result.group = xml.Group
+
+  if (xml.HorizontalSpacing !== undefined) result.horizontalSpacing = xml.HorizontalSpacing
+
+  if (xml.ItemsAndTitlesAlign !== undefined) result.itemsAndTitlesAlign = xml.ItemsAndTitlesAlign
+
+  const picture = importPictureFromXML(context, xml.Picture)
+  if (picture !== undefined) result.picture = picture
+
+  if (xml.ScrollOnCompress !== undefined) result.scrollOnCompress = xml.ScrollOnCompress
+
+  if (xml.ShowTitle !== undefined) result.showTitle = xml.ShowTitle
+
+  if (xml.SlaveItemsWidth !== undefined) result.slaveItemsWidth = xml.SlaveItemsWidth
+
+  if (xml.TitleDataPath !== undefined) result.titleDataPath = xml.TitleDataPath
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.VerticalAlign !== undefined) result.verticalAlign = xml.VerticalAlign
+
+  if (xml.VerticalScrollOnReduceSize !== undefined) result.verticalScrollOnReduceSize = xml.VerticalScrollOnReduceSize
+
+  if (xml.VerticalSpacing !== undefined) result.verticalSpacing = xml.VerticalSpacing
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "Page", importPageFromXML)

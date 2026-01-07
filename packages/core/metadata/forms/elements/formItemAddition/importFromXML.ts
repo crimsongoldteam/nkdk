@@ -17,24 +17,46 @@ export const importFormItemAdditionFromXML = (
   const baseFields = importBaseElementFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,
-    elementType: FormElementType.FormItemAddition,
+  const { elementType: _, ...restFields } = baseFields
 
-    childItems: importChildItemsFromXML(context, xml.ChildItems),
-    contextMenu: importCommandBarFromXML(context, xml.ContextMenu),
-    displayImportance: xml._DisplayImportance,
-    enabled: xml.Enabled,
-    extendedToolTip: importFormDecorationFromXML(context, xml.ExtendedToolTip),
-    horizontalAlignInGroup: xml.HorizontalAlignInGroup,
-    title: importI8nTextFromXML(context, xml.Title),
-    toolTip: importI8nTextFromXML(context, xml.ToolTip),
-    toolTipRepresentation: xml.ToolTipRepresentation,
-    type: xml.Type,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    verticalAlignInGroup: xml.VerticalAlignInGroup,
-    visible: xml.Visible,
+  const result: FormItemAddition = {
+    elementType: FormElementType.FormItemAddition,
+    ...restFields,
   }
+
+  const childItems = importChildItemsFromXML(context, xml.ChildItems)
+  result.childItems = childItems
+
+  const contextMenu = importCommandBarFromXML(context, xml.ContextMenu)
+  if (contextMenu !== undefined) result.contextMenu = contextMenu
+
+  if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
+
+  if (xml.Enabled !== undefined) result.enabled = xml.Enabled
+
+  const extendedToolTip = importFormDecorationFromXML(context, xml.ExtendedToolTip)
+  if (extendedToolTip !== undefined) result.extendedToolTip = extendedToolTip
+
+  if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup
+
+  const title = importI8nTextFromXML(context, xml.Title)
+  if (title !== undefined) result.title = title
+
+  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  if (toolTip !== undefined) result.toolTip = toolTip
+
+  if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
+
+  if (xml.Type !== undefined) result.type = xml.Type
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
+
+  if (xml.Visible !== undefined) result.visible = xml.Visible
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "FormItemAddition", importFormItemAdditionFromXML)

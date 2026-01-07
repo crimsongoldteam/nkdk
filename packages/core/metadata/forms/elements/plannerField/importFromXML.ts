@@ -12,29 +12,50 @@ export const importPlannerFieldFromXML = (
 ): PlannerField | undefined => {
   if (!xml) return undefined
 
-  return {
-    const baseFields = importFormFieldFromXML(context, xml)
+  const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
-    elementType: FormElementType.PlannerField,
+  const { elementType: _, ...restFields } = baseFields
 
-    autoMaxHeight: xml.AutoMaxHeight,
-    autoMaxWidth: xml.AutoMaxWidth,
-    dimensionItemHyperlink: xml.DimensionItemHyperlink,
-    enableDrag: xml.EnableDrag,
-    enableStartDrag: xml.EnableStartDrag,
-    height: xml.Height,
-    horizontalStretch: xml.HorizontalStretch,
-    maxHeight: xml.MaxHeight,
-    maxWidth: xml.MaxWidth,
-    timeScaleItemHyperlink: xml.TimeScaleItemHyperlink,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    verticalStretch: xml.VerticalStretch,
-    width: xml.Width,
-    wrappedTimeScaleHeaderHyperlink: xml.WrappedTimeScaleHeaderHyperlink,
-    events: importEventsFromXML(context, xml.Events),  }
+  const result: PlannerField = {
+    elementType: FormElementType.PlannerField,
+    ...restFields,
+  }
+
+  if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
+
+  if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
+
+  if (xml.DimensionItemHyperlink !== undefined) result.dimensionItemHyperlink = xml.DimensionItemHyperlink
+
+  if (xml.EnableDrag !== undefined) result.enableDrag = xml.EnableDrag
+
+  if (xml.EnableStartDrag !== undefined) result.enableStartDrag = xml.EnableStartDrag
+
+  if (xml.Height !== undefined) result.height = xml.Height
+
+  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+
+  if (xml.MaxHeight !== undefined) result.maxHeight = xml.MaxHeight
+
+  if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
+
+  if (xml.TimeScaleItemHyperlink !== undefined) result.timeScaleItemHyperlink = xml.TimeScaleItemHyperlink
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
+
+  if (xml.Width !== undefined) result.width = xml.Width
+
+  if (xml.WrappedTimeScaleHeaderHyperlink !== undefined)
+    result.wrappedTimeScaleHeaderHyperlink = xml.WrappedTimeScaleHeaderHyperlink
+
+  const events = importEventsFromXML(context, xml.Events)
+  if (events !== undefined) result.events = events
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "PlannerField", importPlannerFieldFromXML)
