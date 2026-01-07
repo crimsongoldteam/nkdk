@@ -13,12 +13,11 @@ export const exportUsualGroupToXML = (
 ): UsualGroupXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormGroupToXML(context, data)
+  const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
 
     AssociatedTable: exportTableToXML(context, data.associatedTable),
     BackColor: exportColorToXML(context, data.backColor),

@@ -8,7 +8,7 @@ export const fullClientApplicationForm: ClientApplicationForm = {
     {
       name: "Объект",
       id: "1",
-      valueType: { type: ["DataProcessorObject.ТестоваяОбработка"] },
+      valueType: { type: ["CatalogRef.ТестоваяОбработка"] },
       mainAttribute: true,
     },
   ],

@@ -14,12 +14,11 @@ export const exportFormDecorationToXML = (
 ): FormDecorationXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportBaseElementToXML(context, data)
+  const baseFields = exportBaseElementToXML(context, data)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,

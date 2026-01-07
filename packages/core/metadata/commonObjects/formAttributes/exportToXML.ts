@@ -9,7 +9,7 @@ export const exportFormAttributesToXML = (
   context: ConfigurationContext,
   data: FormAttributes | undefined
 ): FormAttributesXML | undefined => {
-  if (!data) return undefined
+  if (!data || data.length === 0) return undefined
 
   const result = data.map((value: FormAttribute) => exportFormAttributeToXML(context, value))
 

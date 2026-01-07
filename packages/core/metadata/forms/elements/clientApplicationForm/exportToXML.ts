@@ -1,3 +1,4 @@
+import { exportFormAttributesToXML } from "~/metadata/commonObjects/formAttributes/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportCommandSetToXML } from "~/metadata/forms/commandSet/exportToXML"
@@ -5,7 +6,6 @@ import { exportCommandBarToXML } from "~/metadata/forms/elements/commandBar/expo
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { Events } from "~/metadata/forms/events/types"
 import { exportChildItemsToXML } from "../childItems/exportToXML"
-// import exportAttributeToXML from "./attributes/exportToXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
 export const exportClientApplicationFormToXML = (
@@ -36,12 +36,9 @@ export const exportClientApplicationFormToXML = (
     AutoCommandBar: exportCommandBarToXML(context, data.autoCommandBar),
     Title: exportI8nTextToXML(context, data.title),
     ChildItems: exportChildItemsToXML(context, data.childItems),
-    // Attributes:
-    //   data.attributes && data.attributes.length > 0
-    //     ? data.attributes
-    //         .map((attr) => exportAttributeToXML(attr, context))
-    //         .filter((attr): attr is NonNullable<typeof attr> => attr !== undefined)
-    //     : undefined,
+    Attributes: exportFormAttributesToXML(context, data.attributes)
+      ? exportFormAttributesToXML(context, data.attributes)!.map((attr) => ({ Attribute: attr }))
+      : undefined,
     CommandSet: exportCommandSetToXML(context, data.commandSet),
     AutoFillCheck: data.autoFillCheck,
     AutoSaveDataInSettings: data.autoSaveDataInSettings,

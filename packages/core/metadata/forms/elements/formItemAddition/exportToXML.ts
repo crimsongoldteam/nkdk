@@ -14,12 +14,11 @@ export const exportFormItemAdditionToXML = (
 ): FormItemAdditionXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportBaseElementToXML(context, data)
+  const baseFields = exportBaseElementToXML(context, data)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
 
     ChildItems: exportChildItemsToXML(context, data.childItems),
     ContextMenu: exportCommandBarToXML(context, data.contextMenu),

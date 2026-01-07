@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "~/metadata/forms/elements/button/exportToXML"
 import "~/metadata/forms/elements/inputField/exportToXML"
 import "~/metadata/forms/elements/usualGroup/exportToXML"
 import {

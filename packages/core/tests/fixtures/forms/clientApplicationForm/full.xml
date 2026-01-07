@@ -1,68 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.20">
-	<CommandSet>
-		<ExcludedCommand>WriteAndClose</ExcludedCommand>
-	</CommandSet>
-	<Attributes>
-		<Attribute name="Объект" id="1">
-			<Type>
-				<v8:Type>cfg:DataProcessorObject.ТестоваяОбработка</v8:Type>
-			</Type>
-			<MainAttribute>true</MainAttribute>
-		</Attribute>
-	</Attributes>
+<Form xmlns="http://v8.1c.ru/8.3/xcf/logform" xmlns:app="http://v8.1c.ru/8.2/managed-application/core" xmlns:cfg="http://v8.1c.ru/8.1/data/enterprise/current-config" xmlns:dcscor="http://v8.1c.ru/8.1/data-composition-system/core" xmlns:dcssch="http://v8.1c.ru/8.1/data-composition-system/schema" xmlns:dcsset="http://v8.1c.ru/8.1/data-composition-system/settings" xmlns:ent="http://v8.1c.ru/8.1/data/enterprise" xmlns:lf="http://v8.1c.ru/8.2/managed-application/logform" xmlns:style="http://v8.1c.ru/8.1/data/ui/style" xmlns:sys="http://v8.1c.ru/8.1/data/ui/fonts/system" xmlns:v8="http://v8.1c.ru/8.1/data/core" xmlns:v8ui="http://v8.1c.ru/8.1/data/ui" xmlns:web="http://v8.1c.ru/8.1/data/ui/colors/web" xmlns:win="http://v8.1c.ru/8.1/data/ui/colors/windows" xmlns:xr="http://v8.1c.ru/8.3/xcf/readable" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.18">
 	<AutoCommandBar name="ФормаКоманднаяПанель" id="-1" DisplayImportance="High">
-		<Autofill>true</Autofill>
-		<HorizontalAlign>Left</HorizontalAlign>
 		<ChildItems>
 			<Button name="Кнопка1" id="1"/>
 		</ChildItems>
+		<Autofill>true</Autofill>
+		<HorizontalAlign>Left</HorizontalAlign>
 	</AutoCommandBar>
-	<AutoTitle>true</AutoTitle>
-	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
-	<AutoURL>true</AutoURL>
-	<VerticalScroll>Use</VerticalScroll>
-	<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>
-	<VerticalSpacing>Single</VerticalSpacing>
-	<ItemsAndTitlesAlign>ItemsLeftTitlesLeft</ItemsAndTitlesAlign>
-	<Height>600</Height>
-	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>
-	<HorizontalSpacing>Double</HorizontalSpacing>
-	<Group>Horizontal</Group>
-	<Enabled>true</Enabled>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
 			<v8:content>Полная форма приложения</v8:content>
 		</v8:item>
 	</Title>
-	<CloseOnChoice>true</CloseOnChoice>
-	<CloseOnOwnerClose>false</CloseOnOwnerClose>
-	<FormName>ПолнаяФорма</FormName>
-	<UsedFormServer>Main</UsedFormServer>
-	<PurposeUseKey>PurposeKey</PurposeUseKey>
-	<WindowOptionsKey>WindowOptionsKey</WindowOptionsKey>
-	<Scale>100</Scale>
-	<ModalMode>false</ModalMode>
-	<Modified>false</Modified>
-	<URL>https://example.com</URL>
-	<ShowTitle>true</ShowTitle>
-	<ShowCloseButton>true</ShowCloseButton>
-	<ConversationsRepresentation>Show</ConversationsRepresentation>
-	<EnterKeyBehavior>DefaultButton</EnterKeyBehavior>
 	<ChildItems>
 		<InputField name="ПолеВвода1" id="1"/>
 	</ChildItems>
-	<CommandBarLocation>Top</CommandBarLocation>
+	<Attributes>
+		<Attribute name="Объект" id="1">
+			<Type>
+				<v8:Type>cfg:CatalogRef.ТестоваяОбработка</v8:Type>
+			</Type>
+			<MainAttribute>true</MainAttribute>
+		</Attribute>
+	</Attributes>
+	<CommandSet>
+		<ExcludedCommand>WriteAndClose</ExcludedCommand>
+	</CommandSet>
 	<AutoFillCheck>true</AutoFillCheck>
-	<FormWindowOpeningMode>LockOwnerWindow</FormWindowOpeningMode>
+	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
+	<AutoTitle>true</AutoTitle>
+	<AutoURL>true</AutoURL>
+	<CloseOnChoice>true</CloseOnChoice>
+	<CloseOnOwnerClose>false</CloseOnOwnerClose>
 	<CollapseItemsByImportance>Use</CollapseItemsByImportance>
+	<CommandBarLocation>Top</CommandBarLocation>
+	<ConversationsRepresentation>Show</ConversationsRepresentation>
+	<Enabled>true</Enabled>
+	<EnterKeyBehavior>DefaultButton</EnterKeyBehavior>
+	<FormName>ПолнаяФорма</FormName>
+	<FormWindowOpeningMode>LockOwnerWindow</FormWindowOpeningMode>
+	<Group>Horizontal</Group>
+	<Height>600</Height>
+	<HorizontalSpacing>Double</HorizontalSpacing>
+	<ItemsAndTitlesAlign>ItemsLeftTitlesLeft</ItemsAndTitlesAlign>
+	<ModalMode>false</ModalMode>
+	<Modified>false</Modified>
+	<PurposeUseKey>PurposeKey</PurposeUseKey>
+	<ReadOnly>false</ReadOnly>
 	<SaveDataInSettings>UseList</SaveDataInSettings>
 	<SavedInSettingsDataModified>true</SavedInSettingsDataModified>
-	<ReadOnly>false</ReadOnly>
-	<UUID>123e4567-e89b-12d3-a456-426614174000</UUID>
-	<Width>800</Width>
+	<Scale>100</Scale>
+	<ShowCloseButton>true</ShowCloseButton>
+	<ShowTitle>true</ShowTitle>
 	<SlaveItemsWidth>Auto</SlaveItemsWidth>
+	<UUID>123e4567-e89b-12d3-a456-426614174000</UUID>
+	<URL>https://example.com</URL>
+	<UsedFormServer>Main</UsedFormServer>
+	<VerticalScroll>Use</VerticalScroll>
+	<VerticalSpacing>Single</VerticalSpacing>
+	<Width>800</Width>
+	<WindowOptionsKey>WindowOptionsKey</WindowOptionsKey>
 	<UseForFoldersAndItems>FoldersAndItems</UseForFoldersAndItems>
 	<Events>
 		<Event name="CollaborationSystemUsersAutoComplete">Процедура1</Event>

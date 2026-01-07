@@ -16,12 +16,11 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 export const exportTableToXML = (context: ConfigurationContext, data: Table | undefined): TableXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportBaseElementToXML(context, data)
+  const baseFields = exportBaseElementToXML(context, data)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
 
     AutoAddIncomplete: data.autoAddIncomplete,
     AutoCommandBar: exportCommandBarToXML(context, data.autoCommandBar),
