@@ -14,26 +14,47 @@ export const exportRadioButtonFieldToXML = (
 ): RadioButtonFieldXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormFieldToXML(context, data)
+  const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: RadioButtonFieldXML = {
+    ...baseFields,
+  }
 
-    BackColor: exportColorToXML(context, data.backColor),
-    BorderColor: exportColorToXML(context, data.borderColor),
-    ChoiceList: exportChoiceListToXML(context, data.choiceList),
-    ColumnsCount: data.columnsCount,
-    EqualColumnsWidth: data.equalColumnsWidth,
-    Font: exportFontToXML(context, data.font),
-    ItemHeight: data.itemHeight,
-    ItemTitleHeight: data.itemTitleHeight,
-    ItemWidth: data.itemWidth,
-    RadioButtonType: data.radioButtonType,
-    TextColor: exportColorToXML(context, data.textColor),
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    Events: exportEventsToXML(context, data.events),  }
+  const backColor = exportColorToXML(context, data.backColor)
+  if (backColor !== undefined) result.BackColor = backColor
+
+  const borderColor = exportColorToXML(context, data.borderColor)
+  if (borderColor !== undefined) result.BorderColor = borderColor
+
+  const choiceList = exportChoiceListToXML(context, data.choiceList)
+  if (choiceList !== undefined) result.ChoiceList = choiceList
+
+  if (data.columnsCount !== undefined) result.ColumnsCount = data.columnsCount
+
+  if (data.equalColumnsWidth !== undefined) result.EqualColumnsWidth = data.equalColumnsWidth
+
+  const font = exportFontToXML(context, data.font)
+  if (font !== undefined) result.Font = font
+
+  if (data.itemHeight !== undefined) result.ItemHeight = data.itemHeight
+
+  if (data.itemTitleHeight !== undefined) result.ItemTitleHeight = data.itemTitleHeight
+
+  if (data.itemWidth !== undefined) result.ItemWidth = data.itemWidth
+
+  if (data.radioButtonType !== undefined) result.RadioButtonType = data.radioButtonType
+
+  const textColor = exportColorToXML(context, data.textColor)
+  if (textColor !== undefined) result.TextColor = textColor
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
+  return result
 }
 
 registerMetadata("ExportToXML", "RadioButtonField", exportRadioButtonFieldToXML)

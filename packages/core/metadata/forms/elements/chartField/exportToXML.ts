@@ -14,20 +14,33 @@ export const exportChartFieldToXML = (
   const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
+  const result: ChartFieldXML = {
     ...baseFields,
-
-    AutoMaxHeight: data.autoMaxHeight,
-    AutoMaxWidth: data.autoMaxWidth,
-    Height: data.height,
-    HorizontalStretch: data.horizontalStretch,
-    MaxHeight: data.maxHeight,
-    MaxWidth: data.maxWidth,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    VerticalStretch: data.verticalStretch,
-    Width: data.width,
-    Events: exportEventsToXML(context, data.events),
   }
+
+  if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
+
+  if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
+
+  if (data.height !== undefined) result.Height = data.height
+
+  if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
+
+  if (data.maxHeight !== undefined) result.MaxHeight = data.maxHeight
+
+  if (data.maxWidth !== undefined) result.MaxWidth = data.maxWidth
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
+
+  if (data.width !== undefined) result.Width = data.width
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
+  return result
 }
 
 registerMetadata("ExportToXML", "ChartField", exportChartFieldToXML)

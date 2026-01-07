@@ -10,30 +10,52 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 export const exportPageToXML = (context: ConfigurationContext, data: Page | undefined): PageXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormGroupToXML(context, data)
+  const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: PageXML = {
+    ...baseFields,
+  }
 
-    BackColor: exportColorToXML(context, data.backColor),
-    ChildItemsHorizontalAlign: data.childItemsHorizontalAlign,
-    ChildItemsVerticalAlign: data.childItemsVerticalAlign,
-    _DisplayImportance: data.displayImportance,
-    Format: exportI8nTextToXML(context, data.format),
-    Group: data.group,
-    HorizontalSpacing: data.horizontalSpacing,
-    ItemsAndTitlesAlign: data.itemsAndTitlesAlign,
-    Picture: exportPictureToXML(context, data.picture),
-    ScrollOnCompress: data.scrollOnCompress,
-    ShowTitle: data.showTitle,
-    SlaveItemsWidth: data.slaveItemsWidth,
-    TitleDataPath: data.titleDataPath,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    VerticalAlign: data.verticalAlign,
-    VerticalScrollOnReduceSize: data.verticalScrollOnReduceSize,
-    VerticalSpacing: data.verticalSpacing,  }
+  const backColor = exportColorToXML(context, data.backColor)
+  if (backColor !== undefined) result.BackColor = backColor
+
+  if (data.childItemsHorizontalAlign !== undefined) result.ChildItemsHorizontalAlign = data.childItemsHorizontalAlign
+
+  if (data.childItemsVerticalAlign !== undefined) result.ChildItemsVerticalAlign = data.childItemsVerticalAlign
+
+  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
+
+  const format = exportI8nTextToXML(context, data.format)
+  if (format !== undefined) result.Format = format
+
+  if (data.group !== undefined) result.Group = data.group
+
+  if (data.horizontalSpacing !== undefined) result.HorizontalSpacing = data.horizontalSpacing
+
+  if (data.itemsAndTitlesAlign !== undefined) result.ItemsAndTitlesAlign = data.itemsAndTitlesAlign
+
+  const picture = exportPictureToXML(context, data.picture)
+  if (picture !== undefined) result.Picture = picture
+
+  if (data.scrollOnCompress !== undefined) result.ScrollOnCompress = data.scrollOnCompress
+
+  if (data.showTitle !== undefined) result.ShowTitle = data.showTitle
+
+  if (data.slaveItemsWidth !== undefined) result.SlaveItemsWidth = data.slaveItemsWidth
+
+  if (data.titleDataPath !== undefined) result.TitleDataPath = data.titleDataPath
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
+
+  if (data.verticalScrollOnReduceSize !== undefined) result.VerticalScrollOnReduceSize = data.verticalScrollOnReduceSize
+
+  if (data.verticalSpacing !== undefined) result.VerticalSpacing = data.verticalSpacing
+
+  return result
 }
 
 registerMetadata("ExportToXML", "Page", exportPageToXML)

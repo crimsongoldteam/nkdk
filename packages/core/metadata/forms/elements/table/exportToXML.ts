@@ -19,91 +19,193 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
   const baseFields = exportBaseElementToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
+  const result: TableXML = {
     ...baseFields,
-
-    AutoAddIncomplete: data.autoAddIncomplete,
-    AutoCommandBar: exportCommandBarToXML(context, data.autoCommandBar),
-    AutoInsertNewRow: data.autoInsertNewRow,
-    AutoMarkIncomplete: data.autoMarkIncomplete,
-    AutoMaxHeight: data.autoMaxHeight,
-    AutoMaxHeightInTableRows: data.autoMaxHeightInTableRows,
-    AutoMaxWidth: data.autoMaxWidth,
-    BackColor: exportColorToXML(context, data.backColor),
-    BehaviorOnHorizontalCompression: data.behaviorOnHorizontalCompression,
-    BorderColor: exportColorToXML(context, data.borderColor),
-    ChangeRowOrder: data.changeRowOrder,
-    ChangeRowSet: data.changeRowSet,
-    ChildItems: exportChildItemsToXML(context, data.childItems),
-    ChoiceMode: data.choiceMode,
-    CommandBar: exportCommandBarToXML(context, data.commandBar),
-    CommandBarLocation: data.commandBarLocation,
-    CommandSet: exportCommandSetToXML(context, data.commandSet),
-    ContextMenu: exportCommandBarToXML(context, data.contextMenu),
-    CurrentRowUse: data.currentRowUse,
-    DataPath: data.dataPath,
-    DefaultItem: data.defaultItem,
-    _DisplayImportance: data.displayImportance,
-    Enabled: data.enabled,
-    EnableDrag: data.enableDrag,
-    EnableStartDrag: data.enableStartDrag,
-    ExtendedTooltip: exportFormDecorationToXML(context, data.extendedTooltip),
-    FileDragMode: data.fileDragMode,
-    Font: exportFontToXML(context, data.font),
-    Footer: data.footer,
-    FooterHeight: data.footerHeight,
-    Header: data.header,
-    HeaderHeight: data.headerHeight,
-    Height: data.height,
-    HeightControlVariant: data.heightControlVariant,
-    HeightInTableRows: data.heightInTableRows,
-    HorizontalAlignInGroup: data.horizontalAlignInGroup,
-    HorizontalLines: data.horizontalLines,
-    HorizontalScrollBar: data.horizontalScrollBar,
-    HorizontalStretch: data.horizontalStretch,
-    InitialListView: data.initialListView,
-    InitialTreeView: data.initialTreeView,
-    MarkIncomplete: data.markIncomplete,
-    MaxHeight: data.maxHeight,
-    MaxHeightInTableRows: data.maxHeightInTableRows,
-    MaxWidth: data.maxWidth,
-    MultipleChoice: data.multipleChoice,
-    Output: data.output,
-    ReadOnly: data.readOnly,
-    RefreshRequest: data.refreshRequest,
-    Representation: data.representation,
-    RowInputMode: data.rowInputMode,
-    RowPictureDataPath: data.rowPictureDataPath,
-    RowSelectionMode: data.rowSelectionMode,
-    RowsPicture: data.rowsPicture,
-    SearchControl: exportFormItemAdditionToXML(context, data.searchControl),
-    SearchControlLocation: data.searchControlLocation,
-    SearchOnInput: data.searchOnInput,
-    SearchStringLocation: data.searchStringLocation,
-    SearchStringRepresentation: exportFormItemAdditionToXML(context, data.searchStringRepresentation),
-    SelectionMode: data.selectionMode,
-    Shortcut: data.shortcut,
-    SkipOnInput: data.skipOnInput,
-    TextColor: exportColorToXML(context, data.textColor),
-    Title: exportI8nTextToXML(context, data.title),
-    TitleFont: exportFontToXML(context, data.titleFont),
-    TitleHeight: data.titleHeight,
-    TitleLocation: data.titleLocation,
-    TitleTextColor: exportColorToXML(context, data.titleTextColor),
-    ToolTip: exportI8nTextToXML(context, data.toolTip),
-    ToolTipRepresentation: data.toolTipRepresentation,
-    UseAlternationRowColor: data.useAlternationRowColor,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    VerticalAlignInGroup: data.verticalAlignInGroup,
-    VerticalLines: data.verticalLines,
-    VerticalScrollBar: data.verticalScrollBar,
-    VerticalStretch: data.verticalStretch,
-    ViewStatusLocation: data.viewStatusLocation,
-    ViewStatusRepresentation: exportFormItemAdditionToXML(context, data.viewStatusRepresentation),
-    Visible: data.visible,
-    Width: data.width,
-    Events: exportEventsToXML(context, data.events),
   }
+
+  if (data.autoAddIncomplete !== undefined) result.AutoAddIncomplete = data.autoAddIncomplete
+
+  const autoCommandBar = exportCommandBarToXML(context, data.autoCommandBar)
+  if (autoCommandBar !== undefined) result.AutoCommandBar = autoCommandBar
+
+  if (data.autoInsertNewRow !== undefined) result.AutoInsertNewRow = data.autoInsertNewRow
+
+  if (data.autoMarkIncomplete !== undefined) result.AutoMarkIncomplete = data.autoMarkIncomplete
+
+  if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
+
+  if (data.autoMaxHeightInTableRows !== undefined) result.AutoMaxHeightInTableRows = data.autoMaxHeightInTableRows
+
+  if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
+
+  const backColor = exportColorToXML(context, data.backColor)
+  if (backColor !== undefined) result.BackColor = backColor
+
+  if (data.behaviorOnHorizontalCompression !== undefined)
+    result.BehaviorOnHorizontalCompression = data.behaviorOnHorizontalCompression
+
+  const borderColor = exportColorToXML(context, data.borderColor)
+  if (borderColor !== undefined) result.BorderColor = borderColor
+
+  if (data.changeRowOrder !== undefined) result.ChangeRowOrder = data.changeRowOrder
+
+  if (data.changeRowSet !== undefined) result.ChangeRowSet = data.changeRowSet
+
+  const childItems = exportChildItemsToXML(context, data.childItems)
+  if (childItems !== undefined) result.ChildItems = childItems
+
+  if (data.choiceMode !== undefined) result.ChoiceMode = data.choiceMode
+
+  const commandBar = exportCommandBarToXML(context, data.commandBar)
+  if (commandBar !== undefined) result.CommandBar = commandBar
+
+  if (data.commandBarLocation !== undefined) result.CommandBarLocation = data.commandBarLocation
+
+  const commandSet = exportCommandSetToXML(context, data.commandSet)
+  if (commandSet !== undefined) result.CommandSet = commandSet
+
+  const contextMenu = exportCommandBarToXML(context, data.contextMenu)
+  if (contextMenu !== undefined) result.ContextMenu = contextMenu
+
+  if (data.currentRowUse !== undefined) result.CurrentRowUse = data.currentRowUse
+
+  if (data.dataPath !== undefined) result.DataPath = data.dataPath
+
+  if (data.defaultItem !== undefined) result.DefaultItem = data.defaultItem
+
+  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
+
+  if (data.enabled !== undefined) result.Enabled = data.enabled
+
+  if (data.enableDrag !== undefined) result.EnableDrag = data.enableDrag
+
+  if (data.enableStartDrag !== undefined) result.EnableStartDrag = data.enableStartDrag
+
+  const extendedTooltip = exportFormDecorationToXML(context, data.extendedTooltip)
+  if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
+
+  if (data.fileDragMode !== undefined) result.FileDragMode = data.fileDragMode
+
+  const font = exportFontToXML(context, data.font)
+  if (font !== undefined) result.Font = font
+
+  if (data.footer !== undefined) result.Footer = data.footer
+
+  if (data.footerHeight !== undefined) result.FooterHeight = data.footerHeight
+
+  if (data.header !== undefined) result.Header = data.header
+
+  if (data.headerHeight !== undefined) result.HeaderHeight = data.headerHeight
+
+  if (data.height !== undefined) result.Height = data.height
+
+  if (data.heightControlVariant !== undefined) result.HeightControlVariant = data.heightControlVariant
+
+  if (data.heightInTableRows !== undefined) result.HeightInTableRows = data.heightInTableRows
+
+  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
+
+  if (data.horizontalLines !== undefined) result.HorizontalLines = data.horizontalLines
+
+  if (data.horizontalScrollBar !== undefined) result.HorizontalScrollBar = data.horizontalScrollBar
+
+  if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
+
+  if (data.initialListView !== undefined) result.InitialListView = data.initialListView
+
+  if (data.initialTreeView !== undefined) result.InitialTreeView = data.initialTreeView
+
+  if (data.markIncomplete !== undefined) result.MarkIncomplete = data.markIncomplete
+
+  if (data.maxHeight !== undefined) result.MaxHeight = data.maxHeight
+
+  if (data.maxHeightInTableRows !== undefined) result.MaxHeightInTableRows = data.maxHeightInTableRows
+
+  if (data.maxWidth !== undefined) result.MaxWidth = data.maxWidth
+
+  if (data.multipleChoice !== undefined) result.MultipleChoice = data.multipleChoice
+
+  if (data.output !== undefined) result.Output = data.output
+
+  if (data.readOnly !== undefined) result.ReadOnly = data.readOnly
+
+  if (data.refreshRequest !== undefined) result.RefreshRequest = data.refreshRequest
+
+  if (data.representation !== undefined) result.Representation = data.representation
+
+  if (data.rowInputMode !== undefined) result.RowInputMode = data.rowInputMode
+
+  if (data.rowPictureDataPath !== undefined) result.RowPictureDataPath = data.rowPictureDataPath
+
+  if (data.rowSelectionMode !== undefined) result.RowSelectionMode = data.rowSelectionMode
+
+  if (data.rowsPicture !== undefined) result.RowsPicture = data.rowsPicture
+
+  const searchControl = exportFormItemAdditionToXML(context, data.searchControl)
+  if (searchControl !== undefined) result.SearchControl = searchControl
+
+  if (data.searchControlLocation !== undefined) result.SearchControlLocation = data.searchControlLocation
+
+  if (data.searchOnInput !== undefined) result.SearchOnInput = data.searchOnInput
+
+  if (data.searchStringLocation !== undefined) result.SearchStringLocation = data.searchStringLocation
+
+  const searchStringRepresentation = exportFormItemAdditionToXML(context, data.searchStringRepresentation)
+  if (searchStringRepresentation !== undefined) result.SearchStringRepresentation = searchStringRepresentation
+
+  if (data.selectionMode !== undefined) result.SelectionMode = data.selectionMode
+
+  if (data.shortcut !== undefined) result.Shortcut = data.shortcut
+
+  if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
+
+  const textColor = exportColorToXML(context, data.textColor)
+  if (textColor !== undefined) result.TextColor = textColor
+
+  const title = exportI8nTextToXML(context, data.title)
+  if (title !== undefined) result.Title = title
+
+  const titleFont = exportFontToXML(context, data.titleFont)
+  if (titleFont !== undefined) result.TitleFont = titleFont
+
+  if (data.titleHeight !== undefined) result.TitleHeight = data.titleHeight
+
+  if (data.titleLocation !== undefined) result.TitleLocation = data.titleLocation
+
+  const titleTextColor = exportColorToXML(context, data.titleTextColor)
+  if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
+
+  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  if (toolTip !== undefined) result.ToolTip = toolTip
+
+  if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
+
+  if (data.useAlternationRowColor !== undefined) result.UseAlternationRowColor = data.useAlternationRowColor
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+
+  if (data.verticalLines !== undefined) result.VerticalLines = data.verticalLines
+
+  if (data.verticalScrollBar !== undefined) result.VerticalScrollBar = data.verticalScrollBar
+
+  if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
+
+  if (data.viewStatusLocation !== undefined) result.ViewStatusLocation = data.viewStatusLocation
+
+  const viewStatusRepresentation = exportFormItemAdditionToXML(context, data.viewStatusRepresentation)
+  if (viewStatusRepresentation !== undefined) result.ViewStatusRepresentation = viewStatusRepresentation
+
+  if (data.visible !== undefined) result.Visible = data.visible
+
+  if (data.width !== undefined) result.Width = data.width
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
+  return result
 }
 
 registerMetadata("ExportToXML", "Table", exportTableToXML)

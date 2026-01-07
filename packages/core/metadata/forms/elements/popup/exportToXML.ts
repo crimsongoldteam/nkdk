@@ -9,20 +9,32 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 export const exportPopupToXML = (context: ConfigurationContext, data: Popup | undefined): PopupXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormGroupToXML(context, data)
+  const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: PopupXML = {
+    ...baseFields,
+  }
 
-    BackColor: exportColorToXML(context, data.backColor),
-    BorderColor: exportColorToXML(context, data.borderColor),
-    Picture: exportPictureToXML(context, data.picture),
-    Representation: data.representation,
-    Shape: data.shape,
-    ShapeRepresentation: data.shapeRepresentation,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),  }
+  const backColor = exportColorToXML(context, data.backColor)
+  if (backColor !== undefined) result.BackColor = backColor
+
+  const borderColor = exportColorToXML(context, data.borderColor)
+  if (borderColor !== undefined) result.BorderColor = borderColor
+
+  const picture = exportPictureToXML(context, data.picture)
+  if (picture !== undefined) result.Picture = picture
+
+  if (data.representation !== undefined) result.Representation = data.representation
+
+  if (data.shape !== undefined) result.Shape = data.shape
+
+  if (data.shapeRepresentation !== undefined) result.ShapeRepresentation = data.shapeRepresentation
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  return result
 }
 
 registerMetadata("ExportToXML", "Popup", exportPopupToXML)

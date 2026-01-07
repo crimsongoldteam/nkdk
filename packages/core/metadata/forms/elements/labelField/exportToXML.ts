@@ -15,32 +15,60 @@ export const exportLabelFieldToXML = (
 ): LabelFieldXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormFieldToXML(context, data)
+  const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: LabelFieldXML = {
+    ...baseFields,
+  }
 
-    AutoMaxHeight: data.autoMaxHeight,
-    AutoMaxWidth: data.autoMaxWidth,
-    BackColor: exportColorToXML(context, data.backColor),
-    Border: exportBorderToXML(context, data.border),
-    BorderColor: exportColorToXML(context, data.borderColor),
-    Font: exportFontToXML(context, data.font),
-    Format: exportI8nTextToXML(context, data.format),
-    Height: data.height,
-    HorizontalStretch: data.horizontalStretch,
-    Hyperlink: data.hyperlink,
-    MarkNegatives: data.markNegatives,
-    MaxHeight: data.maxHeight,
-    MaxWidth: data.maxWidth,
-    PasswordMode: data.passwordMode,
-    TextColor: exportColorToXML(context, data.textColor),
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    VerticalStretch: data.verticalStretch,
-    Width: data.width,
-    Events: exportEventsToXML(context, data.events),  }
+  if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
+
+  if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
+
+  const backColor = exportColorToXML(context, data.backColor)
+  if (backColor !== undefined) result.BackColor = backColor
+
+  const border = exportBorderToXML(context, data.border)
+  if (border !== undefined) result.Border = border
+
+  const borderColor = exportColorToXML(context, data.borderColor)
+  if (borderColor !== undefined) result.BorderColor = borderColor
+
+  const font = exportFontToXML(context, data.font)
+  if (font !== undefined) result.Font = font
+
+  const format = exportI8nTextToXML(context, data.format)
+  if (format !== undefined) result.Format = format
+
+  if (data.height !== undefined) result.Height = data.height
+
+  if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
+
+  if (data.hyperlink !== undefined) result.Hyperlink = data.hyperlink
+
+  if (data.markNegatives !== undefined) result.MarkNegatives = data.markNegatives
+
+  if (data.maxHeight !== undefined) result.MaxHeight = data.maxHeight
+
+  if (data.maxWidth !== undefined) result.MaxWidth = data.maxWidth
+
+  if (data.passwordMode !== undefined) result.PasswordMode = data.passwordMode
+
+  const textColor = exportColorToXML(context, data.textColor)
+  if (textColor !== undefined) result.TextColor = textColor
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
+
+  if (data.width !== undefined) result.Width = data.width
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
+  return result
 }
 
 registerMetadata("ExportToXML", "LabelField", exportLabelFieldToXML)

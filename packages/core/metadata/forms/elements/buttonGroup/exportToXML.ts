@@ -13,12 +13,16 @@ export const exportButtonGroupToXML = (
   const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
+  const result: ButtonGroupXML = {
     ...baseFields,
-
-    Representation: data.representation,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
   }
+
+  if (data.representation !== undefined) result.Representation = data.representation
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  return result
 }
 
 registerMetadata("ExportToXML", "ButtonGroup", exportButtonGroupToXML)

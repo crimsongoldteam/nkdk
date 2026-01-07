@@ -17,23 +17,44 @@ export const exportCheckBoxFieldToXML = (
   const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
+  const result: CheckBoxFieldXML = {
     ...baseFields,
-
-    BackColor: exportColorToXML(context, data.backColor),
-    BorderColor: exportColorToXML(context, data.borderColor),
-    CheckBoxType: data.checkBoxType,
-    EditFormat: exportI8nTextToXML(context, data.editFormat),
-    EqualItemsWidth: data.equalItemsWidth,
-    Font: exportFontToXML(context, data.font),
-    ItemHeight: data.itemHeight,
-    ItemTitleHeight: data.itemTitleHeight,
-    ItemWidth: data.itemWidth,
-    TextColor: exportColorToXML(context, data.textColor),
-    ThreeState: data.threeState,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    Events: exportEventsToXML(context, data.events),
   }
+
+  const backColor = exportColorToXML(context, data.backColor)
+  if (backColor !== undefined) result.BackColor = backColor
+
+  const borderColor = exportColorToXML(context, data.borderColor)
+  if (borderColor !== undefined) result.BorderColor = borderColor
+
+  if (data.checkBoxType !== undefined) result.CheckBoxType = data.checkBoxType
+
+  const editFormat = exportI8nTextToXML(context, data.editFormat)
+  if (editFormat !== undefined) result.EditFormat = editFormat
+
+  if (data.equalItemsWidth !== undefined) result.EqualItemsWidth = data.equalItemsWidth
+
+  const font = exportFontToXML(context, data.font)
+  if (font !== undefined) result.Font = font
+
+  if (data.itemHeight !== undefined) result.ItemHeight = data.itemHeight
+
+  if (data.itemTitleHeight !== undefined) result.ItemTitleHeight = data.itemTitleHeight
+
+  if (data.itemWidth !== undefined) result.ItemWidth = data.itemWidth
+
+  const textColor = exportColorToXML(context, data.textColor)
+  if (textColor !== undefined) result.TextColor = textColor
+
+  if (data.threeState !== undefined) result.ThreeState = data.threeState
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
+  return result
 }
 
 registerMetadata("ExportToXML", "CheckBoxField", exportCheckBoxFieldToXML)

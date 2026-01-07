@@ -13,23 +13,39 @@ export const exportLabelDecorationToXML = (
 ): LabelDecorationXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormDecorationToXML(context, data)
+  const baseFields = exportFormDecorationToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: LabelDecorationXML = {
+    ...baseFields,
+  }
 
-    BackColor: exportColorToXML(context, data.backColor),
-    Border: exportBorderToXML(context, data.border),
-    BorderColor: exportColorToXML(context, data.borderColor),
-    GroupVerticalAlign: data.groupVerticalAlign,
-    HorizontalAlign: data.horizontalAlign,
-    Hyperlink: data.hyperlink,
-    TitleHeight: data.titleHeight,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    VerticalAlign: data.verticalAlign,
-    Events: exportEventsToXML(context, data.events),  }
+  const backColor = exportColorToXML(context, data.backColor)
+  if (backColor !== undefined) result.BackColor = backColor
+
+  const border = exportBorderToXML(context, data.border)
+  if (border !== undefined) result.Border = border
+
+  const borderColor = exportColorToXML(context, data.borderColor)
+  if (borderColor !== undefined) result.BorderColor = borderColor
+
+  if (data.groupVerticalAlign !== undefined) result.GroupVerticalAlign = data.groupVerticalAlign
+
+  if (data.horizontalAlign !== undefined) result.HorizontalAlign = data.horizontalAlign
+
+  if (data.hyperlink !== undefined) result.Hyperlink = data.hyperlink
+
+  if (data.titleHeight !== undefined) result.TitleHeight = data.titleHeight
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
+  return result
 }
 
 registerMetadata("ExportToXML", "LabelDecoration", exportLabelDecorationToXML)

@@ -18,30 +18,58 @@ export const exportFormGroupToXML = (
   const baseFields = exportBaseElementToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
+  const result: FormGroupXML = {
     ...baseFields,
-
-    ChildItems: exportChildItemsToXML(context, data.childItems),
-    EnableContentChange: data.enableContentChange,
-    Enabled: data.enabled,
-    ExtendedTooltip: exportFormDecorationToXML(context, data.extendedTooltip),
-    Height: data.height,
-    HorizontalAlignInGroup: data.horizontalAlignInGroup,
-    HorizontalStretch: data.horizontalStretch,
-    ReadOnly: data.readOnly,
-    Shortcut: data.shortcut,
-    Title: exportI8nTextToXML(context, data.title),
-    TitleFont: exportFontToXML(context, data.titleFont),
-    TitleTextColor: exportColorToXML(context, data.titleTextColor),
-    ToolTip: exportI8nTextToXML(context, data.toolTip),
-    ToolTipRepresentation: data.toolTipRepresentation,
-    Type: data.type,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    VerticalAlignInGroup: data.verticalAlignInGroup,
-    VerticalStretch: data.verticalStretch,
-    Visible: data.visible,
-    Width: data.width,
   }
+
+  const childItems = exportChildItemsToXML(context, data.childItems)
+  if (childItems !== undefined) result.ChildItems = childItems
+
+  if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
+
+  if (data.enabled !== undefined) result.Enabled = data.enabled
+
+  const extendedTooltip = exportFormDecorationToXML(context, data.extendedTooltip)
+  if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
+
+  if (data.height !== undefined) result.Height = data.height
+
+  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
+
+  if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
+
+  if (data.readOnly !== undefined) result.ReadOnly = data.readOnly
+
+  if (data.shortcut !== undefined) result.Shortcut = data.shortcut
+
+  const title = exportI8nTextToXML(context, data.title)
+  if (title !== undefined) result.Title = title
+
+  const titleFont = exportFontToXML(context, data.titleFont)
+  if (titleFont !== undefined) result.TitleFont = titleFont
+
+  const titleTextColor = exportColorToXML(context, data.titleTextColor)
+  if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
+
+  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  if (toolTip !== undefined) result.ToolTip = toolTip
+
+  if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
+
+  if (data.type !== undefined) result.Type = data.type
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+
+  if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
+
+  if (data.visible !== undefined) result.Visible = data.visible
+
+  if (data.width !== undefined) result.Width = data.width
+
+  return result
 }
 
 registerMetadata<FormGroup>("ExportToXML", "FormGroup", exportFormGroupToXML)

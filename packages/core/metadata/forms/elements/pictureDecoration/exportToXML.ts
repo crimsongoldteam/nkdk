@@ -14,26 +14,45 @@ export const exportPictureDecorationToXML = (
 ): PictureDecorationXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormDecorationToXML(context, data)
+  const baseFields = exportFormDecorationToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: PictureDecorationXML = {
+    ...baseFields,
+  }
 
-    Border: exportBorderToXML(context, data.border),
-    BorderColor: exportColorToXML(context, data.borderColor),
-    EnableDrag: data.enableDrag,
-    EnableStartDrag: data.enableStartDrag,
-    FileDragMode: data.fileDragMode,
-    Hyperlink: data.hyperlink,
-    NonselectedPictureText: data.nonselectedPictureText,
-    Picture: exportPictureToXML(context, data.picture),
-    PictureSize: data.pictureSize,
-    Scale: data.scale,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    Zoomable: data.zoomable,
-    Events: exportEventsToXML(context, data.events),  }
+  const border = exportBorderToXML(context, data.border)
+  if (border !== undefined) result.Border = border
+
+  const borderColor = exportColorToXML(context, data.borderColor)
+  if (borderColor !== undefined) result.BorderColor = borderColor
+
+  if (data.enableDrag !== undefined) result.EnableDrag = data.enableDrag
+
+  if (data.enableStartDrag !== undefined) result.EnableStartDrag = data.enableStartDrag
+
+  if (data.fileDragMode !== undefined) result.FileDragMode = data.fileDragMode
+
+  if (data.hyperlink !== undefined) result.Hyperlink = data.hyperlink
+
+  if (data.nonselectedPictureText !== undefined) result.NonselectedPictureText = data.nonselectedPictureText
+
+  const picture = exportPictureToXML(context, data.picture)
+  if (picture !== undefined) result.Picture = picture
+
+  if (data.pictureSize !== undefined) result.PictureSize = data.pictureSize
+
+  if (data.scale !== undefined) result.Scale = data.scale
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.zoomable !== undefined) result.Zoomable = data.zoomable
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
+  return result
 }
 
 registerMetadata("ExportToXML", "PictureDecoration", exportPictureDecorationToXML)

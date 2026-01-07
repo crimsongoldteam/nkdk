@@ -16,36 +16,70 @@ export const exportUsualGroupToXML = (
   const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
+  const result: UsualGroupXML = {
     ...baseFields,
-
-    AssociatedTable: exportTableToXML(context, data.associatedTable),
-    BackColor: exportColorToXML(context, data.backColor),
-    Behavior: data.behavior,
-    ChildItemsHorizontalAlign: data.childItemsHorizontalAlign,
-    ChildItemsVerticalAlign: data.childItemsVerticalAlign,
-    CollapsedRepresentationTitle: data.collapsedRepresentationTitle,
-    ControlRepresentation: data.controlRepresentation,
-    CurrentRowUse: data.currentRowUse,
-    _DisplayImportance: data.displayImportance,
-    Format: exportI8nTextToXML(context, data.format),
-    Group: data.group,
-    GroupHorizontalAlign: data.groupHorizontalAlign,
-    GroupVerticalAlign: data.groupVerticalAlign,
-    HiddenRepresentationTitleBackColor: exportColorToXML(context, data.hiddenRepresentationTitleBackColor),
-    HorizontalSpacing: data.horizontalSpacing,
-    ItemsAndTitlesAlign: data.itemsAndTitlesAlign,
-    Representation: data.representation,
-    ShowLeftMargin: data.showLeftMargin,
-    ShowTitle: data.showTitle,
-    SlaveItemsWidth: data.slaveItemsWidth,
-    ThroughAlign: data.throughAlign,
-    TitleDataPath: data.titleDataPath,
-    United: data.united,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    VerticalAlign: data.verticalAlign,
-    VerticalSpacing: data.verticalSpacing,
   }
+
+  const associatedTable = exportTableToXML(context, data.associatedTable)
+  if (associatedTable !== undefined) result.AssociatedTable = associatedTable
+
+  const backColor = exportColorToXML(context, data.backColor)
+  if (backColor !== undefined) result.BackColor = backColor
+
+  if (data.behavior !== undefined) result.Behavior = data.behavior
+
+  if (data.childItemsHorizontalAlign !== undefined) result.ChildItemsHorizontalAlign = data.childItemsHorizontalAlign
+
+  if (data.childItemsVerticalAlign !== undefined) result.ChildItemsVerticalAlign = data.childItemsVerticalAlign
+
+  if (data.collapsedRepresentationTitle !== undefined)
+    result.CollapsedRepresentationTitle = data.collapsedRepresentationTitle
+
+  if (data.controlRepresentation !== undefined) result.ControlRepresentation = data.controlRepresentation
+
+  if (data.currentRowUse !== undefined) result.CurrentRowUse = data.currentRowUse
+
+  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
+
+  const format = exportI8nTextToXML(context, data.format)
+  if (format !== undefined) result.Format = format
+
+  if (data.group !== undefined) result.Group = data.group
+
+  if (data.groupHorizontalAlign !== undefined) result.GroupHorizontalAlign = data.groupHorizontalAlign
+
+  if (data.groupVerticalAlign !== undefined) result.GroupVerticalAlign = data.groupVerticalAlign
+
+  const hiddenRepresentationTitleBackColor = exportColorToXML(context, data.hiddenRepresentationTitleBackColor)
+  if (hiddenRepresentationTitleBackColor !== undefined)
+    result.HiddenRepresentationTitleBackColor = hiddenRepresentationTitleBackColor
+
+  if (data.horizontalSpacing !== undefined) result.HorizontalSpacing = data.horizontalSpacing
+
+  if (data.itemsAndTitlesAlign !== undefined) result.ItemsAndTitlesAlign = data.itemsAndTitlesAlign
+
+  if (data.representation !== undefined) result.Representation = data.representation
+
+  if (data.showLeftMargin !== undefined) result.ShowLeftMargin = data.showLeftMargin
+
+  if (data.showTitle !== undefined) result.ShowTitle = data.showTitle
+
+  if (data.slaveItemsWidth !== undefined) result.SlaveItemsWidth = data.slaveItemsWidth
+
+  if (data.throughAlign !== undefined) result.ThroughAlign = data.throughAlign
+
+  if (data.titleDataPath !== undefined) result.TitleDataPath = data.titleDataPath
+
+  if (data.united !== undefined) result.United = data.united
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
+
+  if (data.verticalSpacing !== undefined) result.VerticalSpacing = data.verticalSpacing
+
+  return result
 }
 
 registerMetadata("ExportToXML", "UsualGroup", exportUsualGroupToXML)

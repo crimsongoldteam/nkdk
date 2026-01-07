@@ -12,30 +12,51 @@ export const exportPdfDocumentFieldToXML = (
 ): PdfDocumentFieldXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormFieldToXML(context, data)
+  const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: PdfDocumentFieldXML = {
+    ...baseFields,
+  }
 
-    AutoMaxHeight: data.autoMaxHeight,
-    AutoMaxWidth: data.autoMaxWidth,
-    BorderColor: exportColorToXML(context, data.borderColor),
-    CurrentPageNumber: data.currentPageNumber,
-    Height: data.height,
-    HorizontalStretch: data.horizontalStretch,
-    MaxHeight: data.maxHeight,
-    MaxWidth: data.maxWidth,
-    Orientation: data.orientation,
-    Output: data.output,
-    Scale: data.scale,
-    UsedFileName: data.usedFileName,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    VerticalStretch: data.verticalStretch,
-    ViewStatusLocation: data.viewStatusLocation,
-    Width: data.width,
-    Events: exportEventsToXML(context, data.events),  }
+  if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
+
+  if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
+
+  const borderColor = exportColorToXML(context, data.borderColor)
+  if (borderColor !== undefined) result.BorderColor = borderColor
+
+  if (data.currentPageNumber !== undefined) result.CurrentPageNumber = data.currentPageNumber
+
+  if (data.height !== undefined) result.Height = data.height
+
+  if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
+
+  if (data.maxHeight !== undefined) result.MaxHeight = data.maxHeight
+
+  if (data.maxWidth !== undefined) result.MaxWidth = data.maxWidth
+
+  if (data.orientation !== undefined) result.Orientation = data.orientation
+
+  if (data.output !== undefined) result.Output = data.output
+
+  if (data.scale !== undefined) result.Scale = data.scale
+
+  if (data.usedFileName !== undefined) result.UsedFileName = data.usedFileName
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
+
+  if (data.viewStatusLocation !== undefined) result.ViewStatusLocation = data.viewStatusLocation
+
+  if (data.width !== undefined) result.Width = data.width
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
+  return result
 }
 
 registerMetadata("ExportToXML", "PdfDocumentField", exportPdfDocumentFieldToXML)

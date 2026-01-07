@@ -22,54 +22,118 @@ export const exportFormFieldToXML = (
   const baseFields = exportBaseElementToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
+  const result: FormFieldXML = {
     ...baseFields,
-
-    AutoCellHeight: data.autoCellHeight,
-    CellHyperlink: data.cellHyperlink,
-    ContextMenu: exportCommandBarToXML(context, data.contextMenu),
-    DataPath: data.dataPath,
-    DefaultItem: data.defaultItem,
-    _DisplayImportance: data.displayImportance,
-    EditMode: data.editMode,
-    Enabled: data.enabled,
-    ExtendedTooltip: exportFormDecorationToXML(context, data.extendedTooltip),
-    FixingInTable: data.fixingInTable,
-    FooterBackColor: exportColorToXML(context, data.footerBackColor),
-    FooterDataPath: data.footerDataPath,
-    FooterFont: exportFontToXML(context, data.footerFont),
-    FooterHorizontalAlign: data.footerHorizontalAlign,
-    FooterPicture: exportPictureToXML(context, data.footerPicture),
-    FooterText: exportI8nTextToXML(context, data.footerText),
-    FooterTextColor: exportColorToXML(context, data.footerTextColor),
-    HeaderHorizontalAlign: data.headerHorizontalAlign,
-    HeaderPicture: exportPictureToXML(context, data.headerPicture),
-    HorizontalAlign: data.horizontalAlign,
-    HorizontalAlignInGroup: data.horizontalAlignInGroup,
-    ReadOnly: data.readOnly,
-    Shortcut: data.shortcut,
-    ShowInFooter: data.showInFooter,
-    ShowInHeader: data.showInHeader,
-    SkipOnInput: data.skipOnInput,
-    Table: exportTableToXML(context, data.table),
-    Title: exportI8nTextToXML(context, data.title),
-    TitleBackColor: exportColorToXML(context, data.titleBackColor),
-    TitleFont: exportFontToXML(context, data.titleFont),
-    TitleHeight: data.titleHeight,
-    TitleLocation: data.titleLocation,
-    TitleTextColor: exportColorToXML(context, data.titleTextColor),
-    ToolTip: exportI8nTextToXML(context, data.toolTip),
-    ToolTipRepresentation: data.toolTipRepresentation,
-    Type: data.type,
-    TypeRestriction: exportTypeDescriptionToXML(context, data.typeRestriction),
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    VerticalAlign: data.verticalAlign,
-    VerticalAlignInGroup: data.verticalAlignInGroup,
-    Visible: data.visible,
-    WarningOnEdit: exportI8nTextToXML(context, data.warningOnEdit),
-    WarningOnEditRepresentation: data.warningOnEditRepresentation,
-    Events: exportEventsToXML(context, data.events),
   }
+
+  if (data.autoCellHeight !== undefined) result.AutoCellHeight = data.autoCellHeight
+
+  if (data.cellHyperlink !== undefined) result.CellHyperlink = data.cellHyperlink
+
+  const contextMenu = exportCommandBarToXML(context, data.contextMenu)
+  if (contextMenu !== undefined) result.ContextMenu = contextMenu
+
+  if (data.dataPath !== undefined) result.DataPath = data.dataPath
+
+  if (data.defaultItem !== undefined) result.DefaultItem = data.defaultItem
+
+  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
+
+  if (data.editMode !== undefined) result.EditMode = data.editMode
+
+  if (data.enabled !== undefined) result.Enabled = data.enabled
+
+  const extendedTooltip = exportFormDecorationToXML(context, data.extendedTooltip)
+  if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
+
+  if (data.fixingInTable !== undefined) result.FixingInTable = data.fixingInTable
+
+  const footerBackColor = exportColorToXML(context, data.footerBackColor)
+  if (footerBackColor !== undefined) result.FooterBackColor = footerBackColor
+
+  if (data.footerDataPath !== undefined) result.FooterDataPath = data.footerDataPath
+
+  const footerFont = exportFontToXML(context, data.footerFont)
+  if (footerFont !== undefined) result.FooterFont = footerFont
+
+  if (data.footerHorizontalAlign !== undefined) result.FooterHorizontalAlign = data.footerHorizontalAlign
+
+  const footerPicture = exportPictureToXML(context, data.footerPicture)
+  if (footerPicture !== undefined) result.FooterPicture = footerPicture
+
+  const footerText = exportI8nTextToXML(context, data.footerText)
+  if (footerText !== undefined) result.FooterText = footerText
+
+  const footerTextColor = exportColorToXML(context, data.footerTextColor)
+  if (footerTextColor !== undefined) result.FooterTextColor = footerTextColor
+
+  if (data.headerHorizontalAlign !== undefined) result.HeaderHorizontalAlign = data.headerHorizontalAlign
+
+  const headerPicture = exportPictureToXML(context, data.headerPicture)
+  if (headerPicture !== undefined) result.HeaderPicture = headerPicture
+
+  if (data.horizontalAlign !== undefined) result.HorizontalAlign = data.horizontalAlign
+
+  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
+
+  if (data.readOnly !== undefined) result.ReadOnly = data.readOnly
+
+  if (data.shortcut !== undefined) result.Shortcut = data.shortcut
+
+  if (data.showInFooter !== undefined) result.ShowInFooter = data.showInFooter
+
+  if (data.showInHeader !== undefined) result.ShowInHeader = data.showInHeader
+
+  if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
+
+  const table = exportTableToXML(context, data.table)
+  if (table !== undefined) result.Table = table
+
+  const title = exportI8nTextToXML(context, data.title)
+  if (title !== undefined) result.Title = title
+
+  const titleBackColor = exportColorToXML(context, data.titleBackColor)
+  if (titleBackColor !== undefined) result.TitleBackColor = titleBackColor
+
+  const titleFont = exportFontToXML(context, data.titleFont)
+  if (titleFont !== undefined) result.TitleFont = titleFont
+
+  if (data.titleHeight !== undefined) result.TitleHeight = data.titleHeight
+
+  if (data.titleLocation !== undefined) result.TitleLocation = data.titleLocation
+
+  const titleTextColor = exportColorToXML(context, data.titleTextColor)
+  if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
+
+  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  if (toolTip !== undefined) result.ToolTip = toolTip
+
+  if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
+
+  if (data.type !== undefined) result.Type = data.type
+
+  const typeRestriction = exportTypeDescriptionToXML(context, data.typeRestriction)
+  if (typeRestriction !== undefined) result.TypeRestriction = typeRestriction
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
+
+  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+
+  if (data.visible !== undefined) result.Visible = data.visible
+
+  const warningOnEdit = exportI8nTextToXML(context, data.warningOnEdit)
+  if (warningOnEdit !== undefined) result.WarningOnEdit = warningOnEdit
+
+  if (data.warningOnEditRepresentation !== undefined)
+    result.WarningOnEditRepresentation = data.warningOnEditRepresentation
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
+  return result
 }
 
 registerMetadata("ExportToXML", "FormField", exportFormFieldToXML)

@@ -16,29 +16,52 @@ export const exportFormattedDocumentFieldToXML = (
 ): FormattedDocumentFieldXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormFieldToXML(context, data)
+  const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: FormattedDocumentFieldXML = {
+    ...baseFields,
+  }
 
-    AutoMaxHeight: data.autoMaxHeight,
-    AutoMaxWidth: data.autoMaxWidth,
-    BackColor: exportColorToXML(context, data.backColor),
-    BorderColor: exportColorToXML(context, data.borderColor),
-    Font: exportFontToXML(context, data.font),
-    Height: data.height,
-    HorizontalStretch: data.horizontalStretch,
-    MaxHeight: data.maxHeight,
-    MaxWidth: data.maxWidth,
-    Output: data.output,
-    SelectedText: data.selectedText,
-    TextColor: exportColorToXML(context, data.textColor),
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    VerticalStretch: data.verticalStretch,
-    Width: data.width,
-    Events: exportEventsToXML(context, data.events),  }
+  if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
+
+  if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
+
+  const backColor = exportColorToXML(context, data.backColor)
+  if (backColor !== undefined) result.BackColor = backColor
+
+  const borderColor = exportColorToXML(context, data.borderColor)
+  if (borderColor !== undefined) result.BorderColor = borderColor
+
+  const font = exportFontToXML(context, data.font)
+  if (font !== undefined) result.Font = font
+
+  if (data.height !== undefined) result.Height = data.height
+
+  if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
+
+  if (data.maxHeight !== undefined) result.MaxHeight = data.maxHeight
+
+  if (data.maxWidth !== undefined) result.MaxWidth = data.maxWidth
+
+  if (data.output !== undefined) result.Output = data.output
+
+  if (data.selectedText !== undefined) result.SelectedText = data.selectedText
+
+  const textColor = exportColorToXML(context, data.textColor)
+  if (textColor !== undefined) result.TextColor = textColor
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
+
+  if (data.width !== undefined) result.Width = data.width
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
+  return result
 }
 
 registerMetadata("ExportToXML", "FormattedDocumentField", exportFormattedDocumentFieldToXML)

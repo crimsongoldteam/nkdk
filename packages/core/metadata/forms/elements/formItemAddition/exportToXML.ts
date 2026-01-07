@@ -17,23 +17,43 @@ export const exportFormItemAdditionToXML = (
   const baseFields = exportBaseElementToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
+  const result: FormItemAdditionXML = {
     ...baseFields,
-
-    ChildItems: exportChildItemsToXML(context, data.childItems),
-    ContextMenu: exportCommandBarToXML(context, data.contextMenu),
-    _DisplayImportance: data.displayImportance,
-    Enabled: data.enabled,
-    ExtendedToolTip: exportFormDecorationToXML(context, data.extendedToolTip),
-    HorizontalAlignInGroup: data.horizontalAlignInGroup,
-    Title: exportI8nTextToXML(context, data.title),
-    ToolTip: exportI8nTextToXML(context, data.toolTip),
-    ToolTipRepresentation: data.toolTipRepresentation,
-    Type: data.type,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    VerticalAlignInGroup: data.verticalAlignInGroup,
-    Visible: data.visible,
   }
+
+  const childItems = exportChildItemsToXML(context, data.childItems)
+  if (childItems !== undefined) result.ChildItems = childItems
+
+  const contextMenu = exportCommandBarToXML(context, data.contextMenu)
+  if (contextMenu !== undefined) result.ContextMenu = contextMenu
+
+  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
+
+  if (data.enabled !== undefined) result.Enabled = data.enabled
+
+  const extendedToolTip = exportFormDecorationToXML(context, data.extendedToolTip)
+  if (extendedToolTip !== undefined) result.ExtendedToolTip = extendedToolTip
+
+  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
+
+  const title = exportI8nTextToXML(context, data.title)
+  if (title !== undefined) result.Title = title
+
+  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  if (toolTip !== undefined) result.ToolTip = toolTip
+
+  if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
+
+  if (data.type !== undefined) result.Type = data.type
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+
+  if (data.visible !== undefined) result.Visible = data.visible
+
+  return result
 }
 
 registerMetadata("ExportToXML", "FormItemAddition", exportFormItemAdditionToXML)

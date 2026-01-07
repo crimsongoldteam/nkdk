@@ -15,20 +15,34 @@ export const exportColumnGroupToXML = (
   const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
+  const result: ColumnGroupXML = {
     ...baseFields,
-
-    FixingInTable: data.fixingInTable,
-    Group: data.group,
-    HeaderDataPath: data.headerDataPath,
-    HeaderFormat: data.headerFormat,
-    HeaderHorizontalAlign: data.headerHorizontalAlign,
-    HeaderPicture: exportPictureToXML(context, data.headerPicture),
-    ShowInHeader: data.showInHeader,
-    ShowTitle: data.showTitle,
-    TitleBackColor: exportColorToXML(context, data.titleBackColor),
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
   }
+
+  if (data.fixingInTable !== undefined) result.FixingInTable = data.fixingInTable
+
+  if (data.group !== undefined) result.Group = data.group
+
+  if (data.headerDataPath !== undefined) result.HeaderDataPath = data.headerDataPath
+
+  if (data.headerFormat !== undefined) result.HeaderFormat = data.headerFormat
+
+  if (data.headerHorizontalAlign !== undefined) result.HeaderHorizontalAlign = data.headerHorizontalAlign
+
+  const headerPicture = exportPictureToXML(context, data.headerPicture)
+  if (headerPicture !== undefined) result.HeaderPicture = headerPicture
+
+  if (data.showInHeader !== undefined) result.ShowInHeader = data.showInHeader
+
+  if (data.showTitle !== undefined) result.ShowTitle = data.showTitle
+
+  const titleBackColor = exportColorToXML(context, data.titleBackColor)
+  if (titleBackColor !== undefined) result.TitleBackColor = titleBackColor
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  return result
 }
 
 registerMetadata("ExportToXML", "ColumnGroup", exportColumnGroupToXML)

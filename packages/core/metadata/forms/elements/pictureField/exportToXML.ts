@@ -15,36 +15,67 @@ export const exportPictureFieldToXML = (
 ): PictureFieldXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormFieldToXML(context, data)
+  const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: PictureFieldXML = {
+    ...baseFields,
+  }
 
-    AutoMaxHeight: data.autoMaxHeight,
-    AutoMaxWidth: data.autoMaxWidth,
-    Border: exportBorderToXML(context, data.border),
-    BorderColor: exportColorToXML(context, data.borderColor),
-    EnableDrag: data.enableDrag,
-    EnableStartDrag: data.enableStartDrag,
-    FileDragMode: data.fileDragMode,
-    Font: exportFontToXML(context, data.font),
-    Height: data.height,
-    HorizontalStretch: data.horizontalStretch,
-    Hyperlink: data.hyperlink,
-    MaxHeight: data.maxHeight,
-    MaxWidth: data.maxWidth,
-    NonselectedPictureText: data.nonselectedPictureText,
-    PictureSize: data.pictureSize,
-    Scale: data.scale,
-    TextColor: exportColorToXML(context, data.textColor),
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    ValuesPicture: exportPictureToXML(context, data.valuesPicture),
-    VerticalStretch: data.verticalStretch,
-    Width: data.width,
-    Zoomable: data.zoomable,
-    Events: exportEventsToXML(context, data.events),  }
+  if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
+
+  if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
+
+  const border = exportBorderToXML(context, data.border)
+  if (border !== undefined) result.Border = border
+
+  const borderColor = exportColorToXML(context, data.borderColor)
+  if (borderColor !== undefined) result.BorderColor = borderColor
+
+  if (data.enableDrag !== undefined) result.EnableDrag = data.enableDrag
+
+  if (data.enableStartDrag !== undefined) result.EnableStartDrag = data.enableStartDrag
+
+  if (data.fileDragMode !== undefined) result.FileDragMode = data.fileDragMode
+
+  const font = exportFontToXML(context, data.font)
+  if (font !== undefined) result.Font = font
+
+  if (data.height !== undefined) result.Height = data.height
+
+  if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
+
+  if (data.hyperlink !== undefined) result.Hyperlink = data.hyperlink
+
+  if (data.maxHeight !== undefined) result.MaxHeight = data.maxHeight
+
+  if (data.maxWidth !== undefined) result.MaxWidth = data.maxWidth
+
+  if (data.nonselectedPictureText !== undefined) result.NonselectedPictureText = data.nonselectedPictureText
+
+  if (data.pictureSize !== undefined) result.PictureSize = data.pictureSize
+
+  if (data.scale !== undefined) result.Scale = data.scale
+
+  const textColor = exportColorToXML(context, data.textColor)
+  if (textColor !== undefined) result.TextColor = textColor
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  const valuesPicture = exportPictureToXML(context, data.valuesPicture)
+  if (valuesPicture !== undefined) result.ValuesPicture = valuesPicture
+
+  if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
+
+  if (data.width !== undefined) result.Width = data.width
+
+  if (data.zoomable !== undefined) result.Zoomable = data.zoomable
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
+  return result
 }
 
 registerMetadata("ExportToXML", "PictureField", exportPictureFieldToXML)

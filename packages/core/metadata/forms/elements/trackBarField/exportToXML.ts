@@ -11,30 +11,50 @@ export const exportTrackBarFieldToXML = (
 ): TrackBarFieldXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormFieldToXML(context, data)
+  const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: TrackBarFieldXML = {
+    ...baseFields,
+  }
 
-    AutoMaxHeight: data.autoMaxHeight,
-    AutoMaxWidth: data.autoMaxWidth,
-    Height: data.height,
-    HorizontalStretch: data.horizontalStretch,
-    LargeStep: data.largeStep,
-    MarkingAppearance: data.markingAppearance,
-    MarkingStep: data.markingStep,
-    MaxHeight: data.maxHeight,
-    MaxValue: data.maxValue,
-    MaxWidth: data.maxWidth,
-    MinValue: data.minValue,
-    Orientation: data.orientation,
-    Step: data.step,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    VerticalStretch: data.verticalStretch,
-    Width: data.width,
-    Events: exportEventsToXML(context, data.events),  }
+  if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
+
+  if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
+
+  if (data.height !== undefined) result.Height = data.height
+
+  if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
+
+  if (data.largeStep !== undefined) result.LargeStep = data.largeStep
+
+  if (data.markingAppearance !== undefined) result.MarkingAppearance = data.markingAppearance
+
+  if (data.markingStep !== undefined) result.MarkingStep = data.markingStep
+
+  if (data.maxHeight !== undefined) result.MaxHeight = data.maxHeight
+
+  if (data.maxValue !== undefined) result.MaxValue = data.maxValue
+
+  if (data.maxWidth !== undefined) result.MaxWidth = data.maxWidth
+
+  if (data.minValue !== undefined) result.MinValue = data.minValue
+
+  if (data.orientation !== undefined) result.Orientation = data.orientation
+
+  if (data.step !== undefined) result.Step = data.step
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
+
+  if (data.width !== undefined) result.Width = data.width
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
+  return result
 }
 
 registerMetadata("ExportToXML", "TrackBarField", exportTrackBarFieldToXML)

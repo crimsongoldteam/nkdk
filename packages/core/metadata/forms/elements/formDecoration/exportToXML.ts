@@ -17,34 +17,66 @@ export const exportFormDecorationToXML = (
   const baseFields = exportBaseElementToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
+  const result: FormDecorationXML = {
     ...baseFields,
-
-    AutoMaxHeight: data.autoMaxHeight,
-    AutoMaxWidth: data.autoMaxWidth,
-    ContextMenu: exportCommandBarToXML(context, data.contextMenu),
-    _DisplayImportance: data.displayImportance,
-    Enabled: data.enabled,
-    ExtendedTooltip: exportFormDecorationToXML(context, data.extendedTooltip),
-    Font: exportFontToXML(context, data.font),
-    Height: data.height,
-    HorizontalAlignInGroup: data.horizontalAlignInGroup,
-    HorizontalStretch: data.horizontalStretch,
-    MaxHeight: data.maxHeight,
-    MaxWidth: data.maxWidth,
-    Shortcut: data.shortcut,
-    SkipOnInput: data.skipOnInput,
-    TextColor: exportColorToXML(context, data.textColor),
-    Title: exportI8nTextToXML(context, data.title),
-    ToolTip: exportI8nTextToXML(context, data.toolTip),
-    ToolTipRepresentation: data.toolTipRepresentation,
-    Type: data.type,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    VerticalAlignInGroup: data.verticalAlignInGroup,
-    VerticalStretch: data.verticalStretch,
-    Visible: data.visible,
-    Width: data.width,
   }
+
+  if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
+
+  if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
+
+  const contextMenu = exportCommandBarToXML(context, data.contextMenu)
+  if (contextMenu !== undefined) result.ContextMenu = contextMenu
+
+  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
+
+  if (data.enabled !== undefined) result.Enabled = data.enabled
+
+  const extendedTooltip = exportFormDecorationToXML(context, data.extendedTooltip)
+  if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
+
+  const font = exportFontToXML(context, data.font)
+  if (font !== undefined) result.Font = font
+
+  if (data.height !== undefined) result.Height = data.height
+
+  if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
+
+  if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
+
+  if (data.maxHeight !== undefined) result.MaxHeight = data.maxHeight
+
+  if (data.maxWidth !== undefined) result.MaxWidth = data.maxWidth
+
+  if (data.shortcut !== undefined) result.Shortcut = data.shortcut
+
+  if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
+
+  const textColor = exportColorToXML(context, data.textColor)
+  if (textColor !== undefined) result.TextColor = textColor
+
+  const title = exportI8nTextToXML(context, data.title)
+  if (title !== undefined) result.Title = title
+
+  const toolTip = exportI8nTextToXML(context, data.toolTip)
+  if (toolTip !== undefined) result.ToolTip = toolTip
+
+  if (data.toolTipRepresentation !== undefined) result.ToolTipRepresentation = data.toolTipRepresentation
+
+  if (data.type !== undefined) result.Type = data.type
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
+
+  if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
+
+  if (data.visible !== undefined) result.Visible = data.visible
+
+  if (data.width !== undefined) result.Width = data.width
+
+  return result
 }
 
 registerMetadata<FormDecoration>("ExportToXML", "FormDecoration", exportFormDecorationToXML)

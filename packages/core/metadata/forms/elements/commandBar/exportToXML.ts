@@ -13,14 +13,20 @@ export const exportCommandBarToXML = (
   const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
+  const result: CommandBarXML = {
     ...baseFields,
-
-    Autofill: data.autofill,
-    _DisplayImportance: data.displayImportance,
-    HorizontalAlign: data.horizontalAlign,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
   }
+
+  if (data.autofill !== undefined) result.Autofill = data.autofill
+
+  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
+
+  if (data.horizontalAlign !== undefined) result.HorizontalAlign = data.horizontalAlign
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  return result
 }
 
 registerMetadata<CommandBar>("ExportToXML", "CommandBar", exportCommandBarToXML)

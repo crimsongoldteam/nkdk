@@ -9,19 +9,29 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 export const exportPagesToXML = (context: ConfigurationContext, data: Pages | undefined): PagesXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormGroupToXML(context, data)
+  const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: PagesXML = {
+    ...baseFields,
+  }
 
-    AssociatedTable: exportTableToXML(context, data.associatedTable),
-    CurrentPagesState: data.currentPagesState,
-    CurrentRowUse: data.currentRowUse,
-    PagesRepresentation: data.pagesRepresentation,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    Events: exportEventsToXML(context, data.events),  }
+  const associatedTable = exportTableToXML(context, data.associatedTable)
+  if (associatedTable !== undefined) result.AssociatedTable = associatedTable
+
+  if (data.currentPagesState !== undefined) result.CurrentPagesState = data.currentPagesState
+
+  if (data.currentRowUse !== undefined) result.CurrentRowUse = data.currentRowUse
+
+  if (data.pagesRepresentation !== undefined) result.PagesRepresentation = data.pagesRepresentation
+
+  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  const events = exportEventsToXML(context, data.events)
+  if (events !== undefined) result.Events = events
+
+  return result
 }
 
 registerMetadata("ExportToXML", "Pages", exportPagesToXML)
