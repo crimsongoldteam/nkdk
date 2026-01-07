@@ -1,0 +1,19 @@
+<FormItemAddition name="ДобавлениеЭлементаФормы" id="1" DisplayImportance="High">
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Добавление элемента формы</v8:content>
+		</v8:item>
+	</Title>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<Enabled>true</Enabled>
+	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
