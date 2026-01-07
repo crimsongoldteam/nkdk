@@ -77,8 +77,8 @@ export interface PictureFieldEnterprise extends FormFieldEnterprise {
   МаксимальнаяШирина?: number
   Масштаб?: number
   Масштабировать?: StringboolEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   РазмерКартинки?: SE.PictureSizeEnterprise
   РазрешитьНачалоПеретаскивания?: StringboolEnterprise
   РазрешитьПеретаскивание?: StringboolEnterprise

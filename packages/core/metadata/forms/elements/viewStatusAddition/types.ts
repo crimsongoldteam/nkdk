@@ -48,8 +48,8 @@ export interface ViewStatusAdditionEnterprise extends FormItemAdditionEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
   МаксимальнаяШирина?: number
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   Рамка?: BorderEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
   ЦветРамки?: ColorEnterprise

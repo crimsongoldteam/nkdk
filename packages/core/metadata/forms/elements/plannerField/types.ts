@@ -72,8 +72,8 @@ export interface PlannerFieldEnterprise extends FormFieldEnterprise {
   ГиперссылкаЭлементаШкалыВремени?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   РазрешитьНачалоПеретаскивания?: StringboolEnterprise
   РазрешитьПеретаскивание?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise

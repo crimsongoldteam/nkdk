@@ -115,8 +115,8 @@ export interface ButtonEnterprise extends BaseElementEnterprise {
   ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
   ПоложениеВКоманднойПанели?: SE.ButtonLocationInCommandBarEnterprise
   ПоложениеКартинки?: SE.FormButtonPictureLocationEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   ПропускатьПриВводе?: StringboolEnterprise
   ПутьКДанным?: string
   РастягиватьПоВертикали?: StringboolEnterprise

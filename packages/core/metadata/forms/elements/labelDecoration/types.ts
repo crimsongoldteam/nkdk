@@ -45,8 +45,8 @@ export interface LabelDecorationEnterprise extends FormDecorationEnterprise {
   ВысотаЗаголовка?: number
   Гиперссылка?: StringboolEnterprise
   ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   Рамка?: BorderEnterprise
   ЦветРамки?: ColorEnterprise
   ЦветФона?: ColorEnterprise

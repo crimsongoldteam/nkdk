@@ -28,8 +28,8 @@ export interface PopupEnterprise extends FormGroupEnterprise {
   Картинка?: PictureEnterprise
   Отображение?: SE.ButtonRepresentationEnterprise
   ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   Фигура?: SE.ButtonShapeEnterprise
   ЦветРамки?: ColorEnterprise
   ЦветФона?: ColorEnterprise

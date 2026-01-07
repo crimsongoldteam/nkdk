@@ -37,8 +37,8 @@ export interface ColumnGroupEnterprise extends FormGroupEnterprise {
   КартинкаШапки?: PictureEnterprise
   ОтображатьВШапке?: StringboolEnterprise
   ОтображатьЗаголовок?: StringboolEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   ПутьКДаннымШапки?: string
   ФиксацияВТаблице?: SE.FixingInTableEnterprise
   ФорматШапки?: string

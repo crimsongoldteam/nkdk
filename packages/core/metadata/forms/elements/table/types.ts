@@ -267,8 +267,8 @@ export interface TableEnterprise extends BaseElementEnterprise {
   ПоложениеСостоянияПросмотра?: SE.ViewStatusLocationEnterprise
   ПоложениеСтрокиПоиска?: SE.SearchStringLocationEnterprise
   ПоложениеУправленияПоиском?: SE.SearchControlLocationEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   ПропускатьПриВводе?: StringboolEnterprise
   ПутьКДанным?: string
   ПутьКДаннымКартинкиСтроки?: string

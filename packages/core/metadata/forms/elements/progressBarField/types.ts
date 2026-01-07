@@ -56,8 +56,8 @@ export interface ProgressBarFieldEnterprise extends FormFieldEnterprise {
   Ориентация?: SE.FormItemOrientationEnterprise
   ОтображатьПроценты?: StringboolEnterprise
   Отображение?: SE.ProgressBarSmoothingModeEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
   ЦветРамки?: ColorEnterprise

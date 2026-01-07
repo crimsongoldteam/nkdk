@@ -58,8 +58,8 @@ export interface GanttChartFieldEnterprise extends FormFieldEnterprise {
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
   ПоложениеТаблицы?: SE.GanttChartTableLocationEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
   РежимВыделенияЗначений?: SE.GanttChartValuesSelectionModeEnterprise

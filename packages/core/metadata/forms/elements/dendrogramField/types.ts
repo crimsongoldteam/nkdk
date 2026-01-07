@@ -39,8 +39,8 @@ export interface DendrogramFieldEnterprise extends FormFieldEnterprise {
   Высота?: number
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
   Ширина?: number

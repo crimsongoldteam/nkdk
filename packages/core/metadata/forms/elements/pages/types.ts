@@ -28,8 +28,8 @@ export interface PagesEnterprise extends FormGroupEnterprise {
   ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
   ИспользуемаяТаблица?: TableEnterprise
   ОтображениеСтраниц?: SE.FormPagesRepresentationEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   ТекущееСостояниеСтраниц?: SE.FormPagesStateEnterprise
   События?: {
     ПриСменеСтраницы?: string

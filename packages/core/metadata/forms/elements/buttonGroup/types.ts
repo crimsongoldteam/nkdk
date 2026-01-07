@@ -14,6 +14,6 @@ export interface ButtonGroupXML extends FormGroupXML {
 
 export interface ButtonGroupEnterprise extends FormGroupEnterprise {
   Отображение?: SE.ButtonGroupRepresentationEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
 }

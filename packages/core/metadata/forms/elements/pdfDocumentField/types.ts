@@ -60,8 +60,8 @@ export interface PdfDocumentFieldEnterprise extends FormFieldEnterprise {
   НомерТекущейСтраницы?: number
   Ориентация?: number
   ПоложениеСостоянияПросмотра?: SE.ViewStatusLocationEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
   ЦветРамки?: ColorEnterprise

@@ -84,8 +84,8 @@ export interface UsualGroupEnterprise extends FormGroupEnterprise {
   Отображение?: SE.UsualGroupRepresentationEnterprise
   ОтображениеУправления?: SE.UsualGroupControlRepresentationEnterprise
   Поведение?: SE.UsualGroupBehaviorEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   ПутьКДаннымЗаголовка?: string
   СквозноеВыравнивание?: SE.ThroughAlignEnterprise
   Формат?: I8nTextEnterprise

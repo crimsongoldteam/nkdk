@@ -54,8 +54,8 @@ export interface PictureDecorationEnterprise extends FormDecorationEnterprise {
   Картинка?: PictureEnterprise
   Масштаб?: number
   Масштабировать?: StringboolEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   РазмерКартинки?: SE.PictureSizeEnterprise
   РазрешитьНачалоПеретаскивания?: StringboolEnterprise
   РазрешитьПеретаскивание?: StringboolEnterprise

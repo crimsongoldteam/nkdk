@@ -80,8 +80,8 @@ export interface CalendarFieldEnterprise extends FormFieldEnterprise {
   ОтображатьПанельМесяцев?: StringboolEnterprise
   ОтображатьТекущуюДату?: StringboolEnterprise
   ПеремещениеПоКалендарю?: StringboolEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   РазрешитьНачалоПеретаскивания?: StringboolEnterprise
   РазрешитьПеретаскивание?: StringboolEnterprise
   Рамка?: BorderEnterprise

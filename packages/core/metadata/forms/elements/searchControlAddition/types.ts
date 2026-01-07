@@ -35,8 +35,8 @@ export interface SearchControlAdditionXML extends FormItemAdditionXML {
 export interface SearchControlAdditionEnterprise extends FormItemAdditionEnterprise {
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   МаксимальнаяШирина?: number
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
   ЦветРамки?: ColorEnterprise
   ЦветТекста?: ColorEnterprise

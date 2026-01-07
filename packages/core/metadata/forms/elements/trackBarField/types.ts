@@ -57,8 +57,8 @@ export interface TrackBarFieldEnterprise extends FormFieldEnterprise {
   МинимальноеЗначение?: number
   Ориентация?: SE.FormItemOrientationEnterprise
   ОтображениеРазметки?: SE.TrackBarMarkingAppearanceEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
   Шаг?: number

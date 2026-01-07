@@ -21,6 +21,6 @@ export interface CommandBarEnterprise extends FormGroupEnterprise {
   Автозаполнение?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
   ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
 }

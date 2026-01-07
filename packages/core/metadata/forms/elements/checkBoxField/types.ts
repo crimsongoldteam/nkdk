@@ -46,8 +46,8 @@ export interface CheckBoxFieldEnterprise extends FormFieldEnterprise {
   ВысотаЗаголовкаЭлемента?: number
   ВысотаЭлемента?: number
   ОдинаковаяШиринаЭлементов?: StringboolEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   ТриСостояния?: StringboolEnterprise
   ФорматРедактирования?: I8nTextEnterprise
   ЦветРамки?: ColorEnterprise

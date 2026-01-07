@@ -5,11 +5,28 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { LabelDecoration, LabelDecorationEnterprise } from "~/metadata/forms/elements/labelDecoration/types"
-import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { compactObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+
+const exportLabelDecorationEventsToEnterprise = (
+  data: { click?: string; uRLProcessing?: string } | undefined
+): { Нажатие?: string; ОбработкаНавигационнойСсылки?: string } | undefined => {
+  if (!data) return undefined
+
+  const result: { Нажатие?: string; ОбработкаНавигационнойСсылки?: string } = {}
+
+  if (data.click !== undefined) {
+    result.Нажатие = data.click
+  }
+
+  if (data.uRLProcessing !== undefined) {
+    result.ОбработкаНавигационнойСсылки = data.uRLProcessing
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined
+}
 
 export const exportLabelDecorationToEnterprise = (
   context: ConfigurationContext,
@@ -41,7 +58,7 @@ export const exportLabelDecorationToEnterprise = (
     Рамка: exportBorderToEnterprise(context, data.border),
     ЦветРамки: exportColorToEnterprise(context, data.borderColor),
     ЦветФона: exportColorToEnterprise(context, data.backColor),
-    События: exportEventsToEnterprise(context, data.events),
+    События: exportLabelDecorationEventsToEnterprise(data.events),
   })
 }
 

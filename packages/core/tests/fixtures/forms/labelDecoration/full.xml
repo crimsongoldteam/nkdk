@@ -1,0 +1,26 @@
+<LabelDecoration name="Заголовок" id="1">
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Заголовок формы</v8:content>
+		</v8:item>
+	</Title>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<BackColor>web:Blue</BackColor>
+	<Border ref="style:ControlBorder" width="1">
+		<v8ui:style xsi:type="v8ui:ControlBorderType">Indented</v8ui:style>
+	</Border>
+	<BorderColor>web:Green</BorderColor>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
+	<HorizontalAlign>Left</HorizontalAlign>
+	<Hyperlink>true</Hyperlink>
+	<TitleHeight>20</TitleHeight>
+	<VerticalAlign>Top</VerticalAlign>
+	<Events>
+		<Event name="Click">ПроцедураНажатия</Event>
+		<Event name="URLProcessing">ПроцедураОбработкиНавигационнойСсылки</Event>
+	</Events>
+</LabelDecoration>

@@ -69,8 +69,8 @@ export interface FormGroupEnterprise extends BaseElementEnterprise {
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   Подсказка?: I8nTextEnterprise
   ПодчиненныеЭлементы?: ChildItemsEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   РазрешитьИзменениеСостава?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise

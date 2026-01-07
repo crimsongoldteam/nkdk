@@ -142,8 +142,8 @@ export interface FormFieldEnterprise extends BaseElementEnterprise {
   ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationEnterprise
   Подсказка?: I8nTextEnterprise
   ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   ПредупреждениеПриРедактировании?: I8nTextEnterprise
   ПропускатьПриВводе?: StringboolEnterprise
   ПутьКДанным?: string

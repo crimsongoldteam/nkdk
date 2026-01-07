@@ -55,7 +55,7 @@ export interface FormItemAdditionEnterprise extends BaseElementEnterprise {
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   Подсказка?: I8nTextEnterprise
   ПодчиненныеЭлементы?: ChildItemsEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   РасширеннаяПодсказка?: FormDecorationEnterprise
 }

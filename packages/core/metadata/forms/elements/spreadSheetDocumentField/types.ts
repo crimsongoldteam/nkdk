@@ -103,8 +103,8 @@ export interface SpreadSheetDocumentFieldEnterprise extends FormFieldEnterprise 
   ОтображатьИменаЯчеек?: StringboolEnterprise
   ОтображатьСетку?: StringboolEnterprise
   ОтображениеСостояния?: SE.StatePresentationEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   РазрешитьНачалоПеретаскивания?: StringboolEnterprise
   РазрешитьПеретаскивание?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise

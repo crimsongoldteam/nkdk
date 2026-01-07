@@ -29,8 +29,8 @@ export interface SearchStringAdditionXML extends FormItemAdditionXML {
 }
 
 export interface SearchStringAdditionEnterprise extends FormItemAdditionEnterprise {
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
   ЦветРамки?: ColorEnterprise
   ЦветТекста?: ColorEnterprise

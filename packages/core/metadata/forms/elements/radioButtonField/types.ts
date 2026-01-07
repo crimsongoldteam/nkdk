@@ -47,8 +47,8 @@ export interface RadioButtonFieldEnterprise extends FormFieldEnterprise {
   ВысотаЭлемента?: number
   КоличествоКолонок?: number
   ОдинаковаяШиринаКолонок?: StringboolEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   СписокВыбора?: ChoiceListEnterprise
   ЦветРамки?: ColorEnterprise
   ЦветТекста?: ColorEnterprise

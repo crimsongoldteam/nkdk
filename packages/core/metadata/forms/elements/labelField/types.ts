@@ -63,8 +63,8 @@ export interface LabelFieldEnterprise extends FormFieldEnterprise {
   Гиперссылка?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   Рамка?: BorderEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise

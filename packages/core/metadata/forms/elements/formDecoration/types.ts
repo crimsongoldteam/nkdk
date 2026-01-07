@@ -77,8 +77,8 @@ export interface FormDecorationEnterprise extends BaseElementEnterprise {
   МаксимальнаяШирина?: number
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   Подсказка?: I8nTextEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   ПропускатьПриВводе?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise

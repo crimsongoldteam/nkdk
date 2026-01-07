@@ -58,8 +58,8 @@ export interface PageEnterprise extends FormGroupEnterprise {
   Группировка?: SE.ChildFormItemsGroupEnterprise
   Картинка?: PictureEnterprise
   ОтображатьЗаголовок?: StringboolEnterprise
-  ПользовательскаяВидимостьРазрешить?: UserVisibleEnterprise
-  ПользовательскаяВидимостьЗапретить?: UserVisibleEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
   ПутьКДаннымЗаголовка?: string
   СкроллПриСжатии?: StringboolEnterprise
   Формат?: I8nTextEnterprise
