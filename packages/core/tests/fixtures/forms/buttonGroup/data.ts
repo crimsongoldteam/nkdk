@@ -5,6 +5,7 @@ export const fullButtonGroup: ButtonGroup = {
   elementType: FormElementType.ButtonGroup,
   name: "ГруппаКнопок",
   id: "1",
+  childItems: [],
   representation: "Compact",
   userVisible: {
     common: true,
@@ -21,6 +22,7 @@ export const minimalButtonGroup: ButtonGroup = {
   elementType: FormElementType.ButtonGroup,
   name: "ГруппаКнопок",
   id: "1",
+  childItems: [],
 }
 
 export const minimalButtonGroupEnterprise: ButtonGroupEnterprise = {}
