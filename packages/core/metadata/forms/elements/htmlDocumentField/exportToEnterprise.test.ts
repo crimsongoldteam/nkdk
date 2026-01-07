@@ -1,25 +1,29 @@
 import { describe, expect, it } from "vitest"
-import { fullHtmlDocumentField, fullHtmlDocumentFieldEnterprise, minimalHtmlDocumentField, minimalHtmlDocumentFieldEnterprise } from "~/tests/fixtures/forms/htmlDocumentField/data"
+import {
+  fullHtmlDocumentField,
+  fullHtmlDocumentFieldEnterprise,
+  minimalHtmlDocumentField,
+  minimalHtmlDocumentFieldEnterprise,
+} from "~/tests/fixtures/forms/htmlDocumentField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportHtmlDocumentFieldToEnterprise } from "./exportToEnterprise"
+import { exportHTMLDocumentFieldToEnterprise } from "./exportToEnterprise"
 
-describe("exportHtmlDocumentFieldToEnterprise", () => {
+describe("exportHTMLDocumentFieldToEnterprise", () => {
   it("should return undefined when data is undefined", () => {
-    const result = exportHtmlDocumentFieldToEnterprise(mockСontext, undefined)
+    const result = exportHTMLDocumentFieldToEnterprise(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should export all fields to Enterprise", () => {
-    const result = exportHtmlDocumentFieldToEnterprise(mockСontext, fullHtmlDocumentField)
+    const result = exportHTMLDocumentFieldToEnterprise(mockСontext, fullHtmlDocumentField)
 
     expect(result).toEqual(fullHtmlDocumentFieldEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportHtmlDocumentFieldToEnterprise(mockСontext, minimalHtmlDocumentField)
+    const result = exportHTMLDocumentFieldToEnterprise(mockСontext, minimalHtmlDocumentField)
 
     expect(result).toEqual(minimalHtmlDocumentFieldEnterprise)
   })
 })
-
