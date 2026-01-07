@@ -23,3 +23,11 @@
 			<v8:lang>ru</v8:lang>
 			<v8:content>Подсказка</v8:content>
 		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>None</ToolTipRepresentation>
+	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<VerticalStretch>true</VerticalStretch>
+	<Type>UsualGroup</Type>
+	<Visible>true</Visible>
+	<Width>300</Width>
+</FormGroup>
