@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  fast-xml-parser@5.3.3:
+    hash: 03b0f88d912b7ef1bc23fede5a6b717f24066bf2f991ea2eb25d7cdffa98d73e
+    path: patches/fast-xml-parser@5.3.3.patch
+
 importers:
 
   .:
@@ -31,7 +36,7 @@ importers:
         version: 4.1.0
       fast-xml-parser:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.3.3(patch_hash=03b0f88d912b7ef1bc23fede5a6b717f24066bf2f991ea2eb25d7cdffa98d73e)
       monaco-editor-core:
         specifier: 0.55.1
         version: 0.55.1
@@ -148,37 +153,6 @@ importers:
         specifier: ^4.0.15
         version: 4.0.15(@types/node@24.10.1)(jsdom@27.2.0)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
 
-  cli:
-    dependencies:
-      '@nakidka/core':
-        specifier: workspace:*
-        version: link:../packages/core
-      cli-progress:
-        specifier: ^3.12.0
-        version: 3.12.0
-      commander:
-        specifier: ^14.0.2
-        version: 14.0.2
-      fast-xml-parser:
-        specifier: ^5.3.3
-        version: 5.3.3
-    devDependencies:
-      '@types/cli-progress':
-        specifier: ^3.11.6
-        version: 3.11.6
-      '@types/node':
-        specifier: ^24.10.1
-        version: 24.10.4
-      tsx:
-        specifier: ^4.19.2
-        version: 4.21.0
-      typescript:
-        specifier: ~5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: ^4.0.15
-        version: 4.0.15(@types/node@24.10.4)(jsdom@27.2.0)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2)
-
   packages/core:
     dependencies:
       change-case:
@@ -192,7 +166,7 @@ importers:
         version: 4.1.0
       fast-xml-parser:
         specifier: ^5.3.3
-        version: 5.3.3
+        version: 5.3.3(patch_hash=03b0f88d912b7ef1bc23fede5a6b717f24066bf2f991ea2eb25d7cdffa98d73e)
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
@@ -1290,9 +1264,6 @@ packages:
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
 
-  '@types/cli-progress@3.11.6':
-    resolution: {integrity: sha512-cE3+jb9WRlu+uOSAugewNpITJDt1VF8dHOopPO4IABFc3SXYL5WE/+PTz/FCdZRRfIujiWW3n3aMbv1eIGVRWA==}
-
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
@@ -1662,10 +1633,6 @@ packages:
     resolution: {integrity: sha512-I/zHAwsKf9FqGoXM4WWRACob9+SNukZTd94DWF57E4toouRulbCxcUh6RKUEOQlYTHJnzkPMySvPNaaSLNfLZw==}
     engines: {node: '>=8'}
 
-  cli-progress@3.12.0:
-    resolution: {integrity: sha512-tRkV3HJ1ASwm19THiiLIXLO7Im7wlTuKnvkYaTkyoAPefqjNg7W7DHKUlGRxy9vxDvbyCYQkQozvptuMkGCg8A==}
-    engines: {node: '>=4'}
-
   cli-spinners@2.9.2:
     resolution: {integrity: sha512-ywqV+5MmyL4E7ybXgKys4DugZbX0FC6LnwrhjuykIjnK9k8OQacQ7axGKnjDXWNhns0xot3bZI5h55H8yo9cJg==}
     engines: {node: '>=6'}
@@ -1699,10 +1666,6 @@ packages:
   commander@10.0.1:
     resolution: {integrity: sha512-y4Mg2tXshplEbSGzx7amzPwKKOCGuoSRP/CjEdwwk0FOGlUbq6lKuoyDZTNZkmxHdJtp54hdfY/JUrdL7Xfdug==}
     engines: {node: '>=14'}
-
-  commander@14.0.2:
-    resolution: {integrity: sha512-TywoWNNRbhoD0BXs1P3ZEScW8W5iKrnbithIl0YH+uCmBd0QpPOA8yc82DS3BIE5Ma6FnBVUsJ7wVUDz4dvOWQ==}
-    engines: {node: '>=20'}
 
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
@@ -4203,10 +4166,6 @@ snapshots:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
 
-  '@types/cli-progress@3.11.6':
-    dependencies:
-      '@types/node': 24.10.4
-
   '@types/deep-eql@4.0.2': {}
 
   '@types/eslint-scope@3.7.7':
@@ -4701,10 +4660,6 @@ snapshots:
     dependencies:
       restore-cursor: 3.1.0
 
-  cli-progress@3.12.0:
-    dependencies:
-      string-width: 4.2.3
-
   cli-spinners@2.9.2: {}
 
   cli-width@3.0.0: {}
@@ -4728,8 +4683,6 @@ snapshots:
   color-name@1.1.4: {}
 
   commander@10.0.1: {}
-
-  commander@14.0.2: {}
 
   commander@2.20.3: {}
 
@@ -4934,6 +4887,7 @@ snapshots:
       '@esbuild/win32-arm64': 0.27.2
       '@esbuild/win32-ia32': 0.27.2
       '@esbuild/win32-x64': 0.27.2
+    optional: true
 
   escalade@3.2.0: {}
 
@@ -4978,7 +4932,7 @@ snapshots:
 
   fast-uri@3.1.0: {}
 
-  fast-xml-parser@5.3.3:
+  fast-xml-parser@5.3.3(patch_hash=03b0f88d912b7ef1bc23fede5a6b717f24066bf2f991ea2eb25d7cdffa98d73e):
     dependencies:
       strnum: 2.1.2
 
@@ -5935,6 +5889,7 @@ snapshots:
       get-tsconfig: 4.13.0
     optionalDependencies:
       fsevents: 2.3.3
+    optional: true
 
   type-fest@0.21.3: {}
 

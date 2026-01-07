@@ -1,7 +1,16 @@
 diff --git a/src/xmlbuilder/json2xml.js b/src/xmlbuilder/json2xml.js
-index 0000000..1111111 100644
+index 04c7755c02f85651b704f9f82f1348cc0a8ae2df..c5493a46548498edff7f8a3e578816afb3e6e8e3 100644
 --- a/src/xmlbuilder/json2xml.js
 +++ b/src/xmlbuilder/json2xml.js
+@@ -1,7 +1,7 @@
+ 'use strict';
+ //parse Empty Node as self closing node
+-import buildFromOrderedJs from './orderedJs2Xml.js';
+ import getIgnoreAttributesFn from "../ignoreAttributes.js";
++import buildFromOrderedJs from './orderedJs2Xml.js';
+ 
+ const defaultOptions = {
+   attributeNamePrefix: '@_',
 @@ -130,7 +130,7 @@ Builder.prototype.j2x = function(jObj, level, ajPath) {
            else val += this.indentate(level) + '<' + key + '/' + this.tagEndChar;
            // val += this.indentate(level) + '<' + key + '/' + this.tagEndChar;
@@ -29,4 +38,3 @@ index 0000000..1111111 100644
          listTagVal = this.buildObjectNode(listTagVal, key, listTagAttr, level);
        }
        val += listTagVal;
-

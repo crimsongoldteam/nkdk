@@ -1,7 +1,5 @@
 import { XMLBuilder } from "fast-xml-parser"
 
-// const ARRAY_FIELDS = ["v8:item", "xr:GeneratedType", "InternalInfo", "xr:Link", "ChildItems"]
-
 const options = {
   attributeNamePrefix: "_",
   ignoreAttributes: false,
