@@ -77,7 +77,7 @@ export interface ClientApplicationForm {
   saveDataInSettings?: SE.SaveFormDataInSettings
   savedInSettingsDataModified?: boolean
   readOnly?: boolean
-  uUID?: string
+  uuid?: string
   width?: number
   slaveItemsWidth?: SE.ChildFormItemsWidth
   useForFoldersAndItems?: SE.FoldersAndItemsUse
@@ -107,6 +107,7 @@ export interface ClientApplicationFormXML {
   AutoSaveDataInSettings?: SE.AutoSaveFormDataInSettings
   AutoTitle?: boolean
   AutoURL?: boolean
+  ChildItemsHorizontalAlign?: SE.ItemHorizontalLocation
   ChildItemsVerticalAlign?: SE.ItemVerticalAlign
   CloseOnChoice?: boolean
   CloseOnOwnerClose?: boolean

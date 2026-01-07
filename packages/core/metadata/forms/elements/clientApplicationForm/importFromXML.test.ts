@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/importFromXML"
-import { fullClientApplicationForm, minimalClientApplicationForm } from "~/tests/fixtures/forms/clientApplicationForm/data"
+import {
+  fullClientApplicationForm,
+  minimalClientApplicationForm,
+} from "~/tests/fixtures/forms/clientApplicationForm/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importClientApplicationFormFromXML } from "./importFromXML"
@@ -12,7 +15,7 @@ describe("importClientApplicationFormFromXML", () => {
 
     const result = importClientApplicationFormFromXML(mockСontext, xmlData.Form)
 
-    expect(result).toMatchObject(fullClientApplicationForm)
+    expect(result).toEqual(fullClientApplicationForm)
   })
 
   it("should import minimal", () => {
@@ -20,6 +23,6 @@ describe("importClientApplicationFormFromXML", () => {
 
     const result = importClientApplicationFormFromXML(mockСontext, xmlData.Form)
 
-    expect(result).toMatchObject(minimalClientApplicationForm)
+    expect(result).toEqual(minimalClientApplicationForm)
   })
 })

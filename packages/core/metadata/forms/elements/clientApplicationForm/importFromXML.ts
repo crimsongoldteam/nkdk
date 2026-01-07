@@ -47,6 +47,10 @@ export const importClientApplicationFormFromXML = (
     result.verticalScroll = xml.VerticalScroll
   }
 
+  if (xml.ChildItemsHorizontalAlign !== undefined) {
+    result.childItemsHorizontalAlign = xml.ChildItemsHorizontalAlign
+  }
+
   if (xml.ChildItemsVerticalAlign !== undefined) {
     result.childItemsVerticalAlign = xml.ChildItemsVerticalAlign
   }
@@ -170,10 +174,6 @@ export const importClientApplicationFormFromXML = (
 
   if (xml.ReadOnly !== undefined) {
     result.readOnly = xml.ReadOnly
-  }
-
-  if (xml.UUID !== undefined) {
-    result.uUID = xml.UUID
   }
 
   if (xml.Width !== undefined) {

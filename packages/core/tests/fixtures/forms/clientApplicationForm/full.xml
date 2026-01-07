@@ -31,6 +31,8 @@
 	<AutoSaveDataInSettings>Use</AutoSaveDataInSettings>
 	<AutoTitle>true</AutoTitle>
 	<AutoURL>true</AutoURL>
+	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>
+	<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>
 	<CloseOnChoice>true</CloseOnChoice>
 	<CloseOnOwnerClose>false</CloseOnOwnerClose>
 	<CollapseItemsByImportance>Use</CollapseItemsByImportance>

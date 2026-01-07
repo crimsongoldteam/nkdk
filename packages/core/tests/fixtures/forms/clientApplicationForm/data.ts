@@ -68,7 +68,6 @@ export const fullClientApplicationForm: ClientApplicationForm = {
   saveDataInSettings: "UseList",
   savedInSettingsDataModified: true,
   readOnly: false,
-  uUID: "123e4567-e89b-12d3-a456-426614174000",
   width: 800,
   slaveItemsWidth: "Auto",
   useForFoldersAndItems: "FoldersAndItems",
