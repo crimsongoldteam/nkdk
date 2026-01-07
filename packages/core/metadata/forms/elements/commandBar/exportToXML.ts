@@ -10,17 +10,17 @@ export const exportCommandBarToXML = (
 ): CommandBarXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormGroupToXML(context, data)
+  const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
 
     Autofill: data.autofill,
     _DisplayImportance: data.displayImportance,
     HorizontalAlign: data.horizontalAlign,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),  }
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
+  }
 }
 
 registerMetadata<CommandBar>("ExportToXML", "CommandBar", exportCommandBarToXML)

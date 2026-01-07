@@ -13,12 +13,19 @@ export const importAdditionalIndexFromXML = (
 ): AdditionalIndex | undefined => {
   if (!xml) return undefined
 
-  return {
-    additionalFields: importIndexFieldsFromXML(context, xml.AdditionalFields),
-    indexedFields: importIndexFieldsFromXML(context, xml.IndexedFields),
-    name: xml.Name,
-    table: xml.Table,
-  }
+  const result: AdditionalIndex = {} as AdditionalIndex
+
+  const additionalFields = importIndexFieldsFromXML(context, xml.AdditionalFields)
+  if (additionalFields !== undefined) result.additionalFields = additionalFields
+
+  const indexedFields = importIndexFieldsFromXML(context, xml.IndexedFields)
+  if (indexedFields !== undefined) result.indexedFields = indexedFields
+
+  if (xml.Name !== undefined) result.name = xml.Name
+
+  if (xml.Table !== undefined) result.table = xml.Table
+
+  return result
 }
 
 export const importAdditionalIndexesFromXML = (

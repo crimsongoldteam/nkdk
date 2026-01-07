@@ -11,15 +11,26 @@ export const importMetadataDocumentNumeratorFromXML = (
 ): MetadataDocumentNumerator | undefined => {
   if (!xml) return undefined
 
-  return {
-    checkUnique: xml.CheckUnique,
-    comment: xml.Comment,
-    name: xml.Name,
-    numberAllowedLength: xml.NumberAllowedLength,
-    numberLength: xml.NumberLength,
-    numberPeriodicity: xml.NumberPeriodicity,
-    numberType: xml.NumberType,
-    objectBelonging: xml.ObjectBelonging,
-    synonym: importI8nTextFromXML(context, xml.Synonym),
-  }
+  const result: MetadataDocumentNumerator = {} as MetadataDocumentNumerator
+
+  if (xml.CheckUnique !== undefined) result.checkUnique = xml.CheckUnique
+
+  if (xml.Comment !== undefined) result.comment = xml.Comment
+
+  if (xml.Name !== undefined) result.name = xml.Name
+
+  if (xml.NumberAllowedLength !== undefined) result.numberAllowedLength = xml.NumberAllowedLength
+
+  if (xml.NumberLength !== undefined) result.numberLength = xml.NumberLength
+
+  if (xml.NumberPeriodicity !== undefined) result.numberPeriodicity = xml.NumberPeriodicity
+
+  if (xml.NumberType !== undefined) result.numberType = xml.NumberType
+
+  if (xml.ObjectBelonging !== undefined) result.objectBelonging = xml.ObjectBelonging
+
+  const synonym = importI8nTextFromXML(context, xml.Synonym)
+  if (synonym !== undefined) result.synonym = synonym
+
+  return result
 }

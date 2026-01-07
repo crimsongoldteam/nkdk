@@ -12,12 +12,11 @@ export const exportColumnGroupToXML = (
 ): ColumnGroupXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormGroupToXML(context, data)
+  const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
 
     FixingInTable: data.fixingInTable,
     Group: data.group,
@@ -28,7 +27,8 @@ export const exportColumnGroupToXML = (
     ShowInHeader: data.showInHeader,
     ShowTitle: data.showTitle,
     TitleBackColor: exportColorToXML(context, data.titleBackColor),
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),  }
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
+  }
 }
 
 registerMetadata("ExportToXML", "ColumnGroup", exportColumnGroupToXML)

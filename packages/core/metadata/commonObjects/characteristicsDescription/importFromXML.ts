@@ -32,20 +32,43 @@ export const importCharacteristicsDescriptionFromXML = (
   const characteristicTypes = xml["xr:CharacteristicTypes"]
   const characteristicValues = xml["xr:CharacteristicValues"]
 
-  return {
-    characteristicTypes: characteristicTypes?._from,
-    characteristicValues: characteristicValues?._from,
-    dataPathField: extractFieldValue(characteristicTypes?.["xr:DataPathField"]),
-    keyField: extractFieldValue(characteristicTypes?.["xr:KeyField"]),
-    multipleValuesKeyField: extractFieldValue(characteristicValues?.["xr:MultipleValuesKeyField"]),
-    multipleValuesOrderField: extractFieldValue(characteristicValues?.["xr:MultipleValuesOrderField"]),
-    multipleValuesUseField: extractFieldValue(characteristicTypes?.["xr:MultipleValuesUseField"]),
-    objectField: extractFieldValue(characteristicValues?.["xr:ObjectField"]),
-    typeField: extractFieldValue(characteristicValues?.["xr:TypeField"]),
-    typesFilterField: extractFieldValue(characteristicTypes?.["xr:TypesFilterField"]),
-    typesFilterValue: importMetadataValueFromXML(context, characteristicTypes?.["xr:TypesFilterValue"]),
-    valueField: extractFieldValue(characteristicValues?.["xr:ValueField"]),
-  }
+  const result: CharacteristicsDescription = {} as CharacteristicsDescription
+
+  if (characteristicTypes?._from !== undefined) result.characteristicTypes = characteristicTypes._from
+
+  if (characteristicValues?._from !== undefined) result.characteristicValues = characteristicValues._from
+
+  const dataPathField = extractFieldValue(characteristicTypes?.["xr:DataPathField"])
+  if (dataPathField !== undefined) result.dataPathField = dataPathField
+
+  const keyField = extractFieldValue(characteristicTypes?.["xr:KeyField"])
+  if (keyField !== undefined) result.keyField = keyField
+
+  const multipleValuesKeyField = extractFieldValue(characteristicValues?.["xr:MultipleValuesKeyField"])
+  if (multipleValuesKeyField !== undefined) result.multipleValuesKeyField = multipleValuesKeyField
+
+  const multipleValuesOrderField = extractFieldValue(characteristicValues?.["xr:MultipleValuesOrderField"])
+  if (multipleValuesOrderField !== undefined) result.multipleValuesOrderField = multipleValuesOrderField
+
+  const multipleValuesUseField = extractFieldValue(characteristicTypes?.["xr:MultipleValuesUseField"])
+  if (multipleValuesUseField !== undefined) result.multipleValuesUseField = multipleValuesUseField
+
+  const objectField = extractFieldValue(characteristicValues?.["xr:ObjectField"])
+  if (objectField !== undefined) result.objectField = objectField
+
+  const typeField = extractFieldValue(characteristicValues?.["xr:TypeField"])
+  if (typeField !== undefined) result.typeField = typeField
+
+  const typesFilterField = extractFieldValue(characteristicTypes?.["xr:TypesFilterField"])
+  if (typesFilterField !== undefined) result.typesFilterField = typesFilterField
+
+  const typesFilterValue = importMetadataValueFromXML(context, characteristicTypes?.["xr:TypesFilterValue"])
+  if (typesFilterValue !== undefined) result.typesFilterValue = typesFilterValue
+
+  const valueField = extractFieldValue(characteristicValues?.["xr:ValueField"])
+  if (valueField !== undefined) result.valueField = valueField
+
+  return result
 }
 
 export const importCharacteristicsDescriptionsFromXML = (

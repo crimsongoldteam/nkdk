@@ -18,34 +18,63 @@ export const importCalendarFieldFromXML = (
   const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
+  const result: CalendarField = {
     ...baseFields,
     elementType: FormElementType.CalendarField,
-
-    autoMaxHeight: xml.AutoMaxHeight,
-    autoMaxWidth: xml.AutoMaxWidth,
-    beginOfRepresentationPeriod: xml.BeginOfRepresentationPeriod,
-    border: importBorderFromXML(context, xml.Border),
-    borderColor: importColorFromXML(context, xml.BorderColor),
-    calendarNavigation: xml.CalendarNavigation,
-    enableDrag: xml.EnableDrag,
-    enableStartDrag: xml.EnableStartDrag,
-    endOfRepresentationPeriod: xml.EndOfRepresentationPeriod,
-    font: importFontFromXML(context, xml.Font),
-    height: xml.Height,
-    heightInMonths: xml.HeightInMonths,
-    horizontalStretch: xml.HorizontalStretch,
-    maxHeight: xml.MaxHeight,
-    maxWidth: xml.MaxWidth,
-    selectionMode: xml.SelectionMode,
-    showCurrentDate: xml.ShowCurrentDate,
-    showMonthsPanel: xml.ShowMonthsPanel,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    verticalStretch: xml.VerticalStretch,
-    width: xml.Width,
-    widthInMonths: xml.WidthInMonths,
-    events: importEventsFromXML(context, xml.Events),
   }
+
+  if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
+
+  if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
+
+  if (xml.BeginOfRepresentationPeriod !== undefined) result.beginOfRepresentationPeriod = xml.BeginOfRepresentationPeriod
+
+  const border = importBorderFromXML(context, xml.Border)
+  if (border !== undefined) result.border = border
+
+  const borderColor = importColorFromXML(context, xml.BorderColor)
+  if (borderColor !== undefined) result.borderColor = borderColor
+
+  if (xml.CalendarNavigation !== undefined) result.calendarNavigation = xml.CalendarNavigation
+
+  if (xml.EnableDrag !== undefined) result.enableDrag = xml.EnableDrag
+
+  if (xml.EnableStartDrag !== undefined) result.enableStartDrag = xml.EnableStartDrag
+
+  if (xml.EndOfRepresentationPeriod !== undefined) result.endOfRepresentationPeriod = xml.EndOfRepresentationPeriod
+
+  const font = importFontFromXML(context, xml.Font)
+  if (font !== undefined) result.font = font
+
+  if (xml.Height !== undefined) result.height = xml.Height
+
+  if (xml.HeightInMonths !== undefined) result.heightInMonths = xml.HeightInMonths
+
+  if (xml.HorizontalStretch !== undefined) result.horizontalStretch = xml.HorizontalStretch
+
+  if (xml.MaxHeight !== undefined) result.maxHeight = xml.MaxHeight
+
+  if (xml.MaxWidth !== undefined) result.maxWidth = xml.MaxWidth
+
+  if (xml.SelectionMode !== undefined) result.selectionMode = xml.SelectionMode
+
+  if (xml.ShowCurrentDate !== undefined) result.showCurrentDate = xml.ShowCurrentDate
+
+  if (xml.ShowMonthsPanel !== undefined) result.showMonthsPanel = xml.ShowMonthsPanel
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
+
+  if (xml.Width !== undefined) result.width = xml.Width
+
+  if (xml.WidthInMonths !== undefined) result.widthInMonths = xml.WidthInMonths
+
+  const events = importEventsFromXML(context, xml.Events)
+  if (events !== undefined) result.events = events
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "CalendarField", importCalendarFieldFromXML)

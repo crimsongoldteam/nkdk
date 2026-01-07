@@ -13,12 +13,11 @@ export const exportCalendarFieldToXML = (
 ): CalendarFieldXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormFieldToXML(context, data)
+  const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
 
     AutoMaxHeight: data.autoMaxHeight,
     AutoMaxWidth: data.autoMaxWidth,
@@ -41,7 +40,8 @@ export const exportCalendarFieldToXML = (
     VerticalStretch: data.verticalStretch,
     Width: data.width,
     WidthInMonths: data.widthInMonths,
-    Events: exportEventsToXML(context, data.events),  }
+    Events: exportEventsToXML(context, data.events),
+  }
 }
 
 registerMetadata("ExportToXML", "CalendarField", exportCalendarFieldToXML)

@@ -10,15 +10,15 @@ export const exportButtonGroupToXML = (
 ): ButtonGroupXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormGroupToXML(context, data)
+  const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
 
     Representation: data.representation,
-    UserVisible: exportUserVisibleToXML(context, data.userVisible),  }
+    UserVisible: exportUserVisibleToXML(context, data.userVisible),
+  }
 }
 
 registerMetadata("ExportToXML", "ButtonGroup", exportButtonGroupToXML)

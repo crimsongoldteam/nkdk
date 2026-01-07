@@ -21,12 +21,11 @@ export const exportInputFieldToXML = (
 ): InputFieldXML | undefined => {
   if (!data) return undefined
 
-  const result: InputFieldXML = {
-    const baseFields = exportFormFieldToXML(context, data)
+  const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: InputFieldXML = {
+    ...baseFields,
   }
 
   if (data.allowInputEmptyMultipleValues !== undefined)

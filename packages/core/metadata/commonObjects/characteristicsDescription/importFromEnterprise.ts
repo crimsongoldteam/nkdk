@@ -15,20 +15,45 @@ export const importCharacteristicsDescriptionFromEnterprise = (
 ): CharacteristicsDescription | undefined => {
   if (!data) return undefined
 
-  return {
-    characteristicTypes: importMetadataItemLinkFromEnterprise(context, data.ВидыХарактеристик),
-    characteristicValues: importMetadataItemLinkFromEnterprise(context, data.ЗначенияХарактеристик),
-    dataPathField: importMetadataFieldFromEnterprise(context, data.ПолеПутиКДанным),
-    keyField: importMetadataFieldFromEnterprise(context, data.ПолеКлюча),
-    multipleValuesKeyField: importMetadataFieldFromEnterprise(context, data.ПолеКлючаМножественныхЗначений),
-    multipleValuesOrderField: importMetadataFieldFromEnterprise(context, data.ПолеПорядкаМножественныхЗначений),
-    multipleValuesUseField: importMetadataFieldFromEnterprise(context, data.ПолеИспользованияМножественныхЗначений),
-    objectField: importMetadataFieldFromEnterprise(context, data.ПолеОбъекта),
-    typeField: importMetadataFieldFromEnterprise(context, data.ПолеВида),
-    typesFilterField: importMetadataFieldFromEnterprise(context, data.ПолеОтбораВидов),
-    typesFilterValue: importMetadataValueFromEnterprise(context, data.ЗначениеОтбораВидов),
-    valueField: importMetadataFieldFromEnterprise(context, data.ПолеЗначения),
-  }
+  const result: CharacteristicsDescription = {} as CharacteristicsDescription
+
+  const characteristicTypes = importMetadataItemLinkFromEnterprise(context, data.ВидыХарактеристик)
+  if (characteristicTypes !== undefined) result.characteristicTypes = characteristicTypes
+
+  const characteristicValues = importMetadataItemLinkFromEnterprise(context, data.ЗначенияХарактеристик)
+  if (characteristicValues !== undefined) result.characteristicValues = characteristicValues
+
+  const dataPathField = importMetadataFieldFromEnterprise(context, data.ПолеПутиКДанным)
+  if (dataPathField !== undefined) result.dataPathField = dataPathField
+
+  const keyField = importMetadataFieldFromEnterprise(context, data.ПолеКлюча)
+  if (keyField !== undefined) result.keyField = keyField
+
+  const multipleValuesKeyField = importMetadataFieldFromEnterprise(context, data.ПолеКлючаМножественныхЗначений)
+  if (multipleValuesKeyField !== undefined) result.multipleValuesKeyField = multipleValuesKeyField
+
+  const multipleValuesOrderField = importMetadataFieldFromEnterprise(context, data.ПолеПорядкаМножественныхЗначений)
+  if (multipleValuesOrderField !== undefined) result.multipleValuesOrderField = multipleValuesOrderField
+
+  const multipleValuesUseField = importMetadataFieldFromEnterprise(context, data.ПолеИспользованияМножественныхЗначений)
+  if (multipleValuesUseField !== undefined) result.multipleValuesUseField = multipleValuesUseField
+
+  const objectField = importMetadataFieldFromEnterprise(context, data.ПолеОбъекта)
+  if (objectField !== undefined) result.objectField = objectField
+
+  const typeField = importMetadataFieldFromEnterprise(context, data.ПолеВида)
+  if (typeField !== undefined) result.typeField = typeField
+
+  const typesFilterField = importMetadataFieldFromEnterprise(context, data.ПолеОтбораВидов)
+  if (typesFilterField !== undefined) result.typesFilterField = typesFilterField
+
+  const typesFilterValue = importMetadataValueFromEnterprise(context, data.ЗначениеОтбораВидов)
+  if (typesFilterValue !== undefined) result.typesFilterValue = typesFilterValue
+
+  const valueField = importMetadataFieldFromEnterprise(context, data.ПолеЗначения)
+  if (valueField !== undefined) result.valueField = valueField
+
+  return result
 }
 
 export const importCharacteristicsDescriptionsFromEnterprise = (

@@ -18,24 +18,45 @@ export const importCheckBoxFieldFromXML = (
   const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
+  const result: CheckBoxField = {
     ...baseFields,
     elementType: FormElementType.CheckBoxField,
-
-    backColor: importColorFromXML(context, xml.BackColor),
-    borderColor: importColorFromXML(context, xml.BorderColor),
-    checkBoxType: xml.CheckBoxType,
-    editFormat: importI8nTextFromXML(context, xml.EditFormat),
-    equalItemsWidth: xml.EqualItemsWidth,
-    font: importFontFromXML(context, xml.Font),
-    itemHeight: xml.ItemHeight,
-    itemTitleHeight: xml.ItemTitleHeight,
-    itemWidth: xml.ItemWidth,
-    textColor: importColorFromXML(context, xml.TextColor),
-    threeState: xml.ThreeState,
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
-    events: importEventsFromXML(context, xml.Events),
   }
+
+  const backColor = importColorFromXML(context, xml.BackColor)
+  if (backColor !== undefined) result.backColor = backColor
+
+  const borderColor = importColorFromXML(context, xml.BorderColor)
+  if (borderColor !== undefined) result.borderColor = borderColor
+
+  if (xml.CheckBoxType !== undefined) result.checkBoxType = xml.CheckBoxType
+
+  const editFormat = importI8nTextFromXML(context, xml.EditFormat)
+  if (editFormat !== undefined) result.editFormat = editFormat
+
+  if (xml.EqualItemsWidth !== undefined) result.equalItemsWidth = xml.EqualItemsWidth
+
+  const font = importFontFromXML(context, xml.Font)
+  if (font !== undefined) result.font = font
+
+  if (xml.ItemHeight !== undefined) result.itemHeight = xml.ItemHeight
+
+  if (xml.ItemTitleHeight !== undefined) result.itemTitleHeight = xml.ItemTitleHeight
+
+  if (xml.ItemWidth !== undefined) result.itemWidth = xml.ItemWidth
+
+  const textColor = importColorFromXML(context, xml.TextColor)
+  if (textColor !== undefined) result.textColor = textColor
+
+  if (xml.ThreeState !== undefined) result.threeState = xml.ThreeState
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  const events = importEventsFromXML(context, xml.Events)
+  if (events !== undefined) result.events = events
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "CheckBoxField", importCheckBoxFieldFromXML)

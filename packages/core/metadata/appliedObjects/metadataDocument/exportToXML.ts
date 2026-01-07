@@ -17,57 +17,131 @@ export const exportMetadataDocumentToXML = (
 ): MetadataDocumentXML | undefined => {
   if (!data) return undefined
 
-  return {
-    ActionsWritingOnPost: data.actionsWritingOnPost,
-    AdditionalIndexes: exportAdditionalIndexesToXML(context, data.additionalIndexes),
-    Attributes: exportMetadataAttributesToXML(context, data.attributes),
-    Autonumbering: data.autonumbering,
-    AuxiliaryChoiceForm: data.auxiliaryChoiceForm,
-    AuxiliaryListForm: data.auxiliaryListForm,
-    AuxiliaryObjectForm: data.auxiliaryObjectForm,
-    BasedOn: exportMetadataItemLinksToXML(context, data.basedOn),
-    Characteristics: exportCharacteristicsDescriptionsToXML(context, data.characteristics),
-    CheckUnique: data.checkUnique,
-    ChoiceDataGetModeOnInputByString: data.choiceDataGetModeOnInputByString,
-    ChoiceHistoryOnInput: data.choiceHistoryOnInput,
-    Commands: exportMetadataCommandsToXML(context, data.commands),
-    Comment: data.comment,
-    CreateOnInput: data.createOnInput,
-    DataHistory: data.dataHistory,
-    DataLockControlMode: data.dataLockControlMode,
-    DataLockFields: exportMetadataFieldsToXML(context, data.dataLockFields),
-    DefaultChoiceForm: data.defaultChoiceForm,
-    DefaultListForm: data.defaultListForm,
-    DefaultObjectForm: data.defaultObjectForm,
-    ExecuteAfterWriteDataHistoryVersionProcessing: data.executeAfterWriteDataHistoryVersionProcessing,
-    Explanation: exportI8nTextToXML(context, data.explanation),
-    ExtendedListPresentation: exportI8nTextToXML(context, data.extendedListPresentation),
-    ExtendedObjectPresentation: exportI8nTextToXML(context, data.extendedObjectPresentation),
-    FullTextSearch: data.fullTextSearch,
-    FullTextSearchOnInputByString: data.fullTextSearchOnInputByString,
-    IncludeHelpInContents: data.includeHelpInContents,
-    InputByString: exportMetadataFieldsToXML(context, data.inputByString),
-    ListPresentation: exportI8nTextToXML(context, data.listPresentation),
-    Name: data.name!,
-    NumberAllowedLength: data.numberAllowedLength,
-    NumberLength: data.numberLength,
-    NumberPeriodicity: data.numberPeriodicity,
-    NumberType: data.numberType,
-    Numerator: exportMetadataDocumentNumeratorToXML(context, data.numerator),
-    ObjectBelonging: data.objectBelonging,
-    ObjectPresentation: exportI8nTextToXML(context, data.objectPresentation),
-    Posting: data.posting,
-    PrivilegedPostingMode: data.privilegedPostingMode,
-    PrivilegedUnpostingMode: data.privilegedUnpostingMode,
-    RealTimePosting: data.realTimePosting,
-    RegisterRecords: exportMetadataItemLinksToXML(context, data.registerRecords),
-    RegisterRecordsDeletion: data.registerRecordsDeletion,
-    SearchStringModeOnInputByString: data.searchStringModeOnInputByString,
-    SequenceFilling: data.sequenceFilling,
-    StandardAttributes: exportStandardAttributeDescriptionsToXML(context, data.standardAttributes, ["Ref"]),
-    Synonym: exportI8nTextToXML(context, data.synonym),
-    TabularSections: exportMetadataTabularSectionsToXML(context, data.tabularSections),
-    UpdateDataHistoryImmediatelyAfterWrite: data.updateDataHistoryImmediatelyAfterWrite,
-    UseStandardCommands: data.useStandardCommands,
-  }
+  const result: MetadataDocumentXML = {} as MetadataDocumentXML
+
+  if (data.actionsWritingOnPost !== undefined) result.ActionsWritingOnPost = data.actionsWritingOnPost
+
+  const additionalIndexes = exportAdditionalIndexesToXML(context, data.additionalIndexes)
+  if (additionalIndexes !== undefined) result.AdditionalIndexes = additionalIndexes
+
+  const attributes = exportMetadataAttributesToXML(context, data.attributes)
+  if (attributes !== undefined) result.Attributes = attributes
+
+  if (data.autonumbering !== undefined) result.Autonumbering = data.autonumbering
+
+  if (data.auxiliaryChoiceForm !== undefined) result.AuxiliaryChoiceForm = data.auxiliaryChoiceForm
+
+  if (data.auxiliaryListForm !== undefined) result.AuxiliaryListForm = data.auxiliaryListForm
+
+  if (data.auxiliaryObjectForm !== undefined) result.AuxiliaryObjectForm = data.auxiliaryObjectForm
+
+  const basedOn = exportMetadataItemLinksToXML(context, data.basedOn)
+  if (basedOn !== undefined) result.BasedOn = basedOn
+
+  const characteristics = exportCharacteristicsDescriptionsToXML(context, data.characteristics)
+  if (characteristics !== undefined) result.Characteristics = characteristics
+
+  if (data.checkUnique !== undefined) result.CheckUnique = data.checkUnique
+
+  if (data.choiceDataGetModeOnInputByString !== undefined)
+    result.ChoiceDataGetModeOnInputByString = data.choiceDataGetModeOnInputByString
+
+  if (data.choiceHistoryOnInput !== undefined) result.ChoiceHistoryOnInput = data.choiceHistoryOnInput
+
+  const commands = exportMetadataCommandsToXML(context, data.commands)
+  if (commands !== undefined) result.Commands = commands
+
+  if (data.comment !== undefined) result.Comment = data.comment
+
+  if (data.createOnInput !== undefined) result.CreateOnInput = data.createOnInput
+
+  if (data.dataHistory !== undefined) result.DataHistory = data.dataHistory
+
+  if (data.dataLockControlMode !== undefined) result.DataLockControlMode = data.dataLockControlMode
+
+  const dataLockFields = exportMetadataFieldsToXML(context, data.dataLockFields)
+  if (dataLockFields !== undefined) result.DataLockFields = dataLockFields
+
+  if (data.defaultChoiceForm !== undefined) result.DefaultChoiceForm = data.defaultChoiceForm
+
+  if (data.defaultListForm !== undefined) result.DefaultListForm = data.defaultListForm
+
+  if (data.defaultObjectForm !== undefined) result.DefaultObjectForm = data.defaultObjectForm
+
+  if (data.executeAfterWriteDataHistoryVersionProcessing !== undefined)
+    result.ExecuteAfterWriteDataHistoryVersionProcessing = data.executeAfterWriteDataHistoryVersionProcessing
+
+  const explanation = exportI8nTextToXML(context, data.explanation)
+  if (explanation !== undefined) result.Explanation = explanation
+
+  const extendedListPresentation = exportI8nTextToXML(context, data.extendedListPresentation)
+  if (extendedListPresentation !== undefined) result.ExtendedListPresentation = extendedListPresentation
+
+  const extendedObjectPresentation = exportI8nTextToXML(context, data.extendedObjectPresentation)
+  if (extendedObjectPresentation !== undefined) result.ExtendedObjectPresentation = extendedObjectPresentation
+
+  if (data.fullTextSearch !== undefined) result.FullTextSearch = data.fullTextSearch
+
+  if (data.fullTextSearchOnInputByString !== undefined)
+    result.FullTextSearchOnInputByString = data.fullTextSearchOnInputByString
+
+  if (data.includeHelpInContents !== undefined) result.IncludeHelpInContents = data.includeHelpInContents
+
+  const inputByString = exportMetadataFieldsToXML(context, data.inputByString)
+  if (inputByString !== undefined) result.InputByString = inputByString
+
+  const listPresentation = exportI8nTextToXML(context, data.listPresentation)
+  if (listPresentation !== undefined) result.ListPresentation = listPresentation
+
+  if (data.name !== undefined) result.Name = data.name
+
+  if (data.numberAllowedLength !== undefined) result.NumberAllowedLength = data.numberAllowedLength
+
+  if (data.numberLength !== undefined) result.NumberLength = data.numberLength
+
+  if (data.numberPeriodicity !== undefined) result.NumberPeriodicity = data.numberPeriodicity
+
+  if (data.numberType !== undefined) result.NumberType = data.numberType
+
+  const numerator = exportMetadataDocumentNumeratorToXML(context, data.numerator)
+  if (numerator !== undefined) result.Numerator = numerator
+
+  if (data.objectBelonging !== undefined) result.ObjectBelonging = data.objectBelonging
+
+  const objectPresentation = exportI8nTextToXML(context, data.objectPresentation)
+  if (objectPresentation !== undefined) result.ObjectPresentation = objectPresentation
+
+  if (data.posting !== undefined) result.Posting = data.posting
+
+  if (data.privilegedPostingMode !== undefined) result.PrivilegedPostingMode = data.privilegedPostingMode
+
+  if (data.privilegedUnpostingMode !== undefined) result.PrivilegedUnpostingMode = data.privilegedUnpostingMode
+
+  if (data.realTimePosting !== undefined) result.RealTimePosting = data.realTimePosting
+
+  const registerRecords = exportMetadataItemLinksToXML(context, data.registerRecords)
+  if (registerRecords !== undefined) result.RegisterRecords = registerRecords
+
+  if (data.registerRecordsDeletion !== undefined) result.RegisterRecordsDeletion = data.registerRecordsDeletion
+
+  if (data.searchStringModeOnInputByString !== undefined)
+    result.SearchStringModeOnInputByString = data.searchStringModeOnInputByString
+
+  if (data.sequenceFilling !== undefined) result.SequenceFilling = data.sequenceFilling
+
+  const standardAttributes = exportStandardAttributeDescriptionsToXML(context, data.standardAttributes, ["Ref"])
+  if (standardAttributes !== undefined) result.StandardAttributes = standardAttributes
+
+  const synonym = exportI8nTextToXML(context, data.synonym)
+  if (synonym !== undefined) result.Synonym = synonym
+
+  const tabularSections = exportMetadataTabularSectionsToXML(context, data.tabularSections)
+  if (tabularSections !== undefined) result.TabularSections = tabularSections
+
+  if (data.updateDataHistoryImmediatelyAfterWrite !== undefined)
+    result.UpdateDataHistoryImmediatelyAfterWrite = data.updateDataHistoryImmediatelyAfterWrite
+
+  if (data.useStandardCommands !== undefined) result.UseStandardCommands = data.useStandardCommands
+
+  return result
 }

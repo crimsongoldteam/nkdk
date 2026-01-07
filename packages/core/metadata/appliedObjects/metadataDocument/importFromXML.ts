@@ -17,57 +17,131 @@ export const importMetadataDocumentFromXML = (
 ): MetadataDocument | undefined => {
   if (!xml) return undefined
 
-  return {
-    actionsWritingOnPost: xml.ActionsWritingOnPost,
-    additionalIndexes: importAdditionalIndexesFromXML(context, xml.AdditionalIndexes),
-    attributes: importMetadataAttributesFromXML(context, xml.Attributes),
-    autonumbering: xml.Autonumbering,
-    auxiliaryChoiceForm: xml.AuxiliaryChoiceForm,
-    auxiliaryListForm: xml.AuxiliaryListForm,
-    auxiliaryObjectForm: xml.AuxiliaryObjectForm,
-    basedOn: importMetadataItemLinksFromXML(context, xml.BasedOn),
-    characteristics: importCharacteristicsDescriptionsFromXML(context, xml.Characteristics),
-    checkUnique: xml.CheckUnique,
-    choiceDataGetModeOnInputByString: xml.ChoiceDataGetModeOnInputByString,
-    choiceHistoryOnInput: xml.ChoiceHistoryOnInput,
-    commands: importMetadataCommandsFromXML(context, xml.Commands),
-    comment: xml.Comment,
-    createOnInput: xml.CreateOnInput,
-    dataHistory: xml.DataHistory,
-    dataLockControlMode: xml.DataLockControlMode,
-    dataLockFields: importMetadataFieldsFromXML(context, xml.DataLockFields),
-    defaultChoiceForm: xml.DefaultChoiceForm,
-    defaultListForm: xml.DefaultListForm,
-    defaultObjectForm: xml.DefaultObjectForm,
-    executeAfterWriteDataHistoryVersionProcessing: xml.ExecuteAfterWriteDataHistoryVersionProcessing,
-    explanation: importI8nTextFromXML(context, xml.Explanation),
-    extendedListPresentation: importI8nTextFromXML(context, xml.ExtendedListPresentation),
-    extendedObjectPresentation: importI8nTextFromXML(context, xml.ExtendedObjectPresentation),
-    fullTextSearch: xml.FullTextSearch,
-    fullTextSearchOnInputByString: xml.FullTextSearchOnInputByString,
-    includeHelpInContents: xml.IncludeHelpInContents,
-    inputByString: importMetadataFieldsFromXML(context, xml.InputByString),
-    listPresentation: importI8nTextFromXML(context, xml.ListPresentation),
-    name: xml.Name!,
-    numberAllowedLength: xml.NumberAllowedLength,
-    numberLength: xml.NumberLength,
-    numberPeriodicity: xml.NumberPeriodicity,
-    numberType: xml.NumberType,
-    numerator: importMetadataDocumentNumeratorFromXML(context, xml.Numerator),
-    objectBelonging: xml.ObjectBelonging,
-    objectPresentation: importI8nTextFromXML(context, xml.ObjectPresentation),
-    posting: xml.Posting,
-    privilegedPostingMode: xml.PrivilegedPostingMode,
-    privilegedUnpostingMode: xml.PrivilegedUnpostingMode,
-    realTimePosting: xml.RealTimePosting,
-    registerRecords: importMetadataItemLinksFromXML(context, xml.RegisterRecords),
-    registerRecordsDeletion: xml.RegisterRecordsDeletion,
-    searchStringModeOnInputByString: xml.SearchStringModeOnInputByString,
-    sequenceFilling: xml.SequenceFilling,
-    standardAttributes: importStandardAttributeDescriptionsFromXML(context, xml.StandardAttributes),
-    synonym: importI8nTextFromXML(context, xml.Synonym),
-    tabularSections: importMetadataTabularSectionsFromXML(context, xml.TabularSections),
-    updateDataHistoryImmediatelyAfterWrite: xml.UpdateDataHistoryImmediatelyAfterWrite,
-    useStandardCommands: xml.UseStandardCommands,
-  }
+  const result: MetadataDocument = {} as MetadataDocument
+
+  if (xml.ActionsWritingOnPost !== undefined) result.actionsWritingOnPost = xml.ActionsWritingOnPost
+
+  const additionalIndexes = importAdditionalIndexesFromXML(context, xml.AdditionalIndexes)
+  if (additionalIndexes !== undefined) result.additionalIndexes = additionalIndexes
+
+  const attributes = importMetadataAttributesFromXML(context, xml.Attributes)
+  if (attributes !== undefined) result.attributes = attributes
+
+  if (xml.Autonumbering !== undefined) result.autonumbering = xml.Autonumbering
+
+  if (xml.AuxiliaryChoiceForm !== undefined) result.auxiliaryChoiceForm = xml.AuxiliaryChoiceForm
+
+  if (xml.AuxiliaryListForm !== undefined) result.auxiliaryListForm = xml.AuxiliaryListForm
+
+  if (xml.AuxiliaryObjectForm !== undefined) result.auxiliaryObjectForm = xml.AuxiliaryObjectForm
+
+  const basedOn = importMetadataItemLinksFromXML(context, xml.BasedOn)
+  if (basedOn !== undefined) result.basedOn = basedOn
+
+  const characteristics = importCharacteristicsDescriptionsFromXML(context, xml.Characteristics)
+  if (characteristics !== undefined) result.characteristics = characteristics
+
+  if (xml.CheckUnique !== undefined) result.checkUnique = xml.CheckUnique
+
+  if (xml.ChoiceDataGetModeOnInputByString !== undefined)
+    result.choiceDataGetModeOnInputByString = xml.ChoiceDataGetModeOnInputByString
+
+  if (xml.ChoiceHistoryOnInput !== undefined) result.choiceHistoryOnInput = xml.ChoiceHistoryOnInput
+
+  const commands = importMetadataCommandsFromXML(context, xml.Commands)
+  if (commands !== undefined) result.commands = commands
+
+  if (xml.Comment !== undefined) result.comment = xml.Comment
+
+  if (xml.CreateOnInput !== undefined) result.createOnInput = xml.CreateOnInput
+
+  if (xml.DataHistory !== undefined) result.dataHistory = xml.DataHistory
+
+  if (xml.DataLockControlMode !== undefined) result.dataLockControlMode = xml.DataLockControlMode
+
+  const dataLockFields = importMetadataFieldsFromXML(context, xml.DataLockFields)
+  if (dataLockFields !== undefined) result.dataLockFields = dataLockFields
+
+  if (xml.DefaultChoiceForm !== undefined) result.defaultChoiceForm = xml.DefaultChoiceForm
+
+  if (xml.DefaultListForm !== undefined) result.defaultListForm = xml.DefaultListForm
+
+  if (xml.DefaultObjectForm !== undefined) result.defaultObjectForm = xml.DefaultObjectForm
+
+  if (xml.ExecuteAfterWriteDataHistoryVersionProcessing !== undefined)
+    result.executeAfterWriteDataHistoryVersionProcessing = xml.ExecuteAfterWriteDataHistoryVersionProcessing
+
+  const explanation = importI8nTextFromXML(context, xml.Explanation)
+  if (explanation !== undefined) result.explanation = explanation
+
+  const extendedListPresentation = importI8nTextFromXML(context, xml.ExtendedListPresentation)
+  if (extendedListPresentation !== undefined) result.extendedListPresentation = extendedListPresentation
+
+  const extendedObjectPresentation = importI8nTextFromXML(context, xml.ExtendedObjectPresentation)
+  if (extendedObjectPresentation !== undefined) result.extendedObjectPresentation = extendedObjectPresentation
+
+  if (xml.FullTextSearch !== undefined) result.fullTextSearch = xml.FullTextSearch
+
+  if (xml.FullTextSearchOnInputByString !== undefined)
+    result.fullTextSearchOnInputByString = xml.FullTextSearchOnInputByString
+
+  if (xml.IncludeHelpInContents !== undefined) result.includeHelpInContents = xml.IncludeHelpInContents
+
+  const inputByString = importMetadataFieldsFromXML(context, xml.InputByString)
+  if (inputByString !== undefined) result.inputByString = inputByString
+
+  const listPresentation = importI8nTextFromXML(context, xml.ListPresentation)
+  if (listPresentation !== undefined) result.listPresentation = listPresentation
+
+  if (xml.Name !== undefined) result.name = xml.Name
+
+  if (xml.NumberAllowedLength !== undefined) result.numberAllowedLength = xml.NumberAllowedLength
+
+  if (xml.NumberLength !== undefined) result.numberLength = xml.NumberLength
+
+  if (xml.NumberPeriodicity !== undefined) result.numberPeriodicity = xml.NumberPeriodicity
+
+  if (xml.NumberType !== undefined) result.numberType = xml.NumberType
+
+  const numerator = importMetadataDocumentNumeratorFromXML(context, xml.Numerator)
+  if (numerator !== undefined) result.numerator = numerator
+
+  if (xml.ObjectBelonging !== undefined) result.objectBelonging = xml.ObjectBelonging
+
+  const objectPresentation = importI8nTextFromXML(context, xml.ObjectPresentation)
+  if (objectPresentation !== undefined) result.objectPresentation = objectPresentation
+
+  if (xml.Posting !== undefined) result.posting = xml.Posting
+
+  if (xml.PrivilegedPostingMode !== undefined) result.privilegedPostingMode = xml.PrivilegedPostingMode
+
+  if (xml.PrivilegedUnpostingMode !== undefined) result.privilegedUnpostingMode = xml.PrivilegedUnpostingMode
+
+  if (xml.RealTimePosting !== undefined) result.realTimePosting = xml.RealTimePosting
+
+  const registerRecords = importMetadataItemLinksFromXML(context, xml.RegisterRecords)
+  if (registerRecords !== undefined) result.registerRecords = registerRecords
+
+  if (xml.RegisterRecordsDeletion !== undefined) result.registerRecordsDeletion = xml.RegisterRecordsDeletion
+
+  if (xml.SearchStringModeOnInputByString !== undefined)
+    result.searchStringModeOnInputByString = xml.SearchStringModeOnInputByString
+
+  if (xml.SequenceFilling !== undefined) result.sequenceFilling = xml.SequenceFilling
+
+  const standardAttributes = importStandardAttributeDescriptionsFromXML(context, xml.StandardAttributes)
+  if (standardAttributes !== undefined) result.standardAttributes = standardAttributes
+
+  const synonym = importI8nTextFromXML(context, xml.Synonym)
+  if (synonym !== undefined) result.synonym = synonym
+
+  const tabularSections = importMetadataTabularSectionsFromXML(context, xml.TabularSections)
+  if (tabularSections !== undefined) result.tabularSections = tabularSections
+
+  if (xml.UpdateDataHistoryImmediatelyAfterWrite !== undefined)
+    result.updateDataHistoryImmediatelyAfterWrite = xml.UpdateDataHistoryImmediatelyAfterWrite
+
+  if (xml.UseStandardCommands !== undefined) result.useStandardCommands = xml.UseStandardCommands
+
+  return result
 }

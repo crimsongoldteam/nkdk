@@ -16,21 +16,35 @@ export const importColumnGroupFromXML = (
   const baseFields = importFormGroupFromXML(context, xml)
   if (!baseFields) return undefined
 
-  return {
+  const result: ColumnGroup = {
     ...baseFields,
     elementType: FormElementType.ColumnGroup,
-
-    fixingInTable: xml.FixingInTable,
-    group: xml.Group,
-    headerDataPath: xml.HeaderDataPath,
-    headerFormat: xml.HeaderFormat,
-    headerHorizontalAlign: xml.HeaderHorizontalAlign,
-    headerPicture: importPictureFromXML(context, xml.HeaderPicture),
-    showInHeader: xml.ShowInHeader,
-    showTitle: xml.ShowTitle,
-    titleBackColor: importColorFromXML(context, xml.TitleBackColor),
-    userVisible: importUserVisibleFromXML(context, xml.UserVisible),
   }
+
+  if (xml.FixingInTable !== undefined) result.fixingInTable = xml.FixingInTable
+
+  if (xml.Group !== undefined) result.group = xml.Group
+
+  if (xml.HeaderDataPath !== undefined) result.headerDataPath = xml.HeaderDataPath
+
+  if (xml.HeaderFormat !== undefined) result.headerFormat = xml.HeaderFormat
+
+  if (xml.HeaderHorizontalAlign !== undefined) result.headerHorizontalAlign = xml.HeaderHorizontalAlign
+
+  const headerPicture = importPictureFromXML(context, xml.HeaderPicture)
+  if (headerPicture !== undefined) result.headerPicture = headerPicture
+
+  if (xml.ShowInHeader !== undefined) result.showInHeader = xml.ShowInHeader
+
+  if (xml.ShowTitle !== undefined) result.showTitle = xml.ShowTitle
+
+  const titleBackColor = importColorFromXML(context, xml.TitleBackColor)
+  if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  return result
 }
 
 registerMetadata("ImportFromXML", "ColumnGroup", importColumnGroupFromXML)

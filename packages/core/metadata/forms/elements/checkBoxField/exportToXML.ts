@@ -14,12 +14,11 @@ export const exportCheckBoxFieldToXML = (
 ): CheckBoxFieldXML | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormFieldToXML(context, data)
+  const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
 
   return {
-    ...baseFields,,
+    ...baseFields,
 
     BackColor: exportColorToXML(context, data.backColor),
     BorderColor: exportColorToXML(context, data.borderColor),
@@ -33,7 +32,8 @@ export const exportCheckBoxFieldToXML = (
     TextColor: exportColorToXML(context, data.textColor),
     ThreeState: data.threeState,
     UserVisible: exportUserVisibleToXML(context, data.userVisible),
-    Events: exportEventsToXML(context, data.events),  }
+    Events: exportEventsToXML(context, data.events),
+  }
 }
 
 registerMetadata("ExportToXML", "CheckBoxField", exportCheckBoxFieldToXML)
