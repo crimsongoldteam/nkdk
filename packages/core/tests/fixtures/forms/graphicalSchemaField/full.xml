@@ -8,6 +8,7 @@
 	<AutoMaxHeight>true</AutoMaxHeight>
 	<AutoMaxWidth>true</AutoMaxWidth>
 	<BorderColor>web:Black</BorderColor>
+	<Edit>true</Edit>
 	<Height>200</Height>
 	<HorizontalStretch>true</HorizontalStretch>
 	<MaxHeight>500</MaxHeight>
