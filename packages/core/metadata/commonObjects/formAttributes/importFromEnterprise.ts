@@ -9,10 +9,7 @@ import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/ty
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { removeDefaults } from "~/metadata/helpers/compactObject"
-import { addDefaultLanguageNameToSynonym } from "~/metadata/helpers/synonymHelpers"
 import { importI8nTextFromEnterprise } from "../i8nText/importFromEnterprise"
-import { getDefaultsFormAttribute } from "./defaults"
 
 export const importFormAttributesFromEnterprise = (
   context: ConfigurationContext,
@@ -31,26 +28,22 @@ const importFormAttributeFromEnterprise = (
   name: string
 ): FormAttribute | undefined => {
   if (typeof data === "string" || Array.isArray(data)) {
-    const type = importTypeDescriptionFromEnterprise(context, data)
-    if (!type) throw new Error("Type is required")
+    const type = importTypeDescriptionFromEnterprise(context, data)!
 
     return {
       name,
-      id: generateId(name),
       valueType: type,
     }
   }
 
   const type = importTypeDescriptionFromEnterprise(context, data.Тип)
 
-  const title = addDefaultLanguageNameToSynonym(context, importI8nTextFromEnterprise(context, data.Заголовок), name)
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
 
   const result: FormAttribute = {
     name,
-    id: generateId(name),
+    valueType: type!,
   }
-
-  if (type !== undefined) result.valueType = type
 
   if (title !== undefined) result.title = title
 
@@ -71,12 +64,5 @@ const importFormAttributeFromEnterprise = (
   )
   if (use !== undefined) result.use = use
 
-  const defaults = getDefaultsFormAttribute(context, result)
-  return removeDefaults(result, defaults)
-}
-
-const generateId = (name: string): string => {
-  // Простая генерация ID на основе имени
-  // В реальном приложении может быть более сложная логика
-  return name.toLowerCase().replace(/[^a-z0-9]/g, "")
+  return result
 }

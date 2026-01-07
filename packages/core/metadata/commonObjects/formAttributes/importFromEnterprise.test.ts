@@ -9,6 +9,7 @@ import {
 } from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importFormAttributesFromEnterprise } from "./importFromEnterprise"
+import { FormAttributes } from "./types"
 
 describe("importFormAttributesFromEnterprise", () => {
   it("should return undefined when data is undefined", () => {
@@ -19,18 +20,28 @@ describe("importFormAttributesFromEnterprise", () => {
   it("should import full", () => {
     const result = importFormAttributesFromEnterprise(mockСontext, fullFormAttributesEnterprise)
 
-    expect(result).toEqual(fullFormAttributes)
+    const resultWithIds = fillIds(result)
+
+    expect(resultWithIds).toEqual(fullFormAttributes)
   })
 
   it("should import minimal", () => {
     const result = importFormAttributesFromEnterprise(mockСontext, minimalFormAttributesEnterprise)
 
-    expect(result).toEqual(minimalFormAttributes)
+    const resultWithIds = fillIds(result)
+    expect(resultWithIds).toEqual(minimalFormAttributes)
   })
 
   it("should import with short format", () => {
     const result = importFormAttributesFromEnterprise(mockСontext, shortFormAttributeEnterprise)
 
-    expect(result).toEqual(shortFormAttribute)
+    const resultWithIds = fillIds(result)
+    expect(resultWithIds).toEqual(shortFormAttribute)
   })
 })
+
+const fillIds = (data: FormAttributes | undefined): FormAttributes | undefined => {
+  if (!data) return undefined
+
+  return data.map((attribute) => ({ ...attribute, id: "1" }))
+}

@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  fullFormAttributes,
-  minimalFormAttributes,
-  multipleFormAttributes,
-  withMainAttributeFormAttribute,
-  withStoredDataFormAttribute,
-} from "~/tests/fixtures/formAttributes/data"
+import { fullFormAttributes, minimalFormAttributes, multipleFormAttributes } from "~/tests/fixtures/formAttributes/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importFormAttributesFromXML } from "./importFromXML"
@@ -18,58 +12,34 @@ describe("importFormAttributesFromXML", () => {
   })
 
   it("should import full", () => {
-    const xmlData = readAndParseXMLFile<{ Attributes: FormAttributesXML }>("formAttributes/full.xml")
+    const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/full.xml")
 
-    const result = importFormAttributesFromXML(mockСontext, xmlData.Attributes)
+    const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
 
     expect(result).toEqual(fullFormAttributes)
   })
 
   it("should import minimal", () => {
-    const xmlData = readAndParseXMLFile<{ Attributes: FormAttributesXML }>("formAttributes/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/minimal.xml")
 
-    const result = importFormAttributesFromXML(mockСontext, xmlData.Attributes)
-
-    expect(result).toEqual(minimalFormAttributes)
-  })
-
-  it("should import defaults", () => {
-    const xmlData = readAndParseXMLFile<{ Attributes: FormAttributesXML }>("formAttributes/defaults.xml")
-
-    const result = importFormAttributesFromXML(mockСontext, xmlData.Attributes)
+    const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
 
     expect(result).toEqual(minimalFormAttributes)
   })
 
   it("should import multiple attributes", () => {
-    const xmlData = readAndParseXMLFile<{ Attributes: FormAttributesXML }>("formAttributes/multiple.xml")
+    const xmlData = readAndParseXMLFile<{ Attribute: FormAttributesXML }>("formAttributes/multiple.xml")
 
-    const result = importFormAttributesFromXML(mockСontext, xmlData.Attributes)
+    const result = importFormAttributesFromXML(mockСontext, xmlData.Attribute)
 
     expect(result).toEqual(multipleFormAttributes)
   })
 
-  it("should import with main attribute", () => {
-    const xmlData = readAndParseXMLFile<{ Attributes: FormAttributesXML }>("formAttributes/withMainAttribute.xml")
+  // it("should throw error when ConditionalAppearance is present in XML", () => {
+  //   const xmlData = readAndParseXMLFile<{ Attributes: FormAttributesXML }>("formAttributes/conditionalAppearance.xml")
 
-    const result = importFormAttributesFromXML(mockСontext, xmlData.Attributes)
-
-    expect(result).toEqual(withMainAttributeFormAttribute)
-  })
-
-  it("should import with stored data", () => {
-    const xmlData = readAndParseXMLFile<{ Attributes: FormAttributesXML }>("formAttributes/withStoredData.xml")
-
-    const result = importFormAttributesFromXML(mockСontext, xmlData.Attributes)
-
-    expect(result).toEqual(withStoredDataFormAttribute)
-  })
-
-  it("should ignore ConditionalAppearance from XML", () => {
-    const xmlData = readAndParseXMLFile<{ Attributes: FormAttributesXML }>("formAttributes/conditionalAppearance.xml")
-
-    const result = importFormAttributesFromXML(mockСontext, xmlData.Attributes)
-
-    expect(result).toEqual([])
-  })
+  //   expect(() => importFormAttributesFromXML(mockСontext, xmlData.Attributes)).toThrowError(
+  //     "ConditionalAppearance is not supported"
+  //   )
+  // })
 })

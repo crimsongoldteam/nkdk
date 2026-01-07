@@ -5,10 +5,9 @@ export const fullFormAttributes: FormAttributes = [
   {
     name: "ТестовыйАтрибут",
     id: "1",
-    title: { items: { ru: "Тестовый атрибут" } },
+    title: { items: { ru: "Заголовок атрибута" } },
     valueType: {
       type: ["string"],
-      stringQualifiers: { length: 0, allowedLength: "Variable" },
     },
     mainAttribute: true,
     storedData: true,
@@ -24,7 +23,7 @@ export const fullFormAttributes: FormAttributes = [
 
 export const fullFormAttributesEnterprise: FormAttributesEnterprise = {
   ТестовыйАтрибут: {
-    Заголовок: "Тестовый атрибут",
+    Заголовок: "Заголовок атрибута",
     Тип: "Строка",
     ОсновнойРеквизит: "Истина",
     СохраняемыеДанные: "Истина",
@@ -43,7 +42,6 @@ export const minimalFormAttributes: FormAttributes = [
     id: "1",
     valueType: {
       type: ["string"],
-      stringQualifiers: { length: 0, allowedLength: "Variable" },
     },
   },
 ]
@@ -57,7 +55,6 @@ export const multipleFormAttributes: FormAttributes = [
     title: { items: { ru: "Атрибут 1" } },
     valueType: {
       type: ["string"],
-      stringQualifiers: { length: 0, allowedLength: "Variable" },
     },
   },
   {
@@ -66,7 +63,6 @@ export const multipleFormAttributes: FormAttributes = [
     title: { items: { ru: "Атрибут 2" } },
     valueType: {
       type: ["string"],
-      stringQualifiers: { length: 0, allowedLength: "Variable" },
     },
   },
 ]
@@ -79,7 +75,6 @@ export const shortFormAttribute: FormAttributes = [
     id: "1",
     valueType: {
       type: ["string"],
-      stringQualifiers: { length: 0, allowedLength: "Variable" },
     },
   },
 ]

@@ -30,7 +30,7 @@ const exportFormAttributeToEnterprise = (
 ): FormAttributeEnterprise | TypeDescriptionEnterprise => {
   const type = exportTypeDescriptionToEnterprise(context, data.valueType)
 
-  const filteredTitle = extractDifferentSynonymPart(context, data.title!, data.name)
+  const filteredTitle = data.title ? extractDifferentSynonymPart(context, data.title, data.name) : undefined
   const title = exportI8nTextToEnterprise(context, filteredTitle)
 
   if (canUseShortFormat(data, title)) {

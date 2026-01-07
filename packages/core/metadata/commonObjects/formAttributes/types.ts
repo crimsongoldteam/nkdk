@@ -14,15 +14,15 @@ import { StringboolEnterprise } from "../boolean/types"
 
 export interface FormAttribute {
   name: string
-  id: string
+  id?: string
   title?: I8nText
-  valueType?: TypeDescription
+  valueType: TypeDescription
   mainAttribute?: boolean
   storedData?: boolean
   use?: UserVisible
 }
 
-export interface FormAttributeItemXML {
+export interface FormAttributeXML {
   _name: string
   _id: string
   Title?: I8nTextXML
@@ -30,10 +30,6 @@ export interface FormAttributeItemXML {
   MainAttribute?: boolean
   StoredData?: boolean
   Use?: UserVisibleXML
-}
-
-export interface FormAttributeXML {
-  Attribute: FormAttributeItemXML
 }
 
 export interface ConditionalAppearanceXML {
