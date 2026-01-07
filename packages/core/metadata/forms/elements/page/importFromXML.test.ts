@@ -1,36 +1,30 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/elements"
-import "~/metadata/forms/elements/exportToXML"
-import "~/metadata/forms/elements/importFromXML"
+import { fullPage, minimalPage } from "~/tests/fixtures/forms/page/data"
 import { mockСontext } from "~/tests/mockContext"
-import xmlImport from "~/xml/import/importer"
-import { FormElementType } from "../../../metadataFactory/types"
+import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importPageFromXML } from "./importFromXML"
-import { Page, PageXML } from "./types"
+import { PageXML } from "./types"
 
 describe("importPageFromXML", () => {
-  it("should import Page from XML", () => {
-    const mockXml = `	<Page name="Страница" id="1">
-    <Title>
-      <v8:item>
-        <v8:lang>ru</v8:lang>
-        <v8:content>Заголовок группы</v8:content>
-      </v8:item>
-    </Title>
-  </Page>`
+  it("should return undefined when data is undefined", () => {
+    const result = importPageFromXML(mockСontext, undefined)
 
-    const expectedResult: Page = {
-      name: "Страница",
-      title: { items: { ru: "Заголовок группы" } },
-      id: "1",
-      childItems: [],
-      elementType: FormElementType.Page,
-    }
+    expect(result).toBeUndefined()
+  })
 
-    const xmlData = xmlImport<{ Page: PageXML }>(mockXml)
+  it("should import all fields from XML", () => {
+    const xmlData = readAndParseXMLFile<{ Page: PageXML }>("forms/page/full.xml")
 
-    const input = importPageFromXML(mockСontext, xmlData.Page)
+    const result = importPageFromXML(mockСontext, xmlData.Page)
 
-    expect(input).toEqual(expectedResult)
+    expect(result).toEqual(fullPage)
+  })
+
+  it("should import minimal", () => {
+    const xmlData = readAndParseXMLFile<{ Page: PageXML }>("forms/page/minimal.xml")
+
+    const result = importPageFromXML(mockСontext, xmlData.Page)
+
+    expect(result).toEqual(minimalPage)
   })
 })

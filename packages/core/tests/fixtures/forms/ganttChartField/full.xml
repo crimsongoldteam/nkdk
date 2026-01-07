@@ -1,0 +1,20 @@
+<GanttChartField name="ПолеДиаграммыГанта" id="1">
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Поле диаграммы Ганта</v8:content>
+		</v8:item>
+	</Title>
+	<AutoMaxHeight>true</AutoMaxHeight>
+	<AutoMaxWidth>true</AutoMaxWidth>
+	<Height>200</Height>
+	<HorizontalLines>true</HorizontalLines>
+	<HorizontalStretch>true</HorizontalStretch>
+	<IntervalsSelectionMode>Single</IntervalsSelectionMode>
+	<MaxHeight>500</MaxHeight>
+	<MaxWidth>400</MaxWidth>
+	<TableLocation>None</TableLocation>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
