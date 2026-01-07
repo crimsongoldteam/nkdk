@@ -1,0 +1,28 @@
+<FormDecoration name="ОформлениеФормы" id="1" DisplayImportance="High">
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Оформление формы</v8:content>
+		</v8:item>
+	</Title>
+	<AutoMaxHeight>true</AutoMaxHeight>
+	<AutoMaxWidth>true</AutoMaxWidth>
+	<Enabled>true</Enabled>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
+	<Height>200</Height>
+	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalStretch>true</HorizontalStretch>
+	<MaxHeight>500</MaxHeight>
+	<MaxWidth>400</MaxWidth>
+	<Shortcut>Ctrl+S</Shortcut>
+	<SkipOnInput>false</SkipOnInput>
+	<TextColor>web:Blue</TextColor>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>None</ToolTipRepresentation>
+	<Type>Text</Type>
+	<UserVisible>
