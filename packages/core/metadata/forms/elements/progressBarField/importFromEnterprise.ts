@@ -1,52 +1,44 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
-import { importBorderFromEnterprise } from "~/metadata/commonObjects/border/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
-import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { ProgressBarField, ProgressBarFieldEnterprise } from "~/metadata/forms/elements/progressBarField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { PeriodField, PeriodFieldEnterprise } from "~/metadata/forms/elements/periodField/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
 
-const importPeriodFieldEventsFromEnterprise = (
-  data:
-    | {
-        ПриИзменении?: string
-        Выбор?: string
-      }
-    | undefined
-):
-  | {
-      onChange?: string
-      selection?: string
-    }
-  | undefined => {
+const importProgressBarFieldEventsFromEnterprise = (
+  data: {
+    ПриИзменении?: string
+  } | undefined
+): {
+  onChange?: string
+} | undefined => {
   if (!data) return undefined
 
   const result: {
     onChange?: string
-    selection?: string
   } = {}
 
   if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.Выбор !== undefined) result.selection = data.Выбор
 
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importPeriodFieldFromEnterprise = (
+export const importProgressBarFieldFromEnterprise = (
   context: ConfigurationContext,
-  data: PeriodFieldEnterprise | undefined,
+  data: ProgressBarFieldEnterprise | undefined,
   name: string
-): PeriodField | undefined => {
+): ProgressBarField | undefined => {
   if (!data) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
   const { elementType: _, ...restFields } = baseFields
 
-  const result: PeriodField = {
-    elementType: FormElementType.PeriodField,
+  const result: ProgressBarField = {
+    elementType: FormElementType.ProgressBarField,
     ...restFields,
   }
 
@@ -62,22 +54,36 @@ export const importPeriodFieldFromEnterprise = (
 
   if (data.МаксимальнаяШирина !== undefined) result.maxWidth = data.МаксимальнаяШирина
 
+  if (data.МаксимальноеЗначение !== undefined) result.maxValue = data.МаксимальноеЗначение
+
+  if (data.МинимальноеЗначение !== undefined) result.minValue = data.МинимальноеЗначение
+
+  const orientation = importSystemEnumerationFromEnterprise<SE.FormItemOrientation>(
+    context,
+    data.Ориентация,
+    SE.FormItemOrientationFromEnterprise
+  )
+  if (orientation !== undefined) result.orientation = orientation
+
+  const showPercent = importBooleanFromEnterprise(context, data.ОтображатьПроценты)
+  if (showPercent !== undefined) result.showPercent = showPercent
+
+  const representation = importSystemEnumerationFromEnterprise<SE.ProgressBarSmoothingMode>(
+    context,
+    data.Отображение,
+    SE.ProgressBarSmoothingModeFromEnterprise
+  )
+  if (representation !== undefined) result.representation = representation
+
   const userVisibleAllow = importUserVisibleFromEnterprise(
     context,
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(
-    context,
-    data.ЗапретитьИспользование,
-    "ЗапретитьИспользование"
-  )
+  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
-
-  const border = importBorderFromEnterprise(context, data.Рамка)
-  if (border !== undefined) result.border = border
 
   const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
   if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
@@ -90,13 +96,10 @@ export const importPeriodFieldFromEnterprise = (
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const font = importFontFromEnterprise(context, data.Шрифт)
-  if (font !== undefined) result.font = font
-
-  const events = importPeriodFieldEventsFromEnterprise(data.События)
+  const events = importProgressBarFieldEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "PeriodField", importPeriodFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "ProgressBarField", importProgressBarFieldFromEnterprise)
