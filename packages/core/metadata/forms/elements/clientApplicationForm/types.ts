@@ -113,7 +113,6 @@ export interface ClientApplicationFormXML {
   CollapseItemsByImportance?: SE.CollapseFormItemsByImportance
   CommandBar?: CommandBarXML
   CommandBarLocation?: SE.FormCommandBarLabelLocation
-  // Commands: ZКомандыФормыXML.optional(),
   ConversationsRepresentation?: SE.FormConversationsRepresentation
   Enabled?: boolean
   EnterKeyBehavior?: SE.EnterKeyBehaviorType
@@ -141,11 +140,12 @@ export interface ClientApplicationFormXML {
   VerticalSpacing?: SE.FormItemSpacing
   Width?: number
   WindowOptionsKey?: string
-  // ConditionalAppearance: ZУсловноеОформлениеКомпоновкиДанныхXML.optional(),
   CommandSet?: CommandSetXML
   UseForFoldersAndItems?: SE.FoldersAndItemsUse
   AutoCommandBar?: CommandBarXML
   Events?: EventsXML
   ChildItems?: ChildItemsXML
-  Attributes?: FormAttributesXML
+  Attributes?: {
+    Attribute: FormAttributesXML
+  }
 }
