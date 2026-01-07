@@ -38,7 +38,7 @@ export const exportInputFieldToStructure = (
     haveSimpleHorizontalGroup: false,
   }
 
-  result.strings.push(...getMultilineString(element, header.length, value.length))
+  // result.strings.push(...getMultilineString(element, header.length, value.length))
 
   return result
 }
@@ -54,24 +54,6 @@ const formatNamePart = (element: InputField, hasTitle: boolean, hasValue: boolea
 
   // Добавляем пробел перед именем только если есть значение
   return (hasValue ? " " : "") + formatElementName(element)
-}
-
-function getMultilineString(element: InputField, headerLength: number, valueLength: number): string[] {
-  if (!isMultiline(element)) {
-    return []
-  }
-
-  const height = element.height!
-
-  let multilineStringTemplate = " ".repeat(headerLength) + UNDERLINE.repeat(valueLength)
-
-  const result: string[] = []
-
-  for (let i = 0; i < height - 1; i++) {
-    result.push(multilineStringTemplate)
-  }
-
-  return result
 }
 
 function getModificators(element: InputField): string {
