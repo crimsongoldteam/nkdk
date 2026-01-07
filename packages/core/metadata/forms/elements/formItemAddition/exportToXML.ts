@@ -32,7 +32,8 @@ export const exportFormItemAdditionToXML = (
     Type: data.type,
     UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalAlignInGroup: data.verticalAlignInGroup,
-    Visible: data.visible,  }
+    Visible: data.visible,
+  }
 }
 
 registerMetadata("ExportToXML", "FormItemAddition", exportFormItemAdditionToXML)

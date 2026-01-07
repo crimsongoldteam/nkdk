@@ -54,7 +54,6 @@
 	<ShowCloseButton>true</ShowCloseButton>
 	<ShowTitle>true</ShowTitle>
 	<SlaveItemsWidth>Auto</SlaveItemsWidth>
-	<UUID>123e4567-e89b-12d3-a456-426614174000</UUID>
 	<URL>https://example.com</URL>
 	<UsedFormServer>Main</UsedFormServer>
 	<VerticalScroll>Use</VerticalScroll>

@@ -43,7 +43,8 @@ export const exportFormDecorationToXML = (
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,
-    Width: data.width,  }
+    Width: data.width,
+  }
 }
 
 registerMetadata<FormDecoration>("ExportToXML", "FormDecoration", exportFormDecorationToXML)

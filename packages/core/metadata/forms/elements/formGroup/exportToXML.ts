@@ -40,7 +40,8 @@ export const exportFormGroupToXML = (
     VerticalAlignInGroup: data.verticalAlignInGroup,
     VerticalStretch: data.verticalStretch,
     Visible: data.visible,
-    Width: data.width,  }
+    Width: data.width,
+  }
 }
 
 registerMetadata<FormGroup>("ExportToXML", "FormGroup", exportFormGroupToXML)

@@ -44,7 +44,8 @@ export const exportUsualGroupToXML = (
     United: data.united,
     UserVisible: exportUserVisibleToXML(context, data.userVisible),
     VerticalAlign: data.verticalAlign,
-    VerticalSpacing: data.verticalSpacing,  }
+    VerticalSpacing: data.verticalSpacing,
+  }
 }
 
 registerMetadata("ExportToXML", "UsualGroup", exportUsualGroupToXML)

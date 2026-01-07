@@ -36,9 +36,7 @@ export const exportClientApplicationFormToXML = (
     AutoCommandBar: exportCommandBarToXML(context, data.autoCommandBar),
     Title: exportI8nTextToXML(context, data.title),
     ChildItems: exportChildItemsToXML(context, data.childItems),
-    Attributes: exportFormAttributesToXML(context, data.attributes)
-      ? exportFormAttributesToXML(context, data.attributes)!.map((attr) => ({ Attribute: attr }))
-      : undefined,
+    Attributes: exportFormAttributesToXML(context, data.attributes),
     CommandSet: exportCommandSetToXML(context, data.commandSet),
     AutoFillCheck: data.autoFillCheck,
     AutoSaveDataInSettings: data.autoSaveDataInSettings,
@@ -49,7 +47,6 @@ export const exportClientApplicationFormToXML = (
     CollapseItemsByImportance: data.collapseItemsByImportance,
     CommandBar: exportCommandBarToXML(context, data.commandBar),
     CommandBarLocation: data.commandBarLocation,
-    // Commands: data.commands,
     ConversationsRepresentation: data.conversationsRepresentation,
     Enabled: data.enabled,
     EnterKeyBehavior: data.enterKeyBehavior,
@@ -69,7 +66,7 @@ export const exportClientApplicationFormToXML = (
     ShowCloseButton: data.showCloseButton,
     ShowTitle: data.showTitle,
     SlaveItemsWidth: data.slaveItemsWidth,
-    UUID: data.uUID,
+    URL: data.url,
     UsedFormServer: data.usedFormServer,
     VerticalScroll: data.verticalScroll,
     VerticalSpacing: data.verticalSpacing,

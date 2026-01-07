@@ -102,7 +102,8 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
     ViewStatusRepresentation: exportFormItemAdditionToXML(context, data.viewStatusRepresentation),
     Visible: data.visible,
     Width: data.width,
-    Events: exportEventsToXML(context, data.events),  }
+    Events: exportEventsToXML(context, data.events),
+  }
 }
 
 registerMetadata("ExportToXML", "Table", exportTableToXML)
