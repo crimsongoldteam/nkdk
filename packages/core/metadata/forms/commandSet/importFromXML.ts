@@ -7,9 +7,16 @@ export const importCommandSetFromXML = (
 ): CommandSet | undefined => {
   if (!xml) return undefined
 
+  const excludedCommands = xml.ExcludedCommand
+  if (excludedCommands === undefined) return undefined
+
   const result: CommandSet = []
-  for (const command of xml) {
-    result.push(command.ExcludedCommand)
+  const commands = Array.isArray(excludedCommands) ? excludedCommands : [excludedCommands]
+
+  for (const command of commands) {
+    if (command !== undefined && command !== null && command.length > 0) {
+      result.push(command)
+    }
   }
 
   return result.length > 0 ? result : undefined

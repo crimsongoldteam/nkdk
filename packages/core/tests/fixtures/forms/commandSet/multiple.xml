@@ -1,0 +1,5 @@
+<CommandSet>
+	<ExcludedCommand>WriteAndClose</ExcludedCommand>
+	<ExcludedCommand>Copy</ExcludedCommand>
+	<ExcludedCommand>Delete</ExcludedCommand>
+</CommandSet>

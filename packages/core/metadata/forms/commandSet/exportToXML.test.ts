@@ -1,35 +1,32 @@
 import { describe, expect, it } from "vitest"
+import { multipleCommandSet, singleCommandSet } from "~/tests/fixtures/forms/commandSet/data"
 import { mockСontext } from "~/tests/mockContext"
+import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
-import importContentFromXML from "~/xml/import/importer"
 import { exportCommandSetToXML } from "./exportToXML"
-import { importCommandSetFromXML } from "./importFromXML"
-import { CommandSet, CommandSetXML } from "./types"
 
 describe("exportCommandSetToXML", () => {
-  it("should export command set", () => {
-    const mockData: CommandSet = ["WriteAndClose"]
-    const expectedResult = `<CommandSet>
-	<ExcludedCommand>WriteAndClose</ExcludedCommand>
-</CommandSet>`
+  it("should return undefined when data is undefined", () => {
+    const result = exportCommandSetToXML(mockСontext, undefined)
 
-    const exported = exportCommandSetToXML(mockСontext, mockData)
-    const resultXml = xmlExport({ CommandSet: exported }, false)
-    expect(resultXml).toEqual(expectedResult)
+    expect(result).toBeUndefined()
   })
 
-  it("should export and import multiple command sets correctly (round-trip)", () => {
-    const mockXml = `<CommandSet>
-	<ExcludedCommand>WriteAndClose</ExcludedCommand>
-	<ExcludedCommand>Copy</ExcludedCommand>
-	<ExcludedCommand>Delete</ExcludedCommand>
-</CommandSet>`
+  it("should export single command set", () => {
+    const expectedResult = readXMLFileAsString("forms/commandSet/single.xml")
+    const xmlData = exportCommandSetToXML(mockСontext, singleCommandSet)
 
-    const xml = importContentFromXML<{ CommandSet: CommandSetXML }>(mockXml)
-    const imported = importCommandSetFromXML(mockСontext, xml.CommandSet)
-    const exported = exportCommandSetToXML(mockСontext, imported)
+    const result = xmlExport({ CommandSet: xmlData }, false)
 
-    const resultXml = xmlExport({ CommandSet: exported }, false)
-    expect(resultXml).toEqual(mockXml)
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export multiple command sets", () => {
+    const expectedResult = readXMLFileAsString("forms/commandSet/multiple.xml")
+    const xmlData = exportCommandSetToXML(mockСontext, multipleCommandSet)
+
+    const result = xmlExport({ CommandSet: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
   })
 })

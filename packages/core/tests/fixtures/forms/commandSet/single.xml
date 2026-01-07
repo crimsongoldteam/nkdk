@@ -1,0 +1,3 @@
+<CommandSet>
+	<ExcludedCommand>WriteAndClose</ExcludedCommand>
+</CommandSet>

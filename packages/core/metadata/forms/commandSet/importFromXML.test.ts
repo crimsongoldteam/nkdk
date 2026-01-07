@@ -1,37 +1,30 @@
 import { describe, expect, it } from "vitest"
+import { multipleCommandSet, singleCommandSet } from "~/tests/fixtures/forms/commandSet/data"
 import { mockСontext } from "~/tests/mockContext"
-import xmlImport from "~/xml/import/importer"
+import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importCommandSetFromXML } from "./importFromXML"
-import { CommandSet, CommandSetXML } from "./types"
+import { CommandSetXML } from "./types"
 
 describe("importCommandSetFromXML", () => {
+  it("should return undefined when data is undefined", () => {
+    const result = importCommandSetFromXML(mockСontext, undefined)
+
+    expect(result).toBeUndefined()
+  })
+
   it("should import single command set", () => {
-    const mockXml = `<CommandSet>
-		<ExcludedCommand>WriteAndClose</ExcludedCommand>
-	</CommandSet>`
+    const xmlData = readAndParseXMLFile<{ CommandSet: CommandSetXML }>("forms/commandSet/single.xml")
 
-    const expectedResult: CommandSet = ["WriteAndClose"]
+    const result = importCommandSetFromXML(mockСontext, xmlData.CommandSet)
 
-    const xml = xmlImport<{ CommandSet: CommandSetXML }>(mockXml)
-
-    const result = importCommandSetFromXML(mockСontext, xml.CommandSet)
-
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(singleCommandSet)
   })
 
   it("should import multiple command sets", () => {
-    const mockXml = `<CommandSet>
-		<ExcludedCommand>WriteAndClose</ExcludedCommand>
-		<ExcludedCommand>Copy</ExcludedCommand>
-		<ExcludedCommand>Delete</ExcludedCommand>
-	</CommandSet>`
+    const xmlData = readAndParseXMLFile<{ CommandSet: CommandSetXML }>("forms/commandSet/multiple.xml")
 
-    const expectedResult: CommandSet = ["WriteAndClose", "Copy", "Delete"]
+    const result = importCommandSetFromXML(mockСontext, xmlData.CommandSet)
 
-    const xml = xmlImport<{ CommandSet: CommandSetXML }>(mockXml)
-
-    const result = importCommandSetFromXML(mockСontext, xml.CommandSet)
-
-    expect(result).toEqual(expectedResult)
+    expect(result).toEqual(multipleCommandSet)
   })
 })

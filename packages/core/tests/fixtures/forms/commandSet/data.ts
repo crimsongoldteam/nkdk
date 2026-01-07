@@ -7,4 +7,3 @@ export const multipleCommandSet: CommandSet = ["WriteAndClose", "Copy", "Delete"
 export const singleCommandSetEnterprise: CommandSetEnterprise = ["WriteAndClose"]
 
 export const multipleCommandSetEnterprise: CommandSetEnterprise = ["WriteAndClose", "Copy", "Delete"]
-

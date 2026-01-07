@@ -7,10 +7,16 @@ export const exportCommandSetToXML = (
 ): CommandSetXML | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: CommandSetXML = []
+  const result: string[] = []
   for (const command of data) {
-    result.push({ ExcludedCommand: command })
+    if (command !== undefined && command !== null && command.length > 0) {
+      result.push(command)
+    }
   }
 
-  return result
+  if (result.length === 0) return undefined
+
+  return {
+    ExcludedCommand: result.length === 1 ? result[0] : result,
+  }
 }
