@@ -1,20 +1,8 @@
 import { ClientApplicationForm } from "~/metadata/forms/elements/clientApplicationForm/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-// Import test fixtures
-export const titleForm: ClientApplicationForm = {
+export const fullClientApplicationForm: ClientApplicationForm = {
   elementType: FormElementType.ClientApplicationForm,
-  autoCommandBar: {
-    id: "-1",
-    name: "ФормаКоманднаяПанель",
-    elementType: FormElementType.CommandBar,
-    childItems: [],
-  },
-  title: { items: { ru: "Поле" } },
-  childItems: [],
-}
-
-export const commandBarForm: ClientApplicationForm = {
   autoCommandBar: {
     id: "-1",
     name: "ФормаКоманднаяПанель",
@@ -22,54 +10,7 @@ export const commandBarForm: ClientApplicationForm = {
     autofill: false,
     childItems: [],
   },
-  elementType: FormElementType.ClientApplicationForm,
-  childItems: [],
-}
-
-export const itemsForm: ClientApplicationForm = {
-  autoCommandBar: {
-    id: "-1",
-    name: "ФормаКоманднаяПанель",
-    elementType: FormElementType.CommandBar,
-    childItems: [],
-  },
-  elementType: FormElementType.ClientApplicationForm,
-  childItems: [
-    {
-      name: "ПолеВвода",
-      id: "1",
-      elementType: FormElementType.InputField,
-    },
-  ],
-}
-
-export const attributesForm: ClientApplicationForm = {
-  autoCommandBar: {
-    id: "-1",
-    name: "ФормаКоманднаяПанель",
-    elementType: FormElementType.CommandBar,
-    childItems: [],
-  },
-  elementType: FormElementType.ClientApplicationForm,
-  childItems: [],
-  attributes: [
-    {
-      name: "Объект",
-      id: "1",
-      valueType: { type: ["DataProcessorObject.ТестоваяОбработка"] },
-      mainAttribute: true,
-    },
-  ],
-}
-
-export const usualGroupForm: ClientApplicationForm = {
-  autoCommandBar: {
-    id: "-1",
-    name: "ФормаКоманднаяПанель",
-    elementType: FormElementType.CommandBar,
-    childItems: [],
-  },
-  elementType: FormElementType.ClientApplicationForm,
+  title: { items: { ru: "Поле" } },
   childItems: [
     {
       name: "Группа",
@@ -84,4 +25,23 @@ export const usualGroupForm: ClientApplicationForm = {
       ],
     },
   ],
+  attributes: [
+    {
+      name: "Объект",
+      id: "1",
+      valueType: { type: ["DataProcessorObject.ТестоваяОбработка"] },
+      mainAttribute: true,
+    },
+  ],
+}
+
+export const minimalClientApplicationForm: ClientApplicationForm = {
+  elementType: FormElementType.ClientApplicationForm,
+  autoCommandBar: {
+    id: "-1",
+    name: "ФормаКоманднаяПанель",
+    elementType: FormElementType.CommandBar,
+    childItems: [],
+  },
+  childItems: [],
 }

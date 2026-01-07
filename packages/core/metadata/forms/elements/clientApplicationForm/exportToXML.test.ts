@@ -1,61 +1,34 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/inputField/exportToXML"
 import "~/metadata/forms/elements/usualGroup/exportToXML"
-import {
-  attributesForm,
-  commandBarForm,
-  itemsForm,
-  titleForm,
-  usualGroupForm,
-} from "~/tests/fixtures/forms/clientApplicationForm/data"
+import { fullClientApplicationForm, minimalClientApplicationForm } from "~/tests/fixtures/forms/clientApplicationForm/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportClientApplicationFormToXML } from "./exportToXML"
 
 describe("exportClientApplicationFormToXML", () => {
-  it("should export title to XML", () => {
-    const expectedResult = readXMLFileAsString("forms/clientApplicationForm/exportTitle.xml")
+  it("should return undefined when data is undefined", () => {
+    const result = exportClientApplicationFormToXML(mockСontext, undefined)
 
-    const exported = exportClientApplicationFormToXML(mockСontext, titleForm)
-    const xmlString = xmlExport({ Form: exported }, false)
-
-    expect(xmlString).toEqual(expectedResult)
+    expect(result).toBeUndefined()
   })
 
-  it("should export command bar to XML", () => {
-    const expectedResult = readXMLFileAsString("forms/clientApplicationForm/exportCommandBar.xml")
+  it("should export all fields to XML", () => {
+    const expectedResult = readXMLFileAsString("forms/clientApplicationForm/full.xml")
+    const xmlData = exportClientApplicationFormToXML(mockСontext, fullClientApplicationForm)
 
-    const exported = exportClientApplicationFormToXML(mockСontext, commandBarForm)
-    const xmlString = xmlExport({ Form: exported }, false)
+    const result = xmlExport({ Form: xmlData }, false)
 
-    expect(xmlString).toEqual(expectedResult)
+    expect(result).toEqual(expectedResult)
   })
 
-  it("should export items to XML", () => {
-    const expectedResult = readXMLFileAsString("forms/clientApplicationForm/exportItems.xml")
+  it("should export minimal", () => {
+    const expectedResult = readXMLFileAsString("forms/clientApplicationForm/minimal.xml")
+    const xmlData = exportClientApplicationFormToXML(mockСontext, minimalClientApplicationForm)
 
-    const exported = exportClientApplicationFormToXML(mockСontext, itemsForm)
-    const xmlString = xmlExport({ Form: exported }, false)
+    const result = xmlExport({ Form: xmlData }, false)
 
-    expect(xmlString).toEqual(expectedResult)
-  })
-
-  it("should export attributes to XML", () => {
-    const expectedResult = readXMLFileAsString("forms/clientApplicationForm/exportAttributes.xml")
-
-    const exported = exportClientApplicationFormToXML(mockСontext, attributesForm)
-    const xmlString = xmlExport({ Form: exported }, false)
-
-    expect(xmlString).toEqual(expectedResult)
-  })
-
-  it("should export usual group child items to XML", () => {
-    const expectedResult = readXMLFileAsString("forms/clientApplicationForm/exportUsualGroup.xml")
-
-    const exported = exportClientApplicationFormToXML(mockСontext, usualGroupForm)
-    const xmlString = xmlExport({ Form: exported }, false)
-
-    expect(xmlString).toEqual(expectedResult)
+    expect(result).toEqual(expectedResult)
   })
 })
