@@ -1,14 +1,4 @@
 <Button name="Кнопка" id="1" DisplayImportance="High">
-	<Title>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Кнопка формы</v8:content>
-		</v8:item>
-	</Title>
-	<UserVisible>
-		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
-	</UserVisible>
 	<AutoMaxHeight>true</AutoMaxHeight>
 	<AutoMaxWidth>true</AutoMaxWidth>
 	<BackColor>web:Blue</BackColor>
@@ -38,12 +28,21 @@
 	<Shortcut>Ctrl+A</Shortcut>
 	<SkipOnInput>true</SkipOnInput>
 	<TextColor>web:Yellow</TextColor>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Кнопка формы</v8:content>
+		</v8:item>
+	</Title>
 	<TitleHeight>20</TitleHeight>
 	<ToolTipRepresentation>Auto</ToolTipRepresentation>
 	<Type>UsualButton</Type>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>150</Width>
 </Button>
-
