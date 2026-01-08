@@ -3,11 +3,11 @@ import { mockСontext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { ColumnGroup } from "../columnGroup/types"
 import { InputField } from "../inputField/types"
-import { formatTable } from "./format"
+import { exportTableToStructure } from "./exportToStructure"
 import "./registration"
 import { Table } from "./types"
 
-describe("formatTable", () => {
+describe("exportTableToStructure", () => {
   it("should format one-column table", () => {
     const mockElement: Table = {
       name: "Таблица",
@@ -25,7 +25,7 @@ describe("formatTable", () => {
 
     const expectedResult = `| Колонка 1 |`
 
-    const result = formatTable(mockElement, mockСontext)
+    const result = exportTableToStructure(mockElement, mockСontext)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -50,7 +50,7 @@ describe("formatTable", () => {
 
     const expectedResult = `| Колонка 1 | Колонка 2 |`
 
-    const result = formatTable(mockElement, mockСontext)
+    const result = exportTableToStructure(mockElement, mockСontext)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -86,9 +86,9 @@ describe("formatTable", () => {
     }
 
     const expectedResult = `| -Группа 1             ||
-| Колонка 1 | Колонка 2  |`
+|| Колонка 1 | Колонка 2  |`
 
-    const result = formatTable(mockElement, mockСontext)
+    const result = exportTableToStructure(mockElement, mockСontext)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -127,7 +127,7 @@ describe("formatTable", () => {
     const expectedResult = `| Колонка 1 |
 | Колонка 2 |`
 
-    const result = formatTable(mockElement, mockСontext)
+    const result = exportTableToStructure(mockElement, mockСontext)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -167,7 +167,7 @@ describe("formatTable", () => {
 | Колонка 1 |
 | Колонка 2 |`
 
-    const result = formatTable(mockElement, mockСontext)
+    const result = exportTableToStructure(mockElement, mockСontext)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })

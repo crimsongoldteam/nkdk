@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "../context/types"
 import { MetadataType } from "./types"
 
-export type ItemOperationType = "ExportToXML" | "ExportToEnterprise" | "ImportFromXML" | "ImportFromEnterprise"
+export type ItemOperationType = "ExportToXML" | "ExportToEnterprise" | "ImportFromXML" | "ImportFromEnterprise" | "ExportToStructure"
 
 type OperationFunction<T = any> = (context: ConfigurationContext, data: T) => any
 type OperationImportFromEnterpriseFunction<T = any> = (
@@ -17,6 +17,7 @@ const operationRegistries: Map<ItemOperationType, OperationRegistry> = new Map([
   ["ExportToEnterprise", new Map()],
   ["ImportFromXML", new Map()],
   ["ImportFromEnterprise", new Map()],
+  ["ExportToStructure", new Map()],
 ])
 
 export function registerMetadata<T = any>(

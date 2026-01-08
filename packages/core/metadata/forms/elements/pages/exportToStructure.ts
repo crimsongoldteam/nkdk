@@ -6,11 +6,15 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/parser/lexer"
 import { BaseElement } from "../baseElement/types"
 import { Pages } from "./types"
+import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
+import { FormElementType } from "../../../metadataFactory/types"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+
 const SLASH = (t.Slash.LABEL as string).repeat(2)
 
-export const formatPages: FormatElementFunction = (
-  element: BaseElement,
-  context: ConfigurationContext
+export const exportPagesToStructure: FormatElementFunction = (
+  context: ConfigurationContext,
+  element: BaseElement
 ): IFormatElementResult => {
   const pagesElement = element as Pages
   const childItems = pagesElement.childItems ?? []
@@ -40,3 +44,6 @@ const getHeader = (element: Pages): string => {
 
   return result
 }
+
+registerIsOneLineElementCheck(FormElementType.Pages, () => false)
+registerMetadata("ExportToStructure", "Pages", exportPagesToStructure)

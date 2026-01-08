@@ -7,6 +7,7 @@ import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXM
 import { UsualGroup, UsualGroupXML } from "~/metadata/forms/elements/usualGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { exportUsualGroupToStructure } from "./exportToStructure"
 
 export const importUsualGroupFromXML = (
   context: ConfigurationContext,
@@ -86,3 +87,4 @@ export const importUsualGroupFromXML = (
 }
 
 registerMetadata("ImportFromXML", "UsualGroup", importUsualGroupFromXML)
+registerMetadata("ExportToStructure", "UsualGroup", exportUsualGroupToStructure)

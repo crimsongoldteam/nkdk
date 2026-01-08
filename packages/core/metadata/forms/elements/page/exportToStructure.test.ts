@@ -3,10 +3,10 @@ import "~/metadata/forms/elements/inputField/registration"
 import { mockСontext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { InputField } from "../inputField/types"
-import { formatPage } from "./format"
+import { exportPageToStructure } from "./exportToStructure"
 import { Page } from "./types"
 
-describe("formatPage", () => {
+describe("exportPageToStructure", () => {
   it("should format page", () => {
     const mockElement: Page = {
       name: "Страница1",
@@ -24,7 +24,7 @@ describe("formatPage", () => {
     const expectedResult = `/{Страница1}
   {Элемент1}: `
 
-    const result = formatPage(mockElement, mockСontext)
+    const result = exportPageToStructure(mockСontext, mockElement)
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
 })

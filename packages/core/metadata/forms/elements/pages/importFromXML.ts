@@ -6,6 +6,7 @@ import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXM
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { exportPagesToStructure } from "./exportToStructure"
 
 export const importPagesFromXML = (context: ConfigurationContext, xml: PagesXML | undefined): Pages | undefined => {
   if (!xml) return undefined
@@ -39,3 +40,4 @@ export const importPagesFromXML = (context: ConfigurationContext, xml: PagesXML 
 }
 
 registerMetadata("ImportFromXML", "Pages", importPagesFromXML)
+registerMetadata("ExportToStructure", "Pages", exportPagesToStructure)

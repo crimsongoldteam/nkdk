@@ -3,10 +3,10 @@ import "~/metadata/forms/elements/inputField/registration"
 import { mockСontext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
 import { InputField } from "../inputField/types"
-import { formatUsualGroup } from "./format"
+import { exportUsualGroupToStructure } from "./exportToStructure"
 import { UsualGroup } from "./types"
 
-describe("formatUsualGroup", () => {
+describe("exportUsualGroupToStructure", () => {
   it("should format one-line group", () => {
     const mockElement: UsualGroup = {
       name: "Группа",
@@ -28,7 +28,7 @@ describe("formatUsualGroup", () => {
 
     const expectedResult = `%{Группа} {Элемент1}: ; {Элемент2}: `
 
-    const result = formatUsualGroup(mockСontext, mockElement)
+    const result = exportUsualGroupToStructure(mockСontext, mockElement)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -59,7 +59,7 @@ it("should format vertical group", () => {
   {Элемент1}: 
   {Элемент2}: `
 
-  const result = formatUsualGroup(mockСontext, mockElement)
+  const result = exportUsualGroupToStructure(mockСontext, mockElement)
 
   expect(result.strings.join("\n")).toEqual(expectedResult)
 })

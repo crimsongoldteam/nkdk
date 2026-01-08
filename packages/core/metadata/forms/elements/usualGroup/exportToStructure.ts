@@ -6,8 +6,11 @@ import { formatOneLineGroup } from "./format/oneLineGroupFormat"
 import { formatVerticalGroup } from "./format/verticalGroupFormat"
 import { isOneLineGroup, isVerticalGroup } from "./helpers"
 import { UsualGroup } from "./types"
+import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
+import { FormElementType } from "../../../metadataFactory/types"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
-export const formatUsualGroup: FormatElementFunction = (
+export const exportUsualGroupToStructure: FormatElementFunction = (
   context: ConfigurationContext,
   element: BaseElement
 ): IFormatElementResult => {
@@ -17,3 +20,6 @@ export const formatUsualGroup: FormatElementFunction = (
 
   return formatHorizontalGroup(usualGroup, context)
 }
+
+registerIsOneLineElementCheck(FormElementType.UsualGroup, () => false)
+registerMetadata("ExportToStructure", "UsualGroup", exportUsualGroupToStructure)

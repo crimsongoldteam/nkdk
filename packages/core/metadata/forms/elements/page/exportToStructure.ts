@@ -6,8 +6,11 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/parser/lexer"
 import { BaseElement } from "../baseElement/types"
 import { Page } from "./types"
+import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
+import { FormElementType } from "../../../metadataFactory/types"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
-export const formatPage: FormatElementFunction = (
+export const exportPageToStructure: FormatElementFunction = (
   context: ConfigurationContext,
   element: BaseElement
 ): IFormatElementResult => {
@@ -36,3 +39,6 @@ const getHeader = (element: Page): string => {
 
   return result
 }
+
+registerIsOneLineElementCheck(FormElementType.Page, () => false)
+registerMetadata("ExportToStructure", "Page", exportPageToStructure)

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
-import { formatPictureDecoration } from "./format"
+import { exportPictureDecorationToStructure } from "./exportToStructure"
 import { PictureDecoration } from "./types"
 
-describe("formatPictureDecoration", () => {
+describe("exportPictureDecorationToStructure", () => {
   it("should format picture decoration", () => {
     const element: PictureDecoration = {
       elementType: FormElementType.PictureDecoration,
@@ -19,7 +19,7 @@ describe("formatPictureDecoration", () => {
 
     const expectedResult = ["@Печать {ИмяПоля}"]
 
-    const result = formatPictureDecoration(mockСontext, element)
+    const result = exportPictureDecorationToStructure(mockСontext, element)
 
     expect(result.strings).toEqual(expectedResult)
   })

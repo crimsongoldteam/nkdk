@@ -1,5 +1,7 @@
+import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { FormatElementFunction, IFormatElementResult } from "~/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import * as t from "~/parser/lexer"
 import { FormElementType } from "../../../metadataFactory/types"
 import { BaseElement } from "../baseElement/types"
@@ -40,21 +42,22 @@ const formatTableRow = (columns: (InputField | ColumnGroup)[]): string => {
   return `${V_BAR} ${headers.join(` ${V_BAR} `)} ${V_BAR}`
 }
 
-export const formatTable: FormatElementFunction = (
-  element: Table,
-  _context: ConfigurationContext
+export const exportTableToStructure: FormatElementFunction = (
+  _context: ConfigurationContext,
+  element: BaseElement
 ): IFormatElementResult => {
+  const tableElement = element as Table
   const result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,
   }
 
-  if (!element.childItems || element.childItems.length === 0) {
+  if (!tableElement.childItems || tableElement.childItems.length === 0) {
     return result
   }
 
   // Обрабатываем горизонтальные группы
-  const hasHorizontalGroup = element.childItems.some((item: ChildItem) => {
+  const hasHorizontalGroup = tableElement.childItems.some((item: ChildItem) => {
     if (!("elementType" in item)) return false
     const baseItem = item as unknown as BaseElement
     return (
@@ -66,7 +69,7 @@ export const formatTable: FormatElementFunction = (
 
   if (hasHorizontalGroup) {
     // Обрабатываем каждую группу или колонку
-    for (const item of element.childItems) {
+    for (const item of tableElement.childItems) {
       if (!("elementType" in item)) continue
       const baseItem = item as unknown as BaseElement
       if (baseItem.elementType === FormElementType.ColumnGroup) {
@@ -125,7 +128,7 @@ export const formatTable: FormatElementFunction = (
     }
   } else {
     // Нет горизонтальных групп - проверяем наличие вертикальных групп
-    const hasVerticalGroup = element.childItems.some((item: ChildItem) => {
+    const hasVerticalGroup = tableElement.childItems.some((item: ChildItem) => {
       if (!("elementType" in item)) return false
       const baseItem = item as unknown as BaseElement
       return (
@@ -137,7 +140,7 @@ export const formatTable: FormatElementFunction = (
 
     if (hasVerticalGroup) {
       // Есть вертикальные группы - обрабатываем каждую группу
-      for (const item of element.childItems) {
+      for (const item of tableElement.childItems) {
         if (!("elementType" in item)) continue
         const baseItem = item as unknown as BaseElement
         if (baseItem.elementType === FormElementType.ColumnGroup) {
@@ -161,7 +164,7 @@ export const formatTable: FormatElementFunction = (
       }
     } else {
       // Нет групп - просто форматируем все колонки в одну строку
-      const columns = element.childItems
+      const columns = tableElement.childItems
         .filter((item: ChildItem) => "elementType" in item)
         .map((item: ChildItem) => item as unknown as BaseElement)
         .filter((item: BaseElement) => item.elementType === FormElementType.InputField)
@@ -174,3 +177,6 @@ export const formatTable: FormatElementFunction = (
 
   return result
 }
+
+registerIsOneLineElementCheck(FormElementType.Table, () => false)
+registerMetadata("ExportToStructure", "Table", exportTableToStructure)
