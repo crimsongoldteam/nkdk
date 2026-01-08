@@ -142,8 +142,6 @@ export const exportClientApplicationFormToEnterprise = (
   const closeOnOwnerClose = exportBooleanToEnterprise(context, data.closeOnOwnerClose)
   if (closeOnOwnerClose !== undefined) result.ЗакрыватьПриЗакрытииВладельца = closeOnOwnerClose
 
-  if (data.formName !== undefined) result.ИмяФормы = data.formName
-
   const usedFormServer = exportSystemEnumerationToEnterprise<SE.UsedServerEnterprise>(
     context,
     data.usedFormServer,

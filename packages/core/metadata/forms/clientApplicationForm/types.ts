@@ -168,7 +168,6 @@ export interface ClientApplicationFormEnterprise {
   Заголовок?: I8nTextEnterprise
   ЗакрыватьПриВыборе?: StringboolEnterprise
   ЗакрыватьПриЗакрытииВладельца?: StringboolEnterprise
-  ИмяФормы?: string
   ИспользуемыйСерверФормы?: SE.UsedServerEnterprise
   КлючНазначенияИспользования?: string
   КлючСохраненияПоложенияОкна?: string

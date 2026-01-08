@@ -1,6 +1,12 @@
-import { readFileSync } from "fs"
+import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { describe, it, vi } from "vitest"
+import { exportClientApplicationFormToEnterprise } from "~/metadata/forms/clientApplicationForm/exportToEnterprise"
+import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/importFromXML"
+import { ClientApplicationFormXML } from "~/metadata/forms/clientApplicationForm/types"
+import "~/metadata/forms/elements/importFromXML"
+import importContentFromXML from "~/xml/import/importer"
+import { exportToYAML } from "~/yaml/export"
 import { MetadataCatalogContext } from "../metadata/appliedObjects/metadataCatalog"
 import { mockСontext } from "../tests/mockContext"
 
@@ -35,7 +41,8 @@ const mockMetadataCatalogContext = {
 } as MetadataCatalogContext
 
 // const originalContent = readFileSync(join(__dirname, "Form.xml"), "utf-8")
-const metadataCatalogContent = readFileSync(join(__dirname, "Before/Контрагенты.xml"), "utf-8")
+// const metadataCatalogContent = readFileSync(join(__dirname, "Before/Контрагенты.xml"), "utf-8")
+// const originalFormXml = readAndParseXMLFile<ClientApplicationFormXML>("forms/clientApplicationForm/full.xml")
 
 describe("DO test", () => {
   // it("should import metadata catalog from XML", () => {
@@ -64,32 +71,18 @@ describe("DO test", () => {
   //   writeFileSync(join(__dirname, "After/Контрагенты.json"), JSON.stringify(catalogSchema, null, 2), "utf-8")
   // })
 
-  // it("should round-trip DO XML", () => {
-  //   const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(originalContent)
-  //   const form = importClientApplicationFormFromXML(mockcontext, importedXml.Form)
+  it("should import-export form", () => {
+    const fullPath = join(__dirname, "Before/Form.xml")
+    const xml = readFileSync(fullPath, "utf-8")
+    const originalFormXml = importContentFromXML<{ Form: ClientApplicationFormXML }>(xml)
 
-  //   // const exportedForm = exportClientApplicationFormToXML(form)
+    const form = importClientApplicationFormFromXML(mockСontext, originalFormXml.Form)
 
-  //   const formattedForm = exportClientApplicationFormToEnterprise(mockcontext, form)
+    const yamlObject = exportClientApplicationFormToEnterprise(mockСontext, form)
 
-  //   // const exportedXml = xmlExport(
-  //   //   { Form: exportedForm },
-  //   //   z.object({ Form: ZClientApplicationFormXML })
-  //   // )
+    const yaml = exportToYAML(yamlObject)
 
-  //   // writeFileSync(join(__dirname, "FormOut.xml"), exportedXml, "utf-8")
-  //   writeFileSync(join(__dirname, "FormFormatted.txt"), formattedForm.strings.join("\n"), "utf-8")
-  //   // expect(exportedXml).toEqual(originalContent)
-  // })
-
-  it("should round-trip DO with parsing", () => {
-    // const importedXml = xmlImport<{ Form: ClientApplicationFormXML }>(originalContent)
-    // const form = importClientApplicationFormFromXML(mockcontext, importedXml.Form)
-    // // const exportedForm = exportClientApplicationFormToXML(form)
-    // const formattedForm = exportClientApplicationFormToEnterprise(mockcontext, form)
-    // const parsedForm = parse(formattedForm.strings.join("\n"))
-    // const exportedXml = xmlExport({ Form: parsedForm })
-    // expect(exportedXml).toEqual(originalContent)
+    writeFileSync(join(__dirname, "After/Form.yml"), yaml, "utf-8")
   })
 })
 
