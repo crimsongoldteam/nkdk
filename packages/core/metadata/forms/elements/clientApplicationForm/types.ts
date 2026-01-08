@@ -1,11 +1,12 @@
-import { I8nText, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { CommandSet, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesXML } from "../../../commonObjects/formAttributes/types"
 import { FormElementType } from "../../../metadataFactory/types"
 import { EventsXML } from "../../events/types"
 import { ChildItems, ChildItemsXML } from "../childItems/types"
-import { CommandBar, CommandBarXML } from "../commandBar/types"
+import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../commandBar/types"
 
 export interface ClientApplicationFormEvents {
   collaborationSystemUsersAutoComplete?: string
@@ -148,5 +149,73 @@ export interface ClientApplicationFormXML {
   ChildItems?: ChildItemsXML
   Attributes?: {
     Attribute: FormAttributesXML
+  }
+}
+
+export interface ClientApplicationFormEnterprise {
+  АвтоЗаголовок?: StringboolEnterprise
+  АвтоматическоеСохранениеДанныхВНастройках?: SE.AutoSaveFormDataInSettingsEnterprise
+  АвтоНавигационнаяСсылка?: StringboolEnterprise
+  ВертикальнаяПрокрутка?: SE.VerticalFormScrollEnterprise
+  ВертикальноеПоложениеПодчиненных?: SE.ItemVerticalAlignEnterprise
+  ВертикальныйИнтервал?: SE.FormItemSpacingEnterprise
+  ВыравниваниеЭлементовИЗаголовков?: SE.ItemsAndTitlesAlignVariantEnterprise
+  Высота?: number
+  ГоризонтальноеПоложениеПодчиненных?: SE.ItemHorizontalLocationEnterprise
+  ГоризонтальныйИнтервал?: SE.FormItemSpacingEnterprise
+  Группировка?: SE.ChildFormItemsGroupEnterprise
+  Доступность?: StringboolEnterprise
+  Заголовок?: I8nTextEnterprise
+  ЗакрыватьПриВыборе?: StringboolEnterprise
+  ЗакрыватьПриЗакрытииВладельца?: StringboolEnterprise
+  ИмяФормы?: string
+  ИспользуемыйСерверФормы?: SE.UsedServerEnterprise
+  КлючНазначенияИспользования?: string
+  КлючСохраненияПоложенияОкна?: string
+  КоманднаяПанель?: CommandBarEnterprise
+  Масштаб?: number
+  МодальныйРежим?: StringboolEnterprise
+  Модифицированность?: StringboolEnterprise
+  НавигационнаяСсылка?: string
+  ОтображатьЗаголовок?: StringboolEnterprise
+  ОтображатьКнопкуЗакрытия?: StringboolEnterprise
+  ОтображениеОбсуждений?: SE.FormConversationsRepresentationEnterprise
+  ПоведениеКлавишиEnter?: SE.EnterKeyBehaviorTypeEnterprise
+  ПоложениеКоманднойПанели?: SE.FormCommandBarLabelLocationEnterprise
+  ПроверятьЗаполнениеАвтоматически?: StringboolEnterprise
+  РежимОткрытияОкнаФормы?: SE.FormWindowOpeningModeEnterprise
+  СворачиваниеЭлементовПоВажности?: SE.CollapseFormItemsByImportanceEnterprise
+  СохранениеДанныхВНастройках?: SE.SaveFormDataInSettingsEnterprise
+  СохраняемыеВНастройкахДанныеМодифицированы?: StringboolEnterprise
+  ТолькоПросмотр?: StringboolEnterprise
+  Ширина?: number
+  ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
+  События?: {
+    АвтоПодборПользователейСистемыВзаимодействия?: string
+    ВнешнееСобытие?: string
+    ОбработкаАктивизации?: string
+    ОбработкаВыбора?: string
+    ОбработкаЗаписиНового?: string
+    ОбработкаНавигационнойСсылки?: string
+    ОбработкаОповещения?: string
+    ОбработкаПерехода?: string
+    ОбработкаПолученияНавигационнойСсылки?: string
+    ОбработкаПолученияСпискаНавигационныхСсылок?: string
+    ОбработкаПолученияФормыВыбораПользователейСистемыВзаимодействия?: string
+    ОбработкаПроверкиЗаполненияНаСервере?: string
+    ОтключениеВнешнейКомпонентыПриОшибке?: string
+    ПередЗагрузкойДанныхИзНастроекНаСервере?: string
+    ПередЗакрытием?: string
+    ПередПереоткрытиемСДругогоСервера?: string
+    ПриВставкеИзБуфераОбмена?: string
+    ПриЗагрузкеДанныхИзНастроекНаСервере?: string
+    ПриЗакрытии?: string
+    ПриИзмененииДоступностиОсновногоСервера?: string
+    ПриИзмененииПараметровЭкрана?: string
+    ПриОткрытии?: string
+    ПриПереоткрытииСДругогоСервера?: string
+    ПриПовторномОткрытии?: string
+    ПриСозданииНаСервере?: string
+    ПриСохраненииДанныхВНастройкахНаСервере?: string
   }
 }
