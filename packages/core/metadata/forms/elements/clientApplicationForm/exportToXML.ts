@@ -76,6 +76,14 @@ export const exportClientApplicationFormToXML = (
     result.AutoURL = data.autoURL
   }
 
+  if (data.childItemsHorizontalAlign !== undefined) {
+    result.ChildItemsHorizontalAlign = data.childItemsHorizontalAlign
+  }
+
+  if (data.childItemsVerticalAlign !== undefined) {
+    result.ChildItemsVerticalAlign = data.childItemsVerticalAlign
+  }
+
   if (data.closeOnChoice !== undefined) {
     result.CloseOnChoice = data.closeOnChoice
   }

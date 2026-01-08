@@ -15,27 +15,52 @@ export const exportColumnGroupToEnterprise = (
 ): ColumnGroupEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormGroupToEnterprise(context, data)
+  const baseFields = exportFormGroupToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: ColumnGroupEnterprise = {
+    ...baseFields,
+  }
 
-    ГоризонтальноеПоложениеВШапке: exportSystemEnumerationToEnterprise(
-      context,
-      data.headerHorizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise
-    ),
-    Группировка: exportSystemEnumerationToEnterprise(context, data.group, SE.ColumnsGroupToEnterprise),
-    КартинкаШапки: exportPictureToEnterprise(context, data.headerPicture),
-    ОтображатьВШапке: exportBooleanToEnterprise(context, data.showInHeader),
-    ОтображатьЗаголовок: exportBooleanToEnterprise(context, data.showTitle),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    ПутьКДаннымШапки: data.headerDataPath,
-    ФиксацияВТаблице: exportSystemEnumerationToEnterprise(context, data.fixingInTable, SE.FixingInTableToEnterprise),
-    ФорматШапки: data.headerFormat,
-    ЦветФонаЗаголовка: exportColorToEnterprise(context, data.titleBackColor),  }
+  const headerHorizontalAlign = exportSystemEnumerationToEnterprise<SE.ItemHorizontalLocationEnterprise>(
+    context,
+    data.headerHorizontalAlign,
+    SE.ItemHorizontalLocationToEnterprise
+  )
+  if (headerHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеВШапке = headerHorizontalAlign
+
+  const group = exportSystemEnumerationToEnterprise<SE.ColumnsGroupEnterprise>(context, data.group, SE.ColumnsGroupToEnterprise)
+  if (group !== undefined) result.Группировка = group
+
+  const headerPicture = exportPictureToEnterprise(context, data.headerPicture)
+  if (headerPicture !== undefined) result.КартинкаШапки = headerPicture
+
+  const showInHeader = exportBooleanToEnterprise(context, data.showInHeader)
+  if (showInHeader !== undefined) result.ОтображатьВШапке = showInHeader
+
+  const showTitle = exportBooleanToEnterprise(context, data.showTitle)
+  if (showTitle !== undefined) result.ОтображатьЗаголовок = showTitle
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  if (data.headerDataPath !== undefined) result.ПутьКДаннымШапки = data.headerDataPath
+
+  const fixingInTable = exportSystemEnumerationToEnterprise<SE.FixingInTableEnterprise>(
+    context,
+    data.fixingInTable,
+    SE.FixingInTableToEnterprise
+  )
+  if (fixingInTable !== undefined) result.ФиксацияВТаблице = fixingInTable
+
+  if (data.headerFormat !== undefined) result.ФорматШапки = data.headerFormat
+
+  const titleBackColor = exportColorToEnterprise(context, data.titleBackColor)
+  if (titleBackColor !== undefined) result.ЦветФонаЗаголовка = titleBackColor
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "ColumnGroup", exportColumnGroupToEnterprise)

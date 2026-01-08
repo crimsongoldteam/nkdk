@@ -22,174 +22,332 @@ export const exportTableToEnterprise = (
 ): TableEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportBaseElementToEnterprise(context, data)
+  const baseFields = exportBaseElementToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: TableEnterprise = {
+    ...baseFields,
+  }
 
-    АвтоВводНезаполненного: exportBooleanToEnterprise(context, data.autoAddIncomplete),
-    АвтоВводНовойСтроки: exportBooleanToEnterprise(context, data.autoInsertNewRow),
-    АвтоКоманднаяПанель: exportCommandBarToEnterprise(context, data.autoCommandBar),
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
-    АвтоМаксимальнаяВысотаВСтрокахТаблицы: exportBooleanToEnterprise(context, data.autoMaxHeightInTableRows),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
-    АвтоОтметкаНезаполненного: exportBooleanToEnterprise(context, data.autoMarkIncomplete),
-    АктивизироватьПоУмолчанию: exportBooleanToEnterprise(context, data.defaultItem),
-    ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
-      context,
-      data.displayImportance,
-      SE.DisplayImportanceToEnterprise
-    ),
-    ВариантУправленияВысотой: exportSystemEnumerationToEnterprise(
-      context,
-      data.heightControlVariant,
-      SE.TableHeightControlVariantToEnterprise
-    ),
-    ВертикальнаяПолосаПрокрутки: exportSystemEnumerationToEnterprise(
-      context,
-      data.verticalScrollBar,
-      SE.ScrollBarUseToEnterprise
-    ),
-    ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      context,
-      data.verticalAlignInGroup,
-      SE.ItemVerticalAlignToEnterprise
-    ),
-    ВертикальныеЛинии: exportBooleanToEnterprise(context, data.verticalLines),
-    Видимость: exportBooleanToEnterprise(context, data.visible),
-    Вывод: exportSystemEnumerationToEnterprise(context, data.output, SE.UseOutputToEnterprise),
-    Высота: data.height,
-    ВысотаВСтрокахТаблицы: data.heightInTableRows,
-    ВысотаЗаголовка: data.titleHeight,
-    ВысотаПодвала: data.footerHeight,
-    ВысотаШапки: data.headerHeight,
-    ГоризонтальнаяПолосаПрокрутки: exportSystemEnumerationToEnterprise(
-      context,
-      data.horizontalScrollBar,
-      SE.ScrollBarUseToEnterprise
-    ),
-    ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      context,
-      data.horizontalAlignInGroup,
-      SE.ItemHorizontalLocationToEnterprise
-    ),
-    ГоризонтальныеЛинии: exportBooleanToEnterprise(context, data.horizontalLines),
-    Доступность: exportBooleanToEnterprise(context, data.enabled),
-    Заголовок: exportI8nTextToEnterprise(context, data.title),
-    ЗапросОбновления: exportSystemEnumerationToEnterprise(
-      context,
-      data.refreshRequest,
-      SE.RefreshRequestMethodToEnterprise
-    ),
-    ИзменятьПорядокСтрок: exportBooleanToEnterprise(context, data.changeRowOrder),
-    ИзменятьСоставСтрок: exportBooleanToEnterprise(context, data.changeRowSet),
-    ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
-      context,
-      data.currentRowUse,
-      SE.TableCurrentRowUseToEnterprise
-    ),
-    КартинкаСтрок: exportBooleanToEnterprise(context, data.rowsPicture),
-    Команда: exportCommandSetToEnterprise(context, data.commandSet),
-    КоманднаяПанель: exportCommandBarToEnterprise(context, data.commandBar),
-    КонтекстноеМеню: exportCommandBarToEnterprise(context, data.contextMenu),
-    МаксимальнаяВысота: data.maxHeight,
-    МаксимальнаяВысотаВСтрокахТаблицы: data.maxHeightInTableRows,
-    МаксимальнаяШирина: data.maxWidth,
-    МножественныйВыбор: exportBooleanToEnterprise(context, data.multipleChoice),
-    НачальноеОтображениеДерева: exportSystemEnumerationToEnterprise(
-      context,
-      data.initialTreeView,
-      SE.InitialTreeViewToEnterprise
-    ),
-    НачальноеОтображениеСписка: exportSystemEnumerationToEnterprise(
-      context,
-      data.initialListView,
-      SE.InitialListViewToEnterprise
-    ),
-    ОтметкаНезаполненного: exportBooleanToEnterprise(context, data.markIncomplete),
-    Отображение: exportSystemEnumerationToEnterprise(context, data.representation, SE.TableRepresentationToEnterprise),
-    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
-      context,
-      data.toolTipRepresentation,
-      SE.ToolTipRepresentationToEnterprise
-    ),
-    ОтображениеСостоянияПросмотра: exportFormItemAdditionToEnterprise(context, data.viewStatusRepresentation),
-    ОтображениеСтрокиПоиска: exportFormItemAdditionToEnterprise(context, data.searchStringRepresentation),
-    ПоведениеПриСжатииПоГоризонтали: exportSystemEnumerationToEnterprise(
-      context,
-      data.behaviorOnHorizontalCompression,
-      SE.TableBehaviorOnHorizontalCompressionToEnterprise
-    ),
-    Подвал: exportBooleanToEnterprise(context, data.footer),
-    Подсказка: exportI8nTextToEnterprise(context, data.toolTip),
-    ПодчиненныеЭлементы: exportChildItemsToEnterprise(context, data.childItems),
-    ПоискПриВводе: exportSystemEnumerationToEnterprise(
-      context,
-      data.searchOnInput,
-      SE.SearchInTableOnInputToEnterprise
-    ),
-    ПоложениеЗаголовка: exportSystemEnumerationToEnterprise(
-      context,
-      data.titleLocation,
-      SE.FormItemTitleLocationToEnterprise
-    ),
-    ПоложениеКоманднойПанели: exportSystemEnumerationToEnterprise(
-      context,
-      data.commandBarLocation,
-      SE.FormItemCommandBarLabelLocationToEnterprise
-    ),
-    ПоложениеСостоянияПросмотра: exportSystemEnumerationToEnterprise(
-      context,
-      data.viewStatusLocation,
-      SE.ViewStatusLocationToEnterprise
-    ),
-    ПоложениеСтрокиПоиска: exportSystemEnumerationToEnterprise(
-      context,
-      data.searchStringLocation,
-      SE.SearchStringLocationToEnterprise
-    ),
-    ПоложениеУправленияПоиском: exportSystemEnumerationToEnterprise(
-      context,
-      data.searchControlLocation,
-      SE.SearchControlLocationToEnterprise
-    ),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    ПропускатьПриВводе: exportBooleanToEnterprise(context, data.skipOnInput),
-    ПутьКДанным: data.dataPath,
-    ПутьКДаннымКартинкиСтроки: data.rowPictureDataPath,
-    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(context, data.enableStartDrag),
-    РазрешитьПеретаскивание: exportBooleanToEnterprise(context, data.enableDrag),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(context, data.extendedTooltip),
-    РежимВводаСтрок: exportSystemEnumerationToEnterprise(context, data.rowInputMode, SE.TableRowInputModeToEnterprise),
-    РежимВыбора: exportBooleanToEnterprise(context, data.choiceMode),
-    РежимВыделения: exportSystemEnumerationToEnterprise(context, data.selectionMode, SE.TableSelectionModeToEnterprise),
-    РежимВыделенияСтроки: exportSystemEnumerationToEnterprise(
-      context,
-      data.rowSelectionMode,
-      SE.TableRowSelectionModeToEnterprise
-    ),
-    СочетаниеКлавиш: data.shortcut,
-    СпособПеретаскиванияФайлов: exportSystemEnumerationToEnterprise(
-      context,
-      data.fileDragMode,
-      SE.FileDragModeToEnterprise
-    ),
-    ТолькоПросмотр: exportBooleanToEnterprise(context, data.readOnly),
-    УправлениеПоиском: exportFormItemAdditionToEnterprise(context, data.searchControl),
-    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
-    ЦветТекста: exportColorToEnterprise(context, data.textColor),
-    ЦветТекстаЗаголовка: exportColorToEnterprise(context, data.titleTextColor),
-    ЦветФона: exportColorToEnterprise(context, data.backColor),
-    ЧередованиеЦветовСтрок: exportBooleanToEnterprise(context, data.useAlternationRowColor),
-    Шапка: exportBooleanToEnterprise(context, data.header),
-    Ширина: data.width,
-    Шрифт: exportFontToEnterprise(context, data.font),
-    ШрифтЗаголовка: exportFontToEnterprise(context, data.titleFont),
-    События: exportEventsToEnterprise(context, data.events),  }
+  const autoAddIncomplete = exportBooleanToEnterprise(context, data.autoAddIncomplete)
+  if (autoAddIncomplete !== undefined) result.АвтоВводНезаполненного = autoAddIncomplete
+
+  const autoInsertNewRow = exportBooleanToEnterprise(context, data.autoInsertNewRow)
+  if (autoInsertNewRow !== undefined) result.АвтоВводНовойСтроки = autoInsertNewRow
+
+  const autoCommandBar = exportCommandBarToEnterprise(context, data.autoCommandBar)
+  if (autoCommandBar !== undefined) result.АвтоКоманднаяПанель = autoCommandBar
+
+  const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
+  if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
+
+  const autoMaxHeightInTableRows = exportBooleanToEnterprise(context, data.autoMaxHeightInTableRows)
+  if (autoMaxHeightInTableRows !== undefined) result.АвтоМаксимальнаяВысотаВСтрокахТаблицы = autoMaxHeightInTableRows
+
+  const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
+  if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
+
+  const autoMarkIncomplete = exportBooleanToEnterprise(context, data.autoMarkIncomplete)
+  if (autoMarkIncomplete !== undefined) result.АвтоОтметкаНезаполненного = autoMarkIncomplete
+
+  const defaultItem = exportBooleanToEnterprise(context, data.defaultItem)
+  if (defaultItem !== undefined) result.АктивизироватьПоУмолчанию = defaultItem
+
+  const displayImportance = exportSystemEnumerationToEnterprise(
+    context,
+    data.displayImportance,
+    SE.DisplayImportanceToEnterprise
+  )
+  if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
+
+  const heightControlVariant = exportSystemEnumerationToEnterprise(
+    context,
+    data.heightControlVariant,
+    SE.TableHeightControlVariantToEnterprise
+  )
+  if (heightControlVariant !== undefined) result.ВариантУправленияВысотой = heightControlVariant
+
+  const verticalScrollBar = exportSystemEnumerationToEnterprise(
+    context,
+    data.verticalScrollBar,
+    SE.ScrollBarUseToEnterprise
+  )
+  if (verticalScrollBar !== undefined) result.ВертикальнаяПолосаПрокрутки = verticalScrollBar
+
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+    context,
+    data.verticalAlignInGroup,
+    SE.ItemVerticalAlignToEnterprise
+  )
+  if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
+
+  const verticalLines = exportBooleanToEnterprise(context, data.verticalLines)
+  if (verticalLines !== undefined) result.ВертикальныеЛинии = verticalLines
+
+  const visible = exportBooleanToEnterprise(context, data.visible)
+  if (visible !== undefined) result.Видимость = visible
+
+  const output = exportSystemEnumerationToEnterprise(context, data.output, SE.UseOutputToEnterprise)
+  if (output !== undefined) result.Вывод = output
+
+  if (data.height !== undefined) result.Высота = data.height
+
+  if (data.heightInTableRows !== undefined) result.ВысотаВСтрокахТаблицы = data.heightInTableRows
+
+  if (data.titleHeight !== undefined) result.ВысотаЗаголовка = data.titleHeight
+
+  if (data.footerHeight !== undefined) result.ВысотаПодвала = data.footerHeight
+
+  if (data.headerHeight !== undefined) result.ВысотаШапки = data.headerHeight
+
+  const horizontalScrollBar = exportSystemEnumerationToEnterprise(
+    context,
+    data.horizontalScrollBar,
+    SE.ScrollBarUseToEnterprise
+  )
+  if (horizontalScrollBar !== undefined) result.ГоризонтальнаяПолосаПрокрутки = horizontalScrollBar
+
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+    context,
+    data.horizontalAlignInGroup,
+    SE.ItemHorizontalLocationToEnterprise
+  )
+  if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
+
+  const horizontalLines = exportBooleanToEnterprise(context, data.horizontalLines)
+  if (horizontalLines !== undefined) result.ГоризонтальныеЛинии = horizontalLines
+
+  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  if (enabled !== undefined) result.Доступность = enabled
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  const refreshRequest = exportSystemEnumerationToEnterprise(
+    context,
+    data.refreshRequest,
+    SE.RefreshRequestMethodToEnterprise
+  )
+  if (refreshRequest !== undefined) result.ЗапросОбновления = refreshRequest
+
+  const changeRowOrder = exportBooleanToEnterprise(context, data.changeRowOrder)
+  if (changeRowOrder !== undefined) result.ИзменятьПорядокСтрок = changeRowOrder
+
+  const changeRowSet = exportBooleanToEnterprise(context, data.changeRowSet)
+  if (changeRowSet !== undefined) result.ИзменятьСоставСтрок = changeRowSet
+
+  const currentRowUse = exportSystemEnumerationToEnterprise(
+    context,
+    data.currentRowUse,
+    SE.TableCurrentRowUseToEnterprise
+  )
+  if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
+
+  const rowsPicture = exportBooleanToEnterprise(context, data.rowsPicture)
+  if (rowsPicture !== undefined) result.КартинкаСтрок = rowsPicture
+
+  const commandSet = exportCommandSetToEnterprise(context, data.commandSet)
+  if (commandSet !== undefined) result.Команда = commandSet
+
+  const commandBar = exportCommandBarToEnterprise(context, data.commandBar)
+  if (commandBar !== undefined) result.КоманднаяПанель = commandBar
+
+  const contextMenu = exportCommandBarToEnterprise(context, data.contextMenu)
+  if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
+
+  if (data.maxHeight !== undefined) result.МаксимальнаяВысота = data.maxHeight
+
+  if (data.maxHeightInTableRows !== undefined) result.МаксимальнаяВысотаВСтрокахТаблицы = data.maxHeightInTableRows
+
+  if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
+
+  const multipleChoice = exportBooleanToEnterprise(context, data.multipleChoice)
+  if (multipleChoice !== undefined) result.МножественныйВыбор = multipleChoice
+
+  const initialTreeView = exportSystemEnumerationToEnterprise(
+    context,
+    data.initialTreeView,
+    SE.InitialTreeViewToEnterprise
+  )
+  if (initialTreeView !== undefined) result.НачальноеОтображениеДерева = initialTreeView
+
+  const initialListView = exportSystemEnumerationToEnterprise(
+    context,
+    data.initialListView,
+    SE.InitialListViewToEnterprise
+  )
+  if (initialListView !== undefined) result.НачальноеОтображениеСписка = initialListView
+
+  const markIncomplete = exportBooleanToEnterprise(context, data.markIncomplete)
+  if (markIncomplete !== undefined) result.ОтметкаНезаполненного = markIncomplete
+
+  const representation = exportSystemEnumerationToEnterprise(
+    context,
+    data.representation,
+    SE.TableRepresentationToEnterprise
+  )
+  if (representation !== undefined) result.Отображение = representation
+
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+    context,
+    data.toolTipRepresentation,
+    SE.ToolTipRepresentationToEnterprise
+  )
+  if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
+
+  const viewStatusRepresentation = exportFormItemAdditionToEnterprise(context, data.viewStatusRepresentation)
+  if (viewStatusRepresentation !== undefined) result.ОтображениеСостоянияПросмотра = viewStatusRepresentation
+
+  const searchStringRepresentation = exportFormItemAdditionToEnterprise(context, data.searchStringRepresentation)
+  if (searchStringRepresentation !== undefined) result.ОтображениеСтрокиПоиска = searchStringRepresentation
+
+  const behaviorOnHorizontalCompression = exportSystemEnumerationToEnterprise(
+    context,
+    data.behaviorOnHorizontalCompression,
+    SE.TableBehaviorOnHorizontalCompressionToEnterprise
+  )
+  if (behaviorOnHorizontalCompression !== undefined)
+    result.ПоведениеПриСжатииПоГоризонтали = behaviorOnHorizontalCompression
+
+  const footer = exportBooleanToEnterprise(context, data.footer)
+  if (footer !== undefined) result.Подвал = footer
+
+  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  if (toolTip !== undefined) result.Подсказка = toolTip
+
+  const childItems = exportChildItemsToEnterprise(context, data.childItems)
+  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
+
+  const searchOnInput = exportSystemEnumerationToEnterprise(
+    context,
+    data.searchOnInput,
+    SE.SearchInTableOnInputToEnterprise
+  )
+  if (searchOnInput !== undefined) result.ПоискПриВводе = searchOnInput
+
+  const titleLocation = exportSystemEnumerationToEnterprise(
+    context,
+    data.titleLocation,
+    SE.FormItemTitleLocationToEnterprise
+  )
+  if (titleLocation !== undefined) result.ПоложениеЗаголовка = titleLocation
+
+  const commandBarLocation = exportSystemEnumerationToEnterprise(
+    context,
+    data.commandBarLocation,
+    SE.FormItemCommandBarLabelLocationToEnterprise
+  )
+  if (commandBarLocation !== undefined) result.ПоложениеКоманднойПанели = commandBarLocation
+
+  const viewStatusLocation = exportSystemEnumerationToEnterprise(
+    context,
+    data.viewStatusLocation,
+    SE.ViewStatusLocationToEnterprise
+  )
+  if (viewStatusLocation !== undefined) result.ПоложениеСостоянияПросмотра = viewStatusLocation
+
+  const searchStringLocation = exportSystemEnumerationToEnterprise(
+    context,
+    data.searchStringLocation,
+    SE.SearchStringLocationToEnterprise
+  )
+  if (searchStringLocation !== undefined) result.ПоложениеСтрокиПоиска = searchStringLocation
+
+  const searchControlLocation = exportSystemEnumerationToEnterprise(
+    context,
+    data.searchControlLocation,
+    SE.SearchControlLocationToEnterprise
+  )
+  if (searchControlLocation !== undefined) result.ПоложениеУправленияПоиском = searchControlLocation
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  const skipOnInput = exportBooleanToEnterprise(context, data.skipOnInput)
+  if (skipOnInput !== undefined) result.ПропускатьПриВводе = skipOnInput
+
+  if (data.dataPath !== undefined) result.ПутьКДанным = data.dataPath
+
+  if (data.rowPictureDataPath !== undefined) result.ПутьКДаннымКартинкиСтроки = data.rowPictureDataPath
+
+  const enableStartDrag = exportBooleanToEnterprise(context, data.enableStartDrag)
+  if (enableStartDrag !== undefined) result.РазрешитьНачалоПеретаскивания = enableStartDrag
+
+  const enableDrag = exportBooleanToEnterprise(context, data.enableDrag)
+  if (enableDrag !== undefined) result.РазрешитьПеретаскивание = enableDrag
+
+  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
+
+  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
+
+  const extendedTooltip = exportFormDecorationToEnterprise(context, data.extendedTooltip)
+  if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
+
+  const rowInputMode = exportSystemEnumerationToEnterprise(context, data.rowInputMode, SE.TableRowInputModeToEnterprise)
+  if (rowInputMode !== undefined) result.РежимВводаСтрок = rowInputMode
+
+  const choiceMode = exportBooleanToEnterprise(context, data.choiceMode)
+  if (choiceMode !== undefined) result.РежимВыбора = choiceMode
+
+  const selectionMode = exportSystemEnumerationToEnterprise(
+    context,
+    data.selectionMode,
+    SE.TableSelectionModeToEnterprise
+  )
+  if (selectionMode !== undefined) result.РежимВыделения = selectionMode
+
+  const rowSelectionMode = exportSystemEnumerationToEnterprise(
+    context,
+    data.rowSelectionMode,
+    SE.TableRowSelectionModeToEnterprise
+  )
+  if (rowSelectionMode !== undefined) result.РежимВыделенияСтроки = rowSelectionMode
+
+  if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
+
+  const fileDragMode = exportSystemEnumerationToEnterprise(context, data.fileDragMode, SE.FileDragModeToEnterprise)
+  if (fileDragMode !== undefined) result.СпособПеретаскиванияФайлов = fileDragMode
+
+  const readOnly = exportBooleanToEnterprise(context, data.readOnly)
+  if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
+
+  const searchControl = exportFormItemAdditionToEnterprise(context, data.searchControl)
+  if (searchControl !== undefined) result.УправлениеПоиском = searchControl
+
+  const borderColor = exportColorToEnterprise(context, data.borderColor)
+  if (borderColor !== undefined) result.ЦветРамки = borderColor
+
+  const textColor = exportColorToEnterprise(context, data.textColor)
+  if (textColor !== undefined) result.ЦветТекста = textColor
+
+  const titleTextColor = exportColorToEnterprise(context, data.titleTextColor)
+  if (titleTextColor !== undefined) result.ЦветТекстаЗаголовка = titleTextColor
+
+  const backColor = exportColorToEnterprise(context, data.backColor)
+  if (backColor !== undefined) result.ЦветФона = backColor
+
+  const useAlternationRowColor = exportBooleanToEnterprise(context, data.useAlternationRowColor)
+  if (useAlternationRowColor !== undefined) result.ЧередованиеЦветовСтрок = useAlternationRowColor
+
+  const header = exportBooleanToEnterprise(context, data.header)
+  if (header !== undefined) result.Шапка = header
+
+  if (data.width !== undefined) result.Ширина = data.width
+
+  const font = exportFontToEnterprise(context, data.font)
+  if (font !== undefined) result.Шрифт = font
+
+  const titleFont = exportFontToEnterprise(context, data.titleFont)
+  if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
+
+  const events = exportEventsToEnterprise(context, data.events)
+  if (events !== undefined) result.События = events
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "Table", exportTableToEnterprise)

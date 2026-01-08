@@ -14,24 +14,45 @@ export const exportPopupToEnterprise = (
 ): PopupEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormGroupToEnterprise(context, data)
+  const baseFields = exportFormGroupToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: PopupEnterprise = {
+    ...baseFields,
+  }
 
-    Картинка: exportPictureToEnterprise(context, data.picture),
-    Отображение: exportSystemEnumerationToEnterprise(context, data.representation, SE.ButtonRepresentationToEnterprise),
-    ОтображениеФигуры: exportSystemEnumerationToEnterprise(
-      context,
-      data.shapeRepresentation,
-      SE.ButtonShapeRepresentationToEnterprise
-    ),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    Фигура: exportSystemEnumerationToEnterprise(context, data.shape, SE.ButtonShapeToEnterprise),
-    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
-    ЦветФона: exportColorToEnterprise(context, data.backColor),  }
+  const picture = exportPictureToEnterprise(context, data.picture)
+  if (picture !== undefined) result.Картинка = picture
+
+  const representation = exportSystemEnumerationToEnterprise(
+    context,
+    data.representation,
+    SE.ButtonRepresentationToEnterprise
+  )
+  if (representation !== undefined) result.Отображение = representation
+
+  const shapeRepresentation = exportSystemEnumerationToEnterprise(
+    context,
+    data.shapeRepresentation,
+    SE.ButtonShapeRepresentationToEnterprise
+  )
+  if (shapeRepresentation !== undefined) result.ОтображениеФигуры = shapeRepresentation
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  const shape = exportSystemEnumerationToEnterprise(context, data.shape, SE.ButtonShapeToEnterprise)
+  if (shape !== undefined) result.Фигура = shape
+
+  const borderColor = exportColorToEnterprise(context, data.borderColor)
+  if (borderColor !== undefined) result.ЦветРамки = borderColor
+
+  const backColor = exportColorToEnterprise(context, data.backColor)
+  if (backColor !== undefined) result.ЦветФона = backColor
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "Popup", exportPopupToEnterprise)

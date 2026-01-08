@@ -17,53 +17,99 @@ export const exportFormDecorationToEnterprise = (
 ): FormDecorationEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportBaseElementToEnterprise(context, data)
+  const baseFields = exportBaseElementToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: FormDecorationEnterprise = {
+    ...baseFields,
+  }
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
-    ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
-      context,
-      data.displayImportance,
-      SE.DisplayImportanceToEnterprise
-    ),
-    ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      context,
-      data.verticalAlignInGroup,
-      SE.ItemVerticalAlignToEnterprise
-    ),
-    Вид: exportSystemEnumerationToEnterprise(context, data.type, SE.FormDecorationTypeToEnterprise),
-    Видимость: exportBooleanToEnterprise(context, data.visible),
-    Высота: data.height,
-    ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      context,
-      data.horizontalAlignInGroup,
-      SE.ItemHorizontalLocationToEnterprise
-    ),
-    Доступность: exportBooleanToEnterprise(context, data.enabled),
-    Заголовок: exportI8nTextToEnterprise(context, data.title),
-    КонтекстноеМеню: exportCommandBarToEnterprise(context, data.contextMenu),
-    МаксимальнаяВысота: data.maxHeight,
-    МаксимальнаяШирина: data.maxWidth,
-    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
-      context,
-      data.toolTipRepresentation,
-      SE.ToolTipRepresentationToEnterprise
-    ),
-    Подсказка: exportI8nTextToEnterprise(context, data.toolTip),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    ПропускатьПриВводе: exportBooleanToEnterprise(context, data.skipOnInput),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(context, data.extendedTooltip),
-    СочетаниеКлавиш: data.shortcut,
-    ЦветТекста: exportColorToEnterprise(context, data.textColor),
-    Ширина: data.width,
-    Шрифт: exportFontToEnterprise(context, data.font),  }
+  const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
+  if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
+
+  const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
+  if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
+
+  const displayImportance = exportSystemEnumerationToEnterprise(
+    context,
+    data.displayImportance,
+    SE.DisplayImportanceToEnterprise
+  )
+  if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
+
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+    context,
+    data.verticalAlignInGroup,
+    SE.ItemVerticalAlignToEnterprise
+  )
+  if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
+
+  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormDecorationTypeToEnterprise)
+  if (type !== undefined) result.Вид = type
+
+  const visible = exportBooleanToEnterprise(context, data.visible)
+  if (visible !== undefined) result.Видимость = visible
+
+  if (data.height !== undefined) result.Высота = data.height
+
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+    context,
+    data.horizontalAlignInGroup,
+    SE.ItemHorizontalLocationToEnterprise
+  )
+  if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
+
+  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  if (enabled !== undefined) result.Доступность = enabled
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  const contextMenu = exportCommandBarToEnterprise(context, data.contextMenu)
+  if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
+
+  if (data.maxHeight !== undefined) result.МаксимальнаяВысота = data.maxHeight
+
+  if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
+
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+    context,
+    data.toolTipRepresentation,
+    SE.ToolTipRepresentationToEnterprise
+  )
+  if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
+
+  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  if (toolTip !== undefined) result.Подсказка = toolTip
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  const skipOnInput = exportBooleanToEnterprise(context, data.skipOnInput)
+  if (skipOnInput !== undefined) result.ПропускатьПриВводе = skipOnInput
+
+  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
+
+  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
+
+  const extendedTooltip = exportFormDecorationToEnterprise(context, data.extendedTooltip)
+  if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
+
+  if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
+
+  const textColor = exportColorToEnterprise(context, data.textColor)
+  if (textColor !== undefined) result.ЦветТекста = textColor
+
+  if (data.width !== undefined) result.Ширина = data.width
+
+  const font = exportFontToEnterprise(context, data.font)
+  if (font !== undefined) result.Шрифт = font
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "FormDecoration", exportFormDecorationToEnterprise)

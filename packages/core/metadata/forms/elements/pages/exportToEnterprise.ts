@@ -17,28 +17,43 @@ export const exportPagesToEnterprise = (
   const baseFields = exportFormGroupToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
+  const result: PagesEnterprise = {
     ...baseFields,
-
-    ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
-      context,
-      data.currentRowUse,
-      SE.CurrentRowUseToEnterprise
-    ),
-    ИспользуемаяТаблица: exportTableToEnterprise(context, data.associatedTable),
-    ОтображениеСтраниц: exportSystemEnumerationToEnterprise(
-      context,
-      data.pagesRepresentation,
-      SE.FormPagesRepresentationToEnterprise
-    ),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    ТекущееСостояниеСтраниц: exportSystemEnumerationToEnterprise(
-      context,
-      data.currentPagesState,
-      SE.FormPagesStateToEnterprise
-    ),
-    События: exportEventsToEnterprise(context, data.events),
   }
+
+  const currentRowUse = exportSystemEnumerationToEnterprise<SE.CurrentRowUseEnterprise>(
+    context,
+    data.currentRowUse,
+    SE.CurrentRowUseToEnterprise
+  )
+  if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
+
+  const associatedTable = exportTableToEnterprise(context, data.associatedTable)
+  if (associatedTable !== undefined) result.ИспользуемаяТаблица = associatedTable
+
+  const pagesRepresentation = exportSystemEnumerationToEnterprise<SE.FormPagesRepresentationEnterprise>(
+    context,
+    data.pagesRepresentation,
+    SE.FormPagesRepresentationToEnterprise
+  )
+  if (pagesRepresentation !== undefined) result.ОтображениеСтраниц = pagesRepresentation
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  const currentPagesState = exportSystemEnumerationToEnterprise<SE.FormPagesStateEnterprise>(
+    context,
+    data.currentPagesState,
+    SE.FormPagesStateToEnterprise
+  )
+  if (currentPagesState !== undefined) result.ТекущееСостояниеСтраниц = currentPagesState
+
+  const events = exportEventsToEnterprise(context, data.events)
+  if (events !== undefined) result.События = events
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "Pages", exportPagesToEnterprise)

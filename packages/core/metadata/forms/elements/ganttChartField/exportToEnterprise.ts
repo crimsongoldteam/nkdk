@@ -14,40 +14,69 @@ export const exportGanttChartFieldToEnterprise = (
 ): GanttChartFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormFieldToEnterprise(context, data)
+  const baseFields = exportFormFieldToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: GanttChartFieldEnterprise = {
+    ...baseFields,
+  }
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
-    ВертикальныеЛинии: exportBooleanToEnterprise(context, data.verticalLines),
-    Высота: data.height,
-    ГоризонтальныеЛинии: exportBooleanToEnterprise(context, data.horizontalLines),
-    МаксимальнаяВысота: data.maxHeight,
-    МаксимальнаяШирина: data.maxWidth,
-    ПоложениеТаблицы: exportSystemEnumerationToEnterprise(
-      context,
-      data.tableLocation,
-      SE.GanttChartTableLocationToEnterprise
-    ),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
-    РежимВыделенияЗначений: exportSystemEnumerationToEnterprise(
-      context,
-      data.valuesSelectionMode,
-      SE.GanttChartValuesSelectionModeToEnterprise
-    ),
-    РежимВыделенияИнтервалов: exportSystemEnumerationToEnterprise(
-      context,
-      data.intervalsSelectionMode,
-      SE.GanttChartIntervalsSelectionModeToEnterprise
-    ),
-    Ширина: data.width,
-    События: exportEventsToEnterprise(context, data.events),  }
+  const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
+  if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
+
+  const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
+  if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
+
+  const verticalLines = exportBooleanToEnterprise(context, data.verticalLines)
+  if (verticalLines !== undefined) result.ВертикальныеЛинии = verticalLines
+
+  if (data.height !== undefined) result.Высота = data.height
+
+  const horizontalLines = exportBooleanToEnterprise(context, data.horizontalLines)
+  if (horizontalLines !== undefined) result.ГоризонтальныеЛинии = horizontalLines
+
+  if (data.maxHeight !== undefined) result.МаксимальнаяВысота = data.maxHeight
+
+  if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
+
+  const tableLocation = exportSystemEnumerationToEnterprise<SE.GanttChartTableLocationEnterprise>(
+    context,
+    data.tableLocation,
+    SE.GanttChartTableLocationToEnterprise
+  )
+  if (tableLocation !== undefined) result.ПоложениеТаблицы = tableLocation
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
+
+  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
+
+  const valuesSelectionMode = exportSystemEnumerationToEnterprise<SE.GanttChartValuesSelectionModeEnterprise>(
+    context,
+    data.valuesSelectionMode,
+    SE.GanttChartValuesSelectionModeToEnterprise
+  )
+  if (valuesSelectionMode !== undefined) result.РежимВыделенияЗначений = valuesSelectionMode
+
+  const intervalsSelectionMode = exportSystemEnumerationToEnterprise<SE.GanttChartIntervalsSelectionModeEnterprise>(
+    context,
+    data.intervalsSelectionMode,
+    SE.GanttChartIntervalsSelectionModeToEnterprise
+  )
+  if (intervalsSelectionMode !== undefined) result.РежимВыделенияИнтервалов = intervalsSelectionMode
+
+  if (data.width !== undefined) result.Ширина = data.width
+
+  const events = exportEventsToEnterprise(context, data.events)
+  if (events !== undefined) result.События = events
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "GanttChartField", exportGanttChartFieldToEnterprise)

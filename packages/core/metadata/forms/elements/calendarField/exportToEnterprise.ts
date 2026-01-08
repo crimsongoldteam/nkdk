@@ -65,35 +65,76 @@ export const exportCalendarFieldToEnterprise = (
 ): CalendarFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormFieldToEnterprise(context, data)
+  const baseFields = exportFormFieldToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: CalendarFieldEnterprise = {
+    ...baseFields,
+  }
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
-    Высота: data.height,
-    ВысотаВМесяцах: data.heightInMonths,
-    КонецПериодаОтображения: data.endOfRepresentationPeriod,
-    МаксимальнаяВысота: data.maxHeight,
-    МаксимальнаяШирина: data.maxWidth,
-    НачалоПериодаОтображения: data.beginOfRepresentationPeriod,
-    ОтображатьПанельМесяцев: exportBooleanToEnterprise(context, data.showMonthsPanel),
-    ОтображатьТекущуюДату: exportBooleanToEnterprise(context, data.showCurrentDate),
-    ПеремещениеПоКалендарю: exportBooleanToEnterprise(context, data.calendarNavigation),
-    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(context, data.enableStartDrag),
-    РазрешитьПеретаскивание: exportBooleanToEnterprise(context, data.enableDrag),
-    Рамка: exportBorderToEnterprise(context, data.border),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
-    РежимВыделения: exportSystemEnumerationToEnterprise(context, data.selectionMode, SE.DateSelectionModeToEnterprise),
-    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
-    Ширина: data.width,
-    ШиринаВМесяцах: data.widthInMonths,
-    Шрифт: exportFontToEnterprise(context, data.font),
-    События: exportCalendarFieldEventsToEnterprise(data.events),  }
+  const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
+  if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
+
+  const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
+  if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
+
+  if (data.height !== undefined) result.Высота = data.height
+
+  if (data.heightInMonths !== undefined) result.ВысотаВМесяцах = data.heightInMonths
+
+  if (data.endOfRepresentationPeriod !== undefined) result.КонецПериодаОтображения = data.endOfRepresentationPeriod
+
+  if (data.maxHeight !== undefined) result.МаксимальнаяВысота = data.maxHeight
+
+  if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
+
+  if (data.beginOfRepresentationPeriod !== undefined) result.НачалоПериодаОтображения = data.beginOfRepresentationPeriod
+
+  const showMonthsPanel = exportBooleanToEnterprise(context, data.showMonthsPanel)
+  if (showMonthsPanel !== undefined) result.ОтображатьПанельМесяцев = showMonthsPanel
+
+  const showCurrentDate = exportBooleanToEnterprise(context, data.showCurrentDate)
+  if (showCurrentDate !== undefined) result.ОтображатьТекущуюДату = showCurrentDate
+
+  const calendarNavigation = exportBooleanToEnterprise(context, data.calendarNavigation)
+  if (calendarNavigation !== undefined) result.ПеремещениеПоКалендарю = calendarNavigation
+
+  const enableStartDrag = exportBooleanToEnterprise(context, data.enableStartDrag)
+  if (enableStartDrag !== undefined) result.РазрешитьНачалоПеретаскивания = enableStartDrag
+
+  const enableDrag = exportBooleanToEnterprise(context, data.enableDrag)
+  if (enableDrag !== undefined) result.РазрешитьПеретаскивание = enableDrag
+
+  const border = exportBorderToEnterprise(context, data.border)
+  if (border !== undefined) result.Рамка = border
+
+  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
+
+  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
+
+  const selectionMode = exportSystemEnumerationToEnterprise(
+    context,
+    data.selectionMode,
+    SE.DateSelectionModeToEnterprise
+  )
+  if (selectionMode !== undefined) result.РежимВыделения = selectionMode
+
+  const borderColor = exportColorToEnterprise(context, data.borderColor)
+  if (borderColor !== undefined) result.ЦветРамки = borderColor
+
+  if (data.width !== undefined) result.Ширина = data.width
+
+  if (data.widthInMonths !== undefined) result.ШиринаВМесяцах = data.widthInMonths
+
+  const font = exportFontToEnterprise(context, data.font)
+  if (font !== undefined) result.Шрифт = font
+
+  const events = exportCalendarFieldEventsToEnterprise(data.events)
+  if (events !== undefined) result.События = events
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "CalendarField", exportCalendarFieldToEnterprise)

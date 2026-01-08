@@ -16,20 +16,36 @@ export const exportSearchStringAdditionToEnterprise = (
 ): SearchStringAdditionEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormItemAdditionToEnterprise(context, data)
+  const baseFields = exportFormItemAdditionToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: SearchStringAdditionEnterprise = {
+    ...baseFields,
+  }
 
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
-    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
-    ЦветТекста: exportColorToEnterprise(context, data.textColor),
-    ЦветФона: exportColorToEnterprise(context, data.backColor),
-    Ширина: data.width,
-    Шрифт: exportFontToEnterprise(context, data.font),  }
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
+
+  const borderColor = exportColorToEnterprise(context, data.borderColor)
+  if (borderColor !== undefined) result.ЦветРамки = borderColor
+
+  const textColor = exportColorToEnterprise(context, data.textColor)
+  if (textColor !== undefined) result.ЦветТекста = textColor
+
+  const backColor = exportColorToEnterprise(context, data.backColor)
+  if (backColor !== undefined) result.ЦветФона = backColor
+
+  if (data.width !== undefined) result.Ширина = data.width
+
+  const font = exportFontToEnterprise(context, data.font)
+  if (font !== undefined) result.Шрифт = font
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "SearchStringAddition", exportSearchStringAdditionToEnterprise)

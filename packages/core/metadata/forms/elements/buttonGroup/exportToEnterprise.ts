@@ -12,19 +12,26 @@ export const exportButtonGroupToEnterprise = (
 ): ButtonGroupEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormGroupToEnterprise(context, data)
+  const baseFields = exportFormGroupToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: ButtonGroupEnterprise = {
+    ...baseFields,
+  }
 
-    Отображение: exportSystemEnumerationToEnterprise(
-      context,
-      data.representation,
-      SE.ButtonGroupRepresentationToEnterprise
-    ),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),  }
+  const representation = exportSystemEnumerationToEnterprise<SE.ButtonGroupRepresentationEnterprise>(
+    context,
+    data.representation,
+    SE.ButtonGroupRepresentationToEnterprise
+  )
+  if (representation !== undefined) result.Отображение = representation
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "ButtonGroup", exportButtonGroupToEnterprise)

@@ -17,30 +17,55 @@ export const exportRadioButtonFieldToEnterprise = (
 ): RadioButtonFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormFieldToEnterprise(context, data)
+  const baseFields = exportFormFieldToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: RadioButtonFieldEnterprise = {
+    ...baseFields,
+  }
 
-    ВидПереключателя: exportSystemEnumerationToEnterprise(
-      context,
-      data.radioButtonType,
-      SE.RadioButtonTypeToEnterprise
-    ),
-    ВысотаЗаголовкаЭлемента: data.itemTitleHeight,
-    ВысотаЭлемента: data.itemHeight,
-    КоличествоКолонок: data.columnsCount,
-    ОдинаковаяШиринаКолонок: exportBooleanToEnterprise(context, data.equalColumnsWidth),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    СписокВыбора: exportChoiceListToEnterprise(context, data.choiceList),
-    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
-    ЦветТекста: exportColorToEnterprise(context, data.textColor),
-    ЦветФона: exportColorToEnterprise(context, data.backColor),
-    ШиринаЭлемента: data.itemWidth,
-    Шрифт: exportFontToEnterprise(context, data.font),
-    События: exportEventsToEnterprise(context, data.events),  }
+  const radioButtonType = exportSystemEnumerationToEnterprise(
+    context,
+    data.radioButtonType,
+    SE.RadioButtonTypeToEnterprise
+  )
+  if (radioButtonType !== undefined) result.ВидПереключателя = radioButtonType
+
+  if (data.itemTitleHeight !== undefined) result.ВысотаЗаголовкаЭлемента = data.itemTitleHeight
+
+  if (data.itemHeight !== undefined) result.ВысотаЭлемента = data.itemHeight
+
+  if (data.columnsCount !== undefined) result.КоличествоКолонок = data.columnsCount
+
+  const equalColumnsWidth = exportBooleanToEnterprise(context, data.equalColumnsWidth)
+  if (equalColumnsWidth !== undefined) result.ОдинаковаяШиринаКолонок = equalColumnsWidth
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  const choiceList = exportChoiceListToEnterprise(context, data.choiceList)
+  if (choiceList !== undefined) result.СписокВыбора = choiceList
+
+  const borderColor = exportColorToEnterprise(context, data.borderColor)
+  if (borderColor !== undefined) result.ЦветРамки = borderColor
+
+  const textColor = exportColorToEnterprise(context, data.textColor)
+  if (textColor !== undefined) result.ЦветТекста = textColor
+
+  const backColor = exportColorToEnterprise(context, data.backColor)
+  if (backColor !== undefined) result.ЦветФона = backColor
+
+  if (data.itemWidth !== undefined) result.ШиринаЭлемента = data.itemWidth
+
+  const font = exportFontToEnterprise(context, data.font)
+  if (font !== undefined) result.Шрифт = font
+
+  const events = exportEventsToEnterprise(context, data.events)
+  if (events !== undefined) result.События = events
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "RadioButtonField", exportRadioButtonFieldToEnterprise)

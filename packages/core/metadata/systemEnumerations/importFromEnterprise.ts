@@ -3,7 +3,7 @@ import { ConfigurationContext } from "../context/types"
 export const importSystemEnumerationFromEnterprise = <T extends string>(
   _context: ConfigurationContext,
   value: string | undefined,
-  enumeration: Record<string, string>
+  enumeration: Record<string, T>
 ): T | undefined => {
   if (!value) return undefined
 

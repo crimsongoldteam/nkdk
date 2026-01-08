@@ -18,45 +18,89 @@ export const exportFormGroupToEnterprise = (
 ): FormGroupEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportBaseElementToEnterprise(context, data)
+  const baseFields = exportBaseElementToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: FormGroupEnterprise = {
+    ...baseFields,
+  }
 
-    ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      context,
-      data.verticalAlignInGroup,
-      SE.ItemVerticalAlignToEnterprise
-    ),
-    Вид: exportSystemEnumerationToEnterprise(context, data.type, SE.FormGroupTypeToEnterprise),
-    Видимость: exportBooleanToEnterprise(context, data.visible),
-    Высота: data.height,
-    ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      context,
-      data.horizontalAlignInGroup,
-      SE.ItemHorizontalLocationToEnterprise
-    ),
-    Доступность: exportBooleanToEnterprise(context, data.enabled),
-    Заголовок: exportI8nTextToEnterprise(context, data.title),
-    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
-      context,
-      data.toolTipRepresentation,
-      SE.ToolTipRepresentationToEnterprise
-    ),
-    Подсказка: exportI8nTextToEnterprise(context, data.toolTip),
-    ПодчиненныеЭлементы: exportChildItemsToEnterprise(context, data.childItems),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    РазрешитьИзменениеСостава: exportBooleanToEnterprise(context, data.enableContentChange),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(context, data.extendedTooltip),
-    СочетаниеКлавиш: data.shortcut,
-    ТолькоПросмотр: exportBooleanToEnterprise(context, data.readOnly),
-    ЦветТекстаЗаголовка: exportColorToEnterprise(context, data.titleTextColor),
-    Ширина: data.width,
-    ШрифтЗаголовка: exportFontToEnterprise(context, data.titleFont),  }
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise<SE.ItemVerticalAlignEnterprise>(
+    context,
+    data.verticalAlignInGroup,
+    SE.ItemVerticalAlignToEnterprise
+  )
+  if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
+
+  const type = exportSystemEnumerationToEnterprise<SE.FormGroupTypeEnterprise>(
+    context,
+    data.type,
+    SE.FormGroupTypeToEnterprise
+  )
+  if (type !== undefined) result.Вид = type
+
+  const visible = exportBooleanToEnterprise(context, data.visible)
+  if (visible !== undefined) result.Видимость = visible
+
+  if (data.height !== undefined) result.Высота = data.height
+
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise<SE.ItemHorizontalLocationEnterprise>(
+    context,
+    data.horizontalAlignInGroup,
+    SE.ItemHorizontalLocationToEnterprise
+  )
+  if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
+
+  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  if (enabled !== undefined) result.Доступность = enabled
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise<SE.ToolTipRepresentationEnterprise>(
+    context,
+    data.toolTipRepresentation,
+    SE.ToolTipRepresentationToEnterprise
+  )
+  if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
+
+  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  if (toolTip !== undefined) result.Подсказка = toolTip
+
+  const childItems = exportChildItemsToEnterprise(context, data.childItems)
+  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  const enableContentChange = exportBooleanToEnterprise(context, data.enableContentChange)
+  if (enableContentChange !== undefined) result.РазрешитьИзменениеСостава = enableContentChange
+
+  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
+
+  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
+
+  const extendedTooltip = exportFormDecorationToEnterprise(context, data.extendedTooltip)
+  if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
+
+  if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
+
+  const readOnly = exportBooleanToEnterprise(context, data.readOnly)
+  if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
+
+  const titleTextColor = exportColorToEnterprise(context, data.titleTextColor)
+  if (titleTextColor !== undefined) result.ЦветТекстаЗаголовка = titleTextColor
+
+  if (data.width !== undefined) result.Ширина = data.width
+
+  const titleFont = exportFontToEnterprise(context, data.titleFont)
+  if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "FormGroup", exportFormGroupToEnterprise)

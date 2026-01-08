@@ -23,12 +23,11 @@ export const exportInputFieldToEnterprise = (
 ): InputFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  const result: InputFieldEnterprise = {
-    const baseFields = exportFormFieldToEnterprise(context, data)
+  const baseFields = exportFormFieldToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: InputFieldEnterprise = {
+    ...baseFields,
   }
 
   const autoChoiceIncomplete = exportBooleanToEnterprise(context, data.autoChoiceIncomplete)
@@ -42,7 +41,7 @@ export const exportInputFieldToEnterprise = (
   if (autoCapitalizationOnTextInput !== undefined)
     result.АвтоИзменениеРегистраПриВводеТекста = autoCapitalizationOnTextInput
 
-  const autoCorrectionOnTextInput = exportSystemEnumerationToEnterprise<SE.AutoCorrectionOnTextInputEnterprise>(
+  const autoCorrectionOnTextInput = exportSystemEnumerationToEnterprise(
     context,
     data.autoCorrectionOnTextInput,
     SE.AutoCorrectionOnTextInputToEnterprise

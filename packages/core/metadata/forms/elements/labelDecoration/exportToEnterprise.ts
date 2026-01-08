@@ -33,35 +33,57 @@ export const exportLabelDecorationToEnterprise = (
 ): LabelDecorationEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormDecorationToEnterprise(context, data)
+  const baseFields = exportFormDecorationToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: LabelDecorationEnterprise = {
+    ...baseFields,
+  }
 
-    ВертикальноеВыравниваниеГруппы: exportSystemEnumerationToEnterprise(
-      context,
-      data.groupVerticalAlign,
-      SE.ItemVerticalAlignToEnterprise
-    ),
-    ВертикальноеПоложение: exportSystemEnumerationToEnterprise(
-      context,
-      data.verticalAlign,
-      SE.ItemVerticalAlignToEnterprise
-    ),
-    ВысотаЗаголовка: data.titleHeight,
-    Гиперссылка: exportBooleanToEnterprise(context, data.hyperlink),
-    ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
-      context,
-      data.horizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise
-    ),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    Рамка: exportBorderToEnterprise(context, data.border),
-    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
-    ЦветФона: exportColorToEnterprise(context, data.backColor),
-    События: exportLabelDecorationEventsToEnterprise(data.events),  }
+  const verticalAlignGroup = exportSystemEnumerationToEnterprise<SE.ItemVerticalAlignEnterprise>(
+    context,
+    data.groupVerticalAlign,
+    SE.ItemVerticalAlignToEnterprise
+  )
+  if (verticalAlignGroup !== undefined) result.ВертикальноеВыравниваниеГруппы = verticalAlignGroup
+
+  const verticalAlign = exportSystemEnumerationToEnterprise<SE.ItemVerticalAlignEnterprise>(
+    context,
+    data.verticalAlign,
+    SE.ItemVerticalAlignToEnterprise
+  )
+  if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
+
+  if (data.titleHeight !== undefined) result.ВысотаЗаголовка = data.titleHeight
+
+  const hyperlink = exportBooleanToEnterprise(context, data.hyperlink)
+  if (hyperlink !== undefined) result.Гиперссылка = hyperlink
+
+  const horizontalAlign = exportSystemEnumerationToEnterprise<SE.ItemHorizontalLocationEnterprise>(
+    context,
+    data.horizontalAlign,
+    SE.ItemHorizontalLocationToEnterprise
+  )
+  if (horizontalAlign !== undefined) result.ГоризонтальноеПоложение = horizontalAlign
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  const border = exportBorderToEnterprise(context, data.border)
+  if (border !== undefined) result.Рамка = border
+
+  const borderColor = exportColorToEnterprise(context, data.borderColor)
+  if (borderColor !== undefined) result.ЦветРамки = borderColor
+
+  const backColor = exportColorToEnterprise(context, data.backColor)
+  if (backColor !== undefined) result.ЦветФона = backColor
+
+  const events = exportLabelDecorationEventsToEnterprise(data.events)
+  if (events !== undefined) result.События = events
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "LabelDecoration", exportLabelDecorationToEnterprise)

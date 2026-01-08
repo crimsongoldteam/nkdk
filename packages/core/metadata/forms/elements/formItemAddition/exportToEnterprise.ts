@@ -17,42 +17,71 @@ export const exportFormItemAdditionToEnterprise = (
 ): FormItemAdditionEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportBaseElementToEnterprise(context, data)
+  const baseFields = exportBaseElementToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: FormItemAdditionEnterprise = {
+    ...baseFields,
+  }
 
-    ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
-      context,
-      data.displayImportance,
-      SE.DisplayImportanceToEnterprise
-    ),
-    ВертикальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      context,
-      data.verticalAlignInGroup,
-      SE.ItemVerticalAlignToEnterprise
-    ),
-    Вид: exportSystemEnumerationToEnterprise(context, data.type, SE.FormItemAdditionTypeToEnterprise),
-    Видимость: exportBooleanToEnterprise(context, data.visible),
-    ГоризонтальноеПоложениеВГруппе: exportSystemEnumerationToEnterprise(
-      context,
-      data.horizontalAlignInGroup,
-      SE.ItemHorizontalLocationToEnterprise
-    ),
-    Доступность: exportBooleanToEnterprise(context, data.enabled),
-    Заголовок: exportI8nTextToEnterprise(context, data.title),
-    КонтекстноеМеню: exportCommandBarToEnterprise(context, data.contextMenu),
-    ОтображениеПодсказки: exportSystemEnumerationToEnterprise(
-      context,
-      data.toolTipRepresentation,
-      SE.ToolTipRepresentationToEnterprise
-    ),
-    Подсказка: exportI8nTextToEnterprise(context, data.toolTip),
-    ПодчиненныеЭлементы: exportChildItemsToEnterprise(context, data.childItems),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    РасширеннаяПодсказка: exportFormDecorationToEnterprise(context, data.extendedToolTip),  }
+  const displayImportance = exportSystemEnumerationToEnterprise(
+    context,
+    data.displayImportance,
+    SE.DisplayImportanceToEnterprise
+  )
+  if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
+
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+    context,
+    data.verticalAlignInGroup,
+    SE.ItemVerticalAlignToEnterprise
+  )
+  if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
+
+  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormItemAdditionTypeToEnterprise)
+  if (type !== undefined) result.Вид = type
+
+  const visible = exportBooleanToEnterprise(context, data.visible)
+  if (visible !== undefined) result.Видимость = visible
+
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+    context,
+    data.horizontalAlignInGroup,
+    SE.ItemHorizontalLocationToEnterprise
+  )
+  if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
+
+  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  if (enabled !== undefined) result.Доступность = enabled
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  const contextMenu = exportCommandBarToEnterprise(context, data.contextMenu)
+  if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
+
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+    context,
+    data.toolTipRepresentation,
+    SE.ToolTipRepresentationToEnterprise
+  )
+  if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
+
+  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  if (toolTip !== undefined) result.Подсказка = toolTip
+
+  const childItems = exportChildItemsToEnterprise(context, data.childItems)
+  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  const extendedToolTip = exportFormDecorationToEnterprise(context, data.extendedToolTip)
+  if (extendedToolTip !== undefined) result.РасширеннаяПодсказка = extendedToolTip
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "FormItemAddition", exportFormItemAdditionToEnterprise)

@@ -16,91 +16,142 @@ export const exportUsualGroupToEnterprise = (
 ): UsualGroupEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormGroupToEnterprise(context, data)
+  const baseFields = exportFormGroupToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: UsualGroupEnterprise = {
+    ...baseFields,
+  }
 
-    ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
-      context,
-      data.displayImportance,
-      SE.DisplayImportanceToEnterprise
-    ),
-    ВертикальноеВыравниваниеГруппы: exportSystemEnumerationToEnterprise(
-      context,
-      data.groupVerticalAlign,
-      SE.ItemVerticalAlignToEnterprise
-    ),
-    ВертикальноеПоложение: exportSystemEnumerationToEnterprise(
-      context,
-      data.verticalAlign,
-      SE.ItemVerticalAlignToEnterprise
-    ),
-    ВертикальноеПоложениеПодчиненных: exportSystemEnumerationToEnterprise(
-      context,
-      data.childItemsVerticalAlign,
-      SE.ItemVerticalAlignToEnterprise
-    ),
-    ВертикальныйИнтервал: exportSystemEnumerationToEnterprise(
-      context,
-      data.verticalSpacing,
-      SE.FormItemSpacingToEnterprise
-    ),
-    ВыравниваниеЭлементовИЗаголовков: exportSystemEnumerationToEnterprise(
-      context,
-      data.itemsAndTitlesAlign,
-      SE.ItemsAndTitlesAlignVariantToEnterprise
-    ),
-    ГоризонтальноеВыравниваниеГруппы: exportSystemEnumerationToEnterprise(
-      context,
-      data.groupHorizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise
-    ),
-    ГоризонтальноеПоложениеПодчиненных: exportSystemEnumerationToEnterprise(
-      context,
-      data.childItemsHorizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise
-    ),
-    ГоризонтальныйИнтервал: exportSystemEnumerationToEnterprise(
-      context,
-      data.horizontalSpacing,
-      SE.FormItemSpacingToEnterprise
-    ),
-    Группировка: exportSystemEnumerationToEnterprise(context, data.group, SE.ChildFormItemsGroupToEnterprise),
-    ЗаголовокСвернутогоОтображения: data.collapsedRepresentationTitle,
-    ИспользованиеТекущейСтроки: exportSystemEnumerationToEnterprise(
-      context,
-      data.currentRowUse,
-      SE.CurrentRowUseToEnterprise
-    ),
-    ИспользуемаяТаблица: exportTableToEnterprise(context, data.associatedTable),
-    Объединенная: exportBooleanToEnterprise(context, data.united),
-    ОтображатьЗаголовок: exportBooleanToEnterprise(context, data.showTitle),
-    ОтображатьОтступСлева: exportBooleanToEnterprise(context, data.showLeftMargin),
-    Отображение: exportSystemEnumerationToEnterprise(
-      context,
-      data.representation,
-      SE.UsualGroupRepresentationToEnterprise
-    ),
-    ОтображениеУправления: exportSystemEnumerationToEnterprise(
-      context,
-      data.controlRepresentation,
-      SE.UsualGroupControlRepresentationToEnterprise
-    ),
-    Поведение: exportSystemEnumerationToEnterprise(context, data.behavior, SE.UsualGroupBehaviorToEnterprise),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    ПутьКДаннымЗаголовка: data.titleDataPath,
-    СквозноеВыравнивание: exportSystemEnumerationToEnterprise(context, data.throughAlign, SE.ThroughAlignToEnterprise),
-    Формат: exportI8nTextToEnterprise(context, data.format),
-    ЦветФона: exportColorToEnterprise(context, data.backColor),
-    ЦветФонаЗаголовкаСкрытогоОтображения: exportColorToEnterprise(context, data.hiddenRepresentationTitleBackColor),
-    ШиринаПодчиненныхЭлементов: exportSystemEnumerationToEnterprise(
-      context,
-      data.slaveItemsWidth,
-      SE.ChildFormItemsWidthToEnterprise
-    ),  }
+  const displayImportance = exportSystemEnumerationToEnterprise(
+    context,
+    data.displayImportance,
+    SE.DisplayImportanceToEnterprise
+  )
+  if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
+
+  const groupVerticalAlign = exportSystemEnumerationToEnterprise(
+    context,
+    data.groupVerticalAlign,
+    SE.ItemVerticalAlignToEnterprise
+  )
+  if (groupVerticalAlign !== undefined) result.ВертикальноеВыравниваниеГруппы = groupVerticalAlign
+
+  const verticalAlign = exportSystemEnumerationToEnterprise(
+    context,
+    data.verticalAlign,
+    SE.ItemVerticalAlignToEnterprise
+  )
+  if (verticalAlign !== undefined) result.ВертикальноеПоложение = verticalAlign
+
+  const childItemsVerticalAlign = exportSystemEnumerationToEnterprise(
+    context,
+    data.childItemsVerticalAlign,
+    SE.ItemVerticalAlignToEnterprise
+  )
+  if (childItemsVerticalAlign !== undefined) result.ВертикальноеПоложениеПодчиненных = childItemsVerticalAlign
+
+  const verticalSpacing = exportSystemEnumerationToEnterprise(
+    context,
+    data.verticalSpacing,
+    SE.FormItemSpacingToEnterprise
+  )
+  if (verticalSpacing !== undefined) result.ВертикальныйИнтервал = verticalSpacing
+
+  const itemsAndTitlesAlign = exportSystemEnumerationToEnterprise(
+    context,
+    data.itemsAndTitlesAlign,
+    SE.ItemsAndTitlesAlignVariantToEnterprise
+  )
+  if (itemsAndTitlesAlign !== undefined) result.ВыравниваниеЭлементовИЗаголовков = itemsAndTitlesAlign
+
+  const groupHorizontalAlign = exportSystemEnumerationToEnterprise(
+    context,
+    data.groupHorizontalAlign,
+    SE.ItemHorizontalLocationToEnterprise
+  )
+  if (groupHorizontalAlign !== undefined) result.ГоризонтальноеВыравниваниеГруппы = groupHorizontalAlign
+
+  const childItemsHorizontalAlign = exportSystemEnumerationToEnterprise(
+    context,
+    data.childItemsHorizontalAlign,
+    SE.ItemHorizontalLocationToEnterprise
+  )
+  if (childItemsHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеПодчиненных = childItemsHorizontalAlign
+
+  const horizontalSpacing = exportSystemEnumerationToEnterprise(
+    context,
+    data.horizontalSpacing,
+    SE.FormItemSpacingToEnterprise
+  )
+  if (horizontalSpacing !== undefined) result.ГоризонтальныйИнтервал = horizontalSpacing
+
+  const group = exportSystemEnumerationToEnterprise(context, data.group, SE.ChildFormItemsGroupToEnterprise)
+  if (group !== undefined) result.Группировка = group
+
+  if (data.collapsedRepresentationTitle !== undefined)
+    result.ЗаголовокСвернутогоОтображения = data.collapsedRepresentationTitle
+
+  const currentRowUse = exportSystemEnumerationToEnterprise(context, data.currentRowUse, SE.CurrentRowUseToEnterprise)
+  if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
+
+  const associatedTable = exportTableToEnterprise(context, data.associatedTable)
+  if (associatedTable !== undefined) result.ИспользуемаяТаблица = associatedTable
+
+  const united = exportBooleanToEnterprise(context, data.united)
+  if (united !== undefined) result.Объединенная = united
+
+  const showTitle = exportBooleanToEnterprise(context, data.showTitle)
+  if (showTitle !== undefined) result.ОтображатьЗаголовок = showTitle
+
+  const showLeftMargin = exportBooleanToEnterprise(context, data.showLeftMargin)
+  if (showLeftMargin !== undefined) result.ОтображатьОтступСлева = showLeftMargin
+
+  const representation = exportSystemEnumerationToEnterprise(
+    context,
+    data.representation,
+    SE.UsualGroupRepresentationToEnterprise
+  )
+  if (representation !== undefined) result.Отображение = representation
+
+  const controlRepresentation = exportSystemEnumerationToEnterprise(
+    context,
+    data.controlRepresentation,
+    SE.UsualGroupControlRepresentationToEnterprise
+  )
+  if (controlRepresentation !== undefined) result.ОтображениеУправления = controlRepresentation
+
+  const behavior = exportSystemEnumerationToEnterprise(context, data.behavior, SE.UsualGroupBehaviorToEnterprise)
+  if (behavior !== undefined) result.Поведение = behavior
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  if (data.titleDataPath !== undefined) result.ПутьКДаннымЗаголовка = data.titleDataPath
+
+  const throughAlign = exportSystemEnumerationToEnterprise(context, data.throughAlign, SE.ThroughAlignToEnterprise)
+  if (throughAlign !== undefined) result.СквозноеВыравнивание = throughAlign
+
+  const format = exportI8nTextToEnterprise(context, data.format)
+  if (format !== undefined) result.Формат = format
+
+  const backColor = exportColorToEnterprise(context, data.backColor)
+  if (backColor !== undefined) result.ЦветФона = backColor
+
+  const hiddenRepresentationTitleBackColor = exportColorToEnterprise(context, data.hiddenRepresentationTitleBackColor)
+  if (hiddenRepresentationTitleBackColor !== undefined)
+    result.ЦветФонаЗаголовкаСкрытогоОтображения = hiddenRepresentationTitleBackColor
+
+  const slaveItemsWidth = exportSystemEnumerationToEnterprise(
+    context,
+    data.slaveItemsWidth,
+    SE.ChildFormItemsWidthToEnterprise
+  )
+  if (slaveItemsWidth !== undefined) result.ШиринаПодчиненныхЭлементов = slaveItemsWidth
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "UsualGroup", exportUsualGroupToEnterprise)

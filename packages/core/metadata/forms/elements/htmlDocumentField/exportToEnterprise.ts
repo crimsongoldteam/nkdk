@@ -15,26 +15,50 @@ export const exportHTMLDocumentFieldToEnterprise = (
 ): HTMLDocumentFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormFieldToEnterprise(context, data)
+  const baseFields = exportFormFieldToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: HTMLDocumentFieldEnterprise = {
+    ...baseFields,
+  }
 
-    АвтоМаксимальнаяВысота: exportBooleanToEnterprise(context, data.autoMaxHeight),
-    АвтоМаксимальнаяШирина: exportBooleanToEnterprise(context, data.autoMaxWidth),
-    Вывод: exportSystemEnumerationToEnterprise(context, data.output, SE.UseOutputToEnterprise),
-    Высота: data.height,
-    ИнформацияПрограммыПросмотра: data.userAgentInformation,
-    МаксимальнаяВысота: data.maxHeight,
-    МаксимальнаяШирина: data.maxWidth,
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    РастягиватьПоВертикали: exportBooleanToEnterprise(context, data.verticalStretch),
-    РастягиватьПоГоризонтали: exportBooleanToEnterprise(context, data.horizontalStretch),
-    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
-    Ширина: data.width,
-    События: exportEventsToEnterprise(context, data.events),  }
+  const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
+  if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
+
+  const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
+  if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
+
+  const output = exportSystemEnumerationToEnterprise(context, data.output, SE.UseOutputToEnterprise)
+  if (output !== undefined) result.Вывод = output
+
+  if (data.height !== undefined) result.Высота = data.height
+
+  if (data.userAgentInformation !== undefined) result.ИнформацияПрограммыПросмотра = data.userAgentInformation
+
+  if (data.maxHeight !== undefined) result.МаксимальнаяВысота = data.maxHeight
+
+  if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
+
+  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
+
+  const borderColor = exportColorToEnterprise(context, data.borderColor)
+  if (borderColor !== undefined) result.ЦветРамки = borderColor
+
+  if (data.width !== undefined) result.Ширина = data.width
+
+  const events = exportEventsToEnterprise(context, data.events)
+  if (events !== undefined) result.События = events
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "HTMLDocumentField", exportHTMLDocumentFieldToEnterprise)

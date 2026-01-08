@@ -13,25 +13,36 @@ export const exportCommandBarToEnterprise = (
 ): CommandBarEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormGroupToEnterprise(context, data)
+  const baseFields = exportFormGroupToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: CommandBarEnterprise = {
+    ...baseFields,
+  }
 
-    Автозаполнение: exportBooleanToEnterprise(context, data.autofill),
-    ВажностьПриОтображении: exportSystemEnumerationToEnterprise(
-      context,
-      data.displayImportance,
-      SE.DisplayImportanceToEnterprise
-    ),
-    ГоризонтальноеПоложение: exportSystemEnumerationToEnterprise(
-      context,
-      data.horizontalAlign,
-      SE.ItemHorizontalLocationToEnterprise
-    ),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),  }
+  const autofill = exportBooleanToEnterprise(context, data.autofill)
+  if (autofill !== undefined) result.Автозаполнение = autofill
+
+  const displayImportance = exportSystemEnumerationToEnterprise<SE.DisplayImportanceEnterprise>(
+    context,
+    data.displayImportance,
+    SE.DisplayImportanceToEnterprise
+  )
+  if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
+
+  const horizontalAlign = exportSystemEnumerationToEnterprise<SE.ItemHorizontalLocationEnterprise>(
+    context,
+    data.horizontalAlign,
+    SE.ItemHorizontalLocationToEnterprise
+  )
+  if (horizontalAlign !== undefined) result.ГоризонтальноеПоложение = horizontalAlign
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "CommandBar", exportCommandBarToEnterprise)

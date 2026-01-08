@@ -17,30 +17,53 @@ export const exportPictureDecorationToEnterprise = (
 ): PictureDecorationEnterprise | undefined => {
   if (!data) return undefined
 
-  return {
-    const baseFields = exportFormDecorationToEnterprise(context, data)
+  const baseFields = exportFormDecorationToEnterprise(context, data)
   if (!baseFields) return undefined
 
-  return {
-    ...baseFields,,
+  const result: PictureDecorationEnterprise = {
+    ...baseFields,
+  }
 
-    Гиперссылка: exportBooleanToEnterprise(context, data.hyperlink),
-    Картинка: exportPictureToEnterprise(context, data.picture),
-    Масштаб: data.scale,
-    Масштабировать: exportBooleanToEnterprise(context, data.zoomable),
-    ...exportUserVisibleToEnterprise(context, data.userVisible),
-    РазмерКартинки: exportSystemEnumerationToEnterprise(context, data.pictureSize, SE.PictureSizeToEnterprise),
-    РазрешитьНачалоПеретаскивания: exportBooleanToEnterprise(context, data.enableStartDrag),
-    РазрешитьПеретаскивание: exportBooleanToEnterprise(context, data.enableDrag),
-    Рамка: exportBorderToEnterprise(context, data.border),
-    СпособПеретаскиванияФайлов: exportSystemEnumerationToEnterprise(
-      context,
-      data.fileDragMode,
-      SE.FileDragModeToEnterprise
-    ),
-    ТекстНевыбраннойКартинки: data.nonselectedPictureText,
-    ЦветРамки: exportColorToEnterprise(context, data.borderColor),
-    События: exportEventsToEnterprise(context, data.events),  }
+  const hyperlink = exportBooleanToEnterprise(context, data.hyperlink)
+  if (hyperlink !== undefined) result.Гиперссылка = hyperlink
+
+  const picture = exportPictureToEnterprise(context, data.picture)
+  if (picture !== undefined) result.Картинка = picture
+
+  if (data.scale !== undefined) result.Масштаб = data.scale
+
+  const zoomable = exportBooleanToEnterprise(context, data.zoomable)
+  if (zoomable !== undefined) result.Масштабировать = zoomable
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
+
+  const pictureSize = exportSystemEnumerationToEnterprise(context, data.pictureSize, SE.PictureSizeToEnterprise)
+  if (pictureSize !== undefined) result.РазмерКартинки = pictureSize
+
+  const enableStartDrag = exportBooleanToEnterprise(context, data.enableStartDrag)
+  if (enableStartDrag !== undefined) result.РазрешитьНачалоПеретаскивания = enableStartDrag
+
+  const enableDrag = exportBooleanToEnterprise(context, data.enableDrag)
+  if (enableDrag !== undefined) result.РазрешитьПеретаскивание = enableDrag
+
+  const border = exportBorderToEnterprise(context, data.border)
+  if (border !== undefined) result.Рамка = border
+
+  const fileDragMode = exportSystemEnumerationToEnterprise(context, data.fileDragMode, SE.FileDragModeToEnterprise)
+  if (fileDragMode !== undefined) result.СпособПеретаскиванияФайлов = fileDragMode
+
+  if (data.nonselectedPictureText !== undefined) result.ТекстНевыбраннойКартинки = data.nonselectedPictureText
+
+  const borderColor = exportColorToEnterprise(context, data.borderColor)
+  if (borderColor !== undefined) result.ЦветРамки = borderColor
+
+  const events = exportEventsToEnterprise(context, data.events)
+  if (events !== undefined) result.События = events
+
+  return result
 }
 
 registerMetadata("ExportToEnterprise", "PictureDecoration", exportPictureDecorationToEnterprise)
