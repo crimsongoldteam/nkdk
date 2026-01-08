@@ -18,6 +18,9 @@ const eventNameMapping: Record<string, string> = {
   tuning: "Регулирование",
   creating: "Создание",
   multipleValuesDelete: "УдалениеМножественныхЗначений",
+  beforeWrite: "ПередЗаписью",
+  beforePrint: "ПередПечатью",
+  afterWrite: "ПослеЗаписи",
 }
 
 export const exportEventsToEnterprise = (
