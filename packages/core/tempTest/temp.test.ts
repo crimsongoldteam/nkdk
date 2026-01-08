@@ -1,44 +1,45 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { describe, it, vi } from "vitest"
+import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/exportClientApplicationFormToStructure"
 import { exportClientApplicationFormToEnterprise } from "~/metadata/forms/clientApplicationForm/exportToEnterprise"
 import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/importFromXML"
 import { ClientApplicationFormXML } from "~/metadata/forms/clientApplicationForm/types"
+import "~/metadata/forms/elements/exportToStructure"
 import "~/metadata/forms/elements/importFromXML"
 import importContentFromXML from "~/xml/import/importer"
 import { exportToYAML } from "~/yaml/export"
-import { MetadataCatalogContext } from "../metadata/appliedObjects/metadataCatalog"
 import { mockСontext } from "../tests/mockContext"
 
 vi.mock("uuid", () => ({
   v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
 }))
 
-const mockMetadataCatalogContext = {
-  ...mockСontext,
-  context: {
-    forms: [
-      "ФормаЭлемента",
-      "ФормаГруппы",
-      "ФормаСписка",
-      "ФормаВыбора",
-      "ФормаВыбораГруппы",
-      "ФормаВыбораГруппИЭлементов",
-      "ФормаВыбораНекачественнойНоменклатуры",
-      "ИсторияЦенНоменклатуры",
-      "НастройкаВариантаПоиска",
-      "СовместныеПродажи",
-      "РазблокированиеРеквизитов",
-      "ФормаУстановкиИнтервала",
-      "ФормаУстановкиЗначенийОтбора",
-      "КонтрольУникальности",
-      "НастройкиПараметровКопированияДополнительныхДанных",
-      "СоглашенияСПоставщикамиПоХарактеристикам",
-    ],
-    templates: ["ПФ_MXL_КарточкаНоменклатуры", "ПФ_MXL_КарточкаНоменклатурыЛокализация", "ЗагрузкаИзФайла"],
-    parentName: "Номенклатура",
-  },
-} as MetadataCatalogContext
+// const mockMetadataCatalogContext = {
+//   ...mockСontext,
+//   context: {
+//     forms: [
+//       "ФормаЭлемента",
+//       "ФормаГруппы",
+//       "ФормаСписка",
+//       "ФормаВыбора",
+//       "ФормаВыбораГруппы",
+//       "ФормаВыбораГруппИЭлементов",
+//       "ФормаВыбораНекачественнойНоменклатуры",
+//       "ИсторияЦенНоменклатуры",
+//       "НастройкаВариантаПоиска",
+//       "СовместныеПродажи",
+//       "РазблокированиеРеквизитов",
+//       "ФормаУстановкиИнтервала",
+//       "ФормаУстановкиЗначенийОтбора",
+//       "КонтрольУникальности",
+//       "НастройкиПараметровКопированияДополнительныхДанных",
+//       "СоглашенияСПоставщикамиПоХарактеристикам",
+//     ],
+//     templates: ["ПФ_MXL_КарточкаНоменклатуры", "ПФ_MXL_КарточкаНоменклатурыЛокализация", "ЗагрузкаИзФайла"],
+//     parentName: "Номенклатура",
+//   },
+// } as MetadataCatalogContext
 
 // const originalContent = readFileSync(join(__dirname, "Form.xml"), "utf-8")
 // const metadataCatalogContent = readFileSync(join(__dirname, "Before/Контрагенты.xml"), "utf-8")
@@ -82,7 +83,10 @@ describe("DO test", () => {
 
     const yaml = exportToYAML(yamlObject)
 
+    const structuredObject = exportClientApplicationFormToStructure(mockСontext, form)
+
     writeFileSync(join(__dirname, "After/Form.yml"), yaml, "utf-8")
+    writeFileSync(join(__dirname, "After/Form.nkdk"), structuredObject.strings.join("\n"), "utf-8")
   })
 })
 
