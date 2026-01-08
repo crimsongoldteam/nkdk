@@ -1,5 +1,5 @@
+import { BaseElement } from "../elements/baseElement/types"
 import { ClientApplicationForm } from "./types"
-import { BaseElement } from "../baseElement/types"
 
 export const getAllElements = (form: ClientApplicationForm): BaseElement[] => {
   const elements: BaseElement[] = []

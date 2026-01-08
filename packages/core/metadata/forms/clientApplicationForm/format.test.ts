@@ -5,9 +5,9 @@ import "~/metadata/forms/elements/exportToXML"
 import "~/metadata/forms/elements/importFromXML"
 import "~/metadata/forms/elements/inputField/registration"
 import { mockСontext } from "~/tests/mockContext"
-import { FormElementType } from "../../../metadataFactory/types"
+import { FormElementType } from "../../metadataFactory/types"
+import { InputField } from "../elements/inputField/types"
 import { exportClientApplicationFormToEnterprise } from "./exportToEnterprise"
-import { InputField } from "../inputField/types"
 import { ClientApplicationForm } from "./types"
 
 describe("formatClientApplicationForm", () => {

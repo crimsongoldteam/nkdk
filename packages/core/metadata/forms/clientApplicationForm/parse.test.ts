@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
-import { FormElementType } from "../../../metadataFactory/types"
+import { FormElementType } from "../../metadataFactory/types"
 import { parseClientApplicationForm } from "./parse"
 import { ClientApplicationForm } from "./types"
 

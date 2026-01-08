@@ -1,5 +1,5 @@
 import type { ConfigurationContext } from "~/metadata/context/types"
-import { FormElementType } from "../../../metadataFactory/types"
+import { FormElementType } from "../../metadataFactory/types"
 import type { ClientApplicationForm } from "./types"
 
 export const parseClientApplicationForm = (_text: string, _context: ConfigurationContext): ClientApplicationForm => {

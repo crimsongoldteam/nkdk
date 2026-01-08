@@ -1,5 +1,5 @@
 import type { ConfigurationContext } from "../metadata/context/types"
-import type { ClientApplicationForm } from "../metadata/forms/elements/clientApplicationForm/types"
+import type { ClientApplicationForm } from "../metadata/forms/clientApplicationForm/types"
 import { FormElementType } from "../metadata/metadataFactory/types"
 import { detectTreeNodes } from "./detector/detectTree"
 import { parseElement } from "./elementsParser/parse"

@@ -2,11 +2,11 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { CommandSet, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { FormAttribute, FormAttributesXML } from "../../../commonObjects/formAttributes/types"
-import { FormElementType } from "../../../metadataFactory/types"
-import { EventsXML } from "../../events/types"
-import { ChildItems, ChildItemsXML } from "../childItems/types"
-import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../commandBar/types"
+import { FormAttribute, FormAttributesXML } from "../../commonObjects/formAttributes/types"
+import { FormElementType } from "../../metadataFactory/types"
+import { ChildItems, ChildItemsXML } from "../elements/childItems/types"
+import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../elements/commandBar/types"
+import { EventsXML } from "../events/types"
 
 export interface ClientApplicationFormEvents {
   collaborationSystemUsersAutoComplete?: string
