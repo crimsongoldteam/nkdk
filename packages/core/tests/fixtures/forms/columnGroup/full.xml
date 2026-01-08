@@ -1,6 +1,38 @@
 <ColumnGroup name="ГруппаКолонок" id="1">
+	<ChildItems/>
+	<EnableContentChange>true</EnableContentChange>
+	<Enabled>true</Enabled>
+	<Height>200</Height>
+	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalStretch>true</HorizontalStretch>
+	<ReadOnly>false</ReadOnly>
+	<Shortcut>Ctrl+S</Shortcut>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Группа колонок</v8:content>
+		</v8:item>
+	</Title>
+	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<TitleTextColor>web:Black</TitleTextColor>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>None</ToolTipRepresentation>
+	<Type>UsualGroup</Type>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<VerticalStretch>true</VerticalStretch>
+	<Visible>true</Visible>
+	<Width>300</Width>
 	<FixingInTable>None</FixingInTable>
-	<Group>Auto</Group>
+	<Group>Horizontal</Group>
 	<HeaderDataPath>Объект.Реквизит</HeaderDataPath>
 	<HeaderFormat>Формат</HeaderFormat>
 	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
@@ -11,8 +43,4 @@
 	<ShowInHeader>true</ShowInHeader>
 	<ShowTitle>true</ShowTitle>
 	<TitleBackColor>web:Blue</TitleBackColor>
-	<UserVisible>
-		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
-	</UserVisible>
 </ColumnGroup>
