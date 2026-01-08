@@ -13,10 +13,12 @@ export const fullGeographicalSchemaField: GeographicalSchemaField = {
   },
   autoMaxHeight: true,
   autoMaxWidth: true,
+  borderColor: { type: "WebColor", value: "Black" },
   height: 200,
   horizontalStretch: true,
   maxHeight: 500,
   maxWidth: 400,
+  output: "Enable",
   userVisible: {
     common: true,
     values: [{ name: "Администратор", value: true }],

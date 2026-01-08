@@ -13,7 +13,7 @@ describe("exportBaseElementToXML", () => {
       id: "16",
     }
 
-    const expectedResult = `<BaseElement id="16" name="ИмяПоля"/>`
+    const expectedResult = `<BaseElement name="ИмяПоля" id="16"/>`
 
     const result = { BaseElement: exportBaseElementToXML(mockСontext, mockElement) }
     const xmlString = xmlExport(result, false)

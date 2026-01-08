@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "~/metadata/forms/elements/button/importFromEnterprise"
 import {
   fullButtonGroup,
   fullButtonGroupEnterprise,
@@ -29,4 +30,3 @@ describe("importButtonGroupFromEnterprise", () => {
     expect(result).toEqual(minimalButtonGroup)
   })
 })
-
