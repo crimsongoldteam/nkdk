@@ -13,7 +13,6 @@ import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { exportTableToStructure } from "./exportToStructure"
 
 export const importTableFromXML = (context: ConfigurationContext, xml: TableXML | undefined): Table | undefined => {
   if (!xml) return undefined
@@ -213,4 +212,3 @@ export const importTableFromXML = (context: ConfigurationContext, xml: TableXML 
 }
 
 registerMetadata("ImportFromXML", "Table", importTableFromXML)
-registerMetadata("ExportToStructure", "Table", exportTableToStructure)

@@ -1,6 +1,6 @@
-import { formatElements } from "~/format/formatFactory"
 import { IFormatElementResult } from "~/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { exportChildItemsToStructure } from "../elements/childItems/exportToStructure"
 import { ClientApplicationForm } from "./types"
 
 export const exportClientApplicationFormToStructure = (
@@ -13,7 +13,7 @@ export const exportClientApplicationFormToStructure = (
     haveSimpleHorizontalGroup: false,
   }
 
-  const itemsResult = formatElements(childItems, context)
+  const itemsResult = exportChildItemsToStructure(context, childItems)
   result.strings.push(...itemsResult.strings)
   result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || itemsResult.haveSimpleHorizontalGroup
 

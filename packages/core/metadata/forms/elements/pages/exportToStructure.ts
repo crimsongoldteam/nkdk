@@ -1,14 +1,14 @@
-import { formatElements } from "~/format/formatFactory"
 import { formatElementName } from "~/format/helpers"
+import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { FormatElementFunction, IFormatElementResult } from "~/format/types"
 import { addSimpleIndent } from "~/format/wrap/addIndents"
 import { ConfigurationContext } from "~/metadata/context/types"
-import * as t from "~/parser/lexer"
-import { BaseElement } from "../baseElement/types"
-import { Pages } from "./types"
-import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
-import { FormElementType } from "../../../metadataFactory/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import * as t from "~/parser/lexer"
+import { FormElementType } from "../../../metadataFactory/types"
+import { BaseElement } from "../baseElement/types"
+import { exportChildItemsToStructure } from "../childItems/exportToStructure"
+import { Pages } from "./types"
 
 const SLASH = (t.Slash.LABEL as string).repeat(2)
 
@@ -26,7 +26,7 @@ export const exportPagesToStructure: FormatElementFunction = (
   const header = getHeader(pagesElement)
   result.strings.push(header)
 
-  const childResult = formatElements(childItems, context)
+  const childResult = exportChildItemsToStructure(context, childItems)
 
   const indentedStrings = addSimpleIndent(childResult.strings)
 

@@ -1,9 +1,9 @@
-import { formatElements } from "~/format/formatFactory"
 import { formatElementTitleAndName } from "~/format/helpers"
 import { IFormatElementResult } from "~/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { UsualGroupBehavior, UsualGroupRepresentation } from "~/metadata/systemEnumerations/types"
 import * as t from "~/parser/lexer"
+import { exportChildItemsToStructure } from "../../childItems/exportToStructure"
 import { UsualGroup } from "../types"
 
 export const formatVerticalGroup = (element: UsualGroup, context: ConfigurationContext): IFormatElementResult => {
@@ -18,7 +18,7 @@ export const formatVerticalGroup = (element: UsualGroup, context: ConfigurationC
   result.strings.push(header)
   // }
 
-  const lines = formatElements(childItems, context)
+  const lines = exportChildItemsToStructure(context, childItems)
 
   for (const line of lines.strings) {
     result.strings.push("  " + line)

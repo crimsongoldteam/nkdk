@@ -1,4 +1,3 @@
-import { formatElements } from "~/format/formatFactory"
 import { formatElementTitleAndName } from "~/format/helpers"
 import { FormatElementFunction, IFormatElementResult } from "~/format/types"
 import { addSimpleIndent } from "~/format/wrap/addIndents"
@@ -9,6 +8,7 @@ import { Page } from "./types"
 import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { FormElementType } from "../../../metadataFactory/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportChildItemsToStructure } from "../childItems/exportToStructure"
 
 export const exportPageToStructure: FormatElementFunction = (
   context: ConfigurationContext,
@@ -25,7 +25,7 @@ export const exportPageToStructure: FormatElementFunction = (
   const header = getHeader(pageElement)
   result.strings.push(header)
 
-  const childResult = formatElements(childItems, context)
+  const childResult = exportChildItemsToStructure(context, childItems)
   const indentedStrings = addSimpleIndent(childResult.strings)
   result.strings.push(...indentedStrings)
   result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || childResult.haveSimpleHorizontalGroup

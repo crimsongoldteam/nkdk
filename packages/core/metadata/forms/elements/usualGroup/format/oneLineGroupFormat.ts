@@ -1,8 +1,9 @@
-import { formatElement } from "~/format/formatFactory"
 import { formatElementName } from "~/format/helpers"
 import { IFormatElementResult } from "~/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { BaseElement } from "../../baseElement/types"
+import { exportOtherElementToStructure } from "../../baseElement/exportToStructure"
 import { UsualGroup } from "../types"
 
 export const formatOneLineGroup = (element: UsualGroup, context: ConfigurationContext): IFormatElementResult => {
@@ -23,7 +24,13 @@ export const formatOneLineGroup = (element: UsualGroup, context: ConfigurationCo
 
   if (element.childItems) {
     for (const item of element.childItems) {
-      const itemResult = formatElement(item as BaseElement, context)
+      const exportFunction = getOperationFunction("ExportToStructure", item.elementType)
+      let itemResult: IFormatElementResult
+      if (!exportFunction) {
+        itemResult = exportOtherElementToStructure(context, item as BaseElement)
+      } else {
+        itemResult = exportFunction(context, item) as IFormatElementResult
+      }
       groupItems.push(itemResult.strings)
     }
   }

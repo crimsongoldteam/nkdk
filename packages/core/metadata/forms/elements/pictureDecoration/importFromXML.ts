@@ -8,7 +8,6 @@ import { PictureDecoration, PictureDecorationXML } from "~/metadata/forms/elemen
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { exportPictureDecorationToStructure } from "./exportToStructure"
 
 export const importPictureDecorationFromXML = (
   context: ConfigurationContext,
@@ -61,4 +60,3 @@ export const importPictureDecorationFromXML = (
 }
 
 registerMetadata("ImportFromXML", "PictureDecoration", importPictureDecorationFromXML)
-registerMetadata("ExportToStructure", "PictureDecoration", exportPictureDecorationToStructure)

@@ -1,8 +1,8 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { describe, it, vi } from "vitest"
-import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/exportClientApplicationFormToStructure"
 import { exportClientApplicationFormToEnterprise } from "~/metadata/forms/clientApplicationForm/exportToEnterprise"
+import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/exportToStructure"
 import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/importFromXML"
 import { ClientApplicationFormXML } from "~/metadata/forms/clientApplicationForm/types"
 import "~/metadata/forms/elements/exportToStructure"
@@ -46,6 +46,22 @@ vi.mock("uuid", () => ({
 // const originalFormXml = readAndParseXMLFile<ClientApplicationFormXML>("forms/clientApplicationForm/full.xml")
 
 describe("DO test", () => {
+  it("should import-export form", () => {
+    const fullPath = join(__dirname, "Before/Form.xml")
+    const xml = readFileSync(fullPath, "utf-8")
+    const originalFormXml = importContentFromXML<{ Form: ClientApplicationFormXML }>(xml)
+
+    const form = importClientApplicationFormFromXML(mockСontext, originalFormXml.Form)
+
+    const yamlObject = exportClientApplicationFormToEnterprise(mockСontext, form)
+
+    const yaml = exportToYAML(yamlObject)
+
+    const structuredObject = exportClientApplicationFormToStructure(mockСontext, form)
+
+    writeFileSync(join(__dirname, "After/Form.yml"), yaml, "utf-8")
+    writeFileSync(join(__dirname, "After/Form.nkdk"), structuredObject.strings.join("\n"), "utf-8")
+  })
   // it("should import metadata catalog from XML", () => {
   //   const importedXml = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(metadataCatalogContent)
 
@@ -71,23 +87,6 @@ describe("DO test", () => {
 
   //   writeFileSync(join(__dirname, "After/Контрагенты.json"), JSON.stringify(catalogSchema, null, 2), "utf-8")
   // })
-
-  it("should import-export form", () => {
-    const fullPath = join(__dirname, "Before/Form.xml")
-    const xml = readFileSync(fullPath, "utf-8")
-    const originalFormXml = importContentFromXML<{ Form: ClientApplicationFormXML }>(xml)
-
-    const form = importClientApplicationFormFromXML(mockСontext, originalFormXml.Form)
-
-    const yamlObject = exportClientApplicationFormToEnterprise(mockСontext, form)
-
-    const yaml = exportToYAML(yamlObject)
-
-    const structuredObject = exportClientApplicationFormToStructure(mockСontext, form)
-
-    writeFileSync(join(__dirname, "After/Form.yml"), yaml, "utf-8")
-    writeFileSync(join(__dirname, "After/Form.nkdk"), structuredObject.strings.join("\n"), "utf-8")
-  })
 })
 
 // Правила определения элементов

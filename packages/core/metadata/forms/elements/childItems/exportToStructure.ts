@@ -1,0 +1,46 @@
+import { IFormatElementResult } from "~/format/types"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "~/metadata/metadataFactory/types"
+import { exportOtherElementToStructure } from "../baseElement/exportToStructure"
+import { BaseElement } from "../baseElement/types"
+import { ChildItems } from "./types"
+
+export const exportChildItemsToStructure = (context: ConfigurationContext, items: ChildItems): IFormatElementResult => {
+  let result: IFormatElementResult = {
+    strings: [],
+    haveSimpleHorizontalGroup: false,
+  }
+
+  const separatedItems: readonly (typeof FormElementType.Pages | typeof FormElementType.UsualGroup)[] = [
+    FormElementType.Pages,
+    FormElementType.UsualGroup,
+  ]
+
+  let prevItem: BaseElement | null = null
+  for (const item of items) {
+    if (
+      prevItem &&
+      (separatedItems.includes(item.elementType as typeof FormElementType.Pages | typeof FormElementType.UsualGroup) ||
+        separatedItems.includes(
+          prevItem.elementType as typeof FormElementType.Pages | typeof FormElementType.UsualGroup
+        ))
+    ) {
+      result.strings.push("")
+    }
+
+    prevItem = item
+
+    const exportFunction = getOperationFunction("ExportToStructure", item.elementType)
+    if (!exportFunction) {
+      const text = exportOtherElementToStructure(context, item)
+      result.strings.push(...text.strings)
+      result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
+    } else {
+      const text = exportFunction(context, item) as IFormatElementResult
+      result.strings.push(...text.strings)
+      result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
+    }
+  }
+  return result
+}
