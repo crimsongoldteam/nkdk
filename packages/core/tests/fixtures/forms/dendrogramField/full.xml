@@ -5,16 +5,20 @@
 			<v8:content>Поле дендрограммы</v8:content>
 		</v8:item>
 	</Title>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<Events>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="Selection">ПроцедураВыбора</Event>
+	</Events>
 	<AutoMaxHeight>true</AutoMaxHeight>
 	<AutoMaxWidth>true</AutoMaxWidth>
 	<Height>200</Height>
 	<HorizontalStretch>true</HorizontalStretch>
 	<MaxHeight>500</MaxHeight>
 	<MaxWidth>400</MaxWidth>
-	<UserVisible>
-		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
-	</UserVisible>
 	<VerticalStretch>true</VerticalStretch>
 	<Width>300</Width>
-	<Events>
+</DendrogramField>

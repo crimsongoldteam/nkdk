@@ -17,7 +17,6 @@ export const exportViewStatusAdditionToEnterprise = (
   if (!data) return undefined
 
   const baseFields = exportFormItemAdditionToEnterprise(context, data)
-  if (!baseFields) return undefined
 
   const result: ViewStatusAdditionEnterprise = {
     ...baseFields,

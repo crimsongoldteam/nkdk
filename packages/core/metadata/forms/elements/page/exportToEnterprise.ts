@@ -17,7 +17,6 @@ export const exportPageToEnterprise = (
   if (!data) return undefined
 
   const baseFields = exportFormGroupToEnterprise(context, data)
-  if (!baseFields) return undefined
 
   const result: PageEnterprise = {
     ...baseFields,

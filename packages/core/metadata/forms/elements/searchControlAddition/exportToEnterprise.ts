@@ -17,7 +17,6 @@ export const exportSearchControlAdditionToEnterprise = (
   if (!data) return undefined
 
   const baseFields = exportFormItemAdditionToEnterprise(context, data)
-  if (!baseFields) return undefined
 
   const result: SearchControlAdditionEnterprise = {
     ...baseFields,

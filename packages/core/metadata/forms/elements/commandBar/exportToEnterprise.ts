@@ -14,7 +14,6 @@ export const exportCommandBarToEnterprise = (
   if (!data) return undefined
 
   const baseFields = exportFormGroupToEnterprise(context, data)
-  if (!baseFields) return undefined
 
   const result: CommandBarEnterprise = {
     ...baseFields,

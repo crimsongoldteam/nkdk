@@ -1,8 +1,6 @@
-import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { DendrogramField, DendrogramFieldXML } from "~/metadata/forms/elements/dendrogramField/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
-import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportDendrogramFieldToXML = (
@@ -30,15 +28,9 @@ export const exportDendrogramFieldToXML = (
 
   if (data.maxWidth !== undefined) result.MaxWidth = data.maxWidth
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
 
   if (data.width !== undefined) result.Width = data.width
-
-  const events = exportEventsToXML(context, data.events)
-  if (events !== undefined) result.Events = events
 
   return result
 }

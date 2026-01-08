@@ -24,7 +24,6 @@ export const exportInputFieldToEnterprise = (
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
-  if (!baseFields) return undefined
 
   const result: InputFieldEnterprise = {
     ...baseFields,

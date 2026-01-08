@@ -1,5 +1,7 @@
 <ButtonGroup name="ГруппаКнопок" id="1">
-	<ChildItems/>
+	<ChildItems>
+		<Button name="Кнопка" id="2"/>
+	</ChildItems>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
 	<Height>200</Height>

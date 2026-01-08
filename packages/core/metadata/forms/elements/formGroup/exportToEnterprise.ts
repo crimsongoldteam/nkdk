@@ -19,7 +19,6 @@ export const exportFormGroupToEnterprise = (
   if (!data) return undefined
 
   const baseFields = exportBaseElementToEnterprise(context, data)
-  if (!baseFields) return undefined
 
   const result: FormGroupEnterprise = {
     ...baseFields,

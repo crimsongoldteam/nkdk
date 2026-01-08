@@ -13,7 +13,6 @@ export const exportPlannerFieldToEnterprise = (
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
-  if (!baseFields) return undefined
 
   const result: PlannerFieldEnterprise = {
     ...baseFields,

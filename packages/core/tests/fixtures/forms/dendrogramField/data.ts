@@ -50,4 +50,3 @@ export const minimalDendrogramField: DendrogramField = {
 }
 
 export const minimalDendrogramFieldEnterprise: DendrogramFieldEnterprise = {}
-

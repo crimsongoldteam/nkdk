@@ -5,7 +5,13 @@ export const fullButtonGroup: ButtonGroup = {
   elementType: FormElementType.ButtonGroup,
   name: "ГруппаКнопок",
   id: "1",
-  childItems: [],
+  childItems: [
+    {
+      elementType: FormElementType.Button,
+      name: "Кнопка",
+      id: "2",
+    },
+  ],
   enableContentChange: true,
   enabled: true,
   extendedTooltip: undefined,

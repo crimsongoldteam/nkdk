@@ -3,8 +3,37 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { DendrogramField, DendrogramFieldEnterprise } from "~/metadata/forms/elements/dendrogramField/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
-import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+
+const exportDendrogramFieldEventsToEnterprise = (
+  data:
+    | {
+        onChange?: string
+        selection?: string
+        detailProcessing?: string
+      }
+    | undefined
+):
+  | {
+      ПриИзменении?: string
+      Выбор?: string
+      ОбработкаРасшифровки?: string
+    }
+  | undefined => {
+  if (!data) return undefined
+
+  const result: {
+    ПриИзменении?: string
+    Выбор?: string
+    ОбработкаРасшифровки?: string
+  } = {}
+
+  if (data.onChange !== undefined) result.ПриИзменении = data.onChange
+  if (data.selection !== undefined) result.Выбор = data.selection
+  if (data.detailProcessing !== undefined) result.ОбработкаРасшифровки = data.detailProcessing
+
+  return Object.keys(result).length > 0 ? result : undefined
+}
 
 export const exportDendrogramFieldToEnterprise = (
   context: ConfigurationContext,
@@ -13,7 +42,6 @@ export const exportDendrogramFieldToEnterprise = (
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
-  if (!baseFields) return undefined
 
   const result: DendrogramFieldEnterprise = {
     ...baseFields,
@@ -44,7 +72,7 @@ export const exportDendrogramFieldToEnterprise = (
 
   if (data.width !== undefined) result.Ширина = data.width
 
-  const events = exportEventsToEnterprise(context, data.events)
+  const events = exportDendrogramFieldEventsToEnterprise(data.events)
   if (events !== undefined) result.События = events
 
   return result

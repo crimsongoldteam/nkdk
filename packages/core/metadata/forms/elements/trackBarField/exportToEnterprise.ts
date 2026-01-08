@@ -15,7 +15,6 @@ export const exportTrackBarFieldToEnterprise = (
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
-  if (!baseFields) return undefined
 
   const result: TrackBarFieldEnterprise = {
     ...baseFields,

@@ -34,7 +34,6 @@ export const exportLabelDecorationToEnterprise = (
   if (!data) return undefined
 
   const baseFields = exportFormDecorationToEnterprise(context, data)
-  if (!baseFields) return undefined
 
   const result: LabelDecorationEnterprise = {
     ...baseFields,

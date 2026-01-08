@@ -18,7 +18,6 @@ export const exportPictureDecorationToEnterprise = (
   if (!data) return undefined
 
   const baseFields = exportFormDecorationToEnterprise(context, data)
-  if (!baseFields) return undefined
 
   const result: PictureDecorationEnterprise = {
     ...baseFields,

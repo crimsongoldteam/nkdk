@@ -15,7 +15,6 @@ export const exportGanttChartFieldToEnterprise = (
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
-  if (!baseFields) return undefined
 
   const result: GanttChartFieldEnterprise = {
     ...baseFields,
