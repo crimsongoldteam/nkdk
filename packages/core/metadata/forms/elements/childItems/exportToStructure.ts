@@ -12,18 +12,27 @@ export const exportChildItemsToStructure = (context: ConfigurationContext, items
     haveSimpleHorizontalGroup: false,
   }
 
-  const separatedItems: readonly (typeof FormElementType.Pages | typeof FormElementType.UsualGroup)[] = [
-    FormElementType.Pages,
-    FormElementType.UsualGroup,
-  ]
+  const separatedItems: readonly (
+    | typeof FormElementType.Pages
+    | typeof FormElementType.UsualGroup
+    | typeof FormElementType.Table
+  )[] = [FormElementType.Pages, FormElementType.UsualGroup, FormElementType.Table]
 
   let prevItem: BaseElement | null = null
   for (const item of items) {
     if (
       prevItem &&
-      (separatedItems.includes(item.elementType as typeof FormElementType.Pages | typeof FormElementType.UsualGroup) ||
+      (separatedItems.includes(
+        item.elementType as
+          | typeof FormElementType.Pages
+          | typeof FormElementType.UsualGroup
+          | typeof FormElementType.Table
+      ) ||
         separatedItems.includes(
-          prevItem.elementType as typeof FormElementType.Pages | typeof FormElementType.UsualGroup
+          prevItem.elementType as
+            | typeof FormElementType.Pages
+            | typeof FormElementType.UsualGroup
+            | typeof FormElementType.Table
         ))
     ) {
       result.strings.push("")
