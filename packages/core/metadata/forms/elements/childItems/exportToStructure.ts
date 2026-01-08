@@ -32,15 +32,13 @@ export const exportChildItemsToStructure = (context: ConfigurationContext, items
     prevItem = item
 
     const exportFunction = getOperationFunction("ExportToStructure", item.elementType)
-    if (!exportFunction) {
-      const text = exportOtherElementToStructure(context, item)
-      result.strings.push(...text.strings)
-      result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
-    } else {
-      const text = exportFunction(context, item) as IFormatElementResult
-      result.strings.push(...text.strings)
-      result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
-    }
+
+    const text = exportFunction
+      ? (exportFunction(context, item) as IFormatElementResult)
+      : exportOtherElementToStructure(context, item)
+
+    result.strings.push(...text.strings)
+    result.haveSimpleHorizontalGroup = result.haveSimpleHorizontalGroup || text.haveSimpleHorizontalGroup
   }
   return result
 }

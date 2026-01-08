@@ -1,4 +1,4 @@
-import { registerFormat } from "~/format/formatFactory"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { formatElementName } from "~/format/helpers"
 import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { IFormatElementResult } from "~/format/types"
@@ -27,8 +27,5 @@ export const exportLabelDecorationToStructure = (
   return result
 }
 
-registerFormat<LabelDecoration>(
-  exportLabelDecorationToStructure,
-  (element: LabelDecoration) => element.elementType === FormElementType.LabelDecoration
-)
+registerMetadata("ExportToStructure", "LabelDecoration", exportLabelDecorationToStructure)
 registerIsOneLineElementCheck<LabelDecoration>(FormElementType.LabelDecoration, () => true)

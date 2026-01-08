@@ -1,4 +1,4 @@
-import { registerFormat } from "~/format/formatFactory"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { IFormatElementResult } from "~/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
@@ -41,9 +41,6 @@ export const exportCommandBarToStructure = (
   }
 }
 
-registerFormat<CommandBar>(
-  exportCommandBarToStructure,
-  (element: CommandBar) => element.elementType === FormElementType.CommandBar
-)
+registerMetadata("ExportToStructure", "CommandBar", exportCommandBarToStructure)
 registerIsOneLineElementCheck<CommandBar>(FormElementType.CommandBar, () => true)
 

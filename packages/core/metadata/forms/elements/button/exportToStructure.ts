@@ -1,4 +1,4 @@
-import { registerFormat } from "~/format/formatFactory"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { formatElementName } from "~/format/helpers"
 import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { IFormatElementResult } from "~/format/types"
@@ -24,5 +24,5 @@ export const exportButtonToStructure = (_context: ConfigurationContext, element:
   return result
 }
 
-registerFormat<Button>(exportButtonToStructure, (element: Button) => element.elementType === FormElementType.Button)
+registerMetadata("ExportToStructure", "Button", exportButtonToStructure)
 registerIsOneLineElementCheck<Button>(FormElementType.Button, () => true)

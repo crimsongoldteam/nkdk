@@ -1,4 +1,4 @@
-import { registerFormat } from "~/format/formatFactory"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { formatElementName } from "~/format/helpers"
 import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { IFormatElementResult } from "~/format/types"
@@ -43,8 +43,5 @@ export const exportCheckBoxFieldToStructure = (
   return result
 }
 
-registerFormat<CheckBoxField>(
-  exportCheckBoxFieldToStructure,
-  (element: CheckBoxField) => element.elementType === FormElementType.CheckBoxField
-)
+registerMetadata("ExportToStructure", "CheckBoxField", exportCheckBoxFieldToStructure)
 registerIsOneLineElementCheck<CheckBoxField>(FormElementType.CheckBoxField, () => true)

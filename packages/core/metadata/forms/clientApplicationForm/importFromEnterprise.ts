@@ -145,8 +145,6 @@ export const importClientApplicationFormFromEnterprise = (
   const closeOnOwnerClose = importBooleanFromEnterprise(context, data.ЗакрыватьПриЗакрытииВладельца)
   if (closeOnOwnerClose !== undefined) result.closeOnOwnerClose = closeOnOwnerClose
 
-  if (data.ИмяФормы !== undefined) result.formName = data.ИмяФормы
-
   const usedFormServer = importSystemEnumerationFromEnterprise<SE.UsedServer>(
     context,
     data.ИспользуемыйСерверФормы,
