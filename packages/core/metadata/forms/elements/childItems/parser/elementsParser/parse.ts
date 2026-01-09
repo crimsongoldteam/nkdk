@@ -7,7 +7,7 @@ import { ParseElementType } from "../types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
 
-export const parseElement = (element: DetectedTreeNode, context: ConfigurationContext): BaseElement => {
+export const parseElement = (context: ConfigurationContext, element: DetectedTreeNode): BaseElement => {
   const ast = parseByElementType(element)
 
   const cst = visitor.visit(ast, context)
@@ -29,7 +29,7 @@ const addChildItemsToResult = (cst: BaseElement, element: DetectedTreeNode, cont
     return
   }
 
-  cst.childItems = element.childItems?.map((child) => parseElement(child, context)) || []
+  cst.childItems = element.childItems?.map((child) => parseElement(context, child)) || []
 }
 
 const parseByElementType = (element: DetectedTreeNode): CstNode => {

@@ -390,7 +390,7 @@ export class Parser extends CstParser {
   })
 
   private readonly horizontalGroup = this.RULE("horizontalGroup", () => {
-    this.CONSUME(t.Equals)
+    this.CONSUME(t.Percent)
     this.MANY(() => {
       this.CONSUME(t.GroupHeaderText)
     })

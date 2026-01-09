@@ -3,13 +3,18 @@ import { join } from "path"
 import { describe, it, vi } from "vitest"
 import { exportClientApplicationFormToEnterprise } from "~/metadata/forms/clientApplicationForm/exportToEnterprise"
 import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/exportToStructure"
+import { exportClientApplicationFormToXML } from "~/metadata/forms/clientApplicationForm/exportToXML"
+import { importClientApplicationFormFromEnterprise } from "~/metadata/forms/clientApplicationForm/importFromEnterprise"
 import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/importFromXML"
-import { ClientApplicationFormXML } from "~/metadata/forms/clientApplicationForm/types"
+import { ClientApplicationFormEnterprise, ClientApplicationFormXML } from "~/metadata/forms/clientApplicationForm/types"
+import { importChildItemsFromStructure } from "~/metadata/forms/elements/childItems/importFromStructure"
 import "~/metadata/forms/elements/exportToEnterprise"
 import "~/metadata/forms/elements/exportToStructure"
 import "~/metadata/forms/elements/importFromXML"
+import { xmlExport } from "~/xml/export/exporter"
 import importContentFromXML from "~/xml/import/importer"
 import { exportToYAML } from "~/yaml/export"
+import { importFromYAML } from "~/yaml/import"
 import { mockСontext } from "../tests/mockContext"
 
 vi.mock("uuid", () => ({
@@ -60,8 +65,21 @@ describe("DO test", () => {
 
     const structuredObject = exportClientApplicationFormToStructure(mockСontext, form)
 
+    const strings = structuredObject.strings.join("\n")
+
     writeFileSync(join(__dirname, "After/Form.yml"), yaml, "utf-8")
-    writeFileSync(join(__dirname, "After/Form.nkdk"), structuredObject.strings.join("\n"), "utf-8")
+    writeFileSync(join(__dirname, "After/Form.nkdk"), strings, "utf-8")
+
+    const childItems = importChildItemsFromStructure(mockСontext, strings)
+
+    const importedYaml = importFromYAML<ClientApplicationFormEnterprise>(yaml)
+
+    const newForm = importClientApplicationFormFromEnterprise(mockСontext, importedYaml, childItems, "Форма")
+
+    const newXMLData = exportClientApplicationFormToXML(mockСontext, newForm)
+    const newXML = xmlExport({ Form: newXMLData })
+
+    writeFileSync(join(__dirname, "Before/Form.xml"), newXML, "utf-8")
   })
   // it("should import metadata catalog from XML", () => {
   //   const importedXml = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(metadataCatalogContent)

@@ -1,9 +1,6 @@
 import { IFormatterParams } from "../types"
 
-export const addIndents = (
-  lines: string[],
-  params: IFormatterParams
-): string[] => {
+export const addIndents = (lines: string[], params: IFormatterParams): string[] => {
   if (lines.length === 0) {
     return []
   }

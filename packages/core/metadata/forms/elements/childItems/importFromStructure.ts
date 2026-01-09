@@ -8,5 +8,5 @@ export const importChildItemsFromStructure = (context: ConfigurationContext, tex
   const treeNodes = parseTree(text)
   const detectedNodes = detectTreeNodes(treeNodes)
 
-  return detectedNodes.map((node) => parseElement(node, context))
+  return detectedNodes.map((node) => parseElement(context, node))
 }
