@@ -2,7 +2,6 @@ import { importFormAttributesFromXML } from "~/metadata/commonObjects/formAttrib
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"
-import { FormElementType } from "../../metadataFactory/types"
 import { importChildItemsFromXML } from "../elements/childItems/importFromXML"
 import { importCommandBarFromXML } from "../elements/commandBar/importFromXML"
 import { importEventsFromXML } from "../events/importFromXML"
@@ -12,9 +11,7 @@ export const importClientApplicationFormFromXML = (
   context: ConfigurationContext,
   xml: ClientApplicationFormXML
 ): ClientApplicationForm => {
-  const result: ClientApplicationForm = {
-    elementType: FormElementType.ClientApplicationForm,
-  }
+  const result: ClientApplicationForm = {}
 
   const attributes = importFormAttributesFromXML(context, xml.Attributes?.Attribute)
   if (attributes !== undefined) {

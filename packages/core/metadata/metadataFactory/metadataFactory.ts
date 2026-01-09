@@ -1,13 +1,18 @@
 import { ConfigurationContext } from "../context/types"
 import { MetadataType } from "./types"
 
-export type ItemOperationType = "ExportToXML" | "ExportToEnterprise" | "ImportFromXML" | "ImportFromEnterprise" | "ExportToStructure"
+export type ItemOperationType =
+  | "ExportToXML"
+  | "ExportToEnterprise"
+  | "ImportFromXML"
+  | "ImportFromEnterprise"
+  | "ExportToStructure"
 
 type OperationFunction<T = any> = (context: ConfigurationContext, data: T) => any
 type OperationImportFromEnterpriseFunction<T = any> = (
   context: ConfigurationContext,
-  data: T | undefined,
-  name: string
+  data: T | undefined
+  // name: string
 ) => any
 
 type OperationRegistry = Map<MetadataType, OperationFunction | OperationImportFromEnterpriseFunction>

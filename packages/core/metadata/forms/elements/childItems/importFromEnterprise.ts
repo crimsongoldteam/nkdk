@@ -21,4 +21,3 @@ export const importChildItemsFromEnterprise = (
 
   return result.length > 0 ? result : undefined
 }
-

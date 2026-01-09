@@ -11,6 +11,7 @@ import { importChildItemsFromStructure } from "~/metadata/forms/elements/childIt
 import "~/metadata/forms/elements/exportToEnterprise"
 import "~/metadata/forms/elements/exportToStructure"
 import "~/metadata/forms/elements/exportToXML"
+import "~/metadata/forms/elements/importFromEnterprise"
 import "~/metadata/forms/elements/importFromXML"
 import { xmlExport } from "~/xml/export/exporter"
 import importContentFromXML from "~/xml/import/importer"

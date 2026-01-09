@@ -5,7 +5,7 @@ import { BaseElement, BaseElementEnterprise } from "./types"
 export const importBaseElementFromEnterprise = (
   _context: ConfigurationContext,
   _data: BaseElementEnterprise | undefined,
-  name?: string
+  name: string
 ): BaseElement | undefined => {
   if (!name) return undefined
 

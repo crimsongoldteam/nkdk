@@ -20,11 +20,11 @@ import * as SE from "~/metadata/systemEnumerations/types"
 export const importFormFieldFromEnterprise = (
   context: ConfigurationContext,
   data: FormFieldEnterprise | undefined,
-  name: string
+  name?: string
 ): FormField | undefined => {
   if (!data) return undefined
 
-  const baseElement = importBaseElementFromEnterprise(context, {}, name)
+  const baseElement = importBaseElementFromEnterprise(context, {}, name || "")
   if (!baseElement) return undefined
 
   const result: FormField = {
@@ -114,7 +114,7 @@ export const importFormFieldFromEnterprise = (
   const headerPicture = importPictureFromEnterprise(context, data.КартинкаШапки)
   if (headerPicture !== undefined) result.headerPicture = headerPicture
 
-  const contextMenu = importCommandBarFromEnterprise(context, data.КонтекстноеМеню)
+  const contextMenu = importCommandBarFromEnterprise(context, data.КонтекстноеМеню, (name || "") + ".КонтекстноеМеню")
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   const typeRestriction = importTypeDescriptionFromEnterprise(context, data.ОграничениеТипа)
@@ -171,7 +171,7 @@ export const importFormFieldFromEnterprise = (
 
   if (data.ПутьКДаннымПодвала !== undefined) result.footerDataPath = data.ПутьКДаннымПодвала
 
-  const extendedTooltip = importFormDecorationFromEnterprise(context, data.РасширеннаяПодсказка)
+  const extendedTooltip = importFormDecorationFromEnterprise(context, data.РасширеннаяПодсказка, "РасширеннаяПодсказка")
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   const editMode = importSystemEnumerationFromEnterprise<SE.ColumnEditMode>(
@@ -183,7 +183,7 @@ export const importFormFieldFromEnterprise = (
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const table = importTableFromEnterprise(context, data.Таблица)
+  const table = importTableFromEnterprise(context, data.Таблица, (name || "") + ".Таблица")
   if (table !== undefined) result.table = table
 
   const footerText = importI8nTextFromEnterprise(context, data.ТекстПодвала)

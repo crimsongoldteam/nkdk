@@ -5,7 +5,6 @@ import "~/metadata/forms/elements/exportToXML"
 import "~/metadata/forms/elements/importFromXML"
 import "~/metadata/forms/elements/inputField/registration"
 import { mockСontext } from "~/tests/mockContext"
-import { FormElementType } from "../../metadataFactory/types"
 import { InputField } from "../elements/inputField/types"
 import { exportClientApplicationFormToEnterprise } from "./exportToEnterprise"
 import { ClientApplicationForm } from "./types"
@@ -13,7 +12,6 @@ import { ClientApplicationForm } from "./types"
 describe(" formatClientApplicationForm", () => {
   it("should format form header", () => {
     const form: ClientApplicationForm = {
-      elementType: FormElementType.Form,
       title: { items: { ru: "Форма" } },
       childItems: [],
     }
@@ -27,12 +25,10 @@ describe(" formatClientApplicationForm", () => {
     const input: InputField = {
       name: "ИмяПоля",
       id: "1",
-      elementType: FormElementType.InputField,
       title: { items: { ru: "Поле" } },
     }
 
     const form: ClientApplicationForm = {
-      elementType: FormElementType.Form,
       childItems: [input],
     }
 
@@ -48,7 +44,6 @@ describe(" formatClientApplicationForm", () => {
   Тип: Строка(10)`
 
     const form: ClientApplicationForm = {
-      elementType: FormElementType.Form,
       childItems: [],
       attributes: [
         {

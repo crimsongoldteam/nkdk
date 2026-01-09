@@ -405,7 +405,7 @@ export const importTableFromEnterprise = (
   const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const extendedTooltip = importFormDecorationFromEnterprise(context, data.РасширеннаяПодсказка)
+  const extendedTooltip = importFormDecorationFromEnterprise(context, data.РасширеннаяПодсказка, name + ".РасширеннаяПодсказка")
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   const rowInputMode = importSystemEnumerationFromEnterprise<SE.TableRowInputMode>(

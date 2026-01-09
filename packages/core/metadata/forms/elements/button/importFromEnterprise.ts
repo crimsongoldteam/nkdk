@@ -7,11 +7,11 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { Button, ButtonEnterprise } from "~/metadata/forms/elements/button/types"
-import { importFormDecorationFromEnterprise } from "~/metadata/forms/elements/formDecoration/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
 export const importButtonFromEnterprise = (
   context: ConfigurationContext,
@@ -63,7 +63,7 @@ export const importButtonFromEnterprise = (
   const enabled = importBooleanFromEnterprise(context, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const extendedTooltip = importFormDecorationFromEnterprise(context, data.РасширеннаяПодсказка)
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   const font = importFontFromEnterprise(context, data.Шрифт)

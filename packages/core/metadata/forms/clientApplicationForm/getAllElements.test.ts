@@ -6,7 +6,6 @@ import { ClientApplicationForm } from "./types"
 describe("getAllElements", () => {
   it("should return all elements", () => {
     const form: ClientApplicationForm = {
-      elementType: FormElementType.ClientApplicationForm,
       childItems: [
         {
           name: "Группа",

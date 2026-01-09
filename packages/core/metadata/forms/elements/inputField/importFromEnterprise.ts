@@ -21,7 +21,7 @@ import { importFormFieldFromEnterprise } from "../formField/importFromEnterprise
 export const importInputFieldFromEnterprise = (
   context: ConfigurationContext,
   data: InputFieldEnterprise | undefined,
-  name: string
+  name?: string
 ): InputField | undefined => {
   if (!data) return undefined
 
