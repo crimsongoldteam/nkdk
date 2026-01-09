@@ -14,6 +14,7 @@ import { InputField, InputFieldXML } from "~/metadata/forms/elements/inputField/
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 
 export const importInputFieldFromXML = (
   context: ConfigurationContext,
@@ -109,6 +110,9 @@ export const importInputFieldFromXML = (
   if (xml.EditTextUpdate !== undefined) result.editTextUpdate = xml.EditTextUpdate
 
   if (xml.ExtendedEdit !== undefined) result.extendedEdit = xml.ExtendedEdit
+
+  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip, result)
+  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   const font = importFontFromXML(context, xml.Font)
   if (font !== undefined) result.font = font

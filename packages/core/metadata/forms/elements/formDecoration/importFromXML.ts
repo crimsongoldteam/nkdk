@@ -35,9 +35,6 @@ export const importFormDecorationFromXML = (
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  const extendedTooltip = importFormDecorationFromXML(context, xml.ExtendedTooltip)
-  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
-
   const font = importFontFromXML(context, xml.Font)
   if (font !== undefined) result.font = font
 

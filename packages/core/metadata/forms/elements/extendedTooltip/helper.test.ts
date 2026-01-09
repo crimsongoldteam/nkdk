@@ -46,7 +46,7 @@ describe("isDefaultExtendedTooltipName", () => {
 
     const result = isDefaultExtendedTooltipName(parentElement, extendedTooltip)
 
-    expect(result).toBe(true)
+    expect(result).toBeTruthy()
   })
 
   it("should return true for default name with different case", () => {
@@ -64,7 +64,7 @@ describe("isDefaultExtendedTooltipName", () => {
 
     const result = isDefaultExtendedTooltipName(parentElement, extendedTooltip)
 
-    expect(result).toBe(true)
+    expect(result).toBeTruthy()
   })
 
   it("should return false for non-default extended tooltip name", () => {
@@ -82,7 +82,7 @@ describe("isDefaultExtendedTooltipName", () => {
 
     const result = isDefaultExtendedTooltipName(parentElement, extendedTooltip)
 
-    expect(result).toBe(false)
+    expect(result).toBeFalsy()
   })
 
   it("should return false when name does not match pattern", () => {
@@ -100,6 +100,6 @@ describe("isDefaultExtendedTooltipName", () => {
 
     const result = isDefaultExtendedTooltipName(parentElement, extendedTooltip)
 
-    expect(result).toBe(false)
+    expect(result).toBeFalsy()
   })
 })

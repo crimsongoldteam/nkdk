@@ -6,6 +6,7 @@ import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/c
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormDecoration extends BaseElement {
   autoMaxHeight?: boolean
@@ -13,7 +14,7 @@ export interface FormDecoration extends BaseElement {
   contextMenu?: CommandBar
   displayImportance?: SE.DisplayImportance
   enabled?: boolean
-  extendedTooltip?: FormDecoration
+  extendedTooltip?: ExtendedTooltip
   font?: Font
   height?: number
   horizontalAlignInGroup?: SE.ItemHorizontalLocation
@@ -40,7 +41,7 @@ export interface FormDecorationXML extends BaseElementXML {
   ContextMenu?: CommandBarXML
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
-  ExtendedTooltip?: FormDecorationXML
+  ExtendedTooltip?: ExtendedTooltipXML
   Font?: FontXML
   Height?: number
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
@@ -82,7 +83,7 @@ export interface FormDecorationEnterprise extends BaseElementEnterprise {
   ПропускатьПриВводе?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: FormDecorationEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   СочетаниеКлавиш?: string
   ЦветТекста?: ColorEnterprise
   Ширина?: number

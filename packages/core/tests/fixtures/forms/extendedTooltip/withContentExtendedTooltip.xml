@@ -1,0 +1,8 @@
+<ExtendedTooltip name="КакойТоЭлементРасширеннаяПодсказка" id="1">
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>С заголовком</v8:content>
+		</v8:item>
+	</Title>
+</ExtendedTooltip>

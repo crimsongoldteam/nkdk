@@ -7,7 +7,7 @@ import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/i
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importCommandBarFromXML } from "~/metadata/forms/elements/commandBar/importFromXML"
-import { importFormDecorationFromXML } from "~/metadata/forms/elements/formDecoration/importFromXML"
+import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { FormField, FormFieldXML } from "~/metadata/forms/elements/formField/types"
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
@@ -46,7 +46,7 @@ export const importFormFieldFromXML = (
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  const extendedTooltip = importFormDecorationFromXML(context, xml.ExtendedTooltip)
+  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip, result)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml.FixingInTable !== undefined) result.fixingInTable = xml.FixingInTable

@@ -7,7 +7,7 @@ import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromX
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importChildItemsFromXML } from "~/metadata/forms/elements/childItems/importFromXML"
 import { importCommandBarFromXML } from "~/metadata/forms/elements/commandBar/importFromXML"
-import { importFormDecorationFromXML } from "~/metadata/forms/elements/formDecoration/importFromXML"
+import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { importFormItemAdditionFromXML } from "~/metadata/forms/elements/formItemAddition/importFromXML"
 import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
@@ -84,7 +84,7 @@ export const importTableFromXML = (context: ConfigurationContext, xml: TableXML 
 
   if (xml.EnableStartDrag !== undefined) result.enableStartDrag = xml.EnableStartDrag
 
-  const extendedTooltip = importFormDecorationFromXML(context, xml.ExtendedTooltip)
+  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip, result)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml.FileDragMode !== undefined) result.fileDragMode = xml.FileDragMode
