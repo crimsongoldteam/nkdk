@@ -29,10 +29,10 @@ const getTypesXML = (
   "v8:Type"?: TypeDescriptionXMLType[] | TypeDescriptionXMLType
   "v8:TypeSet"?: TypeDescriptionXMLType[] | TypeDescriptionXMLType
 } => {
-  const types = typeDescription.type
+  const types = Array.isArray(typeDescription.type) ? typeDescription.type : [typeDescription.type]
 
-  const typesXML: TypeDescriptionXMLType[] | TypeDescriptionXMLType = []
-  const typeSetXML: TypeDescriptionXMLType[] | TypeDescriptionXMLType = []
+  const typesXML: TypeDescriptionXMLType[] = []
+  const typeSetXML: TypeDescriptionXMLType[] = []
 
   for (const type of types) {
     const dotIndex = type.indexOf(".")
@@ -58,8 +58,8 @@ const getTypesXML = (
   }
 
   return {
-    ...(typesXML.length > 0 ? { "v8:Type": typesXML } : undefined),
-    ...(typeSetXML.length > 0 ? { "v8:TypeSet": typeSetXML } : undefined),
+    ...(typesXML.length > 0 ? { "v8:Type": typesXML.length === 1 ? typesXML[0] : typesXML } : undefined),
+    ...(typeSetXML.length > 0 ? { "v8:TypeSet": typeSetXML.length === 1 ? typeSetXML[0] : typeSetXML } : undefined),
   }
 }
 

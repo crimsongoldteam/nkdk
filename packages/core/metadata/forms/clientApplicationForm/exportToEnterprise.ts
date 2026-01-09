@@ -1,4 +1,5 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
+import { exportFormAttributesToEnterprise } from "~/metadata/commonObjects/formAttributes/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
@@ -232,6 +233,9 @@ export const exportClientApplicationFormToEnterprise = (
     SE.ChildFormItemsWidthToEnterprise
   )
   if (slaveItemsWidth !== undefined) result.ШиринаПодчиненныхЭлементов = slaveItemsWidth
+
+  const attributes = exportFormAttributesToEnterprise(context, data.attributes)
+  if (attributes !== undefined) result.Атрибуты = attributes
 
   const events = exportClientApplicationFormEventsToEnterprise(context, data.events)
   if (events !== undefined) result.События = events

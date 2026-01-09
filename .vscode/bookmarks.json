@@ -1,0 +1,54 @@
+{
+	"files": [
+		{
+			"path": "packages/core/tempTest/temp.test.ts",
+			"bookmarks": [
+				{
+					"line": 48,
+					"column": 0,
+					"label": "Test"
+				}
+			]
+		},
+		{
+			"path": "packages/core/tempTest/After/Form.yml",
+			"bookmarks": [
+				{
+					"line": 0,
+					"column": 0,
+					"label": "👟 YAML"
+				}
+			]
+		},
+		{
+			"path": "packages/core/tempTest/After/Form.nkdk",
+			"bookmarks": [
+				{
+					"line": 0,
+					"column": 4,
+					"label": "nkdk"
+				}
+			]
+		},
+		{
+			"path": "packages/core/metadata/forms/clientApplicationForm/exportToEnterprise.ts",
+			"bookmarks": [
+				{
+					"line": 45,
+					"column": 0,
+					"label": "👨‍💻 exportClientApplicationFormToEnterprise"
+				}
+			]
+		},
+		{
+			"path": "packages/core/metadata/forms/clientApplicationForm/exportToEnterprise.test.ts",
+			"bookmarks": [
+				{
+					"line": 10,
+					"column": 4,
+					"label": "🔎 exportClientApplicationFormToEnterprise"
+				}
+			]
+		}
+	]
+}

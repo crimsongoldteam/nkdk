@@ -96,6 +96,22 @@ export const typeFixturesTable: TypeFixture[] = [
     enterprise: "СтандартныйПериод",
     xml: "<TypeDescription>\n\t<v8:Type>v8:StandardPeriod</v8:Type>\n</TypeDescription>",
   },
+  {
+    internal: { type: ["ValueTable"] },
+    enterprise: "ТаблицаЗначений",
+    xml: "<TypeDescription>\n\t<v8:Type>v8:ValueTable</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["ValueTree"] },
+    enterprise: "ДеревоЗначений",
+    xml: "<TypeDescription>\n\t<v8:Type>v8:ValueTree</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["ValueListType"] },
+    enterprise: "СписокЗначений",
+    xml: "<TypeDescription>\n\t<v8:Type>v8:ValueListType</v8:Type>\n</TypeDescription>",
+  },
+
   //#endregion
   //#endregion
 
@@ -211,6 +227,32 @@ export const typeFixturesTable: TypeFixture[] = [
     internal: { type: ["Characteristic"] },
     enterprise: "Характеристика",
     xml: "<TypeDescription>\n\t<v8:TypeSet>cfg:Characteristic</v8:TypeSet>\n</TypeDescription>",
+  },
+
+  {
+    internal: { type: ["DataProcessorObject"] },
+    enterprise: "ОбработкаОбъект",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:DataProcessorObject</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["DataProcessorObject.КакаяТоОбработка"] },
+    enterprise: "ОбработкаОбъект.КакаяТоОбработка",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:DataProcessorObject.КакаяТоОбработка</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["ConstantsSet"] },
+    enterprise: "КонстантыНабор",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:ConstantsSet</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["ReportObject"] },
+    enterprise: "ОтчетОбъект",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:ReportObject</v8:Type>\n</TypeDescription>",
+  },
+  {
+    internal: { type: ["ReportObject.КакойТоОтчет"] },
+    enterprise: "ОтчетОбъект.КакойТоОтчет",
+    xml: "<TypeDescription>\n\t<v8:Type>cfg:ReportObject.КакойТоОтчет</v8:Type>\n</TypeDescription>",
   },
   //#endregion
 

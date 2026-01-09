@@ -1,11 +1,7 @@
-import { TypeDescriptionRule, TypeDescriptionRules, TypeDescriptionRulesFromEnterprise } from "./types"
+import { TypeDescriptionRule, TypeDescriptionRules } from "./types"
 
 export const getTypeDescriptionRule = (type: string): TypeDescriptionRule | undefined => {
   return TypeDescriptionRules[type]
-}
-
-export const getTypeDescriptionRuleFromEnterprise = (enterprise: string): TypeDescriptionRule | undefined => {
-  return TypeDescriptionRulesFromEnterprise[enterprise]
 }
 
 export const getTypeFromEnterprise = (enterprise: string): string | undefined => {

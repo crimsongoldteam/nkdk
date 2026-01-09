@@ -2,7 +2,7 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { CommandSet, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { FormAttribute, FormAttributesXML } from "../../commonObjects/formAttributes/types"
+import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../commonObjects/formAttributes/types"
 import { FormElementType } from "../../metadataFactory/types"
 import { ChildItems, ChildItemsXML } from "../elements/childItems/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../elements/commandBar/types"
@@ -153,6 +153,7 @@ export interface ClientApplicationFormXML {
 }
 
 export interface ClientApplicationFormEnterprise {
+  Атрибуты?: FormAttributesEnterprise
   АвтоЗаголовок?: StringboolEnterprise
   АвтоматическоеСохранениеДанныхВНастройках?: SE.AutoSaveFormDataInSettingsEnterprise
   АвтоНавигационнаяСсылка?: StringboolEnterprise

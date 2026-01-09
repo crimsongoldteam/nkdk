@@ -1,4 +1,4 @@
-export type TypeModifier = "complex" | "typeset"
+export type TypeModifier = "complex" | "typeset" | "alwaysType"
 
 export interface TypeDescriptionRule {
   enterprise: string
@@ -244,6 +244,22 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     enterprise: "СтандартныйПериод",
     prefix: "v8",
   },
+  ValueTable: {
+    enterprise: "ТаблицаЗначений",
+    prefix: "v8",
+  },
+  ValueTree: {
+    enterprise: "ДеревоЗначений",
+    prefix: "v8",
+  },
+  ValueListType: {
+    enterprise: "СписокЗначений",
+    prefix: "v8",
+  },
+  DynamicList: {
+    enterprise: "ДинамическийСписок",
+    prefix: "cfg",
+  },
   // TypeSet types (cfg: prefix)
   CatalogRef: {
     enterprise: "Справочник",
@@ -354,6 +370,20 @@ export const TypeDescriptionRules: Record<string, TypeDescriptionRule> = {
     enterprise: "ПланСчетовОбъект",
     prefix: "cfg",
     modifier: "complex",
+  },
+  ReportObject: {
+    enterprise: "ОтчетОбъект",
+    prefix: "cfg",
+    modifier: "alwaysType",
+  },
+  DataProcessorObject: {
+    enterprise: "ОбработкаОбъект",
+    prefix: "cfg",
+    modifier: "alwaysType",
+  },
+  ConstantsSet: {
+    enterprise: "КонстантыНабор",
+    prefix: "cfg",
   },
 } as const
 
