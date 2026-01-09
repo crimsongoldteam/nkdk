@@ -81,6 +81,15 @@ export const PropertiesValueOptionText = createToken({
   pattern: Lexer.NA,
 })
 
+export const OneLineGroupElementsHeader = createToken({
+  name: "OneLineGroupElementsHeader",
+  pattern: Lexer.NA,
+})
+export const OneLineGroupElementsContent = createToken({
+  name: "OneLineGroupElementsContent",
+  pattern: Lexer.NA,
+})
+
 export const combineTokens = [
   InlineText,
   FormHeaderText,
@@ -100,6 +109,8 @@ export const combineTokens = [
   TableCellContinue,
   RadioButtonValueDescription,
   ElementName,
+  OneLineGroupElementsHeader,
+  OneLineGroupElementsContent,
 ]
 
 // #endregion

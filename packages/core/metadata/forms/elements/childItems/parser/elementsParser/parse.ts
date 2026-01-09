@@ -1,13 +1,12 @@
-import type { CstNode } from "chevrotain"
+import type { CstNode, IToken } from "chevrotain"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import type { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { ChildItems } from "~/metadata/forms/elements/childItems/types"
-import type { DetectedTreeNode } from "../detector/detectTree"
-import { ParseElementType } from "../treeParser/types"
+import { ParseElementType, TreeNode } from "../treeParser/types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
 
-export const parseElement = (context: ConfigurationContext, element: DetectedTreeNode): BaseElement => {
+export const parseElement = (context: ConfigurationContext, element: TreeNode): BaseElement => {
   const ast = parseByElementType(element)
 
   const cst = visitor.visit(ast, context)
@@ -18,7 +17,19 @@ export const parseElement = (context: ConfigurationContext, element: DetectedTre
   return cst
 }
 
-const addChildItemsToResult = (cst: BaseElement, element: DetectedTreeNode, context: ConfigurationContext): void => {
+export const parseOneLineGroupElements = (
+  context: ConfigurationContext,
+  element: TreeNode
+): {
+  group: IToken[]
+  elements: IToken[][]
+} => {
+  const ast = elementsParser.parseOneLineGroupElements(element.tokens)
+  const cst = visitor.visit(ast, context)
+  return cst
+}
+
+const addChildItemsToResult = (cst: BaseElement, element: TreeNode, context: ConfigurationContext): void => {
   if (!("childItems" in cst)) return
 
   if (element.type === ParseElementType.CommandBar) return
@@ -29,10 +40,10 @@ const addChildItemsToResult = (cst: BaseElement, element: DetectedTreeNode, cont
     return
   }
 
-  cst.childItems = element.childItems?.map((child) => parseElement(context, child)) || []
+  cst.childItems = element.childItems.map((child) => parseElement(context, child)) || []
 }
 
-const parseByElementType = (element: DetectedTreeNode): CstNode => {
+const parseByElementType = (element: TreeNode): CstNode => {
   switch (element.type) {
     case ParseElementType.LabelDecoration:
       return elementsParser.parseLabelDecoration(element.tokens)

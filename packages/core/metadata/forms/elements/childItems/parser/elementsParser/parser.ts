@@ -72,6 +72,40 @@ export class Parser extends CstParser {
     return this.oneLineGroup()
   }
 
+  public parseOneLineGroupElements(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.oneLineGroupElements()
+  }
+
+  // #region oneLineGroupElements
+
+  private readonly oneLineGroupElements = this.RULE("oneLineGroupElements", () => {
+    this.SUBRULE(this.oneLineGroupElementsHeader)
+
+    this.AT_LEAST_ONE_SEP({
+      SEP: t.Semicolon,
+      DEF: () => {
+        this.SUBRULE(this.oneLineGroupElementsContent)
+      },
+    })
+  })
+
+  private readonly oneLineGroupElementsHeader = this.RULE("oneLineGroupElementsHeader", () => {
+    this.CONSUME(t.Percent)
+    this.MANY1(() => {
+      this.CONSUME(t.GroupHeaderText)
+    })
+  })
+
+  private readonly oneLineGroupElementsContent = this.RULE("oneLineGroupElementsContent", () => {
+    this.MANY1(() => {
+      this.CONSUME(t.GroupHeaderText)
+    })
+    this.CONSUME(t.Percent)
+  })
+
+  // #endregion
+
   // #region labelField
 
   private readonly labelDecoration = this.RULE("labelDecoration", () => {
