@@ -203,7 +203,7 @@ text2`
   })
 
   it("should parse one line group item with header and name", () => {
-    const mock = `===group header{GroupName}; text1; text2`
+    const mock = `%group header{GroupName}% text1; text2`
 
     const tokens = tokenize(mock)
     const result = parseTree(tokens)
@@ -211,16 +211,18 @@ text2`
 
     expect(simplified).toEqual([
       {
-        content: "===group header{GroupName}",
+        content: "%group header{GroupName}%",
         type: "OneLineGroup",
         childItems: [
           {
             content: "text1",
-            type: "VerticalGroup",
+            type: "LabelDecoration",
+            childItems: [],
           },
           {
             content: "text2",
-            type: "VerticalGroup",
+            type: "LabelDecoration",
+            childItems: [],
           },
         ],
       },
