@@ -9,7 +9,6 @@ describe("formatOtherElement", () => {
     const element: BaseElement = {
       elementType: FormElementType.InputField,
       name: "ИмяПоля",
-      id: "1",
     }
 
     const expectedResult = ["?ПолеВвода {ИмяПоля}"]

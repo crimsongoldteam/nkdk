@@ -10,7 +10,6 @@ describe("exportBaseElementToXML", () => {
     const mockElement: BaseElement = {
       name: "ИмяПоля",
       elementType: FormElementType.BaseElement,
-      id: "16",
     }
 
     const expectedResult = `<BaseElement name="ИмяПоля" id="16"/>`

@@ -3,7 +3,6 @@ import { FormElementType } from "../../../metadataFactory/types"
 export interface BaseElement {
   elementType: FormElementType
   name: string
-  id?: string
 }
 
 export interface BaseElementXML {
