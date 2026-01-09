@@ -326,7 +326,7 @@ export const EscapedText = createToken({
 
 export const Text = createToken({
   name: "Text",
-  pattern: /[a-zA-Zа-яА-ЯёЁ№!%0-9][a-zA-Zа-яА-ЯёЁ№!%0-9\t ]*/,
+  pattern: /[a-zA-Zа-яА-ЯёЁ№!0-9][a-zA-Zа-яА-ЯёЁ№!0-9\t ]*/,
   categories: combineTokens,
 })
 

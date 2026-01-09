@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest"
 import { lexer } from "../tokenizer/lexer"
-import { ParseElementType } from "../types"
-import { detectElementType } from "./detect"
+import { tokenize } from "../tokenizer/tokenizer"
+import { detectElementType } from "./detector"
+import { ParseElementType } from "./types"
 
 describe("detectElementType", () => {
   it("should detect input field containing :", () => {
     const mock = `text:`
 
-    const tokens = lexer.tokenize(mock).tokens
+    const tokens = tokenize(mock)
 
     const result = detectElementType(tokens)
 
@@ -17,25 +18,34 @@ describe("detectElementType", () => {
   it("should detect vertical group starting with #", () => {
     const mock = `#VerticalGroup`
 
-    const tokens = lexer.tokenize(mock).tokens
+    const tokens = tokenize(mock)
     const result = detectElementType(tokens)
 
     expect(result).toEqual(ParseElementType.VerticalGroup)
   })
 
-  it("should detect horizontal group starting with =", () => {
-    const mock = `=HorizontalGroup`
+  it("should detect horizontal group starting with %", () => {
+    const mock = `%HorizontalGroup`
 
-    const tokens = lexer.tokenize(mock).tokens
+    const tokens = tokenize(mock)
     const result = detectElementType(tokens)
 
     expect(result).toEqual(ParseElementType.HorizontalGroup)
   })
 
+  it("should detect one line group when wrapped with %", () => {
+    const mock = `%OneLineGroup%`
+
+    const tokens = tokenize(mock)
+    const result = detectElementType(tokens)
+
+    expect(result).toEqual(ParseElementType.OneLineGroup)
+  })
+
   it("should detect pages starting with //", () => {
     const mock = `//Pages`
 
-    const tokens = lexer.tokenize(mock).tokens
+    const tokens = tokenize(mock)
     const result = detectElementType(tokens)
 
     expect(result).toEqual(ParseElementType.Pages)
@@ -44,7 +54,7 @@ describe("detectElementType", () => {
   it("should detect page starting with /", () => {
     const mock = `/Page`
 
-    const tokens = lexer.tokenize(mock).tokens
+    const tokens = tokenize(mock)
     const result = detectElementType(tokens)
 
     expect(result).toEqual(ParseElementType.Page)
@@ -53,7 +63,7 @@ describe("detectElementType", () => {
   it("should detect command bar starting with < and containing |", () => {
     const mock = `<Button1|Button2|Button3>`
 
-    const tokens = lexer.tokenize(mock).tokens
+    const tokens = tokenize(mock)
     const result = detectElementType(tokens)
 
     expect(result).toEqual(ParseElementType.CommandBar)
@@ -62,7 +72,7 @@ describe("detectElementType", () => {
   it("should detect button starting with <", () => {
     const mock = `<Button>`
 
-    const tokens = lexer.tokenize(mock).tokens
+    const tokens = tokenize(mock)
     const result = detectElementType(tokens)
 
     expect(result).toEqual(ParseElementType.Button)
@@ -71,7 +81,7 @@ describe("detectElementType", () => {
   it("should detect table containing |", () => {
     const mock = `Column1|Column2|Column3`
 
-    const tokens = lexer.tokenize(mock).tokens
+    const tokens = tokenize(mock)
     const result = detectElementType(tokens)
 
     expect(result).toEqual(ParseElementType.Table)
@@ -80,7 +90,7 @@ describe("detectElementType", () => {
   it("should detect label decoration for plain text", () => {
     const mock = `Plain Text Label`
 
-    const tokens = lexer.tokenize(mock).tokens
+    const tokens = tokenize(mock)
     const result = detectElementType(tokens)
 
     expect(result).toEqual(ParseElementType.LabelDecoration)
@@ -89,7 +99,7 @@ describe("detectElementType", () => {
   it("should handle empty string as label decoration", () => {
     const mock = ``
 
-    const tokens = lexer.tokenize(mock).tokens
+    const tokens = tokenize(mock)
     const result = detectElementType(tokens)
 
     expect(result).toEqual(ParseElementType.LabelDecoration)
@@ -98,7 +108,7 @@ describe("detectElementType", () => {
   it("should handle whitespace-only string as label decoration", () => {
     const mock = `   `
 
-    const tokens = lexer.tokenize(mock).tokens
+    const tokens = tokenize(mock)
     const result = detectElementType(tokens)
 
     expect(result).toEqual(ParseElementType.LabelDecoration)
@@ -116,7 +126,7 @@ describe("detectElementType", () => {
   it("should detect right titled checkbox containing []", () => {
     const mock = `[]Some Text`
 
-    const tokens = lexer.tokenize(mock).tokens
+    const tokens = tokenize(mock)
     const result = detectElementType(tokens)
 
     expect(result).toEqual(ParseElementType.RightTitledCheckboxField)
@@ -125,7 +135,7 @@ describe("detectElementType", () => {
   it("should detect left titled radio button containing ()", () => {
     const mock = `Radio button ()`
 
-    const tokens = lexer.tokenize(mock).tokens
+    const tokens = tokenize(mock)
     const result = detectElementType(tokens)
 
     expect(result).toEqual(ParseElementType.RadioButtonField)

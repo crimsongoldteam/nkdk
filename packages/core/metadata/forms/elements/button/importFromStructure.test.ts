@@ -3,9 +3,9 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { DetectedTreeNode } from "~/metadata/forms/elements/childItems/parser/detector/detectTree"
 import { parseElement } from "~/metadata/forms/elements/childItems/parser/elementsParser/parse"
 import { lexer } from "~/metadata/forms/elements/childItems/parser/tokenizer/lexer"
-import { ParseElementType } from "~/metadata/forms/elements/childItems/parser/types"
 import { buttonStructureFixturesTable } from "~/tests/fixtures/forms/button/data"
 import { mockСontext } from "~/tests/mockContext"
+import { ParseElementType } from "../childItems/parser/treeParser/types"
 
 describe("importButtonFromStructure", () => {
   it.each(buttonStructureFixturesTable)("should import button $name", ({ element: input, structured: structured }) => {

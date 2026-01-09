@@ -19,13 +19,11 @@ import {
   VBar,
   Whitespace,
 } from "../tokenizer/lexer"
-import { ParseElementType } from "../types"
+import { ParseElementType } from "./types"
 
 export const detectElementType = (tokens: IToken[]): ParseElementType => {
-  // Фильтруем пробелы для анализа
   const significantTokens = tokens.filter((token) => token.tokenType !== Whitespace)
 
-  // Пустая строка или только пробелы
   if (significantTokens.length === 0) {
     return ParseElementType.LabelDecoration
   }

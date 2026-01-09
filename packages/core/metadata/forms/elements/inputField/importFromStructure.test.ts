@@ -3,9 +3,9 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { DetectedTreeNode } from "~/metadata/forms/elements/childItems/parser/detector/detectTree"
 import { parseElement } from "~/metadata/forms/elements/childItems/parser/elementsParser/parse"
 import { lexer } from "~/metadata/forms/elements/childItems/parser/tokenizer/lexer"
-import { ParseElementType } from "~/metadata/forms/elements/childItems/parser/types"
 import { inputFieldStructureFixturesTable } from "~/tests/fixtures/forms/inputField/data"
 import { mockСontext } from "~/tests/mockContext"
+import { ParseElementType } from "../childItems/parser/treeParser/types"
 
 describe("importInputFieldFromStructure", () => {
   it.each(inputFieldStructureFixturesTable)(

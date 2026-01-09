@@ -3,7 +3,7 @@ import type { ConfigurationContext } from "~/metadata/context/types"
 import type { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { ChildItems } from "~/metadata/forms/elements/childItems/types"
 import type { DetectedTreeNode } from "../detector/detectTree"
-import { ParseElementType } from "../types"
+import { ParseElementType } from "../treeParser/types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
 
