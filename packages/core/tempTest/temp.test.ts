@@ -10,6 +10,7 @@ import { ClientApplicationFormEnterprise, ClientApplicationFormXML } from "~/met
 import { importChildItemsFromStructure } from "~/metadata/forms/elements/childItems/importFromStructure"
 import "~/metadata/forms/elements/exportToEnterprise"
 import "~/metadata/forms/elements/exportToStructure"
+import "~/metadata/forms/elements/exportToXML"
 import "~/metadata/forms/elements/importFromXML"
 import { xmlExport } from "~/xml/export/exporter"
 import importContentFromXML from "~/xml/import/importer"
@@ -79,7 +80,7 @@ describe("DO test", () => {
     const newXMLData = exportClientApplicationFormToXML(mockСontext, newForm)
     const newXML = xmlExport({ Form: newXMLData })
 
-    writeFileSync(join(__dirname, "Before/Form.xml"), newXML, "utf-8")
+    writeFileSync(join(__dirname, "After/Form.xml"), newXML, "utf-8")
   })
   // it("should import metadata catalog from XML", () => {
   //   const importedXml = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(metadataCatalogContent)

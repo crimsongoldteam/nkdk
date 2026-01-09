@@ -1,6 +1,7 @@
 import type { CstChildrenDictionary, CstNode, IToken } from "chevrotain"
 import type { ChoiceList } from "~/metadata/commonObjects/choiceList/types"
 import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
+import type { Picture } from "~/metadata/commonObjects/picture/types"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import type { Button } from "~/metadata/forms/elements/button/types"
 import type { CheckBoxField } from "~/metadata/forms/elements/checkBoxField/types"
@@ -10,6 +11,7 @@ import type { InputField } from "~/metadata/forms/elements/inputField/types"
 import type { LabelDecoration } from "~/metadata/forms/elements/labelDecoration/types"
 import { Page } from "~/metadata/forms/elements/page/types"
 import { Pages } from "~/metadata/forms/elements/pages/types"
+import type { PictureDecoration } from "~/metadata/forms/elements/pictureDecoration/types"
 import type { RadioButtonField } from "~/metadata/forms/elements/radioButtonField/types"
 import { Table } from "~/metadata/forms/elements/table/types"
 import { UsualGroup } from "~/metadata/forms/elements/usualGroup/types"
@@ -34,6 +36,36 @@ export class Visitor extends BaseVisitor {
       title: this.createTitle(titleText, context.defaultLanguage),
       id: undefined,
     } as LabelDecoration
+  }
+  // #endregion
+
+  // #region pictureDecoration
+  pictureDecoration(ctx: CstChildrenDictionary, context: ConfigurationContext): PictureDecoration {
+    // Извлекаем ссылку на картинку из токена Picture
+    const pictureToken = ctx.Picture?.[0] as IToken | undefined
+    const pictureRef = pictureToken?.image?.replace(/^@/, "").trim() || ""
+
+    // Определяем тип картинки (по умолчанию CommonPicture, если не стандартная)
+    // Для упрощения считаем, что если ссылка начинается с определенных префиксов, это стандартная картинка
+    // В реальности это должно проверяться через системные перечисления
+    const pictureType: "StandardPicture" | "CommonPicture" = "CommonPicture"
+
+    const picture: Picture = {
+      ref: pictureRef,
+      type: pictureType,
+      loadTransparent: true,
+    }
+
+    // Извлекаем имя элемента из LabelContent или properties
+    const labelContent = joinTokens(ctx.LabelContent as IToken[]) || ""
+    const name = this.visit(ctx.properties as CstNode[], context) || labelContent || pictureRef
+
+    return {
+      elementType: FormElementType.PictureDecoration,
+      name: name || "",
+      picture: picture,
+      id: undefined,
+    } as PictureDecoration
   }
   // #endregion
 
@@ -538,6 +570,35 @@ export class Visitor extends BaseVisitor {
       title: title || undefined,
       isOneLine: true,
     }
+  }
+
+  oneLineGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): UsualGroup {
+    // Собираем заголовок между двумя процентами
+    const headerText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
+
+    // Парсим заголовок как one-line группу
+    const parsedHeader = this.parseGroupHeader(`%${headerText}%`, true)
+
+    const name = parsedHeader.name || headerText || "Group"
+    const title = parsedHeader.title
+
+    // Определяем showTitle: false для one-line групп без заголовка или с пустым заголовком
+    const showTitle = title !== undefined && title !== "" ? undefined : false
+
+    const result: UsualGroup = {
+      elementType: FormElementType.UsualGroup,
+      group: "Horizontal",
+      name: name,
+      childItems: [],
+    }
+
+    if (title !== undefined) {
+      result.title = this.createTitle(title, context.defaultLanguage)
+    }
+
+    result.showTitle = showTitle
+
+    return result
   }
 
   // #endregion

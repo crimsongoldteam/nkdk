@@ -77,6 +77,11 @@ export class Parser extends CstParser {
     return this.oneLineGroupElements()
   }
 
+  public parsePictureDecoration(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.pictureDecoration()
+  }
+
   // #region oneLineGroupElements
 
   private readonly oneLineGroupElements = this.RULE("oneLineGroupElements", () => {
@@ -451,6 +456,22 @@ export class Parser extends CstParser {
 
     this.CONSUME2(t.Percent)
   })
+
+  // #region pictureDecoration
+
+  private readonly pictureDecoration = this.RULE("pictureDecoration", () => {
+    this.CONSUME(t.Picture)
+
+    this.MANY(() => {
+      this.CONSUME(t.LabelContent)
+    })
+
+    this.OPTION(() => {
+      this.SUBRULE(this.properties)
+    })
+  })
+
+  // #endregion
 
   // #region properties
 
