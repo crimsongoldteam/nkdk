@@ -13,17 +13,14 @@ describe("exportPagesToStructure", () => {
   it("should format pages", () => {
     const mockElement: Pages = {
       name: "Страницы",
-      id: "1",
       elementType: FormElementType.Pages,
       childItems: [
         {
           name: "Страница1",
-          id: "1",
           elementType: FormElementType.Page,
           childItems: [
             {
               name: "Элемент1",
-              id: "1",
               elementType: FormElementType.InputField,
             } as InputField,
           ],

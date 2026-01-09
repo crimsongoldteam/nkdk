@@ -9,7 +9,6 @@ describe("getExtendedTooltipName", () => {
     const parentElement: BaseElement = {
       elementType: FormElementType.InputField,
       name: "КакойТоЭлемент",
-      id: "1",
     }
 
     const result = getExtendedTooltipName(parentElement)
@@ -21,7 +20,6 @@ describe("getExtendedTooltipName", () => {
     const parentElement: BaseElement = {
       elementType: FormElementType.Button,
       name: "Кнопка",
-      id: "2",
     }
 
     const result = getExtendedTooltipName(parentElement)
@@ -35,13 +33,11 @@ describe("isDefaultExtendedTooltipName", () => {
     const parentElement: BaseElement = {
       elementType: FormElementType.InputField,
       name: "КакойТоЭлемент",
-      id: "1",
     }
 
     const extendedTooltip: ExtendedTooltip = {
       elementType: FormElementType.FormDecoration,
       name: "КакойТоЭлементРасширеннаяПодсказка",
-      id: "1",
     }
 
     const result = isDefaultExtendedTooltipName(parentElement, extendedTooltip)
@@ -53,13 +49,11 @@ describe("isDefaultExtendedTooltipName", () => {
     const parentElement: BaseElement = {
       elementType: FormElementType.InputField,
       name: "КакойТоЭлемент",
-      id: "1",
     }
 
     const extendedTooltip: ExtendedTooltip = {
       elementType: FormElementType.FormDecoration,
       name: "КастомнаяПодсказка",
-      id: "1",
     }
 
     const result = isDefaultExtendedTooltipName(parentElement, extendedTooltip)
@@ -71,13 +65,11 @@ describe("isDefaultExtendedTooltipName", () => {
     const parentElement: BaseElement = {
       elementType: FormElementType.InputField,
       name: "КакойТоЭлемент",
-      id: "1",
     }
 
     const extendedTooltip: ExtendedTooltip = {
       elementType: FormElementType.FormDecoration,
       name: "КакойТоЭлементПодсказка",
-      id: "1",
     }
 
     const result = isDefaultExtendedTooltipName(parentElement, extendedTooltip)

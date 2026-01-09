@@ -14,7 +14,6 @@ describe("exportPictureDecorationToStructure", () => {
         loadTransparent: false,
       },
       name: "ИмяПоля",
-      id: "1",
     }
 
     const expectedResult = ["@Печать {ИмяПоля}"]

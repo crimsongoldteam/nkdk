@@ -10,17 +10,14 @@ describe("exportUsualGroupToStructure", () => {
   it("should format one-line group", () => {
     const mockElement: UsualGroup = {
       name: "Группа",
-      id: "1",
       elementType: FormElementType.UsualGroup,
       childItems: [
         {
           name: "Элемент1",
-          id: "1",
           elementType: FormElementType.InputField,
         } as InputField,
         {
           name: "Элемент2",
-          id: "2",
           elementType: FormElementType.InputField,
         } as InputField,
       ],
@@ -40,16 +37,13 @@ it("should format vertical group", () => {
     group: "Vertical",
     title: { items: { ru: "Заголовок группы" } },
     elementType: FormElementType.UsualGroup,
-    id: "1",
     childItems: [
       {
         name: "Элемент1",
-        id: "1",
         elementType: FormElementType.InputField,
       } as InputField,
       {
         name: "Элемент2",
-        id: "2",
         elementType: FormElementType.InputField,
       } as InputField,
     ],

@@ -38,7 +38,7 @@ describe("exportChildItemsToEnterprise", () => {
   })
 
   it("should throw error when export function not found for element type", () => {
-    const invalidChildItems = [{ name: "InvalidElement", id: "1", elementType: FormElementType.CalendarField }]
+    const invalidChildItems = [{ name: "InvalidElement", elementType: FormElementType.CalendarField }]
 
     expect(() => {
       exportChildItemsToEnterprise(mockСontext, invalidChildItems)

@@ -10,12 +10,10 @@ describe("exportPageToStructure", () => {
   it("should format page", () => {
     const mockElement: Page = {
       name: "Страница1",
-      id: "1",
       elementType: FormElementType.Page,
       childItems: [
         {
           name: "Элемент1",
-          id: "1",
           elementType: FormElementType.InputField,
         } as InputField,
       ],

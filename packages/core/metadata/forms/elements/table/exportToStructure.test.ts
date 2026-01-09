@@ -11,13 +11,11 @@ describe("exportTableToStructure", () => {
   it("should format one-column table", () => {
     const mockElement: Table = {
       name: "Таблица",
-      id: "1",
       elementType: FormElementType.Table,
       childItems: [
         {
           name: "Колонка1",
           title: { items: { ru: "Колонка 1" } },
-          id: "1",
           elementType: FormElementType.InputField,
         } as InputField,
       ],
@@ -32,17 +30,14 @@ describe("exportTableToStructure", () => {
   it("should format two-column table", () => {
     const mockElement: Table = {
       name: "Таблица",
-      id: "1",
       elementType: FormElementType.Table,
       childItems: [
         {
           name: "Колонка1",
-          id: "1",
           elementType: FormElementType.InputField,
         } as InputField,
         {
           name: "Колонка2",
-          id: "2",
           elementType: FormElementType.InputField,
         } as InputField,
       ],
@@ -58,26 +53,22 @@ describe("exportTableToStructure", () => {
   it("should format table with horizontal group", () => {
     const mockElement: Table = {
       name: "Таблица",
-      id: "1",
       elementType: FormElementType.Table,
       childItems: [
         {
           name: "Группа1",
           title: { items: { ru: "Группа 1" } },
-          id: "1",
           group: "Horizontal",
           elementType: FormElementType.ColumnGroup,
           childItems: [
             {
               name: "Колонка1",
               title: { items: { ru: "Колонка 1" } },
-              id: "1",
               elementType: FormElementType.InputField,
             } as InputField,
             {
               name: "Колонка2",
               title: { items: { ru: "Колонка 2" } },
-              id: "2",
               elementType: FormElementType.InputField,
             } as InputField,
           ],
@@ -96,13 +87,11 @@ describe("exportTableToStructure", () => {
   it("should format table with vertical group without title", () => {
     const mockElement: Table = {
       name: "Таблица",
-      id: "1",
       elementType: FormElementType.Table,
       childItems: [
         {
           name: "Группа1",
           title: { items: { ru: "Группа 1" } },
-          id: "1",
           group: "Vertical",
           showTitle: false,
           elementType: FormElementType.ColumnGroup,
@@ -110,13 +99,11 @@ describe("exportTableToStructure", () => {
             {
               name: "Колонка1",
               title: { items: { ru: "Колонка 1" } },
-              id: "1",
               elementType: FormElementType.InputField,
             } as InputField,
             {
               name: "Колонка2",
               title: { items: { ru: "Колонка 2" } },
-              id: "2",
               elementType: FormElementType.InputField,
             } as InputField,
           ],
@@ -135,13 +122,11 @@ describe("exportTableToStructure", () => {
   it("should format table with vertical group with title", () => {
     const mockElement: Table = {
       name: "Таблица",
-      id: "1",
       elementType: FormElementType.Table,
       childItems: [
         {
           name: "Группа1",
           title: { items: { ru: "Группа 1" } },
-          id: "1",
           group: "Vertical",
           showTitle: true,
           elementType: FormElementType.ColumnGroup,
@@ -149,13 +134,11 @@ describe("exportTableToStructure", () => {
             {
               name: "Колонка1",
               title: { items: { ru: "Колонка 1" } },
-              id: "1",
               elementType: FormElementType.InputField,
             } as InputField,
             {
               name: "Колонка2",
               title: { items: { ru: "Колонка 2" } },
-              id: "2",
               elementType: FormElementType.InputField,
             } as InputField,
           ],

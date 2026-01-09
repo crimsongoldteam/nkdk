@@ -10,14 +10,10 @@ export const exportExtendedTooltipToXML = (
   data: ExtendedTooltip | undefined,
   parentElement: BaseElement
 ): ExtendedTooltipXML => {
-  const extendedTooltip = data ?? getDefaultExtendedTooltip(parentElement) ?? undefined
+  const extendedTooltip = data ?? getDefaultExtendedTooltip(parentElement)
   return exportFormDecorationToXML(context, extendedTooltip)!
 }
 
 const getDefaultExtendedTooltip = (parentElement: BaseElement): ExtendedTooltip => {
-  return {
-    elementType: FormElementType.FormDecoration,
-    name: getExtendedTooltipName(parentElement),
-    id: "1",
-  }
+  return { name: getExtendedTooltipName(parentElement), elementType: FormElementType.FormDecoration }
 }
