@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "~/metadata/forms/elements/inputField/exportToEnterprise"
 import {
   fullClientApplicationForm,
   fullClientApplicationFormEnterprise,

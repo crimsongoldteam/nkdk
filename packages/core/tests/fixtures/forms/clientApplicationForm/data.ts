@@ -175,6 +175,9 @@ export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterpris
     ПриСозданииНаСервере: "Процедура24",
     ПриСохраненииДанныхВНастройкахНаСервере: "Процедура25",
   },
+  Элементы: {
+    ПолеВвода1: {},
+  },
 }
 
 export const minimalClientApplicationFormEnterprise: ClientApplicationFormEnterprise = {}
