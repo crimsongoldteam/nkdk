@@ -5,7 +5,8 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const importExtendedTooltipFromXML = (
   context: ConfigurationContext,
-  xml: ExtendedTooltipXML | undefined
+  xml: ExtendedTooltipXML | undefined,
+  parentName: string
 ): ExtendedTooltip | undefined => {
   const result = importFormDecorationFromXML(context, xml)
   if (!result) return undefined
