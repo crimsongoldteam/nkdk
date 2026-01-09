@@ -4,7 +4,6 @@ import { FormElementType } from "../../../metadataFactory/types"
 import { ColumnGroup } from "../columnGroup/types"
 import { InputField } from "../inputField/types"
 import { exportTableToStructure } from "./exportToStructure"
-import "./registration"
 import { Table } from "./types"
 
 describe("exportTableToStructure", () => {

@@ -49,14 +49,7 @@ const processBuilderTree = (context: ConfigurationContext, builderNode: BuilderT
 const processOneLineGroup = (context: ConfigurationContext, builderNode: BuilderTreeNode): TreeNode => {
   const type = detectElementType(builderNode.tokens)
 
-  // Создаем временный TreeNode для вызова parseOneLineGroupElements
-  const temporaryTreeNode: TreeNode = {
-    tokens: builderNode.tokens,
-    type,
-    childItems: [],
-  }
-
-  const { group, elements } = parseOneLineGroupElements(context, temporaryTreeNode)
+  const { group, elements } = parseOneLineGroupElements(context, builderNode)
 
   return {
     tokens: group,
