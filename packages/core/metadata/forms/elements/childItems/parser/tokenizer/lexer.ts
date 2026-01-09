@@ -249,7 +249,6 @@ export const LCurly = createToken({
   label: "{",
   push_mode: "properties_mode",
   categories: excludeTokens(
-    GroupHeaderText,
     PageHeaderText,
     LabelContent,
     InputHeader,
@@ -284,7 +283,13 @@ export const Comma = keyword("Comma", ",", PropertiesValueText, PropertiesValueO
 export const LAngle = keyword("LAngle", "<")
 export const RAngle = keyword("RAngle", ">", Button, Picture)
 
-export const Semicolon = keyword("Semicolon", ";", PropertiesValueText, PropertiesValueOptionText)
+export const Semicolon = keyword(
+  "Semicolon",
+  ";",
+  PropertiesValueText,
+  PropertiesValueOptionText,
+  OneLineGroupElementsContent
+)
 export const Colon = keyword("Colon", ":", InputHeader, TableCell, RadioButtonHeader)
 export const VBar = keyword("VBar", "|", Button, Picture, TableCell, TableCellContinue)
 export const Equals = keyword("Equals", "=", PropertiesNameText)
@@ -311,7 +316,7 @@ export const Percent = createToken({
   name: "Percent",
   pattern: /%+[ \t]*/,
   label: "%",
-  categories: excludeTokens(GroupHeaderText, PageHeaderText, InlineText),
+  categories: excludeTokens(GroupHeaderText, PageHeaderText, InlineText, OneLineGroupElementsHeader),
 })
 
 export const Dash = createToken({

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { mockСontext } from "~/tests/mockContext"
 import { tokenize } from "../tokenizer/tokenizer"
 import { parseTree } from "./treeParser"
 import { ParseElementType, TreeNode } from "./types"
@@ -9,7 +10,7 @@ describe("parseTree", () => {
 
     const tokens = tokenize(mock)
 
-    const result = parseTree(tokens)
+    const result = parseTree(mockСontext, tokens)
     const simplified = simplifyTreeNodes(result)
 
     expect(simplified).toEqual([
@@ -26,7 +27,7 @@ describe("parseTree", () => {
 text2`
 
     const tokens = tokenize(mock)
-    const result = parseTree(tokens)
+    const result = parseTree(mockСontext, tokens)
     const simplified = result.map(simplifyTreeNode)
 
     expect(simplified).toEqual([
@@ -48,7 +49,7 @@ text2`
   text2`
 
     const tokens = tokenize(mock)
-    const result = parseTree(tokens)
+    const result = parseTree(mockСontext, tokens)
     const simplified = simplifyTreeNodes(result)
 
     expect(simplified).toEqual([
@@ -71,7 +72,7 @@ text2`
   text2`
 
     const tokens = tokenize(mock)
-    const result = parseTree(tokens)
+    const result = parseTree(mockСontext, tokens)
     const simplified = simplifyTreeNodes(result)
 
     expect(simplified).toEqual([
@@ -93,7 +94,7 @@ text2`
 \ttext2`
 
     const tokens = tokenize(mock)
-    const result = parseTree(tokens)
+    const result = parseTree(mockСontext, tokens)
     const simplified = simplifyTreeNodes(result)
 
     expect(simplified).toEqual([
@@ -116,7 +117,7 @@ text2`
   text3`
 
     const tokens = tokenize(mock)
-    const result = parseTree(tokens)
+    const result = parseTree(mockСontext, tokens)
     const simplified = result.map(simplifyTreeNode)
 
     expect(simplified).toEqual([
@@ -146,7 +147,7 @@ text2`
     text4`
 
     const tokens = tokenize(mock)
-    const result = parseTree(tokens)
+    const result = parseTree(mockСontext, tokens)
     const simplified = result.map(simplifyTreeNode)
 
     expect(simplified).toEqual([
@@ -179,7 +180,7 @@ text2`
     const mock = `% % text1; text2`
 
     const tokens = tokenize(mock)
-    const result = parseTree(tokens)
+    const result = parseTree(mockСontext, tokens)
     const simplified = result.map(simplifyTreeNode)
 
     expect(simplified).toEqual([
@@ -206,7 +207,7 @@ text2`
     const mock = `%group header{GroupName}% text1; text2`
 
     const tokens = tokenize(mock)
-    const result = parseTree(tokens)
+    const result = parseTree(mockСontext, tokens)
     const simplified = result.map(simplifyTreeNode)
 
     expect(simplified).toEqual([
@@ -248,15 +249,9 @@ const tokensToString = (tokens: any[]): string => {
 const simplifyTreeNode = (
   node: TreeNode
 ): { content: string; type: ParseElementType; childItems: { content: string; type: ParseElementType }[] } => {
-  const result: {
-    content: string
-    type: ParseElementType
-    childItems?: { content: string; type: ParseElementType }[]
-  } = {
+  return {
     content: tokensToString(node.tokens),
     type: node.type,
     childItems: node.childItems.map(simplifyTreeNode),
   }
-
-  return result
 }

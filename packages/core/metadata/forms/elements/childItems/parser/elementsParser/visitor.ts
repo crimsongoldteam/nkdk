@@ -537,6 +537,31 @@ export class Visitor extends BaseVisitor {
 
   // #endregion
 
+  // #region oneLineGroupElements
+  oneLineGroupElements(
+    ctx: { oneLineGroupElementsHeader: CstNode; oneLineGroupElementsContent: CstNode[] },
+    context: ConfigurationContext
+  ): { group: IToken[]; elements: IToken[][] } {
+    const group: IToken[] = this.visit(ctx.oneLineGroupElementsHeader, context)
+    const elements: IToken[][] = visitAll(this, ctx.oneLineGroupElementsContent, context) as unknown as IToken[][]
+    return { group, elements }
+  }
+
+  oneLineGroupElementsHeader(
+    ctx: { OneLineGroupElementsHeaderLabel: IToken[] },
+    _context: ConfigurationContext
+  ): IToken[] {
+    return ctx.OneLineGroupElementsHeaderLabel
+  }
+
+  oneLineGroupElementsContent(
+    ctx: { OneLineGroupElementsContentLabel: IToken[] },
+    _context: ConfigurationContext
+  ): IToken[] {
+    return ctx.OneLineGroupElementsContentLabel
+  }
+  // #endregion
+
   // #region properties
   properties(ctx: CstChildrenDictionary): string | undefined {
     const properties = joinTokens(ctx.PropertiesNameText as IToken[])

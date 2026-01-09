@@ -220,7 +220,10 @@ describe("tokenizer", () => {
   it("should tokenize percent sign in text for horizontal group", () => {
     const mock = `%group`
 
-    const expectedResult = [{ type: "Text", value: "%group" }]
+    const expectedResult = [
+      { type: "Percent", value: "%" },
+      { type: "Text", value: "group" },
+    ]
 
     const result = simplifyTokens(lexer.tokenize(mock).tokens)
 

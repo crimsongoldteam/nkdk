@@ -1,24 +1,25 @@
 import { IToken } from "chevrotain"
+import type { ConfigurationContext } from "~/metadata/context/types"
 import { parseOneLineGroupElements } from "../elementsParser/parse"
 import { detectElementType } from "./detector"
 import { buildTree } from "./treeBuilder"
 import { BuilderTreeNode, ElementWithChildItems, ParseElementType, TreeNode } from "./types"
 
-export const parseTree = (tokens: IToken[]): TreeNode[] => {
+export const parseTree = (context: ConfigurationContext, tokens: IToken[]): TreeNode[] => {
   const tree = buildTree(tokens)
-  return processTreeNodes(tree)
+  return processTreeNodes(context, tree)
 }
 
-const processTreeNodes = (builderNodes: BuilderTreeNode[]): TreeNode[] => {
-  return builderNodes.flatMap((node) => processBuilderTree(node))
+const processTreeNodes = (context: ConfigurationContext, builderNodes: BuilderTreeNode[]): TreeNode[] => {
+  return builderNodes.flatMap((node) => processBuilderTree(context, node))
 }
 
-const processBuilderTree = (builderNode: BuilderTreeNode): TreeNode[] => {
+const processBuilderTree = (context: ConfigurationContext, builderNode: BuilderTreeNode): TreeNode[] => {
   const type = detectElementType(builderNode.tokens)
 
   const currentTreeNode: TreeNode =
     type === ParseElementType.OneLineGroup
-      ? processOneLineGroup(builderNode)
+      ? processOneLineGroup(context, builderNode)
       : {
           tokens: builderNode.tokens,
           type,
@@ -30,7 +31,7 @@ const processBuilderTree = (builderNode: BuilderTreeNode): TreeNode[] => {
   let canHaveChildItems = true
 
   for (const builderChild of builderNode.childItems) {
-    const childTreeNodes = processBuilderTree(builderChild)
+    const childTreeNodes = processBuilderTree(context, builderChild)
 
     for (const childTreeNode of childTreeNodes) {
       if (canHaveChildItems && canBeChildItem(type, childTreeNode.type)) {
@@ -45,15 +46,25 @@ const processBuilderTree = (builderNode: BuilderTreeNode): TreeNode[] => {
   return result
 }
 
-const processOneLineGroup = (builderNode: BuilderTreeNode): TreeNode => {
+const processOneLineGroup = (context: ConfigurationContext, builderNode: BuilderTreeNode): TreeNode => {
   const type = detectElementType(builderNode.tokens)
 
-  const { group, elements } = parseOneLineGroupElements(builderNode)
+  // Создаем временный TreeNode для вызова parseOneLineGroupElements
+  const temporaryTreeNode: TreeNode = {
+    tokens: builderNode.tokens,
+    type,
+    childItems: [],
+  }
+
+  const { group, elements } = parseOneLineGroupElements(context, temporaryTreeNode)
 
   return {
     tokens: group,
     type,
-    childItems: processTreeNodes(elements.map((element) => ({ tokens: element, childItems: [] }))),
+    childItems: processTreeNodes(
+      context,
+      elements.map((element) => ({ tokens: element, childItems: [] }))
+    ),
   }
 }
 

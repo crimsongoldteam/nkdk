@@ -2,7 +2,7 @@ import type { CstNode, IToken } from "chevrotain"
 import type { ConfigurationContext } from "~/metadata/context/types"
 import type { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { ChildItems } from "~/metadata/forms/elements/childItems/types"
-import { ParseElementType, TreeNode } from "../treeParser/types"
+import { BuilderTreeNode, ParseElementType, TreeNode } from "../treeParser/types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
 
@@ -19,7 +19,7 @@ export const parseElement = (context: ConfigurationContext, element: TreeNode): 
 
 export const parseOneLineGroupElements = (
   context: ConfigurationContext,
-  element: TreeNode
+  element: BuilderTreeNode
 ): {
   group: IToken[]
   elements: IToken[][]
@@ -29,7 +29,7 @@ export const parseOneLineGroupElements = (
   return cst
 }
 
-const addChildItemsToResult = (cst: BaseElement, element: TreeNode, context: ConfigurationContext): void => {
+const addChildItemsToResult = (context: ConfigurationContext, cst: BaseElement, element: TreeNode): void => {
   if (!("childItems" in cst)) return
 
   if (element.type === ParseElementType.CommandBar) return

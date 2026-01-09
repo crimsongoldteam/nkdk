@@ -82,26 +82,26 @@ export class Parser extends CstParser {
   private readonly oneLineGroupElements = this.RULE("oneLineGroupElements", () => {
     this.SUBRULE(this.oneLineGroupElementsHeader)
 
-    this.AT_LEAST_ONE_SEP({
+    this.MANY_SEP({
       SEP: t.Semicolon,
-      DEF: () => {
-        this.SUBRULE(this.oneLineGroupElementsContent)
-      },
+      DEF: () => this.SUBRULE(this.oneLineGroupElementsContent),
     })
   })
 
   private readonly oneLineGroupElementsHeader = this.RULE("oneLineGroupElementsHeader", () => {
-    this.CONSUME(t.Percent)
+    this.CONSUME1(t.Percent, { LABEL: "OneLineGroupElementsHeaderLabel" })
     this.MANY1(() => {
-      this.CONSUME(t.GroupHeaderText)
+      this.CONSUME(t.OneLineGroupElementsHeader, { LABEL: "OneLineGroupElementsHeaderLabel" })
+    })
+    this.OPTION(() => {
+      this.CONSUME2(t.Percent, { LABEL: "OneLineGroupElementsHeaderLabel" })
     })
   })
 
   private readonly oneLineGroupElementsContent = this.RULE("oneLineGroupElementsContent", () => {
     this.MANY1(() => {
-      this.CONSUME(t.GroupHeaderText)
+      this.CONSUME(t.OneLineGroupElementsContent, { LABEL: "OneLineGroupElementsContentLabel" })
     })
-    this.CONSUME(t.Percent)
   })
 
   // #endregion
@@ -444,12 +444,12 @@ export class Parser extends CstParser {
   })
 
   private readonly oneLineGroup = this.RULE("oneLineGroup", () => {
-    this.CONSUME(t.Percent)
+    this.CONSUME1(t.Percent)
     this.MANY(() => {
       this.CONSUME(t.GroupHeaderText)
     })
 
-    this.CONSUME(t.Percent)
+    this.CONSUME2(t.Percent)
   })
 
   // #region properties
