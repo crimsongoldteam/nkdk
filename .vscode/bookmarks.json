@@ -34,7 +34,7 @@
 			"path": "packages/core/metadata/forms/clientApplicationForm/exportToEnterprise.ts",
 			"bookmarks": [
 				{
-					"line": 45,
+					"line": 47,
 					"column": 0,
 					"label": "👨‍💻 exportClientApplicationFormToEnterprise"
 				}

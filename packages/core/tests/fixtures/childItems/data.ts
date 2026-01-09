@@ -1,4 +1,4 @@
-import { ChildItems } from "~/metadata/forms/elements/childItems/types"
+import { ChildItems, ChildItemsEnterprise } from "~/metadata/forms/elements/childItems/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export interface ChildItemsFixture {
@@ -32,3 +32,13 @@ export const childItemsFixturesTable: ChildItemsFixture[] = [
     xmlPath: "/childItems/different.xml",
   },
 ]
+
+export const singleChildItemsEnterprise: ChildItemsEnterprise = {
+  Input1: {},
+}
+
+export const differentTypesChildItemsEnterprise: ChildItemsEnterprise = {
+  Input1: {},
+  Button2: {},
+  Input3: {},
+}

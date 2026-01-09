@@ -4,7 +4,7 @@ import { CommandSet, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../commonObjects/formAttributes/types"
 import { FormElementType } from "../../metadataFactory/types"
-import { ChildItems, ChildItemsXML } from "../elements/childItems/types"
+import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../elements/childItems/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../elements/commandBar/types"
 import { EventsXML } from "../events/types"
 
@@ -153,7 +153,6 @@ export interface ClientApplicationFormXML {
 }
 
 export interface ClientApplicationFormEnterprise {
-  Атрибуты?: FormAttributesEnterprise
   АвтоЗаголовок?: StringboolEnterprise
   АвтоматическоеСохранениеДанныхВНастройках?: SE.AutoSaveFormDataInSettingsEnterprise
   АвтоНавигационнаяСсылка?: StringboolEnterprise
@@ -190,6 +189,7 @@ export interface ClientApplicationFormEnterprise {
   ТолькоПросмотр?: StringboolEnterprise
   Ширина?: number
   ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
+  Реквизиты?: FormAttributesEnterprise
   События?: {
     АвтоПодборПользователейСистемыВзаимодействия?: string
     ВнешнееСобытие?: string
@@ -218,4 +218,5 @@ export interface ClientApplicationFormEnterprise {
     ПриСозданииНаСервере?: string
     ПриСохраненииДанныхВНастройкахНаСервере?: string
   }
+  Элементы?: ChildItemsEnterprise
 }

@@ -11,6 +11,8 @@ import { exportCommandBarToEnterprise } from "~/metadata/forms/elements/commandB
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { getAllElements } from "./getAllElements"
+import { exportChildItemsToEnterprise } from "../elements/childItems/exportToEnterprise"
 
 const clientApplicationFormEventNameMapping: Record<keyof ClientApplicationFormEvents, string> = {
   collaborationSystemUsersAutoComplete: "АвтоПодборПользователейСистемыВзаимодействия",
@@ -235,10 +237,14 @@ export const exportClientApplicationFormToEnterprise = (
   if (slaveItemsWidth !== undefined) result.ШиринаПодчиненныхЭлементов = slaveItemsWidth
 
   const attributes = exportFormAttributesToEnterprise(context, data.attributes)
-  if (attributes !== undefined) result.Атрибуты = attributes
+  if (attributes !== undefined) result.Реквизиты = attributes
 
   const events = exportClientApplicationFormEventsToEnterprise(context, data.events)
   if (events !== undefined) result.События = events
+
+  const allElements = getAllElements(data)
+  const childItems = exportChildItemsToEnterprise(context, allElements)
+  if (childItems !== undefined) result.Элементы = childItems
 
   return result
 }
