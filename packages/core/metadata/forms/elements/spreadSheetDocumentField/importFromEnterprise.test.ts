@@ -21,7 +21,6 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
       fullSpreadSheetDocumentFieldEnterprise,
       fullSpreadSheetDocumentField.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(fullSpreadSheetDocumentField)
   })
@@ -32,7 +31,6 @@ describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
       minimalSpreadSheetDocumentFieldEnterprise,
       minimalSpreadSheetDocumentField.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(minimalSpreadSheetDocumentField)
   })

@@ -17,14 +17,12 @@ describe("importLabelDecorationFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importLabelDecorationFromEnterprise(mockСontext, fullLabelDecorationEnterprise, fullLabelDecoration.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullLabelDecoration)
   })
 
   it("should import minimal", () => {
     const result = importLabelDecorationFromEnterprise(mockСontext, minimalLabelDecorationEnterprise, minimalLabelDecoration.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalLabelDecoration)
   })

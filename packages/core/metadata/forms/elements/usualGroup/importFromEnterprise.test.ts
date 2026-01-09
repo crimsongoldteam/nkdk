@@ -17,14 +17,12 @@ describe("importUsualGroupFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importUsualGroupFromEnterprise(mockСontext, fullUsualGroupEnterprise, fullUsualGroup.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullUsualGroup)
   })
 
   it("should import minimal", () => {
     const result = importUsualGroupFromEnterprise(mockСontext, minimalUsualGroupEnterprise, minimalUsualGroup.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalUsualGroup)
   })

@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullPdfDocumentField: PdfDocumentField = {
   elementType: FormElementType.PdfDocumentField,
   name: "ПолеPDFДокумента",
-  id: "1",
   title: {
     items: { ru: "Поле PDF документа" },
   },
@@ -38,8 +37,6 @@ export const fullPdfDocumentFieldEnterprise: PdfDocumentFieldEnterprise = {
 export const minimalPdfDocumentField: PdfDocumentField = {
   elementType: FormElementType.PdfDocumentField,
   name: "ПолеPDFДокумента",
-  id: "1",
 }
 
 export const minimalPdfDocumentFieldEnterprise: PdfDocumentFieldEnterprise = {}
-

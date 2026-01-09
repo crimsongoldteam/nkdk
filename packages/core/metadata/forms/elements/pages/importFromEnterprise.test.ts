@@ -12,14 +12,12 @@ describe("importPagesFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importPagesFromEnterprise(mockСontext, fullPagesEnterprise, fullPages.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullPages)
   })
 
   it("should import minimal", () => {
     const result = importPagesFromEnterprise(mockСontext, minimalPagesEnterprise, minimalPages.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalPages)
   })

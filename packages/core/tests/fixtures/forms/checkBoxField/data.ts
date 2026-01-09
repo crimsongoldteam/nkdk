@@ -5,7 +5,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullCheckBoxField: CheckBoxField = {
   elementType: FormElementType.CheckBoxField,
   name: "Флажок",
-  id: "1",
   autoCellHeight: true,
   cellHyperlink: true,
   contextMenu: undefined,
@@ -129,7 +128,6 @@ export const fullCheckBoxFieldEnterprise: CheckBoxFieldEnterprise = {
 export const minimalCheckBoxField: CheckBoxField = {
   elementType: FormElementType.CheckBoxField,
   name: "Флажок",
-  id: "1",
 }
 
 export const minimalCheckBoxFieldEnterprise: CheckBoxFieldEnterprise = {}
@@ -147,7 +145,6 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       name: "Заголовок",
       elementType: FormElementType.CheckBoxField,
       title: { items: { ru: "Заголовок" } },
-      id: undefined,
     },
     structured: {
       strings: ["Заголовок[]"],
@@ -161,7 +158,6 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       elementType: FormElementType.CheckBoxField,
       headerHorizontalAlign: "Right",
       title: { items: { ru: "Заголовок" } },
-      id: undefined,
     },
     structured: {
       strings: ["[]Заголовок"],
@@ -175,7 +171,6 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       elementType: FormElementType.CheckBoxField,
       checkBoxType: "Switch",
       title: { items: { ru: "Заголовок" } },
-      id: undefined,
     },
     structured: {
       strings: ["Заголовок[|1]"],
@@ -190,7 +185,6 @@ export const checkBoxFieldStructureFixturesTable: CheckBoxFieldStructureFixture[
       headerHorizontalAlign: "Right",
       checkBoxType: "Switch",
       title: { items: { ru: "Заголовок" } },
-      id: undefined,
     },
     structured: {
       strings: ["[|1]Заголовок"],

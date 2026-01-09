@@ -21,7 +21,6 @@ describe("importSearchControlAdditionFromEnterprise", () => {
       fullSearchControlAdditionEnterprise,
       fullSearchControlAddition.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(fullSearchControlAddition)
   })
@@ -32,7 +31,6 @@ describe("importSearchControlAdditionFromEnterprise", () => {
       minimalSearchControlAdditionEnterprise,
       minimalSearchControlAddition.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(minimalSearchControlAddition)
   })

@@ -5,7 +5,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullButton: Button = {
   elementType: FormElementType.Button,
   name: "Кнопка",
-  id: "1",
   title: {
     items: { ru: "Кнопка формы" },
   },
@@ -95,7 +94,6 @@ export const fullButtonEnterprise: ButtonEnterprise = {
 export const minimalButton: Button = {
   elementType: FormElementType.Button,
   name: "Кнопка",
-  id: "1",
 }
 
 export const minimalButtonEnterprise: ButtonEnterprise = {}
@@ -113,7 +111,6 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
       name: "Заголовок",
       elementType: FormElementType.Button,
       title: { items: { ru: "Заголовок" } },
-      id: undefined,
     },
     structured: {
       strings: ["<Заголовок {Заголовок}>"],
@@ -126,7 +123,6 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
       name: "",
       elementType: FormElementType.Button,
       title: undefined,
-      id: undefined,
     },
     structured: {
       strings: ["<{}>"],

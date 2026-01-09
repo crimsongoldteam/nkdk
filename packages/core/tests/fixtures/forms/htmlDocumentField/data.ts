@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullHtmlDocumentField: HTMLDocumentField = {
   elementType: FormElementType.HTMLDocumentField,
   name: "ПолеHTMLДокумента",
-  id: "1",
   title: {
     items: { ru: "Поле HTML документа" },
   },
@@ -38,7 +37,6 @@ export const fullHtmlDocumentFieldEnterprise: HTMLDocumentFieldEnterprise = {
 export const minimalHtmlDocumentField: HTMLDocumentField = {
   elementType: FormElementType.HTMLDocumentField,
   name: "ПолеHTMLДокумента",
-  id: "1",
 }
 
 export const minimalHtmlDocumentFieldEnterprise: HTMLDocumentFieldEnterprise = {}

@@ -12,14 +12,12 @@ describe("importFormDecorationFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importFormDecorationFromEnterprise(mockСontext, fullFormDecorationEnterprise, fullFormDecoration.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullFormDecoration)
   })
 
   it("should import minimal", () => {
     const result = importFormDecorationFromEnterprise(mockСontext, minimalFormDecorationEnterprise, minimalFormDecoration.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalFormDecoration)
   })

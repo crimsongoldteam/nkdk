@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullCalendarField: CalendarField = {
   elementType: FormElementType.CalendarField,
   name: "ПолеКалендаря",
-  id: "1",
   title: {
     items: { ru: "Поле календаря" },
   },
@@ -80,7 +79,6 @@ export const fullCalendarFieldEnterprise: CalendarFieldEnterprise = {
 export const minimalCalendarField: CalendarField = {
   elementType: FormElementType.CalendarField,
   name: "ПолеКалендаря",
-  id: "1",
 }
 
 export const minimalCalendarFieldEnterprise: CalendarFieldEnterprise = {}

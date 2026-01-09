@@ -5,7 +5,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullCommandBar: CommandBar = {
   elementType: FormElementType.CommandBar,
   name: "КоманднаяПанель",
-  id: "1",
   childItems: [],
   enableContentChange: true,
   enabled: true,
@@ -65,7 +64,6 @@ export const fullCommandBarEnterprise: CommandBarEnterprise = {
 export const minimalCommandBar: CommandBar = {
   elementType: FormElementType.CommandBar,
   name: "КоманднаяПанель",
-  id: "1",
   childItems: [],
 }
 
@@ -87,23 +85,19 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
         {
           elementType: FormElementType.Button,
           name: "Button1",
-          id: "1",
           title: { items: { ru: "Button1" } },
         },
         {
           elementType: FormElementType.Button,
           name: "Button2",
-          id: "2",
           title: { items: { ru: "Button2" } },
         },
         {
           elementType: FormElementType.Button,
           name: "Button3",
-          id: "3",
           title: { items: { ru: "Button3" } },
         },
       ],
-      id: "1",
     },
     structured: {
       strings: ["<Button1|Button2|Button3>"],

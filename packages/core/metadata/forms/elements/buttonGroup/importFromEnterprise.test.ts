@@ -18,14 +18,12 @@ describe("importButtonGroupFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importButtonGroupFromEnterprise(mockСontext, fullButtonGroupEnterprise, fullButtonGroup.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullButtonGroup)
   })
 
   it("should import minimal", () => {
     const result = importButtonGroupFromEnterprise(mockСontext, minimalButtonGroupEnterprise, minimalButtonGroup.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalButtonGroup)
   })

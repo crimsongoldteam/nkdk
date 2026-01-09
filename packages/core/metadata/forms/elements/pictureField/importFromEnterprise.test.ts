@@ -12,14 +12,12 @@ describe("importPictureFieldFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importPictureFieldFromEnterprise(mockСontext, fullPictureFieldEnterprise, fullPictureField.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullPictureField)
   })
 
   it("should import minimal", () => {
     const result = importPictureFieldFromEnterprise(mockСontext, minimalPictureFieldEnterprise, minimalPictureField.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalPictureField)
   })

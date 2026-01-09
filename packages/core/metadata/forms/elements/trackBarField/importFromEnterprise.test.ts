@@ -21,7 +21,6 @@ describe("importTrackBarFieldFromEnterprise", () => {
       fullTrackBarFieldEnterprise,
       fullTrackBarField.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(fullTrackBarField)
   })
@@ -32,7 +31,6 @@ describe("importTrackBarFieldFromEnterprise", () => {
       minimalTrackBarFieldEnterprise,
       minimalTrackBarField.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(minimalTrackBarField)
   })

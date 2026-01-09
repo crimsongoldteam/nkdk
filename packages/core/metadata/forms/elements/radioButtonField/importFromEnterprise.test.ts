@@ -21,7 +21,6 @@ describe("importRadioButtonFieldFromEnterprise", () => {
       fullRadioButtonFieldEnterprise,
       fullRadioButtonField.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(fullRadioButtonField)
   })
@@ -32,7 +31,6 @@ describe("importRadioButtonFieldFromEnterprise", () => {
       minimalRadioButtonFieldEnterprise,
       minimalRadioButtonField.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(minimalRadioButtonField)
   })

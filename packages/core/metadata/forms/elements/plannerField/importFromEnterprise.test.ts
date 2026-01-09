@@ -12,14 +12,12 @@ describe("importPlannerFieldFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importPlannerFieldFromEnterprise(mockСontext, fullPlannerFieldEnterprise, fullPlannerField.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullPlannerField)
   })
 
   it("should import minimal", () => {
     const result = importPlannerFieldFromEnterprise(mockСontext, minimalPlannerFieldEnterprise, minimalPlannerField.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalPlannerField)
   })

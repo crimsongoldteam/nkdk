@@ -7,7 +7,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullGeographicalSchemaField: GeographicalSchemaField = {
   elementType: FormElementType.GeographicalSchemaField,
   name: "ПолеГеографическойСхемы",
-  id: "1",
   title: {
     items: { ru: "Поле географической схемы" },
   },
@@ -45,7 +44,6 @@ export const fullGeographicalSchemaFieldEnterprise: GeographicalSchemaFieldEnter
 export const minimalGeographicalSchemaField: GeographicalSchemaField = {
   elementType: FormElementType.GeographicalSchemaField,
   name: "ПолеГеографическойСхемы",
-  id: "1",
 }
 
 export const minimalGeographicalSchemaFieldEnterprise: GeographicalSchemaFieldEnterprise = {}

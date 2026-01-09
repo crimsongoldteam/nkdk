@@ -12,14 +12,12 @@ describe("importFormattedDocumentFieldFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importFormattedDocumentFieldFromEnterprise(mockСontext, fullFormattedDocumentFieldEnterprise, fullFormattedDocumentField.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullFormattedDocumentField)
   })
 
   it("should import minimal", () => {
     const result = importFormattedDocumentFieldFromEnterprise(mockСontext, minimalFormattedDocumentFieldEnterprise, minimalFormattedDocumentField.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalFormattedDocumentField)
   })

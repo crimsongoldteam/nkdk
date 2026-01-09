@@ -21,7 +21,6 @@ describe("importTextDocumentFieldFromEnterprise", () => {
       fullTextDocumentFieldEnterprise,
       fullTextDocumentField.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(fullTextDocumentField)
   })
@@ -32,9 +31,7 @@ describe("importTextDocumentFieldFromEnterprise", () => {
       minimalTextDocumentFieldEnterprise,
       minimalTextDocumentField.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(minimalTextDocumentField)
   })
 })
-

@@ -12,14 +12,12 @@ describe("importFormItemAdditionFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importFormItemAdditionFromEnterprise(mockСontext, fullFormItemAdditionEnterprise, fullFormItemAddition.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullFormItemAddition)
   })
 
   it("should import minimal", () => {
     const result = importFormItemAdditionFromEnterprise(mockСontext, minimalFormItemAdditionEnterprise, minimalFormItemAddition.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalFormItemAddition)
   })

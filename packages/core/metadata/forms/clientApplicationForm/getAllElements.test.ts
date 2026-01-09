@@ -10,12 +10,10 @@ describe("getAllElements", () => {
       childItems: [
         {
           name: "Группа",
-          id: "1",
           elementType: FormElementType.UsualGroup,
           childItems: [
             {
               name: "ПолеВвода",
-              id: "2",
               elementType: FormElementType.InputField,
             },
           ],
@@ -28,11 +26,9 @@ describe("getAllElements", () => {
     expect(elements).toHaveLength(2)
     expect(elements[0]).toMatchObject({
       name: "Группа",
-      id: "1",
     })
     expect(elements[1]).toMatchObject({
       name: "ПолеВвода",
-      id: "2",
     })
   })
 })

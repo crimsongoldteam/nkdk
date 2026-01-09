@@ -17,14 +17,12 @@ describe("importInputFieldFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importInputFieldFromEnterprise(mockСontext, fullInputFieldEnterprise, fullInputField.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullInputField)
   })
 
   it("should import minimal", () => {
     const result = importInputFieldFromEnterprise(mockСontext, minimalInputFieldEnterprise, minimalInputField.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalInputField)
   })

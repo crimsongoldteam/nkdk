@@ -12,14 +12,12 @@ describe("importGraphicalSchemaFieldFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importGraphicalSchemaFieldFromEnterprise(mockСontext, fullGraphicalSchemaFieldEnterprise, fullGraphicalSchemaField.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullGraphicalSchemaField)
   })
 
   it("should import minimal", () => {
     const result = importGraphicalSchemaFieldFromEnterprise(mockСontext, minimalGraphicalSchemaFieldEnterprise, minimalGraphicalSchemaField.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalGraphicalSchemaField)
   })

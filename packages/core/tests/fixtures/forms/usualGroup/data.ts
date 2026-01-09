@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullUsualGroup: UsualGroup = {
   elementType: FormElementType.UsualGroup,
   name: "ОбычнаяГруппа",
-  id: "1",
   childItems: [],
   enableContentChange: true,
   enabled: true,
@@ -109,7 +108,6 @@ export const fullUsualGroupEnterprise: UsualGroupEnterprise = {
 export const minimalUsualGroup: UsualGroup = {
   elementType: FormElementType.UsualGroup,
   name: "ОбычнаяГруппа",
-  id: "1",
   childItems: [],
 }
 

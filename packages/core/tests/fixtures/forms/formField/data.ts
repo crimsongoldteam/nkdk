@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullFormField: FormField = {
   elementType: FormElementType.FormField,
   name: "ПолеФормы",
-  id: "1",
   title: {
     items: { ru: "Поле формы" },
   },
@@ -112,7 +111,6 @@ export const fullFormFieldEnterprise: FormFieldEnterprise = {
 export const minimalFormField: FormField = {
   elementType: FormElementType.FormField,
   name: "ПолеФормы",
-  id: "1",
 }
 
 export const minimalFormFieldEnterprise: FormFieldEnterprise = {}

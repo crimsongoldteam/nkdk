@@ -12,14 +12,12 @@ describe("importPeriodFieldFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importPeriodFieldFromEnterprise(mockСontext, fullPeriodFieldEnterprise, fullPeriodField.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullPeriodField)
   })
 
   it("should import minimal", () => {
     const result = importPeriodFieldFromEnterprise(mockСontext, minimalPeriodFieldEnterprise, minimalPeriodField.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalPeriodField)
   })

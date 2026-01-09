@@ -11,7 +11,6 @@ it("should decode element from XML", () => {
   const mockResult: BaseElement = {
     name: "ИмяПоля",
     elementType: FormElementType.BaseElement,
-    id: "16",
   }
 
   const xml = xmlImport<{ BaseElement: BaseElementXML }>(mockXml)

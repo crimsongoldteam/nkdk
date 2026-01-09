@@ -7,13 +7,11 @@ export const fullClientApplicationForm: ClientApplicationForm = {
   attributes: [
     {
       name: "Объект",
-      id: "1",
       valueType: { type: ["CatalogRef.ТестоваяОбработка"] },
       mainAttribute: true,
     },
   ],
   autoCommandBar: {
-    id: "-1",
     name: "ФормаКоманднаяПанель",
     elementType: FormElementType.CommandBar,
     autofill: true,
@@ -22,7 +20,6 @@ export const fullClientApplicationForm: ClientApplicationForm = {
     childItems: [
       {
         name: "Кнопка1",
-        id: "1",
         elementType: FormElementType.Button,
       },
     ],
@@ -57,7 +54,6 @@ export const fullClientApplicationForm: ClientApplicationForm = {
   childItems: [
     {
       name: "ПолеВвода1",
-      id: "1",
       elementType: FormElementType.InputField,
     },
   ],
@@ -103,7 +99,6 @@ export const fullClientApplicationForm: ClientApplicationForm = {
 export const minimalClientApplicationForm: ClientApplicationForm = {
   elementType: FormElementType.ClientApplicationForm,
   autoCommandBar: {
-    id: "-1",
     name: "ФормаКоманднаяПанель",
     elementType: FormElementType.CommandBar,
     childItems: [],

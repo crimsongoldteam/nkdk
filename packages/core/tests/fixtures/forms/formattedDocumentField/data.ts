@@ -7,7 +7,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullFormattedDocumentField: FormattedDocumentField = {
   elementType: FormElementType.FormattedDocumentField,
   name: "ПолеФорматированногоДокумента",
-  id: "1",
   title: {
     items: { ru: "Поле форматированного документа" },
   },
@@ -61,7 +60,6 @@ export const fullFormattedDocumentFieldEnterprise: FormattedDocumentFieldEnterpr
 export const minimalFormattedDocumentField: FormattedDocumentField = {
   elementType: FormElementType.FormattedDocumentField,
   name: "ПолеФорматированногоДокумента",
-  id: "1",
 }
 
 export const minimalFormattedDocumentFieldEnterprise: FormattedDocumentFieldEnterprise = {}

@@ -5,7 +5,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullLabelDecoration: LabelDecoration = {
   elementType: FormElementType.LabelDecoration,
   name: "Заголовок",
-  id: "1",
   title: {
     items: { ru: "Заголовок формы" },
   },
@@ -55,7 +54,6 @@ export const fullLabelDecorationEnterprise: LabelDecorationEnterprise = {
 export const minimalLabelDecoration: LabelDecoration = {
   elementType: FormElementType.LabelDecoration,
   name: "Заголовок",
-  id: "1",
 }
 
 export const minimalLabelDecorationEnterprise: LabelDecorationEnterprise = {}

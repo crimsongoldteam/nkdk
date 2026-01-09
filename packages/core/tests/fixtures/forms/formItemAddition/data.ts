@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullFormItemAddition: FormItemAddition = {
   elementType: FormElementType.FormItemAddition,
   name: "ДобавлениеЭлементаФормы",
-  id: "1",
   childItems: [],
   displayImportance: "High",
   enabled: true,
@@ -41,7 +40,6 @@ export const fullFormItemAdditionEnterprise: FormItemAdditionEnterprise = {
 export const minimalFormItemAddition: FormItemAddition = {
   elementType: FormElementType.FormItemAddition,
   name: "ДобавлениеЭлементаФормы",
-  id: "1",
   childItems: [],
 }
 

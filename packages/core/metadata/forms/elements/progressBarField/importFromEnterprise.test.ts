@@ -12,14 +12,12 @@ describe("importProgressBarFieldFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importProgressBarFieldFromEnterprise(mockСontext, fullProgressBarFieldEnterprise, fullProgressBarField.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullProgressBarField)
   })
 
   it("should import minimal", () => {
     const result = importProgressBarFieldFromEnterprise(mockСontext, minimalProgressBarFieldEnterprise, minimalProgressBarField.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalProgressBarField)
   })

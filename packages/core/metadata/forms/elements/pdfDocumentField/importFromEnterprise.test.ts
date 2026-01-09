@@ -12,14 +12,12 @@ describe("importPdfDocumentFieldFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importPdfDocumentFieldFromEnterprise(mockСontext, fullPdfDocumentFieldEnterprise, fullPdfDocumentField.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullPdfDocumentField)
   })
 
   it("should import minimal", () => {
     const result = importPdfDocumentFieldFromEnterprise(mockСontext, minimalPdfDocumentFieldEnterprise, minimalPdfDocumentField.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalPdfDocumentField)
   })

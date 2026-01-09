@@ -17,16 +17,17 @@ describe("importCalendarFieldFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importCalendarFieldFromEnterprise(mockСontext, fullCalendarFieldEnterprise, fullCalendarField.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullCalendarField)
   })
 
   it("should import minimal", () => {
-    const result = importCalendarFieldFromEnterprise(mockСontext, minimalCalendarFieldEnterprise, minimalCalendarField.name)
-    result!.id = "1"
+    const result = importCalendarFieldFromEnterprise(
+      mockСontext,
+      minimalCalendarFieldEnterprise,
+      minimalCalendarField.name
+    )
 
     expect(result).toEqual(minimalCalendarField)
   })
 })
-

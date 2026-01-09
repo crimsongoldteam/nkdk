@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach } from "vitest"
-import {
-  registerIsOneLineElementCheck,
-  isOneLineElement,
-  clearIsOneLineElementCheckRegistry,
-} from "./isOneLineElementCheckFactory"
+import { beforeEach, describe, expect, it } from "vitest"
 import { BaseElement } from "../metadata/forms/elements/baseElement/types"
 import { FormElementType } from "../metadata/metadataFactory/types"
+import {
+  clearIsOneLineElementCheckRegistry,
+  isOneLineElement,
+  registerIsOneLineElementCheck,
+} from "./isOneLineElementCheckFactory"
 
 describe("isOneLineElementCheckFactory", () => {
   beforeEach(() => {
@@ -16,7 +16,6 @@ describe("isOneLineElementCheckFactory", () => {
     const element: BaseElement = {
       elementType: FormElementType.InputField,
       name: "InputField",
-      id: "1",
     }
 
     const checkFunction = (_element: BaseElement) => true
@@ -29,7 +28,6 @@ describe("isOneLineElementCheckFactory", () => {
     const element: BaseElement = {
       elementType: FormElementType.InputField,
       name: "InputField",
-      id: "1",
     }
 
     const checkFunction = () => true
@@ -44,13 +42,11 @@ describe("isOneLineElementCheckFactory", () => {
     const inputField: BaseElement = {
       elementType: FormElementType.InputField,
       name: "InputField",
-      id: "2",
     }
 
     const group: BaseElement = {
       elementType: FormElementType.UsualGroup,
       name: "UsualGroup",
-      id: "1",
     }
 
     registerIsOneLineElementCheck(FormElementType.InputField, () => true)

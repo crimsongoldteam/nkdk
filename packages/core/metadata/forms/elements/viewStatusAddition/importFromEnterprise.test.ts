@@ -21,7 +21,6 @@ describe("importViewStatusAdditionFromEnterprise", () => {
       fullViewStatusAdditionEnterprise,
       fullViewStatusAddition.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(fullViewStatusAddition)
   })
@@ -32,7 +31,6 @@ describe("importViewStatusAdditionFromEnterprise", () => {
       minimalViewStatusAdditionEnterprise,
       minimalViewStatusAddition.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(minimalViewStatusAddition)
   })

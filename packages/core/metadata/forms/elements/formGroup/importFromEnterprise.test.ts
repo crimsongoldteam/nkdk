@@ -12,14 +12,12 @@ describe("importFormGroupFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importFormGroupFromEnterprise(mockСontext, fullFormGroupEnterprise, fullFormGroup.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullFormGroup)
   })
 
   it("should import minimal", () => {
     const result = importFormGroupFromEnterprise(mockСontext, minimalFormGroupEnterprise, minimalFormGroup.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalFormGroup)
   })

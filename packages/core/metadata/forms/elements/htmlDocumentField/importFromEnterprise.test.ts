@@ -21,7 +21,6 @@ describe("importHTMLDocumentFieldFromEnterprise", () => {
       fullHtmlDocumentFieldEnterprise,
       fullHtmlDocumentField.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(fullHtmlDocumentField)
   })
@@ -32,7 +31,6 @@ describe("importHTMLDocumentFieldFromEnterprise", () => {
       minimalHtmlDocumentFieldEnterprise,
       minimalHtmlDocumentField.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(minimalHtmlDocumentField)
   })

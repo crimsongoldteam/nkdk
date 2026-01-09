@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullPeriodField: PeriodField = {
   elementType: FormElementType.PeriodField,
   name: "ПолеПериода",
-  id: "1",
   title: {
     items: { ru: "Поле периода" },
   },
@@ -17,7 +16,6 @@ export const fullPeriodFieldEnterprise: PeriodFieldEnterprise = {
 export const minimalPeriodField: PeriodField = {
   elementType: FormElementType.PeriodField,
   name: "ПолеПериода",
-  id: "1",
 }
 
 export const minimalPeriodFieldEnterprise: PeriodFieldEnterprise = {}

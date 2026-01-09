@@ -12,14 +12,12 @@ describe("importTableFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importTableFromEnterprise(mockСontext, fullTableEnterprise, fullTable.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullTable)
   })
 
   it("should import minimal", () => {
     const result = importTableFromEnterprise(mockСontext, minimalTableEnterprise, minimalTable.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalTable)
   })

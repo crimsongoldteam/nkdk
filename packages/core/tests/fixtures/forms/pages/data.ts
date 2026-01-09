@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullPages: Pages = {
   elementType: FormElementType.Pages,
   name: "Страницы",
-  id: "1",
   childItems: [],
   enableContentChange: true,
   enabled: true,
@@ -71,7 +70,6 @@ export const fullPagesEnterprise: PagesEnterprise = {
 export const minimalPages: Pages = {
   elementType: FormElementType.Pages,
   name: "Страницы",
-  id: "1",
   childItems: [],
 }
 

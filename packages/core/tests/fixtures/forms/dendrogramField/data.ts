@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullDendrogramField: DendrogramField = {
   elementType: FormElementType.DendrogramField,
   name: "ПолеДендрограммы",
-  id: "1",
   title: {
     items: { ru: "Поле дендрограммы" },
   },
@@ -46,7 +45,6 @@ export const fullDendrogramFieldEnterprise: DendrogramFieldEnterprise = {
 export const minimalDendrogramField: DendrogramField = {
   elementType: FormElementType.DendrogramField,
   name: "ПолеДендрограммы",
-  id: "1",
 }
 
 export const minimalDendrogramFieldEnterprise: DendrogramFieldEnterprise = {}

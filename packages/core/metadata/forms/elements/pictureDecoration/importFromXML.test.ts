@@ -1,9 +1,9 @@
 import { expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
+import xmlImport from "~/xml/import/importer"
 import { FormElementType } from "../../../metadataFactory/types"
 import { importPictureDecorationFromXML } from "./importFromXML"
 import { PictureDecoration, PictureDecorationXML } from "./types"
-import xmlImport from "~/xml/import/importer"
 
 it("should import name from XML", () => {
   const mockXml = `<PictureDecoration name="ПереданВАрхивИлиУничтоженКартинка" id="1">
@@ -21,7 +21,6 @@ it("should import name from XML", () => {
       type: "CommonPicture",
       loadTransparent: false,
     },
-    id: "1",
   }
 
   const xml = xmlImport<{ PictureDecoration: PictureDecorationXML }>(mockXml)

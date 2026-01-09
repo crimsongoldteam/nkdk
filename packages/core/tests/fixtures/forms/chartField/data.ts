@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullChartField: ChartField = {
   elementType: FormElementType.ChartField,
   name: "ПолеДиаграммы",
-  id: "1",
   title: {
     items: { ru: "Поле диаграммы" },
   },
@@ -46,7 +45,6 @@ export const fullChartFieldEnterprise: ChartFieldEnterprise = {
 export const minimalChartField: ChartField = {
   elementType: FormElementType.ChartField,
   name: "ПолеДиаграммы",
-  id: "1",
 }
 
 export const minimalChartFieldEnterprise: ChartFieldEnterprise = {}

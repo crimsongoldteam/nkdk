@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullPictureField: PictureField = {
   elementType: FormElementType.PictureField,
   name: "ПолеКартинки",
-  id: "1",
   title: {
     items: { ru: "Поле картинки" },
   },
@@ -17,7 +16,6 @@ export const fullPictureFieldEnterprise: PictureFieldEnterprise = {
 export const minimalPictureField: PictureField = {
   elementType: FormElementType.PictureField,
   name: "ПолеКартинки",
-  id: "1",
 }
 
 export const minimalPictureFieldEnterprise: PictureFieldEnterprise = {}

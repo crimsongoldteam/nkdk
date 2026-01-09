@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullRadioButtonField: RadioButtonField = {
   elementType: FormElementType.RadioButtonField,
   name: "ПолеПереключателя",
-  id: "1",
   autoCellHeight: true,
   cellHyperlink: true,
   contextMenu: undefined,
@@ -100,7 +99,6 @@ export const fullRadioButtonFieldEnterprise: RadioButtonFieldEnterprise = {
 export const minimalRadioButtonField: RadioButtonField = {
   elementType: FormElementType.RadioButtonField,
   name: "ПолеПереключателя",
-  id: "1",
 }
 
 export const minimalRadioButtonFieldEnterprise: RadioButtonFieldEnterprise = {}

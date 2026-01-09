@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullSpreadSheetDocumentField: SpreadSheetDocumentField = {
   elementType: FormElementType.SpreadSheetDocumentField,
   name: "ПолеТабличногоДокумента",
-  id: "1",
   title: {
     items: { ru: "Поле табличного документа" },
   },
@@ -17,7 +16,6 @@ export const fullSpreadSheetDocumentFieldEnterprise: SpreadSheetDocumentFieldEnt
 export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {
   elementType: FormElementType.SpreadSheetDocumentField,
   name: "ПолеТабличногоДокумента",
-  id: "1",
 }
 
 export const minimalSpreadSheetDocumentFieldEnterprise: SpreadSheetDocumentFieldEnterprise = {}

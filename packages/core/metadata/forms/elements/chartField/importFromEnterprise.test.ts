@@ -12,14 +12,12 @@ describe("importChartFieldFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importChartFieldFromEnterprise(mockСontext, fullChartFieldEnterprise, fullChartField.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullChartField)
   })
 
   it("should import minimal", () => {
     const result = importChartFieldFromEnterprise(mockСontext, minimalChartFieldEnterprise, minimalChartField.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalChartField)
   })

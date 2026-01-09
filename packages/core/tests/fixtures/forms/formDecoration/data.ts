@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullFormDecoration: FormDecoration = {
   elementType: FormElementType.FormDecoration,
   name: "ОформлениеФормы",
-  id: "1",
   title: {
     items: { ru: "Оформление формы" },
   },
@@ -64,7 +63,6 @@ export const fullFormDecorationEnterprise: FormDecorationEnterprise = {
 export const minimalFormDecoration: FormDecoration = {
   elementType: FormElementType.FormDecoration,
   name: "ОформлениеФормы",
-  id: "1",
 }
 
 export const minimalFormDecorationEnterprise: FormDecorationEnterprise = {}

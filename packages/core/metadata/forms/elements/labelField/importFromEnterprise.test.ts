@@ -12,14 +12,12 @@ describe("importLabelFieldFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importLabelFieldFromEnterprise(mockСontext, fullLabelFieldEnterprise, fullLabelField.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullLabelField)
   })
 
   it("should import minimal", () => {
     const result = importLabelFieldFromEnterprise(mockСontext, minimalLabelFieldEnterprise, minimalLabelField.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalLabelField)
   })

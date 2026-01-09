@@ -4,12 +4,10 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullButtonGroup: ButtonGroup = {
   elementType: FormElementType.ButtonGroup,
   name: "ГруппаКнопок",
-  id: "1",
   childItems: [
     {
       elementType: FormElementType.Button,
       name: "Кнопка",
-      id: "2",
     },
   ],
   enableContentChange: true,
@@ -66,7 +64,6 @@ export const fullButtonGroupEnterprise: ButtonGroupEnterprise = {
 export const minimalButtonGroup: ButtonGroup = {
   elementType: FormElementType.ButtonGroup,
   name: "ГруппаКнопок",
-  id: "1",
   childItems: [],
 }
 

@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullPopup: Popup = {
   elementType: FormElementType.Popup,
   name: "ВсплывающееОкно",
-  id: "1",
   childItems: [],
   enableContentChange: true,
   enabled: true,
@@ -69,7 +68,6 @@ export const fullPopupEnterprise: PopupEnterprise = {
 export const minimalPopup: Popup = {
   elementType: FormElementType.Popup,
   name: "ВсплывающееОкно",
-  id: "1",
   childItems: [],
 }
 

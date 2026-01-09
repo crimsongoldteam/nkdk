@@ -12,14 +12,12 @@ describe("importDendrogramFieldFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importDendrogramFieldFromEnterprise(mockСontext, fullDendrogramFieldEnterprise, fullDendrogramField.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullDendrogramField)
   })
 
   it("should import minimal", () => {
     const result = importDendrogramFieldFromEnterprise(mockСontext, minimalDendrogramFieldEnterprise, minimalDendrogramField.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalDendrogramField)
   })

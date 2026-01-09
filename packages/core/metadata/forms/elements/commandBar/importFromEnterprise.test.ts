@@ -12,14 +12,12 @@ describe("importCommandBarFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importCommandBarFromEnterprise(mockСontext, fullCommandBarEnterprise, fullCommandBar.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullCommandBar)
   })
 
   it("should import minimal", () => {
     const result = importCommandBarFromEnterprise(mockСontext, minimalCommandBarEnterprise, minimalCommandBar.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalCommandBar)
   })

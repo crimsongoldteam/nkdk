@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullColumnGroup: ColumnGroup = {
   elementType: FormElementType.ColumnGroup,
   name: "ГруппаКолонок",
-  id: "1",
   childItems: [],
   enableContentChange: true,
   enabled: true,
@@ -80,7 +79,6 @@ export const fullColumnGroupEnterprise: ColumnGroupEnterprise = {
 export const minimalColumnGroup: ColumnGroup = {
   elementType: FormElementType.ColumnGroup,
   name: "ГруппаКолонок",
-  id: "1",
   childItems: [],
 }
 

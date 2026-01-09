@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullGanttChartField: GanttChartField = {
   elementType: FormElementType.GanttChartField,
   name: "ПолеДиаграммыГанта",
-  id: "1",
   title: {
     items: { ru: "Поле диаграммы Ганта" },
   },
@@ -48,7 +47,6 @@ export const fullGanttChartFieldEnterprise: GanttChartFieldEnterprise = {
 export const minimalGanttChartField: GanttChartField = {
   elementType: FormElementType.GanttChartField,
   name: "ПолеДиаграммыГанта",
-  id: "1",
 }
 
 export const minimalGanttChartFieldEnterprise: GanttChartFieldEnterprise = {}

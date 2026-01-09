@@ -12,14 +12,12 @@ describe("importPopupFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importPopupFromEnterprise(mockСontext, fullPopupEnterprise, fullPopup.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullPopup)
   })
 
   it("should import minimal", () => {
     const result = importPopupFromEnterprise(mockСontext, minimalPopupEnterprise, minimalPopup.name)
-    result!.id = "1"
 
     expect(result).toEqual(minimalPopup)
   })

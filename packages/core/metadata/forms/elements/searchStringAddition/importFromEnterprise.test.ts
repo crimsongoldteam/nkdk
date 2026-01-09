@@ -21,7 +21,6 @@ describe("importSearchStringAdditionFromEnterprise", () => {
       fullSearchStringAdditionEnterprise,
       fullSearchStringAddition.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(fullSearchStringAddition)
   })
@@ -32,7 +31,6 @@ describe("importSearchStringAdditionFromEnterprise", () => {
       minimalSearchStringAdditionEnterprise,
       minimalSearchStringAddition.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(minimalSearchStringAddition)
   })

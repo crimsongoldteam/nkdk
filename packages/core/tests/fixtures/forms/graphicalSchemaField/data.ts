@@ -7,7 +7,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullGraphicalSchemaField: GraphicalSchemaField = {
   elementType: FormElementType.GraphicalSchemaField,
   name: "ПолеГрафическойСхемы",
-  id: "1",
   title: {
     items: { ru: "Поле графической схемы" },
   },
@@ -47,7 +46,6 @@ export const fullGraphicalSchemaFieldEnterprise: GraphicalSchemaFieldEnterprise 
 export const minimalGraphicalSchemaField: GraphicalSchemaField = {
   elementType: FormElementType.GraphicalSchemaField,
   name: "ПолеГрафическойСхемы",
-  id: "1",
 }
 
 export const minimalGraphicalSchemaFieldEnterprise: GraphicalSchemaFieldEnterprise = {}

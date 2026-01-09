@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullSearchControlAddition: SearchControlAddition = {
   elementType: FormElementType.SearchControlAddition,
   name: "ДополнениеУправленияПоиском",
-  id: "1",
 }
 
 export const fullSearchControlAdditionEnterprise: SearchControlAdditionEnterprise = {}
@@ -12,7 +11,6 @@ export const fullSearchControlAdditionEnterprise: SearchControlAdditionEnterpris
 export const minimalSearchControlAddition: SearchControlAddition = {
   elementType: FormElementType.SearchControlAddition,
   name: "ДополнениеУправленияПоиском",
-  id: "1",
 }
 
 export const minimalSearchControlAdditionEnterprise: SearchControlAdditionEnterprise = {}

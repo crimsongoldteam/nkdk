@@ -21,7 +21,6 @@ it("should import name from XML", () => {
     title: {
       items: { ru: "Заголовок формы" },
     },
-    id: "1",
   }
 
   const xml = xmlImport<{ LabelDecoration: LabelDecorationXML }>(mockXml)

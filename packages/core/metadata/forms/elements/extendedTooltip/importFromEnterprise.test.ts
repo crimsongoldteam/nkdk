@@ -21,7 +21,6 @@ describe("importExtendedTooltipFromEnterprise", () => {
       fullFormDecorationEnterprise,
       fullFormDecoration.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(fullFormDecoration)
   })
@@ -32,7 +31,6 @@ describe("importExtendedTooltipFromEnterprise", () => {
       minimalFormDecorationEnterprise,
       minimalFormDecoration.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(minimalFormDecoration)
   })

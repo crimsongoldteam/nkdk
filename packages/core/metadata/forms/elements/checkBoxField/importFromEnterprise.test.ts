@@ -17,7 +17,6 @@ describe("importCheckBoxFieldFromEnterprise", () => {
 
   it("should import all fields from Enterprise", () => {
     const result = importCheckBoxFieldFromEnterprise(mockСontext, fullCheckBoxFieldEnterprise, fullCheckBoxField.name)
-    result!.id = "1"
 
     expect(result).toEqual(fullCheckBoxField)
   })
@@ -28,7 +27,6 @@ describe("importCheckBoxFieldFromEnterprise", () => {
       minimalCheckBoxFieldEnterprise,
       minimalCheckBoxField.name
     )
-    result!.id = "1"
 
     expect(result).toEqual(minimalCheckBoxField)
   })
