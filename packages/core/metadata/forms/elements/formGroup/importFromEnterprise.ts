@@ -5,7 +5,6 @@ import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/im
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
-import { importChildItemsFromEnterprise } from "~/metadata/forms/elements/childItems/importFromEnterprise"
 import { importFormDecorationFromEnterprise } from "~/metadata/forms/elements/formDecoration/importFromEnterprise"
 import { FormGroup, FormGroupEnterprise } from "~/metadata/forms/elements/formGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -70,12 +69,12 @@ export const importFormGroupFromEnterprise = (
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
-  if (childItems !== undefined) {
-    result.childItems = childItems
-  } else {
-    result.childItems = []
-  }
+  // const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
+  // if (childItems !== undefined) {
+  //   result.childItems = childItems
+  // } else {
+  //   result.childItems = []
+  // }
 
   const userVisibleAllow = importUserVisibleFromEnterprise(
     context,

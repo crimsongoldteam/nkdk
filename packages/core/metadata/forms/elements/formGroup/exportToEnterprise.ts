@@ -5,7 +5,6 @@ import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/expo
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
-import { exportChildItemsToEnterprise } from "~/metadata/forms/elements/childItems/exportToEnterprise"
 import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { FormGroup, FormGroupEnterprise } from "~/metadata/forms/elements/formGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -66,8 +65,8 @@ export const exportFormGroupToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const childItems = exportChildItemsToEnterprise(context, data.childItems)
-  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
+  // const childItems = exportChildItemsToEnterprise(context, data.childItems)
+  // if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
   const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
   if (userVisible !== undefined) {

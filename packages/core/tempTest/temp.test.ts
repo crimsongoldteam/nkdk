@@ -5,6 +5,7 @@ import { exportClientApplicationFormToEnterprise } from "~/metadata/forms/client
 import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/exportToStructure"
 import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/importFromXML"
 import { ClientApplicationFormXML } from "~/metadata/forms/clientApplicationForm/types"
+import "~/metadata/forms/elements/exportToEnterprise"
 import "~/metadata/forms/elements/exportToStructure"
 import "~/metadata/forms/elements/importFromXML"
 import importContentFromXML from "~/xml/import/importer"
