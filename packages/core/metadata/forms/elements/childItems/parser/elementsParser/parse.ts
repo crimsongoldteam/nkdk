@@ -58,6 +58,8 @@ const parseByElementType = (element: DetectedTreeNode): CstNode => {
       return elementsParser.parseVerticalGroup(element.tokens)
     case ParseElementType.HorizontalGroup:
       return elementsParser.parseHorizontalGroup(element.tokens)
+    case ParseElementType.OneLineGroup:
+      return elementsParser.parseOneLineGroup(element.tokens)
     default:
       throw new Error(`Unknown element type: ${element.type}`)
   }

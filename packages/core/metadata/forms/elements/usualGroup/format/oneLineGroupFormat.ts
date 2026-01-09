@@ -1,9 +1,9 @@
-import { formatElementName } from "~/format/helpers"
+import { formatElementName, formatElementTitleAndName } from "~/format/helpers"
 import { IFormatElementResult } from "~/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
-import { BaseElement } from "../../baseElement/types"
 import { exportOtherElementToStructure } from "../../baseElement/exportToStructure"
+import { BaseElement } from "../../baseElement/types"
 import { UsualGroup } from "../types"
 
 export const formatOneLineGroup = (element: UsualGroup, context: ConfigurationContext): IFormatElementResult => {
@@ -34,7 +34,24 @@ export const formatOneLineGroup = (element: UsualGroup, context: ConfigurationCo
       groupItems.push(itemResult.strings)
     }
   }
-  let resultLine = "%" + formatElementName(element) + " " + groupItems.join(separator)
+
+  // Форматируем заголовок для one-line группы
+  let header: string
+  if (element.showTitle === false) {
+    // Без заголовка - только имя
+    header = formatElementName(element)
+  } else {
+    // С заголовком - используем formatElementTitleAndName
+    const title = element.title?.items?.["ru"] ?? ""
+    if (title === "") {
+      // Пустой заголовок - формат: "" {Группа}
+      header = `"" ${formatElementName(element)}`
+    } else {
+      header = formatElementTitleAndName(element)
+    }
+  }
+
+  let resultLine = "%" + header + "% " + groupItems.join(separator)
 
   result.strings.push(resultLine)
 

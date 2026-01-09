@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
+import { lexer } from "../tokenizer/lexer"
 import { ParseElementType } from "../types"
-import { lexer } from "../lexer"
 import { detectElementType } from "./detect"
 
 describe("detectElementType", () => {

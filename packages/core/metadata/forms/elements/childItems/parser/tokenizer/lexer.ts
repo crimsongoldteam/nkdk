@@ -1,4 +1,4 @@
-﻿import { createToken, IMultiModeLexerDefinition, Lexer, TokenType } from "chevrotain"
+﻿import { createToken, IMultiModeLexerDefinition, IToken, Lexer, TokenType } from "chevrotain"
 
 // #region combineTokens
 
@@ -114,6 +114,18 @@ function escapeRegExp(string: string): string {
 // @ts-ignore
 function matchType(_text: any, _offset: any, _matchedTokens: any, _groups: any): RegExpExecArray | null {
   return null
+}
+
+const matchIndent = (text: string, offset: number, matchedTokens: IToken[], _groups: any) => {
+  const lastToken = matchedTokens[matchedTokens.length - 1]
+
+  const isStartOfLine = !lastToken || lastToken.tokenType === NewLine
+
+  if (!isStartOfLine) return null
+
+  const wsRegExp = /[ \t]+/y
+  wsRegExp.lastIndex = offset
+  return wsRegExp.exec(text)
 }
 
 const excludeTokens = (...valuesToExclude: TokenType[]): TokenType[] => {
@@ -321,7 +333,13 @@ export const Text = createToken({
 export const NewLine = createToken({
   name: "NewLine",
   pattern: /\n/,
-  // line_breaks: true,
+})
+
+export const Indent = createToken({
+  name: "Indent",
+  categories: combineTokens,
+  pattern: matchIndent,
+  line_breaks: false,
 })
 
 // #endregion
@@ -395,6 +413,7 @@ export const inlineTypesTokens = [
 
 export const allTokens = [
   NewLine,
+  Indent,
   EscapedText,
   Dashes,
   Underscore,
@@ -434,6 +453,7 @@ export const allTokens = [
 
 export const propertiesTokens = [
   NewLine,
+  Indent,
   EscapedText,
   Dashes,
   Underscore,

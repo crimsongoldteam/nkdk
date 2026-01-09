@@ -445,22 +445,94 @@ export class Visitor extends BaseVisitor {
       group: "Vertical",
       name: name || titleText,
       title: this.createTitle(titleText, context.defaultLanguage),
-      id: undefined,
       childItems: [],
     } as UsualGroup
   }
 
   horizontalGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): UsualGroup {
-    const titleText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
-    const name = this.visit(ctx.properties as CstNode[]) || titleText
-    return {
+    // Собираем весь заголовок, включая первый токен (Percent или Text)
+    let headerText = ""
+
+    // Первый токен может быть Percent или Text
+    if (ctx.Percent && Array.isArray(ctx.Percent) && ctx.Percent.length > 0) {
+      headerText += ctx.Percent[0].image
+    } else if (ctx.Text && Array.isArray(ctx.Text) && ctx.Text.length > 0 && ctx.Text[0].image?.startsWith("%")) {
+      headerText += ctx.Text[0].image
+    }
+
+    // Добавляем GroupHeaderText
+    headerText += joinTokens(ctx.GroupHeaderText as IToken[]) || ""
+
+    const propertiesName = ctx.properties ? this.visit(ctx.properties as CstNode[]) : undefined
+
+    // Проверяем, является ли это one-line группой (заканчивается на %)
+    const isOneLine = headerText.endsWith("%")
+    const parsedHeader = this.parseGroupHeader(headerText, isOneLine)
+
+    const name = propertiesName || parsedHeader.name || headerText || "Group"
+    const title = parsedHeader.title
+
+    // Определяем showTitle: false для one-line групп без заголовка или с пустым заголовком
+    const showTitle = parsedHeader.isOneLine ? title !== undefined && title !== "" : undefined
+
+    const result: UsualGroup = {
       elementType: FormElementType.UsualGroup,
       group: "Horizontal",
-      name: name || titleText,
-      title: this.createTitle(titleText, context.defaultLanguage),
-      id: undefined,
+      name: name,
       childItems: [],
-    } as UsualGroup
+    }
+
+    if (title !== undefined) {
+      result.title = this.createTitle(title, context.defaultLanguage)
+    }
+
+    if (showTitle !== undefined) {
+      result.showTitle = showTitle
+    }
+
+    return result
+  }
+
+  private parseGroupHeader(
+    headerText: string,
+    isOneLine: boolean
+  ): { name?: string; title?: string; isOneLine: boolean } {
+    if (!isOneLine) {
+      // Обычная горизонтальная группа без % в конце
+      return { name: headerText, isOneLine: false }
+    }
+
+    // Убираем начальный % и конечный %
+    let text = headerText
+    if (text.startsWith("%")) {
+      text = text.substring(1)
+    }
+    if (text.endsWith("%")) {
+      text = text.substring(0, text.length - 1)
+    }
+
+    // Ищем {Группа} в тексте
+    const nameMatch = text.match(/\{([^}]+)\}/)
+    if (!nameMatch) {
+      return { name: text, isOneLine: true }
+    }
+
+    const name = nameMatch[1]
+    const nameStart = text.indexOf(nameMatch[0])
+
+    // Извлекаем заголовок (все до {Группа})
+    let title = text.substring(0, nameStart).trim()
+
+    // Обрабатываем случай с пустым заголовком: ""
+    if (title === '""') {
+      title = ""
+    }
+
+    return {
+      name,
+      title: title || undefined,
+      isOneLine: true,
+    }
   }
 
   // #endregion

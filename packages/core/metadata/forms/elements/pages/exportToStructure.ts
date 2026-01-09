@@ -3,7 +3,7 @@ import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFac
 import { FormatElementFunction, IFormatElementResult } from "~/format/types"
 import { addSimpleIndent } from "~/format/wrap/addIndents"
 import { ConfigurationContext } from "~/metadata/context/types"
-import * as t from "~/metadata/forms/elements/childItems/parser/lexer"
+import * as t from "~/metadata/forms/elements/childItems/parser/tokenizer/lexer"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "../../../metadataFactory/types"
 import { BaseElement } from "../baseElement/types"

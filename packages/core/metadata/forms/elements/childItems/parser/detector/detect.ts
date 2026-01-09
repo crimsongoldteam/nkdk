@@ -1,45 +1,36 @@
 import type { IToken } from "chevrotain"
-import { ParseElementType } from "../types"
 import {
   CheckboxChecked,
   CheckboxUnchecked,
   Colon,
-  Equals,
   Hash,
   LAngle,
   LArrow,
   LCurly,
-  Picture,
   Percent,
-  RArrow,
+  Picture,
   RadioButtonChecked,
   RadioButtonUnchecked,
+  RArrow,
   RCurly,
   Slash,
   SwitchChecked,
   SwitchUnchecked,
-  Text,
   VBar,
   Whitespace,
-} from "../lexer"
+} from "../tokenizer/lexer"
+import { ParseElementType } from "../types"
 
 export const detectElementType = (tokens: IToken[]): ParseElementType => {
   // Фильтруем пробелы для анализа
-  const significantTokens = tokens.filter(
-    (token) => token.tokenType !== Whitespace
-  )
+  const significantTokens = tokens.filter((token) => token.tokenType !== Whitespace)
 
   // Пустая строка или только пробелы
   if (significantTokens.length === 0) {
     return ParseElementType.LabelDecoration
   }
 
-  const checkboxTokens = [
-    CheckboxChecked,
-    CheckboxUnchecked,
-    SwitchChecked,
-    SwitchUnchecked,
-  ]
+  const checkboxTokens = [CheckboxChecked, CheckboxUnchecked, SwitchChecked, SwitchUnchecked]
   const radioButtonTokens = [RadioButtonChecked, RadioButtonUnchecked]
 
   const { firstToken, hasLeftArrow } = processFirstToken(significantTokens)
@@ -61,12 +52,8 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
     return ParseElementType.Button
   }
 
-  // начинается с // - страницы (два Slash подряд)
-  if (
-    firstTokenType === Slash &&
-    significantTokens.length >= 2 &&
-    significantTokens[1].tokenType === Slash
-  ) {
+  // начинается с // - страницы
+  if (firstTokenType === Slash && significantTokens.length >= 2 && significantTokens[1].tokenType === Slash) {
     return ParseElementType.Pages
   }
 
@@ -80,23 +67,12 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
     return ParseElementType.Page
   }
 
-  // начинается с % - горизонтальная группа (проверяем первый символ Text токена)
+  // начинается с % - горизонтальная группа
   if (firstTokenType === Percent) {
-    return ParseElementType.HorizontalGroup
-  }
-
-  // начинается с = - горизонтальная группа
-  if (firstTokenType === Equals) {
-    return ParseElementType.HorizontalGroup
-  }
-
-  // начинается с % в Text токене - горизонтальная группа
-  if (firstTokenType === Text && firstToken.image?.startsWith("%")) {
-    return ParseElementType.HorizontalGroup
-  }
-
-  // начинается с = в Text токене - горизонтальная группа
-  if (firstTokenType === Text && firstToken.image?.startsWith("=")) {
+    const percentTokenCount = significantTokens.filter((token) => token.tokenType === Percent).length
+    if (percentTokenCount > 1) {
+      return ParseElementType.OneLineGroup
+    }
     return ParseElementType.HorizontalGroup
   }
 
@@ -117,9 +93,7 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
   )
 }
 
-export const processFirstToken = (
-  tokens: IToken[]
-): { firstToken: IToken; hasLeftArrow: boolean } => {
+export const processFirstToken = (tokens: IToken[]): { firstToken: IToken; hasLeftArrow: boolean } => {
   let firstToken = tokens[0]
   let hasLeftArrow = false
 

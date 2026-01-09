@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { DetectedTreeNode } from "~/metadata/forms/elements/childItems/parser/detector/detectTree"
 import { parseElement } from "~/metadata/forms/elements/childItems/parser/elementsParser/parse"
-import { lexer } from "~/metadata/forms/elements/childItems/parser/lexer"
+import { lexer } from "~/metadata/forms/elements/childItems/parser/tokenizer/lexer"
 import { ParseElementType } from "~/metadata/forms/elements/childItems/parser/types"
 import { mockСontext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"

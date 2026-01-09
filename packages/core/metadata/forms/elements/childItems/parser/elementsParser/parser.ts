@@ -1,5 +1,5 @@
 import { type CstNode, CstParser, EMPTY_ALT, type IToken } from "chevrotain"
-import * as t from "../lexer"
+import * as t from "../tokenizer/lexer"
 
 export class Parser extends CstParser {
   constructor() {
@@ -65,6 +65,11 @@ export class Parser extends CstParser {
   public parseHorizontalGroup(tokens: IToken[]): CstNode {
     this.input = tokens
     return this.horizontalGroup()
+  }
+
+  public parseOneLineGroup(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.oneLineGroup()
   }
 
   // #region labelField
@@ -391,13 +396,26 @@ export class Parser extends CstParser {
 
   private readonly horizontalGroup = this.RULE("horizontalGroup", () => {
     this.CONSUME(t.Percent)
+
     this.MANY(() => {
       this.CONSUME(t.GroupHeaderText)
     })
 
+    // Для one-line групп может быть % в конце заголовка (включен в GroupHeaderText)
+    // Обрабатывается в visitor
+
     this.OPTION1(() => {
       this.SUBRULE(this.properties)
     })
+  })
+
+  private readonly oneLineGroup = this.RULE("oneLineGroup", () => {
+    this.CONSUME(t.Percent)
+    this.MANY(() => {
+      this.CONSUME(t.GroupHeaderText)
+    })
+
+    this.CONSUME(t.Percent)
   })
 
   // #region properties

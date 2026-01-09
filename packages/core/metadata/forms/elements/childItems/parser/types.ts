@@ -12,4 +12,5 @@ export enum ParseElementType {
   Pages = "Pages",
   VerticalGroup = "VerticalGroup",
   HorizontalGroup = "HorizontalGroup",
+  OneLineGroup = "OneLineGroup",
 }

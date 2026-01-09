@@ -1,8 +1,8 @@
 import type { IToken } from "chevrotain"
+import { lexer } from "../tokenizer/lexer"
+import type { TreeNode } from "../treeParser/parseTree"
 import type { ParseElementType } from "../types"
 import { detectElementType } from "./detect"
-import { lexer } from "../lexer"
-import type { TreeNode } from "../treeParser/parseTree"
 
 export interface DetectedTreeNode {
   tokens: IToken[]

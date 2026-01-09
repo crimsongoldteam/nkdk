@@ -35,10 +35,7 @@ export const parseTree = (text: string): TreeNode[] => {
           content: lineInfo.content,
         }
 
-    while (
-      stack.length > 0 &&
-      stack[stack.length - 1].level >= lineInfo.level
-    ) {
+    while (stack.length > 0 && stack[stack.length - 1].level >= lineInfo.level) {
       stack.pop()
     }
 
@@ -58,14 +55,12 @@ export const parseTree = (text: string): TreeNode[] => {
   return result
 }
 
-const parseGroupInOneLine = (
-  content: string
-): { header: string; children: string[] } | null => {
+const parseGroupInOneLine = (content: string): { header: string; children: string[] } | null => {
   if (!content.includes(";")) {
     return null
   }
 
-  if (content.startsWith("=")) {
+  if (content.startsWith("%")) {
     const firstSemicolonIndex = content.indexOf(";")
     if (firstSemicolonIndex === -1) {
       return null
