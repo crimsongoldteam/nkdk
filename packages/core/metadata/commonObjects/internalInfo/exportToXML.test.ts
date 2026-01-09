@@ -1,12 +1,8 @@
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportInternalInfoToXML } from "./exportToXML"
-
-vi.mock("uuid", () => ({
-  v4: vi.fn(() => "8f93c5cf-a2f6-4d79-ab40-83f36042b478"),
-}))
 
 describe("exportInternalInfoToXML", () => {
   it("should export single", () => {

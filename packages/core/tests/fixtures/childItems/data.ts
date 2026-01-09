@@ -15,7 +15,7 @@ export const childItemsFixturesTable: ChildItemsFixture[] = [
   // Single
   {
     name: "single",
-    element: [{ name: "Input1", id: "1", elementType: FormElementType.InputField }],
+    element: [{ name: "Input1", elementType: FormElementType.InputField }],
     structure: ["{Input1}: "],
     xmlPath: "/childItems/single.xml",
   },
@@ -24,9 +24,9 @@ export const childItemsFixturesTable: ChildItemsFixture[] = [
   {
     name: "different types",
     element: [
-      { name: "Input1", id: "1", elementType: FormElementType.InputField },
-      { name: "Button2", id: "2", elementType: FormElementType.Button },
-      { name: "Input3", id: "3", elementType: FormElementType.InputField },
+      { name: "Input1", elementType: FormElementType.InputField },
+      { name: "Button2", elementType: FormElementType.Button },
+      { name: "Input3", elementType: FormElementType.InputField },
     ],
     structure: ["{Input1}: ", "<{Button2}>", "{Input3}: "],
     xmlPath: "/childItems/different.xml",

@@ -10,7 +10,7 @@ import { InputField } from "../elements/inputField/types"
 import { exportClientApplicationFormToEnterprise } from "./exportToEnterprise"
 import { ClientApplicationForm } from "./types"
 
-describe("formatClientApplicationForm", () => {
+describe(" formatClientApplicationForm", () => {
   it("should format form header", () => {
     const form: ClientApplicationForm = {
       elementType: FormElementType.Form,

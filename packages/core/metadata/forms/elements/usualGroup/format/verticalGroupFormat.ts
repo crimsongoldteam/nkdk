@@ -1,8 +1,8 @@
 import { formatElementTitleAndName } from "~/format/helpers"
 import { IFormatElementResult } from "~/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import * as t from "~/metadata/forms/elements/childItems/parser/lexer"
 import { UsualGroupBehavior, UsualGroupRepresentation } from "~/metadata/systemEnumerations/types"
-import * as t from "~/parser/lexer"
 import { exportChildItemsToStructure } from "../../childItems/exportToStructure"
 import { UsualGroup } from "../types"
 

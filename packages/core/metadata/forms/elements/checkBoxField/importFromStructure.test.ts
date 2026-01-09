@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { DetectedTreeNode } from "~/parser/detector/detectTree"
-import { parseElement } from "~/parser/elementsParser/parse"
-import { lexer } from "~/parser/lexer"
-import { ParseElementType } from "~/parser/types"
+import { DetectedTreeNode } from "~/metadata/forms/elements/childItems/parser/detector/detectTree"
+import { parseElement } from "~/metadata/forms/elements/childItems/parser/elementsParser/parse"
+import { lexer } from "~/metadata/forms/elements/childItems/parser/lexer"
+import { ParseElementType } from "~/metadata/forms/elements/childItems/parser/types"
 import { checkBoxFieldStructureFixturesTable } from "~/tests/fixtures/forms/checkBoxField/data"
 import { mockСontext } from "~/tests/mockContext"
 

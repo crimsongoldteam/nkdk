@@ -1,14 +1,14 @@
 import { formatElementTitleAndName } from "~/format/helpers"
+import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { FormatElementFunction, IFormatElementResult } from "~/format/types"
 import { addSimpleIndent } from "~/format/wrap/addIndents"
 import { ConfigurationContext } from "~/metadata/context/types"
-import * as t from "~/parser/lexer"
-import { BaseElement } from "../baseElement/types"
-import { Page } from "./types"
-import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
-import { FormElementType } from "../../../metadataFactory/types"
+import * as t from "~/metadata/forms/elements/childItems/parser/lexer"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "../../../metadataFactory/types"
+import { BaseElement } from "../baseElement/types"
 import { exportChildItemsToStructure } from "../childItems/exportToStructure"
+import { Page } from "./types"
 
 export const exportPageToStructure: FormatElementFunction = (
   context: ConfigurationContext,

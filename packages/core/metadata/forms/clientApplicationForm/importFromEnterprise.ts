@@ -7,10 +7,9 @@ import {
   ClientApplicationFormEvents,
 } from "~/metadata/forms/clientApplicationForm/types"
 import { importCommandBarFromEnterprise } from "~/metadata/forms/elements/commandBar/importFromEnterprise"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ChildItems } from "../elements/childItems/types"
 
 const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof ClientApplicationFormEvents> = {
   АвтоПодборПользователейСистемыВзаимодействия: "collaborationSystemUsersAutoComplete",
@@ -41,33 +40,15 @@ const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof Clie
   ПриСохраненииДанныхВНастройкахНаСервере: "onSaveDataInSettingsAtServer",
 }
 
-const importClientApplicationFormEventsFromEnterprise = (
-  data: ClientApplicationFormEnterprise["События"] | undefined
-): ClientApplicationFormEvents | undefined => {
-  if (!data || Object.keys(data).length === 0) return undefined
-
-  const result: ClientApplicationFormEvents = {}
-
-  for (const [enterpriseEventName, eventValue] of Object.entries(data)) {
-    const eventName = clientApplicationFormEnterpriseEventNameMapping[enterpriseEventName]
-    if (eventName && eventValue) {
-      result[eventName] = eventValue
-    }
-  }
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
 export const importClientApplicationFormFromEnterprise = (
   context: ConfigurationContext,
   data: ClientApplicationFormEnterprise | undefined,
+  childItems: ChildItems,
   name: string
 ): ClientApplicationForm | undefined => {
   if (!data) return undefined
 
-  const result: ClientApplicationForm = {
-    elementType: FormElementType.ClientApplicationForm,
-  }
+  const result: ClientApplicationForm = {}
 
   const autoTitle = importBooleanFromEnterprise(context, data.АвтоЗаголовок)
   if (autoTitle !== undefined) result.autoTitle = autoTitle
@@ -241,7 +222,24 @@ export const importClientApplicationFormFromEnterprise = (
   const events = importClientApplicationFormEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
+  result.childItems = childItems
+
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "ClientApplicationForm", importClientApplicationFormFromEnterprise)
+const importClientApplicationFormEventsFromEnterprise = (
+  data: ClientApplicationFormEnterprise["События"] | undefined
+): ClientApplicationFormEvents | undefined => {
+  if (!data || Object.keys(data).length === 0) return undefined
+
+  const result: ClientApplicationFormEvents = {}
+
+  for (const [enterpriseEventName, eventValue] of Object.entries(data)) {
+    const eventName = clientApplicationFormEnterpriseEventNameMapping[enterpriseEventName]
+    if (eventName && eventValue) {
+      result[eventName] = eventValue
+    }
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined
+}
