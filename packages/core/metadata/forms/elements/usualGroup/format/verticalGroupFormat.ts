@@ -6,7 +6,7 @@ import { UsualGroupBehavior, UsualGroupRepresentation } from "~/metadata/systemE
 import { exportChildItemsToStructure } from "../../childItems/exportToStructure"
 import { UsualGroup } from "../types"
 
-export const formatVerticalGroup = (element: UsualGroup, context: ConfigurationContext): IFormatElementResult => {
+export const formatVerticalGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: [],
     haveSimpleHorizontalGroup: false,

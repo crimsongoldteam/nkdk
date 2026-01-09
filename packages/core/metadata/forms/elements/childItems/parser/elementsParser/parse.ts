@@ -12,7 +12,7 @@ export const parseElement = (context: ConfigurationContext, element: TreeNode): 
   const cst = visitor.visit(ast, context)
 
   // Обрабатываем childItems рекурсивно
-  addChildItemsToResult(cst, element, context)
+  addChildItemsToResult(context, cst, element)
 
   return cst
 }

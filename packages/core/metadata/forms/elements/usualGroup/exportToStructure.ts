@@ -15,10 +15,10 @@ export const exportUsualGroupToStructure: FormatElementFunction = (
   element: BaseElement
 ): IFormatElementResult => {
   const usualGroup = element as UsualGroup
-  if (isVerticalGroup(usualGroup)) return formatVerticalGroup(usualGroup, context)
-  if (isOneLineGroup(usualGroup)) return formatOneLineGroup(usualGroup, context)
+  if (isVerticalGroup(usualGroup)) return formatVerticalGroup(context, usualGroup)
+  if (isOneLineGroup(usualGroup)) return formatOneLineGroup(context, usualGroup)
 
-  return formatHorizontalGroup(usualGroup, context)
+  return formatHorizontalGroup(context, usualGroup)
 }
 
 registerIsOneLineElementCheck(FormElementType.UsualGroup, () => false)

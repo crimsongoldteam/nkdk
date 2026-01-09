@@ -6,7 +6,7 @@ import { exportOtherElementToStructure } from "../../baseElement/exportToStructu
 import { BaseElement } from "../../baseElement/types"
 import { UsualGroup } from "../types"
 
-export const formatOneLineGroup = (element: UsualGroup, context: ConfigurationContext): IFormatElementResult => {
+export const formatOneLineGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
   const separatorSymbol = ";"
   const separator = separatorSymbol + " "
 

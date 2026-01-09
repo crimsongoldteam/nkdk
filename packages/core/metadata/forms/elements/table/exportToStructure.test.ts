@@ -23,7 +23,7 @@ describe("exportTableToStructure", () => {
 
     const expectedResult = `| Колонка 1 |`
 
-    const result = exportTableToStructure(mockElement, mockСontext)
+    const result = exportTableToStructure(mockСontext, mockElement)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -45,7 +45,7 @@ describe("exportTableToStructure", () => {
 
     const expectedResult = `| Колонка 1 | Колонка 2 |`
 
-    const result = exportTableToStructure(mockElement, mockСontext)
+    const result = exportTableToStructure(mockСontext, mockElement)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -79,7 +79,7 @@ describe("exportTableToStructure", () => {
     const expectedResult = `| -Группа 1             ||
 || Колонка 1 | Колонка 2  |`
 
-    const result = exportTableToStructure(mockElement, mockСontext)
+    const result = exportTableToStructure(mockСontext, mockElement)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -114,7 +114,7 @@ describe("exportTableToStructure", () => {
     const expectedResult = `| Колонка 1 |
 | Колонка 2 |`
 
-    const result = exportTableToStructure(mockElement, mockСontext)
+    const result = exportTableToStructure(mockСontext, mockElement)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })
@@ -150,7 +150,7 @@ describe("exportTableToStructure", () => {
 | Колонка 1 |
 | Колонка 2 |`
 
-    const result = exportTableToStructure(mockElement, mockСontext)
+    const result = exportTableToStructure(mockСontext, mockElement)
 
     expect(result.strings.join("\n")).toEqual(expectedResult)
   })

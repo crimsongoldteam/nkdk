@@ -5,8 +5,8 @@ import { ConfigurationContext } from "../../context/types"
 import { exportSystemEnumerationToEnterprise } from "../../systemEnumerations/exportToEnterprise"
 import { Command, CommandEnterprise } from "./types"
 
-export const formatCommands = (commands: Command[], context: ConfigurationContext): string[] => {
-  const commandsEnterprise = commands.map((command) => formatCommand(command, context))
+export const formatCommands = (context: ConfigurationContext, commands: Command[]): string[] => {
+  const commandsEnterprise = commands.map((command) => formatCommand(context, command))
 
   return commandsEnterprise.map((command) =>
     stringify(command, {
@@ -16,7 +16,7 @@ export const formatCommands = (commands: Command[], context: ConfigurationContex
   )
 }
 
-const formatCommand = (command: Command, context: ConfigurationContext): CommandEnterprise => {
+const formatCommand = (context: ConfigurationContext, command: Command): CommandEnterprise => {
   let result: CommandEnterprise = {}
 
   return {

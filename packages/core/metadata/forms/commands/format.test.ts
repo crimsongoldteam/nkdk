@@ -19,7 +19,7 @@ describe("formatCommands", () => {
 Действие: СоставКомплектаПодобратьФайлы
 ИспользованиеТекущейСтроки: НеИспользует`
 
-    const result = formatCommands([data], mockСontext)
+    const result = formatCommands(mockСontext, [data])
 
     expect(result).toEqual([expectedResult])
   })

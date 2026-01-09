@@ -20,5 +20,5 @@ it("should register a format function", () => {
 
   registerFormat(mockFormat, mockCheck)
 
-  expect(formatElement(mockData, mockСontext)).toEqual(["test"])
+  expect(formatElement(mockСontext, mockData)).toEqual(["test"])
 })

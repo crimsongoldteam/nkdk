@@ -7,19 +7,19 @@ import { exportOtherElementToStructure } from "../../baseElement/exportToStructu
 import { BaseElement } from "../../baseElement/types"
 import { UsualGroup } from "../types"
 
-export const formatHorizontalGroup = (element: UsualGroup, context: ConfigurationContext): IFormatElementResult => {
+export const formatHorizontalGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
   let result: IFormatElementResult = {
     strings: ["%" + formatElementName(element)],
     haveSimpleHorizontalGroup: false,
   }
 
-  let verticalGroups: string[][] = getVerticalItems(element, context)
+  let verticalGroups: string[][] = getVerticalItems(context, element)
 
   result.strings.push(...verticalGroups.flat())
   return result
 }
 
-const getVerticalItems = (element: UsualGroup, context: ConfigurationContext): string[][] => {
+const getVerticalItems = (context: ConfigurationContext, element: UsualGroup): string[][] => {
   let result: string[][] = []
 
   if (!element.childItems) return result
