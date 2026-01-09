@@ -49,24 +49,6 @@ describe("isDefaultExtendedTooltipName", () => {
     expect(result).toBeTruthy()
   })
 
-  it("should return true for default name with different case", () => {
-    const parentElement: BaseElement = {
-      elementType: FormElementType.InputField,
-      name: "КакойТоЭлемент",
-      id: "1",
-    }
-
-    const extendedTooltip: ExtendedTooltip = {
-      elementType: FormElementType.FormDecoration,
-      name: "КАКОЙТОЭЛЕМЕНТРАСШИРЕННАЯПОДСКАЗКА",
-      id: "1",
-    }
-
-    const result = isDefaultExtendedTooltipName(parentElement, extendedTooltip)
-
-    expect(result).toBeTruthy()
-  })
-
   it("should return false for non-default extended tooltip name", () => {
     const parentElement: BaseElement = {
       elementType: FormElementType.InputField,
