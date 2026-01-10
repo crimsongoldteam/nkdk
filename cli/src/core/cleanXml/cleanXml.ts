@@ -100,7 +100,7 @@ function buildXml(parsedData: any): string {
     suppressEmptyNode: true,
     suppressBooleanAttributes: false,
     indentBy: "\t",
-    processEntities: false,
+    processEntities: true,
   })
 
   // Устанавливаем attributesGroupName через options (как в exporter.ts)

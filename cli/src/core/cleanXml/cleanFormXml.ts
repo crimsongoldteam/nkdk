@@ -35,7 +35,7 @@ function parseXml(xmlContent: string): any {
 
 function buildXml(parsedData: any): string {
   const builder = new XMLBuilder({
-    preserveOrder: false,
+    preserveOrder: true,
     ignoreAttributes: false,
     attributeNamePrefix: "",
     attributesGroupName: "@attributes",
@@ -61,6 +61,15 @@ function buildXml(parsedData: any): string {
   return outputXml.trimEnd()
 }
 
+// Порядок элементов для корневого элемента Form
+const FORM_ELEMENT_ORDER = ["Title", "AutoTitle", "AutoCommandBar", "Events", "ChildItems", "Attributes", "Commands"]
+
+// Порядок элементов внутри Command
+const COMMAND_ELEMENT_ORDER = ["Title", "ToolTip", "Action", "CurrentRowUse"]
+
+// Порядок элементов внутри v8:item
+const V8_ITEM_ORDER = ["v8:lang", "v8:content"]
+
 function processFormElement(obj: any, parentKey: string = ""): any {
   if (obj === null || obj === undefined) {
     return undefined
@@ -73,10 +82,11 @@ function processFormElement(obj: any, parentKey: string = ""): any {
 
   // Если это массив, обрабатываем каждый элемент
   if (Array.isArray(obj)) {
-    const shouldSortItems = SORTABLE_TAGS.includes(parentKey) || parentKey.endsWith(":Properties")
+    const shouldSortItems =
+      (SORTABLE_TAGS.includes(parentKey) || parentKey.endsWith(":Properties")) && parentKey !== "ChildItems"
     const processed = obj.map((item) => processFormElement(item, parentKey))
 
-    // Сортируем дочерние элементы внутри SORTABLE_TAGS
+    // Сортируем дочерние элементы внутри SORTABLE_TAGS, но не для ChildItems
     if (shouldSortItems) {
       processed.sort((a, b) => {
         const keyA = getElementKey(a)
@@ -99,8 +109,30 @@ function processFormElement(obj: any, parentKey: string = ""): any {
   // Получаем все ключи (кроме @attributes)
   const allKeys = Object.keys(obj).filter((key) => key !== "@attributes")
 
-  // Сортируем ключи по алфавиту
-  const sortedKeys = allKeys.sort()
+  // Определяем порядок ключей в зависимости от контекста
+  let sortedKeys: string[]
+  if (parentKey === "Form") {
+    // Для объекта Form используем фиксированный порядок элементов
+    sortedKeys = FORM_ELEMENT_ORDER.filter((key) => allKeys.includes(key))
+    // Добавляем остальные ключи, которых нет в порядке, отсортированные по алфавиту
+    const remainingKeys = allKeys.filter((key) => !FORM_ELEMENT_ORDER.includes(key)).sort()
+    sortedKeys = [...sortedKeys, ...remainingKeys]
+  } else if (parentKey === "Commands" && allKeys.some((key) => COMMAND_ELEMENT_ORDER.includes(key))) {
+    // Для объекта Command (когда parentKey = "Commands") используем фиксированный порядок элементов
+    sortedKeys = COMMAND_ELEMENT_ORDER.filter((key) => allKeys.includes(key))
+    // Добавляем остальные ключи, которых нет в порядке, отсортированные по алфавиту
+    const remainingKeys = allKeys.filter((key) => !COMMAND_ELEMENT_ORDER.includes(key)).sort()
+    sortedKeys = [...sortedKeys, ...remainingKeys]
+  } else if (allKeys.includes("v8:lang") && allKeys.includes("v8:content")) {
+    // Для v8:item используем фиксированный порядок: сначала lang, потом content
+    sortedKeys = V8_ITEM_ORDER.filter((key) => allKeys.includes(key))
+    // Добавляем остальные ключи, которых нет в порядке, отсортированные по алфавиту
+    const remainingKeys = allKeys.filter((key) => !V8_ITEM_ORDER.includes(key)).sort()
+    sortedKeys = [...sortedKeys, ...remainingKeys]
+  } else {
+    // Для всех остальных элементов сортируем по алфавиту
+    sortedKeys = allKeys.sort()
+  }
 
   for (const key of sortedKeys) {
     const originalValue = obj[key]
