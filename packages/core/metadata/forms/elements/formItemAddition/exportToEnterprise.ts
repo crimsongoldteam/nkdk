@@ -4,7 +4,7 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportChildItemsToEnterprise } from "~/metadata/forms/elements/childItems/exportToEnterprise"
-import { exportCommandBarToEnterprise } from "~/metadata/forms/elements/commandBar/exportToEnterprise"
+import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
 import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { FormItemAddition, FormItemAdditionEnterprise } from "~/metadata/forms/elements/formItemAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -56,7 +56,7 @@ export const exportFormItemAdditionToEnterprise = (
   const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  const contextMenu = exportCommandBarToEnterprise(context, data.contextMenu)
+  const contextMenu = exportContextMenuToEnterprise(context, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
 
   const toolTipRepresentation = exportSystemEnumerationToEnterprise(

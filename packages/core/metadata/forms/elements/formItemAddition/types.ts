@@ -3,13 +3,13 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/metadata/forms/elements/childItems/types"
-import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
+import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormItemAddition extends BaseElement {
   childItems?: ChildItems
-  contextMenu?: CommandBar
+  contextMenu?: ContextMenu
   displayImportance?: SE.DisplayImportance
   enabled?: boolean
   extendedToolTip?: ExtendedTooltip
@@ -25,7 +25,7 @@ export interface FormItemAddition extends BaseElement {
 
 export interface FormItemAdditionXML extends BaseElementXML {
   ChildItems?: ChildItemsXML
-  ContextMenu?: CommandBarXML
+  ContextMenu?: ContextMenuXML
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
   ExtendedToolTip?: ExtendedTooltipXML
@@ -47,7 +47,7 @@ export interface FormItemAdditionEnterprise extends BaseElementEnterprise {
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
   Доступность?: StringboolEnterprise
   Заголовок?: I8nTextEnterprise
-  КонтекстноеМеню?: CommandBarEnterprise
+  КонтекстноеМеню?: ContextMenuEnterprise
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   Подсказка?: I8nTextEnterprise
   ПодчиненныеЭлементы?: ChildItemsEnterprise

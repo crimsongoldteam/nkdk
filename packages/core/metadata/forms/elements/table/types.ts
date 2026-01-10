@@ -7,6 +7,7 @@ import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/form
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/metadata/forms/elements/childItems/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
+import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import {
   FormItemAddition,
   FormItemAdditionEnterprise,
@@ -34,7 +35,7 @@ export interface Table extends BaseElement {
   commandBar?: CommandBar
   commandBarLocation?: SE.FormItemCommandBarLabelLocation
   commandSet?: CommandSet
-  contextMenu?: CommandBar
+  contextMenu?: ContextMenu
   currentRowUse?: SE.TableCurrentRowUse
   dataPath?: string
   defaultItem?: boolean
@@ -142,7 +143,7 @@ export interface TableXML extends BaseElementXML {
   CommandBar?: CommandBarXML
   CommandBarLocation?: SE.FormItemCommandBarLabelLocation
   CommandSet?: CommandSetXML
-  ContextMenu?: CommandBarXML
+  ContextMenu?: ContextMenuXML
   CurrentRowUse?: SE.TableCurrentRowUse
   DataPath?: string
   DefaultItem?: boolean
@@ -241,7 +242,7 @@ export interface TableEnterprise extends BaseElementEnterprise {
   КартинкаСтрок?: StringboolEnterprise
   Команда?: CommandSetEnterprise
   КоманднаяПанель?: CommandBarEnterprise
-  КонтекстноеМеню?: CommandBarEnterprise
+  КонтекстноеМеню?: ContextMenuEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяВысотаВСтрокахТаблицы?: number
   МаксимальнаяШирина?: number

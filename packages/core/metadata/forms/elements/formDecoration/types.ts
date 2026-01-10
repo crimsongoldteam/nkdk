@@ -4,14 +4,14 @@ import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/typ
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
-import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
+import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormDecoration extends BaseElement {
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
-  contextMenu?: CommandBar
+  contextMenu?: ContextMenu
   displayImportance?: SE.DisplayImportance
   enabled?: boolean
   extendedTooltip?: ExtendedTooltip
@@ -38,7 +38,7 @@ export interface FormDecoration extends BaseElement {
 export interface FormDecorationXML extends BaseElementXML {
   AutoMaxHeight?: boolean
   AutoMaxWidth?: boolean
-  ContextMenu?: CommandBarXML
+  ContextMenu?: ContextMenuXML
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
   ExtendedTooltip?: ExtendedTooltipXML
@@ -73,7 +73,7 @@ export interface FormDecorationEnterprise extends BaseElementEnterprise {
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
   Доступность?: StringboolEnterprise
   Заголовок?: I8nTextEnterprise
-  КонтекстноеМеню?: CommandBarEnterprise
+  КонтекстноеМеню?: ContextMenuEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise

@@ -5,7 +5,7 @@ import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/expo
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
-import { exportCommandBarToEnterprise } from "~/metadata/forms/elements/commandBar/exportToEnterprise"
+import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
 import { FormDecoration, FormDecorationEnterprise } from "~/metadata/forms/elements/formDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
@@ -66,7 +66,7 @@ export const exportFormDecorationToEnterprise = <T extends FormDecoration | unde
   const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  const contextMenu = exportCommandBarToEnterprise(context, data.contextMenu)
+  const contextMenu = exportContextMenuToEnterprise(context, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
 
   if (data.maxHeight !== undefined) result.МаксимальнаяВысота = data.maxHeight

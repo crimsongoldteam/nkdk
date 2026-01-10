@@ -4,7 +4,7 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importChildItemsFromEnterprise } from "~/metadata/forms/elements/childItems/importFromEnterprise"
-import { importCommandBarFromEnterprise } from "~/metadata/forms/elements/commandBar/importFromEnterprise"
+import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import { importFormDecorationFromEnterprise } from "~/metadata/forms/elements/formDecoration/importFromEnterprise"
 import { FormItemAddition, FormItemAdditionEnterprise } from "~/metadata/forms/elements/formItemAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -64,7 +64,7 @@ export const importFormItemAdditionFromEnterprise = (
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  const contextMenu = importCommandBarFromEnterprise(context, data.КонтекстноеМеню, name + ".КонтекстноеМеню")
+  const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(

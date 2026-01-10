@@ -6,7 +6,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importChildItemsFromXML } from "~/metadata/forms/elements/childItems/importFromXML"
-import { importCommandBarFromXML } from "~/metadata/forms/elements/commandBar/importFromXML"
+import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { importFormItemAdditionFromXML } from "~/metadata/forms/elements/formItemAddition/importFromXML"
 import { Table, TableXML } from "~/metadata/forms/elements/table/types"
@@ -67,7 +67,7 @@ export const importTableFromXML = (context: ConfigurationContext, xml: TableXML 
   const commandSet = importCommandSetFromXML(context, xml.CommandSet)
   if (commandSet !== undefined) result.commandSet = commandSet
 
-  const contextMenu = importCommandBarFromXML(context, xml.ContextMenu)
+  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu, result)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (xml.CurrentRowUse !== undefined) result.currentRowUse = xml.CurrentRowUse

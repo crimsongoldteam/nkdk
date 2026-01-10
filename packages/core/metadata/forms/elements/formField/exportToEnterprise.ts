@@ -7,7 +7,7 @@ import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/type
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
-import { exportCommandBarToEnterprise } from "~/metadata/forms/elements/commandBar/exportToEnterprise"
+import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
 import { FormField, FormFieldEnterprise } from "~/metadata/forms/elements/formField/types"
 import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
@@ -106,7 +106,7 @@ export const exportFormFieldToEnterprise = (
   const headerPicture = exportPictureToEnterprise(context, data.headerPicture)
   if (headerPicture !== undefined) result.КартинкаШапки = headerPicture
 
-  const contextMenu = exportCommandBarToEnterprise(context, data.contextMenu)
+  const contextMenu = exportContextMenuToEnterprise(context, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
 
   const typeRestriction = exportTypeDescriptionToEnterprise(context, data.typeRestriction)

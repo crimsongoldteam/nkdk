@@ -4,7 +4,7 @@ import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
-import { exportCommandBarToXML } from "~/metadata/forms/elements/commandBar/exportToXML"
+import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { FormDecoration, FormDecorationXML } from "~/metadata/forms/elements/formDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
@@ -25,7 +25,7 @@ export const exportFormDecorationToXML = (
 
   if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
 
-  const contextMenu = exportCommandBarToXML(context, data.contextMenu)
+  const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
   if (contextMenu !== undefined) result.ContextMenu = contextMenu
 
   if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance

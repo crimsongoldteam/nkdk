@@ -4,7 +4,7 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
-import { importCommandBarFromXML } from "~/metadata/forms/elements/commandBar/importFromXML"
+import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { FormDecoration, FormDecorationXML } from "~/metadata/forms/elements/formDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -26,7 +26,7 @@ export const importFormDecorationFromXML = <T extends FormDecorationXML | undefi
 
   if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
 
-  const contextMenu = importCommandBarFromXML(context, xml.ContextMenu)
+  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu, result)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance

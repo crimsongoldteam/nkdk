@@ -3,7 +3,7 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportChildItemsToXML } from "~/metadata/forms/elements/childItems/exportToXML"
-import { exportCommandBarToXML } from "~/metadata/forms/elements/commandBar/exportToXML"
+import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecoration/exportToXML"
 import { FormItemAddition, FormItemAdditionXML } from "~/metadata/forms/elements/formItemAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -24,7 +24,7 @@ export const exportFormItemAdditionToXML = (
   const childItems = exportChildItemsToXML(context, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
-  const contextMenu = exportCommandBarToXML(context, data.contextMenu)
+  const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
   if (contextMenu !== undefined) result.ContextMenu = contextMenu
 
   if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance

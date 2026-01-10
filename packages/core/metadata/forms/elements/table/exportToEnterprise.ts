@@ -8,6 +8,7 @@ import { exportCommandSetToEnterprise } from "~/metadata/forms/commandSet/export
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportChildItemsToEnterprise } from "~/metadata/forms/elements/childItems/exportToEnterprise"
 import { exportCommandBarToEnterprise } from "~/metadata/forms/elements/commandBar/exportToEnterprise"
+import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
 import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { exportFormItemAdditionToEnterprise } from "~/metadata/forms/elements/formItemAddition/exportToEnterprise"
 import { Table, TableEnterprise } from "~/metadata/forms/elements/table/types"
@@ -151,7 +152,7 @@ export const exportTableToEnterprise = (
   const commandBar = exportCommandBarToEnterprise(context, data.commandBar)
   if (commandBar !== undefined) result.КоманднаяПанель = commandBar
 
-  const contextMenu = exportCommandBarToEnterprise(context, data.contextMenu)
+  const contextMenu = exportContextMenuToEnterprise(context, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
 
   if (data.maxHeight !== undefined) result.МаксимальнаяВысота = data.maxHeight

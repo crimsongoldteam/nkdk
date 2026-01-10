@@ -10,7 +10,7 @@ import {
 } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
-import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
+import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import { Table, TableEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -19,7 +19,7 @@ import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "
 export interface FormField extends BaseElement {
   autoCellHeight?: boolean
   cellHyperlink?: boolean
-  contextMenu?: CommandBar
+  contextMenu?: ContextMenu
   dataPath?: string
   defaultItem?: boolean
   displayImportance?: SE.DisplayImportance
@@ -68,7 +68,7 @@ export interface FormField extends BaseElement {
 export interface FormFieldXML extends BaseElementXML {
   AutoCellHeight?: boolean
   CellHyperlink?: boolean
-  ContextMenu?: CommandBarXML
+  ContextMenu?: ContextMenuXML
   DataPath?: string
   DefaultItem?: boolean
   _DisplayImportance?: SE.DisplayImportance
@@ -130,7 +130,7 @@ export interface FormFieldEnterprise extends BaseElementEnterprise {
   Заголовок?: I8nTextEnterprise
   КартинкаПодвала?: PictureEnterprise
   КартинкаШапки?: PictureEnterprise
-  КонтекстноеМеню?: CommandBarEnterprise
+  КонтекстноеМеню?: ContextMenuEnterprise
   ОграничениеТипа?: TypeDescriptionEnterprise
   ОтображатьВПодвале?: StringboolEnterprise
   ОтображатьВШапке?: StringboolEnterprise

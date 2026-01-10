@@ -7,7 +7,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromEnterprise } from "~/metadata/forms/commandSet/importFromEnterprise"
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importChildItemsFromEnterprise } from "~/metadata/forms/elements/childItems/importFromEnterprise"
-import { importCommandBarFromEnterprise } from "~/metadata/forms/elements/commandBar/importFromEnterprise"
+import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import { importFormDecorationFromEnterprise } from "~/metadata/forms/elements/formDecoration/importFromEnterprise"
 import { importFormItemAdditionFromEnterprise } from "~/metadata/forms/elements/formItemAddition/importFromEnterprise"
 import { Table, TableEnterprise } from "~/metadata/forms/elements/table/types"
@@ -264,7 +264,7 @@ export const importTableFromEnterprise = (
   const commandBar = importCommandBarFromEnterprise(context, data.КоманднаяПанель, "")
   if (commandBar !== undefined) result.commandBar = commandBar
 
-  const contextMenu = importCommandBarFromEnterprise(context, data.КонтекстноеМеню, "")
+  const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (data.МаксимальнаяВысота !== undefined) result.maxHeight = data.МаксимальнаяВысота

@@ -6,7 +6,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportCommandSetToXML } from "~/metadata/forms/commandSet/exportToXML"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportChildItemsToXML } from "~/metadata/forms/elements/childItems/exportToXML"
-import { exportCommandBarToXML } from "~/metadata/forms/elements/commandBar/exportToXML"
+import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecoration/exportToXML"
 import { exportFormItemAdditionToXML } from "~/metadata/forms/elements/formItemAddition/exportToXML"
 import { Table, TableXML } from "~/metadata/forms/elements/table/types"
@@ -64,7 +64,7 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
   const commandSet = exportCommandSetToXML(context, data.commandSet)
   if (commandSet !== undefined) result.CommandSet = commandSet
 
-  const contextMenu = exportCommandBarToXML(context, data.contextMenu)
+  const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
   if (contextMenu !== undefined) result.ContextMenu = contextMenu
 
   if (data.currentRowUse !== undefined) result.CurrentRowUse = data.currentRowUse

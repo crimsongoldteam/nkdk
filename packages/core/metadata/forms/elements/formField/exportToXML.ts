@@ -6,7 +6,7 @@ import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescrip
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
-import { exportCommandBarToXML } from "~/metadata/forms/elements/commandBar/exportToXML"
+import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { FormField, FormFieldXML } from "~/metadata/forms/elements/formField/types"
 import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
@@ -30,7 +30,7 @@ export const exportFormFieldToXML = (
 
   if (data.cellHyperlink !== undefined) result.CellHyperlink = data.cellHyperlink
 
-  const contextMenu = exportCommandBarToXML(context, data.contextMenu)
+  const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
   if (contextMenu !== undefined) result.ContextMenu = contextMenu
 
   if (data.dataPath !== undefined) result.DataPath = data.dataPath

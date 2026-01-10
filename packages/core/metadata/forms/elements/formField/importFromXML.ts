@@ -6,7 +6,7 @@ import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescr
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
-import { importCommandBarFromXML } from "~/metadata/forms/elements/commandBar/importFromXML"
+import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { FormField, FormFieldXML } from "~/metadata/forms/elements/formField/types"
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
@@ -33,7 +33,7 @@ export const importFormFieldFromXML = (
 
   if (xml.CellHyperlink !== undefined) result.cellHyperlink = xml.CellHyperlink
 
-  const contextMenu = importCommandBarFromXML(context, xml.ContextMenu)
+  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu, result)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (xml.DataPath !== undefined) result.dataPath = xml.DataPath
