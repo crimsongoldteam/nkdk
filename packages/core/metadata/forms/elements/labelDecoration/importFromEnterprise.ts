@@ -1,4 +1,5 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { importBorderFromEnterprise } from "~/metadata/commonObjects/border/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
@@ -8,34 +9,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-
-const importBorderFromEnterprise = (
-  context: ConfigurationContext,
-  data: { Имя?: string; Ширина?: number; ТипРамки?: SE.ControlBorderTypeEnterprise } | undefined
-) => {
-  if (!data) return undefined
-
-  const result: { ref?: string; width?: number; controlBorderType?: SE.ControlBorderType } = {}
-
-  if (data.Имя !== undefined) {
-    result.ref = data.Имя
-  }
-
-  if (data.Ширина !== undefined) {
-    result.width = data.Ширина
-  }
-
-  const controlBorderType = importSystemEnumerationFromEnterprise<SE.ControlBorderType>(
-    context,
-    data.ТипРамки,
-    SE.ControlBorderTypeFromEnterprise
-  )
-  if (controlBorderType !== undefined) {
-    result.controlBorderType = controlBorderType
-  }
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
+import { importFormDecorationFromEnterprise } from "../formDecoration/importFromEnterprise"
 
 const importLabelDecorationEventsFromEnterprise = (
   data: { Нажатие?: string; ОбработкаНавигационнойСсылки?: string } | undefined
@@ -62,10 +36,11 @@ export const importLabelDecorationFromEnterprise = (
 ): LabelDecoration | undefined => {
   if (!data) return undefined
 
-  // importFormDecorationFromEnterprise is not implemented yet, so we create base object manually
+  const baseFields = importFormDecorationFromEnterprise(context, data, name)
+
   const result: LabelDecoration = {
+    ...baseFields,
     elementType: FormElementType.LabelDecoration,
-    name,
   }
 
   const title = importI8nTextFromEnterprise(context, data.Заголовок)

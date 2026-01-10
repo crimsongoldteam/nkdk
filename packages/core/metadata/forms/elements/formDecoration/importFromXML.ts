@@ -8,20 +8,18 @@ import { importCommandBarFromXML } from "~/metadata/forms/elements/commandBar/im
 import { FormDecoration, FormDecorationXML } from "~/metadata/forms/elements/formDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importFormDecorationFromXML = (
+export const importFormDecorationFromXML = <T extends FormDecorationXML | undefined>(
   context: ConfigurationContext,
-  xml: FormDecorationXML | undefined
-): FormDecoration | undefined => {
-  if (!xml) return undefined
+  xml: T
+): ImportExportReturn<T, FormDecoration> => {
+  if (!xml) return undefined as ImportExportReturn<T, FormDecoration>
   const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined
-
-  const { elementType: _, ...restFields } = baseFields
 
   const result: FormDecoration = {
+    ...baseFields,
     elementType: FormElementType.FormDecoration,
-    ...restFields,
   }
 
   if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
@@ -76,7 +74,7 @@ export const importFormDecorationFromXML = (
 
   if (xml.Width !== undefined) result.width = xml.Width
 
-  return result
+  return result as ImportExportReturn<T, FormDecoration>
 }
 
 registerMetadata("ImportFromXML", "FormDecoration", importFormDecorationFromXML)
