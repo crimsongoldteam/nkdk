@@ -38,7 +38,7 @@ export const exportGanttChartFieldToEnterprise = (
 
   if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
 
-  const tableLocation = exportSystemEnumerationToEnterprise<SE.GanttChartTableLocationEnterprise>(
+  const tableLocation = exportSystemEnumerationToEnterprise(
     context,
     data.tableLocation,
     SE.GanttChartTableLocationToEnterprise
@@ -56,14 +56,14 @@ export const exportGanttChartFieldToEnterprise = (
   const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
 
-  const valuesSelectionMode = exportSystemEnumerationToEnterprise<SE.GanttChartValuesSelectionModeEnterprise>(
+  const valuesSelectionMode = exportSystemEnumerationToEnterprise(
     context,
     data.valuesSelectionMode,
     SE.GanttChartValuesSelectionModeToEnterprise
   )
   if (valuesSelectionMode !== undefined) result.РежимВыделенияЗначений = valuesSelectionMode
 
-  const intervalsSelectionMode = exportSystemEnumerationToEnterprise<SE.GanttChartIntervalsSelectionModeEnterprise>(
+  const intervalsSelectionMode = exportSystemEnumerationToEnterprise(
     context,
     data.intervalsSelectionMode,
     SE.GanttChartIntervalsSelectionModeToEnterprise

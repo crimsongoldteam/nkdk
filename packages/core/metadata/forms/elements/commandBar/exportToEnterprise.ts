@@ -22,14 +22,14 @@ export const exportCommandBarToEnterprise = (
   const autofill = exportBooleanToEnterprise(context, data.autofill)
   if (autofill !== undefined) result.Автозаполнение = autofill
 
-  const displayImportance = exportSystemEnumerationToEnterprise<SE.DisplayImportanceEnterprise>(
+  const displayImportance = exportSystemEnumerationToEnterprise(
     context,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const horizontalAlign = exportSystemEnumerationToEnterprise<SE.ItemHorizontalLocationEnterprise>(
+  const horizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     data.horizontalAlign,
     SE.ItemHorizontalLocationToEnterprise

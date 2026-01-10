@@ -46,7 +46,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
 ): StandardAttributeDescriptionEnterprise => {
   const result: StandardAttributeDescriptionEnterprise = {}
 
-  const quickChoice = exportSystemEnumerationToEnterprise<SE.UseQuickChoiceEnterprise>(
+  const quickChoice = exportSystemEnumerationToEnterprise(
     context,
     data.quickChoice,
     SE.UseQuickChoiceToEnterprise
@@ -62,14 +62,14 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const fillValue = exportMetadataValueToEnterprise(context, data.fillValue)
   if (fillValue) result.ЗначениеЗаполнения = fillValue
 
-  const choiceHistoryOnInput = exportSystemEnumerationToEnterprise<SE.ChoiceHistoryOnInputEnterprise>(
+  const choiceHistoryOnInput = exportSystemEnumerationToEnterprise(
     context,
     data.choiceHistoryOnInput,
     SE.ChoiceHistoryOnInputToEnterprise
   )
   if (choiceHistoryOnInput) result.ИсторияВыбораПриВводе = choiceHistoryOnInput
 
-  const dataHistory = exportSystemEnumerationToEnterprise<SE.DataHistoryUseEnterprise>(
+  const dataHistory = exportSystemEnumerationToEnterprise(
     context,
     data.dataHistory,
     SE.DataHistoryUseToEnterprise
@@ -90,14 +90,14 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip) result.Подсказка = toolTip
 
-  const fullTextSearch = exportSystemEnumerationToEnterprise<SE.UseFullTextSearchEnterprise>(
+  const fullTextSearch = exportSystemEnumerationToEnterprise(
     context,
     data.fullTextSearch,
     SE.UseFullTextSearchToEnterprise
   )
   if (fullTextSearch) result.ПолнотекстовыйПоиск = fullTextSearch
 
-  const fillChecking = exportSystemEnumerationToEnterprise<SE.FillCheckingEnterprise>(
+  const fillChecking = exportSystemEnumerationToEnterprise(
     context,
     data.fillChecking,
     SE.FillCheckingToEnterprise
@@ -110,7 +110,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const passwordMode = exportBooleanToEnterprise(context, data.passwordMode)
   if (passwordMode !== undefined) result.РежимПароля = passwordMode
 
-  const typeReductionMode = exportSystemEnumerationToEnterprise<SE.TypeReductionModeEnterprise>(
+  const typeReductionMode = exportSystemEnumerationToEnterprise(
     context,
     data.typeReductionMode,
     SE.TypeReductionModeToEnterprise
@@ -126,7 +126,7 @@ const exportStandardAttributeDescriptionToEnterprise = (
   const synonym = exportI8nTextToEnterprise(context, data.synonym)
   if (synonym) result.Синоним = synonym
 
-  const createOnInput = exportSystemEnumerationToEnterprise<SE.CreateOnInputEnterprise>(
+  const createOnInput = exportSystemEnumerationToEnterprise(
     context,
     data.createOnInput,
     SE.CreateOnInputToEnterprise

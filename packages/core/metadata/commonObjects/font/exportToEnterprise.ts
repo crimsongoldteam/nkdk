@@ -55,8 +55,8 @@ const convertRefToEnterprise = (
   if (ref === undefined) return undefined
 
   if (kind === "StyleItem") {
-    return exportSystemEnumerationToEnterprise<SE.StyleFontsEnterprise>(context, ref, SE.StyleFontsToEnterprise)
+    return exportSystemEnumerationToEnterprise(context, ref, SE.StyleFontsToEnterprise)
   }
 
-  return exportSystemEnumerationToEnterprise<SE.WindowsFontsEnterprise>(context, ref, SE.WindowsFontsToEnterprise)
+  return exportSystemEnumerationToEnterprise(context, ref, SE.WindowsFontsToEnterprise)
 }

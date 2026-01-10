@@ -20,17 +20,13 @@ export const exportPagesToEnterprise = (
     ...baseFields,
   }
 
-  const currentRowUse = exportSystemEnumerationToEnterprise<SE.CurrentRowUseEnterprise>(
-    context,
-    data.currentRowUse,
-    SE.CurrentRowUseToEnterprise
-  )
+  const currentRowUse = exportSystemEnumerationToEnterprise(context, data.currentRowUse, SE.CurrentRowUseToEnterprise)
   if (currentRowUse !== undefined) result.ИспользованиеТекущейСтроки = currentRowUse
 
   const associatedTable = exportTableToEnterprise(context, data.associatedTable)
   if (associatedTable !== undefined) result.ИспользуемаяТаблица = associatedTable
 
-  const pagesRepresentation = exportSystemEnumerationToEnterprise<SE.FormPagesRepresentationEnterprise>(
+  const pagesRepresentation = exportSystemEnumerationToEnterprise(
     context,
     data.pagesRepresentation,
     SE.FormPagesRepresentationToEnterprise
@@ -42,7 +38,7 @@ export const exportPagesToEnterprise = (
     Object.assign(result, userVisible)
   }
 
-  const currentPagesState = exportSystemEnumerationToEnterprise<SE.FormPagesStateEnterprise>(
+  const currentPagesState = exportSystemEnumerationToEnterprise(
     context,
     data.currentPagesState,
     SE.FormPagesStateToEnterprise

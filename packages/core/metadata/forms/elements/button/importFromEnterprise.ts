@@ -24,8 +24,8 @@ export const importButtonFromEnterprise = <T extends ButtonEnterprise | undefine
   const baseFields = importBaseElementFromEnterprise(context, data, name)
 
   const result: ImportFromEnterpriseReturn<T, Button, N> = {
-    elementType: FormElementType.Button,
     ...baseFields,
+    elementType: FormElementType.Button,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)

@@ -7,10 +7,10 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
 import { Button, ButtonEnterprise } from "~/metadata/forms/elements/button/types"
-import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
 export const exportButtonToEnterprise = (
   context: ConfigurationContext,
@@ -33,25 +33,21 @@ export const exportButtonToEnterprise = (
   const defaultItem = exportBooleanToEnterprise(context, data.defaultItem)
   if (defaultItem !== undefined) result.АктивизироватьПоУмолчанию = defaultItem
 
-  const displayImportance = exportSystemEnumerationToEnterprise<SE.DisplayImportanceEnterprise>(
+  const displayImportance = exportSystemEnumerationToEnterprise(
     context,
     data.displayImportance,
     SE.DisplayImportanceToEnterprise
   )
   if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise<SE.ItemVerticalAlignEnterprise>(
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise<SE.FormButtonTypeEnterprise>(
-    context,
-    data.type,
-    SE.FormButtonTypeToEnterprise
-  )
+  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormButtonTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, data.visible)
@@ -61,7 +57,7 @@ export const exportButtonToEnterprise = (
 
   if (data.titleHeight !== undefined) result.ВысотаЗаголовка = data.titleHeight
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise<SE.ItemHorizontalLocationEnterprise>(
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
@@ -86,35 +82,35 @@ export const exportButtonToEnterprise = (
 
   if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
 
-  const representation = exportSystemEnumerationToEnterprise<SE.ButtonRepresentationEnterprise>(
+  const representation = exportSystemEnumerationToEnterprise(
     context,
     data.representation,
     SE.ButtonRepresentationToEnterprise
   )
   if (representation !== undefined) result.Отображение = representation
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise<SE.ToolTipRepresentationEnterprise>(
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const shapeRepresentation = exportSystemEnumerationToEnterprise<SE.ButtonShapeRepresentationEnterprise>(
+  const shapeRepresentation = exportSystemEnumerationToEnterprise(
     context,
     data.shapeRepresentation,
     SE.ButtonShapeRepresentationToEnterprise
   )
   if (shapeRepresentation !== undefined) result.ОтображениеФигуры = shapeRepresentation
 
-  const locationInCommandBar = exportSystemEnumerationToEnterprise<SE.ButtonLocationInCommandBarEnterprise>(
+  const locationInCommandBar = exportSystemEnumerationToEnterprise(
     context,
     data.locationInCommandBar,
     SE.ButtonLocationInCommandBarToEnterprise
   )
   if (locationInCommandBar !== undefined) result.ПоложениеВКоманднойПанели = locationInCommandBar
 
-  const pictureLocation = exportSystemEnumerationToEnterprise<SE.FormButtonPictureLocationEnterprise>(
+  const pictureLocation = exportSystemEnumerationToEnterprise(
     context,
     data.pictureLocation,
     SE.FormButtonPictureLocationToEnterprise
@@ -137,7 +133,7 @@ export const exportButtonToEnterprise = (
   const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
 
-  const extendedTooltip = exportFormDecorationToEnterprise(context, data.extendedTooltip)
+  const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
   if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
@@ -148,11 +144,7 @@ export const exportButtonToEnterprise = (
   const commandUniqueness = exportBooleanToEnterprise(context, data.commandUniqueness)
   if (commandUniqueness !== undefined) result.УникальностьКоманды = commandUniqueness
 
-  const shape = exportSystemEnumerationToEnterprise<SE.ButtonShapeEnterprise>(
-    context,
-    data.shape,
-    SE.ButtonShapeToEnterprise
-  )
+  const shape = exportSystemEnumerationToEnterprise(context, data.shape, SE.ButtonShapeToEnterprise)
   if (shape !== undefined) result.Фигура = shape
 
   const borderColor = exportColorToEnterprise(context, data.borderColor)

@@ -32,7 +32,7 @@ export const exportInputFieldToEnterprise = (
   const autoChoiceIncomplete = exportBooleanToEnterprise(context, data.autoChoiceIncomplete)
   if (autoChoiceIncomplete !== undefined) result.АвтоВыборНезаполненного = autoChoiceIncomplete
 
-  const autoCapitalizationOnTextInput = exportSystemEnumerationToEnterprise<SE.AutoCapitalizationOnTextInputEnterprise>(
+  const autoCapitalizationOnTextInput = exportSystemEnumerationToEnterprise(
     context,
     data.autoCapitalizationOnTextInput,
     SE.AutoCapitalizationOnTextInputToEnterprise
@@ -56,14 +56,14 @@ export const exportInputFieldToEnterprise = (
   const autoMarkIncomplete = exportBooleanToEnterprise(context, data.autoMarkIncomplete)
   if (autoMarkIncomplete !== undefined) result.АвтоОтметкаНезаполненного = autoMarkIncomplete
 
-  const autoShowOpenButton = exportSystemEnumerationToEnterprise<SE.AutoShowOpenButtonModeEnterprise>(
+  const autoShowOpenButton = exportSystemEnumerationToEnterprise(
     context,
     data.autoShowOpenButton,
     SE.AutoShowOpenButtonModeToEnterprise
   )
   if (autoShowOpenButton !== undefined) result.АвтоОтображениеКнопкиОткрытия = autoShowOpenButton
 
-  const autoShowClearButton = exportSystemEnumerationToEnterprise<SE.AutoShowClearButtonModeEnterprise>(
+  const autoShowClearButton = exportSystemEnumerationToEnterprise(
     context,
     data.autoShowClearButton,
     SE.AutoShowClearButtonModeToEnterprise
@@ -76,7 +76,7 @@ export const exportInputFieldToEnterprise = (
   const quickChoice = exportBooleanToEnterprise(context, data.quickChoice)
   if (quickChoice !== undefined) result.БыстрыйВыбор = quickChoice
 
-  const heightControlVariant = exportSystemEnumerationToEnterprise<SE.ItemHeightControlVariantEnterprise>(
+  const heightControlVariant = exportSystemEnumerationToEnterprise(
     context,
     data.heightControlVariant,
     SE.ItemHeightControlVariantToEnterprise
@@ -86,7 +86,7 @@ export const exportInputFieldToEnterprise = (
   const chooseType = exportBooleanToEnterprise(context, data.chooseType)
   if (chooseType !== undefined) result.ВыбиратьТип = chooseType
 
-  const choiceFoldersAndItems = exportSystemEnumerationToEnterprise<SE.FoldersAndItemsEnterprise>(
+  const choiceFoldersAndItems = exportSystemEnumerationToEnterprise(
     context,
     data.choiceFoldersAndItems,
     SE.FoldersAndItemsToEnterprise
@@ -108,7 +108,7 @@ export const exportInputFieldToEnterprise = (
   const availableTypes = exportTypeDescriptionToEnterprise(context, data.availableTypes)
   if (availableTypes !== undefined) result.ДоступныеТипы = availableTypes
 
-  const choiceHistoryOnInput = exportSystemEnumerationToEnterprise<SE.ChoiceHistoryOnInputEnterprise>(
+  const choiceHistoryOnInput = exportSystemEnumerationToEnterprise(
     context,
     data.choiceHistoryOnInput,
     SE.ChoiceHistoryOnInputToEnterprise
@@ -155,7 +155,7 @@ export const exportInputFieldToEnterprise = (
   const multiLine = exportBooleanToEnterprise(context, data.multiLine)
   if (multiLine !== undefined) result.МногострочныйРежим = multiLine
 
-  const editTextUpdate = exportSystemEnumerationToEnterprise<SE.EditTextUpdateEnterprise>(
+  const editTextUpdate = exportSystemEnumerationToEnterprise(
     context,
     data.editTextUpdate,
     SE.EditTextUpdateToEnterprise
@@ -173,7 +173,7 @@ export const exportInputFieldToEnterprise = (
     result.ОтображатьФлажкиВВыпадающемСпискеПриВводеМножественныхЗначений =
       showCheckBoxesInDropListWhenInputMultipleValues
 
-  const choiceButtonRepresentation = exportSystemEnumerationToEnterprise<SE.ChoiceButtonRepresentationEnterprise>(
+  const choiceButtonRepresentation = exportSystemEnumerationToEnterprise(
     context,
     data.choiceButtonRepresentation,
     SE.ChoiceButtonRepresentationToEnterprise
@@ -183,7 +183,7 @@ export const exportInputFieldToEnterprise = (
   const choiceParameters = exportChoiceParametersToEnterprise(context, data.choiceParameters)
   if (choiceParameters !== undefined) result.ПараметрыВыбора = choiceParameters
 
-  const autoFillHint = exportSystemEnumerationToEnterprise<SE.InputFieldAutofillHintEnterprise>(
+  const autoFillHint = exportSystemEnumerationToEnterprise(
     context,
     data.autoFillHint,
     SE.InputFieldAutofillHintToEnterprise
@@ -198,7 +198,7 @@ export const exportInputFieldToEnterprise = (
     Object.assign(result, userVisible)
   }
 
-  const spellCheckingOnTextInput = exportSystemEnumerationToEnterprise<SE.SpellCheckingOnTextInputEnterprise>(
+  const spellCheckingOnTextInput = exportSystemEnumerationToEnterprise(
     context,
     data.spellCheckingOnTextInput,
     SE.SpellCheckingOnTextInputToEnterprise
@@ -214,7 +214,7 @@ export const exportInputFieldToEnterprise = (
   if (data.multipleValuePresentationDataPath !== undefined)
     result.ПутьКДаннымПредставленияМножественногоЗначения = data.multipleValuePresentationDataPath
 
-  const multipleValuePictureSize = exportSystemEnumerationToEnterprise<SE.InputFieldMultipleValuePictureSizeEnterprise>(
+  const multipleValuePictureSize = exportSystemEnumerationToEnterprise(
     context,
     data.multipleValuePictureSize,
     SE.InputFieldMultipleValuePictureSizeToEnterprise
@@ -251,7 +251,7 @@ export const exportInputFieldToEnterprise = (
   const listChoiceMode = exportBooleanToEnterprise(context, data.listChoiceMode)
   if (listChoiceMode !== undefined) result.РежимВыбораИзСписка = listChoiceMode
 
-  const incompleteChoiceMode = exportSystemEnumerationToEnterprise<SE.IncompleteChoiceModeEnterprise>(
+  const incompleteChoiceMode = exportSystemEnumerationToEnterprise(
     context,
     data.incompleteChoiceMode,
     SE.IncompleteChoiceModeToEnterprise
@@ -267,7 +267,7 @@ export const exportInputFieldToEnterprise = (
   const typeLink = exportTypeLinkToEnterprise(context, data.typeLink)
   if (typeLink !== undefined) result.СвязьПоТипу = typeLink
 
-  const specialTextInputMode = exportSystemEnumerationToEnterprise<SE.SpecialTextInputModeEnterprise>(
+  const specialTextInputMode = exportSystemEnumerationToEnterprise(
     context,
     data.specialTextInputMode,
     SE.SpecialTextInputModeToEnterprise
@@ -277,7 +277,7 @@ export const exportInputFieldToEnterprise = (
   const choiceList = exportChoiceListToEnterprise(context, data.choiceList)
   if (choiceList !== undefined) result.СписокВыбора = choiceList
 
-  const onScreenKeyboardReturnKeyText = exportSystemEnumerationToEnterprise<SE.OnScreenKeyboardReturnKeyTextEnterprise>(
+  const onScreenKeyboardReturnKeyText = exportSystemEnumerationToEnterprise(
     context,
     data.onScreenKeyboardReturnKeyText,
     SE.OnScreenKeyboardReturnKeyTextToEnterprise
@@ -287,12 +287,11 @@ export const exportInputFieldToEnterprise = (
 
   if (data.editText !== undefined) result.ТекстРедактирования = data.editText
 
-  const multipleValuePictureShape =
-    exportSystemEnumerationToEnterprise<SE.InputFieldMultipleValuePictureShapeEnterprise>(
-      context,
-      data.multipleValuePictureShape,
-      SE.InputFieldMultipleValuePictureShapeToEnterprise
-    )
+  const multipleValuePictureShape = exportSystemEnumerationToEnterprise(
+    context,
+    data.multipleValuePictureShape,
+    SE.InputFieldMultipleValuePictureShapeToEnterprise
+  )
   if (multipleValuePictureShape !== undefined) result.ФигураКартинкиМножественногоЗначения = multipleValuePictureShape
 
   if (data.choiceForm !== undefined) result.ФормаВыбора = data.choiceForm

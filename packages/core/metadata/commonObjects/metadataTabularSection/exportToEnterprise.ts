@@ -27,7 +27,7 @@ export const exportMetadataTabularSectionToEnterprise = (
 
   if (data.lineNumberLength !== undefined) result.ДлинаНомераСтроки = data.lineNumberLength
 
-  const use = exportSystemEnumerationToEnterprise<SE.AttributeUseEnterprise>(
+  const use = exportSystemEnumerationToEnterprise(
     context,
     data.use,
     SE.AttributeUseToEnterprise
@@ -39,14 +39,14 @@ export const exportMetadataTabularSectionToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const objectBelonging = exportSystemEnumerationToEnterprise<SE.ObjectBelongingEnterprise>(
+  const objectBelonging = exportSystemEnumerationToEnterprise(
     context,
     data.objectBelonging,
     SE.ObjectBelongingToEnterprise
   )
   if (objectBelonging !== undefined) result.ПринадлежностьОбъекта = objectBelonging
 
-  const fillChecking = exportSystemEnumerationToEnterprise<SE.FillCheckingEnterprise>(
+  const fillChecking = exportSystemEnumerationToEnterprise(
     context,
     data.fillChecking,
     SE.FillCheckingToEnterprise

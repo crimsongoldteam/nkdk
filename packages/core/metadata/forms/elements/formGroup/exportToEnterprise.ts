@@ -23,18 +23,14 @@ export const exportFormGroupToEnterprise = (
     ...baseFields,
   }
 
-  const verticalAlignInGroup = exportSystemEnumerationToEnterprise<SE.ItemVerticalAlignEnterprise>(
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     data.verticalAlignInGroup,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = exportSystemEnumerationToEnterprise<SE.FormGroupTypeEnterprise>(
-    context,
-    data.type,
-    SE.FormGroupTypeToEnterprise
-  )
+  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormGroupTypeToEnterprise)
   if (type !== undefined) result.Вид = type
 
   const visible = exportBooleanToEnterprise(context, data.visible)
@@ -42,7 +38,7 @@ export const exportFormGroupToEnterprise = (
 
   if (data.height !== undefined) result.Высота = data.height
 
-  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise<SE.ItemHorizontalLocationEnterprise>(
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
     data.horizontalAlignInGroup,
     SE.ItemHorizontalLocationToEnterprise
@@ -55,7 +51,7 @@ export const exportFormGroupToEnterprise = (
   const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  const toolTipRepresentation = exportSystemEnumerationToEnterprise<SE.ToolTipRepresentationEnterprise>(
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
     data.toolTipRepresentation,
     SE.ToolTipRepresentationToEnterprise

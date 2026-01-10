@@ -32,7 +32,7 @@ export const exportMetadataCommandToEnterprise = (
 
   let group: SE.StandardCommandsGroupEnterprise | string | undefined
   if (typeof data.group === "string" && data.group in SE.StandardCommandsGroupToEnterprise) {
-    group = exportSystemEnumerationToEnterprise<SE.StandardCommandsGroupEnterprise>(
+    group = exportSystemEnumerationToEnterprise(
       context,
       data.group,
       SE.StandardCommandsGroupToEnterprise
@@ -62,7 +62,7 @@ export const exportMetadataCommandToEnterprise = (
 
   if (data.comment !== undefined) result.Комментарий = data.comment
 
-  const representation = exportSystemEnumerationToEnterprise<SE.ButtonRepresentationEnterprise>(
+  const representation = exportSystemEnumerationToEnterprise(
     context,
     data.representation,
     SE.ButtonRepresentationToEnterprise
@@ -72,14 +72,14 @@ export const exportMetadataCommandToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const objectBelonging = exportSystemEnumerationToEnterprise<SE.ObjectBelongingEnterprise>(
+  const objectBelonging = exportSystemEnumerationToEnterprise(
     context,
     data.objectBelonging,
     SE.ObjectBelongingToEnterprise
   )
   if (objectBelonging !== undefined) result.ПринадлежностьОбъекта = objectBelonging
 
-  const parameterUseMode = exportSystemEnumerationToEnterprise<SE.CommandParameterUseModeEnterprise>(
+  const parameterUseMode = exportSystemEnumerationToEnterprise(
     context,
     data.parameterUseMode,
     SE.CommandParameterUseModeToEnterprise
@@ -91,12 +91,11 @@ export const exportMetadataCommandToEnterprise = (
   const commandParameterType = exportTypeDescriptionToEnterprise(context, data.commandParameterType)
   if (commandParameterType !== undefined) result.ТипПараметраКоманды = commandParameterType
 
-  const onMainServerUnavalableBehavior =
-    exportSystemEnumerationToEnterprise<SE.OnMainServerUnavalableBehaviorEnterprise>(
-      context,
-      data.onMainServerUnavalableBehavior,
-      SE.OnMainServerUnavalableBehaviorToEnterprise
-    )
+  const onMainServerUnavalableBehavior = exportSystemEnumerationToEnterprise(
+    context,
+    data.onMainServerUnavalableBehavior,
+    SE.OnMainServerUnavalableBehaviorToEnterprise
+  )
   if (onMainServerUnavalableBehavior !== undefined)
     result.ПоведениеПриНедоступностиОсновногоСервера = onMainServerUnavalableBehavior
 

@@ -21,14 +21,14 @@ export const exportColumnGroupToEnterprise = (
     ...baseFields,
   }
 
-  const headerHorizontalAlign = exportSystemEnumerationToEnterprise<SE.ItemHorizontalLocationEnterprise>(
+  const headerHorizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     data.headerHorizontalAlign,
     SE.ItemHorizontalLocationToEnterprise
   )
   if (headerHorizontalAlign !== undefined) result.ГоризонтальноеПоложениеВШапке = headerHorizontalAlign
 
-  const group = exportSystemEnumerationToEnterprise<SE.ColumnsGroupEnterprise>(context, data.group, SE.ColumnsGroupToEnterprise)
+  const group = exportSystemEnumerationToEnterprise(context, data.group, SE.ColumnsGroupToEnterprise)
   if (group !== undefined) result.Группировка = group
 
   const headerPicture = exportPictureToEnterprise(context, data.headerPicture)
@@ -47,11 +47,7 @@ export const exportColumnGroupToEnterprise = (
 
   if (data.headerDataPath !== undefined) result.ПутьКДаннымШапки = data.headerDataPath
 
-  const fixingInTable = exportSystemEnumerationToEnterprise<SE.FixingInTableEnterprise>(
-    context,
-    data.fixingInTable,
-    SE.FixingInTableToEnterprise
-  )
+  const fixingInTable = exportSystemEnumerationToEnterprise(context, data.fixingInTable, SE.FixingInTableToEnterprise)
   if (fixingInTable !== undefined) result.ФиксацияВТаблице = fixingInTable
 
   if (data.headerFormat !== undefined) result.ФорматШапки = data.headerFormat

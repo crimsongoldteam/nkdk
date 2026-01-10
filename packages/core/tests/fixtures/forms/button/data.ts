@@ -120,12 +120,12 @@ export const buttonStructureFixturesTable: ButtonStructureFixture[] = [
   {
     name: "without title",
     element: {
-      name: "",
+      name: "Кнопка",
       elementType: FormElementType.Button,
       title: undefined,
     },
     structured: {
-      strings: ["<{}>"],
+      strings: ["<{Кнопка}>"],
       haveSimpleHorizontalGroup: false,
     },
   },

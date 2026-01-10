@@ -39,14 +39,14 @@ export const exportLabelDecorationToEnterprise = (
     ...baseFields,
   }
 
-  const verticalAlignGroup = exportSystemEnumerationToEnterprise<SE.ItemVerticalAlignEnterprise>(
+  const verticalAlignGroup = exportSystemEnumerationToEnterprise(
     context,
     data.groupVerticalAlign,
     SE.ItemVerticalAlignToEnterprise
   )
   if (verticalAlignGroup !== undefined) result.ВертикальноеВыравниваниеГруппы = verticalAlignGroup
 
-  const verticalAlign = exportSystemEnumerationToEnterprise<SE.ItemVerticalAlignEnterprise>(
+  const verticalAlign = exportSystemEnumerationToEnterprise(
     context,
     data.verticalAlign,
     SE.ItemVerticalAlignToEnterprise
@@ -58,7 +58,7 @@ export const exportLabelDecorationToEnterprise = (
   const hyperlink = exportBooleanToEnterprise(context, data.hyperlink)
   if (hyperlink !== undefined) result.Гиперссылка = hyperlink
 
-  const horizontalAlign = exportSystemEnumerationToEnterprise<SE.ItemHorizontalLocationEnterprise>(
+  const horizontalAlign = exportSystemEnumerationToEnterprise(
     context,
     data.horizontalAlign,
     SE.ItemHorizontalLocationToEnterprise

@@ -48,14 +48,14 @@ const exportMetadataAttributeToEnterprise = (
 
   if (synonym !== undefined) result.Синоним = synonym
 
-  const quickChoice = exportSystemEnumerationToEnterprise<SE.UseQuickChoiceEnterprise>(
+  const quickChoice = exportSystemEnumerationToEnterprise(
     context,
     data.quickChoice,
     SE.UseQuickChoiceToEnterprise
   )
   if (quickChoice !== undefined) result.БыстрыйВыбор = quickChoice
 
-  const choiceFoldersAndItems = exportSystemEnumerationToEnterprise<SE.FoldersAndItemsUseEnterprise>(
+  const choiceFoldersAndItems = exportSystemEnumerationToEnterprise(
     context,
     data.choiceFoldersAndItems,
     SE.FoldersAndItemsUseToEnterprise
@@ -71,21 +71,21 @@ const exportMetadataAttributeToEnterprise = (
   const fillValue = exportMetadataValueToEnterprise(context, data.fillValue)
   if (fillValue !== undefined) result.ЗначениеЗаполнения = fillValue
 
-  const indexing = exportSystemEnumerationToEnterprise<SE.IndexingEnterprise>(
+  const indexing = exportSystemEnumerationToEnterprise(
     context,
     data.indexing,
     SE.IndexingToEnterprise
   )
   if (indexing !== undefined) result.Индексирование = indexing
 
-  const use = exportSystemEnumerationToEnterprise<SE.AttributeUseEnterprise>(
+  const use = exportSystemEnumerationToEnterprise(
     context,
     data.use,
     SE.AttributeUseToEnterprise
   )
   if (use !== undefined) result.Использование = use
 
-  const binaryDataStorageLocationUse = exportSystemEnumerationToEnterprise<SE.BinaryDataStorageLocationUseEnterprise>(
+  const binaryDataStorageLocationUse = exportSystemEnumerationToEnterprise(
     context,
     data.binaryDataStorageLocationUse,
     SE.BinaryDataStorageLocationUseToEnterprise
@@ -93,14 +93,14 @@ const exportMetadataAttributeToEnterprise = (
   if (binaryDataStorageLocationUse !== undefined)
     result.ИспользованиеХраненияВХранилищеДвоичныхДанных = binaryDataStorageLocationUse
 
-  const choiceHistoryOnInput = exportSystemEnumerationToEnterprise<SE.ChoiceHistoryOnInputEnterprise>(
+  const choiceHistoryOnInput = exportSystemEnumerationToEnterprise(
     context,
     data.choiceHistoryOnInput,
     SE.ChoiceHistoryOnInputToEnterprise
   )
   if (choiceHistoryOnInput !== undefined) result.ИсторияВыбораПриВводе = choiceHistoryOnInput
 
-  const dataHistory = exportSystemEnumerationToEnterprise<SE.DataHistoryUseEnterprise>(
+  const dataHistory = exportSystemEnumerationToEnterprise(
     context,
     data.dataHistory,
     SE.DataHistoryUseToEnterprise
@@ -128,14 +128,14 @@ const exportMetadataAttributeToEnterprise = (
   if (binaryDataStorageLocationUseField !== undefined)
     result.ПолеИспользованияХраненияВХранилищеДвоичныхДанных = binaryDataStorageLocationUseField
 
-  const fullTextSearch = exportSystemEnumerationToEnterprise<SE.UseFullTextSearchEnterprise>(
+  const fullTextSearch = exportSystemEnumerationToEnterprise(
     context,
     data.fullTextSearch,
     SE.UseFullTextSearchToEnterprise
   )
   if (fullTextSearch !== undefined) result.ПолнотекстовыйПоиск = fullTextSearch
 
-  const fillChecking = exportSystemEnumerationToEnterprise<SE.FillCheckingEnterprise>(
+  const fillChecking = exportSystemEnumerationToEnterprise(
     context,
     data.fillChecking,
     SE.FillCheckingToEnterprise
@@ -154,7 +154,7 @@ const exportMetadataAttributeToEnterprise = (
   const linkByType = exportTypeLinkToEnterprise(context, data.linkByType)
   if (linkByType !== undefined) result.СвязьПоТипу = linkByType
 
-  const createOnInput = exportSystemEnumerationToEnterprise<SE.CreateOnInputEnterprise>(
+  const createOnInput = exportSystemEnumerationToEnterprise(
     context,
     data.createOnInput,
     SE.CreateOnInputToEnterprise

@@ -18,7 +18,7 @@ export const exportButtonGroupToEnterprise = (
     ...baseFields,
   }
 
-  const representation = exportSystemEnumerationToEnterprise<SE.ButtonGroupRepresentationEnterprise>(
+  const representation = exportSystemEnumerationToEnterprise(
     context,
     data.representation,
     SE.ButtonGroupRepresentationToEnterprise
