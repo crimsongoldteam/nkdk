@@ -1,1 +1,4 @@
-<DendrogramField name="ПолеДендрограммы" id="1"/>
+<DendrogramField name="ПолеДендрограммы" id="1">
+	<ContextMenu name="ПолеДендрограммыКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ПолеДендрограммыРасширеннаяПодсказка" id="1"/>
+</DendrogramField>

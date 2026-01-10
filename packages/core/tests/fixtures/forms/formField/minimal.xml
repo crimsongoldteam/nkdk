@@ -1,1 +1,4 @@
-<FormField name="ПолеФормы" id="1"/>
+<FormField name="ПолеФормы" id="1">
+	<ContextMenu name="ПолеФормыКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ПолеФормыРасширеннаяПодсказка" id="1"/>
+</FormField>

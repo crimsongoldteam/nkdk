@@ -1,18 +1,70 @@
-<DendrogramField name="ПолеДендрограммы" id="1">
+<DendrogramField name="ПолеДендрограммы" id="1" DisplayImportance="High">
+	<AutoCellHeight>true</AutoCellHeight>
+	<CellHyperlink>true</CellHyperlink>
+	<ContextMenu name="ПолеДендрограммыКонтекстноеМеню" id="1"/>
+	<DataPath>Объект.Реквизит</DataPath>
+	<DefaultItem>true</DefaultItem>
+	<EditMode>EnterOnInput</EditMode>
+	<Enabled>true</Enabled>
+	<Events>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="Selection">ПроцедураВыбора</Event>
+	</Events>
+	<ExtendedTooltip name="ПолеДендрограммыРасширеннаяПодсказка" id="1"/>
+	<FixingInTable>None</FixingInTable>
+	<FooterBackColor>web:White</FooterBackColor>
+	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
+	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+	<FooterPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</FooterPicture>
+	<FooterText>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Текст подвала</v8:content>
+		</v8:item>
+	</FooterText>
+	<FooterTextColor>web:Black</FooterTextColor>
+	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
+	<HeaderPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</HeaderPicture>
+	<HorizontalAlign>Left</HorizontalAlign>
+	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<ReadOnly>false</ReadOnly>
+	<Shortcut>Ctrl+S</Shortcut>
+	<ShowInFooter>true</ShowInFooter>
+	<ShowInHeader>true</ShowInHeader>
+	<SkipOnInput>false</SkipOnInput>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
 			<v8:content>Поле дендрограммы</v8:content>
 		</v8:item>
 	</Title>
+	<TitleBackColor>web:Blue</TitleBackColor>
+	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<TitleHeight>20</TitleHeight>
+	<TitleLocation>Left</TitleLocation>
+	<TitleTextColor>web:Black</TitleTextColor>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>None</ToolTipRepresentation>
+	<Type>InputField</Type>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
-	<Events>
-		<Event name="OnChange">ПроцедураПриИзменении</Event>
-		<Event name="Selection">ПроцедураВыбора</Event>
-	</Events>
+	<VerticalAlign>Top</VerticalAlign>
+	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<Visible>true</Visible>
 	<AutoMaxHeight>true</AutoMaxHeight>
 	<AutoMaxWidth>true</AutoMaxWidth>
 	<Height>200</Height>

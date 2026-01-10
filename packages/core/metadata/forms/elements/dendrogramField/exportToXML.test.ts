@@ -30,4 +30,3 @@ describe("exportDendrogramFieldToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 })
-

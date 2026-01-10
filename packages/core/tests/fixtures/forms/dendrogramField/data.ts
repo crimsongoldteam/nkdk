@@ -1,7 +1,9 @@
 import { DendrogramField, DendrogramFieldEnterprise } from "~/metadata/forms/elements/dendrogramField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
 export const fullDendrogramField: DendrogramField = {
+  ...fullFormField,
   elementType: FormElementType.DendrogramField,
   name: "ПолеДендрограммы",
   title: {
@@ -26,6 +28,7 @@ export const fullDendrogramField: DendrogramField = {
 }
 
 export const fullDendrogramFieldEnterprise: DendrogramFieldEnterprise = {
+  ...fullFormFieldEnterprise,
   Заголовок: "Поле дендрограммы",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
