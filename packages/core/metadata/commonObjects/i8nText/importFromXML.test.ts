@@ -1,6 +1,6 @@
 import { assertEquals } from "typia"
 import { describe, expect, it } from "vitest"
-import { withoutTextI8nText } from "~/tests/fixtures/i8nText/data"
+import { escapedContentI8nText, withoutTextI8nText } from "~/tests/fixtures/i8nText/data"
 import { oneLangI8nText } from "~/tests/fixtures/i8nText/oneLang"
 import { twoLangsI8nText } from "~/tests/fixtures/i8nText/twoLangs"
 import { mockСontext } from "~/tests/mockContext"
@@ -47,5 +47,13 @@ describe("importI8nTextFromXML", () => {
     const result = importI8nTextFromXML(mockСontext, xmlData.Title)
 
     expect(result).toEqual(withoutTextI8nText)
+  })
+
+  it("should import I8nText from XML with escaped content", () => {
+    const xmlData = readAndParseXMLFile<{ Title: I8nTextXML }>("i8nText/escapedContent.xml")
+
+    const result = importI8nTextFromXML(mockСontext, xmlData.Title)
+
+    expect(result).toEqual(escapedContentI8nText)
   })
 })

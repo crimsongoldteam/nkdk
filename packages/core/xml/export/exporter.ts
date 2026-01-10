@@ -8,7 +8,7 @@ const options = {
   suppressBooleanAttributes: false,
   indentBy: "\t",
   oneListGroup: false,
-  processEntities: false,
+  processEntities: true,
 }
 
 const builder = new XMLBuilder(options)
