@@ -12,20 +12,20 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "../types"
 
-export const importButtonFromEnterprise = (
+export const importButtonFromEnterprise = <T extends ButtonEnterprise | undefined, N extends string | undefined>(
   context: ConfigurationContext,
-  data: ButtonEnterprise | undefined,
-  name: string
-): Button | undefined => {
-  if (!data) return undefined
+  data: T,
+  name: N
+): ImportFromEnterpriseReturn<T, Button, N> => {
+  if (data === undefined) return undefined as ImportFromEnterpriseReturn<T, Button, N>
 
-  const baseFields = importBaseElementFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
+  const baseFields = importBaseElementFromEnterprise(context, data, name)
 
-  const result: Button = {
+  const result: ImportFromEnterpriseReturn<T, Button, N> = {
     elementType: FormElementType.Button,
-    ...restFields,
+    ...baseFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)

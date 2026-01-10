@@ -5,12 +5,8 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
-import {
-  FormDecoration,
-  FormDecorationEnterprise,
-  FormDecorationXML,
-} from "~/metadata/forms/elements/formDecoration/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface Button extends BaseElement {
   autoMaxHeight?: boolean
@@ -24,7 +20,7 @@ export interface Button extends BaseElement {
   defaultItem?: boolean
   displayImportance?: SE.DisplayImportance
   enabled?: boolean
-  extendedTooltip?: FormDecoration
+  extendedTooltip?: ExtendedTooltip
   font?: Font
   height?: number
   horizontalAlignInGroup?: SE.ItemHorizontalLocation
@@ -64,7 +60,7 @@ export interface ButtonXML extends BaseElementXML {
   DefaultItem?: boolean
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
-  ExtendedTooltip?: FormDecorationXML
+  ExtendedTooltip?: ExtendedTooltipXML
   Font?: FontXML
   Height?: number
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
@@ -121,7 +117,7 @@ export interface ButtonEnterprise extends BaseElementEnterprise {
   ПутьКДанным?: string
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: FormDecorationEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   СочетаниеКлавиш?: string
   ТолькоВоВсехДействиях?: StringboolEnterprise
   УникальностьКоманды?: StringboolEnterprise
