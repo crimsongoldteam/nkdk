@@ -10,6 +10,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportFromEnterpriseReturn } from "../types"
 
 const importPictureDecorationEventsFromEnterprise = (
   data:
@@ -49,21 +50,21 @@ const importPictureDecorationEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importPictureDecorationFromEnterprise = (
+export const importPictureDecorationFromEnterprise = <
+  T extends PictureDecorationEnterprise | undefined,
+  N extends string | undefined,
+>(
   context: ConfigurationContext,
-  data: PictureDecorationEnterprise | undefined,
-  name?: string
-): PictureDecoration | undefined => {
-  if (!data) return undefined
+  data: T,
+  name: N
+): ImportFromEnterpriseReturn<T, PictureDecoration, N> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<T, PictureDecoration, N>
 
   const baseFields = importFormDecorationFromEnterprise(context, data, name)
-  if (!baseFields) return undefined
 
-  const { elementType: _, ...restFields } = baseFields
-
-  const result: PictureDecoration = {
+  const result: ImportFromEnterpriseReturn<T, PictureDecoration, N> = {
+    ...baseFields,
     elementType: FormElementType.PictureDecoration,
-    ...restFields,
   }
 
   const hyperlink = importBooleanFromEnterprise(context, data.Гиперссылка)
@@ -122,7 +123,7 @@ export const importPictureDecorationFromEnterprise = (
   const events = importPictureDecorationEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
-  return result
+  return result as ImportFromEnterpriseReturn<T, PictureDecoration, N>
 }
 
 registerMetadata(

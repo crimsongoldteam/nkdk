@@ -5,9 +5,9 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportChildItemsToXML } from "~/metadata/forms/elements/childItems/exportToXML"
-import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecoration/exportToXML"
 import { FormGroup, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export const exportFormGroupToXML = (
   context: ConfigurationContext,
@@ -29,8 +29,7 @@ export const exportFormGroupToXML = (
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
-  const extendedTooltip = exportFormDecorationToXML(context, data.extendedTooltip)
-  if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   if (data.height !== undefined) result.Height = data.height
 

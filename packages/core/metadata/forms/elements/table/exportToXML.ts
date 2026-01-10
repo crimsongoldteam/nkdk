@@ -7,11 +7,12 @@ import { exportCommandSetToXML } from "~/metadata/forms/commandSet/exportToXML"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportChildItemsToXML } from "~/metadata/forms/elements/childItems/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
-import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecoration/exportToXML"
 import { exportFormItemAdditionToXML } from "~/metadata/forms/elements/formItemAddition/exportToXML"
 import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export const exportTableToXML = (context: ConfigurationContext, data: Table | undefined): TableXML | undefined => {
   if (!data) return undefined
@@ -81,8 +82,7 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
 
   if (data.enableStartDrag !== undefined) result.EnableStartDrag = data.enableStartDrag
 
-  const extendedTooltip = exportFormDecorationToXML(context, data.extendedTooltip)
-  if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   if (data.fileDragMode !== undefined) result.FileDragMode = data.fileDragMode
 

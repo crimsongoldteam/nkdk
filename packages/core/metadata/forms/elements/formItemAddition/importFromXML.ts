@@ -4,24 +4,22 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importChildItemsFromXML } from "~/metadata/forms/elements/childItems/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
-import { importFormDecorationFromXML } from "~/metadata/forms/elements/formDecoration/importFromXML"
 import { FormItemAddition, FormItemAdditionXML } from "~/metadata/forms/elements/formItemAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
+import { ImportExportReturn } from "../types"
 
-export const importFormItemAdditionFromXML = (
+export const importFormItemAdditionFromXML = <T extends FormItemAdditionXML | undefined>(
   context: ConfigurationContext,
-  xml: FormItemAdditionXML | undefined
-): FormItemAddition | undefined => {
-  if (!xml) return undefined
+  xml: T
+): ImportExportReturn<T, FormItemAddition> => {
+  if (!xml) return undefined as ImportExportReturn<T, FormItemAddition>
   const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined
-
-  const { elementType: _, ...restFields } = baseFields
 
   const result: FormItemAddition = {
+    ...baseFields,
     elementType: FormElementType.FormItemAddition,
-    ...restFields,
   }
 
   const childItems = importChildItemsFromXML(context, xml.ChildItems)
@@ -34,8 +32,8 @@ export const importFormItemAdditionFromXML = (
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  const extendedToolTip = importFormDecorationFromXML(context, xml.ExtendedToolTip)
-  if (extendedToolTip !== undefined) result.extendedToolTip = extendedToolTip
+  const extendedToolTip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip, result)
+  if (extendedToolTip !== undefined) result.extendedTooltip = extendedToolTip
 
   if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup
 
@@ -56,7 +54,7 @@ export const importFormItemAdditionFromXML = (
 
   if (xml.Visible !== undefined) result.visible = xml.Visible
 
-  return result
+  return result as ImportExportReturn<T, FormItemAddition>
 }
 
 registerMetadata("ImportFromXML", "FormItemAddition", importFormItemAdditionFromXML)

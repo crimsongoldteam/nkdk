@@ -4,9 +4,9 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportChildItemsToXML } from "~/metadata/forms/elements/childItems/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
-import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecoration/exportToXML"
 import { FormItemAddition, FormItemAdditionXML } from "~/metadata/forms/elements/formItemAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export const exportFormItemAdditionToXML = (
   context: ConfigurationContext,
@@ -31,8 +31,7 @@ export const exportFormItemAdditionToXML = (
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
-  const extendedToolTip = exportFormDecorationToXML(context, data.extendedToolTip)
-  if (extendedToolTip !== undefined) result.ExtendedToolTip = extendedToolTip
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   if (data.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = data.horizontalAlignInGroup
 

@@ -8,65 +8,70 @@ import { importCommandSetFromEnterprise } from "~/metadata/forms/commandSet/impo
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importChildItemsFromEnterprise } from "~/metadata/forms/elements/childItems/importFromEnterprise"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
-import { importFormDecorationFromEnterprise } from "~/metadata/forms/elements/formDecoration/importFromEnterprise"
 import { importFormItemAdditionFromEnterprise } from "~/metadata/forms/elements/formItemAddition/importFromEnterprise"
 import { Table, TableEnterprise } from "~/metadata/forms/elements/table/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importCommandBarFromEnterprise } from "../commandBar/importFromEnterprise"
+import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
 const importTableEventsFromEnterprise = (
-  data: {
-    Выбор?: string
-    ВыборЗначения?: string
-    НачалоПеретаскивания?: string
-    ОбработкаВыбора?: string
-    ОбработкаЗаписиНового?: string
-    ОбработкаЗапросаОбновления?: string
-    ОкончаниеПеретаскивания?: string
-    ПередНачаломДобавления?: string
-    ПередНачаломИзменения?: string
-    ПередОкончаниемРедактирования?: string
-    ПередРазворачиванием?: string
-    ПередСворачиванием?: string
-    ПередУдалением?: string
-    Перетаскивание?: string
-    ПослеУдаления?: string
-    ПриАктивизацииПоля?: string
-    ПриАктивизацииСтроки?: string
-    ПриАктивизацииЯчейки?: string
-    ПриИзменении?: string
-    ПриНачалеРедактирования?: string
-    ПриОкончанииРедактирования?: string
-    ПриСменеТекущегоРодителя?: string
-    ПроверкаПеретаскивания?: string
-  } | undefined
-): {
-  selection?: string
-  valueChoice?: string
-  dragStart?: string
-  choiceProcessing?: string
-  newWriteProcessing?: string
-  refreshRequestProcessing?: string
-  dragEnd?: string
-  beforeAddRow?: string
-  beforeRowChange?: string
-  beforeEditEnd?: string
-  beforeExpand?: string
-  beforeCollapse?: string
-  beforeDeleteRow?: string
-  drag?: string
-  afterDeleteRow?: string
-  onActivateField?: string
-  onActivateRow?: string
-  onActivateCell?: string
-  onChange?: string
-  onStartEdit?: string
-  onEditEnd?: string
-  onCurrentParentChange?: string
-  dragCheck?: string
-} | undefined => {
+  data:
+    | {
+        Выбор?: string
+        ВыборЗначения?: string
+        НачалоПеретаскивания?: string
+        ОбработкаВыбора?: string
+        ОбработкаЗаписиНового?: string
+        ОбработкаЗапросаОбновления?: string
+        ОкончаниеПеретаскивания?: string
+        ПередНачаломДобавления?: string
+        ПередНачаломИзменения?: string
+        ПередОкончаниемРедактирования?: string
+        ПередРазворачиванием?: string
+        ПередСворачиванием?: string
+        ПередУдалением?: string
+        Перетаскивание?: string
+        ПослеУдаления?: string
+        ПриАктивизацииПоля?: string
+        ПриАктивизацииСтроки?: string
+        ПриАктивизацииЯчейки?: string
+        ПриИзменении?: string
+        ПриНачалеРедактирования?: string
+        ПриОкончанииРедактирования?: string
+        ПриСменеТекущегоРодителя?: string
+        ПроверкаПеретаскивания?: string
+      }
+    | undefined
+):
+  | {
+      selection?: string
+      valueChoice?: string
+      dragStart?: string
+      choiceProcessing?: string
+      newWriteProcessing?: string
+      refreshRequestProcessing?: string
+      dragEnd?: string
+      beforeAddRow?: string
+      beforeRowChange?: string
+      beforeEditEnd?: string
+      beforeExpand?: string
+      beforeCollapse?: string
+      beforeDeleteRow?: string
+      drag?: string
+      afterDeleteRow?: string
+      onActivateField?: string
+      onActivateRow?: string
+      onActivateCell?: string
+      onChange?: string
+      onStartEdit?: string
+      onEditEnd?: string
+      onCurrentParentChange?: string
+      dragCheck?: string
+    }
+  | undefined => {
   if (!data) return undefined
 
   const result: {
@@ -195,11 +200,7 @@ export const importTableFromEnterprise = (
   const visible = importBooleanFromEnterprise(context, data.Видимость)
   if (visible !== undefined) result.visible = visible
 
-  const output = importSystemEnumerationFromEnterprise<SE.UseOutput>(
-    context,
-    data.Вывод,
-    SE.UseOutputFromEnterprise
-  )
+  const output = importSystemEnumerationFromEnterprise<SE.UseOutput>(context, data.Вывод, SE.UseOutputFromEnterprise)
   if (output !== undefined) result.output = output
 
   if (data.Высота !== undefined) result.height = data.Высота
@@ -269,7 +270,8 @@ export const importTableFromEnterprise = (
 
   if (data.МаксимальнаяВысота !== undefined) result.maxHeight = data.МаксимальнаяВысота
 
-  if (data.МаксимальнаяВысотаВСтрокахТаблицы !== undefined) result.maxHeightInTableRows = data.МаксимальнаяВысотаВСтрокахТаблицы
+  if (data.МаксимальнаяВысотаВСтрокахТаблицы !== undefined)
+    result.maxHeightInTableRows = data.МаксимальнаяВысотаВСтрокахТаблицы
 
   if (data.МаксимальнаяШирина !== undefined) result.maxWidth = data.МаксимальнаяШирина
 
@@ -307,21 +309,18 @@ export const importTableFromEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const viewStatusRepresentation = importFormItemAdditionFromEnterprise(
-    context,
-    data.ОтображениеСостоянияПросмотра,
-    ""
-  )
+  const viewStatusRepresentation = importFormItemAdditionFromEnterprise(context, data.ОтображениеСостоянияПросмотра, "")
   if (viewStatusRepresentation !== undefined) result.viewStatusRepresentation = viewStatusRepresentation
 
   const searchStringRepresentation = importFormItemAdditionFromEnterprise(context, data.ОтображениеСтрокиПоиска, "")
   if (searchStringRepresentation !== undefined) result.searchStringRepresentation = searchStringRepresentation
 
-  const behaviorOnHorizontalCompression = importSystemEnumerationFromEnterprise<SE.TableBehaviorOnHorizontalCompression>(
-    context,
-    data.ПоведениеПриСжатииПоГоризонтали,
-    SE.TableBehaviorOnHorizontalCompressionFromEnterprise
-  )
+  const behaviorOnHorizontalCompression =
+    importSystemEnumerationFromEnterprise<SE.TableBehaviorOnHorizontalCompression>(
+      context,
+      data.ПоведениеПриСжатииПоГоризонтали,
+      SE.TableBehaviorOnHorizontalCompressionFromEnterprise
+    )
   if (behaviorOnHorizontalCompression !== undefined)
     result.behaviorOnHorizontalCompression = behaviorOnHorizontalCompression
 
@@ -381,7 +380,11 @@ export const importTableFromEnterprise = (
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -405,7 +408,7 @@ export const importTableFromEnterprise = (
   const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const extendedTooltip = importFormDecorationFromEnterprise(context, data.РасширеннаяПодсказка, name + ".РасширеннаяПодсказка")
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   const rowInputMode = importSystemEnumerationFromEnterprise<SE.TableRowInputMode>(

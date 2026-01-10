@@ -12,7 +12,7 @@ export interface FormItemAddition extends BaseElement {
   contextMenu?: ContextMenu
   displayImportance?: SE.DisplayImportance
   enabled?: boolean
-  extendedToolTip?: ExtendedTooltip
+  extendedTooltip?: ExtendedTooltip
   horizontalAlignInGroup?: SE.ItemHorizontalLocation
   title?: I8nText
   toolTip?: I8nText
@@ -28,7 +28,7 @@ export interface FormItemAdditionXML extends BaseElementXML {
   ContextMenu?: ContextMenuXML
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
-  ExtendedToolTip?: ExtendedTooltipXML
+  ExtendedTooltip?: ExtendedTooltipXML
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
   Title?: I8nTextXML
   ToolTip?: I8nTextXML

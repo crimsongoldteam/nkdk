@@ -5,26 +5,29 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importChildItemsFromEnterprise } from "~/metadata/forms/elements/childItems/importFromEnterprise"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
-import { importFormDecorationFromEnterprise } from "~/metadata/forms/elements/formDecoration/importFromEnterprise"
 import { FormItemAddition, FormItemAdditionEnterprise } from "~/metadata/forms/elements/formItemAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "../types"
 
-export const importFormItemAdditionFromEnterprise = (
+export const importFormItemAdditionFromEnterprise = <
+  T extends FormItemAdditionEnterprise | undefined,
+  N extends string | undefined,
+>(
   context: ConfigurationContext,
-  data: FormItemAdditionEnterprise | undefined,
-  name: string
-): FormItemAddition | undefined => {
-  if (!data) return undefined
+  data: T,
+  name: N
+): ImportFromEnterpriseReturn<T, FormItemAddition, N> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<T, FormItemAddition, N>
 
-  const baseFields = importBaseElementFromEnterprise(context, {}, name)!
-  const { elementType: _, ...restFields } = baseFields
+  const baseFields = importBaseElementFromEnterprise(context, data, name)
 
-  const result: FormItemAddition = {
+  const result: ImportFromEnterpriseReturn<T, FormItemAddition, N> = {
+    ...baseFields,
     elementType: FormElementType.FormItemAddition,
-    ...restFields,
   }
 
   const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
@@ -94,12 +97,8 @@ export const importFormItemAdditionFromEnterprise = (
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
 
-  const extendedToolTip = importFormDecorationFromEnterprise(
-    context,
-    data.РасширеннаяПодсказка,
-    name + ".РасширеннаяПодсказка"
-  )
-  if (extendedToolTip !== undefined) result.extendedToolTip = extendedToolTip
+  const extendedToolTip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
+  if (extendedToolTip !== undefined) result.extendedTooltip = extendedToolTip
 
   return result
 }

@@ -7,6 +7,7 @@ import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/ex
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { FormDecoration, FormDecorationXML } from "~/metadata/forms/elements/formDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export const exportFormDecorationToXML = (
   context: ConfigurationContext,
@@ -32,8 +33,7 @@ export const exportFormDecorationToXML = (
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
-  const extendedTooltip = exportFormDecorationToXML(context, data.extendedTooltip)
-  if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   const font = exportFontToXML(context, data.font)
   if (font !== undefined) result.Font = font

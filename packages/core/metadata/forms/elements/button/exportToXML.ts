@@ -6,8 +6,8 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { Button, ButtonXML } from "~/metadata/forms/elements/button/types"
-import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecoration/exportToXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export const exportButtonToXML = (context: ConfigurationContext, data: Button | undefined): ButtonXML | undefined => {
   if (!data) return undefined
@@ -43,8 +43,7 @@ export const exportButtonToXML = (context: ConfigurationContext, data: Button | 
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
-  const extendedTooltip = exportFormDecorationToXML(context, data.extendedTooltip)
-  if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   const font = exportFontToXML(context, data.font)
   if (font !== undefined) result.Font = font
