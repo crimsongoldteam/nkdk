@@ -12,6 +12,7 @@ import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { sortObject } from "~/metadata/helpers/compactObject"
 
 export const exportFormFieldToXML = (
   context: ConfigurationContext,
@@ -24,14 +25,13 @@ export const exportFormFieldToXML = (
 
   const result: FormFieldXML = {
     ...baseFields,
+    ContextMenu: exportContextMenuToXML(context, data.contextMenu, data),
+    ExtendedTooltip: exportExtendedTooltipToXML(context, data.extendedTooltip, data),
   }
 
   if (data.autoCellHeight !== undefined) result.AutoCellHeight = data.autoCellHeight
 
   if (data.cellHyperlink !== undefined) result.CellHyperlink = data.cellHyperlink
-
-  const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
-  if (contextMenu !== undefined) result.ContextMenu = contextMenu
 
   if (data.dataPath !== undefined) result.DataPath = data.dataPath
 
@@ -42,8 +42,6 @@ export const exportFormFieldToXML = (
   if (data.editMode !== undefined) result.EditMode = data.editMode
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
-
-  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   if (data.fixingInTable !== undefined) result.FixingInTable = data.fixingInTable
 
@@ -132,7 +130,7 @@ export const exportFormFieldToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "FormField", exportFormFieldToXML)

@@ -4,6 +4,7 @@
 	<AutoMaxWidth>true</AutoMaxWidth>
 	<BorderColor>web:Green</BorderColor>
 	<CellHyperlink>true</CellHyperlink>
+	<ContextMenu name="ПолеPDFДокументаКонтекстноеМеню" id="1"/>
 	<CurrentPageNumber>1</CurrentPageNumber>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
@@ -13,6 +14,7 @@
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 		<Event name="URLClick">ПроцедураНажатияНаНавигационнойСсылке</Event>
 	</Events>
+	<ExtendedTooltip name="ПолеPDFДокументаРасширеннаяПодсказка" id="1"/>
 	<FixingInTable>None</FixingInTable>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
@@ -78,3 +80,4 @@
 	<ViewStatusLocation>Auto</ViewStatusLocation>
 	<Visible>true</Visible>
 	<Width>300</Width>
+</PdfDocumentField>

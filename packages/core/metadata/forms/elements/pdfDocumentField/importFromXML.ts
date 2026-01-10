@@ -58,7 +58,7 @@ export const importPdfDocumentFieldFromXML = <T extends PdfDocumentFieldXML | un
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result
+  return result as ImportExportReturn<T, PdfDocumentField>
 }
 
 registerMetadata("ImportFromXML", "PdfDocumentField", importPdfDocumentFieldFromXML)

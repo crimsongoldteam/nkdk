@@ -71,3 +71,5 @@ export interface PdfDocumentFieldEnterprise extends FormFieldEnterprise {
     НажатиеНаНавигационнойСсылке?: string
   }
 }
+
+export type PdfDocumentFieldTypes = PdfDocumentField | PdfDocumentFieldEnterprise | PdfDocumentFieldXML

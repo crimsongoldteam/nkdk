@@ -4,16 +4,18 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { PdfDocumentField, PdfDocumentFieldXML } from "~/metadata/forms/elements/pdfDocumentField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ImportExportReturn } from "../types"
 
-export const exportPdfDocumentFieldToXML = (
+export const exportPdfDocumentFieldToXML = <T extends PdfDocumentField | undefined>(
   context: ConfigurationContext,
-  data: PdfDocumentField | undefined
-): PdfDocumentFieldXML | undefined => {
-  if (!data) return undefined
+  data: T
+): ImportExportReturn<T, PdfDocumentFieldXML> => {
+  if (!data) return undefined as ImportExportReturn<T, PdfDocumentFieldXML>
 
   const baseFields = exportFormFieldToXML(context, data)
-  if (!baseFields) return undefined
+  if (!baseFields) return undefined as ImportExportReturn<T, PdfDocumentFieldXML>
 
   const result: PdfDocumentFieldXML = {
     ...baseFields,
@@ -56,7 +58,7 @@ export const exportPdfDocumentFieldToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return result
+  return sortObject(result) as ImportExportReturn<T, PdfDocumentFieldXML>
 }
 
 registerMetadata("ExportToXML", "PdfDocumentField", exportPdfDocumentFieldToXML)

@@ -32,8 +32,7 @@ export const importFormFieldFromXML = <T extends FormFieldXML | undefined>(
 
   if (xml.CellHyperlink !== undefined) result.cellHyperlink = xml.CellHyperlink
 
-  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu, result)
-  if (contextMenu !== undefined) result.contextMenu = contextMenu
+  result.contextMenu = importContextMenuFromXML(context, xml.ContextMenu, result)
 
   if (xml.DataPath !== undefined) result.dataPath = xml.DataPath
 
