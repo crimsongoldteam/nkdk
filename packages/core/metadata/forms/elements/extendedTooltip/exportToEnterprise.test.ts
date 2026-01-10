@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 import {
-  fullFormDecoration,
-  fullFormDecorationEnterprise,
-  minimalFormDecoration,
-  minimalFormDecorationEnterprise,
-} from "~/tests/fixtures/forms/formDecoration/data"
+  fullExtendedTooltip,
+  fullExtendedTooltipEnterprise,
+  minimalExtendedTooltip,
+  minimalExtendedTooltipEnterprise,
+} from "~/tests/fixtures/forms/extendedTooltip/data"
 import { mockСontext } from "~/tests/mockContext"
 import { exportExtendedTooltipToEnterprise } from "./exportToEnterprise"
 
@@ -16,14 +16,14 @@ describe("exportExtendedTooltipToEnterprise", () => {
   })
 
   it("should export all fields to Enterprise", () => {
-    const result = exportExtendedTooltipToEnterprise(mockСontext, fullFormDecoration)
+    const result = exportExtendedTooltipToEnterprise(mockСontext, fullExtendedTooltip)
 
-    expect(result).toEqual(fullFormDecorationEnterprise)
+    expect(result).toEqual(fullExtendedTooltipEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportExtendedTooltipToEnterprise(mockСontext, minimalFormDecoration)
+    const result = exportExtendedTooltipToEnterprise(mockСontext, minimalExtendedTooltip)
 
-    expect(result).toEqual(minimalFormDecorationEnterprise)
+    expect(result).toEqual(minimalExtendedTooltipEnterprise)
   })
 })
