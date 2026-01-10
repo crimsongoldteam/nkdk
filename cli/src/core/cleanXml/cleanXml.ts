@@ -25,7 +25,7 @@ const METADATA_OBJECT_ATTRIBUTES = {
 }
 
 // Теги, внутри которых нужно сортировать дочерние элементы (без иерархии - только на первом уровне)
-const SORTABLE_TAGS = [
+export const SORTABLE_TAGS = [
   "Properties",
   "xr:Properties",
   "xr:StandardAttribute",
