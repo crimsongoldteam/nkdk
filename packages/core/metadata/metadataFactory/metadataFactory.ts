@@ -1,4 +1,6 @@
 import { ConfigurationContext } from "../context/types"
+import { BaseElement, BaseElementEnterprise } from "../forms/elements/baseElement/types"
+import { ImportExportReturn, ImportFromEnterpriseReturn } from "../forms/elements/types"
 import { MetadataType } from "./types"
 
 export type ItemOperationType =
@@ -8,14 +10,21 @@ export type ItemOperationType =
   | "ImportFromEnterprise"
   | "ExportToStructure"
 
-type OperationFunction<T = any> = (context: ConfigurationContext, data: T) => any
-type OperationImportFromEnterpriseFunction<T = any> = (
+type OperationFunction<F extends object | undefined, T extends object | undefined = undefined> = (
   context: ConfigurationContext,
-  data: T | undefined,
-  name: string | undefined
-) => any
+  data: F
+) => ImportExportReturn<F, T>
 
-type OperationRegistry = Map<MetadataType, OperationFunction | OperationImportFromEnterpriseFunction>
+type OperationImportFromEnterpriseFunction<
+  T extends BaseElementEnterprise | undefined,
+  R extends BaseElement | undefined,
+  N extends string | undefined,
+> = (context: ConfigurationContext, data: T, name: N) => ImportFromEnterpriseReturn<T, R, N>
+
+type OperationRegistry = Map<
+  MetadataType,
+  OperationFunction<any, any> | OperationImportFromEnterpriseFunction<any, any, any>
+>
 
 const operationRegistries: Map<ItemOperationType, OperationRegistry> = new Map([
   ["ExportToXML", new Map()],
@@ -28,17 +37,17 @@ const operationRegistries: Map<ItemOperationType, OperationRegistry> = new Map([
 export function registerMetadata<T = any>(
   operationType: "ImportFromEnterprise",
   key: MetadataType,
-  operationFunction: OperationImportFromEnterpriseFunction<T>
+  operationFunction: OperationImportFromEnterpriseFunction<any, any, any>
 ): void
 export function registerMetadata<T = any>(
   operationType: Exclude<ItemOperationType, "ImportFromEnterprise">,
   key: MetadataType,
-  operationFunction: OperationFunction<T>
+  operationFunction: OperationFunction<any, any>
 ): void
 export function registerMetadata<T = any>(
   operationType: ItemOperationType,
   key: MetadataType,
-  operationFunction: OperationFunction<T> | OperationImportFromEnterpriseFunction<T>
+  operationFunction: OperationFunction<any, any> | OperationImportFromEnterpriseFunction<any, any, any>
 ): void {
   const registry = operationRegistries.get(operationType)
   if (!registry) {
@@ -52,32 +61,53 @@ export const getOperationFunction = <T extends ItemOperationType>(
   operationType: T,
   key: MetadataType
 ): T extends "ImportFromEnterprise"
-  ? OperationImportFromEnterpriseFunction | undefined
-  : OperationFunction | undefined => {
+  ? OperationImportFromEnterpriseFunction<any, any, any> | undefined
+  : OperationFunction<any, any> | undefined => {
   const registry = operationRegistries.get(operationType)
   if (!registry) {
     throw new Error(`Unknown operation type: ${operationType}`)
   }
 
   return registry.get(key) as T extends "ImportFromEnterprise"
-    ? OperationImportFromEnterpriseFunction | undefined
-    : OperationFunction | undefined
+    ? OperationImportFromEnterpriseFunction<any, any, any> | undefined
+    : OperationFunction<any, any> | undefined
 }
 
-export const executeOperation = <T = any>(
-  operationType: ItemOperationType,
+export function executeOperation<
+  F extends BaseElementEnterprise | undefined,
+  T extends BaseElement | undefined,
+  N extends string | undefined,
+>(
+  operationType: "ImportFromEnterprise",
   key: MetadataType,
-  data: T,
   context: ConfigurationContext,
-  name: string
-): any => {
+  data: F,
+  name: N
+): ImportFromEnterpriseReturn<F, T, N>
+export function executeOperation<F extends object | undefined, T extends object | undefined>(
+  operationType: Exclude<ItemOperationType, "ImportFromEnterprise">,
+  key: MetadataType,
+  context: ConfigurationContext,
+  data: F
+): ImportExportReturn<F, T>
+export function executeOperation<
+  F extends object | undefined,
+  T extends object | undefined,
+  N extends string | undefined,
+>(operationType: ItemOperationType, key: MetadataType, context: ConfigurationContext, data: F, name?: N): any {
   const operationFunction = getOperationFunction(operationType, key)
 
   if (!operationFunction) {
     throw new Error(`Operation function for type ${operationType} and key ${key} not found`)
   }
 
-  return operationFunction(context, data, name)
+  if (operationType === "ImportFromEnterprise") {
+    return (
+      operationFunction as OperationImportFromEnterpriseFunction<F, T extends BaseElement | undefined ? T : any, N>
+    )(context, data, name!) as ImportFromEnterpriseReturn<F, T extends BaseElement | undefined ? T : any, N>
+  }
+
+  return (operationFunction as OperationFunction<F, T>)(context, data) as ImportExportReturn<F, T>
 }
 
 export const clearMetadataRegistry = (operationType: ItemOperationType): void => {

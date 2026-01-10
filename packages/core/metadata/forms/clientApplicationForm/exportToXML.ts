@@ -45,11 +45,6 @@ export const exportClientApplicationFormToXML = (
     result.Title = title
   }
 
-  const childItems = exportChildItemsToXML(context, data.childItems)
-  if (childItems !== undefined) {
-    result.ChildItems = childItems
-  }
-
   const attributes = exportFormAttributesToXML(context, data.attributes)
   if (attributes !== undefined) {
     result.Attributes = { Attribute: attributes }
@@ -212,6 +207,11 @@ export const exportClientApplicationFormToXML = (
   const events = exportEventsToXML(context, data.events as Events | undefined)
   if (events !== undefined) {
     result.Events = events
+  }
+
+  const childItems = exportChildItemsToXML(context, data.childItems)
+  if (childItems !== undefined) {
+    result.ChildItems = childItems
   }
 
   return result

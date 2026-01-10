@@ -6,65 +6,21 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CalendarField, CalendarFieldEnterprise } from "~/metadata/forms/elements/calendarField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const importCalendarFieldEventsFromEnterprise = (
-  data:
-    | {
-        ПриИзменении?: string
-        Выбор?: string
-        НачалоПеретаскивания?: string
-        ОкончаниеПеретаскивания?: string
-        Перетаскивание?: string
-        ПриАктивизацииДаты?: string
-        ПриВыводеПериода?: string
-        ПроверкаПеретаскивания?: string
-      }
-    | undefined
-): {
-  onChange?: string
-  selection?: string
-  dragStart?: string
-  dragEnd?: string
-  drag?: string
-  onActivateDate?: string
-  onPeriodOutput?: string
-  dragCheck?: string
-} | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    selection?: string
-    dragStart?: string
-    dragEnd?: string
-    drag?: string
-    onActivateDate?: string
-    onPeriodOutput?: string
-    dragCheck?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.Выбор !== undefined) result.selection = data.Выбор
-  if (data.НачалоПеретаскивания !== undefined) result.dragStart = data.НачалоПеретаскивания
-  if (data.ОкончаниеПеретаскивания !== undefined) result.dragEnd = data.ОкончаниеПеретаскивания
-  if (data.Перетаскивание !== undefined) result.drag = data.Перетаскивание
-  if (data.ПриАктивизацииДаты !== undefined) result.onActivateDate = data.ПриАктивизацииДаты
-  if (data.ПриВыводеПериода !== undefined) result.onPeriodOutput = data.ПриВыводеПериода
-  if (data.ПроверкаПеретаскивания !== undefined) result.dragCheck = data.ПроверкаПеретаскивания
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importCalendarFieldFromEnterprise = (
+export const importCalendarFieldFromEnterprise = <
+  T extends CalendarFieldEnterprise | undefined,
+  N extends string | undefined,
+>(
   context: ConfigurationContext,
-  data: CalendarFieldEnterprise | undefined,
-  name: string
-): CalendarField | undefined => {
-  if (!data) return undefined
+  data: T,
+  name: N
+): ImportFromEnterpriseReturn<T, N, CalendarField> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<T, N, CalendarField>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
   const { elementType: _, ...restFields } = baseFields
@@ -106,7 +62,11 @@ export const importCalendarFieldFromEnterprise = (
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -146,8 +106,57 @@ export const importCalendarFieldFromEnterprise = (
   const events = importCalendarFieldEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
-  return result
+  return result as ImportFromEnterpriseReturn<T, N, CalendarField>
+}
+
+const importCalendarFieldEventsFromEnterprise = (
+  data:
+    | {
+        ПриИзменении?: string
+        Выбор?: string
+        НачалоПеретаскивания?: string
+        ОкончаниеПеретаскивания?: string
+        Перетаскивание?: string
+        ПриАктивизацииДаты?: string
+        ПриВыводеПериода?: string
+        ПроверкаПеретаскивания?: string
+      }
+    | undefined
+):
+  | {
+      onChange?: string
+      selection?: string
+      dragStart?: string
+      dragEnd?: string
+      drag?: string
+      onActivateDate?: string
+      onPeriodOutput?: string
+      dragCheck?: string
+    }
+  | undefined => {
+  if (!data) return undefined
+
+  const result: {
+    onChange?: string
+    selection?: string
+    dragStart?: string
+    dragEnd?: string
+    drag?: string
+    onActivateDate?: string
+    onPeriodOutput?: string
+    dragCheck?: string
+  } = {}
+
+  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
+  if (data.Выбор !== undefined) result.selection = data.Выбор
+  if (data.НачалоПеретаскивания !== undefined) result.dragStart = data.НачалоПеретаскивания
+  if (data.ОкончаниеПеретаскивания !== undefined) result.dragEnd = data.ОкончаниеПеретаскивания
+  if (data.Перетаскивание !== undefined) result.drag = data.Перетаскивание
+  if (data.ПриАктивизацииДаты !== undefined) result.onActivateDate = data.ПриАктивизацииДаты
+  if (data.ПриВыводеПериода !== undefined) result.onPeriodOutput = data.ПриВыводеПериода
+  if (data.ПроверкаПеретаскивания !== undefined) result.dragCheck = data.ПроверкаПеретаскивания
+
+  return Object.keys(result).length > 0 ? result : undefined
 }
 
 registerMetadata("ImportFromEnterprise", "CalendarField", importCalendarFieldFromEnterprise)
-

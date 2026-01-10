@@ -7,17 +7,12 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importCommandBarFromEnterprise } from "~/metadata/forms/elements/commandBar/importFromEnterprise"
 import { FormDecoration, FormDecorationEnterprise } from "~/metadata/forms/elements/formDecoration/types"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-
-type ImportFormDecorationFromEnterpriseReturn<T, N> = T extends undefined
-  ? undefined
-  : N extends undefined
-    ? Partial<FormDecoration>
-    : FormDecoration
 
 export const importFormDecorationFromEnterprise = <
   T extends FormDecorationEnterprise | undefined,
@@ -26,12 +21,12 @@ export const importFormDecorationFromEnterprise = <
   context: ConfigurationContext,
   data: T,
   name: N
-): ImportFormDecorationFromEnterpriseReturn<T, N> => {
-  if (data === undefined) return undefined as ImportFormDecorationFromEnterpriseReturn<T, N>
+): ImportFromEnterpriseReturn<T, N, FormDecoration> => {
+  if (data === undefined) return undefined as ImportFromEnterpriseReturn<T, N, FormDecoration>
 
   const baseFields = importBaseElementFromEnterprise(context, data, name)
 
-  const result: ImportFormDecorationFromEnterpriseReturn<T, N> = {
+  const result: ImportFromEnterpriseReturn<T, N, FormDecoration> = {
     elementType: FormElementType.FormDecoration,
     ...baseFields,
   }
@@ -134,7 +129,7 @@ export const importFormDecorationFromEnterprise = <
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  return result as ImportFormDecorationFromEnterpriseReturn<T, N>
+  return result as ImportFromEnterpriseReturn<T, N, FormDecoration>
 }
 
 registerMetadata("ImportFromEnterprise", "FormDecoration", importFormDecorationFromEnterprise)
