@@ -3,10 +3,15 @@ import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/ele
 import { importFormDecorationFromEnterprise } from "~/metadata/forms/elements/formDecoration/importFromEnterprise"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const importExtendedTooltipFromEnterprise = (
+export function importExtendedTooltipFromEnterprise(context: ConfigurationContext, data: undefined): undefined
+export function importExtendedTooltipFromEnterprise(
+  context: ConfigurationContext,
+  data: ExtendedTooltipEnterprise
+): ExtendedTooltip
+export function importExtendedTooltipFromEnterprise(
   context: ConfigurationContext,
   data: ExtendedTooltipEnterprise | undefined
-): ExtendedTooltip | undefined => {
+): ExtendedTooltip | undefined {
   if (!data) return undefined
 
   const result = importFormDecorationFromEnterprise(context, data, data.Имя)
