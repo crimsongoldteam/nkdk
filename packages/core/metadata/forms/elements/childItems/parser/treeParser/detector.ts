@@ -35,9 +35,9 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
   const firstTokenType = firstToken.tokenType
 
   // начинается с { - строка свойств
-  if (firstTokenType === LCurly) {
-    return ParseElementType.LabelDecoration
-  }
+  // if (firstTokenType === LCurly) {
+  //   return ParseElementType.LabelDecoration
+  // }
 
   // начинается с < и содержит | - командная панель
   const hasVBar = significantTokens.some((token) => token.tokenType === VBar)

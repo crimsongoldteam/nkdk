@@ -260,7 +260,8 @@ export const LCurly = createToken({
     TableCell,
     TableCellContinue,
     RadioButtonHeader,
-    RadioButtonValueDescription
+    RadioButtonValueDescription,
+    GroupHeaderText
   ),
 })
 
@@ -269,7 +270,7 @@ export const RCurly = createToken({
   pattern: /}[ \t]*/,
   label: "}",
   pop_mode: true,
-  categories: excludeTokens(PropertiesValueText, PropertiesNameText, InputHeader),
+  categories: excludeTokens(PropertiesValueText, PropertiesNameText, InputHeader, GroupHeaderText),
 })
 
 export const LSquare = keyword("LSquare", "[", CheckboxHeader)
@@ -335,7 +336,7 @@ export const Dashes = createToken({
 
 export const EscapedText = createToken({
   name: "EscapedText",
-  pattern: /"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'/,
+  pattern: /"((?:[^"\\]|\\.)*)"[ \t]*|'((?:[^'\\]|\\.)*)'[ \t]*/,
   label: "\"...\" или '...'",
   categories: combineTokens,
 })

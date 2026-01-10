@@ -98,9 +98,8 @@ export class Parser extends CstParser {
     this.MANY1(() => {
       this.CONSUME(t.OneLineGroupElementsHeader, { LABEL: "OneLineGroupElementsHeaderLabel" })
     })
-    this.OPTION(() => {
-      this.CONSUME2(t.Percent, { LABEL: "OneLineGroupElementsHeaderLabel" })
-    })
+
+    this.CONSUME2(t.Percent, { LABEL: "OneLineGroupElementsHeaderLabel" })
   })
 
   private readonly oneLineGroupElementsContent = this.RULE("oneLineGroupElementsContent", () => {
@@ -440,9 +439,6 @@ export class Parser extends CstParser {
       this.CONSUME(t.GroupHeaderText)
     })
 
-    // Для one-line групп может быть % в конце заголовка (включен в GroupHeaderText)
-    // Обрабатывается в visitor
-
     this.OPTION1(() => {
       this.SUBRULE(this.properties)
     })
@@ -452,6 +448,10 @@ export class Parser extends CstParser {
     this.CONSUME1(t.Percent)
     this.MANY(() => {
       this.CONSUME(t.GroupHeaderText)
+    })
+
+    this.OPTION1(() => {
+      this.SUBRULE(this.properties)
     })
 
     this.CONSUME2(t.Percent)

@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { DetectedTreeNode } from "~/metadata/forms/elements/childItems/parser/detector/detectTree"
 import { parseElement } from "~/metadata/forms/elements/childItems/parser/elementsParser/parse"
-import { lexer } from "~/metadata/forms/elements/childItems/parser/tokenizer/lexer"
 import { inputFieldStructureFixturesTable } from "~/tests/fixtures/forms/inputField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { ParseElementType } from "../childItems/parser/treeParser/types"
+import { tokenize } from "../childItems/parser/tokenizer/tokenizer"
+import { parseTree } from "../childItems/parser/treeParser/treeParser"
 
 describe("importInputFieldFromStructure", () => {
   it.each(inputFieldStructureFixturesTable)(
@@ -19,13 +18,9 @@ describe("importInputFieldFromStructure", () => {
 })
 
 const importInputFieldFromStructure = (mockСontext: ConfigurationContext, mock: string[]) => {
-  const tokens = lexer.tokenize(mock[0]).tokens
+  const tokens = tokenize(mock[0])
 
-  const node: DetectedTreeNode = {
-    tokens,
-    type: ParseElementType.InputField,
-    childItems: [],
-  }
+  const treeNodes = parseTree(mockСontext, tokens)
 
-  return parseElement(node, mockСontext)
+  return parseElement(mockСontext, treeNodes[0])
 }

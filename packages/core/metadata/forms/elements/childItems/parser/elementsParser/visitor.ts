@@ -470,52 +470,14 @@ export class Visitor extends BaseVisitor {
 
   // #region verticalGroup
   verticalGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): UsualGroup {
-    const titleText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
-    const name = this.visit(ctx.properties as CstNode[], context) || titleText
-    return {
-      elementType: FormElementType.UsualGroup,
-      group: "Vertical",
-      name: name || titleText,
-      title: this.createTitle(titleText, context.defaultLanguage),
-      childItems: [],
-    } as UsualGroup
-  }
+    const title = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
 
-  horizontalGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): UsualGroup {
-    // Собираем весь заголовок, включая первый токен (Percent или Text)
-    let headerText = ""
-
-    // Первый токен может быть Percent или Text
-    if (ctx.Percent && Array.isArray(ctx.Percent) && ctx.Percent.length > 0) {
-      headerText += (ctx.Percent[0] as IToken).image
-    } else if (
-      ctx.Text &&
-      Array.isArray(ctx.Text) &&
-      ctx.Text.length > 0 &&
-      (ctx.Text[0] as IToken).image?.startsWith("%")
-    ) {
-      headerText += (ctx.Text[0] as IToken).image
-    }
-
-    // Добавляем GroupHeaderText
-    headerText += joinTokens(ctx.GroupHeaderText as IToken[]) || ""
-
-    const propertiesName = ctx.properties ? this.visit(ctx.properties as CstNode[], context) : undefined
-
-    // Проверяем, является ли это one-line группой (заканчивается на %)
-    const isOneLine = headerText.endsWith("%")
-    const parsedHeader = this.parseGroupHeader(headerText, isOneLine)
-
-    const name = propertiesName || parsedHeader.name || headerText || "Group"
-    const title = parsedHeader.title
-
-    // Определяем showTitle: false для one-line групп без заголовка или с пустым заголовком
-    const showTitle = parsedHeader.isOneLine ? title !== undefined && title !== "" : undefined
+    const name = this.visit(ctx.properties as CstNode[], context)
 
     const result: UsualGroup = {
-      elementType: FormElementType.UsualGroup,
-      group: "Horizontal",
       name: name,
+      elementType: FormElementType.UsualGroup,
+      group: "Vertical",
       childItems: [],
     }
 
@@ -523,72 +485,22 @@ export class Visitor extends BaseVisitor {
       result.title = this.createTitle(title, context.defaultLanguage)
     }
 
-    if (showTitle !== undefined) {
-      result.showTitle = showTitle
+    if (title === undefined || title === "") {
+      result.showTitle = false
     }
 
     return result
   }
 
-  private parseGroupHeader(
-    headerText: string,
-    isOneLine: boolean
-  ): { name?: string; title?: string; isOneLine: boolean } {
-    if (!isOneLine) {
-      // Обычная горизонтальная группа без % в конце
-      return { name: headerText, isOneLine: false }
-    }
+  horizontalGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): UsualGroup {
+    const title = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
 
-    // Убираем начальный % и конечный %
-    let text = headerText
-    if (text.startsWith("%")) {
-      text = text.substring(1)
-    }
-    if (text.endsWith("%")) {
-      text = text.substring(0, text.length - 1)
-    }
-
-    // Ищем {Группа} в тексте
-    const nameMatch = text.match(/\{([^}]+)\}/)
-    if (!nameMatch) {
-      return { name: text, isOneLine: true }
-    }
-
-    const name = nameMatch[1]
-    const nameStart = text.indexOf(nameMatch[0])
-
-    // Извлекаем заголовок (все до {Группа})
-    let title = text.substring(0, nameStart).trim()
-
-    // Обрабатываем случай с пустым заголовком: ""
-    if (title === '""') {
-      title = ""
-    }
-
-    return {
-      name,
-      title: title || undefined,
-      isOneLine: true,
-    }
-  }
-
-  oneLineGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): UsualGroup {
-    // Собираем заголовок между двумя процентами
-    const headerText = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
-
-    // Парсим заголовок как one-line группу
-    const parsedHeader = this.parseGroupHeader(`%${headerText}%`, true)
-
-    const name = parsedHeader.name || headerText || "Group"
-    const title = parsedHeader.title
-
-    // Определяем showTitle: false для one-line групп без заголовка или с пустым заголовком
-    const showTitle = title !== undefined && title !== "" ? undefined : false
+    const name = this.visit(ctx.properties as CstNode[], context)
 
     const result: UsualGroup = {
+      name: name,
       elementType: FormElementType.UsualGroup,
       group: "Horizontal",
-      name: name,
       childItems: [],
     }
 
@@ -596,8 +508,31 @@ export class Visitor extends BaseVisitor {
       result.title = this.createTitle(title, context.defaultLanguage)
     }
 
-    if (showTitle !== undefined) {
-      result.showTitle = showTitle
+    if (title === undefined || title === "") {
+      result.showTitle = false
+    }
+
+    return result
+  }
+
+  oneLineGroup(ctx: CstChildrenDictionary, context: ConfigurationContext): UsualGroup {
+    const title = joinTokens(ctx.GroupHeaderText as IToken[]) || ""
+
+    const name = this.visit(ctx.properties as CstNode[], context)
+
+    const result: UsualGroup = {
+      name: name,
+      elementType: FormElementType.UsualGroup,
+      group: "Horizontal",
+      childItems: [],
+    }
+
+    if (title !== undefined) {
+      result.title = this.createTitle(title, context.defaultLanguage)
+    }
+
+    if (title === undefined || title === "") {
+      result.showTitle = false
     }
 
     return result
