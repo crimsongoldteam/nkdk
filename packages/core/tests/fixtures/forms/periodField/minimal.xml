@@ -1,1 +1,4 @@
-<PeriodField name="ПолеПериода" id="1"/>
+<PeriodField name="ПолеПериода" id="1">
+	<ContextMenu name="ПолеПериодаКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ПолеПериодаРасширеннаяПодсказка" id="1"/>
+</PeriodField>

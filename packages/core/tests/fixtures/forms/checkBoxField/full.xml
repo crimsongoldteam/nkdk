@@ -15,6 +15,10 @@
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
 	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
 	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+	<FooterPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</FooterPicture>
 	<FooterText>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -23,6 +27,10 @@
 	</FooterText>
 	<FooterTextColor>web:Black</FooterTextColor>
 	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
+	<HeaderPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</HeaderPicture>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<ReadOnly>false</ReadOnly>

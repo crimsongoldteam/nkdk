@@ -1,1 +1,4 @@
-<FormattedDocumentField name="ПолеФорматированногоДокумента" id="1"/>
+<FormattedDocumentField name="ПолеФорматированногоДокумента" id="1">
+	<ContextMenu name="ПолеФорматированногоДокументаКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ПолеФорматированногоДокументаРасширеннаяПодсказка" id="1"/>
+</FormattedDocumentField>

@@ -1,8 +1,10 @@
 import { IFormatElementResult } from "~/format/types"
 import { LabelDecoration, LabelDecorationEnterprise } from "~/metadata/forms/elements/labelDecoration/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormDecoration, fullFormDecorationEnterprise } from "../formDecoration/data"
 
 export const fullLabelDecoration: LabelDecoration = {
+  ...fullFormDecoration,
   elementType: FormElementType.LabelDecoration,
   name: "Заголовок",
   title: {
@@ -19,10 +21,6 @@ export const fullLabelDecoration: LabelDecoration = {
   horizontalAlign: "Left",
   hyperlink: true,
   titleHeight: 20,
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
   verticalAlign: "Top",
   events: {
     click: "ПроцедураНажатия",
@@ -31,13 +29,13 @@ export const fullLabelDecoration: LabelDecoration = {
 }
 
 export const fullLabelDecorationEnterprise: LabelDecorationEnterprise = {
+  ...fullFormDecorationEnterprise,
+  Заголовок: "Заголовок формы",
   ВертикальноеВыравниваниеГруппы: "Верх",
   ВертикальноеПоложение: "Верх",
   ВысотаЗаголовка: 20,
   Гиперссылка: "Истина",
   ГоризонтальноеПоложение: "Лево",
-  Заголовок: "Заголовок формы",
-  РазрешитьИспользование: { Администратор: "Истина" },
   Рамка: {
     Имя: "style:ControlBorder",
     Ширина: 1,

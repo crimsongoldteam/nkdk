@@ -3,8 +3,10 @@ import {
   FormattedDocumentFieldEnterprise,
 } from "~/metadata/forms/elements/formattedDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
 export const fullFormattedDocumentField: FormattedDocumentField = {
+  ...fullFormField,
   elementType: FormElementType.FormattedDocumentField,
   name: "ПолеФорматированногоДокумента",
   title: {
@@ -35,6 +37,7 @@ export const fullFormattedDocumentField: FormattedDocumentField = {
 }
 
 export const fullFormattedDocumentFieldEnterprise: FormattedDocumentFieldEnterprise = {
+  ...fullFormFieldEnterprise,
   Заголовок: "Поле форматированного документа",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -43,7 +46,6 @@ export const fullFormattedDocumentFieldEnterprise: FormattedDocumentFieldEnterpr
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
-  РазрешитьИспользование: { Администратор: "Истина" },
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
   ЦветРамки: "Черный",

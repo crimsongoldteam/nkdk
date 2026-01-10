@@ -1,7 +1,9 @@
 import { HTMLDocumentField, HTMLDocumentFieldEnterprise } from "~/metadata/forms/elements/htmlDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
 export const fullHtmlDocumentField: HTMLDocumentField = {
+  ...fullFormField,
   elementType: FormElementType.HTMLDocumentField,
   name: "ПолеHTMLДокумента",
   title: {
@@ -22,13 +24,13 @@ export const fullHtmlDocumentField: HTMLDocumentField = {
 }
 
 export const fullHtmlDocumentFieldEnterprise: HTMLDocumentFieldEnterprise = {
+  ...fullFormFieldEnterprise,
   Заголовок: "Поле HTML документа",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
-  РазрешитьИспользование: { Администратор: "Истина" },
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
   Ширина: 300,

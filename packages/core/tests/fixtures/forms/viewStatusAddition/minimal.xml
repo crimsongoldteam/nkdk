@@ -1,1 +1,4 @@
-<ViewStatusAddition name="ДополнениеСостоянияПросмотра" id="1"/>
+<ViewStatusAddition name="ДополнениеСостоянияПросмотра" id="1">
+	<ContextMenu name="ДополнениеСостоянияПросмотраКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ДополнениеСостоянияПросмотраРасширеннаяПодсказка" id="1"/>
+</ViewStatusAddition>

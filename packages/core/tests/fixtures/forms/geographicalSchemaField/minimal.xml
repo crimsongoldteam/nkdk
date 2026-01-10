@@ -1,1 +1,4 @@
-<GeographicalSchemaField name="ПолеГеографическойСхемы" id="1"/>
+<GeographicalSchemaField name="ПолеГеографическойСхемы" id="1">
+	<ContextMenu name="ПолеГеографическойСхемыКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ПолеГеографическойСхемыРасширеннаяПодсказка" id="1"/>
+</GeographicalSchemaField>

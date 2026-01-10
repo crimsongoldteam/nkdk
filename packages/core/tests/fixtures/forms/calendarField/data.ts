@@ -1,7 +1,9 @@
 import { CalendarField, CalendarFieldEnterprise } from "~/metadata/forms/elements/calendarField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
 export const fullCalendarField: CalendarField = {
+  ...fullFormField,
   elementType: FormElementType.CalendarField,
   name: "ПолеКалендаря",
   title: {
@@ -43,8 +45,8 @@ export const fullCalendarField: CalendarField = {
 }
 
 export const fullCalendarFieldEnterprise: CalendarFieldEnterprise = {
+  ...fullFormFieldEnterprise,
   Заголовок: "Поле календаря",
-  РазрешитьИспользование: { Администратор: "Истина" },
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   Высота: 200,

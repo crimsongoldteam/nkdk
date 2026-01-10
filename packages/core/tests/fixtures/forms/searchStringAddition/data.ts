@@ -1,12 +1,16 @@
 import { SearchStringAddition, SearchStringAdditionEnterprise } from "~/metadata/forms/elements/searchStringAddition/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormItemAddition, fullFormItemAdditionEnterprise } from "../formItemAddition/data"
 
 export const fullSearchStringAddition: SearchStringAddition = {
+  ...fullFormItemAddition,
   elementType: FormElementType.SearchStringAddition,
   name: "ДополнениеСтрокиПоиска",
 }
 
-export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise = {}
+export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise = {
+  ...fullFormItemAdditionEnterprise,
+}
 
 export const minimalSearchStringAddition: SearchStringAddition = {
   elementType: FormElementType.SearchStringAddition,

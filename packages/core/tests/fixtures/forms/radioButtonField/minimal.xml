@@ -1,1 +1,4 @@
-<RadioButtonField name="ПолеПереключателя" id="1"/>
+<RadioButtonField name="ПолеПереключателя" id="1">
+	<ContextMenu name="ПолеПереключателяКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ПолеПереключателяРасширеннаяПодсказка" id="1"/>
+</RadioButtonField>

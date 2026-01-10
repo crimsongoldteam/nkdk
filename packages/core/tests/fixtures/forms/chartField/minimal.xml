@@ -1,1 +1,4 @@
-<ChartField name="ПолеДиаграммы" id="1"/>
+<ChartField name="ПолеДиаграммы" id="1">
+	<ContextMenu name="ПолеДиаграммыКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ПолеДиаграммыРасширеннаяПодсказка" id="1"/>
+</ChartField>

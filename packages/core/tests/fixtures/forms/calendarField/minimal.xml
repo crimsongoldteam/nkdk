@@ -1,1 +1,4 @@
-<CalendarField name="ПолеКалендаря" id="1"/>
+<CalendarField name="ПолеКалендаря" id="1">
+	<ContextMenu name="ПолеКалендаряКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ПолеКалендаряРасширеннаяПодсказка" id="1"/>
+</CalendarField>

@@ -1,1 +1,4 @@
-<GanttChartField name="ПолеДиаграммыГанта" id="1"/>
+<GanttChartField name="ПолеДиаграммыГанта" id="1">
+	<ContextMenu name="ПолеДиаграммыГантаКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ПолеДиаграммыГантаРасширеннаяПодсказка" id="1"/>
+</GanttChartField>

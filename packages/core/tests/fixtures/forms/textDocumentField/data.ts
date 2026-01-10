@@ -1,7 +1,9 @@
 import { TextDocumentField, TextDocumentFieldEnterprise } from "~/metadata/forms/elements/textDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
 export const fullTextDocumentField: TextDocumentField = {
+  ...fullFormField,
   elementType: FormElementType.TextDocumentField,
   name: "ПолеТекстовогоДокумента",
   title: {
@@ -10,6 +12,7 @@ export const fullTextDocumentField: TextDocumentField = {
 }
 
 export const fullTextDocumentFieldEnterprise: TextDocumentFieldEnterprise = {
+  ...fullFormFieldEnterprise,
   Заголовок: "Поле текстового документа",
 }
 

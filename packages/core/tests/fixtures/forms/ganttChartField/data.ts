@@ -1,7 +1,9 @@
 import { GanttChartField, GanttChartFieldEnterprise } from "~/metadata/forms/elements/ganttChartField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
 export const fullGanttChartField: GanttChartField = {
+  ...fullFormField,
   elementType: FormElementType.GanttChartField,
   name: "ПолеДиаграммыГанта",
   title: {
@@ -27,6 +29,7 @@ export const fullGanttChartField: GanttChartField = {
 }
 
 export const fullGanttChartFieldEnterprise: GanttChartFieldEnterprise = {
+  ...fullFormFieldEnterprise,
   Заголовок: "Поле диаграммы Ганта",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -36,7 +39,6 @@ export const fullGanttChartFieldEnterprise: GanttChartFieldEnterprise = {
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
   ПоложениеТаблицы: "Нет",
-  РазрешитьИспользование: { Администратор: "Истина" },
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
   РежимВыделенияЗначений: "Одиночный",

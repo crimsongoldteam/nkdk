@@ -1,7 +1,9 @@
 import { PictureField, PictureFieldEnterprise } from "~/metadata/forms/elements/pictureField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
 export const fullPictureField: PictureField = {
+  ...fullFormField,
   elementType: FormElementType.PictureField,
   name: "ПолеКартинки",
   title: {
@@ -10,6 +12,7 @@ export const fullPictureField: PictureField = {
 }
 
 export const fullPictureFieldEnterprise: PictureFieldEnterprise = {
+  ...fullFormFieldEnterprise,
   Заголовок: "Поле картинки",
 }
 
@@ -19,4 +22,3 @@ export const minimalPictureField: PictureField = {
 }
 
 export const minimalPictureFieldEnterprise: PictureFieldEnterprise = {}
-

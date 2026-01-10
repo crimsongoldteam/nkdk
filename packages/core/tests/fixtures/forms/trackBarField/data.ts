@@ -1,7 +1,9 @@
 import { TrackBarField, TrackBarFieldEnterprise } from "~/metadata/forms/elements/trackBarField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
 export const fullTrackBarField: TrackBarField = {
+  ...fullFormField,
   elementType: FormElementType.TrackBarField,
   name: "ПолеПолосыПрокрутки",
   title: {
@@ -10,6 +12,7 @@ export const fullTrackBarField: TrackBarField = {
 }
 
 export const fullTrackBarFieldEnterprise: TrackBarFieldEnterprise = {
+  ...fullFormFieldEnterprise,
   Заголовок: "Поле полосы прокрутки",
 }
 

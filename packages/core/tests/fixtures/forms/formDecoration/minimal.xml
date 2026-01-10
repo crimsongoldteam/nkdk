@@ -1,1 +1,3 @@
-<FormDecoration name="ОформлениеФормы" id="1"/>
+<FormDecoration name="ОформлениеФормы" id="1">
+	<ExtendedTooltip name="ОформлениеФормыРасширеннаяПодсказка" id="1"/>
+</FormDecoration>

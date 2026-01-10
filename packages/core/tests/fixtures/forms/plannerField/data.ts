@@ -1,7 +1,9 @@
 import { PlannerField, PlannerFieldEnterprise } from "~/metadata/forms/elements/plannerField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
 export const fullPlannerField: PlannerField = {
+  ...fullFormField,
   elementType: FormElementType.PlannerField,
   name: "ПолеПланера",
   title: {
@@ -10,6 +12,7 @@ export const fullPlannerField: PlannerField = {
 }
 
 export const fullPlannerFieldEnterprise: PlannerFieldEnterprise = {
+  ...fullFormFieldEnterprise,
   Заголовок: "Поле планера",
 }
 
@@ -19,4 +22,3 @@ export const minimalPlannerField: PlannerField = {
 }
 
 export const minimalPlannerFieldEnterprise: PlannerFieldEnterprise = {}
-

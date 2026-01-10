@@ -1,1 +1,3 @@
-<Page name="Страница" id="1"/>
+<Page name="Страница" id="1">
+	<ExtendedTooltip name="СтраницаРасширеннаяПодсказка" id="1"/>
+</Page>

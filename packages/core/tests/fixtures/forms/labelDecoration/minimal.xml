@@ -1,1 +1,3 @@
-<LabelDecoration name="Заголовок" id="1"/>
+<LabelDecoration name="Заголовок" id="1">
+	<ExtendedTooltip name="ЗаголовокРасширеннаяПодсказка" id="1"/>
+</LabelDecoration>

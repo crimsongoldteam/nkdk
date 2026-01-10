@@ -1,7 +1,9 @@
 import { ChartField, ChartFieldEnterprise } from "~/metadata/forms/elements/chartField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
 export const fullChartField: ChartField = {
+  ...fullFormField,
   elementType: FormElementType.ChartField,
   name: "ПолеДиаграммы",
   title: {
@@ -26,13 +28,13 @@ export const fullChartField: ChartField = {
 }
 
 export const fullChartFieldEnterprise: ChartFieldEnterprise = {
+  ...fullFormFieldEnterprise,
   Заголовок: "Поле диаграммы",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
-  РазрешитьИспользование: { Администратор: "Истина" },
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
   Ширина: 300,

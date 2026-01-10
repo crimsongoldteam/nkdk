@@ -1,1 +1,3 @@
-<ColumnGroup name="ГруппаКолонок" id="1"/>
+<ColumnGroup name="ГруппаКолонок" id="1">
+	<ExtendedTooltip name="ГруппаКолонокРасширеннаяПодсказка" id="1"/>
+</ColumnGroup>

@@ -1,7 +1,9 @@
 import { ProgressBarField, ProgressBarFieldEnterprise } from "~/metadata/forms/elements/progressBarField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
 export const fullProgressBarField: ProgressBarField = {
+  ...fullFormField,
   elementType: FormElementType.ProgressBarField,
   name: "ПолеИндикатора",
   title: {
@@ -10,6 +12,7 @@ export const fullProgressBarField: ProgressBarField = {
 }
 
 export const fullProgressBarFieldEnterprise: ProgressBarFieldEnterprise = {
+  ...fullFormFieldEnterprise,
   Заголовок: "Поле индикатора",
 }
 

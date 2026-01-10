@@ -1,7 +1,7 @@
 <Popup name="ВсплывающееОкно" id="1">
-	<ChildItems/>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
+	<ExtendedTooltip name="ВсплывающееОкноРасширеннаяПодсказка" id="1"/>
 	<Height>200</Height>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>

@@ -1,1 +1,4 @@
-<SpreadSheetDocumentField name="ПолеТабличногоДокумента" id="1"/>
+<SpreadSheetDocumentField name="ПолеТабличногоДокумента" id="1">
+	<ContextMenu name="ПолеТабличногоДокументаКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ПолеТабличногоДокументаРасширеннаяПодсказка" id="1"/>
+</SpreadSheetDocumentField>

@@ -1,1 +1,4 @@
-<ProgressBarField name="ПолеИндикатора" id="1"/>
+<ProgressBarField name="ПолеИндикатора" id="1">
+	<ContextMenu name="ПолеИндикатораКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ПолеИндикатораРасширеннаяПодсказка" id="1"/>
+</ProgressBarField>

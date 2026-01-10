@@ -1,1 +1,4 @@
-<TrackBarField name="ПолеПолосыПрокрутки" id="1"/>
+<TrackBarField name="ПолеПолосыПрокрутки" id="1">
+	<ContextMenu name="ПолеПолосыПрокруткиКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ПолеПолосыПрокруткиРасширеннаяПодсказка" id="1"/>
+</TrackBarField>

@@ -1,8 +1,10 @@
 import { IFormatElementResult } from "~/format/types"
 import { InputField, InputFieldEnterprise } from "~/metadata/forms/elements/inputField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
 export const fullInputField: InputField = {
+  ...fullFormField,
   elementType: FormElementType.InputField,
   name: "ПолеВвода",
   allowInputEmptyMultipleValues: true,
@@ -141,6 +143,7 @@ export const fullInputField: InputField = {
 }
 
 export const fullInputFieldEnterprise: InputFieldEnterprise = {
+  ...fullFormFieldEnterprise,
   АвтоВыборНезаполненного: "Истина",
   АвтоИзменениеРегистраПриВводеТекста: "ВсеСимволы",
   АвтоИсправлениеПриВводеТекста: "Использовать",
@@ -185,7 +188,6 @@ export const fullInputFieldEnterprise: InputFieldEnterprise = {
   },
   ПодсказкаАвтозаполнения: "Email",
   ПодсказкаВвода: "Подсказка ввода",
-  РазрешитьИспользование: { Администратор: "Истина" },
   ПроверкаПравописанияПриВводеТекста: "Использовать",
   ПутьКДаннымЗначенияМножественногоЗначения: "Объект.Value",
   ПутьКДаннымКартинкиМножественногоЗначения: "Объект.Picture",

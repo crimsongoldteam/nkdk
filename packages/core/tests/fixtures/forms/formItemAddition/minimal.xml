@@ -1,1 +1,4 @@
-<FormItemAddition name="ДобавлениеЭлементаФормы" id="1"/>
+<FormItemAddition name="ДобавлениеЭлементаФормы" id="1">
+	<ContextMenu name="ДобавлениеЭлементаФормыКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ДобавлениеЭлементаФормыРасширеннаяПодсказка" id="1"/>
+</FormItemAddition>

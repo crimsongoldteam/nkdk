@@ -1,9 +1,12 @@
 <ButtonGroup name="ГруппаКнопок" id="1">
 	<ChildItems>
-		<Button name="Кнопка" id="2"/>
+		<Button name="Кнопка" id="1">
+			<ExtendedTooltip name="КнопкаРасширеннаяПодсказка" id="1"/>
+		</Button>
 	</ChildItems>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
+	<ExtendedTooltip name="ГруппаКнопокРасширеннаяПодсказка" id="1"/>
 	<Height>200</Height>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>

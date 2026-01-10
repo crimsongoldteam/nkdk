@@ -3,8 +3,10 @@ import {
   GraphicalSchemaFieldEnterprise,
 } from "~/metadata/forms/elements/graphicalSchemaField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
 export const fullGraphicalSchemaField: GraphicalSchemaField = {
+  ...fullFormField,
   elementType: FormElementType.GraphicalSchemaField,
   name: "ПолеГрафическойСхемы",
   title: {
@@ -28,6 +30,7 @@ export const fullGraphicalSchemaField: GraphicalSchemaField = {
 }
 
 export const fullGraphicalSchemaFieldEnterprise: GraphicalSchemaFieldEnterprise = {
+  ...fullFormFieldEnterprise,
   Заголовок: "Поле графической схемы",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -35,7 +38,6 @@ export const fullGraphicalSchemaFieldEnterprise: GraphicalSchemaFieldEnterprise 
   Высота: 200,
   МаксимальнаяВысота: 500,
   МаксимальнаяШирина: 400,
-  РазрешитьИспользование: { Администратор: "Истина" },
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
   Редактирование: "Истина",

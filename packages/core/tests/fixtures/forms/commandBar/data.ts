@@ -1,61 +1,23 @@
 import { IFormatElementResult } from "~/format/types"
 import { CommandBar, CommandBarEnterprise } from "~/metadata/forms/elements/commandBar/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { fullFormGroup, fullFormGroupEnterprise } from "../formGroup/data"
 
 export const fullCommandBar: CommandBar = {
+  ...fullFormGroup,
   elementType: FormElementType.CommandBar,
   name: "КоманднаяПанель",
-  childItems: [],
-  enableContentChange: true,
-  enabled: true,
-  extendedTooltip: undefined,
-  height: 200,
-  horizontalAlignInGroup: "Left",
-  horizontalStretch: true,
-  readOnly: false,
-  shortcut: "Ctrl+S",
   title: {
     items: { ru: "Командная панель" },
   },
-  titleFont: { kind: "StyleItem", ref: "NormalTextFont" },
-  titleTextColor: { type: "WebColor", value: "Black" },
-  toolTip: {
-    items: { ru: "Подсказка" },
-  },
-  toolTipRepresentation: "None",
-  type: "UsualGroup",
-  userVisible: {
-    common: true,
-    values: [{ name: "Администратор", value: true }],
-  },
-  verticalAlignInGroup: "Top",
-  verticalStretch: true,
-  visible: true,
-  width: 300,
   autofill: true,
   displayImportance: "High",
   horizontalAlign: "Left",
 }
 
 export const fullCommandBarEnterprise: CommandBarEnterprise = {
+  ...fullFormGroupEnterprise,
   Заголовок: "Командная панель",
-  ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "ОбычнаяГруппа",
-  Видимость: "Истина",
-  Высота: 200,
-  ГоризонтальноеПоложениеВГруппе: "Лево",
-  Доступность: "Истина",
-  ОтображениеПодсказки: "Нет",
-  Подсказка: "Подсказка",
-  РазрешитьИспользование: { Администратор: "Истина" },
-  РазрешитьИзменениеСостава: "Истина",
-  РастягиватьПоВертикали: "Истина",
-  РастягиватьПоГоризонтали: "Истина",
-  СочетаниеКлавиш: "Ctrl+S",
-  ТолькоПросмотр: "Ложь",
-  ЦветТекстаЗаголовка: "Черный",
-  Ширина: 300,
-  ШрифтЗаголовка: "ОбычныйШрифтТекста",
   Автозаполнение: "Истина",
   ВажностьПриОтображении: "Высокая",
   ГоризонтальноеПоложение: "Лево",

@@ -1,7 +1,7 @@
 <CommandBar name="КоманднаяПанель" id="1" DisplayImportance="High">
-	<ChildItems/>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
+	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="1"/>
 	<Height>200</Height>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>

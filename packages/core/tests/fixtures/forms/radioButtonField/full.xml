@@ -1,15 +1,24 @@
 <RadioButtonField name="ПолеПереключателя" id="1" DisplayImportance="High">
 	<AutoCellHeight>true</AutoCellHeight>
 	<CellHyperlink>true</CellHyperlink>
+	<ContextMenu name="ПолеПереключателяКонтекстноеМеню" id="1"/>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
 	<EditMode>EnterOnInput</EditMode>
 	<Enabled>true</Enabled>
+	<Events>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+	</Events>
+	<ExtendedTooltip name="ПолеПереключателяРасширеннаяПодсказка" id="1"/>
 	<FixingInTable>None</FixingInTable>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
 	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
 	<FooterHorizontalAlign>Left</FooterHorizontalAlign>
+	<FooterPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</FooterPicture>
 	<FooterText>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -18,6 +27,10 @@
 	</FooterText>
 	<FooterTextColor>web:Black</FooterTextColor>
 	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
+	<HeaderPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</HeaderPicture>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<ReadOnly>false</ReadOnly>
