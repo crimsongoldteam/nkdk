@@ -32,4 +32,6 @@ export const ElementWithChildItems = [
   ParseElementType.VerticalGroup,
   ParseElementType.HorizontalGroup,
   ParseElementType.OneLineGroup,
+  ParseElementType.Page,
+  ParseElementType.Pages,
 ]
