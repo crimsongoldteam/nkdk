@@ -11,8 +11,8 @@ export type ItemOperationType =
 type OperationFunction<T = any> = (context: ConfigurationContext, data: T) => any
 type OperationImportFromEnterpriseFunction<T = any> = (
   context: ConfigurationContext,
-  data: T | undefined
-  // name: string
+  data: T | undefined,
+  name: string | undefined
 ) => any
 
 type OperationRegistry = Map<MetadataType, OperationFunction | OperationImportFromEnterpriseFunction>

@@ -13,29 +13,27 @@ import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerat
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
-export function importFormDecorationFromEnterprise(
+type ImportFormDecorationFromEnterpriseReturn<T, N> = T extends undefined
+  ? undefined
+  : N extends undefined
+    ? Partial<FormDecoration>
+    : FormDecoration
+
+export const importFormDecorationFromEnterprise = <
+  T extends FormDecorationEnterprise | undefined,
+  N extends string | undefined,
+>(
   context: ConfigurationContext,
-  data: undefined,
-  name: string
-): undefined
-export function importFormDecorationFromEnterprise(
-  context: ConfigurationContext,
-  data: FormDecorationEnterprise,
-  name: string
-): FormDecoration
-export function importFormDecorationFromEnterprise(
-  context: ConfigurationContext,
-  data: FormDecorationEnterprise | undefined,
-  name: string
-): FormDecoration | undefined {
-  if (!data) return undefined
+  data: T,
+  name: N
+): ImportFormDecorationFromEnterpriseReturn<T, N> => {
+  if (data === undefined) return undefined as ImportFormDecorationFromEnterpriseReturn<T, N>
 
   const baseFields = importBaseElementFromEnterprise(context, data, name)
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: FormDecoration = {
+  const result: ImportFormDecorationFromEnterpriseReturn<T, N> = {
     elementType: FormElementType.FormDecoration,
-    ...restFields,
+    ...baseFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
@@ -136,7 +134,7 @@ export function importFormDecorationFromEnterprise(
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  return result
+  return result as ImportFormDecorationFromEnterpriseReturn<T, N>
 }
 
 registerMetadata("ImportFromEnterprise", "FormDecoration", importFormDecorationFromEnterprise)
