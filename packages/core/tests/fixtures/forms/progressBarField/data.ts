@@ -19,5 +19,3 @@ export const minimalProgressBarField: ProgressBarField = {
 }
 
 export const minimalProgressBarFieldEnterprise: ProgressBarFieldEnterprise = {}
-
-

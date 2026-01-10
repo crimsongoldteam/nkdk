@@ -1,20 +1,15 @@
 <CheckBoxField name="Флажок" id="1" DisplayImportance="High">
-	<Title>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Флажок формы</v8:content>
-		</v8:item>
-	</Title>
-	<UserVisible>
-		<xr:Common>true</xr:Common>
-		<xr:Value name="Role.Администратор">true</xr:Value>
-	</UserVisible>
 	<AutoCellHeight>true</AutoCellHeight>
 	<CellHyperlink>true</CellHyperlink>
+	<ContextMenu name="ФлажокКонтекстноеМеню" id="1"/>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
-	<EditMode>Use</EditMode>
+	<EditMode>EnterOnInput</EditMode>
 	<Enabled>true</Enabled>
+	<Events>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+	</Events>
+	<ExtendedTooltip name="ФлажокРасширеннаяПодсказка" id="1"/>
 	<FixingInTable>None</FixingInTable>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
@@ -35,6 +30,12 @@
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
 	<SkipOnInput>false</SkipOnInput>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Флажок формы</v8:content>
+		</v8:item>
+	</Title>
 	<TitleBackColor>web:Blue</TitleBackColor>
 	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
 	<TitleHeight>20</TitleHeight>
@@ -48,12 +49,13 @@
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
 	<Type>InputField</Type>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
 	<Visible>true</Visible>
-	<Events>
-		<Event name="OnChange">ПроцедураПриИзменении</Event>
-	</Events>
 	<BackColor>web:Blue</BackColor>
 	<BorderColor>web:Green</BorderColor>
 	<CheckBoxType>Switch</CheckBoxType>

@@ -1,1 +1,4 @@
-<PdfDocumentField name="ПолеPDFДокумента" id="1"/>
+<PdfDocumentField name="ПолеPDFДокумента" id="1">
+	<ContextMenu name="ПолеPDFДокументаКонтекстноеМеню" id="1"/>
+	<ExtendedTooltip name="ПолеPDFДокументаРасширеннаяПодсказка" id="1"/>
+</PdfDocumentField>
