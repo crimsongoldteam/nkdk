@@ -5,6 +5,7 @@ import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFr
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { PeriodField, PeriodFieldEnterprise } from "~/metadata/forms/elements/periodField/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -35,19 +36,18 @@ const importPeriodFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importPeriodFieldFromEnterprise = (
+export const importPeriodFieldFromEnterprise = <From extends PeriodFieldEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
-  data: PeriodFieldEnterprise | undefined,
-  name: string
-): PeriodField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, PeriodField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, PeriodField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: PeriodField = {
+  const result: ImportFromEnterpriseReturn<From, PeriodField, Name> = {
+    ...baseFields,
     elementType: FormElementType.PeriodField,
-    ...restFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)

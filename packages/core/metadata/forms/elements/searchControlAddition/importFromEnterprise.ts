@@ -5,22 +5,25 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { SearchControlAddition, SearchControlAdditionEnterprise } from "~/metadata/forms/elements/searchControlAddition/types"
 import { importFormItemAdditionFromEnterprise } from "~/metadata/forms/elements/formItemAddition/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const importSearchControlAdditionFromEnterprise = (
+export const importSearchControlAdditionFromEnterprise = <
+  From extends SearchControlAdditionEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: SearchControlAdditionEnterprise | undefined,
-  name: string
-): SearchControlAddition | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, SearchControlAddition, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, SearchControlAddition, Name>
 
   const baseFields = importFormItemAdditionFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: SearchControlAddition = {
+  const result: ImportFromEnterpriseReturn<From, SearchControlAddition, Name> = {
+    ...baseFields,
     elementType: FormElementType.SearchControlAddition,
-    ...restFields,
   }
 
   const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)

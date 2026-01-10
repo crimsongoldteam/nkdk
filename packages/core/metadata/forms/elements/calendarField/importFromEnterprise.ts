@@ -23,11 +23,10 @@ export const importCalendarFieldFromEnterprise = <
   if (!data) return undefined as ImportFromEnterpriseReturn<T, CalendarField, N>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: CalendarField = {
+  const result: ImportFromEnterpriseReturn<T, CalendarField, N> = {
+    ...baseFields,
     elementType: FormElementType.CalendarField,
-    ...restFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
@@ -106,7 +105,7 @@ export const importCalendarFieldFromEnterprise = <
   const events = importCalendarFieldEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
-  return result as ImportFromEnterpriseReturn<T, CalendarField, N>
+  return result
 }
 
 const importCalendarFieldEventsFromEnterprise = (

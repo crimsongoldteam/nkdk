@@ -2,24 +2,27 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ButtonGroup, ButtonGroupEnterprise } from "~/metadata/forms/elements/buttonGroup/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importButtonGroupFromEnterprise = (
+export const importButtonGroupFromEnterprise = <
+  From extends ButtonGroupEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: ButtonGroupEnterprise | undefined,
-  name: string
-): ButtonGroup | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, ButtonGroup, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, ButtonGroup, Name>
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: ButtonGroup = {
+  const result: ImportFromEnterpriseReturn<From, ButtonGroup, Name> = {
+    ...baseFields,
     elementType: FormElementType.ButtonGroup,
-    ...restFields,
   }
 
   const representation = importSystemEnumerationFromEnterprise<SE.ButtonGroupRepresentation>(

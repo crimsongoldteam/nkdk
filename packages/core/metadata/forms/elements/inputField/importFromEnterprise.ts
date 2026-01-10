@@ -17,20 +17,20 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importFormFieldFromEnterprise } from "../formField/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "../types"
 
-export const importInputFieldFromEnterprise = (
+export const importInputFieldFromEnterprise = <From extends InputFieldEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
-  data: InputFieldEnterprise | undefined,
-  name?: string
-): InputField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, InputField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, InputField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: InputField = {
+  const result: ImportFromEnterpriseReturn<From, InputField, Name> = {
+    ...baseFields,
     elementType: FormElementType.InputField,
-    ...restFields,
   }
 
   const autoChoiceIncomplete = importBooleanFromEnterprise(context, data.АвтоВыборНезаполненного)

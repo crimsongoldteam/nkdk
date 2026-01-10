@@ -10,6 +10,7 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importFormDecorationFromEnterprise } from "../formDecoration/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "../types"
 
 const importLabelDecorationEventsFromEnterprise = (
   data: { Нажатие?: string; ОбработкаНавигационнойСсылки?: string } | undefined
@@ -29,16 +30,19 @@ const importLabelDecorationEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importLabelDecorationFromEnterprise = (
+export const importLabelDecorationFromEnterprise = <
+  From extends LabelDecorationEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: LabelDecorationEnterprise | undefined,
-  name: string
-): LabelDecoration | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, LabelDecoration, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, LabelDecoration, Name>
 
-  const baseFields = importFormDecorationFromEnterprise(context, data, name)
+  const baseFields = importFormDecorationFromEnterprise(context, data, name)!
 
-  const result: LabelDecoration = {
+  const result: ImportFromEnterpriseReturn<From, LabelDecoration, Name> = {
     ...baseFields,
     elementType: FormElementType.LabelDecoration,
   }

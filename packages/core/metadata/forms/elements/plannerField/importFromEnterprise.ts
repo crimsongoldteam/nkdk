@@ -3,6 +3,7 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PlannerField, PlannerFieldEnterprise } from "~/metadata/forms/elements/plannerField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -117,19 +118,18 @@ const importPlannerFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importPlannerFieldFromEnterprise = (
+export const importPlannerFieldFromEnterprise = <From extends PlannerFieldEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
-  data: PlannerFieldEnterprise | undefined,
-  name: string
-): PlannerField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, PlannerField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, PlannerField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: PlannerField = {
+  const result: ImportFromEnterpriseReturn<From, PlannerField, Name> = {
+    ...baseFields,
     elementType: FormElementType.PlannerField,
-    ...restFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)

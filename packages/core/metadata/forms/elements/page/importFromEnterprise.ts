@@ -6,24 +6,24 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { Page, PageEnterprise } from "~/metadata/forms/elements/page/types"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importPageFromEnterprise = (
+export const importPageFromEnterprise = <From extends PageEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
-  data: PageEnterprise | undefined,
-  name: string
-): Page | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, Page, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, Page, Name>
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: Page = {
+  const result: ImportFromEnterpriseReturn<From, Page, Name> = {
+    ...baseFields,
     elementType: FormElementType.Page,
-    ...restFields,
   }
 
   const backColor = importColorFromEnterprise(context, data.ЦветФона)

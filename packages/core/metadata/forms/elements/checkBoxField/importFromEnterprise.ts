@@ -6,6 +6,7 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CheckBoxField, CheckBoxFieldEnterprise } from "~/metadata/forms/elements/checkBoxField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
@@ -25,19 +26,21 @@ const importCheckBoxFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importCheckBoxFieldFromEnterprise = (
+export const importCheckBoxFieldFromEnterprise = <
+  From extends CheckBoxFieldEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: CheckBoxFieldEnterprise | undefined,
-  name: string
-): CheckBoxField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, CheckBoxField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, CheckBoxField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: CheckBoxField = {
+  const result: ImportFromEnterpriseReturn<From, CheckBoxField, Name> = {
+    ...baseFields,
     elementType: FormElementType.CheckBoxField,
-    ...restFields,
   }
 
   const checkBoxType = importSystemEnumerationFromEnterprise<SE.CheckBoxType>(

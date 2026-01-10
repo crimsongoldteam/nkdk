@@ -4,24 +4,27 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { Popup, PopupEnterprise } from "~/metadata/forms/elements/popup/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importPopupFromEnterprise = (
+export const importPopupFromEnterprise = <
+  From extends PopupEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: PopupEnterprise | undefined,
-  name: string
-): Popup | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, Popup, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, Popup, Name>
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: Popup = {
+  const result: ImportFromEnterpriseReturn<From, Popup, Name> = {
+    ...baseFields,
     elementType: FormElementType.Popup,
-    ...restFields,
   }
 
   const picture = importPictureFromEnterprise(context, data.Картинка)

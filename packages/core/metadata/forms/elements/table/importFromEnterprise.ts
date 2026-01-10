@@ -10,6 +10,7 @@ import { importChildItemsFromEnterprise } from "~/metadata/forms/elements/childI
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import { importFormItemAdditionFromEnterprise } from "~/metadata/forms/elements/formItemAddition/importFromEnterprise"
 import { Table, TableEnterprise } from "~/metadata/forms/elements/table/types"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
@@ -127,17 +128,17 @@ const importTableEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importTableFromEnterprise = (
+export const importTableFromEnterprise = <From extends TableEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
-  data: TableEnterprise | undefined,
-  name: string
-): Table | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, Table, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, Table, Name>
 
-  const baseElement = importBaseElementFromEnterprise(context, {}, name)
-  if (!baseElement) return undefined
+  const baseElement = importBaseElementFromEnterprise(context, {} as From, name)
+  if (!baseElement) return undefined as ImportFromEnterpriseReturn<From, Table, Name>
 
-  const result: Table = {
+  const result: ImportFromEnterpriseReturn<From, Table, Name> = {
     ...baseElement,
     elementType: FormElementType.Table,
   }

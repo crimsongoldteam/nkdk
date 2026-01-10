@@ -5,6 +5,7 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { FormattedDocumentField, FormattedDocumentFieldEnterprise } from "~/metadata/forms/elements/formattedDocumentField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
@@ -40,19 +41,21 @@ const importFormattedDocumentFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importFormattedDocumentFieldFromEnterprise = (
+export const importFormattedDocumentFieldFromEnterprise = <
+  From extends FormattedDocumentFieldEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: FormattedDocumentFieldEnterprise | undefined,
-  name: string
-): FormattedDocumentField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, FormattedDocumentField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, FormattedDocumentField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: FormattedDocumentField = {
+  const result: ImportFromEnterpriseReturn<From, FormattedDocumentField, Name> = {
+    ...baseFields,
     elementType: FormElementType.FormattedDocumentField,
-    ...restFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)

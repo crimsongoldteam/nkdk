@@ -5,24 +5,27 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ColumnGroup, ColumnGroupEnterprise } from "~/metadata/forms/elements/columnGroup/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importColumnGroupFromEnterprise = (
+export const importColumnGroupFromEnterprise = <
+  From extends ColumnGroupEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: ColumnGroupEnterprise | undefined,
-  name: string
-): ColumnGroup | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, ColumnGroup, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, ColumnGroup, Name>
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: ColumnGroup = {
+  const result: ImportFromEnterpriseReturn<From, ColumnGroup, Name> = {
+    ...baseFields,
     elementType: FormElementType.ColumnGroup,
-    ...restFields,
   }
 
   const headerHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(

@@ -5,22 +5,25 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { SearchStringAddition, SearchStringAdditionEnterprise } from "~/metadata/forms/elements/searchStringAddition/types"
 import { importFormItemAdditionFromEnterprise } from "~/metadata/forms/elements/formItemAddition/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
-export const importSearchStringAdditionFromEnterprise = (
+export const importSearchStringAdditionFromEnterprise = <
+  From extends SearchStringAdditionEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: SearchStringAdditionEnterprise | undefined,
-  name: string
-): SearchStringAddition | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, SearchStringAddition, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, SearchStringAddition, Name>
 
   const baseFields = importFormItemAdditionFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: SearchStringAddition = {
+  const result: ImportFromEnterpriseReturn<From, SearchStringAddition, Name> = {
+    ...baseFields,
     elementType: FormElementType.SearchStringAddition,
-    ...restFields,
   }
 
   const userVisibleAllow = importUserVisibleFromEnterprise(

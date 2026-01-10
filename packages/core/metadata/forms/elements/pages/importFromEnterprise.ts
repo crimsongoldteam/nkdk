@@ -2,6 +2,7 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { Pages, PagesEnterprise } from "~/metadata/forms/elements/pages/types"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -30,16 +31,16 @@ const importPagesEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importPagesFromEnterprise = (
+export const importPagesFromEnterprise = <From extends PagesEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
-  data: PagesEnterprise | undefined,
-  name: string
-): Pages | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, Pages, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, Pages, Name>
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)!
 
-  const result: Pages = {
+  const result: ImportFromEnterpriseReturn<From, Pages, Name> = {
     ...baseFields,
     elementType: FormElementType.Pages,
   }

@@ -4,6 +4,7 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PdfDocumentField, PdfDocumentFieldEnterprise } from "~/metadata/forms/elements/pdfDocumentField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
@@ -31,19 +32,21 @@ const importPdfDocumentFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importPdfDocumentFieldFromEnterprise = (
+export const importPdfDocumentFieldFromEnterprise = <
+  From extends PdfDocumentFieldEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: PdfDocumentFieldEnterprise | undefined,
-  name: string
-): PdfDocumentField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, PdfDocumentField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, PdfDocumentField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: PdfDocumentField = {
+  const result: ImportFromEnterpriseReturn<From, PdfDocumentField, Name> = {
+    ...baseFields,
     elementType: FormElementType.PdfDocumentField,
-    ...restFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)

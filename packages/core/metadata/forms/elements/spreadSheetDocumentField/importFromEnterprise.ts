@@ -4,6 +4,7 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { SpreadSheetDocumentField, SpreadSheetDocumentFieldEnterprise } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
@@ -81,19 +82,21 @@ const importSpreadSheetDocumentFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importSpreadSheetDocumentFieldFromEnterprise = (
+export const importSpreadSheetDocumentFieldFromEnterprise = <
+  From extends SpreadSheetDocumentFieldEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: SpreadSheetDocumentFieldEnterprise | undefined,
-  name: string
-): SpreadSheetDocumentField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, SpreadSheetDocumentField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, SpreadSheetDocumentField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: SpreadSheetDocumentField = {
+  const result: ImportFromEnterpriseReturn<From, SpreadSheetDocumentField, Name> = {
+    ...baseFields,
     elementType: FormElementType.SpreadSheetDocumentField,
-    ...restFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)

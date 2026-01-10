@@ -3,24 +3,27 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CommandBar, CommandBarEnterprise } from "~/metadata/forms/elements/commandBar/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importCommandBarFromEnterprise = (
+export const importCommandBarFromEnterprise = <
+  From extends CommandBarEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: CommandBarEnterprise | undefined,
-  name: string
-): CommandBar | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, CommandBar, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, CommandBar, Name>
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: CommandBar = {
+  const result: ImportFromEnterpriseReturn<From, CommandBar, Name> = {
+    ...baseFields,
     elementType: FormElementType.CommandBar,
-    ...restFields,
   }
 
   const autofill = importBooleanFromEnterprise(context, data.Автозаполнение)

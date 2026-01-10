@@ -4,6 +4,7 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { GeographicalSchemaField, GeographicalSchemaFieldEnterprise } from "~/metadata/forms/elements/geographicalSchemaField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
@@ -43,19 +44,21 @@ const importGeographicalSchemaFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importGeographicalSchemaFieldFromEnterprise = (
+export const importGeographicalSchemaFieldFromEnterprise = <
+  From extends GeographicalSchemaFieldEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: GeographicalSchemaFieldEnterprise | undefined,
-  name: string
-): GeographicalSchemaField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, GeographicalSchemaField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, GeographicalSchemaField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: GeographicalSchemaField = {
+  const result: ImportFromEnterpriseReturn<From, GeographicalSchemaField, Name> = {
+    ...baseFields,
     elementType: FormElementType.GeographicalSchemaField,
-    ...restFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)

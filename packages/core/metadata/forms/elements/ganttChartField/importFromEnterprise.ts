@@ -3,6 +3,7 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { GanttChartField, GanttChartFieldEnterprise } from "~/metadata/forms/elements/ganttChartField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
@@ -54,19 +55,21 @@ const importGanttChartFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importGanttChartFieldFromEnterprise = (
+export const importGanttChartFieldFromEnterprise = <
+  From extends GanttChartFieldEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: GanttChartFieldEnterprise | undefined,
-  name: string
-): GanttChartField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, GanttChartField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, GanttChartField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: GanttChartField = {
+  const result: ImportFromEnterpriseReturn<From, GanttChartField, Name> = {
+    ...baseFields,
     elementType: FormElementType.GanttChartField,
-    ...restFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)

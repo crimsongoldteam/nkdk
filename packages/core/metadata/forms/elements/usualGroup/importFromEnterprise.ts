@@ -5,25 +5,25 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { UsualGroup, UsualGroupEnterprise } from "~/metadata/forms/elements/usualGroup/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importUsualGroupFromEnterprise = (
+export const importUsualGroupFromEnterprise = <From extends UsualGroupEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
-  data: UsualGroupEnterprise | undefined,
-  name: string
-): UsualGroup | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, UsualGroup, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, UsualGroup, Name>
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: UsualGroup = {
+  const result: ImportFromEnterpriseReturn<From, UsualGroup, Name> = {
+    ...baseFields,
     elementType: FormElementType.UsualGroup,
-    ...restFields,
   }
 
   const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(

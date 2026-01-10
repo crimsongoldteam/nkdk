@@ -3,6 +3,7 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { DendrogramField, DendrogramFieldEnterprise } from "~/metadata/forms/elements/dendrogramField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -32,19 +33,21 @@ const importDendrogramFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importDendrogramFieldFromEnterprise = (
+export const importDendrogramFieldFromEnterprise = <
+  From extends DendrogramFieldEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: DendrogramFieldEnterprise | undefined,
-  name: string
-): DendrogramField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, DendrogramField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, DendrogramField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: DendrogramField = {
+  const result: ImportFromEnterpriseReturn<From, DendrogramField, Name> = {
+    ...baseFields,
     elementType: FormElementType.DendrogramField,
-    ...restFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)

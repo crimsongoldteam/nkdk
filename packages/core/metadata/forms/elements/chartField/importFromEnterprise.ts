@@ -3,6 +3,7 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ChartField, ChartFieldEnterprise } from "~/metadata/forms/elements/chartField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -36,19 +37,18 @@ const importChartFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importChartFieldFromEnterprise = (
+export const importChartFieldFromEnterprise = <From extends ChartFieldEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
-  data: ChartFieldEnterprise | undefined,
-  name: string
-): ChartField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, ChartField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, ChartField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: ChartField = {
+  const result: ImportFromEnterpriseReturn<From, ChartField, Name> = {
+    ...baseFields,
     elementType: FormElementType.ChartField,
-    ...restFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)

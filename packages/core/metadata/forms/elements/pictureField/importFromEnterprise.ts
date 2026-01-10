@@ -7,6 +7,7 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { PictureField, PictureFieldEnterprise } from "~/metadata/forms/elements/pictureField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
@@ -50,19 +51,18 @@ const importPictureFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importPictureFieldFromEnterprise = (
+export const importPictureFieldFromEnterprise = <From extends PictureFieldEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
-  data: PictureFieldEnterprise | undefined,
-  name: string
-): PictureField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, PictureField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, PictureField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: PictureField = {
+  const result: ImportFromEnterpriseReturn<From, PictureField, Name> = {
+    ...baseFields,
     elementType: FormElementType.PictureField,
-    ...restFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)

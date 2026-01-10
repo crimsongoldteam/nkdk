@@ -6,25 +6,25 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { FormGroup, FormGroupEnterprise } from "~/metadata/forms/elements/formGroup/types"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
-export const importFormGroupFromEnterprise = (
+export const importFormGroupFromEnterprise = <From extends FormGroupEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
-  data: FormGroupEnterprise | undefined,
-  name: string
-): FormGroup | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, FormGroup, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, FormGroup, Name>
 
   const baseFields = importBaseElementFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: FormGroup = {
+  const result: ImportFromEnterpriseReturn<From, FormGroup, Name> = {
+    ...baseFields,
     elementType: FormElementType.FormGroup,
-    ...restFields,
   }
 
   const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(

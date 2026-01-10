@@ -4,20 +4,25 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { RadioButtonField, RadioButtonFieldEnterprise } from "~/metadata/forms/elements/radioButtonField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { RadioButtonField, RadioButtonFieldEnterprise } from "~/metadata/forms/elements/radioButtonField/types"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 const importRadioButtonFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-  } | undefined
-): {
-  onChange?: string
-} | undefined => {
+  data:
+    | {
+        ПриИзменении?: string
+      }
+    | undefined
+):
+  | {
+      onChange?: string
+    }
+  | undefined => {
   if (!data) return undefined
 
   const result: {
@@ -29,19 +34,21 @@ const importRadioButtonFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importRadioButtonFieldFromEnterprise = (
+export const importRadioButtonFieldFromEnterprise = <
+  From extends RadioButtonFieldEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: RadioButtonFieldEnterprise | undefined,
-  name: string
-): RadioButtonField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, RadioButtonField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, RadioButtonField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: RadioButtonField = {
+  const result: ImportFromEnterpriseReturn<From, RadioButtonField, Name> = {
+    ...baseFields,
     elementType: FormElementType.RadioButtonField,
-    ...restFields,
   }
 
   const radioButtonType = importSystemEnumerationFromEnterprise<SE.RadioButtonType>(
@@ -65,7 +72,11 @@ export const importRadioButtonFieldFromEnterprise = (
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -94,4 +105,3 @@ export const importRadioButtonFieldFromEnterprise = (
 }
 
 registerMetadata("ImportFromEnterprise", "RadioButtonField", importRadioButtonFieldFromEnterprise)
-

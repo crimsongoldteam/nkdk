@@ -2,20 +2,25 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ProgressBarField, ProgressBarFieldEnterprise } from "~/metadata/forms/elements/progressBarField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { ProgressBarField, ProgressBarFieldEnterprise } from "~/metadata/forms/elements/progressBarField/types"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 const importProgressBarFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-  } | undefined
-): {
-  onChange?: string
-} | undefined => {
+  data:
+    | {
+        ПриИзменении?: string
+      }
+    | undefined
+):
+  | {
+      onChange?: string
+    }
+  | undefined => {
   if (!data) return undefined
 
   const result: {
@@ -27,19 +32,21 @@ const importProgressBarFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importProgressBarFieldFromEnterprise = (
+export const importProgressBarFieldFromEnterprise = <
+  From extends ProgressBarFieldEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: ProgressBarFieldEnterprise | undefined,
-  name: string
-): ProgressBarField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, ProgressBarField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, ProgressBarField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: ProgressBarField = {
+  const result: ImportFromEnterpriseReturn<From, ProgressBarField, Name> = {
+    ...baseFields,
     elementType: FormElementType.ProgressBarField,
-    ...restFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
@@ -80,7 +87,11 @@ export const importProgressBarFieldFromEnterprise = (
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }

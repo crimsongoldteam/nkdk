@@ -2,7 +2,6 @@ import { ClientApplicationForm, ClientApplicationFormEnterprise } from "~/metada
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullClientApplicationForm: ClientApplicationForm = {
-  elementType: FormElementType.ClientApplicationForm,
   commandSet: ["WriteAndClose"],
   attributes: [
     {
@@ -97,7 +96,6 @@ export const fullClientApplicationForm: ClientApplicationForm = {
 }
 
 export const minimalClientApplicationForm: ClientApplicationForm = {
-  elementType: FormElementType.ClientApplicationForm,
   autoCommandBar: {
     name: "ФормаКоманднаяПанель",
     elementType: FormElementType.CommandBar,

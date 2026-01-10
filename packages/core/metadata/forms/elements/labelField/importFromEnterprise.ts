@@ -7,6 +7,7 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { LabelField, LabelFieldEnterprise } from "~/metadata/forms/elements/labelField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -36,19 +37,21 @@ const importLabelFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importLabelFieldFromEnterprise = (
+export const importLabelFieldFromEnterprise = <
+  From extends LabelFieldEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: LabelFieldEnterprise | undefined,
-  name: string
-): LabelField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, LabelField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, LabelField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: LabelField = {
+  const result: ImportFromEnterpriseReturn<From, LabelField, Name> = {
+    ...baseFields,
     elementType: FormElementType.LabelField,
-    ...restFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
