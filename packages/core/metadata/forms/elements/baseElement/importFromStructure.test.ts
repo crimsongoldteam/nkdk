@@ -5,7 +5,7 @@ import { parseElement } from "../childItems/parser/elementsParser/parse"
 import { tokenize } from "../childItems/parser/tokenizer/tokenizer"
 import { parseTree } from "../childItems/parser/treeParser/treeParser"
 
-describe("importOtherElementFromStructure", () => {
+describe("import other field from structure", () => {
   it("should import other element from structure", () => {
     const structure = "?ПолеПереключателя {ИмяПоля}"
 

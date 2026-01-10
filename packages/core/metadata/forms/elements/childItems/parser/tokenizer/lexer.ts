@@ -90,6 +90,13 @@ export const OneLineGroupElementsContent = createToken({
   pattern: Lexer.NA,
 })
 
+export const OtherFieldType = createToken({
+  name: "OtherFieldType",
+  pattern: matchType,
+  group: Lexer.SKIPPED,
+  line_breaks: true,
+})
+
 export const combineTokens = [
   InlineText,
   FormHeaderText,
@@ -111,6 +118,7 @@ export const combineTokens = [
   ElementName,
   OneLineGroupElementsHeader,
   OneLineGroupElementsContent,
+  OtherFieldType,
 ]
 
 // #endregion
@@ -200,13 +208,6 @@ export const RadioButtonUnchecked = createToken({
 
 export const Underscore = keyword("Underscore", "_", InputValue)
 
-export const OtherFieldType = createToken({
-  name: "OtherFieldType",
-  pattern: matchType,
-  group: Lexer.SKIPPED,
-  line_breaks: true,
-})
-
 export const Question = createToken({
   name: "Question",
   pattern: /\?[ \t]*/,
@@ -275,7 +276,8 @@ export const LCurly = createToken({
     TableCellContinue,
     RadioButtonHeader,
     RadioButtonValueDescription,
-    GroupHeaderText
+    GroupHeaderText,
+    OtherFieldType
   ),
 })
 

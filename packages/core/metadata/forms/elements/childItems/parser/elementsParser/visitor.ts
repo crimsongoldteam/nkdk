@@ -19,6 +19,7 @@ import { FormElementType, FormElementTypeFromEnterprise } from "~/metadata/metad
 import { BaseElement } from "../../../baseElement/types"
 import { joinTokens, visitAll } from "../visitorUtils"
 import { Parser } from "./parser"
+import context from "antd/es/app/context"
 
 const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 
@@ -568,7 +569,7 @@ export class Visitor extends BaseVisitor {
 
   // #region otherField
   otherField(ctx: CstChildrenDictionary, _context: ConfigurationContext): BaseElement {
-    const name = joinTokens(ctx.properties as IToken[]) || ""
+    const name = this.visit(ctx.properties as CstNode[], context)
     const otherFieldType = joinTokens(ctx.OtherFieldType as IToken[]) as keyof typeof FormElementTypeFromEnterprise
 
     const elementType = FormElementTypeFromEnterprise[otherFieldType]
