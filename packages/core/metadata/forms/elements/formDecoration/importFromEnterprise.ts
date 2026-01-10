@@ -11,15 +11,26 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
-export const importFormDecorationFromEnterprise = (
+export function importFormDecorationFromEnterprise(
+  context: ConfigurationContext,
+  data: undefined,
+  name: string
+): undefined
+export function importFormDecorationFromEnterprise(
+  context: ConfigurationContext,
+  data: FormDecorationEnterprise,
+  name: string
+): FormDecoration
+export function importFormDecorationFromEnterprise(
   context: ConfigurationContext,
   data: FormDecorationEnterprise | undefined,
-  name?: string
-): FormDecoration | undefined => {
+  name: string
+): FormDecoration | undefined {
   if (!data) return undefined
 
-  const baseFields = importBaseElementFromEnterprise(context, {}, name)!
+  const baseFields = importBaseElementFromEnterprise(context, data, name)
   const { elementType: _, ...restFields } = baseFields
 
   const result: FormDecoration = {
@@ -112,11 +123,7 @@ export const importFormDecorationFromEnterprise = (
   const horizontalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоГоризонтали)
   if (horizontalStretch !== undefined) result.horizontalStretch = horizontalStretch
 
-  const extendedTooltip = importFormDecorationFromEnterprise(
-    context,
-    data.РасширеннаяПодсказка,
-    name + ".РасширеннаяПодсказка"
-  )
+  const extendedTooltip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш

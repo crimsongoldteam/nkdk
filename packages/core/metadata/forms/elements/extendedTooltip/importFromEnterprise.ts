@@ -5,11 +5,11 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const importExtendedTooltipFromEnterprise = (
   context: ConfigurationContext,
-  data: ExtendedTooltipEnterprise | undefined,
-  name?: string
+  data: ExtendedTooltipEnterprise | undefined
 ): ExtendedTooltip | undefined => {
-  const result = importFormDecorationFromEnterprise(context, data, name)
-  if (!result) return undefined
+  if (!data) return undefined
+
+  const result = importFormDecorationFromEnterprise(context, data, data.Имя)
 
   return {
     ...result,

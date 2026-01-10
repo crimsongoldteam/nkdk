@@ -1,47 +1,29 @@
 import { describe, expect, it } from "vitest"
 import {
-  fullFormDecoration,
-  fullFormDecorationEnterprise,
-  minimalFormDecoration,
-  minimalFormDecorationEnterprise,
-} from "~/tests/fixtures/forms/formDecoration/data"
+  fullExtendedTooltip,
+  fullExtendedTooltipEnterprise,
+  minimalExtendedTooltip,
+  minimalExtendedTooltipEnterprise,
+} from "~/tests/fixtures/forms/extendedTooltip/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importExtendedTooltipFromEnterprise } from "./importFromEnterprise"
 
 describe("importExtendedTooltipFromEnterprise", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importExtendedTooltipFromEnterprise(mockСontext, undefined, fullFormDecoration.name)
+    const result = importExtendedTooltipFromEnterprise(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from Enterprise", () => {
-    const result = importExtendedTooltipFromEnterprise(
-      mockСontext,
-      fullFormDecorationEnterprise,
-      fullFormDecoration.name
-    )
+    const result = importExtendedTooltipFromEnterprise(mockСontext, fullExtendedTooltipEnterprise)
 
-    expect(result).toEqual(fullFormDecoration)
+    expect(result).toEqual(fullExtendedTooltip)
   })
 
   it("should import minimal", () => {
-    const result = importExtendedTooltipFromEnterprise(
-      mockСontext,
-      minimalFormDecorationEnterprise,
-      minimalFormDecoration.name
-    )
+    const result = importExtendedTooltipFromEnterprise(mockСontext, minimalExtendedTooltipEnterprise)
 
-    expect(result).toEqual(minimalFormDecoration)
-  })
-
-  it("should set elementType to FormDecoration", () => {
-    const result = importExtendedTooltipFromEnterprise(
-      mockСontext,
-      fullFormDecorationEnterprise,
-      fullFormDecoration.name
-    )
-
-    expect(result?.elementType).toBe(fullFormDecoration.elementType)
+    expect(result).toEqual(minimalExtendedTooltip)
   })
 })

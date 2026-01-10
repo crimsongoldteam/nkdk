@@ -2,15 +2,27 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { FormElementType } from "../../../metadataFactory/types"
 import { BaseElement, BaseElementEnterprise } from "./types"
 
-export const importBaseElementFromEnterprise = (
+export function importBaseElementFromEnterprise(
   _context: ConfigurationContext,
-  _data: BaseElementEnterprise | undefined,
+  data: undefined,
   name: string
-): BaseElement | undefined => {
-  if (!name) return undefined
+): undefined
+export function importBaseElementFromEnterprise(
+  _context: ConfigurationContext,
+  data: BaseElementEnterprise,
+  name: string
+): BaseElement
+export function importBaseElementFromEnterprise(
+  _context: ConfigurationContext,
+  data: BaseElementEnterprise | undefined,
+  name: string
+): BaseElement | undefined {
+  if (data === undefined) return undefined
 
-  return {
+  const result: BaseElement = {
     elementType: FormElementType.BaseElement,
     name,
   }
+
+  return result
 }

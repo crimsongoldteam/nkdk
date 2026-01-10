@@ -9,8 +9,8 @@ import {
 import { importCommandBarFromEnterprise } from "~/metadata/forms/elements/commandBar/importFromEnterprise"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importChildItemsPropertiesFromEnterprise } from "../elements/childItems/importPropertiesFromEnterprise"
 import { ChildItems } from "../elements/childItems/types"
-import { importChildItemsPropertiesFromEnterprise } from "./importChildItemsPropertiesFromEnterprise"
 
 const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof ClientApplicationFormEvents> = {
   АвтоПодборПользователейСистемыВзаимодействия: "collaborationSystemUsersAutoComplete",

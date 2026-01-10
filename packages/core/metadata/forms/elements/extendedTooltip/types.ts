@@ -4,4 +4,6 @@ export interface ExtendedTooltip extends FormDecoration {}
 
 export interface ExtendedTooltipXML extends FormDecorationXML {}
 
-export interface ExtendedTooltipEnterprise extends FormDecorationEnterprise {}
+export interface ExtendedTooltipEnterprise extends FormDecorationEnterprise {
+  Имя: string
+}

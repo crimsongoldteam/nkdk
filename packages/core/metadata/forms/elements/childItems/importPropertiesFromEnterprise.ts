@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { executeOperation } from "~/metadata/metadataFactory/metadataFactory"
-import { ChildItem, ChildItems, ChildItemsEnterprise } from "../elements/childItems/types"
+import { ChildItem, ChildItems, ChildItemsEnterprise } from "./types"
 
 export const importChildItemsPropertiesFromEnterprise = (
   context: ConfigurationContext,
