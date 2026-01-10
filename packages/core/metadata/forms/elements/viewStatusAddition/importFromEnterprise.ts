@@ -4,26 +4,29 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { importFormItemAdditionFromEnterprise } from "~/metadata/forms/elements/formItemAddition/importFromEnterprise"
+import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportFromEnterpriseReturn } from "../types"
 
-export const importViewStatusAdditionFromEnterprise = (
+export const importViewStatusAdditionFromEnterprise = <
+  From extends ViewStatusAdditionEnterprise | undefined,
+  Name extends string | undefined,
+>(
   context: ConfigurationContext,
-  data: ViewStatusAdditionEnterprise | undefined,
-  name: string
-): ViewStatusAddition | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, ViewStatusAddition, Name> => {
+  if (data === undefined) return undefined as ImportFromEnterpriseReturn<From, ViewStatusAddition, Name>
 
   const baseFields = importFormItemAdditionFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: ViewStatusAddition = {
+  const result: ImportFromEnterpriseReturn<From, ViewStatusAddition, Name> = {
+    ...baseFields,
     elementType: FormElementType.ViewStatusAddition,
-    ...restFields,
   }
 
   const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
@@ -43,7 +46,11 @@ export const importViewStatusAdditionFromEnterprise = (
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -81,4 +88,3 @@ export const importViewStatusAdditionFromEnterprise = (
 }
 
 registerMetadata("ImportFromEnterprise", "ViewStatusAddition", importViewStatusAdditionFromEnterprise)
-
