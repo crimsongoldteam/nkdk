@@ -200,6 +200,20 @@ export const RadioButtonUnchecked = createToken({
 
 export const Underscore = keyword("Underscore", "_", InputValue)
 
+export const OtherFieldType = createToken({
+  name: "OtherFieldType",
+  pattern: matchType,
+  group: Lexer.SKIPPED,
+  line_breaks: true,
+})
+
+export const Question = createToken({
+  name: "Question",
+  pattern: /\?[ \t]*/,
+  label: "?",
+  categories: excludeTokens(OtherFieldType),
+})
+
 export const Picture = createToken({
   name: "Picture",
   pattern: /@[a-zA-Zа-яА-ЯёЁ0-9]*[ \t]*/,
@@ -422,6 +436,7 @@ export const inlineTypesTokens = [
   TableType,
   CommandBarType,
   RadioButtonFieldType,
+  OtherFieldType,
 ]
 
 // #endregion
@@ -441,6 +456,7 @@ export const allTokens = [
   RadioButtonChecked,
   RadioButtonUnchecked,
   ButtonGroup,
+  OtherFieldType,
   Picture,
   LArrow,
   RArrow,
@@ -459,6 +475,7 @@ export const allTokens = [
   RAngle,
   Semicolon,
   Colon,
+  Question,
   Equals,
   Ampersand,
   Plus,
@@ -479,6 +496,7 @@ export const propertiesTokens = [
   CheckboxChecked,
   CheckboxUnchecked,
   ButtonGroup,
+  OtherFieldType,
   Picture,
   LArrow,
   RArrow,

@@ -9,6 +9,7 @@ import {
   LCurly,
   Percent,
   Picture,
+  Question,
   RadioButtonChecked,
   RadioButtonUnchecked,
   RArrow,
@@ -34,10 +35,10 @@ export const detectElementType = (tokens: IToken[]): ParseElementType => {
   const { firstToken, hasLeftArrow } = processFirstToken(significantTokens)
   const firstTokenType = firstToken.tokenType
 
-  // начинается с { - строка свойств
-  // if (firstTokenType === LCurly) {
-  //   return ParseElementType.LabelDecoration
-  // }
+  // начинается с ? - другое поле
+  if (firstTokenType === Question) {
+    return ParseElementType.OtherField
+  }
 
   // начинается с < и содержит | - командная панель
   const hasVBar = significantTokens.some((token) => token.tokenType === VBar)

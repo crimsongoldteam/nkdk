@@ -140,4 +140,14 @@ describe("detectElementType", () => {
 
     expect(result).toEqual(ParseElementType.RadioButtonField)
   })
+
+  it("should detect other fields beginning with ?", () => {
+    const mock = `?ПолеПереключателя`
+
+    const tokens = tokenize(mock)
+
+    const result = detectElementType(tokens)
+
+    expect(result).toEqual(ParseElementType.OtherField)
+  })
 })

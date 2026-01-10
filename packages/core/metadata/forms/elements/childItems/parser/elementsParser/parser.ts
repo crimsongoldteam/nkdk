@@ -82,6 +82,10 @@ export class Parser extends CstParser {
     return this.pictureDecoration()
   }
 
+  public parseOtherField(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.otherField()
+  }
   // #region oneLineGroupElements
 
   private readonly oneLineGroupElements = this.RULE("oneLineGroupElements", () => {
@@ -473,6 +477,18 @@ export class Parser extends CstParser {
 
   // #endregion
 
+  // #region otherField
+  private readonly otherField = this.RULE("otherField", () => {
+    this.CONSUME(t.Question)
+    this.MANY(() => {
+      this.CONSUME(t.OtherFieldType)
+    })
+
+    this.OPTION(() => {
+      this.SUBRULE(this.properties)
+    })
+  })
+  // #endregion
   // #region properties
 
   private readonly properties = this.RULE("properties", () => {

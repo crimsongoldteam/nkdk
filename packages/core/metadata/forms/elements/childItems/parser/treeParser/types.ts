@@ -25,6 +25,7 @@ export enum ParseElementType {
   VerticalGroup = "VerticalGroup",
   HorizontalGroup = "HorizontalGroup",
   OneLineGroup = "OneLineGroup",
+  OtherField = "OtherField",
 }
 
 export const ElementWithChildItems = [

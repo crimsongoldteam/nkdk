@@ -42,6 +42,12 @@ export const FormElementTypeToEnterprise = {
   FormGroup: "ГруппаФормы",
 } as const
 
+export const FormElementTypeFromEnterprise = Object.fromEntries(
+  Object.entries(FormElementTypeToEnterprise).map(([key, value]) => [value, key])
+) as {
+  [K in keyof typeof FormElementTypeToEnterprise]: K
+}
+
 export const FormElementType = Object.fromEntries(
   Object.keys(FormElementTypeToEnterprise).map((key) => [key, key])
 ) as {

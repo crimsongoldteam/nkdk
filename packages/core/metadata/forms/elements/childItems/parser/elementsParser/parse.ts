@@ -73,6 +73,8 @@ const parseByElementType = (element: TreeNode): CstNode => {
       return elementsParser.parseOneLineGroup(element.tokens)
     case ParseElementType.PictureDecoration:
       return elementsParser.parsePictureDecoration(element.tokens)
+    case ParseElementType.OtherField:
+      return elementsParser.parseOtherField(element.tokens)
     default:
       throw new Error(`Unknown element type: ${element.type}`)
   }
