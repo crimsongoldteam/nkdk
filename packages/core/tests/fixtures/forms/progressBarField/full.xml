@@ -4,7 +4,7 @@
 	<ContextMenu name="ПолеИндикатораКонтекстноеМеню" id="1"/>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
-	<EditMode>EnterOnInput</EditMode>
+	<EditMode>Directly</EditMode>
 	<Enabled>true</Enabled>
 	<Events>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
@@ -64,4 +64,11 @@
 	<VerticalAlign>Top</VerticalAlign>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
 	<Visible>true</Visible>
+	<WarningOnEdit>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Предупреждение</v8:content>
+		</v8:item>
+	</WarningOnEdit>
+	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 </ProgressBarField>
