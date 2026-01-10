@@ -13,20 +13,19 @@ import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXM
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importFormFieldFromXML = (
+export const importFormFieldFromXML = <T extends FormFieldXML | undefined>(
   context: ConfigurationContext,
-  xml: FormFieldXML | undefined
-): FormField | undefined => {
-  if (!xml) return undefined
+  xml: T
+): ImportExportReturn<T, FormField> => {
+  if (!xml) return undefined as ImportExportReturn<T, FormField>
   const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined
-
-  const { elementType: _, ...restFields } = baseFields
+  if (!baseFields) return undefined as ImportExportReturn<T, FormField>
 
   const result: FormField = {
+    ...baseFields,
     elementType: FormElementType.FormField,
-    ...restFields,
   }
 
   if (xml.AutoCellHeight !== undefined) result.autoCellHeight = xml.AutoCellHeight

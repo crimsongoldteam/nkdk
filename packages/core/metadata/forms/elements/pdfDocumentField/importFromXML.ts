@@ -6,21 +6,19 @@ import { PdfDocumentField, PdfDocumentFieldXML } from "~/metadata/forms/elements
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importPdfDocumentFieldFromXML = (
+export const importPdfDocumentFieldFromXML = <T extends PdfDocumentFieldXML | undefined>(
   context: ConfigurationContext,
-  xml: PdfDocumentFieldXML | undefined
-): PdfDocumentField | undefined => {
-  if (!xml) return undefined
+  xml: T
+): ImportExportReturn<T, PdfDocumentField> => {
+  if (!xml) return undefined as ImportExportReturn<T, PdfDocumentField>
 
   const baseFields = importFormFieldFromXML(context, xml)
-  if (!baseFields) return undefined
-
-  const { elementType: _, ...restFields } = baseFields
 
   const result: PdfDocumentField = {
+    ...baseFields,
     elementType: FormElementType.PdfDocumentField,
-    ...restFields,
   }
 
   if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight

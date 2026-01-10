@@ -68,13 +68,13 @@ export interface FormField extends BaseElement {
 export interface FormFieldXML extends BaseElementXML {
   AutoCellHeight?: boolean
   CellHyperlink?: boolean
-  ContextMenu?: ContextMenuXML
+  ContextMenu: ContextMenuXML
   DataPath?: string
   DefaultItem?: boolean
   _DisplayImportance?: SE.DisplayImportance
   EditMode?: SE.ColumnEditMode
   Enabled?: boolean
-  ExtendedTooltip?: ExtendedTooltipXML
+  ExtendedTooltip: ExtendedTooltipXML
   FixingInTable?: SE.FixingInTable
   FooterBackColor?: ColorXML
   FooterDataPath?: string

@@ -8,9 +8,11 @@ import { isDefaultContextMenuName } from "./helper"
 
 export const importContextMenuFromXML = <T extends ContextMenu | undefined>(
   context: ConfigurationContext,
-  xml: ContextMenuXML,
+  xml: ContextMenuXML | undefined,
   parentElement: BaseElement
 ): T | undefined => {
+  if (!xml) return undefined as T
+
   const result: ContextMenu = {
     ...importBaseElementFromXML(context, xml),
     elementType: FormElementType.FormGroup,
