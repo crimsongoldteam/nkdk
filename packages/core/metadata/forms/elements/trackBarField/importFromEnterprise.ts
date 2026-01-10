@@ -1,20 +1,24 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
-import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { TrackBarField, TrackBarFieldEnterprise } from "~/metadata/forms/elements/trackBarField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { TrackBarField, TrackBarFieldEnterprise } from "~/metadata/forms/elements/trackBarField/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportFromEnterpriseReturn } from "../types"
 
 const importTrackBarFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-  } | undefined
-): {
-  onChange?: string
-} | undefined => {
+  data:
+    | {
+        ПриИзменении?: string
+      }
+    | undefined
+):
+  | {
+      onChange?: string
+    }
+  | undefined => {
   if (!data) return undefined
 
   const result: {
@@ -26,19 +30,21 @@ const importTrackBarFieldEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importTrackBarFieldFromEnterprise = (
+export const importTrackBarFieldFromEnterprise = <
+  From extends TrackBarFieldEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
-  data: TrackBarFieldEnterprise | undefined,
-  name: string
-): TrackBarField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, TrackBarField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, TrackBarField, Name>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
-  const result: TrackBarField = {
+  const result: ImportFromEnterpriseReturn<From, TrackBarField, Name> = {
+    ...baseFields,
     elementType: FormElementType.TrackBarField,
-    ...restFields,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
@@ -73,16 +79,6 @@ export const importTrackBarFieldFromEnterprise = (
   )
   if (markingAppearance !== undefined) result.markingAppearance = markingAppearance
 
-  const userVisibleAllow = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    "РазрешитьИспользование"
-  )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
-  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
-    result.userVisible = userVisibleAllow || userVisibleDeny
-  }
-
   const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
   if (verticalStretch !== undefined) result.verticalStretch = verticalStretch
 
@@ -102,4 +98,3 @@ export const importTrackBarFieldFromEnterprise = (
 }
 
 registerMetadata("ImportFromEnterprise", "TrackBarField", importTrackBarFieldFromEnterprise)
-

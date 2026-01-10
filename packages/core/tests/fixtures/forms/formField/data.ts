@@ -12,7 +12,7 @@ export const fullFormField: FormField = {
   dataPath: "Объект.Реквизит",
   defaultItem: true,
   displayImportance: "High",
-  editMode: "EnterOnInput",
+  editMode: "Directly",
   enabled: true,
   fixingInTable: "None",
   footerBackColor: { type: "WebColor", value: "White" },
@@ -58,6 +58,10 @@ export const fullFormField: FormField = {
   verticalAlign: "Top",
   verticalAlignInGroup: "Top",
   visible: true,
+  warningOnEdit: {
+    items: { ru: "Предупреждение" },
+  },
+  warningOnEditRepresentation: "DontShow",
   events: {
     onChange: "ПроцедураПриИзменении",
   },

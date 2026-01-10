@@ -1,1 +1,209 @@
-<Table name="Таблица" id="1"/>
+<Table name="Таблица" id="1" _DisplayImportance="High">
+	<AutoAddIncomplete>true</AutoAddIncomplete>
+	<AutoCommandBar name="ТаблицаАвтоКоманднаяПанель" id="2" DisplayImportance="High">
+		<Autofill>true</Autofill>
+		<HorizontalAlign>Left</HorizontalAlign>
+	</AutoCommandBar>
+	<AutoInsertNewRow>true</AutoInsertNewRow>
+	<AutoMarkIncomplete>true</AutoMarkIncomplete>
+	<AutoMaxHeight>true</AutoMaxHeight>
+	<AutoMaxHeightInTableRows>true</AutoMaxHeightInTableRows>
+	<AutoMaxWidth>true</AutoMaxWidth>
+	<BackColor>web:White</BackColor>
+	<BehaviorOnHorizontalCompression>Auto</BehaviorOnHorizontalCompression>
+	<BorderColor>web:Black</BorderColor>
+	<ChangeRowOrder>true</ChangeRowOrder>
+	<ChangeRowSet>true</ChangeRowSet>
+	<ChildItems>
+		<InputField name="ПолеВвода1" id="3"/>
+	</ChildItems>
+	<ChoiceMode>true</ChoiceMode>
+	<CommandBar name="ТаблицаКоманднаяПанель" id="4" DisplayImportance="High">
+		<Autofill>true</Autofill>
+		<HorizontalAlign>Left</HorizontalAlign>
+	</CommandBar>
+	<CommandBarLocation>Top</CommandBarLocation>
+	<CommandSet>
+		<ExcludedCommand>WriteAndClose</ExcludedCommand>
+		<ExcludedCommand>Copy</ExcludedCommand>
+		<ExcludedCommand>Delete</ExcludedCommand>
+	</CommandSet>
+	<ContextMenu name="ТаблицаКонтекстноеМеню" id="5" _DisplayImportance="High">
+		<Autofill>true</Autofill>
+	</ContextMenu>
+	<CurrentRowUse>Auto</CurrentRowUse>
+	<DataPath>Объект.ТабличнаяЧасть</DataPath>
+	<DefaultItem>true</DefaultItem>
+	<Enabled>true</Enabled>
+	<EnableDrag>true</EnableDrag>
+	<EnableStartDrag>true</EnableStartDrag>
+	<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="6">
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
+	<FileDragMode>AsFile</FileDragMode>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
+	<Footer>true</Footer>
+	<FooterHeight>30</FooterHeight>
+	<Header>true</Header>
+	<HeaderHeight>30</HeaderHeight>
+	<Height>400</Height>
+	<HeightControlVariant>Auto</HeightControlVariant>
+	<HeightInTableRows>10</HeightInTableRows>
+	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalLines>true</HorizontalLines>
+	<HorizontalScrollBar>AutoUse</HorizontalScrollBar>
+	<HorizontalStretch>true</HorizontalStretch>
+	<InitialListView>Auto</InitialListView>
+	<InitialTreeView>NoExpand</InitialTreeView>
+	<MarkIncomplete>true</MarkIncomplete>
+	<MaxHeight>600</MaxHeight>
+	<MaxHeightInTableRows>20</MaxHeightInTableRows>
+	<MaxWidth>800</MaxWidth>
+	<MultipleChoice>true</MultipleChoice>
+	<Output>Auto</Output>
+	<ReadOnly>false</ReadOnly>
+	<RefreshRequest>None</RefreshRequest>
+	<Representation>List</Representation>
+	<RowInputMode>EndOfWindow</RowInputMode>
+	<RowPictureDataPath>Объект.Картинка</RowPictureDataPath>
+	<RowSelectionMode>Row</RowSelectionMode>
+	<RowsPicture>true</RowsPicture>
+	<SearchControl name="ТаблицаУправлениеПоиском" id="7" DisplayImportance="High">
+		<Enabled>true</Enabled>
+		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Управление поиском</v8:content>
+			</v8:item>
+		</Title>
+		<ToolTip>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Подсказка</v8:content>
+			</v8:item>
+		</ToolTip>
+		<ToolTipRepresentation>None</ToolTipRepresentation>
+		<Type>SearchControl</Type>
+		<UserVisible>
+			<xr:Common>true</xr:Common>
+			<xr:Value name="Role.Администратор">true</xr:Value>
+		</UserVisible>
+		<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+		<Visible>true</Visible>
+	</SearchControl>
+	<SearchControlLocation>Auto</SearchControlLocation>
+	<SearchOnInput>Auto</SearchOnInput>
+	<SearchStringLocation>Auto</SearchStringLocation>
+	<SearchStringRepresentation name="ТаблицаОтображениеСтрокиПоиска" id="8" DisplayImportance="High">
+		<Enabled>true</Enabled>
+		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Отображение строки поиска</v8:content>
+			</v8:item>
+		</Title>
+		<ToolTip>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Подсказка</v8:content>
+			</v8:item>
+		</ToolTip>
+		<ToolTipRepresentation>None</ToolTipRepresentation>
+		<Type>SearchControl</Type>
+		<UserVisible>
+			<xr:Common>true</xr:Common>
+			<xr:Value name="Role.Администратор">true</xr:Value>
+		</UserVisible>
+		<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+		<Visible>true</Visible>
+	</SearchStringRepresentation>
+	<SelectionMode>SingleRow</SelectionMode>
+	<Shortcut>Ctrl+T</Shortcut>
+	<SkipOnInput>false</SkipOnInput>
+	<TextColor>web:Black</TextColor>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Таблица</v8:content>
+		</v8:item>
+	</Title>
+	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<TitleHeight>25</TitleHeight>
+	<TitleLocation>Left</TitleLocation>
+	<TitleTextColor>web:Black</TitleTextColor>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка для таблицы</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>Auto</ToolTipRepresentation>
+	<UseAlternationRowColor>true</UseAlternationRowColor>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<VerticalLines>true</VerticalLines>
+	<VerticalScrollBar>AutoUse</VerticalScrollBar>
+	<VerticalStretch>true</VerticalStretch>
+	<ViewStatusLocation>Auto</ViewStatusLocation>
+	<ViewStatusRepresentation name="ТаблицаОтображениеСостоянияПросмотра" id="9" DisplayImportance="High">
+		<Enabled>true</Enabled>
+		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Отображение состояния просмотра</v8:content>
+			</v8:item>
+		</Title>
+		<ToolTip>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Подсказка</v8:content>
+			</v8:item>
+		</ToolTip>
+		<ToolTipRepresentation>None</ToolTipRepresentation>
+		<Type>SearchControl</Type>
+		<UserVisible>
+			<xr:Common>true</xr:Common>
+			<xr:Value name="Role.Администратор">true</xr:Value>
+		</UserVisible>
+		<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+		<Visible>true</Visible>
+	</ViewStatusRepresentation>
+	<Visible>true</Visible>
+	<Width>600</Width>
+	<Events>
+		<Event name="Selection">ПроцедураВыбора</Event>
+		<Event name="ValueChoice">ПроцедураВыбораЗначения</Event>
+		<Event name="DragStart">ПроцедураНачалаПеретаскивания</Event>
+		<Event name="ChoiceProcessing">ПроцедураОбработкиВыбора</Event>
+		<Event name="NewWriteProcessing">ПроцедураОбработкиЗаписиНового</Event>
+		<Event name="RefreshRequestProcessing">ПроцедураОбработкиЗапросаОбновления</Event>
+		<Event name="DragEnd">ПроцедураОкончанияПеретаскивания</Event>
+		<Event name="BeforeAddRow">ПроцедураПередНачаломДобавления</Event>
+		<Event name="BeforeRowChange">ПроцедураПередНачаломИзменения</Event>
+		<Event name="BeforeEditEnd">ПроцедураПередОкончаниемРедактирования</Event>
+		<Event name="BeforeExpand">ПроцедураПередРазворачиванием</Event>
+		<Event name="BeforeCollapse">ПроцедураПередСворачиванием</Event>
+		<Event name="BeforeDeleteRow">ПроцедураПередУдалением</Event>
+		<Event name="Drag">ПроцедураПеретаскивания</Event>
+		<Event name="AfterDeleteRow">ПроцедураПослеУдаления</Event>
+		<Event name="OnActivateField">ПроцедураПриАктивизацииПоля</Event>
+		<Event name="OnActivateRow">ПроцедураПриАктивизацииСтроки</Event>
+		<Event name="OnActivateCell">ПроцедураПриАктивизацииЯчейки</Event>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="OnStartEdit">ПроцедураПриНачалеРедактирования</Event>
+		<Event name="OnEditEnd">ПроцедураПриОкончанииРедактирования</Event>
+		<Event name="OnCurrentParentChange">ПроцедураПриСменеТекущегоРодителя</Event>
+		<Event name="DragCheck">ПроцедураПроверкиПеретаскивания</Event>
+	</Events>
+</Table>

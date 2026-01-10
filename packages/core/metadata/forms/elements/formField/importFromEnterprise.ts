@@ -16,18 +16,21 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "../types"
 
-export const importFormFieldFromEnterprise = (
+export const importFormFieldFromEnterprise = <
+  From extends FormFieldEnterprise | undefined,
+  Name extends string | undefined,
+>(
   context: ConfigurationContext,
-  data: FormFieldEnterprise | undefined,
-  name?: string
-): FormField | undefined => {
-  if (!data) return undefined
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, FormField, Name> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<From, FormField, Name>
 
-  const baseElement = importBaseElementFromEnterprise(context, {}, name || "")
-  if (!baseElement) return undefined
+  const baseElement = importBaseElementFromEnterprise(context, data, name)
 
-  const result: FormField = {
+  const result: ImportFromEnterpriseReturn<From, FormField, Name> = {
     ...baseElement,
     elementType: FormElementType.FormField,
   }
