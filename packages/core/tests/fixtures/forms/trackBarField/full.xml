@@ -1,5 +1,7 @@
 <TrackBarField name="ПолеПолосыПрокрутки" id="1" DisplayImportance="High">
 	<AutoCellHeight>true</AutoCellHeight>
+	<AutoMaxHeight>true</AutoMaxHeight>
+	<AutoMaxWidth>true</AutoMaxWidth>
 	<CellHyperlink>true</CellHyperlink>
 	<ContextMenu name="ПолеПолосыПрокруткиКонтекстноеМеню" id="1"/>
 	<DataPath>Объект.Реквизит</DataPath>
@@ -31,13 +33,24 @@
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</HeaderPicture>
+	<Height>100</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalStretch>true</HorizontalStretch>
+	<LargeStep>10</LargeStep>
+	<MarkingAppearance>TopLeft</MarkingAppearance>
+	<MarkingStep>5</MarkingStep>
+	<MaxHeight>200</MaxHeight>
+	<MaxValue>100</MaxValue>
+	<MaxWidth>300</MaxWidth>
+	<MinValue>0</MinValue>
+	<Orientation>Horizontal</Orientation>
 	<ReadOnly>false</ReadOnly>
 	<Shortcut>Ctrl+S</Shortcut>
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
 	<SkipOnInput>false</SkipOnInput>
+	<Step>1</Step>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -63,5 +76,7 @@
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<VerticalStretch>false</VerticalStretch>
 	<Visible>true</Visible>
+	<Width>200</Width>
 </TrackBarField>
