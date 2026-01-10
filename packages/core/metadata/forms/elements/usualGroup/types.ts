@@ -76,6 +76,7 @@ export interface UsualGroupEnterprise extends FormGroupEnterprise {
   ГоризонтальныйИнтервал?: SE.FormItemSpacingEnterprise
   Группировка?: SE.ChildFormItemsGroupEnterprise
   ЗаголовокСвернутогоОтображения?: string
+  ЗапретитьИспользование?: UserVisibleEnterprise
   ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
   ИспользуемаяТаблица?: TableEnterprise
   Объединенная?: StringboolEnterprise
@@ -84,9 +85,8 @@ export interface UsualGroupEnterprise extends FormGroupEnterprise {
   Отображение?: SE.UsualGroupRepresentationEnterprise
   ОтображениеУправления?: SE.UsualGroupControlRepresentationEnterprise
   Поведение?: SE.UsualGroupBehaviorEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
   ПутьКДаннымЗаголовка?: string
+  РазрешитьИспользование?: UserVisibleEnterprise
   СквозноеВыравнивание?: SE.ThroughAlignEnterprise
   Формат?: I8nTextEnterprise
   ЦветФона?: ColorEnterprise

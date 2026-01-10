@@ -596,7 +596,9 @@ export class Visitor extends BaseVisitor {
       result.title = this.createTitle(title, context.defaultLanguage)
     }
 
-    result.showTitle = showTitle
+    if (showTitle !== undefined) {
+      result.showTitle = showTitle
+    }
 
     return result
   }

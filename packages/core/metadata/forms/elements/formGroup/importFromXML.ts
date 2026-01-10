@@ -26,14 +26,14 @@ export const importFormGroupFromXML = (
   }
 
   const childItems = importChildItemsFromXML(context, xml.ChildItems)
-  result.childItems = childItems
+  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
 
   if (xml.EnableContentChange !== undefined) result.enableContentChange = xml.EnableContentChange
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
   const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip, result)
-  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
+  result.extendedTooltip = extendedTooltip
 
   if (xml.Height !== undefined) result.height = xml.Height
 

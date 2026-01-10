@@ -5,7 +5,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullUsualGroup: UsualGroup = {
   elementType: FormElementType.UsualGroup,
   name: "ОбычнаяГруппа",
-  childItems: [],
   enableContentChange: true,
   enabled: true,
   extendedTooltip: undefined,
@@ -32,7 +31,6 @@ export const fullUsualGroup: UsualGroup = {
   verticalStretch: true,
   visible: true,
   width: 300,
-  associatedTable: undefined,
   backColor: { type: "WebColor", value: "White" },
   behavior: "Auto",
   childItemsHorizontalAlign: "Left",
@@ -109,7 +107,6 @@ export const fullUsualGroupEnterprise: UsualGroupEnterprise = {
 export const minimalUsualGroup: UsualGroup = {
   elementType: FormElementType.UsualGroup,
   name: "ОбычнаяГруппа",
-  childItems: [],
 }
 
 export const minimalUsualGroupEnterprise: UsualGroupEnterprise = {}
@@ -128,6 +125,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     element: {
       name: "Группа",
       elementType: FormElementType.UsualGroup,
+      group: "Horizontal",
       showTitle: false,
       childItems: [
         {
@@ -147,6 +145,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     element: {
       name: "Группа",
       elementType: FormElementType.UsualGroup,
+      group: "Horizontal",
       title: { items: { ru: "Заголовок группы" } },
       childItems: [
         {
@@ -166,6 +165,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     element: {
       name: "Группа",
       elementType: FormElementType.UsualGroup,
+      group: "Horizontal",
       title: { items: { ru: "" } },
       childItems: [
         {
@@ -185,6 +185,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     element: {
       name: "Группа",
       elementType: FormElementType.UsualGroup,
+      group: "Horizontal",
       childItems: [
         {
           name: "ВертикальнаяГруппа1",

@@ -35,8 +35,8 @@ const importChildItemProperties = (
   const properties = executeOperation(
     "ImportFromEnterprise",
     item.elementType,
-    propertiesEnterprise,
     context,
+    propertiesEnterprise,
     item.name
   )
 

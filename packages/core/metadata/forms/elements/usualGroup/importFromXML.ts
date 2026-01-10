@@ -3,7 +3,6 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
-import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { UsualGroup, UsualGroupXML } from "~/metadata/forms/elements/usualGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -24,8 +23,8 @@ export const importUsualGroupFromXML = (
     ...restFields,
   }
 
-  const associatedTable = importTableFromXML(context, xml.AssociatedTable)
-  if (associatedTable !== undefined) result.associatedTable = associatedTable
+  // const associatedTable = importTableFromXML(context, xml.AssociatedTable)
+  // if (associatedTable !== undefined) result.associatedTable = associatedTable
 
   const backColor = importColorFromXML(context, xml.BackColor)
   if (backColor !== undefined) result.backColor = backColor
@@ -36,7 +35,8 @@ export const importUsualGroupFromXML = (
 
   if (xml.ChildItemsVerticalAlign !== undefined) result.childItemsVerticalAlign = xml.ChildItemsVerticalAlign
 
-  if (xml.CollapsedRepresentationTitle !== undefined) result.collapsedRepresentationTitle = xml.CollapsedRepresentationTitle
+  if (xml.CollapsedRepresentationTitle !== undefined)
+    result.collapsedRepresentationTitle = xml.CollapsedRepresentationTitle
 
   if (xml.ControlRepresentation !== undefined) result.controlRepresentation = xml.ControlRepresentation
 

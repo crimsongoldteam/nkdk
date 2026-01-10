@@ -1,18 +1,42 @@
 <UsualGroup name="ОбычнаяГруппа" id="1" DisplayImportance="High">
-	<ChildItems/>
+	<BackColor>web:White</BackColor>
+	<Behavior>Auto</Behavior>
+	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>
+	<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>
+	<CollapsedRepresentationTitle>Свернуто</CollapsedRepresentationTitle>
+	<ControlRepresentation>TitleHyperlink</ControlRepresentation>
+	<CurrentRowUse>DontUse</CurrentRowUse>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
+	<Format>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Формат</v8:content>
+		</v8:item>
+	</Format>
+	<Group>Vertical</Group>
+	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
+	<GroupVerticalAlign>Top</GroupVerticalAlign>
 	<Height>200</Height>
+	<HiddenRepresentationTitleBackColor>web:Gray</HiddenRepresentationTitleBackColor>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalSpacing>Single</HorizontalSpacing>
 	<HorizontalStretch>true</HorizontalStretch>
+	<ItemsAndTitlesAlign>Auto</ItemsAndTitlesAlign>
 	<ReadOnly>false</ReadOnly>
+	<Representation>NormalSeparation</Representation>
 	<Shortcut>Ctrl+S</Shortcut>
+	<ShowLeftMargin>true</ShowLeftMargin>
+	<ShowTitle>true</ShowTitle>
+	<SlaveItemsWidth>Auto</SlaveItemsWidth>
+	<ThroughAlign>DontUse</ThroughAlign>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
 			<v8:content>Обычная группа</v8:content>
 		</v8:item>
 	</Title>
+	<TitleDataPath>Объект.Заголовок</TitleDataPath>
 	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
 	<TitleTextColor>web:Black</TitleTextColor>
 	<ToolTip>
@@ -23,40 +47,15 @@
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
 	<Type>UsualGroup</Type>
+	<United>false</United>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
+	<VerticalAlign>Top</VerticalAlign>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<VerticalSpacing>Single</VerticalSpacing>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>
-	<BackColor>web:White</BackColor>
-	<Behavior>Auto</Behavior>
-	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>
-	<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>
-	<CollapsedRepresentationTitle>Свернуто</CollapsedRepresentationTitle>
-	<ControlRepresentation>TitleHyperlink</ControlRepresentation>
-	<CurrentRowUse>DontUse</CurrentRowUse>
-	<Format>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Формат</v8:content>
-		</v8:item>
-	</Format>
-	<Group>Vertical</Group>
-	<GroupHorizontalAlign>Left</GroupHorizontalAlign>
-	<GroupVerticalAlign>Top</GroupVerticalAlign>
-	<HiddenRepresentationTitleBackColor>web:Gray</HiddenRepresentationTitleBackColor>
-	<HorizontalSpacing>Single</HorizontalSpacing>
-	<ItemsAndTitlesAlign>Auto</ItemsAndTitlesAlign>
-	<Representation>NormalSeparation</Representation>
-	<ShowLeftMargin>true</ShowLeftMargin>
-	<ShowTitle>true</ShowTitle>
-	<SlaveItemsWidth>Auto</SlaveItemsWidth>
-	<ThroughAlign>DontUse</ThroughAlign>
-	<TitleDataPath>Объект.Заголовок</TitleDataPath>
-	<United>false</United>
-	<VerticalAlign>Top</VerticalAlign>
-	<VerticalSpacing>Single</VerticalSpacing>
 </UsualGroup>
