@@ -1,11 +1,10 @@
 import { describe, expect, it } from "vitest"
-import { DetectedTreeNode } from "~/metadata/forms/elements/childItems/parser/detector/detectTree"
 import { parseElement } from "~/metadata/forms/elements/childItems/parser/elementsParser/parse"
-import { lexer } from "~/metadata/forms/elements/childItems/parser/tokenizer/lexer"
 import { mockСontext } from "~/tests/mockContext"
 import { FormElementType } from "../../../metadataFactory/types"
-import { ParseElementType } from "../childItems/parser/treeParser/types"
 import { Table } from "./types"
+import { tokenize } from "../childItems/parser/tokenizer/tokenizer"
+import { parseTree } from "../childItems/parser/treeParser/treeParser"
 
 describe("parse Table", () => {
   it("should parse table", () => {
@@ -14,22 +13,18 @@ describe("parse Table", () => {
     const expectedResult: Table = {
       elementType: FormElementType.Table,
       name: "name",
-      id: undefined,
       childItems: [
         {
           elementType: FormElementType.InputField,
           name: "column 1",
-          id: undefined,
         },
         {
           elementType: FormElementType.InputField,
           name: "column 2",
-          id: undefined,
         },
         {
           elementType: FormElementType.InputField,
           name: "column 3",
-          id: undefined,
         },
       ],
     }
@@ -39,13 +34,9 @@ describe("parse Table", () => {
 })
 
 const parseTable = (mock: string) => {
-  const tokens = lexer.tokenize(mock).tokens
+  const tokens = tokenize(mock)
 
-  const node: DetectedTreeNode = {
-    tokens,
-    type: ParseElementType.Table,
-    childItems: [],
-  }
+  const node = parseTree(mockСontext, tokens)
 
-  return parseElement(node, mockСontext)
+  return parseElement(mockСontext, node[0])
 }
