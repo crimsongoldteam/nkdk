@@ -7,13 +7,13 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export function importExtendedTooltipFromEnterprise<T extends ExtendedTooltipEnterprise | undefined>(
   context: ConfigurationContext,
   data: T
-): ImportFromEnterpriseReturn<T, string, ExtendedTooltip> {
-  if (data === undefined) return undefined as ImportFromEnterpriseReturn<T, string, ExtendedTooltip>
+): ImportFromEnterpriseReturn<T, ExtendedTooltip, string> {
+  if (data === undefined) return undefined as ImportFromEnterpriseReturn<T, ExtendedTooltip, string>
 
   const result = importFormDecorationFromEnterprise(context, data, data.Имя)
 
   return {
     ...result,
     elementType: FormElementType.FormDecoration,
-  } as ImportFromEnterpriseReturn<T, string, ExtendedTooltip>
+  } as ImportFromEnterpriseReturn<T, ExtendedTooltip, string>
 }

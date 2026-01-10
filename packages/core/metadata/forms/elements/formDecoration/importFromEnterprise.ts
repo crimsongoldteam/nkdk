@@ -21,12 +21,12 @@ export const importFormDecorationFromEnterprise = <
   context: ConfigurationContext,
   data: T,
   name: N
-): ImportFromEnterpriseReturn<T, N, FormDecoration> => {
-  if (data === undefined) return undefined as ImportFromEnterpriseReturn<T, N, FormDecoration>
+): ImportFromEnterpriseReturn<T, FormDecoration, N> => {
+  if (data === undefined) return undefined as ImportFromEnterpriseReturn<T, FormDecoration, N>
 
   const baseFields = importBaseElementFromEnterprise(context, data, name)
 
-  const result: ImportFromEnterpriseReturn<T, N, FormDecoration> = {
+  const result: ImportFromEnterpriseReturn<T, FormDecoration, N> = {
     elementType: FormElementType.FormDecoration,
     ...baseFields,
   }
@@ -129,7 +129,7 @@ export const importFormDecorationFromEnterprise = <
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  return result as ImportFromEnterpriseReturn<T, N, FormDecoration>
+  return result as ImportFromEnterpriseReturn<T, FormDecoration, N>
 }
 
 registerMetadata("ImportFromEnterprise", "FormDecoration", importFormDecorationFromEnterprise)

@@ -10,15 +10,15 @@ export const importBaseElementFromEnterprise = <
   _context: ConfigurationContext,
   data: T,
   name: N
-): ImportFromEnterpriseReturn<T, N, BaseElement> => {
-  if (data === undefined) return undefined as ImportFromEnterpriseReturn<T, N, BaseElement>
+): ImportFromEnterpriseReturn<T, BaseElement, N> => {
+  if (data === undefined) return undefined as ImportFromEnterpriseReturn<T, BaseElement, N>
 
-  if (!name) return undefined as ImportFromEnterpriseReturn<T, N, BaseElement>
+  if (!name) return undefined as ImportFromEnterpriseReturn<T, BaseElement, N>
 
   const result: BaseElement = {
     elementType: FormElementType.BaseElement,
     name,
   }
 
-  return result as ImportFromEnterpriseReturn<T, N, BaseElement>
+  return result as ImportFromEnterpriseReturn<T, BaseElement, N>
 }
