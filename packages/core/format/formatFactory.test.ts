@@ -15,7 +15,6 @@ it("should register a format function", () => {
   const mockData: BaseElement = {
     elementType: FormElementType.InputField,
     name: "InputField",
-    id: "1",
   }
 
   registerFormat(mockFormat, mockCheck)
