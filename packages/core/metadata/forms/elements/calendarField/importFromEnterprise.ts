@@ -19,8 +19,8 @@ export const importCalendarFieldFromEnterprise = <
   context: ConfigurationContext,
   data: T,
   name: N
-): ImportFromEnterpriseReturn<T, N, CalendarField> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<T, N, CalendarField>
+): ImportFromEnterpriseReturn<T, CalendarField, N> => {
+  if (!data) return undefined as ImportFromEnterpriseReturn<T, CalendarField, N>
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
   const { elementType: _, ...restFields } = baseFields
@@ -106,7 +106,7 @@ export const importCalendarFieldFromEnterprise = <
   const events = importCalendarFieldEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
-  return result as ImportFromEnterpriseReturn<T, N, CalendarField>
+  return result as ImportFromEnterpriseReturn<T, CalendarField, N>
 }
 
 const importCalendarFieldEventsFromEnterprise = (
