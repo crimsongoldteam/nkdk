@@ -9,7 +9,16 @@ export const importColorFromEnterprise = (
 ): Color | undefined => {
   if (!data) return undefined
 
-  // Проверяем, является ли это цветом из стиля
+  // Проверяем, является ли это custom style color (начинается с "ЭлементСтиля.")
+  if (data.startsWith("ЭлементСтиля.")) {
+    const customValue = data.substring("ЭлементСтиля.".length)
+    return {
+      type: "StyleItem",
+      value: customValue,
+    }
+  }
+
+  // Проверяем, является ли это стандартным цветом из стиля
   const styleColor = importSystemEnumerationFromEnterprise<SE.StyleColors>(_context, data, SE.StyleColorsFromEnterprise)
   if (styleColor) {
     return {
