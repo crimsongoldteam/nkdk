@@ -8,13 +8,13 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportCommandBarToEnterprise } from "~/metadata/forms/elements/commandBar/exportToEnterprise"
-import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { FormField, FormFieldEnterprise } from "~/metadata/forms/elements/formField/types"
 import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
 export const exportFormFieldToEnterprise = (
   context: ConfigurationContext,
@@ -158,7 +158,7 @@ export const exportFormFieldToEnterprise = (
 
   if (data.footerDataPath !== undefined) result.ПутьКДаннымПодвала = data.footerDataPath
 
-  const extendedTooltip = exportFormDecorationToEnterprise(context, data.extendedTooltip)
+  const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
   if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
   const editMode = exportSystemEnumerationToEnterprise(context, data.editMode, SE.ColumnEditModeToEnterprise)

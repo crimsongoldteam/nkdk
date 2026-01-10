@@ -8,17 +8,13 @@ import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/f
 import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/metadata/forms/elements/childItems/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
 import {
-  FormDecoration,
-  FormDecorationEnterprise,
-  FormDecorationXML,
-} from "~/metadata/forms/elements/formDecoration/types"
-import {
   FormItemAddition,
   FormItemAdditionEnterprise,
   FormItemAdditionXML,
 } from "~/metadata/forms/elements/formItemAddition/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface Table extends BaseElement {
   autoAddIncomplete?: boolean
@@ -46,7 +42,7 @@ export interface Table extends BaseElement {
   enabled?: boolean
   enableDrag?: boolean
   enableStartDrag?: boolean
-  extendedTooltip?: FormDecoration
+  extendedTooltip?: ExtendedTooltip
   fileDragMode?: SE.FileDragMode
   font?: Font
   footer?: boolean
@@ -154,7 +150,7 @@ export interface TableXML extends BaseElementXML {
   Enabled?: boolean
   EnableDrag?: boolean
   EnableStartDrag?: boolean
-  ExtendedTooltip?: FormDecorationXML
+  ExtendedTooltip?: ExtendedTooltipXML
   FileDragMode?: SE.FileDragMode
   Font?: FontXML
   Footer?: boolean
@@ -276,7 +272,7 @@ export interface TableEnterprise extends BaseElementEnterprise {
   РазрешитьПеретаскивание?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: FormDecorationEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   РежимВводаСтрок?: SE.TableRowInputModeEnterprise
   РежимВыбора?: StringboolEnterprise
   РежимВыделения?: SE.TableSelectionModeEnterprise

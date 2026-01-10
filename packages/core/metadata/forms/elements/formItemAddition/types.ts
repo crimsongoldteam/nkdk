@@ -4,19 +4,15 @@ import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/c
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/metadata/forms/elements/childItems/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
-import {
-  FormDecoration,
-  FormDecorationEnterprise,
-  FormDecorationXML,
-} from "~/metadata/forms/elements/formDecoration/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormItemAddition extends BaseElement {
   childItems?: ChildItems
   contextMenu?: CommandBar
   displayImportance?: SE.DisplayImportance
   enabled?: boolean
-  extendedToolTip?: FormDecoration
+  extendedToolTip?: ExtendedTooltip
   horizontalAlignInGroup?: SE.ItemHorizontalLocation
   title?: I8nText
   toolTip?: I8nText
@@ -32,7 +28,7 @@ export interface FormItemAdditionXML extends BaseElementXML {
   ContextMenu?: CommandBarXML
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
-  ExtendedToolTip?: FormDecorationXML
+  ExtendedToolTip?: ExtendedTooltipXML
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
   Title?: I8nTextXML
   ToolTip?: I8nTextXML
@@ -57,5 +53,5 @@ export interface FormItemAdditionEnterprise extends BaseElementEnterprise {
   ПодчиненныеЭлементы?: ChildItemsEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise
-  РасширеннаяПодсказка?: FormDecorationEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
 }

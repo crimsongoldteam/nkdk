@@ -11,14 +11,10 @@ import {
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
-import {
-  FormDecoration,
-  FormDecorationEnterprise,
-  FormDecorationXML,
-} from "~/metadata/forms/elements/formDecoration/types"
 import { Table, TableEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormField extends BaseElement {
   autoCellHeight?: boolean
@@ -29,7 +25,7 @@ export interface FormField extends BaseElement {
   displayImportance?: SE.DisplayImportance
   editMode?: SE.ColumnEditMode
   enabled?: boolean
-  extendedTooltip?: FormDecoration
+  extendedTooltip?: ExtendedTooltip
   fixingInTable?: SE.FixingInTable
   footerBackColor?: Color
   footerDataPath?: string
@@ -78,7 +74,7 @@ export interface FormFieldXML extends BaseElementXML {
   _DisplayImportance?: SE.DisplayImportance
   EditMode?: SE.ColumnEditMode
   Enabled?: boolean
-  ExtendedTooltip?: FormDecorationXML
+  ExtendedTooltip?: ExtendedTooltipXML
   FixingInTable?: SE.FixingInTable
   FooterBackColor?: ColorXML
   FooterDataPath?: string
@@ -148,7 +144,7 @@ export interface FormFieldEnterprise extends BaseElementEnterprise {
   ПропускатьПриВводе?: StringboolEnterprise
   ПутьКДанным?: string
   ПутьКДаннымПодвала?: string
-  РасширеннаяПодсказка?: FormDecorationEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   РежимРедактирования?: SE.ColumnEditModeEnterprise
   СочетаниеКлавиш?: string
   Таблица?: TableEnterprise

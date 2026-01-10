@@ -7,11 +7,11 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportCommandBarToXML } from "~/metadata/forms/elements/commandBar/exportToXML"
-import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecoration/exportToXML"
 import { FormField, FormFieldXML } from "~/metadata/forms/elements/formField/types"
 import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export const exportFormFieldToXML = (
   context: ConfigurationContext,
@@ -43,8 +43,7 @@ export const exportFormFieldToXML = (
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
 
-  const extendedTooltip = exportFormDecorationToXML(context, data.extendedTooltip)
-  if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   if (data.fixingInTable !== undefined) result.FixingInTable = data.fixingInTable
 

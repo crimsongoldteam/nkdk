@@ -5,6 +5,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecoration/exportToXML"
 import { LabelDecoration, LabelDecorationXML } from "~/metadata/forms/elements/labelDecoration/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportLabelDecorationToXML = (
@@ -45,7 +46,7 @@ export const exportLabelDecorationToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "LabelDecoration", exportLabelDecorationToXML)

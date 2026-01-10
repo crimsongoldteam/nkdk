@@ -5,18 +5,14 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/metadata/forms/elements/childItems/types"
-import {
-  FormDecoration,
-  FormDecorationEnterprise,
-  FormDecorationXML,
-} from "~/metadata/forms/elements/formDecoration/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormGroup extends BaseElement {
   childItems?: ChildItems
   enableContentChange?: boolean
   enabled?: boolean
-  extendedTooltip?: FormDecoration
+  extendedTooltip?: ExtendedTooltip
   height?: number
   horizontalAlignInGroup?: SE.ItemHorizontalLocation
   horizontalStretch?: boolean
@@ -39,7 +35,7 @@ export interface FormGroupXML extends BaseElementXML {
   ChildItems?: ChildItemsXML
   EnableContentChange?: boolean
   Enabled?: boolean
-  ExtendedTooltip?: FormDecorationXML
+  ExtendedTooltip?: ExtendedTooltipXML
   Height?: number
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
   HorizontalStretch?: boolean
@@ -74,7 +70,7 @@ export interface FormGroupEnterprise extends BaseElementEnterprise {
   РазрешитьИзменениеСостава?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: FormDecorationEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   СочетаниеКлавиш?: string
   ТолькоПросмотр?: StringboolEnterprise
   ЦветТекстаЗаголовка?: ColorEnterprise
