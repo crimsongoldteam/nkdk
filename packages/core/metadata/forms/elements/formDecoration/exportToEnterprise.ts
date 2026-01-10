@@ -11,12 +11,13 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
+import { ImportExportReturn } from "../types"
 
-export const exportFormDecorationToEnterprise = (
+export const exportFormDecorationToEnterprise = <T extends FormDecoration | undefined>(
   context: ConfigurationContext,
-  data: FormDecoration | undefined
-): FormDecorationEnterprise | undefined => {
-  if (!data) return undefined
+  data: T
+): ImportExportReturn<T, FormDecorationEnterprise> => {
+  if (!data) return undefined as ImportExportReturn<T, FormDecorationEnterprise>
 
   const baseFields = exportBaseElementToEnterprise(context, data)
 
@@ -109,7 +110,7 @@ export const exportFormDecorationToEnterprise = (
   const font = exportFontToEnterprise(context, data.font)
   if (font !== undefined) result.Шрифт = font
 
-  return result
+  return result as ImportExportReturn<T, FormDecorationEnterprise>
 }
 
 registerMetadata("ExportToEnterprise", "FormDecoration", exportFormDecorationToEnterprise)

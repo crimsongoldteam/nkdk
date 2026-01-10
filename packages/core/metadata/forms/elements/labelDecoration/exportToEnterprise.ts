@@ -8,6 +8,7 @@ import { LabelDecoration, LabelDecorationEnterprise } from "~/metadata/forms/ele
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportExportReturn } from "../types"
 
 const exportLabelDecorationEventsToEnterprise = (
   data: { click?: string; uRLProcessing?: string } | undefined
@@ -27,11 +28,11 @@ const exportLabelDecorationEventsToEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const exportLabelDecorationToEnterprise = (
+export const exportLabelDecorationToEnterprise = <T extends LabelDecoration | undefined>(
   context: ConfigurationContext,
-  data: LabelDecoration | undefined
-): LabelDecorationEnterprise | undefined => {
-  if (!data) return undefined
+  data: T
+): ImportExportReturn<T, LabelDecorationEnterprise> => {
+  if (!data) return undefined as ImportExportReturn<T, LabelDecorationEnterprise>
 
   const baseFields = exportFormDecorationToEnterprise(context, data)
 
@@ -82,7 +83,7 @@ export const exportLabelDecorationToEnterprise = (
   const events = exportLabelDecorationEventsToEnterprise(data.events)
   if (events !== undefined) result.События = events
 
-  return result
+  return result as ImportExportReturn<T, LabelDecorationEnterprise>
 }
 
 registerMetadata("ExportToEnterprise", "LabelDecoration", exportLabelDecorationToEnterprise)

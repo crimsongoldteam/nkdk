@@ -27,8 +27,8 @@ export const importFormDecorationFromEnterprise = <
   const baseFields = importBaseElementFromEnterprise(context, data, name)
 
   const result: ImportFromEnterpriseReturn<T, FormDecoration, N> = {
-    elementType: FormElementType.FormDecoration,
     ...baseFields,
+    elementType: FormElementType.FormDecoration,
   }
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)

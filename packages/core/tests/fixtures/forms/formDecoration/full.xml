@@ -1,4 +1,4 @@
-<FormDecoration name="ОформлениеФормы" id="1" DisplayImportance="High">
+<FormDecoration name="КакаяТоДекорацияФормы" id="1" DisplayImportance="High">
 	<AutoMaxHeight>true</AutoMaxHeight>
 	<AutoMaxWidth>true</AutoMaxWidth>
 	<Enabled>true</Enabled>
