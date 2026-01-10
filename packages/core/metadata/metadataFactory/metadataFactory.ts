@@ -44,10 +44,12 @@ export function registerMetadata<T = any>(
   key: MetadataType,
   operationFunction: OperationFunction<any, any>
 ): void
-export function registerMetadata<T = any>(
+export function registerMetadata<F extends object | undefined, T extends object | undefined = undefined>(
   operationType: ItemOperationType,
   key: MetadataType,
-  operationFunction: OperationFunction<any, any> | OperationImportFromEnterpriseFunction<any, any, any>
+  operationFunction:
+    | OperationFunction<F, T>
+    | OperationImportFromEnterpriseFunction<F, T extends BaseElement | undefined ? T : BaseElement, string | undefined>
 ): void {
   const registry = operationRegistries.get(operationType)
   if (!registry) {
