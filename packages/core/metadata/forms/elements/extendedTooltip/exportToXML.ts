@@ -1,7 +1,11 @@
+import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
+import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
+import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
+import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipXML } from "~/metadata/forms/elements/extendedTooltip/types"
-import { exportFormDecorationToXML } from "~/metadata/forms/elements/formDecoration/exportToXML"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { exportBaseElementToXML } from "../baseElement/exportToXML"
 import { BaseElement } from "../baseElement/types"
 import { getExtendedTooltipName } from "./helper"
 
@@ -10,8 +14,67 @@ export const exportExtendedTooltipToXML = (
   data: ExtendedTooltip | undefined,
   parentElement: BaseElement
 ): ExtendedTooltipXML => {
-  const extendedTooltip = data ?? getDefaultExtendedTooltip(parentElement)
-  return exportFormDecorationToXML(context, extendedTooltip)!
+  const extendendTooltip = data ?? getDefaultExtendedTooltip(parentElement)
+
+  const baseFields = exportBaseElementToXML(context, extendendTooltip)
+
+  const result: ExtendedTooltipXML = {
+    ...baseFields,
+  }
+
+  if (extendendTooltip.autoMaxHeight !== undefined) result.AutoMaxHeight = extendendTooltip.autoMaxHeight
+
+  if (extendendTooltip.autoMaxWidth !== undefined) result.AutoMaxWidth = extendendTooltip.autoMaxWidth
+
+  if (extendendTooltip.displayImportance !== undefined) result._DisplayImportance = extendendTooltip.displayImportance
+
+  if (extendendTooltip.enabled !== undefined) result.Enabled = extendendTooltip.enabled
+
+  const font = exportFontToXML(context, extendendTooltip.font)
+  if (font !== undefined) result.Font = font
+
+  if (extendendTooltip.height !== undefined) result.Height = extendendTooltip.height
+
+  if (extendendTooltip.horizontalAlignInGroup !== undefined)
+    result.HorizontalAlignInGroup = extendendTooltip.horizontalAlignInGroup
+
+  if (extendendTooltip.horizontalStretch !== undefined) result.HorizontalStretch = extendendTooltip.horizontalStretch
+
+  if (extendendTooltip.maxHeight !== undefined) result.MaxHeight = extendendTooltip.maxHeight
+
+  if (extendendTooltip.maxWidth !== undefined) result.MaxWidth = extendendTooltip.maxWidth
+
+  if (extendendTooltip.shortcut !== undefined) result.Shortcut = extendendTooltip.shortcut
+
+  if (extendendTooltip.skipOnInput !== undefined) result.SkipOnInput = extendendTooltip.skipOnInput
+
+  const textColor = exportColorToXML(context, extendendTooltip.textColor)
+  if (textColor !== undefined) result.TextColor = textColor
+
+  const title = exportI8nTextToXML(context, extendendTooltip.title)
+  if (title !== undefined) result.Title = title
+
+  const toolTip = exportI8nTextToXML(context, extendendTooltip.toolTip)
+  if (toolTip !== undefined) result.ToolTip = toolTip
+
+  if (extendendTooltip.toolTipRepresentation !== undefined)
+    result.ToolTipRepresentation = extendendTooltip.toolTipRepresentation
+
+  if (extendendTooltip.type !== undefined) result.Type = extendendTooltip.type
+
+  const userVisible = exportUserVisibleToXML(context, extendendTooltip.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (extendendTooltip.verticalAlignInGroup !== undefined)
+    result.VerticalAlignInGroup = extendendTooltip.verticalAlignInGroup
+
+  if (extendendTooltip.verticalStretch !== undefined) result.VerticalStretch = extendendTooltip.verticalStretch
+
+  if (extendendTooltip.visible !== undefined) result.Visible = extendendTooltip.visible
+
+  if (extendendTooltip.width !== undefined) result.Width = extendendTooltip.width
+
+  return result
 }
 
 const getDefaultExtendedTooltip = (parentElement: BaseElement): ExtendedTooltip => {

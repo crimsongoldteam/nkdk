@@ -1,17 +1,29 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
-import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
+import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { BaseElement } from "../baseElement/types"
+import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { isDefaultContextMenuName } from "./helper"
 
-export const importContextMenuFromXML = (
+export const importContextMenuFromXML = <T extends ContextMenu | undefined>(
   context: ConfigurationContext,
-  xml: ContextMenuXML | undefined,
+  xml: ContextMenuXML,
   parentElement: BaseElement
-): ContextMenu | undefined => {
-  const result = importFormGroupFromXML(context, xml)
+): T | undefined => {
+  const result: ContextMenu = {
+    ...importBaseElementFromXML(context, xml),
+    elementType: FormElementType.FormGroup,
+  }
 
-  if (isHasContent(parentElement, result)) return result
+  if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
+
+  if (xml.Autofill !== undefined) result.autofill = xml.Autofill
+
+  const childItems = importChildItemsFromXML(context, xml.ChildItems)
+  if (childItems !== undefined) result.childItems = childItems
+
+  if (isHasContent(parentElement, result)) return result as T
 
   return undefined
 }

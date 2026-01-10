@@ -1,9 +1,23 @@
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "../formGroup/types"
+import * as SE from "~/metadata/systemEnumerations/types"
+import { BaseElement, BaseElementEnterprise, BaseElementXML } from "../baseElement/types"
+import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../childItems/types"
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 
-export interface ContextMenu extends FormGroup {}
+export interface ContextMenu extends BaseElement {
+  displayImportance?: SE.DisplayImportance
+  autofill?: boolean
+  childItems?: ChildItems
+}
 
-export interface ContextMenuXML extends FormGroupXML {}
+export interface ContextMenuXML extends BaseElementXML {
+  _DisplayImportance?: SE.DisplayImportance
+  Autofill?: boolean
+  ChildItems?: ChildItemsXML
+}
 
-export interface ContextMenuEnterprise extends FormGroupEnterprise {
+export interface ContextMenuEnterprise extends BaseElementEnterprise {
   Имя: string
+  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
+  Автозаполнение?: StringboolEnterprise
+  ПодчиненныеЭлементы?: ChildItemsEnterprise
 }

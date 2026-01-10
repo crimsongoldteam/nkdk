@@ -8,17 +8,17 @@ import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/ex
 import { FormDecoration, FormDecorationXML } from "~/metadata/forms/elements/formDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { ImportExportReturn } from "../types"
 
-export const exportFormDecorationToXML = (
+export const exportFormDecorationToXML = <T extends FormDecoration | undefined>(
   context: ConfigurationContext,
-  data: FormDecoration | undefined
-): FormDecorationXML | undefined => {
-  if (!data) return undefined
+  data: T
+): ImportExportReturn<T, FormDecorationXML> => {
+  if (!data) return undefined as ImportExportReturn<T, FormDecorationXML>
 
   const baseFields = exportBaseElementToXML(context, data)
-  if (!baseFields) return undefined
 
-  const result: FormDecorationXML = {
+  const result: ImportExportReturn<T, FormDecorationXML> = {
     ...baseFields,
   }
 

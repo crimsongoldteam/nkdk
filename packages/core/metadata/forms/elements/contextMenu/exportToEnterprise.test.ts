@@ -15,7 +15,14 @@ describe("exportContextMenuToEnterprise", () => {
     const contextMenu: ContextMenu = {
       elementType: FormElementType.FormGroup,
       name: "ТестовоеМеню",
-      visible: true,
+      displayImportance: "VeryHigh",
+      autofill: true,
+      childItems: [
+        {
+          elementType: FormElementType.Button,
+          name: "Кнопка",
+        },
+      ],
     }
 
     const result = exportContextMenuToEnterprise(mockСontext, contextMenu)

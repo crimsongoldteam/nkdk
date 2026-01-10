@@ -6,19 +6,18 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportChildItemsToXML } from "~/metadata/forms/elements/childItems/exportToXML"
 import { FormGroup, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { ImportExportReturn } from "../types"
 
-export const exportFormGroupToXML = (
+export const exportFormGroupToXML = <T extends FormGroup | undefined>(
   context: ConfigurationContext,
-  data: FormGroup | undefined
-): FormGroupXML | undefined => {
-  if (!data) return undefined
+  data: T
+): ImportExportReturn<T, FormGroupXML> => {
+  if (!data) return undefined as ImportExportReturn<T, FormGroupXML>
 
   const baseFields = exportBaseElementToXML(context, data)
-  if (!baseFields) return undefined
 
-  const result: FormGroupXML = {
+  const result: ImportExportReturn<T, FormGroupXML> = {
     ...baseFields,
   }
 
@@ -68,7 +67,5 @@ export const exportFormGroupToXML = (
 
   if (data.width !== undefined) result.Width = data.width
 
-  return result
+  return result as ImportExportReturn<T, FormGroupXML>
 }
-
-registerMetadata<FormGroup>("ExportToXML", "FormGroup", exportFormGroupToXML)

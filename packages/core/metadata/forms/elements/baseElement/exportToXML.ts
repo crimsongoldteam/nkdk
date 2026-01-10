@@ -1,4 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { ImportExportReturn } from "../types"
 import { BaseElement, BaseElementXML } from "./types"
 
 interface ElementIdContext {
@@ -24,13 +25,16 @@ const getElementId = (context: ConfigurationContext): string => {
   return String(elementContext.elementIdCounter)
 }
 
-export const exportBaseElementToXML = (
+export const exportBaseElementToXML = <T extends BaseElement | undefined>(
   context: ConfigurationContext,
-  data: BaseElement | undefined
-): BaseElementXML | undefined => {
-  if (!data) return undefined
-  return {
+  data: T
+): ImportExportReturn<T, BaseElementXML> => {
+  if (!data) return undefined as ImportExportReturn<T, BaseElementXML>
+
+  const result: BaseElementXML = {
     _name: data.name,
     _id: getElementId(context),
   }
+
+  return result as ImportExportReturn<T, BaseElementXML>
 }

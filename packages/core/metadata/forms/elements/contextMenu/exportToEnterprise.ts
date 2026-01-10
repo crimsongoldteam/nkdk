@@ -1,17 +1,33 @@
+import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
-import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
-
-type ExportContextMenuToEnterpriseReturn<T> = T extends undefined ? undefined : ContextMenuEnterprise
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
+import { exportChildItemsToEnterprise } from "../childItems/exportToEnterprise"
+import { ImportExportReturn } from "../types"
 
 export function exportContextMenuToEnterprise<T extends ContextMenu | undefined>(
   context: ConfigurationContext,
   data: T
-): ExportContextMenuToEnterpriseReturn<T> {
-  if (data === undefined) return undefined as ExportContextMenuToEnterpriseReturn<T>
+): ImportExportReturn<T, ContextMenuEnterprise> {
+  if (data === undefined) return undefined as ImportExportReturn<T, ContextMenuEnterprise>
 
-  return {
-    ...exportFormGroupToEnterprise(context, data),
+  const result: ContextMenuEnterprise = {
     Имя: data.name,
-  } as ExportContextMenuToEnterpriseReturn<T>
+  }
+
+  const displayImportance = exportSystemEnumerationToEnterprise(
+    context,
+    data.displayImportance,
+    SE.DisplayImportanceToEnterprise
+  )
+  if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
+
+  const autofill = exportBooleanToEnterprise(context, data.autofill)
+  if (autofill !== undefined) result.Автозаполнение = autofill
+
+  const childItems = exportChildItemsToEnterprise(context, data.childItems)
+  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
+
+  return result as ImportExportReturn<T, ContextMenuEnterprise>
 }

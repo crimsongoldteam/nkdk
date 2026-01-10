@@ -13,6 +13,7 @@ import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importCommandBarFromXML } from "../commandBar/importFromXML"
 
 export const importTableFromXML = (context: ConfigurationContext, xml: TableXML | undefined): Table | undefined => {
   if (!xml) return undefined
