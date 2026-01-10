@@ -59,6 +59,8 @@ export const importPageFromXML = (context: ConfigurationContext, xml: PageXML | 
 
   if (xml.VerticalSpacing !== undefined) result.verticalSpacing = xml.VerticalSpacing
 
+  if (result.childItems === undefined) result.childItems = []
+
   return result
 }
 

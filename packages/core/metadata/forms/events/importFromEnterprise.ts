@@ -18,6 +18,7 @@ const enterpriseEventNameMapping: Record<string, string> = {
   Регулирование: "tuning",
   Создание: "creating",
   УдалениеМножественныхЗначений: "multipleValuesDelete",
+  ПриСменеСтраницы: "onCurrentPageChange",
 }
 
 export const importEventsFromEnterprise = (

@@ -9,7 +9,6 @@ export const fullPages: Pages = {
   title: {
     items: { ru: "Страницы" },
   },
-  associatedTable: undefined,
   currentPagesState: "Titles",
   currentRowUse: "DontUse",
   pagesRepresentation: "Auto",
@@ -32,7 +31,6 @@ export const fullPagesEnterprise: PagesEnterprise = {
 export const minimalPages: Pages = {
   elementType: FormElementType.Pages,
   name: "Страницы",
-  childItems: [],
 }
 
 export const minimalPagesEnterprise: PagesEnterprise = {}

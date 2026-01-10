@@ -4,7 +4,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 export const fullFormGroup: FormGroup = {
   elementType: FormElementType.FormGroup,
   name: "ГруппаФормы",
-  childItems: [],
   enableContentChange: true,
   enabled: true,
   height: 200,
@@ -56,8 +55,6 @@ export const fullFormGroupEnterprise: FormGroupEnterprise = {
 export const minimalFormGroup: FormGroup = {
   elementType: FormElementType.FormGroup,
   name: "ГруппаФормы",
-  childItems: [],
 }
 
 export const minimalFormGroupEnterprise: FormGroupEnterprise = {}
-

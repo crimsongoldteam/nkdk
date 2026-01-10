@@ -1,7 +1,7 @@
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { Pages, PagesEnterprise } from "~/metadata/forms/elements/pages/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import { Pages, PagesEnterprise } from "~/metadata/forms/elements/pages/types"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -9,12 +9,16 @@ import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerat
 import * as SE from "~/metadata/systemEnumerations/types"
 
 const importPagesEventsFromEnterprise = (
-  data: {
-    ПриСменеСтраницы?: string
-  } | undefined
-): {
-  onCurrentPageChange?: string
-} | undefined => {
+  data:
+    | {
+        ПриСменеСтраницы?: string
+      }
+    | undefined
+):
+  | {
+      onCurrentPageChange?: string
+    }
+  | undefined => {
   if (!data) return undefined
 
   const result: {
@@ -34,11 +38,10 @@ export const importPagesFromEnterprise = (
   if (!data) return undefined
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)!
-  const { elementType: _, ...restFields } = baseFields
 
   const result: Pages = {
+    ...baseFields,
     elementType: FormElementType.Pages,
-    ...restFields,
   }
 
   const currentRowUse = importSystemEnumerationFromEnterprise<SE.CurrentRowUse>(
@@ -63,7 +66,11 @@ export const importPagesFromEnterprise = (
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
