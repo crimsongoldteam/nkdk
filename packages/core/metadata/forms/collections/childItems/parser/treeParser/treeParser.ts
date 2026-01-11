@@ -57,9 +57,7 @@ const processBuilderTree = (context: ConfigurationContext, builderNode: BuilderT
     }
   }
 
-  const movedAutoCommandBarToTable = moveAutoCommandBarToTable(result)
-
-  return movedAutoCommandBarToTable
+  return result
 }
 
 const processOneLineGroup = (context: ConfigurationContext, builderNode: BuilderTreeNode): TreeNode => {
@@ -89,22 +87,26 @@ const moveAutoCommandBarToTable = (tree: TreeNode[]): TreeNode[] => {
     const nextNode = tree[i + 1]
     i++
 
-    if (node.type !== ParseElementType.PotentialAutoCommandBar) continue
+    if (node.type === ParseElementType.PotentialAutoCommandBar) {
+      if (nextNode?.type === ParseElementType.Table) {
+        nextNode.childItems.push({
+          tokens: node.tokens,
+          type: ParseElementType.AutoCommandBar,
+          childItems: [],
+        })
+        continue
+      }
 
-    if (nextNode?.type === ParseElementType.Table) {
-      nextNode.childItems.push({
+      result.push({
         tokens: node.tokens,
-        type: ParseElementType.AutoCommandBar,
+        type: ParseElementType.CommandBar,
         childItems: [],
       })
+
       continue
     }
 
-    result.push({
-      tokens: node.tokens,
-      type: ParseElementType.CommandBar,
-      childItems: [],
-    })
+    result.push(node)
   }
 
   return result

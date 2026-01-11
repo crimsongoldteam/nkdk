@@ -128,8 +128,9 @@ text2`
       ])
     })
 
-    it("should parse as form AutoCommandBar it is without name and  next item is table", () => {
-      const mock = `<| Button1 >
+    it("should parse as form AutoCommandBar it is without name and next item is table", () => {
+      const mock = `text
+<| Button1 >
 |Column1| {name}`
 
       const tokens = tokenize(mock)
@@ -138,7 +139,12 @@ text2`
 
       expect(simplified).toEqual([
         {
-          content: "|Column1|",
+          content: "text",
+          type: "LabelDecoration",
+          childItems: [],
+        },
+        {
+          content: "|Column1| {name}",
           type: "Table",
           childItems: [
             {
@@ -152,7 +158,7 @@ text2`
     })
 
     it("should parse as CommandBar if it is with name and next item is table", () => {
-      const mock = `<| Button1 >
+      const mock = `<| Button1 > {name}
 |Column1| {name}`
 
       const tokens = tokenize(mock)
@@ -166,7 +172,7 @@ text2`
           childItems: [],
         },
         {
-          content: "|Column1|",
+          content: "|Column1| {name}",
           type: "Table",
           childItems: [],
         },
