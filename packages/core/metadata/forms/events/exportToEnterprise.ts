@@ -22,6 +22,7 @@ const eventNameMapping: Record<string, string> = {
   beforePrint: "ПередПечатью",
   afterWrite: "ПослеЗаписи",
   onCurrentPageChange: "ПриСменеСтраницы",
+  selection: "Выбор",
 }
 
 export const exportEventsToEnterprise = (
