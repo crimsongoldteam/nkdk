@@ -8,15 +8,22 @@ import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/ex
 import { Button, ButtonXML } from "~/metadata/forms/elements/button/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { ImportExportReturn } from "../types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 
-export const exportButtonToXML = (context: ConfigurationContext, data: Button | undefined): ButtonXML | undefined => {
-  if (!data) return undefined
+export const exportButtonToXML = <T extends Button | undefined>(
+  context: ConfigurationContext,
+  data: T
+): ImportExportReturn<T, ButtonXML> => {
+  if (!data) return undefined as ImportExportReturn<T, ButtonXML>
 
   const baseFields = exportBaseElementToXML(context, data)
-  if (!baseFields) return undefined
+
+  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   const result: ButtonXML = {
     ...baseFields,
+    ExtendedTooltip: extendedTooltip,
   }
 
   if (data.autoMaxHeight !== undefined) result.AutoMaxHeight = data.autoMaxHeight
@@ -42,8 +49,6 @@ export const exportButtonToXML = (context: ConfigurationContext, data: Button | 
   if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
-
-  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   const font = exportFontToXML(context, data.font)
   if (font !== undefined) result.Font = font
@@ -100,7 +105,7 @@ export const exportButtonToXML = (context: ConfigurationContext, data: Button | 
 
   if (data.width !== undefined) result.Width = data.width
 
-  return result
+  return sortObject(result) as ImportExportReturn<T, ButtonXML>
 }
 
 registerMetadata("ExportToXML", "Button", exportButtonToXML)

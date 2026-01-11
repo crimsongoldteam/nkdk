@@ -60,7 +60,7 @@ export interface ButtonXML extends BaseElementXML {
   DefaultItem?: boolean
   _DisplayImportance?: SE.DisplayImportance
   Enabled?: boolean
-  ExtendedTooltip?: ExtendedTooltipXML
+  ExtendedTooltip: ExtendedTooltipXML
   Font?: FontXML
   Height?: number
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation

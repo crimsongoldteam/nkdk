@@ -9,17 +9,19 @@ import { Button, ButtonXML } from "~/metadata/forms/elements/button/types"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importButtonFromXML = (context: ConfigurationContext, xml: ButtonXML | undefined): Button | undefined => {
-  if (!xml) return undefined
+export const importButtonFromXML = <T extends ButtonXML | undefined>(
+  context: ConfigurationContext,
+  xml: T
+): ImportExportReturn<T, Button> => {
+  if (!xml) return undefined as ImportExportReturn<T, Button>
+
   const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined
-
-  const { elementType: _, ...restFields } = baseFields
 
   const result: Button = {
+    ...baseFields,
     elementType: FormElementType.Button,
-    ...restFields,
   }
 
   if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
@@ -104,7 +106,7 @@ export const importButtonFromXML = (context: ConfigurationContext, xml: ButtonXM
 
   if (xml.Width !== undefined) result.width = xml.Width
 
-  return result
+  return result as ImportExportReturn<T, Button>
 }
 
 registerMetadata("ImportFromXML", "Button", importButtonFromXML)
