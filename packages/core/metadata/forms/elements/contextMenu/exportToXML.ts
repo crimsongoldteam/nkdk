@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
-import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
+import { exportButtonGroupChildItemsToXML } from "../../collections/buttonGroupChildItems/exportToXML"
 import { BaseElement } from "../baseElement/types"
 import { getContextMenuName } from "./helper"
 
@@ -21,7 +21,7 @@ export const exportContextMenuToXML = <T extends ContextMenu | undefined>(
 
   if (data.autofill !== undefined) result.Autofill = data.autofill
 
-  const childItems = exportChildItemsToXML(context, data.childItems)
+  const childItems = exportButtonGroupChildItemsToXML(context, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
   return result

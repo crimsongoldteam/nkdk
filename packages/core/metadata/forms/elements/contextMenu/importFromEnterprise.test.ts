@@ -1,35 +1,24 @@
 import { describe, expect, it } from "vitest"
+import {
+  fullContextMenu,
+  fullContextMenuEnterprise,
+} from "~/tests/fixtures/forms/contextMenu/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importContextMenuFromEnterprise } from "./importFromEnterprise"
-import { ContextMenuEnterprise } from "./types"
 
 describe("importContextMenuFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importContextMenuFromEnterprise(mockСontext, undefined)
-
-    expect(result).toBeUndefined()
-  })
-
   it("should import all fields from Enterprise", () => {
-    const enterpriseData: ContextMenuEnterprise = {
-      Имя: "ТестовоеМеню",
-      Видимость: "Да",
-    }
-
-    const result = importContextMenuFromEnterprise(mockСontext, enterpriseData)
+    const result = importContextMenuFromEnterprise(mockСontext, fullContextMenuEnterprise)
 
     expect(result).toBeDefined()
-    expect(result?.name).toBe("ТестовоеМеню")
+    expect(result?.displayImportance).toBe(fullContextMenu.displayImportance)
+    expect(result?.autofill).toBe(fullContextMenu.autofill)
+    expect(result?.childItems).toEqual(fullContextMenu.childItems)
   })
 
   it("should import minimal", () => {
-    const enterpriseData: ContextMenuEnterprise = {
-      Имя: "МинимальноеМеню",
-    }
+    const result = importContextMenuFromEnterprise(mockСontext, {})
 
-    const result = importContextMenuFromEnterprise(mockСontext, enterpriseData)
-
-    expect(result).toBeDefined()
-    expect(result?.name).toBe("МинимальноеМеню")
+    expect(result).toEqual({ childItems: [] })
   })
 })

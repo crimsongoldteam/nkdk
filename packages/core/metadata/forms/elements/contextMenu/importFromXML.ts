@@ -1,7 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
-import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
-import { importBaseElementFromXML } from "../baseElement/importFromXML"
+import { importButtonGroupChildItemsFromXML } from "../../collections/buttonGroupChildItems/importFromXML"
 
 export const importContextMenuFromXML = <T extends ContextMenu | undefined>(
   context: ConfigurationContext,
@@ -10,7 +9,6 @@ export const importContextMenuFromXML = <T extends ContextMenu | undefined>(
   if (!xml) return undefined as T
 
   const result: ContextMenu = {
-    ...importBaseElementFromXML(context, xml),
     childItems: [],
   }
 
@@ -18,13 +16,15 @@ export const importContextMenuFromXML = <T extends ContextMenu | undefined>(
 
   if (xml.Autofill !== undefined) result.autofill = xml.Autofill
 
-  const childItems = importChildItemsFromXML(context, xml.ChildItems)
+  const childItems = importButtonGroupChildItemsFromXML(context, xml.ChildItems)
   if (childItems !== undefined) result.childItems = childItems
 
-  if (isHasContent(result)) return undefined as T
+  if (!isHasContent(result)) return undefined as T
 
-  return undefined
+  return result as T
 }
+
+const EXCLUDED_FIELDS = ["name", "elementType", "childItems"]
 
 const isHasContent = (data: ContextMenu | undefined): boolean => {
   if (!data) return false
@@ -32,7 +32,7 @@ const isHasContent = (data: ContextMenu | undefined): boolean => {
   if (data.childItems.length > 0) return true
 
   const keys = Object.keys(data)
-  const hasOtherFields = keys.some((key) => key !== "childItems")
+  const hasOtherFields = keys.some((key) => !EXCLUDED_FIELDS.includes(key))
 
   return hasOtherFields
 }

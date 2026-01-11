@@ -12,7 +12,7 @@ export const fullFormField: FormField = {
   dataPath: "Объект.Реквизит",
   defaultItem: true,
   displayImportance: "High",
-  editMode: "Directly",
+  editMode: "EnterOnInput",
   enabled: true,
   fixingInTable: "None",
   footerBackColor: { type: "WebColor", value: "White" },

@@ -1,34 +1,42 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType } from "~/metadata/metadataFactory/types"
-import { BaseElement } from "../baseElement/types"
+import "~/metadata/forms/elements/exportToXML"
+import {
+  fullContextMenu,
+  minimalContextMenu,
+  parentElement,
+} from "~/tests/fixtures/forms/contextMenu/data"
 import { mockСontext } from "~/tests/mockContext"
+import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
+import { xmlExport } from "~/xml/export/exporter"
 import { exportContextMenuToXML } from "./exportToXML"
-import { ContextMenu } from "./types"
 
 describe("exportContextMenuToXML", () => {
-  const parentElement: BaseElement = {
-    elementType: FormElementType.InputField,
-    name: "КакойТоЭлемент",
-  }
+  it("should return all fields to XML", () => {
+    const expectedResult = readXMLFileAsString("forms/contextMenu/full.xml")
 
-  it("should return default when data is undefined", () => {
-    const xmlData = exportContextMenuToXML(mockСontext, undefined, parentElement)
+    const xmlData = exportContextMenuToXML(mockСontext, fullContextMenu, parentElement)
 
-    expect(xmlData).toBeDefined()
-    expect(xmlData.name).toBe("КакойТоЭлементКонтекстноеМеню")
+    const result = xmlExport({ ContextMenu: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
   })
 
-  it("should return content when data is provided", () => {
-    const contextMenu: ContextMenu = {
-      elementType: FormElementType.FormGroup,
-      name: "КакойТоЭлементКонтекстноеМеню",
-      enabled: true,
-    }
+  it("should return default when data is undefined", () => {
+    const expectedResult = readXMLFileAsString("forms/contextMenu/minimal.xml")
 
-    const xmlData = exportContextMenuToXML(mockСontext, contextMenu, parentElement)
+    const xmlData = exportContextMenuToXML(mockСontext, undefined, parentElement)
 
-    expect(xmlData).toBeDefined()
-    expect(xmlData.name).toBe("КакойТоЭлементКонтекстноеМеню")
-    expect(xmlData.Enabled).toBe(true)
+    const result = xmlExport({ ContextMenu: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
+  })
+
+  it("should export minimal", () => {
+    const expectedResult = readXMLFileAsString("forms/contextMenu/minimal.xml")
+    const xmlData = exportContextMenuToXML(mockСontext, minimalContextMenu, parentElement)
+
+    const result = xmlExport({ ContextMenu: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
   })
 })

@@ -1,0 +1,6 @@
+<ContextMenu name="КакойТоЭлементКонтекстноеМеню" id="1" _DisplayImportance="High">
+	<Autofill>true</Autofill>
+	<ChildItems>
+		<Button name="Кнопка" id="2"/>
+	</ChildItems>
+</ContextMenu>

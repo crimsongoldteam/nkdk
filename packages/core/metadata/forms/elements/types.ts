@@ -7,15 +7,13 @@ export type ImportFromEnterpriseReturn<
   Name extends string | undefined,
 > = From extends undefined ? undefined : Name extends undefined ? Partial<To> : To
 
-export type ImportExportReturn<F, T> = F extends undefined ? undefined : T
+export type ImportExportReturn<From, To> = From extends undefined ? undefined : To
 
-export interface ImportFromEnterpriseFunction<
+export type ImportFromEnterpriseFunction<
   From extends BaseElementEnterprise | undefined,
   To extends BaseElement | undefined,
   Name extends string | undefined,
-> {
-  (context: ConfigurationContext, data: From, name: Name): To
-}
+> = (context: ConfigurationContext, data: From, name: Name) => ImportFromEnterpriseReturn<From, To, Name>
 
 export type ImportExportFunction<From, To> = (
   context: ConfigurationContext,

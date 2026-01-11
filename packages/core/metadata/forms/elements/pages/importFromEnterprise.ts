@@ -1,9 +1,10 @@
+import { name } from "assert"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { Pages, PagesEnterprise } from "~/metadata/forms/elements/pages/types"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { ImportExportReturn, ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
@@ -33,9 +34,8 @@ const importPagesEventsFromEnterprise = (
 
 export const importPagesFromEnterprise = <From extends PagesEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, Pages, Name> => {
+  data: From
+): ImportExportReturn<From, Pages> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, Pages, Name>
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)
