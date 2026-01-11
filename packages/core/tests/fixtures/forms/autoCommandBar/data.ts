@@ -100,7 +100,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       childItems: [],
     },
     structured: {
-      strings: ["<...>"],
+      strings: ["<...|>"],
       haveSimpleHorizontalGroup: false,
     },
   },
@@ -111,7 +111,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       childItems: [],
     },
     structured: {
-      strings: ["<>"],
+      strings: ["<|>"],
       haveSimpleHorizontalGroup: false,
     },
   },

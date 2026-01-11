@@ -28,5 +28,8 @@ export const exportAutoCommandBarContentToStructure = (
 
   buttons.push(...exportButtonGroupChildItemsToStructure(context, element.childItems))
 
-  return wrapButtonContent(buttons.join(" | "))
+  const content = buttons.length > 0 ? buttons.join(" | ") : ""
+  const finalContent = buttons.length === 1 && buttons[0] === "..." ? "...|" : content || "|"
+
+  return wrapButtonContent(finalContent)
 }

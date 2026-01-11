@@ -317,6 +317,9 @@ export class Parser extends CstParser {
     this.MANY(() => {
       this.CONSUME(t.Button)
     })
+    this.OPTION(() => {
+      this.SUBRULE(this.properties)
+    })
   })
 
   // #endregion
@@ -330,14 +333,25 @@ export class Parser extends CstParser {
       this.MANY(() => {
         this.CONSUME1(t.Dots)
       })
-      this.CONSUME1(t.VBar)
+      this.OPTION2(() => {
+        this.CONSUME1(t.VBar)
+        this.AT_LEAST_ONE_SEP({
+          SEP: t.VBar,
+          DEF: () => {
+            this.SUBRULE1(this.commandBarButton)
+          },
+        })
+      })
     })
 
-    this.AT_LEAST_ONE_SEP({
-      SEP: t.VBar,
-      DEF: () => {
-        this.SUBRULE(this.commandBarButton)
-      },
+    this.OPTION3(() => {
+      this.SUBRULE2(this.commandBarButton)
+      this.MANY_SEP({
+        SEP: t.VBar,
+        DEF: () => {
+          this.SUBRULE3(this.commandBarButton)
+        },
+      })
     })
 
     this.OPTION4(() => {

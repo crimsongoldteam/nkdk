@@ -7,7 +7,7 @@ import type { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 import type { Button } from "~/metadata/forms/elements/button/types"
 import type { CheckBoxField } from "~/metadata/forms/elements/checkBoxField/types"
-import { CommandBar, CommandBar } from "~/metadata/forms/elements/commandBar/types"
+import { CommandBar } from "~/metadata/forms/elements/commandBar/types"
 import type { InputField } from "~/metadata/forms/elements/inputField/types"
 import type { LabelDecoration } from "~/metadata/forms/elements/labelDecoration/types"
 import { Page } from "~/metadata/forms/elements/page/types"
@@ -244,14 +244,17 @@ export class Visitor extends BaseVisitor {
 
   autoCommandBar(ctx: CstChildrenDictionary, context: ConfigurationContext): AutoCommandBar {
     const childItems = visitAll(this, ctx.commandBarButton, context) as unknown as AutoCommandBar["childItems"]
+    const filteredChildItems = childItems.filter((item) => item.name !== "" || item.title !== undefined)
+    const autofill = ctx.Dots !== undefined && ctx.Dots.length > 0
     return {
-      childItems: childItems,
+      autofill: autofill,
+      childItems: filteredChildItems,
     } as AutoCommandBar
   }
 
   commandBarButton(ctx: CstChildrenDictionary, context: ConfigurationContext): Button {
-    const name = joinTokens(ctx.Button as IToken[]) || ""
     const titleText = joinTokens(ctx.Button as IToken[]) || ""
+    const name = this.visit(ctx.properties as CstNode[], context) || titleText
 
     const title = this.createTitle(titleText, context.defaultLanguage)
 
