@@ -7,9 +7,14 @@ export const formatElementName = (element: { name: string }) => {
   return "{" + element.name + "}"
 }
 
-export const formatDefaultLanguageText = (context: ConfigurationContext, text: I8nText) => {
+export const formatDefaultLanguageText = (
+  context: ConfigurationContext,
+  text: I8nText | undefined
+): string | undefined => {
+  if (!text) return undefined
+
   const defaultLanguage = context.defaultLanguage
-  return text.items[defaultLanguage] ?? ""
+  return text.items[defaultLanguage]
 }
 
 export const formatElementTitleAndName = (
