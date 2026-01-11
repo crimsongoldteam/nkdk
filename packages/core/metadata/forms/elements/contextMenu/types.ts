@@ -1,7 +1,7 @@
-import * as SE from "~/metadata/systemEnumerations/types"
-import { BaseElement, BaseElementEnterprise, BaseElementXML } from "../baseElement/types"
-import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../childItems/types"
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
+import * as SE from "~/metadata/systemEnumerations/types"
+import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../../collections/childItems/types"
+import { BaseElement, BaseElementEnterprise, BaseElementXML } from "../baseElement/types"
 
 export interface ContextMenu extends BaseElement {
   displayImportance?: SE.DisplayImportance

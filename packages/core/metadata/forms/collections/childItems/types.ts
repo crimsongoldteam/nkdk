@@ -1,66 +1,98 @@
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { Button, ButtonEnterprise, ButtonXML } from "../button/types"
-import { ButtonGroup, ButtonGroupEnterprise, ButtonGroupXML } from "../buttonGroup/types"
-import { CalendarField, CalendarFieldEnterprise, CalendarFieldXML } from "../calendarField/types"
-import { ChartField, ChartFieldEnterprise, ChartFieldXML } from "../chartField/types"
-import { CheckBoxField, CheckBoxFieldEnterprise, CheckBoxFieldXML } from "../checkBoxField/types"
-import { ColumnGroup, ColumnGroupEnterprise, ColumnGroupXML } from "../columnGroup/types"
-import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../commandBar/types"
-import { DendrogramField, DendrogramFieldEnterprise, DendrogramFieldXML } from "../dendrogramField/types"
+import { Button, ButtonEnterprise, ButtonXML } from "../../elements/button/types"
+import { ButtonGroup, ButtonGroupEnterprise, ButtonGroupXML } from "../../elements/buttonGroup/types"
+import { CalendarField, CalendarFieldEnterprise, CalendarFieldXML } from "../../elements/calendarField/types"
+import { ChartField, ChartFieldEnterprise, ChartFieldXML } from "../../elements/chartField/types"
+import { CheckBoxField, CheckBoxFieldEnterprise, CheckBoxFieldXML } from "../../elements/checkBoxField/types"
+import { ColumnGroup, ColumnGroupEnterprise, ColumnGroupXML } from "../../elements/columnGroup/types"
+import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../../elements/commandBar/types"
+import { DendrogramField, DendrogramFieldEnterprise, DendrogramFieldXML } from "../../elements/dendrogramField/types"
 import {
   FormattedDocumentField,
   FormattedDocumentFieldEnterprise,
   FormattedDocumentFieldXML,
-} from "../formattedDocumentField/types"
-import { FormDecoration, FormDecorationEnterprise, FormDecorationXML } from "../formDecoration/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "../formField/types"
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "../formGroup/types"
-import { FormItemAddition, FormItemAdditionEnterprise, FormItemAdditionXML } from "../formItemAddition/types"
-import { GanttChartField, GanttChartFieldEnterprise, GanttChartFieldXML } from "../ganttChartField/types"
+} from "../../elements/formattedDocumentField/types"
+import { FormDecoration, FormDecorationEnterprise, FormDecorationXML } from "../../elements/formDecoration/types"
+import { FormField, FormFieldEnterprise, FormFieldXML } from "../../elements/formField/types"
+import { FormGroup, FormGroupEnterprise, FormGroupXML } from "../../elements/formGroup/types"
+import {
+  FormItemAddition,
+  FormItemAdditionEnterprise,
+  FormItemAdditionXML,
+} from "../../elements/formItemAddition/types"
+import { GanttChartField, GanttChartFieldEnterprise, GanttChartFieldXML } from "../../elements/ganttChartField/types"
 import {
   GeographicalSchemaField,
   GeographicalSchemaFieldEnterprise,
   GeographicalSchemaFieldXML,
-} from "../geographicalSchemaField/types"
+} from "../../elements/geographicalSchemaField/types"
 import {
   GraphicalSchemaField,
   GraphicalSchemaFieldEnterprise,
   GraphicalSchemaFieldXML,
-} from "../graphicalSchemaField/types"
-import { HTMLDocumentField, HTMLDocumentFieldEnterprise, HTMLDocumentFieldXML } from "../htmlDocumentField/types"
-import { InputField, InputFieldEnterprise, InputFieldXML } from "../inputField/types"
-import { LabelDecoration, LabelDecorationEnterprise, LabelDecorationXML } from "../labelDecoration/types"
-import { LabelField, LabelFieldEnterprise, LabelFieldXML } from "../labelField/types"
-import { Page, PageEnterprise, PageXML } from "../page/types"
-import { Pages, PagesEnterprise, PagesXML } from "../pages/types"
-import { PdfDocumentField, PdfDocumentFieldEnterprise, PdfDocumentFieldXML } from "../pdfDocumentField/types"
-import { PeriodField, PeriodFieldEnterprise, PeriodFieldXML } from "../periodField/types"
-import { PictureDecoration, PictureDecorationEnterprise, PictureDecorationXML } from "../pictureDecoration/types"
-import { PictureField, PictureFieldEnterprise, PictureFieldXML } from "../pictureField/types"
-import { PlannerField, PlannerFieldEnterprise, PlannerFieldXML } from "../plannerField/types"
-import { Popup, PopupEnterprise, PopupXML } from "../popup/types"
-import { ProgressBarField, ProgressBarFieldEnterprise, ProgressBarFieldXML } from "../progressBarField/types"
-import { RadioButtonField, RadioButtonFieldEnterprise, RadioButtonFieldXML } from "../radioButtonField/types"
+} from "../../elements/graphicalSchemaField/types"
+import {
+  HTMLDocumentField,
+  HTMLDocumentFieldEnterprise,
+  HTMLDocumentFieldXML,
+} from "../../elements/htmlDocumentField/types"
+import { InputField, InputFieldEnterprise, InputFieldXML } from "../../elements/inputField/types"
+import { LabelDecoration, LabelDecorationEnterprise, LabelDecorationXML } from "../../elements/labelDecoration/types"
+import { LabelField, LabelFieldEnterprise, LabelFieldXML } from "../../elements/labelField/types"
+import { Page, PageEnterprise, PageXML } from "../../elements/page/types"
+import { Pages, PagesEnterprise, PagesXML } from "../../elements/pages/types"
+import {
+  PdfDocumentField,
+  PdfDocumentFieldEnterprise,
+  PdfDocumentFieldXML,
+} from "../../elements/pdfDocumentField/types"
+import { PeriodField, PeriodFieldEnterprise, PeriodFieldXML } from "../../elements/periodField/types"
+import {
+  PictureDecoration,
+  PictureDecorationEnterprise,
+  PictureDecorationXML,
+} from "../../elements/pictureDecoration/types"
+import { PictureField, PictureFieldEnterprise, PictureFieldXML } from "../../elements/pictureField/types"
+import { PlannerField, PlannerFieldEnterprise, PlannerFieldXML } from "../../elements/plannerField/types"
+import { Popup, PopupEnterprise, PopupXML } from "../../elements/popup/types"
+import {
+  ProgressBarField,
+  ProgressBarFieldEnterprise,
+  ProgressBarFieldXML,
+} from "../../elements/progressBarField/types"
+import {
+  RadioButtonField,
+  RadioButtonFieldEnterprise,
+  RadioButtonFieldXML,
+} from "../../elements/radioButtonField/types"
 import {
   SearchControlAddition,
   SearchControlAdditionEnterprise,
   SearchControlAdditionXML,
-} from "../searchControlAddition/types"
+} from "../../elements/searchControlAddition/types"
 import {
   SearchStringAddition,
   SearchStringAdditionEnterprise,
   SearchStringAdditionXML,
-} from "../searchStringAddition/types"
+} from "../../elements/searchStringAddition/types"
 import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldEnterprise,
   SpreadSheetDocumentFieldXML,
-} from "../spreadSheetDocumentField/types"
-import { Table, TableEnterprise, TableXML } from "../table/types"
-import { TextDocumentField, TextDocumentFieldEnterprise, TextDocumentFieldXML } from "../textDocumentField/types"
-import { TrackBarField, TrackBarFieldEnterprise, TrackBarFieldXML } from "../trackBarField/types"
-import { UsualGroup, UsualGroupEnterprise, UsualGroupXML } from "../usualGroup/types"
-import { ViewStatusAddition, ViewStatusAdditionEnterprise, ViewStatusAdditionXML } from "../viewStatusAddition/types"
+} from "../../elements/spreadSheetDocumentField/types"
+import { Table, TableEnterprise, TableXML } from "../../elements/table/types"
+import {
+  TextDocumentField,
+  TextDocumentFieldEnterprise,
+  TextDocumentFieldXML,
+} from "../../elements/textDocumentField/types"
+import { TrackBarField, TrackBarFieldEnterprise, TrackBarFieldXML } from "../../elements/trackBarField/types"
+import { UsualGroup, UsualGroupEnterprise, UsualGroupXML } from "../../elements/usualGroup/types"
+import {
+  ViewStatusAddition,
+  ViewStatusAdditionEnterprise,
+  ViewStatusAdditionXML,
+} from "../../elements/viewStatusAddition/types"
 
 export type ChildItem =
   | Button

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "~/metadata/forms/elements/exportToXML"
 import { fullCommandBar, minimalCommandBar } from "~/tests/fixtures/forms/commandBar/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
@@ -30,4 +31,3 @@ describe("exportCommandBarToXML", () => {
     expect(result).toEqual(expectedResult)
   })
 })
-

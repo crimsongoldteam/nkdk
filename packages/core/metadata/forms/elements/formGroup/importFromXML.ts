@@ -3,26 +3,24 @@ import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importChildItemsFromXML } from "~/metadata/forms/collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
-import { importChildItemsFromXML } from "~/metadata/forms/elements/childItems/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { FormGroup, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importFormGroupFromXML = (
+export const importFormGroupFromXML = <From extends FormGroupXML | undefined>(
   context: ConfigurationContext,
-  xml: FormGroupXML | undefined
-): FormGroup | undefined => {
-  if (!xml) return undefined
+  xml: From
+): ImportExportReturn<From, FormGroup> => {
+  if (!xml) return undefined as ImportExportReturn<From, FormGroup>
   const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined
 
-  const { elementType: _, ...restFields } = baseFields
-
-  const result: FormGroup = {
+  const result: ImportExportReturn<From, FormGroup> = {
+    ...baseFields,
     elementType: FormElementType.FormGroup,
-    ...restFields,
   }
 
   const childItems = importChildItemsFromXML(context, xml.ChildItems)

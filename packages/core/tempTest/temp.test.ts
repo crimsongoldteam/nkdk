@@ -7,7 +7,7 @@ import { exportClientApplicationFormToXML } from "~/metadata/forms/clientApplica
 import { importClientApplicationFormFromEnterprise } from "~/metadata/forms/clientApplicationForm/importFromEnterprise"
 import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/importFromXML"
 import { ClientApplicationFormEnterprise, ClientApplicationFormXML } from "~/metadata/forms/clientApplicationForm/types"
-import { importChildItemsFromStructure } from "~/metadata/forms/elements/childItems/importFromStructure"
+import { importChildItemsFromStructure } from "~/metadata/forms/collections/childItems/importFromStructure"
 import "~/metadata/forms/elements/exportToEnterprise"
 import "~/metadata/forms/elements/exportToStructure"
 import "~/metadata/forms/elements/exportToXML"

@@ -3,7 +3,7 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { CommandSet, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../commonObjects/formAttributes/types"
-import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../elements/childItems/types"
+import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../collections/childItems/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../elements/commandBar/types"
 import { EventsXML } from "../events/types"
 

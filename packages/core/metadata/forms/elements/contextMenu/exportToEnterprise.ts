@@ -3,7 +3,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportChildItemsToEnterprise } from "../childItems/exportToEnterprise"
+import { exportChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 import { ImportExportReturn } from "../types"
 
 export function exportContextMenuToEnterprise<T extends ContextMenu | undefined>(

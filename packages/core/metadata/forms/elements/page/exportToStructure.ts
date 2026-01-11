@@ -3,11 +3,11 @@ import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFac
 import { FormatElementFunction, IFormatElementResult } from "~/format/types"
 import { addSimpleIndent } from "~/format/wrap/addIndents"
 import { ConfigurationContext } from "~/metadata/context/types"
-import * as t from "~/metadata/forms/elements/childItems/parser/tokenizer/lexer"
+import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "../../../metadataFactory/types"
+import { exportChildItemsToStructure } from "../../collections/childItems/exportToStructure"
 import { BaseElement } from "../baseElement/types"
-import { exportChildItemsToStructure } from "../childItems/exportToStructure"
 import { Page } from "./types"
 
 export const exportPageToStructure: FormatElementFunction = (

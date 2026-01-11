@@ -3,6 +3,7 @@ import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ButtonGroupChildItem } from "../../collections/buttonGroupChildItems/types"
 
 export interface Popup extends FormGroup {
   backColor?: Color
@@ -25,6 +26,7 @@ export interface PopupXML extends FormGroupXML {
 }
 
 export interface PopupEnterprise extends FormGroupEnterprise {
+  Тип: "Подменю"
   Картинка?: PictureEnterprise
   Отображение?: SE.ButtonRepresentationEnterprise
   ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
@@ -33,4 +35,5 @@ export interface PopupEnterprise extends FormGroupEnterprise {
   Фигура?: SE.ButtonShapeEnterprise
   ЦветРамки?: ColorEnterprise
   ЦветФона?: ColorEnterprise
+  ПодчиненныеЭлементы?: ButtonGroupChildItem
 }

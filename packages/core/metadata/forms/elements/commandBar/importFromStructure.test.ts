@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { parseElement } from "~/metadata/forms/collections/childItems/parser/elementsParser/parse"
+import { lexer } from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
 import { DetectedTreeNode } from "~/metadata/forms/elements/childItems/parser/detector/detectTree"
-import { parseElement } from "~/metadata/forms/elements/childItems/parser/elementsParser/parse"
-import { lexer } from "~/metadata/forms/elements/childItems/parser/tokenizer/lexer"
 import { commandBarStructureFixturesTable } from "~/tests/fixtures/forms/commandBar/data"
 import { mockСontext } from "~/tests/mockContext"
-import { ParseElementType } from "../childItems/parser/treeParser/types"
+import { ParseElementType } from "../../collections/childItems/parser/treeParser/types"
 
 describe("importCommandBarFromStructure", () => {
   it.each(commandBarStructureFixturesTable)(

@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "../metadata/context/types"
+import { ChildItems } from "../metadata/forms/collections/childItems/types"
 import { exportOtherElementToStructure } from "../metadata/forms/elements/baseElement/exportToStructure"
 import { BaseElement } from "../metadata/forms/elements/baseElement/types"
-import { ChildItems } from "../metadata/forms/elements/childItems/types"
 import { FormElementType } from "../metadata/metadataFactory/types"
 import { CheckFormatFunction, FormatElementFunction, IFormatElementResult } from "./types"
 

@@ -2,8 +2,8 @@ import { IFormatElementResult } from "~/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { exportOtherElementToStructure } from "../baseElement/exportToStructure"
-import { BaseElement } from "../baseElement/types"
+import { exportOtherElementToStructure } from "../../elements/baseElement/exportToStructure"
+import { BaseElement } from "../../elements/baseElement/types"
 import { ChildItems } from "./types"
 
 export const exportChildItemsToStructure = (context: ConfigurationContext, items: ChildItems): IFormatElementResult => {

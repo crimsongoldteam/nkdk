@@ -5,7 +5,7 @@ import { exportCommandSetToXML } from "~/metadata/forms/commandSet/exportToXML"
 import { exportCommandBarToXML } from "~/metadata/forms/elements/commandBar/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { Events } from "~/metadata/forms/events/types"
-import { exportChildItemsToXML } from "../elements/childItems/exportToXML"
+import { exportChildItemsToXML } from "../collections/childItems/exportToXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
 export const exportClientApplicationFormToXML = (

@@ -11,7 +11,7 @@ import { exportCommandBarToEnterprise } from "~/metadata/forms/elements/commandB
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportChildItemsToEnterprise } from "../elements/childItems/exportToEnterprise"
+import { exportChildItemsToEnterprise } from "../collections/childItems/exportToEnterprise"
 import { getAllElements } from "./getAllElements"
 
 const clientApplicationFormEventNameMapping: Record<keyof ClientApplicationFormEvents, string> = {

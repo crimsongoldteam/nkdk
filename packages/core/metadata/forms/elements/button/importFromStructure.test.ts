@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { parseElement } from "~/metadata/forms/elements/childItems/parser/elementsParser/parse"
-import { lexer } from "~/metadata/forms/elements/childItems/parser/tokenizer/lexer"
+import { parseElement } from "~/metadata/forms/collections/childItems/parser/elementsParser/parse"
+import { lexer } from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
 import { buttonStructureFixturesTable } from "~/tests/fixtures/forms/button/data"
 import { mockСontext } from "~/tests/mockContext"
-import { parseTree } from "../childItems/parser/treeParser/treeParser"
+import { parseTree } from "../../collections/childItems/parser/treeParser/treeParser"
 
 describe("importButtonFromStructure", () => {
   it.each(buttonStructureFixturesTable)("should import button $name", ({ element: input, structured: structured }) => {

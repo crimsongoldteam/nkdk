@@ -1,3 +1,5 @@
+import { ConfigurationContext } from "../context/types"
+
 export const FormElementTypeToEnterprise = {
   BaseElement: "БазовыйЭлемент",
   Form: "УправляемаяФорма",
@@ -25,7 +27,7 @@ export const FormElementTypeToEnterprise = {
   PictureDecoration: "Рисунок",
   PictureField: "ПолеРисунка",
   PlannerField: "ПолеПланировщика",
-  Popup: "ВсплывающаяПодсказка",
+  Popup: "Подменю",
   ProgressBarField: "ПолеИндикатора",
   RadioButtonField: "ПолеПереключателя",
   SearchControlAddition: "ДобавлениеПоисковоКонтроля",
@@ -45,7 +47,9 @@ export const FormElementTypeToEnterprise = {
 export const FormElementTypeFromEnterprise = Object.fromEntries(
   Object.entries(FormElementTypeToEnterprise).map(([key, value]) => [value, key])
 ) as {
-  [K in keyof typeof FormElementTypeToEnterprise]: K
+  [V in (typeof FormElementTypeToEnterprise)[keyof typeof FormElementTypeToEnterprise]]: {
+    [K in keyof typeof FormElementTypeToEnterprise]: (typeof FormElementTypeToEnterprise)[K] extends V ? K : never
+  }[keyof typeof FormElementTypeToEnterprise]
 }
 
 export const FormElementType = Object.fromEntries(
@@ -56,4 +60,26 @@ export const FormElementType = Object.fromEntries(
 
 export type FormElementType = (typeof FormElementType)[keyof typeof FormElementType]
 
+export const FormElementTypeEnterprise = Object.fromEntries(
+  Object.keys(FormElementTypeFromEnterprise).map((key) => [key, key])
+) as {
+  [K in keyof typeof FormElementTypeFromEnterprise]: K
+}
+
+export type FormElementTypeEnterprise = (typeof FormElementTypeEnterprise)[keyof typeof FormElementTypeEnterprise]
+
 export type MetadataType = FormElementType
+
+export const importFormElementTypeFromEnterprise = (
+  _context: ConfigurationContext,
+  data: FormElementTypeEnterprise
+): FormElementType => {
+  return FormElementTypeFromEnterprise[data]
+}
+
+export const exportFormElementTypeToEnterprise = (
+  _context: ConfigurationContext,
+  element: FormElementType
+): FormElementTypeEnterprise => {
+  return FormElementTypeToEnterprise[element]
+}

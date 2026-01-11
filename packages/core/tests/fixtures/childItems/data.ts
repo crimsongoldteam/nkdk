@@ -1,4 +1,4 @@
-import { ChildItems, ChildItemsEnterprise } from "~/metadata/forms/elements/childItems/types"
+import { ChildItems, ChildItemsEnterprise } from "~/metadata/forms/collections/childItems/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export interface ChildItemsFixture {

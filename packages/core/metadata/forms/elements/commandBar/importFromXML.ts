@@ -4,20 +4,19 @@ import { CommandBar, CommandBarXML } from "~/metadata/forms/elements/commandBar/
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importCommandBarFromXML = (
+export const importCommandBarFromXML = <From extends CommandBarXML | undefined>(
   context: ConfigurationContext,
-  xml: CommandBarXML | undefined
-): CommandBar | undefined => {
-  if (!xml) return undefined
+  xml: From
+): ImportExportReturn<From, CommandBar> => {
+  if (!xml) return undefined as ImportExportReturn<From, CommandBar>
+
   const baseFields = importFormGroupFromXML(context, xml)
-  if (!baseFields) return undefined
 
-  const { elementType: _, ...restFields } = baseFields
-
-  const result: CommandBar = {
+  const result: ImportExportReturn<From, CommandBar> = {
+    ...baseFields,
     elementType: FormElementType.CommandBar,
-    ...restFields,
   }
 
   if (xml.Autofill !== undefined) result.autofill = xml.Autofill

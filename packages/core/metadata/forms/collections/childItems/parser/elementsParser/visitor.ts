@@ -1,11 +1,12 @@
+import context from "antd/es/app/context"
 import type { CstChildrenDictionary, CstNode, IToken } from "chevrotain"
 import type { ChoiceList } from "~/metadata/commonObjects/choiceList/types"
 import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import type { Picture } from "~/metadata/commonObjects/picture/types"
 import type { ConfigurationContext } from "~/metadata/context/types"
+import { ChildItem } from "~/metadata/forms/collections/childItems/types"
 import type { Button } from "~/metadata/forms/elements/button/types"
 import type { CheckBoxField } from "~/metadata/forms/elements/checkBoxField/types"
-import { ChildItem } from "~/metadata/forms/elements/childItems/types"
 import { CommandBar } from "~/metadata/forms/elements/commandBar/types"
 import type { InputField } from "~/metadata/forms/elements/inputField/types"
 import type { LabelDecoration } from "~/metadata/forms/elements/labelDecoration/types"
@@ -16,10 +17,9 @@ import type { RadioButtonField } from "~/metadata/forms/elements/radioButtonFiel
 import { Table } from "~/metadata/forms/elements/table/types"
 import { UsualGroup } from "~/metadata/forms/elements/usualGroup/types"
 import { FormElementType, FormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
-import { BaseElement } from "../../../baseElement/types"
+import { BaseElement } from "../../../../elements/baseElement/types"
 import { joinTokens, visitAll } from "../visitorUtils"
 import { Parser } from "./parser"
-import context from "antd/es/app/context"
 
 const BaseVisitor = new Parser().getBaseCstVisitorConstructor()
 

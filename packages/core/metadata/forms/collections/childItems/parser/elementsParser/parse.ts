@@ -1,7 +1,7 @@
 import type { CstNode, IToken } from "chevrotain"
 import type { ConfigurationContext } from "~/metadata/context/types"
+import { ChildItems } from "~/metadata/forms/collections/childItems/types"
 import type { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import { ChildItems } from "~/metadata/forms/elements/childItems/types"
 import { BuilderTreeNode, ParseElementType, TreeNode } from "../treeParser/types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"

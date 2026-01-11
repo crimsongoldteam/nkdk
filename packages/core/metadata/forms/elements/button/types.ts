@@ -89,6 +89,7 @@ export interface ButtonXML extends BaseElementXML {
 }
 
 export interface ButtonEnterprise extends BaseElementEnterprise {
+  Тип: "Кнопка"
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   АктивизироватьПоУмолчанию?: StringboolEnterprise

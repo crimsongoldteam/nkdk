@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { parseElement } from "~/metadata/forms/elements/childItems/parser/elementsParser/parse"
+import { parseElement } from "~/metadata/forms/collections/childItems/parser/elementsParser/parse"
 import { labelDecorationStructureFixturesTable } from "~/tests/fixtures/forms/labelDecoration/data"
 import { mockСontext } from "~/tests/mockContext"
-import { tokenize } from "../childItems/parser/tokenizer/tokenizer"
-import { parseTree } from "../childItems/parser/treeParser/treeParser"
+import { tokenize } from "../../collections/childItems/parser/tokenizer/tokenizer"
+import { parseTree } from "../../collections/childItems/parser/treeParser/treeParser"
 
 describe("importLabelDecorationFromStructure", () => {
   it.each(labelDecorationStructureFixturesTable)(

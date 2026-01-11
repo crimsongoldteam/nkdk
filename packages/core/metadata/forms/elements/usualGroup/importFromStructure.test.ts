@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { usualGroupStructureFixtures } from "~/tests/fixtures/forms/usualGroup/data"
 import { mockСontext } from "~/tests/mockContext"
-import { parseElement } from "../childItems/parser/elementsParser/parse"
-import { tokenize } from "../childItems/parser/tokenizer/tokenizer"
-import { parseTree } from "../childItems/parser/treeParser/treeParser"
+import { parseElement } from "../../collections/childItems/parser/elementsParser/parse"
+import { tokenize } from "../../collections/childItems/parser/tokenizer/tokenizer"
+import { parseTree } from "../../collections/childItems/parser/treeParser/treeParser"
 
 describe("importUsualGroupFromStructure", () => {
   it.each(usualGroupStructureFixtures)("should import $name from structure", ({ element, structured }) => {

@@ -8,11 +8,9 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importChildItemsFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 
-export const importCommandBarFromEnterprise = <
-  From extends CommandBarEnterprise | undefined,
-  Name extends string,
->(
+export const importCommandBarFromEnterprise = <From extends CommandBarEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
   data: From,
   name: Name
@@ -48,10 +46,17 @@ export const importCommandBarFromEnterprise = <
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
+
+  const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
+  if (childItems !== undefined) result.childItems = childItems
 
   return result
 }

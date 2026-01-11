@@ -13,6 +13,12 @@ export const fullCommandBar: CommandBar = {
   autofill: true,
   displayImportance: "High",
   horizontalAlign: "Left",
+  childItems: [
+    {
+      elementType: FormElementType.Button,
+      name: "Кнопка1",
+    },
+  ],
 }
 
 export const fullCommandBarEnterprise: CommandBarEnterprise = {
@@ -21,12 +27,16 @@ export const fullCommandBarEnterprise: CommandBarEnterprise = {
   Автозаполнение: "Истина",
   ВажностьПриОтображении: "Высокая",
   ГоризонтальноеПоложение: "Лево",
+  ПодчиненныеЭлементы: {
+    Кнопка1: {
+      Тип: "Кнопка",
+    },
+  },
 }
 
 export const minimalCommandBar: CommandBar = {
   elementType: FormElementType.CommandBar,
   name: "КоманднаяПанель",
-  childItems: [],
 }
 
 export const minimalCommandBarEnterprise: CommandBarEnterprise = {}
@@ -46,23 +56,23 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       childItems: [
         {
           elementType: FormElementType.Button,
-          name: "Button1",
-          title: { items: { ru: "Button1" } },
+          name: "Кнопка1",
+          title: { items: { ru: "Кнопка Номер 1" } },
         },
         {
           elementType: FormElementType.Button,
-          name: "Button2",
-          title: { items: { ru: "Button2" } },
+          name: "Кнопка2",
+          title: { items: { ru: "Кнопка Номер 2" } },
         },
         {
           elementType: FormElementType.Button,
-          name: "Button3",
-          title: { items: { ru: "Button3" } },
+          name: "Кнопка3",
+          title: { items: { ru: "Кнопка Номер 3" } },
         },
       ],
     },
     structured: {
-      strings: ["<Button1|Button2|Button3>"],
+      strings: ["<Кнопка Номер 1 {Кнопка1} | Кнопка Номер 2 {Кнопка2} | Кнопка Номер 3 {Кнопка3}>"],
       haveSimpleHorizontalGroup: false,
     },
   },

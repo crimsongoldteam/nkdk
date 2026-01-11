@@ -2,7 +2,7 @@ import { importFormAttributesFromXML } from "~/metadata/commonObjects/formAttrib
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"
-import { importChildItemsFromXML } from "../elements/childItems/importFromXML"
+import { importChildItemsFromXML } from "../collections/childItems/importFromXML"
 import { importCommandBarFromXML } from "../elements/commandBar/importFromXML"
 import { importEventsFromXML } from "../events/importFromXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"

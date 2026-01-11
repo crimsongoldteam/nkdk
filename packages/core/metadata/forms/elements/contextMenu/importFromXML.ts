@@ -1,9 +1,9 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "../baseElement/importFromXML"
 import { BaseElement } from "../baseElement/types"
-import { importChildItemsFromXML } from "../childItems/importFromXML"
 import { isDefaultContextMenuName } from "./helper"
 
 export const importContextMenuFromXML = <T extends ContextMenu | undefined>(

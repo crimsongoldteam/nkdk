@@ -1,8 +1,15 @@
 <CommandBar name="КоманднаяПанель" id="1" DisplayImportance="High">
+	<Autofill>true</Autofill>
+	<ChildItems>
+		<Button name="Кнопка1" id="1">
+			<ExtendedTooltip name="Кнопка1РасширеннаяПодсказка" id="1"/>
+		</Button>
+	</ChildItems>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
 	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="1"/>
 	<Height>200</Height>
+	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>false</ReadOnly>
@@ -31,6 +38,4 @@
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>
-	<Autofill>true</Autofill>
-	<HorizontalAlign>Left</HorizontalAlign>
 </CommandBar>
