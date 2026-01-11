@@ -13,12 +13,6 @@ export const fullCommandBar: CommandBar = {
   autofill: true,
   displayImportance: "High",
   horizontalAlign: "Left",
-  childItems: [
-    {
-      elementType: FormElementType.Button,
-      name: "Кнопка1",
-    },
-  ],
 }
 
 export const fullCommandBarEnterprise: CommandBarEnterprise = {
@@ -27,11 +21,6 @@ export const fullCommandBarEnterprise: CommandBarEnterprise = {
   Автозаполнение: "Истина",
   ВажностьПриОтображении: "Высокая",
   ГоризонтальноеПоложение: "Лево",
-  ПодчиненныеЭлементы: {
-    Кнопка1: {
-      Тип: "Кнопка",
-    },
-  },
 }
 
 export const minimalCommandBar: CommandBar = {

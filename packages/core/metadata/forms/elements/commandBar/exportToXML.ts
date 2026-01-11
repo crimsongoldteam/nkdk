@@ -27,7 +27,7 @@ export const exportCommandBarToXML = <T extends CommandBar | undefined>(
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<T, CommandBarXML>
 }
 
 registerMetadata<CommandBar>("ExportToXML", "CommandBar", exportCommandBarToXML)

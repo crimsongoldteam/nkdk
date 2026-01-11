@@ -5,6 +5,7 @@ import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/c
 import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import { Table, TableEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ChildItems } from "../../collections/childItems/types"
 
 export interface UsualGroup extends FormGroup {
   associatedTable?: Table
@@ -33,6 +34,7 @@ export interface UsualGroup extends FormGroup {
   userVisible?: UserVisible
   verticalAlign?: SE.ItemVerticalAlign
   verticalSpacing?: SE.FormItemSpacing
+  childItems?: ChildItems
 }
 
 export interface UsualGroupXML extends FormGroupXML {

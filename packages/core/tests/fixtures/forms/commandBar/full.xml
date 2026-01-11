@@ -1,10 +1,5 @@
 <CommandBar name="КоманднаяПанель" id="1" DisplayImportance="High">
 	<Autofill>true</Autofill>
-	<ChildItems>
-		<Button name="Кнопка1" id="1">
-			<ExtendedTooltip name="Кнопка1РасширеннаяПодсказка" id="1"/>
-		</Button>
-	</ChildItems>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
 	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="1"/>
