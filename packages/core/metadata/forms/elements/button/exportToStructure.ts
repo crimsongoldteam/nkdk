@@ -1,9 +1,9 @@
-import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { formatElementTitleAndName, wrapButtonContent } from "../../format/helpers"
+import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { Button } from "./types"
 
 export const exportButtonToStructure = (context: ConfigurationContext, element: Button): IFormatElementResult => {

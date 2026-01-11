@@ -4,6 +4,7 @@ import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ChildItems, ChildItemsXML } from "../../collections/childItems/types"
 
 export interface ColumnGroup extends FormGroup {
   fixingInTable?: SE.FixingInTable
@@ -16,6 +17,7 @@ export interface ColumnGroup extends FormGroup {
   showTitle?: boolean
   titleBackColor?: Color
   userVisible?: UserVisible
+  childItems: ChildItems
 }
 
 export interface ColumnGroupXML extends FormGroupXML {
@@ -29,6 +31,7 @@ export interface ColumnGroupXML extends FormGroupXML {
   ShowTitle?: boolean
   TitleBackColor?: ColorXML
   UserVisible?: UserVisibleXML
+  ChildItems?: ChildItemsXML
 }
 
 export interface ColumnGroupEnterprise extends FormGroupEnterprise {

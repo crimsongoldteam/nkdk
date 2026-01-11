@@ -17,6 +17,7 @@ export const exportPopupToEnterprise = (
   const baseFields = exportFormGroupToEnterprise(context, data)
 
   const result: PopupEnterprise = {
+    Тип: "Подменю",
     ...baseFields,
   }
 

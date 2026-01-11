@@ -1,5 +1,5 @@
-import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { exportChildItemsToStructure } from "../../collections/childItems/exportToStructure"
 import { ClientApplicationForm } from "./types"
 

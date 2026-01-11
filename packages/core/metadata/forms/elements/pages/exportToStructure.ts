@@ -1,5 +1,3 @@
-import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
-import { addSimpleIndent } from "~/format/wrap/addIndents"
 import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
 import { formatElementName } from "~/metadata/forms/format/helpers"
@@ -7,6 +5,8 @@ import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/fo
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "../../../metadataFactory/types"
 import { exportChildItemsToStructure } from "../../collections/childItems/exportToStructure"
+import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
+import { addSimpleIndent } from "../../format/wrap/addIndents"
 import { BaseElement } from "../baseElement/types"
 import { Pages } from "./types"
 

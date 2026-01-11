@@ -15,6 +15,7 @@ export const exportButtonGroupToEnterprise = (
   const baseFields = exportFormGroupToEnterprise(context, data)
 
   const result: ButtonGroupEnterprise = {
+    Тип: "ГруппаКнопок",
     ...baseFields,
   }
 
