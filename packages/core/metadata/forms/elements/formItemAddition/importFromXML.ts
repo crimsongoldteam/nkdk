@@ -20,6 +20,7 @@ export const importFormItemAdditionFromXML = <T extends FormItemAdditionXML | un
   const result: FormItemAddition = {
     ...baseFields,
     elementType: FormElementType.FormItemAddition,
+    childItems: [],
   }
 
   const childItems = importChildItemsFromXML(context, xml.ChildItems)

@@ -19,7 +19,7 @@ export const importPopupFromEnterprise = <From extends PopupEnterprise | undefin
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)
 
-  const result: ImportFromEnterpriseReturn<From, Popup, Name> = {
+  const result: Popup = {
     ...baseFields,
     elementType: FormElementType.Popup,
     childItems: [],
@@ -69,7 +69,7 @@ export const importPopupFromEnterprise = <From extends PopupEnterprise | undefin
   const backColor = importColorFromEnterprise(context, data.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
 
-  return result
+  return result as ImportFromEnterpriseReturn<From, Popup, Name>
 }
 
 registerMetadata("ImportFromEnterprise", "Popup", importPopupFromEnterprise)

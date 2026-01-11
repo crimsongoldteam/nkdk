@@ -1,5 +1,9 @@
 <FormattedDocumentField name="ПолеФорматированногоДокумента" id="1" DisplayImportance="High">
 	<AutoCellHeight>true</AutoCellHeight>
+	<AutoMaxHeight>true</AutoMaxHeight>
+	<AutoMaxWidth>true</AutoMaxWidth>
+	<BackColor>web:White</BackColor>
+	<BorderColor>web:Black</BorderColor>
 	<CellHyperlink>true</CellHyperlink>
 	<ContextMenu name="ПолеФорматированногоДокументаКонтекстноеМеню" id="2"/>
 	<DataPath>Объект.Реквизит</DataPath>
@@ -12,6 +16,7 @@
 	</Events>
 	<ExtendedTooltip name="ПолеФорматированногоДокументаРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
 	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
@@ -32,13 +37,20 @@
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</HeaderPicture>
+	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalStretch>true</HorizontalStretch>
+	<MaxHeight>500</MaxHeight>
+	<MaxWidth>400</MaxWidth>
+	<Output>Enable</Output>
 	<ReadOnly>false</ReadOnly>
+	<SelectedText>Выделенный текст</SelectedText>
 	<Shortcut>Ctrl+S</Shortcut>
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
 	<SkipOnInput>false</SkipOnInput>
+	<TextColor>web:Blue</TextColor>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -64,20 +76,8 @@
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
-	<Visible>true</Visible>
-	<AutoMaxHeight>true</AutoMaxHeight>
-	<AutoMaxWidth>true</AutoMaxWidth>
-	<BackColor>web:White</BackColor>
-	<BorderColor>web:Black</BorderColor>
-	<Font ref="style:NormalTextFont" kind="StyleItem"/>
-	<Height>200</Height>
-	<HorizontalStretch>true</HorizontalStretch>
-	<MaxHeight>500</MaxHeight>
-	<MaxWidth>400</MaxWidth>
-	<Output>Enable</Output>
-	<SelectedText>Выделенный текст</SelectedText>
-	<TextColor>web:Blue</TextColor>
 	<VerticalStretch>true</VerticalStretch>
+	<Visible>true</Visible>
 	<WarningOnEdit>
 		<v8:item>
 			<v8:lang>ru</v8:lang>

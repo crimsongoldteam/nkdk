@@ -1,5 +1,8 @@
 <GeographicalSchemaField name="ПолеГеографическойСхемы" id="1" DisplayImportance="High">
 	<AutoCellHeight>true</AutoCellHeight>
+	<AutoMaxHeight>true</AutoMaxHeight>
+	<AutoMaxWidth>true</AutoMaxWidth>
+	<BorderColor>web:Black</BorderColor>
 	<CellHyperlink>true</CellHyperlink>
 	<ContextMenu name="ПолеГеографическойСхемыКонтекстноеМеню" id="2"/>
 	<DataPath>Объект.Реквизит</DataPath>
@@ -31,8 +34,13 @@
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</HeaderPicture>
+	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalStretch>true</HorizontalStretch>
+	<MaxHeight>500</MaxHeight>
+	<MaxWidth>400</MaxWidth>
+	<Output>Enable</Output>
 	<ReadOnly>false</ReadOnly>
 	<Shortcut>Ctrl+S</Shortcut>
 	<ShowInFooter>true</ShowInFooter>
@@ -63,16 +71,8 @@
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
-	<Visible>true</Visible>
-	<AutoMaxHeight>true</AutoMaxHeight>
-	<AutoMaxWidth>true</AutoMaxWidth>
-	<BorderColor>web:Black</BorderColor>
-	<Height>200</Height>
-	<HorizontalStretch>true</HorizontalStretch>
-	<MaxHeight>500</MaxHeight>
-	<MaxWidth>400</MaxWidth>
-	<Output>Enable</Output>
 	<VerticalStretch>true</VerticalStretch>
+	<Visible>true</Visible>
 	<WarningOnEdit>
 		<v8:item>
 			<v8:lang>ru</v8:lang>

@@ -11,11 +11,9 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 const importPagesChildItemsFromXML = (
   context: ConfigurationContext,
   xml: PagesXML["ChildItems"]
-): Pages["childItems"] => {
+): Pages["childItems"] | undefined => {
   if (!xml || xml.length === 0) return undefined
-  return xml
-    .map((pageXML) => importPageFromXML(context, pageXML))
-    .filter((page): page is NonNullable<typeof page> => page !== undefined)
+  return xml.map((pageXML) => importPageFromXML(context, pageXML))
 }
 
 export const importPagesFromXML = (context: ConfigurationContext, xml: PagesXML | undefined): Pages | undefined => {

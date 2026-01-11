@@ -69,7 +69,7 @@ export const importTableFromXML = (context: ConfigurationContext, xml: TableXML 
   const commandSet = importCommandSetFromXML(context, xml.CommandSet)
   if (commandSet !== undefined) result.commandSet = commandSet
 
-  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu, result)
+  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (xml.CurrentRowUse !== undefined) result.currentRowUse = xml.CurrentRowUse

@@ -21,7 +21,7 @@ export const importPageFromEnterprise = <From extends PageEnterprise | undefined
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, Page, Name> = {
+  const result: Page = {
     ...baseFields,
     elementType: FormElementType.Page,
     childItems: [],
@@ -124,7 +124,7 @@ export const importPageFromEnterprise = <From extends PageEnterprise | undefined
   )
   if (verticalSpacing !== undefined) result.verticalSpacing = verticalSpacing
 
-  return result
+  return result as ImportFromEnterpriseReturn<From, Page, Name>
 }
 
 registerMetadata("ImportFromEnterprise", "Page", importPageFromEnterprise)

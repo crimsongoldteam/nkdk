@@ -103,7 +103,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
         } as InputField,
       ],
     } as UsualGroup,
-    structured: `%{Группа}% {Элемент1}: ; {Элемент2}:`,
+    structured: `%{Группа}% {Элемент1}: ; {Элемент2}: `,
   },
   {
     name: "one-line group with title",
@@ -123,7 +123,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
         } as InputField,
       ],
     } as UsualGroup,
-    structured: `%Заголовок группы {Группа}% {Элемент1}: ; {Элемент2}:`,
+    structured: `%Заголовок группы {Группа}% {Элемент1}: ; {Элемент2}: `,
   },
   {
     name: "one-line group with empty title",
@@ -143,7 +143,7 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
         } as InputField,
       ],
     } as UsualGroup,
-    structured: `%"" {Группа}% {Элемент1}: ; {Элемент2}:`,
+    structured: `%"" {Группа}% {Элемент1}: ; {Элемент2}: `,
   },
   {
     name: "horizontal group",
@@ -194,6 +194,6 @@ export const usualGroupStructureFixtures: StructureFixturesTable<UsualGroup> = [
     } as UsualGroup,
     structured: `#Заголовок группы {Группа}
   {Элемент1}: 
-  {Элемент2}:`,
+  {Элемент2}: `,
   },
 ]

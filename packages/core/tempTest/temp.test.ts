@@ -82,7 +82,7 @@ describe("DO test", () => {
 
     const importedYaml = importFromYAML<ClientApplicationFormEnterprise>(yaml)
 
-    const newForm = importClientApplicationFormFromEnterprise(configurationContext, importedYaml, childItems, "Форма")
+    const newForm = importClientApplicationFormFromEnterprise(configurationContext, importedYaml, childItems)
 
     const newXMLData = exportClientApplicationFormToXML(configurationContext, newForm)
     const newXML = xmlExport({ Form: newXMLData })

@@ -19,6 +19,7 @@ export const importColumnGroupFromXML = (
   const result: ColumnGroup = {
     ...baseFields,
     elementType: FormElementType.ColumnGroup,
+    childItems: [],
   }
 
   if (xml.FixingInTable !== undefined) result.fixingInTable = xml.FixingInTable

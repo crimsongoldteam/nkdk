@@ -1,4 +1,6 @@
 <Popup name="ВсплывающееОкно" id="1">
+	<BackColor>web:White</BackColor>
+	<BorderColor>web:Gray</BorderColor>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
 	<ExtendedTooltip name="ВсплывающееОкноРасширеннаяПодсказка" id="2"/>
@@ -6,6 +8,9 @@
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>false</ReadOnly>
+	<Representation>Text</Representation>
+	<Shape>Usual</Shape>
+	<ShapeRepresentation>Auto</ShapeRepresentation>
 	<Shortcut>Ctrl+S</Shortcut>
 	<Title>
 		<v8:item>
@@ -31,9 +36,4 @@
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>
-	<BackColor>web:White</BackColor>
-	<BorderColor>web:Gray</BorderColor>
-	<Representation>Text</Representation>
-	<Shape>Usual</Shape>
-	<ShapeRepresentation>Auto</ShapeRepresentation>
 </Popup>

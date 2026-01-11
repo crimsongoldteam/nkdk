@@ -8,18 +8,19 @@ import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/impo
 import { Page, PageXML } from "~/metadata/forms/elements/page/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importPageFromXML = (context: ConfigurationContext, xml: PageXML | undefined): Page | undefined => {
-  if (!xml) return undefined
+export const importPageFromXML = <From extends PageXML | undefined>(
+  context: ConfigurationContext,
+  xml: From
+): ImportExportReturn<From, Page> => {
+  if (!xml) return undefined as ImportExportReturn<From, Page>
 
   const baseFields = importFormGroupFromXML(context, xml)
-  if (!baseFields) return undefined
-
-  const { elementType: _, ...restFields } = baseFields
 
   const result: Page = {
+    ...baseFields,
     elementType: FormElementType.Page,
-    ...restFields,
     childItems: [],
   }
 
@@ -64,7 +65,7 @@ export const importPageFromXML = (context: ConfigurationContext, xml: PageXML | 
 
   if (xml.VerticalSpacing !== undefined) result.verticalSpacing = xml.VerticalSpacing
 
-  return result
+  return result as ImportExportReturn<From, Page>
 }
 
 registerMetadata("ImportFromXML", "Page", importPageFromXML)

@@ -1,4 +1,3 @@
-import { name } from "assert"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
@@ -40,7 +39,7 @@ export const importPagesFromEnterprise = <From extends PagesEnterprise | undefin
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)
 
-  const result: ImportFromEnterpriseReturn<From, Pages, Name> = {
+  const result: Pages = {
     ...baseFields,
     elementType: FormElementType.Pages,
     childItems: [],
@@ -87,7 +86,7 @@ export const importPagesFromEnterprise = <From extends PagesEnterprise | undefin
   const events = importPagesEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
-  return result
+  return result as ImportFromEnterpriseReturn<From, Pages, Name>
 }
 
 registerMetadata("ImportFromEnterprise", "Pages", importPagesFromEnterprise)

@@ -138,7 +138,7 @@ export const importTableFromEnterprise = <From extends TableEnterprise | undefin
   const baseElement = importBaseElementFromEnterprise(context, {} as From, name)
   if (!baseElement) return undefined as ImportFromEnterpriseReturn<From, Table, Name>
 
-  const result: ImportFromEnterpriseReturn<From, Table, Name> = {
+  const result: Table = {
     ...baseElement,
     elementType: FormElementType.Table,
     childItems: [],
@@ -481,7 +481,7 @@ export const importTableFromEnterprise = <From extends TableEnterprise | undefin
   const events = importTableEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
-  return result
+  return result as ImportFromEnterpriseReturn<From, Table, Name>
 }
 
 registerMetadata("ImportFromEnterprise", "Table", importTableFromEnterprise)

@@ -1,5 +1,7 @@
 <GanttChartField name="ПолеДиаграммыГанта" id="1" DisplayImportance="High">
 	<AutoCellHeight>true</AutoCellHeight>
+	<AutoMaxHeight>true</AutoMaxHeight>
+	<AutoMaxWidth>true</AutoMaxWidth>
 	<CellHyperlink>true</CellHyperlink>
 	<ContextMenu name="ПолеДиаграммыГантаКонтекстноеМеню" id="2"/>
 	<DataPath>Объект.Реквизит</DataPath>
@@ -31,13 +33,20 @@
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</HeaderPicture>
+	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalLines>true</HorizontalLines>
+	<HorizontalStretch>true</HorizontalStretch>
+	<IntervalsSelectionMode>Single</IntervalsSelectionMode>
+	<MaxHeight>500</MaxHeight>
+	<MaxWidth>400</MaxWidth>
 	<ReadOnly>false</ReadOnly>
 	<Shortcut>Ctrl+S</Shortcut>
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
 	<SkipOnInput>false</SkipOnInput>
+	<TableLocation>None</TableLocation>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -61,21 +70,12 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
+	<ValuesSelectionMode>Single</ValuesSelectionMode>
 	<VerticalAlign>Top</VerticalAlign>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
-	<Visible>true</Visible>
-	<AutoMaxHeight>true</AutoMaxHeight>
-	<AutoMaxWidth>true</AutoMaxWidth>
-	<Height>200</Height>
-	<HorizontalLines>true</HorizontalLines>
-	<HorizontalStretch>true</HorizontalStretch>
-	<IntervalsSelectionMode>Single</IntervalsSelectionMode>
-	<MaxHeight>500</MaxHeight>
-	<MaxWidth>400</MaxWidth>
-	<TableLocation>None</TableLocation>
-	<ValuesSelectionMode>Single</ValuesSelectionMode>
 	<VerticalLines>true</VerticalLines>
 	<VerticalStretch>true</VerticalStretch>
+	<Visible>true</Visible>
 	<WarningOnEdit>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
