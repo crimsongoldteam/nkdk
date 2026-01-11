@@ -72,5 +72,12 @@
 	<MaxHeight>500</MaxHeight>
 	<MaxWidth>400</MaxWidth>
 	<VerticalStretch>true</VerticalStretch>
+	<WarningOnEdit>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Предупреждение</v8:content>
+		</v8:item>
+	</WarningOnEdit>
+	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 	<Width>300</Width>
 </ChartField>

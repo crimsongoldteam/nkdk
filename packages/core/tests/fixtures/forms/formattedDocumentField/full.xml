@@ -78,5 +78,12 @@
 	<SelectedText>Выделенный текст</SelectedText>
 	<TextColor>web:Blue</TextColor>
 	<VerticalStretch>true</VerticalStretch>
+	<WarningOnEdit>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Предупреждение</v8:content>
+		</v8:item>
+	</WarningOnEdit>
+	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 	<Width>300</Width>
 </FormattedDocumentField>

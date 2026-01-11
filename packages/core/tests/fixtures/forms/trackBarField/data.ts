@@ -10,8 +10,6 @@ export const fullTrackBarField: TrackBarField = {
     items: { ru: "Поле полосы прокрутки" },
   },
   editMode: "EnterOnInput",
-  warningOnEdit: undefined,
-  warningOnEditRepresentation: undefined,
   autoMaxHeight: true,
   autoMaxWidth: true,
   height: 100,
@@ -26,13 +24,15 @@ export const fullTrackBarField: TrackBarField = {
   orientation: "Horizontal",
   step: 1,
   verticalStretch: false,
+  warningOnEdit: {
+    items: { ru: "Предупреждение" },
+  },
+  warningOnEditRepresentation: "DontShow",
   width: 200,
 }
 
-const { ПредупреждениеПриРедактировании, ОтображениеПредупрежденияПриРедактировании, ...formFieldEnterpriseWithoutWarning } = fullFormFieldEnterprise
-
 export const fullTrackBarFieldEnterprise: TrackBarFieldEnterprise = {
-  ...formFieldEnterpriseWithoutWarning,
+  ...fullFormFieldEnterprise,
   Заголовок: "Поле полосы прокрутки",
   РежимРедактирования: "ВходПриВводе",
   АвтоМаксимальнаяВысота: "Истина",
@@ -45,6 +45,8 @@ export const fullTrackBarFieldEnterprise: TrackBarFieldEnterprise = {
   МинимальноеЗначение: 0,
   Ориентация: "Горизонтально",
   ОтображениеРазметки: "СверхуИлиСлева",
+  ПредупреждениеПриРедактировании: "Предупреждение",
+  ОтображениеПредупрежденияПриРедактировании: "НеОтображать",
   РастягиватьПоВертикали: "Ложь",
   РастягиватьПоГоризонтали: "Истина",
   Шаг: 1,
