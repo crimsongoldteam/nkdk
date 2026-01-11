@@ -1,8 +1,8 @@
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
-import { Pages, PagesXML } from "~/metadata/forms/elements/pages/types"
 import { importPageFromXML } from "~/metadata/forms/elements/page/importFromXML"
+import { Pages, PagesXML } from "~/metadata/forms/elements/pages/types"
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -13,7 +13,9 @@ const importPagesChildItemsFromXML = (
   xml: PagesXML["ChildItems"]
 ): Pages["childItems"] => {
   if (!xml || xml.length === 0) return undefined
-  return xml.map((pageXML) => importPageFromXML(context, pageXML)).filter((page): page is NonNullable<typeof page> => page !== undefined)
+  return xml
+    .map((pageXML) => importPageFromXML(context, pageXML))
+    .filter((page): page is NonNullable<typeof page> => page !== undefined)
 }
 
 export const importPagesFromXML = (context: ConfigurationContext, xml: PagesXML | undefined): Pages | undefined => {
@@ -27,6 +29,7 @@ export const importPagesFromXML = (context: ConfigurationContext, xml: PagesXML 
   const result: Pages = {
     elementType: FormElementType.Pages,
     ...restFields,
+    childItems: [],
   }
 
   const childItems = importPagesChildItemsFromXML(context, xml.ChildItems)

@@ -13,6 +13,7 @@ export const fullCommandBar: CommandBar = {
   autofill: true,
   displayImportance: "High",
   horizontalAlign: "Left",
+  childItems: [],
 }
 
 export const fullCommandBarEnterprise: CommandBarEnterprise = {
@@ -26,6 +27,7 @@ export const fullCommandBarEnterprise: CommandBarEnterprise = {
 export const minimalCommandBar: CommandBar = {
   elementType: FormElementType.CommandBar,
   name: "КоманднаяПанель",
+  childItems: [],
 }
 
 export const minimalCommandBarEnterprise: CommandBarEnterprise = {}

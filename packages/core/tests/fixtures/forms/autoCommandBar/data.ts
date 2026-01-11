@@ -7,6 +7,7 @@ import { fullFormGroup } from "../formGroup/data"
 export const fullAutoCommandBar: AutoCommandBar = {
   ...fullFormGroup,
   name: "КакойТоЭлементКоманднаяПанель",
+  childItems: [],
 }
 
 export const fullAutoCommandBarEnterprise: AutoCommandBarEnterprise = {

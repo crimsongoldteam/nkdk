@@ -6,6 +6,7 @@ export const fullSearchStringAddition: SearchStringAddition = {
   ...fullFormItemAddition,
   elementType: FormElementType.SearchStringAddition,
   name: "ДополнениеСтрокиПоиска",
+  childItems: [],
 }
 
 export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise = {
@@ -15,6 +16,7 @@ export const fullSearchStringAdditionEnterprise: SearchStringAdditionEnterprise 
 export const minimalSearchStringAddition: SearchStringAddition = {
   elementType: FormElementType.SearchStringAddition,
   name: "ДополнениеСтрокиПоиска",
+  childItems: [],
 }
 
 export const minimalSearchStringAdditionEnterprise: SearchStringAdditionEnterprise = {}

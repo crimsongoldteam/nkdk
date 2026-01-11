@@ -15,6 +15,7 @@ export const fullPopup: Popup = {
   representation: "Text",
   shape: "Usual",
   shapeRepresentation: "Auto",
+  childItems: [],
 }
 
 export const fullPopupEnterprise: PopupEnterprise = {

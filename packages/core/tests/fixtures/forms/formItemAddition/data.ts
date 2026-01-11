@@ -21,6 +21,7 @@ export const fullFormItemAddition: FormItemAddition = {
   },
   verticalAlignInGroup: "Top",
   visible: true,
+  childItems: [],
 }
 
 export const fullFormItemAdditionEnterprise: FormItemAdditionEnterprise = {
@@ -39,6 +40,7 @@ export const fullFormItemAdditionEnterprise: FormItemAdditionEnterprise = {
 export const minimalFormItemAddition: FormItemAddition = {
   elementType: FormElementType.FormItemAddition,
   name: "ДобавлениеЭлементаФормы",
+  childItems: [],
 }
 
 export const minimalFormItemAdditionEnterprise: FormItemAdditionEnterprise = {}

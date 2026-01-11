@@ -6,6 +6,7 @@ export const fullViewStatusAddition: ViewStatusAddition = {
   ...fullFormItemAddition,
   elementType: FormElementType.ViewStatusAddition,
   name: "ДополнениеСостоянияПросмотра",
+  childItems: [],
 }
 
 export const fullViewStatusAdditionEnterprise: ViewStatusAdditionEnterprise = {
@@ -15,6 +16,7 @@ export const fullViewStatusAdditionEnterprise: ViewStatusAdditionEnterprise = {
 export const minimalViewStatusAddition: ViewStatusAddition = {
   elementType: FormElementType.ViewStatusAddition,
   name: "ДополнениеСостоянияПросмотра",
+  childItems: [],
 }
 
 export const minimalViewStatusAdditionEnterprise: ViewStatusAdditionEnterprise = {}

@@ -53,6 +53,7 @@ export const fullPageEnterprise: PageEnterprise = {
 export const minimalPage: Page = {
   elementType: FormElementType.Page,
   name: "Страница",
+  childItems: [],
 }
 
 export const minimalPageEnterprise: PageEnterprise = {}

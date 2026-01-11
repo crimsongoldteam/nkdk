@@ -25,6 +25,7 @@ export const importTableFromXML = (context: ConfigurationContext, xml: TableXML 
   const result: Table = {
     elementType: FormElementType.Table,
     ...restFields,
+    childItems: [],
   }
 
   if (xml.AutoAddIncomplete !== undefined) result.autoAddIncomplete = xml.AutoAddIncomplete

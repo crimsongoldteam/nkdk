@@ -36,6 +36,7 @@ export const fullUsualGroup: UsualGroup = {
   united: false,
   verticalAlign: "Top",
   verticalSpacing: "Single",
+  childItems: [],
 }
 
 export const fullUsualGroupEnterprise: UsualGroupEnterprise = {
@@ -70,6 +71,7 @@ export const fullUsualGroupEnterprise: UsualGroupEnterprise = {
 export const minimalUsualGroup: UsualGroup = {
   elementType: FormElementType.UsualGroup,
   name: "ОбычнаяГруппа",
+  childItems: [],
 }
 
 export const minimalUsualGroupEnterprise: UsualGroupEnterprise = {}

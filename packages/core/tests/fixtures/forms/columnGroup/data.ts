@@ -22,6 +22,7 @@ export const fullColumnGroup: ColumnGroup = {
   showInHeader: true,
   showTitle: true,
   titleBackColor: { type: "WebColor", value: "Blue" },
+  childItems: [],
 }
 
 export const fullColumnGroupEnterprise: ColumnGroupEnterprise = {

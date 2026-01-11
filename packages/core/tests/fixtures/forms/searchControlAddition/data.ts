@@ -6,6 +6,7 @@ export const fullSearchControlAddition: SearchControlAddition = {
   ...fullFormItemAddition,
   elementType: FormElementType.SearchControlAddition,
   name: "ДополнениеУправленияПоиском",
+  childItems: [],
 }
 
 export const fullSearchControlAdditionEnterprise: SearchControlAdditionEnterprise = {
@@ -15,6 +16,7 @@ export const fullSearchControlAdditionEnterprise: SearchControlAdditionEnterpris
 export const minimalSearchControlAddition: SearchControlAddition = {
   elementType: FormElementType.SearchControlAddition,
   name: "ДополнениеУправленияПоиском",
+  childItems: [],
 }
 
 export const minimalSearchControlAdditionEnterprise: SearchControlAdditionEnterprise = {}

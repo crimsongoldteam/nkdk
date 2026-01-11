@@ -3,10 +3,10 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { UsualGroup, UsualGroupEnterprise } from "~/metadata/forms/elements/usualGroup/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { UsualGroup, UsualGroupEnterprise } from "~/metadata/forms/elements/usualGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
@@ -19,11 +19,12 @@ export const importUsualGroupFromEnterprise = <From extends UsualGroupEnterprise
 ): ImportFromEnterpriseReturn<From, UsualGroup, Name> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, UsualGroup, Name>
 
-  const baseFields = importFormGroupFromEnterprise(context, data, name)!
+  const baseFields = importFormGroupFromEnterprise(context, data, name)
 
   const result: ImportFromEnterpriseReturn<From, UsualGroup, Name> = {
     ...baseFields,
     elementType: FormElementType.UsualGroup,
+    childItems: [],
   }
 
   const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
@@ -144,7 +145,11 @@ export const importUsualGroupFromEnterprise = <From extends UsualGroupEnterprise
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -164,7 +169,10 @@ export const importUsualGroupFromEnterprise = <From extends UsualGroupEnterprise
   const backColor = importColorFromEnterprise(context, data.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
 
-  const hiddenRepresentationTitleBackColor = importColorFromEnterprise(context, data.ЦветФонаЗаголовкаСкрытогоОтображения)
+  const hiddenRepresentationTitleBackColor = importColorFromEnterprise(
+    context,
+    data.ЦветФонаЗаголовкаСкрытогоОтображения
+  )
   if (hiddenRepresentationTitleBackColor !== undefined)
     result.hiddenRepresentationTitleBackColor = hiddenRepresentationTitleBackColor
 
@@ -179,4 +187,3 @@ export const importUsualGroupFromEnterprise = <From extends UsualGroupEnterprise
 }
 
 registerMetadata("ImportFromEnterprise", "UsualGroup", importUsualGroupFromEnterprise)
-
