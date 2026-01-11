@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest"
-import {
-  fullContextMenu,
-  fullContextMenuEnterprise,
-} from "~/tests/fixtures/forms/contextMenu/data"
+import "~/metadata/forms/elements/importFromEnterprise"
+import { fullContextMenu, fullContextMenuEnterprise } from "~/tests/fixtures/forms/contextMenu/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importContextMenuFromEnterprise } from "./importFromEnterprise"
 
