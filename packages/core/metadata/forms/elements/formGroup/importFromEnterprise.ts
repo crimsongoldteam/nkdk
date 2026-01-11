@@ -69,13 +69,6 @@ export const importFormGroupFromEnterprise = <From extends FormGroupEnterprise |
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  // const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
-  // if (childItems !== undefined) {
-  //   result.childItems = childItems
-  // } else {
-  //   result.childItems = []
-  // }
-
   const userVisibleAllow = importUserVisibleFromEnterprise(
     context,
     data.РазрешитьИспользование,

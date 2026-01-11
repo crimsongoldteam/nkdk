@@ -8,7 +8,8 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importChildItemsFromEnterprise } from "../../collections/childItems/importFromEnterprise"
+import { importButtonGroupChildItemsFromEnterprise } from "../../collections/buttonGroupChildItems/importFromEnterprise"
+import { FormGroup } from "../formGroup/types"
 
 export const importCommandBarFromEnterprise = <From extends CommandBarEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
@@ -17,9 +18,9 @@ export const importCommandBarFromEnterprise = <From extends CommandBarEnterprise
 ): ImportFromEnterpriseReturn<From, CommandBar, Name> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, CommandBar, Name>
 
-  const baseFields = importFormGroupFromEnterprise(context, data, name)!
+  const baseFields = importFormGroupFromEnterprise(context, data, name) as Omit<FormGroup, "childItems">
 
-  const result: ImportFromEnterpriseReturn<From, CommandBar, Name> = {
+  const result: CommandBar = {
     ...baseFields,
     elementType: FormElementType.CommandBar,
   }
@@ -55,10 +56,10 @@ export const importCommandBarFromEnterprise = <From extends CommandBarEnterprise
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
 
-  const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
+  const childItems = importButtonGroupChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
   if (childItems !== undefined) result.childItems = childItems
 
-  return result
+  return result as ImportFromEnterpriseReturn<From, CommandBar, Name>
 }
 
 registerMetadata("ImportFromEnterprise", "CommandBar", importCommandBarFromEnterprise)

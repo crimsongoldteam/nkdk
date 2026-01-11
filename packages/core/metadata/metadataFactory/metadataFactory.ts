@@ -9,6 +9,7 @@ export type ItemOperationType =
   | "ImportFromXML"
   | "ImportFromEnterprise"
   | "ExportToStructure"
+  | "ExportToStructureContent"
 
 type OperationFunction<F extends object | undefined, T extends object | undefined = undefined> = (
   context: ConfigurationContext,
@@ -31,6 +32,7 @@ const operationRegistries: Map<ItemOperationType, OperationRegistry> = new Map([
   ["ExportToEnterprise", new Map()],
   ["ImportFromXML", new Map()],
   ["ImportFromEnterprise", new Map()],
+  ["ExportToStructureContent", new Map()],
   ["ExportToStructure", new Map()],
 ])
 

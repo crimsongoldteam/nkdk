@@ -21,6 +21,7 @@ export const exportButtonToEnterprise = (
   const baseFields = exportBaseElementToEnterprise(context, data)
 
   const result: ButtonEnterprise = {
+    Тип: "Кнопка",
     ...baseFields,
   }
 

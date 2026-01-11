@@ -53,6 +53,7 @@ export const fullButton: Button = {
 }
 
 export const fullButtonEnterprise: ButtonEnterprise = {
+  Тип: "Кнопка",
   Заголовок: "Кнопка формы",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -96,7 +97,9 @@ export const minimalButton: Button = {
   name: "Кнопка",
 }
 
-export const minimalButtonEnterprise: ButtonEnterprise = {}
+export const minimalButtonEnterprise: ButtonEnterprise = {
+  Тип: "Кнопка",
+}
 
 export interface ButtonStructureFixture {
   name: string

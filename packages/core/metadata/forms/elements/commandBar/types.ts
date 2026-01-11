@@ -2,7 +2,11 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ButtonGroupChildItem, ButtonGroupChildItemsEnterprise } from "../../collections/buttonGroupChildItems/types"
+import {
+  ButtonGroupChildItem,
+  ButtonGroupChildItemsEnterprise,
+  ButtonGroupChildItemsXML,
+} from "../../collections/buttonGroupChildItems/types"
 
 export interface CommandBar extends FormGroup {
   autofill?: boolean
@@ -17,6 +21,7 @@ export interface CommandBarXML extends FormGroupXML {
   _DisplayImportance?: SE.DisplayImportance
   HorizontalAlign?: SE.ItemHorizontalLocation
   UserVisible?: UserVisibleXML
+  ПодчиненныеЭлементы?: ButtonGroupChildItemsXML
 }
 
 export interface CommandBarEnterprise extends FormGroupEnterprise {

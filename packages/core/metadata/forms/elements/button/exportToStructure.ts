@@ -1,28 +1,34 @@
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { formatElementName } from "~/format/helpers"
 import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { IFormatElementResult } from "~/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { formatElementTitleAndName, wrapButtonContent } from "../../format/helpers"
 import { Button } from "./types"
 
-export const exportButtonToStructure = (_context: ConfigurationContext, element: Button): IFormatElementResult => {
-  const hasTitle = element.title?.items.ru !== undefined
-
-  let resultString: string
-  if (hasTitle) {
-    resultString = "<" + element.title!.items.ru + " " + formatElementName(element) + ">"
-  } else {
-    resultString = "<" + formatElementName(element) + ">"
-  }
-
-  const result: IFormatElementResult = {
+export const exportButtonToStructure = (context: ConfigurationContext, element: Button): IFormatElementResult => {
+  const resultString = wrapButtonContent(formatContent(context, element))
+  return {
     strings: [resultString],
     haveSimpleHorizontalGroup: false,
   }
-
-  return result
 }
 
+export const exportButtonContentToStructure = (
+  context: ConfigurationContext,
+  element: Button
+): IFormatElementResult => {
+  const resultString = formatContent(context, element)
+  return {
+    strings: [resultString],
+    haveSimpleHorizontalGroup: false,
+  }
+}
+
+const formatContent = (context: ConfigurationContext, element: Button): string => {
+  return formatElementTitleAndName(context, element)
+}
+
+registerMetadata("ExportToStructureContent", "Button", exportButtonContentToStructure)
 registerMetadata("ExportToStructure", "Button", exportButtonToStructure)
 registerIsOneLineElementCheck<Button>(FormElementType.Button, () => true)

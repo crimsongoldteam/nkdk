@@ -1,6 +1,7 @@
 import "../clientApplicationForm/exportToStructure"
 import "./baseElement/exportToStructure"
 import "./button/exportToStructure"
+import "./button/exportToStructureContent"
 import "./checkBoxField/exportToStructure"
 import "./commandBar/exportToStructure"
 import "./inputField/exportToStructure"
