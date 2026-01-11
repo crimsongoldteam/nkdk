@@ -18,6 +18,7 @@ export enum ParseElementType {
   LeftTitledCheckboxField = "LeftTitledCheckboxField",
   CommandBar = "CommandBar",
   PotentialAutoCommandBar = "PotentialAutoCommandBar",
+  AutoCommandBar = "AutoCommandBar",
   Table = "Table",
   RadioButtonField = "RadioButtonField",
   PictureDecoration = "PictureDecoration",

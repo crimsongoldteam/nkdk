@@ -6,12 +6,26 @@ import { buildTree } from "./treeBuilder"
 import { BuilderTreeNode, ElementWithChildItems, ParseElementType, TreeNode } from "./types"
 
 export const parseTree = (context: ConfigurationContext, tokens: IToken[]): TreeNode[] => {
-  const tree = buildTree(tokens)
-  return processTreeNodes(context, tree)
+  const builderNodes = buildTree(tokens)
+
+  const flatten = builderNodes.flatMap((node) => processBuilderTree(context, node))
+
+  // form auto command bar
+  if (flatten.length > 0 && flatten[0].type === ParseElementType.PotentialAutoCommandBar) {
+    flatten[0].type = ParseElementType.AutoCommandBar
+  }
+
+  const result = moveAutoCommandBarToTable(flatten)
+
+  return result
 }
 
 const processTreeNodes = (context: ConfigurationContext, builderNodes: BuilderTreeNode[]): TreeNode[] => {
-  return builderNodes.flatMap((node) => processBuilderTree(context, node))
+  const flatten = builderNodes.flatMap((node) => processBuilderTree(context, node))
+
+  const result = moveAutoCommandBarToTable(flatten)
+
+  return result
 }
 
 const processBuilderTree = (context: ConfigurationContext, builderNode: BuilderTreeNode): TreeNode[] => {
@@ -43,7 +57,9 @@ const processBuilderTree = (context: ConfigurationContext, builderNode: BuilderT
     }
   }
 
-  return result
+  const movedAutoCommandBarToTable = moveAutoCommandBarToTable(result)
+
+  return movedAutoCommandBarToTable
 }
 
 const processOneLineGroup = (context: ConfigurationContext, builderNode: BuilderTreeNode): TreeNode => {
@@ -65,4 +81,31 @@ const canBeChildItem = (parentNodeType: ParseElementType, _childNodeType: ParseE
   return ElementWithChildItems.includes(parentNodeType)
 }
 
-// const
+const moveAutoCommandBarToTable = (tree: TreeNode[]): TreeNode[] => {
+  const result: TreeNode[] = []
+  let i = 0
+  while (i < tree.length) {
+    const node = tree[i]
+    const nextNode = tree[i + 1]
+    i++
+
+    if (node.type !== ParseElementType.PotentialAutoCommandBar) continue
+
+    if (nextNode?.type === ParseElementType.Table) {
+      nextNode.childItems.push({
+        tokens: node.tokens,
+        type: ParseElementType.AutoCommandBar,
+        childItems: [],
+      })
+      continue
+    }
+
+    result.push({
+      tokens: node.tokens,
+      type: ParseElementType.CommandBar,
+      childItems: [],
+    })
+  }
+
+  return result
+}
