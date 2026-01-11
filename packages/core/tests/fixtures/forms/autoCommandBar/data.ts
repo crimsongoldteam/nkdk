@@ -9,8 +9,6 @@ export const parentElement: BaseElement = {
 }
 
 export const fullAutoCommandBar: AutoCommandBar = {
-  name: "КакойТоЭлементКоманднаяПанель",
-  elementType: FormElementType.CommandBar,
   autofill: false,
   displayImportance: "High",
   horizontalAlign: "Left",
@@ -22,15 +20,19 @@ export const fullAutoCommandBar: AutoCommandBar = {
   ],
 }
 
-export const fullAutoCommandBarEnterprise: AutoCommandBarEnterprise = {
-  Автозаполнение: "Истина",
+export const fullPropsAutoCommandBar: Partial<AutoCommandBar> = {
+  autofill: false,
+  displayImportance: "High",
+  horizontalAlign: "Left",
+}
+
+export const fullPropsAutoCommandBarEnterprise: AutoCommandBarEnterprise = {
+  Автозаполнение: "Ложь",
   ВажностьПриОтображении: "Высокая",
   ГоризонтальноеПоложение: "Лево",
 }
 
 export const minimalAutoCommandBar: AutoCommandBar = {
-  elementType: FormElementType.CommandBar,
-  name: "КакойТоЭлементКоманднаяПанель",
   autofill: true,
   childItems: [],
 }
@@ -45,8 +47,6 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "autofill and buttons",
     element: {
-      name: "КакойТоЭлементКоманднаяПанель",
-      elementType: FormElementType.CommandBar,
       autofill: true,
       childItems: [
         {
@@ -69,8 +69,6 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without autofill",
     element: {
-      name: "КакойТоЭлементКоманднаяПанель",
-      elementType: FormElementType.CommandBar,
       autofill: false,
       childItems: [
         {
@@ -93,8 +91,6 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without buttons",
     element: {
-      name: "КакойТоЭлементКоманднаяПанель",
-      elementType: FormElementType.CommandBar,
       autofill: true,
       childItems: [],
     },
@@ -106,8 +102,6 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without autofill and buttons",
     element: {
-      name: "КакойТоЭлементКоманднаяПанель",
-      elementType: FormElementType.CommandBar,
       autofill: false,
       childItems: [],
     },

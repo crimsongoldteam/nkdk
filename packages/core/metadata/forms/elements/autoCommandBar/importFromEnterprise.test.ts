@@ -1,28 +1,18 @@
 import { describe, expect, it } from "vitest"
-import {
-  fullAutoCommandBar,
-  fullAutoCommandBarEnterprise,
-  minimalAutoCommandBar,
-} from "~/tests/fixtures/forms/autoCommandBar/data"
+import { fullPropsAutoCommandBar, fullPropsAutoCommandBarEnterprise } from "~/tests/fixtures/forms/autoCommandBar/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importAutoCommandBarFromEnterprise } from "./importFromEnterprise"
+import { importAutoCommandBarPropsFromEnterprise } from "./importFromEnterprise"
 
 describe("importAutoCommandBarFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importAutoCommandBarFromEnterprise(mockСontext, undefined)
-
-    expect(result).toBeUndefined()
-  })
-
   it("should import all fields from Enterprise", () => {
-    const result = importAutoCommandBarFromEnterprise(mockСontext, fullAutoCommandBarEnterprise)
+    const result = importAutoCommandBarPropsFromEnterprise(mockСontext, fullPropsAutoCommandBarEnterprise)
 
-    expect(result).toEqual(fullAutoCommandBar)
+    expect(result).toEqual(fullPropsAutoCommandBar)
   })
 
   it("should import minimal", () => {
-    const result = importAutoCommandBarFromEnterprise(mockСontext, minimalAutoCommandBarEnterprise)
+    const result = importAutoCommandBarPropsFromEnterprise(mockСontext, {})
 
-    expect(result).toEqual(minimalAutoCommandBar)
+    expect(result).toEqual({})
   })
 })

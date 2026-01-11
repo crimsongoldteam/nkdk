@@ -1,14 +1,10 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { UserVisibleEnterprise } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import {
-  ButtonGroupChildItem,
-  ButtonGroupChildItemsEnterprise,
-  ButtonGroupChildItemsXML,
-} from "../../collections/buttonGroupChildItems/types"
-import { BaseElement, BaseElementEnterprise, BaseElementXML } from "../baseElement/types"
+import { ButtonGroupChildItem, ButtonGroupChildItemsXML } from "../../collections/buttonGroupChildItems/types"
+import { BaseElementXML } from "../baseElement/types"
 
-export interface AutoCommandBar extends BaseElement {
+export interface AutoCommandBar {
   autofill: boolean
   displayImportance?: SE.DisplayImportance
   horizontalAlign?: SE.ItemHorizontalLocation
@@ -22,11 +18,10 @@ export interface AutoCommandBarXML extends BaseElementXML {
   ChildItems?: ButtonGroupChildItemsXML
 }
 
-export interface AutoCommandBarEnterprise extends BaseElementEnterprise {
+export interface AutoCommandBarEnterprise {
   Автозаполнение?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
   ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise
-  ПодчиненныеЭлементы?: ButtonGroupChildItemsEnterprise
 }

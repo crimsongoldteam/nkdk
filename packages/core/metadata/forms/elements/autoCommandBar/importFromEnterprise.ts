@@ -1,21 +1,31 @@
+import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
-import { importCommandBarFromEnterprise } from "~/metadata/forms/elements/commandBar/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importAutoCommandBarFromEnterprise = <From extends AutoCommandBarEnterprise | undefined>(
+export const importAutoCommandBarPropsFromEnterprise = (
   context: ConfigurationContext,
-  data: From
-): ImportFromEnterpriseReturn<From, AutoCommandBar, string> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, AutoCommandBar, string>
+  data: AutoCommandBarEnterprise
+): Partial<AutoCommandBar> | undefined => {
+  const result: Partial<AutoCommandBar> = {}
 
-  const baseFields = importCommandBarFromEnterprise(context, data, data.Имя)
+  const autofill = importBooleanFromEnterprise(context, data.Автозаполнение)
+  if (autofill !== undefined) result.autofill = autofill
 
-  const result = {
-    ...baseFields,
-    elementType: FormElementType.CommandBar,
-  } as ImportFromEnterpriseReturn<From, AutoCommandBar, string>
+  const displayImportance = importSystemEnumerationFromEnterprise(
+    context,
+    data.ВажностьПриОтображении,
+    SE.DisplayImportanceFromEnterprise
+  )
+  if (displayImportance !== undefined) result.displayImportance = displayImportance
+
+  const horizontalAlign = importSystemEnumerationFromEnterprise(
+    context,
+    data.ГоризонтальноеПоложение,
+    SE.ItemHorizontalLocationFromEnterprise
+  )
+  if (horizontalAlign !== undefined) result.horizontalAlign = horizontalAlign
 
   return result
 }
