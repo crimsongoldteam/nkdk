@@ -18,7 +18,7 @@ describe("importClientApplicationFormFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importClientApplicationFormFromEnterprise(mockСontext, fullClientApplicationFormEnterprise, {
       childItems: [{ name: "ПолеВвода1", elementType: FormElementType.InputField }],
-      autoCommandBar: { autofill: true, elementType: FormElementType.AutoCommandBar, childItems: [] },
+      autoCommandBar: { autofill: false, elementType: FormElementType.AutoCommandBar, childItems: [] },
     })
 
     expect(result).toEqual(fullClientApplicationForm)

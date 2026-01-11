@@ -12,9 +12,7 @@ export function exportContextMenuToEnterprise<T extends ContextMenu | undefined>
 ): ImportExportReturn<T, ContextMenuEnterprise> {
   if (data === undefined) return undefined as ImportExportReturn<T, ContextMenuEnterprise>
 
-  const result: ContextMenuEnterprise = {
-    Имя: data.name,
-  }
+  const result: ContextMenuEnterprise = {}
 
   const displayImportance = exportSystemEnumerationToEnterprise(
     context,

@@ -1,6 +1,6 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
-import { CommandSet, CommandSetXML } from "~/metadata/forms/commandSet/types"
+import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
 import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../../collections/childItems/types"
@@ -183,6 +183,7 @@ export interface ClientApplicationFormEnterprise {
   СворачиваниеЭлементовПоВажности?: SE.CollapseFormItemsByImportanceEnterprise
   СохранениеДанныхВНастройках?: SE.SaveFormDataInSettingsEnterprise
   СохраняемыеВНастройкахДанныеМодифицированы?: StringboolEnterprise
+  СоставКоманд?: CommandSetEnterprise
   ТолькоПросмотр?: StringboolEnterprise
   Ширина?: number
   ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise

@@ -12,6 +12,7 @@ import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerat
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsPropertiesFromEnterprise } from "../../collections/childItems/importPropertiesFromEnterprise"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
+import { importCommandSetFromEnterprise } from "../../commandSet/importFromEnterprise"
 import { importAutoCommandBarPropsFromEnterprise } from "../../elements/autoCommandBar/importFromEnterprise"
 
 const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof ClientApplicationFormEvents> = {
@@ -56,6 +57,9 @@ export const importClientApplicationFormFromEnterprise = (
 
   const autoTitle = importBooleanFromEnterprise(context, data.АвтоЗаголовок)
   if (autoTitle !== undefined) result.autoTitle = autoTitle
+
+  const commandSet = importCommandSetFromEnterprise(context, data.СоставКоманд)
+  if (commandSet !== undefined) result.commandSet = commandSet
 
   const autoSaveDataInSettings = importSystemEnumerationFromEnterprise<SE.AutoSaveFormDataInSettings>(
     context,
@@ -260,9 +264,9 @@ const importClientApplicationFormEventsFromEnterprise = (
 const mixElementProps = <T extends object>(
   element: T | undefined,
   enterpriseProps: Partial<T> | undefined,
-  defaults: Partial<T>
+  defaults: T
 ): T | undefined => {
   if (!element && !enterpriseProps) return undefined
 
-  return { ...defaults, ...enterpriseProps, ...element } as T
+  return { ...defaults, ...enterpriseProps, ...element }
 }

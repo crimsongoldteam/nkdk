@@ -11,6 +11,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
+import { exportCommandSetToEnterprise } from "../../commandSet/exportToEnterprise"
 import { exportAutoCommandBarToEnterprise } from "../../elements/autoCommandBar/exportToEnterprise"
 import { getAllElements } from "./getAllElements"
 
@@ -204,6 +205,9 @@ export const exportClientApplicationFormToEnterprise = (
     SE.CollapseFormItemsByImportanceToEnterprise
   )
   if (collapseItemsByImportance !== undefined) result.СворачиваниеЭлементовПоВажности = collapseItemsByImportance
+
+  const commandSet = exportCommandSetToEnterprise(context, data.commandSet)
+  if (commandSet !== undefined) result.СоставКоманд = commandSet
 
   const saveDataInSettings = exportSystemEnumerationToEnterprise(
     context,

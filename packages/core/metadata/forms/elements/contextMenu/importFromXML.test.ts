@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { BaseElement } from "../baseElement/types"
 import { mockСontext } from "~/tests/mockContext"
+import { BaseElement } from "../baseElement/types"
 import { importContextMenuFromXML } from "./importFromXML"
 import { ContextMenuXML } from "./types"
 
@@ -17,27 +17,10 @@ describe("importContextMenuFromXML", () => {
     expect(result).toBeUndefined()
   })
 
-  it("should import with content to object", () => {
-    const xmlData: ContextMenuXML = {
-      elementType: FormElementType.FormGroup,
-      name: "КакойТоЭлементКонтекстноеМеню",
-      enabled: true,
-    }
-
-    const result = importContextMenuFromXML(mockСontext, xmlData, parentElement)
-
-    expect(result).toBeDefined()
-    expect(result?.name).toBe("КакойТоЭлементКонтекстноеМеню")
-    expect(result?.enabled).toBe(true)
-  })
-
   it("should import minimal to undefined if name is default", () => {
-    const xmlData: ContextMenuXML = {
-      elementType: FormElementType.FormGroup,
-      name: "КакойТоЭлементКонтекстноеМеню",
-    }
+    s
 
-    const result = importContextMenuFromXML(mockСontext, xmlData, parentElement)
+    const result = importContextMenuFromXML(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })

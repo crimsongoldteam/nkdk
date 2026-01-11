@@ -1,8 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { getElementId } from "~/metadata/helpers/getElementId"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
-import { exportBaseElementToXML } from "../baseElement/exportToXML"
 import { BaseElement } from "../baseElement/types"
 import { getContextMenuName } from "./helper"
 
@@ -11,24 +10,19 @@ export const exportContextMenuToXML = <T extends ContextMenu | undefined>(
   data: T,
   parentElement: BaseElement
 ): ContextMenuXML => {
-  const contextMenu = data ?? getDefaultContextMenu(parentElement)
-
-  const baseFields = exportBaseElementToXML(context, contextMenu)
-
   const result: ContextMenuXML = {
-    ...baseFields,
+    _name: getContextMenuName(parentElement),
+    _id: getElementId(context),
   }
 
-  if (contextMenu.displayImportance !== undefined) result._DisplayImportance = contextMenu.displayImportance
+  if (!data) return result
 
-  if (contextMenu.autofill !== undefined) result.Autofill = contextMenu.autofill
+  if (data.displayImportance !== undefined) result._DisplayImportance = data.displayImportance
 
-  const childItems = exportChildItemsToXML(context, contextMenu.childItems)
+  if (data.autofill !== undefined) result.Autofill = data.autofill
+
+  const childItems = exportChildItemsToXML(context, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
   return result
-}
-
-const getDefaultContextMenu = (parentElement: BaseElement): ContextMenu => {
-  return { name: getContextMenuName(parentElement), elementType: FormElementType.FormGroup }
 }

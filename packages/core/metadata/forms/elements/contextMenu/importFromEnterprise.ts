@@ -1,8 +1,6 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsFromEnterprise } from "../../collections/childItems/importFromEnterprise"
@@ -10,12 +8,11 @@ import { importChildItemsFromEnterprise } from "../../collections/childItems/imp
 export function importContextMenuFromEnterprise<T extends ContextMenuEnterprise | undefined>(
   context: ConfigurationContext,
   data: T
-): ImportFromEnterpriseReturn<T, ContextMenu, string> {
-  if (data === undefined) return undefined as ImportFromEnterpriseReturn<T, ContextMenu, string>
+): ContextMenu | undefined {
+  if (data === undefined) return undefined
 
   const result: ContextMenu = {
-    name: data.Имя,
-    elementType: FormElementType.FormGroup,
+    childItems: [],
   }
 
   const displayImportance = importSystemEnumerationFromEnterprise(
@@ -31,5 +28,5 @@ export function importContextMenuFromEnterprise<T extends ContextMenuEnterprise 
   const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
   if (childItems !== undefined) result.childItems = childItems
 
-  return result as ImportFromEnterpriseReturn<T, ContextMenu, string>
+  return result
 }
