@@ -1,4 +1,4 @@
-import "../clientApplicationForm/importFromXML"
+import "../clientApplicationForm/base/importFromXML"
 import "./button/importFromXML"
 import "./buttonGroup/importFromXML"
 import "./calendarField/importFromXML"

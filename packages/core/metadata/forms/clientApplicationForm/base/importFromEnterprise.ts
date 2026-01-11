@@ -6,12 +6,12 @@ import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
   ClientApplicationFormEvents,
-} from "~/metadata/forms/clientApplicationForm/types"
+} from "~/metadata/forms/clientApplicationForm/base/types"
 import { importCommandBarFromEnterprise } from "~/metadata/forms/elements/commandBar/importFromEnterprise"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importChildItemsPropertiesFromEnterprise } from "../collections/childItems/importPropertiesFromEnterprise"
-import { ChildItems } from "../collections/childItems/types"
+import { importChildItemsPropertiesFromEnterprise } from "../../collections/childItems/importPropertiesFromEnterprise"
+import { ChildItems } from "../../collections/childItems/types"
 
 const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof ClientApplicationFormEvents> = {
   АвтоПодборПользователейСистемыВзаимодействия: "collaborationSystemUsersAutoComplete",

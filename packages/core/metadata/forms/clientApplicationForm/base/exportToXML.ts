@@ -6,7 +6,7 @@ import { exportAutoCommandBarToXML } from "~/metadata/forms/elements/autoCommand
 import { exportCommandBarToXML } from "~/metadata/forms/elements/commandBar/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { Events } from "~/metadata/forms/events/types"
-import { exportChildItemsToXML } from "../collections/childItems/exportToXML"
+import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
 export const exportClientApplicationFormToXML = (
@@ -113,10 +113,6 @@ export const exportClientApplicationFormToXML = (
     result.EnterKeyBehavior = data.enterKeyBehavior
   }
 
-  if (data.formName !== undefined) {
-    result.FormName = data.formName
-  }
-
   if (data.formWindowOpeningMode !== undefined) {
     result.FormWindowOpeningMode = data.formWindowOpeningMode
   }
@@ -201,9 +197,9 @@ export const exportClientApplicationFormToXML = (
     result.WindowOptionsKey = data.windowOptionsKey
   }
 
-  if (data.useForFoldersAndItems !== undefined) {
-    result.UseForFoldersAndItems = data.useForFoldersAndItems
-  }
+  // if (data.useForFoldersAndItems !== undefined) {
+  //   result.UseForFoldersAndItems = data.useForFoldersAndItems
+  // }
 
   const events = exportEventsToXML(context, data.events as Events | undefined)
   if (events !== undefined) {

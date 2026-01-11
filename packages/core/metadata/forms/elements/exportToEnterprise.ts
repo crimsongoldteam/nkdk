@@ -1,4 +1,4 @@
-import "../clientApplicationForm/exportToEnterprise"
+import "../clientApplicationForm/base/exportToEnterprise"
 import "./baseElement/exportToEnterprise"
 import "./button/exportToEnterprise"
 import "./buttonGroup/exportToEnterprise"

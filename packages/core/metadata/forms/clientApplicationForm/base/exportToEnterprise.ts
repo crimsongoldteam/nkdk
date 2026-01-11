@@ -6,12 +6,12 @@ import {
   ClientApplicationForm,
   ClientApplicationFormEnterprise,
   ClientApplicationFormEvents,
-} from "~/metadata/forms/clientApplicationForm/types"
+} from "~/metadata/forms/clientApplicationForm/base/types"
 import { exportCommandBarToEnterprise } from "~/metadata/forms/elements/commandBar/exportToEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportChildItemsToEnterprise } from "../collections/childItems/exportToEnterprise"
+import { exportChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 import { getAllElements } from "./getAllElements"
 
 const clientApplicationFormEventNameMapping: Record<keyof ClientApplicationFormEvents, string> = {

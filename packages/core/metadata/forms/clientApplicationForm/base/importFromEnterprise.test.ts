@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest"
+import "~/metadata/forms/elements/importFromEnterprise"
+import { FormElementType } from "~/metadata/metadataFactory/types"
 import {
   fullClientApplicationForm,
   fullClientApplicationFormEnterprise,
@@ -19,7 +21,7 @@ describe("importClientApplicationFormFromEnterprise", () => {
     const result = importClientApplicationFormFromEnterprise(
       mockСontext,
       fullClientApplicationFormEnterprise,
-      [],
+      [{ name: "ПолеВвода1", elementType: FormElementType.InputField }],
       "Форма"
     )
 

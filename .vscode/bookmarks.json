@@ -21,7 +21,7 @@
 			]
 		},
 		{
-			"path": "packages/core/metadata/forms/clientApplicationForm/exportToEnterprise.ts",
+			"path": "packages/core/metadata/forms/clientApplicationForm/base/exportToEnterprise.ts",
 			"bookmarks": [
 				{
 					"line": 47,
@@ -31,7 +31,7 @@
 			]
 		},
 		{
-			"path": "packages/core/metadata/forms/clientApplicationForm/exportToEnterprise.test.ts",
+			"path": "packages/core/metadata/forms/clientApplicationForm/base/exportToEnterprise.test.ts",
 			"bookmarks": [
 				{
 					"line": 11,

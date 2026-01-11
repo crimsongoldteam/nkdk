@@ -2,10 +2,10 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { CommandSet, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../commonObjects/formAttribute/types"
-import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../collections/childItems/types"
-import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../elements/commandBar/types"
-import { EventsXML } from "../events/types"
+import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
+import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../../collections/childItems/types"
+import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../../elements/commandBar/types"
+import { EventsXML } from "../../events/types"
 
 export interface ClientApplicationFormEvents {
   collaborationSystemUsersAutoComplete?: string
@@ -56,7 +56,7 @@ export interface ClientApplicationForm {
   title?: I8nText
   closeOnChoice?: boolean
   closeOnOwnerClose?: boolean
-  formName?: string
+  // formName?: string
   usedFormServer?: SE.UsedServer
   purposeUseKey?: string
   windowOptionsKey?: string
@@ -80,7 +80,6 @@ export interface ClientApplicationForm {
   uuid?: string
   width?: number
   slaveItemsWidth?: SE.ChildFormItemsWidth
-  useForFoldersAndItems?: SE.FoldersAndItemsUse
   events?: ClientApplicationFormEvents
 }
 
@@ -117,7 +116,7 @@ export interface ClientApplicationFormXML {
   ConversationsRepresentation?: SE.FormConversationsRepresentation
   Enabled?: boolean
   EnterKeyBehavior?: SE.EnterKeyBehaviorType
-  FormName?: string
+  // FormName?: string
   FormWindowOpeningMode?: SE.FormWindowOpeningMode
   Group?: SE.ChildFormItemsGroup
   Height?: number

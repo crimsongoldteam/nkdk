@@ -1,4 +1,4 @@
-import "../clientApplicationForm/importFromEnterprise"
+import "../clientApplicationForm/base/importFromEnterprise"
 import "./baseElement/importFromEnterprise"
 import "./button/importFromEnterprise"
 import "./buttonGroup/importFromEnterprise"

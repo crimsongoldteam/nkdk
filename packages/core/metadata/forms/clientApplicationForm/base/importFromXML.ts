@@ -2,9 +2,9 @@ import { importFormAttributesFromXML } from "~/metadata/commonObjects/formAttrib
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"
-import { importChildItemsFromXML } from "../collections/childItems/importFromXML"
-import { importCommandBarFromXML } from "../elements/commandBar/importFromXML"
-import { importEventsFromXML } from "../events/importFromXML"
+import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
+import { importCommandBarFromXML } from "../../elements/commandBar/importFromXML"
+import { importEventsFromXML } from "../../events/importFromXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
 export const importClientApplicationFormFromXML = (
@@ -89,9 +89,9 @@ export const importClientApplicationFormFromXML = (
     result.closeOnOwnerClose = xml.CloseOnOwnerClose
   }
 
-  if (xml.FormName !== undefined) {
-    result.formName = xml.FormName
-  }
+  // if (xml.FormName !== undefined) {
+  //   result.formName = xml.FormName
+  // }
 
   if (xml.UsedFormServer !== undefined) {
     result.usedFormServer = xml.UsedFormServer
@@ -177,9 +177,9 @@ export const importClientApplicationFormFromXML = (
     result.width = xml.Width
   }
 
-  if (xml.UseForFoldersAndItems !== undefined) {
-    result.useForFoldersAndItems = xml.UseForFoldersAndItems
-  }
+  // if (xml.UseForFoldersAndItems !== undefined) {
+  //   result.useForFoldersAndItems = xml.UseForFoldersAndItems
+  // }
 
   if (xml.SlaveItemsWidth !== undefined) {
     result.slaveItemsWidth = xml.SlaveItemsWidth

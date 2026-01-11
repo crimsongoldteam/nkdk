@@ -1,4 +1,7 @@
-import { ClientApplicationForm, ClientApplicationFormEnterprise } from "~/metadata/forms/clientApplicationForm/types"
+import {
+  ClientApplicationForm,
+  ClientApplicationFormEnterprise,
+} from "~/metadata/forms/clientApplicationForm/base/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullClientApplicationForm: ClientApplicationForm = {
@@ -35,13 +38,8 @@ export const fullClientApplicationForm: ClientApplicationForm = {
   showCloseButton: true,
   conversationsRepresentation: "Show",
   enterKeyBehavior: "DefaultButton",
-  childItems: [
-    {
-      name: "ПолеВвода1",
-      elementType: FormElementType.InputField,
-    },
-  ],
   commandBarLocation: "Top",
+  commandSet: ["WriteAndClose"],
   autoFillCheck: true,
   formWindowOpeningMode: "LockOwnerWindow",
   collapseItemsByImportance: "Use",
@@ -50,6 +48,12 @@ export const fullClientApplicationForm: ClientApplicationForm = {
   readOnly: false,
   width: 800,
   slaveItemsWidth: "Auto",
+  childItems: [
+    {
+      name: "ПолеВвода1",
+      elementType: FormElementType.InputField,
+    },
+  ],
   events: {
     collaborationSystemUsersAutoComplete: "Процедура1",
     externalEvent: "Процедура2",
@@ -77,15 +81,6 @@ export const fullClientApplicationForm: ClientApplicationForm = {
     onCreateAtServer: "Процедура24",
     onSaveDataInSettingsAtServer: "Процедура25",
   },
-}
-
-export const minimalClientApplicationForm: ClientApplicationForm = {
-  autoCommandBar: {
-    name: "ФормаКоманднаяПанель",
-    elementType: FormElementType.CommandBar,
-    childItems: [],
-  },
-  childItems: [],
 }
 
 export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterprise = {
@@ -158,10 +153,12 @@ export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterpris
     ПриСохраненииДанныхВНастройкахНаСервере: "Процедура25",
   },
   Элементы: {
-    ПолеВвода1: {
-      Тип: "ПолеВвода",
-    },
+    ПолеВвода1: {},
   },
+}
+
+export const minimalClientApplicationForm: ClientApplicationForm = {
+  childItems: [],
 }
 
 export const minimalClientApplicationFormEnterprise: ClientApplicationFormEnterprise = {}

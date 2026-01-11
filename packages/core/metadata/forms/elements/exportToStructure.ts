@@ -1,4 +1,4 @@
-import "../clientApplicationForm/exportToStructure"
+import "../clientApplicationForm/base/exportToStructure"
 import "./baseElement/exportToStructure"
 import "./button/exportToStructure"
 import "./button/exportToStructureContent"

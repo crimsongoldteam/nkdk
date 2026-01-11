@@ -1,4 +1,4 @@
-import "../clientApplicationForm/exportToXML"
+import "../clientApplicationForm/base/exportToXML"
 import "./button/exportToXML"
 import "./buttonGroup/exportToXML"
 import "./calendarField/exportToXML"

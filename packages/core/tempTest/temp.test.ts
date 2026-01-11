@@ -1,12 +1,15 @@
 import { readFileSync, writeFileSync } from "fs"
 import { join } from "path"
 import { describe, it, vi } from "vitest"
-import { exportClientApplicationFormToEnterprise } from "~/metadata/forms/clientApplicationForm/exportToEnterprise"
-import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/exportToStructure"
-import { exportClientApplicationFormToXML } from "~/metadata/forms/clientApplicationForm/exportToXML"
-import { importClientApplicationFormFromEnterprise } from "~/metadata/forms/clientApplicationForm/importFromEnterprise"
-import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/importFromXML"
-import { ClientApplicationFormEnterprise, ClientApplicationFormXML } from "~/metadata/forms/clientApplicationForm/types"
+import { exportClientApplicationFormToEnterprise } from "~/metadata/forms/clientApplicationForm/base/exportToEnterprise"
+import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/base/exportToStructure"
+import { exportClientApplicationFormToXML } from "~/metadata/forms/clientApplicationForm/base/exportToXML"
+import { importClientApplicationFormFromEnterprise } from "~/metadata/forms/clientApplicationForm/base/importFromEnterprise"
+import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/base/importFromXML"
+import {
+  ClientApplicationFormEnterprise,
+  ClientApplicationFormXML,
+} from "~/metadata/forms/clientApplicationForm/base/types"
 import { importChildItemsFromStructure } from "~/metadata/forms/collections/childItems/importFromStructure"
 import "~/metadata/forms/elements/exportToEnterprise"
 import "~/metadata/forms/elements/exportToStructure"

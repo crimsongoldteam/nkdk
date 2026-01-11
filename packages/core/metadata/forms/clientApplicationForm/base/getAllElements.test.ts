@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType } from "../../metadataFactory/types"
+import { FormElementType } from "../../../metadataFactory/types"
 import { getAllElements } from "./getAllElements"
 import { ClientApplicationForm } from "./types"
 
