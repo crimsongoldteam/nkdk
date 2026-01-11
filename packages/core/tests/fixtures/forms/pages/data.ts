@@ -15,6 +15,7 @@ export const fullPages: Pages = {
   events: {
     onCurrentPageChange: "ПроцедураПриСменеСтраницы",
   },
+  childItems: [],
 }
 
 export const fullPagesEnterprise: PagesEnterprise = {
@@ -31,6 +32,7 @@ export const fullPagesEnterprise: PagesEnterprise = {
 export const minimalPages: Pages = {
   elementType: FormElementType.Pages,
   name: "Страницы",
+  childItems: [],
 }
 
 export const minimalPagesEnterprise: PagesEnterprise = {}

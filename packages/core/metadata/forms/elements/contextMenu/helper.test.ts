@@ -54,6 +54,7 @@ describe("isDefaultContextMenuName", () => {
     const contextMenu: ContextMenu = {
       elementType: FormElementType.FormGroup,
       name: "КастомноеМеню",
+      childItems: [],
     }
 
     const result = isDefaultContextMenuName(parentElement, contextMenu)
@@ -70,6 +71,7 @@ describe("isDefaultContextMenuName", () => {
     const contextMenu: ContextMenu = {
       elementType: FormElementType.FormGroup,
       name: "КакойТоЭлементМеню",
+      childItems: [],
     }
 
     const result = isDefaultContextMenuName(parentElement, contextMenu)

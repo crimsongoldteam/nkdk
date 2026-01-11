@@ -27,6 +27,7 @@ export const fullPage: Page = {
   verticalAlign: "Top",
   verticalScrollOnReduceSize: true,
   verticalSpacing: "Single",
+  childItems: [],
 }
 
 export const fullPageEnterprise: PageEnterprise = {

@@ -30,7 +30,7 @@ export interface Table extends BaseElement {
   borderColor?: Color
   changeRowOrder?: boolean
   changeRowSet?: boolean
-  childItems?: ChildItems
+  childItems: ChildItems
   choiceMode?: boolean
   commandBar?: CommandBar
   commandBarLocation?: SE.FormItemCommandBarLabelLocation

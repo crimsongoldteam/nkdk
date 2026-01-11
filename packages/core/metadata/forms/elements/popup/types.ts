@@ -13,7 +13,7 @@ export interface Popup extends FormGroup {
   shape?: SE.ButtonShape
   shapeRepresentation?: SE.ButtonShapeRepresentation
   userVisible?: UserVisible
-  childItems?: ButtonGroupChildItem[]
+  childItems: ButtonGroupChildItem[]
 }
 
 export interface PopupXML extends FormGroupXML {

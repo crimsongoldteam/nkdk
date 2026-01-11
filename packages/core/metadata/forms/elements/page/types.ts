@@ -25,7 +25,7 @@ export interface Page extends FormGroup {
   verticalAlign?: SE.ItemVerticalAlign
   verticalScrollOnReduceSize?: boolean
   verticalSpacing?: SE.FormItemSpacing
-  childItems?: ChildItems
+  childItems: ChildItems
 }
 
 export interface PageXML extends FormGroupXML {

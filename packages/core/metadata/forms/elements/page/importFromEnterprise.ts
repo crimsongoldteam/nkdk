@@ -24,6 +24,7 @@ export const importPageFromEnterprise = <From extends PageEnterprise | undefined
   const result: ImportFromEnterpriseReturn<From, Page, Name> = {
     ...baseFields,
     elementType: FormElementType.Page,
+    childItems: [],
   }
 
   const backColor = importColorFromEnterprise(context, data.ЦветФона)

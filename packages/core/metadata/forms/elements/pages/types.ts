@@ -14,7 +14,7 @@ export interface Pages extends FormGroup {
   events?: {
     onCurrentPageChange?: string
   }
-  childItems?: Page[]
+  childItems: Page[]
 }
 
 export interface PagesXML extends FormGroupXML {

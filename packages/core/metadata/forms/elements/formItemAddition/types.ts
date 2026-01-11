@@ -8,7 +8,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormItemAddition extends BaseElement {
-  childItems?: ChildItems
+  childItems: ChildItems
   contextMenu?: ContextMenu
   displayImportance?: SE.DisplayImportance
   enabled?: boolean

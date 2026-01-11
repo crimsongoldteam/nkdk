@@ -141,6 +141,7 @@ export const importTableFromEnterprise = <From extends TableEnterprise | undefin
   const result: ImportFromEnterpriseReturn<From, Table, Name> = {
     ...baseElement,
     elementType: FormElementType.Table,
+    childItems: [],
   }
 
   const autoAddIncomplete = importBooleanFromEnterprise(context, data.АвтоВводНезаполненного)

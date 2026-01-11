@@ -6,7 +6,7 @@ import { BaseElement, BaseElementEnterprise, BaseElementXML } from "../baseEleme
 export interface ContextMenu extends BaseElement {
   displayImportance?: SE.DisplayImportance
   autofill?: boolean
-  childItems?: ChildItems
+  childItems: ChildItems
 }
 
 export interface ContextMenuXML extends BaseElementXML {

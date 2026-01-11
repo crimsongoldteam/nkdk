@@ -34,7 +34,7 @@ export interface UsualGroup extends FormGroup {
   userVisible?: UserVisible
   verticalAlign?: SE.ItemVerticalAlign
   verticalSpacing?: SE.FormItemSpacing
-  childItems?: ChildItems
+  childItems: ChildItems
 }
 
 export interface UsualGroupXML extends FormGroupXML {

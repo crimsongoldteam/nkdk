@@ -20,6 +20,7 @@ export const importPageFromXML = (context: ConfigurationContext, xml: PageXML | 
   const result: Page = {
     elementType: FormElementType.Page,
     ...restFields,
+    childItems: [],
   }
 
   const childItems = importChildItemsFromXML(context, xml.ChildItems)

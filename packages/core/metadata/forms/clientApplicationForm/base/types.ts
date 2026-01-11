@@ -69,7 +69,7 @@ export interface ClientApplicationForm {
   showCloseButton?: boolean
   conversationsRepresentation?: SE.FormConversationsRepresentation
   enterKeyBehavior?: SE.EnterKeyBehaviorType
-  childItems?: ChildItems
+  childItems: ChildItems
   commandBarLocation?: SE.FormCommandBarLabelLocation
   autoFillCheck?: boolean
   formWindowOpeningMode?: SE.FormWindowOpeningMode

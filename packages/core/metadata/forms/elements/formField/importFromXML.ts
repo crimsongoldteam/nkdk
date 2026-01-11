@@ -23,7 +23,7 @@ export const importFormFieldFromXML = <T extends FormFieldXML | undefined>(
   const baseFields = importBaseElementFromXML(context, xml)
   if (!baseFields) return undefined as ImportExportReturn<T, FormField>
 
-  const result: FormField = {
+  const result: ImportExportReturn<T, FormField> = {
     ...baseFields,
     elementType: FormElementType.FormField,
   }

@@ -10,7 +10,7 @@ import {
 export interface ButtonGroup extends FormGroup {
   representation?: SE.ButtonGroupRepresentation
   userVisible?: UserVisible
-  childItems?: ButtonGroupChildItem[]
+  childItems: ButtonGroupChildItem[]
 }
 
 export interface ButtonGroupXML extends FormGroupXML {
