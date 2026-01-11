@@ -1,9 +1,9 @@
-import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { formatElementName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { LabelDecoration } from "./types"
 
 export const exportLabelDecorationToStructure = (

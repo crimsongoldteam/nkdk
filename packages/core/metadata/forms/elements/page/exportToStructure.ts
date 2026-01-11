@@ -22,7 +22,7 @@ export const exportPageToStructure: FormatElementFunction = (
     haveSimpleHorizontalGroup: false,
   }
 
-  const header = getHeader(pageElement)
+  const header = getHeader(context, pageElement)
   result.strings.push(header)
 
   const childResult = exportChildItemsToStructure(context, childItems)
@@ -32,10 +32,10 @@ export const exportPageToStructure: FormatElementFunction = (
   return result
 }
 
-const getHeader = (element: Page): string => {
+const getHeader = (context: ConfigurationContext, element: Page): string => {
   let result = t.Slash.LABEL as string
 
-  result += formatElementTitleAndName(element)
+  result += formatElementTitleAndName(context, element)
 
   return result
 }
