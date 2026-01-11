@@ -62,7 +62,6 @@
 	<VerticalSpacing>Single</VerticalSpacing>
 	<Width>800</Width>
 	<WindowOptionsKey>WindowOptionsKey</WindowOptionsKey>
-	<UseForFoldersAndItems>FoldersAndItems</UseForFoldersAndItems>
 	<Events>
 		<Event name="CollaborationSystemUsersAutoComplete">Процедура1</Event>
 		<Event name="ExternalEvent">Процедура2</Event>

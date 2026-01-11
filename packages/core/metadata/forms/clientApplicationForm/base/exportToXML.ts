@@ -36,10 +36,7 @@ export const exportClientApplicationFormToXML = (
     _version: "2.18",
   }
 
-  const autoCommandBar = exportAutoCommandBarToXML(context, data.autoCommandBar)
-  if (autoCommandBar !== undefined) {
-    result.AutoCommandBar = autoCommandBar
-  }
+  result.AutoCommandBar = exportAutoCommandBarToXML(context, data.autoCommandBar)
 
   const title = exportI8nTextToXML(context, data.title)
   if (title !== undefined) {

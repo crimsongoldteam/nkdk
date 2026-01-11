@@ -18,6 +18,7 @@ export const fullPopup: Popup = {
 }
 
 export const fullPopupEnterprise: PopupEnterprise = {
+  Тип: "Подменю",
   ...fullFormGroupEnterprise,
   Заголовок: "Всплывающее окно",
   Отображение: "Текст",
@@ -33,4 +34,6 @@ export const minimalPopup: Popup = {
   childItems: [],
 }
 
-export const minimalPopupEnterprise: PopupEnterprise = {}
+export const minimalPopupEnterprise: PopupEnterprise = {
+  Тип: "Подменю",
+}

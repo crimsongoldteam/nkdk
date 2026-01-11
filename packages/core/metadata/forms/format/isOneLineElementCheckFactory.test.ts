@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest"
-import { BaseElement } from "../metadata/forms/elements/baseElement/types"
-import { FormElementType } from "../metadata/metadataFactory/types"
+import { FormElementType } from "../../metadataFactory/types"
+import { BaseElement } from "../elements/baseElement/types"
 import {
   clearIsOneLineElementCheckRegistry,
   isOneLineElement,

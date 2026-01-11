@@ -1,5 +1,5 @@
 import { formatElementName } from "~/format/helpers"
-import { IFormatElementResult } from "~/format/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { FormElementTypeToEnterprise } from "../../../metadataFactory/types"
 import { BaseElement } from "./types"

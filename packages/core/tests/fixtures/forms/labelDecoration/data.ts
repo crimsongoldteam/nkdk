@@ -1,4 +1,4 @@
-import { IFormatElementResult } from "~/format/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { LabelDecoration, LabelDecorationEnterprise } from "~/metadata/forms/elements/labelDecoration/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormDecoration, fullFormDecorationEnterprise } from "../formDecoration/data"

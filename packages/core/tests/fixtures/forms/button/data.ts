@@ -1,4 +1,4 @@
-import { IFormatElementResult } from "~/format/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { Button, ButtonEnterprise } from "~/metadata/forms/elements/button/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 

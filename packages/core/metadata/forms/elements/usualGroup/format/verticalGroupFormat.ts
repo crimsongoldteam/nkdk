@@ -1,5 +1,5 @@
 import { formatElementTitleAndName } from "~/format/helpers"
-import { IFormatElementResult } from "~/format/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
 import { UsualGroupBehavior, UsualGroupRepresentation } from "~/metadata/systemEnumerations/types"

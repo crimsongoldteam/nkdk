@@ -19,6 +19,7 @@ export const fullButtonGroup: ButtonGroup = {
 }
 
 export const fullButtonGroupEnterprise: ButtonGroupEnterprise = {
+  Тип: "ГруппаКнопок",
   ...fullFormGroupEnterprise,
   Заголовок: "Группа кнопок",
   Отображение: "Компактное",
@@ -30,4 +31,6 @@ export const minimalButtonGroup: ButtonGroup = {
   childItems: [],
 }
 
-export const minimalButtonGroupEnterprise: ButtonGroupEnterprise = {}
+export const minimalButtonGroupEnterprise: ButtonGroupEnterprise = {
+  Тип: "ГруппаКнопок",
+}

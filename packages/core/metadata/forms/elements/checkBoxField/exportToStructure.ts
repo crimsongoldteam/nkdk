@@ -1,7 +1,7 @@
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { formatElementName } from "~/format/helpers"
 import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
-import { IFormatElementResult } from "~/format/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { CheckBoxField } from "./types"

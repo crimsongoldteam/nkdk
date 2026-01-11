@@ -6,7 +6,7 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 export const exportAutoCommandBarToXML = (
   context: ConfigurationContext,
   data: AutoCommandBar | undefined
-): AutoCommandBarXML | undefined => {
+): AutoCommandBarXML => {
   const result = exportCommandBarToXML(context, data) as AutoCommandBarXML | undefined
   if (result) {
     const sorted = sortObject(result) as AutoCommandBarXML
@@ -15,3 +15,9 @@ export const exportAutoCommandBarToXML = (
   }
   return result
 }
+
+// getDefaultAutoCommandBarL = (): AutoCommandBarXML => {
+//   return
+//     _id: "-1",
+//   }
+// }

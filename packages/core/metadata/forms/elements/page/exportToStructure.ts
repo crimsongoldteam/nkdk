@@ -1,6 +1,6 @@
 import { formatElementTitleAndName } from "~/format/helpers"
 import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
-import { FormatElementFunction, IFormatElementResult } from "~/format/types"
+import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
 import { addSimpleIndent } from "~/format/wrap/addIndents"
 import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"

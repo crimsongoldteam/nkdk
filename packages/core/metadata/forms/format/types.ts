@@ -1,5 +1,5 @@
-import { ConfigurationContext } from "../metadata/context/types"
-import { BaseElement } from "../metadata/forms/elements/baseElement/types"
+import { ConfigurationContext } from "~/metadata/context/types"
+import { BaseElement } from "../elements/baseElement/types"
 
 export enum WrapInGroupStrategy {
   None,
