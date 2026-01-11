@@ -1,12 +1,10 @@
 import { BaseElement } from "../baseElement/types"
 import { AutoCommandBar } from "./types"
 
-const DEFAULT_NAME = "КоманднаяПанель"
-
 export const getAutoCommandBarName = (parentElement?: BaseElement): string => {
-  if (!parentElement) return DEFAULT_NAME
+  if (!parentElement) return "ФормаКоманднаяПанель"
 
-  return `${parentElement.name}${DEFAULT_NAME}`
+  return `${parentElement.name}КоманднаяПанель`
 }
 
 const EXCLUDED_FIELDS = ["name", "elementType", "childItems"]

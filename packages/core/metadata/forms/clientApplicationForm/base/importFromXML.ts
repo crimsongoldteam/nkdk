@@ -3,7 +3,7 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"
 import { importChildItemsFromXML } from "../../collections/childItems/importFromXML"
-import { importCommandBarFromXML } from "../../elements/commandBar/importFromXML"
+import { importAutoCommandBarFromXML } from "../../elements/autoCommandBar/importFromXML"
 import { importEventsFromXML } from "../../events/importFromXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
@@ -11,14 +11,16 @@ export const importClientApplicationFormFromXML = (
   context: ConfigurationContext,
   xml: ClientApplicationFormXML
 ): ClientApplicationForm => {
-  const result: ClientApplicationForm = {}
+  const result: ClientApplicationForm = {
+    childItems: [],
+  }
 
   const attributes = importFormAttributesFromXML(context, xml.Attributes?.Attribute)
   if (attributes !== undefined) {
     result.attributes = attributes
   }
 
-  const autoCommandBar = importCommandBarFromXML(context, xml.AutoCommandBar)
+  const autoCommandBar = importAutoCommandBarFromXML(context, xml.AutoCommandBar)
   if (autoCommandBar !== undefined) {
     result.autoCommandBar = autoCommandBar
   }
@@ -105,11 +107,6 @@ export const importClientApplicationFormFromXML = (
     result.windowOptionsKey = xml.WindowOptionsKey
   }
 
-  const commandBar = importCommandBarFromXML(context, xml.CommandBar)
-  if (commandBar !== undefined) {
-    result.commandBar = commandBar
-  }
-
   if (xml.Scale !== undefined) {
     result.scale = xml.Scale
   }
@@ -142,8 +139,7 @@ export const importClientApplicationFormFromXML = (
     result.enterKeyBehavior = xml.EnterKeyBehavior
   }
 
-  const childItems = importChildItemsFromXML(context, xml.ChildItems)
-  result.childItems = childItems
+  result.childItems = importChildItemsFromXML(context, xml.ChildItems)
 
   if (xml.CommandBarLocation !== undefined) {
     result.commandBarLocation = xml.CommandBarLocation

@@ -235,21 +235,26 @@ export class Visitor extends BaseVisitor {
 
     const name = joinTokens(ctx.properties as IToken[]) || "CommandBar"
 
-    return {
+    const result: CommandBar = {
       elementType: FormElementType.CommandBar,
       name: name,
       childItems: childItems,
-    } as CommandBar
+    }
+
+    return result
   }
 
   autoCommandBar(ctx: CstChildrenDictionary, context: ConfigurationContext): AutoCommandBar {
     const childItems = visitAll(this, ctx.commandBarButton, context) as unknown as AutoCommandBar["childItems"]
     const filteredChildItems = childItems.filter((item) => item.name !== "" || item.title !== undefined)
     const autofill = ctx.Dots !== undefined && ctx.Dots.length > 0
-    return {
+
+    const result: AutoCommandBar = {
+      elementType: FormElementType.AutoCommandBar,
       autofill: autofill,
       childItems: filteredChildItems,
-    } as AutoCommandBar
+    }
+    return result
   }
 
   commandBarButton(ctx: CstChildrenDictionary, context: ConfigurationContext): Button {
@@ -258,11 +263,13 @@ export class Visitor extends BaseVisitor {
 
     const title = this.createTitle(titleText, context.defaultLanguage)
 
-    return {
+    const result: Button = {
       elementType: FormElementType.Button,
       name: name || "",
       title: title,
-    } as Button
+    }
+
+    return result
   }
 
   // #endregion

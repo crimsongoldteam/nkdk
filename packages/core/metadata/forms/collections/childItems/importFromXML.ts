@@ -3,11 +3,8 @@ import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { ChildItems, ChildItemsXML } from "./types"
 
-export const importChildItemsFromXML = (
-  context: ConfigurationContext,
-  xml: ChildItemsXML | undefined
-): ChildItems | undefined => {
-  if (!xml) return undefined
+export const importChildItemsFromXML = (context: ConfigurationContext, xml: ChildItemsXML | undefined): ChildItems => {
+  if (!xml) return []
 
   const items = Array.isArray(xml) ? xml : [xml]
 

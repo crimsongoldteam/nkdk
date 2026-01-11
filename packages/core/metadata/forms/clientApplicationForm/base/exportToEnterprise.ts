@@ -7,11 +7,11 @@ import {
   ClientApplicationFormEnterprise,
   ClientApplicationFormEvents,
 } from "~/metadata/forms/clientApplicationForm/base/types"
-import { exportCommandBarToEnterprise } from "~/metadata/forms/elements/commandBar/exportToEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
+import { exportAutoCommandBarToEnterprise } from "../../elements/autoCommandBar/exportToEnterprise"
 import { getAllElements } from "./getAllElements"
 
 const clientApplicationFormEventNameMapping: Record<keyof ClientApplicationFormEvents, string> = {
@@ -148,8 +148,8 @@ export const exportClientApplicationFormToEnterprise = (
 
   if (data.windowOptionsKey !== undefined) result.КлючСохраненияПоложенияОкна = data.windowOptionsKey
 
-  const commandBar = exportCommandBarToEnterprise(context, data.commandBar)
-  if (commandBar !== undefined) result.КоманднаяПанель = commandBar
+  const autoCommandBar = exportAutoCommandBarToEnterprise(context, data.autoCommandBar)
+  if (autoCommandBar !== undefined) result.КоманднаяПанель = autoCommandBar
 
   if (data.scale !== undefined) result.Масштаб = data.scale
 

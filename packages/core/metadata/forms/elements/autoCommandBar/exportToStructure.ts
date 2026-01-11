@@ -6,8 +6,9 @@ import { AutoCommandBar } from "./types"
 
 export const exportAutoCommandBarToStructure = (
   context: ConfigurationContext,
-  element: AutoCommandBar
+  element: AutoCommandBar | undefined
 ): IFormatElementResult => {
+  if (!element) return { strings: [], haveSimpleHorizontalGroup: false }
   const content = exportAutoCommandBarContentToStructure(context, element)
 
   return {

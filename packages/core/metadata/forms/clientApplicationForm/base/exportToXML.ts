@@ -3,9 +3,9 @@ import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportCommandSetToXML } from "~/metadata/forms/commandSet/exportToXML"
 import { exportAutoCommandBarToXML } from "~/metadata/forms/elements/autoCommandBar/exportToXML"
-import { exportCommandBarToXML } from "~/metadata/forms/elements/commandBar/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { Events } from "~/metadata/forms/events/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { exportChildItemsToXML } from "../../collections/childItems/exportToXML"
 import { ClientApplicationForm, ClientApplicationFormXML } from "./types"
 
@@ -14,6 +14,8 @@ export const exportClientApplicationFormToXML = (
   data: ClientApplicationForm | undefined
 ): ClientApplicationFormXML | undefined => {
   if (!data) return undefined
+
+  const autoCommandBar = exportAutoCommandBarToXML(context, data.autoCommandBar)
 
   const result: ClientApplicationFormXML = {
     _xmlns: "http://v8.1c.ru/8.3/xcf/logform",
@@ -34,9 +36,8 @@ export const exportClientApplicationFormToXML = (
     "_xmlns:xs": "http://www.w3.org/2001/XMLSchema",
     "_xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
     _version: "2.18",
+    AutoCommandBar: autoCommandBar,
   }
-
-  result.AutoCommandBar = exportAutoCommandBarToXML(context, data.autoCommandBar)
 
   const title = exportI8nTextToXML(context, data.title)
   if (title !== undefined) {
@@ -87,11 +88,6 @@ export const exportClientApplicationFormToXML = (
 
   if (data.collapseItemsByImportance !== undefined) {
     result.CollapseItemsByImportance = data.collapseItemsByImportance
-  }
-
-  const commandBar = exportCommandBarToXML(context, data.commandBar)
-  if (commandBar !== undefined) {
-    result.CommandBar = commandBar
   }
 
   if (data.commandBarLocation !== undefined) {
@@ -208,5 +204,5 @@ export const exportClientApplicationFormToXML = (
     result.ChildItems = childItems
   }
 
-  return result
+  return sortObject(result)
 }

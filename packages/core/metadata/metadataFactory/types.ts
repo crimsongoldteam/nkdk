@@ -42,6 +42,7 @@ export const FormElementTypeToEnterprise = {
   FormField: "ПолеФормы",
   FormItemAddition: "ДополнениеЭлементаФормы",
   FormGroup: "ГруппаФормы",
+  AutoCommandBar: "АвтоматическаяКоманднаяПанель",
 } as const
 
 export const FormElementTypeFromEnterprise = Object.fromEntries(

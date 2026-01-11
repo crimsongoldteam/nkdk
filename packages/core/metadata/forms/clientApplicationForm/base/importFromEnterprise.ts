@@ -7,11 +7,12 @@ import {
   ClientApplicationFormEnterprise,
   ClientApplicationFormEvents,
 } from "~/metadata/forms/clientApplicationForm/base/types"
-import { importCommandBarFromEnterprise } from "~/metadata/forms/elements/commandBar/importFromEnterprise"
+import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsPropertiesFromEnterprise } from "../../collections/childItems/importPropertiesFromEnterprise"
-import { ChildItems } from "../../collections/childItems/types"
+import { ChildItemsStructureResult } from "../../collections/childItems/types"
+import { importAutoCommandBarPropsFromEnterprise } from "../../elements/autoCommandBar/importFromEnterprise"
 
 const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof ClientApplicationFormEvents> = {
   АвтоПодборПользователейСистемыВзаимодействия: "collaborationSystemUsersAutoComplete",
@@ -45,12 +46,13 @@ const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof Clie
 export const importClientApplicationFormFromEnterprise = (
   context: ConfigurationContext,
   data: ClientApplicationFormEnterprise | undefined,
-  childItems: ChildItems,
-  name: string
+  childItemsResult: ChildItemsStructureResult
 ): ClientApplicationForm | undefined => {
   if (!data) return undefined
 
-  const result: ClientApplicationForm = {}
+  const result: ClientApplicationForm = {
+    childItems: [],
+  }
 
   const autoTitle = importBooleanFromEnterprise(context, data.АвтоЗаголовок)
   if (autoTitle !== undefined) result.autoTitle = autoTitle
@@ -139,8 +141,14 @@ export const importClientApplicationFormFromEnterprise = (
 
   if (data.КлючСохраненияПоложенияОкна !== undefined) result.windowOptionsKey = data.КлючСохраненияПоложенияОкна
 
-  const commandBar = importCommandBarFromEnterprise(context, data.КоманднаяПанель, name + ".КоманднаяПанель")
-  if (commandBar !== undefined) result.commandBar = commandBar
+  const autoCommandBarProps = importAutoCommandBarPropsFromEnterprise(context, data.КоманднаяПанель)
+  const autoCommandBar = mixElementProps(childItemsResult.autoCommandBar, autoCommandBarProps, {
+    elementType: FormElementType.AutoCommandBar,
+    autofill: true,
+    childItems: [],
+  })
+
+  if (autoCommandBar !== undefined) result.autoCommandBar = autoCommandBar
 
   if (data.Масштаб !== undefined) result.scale = data.Масштаб
 
@@ -227,7 +235,7 @@ export const importClientApplicationFormFromEnterprise = (
   const attributes = importFormAttributesFromEnterprise(context, data.Реквизиты)
   if (attributes !== undefined) result.attributes = attributes
 
-  result.childItems = importChildItemsPropertiesFromEnterprise(context, childItems, data.Элементы)
+  result.childItems = importChildItemsPropertiesFromEnterprise(context, childItemsResult.childItems, data.Элементы)
 
   return result
 }
@@ -247,4 +255,14 @@ const importClientApplicationFormEventsFromEnterprise = (
   }
 
   return Object.keys(result).length > 0 ? result : undefined
+}
+
+const mixElementProps = <T extends object>(
+  element: T | undefined,
+  enterpriseProps: Partial<T> | undefined,
+  defaults: Partial<T>
+): T | undefined => {
+  if (!element && !enterpriseProps) return undefined
+
+  return { ...defaults, ...enterpriseProps, ...element } as T
 }

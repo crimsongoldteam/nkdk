@@ -4,7 +4,8 @@ import { CommandSet, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
 import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../../collections/childItems/types"
-import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../../elements/commandBar/types"
+import { AutoCommandBar } from "../../elements/autoCommandBar/types"
+import { CommandBarEnterprise, CommandBarXML } from "../../elements/commandBar/types"
 import { EventsXML } from "../../events/types"
 
 export interface ClientApplicationFormEvents {
@@ -40,7 +41,7 @@ export interface ClientApplicationForm {
   commandSet?: CommandSet
   // elementType: FormElementType
   attributes?: FormAttribute[]
-  autoCommandBar?: CommandBar
+  autoCommandBar?: AutoCommandBar
   autoTitle?: boolean
   autoSaveDataInSettings?: SE.AutoSaveFormDataInSettings
   autoURL?: boolean
@@ -60,7 +61,6 @@ export interface ClientApplicationForm {
   usedFormServer?: SE.UsedServer
   purposeUseKey?: string
   windowOptionsKey?: string
-  commandBar?: CommandBar
   scale?: number
   modalMode?: boolean
   modified?: boolean
@@ -111,7 +111,6 @@ export interface ClientApplicationFormXML {
   CloseOnChoice?: boolean
   CloseOnOwnerClose?: boolean
   CollapseItemsByImportance?: SE.CollapseFormItemsByImportance
-  CommandBar?: CommandBarXML
   CommandBarLocation?: SE.FormCommandBarLabelLocation
   ConversationsRepresentation?: SE.FormConversationsRepresentation
   Enabled?: boolean
@@ -142,7 +141,7 @@ export interface ClientApplicationFormXML {
   WindowOptionsKey?: string
   CommandSet?: CommandSetXML
   UseForFoldersAndItems?: SE.FoldersAndItemsUse
-  AutoCommandBar?: CommandBarXML
+  AutoCommandBar: CommandBarXML
   Events?: EventsXML
   ChildItems?: ChildItemsXML
   Attributes?: {

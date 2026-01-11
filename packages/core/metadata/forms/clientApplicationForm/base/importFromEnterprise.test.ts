@@ -4,38 +4,23 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 import {
   fullClientApplicationForm,
   fullClientApplicationFormEnterprise,
-  minimalClientApplicationForm,
-  minimalClientApplicationFormEnterprise,
 } from "~/tests/fixtures/forms/clientApplicationForm/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importClientApplicationFormFromEnterprise } from "./importFromEnterprise"
 
 describe("importClientApplicationFormFromEnterprise", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importClientApplicationFormFromEnterprise(mockСontext, undefined, [], "Форма")
+    const result = importClientApplicationFormFromEnterprise(mockСontext, undefined, { childItems: [] })
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from Enterprise", () => {
-    const result = importClientApplicationFormFromEnterprise(
-      mockСontext,
-      fullClientApplicationFormEnterprise,
-      [{ name: "ПолеВвода1", elementType: FormElementType.InputField }],
-      "Форма"
-    )
+    const result = importClientApplicationFormFromEnterprise(mockСontext, fullClientApplicationFormEnterprise, {
+      childItems: [{ name: "ПолеВвода1", elementType: FormElementType.InputField }],
+      autoCommandBar: { autofill: true, elementType: FormElementType.AutoCommandBar, childItems: [] },
+    })
 
     expect(result).toEqual(fullClientApplicationForm)
-  })
-
-  it("should import minimal", () => {
-    const result = importClientApplicationFormFromEnterprise(
-      mockСontext,
-      minimalClientApplicationFormEnterprise,
-      [],
-      "Форма"
-    )
-
-    expect(result).toEqual(minimalClientApplicationForm)
   })
 })

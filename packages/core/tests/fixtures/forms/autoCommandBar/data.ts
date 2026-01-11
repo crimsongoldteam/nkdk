@@ -9,6 +9,7 @@ export const parentElement: BaseElement = {
 }
 
 export const fullAutoCommandBar: AutoCommandBar = {
+  elementType: FormElementType.AutoCommandBar,
   autofill: false,
   displayImportance: "High",
   horizontalAlign: "Left",
@@ -38,6 +39,7 @@ export const fullPropsAutoCommandBarEnterprise: AutoCommandBarEnterprise = {
 }
 
 export const minimalAutoCommandBar: AutoCommandBar = {
+  elementType: FormElementType.AutoCommandBar,
   autofill: true,
   childItems: [],
 }
@@ -52,6 +54,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "autofill and buttons",
     element: {
+      elementType: FormElementType.AutoCommandBar,
       autofill: true,
       childItems: [
         {
@@ -74,6 +77,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without autofill",
     element: {
+      elementType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [
         {
@@ -96,6 +100,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without buttons",
     element: {
+      elementType: FormElementType.AutoCommandBar,
       autofill: true,
       childItems: [],
     },
@@ -107,6 +112,7 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
   {
     name: "without autofill and buttons",
     element: {
+      elementType: FormElementType.AutoCommandBar,
       autofill: false,
       childItems: [],
     },

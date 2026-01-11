@@ -6,8 +6,10 @@ import * as SE from "~/metadata/systemEnumerations/types"
 
 export const importAutoCommandBarPropsFromEnterprise = (
   context: ConfigurationContext,
-  data: AutoCommandBarEnterprise
+  data: AutoCommandBarEnterprise | undefined
 ): Partial<AutoCommandBar> | undefined => {
+  if (!data) return undefined
+
   const result: Partial<AutoCommandBar> = {}
 
   const autofill = importBooleanFromEnterprise(context, data.Автозаполнение)

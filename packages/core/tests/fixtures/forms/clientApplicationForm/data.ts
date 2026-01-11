@@ -5,6 +5,12 @@ import {
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullClientApplicationForm: ClientApplicationForm = {
+  autoCommandBar: {
+    elementType: FormElementType.AutoCommandBar,
+    autofill: false,
+    horizontalAlign: "Left",
+    childItems: [],
+  },
   attributes: [
     {
       name: "Объект",
@@ -102,6 +108,9 @@ export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterpris
   ИспользуемыйСерверФормы: "Основной",
   КлючНазначенияИспользования: "PurposeKey",
   КлючСохраненияПоложенияОкна: "WindowOptionsKey",
+  КоманднаяПанель: {
+    ГоризонтальноеПоложение: "Лево",
+  },
   Масштаб: 100,
   МодальныйРежим: "Ложь",
   Модифицированность: "Ложь",

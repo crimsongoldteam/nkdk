@@ -93,6 +93,7 @@ import {
   ViewStatusAdditionEnterprise,
   ViewStatusAdditionXML,
 } from "../../elements/viewStatusAddition/types"
+import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 
 export type ChildItem =
   | Button
@@ -254,3 +255,8 @@ export type ChildItemEnterprise =
   | ViewStatusAdditionEnterprise
 
 export type ChildItemsEnterprise = Record<string, ChildItemEnterprise>
+
+export interface ChildItemsStructureResult {
+  childItems: ChildItems
+  autoCommandBar?: AutoCommandBar
+}
