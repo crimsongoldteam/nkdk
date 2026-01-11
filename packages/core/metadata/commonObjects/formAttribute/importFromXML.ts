@@ -19,8 +19,7 @@ export const importFormAttributesFromXML = (
 const importFormAttributeFromXML = (context: ConfigurationContext, props: FormAttributeXML): FormAttribute => {
   const result: FormAttribute = {
     name: props._name,
-    id: props._id,
-  } as FormAttribute
+  }
 
   const title = importI8nTextFromXML(context, props.Title)
   if (title !== undefined) result.title = title
