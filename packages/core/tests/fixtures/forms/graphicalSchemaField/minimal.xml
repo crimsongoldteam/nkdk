@@ -1,4 +1,4 @@
 <GraphicalSchemaField name="ПолеГрафическойСхемы" id="1">
-	<ContextMenu name="ПолеГрафическойСхемыКонтекстноеМеню" id="1"/>
-	<ExtendedTooltip name="ПолеГрафическойСхемыРасширеннаяПодсказка" id="1"/>
+	<ContextMenu name="ПолеГрафическойСхемыКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="ПолеГрафическойСхемыРасширеннаяПодсказка" id="3"/>
 </GraphicalSchemaField>

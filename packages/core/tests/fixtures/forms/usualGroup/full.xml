@@ -8,7 +8,7 @@
 	<CurrentRowUse>DontUse</CurrentRowUse>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="ОбычнаяГруппаРасширеннаяПодсказка" id="1"/>
+	<ExtendedTooltip name="ОбычнаяГруппаРасширеннаяПодсказка" id="2"/>
 	<Format>
 		<v8:item>
 			<v8:lang>ru</v8:lang>

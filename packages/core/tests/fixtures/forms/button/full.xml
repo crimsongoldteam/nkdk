@@ -9,7 +9,7 @@
 	<DefaultButton>true</DefaultButton>
 	<DefaultItem>true</DefaultItem>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="КнопкаРасширеннаяПодсказка" id="1"/>
+	<ExtendedTooltip name="КнопкаРасширеннаяПодсказка" id="2"/>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<Height>30</Height>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>

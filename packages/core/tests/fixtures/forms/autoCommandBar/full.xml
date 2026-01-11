@@ -1,8 +1,8 @@
 <AutoCommandBar name="КакойТоЭлементКоманднаяПанель" id="1" DisplayImportance="High">
 	<Autofill>false</Autofill>
 	<ChildItems>
-		<Button name="Кнопка1" id="1">
-			<ExtendedTooltip name="Кнопка1РасширеннаяПодсказка" id="1"/>
+		<Button name="Кнопка1" id="2">
+			<ExtendedTooltip name="Кнопка1РасширеннаяПодсказка" id="3"/>
 		</Button>
 	</ChildItems>
 	<HorizontalAlign>Left</HorizontalAlign>

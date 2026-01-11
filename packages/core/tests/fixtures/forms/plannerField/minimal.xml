@@ -1,4 +1,4 @@
 <PlannerField name="ПолеПланера" id="1">
-	<ContextMenu name="ПолеПланераКонтекстноеМеню" id="1"/>
-	<ExtendedTooltip name="ПолеПланераРасширеннаяПодсказка" id="1"/>
+	<ContextMenu name="ПолеПланераКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="ПолеПланераРасширеннаяПодсказка" id="3"/>
 </PlannerField>

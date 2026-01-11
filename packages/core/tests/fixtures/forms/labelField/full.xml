@@ -1,7 +1,7 @@
 <LabelField name="ПолеНадписи" id="1" DisplayImportance="High">
 	<AutoCellHeight>true</AutoCellHeight>
 	<CellHyperlink>true</CellHyperlink>
-	<ContextMenu name="ПолеНадписиКонтекстноеМеню" id="1"/>
+	<ContextMenu name="ПолеНадписиКонтекстноеМеню" id="2"/>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
 	<EditMode>EnterOnInput</EditMode>
@@ -9,7 +9,7 @@
 	<Events>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 	</Events>
-	<ExtendedTooltip name="ПолеНадписиРасширеннаяПодсказка" id="1"/>
+	<ExtendedTooltip name="ПолеНадписиРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>

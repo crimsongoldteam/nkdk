@@ -1,4 +1,4 @@
 <PictureField name="ПолеКартинки" id="1">
-	<ContextMenu name="ПолеКартинкиКонтекстноеМеню" id="1"/>
-	<ExtendedTooltip name="ПолеКартинкиРасширеннаяПодсказка" id="1"/>
+	<ContextMenu name="ПолеКартинкиКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="ПолеКартинкиРасширеннаяПодсказка" id="3"/>
 </PictureField>

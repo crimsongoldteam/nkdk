@@ -1,7 +1,7 @@
 <ProgressBarField name="ПолеИндикатора" id="1" DisplayImportance="High">
 	<AutoCellHeight>true</AutoCellHeight>
 	<CellHyperlink>true</CellHyperlink>
-	<ContextMenu name="ПолеИндикатораКонтекстноеМеню" id="1"/>
+	<ContextMenu name="ПолеИндикатораКонтекстноеМеню" id="2"/>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
 	<EditMode>Directly</EditMode>
@@ -9,7 +9,7 @@
 	<Events>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 	</Events>
-	<ExtendedTooltip name="ПолеИндикатораРасширеннаяПодсказка" id="1"/>
+	<ExtendedTooltip name="ПолеИндикатораРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>

@@ -1,7 +1,7 @@
 <PlannerField name="ПолеПланера" id="1" DisplayImportance="High">
 	<AutoCellHeight>true</AutoCellHeight>
 	<CellHyperlink>true</CellHyperlink>
-	<ContextMenu name="ПолеПланераКонтекстноеМеню" id="1"/>
+	<ContextMenu name="ПолеПланераКонтекстноеМеню" id="2"/>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
 	<EditMode>EnterOnInput</EditMode>
@@ -9,7 +9,7 @@
 	<Events>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 	</Events>
-	<ExtendedTooltip name="ПолеПланераРасширеннаяПодсказка" id="1"/>
+	<ExtendedTooltip name="ПолеПланераРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>

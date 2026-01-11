@@ -1,7 +1,7 @@
 <SearchControlAddition name="ДополнениеУправленияПоиском" id="1" DisplayImportance="High">
-	<ContextMenu name="ДополнениеУправленияПоискомКонтекстноеМеню" id="1"/>
+	<ContextMenu name="ДополнениеУправленияПоискомКонтекстноеМеню" id="2"/>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="ДополнениеУправленияПоискомРасширеннаяПодсказка" id="1"/>
+	<ExtendedTooltip name="ДополнениеУправленияПоискомРасширеннаяПодсказка" id="3"/>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<Title>
 		<v8:item>

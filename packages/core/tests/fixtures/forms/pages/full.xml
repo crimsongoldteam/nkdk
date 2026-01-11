@@ -1,7 +1,7 @@
 <Pages name="Страницы" id="1">
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="СтраницыРасширеннаяПодсказка" id="1"/>
+	<ExtendedTooltip name="СтраницыРасширеннаяПодсказка" id="2"/>
 	<Height>200</Height>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>

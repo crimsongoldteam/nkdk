@@ -3,7 +3,7 @@
 	<AutoMaxHeight>true</AutoMaxHeight>
 	<AutoMaxWidth>true</AutoMaxWidth>
 	<CellHyperlink>true</CellHyperlink>
-	<ContextMenu name="ПолеПолосыПрокруткиКонтекстноеМеню" id="1"/>
+	<ContextMenu name="ПолеПолосыПрокруткиКонтекстноеМеню" id="2"/>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
 	<EditMode>EnterOnInput</EditMode>
@@ -11,7 +11,7 @@
 	<Events>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 	</Events>
-	<ExtendedTooltip name="ПолеПолосыПрокруткиРасширеннаяПодсказка" id="1"/>
+	<ExtendedTooltip name="ПолеПолосыПрокруткиРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>

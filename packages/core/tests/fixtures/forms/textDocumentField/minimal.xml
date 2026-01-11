@@ -1,4 +1,4 @@
 <TextDocumentField name="ПолеТекстовогоДокумента" id="1">
-	<ContextMenu name="ПолеТекстовогоДокументаКонтекстноеМеню" id="1"/>
-	<ExtendedTooltip name="ПолеТекстовогоДокументаРасширеннаяПодсказка" id="1"/>
+	<ContextMenu name="ПолеТекстовогоДокументаКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="ПолеТекстовогоДокументаРасширеннаяПодсказка" id="3"/>
 </TextDocumentField>

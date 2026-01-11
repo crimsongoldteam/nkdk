@@ -1,4 +1,4 @@
 <SearchControlAddition name="ДополнениеУправленияПоиском" id="1">
-	<ContextMenu name="ДополнениеУправленияПоискомКонтекстноеМеню" id="1"/>
-	<ExtendedTooltip name="ДополнениеУправленияПоискомРасширеннаяПодсказка" id="1"/>
+	<ContextMenu name="ДополнениеУправленияПоискомКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="ДополнениеУправленияПоискомРасширеннаяПодсказка" id="3"/>
 </SearchControlAddition>

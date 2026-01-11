@@ -2,7 +2,7 @@
 	<Autofill>true</Autofill>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="1"/>
+	<ExtendedTooltip name="КоманднаяПанельРасширеннаяПодсказка" id="2"/>
 	<Height>200</Height>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>

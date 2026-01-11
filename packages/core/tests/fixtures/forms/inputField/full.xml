@@ -57,7 +57,7 @@
 	</ChoiceParameters>
 	<ChooseType>true</ChooseType>
 	<ClearButton>true</ClearButton>
-	<ContextMenu name="ПолеВводаКонтекстноеМеню" id="1"/>
+	<ContextMenu name="ПолеВводаКонтекстноеМеню" id="2"/>
 	<CreateButton>true</CreateButton>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
@@ -92,7 +92,7 @@
 		<Event name="MultipleValuesDelete">ПроцедураУдаленияМножественныхЗначений</Event>
 	</Events>
 	<ExtendedEdit>true</ExtendedEdit>
-	<ExtendedTooltip name="ПолеВводаРасширеннаяПодсказка" id="1"/>
+	<ExtendedTooltip name="ПолеВводаРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<FooterBackColor>web:White</FooterBackColor>

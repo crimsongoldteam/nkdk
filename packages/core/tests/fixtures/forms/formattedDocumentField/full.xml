@@ -1,7 +1,7 @@
 <FormattedDocumentField name="ПолеФорматированногоДокумента" id="1" DisplayImportance="High">
 	<AutoCellHeight>true</AutoCellHeight>
 	<CellHyperlink>true</CellHyperlink>
-	<ContextMenu name="ПолеФорматированногоДокументаКонтекстноеМеню" id="1"/>
+	<ContextMenu name="ПолеФорматированногоДокументаКонтекстноеМеню" id="2"/>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
 	<EditMode>EnterOnInput</EditMode>
@@ -10,7 +10,7 @@
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 		<Event name="BeforeWrite">ПроцедураПередЗаписью</Event>
 	</Events>
-	<ExtendedTooltip name="ПолеФорматированногоДокументаРасширеннаяПодсказка" id="1"/>
+	<ExtendedTooltip name="ПолеФорматированногоДокументаРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>

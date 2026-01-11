@@ -1,7 +1,7 @@
 <SearchStringAddition name="ДополнениеСтрокиПоиска" id="1" DisplayImportance="High">
-	<ContextMenu name="ДополнениеСтрокиПоискаКонтекстноеМеню" id="1"/>
+	<ContextMenu name="ДополнениеСтрокиПоискаКонтекстноеМеню" id="2"/>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="ДополнениеСтрокиПоискаРасширеннаяПодсказка" id="1"/>
+	<ExtendedTooltip name="ДополнениеСтрокиПоискаРасширеннаяПодсказка" id="3"/>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<Title>
 		<v8:item>
