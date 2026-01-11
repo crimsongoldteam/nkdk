@@ -3,7 +3,6 @@ import {
   fullAutoCommandBar,
   fullAutoCommandBarEnterprise,
   minimalAutoCommandBar,
-  minimalAutoCommandBarEnterprise,
 } from "~/tests/fixtures/forms/autoCommandBar/data"
 import { mockСontext } from "~/tests/mockContext"
 import { exportAutoCommandBarToEnterprise } from "./exportToEnterprise"
@@ -24,6 +23,6 @@ describe("exportAutoCommandBarToEnterprise", () => {
   it("should export minimal", () => {
     const result = exportAutoCommandBarToEnterprise(mockСontext, minimalAutoCommandBar)
 
-    expect(result).toEqual(minimalAutoCommandBarEnterprise)
+    expect(result).toBeUndefined()
   })
 })

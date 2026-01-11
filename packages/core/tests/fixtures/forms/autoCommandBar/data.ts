@@ -1,14 +1,25 @@
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
+import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+
+export const parentElement: BaseElement = {
+  elementType: FormElementType.Form,
+  name: "КакойТоЭлемент",
+}
 
 export const fullAutoCommandBar: AutoCommandBar = {
   name: "КакойТоЭлементКоманднаяПанель",
   elementType: FormElementType.CommandBar,
-  autofill: true,
+  autofill: false,
   displayImportance: "High",
   horizontalAlign: "Left",
-  childItems: [],
+  childItems: [
+    {
+      elementType: FormElementType.Button,
+      name: "Кнопка1",
+    },
+  ],
 }
 
 export const fullAutoCommandBarEnterprise: AutoCommandBarEnterprise = {

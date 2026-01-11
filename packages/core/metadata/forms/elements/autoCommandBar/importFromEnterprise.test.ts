@@ -3,7 +3,6 @@ import {
   fullAutoCommandBar,
   fullAutoCommandBarEnterprise,
   minimalAutoCommandBar,
-  minimalAutoCommandBarEnterprise,
 } from "~/tests/fixtures/forms/autoCommandBar/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importAutoCommandBarFromEnterprise } from "./importFromEnterprise"
