@@ -12,6 +12,7 @@ import {
   Question,
   RadioButtonChecked,
   RadioButtonUnchecked,
+  RAngle,
   RArrow,
   RCurly,
   Slash,
@@ -23,108 +24,51 @@ import {
 import { ParseElementType } from "./types"
 
 export const detectElementType = (tokens: IToken[]): ParseElementType => {
-  const significantTokens = tokens.filter((token) => token.tokenType !== Whitespace)
-
-  if (significantTokens.length === 0) {
-    return ParseElementType.LabelDecoration
-  }
-
   const checkboxTokens = [CheckboxChecked, CheckboxUnchecked, SwitchChecked, SwitchUnchecked]
   const radioButtonTokens = [RadioButtonChecked, RadioButtonUnchecked]
 
-  const { firstToken, hasLeftArrow } = processFirstToken(significantTokens)
-  const firstTokenType = firstToken.tokenType
-
-  // начинается с ? - другое поле
-  if (firstTokenType === Question) {
-    return ParseElementType.OtherField
-  }
-
-  // начинается с < и содержит | - командная панель
-  const hasVBar = significantTokens.some((token) => token.tokenType === VBar)
-  if (firstTokenType === LAngle && hasVBar) {
-    return ParseElementType.CommandBar
-  }
-
-  // начинается с < - кнопка
-  if (firstTokenType === LAngle) {
-    return ParseElementType.Button
-  }
-
-  // начинается с // - страницы
-  if (firstTokenType === Slash && significantTokens.length >= 2 && significantTokens[1].tokenType === Slash) {
-    return ParseElementType.Pages
-  }
-
-  // начинается с # - вертикальная группа
-  if (firstTokenType === Hash) {
-    return ParseElementType.VerticalGroup
-  }
-
-  // начинается с / - страница
-  if (firstTokenType === Slash) {
-    return ParseElementType.Page
-  }
-
-  // начинается с % - горизонтальная группа
-  if (firstTokenType === Percent) {
-    const percentTokenCount = significantTokens.filter((token) => token.tokenType === Percent).length
-    if (percentTokenCount > 1) {
-      return ParseElementType.OneLineGroup
-    }
-    return ParseElementType.HorizontalGroup
-  }
-
-  const { hasColon, hasRightCheckbox, hasRadioButton } = analyzeTokens(
-    significantTokens,
-    checkboxTokens,
-    radioButtonTokens
-  )
-
-  return determineFieldType(
-    hasVBar,
-    hasColon,
-    hasRightCheckbox,
-    hasRadioButton,
-    hasLeftArrow,
-    firstTokenType,
-    checkboxTokens
-  )
-}
-
-export const processFirstToken = (tokens: IToken[]): { firstToken: IToken; hasLeftArrow: boolean } => {
-  let firstToken = tokens[0]
+  let firstToken: IToken | undefined
+  let firstTokenType: IToken["tokenType"] | undefined
   let hasLeftArrow = false
-
-  if (firstToken.tokenType === LArrow || firstToken.tokenType === RArrow) {
-    hasLeftArrow = true
-    if (tokens.length > 1) {
-      firstToken = tokens[1]
-    }
-  }
-
-  return { firstToken, hasLeftArrow }
-}
-
-export const analyzeTokens = (
-  tokens: IToken[],
-  checkboxTokens: (typeof CheckboxChecked)[],
-  radioButtonTokens: (typeof RadioButtonChecked)[]
-): {
-  hasColon: boolean
-  hasRightCheckbox: boolean
-  hasRadioButton: boolean
-  hasTextBeforeLastRadioButton: boolean
-} => {
+  let hasVBar = false
+  let foundRAngle = false
+  let hasCurlyBracesAfterRAngle = false
+  let percentTokenCount = 0
   let hasColon = false
   let hasRightCheckbox = false
   let hasRadioButton = false
-  const hasTextBeforeLastRadioButton = false
   let insideProperties = false
   let lastToken: IToken | undefined
-  const tokensBeforeLast: IToken[] = []
 
   for (const token of tokens) {
+    if (token.tokenType === Whitespace) continue
+
+    // Определяем первый значимый токен
+    if (firstToken === undefined) {
+      if (token.tokenType === LArrow || token.tokenType === RArrow) {
+        hasLeftArrow = true
+        continue
+      }
+      firstToken = token
+      firstTokenType = token.tokenType
+
+      if (firstTokenType === Question) return ParseElementType.OtherField
+      if (firstTokenType === Hash) return ParseElementType.VerticalGroup
+      if (firstTokenType === Slash) {
+        lastToken = token
+        continue
+      }
+    } else if (firstTokenType === Slash) {
+      return token.tokenType === Slash ? ParseElementType.Pages : ParseElementType.Page
+    }
+
+    // Проверка фигурных скобок после RAngle
+    if (token.tokenType === RAngle) foundRAngle = true
+    if (foundRAngle && (token.tokenType === LCurly || token.tokenType === RCurly)) {
+      hasCurlyBracesAfterRAngle = true
+    }
+
+    // Пропуск свойств внутри фигурных скобок
     if (token.tokenType === LCurly) {
       insideProperties = true
       continue
@@ -135,34 +79,50 @@ export const analyzeTokens = (
     }
     if (insideProperties) continue
 
-    if (lastToken) {
-      tokensBeforeLast.push(lastToken)
+    // Сбор информации о токенах
+    if (token.tokenType === VBar) hasVBar = true
+    if (token.tokenType === Colon) hasColon = true
+    if (radioButtonTokens.includes(token.tokenType)) hasRadioButton = true
+
+    if (token.tokenType === Percent) {
+      percentTokenCount++
+      if (firstTokenType === Percent && percentTokenCount > 1) {
+        return ParseElementType.OneLineGroup
+      }
     }
+
     lastToken = token
-
-    if (token.tokenType === Colon) {
-      hasColon = true
-      continue
-    }
-
-    if (radioButtonTokens.includes(token.tokenType)) {
-      hasRadioButton = true
-    }
   }
 
+  if (firstToken === undefined) return ParseElementType.LabelDecoration
+
+  // Проверка последнего токена на checkbox
   if (lastToken && checkboxTokens.includes(lastToken.tokenType)) {
     hasRightCheckbox = true
   }
 
-  return {
+  // Определение типа на основе собранной информации
+  if (firstTokenType === LAngle && hasVBar) {
+    return hasCurlyBracesAfterRAngle ? ParseElementType.CommandBar : ParseElementType.PotentialAutoCommandBar
+  }
+  if (firstTokenType === LAngle) return ParseElementType.Button
+  if (firstTokenType === Slash) return ParseElementType.Page
+  if (firstTokenType === Percent) {
+    return percentTokenCount > 1 ? ParseElementType.OneLineGroup : ParseElementType.HorizontalGroup
+  }
+
+  return determineFieldType(
+    hasVBar,
     hasColon,
     hasRightCheckbox,
     hasRadioButton,
-    hasTextBeforeLastRadioButton,
-  }
+    hasLeftArrow,
+    firstTokenType!,
+    checkboxTokens
+  )
 }
 
-export const determineFieldType = (
+const determineFieldType = (
   hasVBar: boolean,
   hasColon: boolean,
   hasRightCheckbox: boolean,

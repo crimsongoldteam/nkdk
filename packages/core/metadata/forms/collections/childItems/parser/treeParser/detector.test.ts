@@ -69,6 +69,15 @@ describe("detectElementType", () => {
     expect(result).toEqual(ParseElementType.CommandBar)
   })
 
+  it("should detect potential auto command bar if it doesn't have name", () => {
+    const mock = `<Button1|Button2|Button3>`
+
+    const tokens = tokenize(mock)
+    const result = detectElementType(tokens)
+
+    expect(result).toEqual(ParseElementType.PotentialAutoCommandBar)
+  })
+
   it("should detect button starting with <", () => {
     const mock = `<Button>`
 

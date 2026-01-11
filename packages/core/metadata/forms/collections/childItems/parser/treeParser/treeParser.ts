@@ -64,3 +64,5 @@ const processOneLineGroup = (context: ConfigurationContext, builderNode: Builder
 const canBeChildItem = (parentNodeType: ParseElementType, _childNodeType: ParseElementType): boolean => {
   return ElementWithChildItems.includes(parentNodeType)
 }
+
+// const
