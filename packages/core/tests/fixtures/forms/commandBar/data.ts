@@ -42,7 +42,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
   {
     name: "with buttons",
     element: {
-      name: "CommandBar",
+      name: "КоманднаяПанель",
       elementType: FormElementType.CommandBar,
       childItems: [
         {
@@ -63,7 +63,7 @@ export const commandBarStructureFixturesTable: CommandBarStructureFixture[] = [
       ],
     },
     structured: {
-      strings: ["<Кнопка Номер 1 {Кнопка1} | Кнопка Номер 2 {Кнопка2} | Кнопка Номер 3 {Кнопка3}>"],
+      strings: ["<Кнопка Номер 1 {Кнопка1} | Кнопка Номер 2 {Кнопка2} | Кнопка Номер 3 {Кнопка3}> {КоманднаяПанель}"],
       haveSimpleHorizontalGroup: false,
     },
   },

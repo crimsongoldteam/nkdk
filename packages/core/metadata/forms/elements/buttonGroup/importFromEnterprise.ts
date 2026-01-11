@@ -8,10 +8,7 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importButtonGroupFromEnterprise = <
-  From extends ButtonGroupEnterprise | undefined,
-  Name extends string,
->(
+export const importButtonGroupFromEnterprise = <From extends ButtonGroupEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
   data: From,
   name: Name
@@ -20,9 +17,10 @@ export const importButtonGroupFromEnterprise = <
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, ButtonGroup, Name> = {
+  const result: ButtonGroup = {
     ...baseFields,
     elementType: FormElementType.ButtonGroup,
+    childItems: [],
   }
 
   const representation = importSystemEnumerationFromEnterprise<SE.ButtonGroupRepresentation>(
@@ -37,7 +35,11 @@ export const importButtonGroupFromEnterprise = <
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -46,4 +48,3 @@ export const importButtonGroupFromEnterprise = <
 }
 
 registerMetadata("ImportFromEnterprise", "ButtonGroup", importButtonGroupFromEnterprise)
-

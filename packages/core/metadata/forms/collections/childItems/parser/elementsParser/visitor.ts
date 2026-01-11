@@ -233,7 +233,7 @@ export class Visitor extends BaseVisitor {
   commandBar(ctx: CstChildrenDictionary, context: ConfigurationContext): CommandBar {
     const childItems = visitAll(this, ctx.commandBarButton, context) as unknown as CommandBar["childItems"]
 
-    const name = joinTokens(ctx.properties as IToken[]) || "CommandBar"
+    const name = this.visit(ctx.properties as CstNode[], context) || "CommandBar"
 
     const result: CommandBar = {
       elementType: FormElementType.CommandBar,
