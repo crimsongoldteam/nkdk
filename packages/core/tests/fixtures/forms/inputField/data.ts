@@ -1,5 +1,5 @@
-import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { InputField, InputFieldEnterprise } from "~/metadata/forms/elements/inputField/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 

@@ -1,6 +1,6 @@
 import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { formatElementTitleAndName, wrapButtonContent } from "../../format/helpers"

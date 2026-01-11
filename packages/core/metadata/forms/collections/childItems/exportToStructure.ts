@@ -1,5 +1,5 @@
-import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { exportOtherElementToStructure } from "../../elements/baseElement/exportToStructure"

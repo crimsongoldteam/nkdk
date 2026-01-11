@@ -1,10 +1,10 @@
-import { formatElementName, formatElementTitleAndName } from "~/format/helpers"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { exportOtherElementToStructure } from "../../baseElement/exportToStructure"
 import { BaseElement } from "../../baseElement/types"
 import { UsualGroup } from "../types"
+import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
 
 export const formatOneLineGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
   const separatorSymbol = ";"

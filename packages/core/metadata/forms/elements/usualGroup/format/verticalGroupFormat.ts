@@ -1,7 +1,7 @@
-import { formatElementTitleAndName } from "~/format/helpers"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
+import { formatElementTitleAndName } from "~/metadata/forms/format/helpers"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { UsualGroupBehavior, UsualGroupRepresentation } from "~/metadata/systemEnumerations/types"
 import { exportChildItemsToStructure } from "../../../collections/childItems/exportToStructure"
 import { UsualGroup } from "../types"
@@ -14,7 +14,7 @@ export const formatVerticalGroup = (context: ConfigurationContext, element: Usua
   const childItems = element.childItems ?? []
 
   // if (params.wrapInGroup != WrapInGroupStrategy.None) {
-  const header = getHeader(element)
+  const header = getHeader(context, element)
   result.strings.push(header)
   // }
 
@@ -34,7 +34,7 @@ export const formatVerticalGroup = (context: ConfigurationContext, element: Usua
   return result
 }
 
-const getHeader = (element: UsualGroup): string => {
+const getHeader = (context: ConfigurationContext, element: UsualGroup): string => {
   // const excludeProperties = ["Заголовок", "Поведение", "Группировка"]
 
   const levelDisplay = getLevelDisplay(element)
@@ -46,7 +46,7 @@ const getHeader = (element: UsualGroup): string => {
 
   let result = (t.Hash.LABEL as string).repeat(level)
 
-  result += formatElementTitleAndName(element)
+  result += formatElementTitleAndName(context, element)
 
   return result
 }

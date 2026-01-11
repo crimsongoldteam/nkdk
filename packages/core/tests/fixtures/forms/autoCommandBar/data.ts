@@ -1,5 +1,5 @@
-import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullCommandBarEnterprise } from "../commandBar/data"
 import { fullFormGroup } from "../formGroup/data"

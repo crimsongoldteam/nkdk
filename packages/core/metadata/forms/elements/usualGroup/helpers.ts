@@ -1,4 +1,4 @@
-import { isOneLineElement } from "~/format/isOneLineElementCheckFactory"
+import { isOneLineElement } from "../../format/isOneLineElementCheckFactory"
 import { UsualGroup } from "./types"
 
 export const isOneLineGroup = (element: UsualGroup): boolean => {

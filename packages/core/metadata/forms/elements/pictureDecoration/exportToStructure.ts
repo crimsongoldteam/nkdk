@@ -1,11 +1,11 @@
-import { formatElementName } from "~/format/helpers"
-import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
+import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { formatElementName } from "~/metadata/forms/format/helpers"
+import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { FormElementType } from "../../../metadataFactory/types"
 import { BaseElement } from "../baseElement/types"
 import { PictureDecoration } from "./types"
-import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
-import { FormElementType } from "../../../metadataFactory/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportPictureDecorationToStructure: FormatElementFunction = (
   _context: ConfigurationContext,

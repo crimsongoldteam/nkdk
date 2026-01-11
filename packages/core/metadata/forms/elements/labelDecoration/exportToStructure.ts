@@ -1,8 +1,8 @@
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { formatElementName } from "~/format/helpers"
 import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
-import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { formatElementName } from "~/metadata/forms/format/helpers"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { LabelDecoration } from "./types"
 

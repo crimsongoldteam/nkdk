@@ -1,7 +1,5 @@
 import { IToken } from "chevrotain"
-import { ParseElementType } from "~/metadata/forms/collections/childItems/parser/treeParser/types"
-import { DetectedTreeNode } from "../metadata/forms/collections/childItems/parser/detector/detectTree"
-
+import { ParseElementType, TreeNode } from "~/metadata/forms/collections/childItems/parser/treeParser/types"
 export type TSimplifyToken = { type: string; value: string }
 
 export type SimplifiedDetectedTreeNode = {
@@ -10,7 +8,7 @@ export type SimplifiedDetectedTreeNode = {
   childItems: SimplifiedDetectedTreeNode[]
 }
 
-export const simlifyDetectedTreeNodes = (nodes: DetectedTreeNode[]): SimplifiedDetectedTreeNode[] => {
+export const simlifyDetectedTreeNodes = (nodes: TreeNode[]): SimplifiedDetectedTreeNode[] => {
   return nodes.map((node) => {
     // Упрощаем токены текущего узла
     const simplifiedTokens = node.tokens.map((token) => simplifyToken(token))
