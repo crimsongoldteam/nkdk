@@ -20,6 +20,11 @@ export const fullAutoCommandBar: AutoCommandBar = {
   ],
 }
 
+export const fullAutoCommandBarEnterprise: AutoCommandBarEnterprise = {
+  ВажностьПриОтображении: "Высокая",
+  ГоризонтальноеПоложение: "Лево",
+}
+
 export const fullPropsAutoCommandBar: Partial<AutoCommandBar> = {
   autofill: false,
   displayImportance: "High",
