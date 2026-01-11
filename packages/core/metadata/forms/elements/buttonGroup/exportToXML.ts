@@ -4,15 +4,16 @@ import { exportButtonGroupChildItemsToXML } from "~/metadata/forms/collections/b
 import { ButtonGroup, ButtonGroupXML } from "~/metadata/forms/elements/buttonGroup/types"
 import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ImportExportReturn } from "../types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 
-export const exportButtonGroupToXML = (
+export const exportButtonGroupToXML = <T extends ButtonGroup | undefined>(
   context: ConfigurationContext,
-  data: ButtonGroup | undefined
-): ButtonGroupXML | undefined => {
-  if (!data) return undefined
+  data: T
+): ImportExportReturn<T, ButtonGroupXML> => {
+  if (!data) return undefined as ImportExportReturn<T, ButtonGroupXML>
 
   const baseFields = exportFormGroupToXML(context, data)
-  if (!baseFields) return undefined
 
   const result: ButtonGroupXML = {
     ...baseFields,
@@ -26,7 +27,7 @@ export const exportButtonGroupToXML = (
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  return result
+  return sortObject(result) as ImportExportReturn<T, ButtonGroupXML>
 }
 
 registerMetadata("ExportToXML", "ButtonGroup", exportButtonGroupToXML)

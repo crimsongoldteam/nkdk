@@ -5,16 +5,17 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { CalendarField, CalendarFieldXML } from "~/metadata/forms/elements/calendarField/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ImportExportReturn } from "../types"
 
-export const exportCalendarFieldToXML = (
+export const exportCalendarFieldToXML = <T extends CalendarField | undefined>(
   context: ConfigurationContext,
-  data: CalendarField | undefined
-): CalendarFieldXML | undefined => {
-  if (!data) return undefined
+  data: T
+): ImportExportReturn<T, CalendarFieldXML> => {
+  if (!data) return undefined as ImportExportReturn<T, CalendarFieldXML>
 
   const baseFields = exportFormFieldToXML(context, data)
-  if (!baseFields) return undefined
 
   const result: CalendarFieldXML = {
     ...baseFields,
@@ -69,7 +70,7 @@ export const exportCalendarFieldToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return result
+  return sortObject(result) as ImportExportReturn<T, CalendarFieldXML>
 }
 
 registerMetadata("ExportToXML", "CalendarField", exportCalendarFieldToXML)

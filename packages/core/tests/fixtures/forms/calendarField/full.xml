@@ -1,17 +1,29 @@
 <CalendarField name="ПолеКалендаря" id="1" DisplayImportance="High">
 	<AutoCellHeight>true</AutoCellHeight>
+	<AutoMaxHeight>true</AutoMaxHeight>
+	<AutoMaxWidth>true</AutoMaxWidth>
+	<BeginOfRepresentationPeriod>2024-01-01</BeginOfRepresentationPeriod>
+	<Border ref="NormalBorder" width="1">
+		<v8ui:style xsi:type="v8ui:ControlBorderType">DoubleUnderline</v8ui:style>
+	</Border>
+	<BorderColor>web:Green</BorderColor>
+	<CalendarNavigation>true</CalendarNavigation>
 	<CellHyperlink>true</CellHyperlink>
 	<ContextMenu name="ПолеКалендаряКонтекстноеМеню" id="2"/>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
 	<EditMode>EnterOnInput</EditMode>
+	<EnableDrag>true</EnableDrag>
+	<EnableStartDrag>true</EnableStartDrag>
 	<Enabled>true</Enabled>
+	<EndOfRepresentationPeriod>2024-12-31</EndOfRepresentationPeriod>
 	<Events>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 		<Event name="Selection">ПроцедураВыбора</Event>
 	</Events>
 	<ExtendedTooltip name="ПолеКалендаряРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
 	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
@@ -32,12 +44,20 @@
 		<xr:Ref>StdPicture.Print</xr:Ref>
 		<xr:LoadTransparent>true</xr:LoadTransparent>
 	</HeaderPicture>
+	<Height>200</Height>
+	<HeightInMonths>3</HeightInMonths>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalStretch>true</HorizontalStretch>
+	<MaxHeight>500</MaxHeight>
+	<MaxWidth>400</MaxWidth>
 	<ReadOnly>false</ReadOnly>
+	<SelectionMode>Single</SelectionMode>
 	<Shortcut>Ctrl+S</Shortcut>
+	<ShowCurrentDate>true</ShowCurrentDate>
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
+	<ShowMonthsPanel>true</ShowMonthsPanel>
 	<SkipOnInput>false</SkipOnInput>
 	<Title>
 		<v8:item>
@@ -64,28 +84,15 @@
 	</UserVisible>
 	<VerticalAlign>Top</VerticalAlign>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
-	<Visible>true</Visible>
-	<AutoMaxHeight>true</AutoMaxHeight>
-	<AutoMaxWidth>true</AutoMaxWidth>
-	<BeginOfRepresentationPeriod>2024-01-01</BeginOfRepresentationPeriod>
-	<Border ref="NormalBorder" width="1">
-		<v8ui:style xsi:type="v8ui:ControlBorderType">DoubleUnderline</v8ui:style>
-	</Border>
-	<BorderColor>web:Green</BorderColor>
-	<CalendarNavigation>true</CalendarNavigation>
-	<EnableDrag>true</EnableDrag>
-	<EnableStartDrag>true</EnableStartDrag>
-	<EndOfRepresentationPeriod>2024-12-31</EndOfRepresentationPeriod>
-	<Font ref="style:NormalTextFont" kind="StyleItem"/>
-	<Height>200</Height>
-	<HeightInMonths>3</HeightInMonths>
-	<HorizontalStretch>true</HorizontalStretch>
-	<MaxHeight>500</MaxHeight>
-	<MaxWidth>400</MaxWidth>
-	<SelectionMode>Single</SelectionMode>
-	<ShowCurrentDate>true</ShowCurrentDate>
-	<ShowMonthsPanel>true</ShowMonthsPanel>
 	<VerticalStretch>true</VerticalStretch>
+	<Visible>true</Visible>
+	<WarningOnEdit>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Предупреждение</v8:content>
+		</v8:item>
+	</WarningOnEdit>
+	<WarningOnEditRepresentation>DontShow</WarningOnEditRepresentation>
 	<Width>300</Width>
 	<WidthInMonths>2</WidthInMonths>
 </CalendarField>
