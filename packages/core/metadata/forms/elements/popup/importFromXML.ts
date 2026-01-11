@@ -7,18 +7,20 @@ import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/impo
 import { Popup, PopupXML } from "~/metadata/forms/elements/popup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importPopupFromXML = (context: ConfigurationContext, xml: PopupXML | undefined): Popup | undefined => {
-  if (!xml) return undefined
+export const importPopupFromXML = <From extends PopupXML | undefined>(
+  context: ConfigurationContext,
+  xml: From
+): ImportExportReturn<From, Popup> => {
+  if (!xml) return undefined as ImportExportReturn<From, Popup>
 
   const baseFields = importFormGroupFromXML(context, xml)
-  if (!baseFields) return undefined
-
-  const { elementType: _, ...restFields } = baseFields
 
   const result: Popup = {
+    ...baseFields,
     elementType: FormElementType.Popup,
-    ...restFields,
+    childItems: [],
   }
 
   const childItems = importButtonGroupChildItemsFromXML(context, xml.ПодчиненныеЭлементы)
@@ -42,7 +44,7 @@ export const importPopupFromXML = (context: ConfigurationContext, xml: PopupXML 
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
-  return result
+  return result as ImportExportReturn<From, Popup>
 }
 
 registerMetadata("ImportFromXML", "Popup", importPopupFromXML)
