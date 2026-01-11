@@ -61,7 +61,7 @@ describe("detectElementType", () => {
   })
 
   it("should detect command bar starting with < and containing |", () => {
-    const mock = `<Button1|Button2|Button3>`
+    const mock = `<Button1|Button2|Button3> {name}`
 
     const tokens = tokenize(mock)
     const result = detectElementType(tokens)
