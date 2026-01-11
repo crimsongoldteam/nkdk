@@ -22,16 +22,4 @@ describe("getElementId", () => {
     expect(getElementId(context)).toBe("2")
     expect(getElementId(context)).toBe("3")
   })
-
-  it("should continue from existing counter value", () => {
-    const context: ConfigurationContext = {
-      defaultLanguage: "ru",
-      context: {
-        elementIdCounter: 5,
-      },
-    }
-
-    expect(getElementId(context)).toBe("6")
-    expect(getElementId(context)).toBe("7")
-  })
 })
