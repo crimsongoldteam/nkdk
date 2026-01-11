@@ -5,10 +5,6 @@ interface ElementIdContext {
 }
 
 export const getElementId = (context: ConfigurationContext): string => {
-  if (context.testMode) {
-    return "1"
-  }
-
   if (!context.context) {
     context.context = {}
   }

@@ -8,7 +8,7 @@
 			<MainAttribute>true</MainAttribute>
 		</Attribute>
 	</Attributes>
-	<AutoCommandBar name="ФормаКоманднаяПанель" id="1">
+	<AutoCommandBar name="ФормаКоманднаяПанель" id="2">
 		<Autofill>false</Autofill>
 		<HorizontalAlign>Left</HorizontalAlign>
 	</AutoCommandBar>
@@ -17,9 +17,9 @@
 	<AutoTitle>true</AutoTitle>
 	<AutoURL>true</AutoURL>
 	<ChildItems>
-		<InputField name="ПолеВвода1" id="1">
-			<ContextMenu name="ПолеВвода1КонтекстноеМеню" id="1"/>
-			<ExtendedTooltip name="ПолеВвода1РасширеннаяПодсказка" id="1"/>
+		<InputField name="ПолеВвода1" id="3">
+			<ContextMenu name="ПолеВвода1КонтекстноеМеню" id="4"/>
+			<ExtendedTooltip name="ПолеВвода1РасширеннаяПодсказка" id="5"/>
 		</InputField>
 	</ChildItems>
 	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>

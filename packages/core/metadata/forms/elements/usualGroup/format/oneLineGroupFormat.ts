@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
 import { exportOtherElementToStructure } from "../../baseElement/exportToStructure"
 import { BaseElement } from "../../baseElement/types"
 import { UsualGroup } from "../types"
-import { formatElementName, formatElementTitleAndName } from "~/metadata/forms/format/helpers"
 
 export const formatOneLineGroup = (context: ConfigurationContext, element: UsualGroup): IFormatElementResult => {
   const separatorSymbol = ";"
@@ -47,7 +47,7 @@ export const formatOneLineGroup = (context: ConfigurationContext, element: Usual
       // Пустой заголовок - формат: "" {Группа}
       header = `"" ${formatElementName(element)}`
     } else {
-      header = formatElementTitleAndName(element)
+      header = formatElementTitleAndName(context, element)
     }
   }
 

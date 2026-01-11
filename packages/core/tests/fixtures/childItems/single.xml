@@ -1,3 +1,6 @@
 <ChildItems>
-	<InputField name="Input1" id="1"/>
+	<InputField name="Input1" id="1">
+		<ContextMenu name="Input1КонтекстноеМеню" id="2"/>
+		<ExtendedTooltip name="Input1РасширеннаяПодсказка" id="3"/>
+	</InputField>
 </ChildItems>

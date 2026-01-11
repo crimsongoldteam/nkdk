@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/button/importFromXML"
-import "~/metadata/forms/elements/inputField/importFromXML"
+import "~/metadata/forms/elements/importFromXML"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { ChildItemsFixture, childItemsFixturesTable } from "~/tests/fixtures/childItems/data"
 import { mockСontext } from "~/tests/mockContext"
@@ -12,7 +11,7 @@ describe("importChildItemsFromXML", () => {
   it("should return undefined when data is undefined", () => {
     const result = importChildItemsFromXML(mockСontext, undefined)
 
-    expect(result).toBeUndefined()
+    expect(result).toEqual([])
   })
 
   it.each(

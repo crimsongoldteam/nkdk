@@ -18,8 +18,6 @@ describe("importContextMenuFromXML", () => {
   })
 
   it("should import minimal to undefined if name is default", () => {
-    s
-
     const result = importContextMenuFromXML(mockСontext, undefined)
 
     expect(result).toBeUndefined()

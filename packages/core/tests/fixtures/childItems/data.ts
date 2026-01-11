@@ -25,10 +25,10 @@ export const childItemsFixturesTable: ChildItemsFixture[] = [
     name: "different types",
     element: [
       { name: "Input1", elementType: FormElementType.InputField },
-      { name: "Button2", elementType: FormElementType.Button },
+      { name: "Label2", elementType: FormElementType.LabelField },
       { name: "Input3", elementType: FormElementType.InputField },
     ],
-    structure: ["{Input1}: ", "<{Button2}>", "{Input3}: "],
+    structure: ["{Input1}: ", "{Label1}", "{Input3}: "],
     xmlPath: "/childItems/different.xml",
   },
 ]
@@ -39,6 +39,6 @@ export const singleChildItemsEnterprise: ChildItemsEnterprise = {
 
 export const differentTypesChildItemsEnterprise: ChildItemsEnterprise = {
   Input1: {},
-  Button2: {},
+  Label2: {},
   Input3: {},
 }

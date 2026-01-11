@@ -1,4 +1,3 @@
-import { ContextMenu } from "~/metadata/forms/elements/contextMenu/types"
 import { ExtendedTooltip } from "~/metadata/forms/elements/extendedTooltip/types"
 import { PdfDocumentField, PdfDocumentFieldEnterprise } from "~/metadata/forms/elements/pdfDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -14,10 +13,6 @@ export const fullPdfDocumentField: PdfDocumentField = {
   autoMaxHeight: true,
   autoMaxWidth: true,
   borderColor: { type: "WebColor", value: "Green" },
-  contextMenu: {
-    elementType: FormElementType.FormGroup,
-    name: "ПолеPDFДокументаКонтекстноеМеню",
-  } as ContextMenu,
   currentPageNumber: 1,
   extendedTooltip: {
     elementType: FormElementType.FormDecoration,

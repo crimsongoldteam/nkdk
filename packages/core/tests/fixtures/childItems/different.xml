@@ -1,5 +1,14 @@
 <ChildItems>
-	<InputField name="Input1" id="1"/>
-	<Button name="Button2" id="2"/>
-	<InputField name="Input3" id="3"/>
+	<InputField name="Input1" id="1">
+		<ContextMenu name="Input1КонтекстноеМеню" id="2"/>
+		<ExtendedTooltip name="Input1РасширеннаяПодсказка" id="3"/>
+	</InputField>
+	<LabelField name="Label2" id="4">
+		<ContextMenu name="Label2КонтекстноеМеню" id="5"/>
+		<ExtendedTooltip name="Label2РасширеннаяПодсказка" id="6"/>
+	</LabelField>
+	<InputField name="Input3" id="7">
+		<ContextMenu name="Input3КонтекстноеМеню" id="8"/>
+		<ExtendedTooltip name="Input3РасширеннаяПодсказка" id="9"/>
+	</InputField>
 </ChildItems>

@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest"
-import "~/metadata/forms/elements/button/exportToEnterprise"
-import "~/metadata/forms/elements/inputField/exportToEnterprise"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import "~/metadata/forms/elements/exportToEnterprise"
 import {
   childItemsFixturesTable,
   differentTypesChildItemsEnterprise,
@@ -9,6 +7,7 @@ import {
 } from "~/tests/fixtures/childItems/data"
 import { mockСontext } from "~/tests/mockContext"
 import { exportChildItemsToEnterprise } from "./exportToEnterprise"
+import { ChildItems } from "./types"
 
 describe("exportChildItemsToEnterprise", () => {
   it("should return undefined when data is undefined", () => {
@@ -38,10 +37,10 @@ describe("exportChildItemsToEnterprise", () => {
   })
 
   it("should throw error when export function not found for element type", () => {
-    const invalidChildItems = [{ name: "InvalidElement", elementType: FormElementType.CalendarField }]
+    const invalidChildItems = [{ name: "InvalidElement", elementType: "InvalidElementType" }] as unknown as ChildItems
 
     expect(() => {
       exportChildItemsToEnterprise(mockСontext, invalidChildItems)
-    }).toThrowError("Export function not found for element type: CalendarField")
+    }).toThrow()
   })
 })

@@ -14,6 +14,7 @@ export default defineConfig({
     environment: "node", // Используем node вместо jsdom для большинства тестов (ускоряет выполнение в ~5000 раз)
     globals: true,
     watch: false,
+    setupFiles: [resolve(__dirname, "./tests/setupTests.ts")],
     // Параллельное выполнение тестов включено по умолчанию в vitest
   },
   resolve: {

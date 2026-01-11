@@ -15,6 +15,7 @@ export const exportClientApplicationFormToXML = (
 ): ClientApplicationFormXML | undefined => {
   if (!data) return undefined
 
+  const attributes = exportFormAttributesToXML(context, data.attributes)
   const autoCommandBar = exportAutoCommandBarToXML(context, data.autoCommandBar)
 
   const result: ClientApplicationFormXML = {
@@ -39,14 +40,13 @@ export const exportClientApplicationFormToXML = (
     AutoCommandBar: autoCommandBar,
   }
 
+  if (attributes !== undefined) {
+    result.Attributes = { Attribute: attributes }
+  }
+
   const title = exportI8nTextToXML(context, data.title)
   if (title !== undefined) {
     result.Title = title
-  }
-
-  const attributes = exportFormAttributesToXML(context, data.attributes)
-  if (attributes !== undefined) {
-    result.Attributes = { Attribute: attributes }
   }
 
   const commandSet = exportCommandSetToXML(context, data.commandSet)
