@@ -4,7 +4,7 @@ import {
   FormAttributeEnterprise,
   FormAttributes,
   FormAttributesEnterprise,
-} from "~/metadata/commonObjects/formAttributes/types"
+} from "~/metadata/commonObjects/formAttribute/types"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { UserVisibleKeysEnterprise } from "~/metadata/commonObjects/userVisible/types"

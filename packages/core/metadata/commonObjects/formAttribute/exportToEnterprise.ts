@@ -4,7 +4,7 @@ import {
   FormAttributeEnterprise,
   FormAttributes,
   FormAttributesEnterprise,
-} from "~/metadata/commonObjects/formAttributes/types"
+} from "~/metadata/commonObjects/formAttribute/types"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { TypeDescriptionEnterprise } from "~/metadata/commonObjects/typeDescription/types"

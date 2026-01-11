@@ -76,7 +76,6 @@ export const exportExtendedTooltipToXML = (
 
   return result
 }
-
 const getDefaultExtendedTooltip = (parentElement: BaseElement): ExtendedTooltip => {
   return { name: getExtendedTooltipName(parentElement), elementType: FormElementType.FormDecoration }
 }

@@ -1,5 +1,5 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportFormAttributesToEnterprise } from "~/metadata/commonObjects/formAttributes/exportToEnterprise"
+import { exportFormAttributesToEnterprise } from "~/metadata/commonObjects/formAttribute/exportToEnterprise"
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {

@@ -10,9 +10,9 @@ import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/ex
 import { FormField, FormFieldXML } from "~/metadata/forms/elements/formField/types"
 import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { sortObject } from "~/metadata/helpers/compactObject"
 
 export const exportFormFieldToXML = (
   context: ConfigurationContext,

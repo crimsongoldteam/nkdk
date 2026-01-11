@@ -1,10 +1,9 @@
-import { FormAttributes, FormAttributesEnterprise } from "~/metadata/commonObjects/formAttributes/types"
+import { FormAttributes, FormAttributesEnterprise } from "~/metadata/commonObjects/formAttribute/types"
 
 //#region FullFormAttributes
 export const fullFormAttributes: FormAttributes = [
   {
     name: "ТестовыйАтрибут",
-    id: "1",
     title: { items: { ru: "Заголовок атрибута" } },
     valueType: {
       type: ["string"],
@@ -39,7 +38,6 @@ export const fullFormAttributesEnterprise: FormAttributesEnterprise = {
 export const minimalFormAttributes: FormAttributes = [
   {
     name: "ТестовыйАтрибут",
-    id: "1",
     valueType: {
       type: ["string"],
     },
@@ -51,7 +49,6 @@ export const minimalFormAttributes: FormAttributes = [
 export const multipleFormAttributes: FormAttributes = [
   {
     name: "ТестовыйАтрибут1",
-    id: "1",
     title: { items: { ru: "Атрибут 1" } },
     valueType: {
       type: ["string"],
@@ -59,7 +56,6 @@ export const multipleFormAttributes: FormAttributes = [
   },
   {
     name: "ТестовыйАтрибут2",
-    id: "2",
     title: { items: { ru: "Атрибут 2" } },
     valueType: {
       type: ["string"],
@@ -72,7 +68,6 @@ export const multipleFormAttributes: FormAttributes = [
 export const shortFormAttribute: FormAttributes = [
   {
     name: "ТестовыйАтрибут",
-    id: "1",
     valueType: {
       type: ["string"],
     },
@@ -96,7 +91,6 @@ export const minimalFormAttributesEnterprise: FormAttributesEnterprise = {
 export const withMainAttributeFormAttribute: FormAttributes = [
   {
     name: "ТестовыйАтрибут",
-    id: "1",
     title: { items: { ru: "Тестовый атрибут" } },
     valueType: {
       type: ["string"],
@@ -111,7 +105,6 @@ export const withMainAttributeFormAttribute: FormAttributes = [
 export const withStoredDataFormAttribute: FormAttributes = [
   {
     name: "ТестовыйАтрибут",
-    id: "1",
     title: { items: { ru: "Тестовый атрибут" } },
     valueType: {
       type: ["string"],

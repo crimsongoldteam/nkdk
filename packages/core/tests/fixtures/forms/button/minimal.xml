@@ -1,1 +1,3 @@
-<Button name="Кнопка" id="1"/>
+<Button name="Кнопка" id="1">
+	<ExtendedTooltip name="КнопкаРасширеннаяПодсказка" id="1"/>
+</Button>

@@ -1,4 +1,4 @@
-import { importFormAttributesFromXML } from "~/metadata/commonObjects/formAttributes/importFromXML"
+import { importFormAttributesFromXML } from "~/metadata/commonObjects/formAttribute/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromXML"

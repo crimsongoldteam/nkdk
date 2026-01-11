@@ -1,7 +1,8 @@
-import { exportFormAttributesToXML } from "~/metadata/commonObjects/formAttributes/exportToXML"
+import { exportFormAttributesToXML } from "~/metadata/commonObjects/formAttribute/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportCommandSetToXML } from "~/metadata/forms/commandSet/exportToXML"
+import { exportAutoCommandBarToXML } from "~/metadata/forms/elements/autoCommandBar/exportToXML"
 import { exportCommandBarToXML } from "~/metadata/forms/elements/commandBar/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { Events } from "~/metadata/forms/events/types"
@@ -35,7 +36,7 @@ export const exportClientApplicationFormToXML = (
     _version: "2.18",
   }
 
-  const autoCommandBar = exportCommandBarToXML(context, data.autoCommandBar)
+  const autoCommandBar = exportAutoCommandBarToXML(context, data.autoCommandBar)
   if (autoCommandBar !== undefined) {
     result.AutoCommandBar = autoCommandBar
   }
