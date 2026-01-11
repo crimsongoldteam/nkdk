@@ -12,7 +12,8 @@ export const exportButtonGroupChildItemsToStructure = (
     const exportFunction = getOperationFunction("ExportToStructureContent", item.elementType)
 
     if (!exportFunction) throw new Error(`Export function not found for element type: ${item.elementType}`)
-    buttons.push(exportFunction(context, item))
+    const result = exportFunction(context, item)
+    buttons.push(...result.strings)
   }
 
   return buttons

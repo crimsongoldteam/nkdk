@@ -9,7 +9,7 @@ import {
 import { BaseElement, BaseElementEnterprise, BaseElementXML } from "../baseElement/types"
 
 export interface AutoCommandBar extends BaseElement {
-  autofill?: boolean
+  autofill: boolean
   displayImportance?: SE.DisplayImportance
   horizontalAlign?: SE.ItemHorizontalLocation
   childItems: ButtonGroupChildItem[]

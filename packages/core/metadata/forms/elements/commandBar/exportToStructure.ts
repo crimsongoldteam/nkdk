@@ -26,11 +26,12 @@ export const exportCommandBarContentToStructure = (
     return wrapButtonContent("")
   }
 
-  const buttonStrings = element.childItems.map((item) => {
+  const buttonStrings = element.childItems.flatMap((item) => {
     const exportFunction = getOperationFunction("ExportToStructureContent", item.elementType)
 
     if (!exportFunction) throw new Error(`Export function not found for element type: ${item.elementType}`)
-    return exportFunction(context, item)
+    const result = exportFunction(context, item)
+    return result.strings
   })
 
   return wrapButtonContent(buttonStrings.join("|"))

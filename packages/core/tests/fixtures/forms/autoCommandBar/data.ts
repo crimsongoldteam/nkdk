@@ -20,6 +20,7 @@ export const fullAutoCommandBarEnterprise: AutoCommandBarEnterprise = {
 export const minimalAutoCommandBar: AutoCommandBar = {
   elementType: FormElementType.CommandBar,
   name: "КакойТоЭлементКоманднаяПанель",
+  autofill: true,
   childItems: [],
 }
 
@@ -35,21 +36,22 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
     element: {
       name: "КакойТоЭлементКоманднаяПанель",
       elementType: FormElementType.CommandBar,
+      autofill: true,
       childItems: [
         {
           elementType: FormElementType.Button,
-          name: "Кнопка 1",
+          name: "Кнопка1",
           title: { items: { ru: "Номер 1" } },
         },
         {
           elementType: FormElementType.Button,
-          name: "Кнопка 2",
+          name: "Кнопка2",
           title: { items: { ru: "Номер 2" } },
         },
       ],
     },
     structured: {
-      strings: ["<...| Номер 1 {Кнопка1} |Номер 2 {Кнопка2}>"],
+      strings: ["<... | Номер 1 {Кнопка1} | Номер 2 {Кнопка2}>"],
       haveSimpleHorizontalGroup: false,
     },
   },
@@ -62,18 +64,18 @@ export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixtur
       childItems: [
         {
           elementType: FormElementType.Button,
-          name: "Кнопка 1",
-          title: { items: { ru: "Номер1" } },
+          name: "Кнопка1",
+          title: { items: { ru: "Номер 1" } },
         },
         {
           elementType: FormElementType.Button,
-          name: "Кнопка 2",
-          title: { items: { ru: "Номер2" } },
+          name: "Кнопка2",
+          title: { items: { ru: "Номер 2" } },
         },
       ],
     },
     structured: {
-      strings: ["<Кнопка 1 {Кнопка 1} | Кнопка 2 {Кнопка 2}>"],
+      strings: ["<Номер 1 {Кнопка1} | Номер 2 {Кнопка2}>"],
       haveSimpleHorizontalGroup: false,
     },
   },

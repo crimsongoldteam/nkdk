@@ -2,14 +2,13 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportButtonGroupChildItemsToStructure } from "../../collections/buttonGroupChildItems/exportToStructure"
 import { wrapButtonContent } from "../../format/helpers"
 import { IFormatElementResult } from "../../format/types"
-import { exportCommandBarContentToStructure } from "../commandBar/exportToStructure"
 import { AutoCommandBar } from "./types"
 
 export const exportAutoCommandBarToStructure = (
   context: ConfigurationContext,
   element: AutoCommandBar
 ): IFormatElementResult => {
-  const content = exportCommandBarContentToStructure(context, element)
+  const content = exportAutoCommandBarContentToStructure(context, element)
 
   return {
     strings: [content],
@@ -23,7 +22,7 @@ export const exportAutoCommandBarContentToStructure = (
 ): string => {
   const buttons = []
 
-  if (element.autofill) {
+  if (element.autofill != false) {
     buttons.push("...")
   }
 

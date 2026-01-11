@@ -49,6 +49,16 @@
 					"label": "🔎 exportUsualGroupToStructure"
 				}
 			]
+		},
+		{
+			"path": "packages/core/metadata/forms/elements/autoCommandBar/exportToStructure.test.ts",
+			"bookmarks": [
+				{
+					"line": 6,
+					"column": 0,
+					"label": ""
+				}
+			]
 		}
 	]
 }
