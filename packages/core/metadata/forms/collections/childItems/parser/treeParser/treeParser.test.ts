@@ -138,14 +138,15 @@ text2`
 
       expect(simplified).toEqual([
         {
-          content: "<| Button1 >",
-          type: "AutoCommandBar",
-          childItems: [],
-        },
-        {
           content: "|Column1|",
           type: "Table",
-          childItems: [],
+          childItems: [
+            {
+              content: "<| Button1 >",
+              type: "AutoCommandBar",
+              childItems: [],
+            },
+          ],
         },
       ])
     })
@@ -162,6 +163,11 @@ text2`
         {
           content: "<| Button1 > {name}",
           type: "CommandBar",
+          childItems: [],
+        },
+        {
+          content: "|Column1|",
+          type: "Table",
           childItems: [],
         },
       ])
