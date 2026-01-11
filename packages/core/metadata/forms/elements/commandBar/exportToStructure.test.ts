@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "~/metadata/forms/elements/exportToStructure"
 import { commandBarStructureFixturesTable } from "~/tests/fixtures/forms/commandBar/data"
 import { mockСontext } from "~/tests/mockContext"
 import { exportCommandBarToStructure } from "./exportToStructure"

@@ -6,8 +6,8 @@ import { ButtonGroupChildItems, ButtonGroupChildItemsXML } from "./types"
 export const importButtonGroupChildItemsFromXML = (
   context: ConfigurationContext,
   xml: ButtonGroupChildItemsXML | undefined
-): ButtonGroupChildItems | undefined => {
-  if (!xml) return undefined
+): ButtonGroupChildItems => {
+  if (!xml) return []
 
   const items = Array.isArray(xml) ? xml : [xml]
 

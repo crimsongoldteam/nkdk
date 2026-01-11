@@ -2,29 +2,27 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { Popup, PopupEnterprise } from "~/metadata/forms/elements/popup/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import { Popup, PopupEnterprise } from "~/metadata/forms/elements/popup/types"
 import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importPopupFromEnterprise = <
-  From extends PopupEnterprise | undefined,
-  Name extends string,
->(
+export const importPopupFromEnterprise = <From extends PopupEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
   data: From,
   name: Name
 ): ImportFromEnterpriseReturn<From, Popup, Name> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, Popup, Name>
 
-  const baseFields = importFormGroupFromEnterprise(context, data, name)!
+  const baseFields = importFormGroupFromEnterprise(context, data, name)
 
   const result: ImportFromEnterpriseReturn<From, Popup, Name> = {
     ...baseFields,
     elementType: FormElementType.Popup,
+    childItems: [],
   }
 
   const picture = importPictureFromEnterprise(context, data.Картинка)
@@ -49,7 +47,11 @@ export const importPopupFromEnterprise = <
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }

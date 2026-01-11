@@ -1,28 +1,26 @@
 import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/elements/autoCommandBar/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullCommandBarEnterprise } from "../commandBar/data"
-import { fullFormGroup } from "../formGroup/data"
 
 export const fullAutoCommandBar: AutoCommandBar = {
-  ...fullFormGroup,
   name: "КакойТоЭлементКоманднаяПанель",
+  elementType: FormElementType.CommandBar,
+  autofill: true,
+  displayImportance: "High",
+  horizontalAlign: "Left",
   childItems: [],
 }
 
 export const fullAutoCommandBarEnterprise: AutoCommandBarEnterprise = {
-  Имя: "КакойТоЭлементКоманднаяПанель",
-  ...fullCommandBarEnterprise,
+  Автозаполнение: "Истина",
+  ВажностьПриОтображении: "Высокая",
+  ГоризонтальноеПоложение: "Лево",
 }
 
 export const minimalAutoCommandBar: AutoCommandBar = {
-  elementType: "AutoCommandBar" as FormElementType,
-  name: "АвтоКоманднаяПанель",
+  elementType: FormElementType.CommandBar,
+  name: "КакойТоЭлементКоманднаяПанель",
   childItems: [],
-}
-
-export const minimalAutoCommandBarEnterprise: AutoCommandBarEnterprise = {
-  Имя: "АвтоКоманднаяПанель",
 }
 
 export interface AutoCommandBarStructureFixture {
@@ -33,30 +31,75 @@ export interface AutoCommandBarStructureFixture {
 
 export const autoCommandBarStructureFixturesTable: AutoCommandBarStructureFixture[] = [
   {
-    name: "with buttons",
+    name: "autofill and buttons",
     element: {
-      name: "AutoCommandBar",
-      elementType: "AutoCommandBar" as FormElementType,
+      name: "КакойТоЭлементКоманднаяПанель",
+      elementType: FormElementType.CommandBar,
       childItems: [
         {
           elementType: FormElementType.Button,
-          name: "Button1",
-          title: { items: { ru: "Button1" } },
+          name: "Кнопка 1",
+          title: { items: { ru: "Номер 1" } },
         },
         {
           elementType: FormElementType.Button,
-          name: "Button2",
-          title: { items: { ru: "Button2" } },
-        },
-        {
-          elementType: FormElementType.Button,
-          name: "Button3",
-          title: { items: { ru: "Button3" } },
+          name: "Кнопка 2",
+          title: { items: { ru: "Номер 2" } },
         },
       ],
     },
     structured: {
-      strings: ["<Button1|Button2|Button3>"],
+      strings: ["<...| Номер 1 {Кнопка1} |Номер 2 {Кнопка2}>"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "without autofill",
+    element: {
+      name: "КакойТоЭлементКоманднаяПанель",
+      elementType: FormElementType.CommandBar,
+      autofill: false,
+      childItems: [
+        {
+          elementType: FormElementType.Button,
+          name: "Кнопка 1",
+          title: { items: { ru: "Номер1" } },
+        },
+        {
+          elementType: FormElementType.Button,
+          name: "Кнопка 2",
+          title: { items: { ru: "Номер2" } },
+        },
+      ],
+    },
+    structured: {
+      strings: ["<Кнопка 1 {Кнопка 1} | Кнопка 2 {Кнопка 2}>"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "without buttons",
+    element: {
+      name: "КакойТоЭлементКоманднаяПанель",
+      elementType: FormElementType.CommandBar,
+      autofill: true,
+      childItems: [],
+    },
+    structured: {
+      strings: ["<...>"],
+      haveSimpleHorizontalGroup: false,
+    },
+  },
+  {
+    name: "without autofill and buttons",
+    element: {
+      name: "КакойТоЭлементКоманднаяПанель",
+      elementType: FormElementType.CommandBar,
+      autofill: false,
+      childItems: [],
+    },
+    structured: {
+      strings: ["<>"],
       haveSimpleHorizontalGroup: false,
     },
   },

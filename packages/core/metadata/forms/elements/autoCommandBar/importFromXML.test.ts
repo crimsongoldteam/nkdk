@@ -6,12 +6,6 @@ import { importAutoCommandBarFromXML } from "./importFromXML"
 import { AutoCommandBarXML } from "./types"
 
 describe("importAutoCommandBarFromXML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importAutoCommandBarFromXML(mockСontext, undefined)
-
-    expect(result).toBeUndefined()
-  })
-
   it("should import all fields from XML", () => {
     const xmlData = readAndParseXMLFile<{ CommandBar: AutoCommandBarXML }>("forms/commandBar/full.xml")
 

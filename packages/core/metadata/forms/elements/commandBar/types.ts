@@ -13,7 +13,7 @@ export interface CommandBar extends FormGroup {
   displayImportance?: SE.DisplayImportance
   horizontalAlign?: SE.ItemHorizontalLocation
   userVisible?: UserVisible
-  childItems?: ButtonGroupChildItem[]
+  childItems: ButtonGroupChildItem[]
 }
 
 export interface CommandBarXML extends FormGroupXML {

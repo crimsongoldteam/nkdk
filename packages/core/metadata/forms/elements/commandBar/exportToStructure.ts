@@ -1,20 +1,29 @@
-import { registerIsOneLineElementCheck } from "~/format/isOneLineElementCheckFactory"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { getOperationFunction, registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
-import { wrapButtonContent } from "../../format/helpers"
+import { ButtonGroupChildItem } from "../../collections/buttonGroupChildItems/types"
+import { formatElementName, wrapButtonContent } from "../../format/helpers"
 import { CommandBar } from "./types"
 
 export const exportCommandBarToStructure = (
   context: ConfigurationContext,
   element: CommandBar
 ): IFormatElementResult => {
+  const content = exportCommandBarContentToStructure(context, element)
+  const resultString = `${content} ${formatElementName(element)}`
+
+  return {
+    strings: [resultString],
+    haveSimpleHorizontalGroup: false,
+  }
+}
+
+export const exportCommandBarContentToStructure = (
+  context: ConfigurationContext,
+  element: { childItems: ButtonGroupChildItem[] }
+): string => {
   if (!element.childItems || element.childItems.length === 0) {
-    return {
-      strings: [wrapButtonContent("")],
-      haveSimpleHorizontalGroup: false,
-    }
+    return wrapButtonContent("")
   }
 
   const buttonStrings = element.childItems.map((item) => {
@@ -24,13 +33,8 @@ export const exportCommandBarToStructure = (
     return exportFunction(context, item)
   })
 
-  const resultString = wrapButtonContent(buttonStrings.join("|"))
-
-  return {
-    strings: [resultString],
-    haveSimpleHorizontalGroup: false,
-  }
+  return wrapButtonContent(buttonStrings.join("|"))
 }
 
 registerMetadata("ExportToStructure", "CommandBar", exportCommandBarToStructure)
-registerIsOneLineElementCheck<CommandBar>(FormElementType.CommandBar, () => true)
+// registerIsOneLineElementCheck<CommandBar>(FormElementType.CommandBar, () => true)
