@@ -3,6 +3,7 @@ import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { getElementId } from "~/metadata/helpers/getElementId"
 import { FormAttribute, FormAttributes, FormAttributesXML, FormAttributeXML } from "./types"
 
 export const exportFormAttributesToXML = (
@@ -21,7 +22,7 @@ const exportFormAttributeToXML = (context: ConfigurationContext, data: FormAttri
 
   const result: FormAttributeXML = {
     _name: mergedData.name,
-    _id: mergedData.id!,
+    _id: getElementId(context),
   }
 
   const title = exportI8nTextToXML(context, mergedData.title)

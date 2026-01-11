@@ -1,29 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
+import { getElementId } from "~/metadata/helpers/getElementId"
 import { ImportExportReturn } from "../types"
 import { BaseElement, BaseElementXML } from "./types"
-
-interface ElementIdContext {
-  elementIdCounter?: number
-}
-
-const getElementId = (context: ConfigurationContext): string => {
-  if (context.testMode) {
-    return "1"
-  }
-
-  if (!context.context) {
-    context.context = {}
-  }
-
-  const elementContext = context.context as ElementIdContext
-  if (elementContext.elementIdCounter === undefined) {
-    elementContext.elementIdCounter = 1
-  } else {
-    elementContext.elementIdCounter++
-  }
-
-  return String(elementContext.elementIdCounter)
-}
 
 export const exportBaseElementToXML = <T extends BaseElement | undefined>(
   context: ConfigurationContext,
