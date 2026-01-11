@@ -5,6 +5,7 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { FormGroup, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { ImportExportReturn } from "../types"
 
@@ -66,5 +67,5 @@ export const exportFormGroupToXML = <T extends FormGroup | undefined>(
 
   if (data.width !== undefined) result.Width = data.width
 
-  return result as ImportExportReturn<T, FormGroupXML>
+  return sortObject(result) as ImportExportReturn<T, FormGroupXML>
 }

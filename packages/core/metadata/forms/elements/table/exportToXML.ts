@@ -10,6 +10,7 @@ import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/ex
 import { exportFormItemAdditionToXML } from "~/metadata/forms/elements/formItemAddition/exportToXML"
 import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportCommandBarToXML } from "../commandBar/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
@@ -205,7 +206,7 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "Table", exportTableToXML)

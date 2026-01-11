@@ -1,6 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { exportButtonGroupChildItemsToXML } from "../../collections/buttonGroupChildItems/exportToXML"
 import { BaseElement } from "../baseElement/types"
 import { getContextMenuName } from "./helper"
@@ -24,5 +25,5 @@ export const exportContextMenuToXML = <T extends ContextMenu | undefined>(
   const childItems = exportButtonGroupChildItemsToXML(context, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
-  return result
+  return sortObject(result)
 }

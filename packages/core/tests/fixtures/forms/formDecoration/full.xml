@@ -1,7 +1,9 @@
 <FormDecoration name="КакаяТоДекорацияФормы" id="1" DisplayImportance="High">
 	<AutoMaxHeight>true</AutoMaxHeight>
 	<AutoMaxWidth>true</AutoMaxWidth>
+	<ContextMenu name="КакаяТоДекорацияФормыКонтекстноеМеню" id="2"/>
 	<Enabled>true</Enabled>
+	<ExtendedTooltip name="КакаяТоДекорацияФормыРасширеннаяПодсказка" id="3"/>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<Height>200</Height>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>

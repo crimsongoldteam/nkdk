@@ -5,6 +5,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportButtonGroupChildItemsToXML } from "~/metadata/forms/collections/buttonGroupChildItems/exportToXML"
 import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
 import { Popup, PopupXML } from "~/metadata/forms/elements/popup/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportPopupToXML = (context: ConfigurationContext, data: Popup | undefined): PopupXML | undefined => {
@@ -38,7 +39,7 @@ export const exportPopupToXML = (context: ConfigurationContext, data: Popup | un
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "Popup", exportPopupToXML)

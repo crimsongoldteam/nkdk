@@ -6,6 +6,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChildItemsToXML } from "~/metadata/forms/collections/childItems/exportToXML"
 import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
 import { Page, PageXML } from "~/metadata/forms/elements/page/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportPageToXML = (context: ConfigurationContext, data: Page | undefined): PageXML | undefined => {
@@ -59,7 +60,7 @@ export const exportPageToXML = (context: ConfigurationContext, data: Page | unde
 
   if (data.verticalSpacing !== undefined) result.VerticalSpacing = data.verticalSpacing
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "Page", exportPageToXML)

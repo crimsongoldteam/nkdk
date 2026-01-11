@@ -7,6 +7,7 @@ import {
   SpreadSheetDocumentFieldXML,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportSpreadSheetDocumentFieldToXML = (
@@ -85,7 +86,7 @@ export const exportSpreadSheetDocumentFieldToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "SpreadSheetDocumentField", exportSpreadSheetDocumentFieldToXML)

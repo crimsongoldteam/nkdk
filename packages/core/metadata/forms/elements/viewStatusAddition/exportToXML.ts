@@ -5,6 +5,7 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormItemAdditionToXML } from "~/metadata/forms/elements/formItemAddition/exportToXML"
 import { ViewStatusAddition, ViewStatusAdditionXML } from "~/metadata/forms/elements/viewStatusAddition/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportViewStatusAdditionToXML = (
@@ -57,7 +58,7 @@ export const exportViewStatusAdditionToXML = (
 
   if (data.width !== undefined) result.Width = data.width
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "ViewStatusAddition", exportViewStatusAdditionToXML)

@@ -6,7 +6,7 @@
 	<ContextMenu name="ПолеДендрограммыКонтекстноеМеню" id="2"/>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
-	<EditMode>Directly</EditMode>
+	<EditMode>EnterOnInput</EditMode>
 	<Enabled>true</Enabled>
 	<Events>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>

@@ -7,6 +7,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { LabelField, LabelFieldXML } from "~/metadata/forms/elements/labelField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportLabelFieldToXML = (
@@ -68,7 +69,7 @@ export const exportLabelFieldToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "LabelField", exportLabelFieldToXML)

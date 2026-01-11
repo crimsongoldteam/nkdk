@@ -5,6 +5,7 @@ import { exportChildItemsToXML } from "~/metadata/forms/collections/childItems/e
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { FormItemAddition, FormItemAdditionXML } from "~/metadata/forms/elements/formItemAddition/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
@@ -52,7 +53,7 @@ export const exportFormItemAdditionToXML = (
 
   if (data.visible !== undefined) result.Visible = data.visible
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "FormItemAddition", exportFormItemAdditionToXML)

@@ -25,9 +25,12 @@ export const importFormItemAdditionFromEnterprise = <
 
   const baseFields = importBaseElementFromEnterprise(context, data, name)
 
+  const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
+
   const result: ImportFromEnterpriseReturn<T, FormItemAddition, N> = {
     ...baseFields,
     elementType: FormElementType.FormItemAddition,
+    childItems: childItems,
   }
 
   const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
@@ -79,9 +82,6 @@ export const importFormItemAdditionFromEnterprise = <
 
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
-
-  const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
-  if (childItems !== undefined) result.childItems = childItems
 
   const userVisibleAllow = importUserVisibleFromEnterprise(
     context,

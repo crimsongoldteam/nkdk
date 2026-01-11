@@ -6,6 +6,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { PeriodField, PeriodFieldXML } from "~/metadata/forms/elements/periodField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportPeriodFieldToXML = (
@@ -52,7 +53,7 @@ export const exportPeriodFieldToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "PeriodField", exportPeriodFieldToXML)

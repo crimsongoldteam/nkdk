@@ -4,6 +4,7 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormItemAdditionToXML } from "~/metadata/forms/elements/formItemAddition/exportToXML"
 import { SearchStringAddition, SearchStringAdditionXML } from "~/metadata/forms/elements/searchStringAddition/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportSearchStringAdditionToXML = (
@@ -38,7 +39,7 @@ export const exportSearchStringAdditionToXML = (
 
   if (data.width !== undefined) result.Width = data.width
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "SearchStringAddition", exportSearchStringAdditionToXML)

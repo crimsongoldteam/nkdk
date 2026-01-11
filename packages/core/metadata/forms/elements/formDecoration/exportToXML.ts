@@ -6,6 +6,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { FormDecoration, FormDecorationXML } from "~/metadata/forms/elements/formDecoration/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { ImportExportReturn } from "../types"
@@ -76,7 +77,7 @@ export const exportFormDecorationToXML = <T extends FormDecoration | undefined>(
 
   if (data.width !== undefined) result.Width = data.width
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata<FormDecoration>("ExportToXML", "FormDecoration", exportFormDecorationToXML)

@@ -1,5 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getElementId } from "~/metadata/helpers/getElementId"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { ImportExportReturn } from "../types"
 import { BaseElement, BaseElementXML } from "./types"
 
@@ -14,5 +15,5 @@ export const exportBaseElementToXML = <T extends BaseElement | undefined>(
     _id: getElementId(context),
   }
 
-  return result as ImportExportReturn<T, BaseElementXML>
+  return sortObject(result) as ImportExportReturn<T, BaseElementXML>
 }

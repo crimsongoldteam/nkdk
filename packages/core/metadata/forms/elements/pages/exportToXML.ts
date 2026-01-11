@@ -5,6 +5,7 @@ import { Pages, PagesXML } from "~/metadata/forms/elements/pages/types"
 import { exportPageToXML } from "~/metadata/forms/elements/page/exportToXML"
 import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 const exportPagesChildItemsToXML = (
@@ -43,7 +44,7 @@ export const exportPagesToXML = (context: ConfigurationContext, data: Pages | un
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "Pages", exportPagesToXML)

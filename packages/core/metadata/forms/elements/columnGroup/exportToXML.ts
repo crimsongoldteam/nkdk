@@ -4,6 +4,7 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ColumnGroup, ColumnGroupXML } from "~/metadata/forms/elements/columnGroup/types"
 import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
 export const exportColumnGroupToXML = (
@@ -42,7 +43,7 @@ export const exportColumnGroupToXML = (
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "ColumnGroup", exportColumnGroupToXML)
