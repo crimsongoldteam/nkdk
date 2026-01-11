@@ -2,6 +2,7 @@ import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { exportChildItemsToXML } from "~/metadata/forms/collections/childItems/exportToXML"
 import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
 import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { UsualGroup, UsualGroupXML } from "~/metadata/forms/elements/usualGroup/types"
@@ -20,6 +21,9 @@ export const exportUsualGroupToXML = (
   const result: UsualGroupXML = {
     ...baseFields,
   }
+
+  const childItems = exportChildItemsToXML(context, data.childItems)
+  if (childItems !== undefined) result.ChildItems = childItems
 
   const associatedTable = exportTableToXML(context, data.associatedTable)
   if (associatedTable !== undefined) result.AssociatedTable = associatedTable

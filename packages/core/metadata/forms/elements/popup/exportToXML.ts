@@ -2,6 +2,7 @@ import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { exportButtonGroupChildItemsToXML } from "~/metadata/forms/collections/buttonGroupChildItems/exportToXML"
 import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
 import { Popup, PopupXML } from "~/metadata/forms/elements/popup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -15,6 +16,9 @@ export const exportPopupToXML = (context: ConfigurationContext, data: Popup | un
   const result: PopupXML = {
     ...baseFields,
   }
+
+  const childItems = exportButtonGroupChildItemsToXML(context, data.childItems)
+  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
   const backColor = exportColorToXML(context, data.backColor)
   if (backColor !== undefined) result.BackColor = backColor

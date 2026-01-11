@@ -5,6 +5,7 @@ import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ChildItems, ChildItemsXML } from "../../collections/childItems/types"
 
 export interface Page extends FormGroup {
   backColor?: Color
@@ -24,6 +25,7 @@ export interface Page extends FormGroup {
   verticalAlign?: SE.ItemVerticalAlign
   verticalScrollOnReduceSize?: boolean
   verticalSpacing?: SE.FormItemSpacing
+  childItems?: ChildItems
 }
 
 export interface PageXML extends FormGroupXML {
@@ -44,6 +46,7 @@ export interface PageXML extends FormGroupXML {
   VerticalAlign?: SE.ItemVerticalAlign
   VerticalScrollOnReduceSize?: boolean
   VerticalSpacing?: SE.FormItemSpacing
+  ChildItems?: ChildItemsXML
 }
 
 export interface PageEnterprise extends FormGroupEnterprise {

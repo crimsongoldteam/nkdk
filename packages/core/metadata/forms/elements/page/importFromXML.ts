@@ -3,6 +3,7 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importChildItemsFromXML } from "~/metadata/forms/collections/childItems/importFromXML"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
 import { Page, PageXML } from "~/metadata/forms/elements/page/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -20,6 +21,9 @@ export const importPageFromXML = (context: ConfigurationContext, xml: PageXML | 
     elementType: FormElementType.Page,
     ...restFields,
   }
+
+  const childItems = importChildItemsFromXML(context, xml.ChildItems)
+  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
 
   const backColor = importColorFromXML(context, xml.BackColor)
   if (backColor !== undefined) result.backColor = backColor

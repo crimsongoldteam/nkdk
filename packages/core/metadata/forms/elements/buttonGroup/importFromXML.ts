@@ -1,5 +1,6 @@
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importButtonGroupChildItemsFromXML } from "~/metadata/forms/collections/buttonGroupChildItems/importFromXML"
 import { ButtonGroup, ButtonGroupXML } from "~/metadata/forms/elements/buttonGroup/types"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -19,6 +20,9 @@ export const importButtonGroupFromXML = (
     elementType: FormElementType.ButtonGroup,
     ...restFields,
   }
+
+  const childItems = importButtonGroupChildItemsFromXML(context, xml.ПодчиненныеЭлементы)
+  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
 
   if (xml.Representation !== undefined) result.representation = xml.Representation
 

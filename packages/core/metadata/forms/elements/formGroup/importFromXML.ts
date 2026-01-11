@@ -3,7 +3,6 @@ import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importChildItemsFromXML } from "~/metadata/forms/collections/childItems/importFromXML"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { FormGroup, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
@@ -22,9 +21,6 @@ export const importFormGroupFromXML = <From extends FormGroupXML | undefined>(
     ...baseFields,
     elementType: FormElementType.FormGroup,
   }
-
-  const childItems = importChildItemsFromXML(context, xml.ChildItems)
-  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
 
   if (xml.EnableContentChange !== undefined) result.enableContentChange = xml.EnableContentChange
 

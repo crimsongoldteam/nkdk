@@ -3,6 +3,7 @@ import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/e
 import { Table, TableEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { Page, PageXML } from "../page/types"
 
 export interface Pages extends FormGroup {
   associatedTable?: Table
@@ -13,6 +14,7 @@ export interface Pages extends FormGroup {
   events?: {
     onCurrentPageChange?: string
   }
+  childItems?: Page[]
 }
 
 export interface PagesXML extends FormGroupXML {
@@ -22,6 +24,7 @@ export interface PagesXML extends FormGroupXML {
   PagesRepresentation?: SE.FormPagesRepresentation
   UserVisible?: UserVisibleXML
   Events?: EventsXML
+  ChildItems?: PageXML[]
 }
 
 export interface PagesEnterprise extends FormGroupEnterprise {

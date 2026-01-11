@@ -3,7 +3,7 @@ import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ButtonGroupChildItem } from "../../collections/buttonGroupChildItems/types"
+import { ButtonGroupChildItem, ButtonGroupChildItemsXML } from "../../collections/buttonGroupChildItems/types"
 
 export interface Popup extends FormGroup {
   backColor?: Color
@@ -13,6 +13,7 @@ export interface Popup extends FormGroup {
   shape?: SE.ButtonShape
   shapeRepresentation?: SE.ButtonShapeRepresentation
   userVisible?: UserVisible
+  childItems?: ButtonGroupChildItem[]
 }
 
 export interface PopupXML extends FormGroupXML {
@@ -23,6 +24,7 @@ export interface PopupXML extends FormGroupXML {
   Shape?: SE.ButtonShape
   ShapeRepresentation?: SE.ButtonShapeRepresentation
   UserVisible?: UserVisibleXML
+  ПодчиненныеЭлементы?: ButtonGroupChildItemsXML
 }
 
 export interface PopupEnterprise extends FormGroupEnterprise {

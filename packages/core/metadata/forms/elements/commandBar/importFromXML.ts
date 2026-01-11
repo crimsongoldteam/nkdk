@@ -1,5 +1,6 @@
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importButtonGroupChildItemsFromXML } from "~/metadata/forms/collections/buttonGroupChildItems/importFromXML"
 import { CommandBar, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -18,6 +19,9 @@ export const importCommandBarFromXML = <From extends CommandBarXML | undefined>(
     ...baseFields,
     elementType: FormElementType.CommandBar,
   }
+
+  const childItems = importButtonGroupChildItemsFromXML(context, xml.ПодчиненныеЭлементы)
+  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
 
   if (xml.Autofill !== undefined) result.autofill = xml.Autofill
 

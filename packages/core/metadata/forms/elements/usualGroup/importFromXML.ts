@@ -2,6 +2,7 @@ import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importChildItemsFromXML } from "~/metadata/forms/collections/childItems/importFromXML"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
 import { UsualGroup, UsualGroupXML } from "~/metadata/forms/elements/usualGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -22,6 +23,9 @@ export const importUsualGroupFromXML = (
     elementType: FormElementType.UsualGroup,
     ...restFields,
   }
+
+  const childItems = importChildItemsFromXML(context, xml.ChildItems)
+  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
 
   // const associatedTable = importTableFromXML(context, xml.AssociatedTable)
   // if (associatedTable !== undefined) result.associatedTable = associatedTable

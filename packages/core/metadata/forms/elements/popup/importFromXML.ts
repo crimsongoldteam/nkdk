@@ -2,6 +2,7 @@ import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML
 import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importButtonGroupChildItemsFromXML } from "~/metadata/forms/collections/buttonGroupChildItems/importFromXML"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
 import { Popup, PopupXML } from "~/metadata/forms/elements/popup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -19,6 +20,9 @@ export const importPopupFromXML = (context: ConfigurationContext, xml: PopupXML 
     elementType: FormElementType.Popup,
     ...restFields,
   }
+
+  const childItems = importButtonGroupChildItemsFromXML(context, xml.ПодчиненныеЭлементы)
+  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
 
   const backColor = importColorFromXML(context, xml.BackColor)
   if (backColor !== undefined) result.backColor = backColor

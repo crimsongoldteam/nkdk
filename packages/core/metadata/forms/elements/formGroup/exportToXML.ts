@@ -20,9 +20,6 @@ export const exportFormGroupToXML = <T extends FormGroup | undefined>(
     ...baseFields,
   }
 
-  // const childItems = exportChildItemsToXML(context, data.childItems)
-  // if (childItems !== undefined) result.ChildItems = childItems
-
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
