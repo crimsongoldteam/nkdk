@@ -1,4 +1,5 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { importFormAttributesFromEnterprise } from "~/metadata/commonObjects/formAttribute/importFromEnterprise"
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
@@ -222,6 +223,9 @@ export const importClientApplicationFormFromEnterprise = (
 
   const events = importClientApplicationFormEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
+
+  const attributes = importFormAttributesFromEnterprise(context, data.Реквизиты)
+  if (attributes !== undefined) result.attributes = attributes
 
   result.childItems = importChildItemsPropertiesFromEnterprise(context, childItems, data.Элементы)
 

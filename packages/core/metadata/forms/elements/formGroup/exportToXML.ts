@@ -3,7 +3,6 @@ import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportChildItemsToXML } from "~/metadata/forms/collections/childItems/exportToXML"
 import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { FormGroup, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
@@ -21,8 +20,8 @@ export const exportFormGroupToXML = <T extends FormGroup | undefined>(
     ...baseFields,
   }
 
-  const childItems = exportChildItemsToXML(context, data.childItems)
-  if (childItems !== undefined) result.ChildItems = childItems
+  // const childItems = exportChildItemsToXML(context, data.childItems)
+  // if (childItems !== undefined) result.ChildItems = childItems
 
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 

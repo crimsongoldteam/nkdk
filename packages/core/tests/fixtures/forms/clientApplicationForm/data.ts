@@ -2,7 +2,6 @@ import { ClientApplicationForm, ClientApplicationFormEnterprise } from "~/metada
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullClientApplicationForm: ClientApplicationForm = {
-  commandSet: ["WriteAndClose"],
   attributes: [
     {
       name: "Объект",
@@ -10,19 +9,6 @@ export const fullClientApplicationForm: ClientApplicationForm = {
       mainAttribute: true,
     },
   ],
-  autoCommandBar: {
-    name: "ФормаКоманднаяПанель",
-    elementType: FormElementType.CommandBar,
-    autofill: true,
-    displayImportance: "High",
-    horizontalAlign: "Left",
-    childItems: [
-      {
-        name: "Кнопка1",
-        elementType: FormElementType.Button,
-      },
-    ],
-  },
   autoTitle: true,
   autoSaveDataInSettings: "Use",
   autoURL: true,
@@ -38,7 +24,6 @@ export const fullClientApplicationForm: ClientApplicationForm = {
   title: { items: { ru: "Полная форма приложения" } },
   closeOnChoice: true,
   closeOnOwnerClose: false,
-  formName: "ПолнаяФорма",
   usedFormServer: "Main",
   purposeUseKey: "PurposeKey",
   windowOptionsKey: "WindowOptionsKey",
@@ -65,7 +50,6 @@ export const fullClientApplicationForm: ClientApplicationForm = {
   readOnly: false,
   width: 800,
   slaveItemsWidth: "Auto",
-  useForFoldersAndItems: "FoldersAndItems",
   events: {
     collaborationSystemUsersAutoComplete: "Процедура1",
     externalEvent: "Процедура2",
@@ -174,7 +158,9 @@ export const fullClientApplicationFormEnterprise: ClientApplicationFormEnterpris
     ПриСохраненииДанныхВНастройкахНаСервере: "Процедура25",
   },
   Элементы: {
-    ПолеВвода1: {},
+    ПолеВвода1: {
+      Тип: "ПолеВвода",
+    },
   },
 }
 
