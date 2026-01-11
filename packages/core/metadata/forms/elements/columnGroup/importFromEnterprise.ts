@@ -11,10 +11,7 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importColumnGroupFromEnterprise = <
-  From extends ColumnGroupEnterprise | undefined,
-  Name extends string,
->(
+export const importColumnGroupFromEnterprise = <From extends ColumnGroupEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
   data: From,
   name: Name
@@ -56,7 +53,11 @@ export const importColumnGroupFromEnterprise = <
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -79,4 +80,3 @@ export const importColumnGroupFromEnterprise = <
 }
 
 registerMetadata("ImportFromEnterprise", "ColumnGroup", importColumnGroupFromEnterprise)
-

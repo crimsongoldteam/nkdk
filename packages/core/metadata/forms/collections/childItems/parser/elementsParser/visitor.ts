@@ -138,8 +138,8 @@ export class Visitor extends BaseVisitor {
   // #region button
 
   button(ctx: CstChildrenDictionary, context: ConfigurationContext): Button {
-    const name = joinTokens(ctx.Button as IToken[]) || ""
     const titleText = joinTokens(ctx.Button as IToken[]) || ""
+    const name = this.visit(ctx.properties as CstNode[], context) || titleText
 
     const title = this.createTitle(titleText, context.defaultLanguage)
 
