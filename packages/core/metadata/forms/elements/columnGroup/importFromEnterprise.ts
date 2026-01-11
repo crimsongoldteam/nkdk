@@ -20,9 +20,10 @@ export const importColumnGroupFromEnterprise = <From extends ColumnGroupEnterpri
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, ColumnGroup, Name> = {
+  const result: ColumnGroup = {
     ...baseFields,
     elementType: FormElementType.ColumnGroup,
+    childItems: [],
   }
 
   const headerHorizontalAlign = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
@@ -76,7 +77,7 @@ export const importColumnGroupFromEnterprise = <From extends ColumnGroupEnterpri
   const titleBackColor = importColorFromEnterprise(context, data.ЦветФонаЗаголовка)
   if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
 
-  return result
+  return result as ImportFromEnterpriseReturn<From, ColumnGroup, Name>
 }
 
 registerMetadata("ImportFromEnterprise", "ColumnGroup", importColumnGroupFromEnterprise)

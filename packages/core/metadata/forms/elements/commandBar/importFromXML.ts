@@ -15,9 +15,10 @@ export const importCommandBarFromXML = <From extends CommandBarXML | undefined>(
 
   const baseFields = importFormGroupFromXML(context, xml)
 
-  const result: ImportExportReturn<From, CommandBar> = {
+  const result: CommandBar = {
     ...baseFields,
     elementType: FormElementType.CommandBar,
+    childItems: [],
   }
 
   const childItems = importButtonGroupChildItemsFromXML(context, xml.ПодчиненныеЭлементы)
@@ -32,7 +33,7 @@ export const importCommandBarFromXML = <From extends CommandBarXML | undefined>(
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
-  return result
+  return result as ImportExportReturn<From, CommandBar>
 }
 
 registerMetadata<CommandBarXML>("ImportFromXML", "CommandBar", importCommandBarFromXML)

@@ -2,10 +2,21 @@
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
 	<ExtendedTooltip name="ГруппаКолонокРасширеннаяПодсказка" id="2"/>
+	<FixingInTable>None</FixingInTable>
+	<Group>Horizontal</Group>
+	<HeaderDataPath>Объект.Реквизит</HeaderDataPath>
+	<HeaderFormat>Формат</HeaderFormat>
+	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
+	<HeaderPicture>
+		<xr:Ref>StdPicture.Print</xr:Ref>
+		<xr:LoadTransparent>true</xr:LoadTransparent>
+	</HeaderPicture>
 	<Height>200</Height>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>false</ReadOnly>
+	<ShowInHeader>true</ShowInHeader>
+	<ShowTitle>true</ShowTitle>
 	<Shortcut>Ctrl+S</Shortcut>
 	<Title>
 		<v8:item>
@@ -13,6 +24,7 @@
 			<v8:content>Группа колонок</v8:content>
 		</v8:item>
 	</Title>
+	<TitleBackColor>web:Blue</TitleBackColor>
 	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
 	<TitleTextColor>web:Black</TitleTextColor>
 	<ToolTip>
@@ -31,16 +43,4 @@
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>
-	<FixingInTable>None</FixingInTable>
-	<Group>Horizontal</Group>
-	<HeaderDataPath>Объект.Реквизит</HeaderDataPath>
-	<HeaderFormat>Формат</HeaderFormat>
-	<HeaderHorizontalAlign>Left</HeaderHorizontalAlign>
-	<HeaderPicture>
-		<xr:Ref>StdPicture.Print</xr:Ref>
-		<xr:LoadTransparent>true</xr:LoadTransparent>
-	</HeaderPicture>
-	<ShowInHeader>true</ShowInHeader>
-	<ShowTitle>true</ShowTitle>
-	<TitleBackColor>web:Blue</TitleBackColor>
 </ColumnGroup>

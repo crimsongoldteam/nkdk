@@ -25,12 +25,10 @@ export const importFormItemAdditionFromEnterprise = <
 
   const baseFields = importBaseElementFromEnterprise(context, data, name)
 
-  const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
-
-  const result: ImportFromEnterpriseReturn<T, FormItemAddition, N> = {
+  const result: FormItemAddition = {
     ...baseFields,
     elementType: FormElementType.FormItemAddition,
-    childItems: childItems,
+    childItems: [],
   }
 
   const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
@@ -83,6 +81,9 @@ export const importFormItemAdditionFromEnterprise = <
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
+  const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
+  if (childItems !== undefined) result.childItems = childItems
+
   const userVisibleAllow = importUserVisibleFromEnterprise(
     context,
     data.РазрешитьИспользование,
@@ -100,7 +101,7 @@ export const importFormItemAdditionFromEnterprise = <
   const extendedToolTip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
   if (extendedToolTip !== undefined) result.extendedTooltip = extendedToolTip
 
-  return result
+  return result as ImportFromEnterpriseReturn<T, FormItemAddition, N>
 }
 
 registerMetadata("ImportFromEnterprise", "FormItemAddition", importFormItemAdditionFromEnterprise)
