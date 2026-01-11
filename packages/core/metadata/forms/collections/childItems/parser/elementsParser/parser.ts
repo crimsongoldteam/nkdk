@@ -27,6 +27,11 @@ export class Parser extends CstParser {
     return this.commandBar()
   }
 
+  public parseAutoCommandBar(tokens: IToken[]): CstNode {
+    this.input = tokens
+    return this.autoCommandBar()
+  }
+
   public parseRightTitledCheckboxField(tokens: IToken[]): CstNode {
     this.input = tokens
     return this.rightTitledCheckboxField()
@@ -311,6 +316,32 @@ export class Parser extends CstParser {
   private readonly commandBarButton = this.RULE("commandBarButton", () => {
     this.MANY(() => {
       this.CONSUME(t.Button)
+    })
+  })
+
+  // #endregion
+
+  // #region autoCommandBar
+
+  private readonly autoCommandBar = this.RULE("autoCommandBar", () => {
+    this.CONSUME1(t.LAngle)
+
+    this.OPTION1(() => {
+      this.MANY(() => {
+        this.CONSUME1(t.Dots)
+      })
+      this.CONSUME1(t.VBar)
+    })
+
+    this.AT_LEAST_ONE_SEP({
+      SEP: t.VBar,
+      DEF: () => {
+        this.SUBRULE(this.commandBarButton)
+      },
+    })
+
+    this.OPTION4(() => {
+      this.CONSUME3(t.RAngle)
     })
   })
 

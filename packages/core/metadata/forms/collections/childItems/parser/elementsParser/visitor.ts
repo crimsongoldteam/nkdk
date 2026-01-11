@@ -4,10 +4,10 @@ import type { ChoiceList } from "~/metadata/commonObjects/choiceList/types"
 import type { I8nText } from "~/metadata/commonObjects/i8nText/types"
 import type { Picture } from "~/metadata/commonObjects/picture/types"
 import type { ConfigurationContext } from "~/metadata/context/types"
-import { ChildItem } from "~/metadata/forms/collections/childItems/types"
+import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 import type { Button } from "~/metadata/forms/elements/button/types"
 import type { CheckBoxField } from "~/metadata/forms/elements/checkBoxField/types"
-import { CommandBar } from "~/metadata/forms/elements/commandBar/types"
+import { CommandBar, CommandBar } from "~/metadata/forms/elements/commandBar/types"
 import type { InputField } from "~/metadata/forms/elements/inputField/types"
 import type { LabelDecoration } from "~/metadata/forms/elements/labelDecoration/types"
 import { Page } from "~/metadata/forms/elements/page/types"
@@ -233,23 +233,20 @@ export class Visitor extends BaseVisitor {
   commandBar(ctx: CstChildrenDictionary, context: ConfigurationContext): CommandBar {
     const childItems = visitAll(this, ctx.commandBarButton, context) as unknown as CommandBar["childItems"]
 
-    // Добавляем id для кнопок
-    const childItemsWithId = childItems?.map(
-      (item: ChildItem, index: number): Button =>
-        ({
-          ...(item as Button),
-          id: String(index + 1),
-        }) as Button
-    )
-
     const name = joinTokens(ctx.properties as IToken[]) || "CommandBar"
 
     return {
       elementType: FormElementType.CommandBar,
       name: name,
-      id: "1",
-      childItems: childItemsWithId,
+      childItems: childItems,
     } as CommandBar
+  }
+
+  autoCommandBar(ctx: CstChildrenDictionary, context: ConfigurationContext): AutoCommandBar {
+    const childItems = visitAll(this, ctx.commandBarButton, context) as unknown as AutoCommandBar["childItems"]
+    return {
+      childItems: childItems,
+    } as AutoCommandBar
   }
 
   commandBarButton(ctx: CstChildrenDictionary, context: ConfigurationContext): Button {
@@ -262,7 +259,6 @@ export class Visitor extends BaseVisitor {
       elementType: FormElementType.Button,
       name: name || "",
       title: title,
-      id: undefined,
     } as Button
   }
 

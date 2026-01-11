@@ -5,6 +5,7 @@ import type { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { BuilderTreeNode, ParseElementType, TreeNode } from "../treeParser/types"
 import { elementsParser } from "./parser"
 import { visitor } from "./visitor"
+import { AutoCommandBar } from "~/metadata/forms/elements/autoCommandBar/types"
 
 export const parseElement = (context: ConfigurationContext, element: TreeNode): BaseElement => {
   const ast = parseByElementType(element)
@@ -41,6 +42,12 @@ const addChildItemsToResult = (context: ConfigurationContext, cst: BaseElement, 
   }
 
   cst.childItems = element.childItems.map((child) => parseElement(context, child)) || []
+}
+
+export const parseAutoCommandBar = (context: ConfigurationContext, element: TreeNode): AutoCommandBar => {
+  const ast = elementsParser.parseAutoCommandBar(element.tokens)
+  const cst = visitor.visit(ast, context)
+  return cst
 }
 
 const parseByElementType = (element: TreeNode): CstNode => {
