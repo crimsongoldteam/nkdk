@@ -1,4 +1,9 @@
-import { CommandBar, CommandBarEnterprise } from "~/metadata/forms/elements/commandBar/types"
+import {
+  CommandBar,
+  CommandBarEnterprise,
+  CommandBarPartialEnterprise,
+  CommandBarTypedEnterprise,
+} from "~/metadata/forms/elements/commandBar/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormGroup } from "../formGroup/data"
@@ -47,6 +52,60 @@ export const minimalCommandBar: CommandBar = {
 }
 
 export const minimalCommandBarEnterprise: CommandBarEnterprise = {}
+
+export const minimalCommandBarPartialEnterprise: CommandBarPartialEnterprise = {}
+
+export const fullCommandBarPartialEnterprise: CommandBarPartialEnterprise = {
+  ВертикальноеПоложениеВГруппе: "Верх",
+  Вид: "ОбычнаяГруппа",
+  Видимость: "Истина",
+  Высота: 200,
+  ГоризонтальноеПоложениеВГруппе: "Лево",
+  Доступность: "Истина",
+  ОтображениеПодсказки: "Нет",
+  Подсказка: "Подсказка",
+  РазрешитьИспользование: { Администратор: "Истина" },
+  РазрешитьИзменениеСостава: "Истина",
+  РастягиватьПоВертикали: "Истина",
+  РастягиватьПоГоризонтали: "Истина",
+  СочетаниеКлавиш: "Ctrl+S",
+  ТолькоПросмотр: "Ложь",
+  ЦветТекстаЗаголовка: "Черный",
+  Ширина: 300,
+  ШрифтЗаголовка: "ОбычныйШрифтТекста",
+  Автозаполнение: "Истина",
+  ВажностьПриОтображении: "Высокая",
+  ГоризонтальноеПоложение: "Лево",
+}
+
+export const fullCommandBarTypedEnterprise: CommandBarTypedEnterprise = {
+  Тип: "КоманднаяПанель",
+  Заголовок: "Командная панель",
+  ВертикальноеПоложениеВГруппе: "Верх",
+  Вид: "ОбычнаяГруппа",
+  Видимость: "Истина",
+  Высота: 200,
+  ГоризонтальноеПоложениеВГруппе: "Лево",
+  Доступность: "Истина",
+  ОтображениеПодсказки: "Нет",
+  Подсказка: "Подсказка",
+  РазрешитьИспользование: { Администратор: "Истина" },
+  РазрешитьИзменениеСостава: "Истина",
+  РастягиватьПоВертикали: "Истина",
+  РастягиватьПоГоризонтали: "Истина",
+  СочетаниеКлавиш: "Ctrl+S",
+  ТолькоПросмотр: "Ложь",
+  ЦветТекстаЗаголовка: "Черный",
+  Ширина: 300,
+  ШрифтЗаголовка: "ОбычныйШрифтТекста",
+  Автозаполнение: "Истина",
+  ВажностьПриОтображении: "Высокая",
+  ГоризонтальноеПоложение: "Лево",
+}
+
+export const minimalCommandBarTypedEnterprise: CommandBarTypedEnterprise = {
+  Тип: "КоманднаяПанель",
+}
 
 export interface CommandBarStructureFixture {
   name: string

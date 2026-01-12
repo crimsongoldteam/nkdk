@@ -1,35 +1,78 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
-import { CommandBar, CommandBarEnterprise } from "~/metadata/forms/elements/commandBar/types"
 import {
-  importFormGroupPropsFromEnterprise,
-} from "~/metadata/forms/elements/formGroup/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+  CommandBar,
+  CommandBarPartialEnterprise,
+  CommandBarTypedEnterprise,
+} from "~/metadata/forms/elements/commandBar/types"
+import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importButtonGroupChildItemsFromEnterprise } from "../../collections/buttonGroupChildItems/importFromEnterprise"
 
-export const importCommandBarFromEnterprise = <From extends CommandBarEnterprise | undefined, Name extends string>(
+export const importCommandBarTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, CommandBar, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, CommandBar, Name>
+  data: CommandBarTypedEnterprise | undefined,
+  name: string
+): CommandBar | undefined => {
+  if (data === undefined) return undefined
 
-  const baseElement = importBaseElementFromEnterprise(context, data, name)!
-  const props = importFormGroupPropsFromEnterprise(context, data)
+  const props = importCommandBarPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
 
   const result: CommandBar = {
-    ...baseElement,
     ...props,
-    elementType: FormElementType.CommandBar,
+    elementType,
+    name,
+    childItems: props.childItems ?? [],
+  }
+
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
+}
+
+export const importCommandBarPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: CommandBar | undefined,
+  data: CommandBarPartialEnterprise | undefined
+): CommandBar | undefined => {
+  if (source === undefined) return undefined
+
+  const props = importCommandBarPropsFromEnterprise(context, data)
+  const result: CommandBar = {
+    ...source,
+    ...props,
+    childItems: props.childItems ?? [],
+  }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
+}
+
+const importCommandBarPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: CommandBarTypedEnterprise | CommandBarPartialEnterprise | undefined
+): Omit<Partial<CommandBar>, "elementType" | "name"> => {
+  const result: Omit<Partial<CommandBar>, "elementType" | "name"> = {
     childItems: [],
   }
+
+  if (data === undefined) return result
+
+  const baseProps = importFormGroupPropsFromEnterprise(context, data)
+  Object.assign(result, baseProps)
 
   const autofill = importBooleanFromEnterprise(context, data.Автозаполнение)
   if (autofill !== undefined) result.autofill = autofill
@@ -65,10 +108,7 @@ export const importCommandBarFromEnterprise = <From extends CommandBarEnterprise
   const childItems = importButtonGroupChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
   if (childItems !== undefined) result.childItems = childItems
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
-  if (title !== undefined) result.title = title
-
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "CommandBar", importCommandBarFromEnterprise)
+registerMetadata("ImportFromEnterprise", "CommandBar", importCommandBarPropsFromEnterprise)

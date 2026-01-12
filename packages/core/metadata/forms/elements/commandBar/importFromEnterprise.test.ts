@@ -1,25 +1,55 @@
 import { describe, expect, it } from "vitest"
-import { fullCommandBar, fullCommandBarEnterprise, minimalCommandBar, minimalCommandBarEnterprise } from "~/tests/fixtures/forms/commandBar/data"
+import {
+  fullCommandBar,
+  fullCommandBarPartialEnterprise,
+  fullCommandBarTypedEnterprise,
+  minimalCommandBar,
+  minimalCommandBarTypedEnterprise,
+} from "~/tests/fixtures/forms/commandBar/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importCommandBarFromEnterprise } from "./importFromEnterprise"
+import { importCommandBarPartialFromEnterprise, importCommandBarTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importCommandBarFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importCommandBarFromEnterprise(mockСontext, undefined, fullCommandBar.name)
+  describe("importCommandBarTypedFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importCommandBarTypedFromEnterprise(mockСontext, undefined, "КоманднаяПанель")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importCommandBarTypedFromEnterprise(mockСontext, fullCommandBarTypedEnterprise, "КоманднаяПанель")
+
+      expect(result).toEqual(fullCommandBar)
+    })
+
+    it("should import minimal", () => {
+      const result = importCommandBarTypedFromEnterprise(
+        mockСontext,
+        minimalCommandBarTypedEnterprise,
+        "КоманднаяПанель"
+      )
+
+      expect(result).toEqual(minimalCommandBar)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importCommandBarFromEnterprise(mockСontext, fullCommandBarEnterprise, fullCommandBar.name)
+  describe("importCommandBarPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importCommandBarPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullCommandBar)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importCommandBarFromEnterprise(mockСontext, minimalCommandBarEnterprise, minimalCommandBar.name)
+    it("should import all fields from Enterprise", () => {
+      const result = importCommandBarPartialFromEnterprise(
+        mockСontext,
+        fullCommandBar,
+        fullCommandBarPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalCommandBar)
+      expect(result).toEqual(fullCommandBar)
+    })
   })
 })
 
