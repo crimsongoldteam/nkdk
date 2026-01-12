@@ -4,7 +4,7 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import {
   FormDecoration,
-  FormDecorationPropsEnterprise,
+  FormDecorationPartialEnterprise,
   FormDecorationXML,
 } from "~/metadata/forms/elements/formDecoration/types"
 import { EventsXML } from "~/metadata/forms/events/types"
@@ -39,7 +39,7 @@ export interface LabelDecorationXML extends FormDecorationXML {
   Events?: EventsXML
 }
 
-export interface LabelDecorationEnterprise extends FormDecorationPropsEnterprise {
+export interface LabelDecorationPartialEnterprise extends FormDecorationPartialEnterprise {
   ВертикальноеВыравниваниеГруппы?: SE.ItemVerticalAlignEnterprise
   ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
   ВысотаЗаголовка?: number
@@ -55,3 +55,10 @@ export interface LabelDecorationEnterprise extends FormDecorationPropsEnterprise
     ОбработкаНавигационнойСсылки?: string
   }
 }
+
+export interface LabelDecorationTypedEnterprise extends LabelDecorationPartialEnterprise {
+  Тип: "Надпись"
+}
+
+// Для обратной совместимости
+export type LabelDecorationEnterprise = LabelDecorationPartialEnterprise

@@ -1,16 +1,22 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importBorderFromEnterprise } from "~/metadata/commonObjects/border/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { LabelDecoration, LabelDecorationEnterprise } from "~/metadata/forms/elements/labelDecoration/types"
+import {
+  LabelDecoration,
+  LabelDecorationPartialEnterprise,
+  LabelDecorationTypedEnterprise,
+} from "~/metadata/forms/elements/labelDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importFormDecorationPropsFromEnterprise } from "../formDecoration/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "../types"
 
 const importLabelDecorationEventsFromEnterprise = (
   data: { Нажатие?: string; ОбработкаНавигационнойСсылки?: string } | undefined
@@ -30,26 +36,58 @@ const importLabelDecorationEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importLabelDecorationFromEnterprise = <
-  From extends LabelDecorationEnterprise | undefined,
-  Name extends string,
->(
+export const importLabelDecorationTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, LabelDecoration, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, LabelDecoration, Name>
+  data: LabelDecorationTypedEnterprise | undefined,
+  name: string
+): LabelDecoration | undefined => {
+  if (data === undefined) return undefined
 
-  const baseProps = importFormDecorationPropsFromEnterprise(context, data)
+  const props = importLabelDecorationPropsFromEnterprise(context, data)
 
-  const result: ImportFromEnterpriseReturn<From, LabelDecoration, Name> = {
-    ...baseProps,
-    elementType: FormElementType.LabelDecoration,
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: LabelDecoration = {
+    ...props,
+    elementType,
     name,
   }
 
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
+
+  return result
+}
+
+export const importLabelDecorationPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: LabelDecoration | undefined,
+  data: LabelDecorationPartialEnterprise | undefined
+): LabelDecoration | undefined => {
+  if (source === undefined) return undefined
+
+  const props = importLabelDecorationPropsFromEnterprise(context, data)
+  const result: LabelDecoration = {
+    ...source,
+    ...props,
+  }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
+}
+
+const importLabelDecorationPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: LabelDecorationTypedEnterprise | LabelDecorationPartialEnterprise | undefined
+): Omit<Partial<LabelDecoration>, "elementType" | "name"> => {
+  const result: Omit<Partial<LabelDecoration>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
+
+  const baseProps = importFormDecorationPropsFromEnterprise(context, data)
+  Object.assign(result, baseProps)
 
   const groupVerticalAlign = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
@@ -106,4 +144,4 @@ export const importLabelDecorationFromEnterprise = <
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "LabelDecoration", importLabelDecorationFromEnterprise)
+registerMetadata("ImportFromEnterprise", "LabelDecoration", importLabelDecorationPropsFromEnterprise)

@@ -1,30 +1,55 @@
 import { describe, expect, it } from "vitest"
 import {
   fullLabelDecoration,
-  fullLabelDecorationEnterprise,
+  fullLabelDecorationPartialEnterprise,
+  fullLabelDecorationTypedEnterprise,
   minimalLabelDecoration,
-  minimalLabelDecorationEnterprise,
+  minimalLabelDecorationTypedEnterprise,
 } from "~/tests/fixtures/forms/labelDecoration/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importLabelDecorationFromEnterprise } from "./importFromEnterprise"
+import { importLabelDecorationPartialFromEnterprise, importLabelDecorationTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importLabelDecorationFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importLabelDecorationFromEnterprise(mockСontext, undefined, fullLabelDecoration.name)
+  describe("importLabelDecorationTypedFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importLabelDecorationTypedFromEnterprise(mockСontext, undefined, "Надпись")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importLabelDecorationTypedFromEnterprise(mockСontext, fullLabelDecorationTypedEnterprise, "Надпись")
+
+      expect(result).toEqual(fullLabelDecoration)
+    })
+
+    it("should import minimal", () => {
+      const result = importLabelDecorationTypedFromEnterprise(
+        mockСontext,
+        minimalLabelDecorationTypedEnterprise,
+        "Надпись"
+      )
+
+      expect(result).toEqual(minimalLabelDecoration)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importLabelDecorationFromEnterprise(mockСontext, fullLabelDecorationEnterprise, fullLabelDecoration.name)
+  describe("importLabelDecorationPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importLabelDecorationPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullLabelDecoration)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importLabelDecorationFromEnterprise(mockСontext, minimalLabelDecorationEnterprise, minimalLabelDecoration.name)
+    it("should import all fields from Enterprise", () => {
+      const result = importLabelDecorationPartialFromEnterprise(
+        mockСontext,
+        fullLabelDecoration,
+        fullLabelDecorationPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalLabelDecoration)
+      expect(result).toEqual(fullLabelDecoration)
+    })
   })
 })
 

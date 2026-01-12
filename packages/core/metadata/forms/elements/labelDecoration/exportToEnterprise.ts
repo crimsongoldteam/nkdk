@@ -1,14 +1,22 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportBorderToEnterprise } from "~/metadata/commonObjects/border/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
+import {
+  exportI8nTextOtherToEnterprise,
+  exportI8nTextToEnterprise,
+} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormDecorationPropsToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
-import { LabelDecoration, LabelDecorationEnterprise } from "~/metadata/forms/elements/labelDecoration/types"
+import {
+  LabelDecoration,
+  LabelDecorationPartialEnterprise,
+  LabelDecorationTypedEnterprise,
+} from "~/metadata/forms/elements/labelDecoration/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ImportExportReturn } from "../types"
 
 const exportLabelDecorationEventsToEnterprise = (
   data: { click?: string; uRLProcessing?: string } | undefined
@@ -28,15 +36,48 @@ const exportLabelDecorationEventsToEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const exportLabelDecorationToEnterprise = <T extends LabelDecoration | undefined>(
+export const exportLabelDecorationTypedToEnterprise = (
   context: ConfigurationContext,
-  data: T
-): ImportExportReturn<T, LabelDecorationEnterprise> => {
-  if (!data) return undefined as ImportExportReturn<T, LabelDecorationEnterprise>
+  data: LabelDecoration | undefined
+): LabelDecorationTypedEnterprise | undefined => {
+  if (!data) return undefined
 
+  const props = exportLabelDecorationPropsToEnterprise(context, data)
+
+  const result: LabelDecorationTypedEnterprise = {
+    Тип: "Надпись",
+    ...props,
+  }
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+export const exportLabelDecorationPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: LabelDecoration
+): LabelDecorationPartialEnterprise => {
+  const props = exportLabelDecorationPropsToEnterprise(context, data)
+
+  const result: LabelDecorationPartialEnterprise = {
+    ...props,
+  }
+
+  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+const exportLabelDecorationPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: LabelDecoration
+): LabelDecorationPartialEnterprise => {
   const baseFields = exportFormDecorationPropsToEnterprise(context, data)
 
-  const result: LabelDecorationEnterprise = {
+  const result: LabelDecorationPartialEnterprise = {
     ...baseFields,
   }
 
@@ -83,7 +124,7 @@ export const exportLabelDecorationToEnterprise = <T extends LabelDecoration | un
   const events = exportLabelDecorationEventsToEnterprise(data.events)
   if (events !== undefined) result.События = events
 
-  return result as ImportExportReturn<T, LabelDecorationEnterprise>
+  return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "LabelDecoration", exportLabelDecorationToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "LabelDecoration", exportLabelDecorationPartialToEnterprise)

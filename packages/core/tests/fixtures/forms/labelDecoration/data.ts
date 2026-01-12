@@ -1,7 +1,11 @@
-import { LabelDecoration, LabelDecorationEnterprise } from "~/metadata/forms/elements/labelDecoration/types"
+import {
+  LabelDecoration,
+  LabelDecorationPartialEnterprise,
+  LabelDecorationTypedEnterprise,
+} from "~/metadata/forms/elements/labelDecoration/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormDecoration, fullFormDecorationEnterprise } from "../formDecoration/data"
+import { fullFormDecoration, fullFormDecorationPartialEnterprise } from "../formDecoration/data"
 
 export const fullLabelDecoration: LabelDecoration = {
   ...fullFormDecoration,
@@ -28,9 +32,8 @@ export const fullLabelDecoration: LabelDecoration = {
   },
 }
 
-export const fullLabelDecorationEnterprise: LabelDecorationEnterprise = {
-  ...fullFormDecorationEnterprise,
-  Заголовок: "Заголовок формы",
+export const fullLabelDecorationPartialEnterprise: LabelDecorationPartialEnterprise = {
+  ...fullFormDecorationPartialEnterprise,
   ВертикальноеВыравниваниеГруппы: "Верх",
   ВертикальноеПоложение: "Верх",
   ВысотаЗаголовка: 20,
@@ -49,12 +52,27 @@ export const fullLabelDecorationEnterprise: LabelDecorationEnterprise = {
   },
 }
 
+export const fullLabelDecorationTypedEnterprise: LabelDecorationTypedEnterprise = {
+  ...fullLabelDecorationPartialEnterprise,
+  Тип: "Надпись",
+  Заголовок: "Заголовок формы",
+}
+
 export const minimalLabelDecoration: LabelDecoration = {
   elementType: FormElementType.LabelDecoration,
   name: "Заголовок",
 }
 
-export const minimalLabelDecorationEnterprise: LabelDecorationEnterprise = {}
+export const minimalLabelDecorationPartialEnterprise: LabelDecorationPartialEnterprise = {}
+
+export const minimalLabelDecorationTypedEnterprise: LabelDecorationTypedEnterprise = {
+  Тип: "Надпись",
+}
+
+// Для обратной совместимости
+export const fullLabelDecorationEnterprise: LabelDecorationPartialEnterprise = fullLabelDecorationPartialEnterprise
+export const minimalLabelDecorationEnterprise: LabelDecorationPartialEnterprise =
+  minimalLabelDecorationPartialEnterprise
 
 export interface LabelDecorationStructureFixture {
   name: string

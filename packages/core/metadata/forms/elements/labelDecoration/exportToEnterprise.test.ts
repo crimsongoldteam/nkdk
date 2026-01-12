@@ -1,29 +1,38 @@
 import { describe, expect, it } from "vitest"
 import {
   fullLabelDecoration,
-  fullLabelDecorationEnterprise,
+  fullLabelDecorationPartialEnterprise,
+  fullLabelDecorationTypedEnterprise,
   minimalLabelDecoration,
-  minimalLabelDecorationEnterprise,
+  minimalLabelDecorationPartialEnterprise,
 } from "~/tests/fixtures/forms/labelDecoration/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportLabelDecorationToEnterprise } from "./exportToEnterprise"
+import { exportLabelDecorationPartialToEnterprise, exportLabelDecorationTypedToEnterprise } from "./exportToEnterprise"
 
-describe("exportLabelDecorationToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportLabelDecorationToEnterprise(mockСontext, undefined)
-
-    expect(result).toBeUndefined()
-  })
-
+describe("exportLabelDecorationPartialToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportLabelDecorationToEnterprise(mockСontext, fullLabelDecoration)
+    const result = exportLabelDecorationPartialToEnterprise(mockСontext, fullLabelDecoration)
 
-    expect(result).toEqual(fullLabelDecorationEnterprise)
+    expect(result).toEqual(fullLabelDecorationPartialEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportLabelDecorationToEnterprise(mockСontext, minimalLabelDecoration)
+    const result = exportLabelDecorationPartialToEnterprise(mockСontext, minimalLabelDecoration)
 
-    expect(result).toEqual(minimalLabelDecorationEnterprise)
+    expect(result).toEqual(minimalLabelDecorationPartialEnterprise)
+  })
+})
+
+describe("exportLabelDecorationTypedToEnterprise", () => {
+  it("should export all fields to Enterprise", () => {
+    const result = exportLabelDecorationTypedToEnterprise(mockСontext, fullLabelDecoration)
+
+    expect(result).toEqual(fullLabelDecorationTypedEnterprise)
+  })
+
+  it("should return undefined when data is undefined", () => {
+    const result = exportLabelDecorationTypedToEnterprise(mockСontext, undefined)
+
+    expect(result).toBeUndefined()
   })
 })

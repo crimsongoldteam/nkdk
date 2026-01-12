@@ -6,7 +6,6 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullClientApplicationForm: ClientApplicationForm = {
   autoCommandBar: {
-    elementType: FormElementType.AutoCommandBar,
     autofill: false,
     horizontalAlign: "Left",
     childItems: [],
