@@ -7,13 +7,15 @@ import { exportChildItemsToXML } from "~/metadata/forms/collections/childItems/e
 import { exportCommandSetToXML } from "~/metadata/forms/commandSet/exportToXML"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
-import { exportFormItemAdditionToXML } from "~/metadata/forms/elements/formItemAddition/exportToXML"
 import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { exportCommandBarToXML } from "../commandBar/exportToXML"
+import { exportAutoCommandBarToXML } from "../autoCommandBar/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { exportSearchControlAdditionToXML } from "../searchControlAddition/exportToXML"
+import { exportSearchStringAdditionToXML } from "../searchStringAddition/exportToXML"
+import { exportViewStatusAdditionToXML } from "../viewStatusAddition/exportToXML"
 
 export const exportTableToXML = (context: ConfigurationContext, data: Table | undefined): TableXML | undefined => {
   if (!data) return undefined
@@ -27,7 +29,7 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
 
   if (data.autoAddIncomplete !== undefined) result.AutoAddIncomplete = data.autoAddIncomplete
 
-  const autoCommandBar = exportCommandBarToXML(context, data.autoCommandBar)
+  const autoCommandBar = exportAutoCommandBarToXML(context, data.autoCommandBar, data)
   if (autoCommandBar !== undefined) result.AutoCommandBar = autoCommandBar
 
   if (data.autoInsertNewRow !== undefined) result.AutoInsertNewRow = data.autoInsertNewRow
@@ -57,9 +59,6 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
   if (childItems !== undefined) result.ChildItems = childItems
 
   if (data.choiceMode !== undefined) result.ChoiceMode = data.choiceMode
-
-  const commandBar = exportCommandBarToXML(context, data.commandBar)
-  if (commandBar !== undefined) result.CommandBar = commandBar
 
   if (data.commandBarLocation !== undefined) result.CommandBarLocation = data.commandBarLocation
 
@@ -142,7 +141,7 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
 
   if (data.rowsPicture !== undefined) result.RowsPicture = data.rowsPicture
 
-  const searchControl = exportFormItemAdditionToXML(context, data.searchControl)
+  const searchControl = exportSearchControlAdditionToXML(context, data.searchControl, data)
   if (searchControl !== undefined) result.SearchControl = searchControl
 
   if (data.searchControlLocation !== undefined) result.SearchControlLocation = data.searchControlLocation
@@ -151,7 +150,7 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
 
   if (data.searchStringLocation !== undefined) result.SearchStringLocation = data.searchStringLocation
 
-  const searchStringRepresentation = exportFormItemAdditionToXML(context, data.searchStringRepresentation)
+  const searchStringRepresentation = exportSearchStringAdditionToXML(context, data.searchStringRepresentation, data)
   if (searchStringRepresentation !== undefined) result.SearchStringRepresentation = searchStringRepresentation
 
   if (data.selectionMode !== undefined) result.SelectionMode = data.selectionMode
@@ -196,7 +195,7 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
 
   if (data.viewStatusLocation !== undefined) result.ViewStatusLocation = data.viewStatusLocation
 
-  const viewStatusRepresentation = exportFormItemAdditionToXML(context, data.viewStatusRepresentation)
+  const viewStatusRepresentation = exportViewStatusAdditionToXML(context, data.viewStatusRepresentation, data)
   if (viewStatusRepresentation !== undefined) result.ViewStatusRepresentation = viewStatusRepresentation
 
   if (data.visible !== undefined) result.Visible = data.visible

@@ -1,8 +1,7 @@
-<Table name="Таблица" id="1" _DisplayImportance="High">
+<Table name="Таблица" id="1" DisplayImportance="High">
 	<AutoAddIncomplete>true</AutoAddIncomplete>
-	<AutoCommandBar name="ТаблицаАвтоКоманднаяПанель" id="2" DisplayImportance="High">
-		<Autofill>true</Autofill>
-		<HorizontalAlign>Left</HorizontalAlign>
+	<AutoCommandBar name="ТаблицаКоманднаяПанель" id="2">
+		<Autofill>false</Autofill>
 	</AutoCommandBar>
 	<AutoInsertNewRow>true</AutoInsertNewRow>
 	<AutoMarkIncomplete>true</AutoMarkIncomplete>
@@ -182,28 +181,28 @@
 	<Visible>true</Visible>
 	<Width>600</Width>
 	<Events>
-		<Event name="Selection">ПроцедураВыбора</Event>
-		<Event name="ValueChoice">ПроцедураВыбораЗначения</Event>
-		<Event name="DragStart">ПроцедураНачалаПеретаскивания</Event>
-		<Event name="ChoiceProcessing">ПроцедураОбработкиВыбора</Event>
-		<Event name="NewWriteProcessing">ПроцедураОбработкиЗаписиНового</Event>
-		<Event name="RefreshRequestProcessing">ПроцедураОбработкиЗапросаОбновления</Event>
-		<Event name="DragEnd">ПроцедураОкончанияПеретаскивания</Event>
+		<Event name="AfterDeleteRow">ПроцедураПослеУдаления</Event>
 		<Event name="BeforeAddRow">ПроцедураПередНачаломДобавления</Event>
-		<Event name="BeforeRowChange">ПроцедураПередНачаломИзменения</Event>
-		<Event name="BeforeEditEnd">ПроцедураПередОкончаниемРедактирования</Event>
-		<Event name="BeforeExpand">ПроцедураПередРазворачиванием</Event>
 		<Event name="BeforeCollapse">ПроцедураПередСворачиванием</Event>
 		<Event name="BeforeDeleteRow">ПроцедураПередУдалением</Event>
+		<Event name="BeforeEditEnd">ПроцедураПередОкончаниемРедактирования</Event>
+		<Event name="BeforeExpand">ПроцедураПередРазворачиванием</Event>
+		<Event name="BeforeRowChange">ПроцедураПередНачаломИзменения</Event>
+		<Event name="ChoiceProcessing">ПроцедураОбработкиВыбора</Event>
 		<Event name="Drag">ПроцедураПеретаскивания</Event>
-		<Event name="AfterDeleteRow">ПроцедураПослеУдаления</Event>
+		<Event name="DragCheck">ПроцедураПроверкиПеретаскивания</Event>
+		<Event name="DragEnd">ПроцедураОкончанияПеретаскивания</Event>
+		<Event name="DragStart">ПроцедураНачалаПеретаскивания</Event>
+		<Event name="NewWriteProcessing">ПроцедураОбработкиЗаписиНового</Event>
+		<Event name="OnActivateCell">ПроцедураПриАктивизацииЯчейки</Event>
 		<Event name="OnActivateField">ПроцедураПриАктивизацииПоля</Event>
 		<Event name="OnActivateRow">ПроцедураПриАктивизацииСтроки</Event>
-		<Event name="OnActivateCell">ПроцедураПриАктивизацииЯчейки</Event>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
-		<Event name="OnStartEdit">ПроцедураПриНачалеРедактирования</Event>
-		<Event name="OnEditEnd">ПроцедураПриОкончанииРедактирования</Event>
 		<Event name="OnCurrentParentChange">ПроцедураПриСменеТекущегоРодителя</Event>
-		<Event name="DragCheck">ПроцедураПроверкиПеретаскивания</Event>
+		<Event name="OnEditEnd">ПроцедураПриОкончанииРедактирования</Event>
+		<Event name="OnStartEdit">ПроцедураПриНачалеРедактирования</Event>
+		<Event name="RefreshRequestProcessing">ПроцедураОбработкиЗапросаОбновления</Event>
+		<Event name="Selection">ПроцедураВыбора</Event>
+		<Event name="ValueChoice">ПроцедураВыбораЗначения</Event>
 	</Events>
 </Table>

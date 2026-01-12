@@ -7,15 +7,17 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportTypedChildItemsToEnterprise } from "~/metadata/forms/collections/childItems/exportToEnterprise"
 import { exportCommandSetToEnterprise } from "~/metadata/forms/commandSet/exportToEnterprise"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
-import { exportCommandBarToEnterprise } from "~/metadata/forms/elements/commandBar/exportToEnterprise"
 import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
-import { exportFormItemAdditionToEnterprise } from "~/metadata/forms/elements/formItemAddition/exportToEnterprise"
 import { Table, TableEnterprise } from "~/metadata/forms/elements/table/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { exportAutoCommandBarToEnterprise } from "../autoCommandBar/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
+import { exportSearchControlAdditionToEnterprise } from "../searchControlAddition/exportToEnterprise"
+import { exportSearchStringAdditionToEnterprise } from "../searchStringAddition/exportToEnterprise"
+import { exportViewStatusAdditionToEnterprise } from "../viewStatusAddition/exportToEnterprise"
 
 export const exportTableToEnterprise = (
   context: ConfigurationContext,
@@ -35,7 +37,7 @@ export const exportTableToEnterprise = (
   const autoInsertNewRow = exportBooleanToEnterprise(context, data.autoInsertNewRow)
   if (autoInsertNewRow !== undefined) result.АвтоВводНовойСтроки = autoInsertNewRow
 
-  const autoCommandBar = exportCommandBarToEnterprise(context, data.autoCommandBar)
+  const autoCommandBar = exportAutoCommandBarToEnterprise(context, data.autoCommandBar)
   if (autoCommandBar !== undefined) result.АвтоКоманднаяПанель = autoCommandBar
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
@@ -149,9 +151,6 @@ export const exportTableToEnterprise = (
   const commandSet = exportCommandSetToEnterprise(context, data.commandSet)
   if (commandSet !== undefined) result.Команда = commandSet
 
-  const commandBar = exportCommandBarToEnterprise(context, data.commandBar)
-  if (commandBar !== undefined) result.КоманднаяПанель = commandBar
-
   const contextMenu = exportContextMenuToEnterprise(context, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
 
@@ -195,10 +194,10 @@ export const exportTableToEnterprise = (
   )
   if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const viewStatusRepresentation = exportFormItemAdditionToEnterprise(context, data.viewStatusRepresentation)
+  const viewStatusRepresentation = exportViewStatusAdditionToEnterprise(context, data.viewStatusRepresentation)
   if (viewStatusRepresentation !== undefined) result.ОтображениеСостоянияПросмотра = viewStatusRepresentation
 
-  const searchStringRepresentation = exportFormItemAdditionToEnterprise(context, data.searchStringRepresentation)
+  const searchStringRepresentation = exportSearchStringAdditionToEnterprise(context, data.searchStringRepresentation)
   if (searchStringRepresentation !== undefined) result.ОтображениеСтрокиПоиска = searchStringRepresentation
 
   const behaviorOnHorizontalCompression = exportSystemEnumerationToEnterprise(
@@ -315,7 +314,7 @@ export const exportTableToEnterprise = (
   const readOnly = exportBooleanToEnterprise(context, data.readOnly)
   if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
 
-  const searchControl = exportFormItemAdditionToEnterprise(context, data.searchControl)
+  const searchControl = exportSearchControlAdditionToEnterprise(context, data.searchControl)
   if (searchControl !== undefined) result.УправлениеПоиском = searchControl
 
   const borderColor = exportColorToEnterprise(context, data.borderColor)

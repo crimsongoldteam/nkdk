@@ -6,7 +6,6 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ViewStatusAddition, ViewStatusAdditionXML } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { BaseElement } from "../baseElement/types"
 import { exportContextMenuToXML } from "../contextMenu/exportToXML"
@@ -93,5 +92,3 @@ export const exportViewStatusAdditionToXML = (
 
   return sortObject(result)
 }
-
-registerMetadata("ExportToXML", "ViewStatusAddition", exportViewStatusAdditionToXML)

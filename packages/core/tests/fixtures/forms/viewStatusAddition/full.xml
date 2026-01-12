@@ -17,14 +17,14 @@
 	<HorizontalStretch>true</HorizontalStretch>
 	<MaxWidth>500</MaxWidth>
 	<TextColor>web:Black</TextColor>
-	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
-	<TitleTextColor>web:Blue</TitleTextColor>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
 			<v8:content>Добавление элемента формы</v8:content>
 		</v8:item>
 	</Title>
+	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<TitleTextColor>web:Blue</TitleTextColor>
 	<ToolTip>
 		<v8:item>
 			<v8:lang>ru</v8:lang>

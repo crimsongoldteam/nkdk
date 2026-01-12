@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "~/metadata/forms/elements/exportToEnterprise"
 import { fullTable, fullTableEnterprise, minimalTable, minimalTableEnterprise } from "~/tests/fixtures/forms/table/data"
 import { mockСontext } from "~/tests/mockContext"
 import { exportTableToEnterprise } from "./exportToEnterprise"
@@ -22,4 +23,3 @@ describe("exportTableToEnterprise", () => {
     expect(result).toEqual(minimalTableEnterprise)
   })
 })
-

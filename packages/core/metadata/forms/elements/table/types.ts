@@ -6,20 +6,28 @@ import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/c
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "~/metadata/forms/collections/childItems/types"
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
-import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
+import { CommandBar, CommandBarEnterprise } from "~/metadata/forms/elements/commandBar/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
-import {
-  FormItemAddition,
-  FormItemAdditionEnterprise,
-  FormItemAdditionXML,
-} from "~/metadata/forms/elements/formItemAddition/types"
+
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { AutoCommandBar, AutoCommandBarXML } from "../autoCommandBar/types"
 import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import {
+  SearchControlAddition,
+  SearchControlAdditionEnterprise,
+  SearchControlAdditionXML,
+} from "../searchControlAddition/types"
+import {
+  SearchStringAddition,
+  SearchStringAdditionEnterprise,
+  SearchStringAdditionXML,
+} from "../searchStringAddition/types"
+import { ViewStatusAddition, ViewStatusAdditionEnterprise, ViewStatusAdditionXML } from "../viewStatusAddition/types"
 
 export interface Table extends BaseElement {
   autoAddIncomplete?: boolean
-  autoCommandBar?: CommandBar
+  autoCommandBar?: AutoCommandBar
   autoInsertNewRow?: boolean
   autoMarkIncomplete?: boolean
   autoMaxHeight?: boolean
@@ -72,11 +80,11 @@ export interface Table extends BaseElement {
   rowPictureDataPath?: string
   rowSelectionMode?: SE.TableRowSelectionMode
   rowsPicture?: boolean
-  searchControl?: FormItemAddition
+  searchControl?: SearchControlAddition
   searchControlLocation?: SE.SearchControlLocation
   searchOnInput?: SE.SearchInTableOnInput
   searchStringLocation?: SE.SearchStringLocation
-  searchStringRepresentation?: FormItemAddition
+  searchStringRepresentation?: SearchStringAddition
   selectionMode?: SE.TableSelectionMode
   shortcut?: string
   skipOnInput?: boolean
@@ -95,7 +103,7 @@ export interface Table extends BaseElement {
   verticalScrollBar?: SE.ScrollBarUse
   verticalStretch?: boolean
   viewStatusLocation?: SE.ViewStatusLocation
-  viewStatusRepresentation?: FormItemAddition
+  viewStatusRepresentation?: ViewStatusAddition
   visible?: boolean
   width?: number
   events?: {
@@ -127,7 +135,7 @@ export interface Table extends BaseElement {
 
 export interface TableXML extends BaseElementXML {
   AutoAddIncomplete?: boolean
-  AutoCommandBar?: CommandBarXML
+  AutoCommandBar?: AutoCommandBarXML
   AutoInsertNewRow?: boolean
   AutoMarkIncomplete?: boolean
   AutoMaxHeight?: boolean
@@ -140,7 +148,6 @@ export interface TableXML extends BaseElementXML {
   ChangeRowSet?: boolean
   ChildItems?: ChildItemsXML
   ChoiceMode?: boolean
-  CommandBar?: CommandBarXML
   CommandBarLocation?: SE.FormItemCommandBarLabelLocation
   CommandSet?: CommandSetXML
   ContextMenu?: ContextMenuXML
@@ -180,11 +187,11 @@ export interface TableXML extends BaseElementXML {
   RowPictureDataPath?: string
   RowSelectionMode?: SE.TableRowSelectionMode
   RowsPicture?: boolean
-  SearchControl?: FormItemAdditionXML
+  SearchControl?: SearchControlAdditionXML
   SearchControlLocation?: SE.SearchControlLocation
   SearchOnInput?: SE.SearchInTableOnInput
   SearchStringLocation?: SE.SearchStringLocation
-  SearchStringRepresentation?: FormItemAdditionXML
+  SearchStringRepresentation?: SearchStringAdditionXML
   SelectionMode?: SE.TableSelectionMode
   Shortcut?: string
   SkipOnInput?: boolean
@@ -203,7 +210,7 @@ export interface TableXML extends BaseElementXML {
   VerticalScrollBar?: SE.ScrollBarUse
   VerticalStretch?: boolean
   ViewStatusLocation?: SE.ViewStatusLocation
-  ViewStatusRepresentation?: FormItemAdditionXML
+  ViewStatusRepresentation?: ViewStatusAdditionXML
   Visible?: boolean
   Width?: number
   Events?: EventsXML
@@ -252,8 +259,8 @@ export interface TableEnterprise extends BaseElementPropsEnterprise {
   ОтметкаНезаполненного?: StringboolEnterprise
   Отображение?: SE.TableRepresentationEnterprise
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-  ОтображениеСостоянияПросмотра?: FormItemAdditionEnterprise
-  ОтображениеСтрокиПоиска?: FormItemAdditionEnterprise
+  ОтображениеСостоянияПросмотра?: ViewStatusAdditionEnterprise
+  ОтображениеСтрокиПоиска?: SearchStringAdditionEnterprise
   ПоведениеПриСжатииПоГоризонтали?: SE.TableBehaviorOnHorizontalCompressionEnterprise
   Подвал?: StringboolEnterprise
   Подсказка?: I8nTextEnterprise
@@ -281,7 +288,7 @@ export interface TableEnterprise extends BaseElementPropsEnterprise {
   СочетаниеКлавиш?: string
   СпособПеретаскиванияФайлов?: SE.FileDragModeEnterprise
   ТолькоПросмотр?: StringboolEnterprise
-  УправлениеПоиском?: FormItemAdditionEnterprise
+  УправлениеПоиском?: SearchControlAdditionEnterprise
   ЦветРамки?: ColorEnterprise
   ЦветТекста?: ColorEnterprise
   ЦветТекстаЗаголовка?: ColorEnterprise
