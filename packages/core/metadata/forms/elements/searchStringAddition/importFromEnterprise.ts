@@ -62,6 +62,9 @@ export const importSearchStringAdditionFromEnterprise = <From extends SearchStri
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
+
   const userVisibleAllow = importUserVisibleFromEnterprise(
     context,
     data.РазрешитьИспользование,

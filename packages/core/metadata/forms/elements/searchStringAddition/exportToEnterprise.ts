@@ -61,6 +61,9 @@ export const exportSearchStringAdditionToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
   const extendedToolTip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
   if (extendedToolTip !== undefined) result.РасширеннаяПодсказка = extendedToolTip
 
@@ -85,6 +88,8 @@ export const exportSearchStringAdditionToEnterprise = (
 
   const font = exportFontToEnterprise(context, data.font)
   if (font !== undefined) result.Шрифт = font
+
+  if (Object.keys(result).length === 0) return undefined
 
   return result
 }

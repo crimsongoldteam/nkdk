@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { fullSearchStringAddition, minimalSearchStringAddition } from "~/tests/fixtures/forms/searchStringAddition/data"
+import "~/metadata/forms/elements/importFromXML"
+import { fullSearchStringAddition } from "~/tests/fixtures/forms/searchStringAddition/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importSearchStringAdditionFromXML } from "./importFromXML"
@@ -23,6 +24,6 @@ describe("importSearchStringAdditionFromXML", () => {
 
     const result = importSearchStringAdditionFromXML(mockСontext, xmlData.SearchStringAddition)
 
-    expect(result).toEqual(minimalSearchStringAddition)
+    expect(result).toBeUndefined()
   })
 })

@@ -3,7 +3,6 @@ import {
   fullSearchStringAddition,
   fullSearchStringAdditionEnterprise,
   minimalSearchStringAddition,
-  minimalSearchStringAdditionEnterprise,
 } from "~/tests/fixtures/forms/searchStringAddition/data"
 import { mockСontext } from "~/tests/mockContext"
 import { exportSearchStringAdditionToEnterprise } from "./exportToEnterprise"
@@ -24,7 +23,6 @@ describe("exportSearchStringAdditionToEnterprise", () => {
   it("should export minimal", () => {
     const result = exportSearchStringAdditionToEnterprise(mockСontext, minimalSearchStringAddition)
 
-    expect(result).toEqual(minimalSearchStringAdditionEnterprise)
+    expect(result).toBeUndefined()
   })
 })
-

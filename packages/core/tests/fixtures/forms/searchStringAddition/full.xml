@@ -1,8 +1,17 @@
-<SearchStringAddition name="ДополнениеСтрокиПоиска" id="1" DisplayImportance="High">
-	<ContextMenu name="ДополнениеСтрокиПоискаКонтекстноеМеню" id="2"/>
+<SearchStringAddition name="КакойТоЭлементСтрокаПоиска" id="1" DisplayImportance="High">
+	<AdditionSource>
+		<Item>КакойТоЭлемент</Item>
+		<Type>SearchStringAddition</Type>
+	</AdditionSource>
+	<BackColor>web:White</BackColor>
+	<BorderColor>web:Black</BorderColor>
+	<ContextMenu name="КакойТоЭлементКонтекстноеМеню" id="2"/>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="ДополнениеСтрокиПоискаРасширеннаяПодсказка" id="3"/>
+	<ExtendedTooltip name="КакойТоЭлементРасширеннаяПодсказка" id="3"/>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalStretch>true</HorizontalStretch>
+	<TextColor>web:Black</TextColor>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -16,11 +25,11 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>SearchControl</Type>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
 	<Visible>true</Visible>
+	<Width>300</Width>
 </SearchStringAddition>

@@ -53,8 +53,6 @@ export const fullTable: Table = {
   enableDrag: true,
   enableStartDrag: true,
   extendedTooltip: {
-    elementType: FormElementType.FormDecoration,
-    name: "ТаблицаРасширеннаяПодсказка",
     title: {
       items: { ru: "Расширенная подсказка" },
     },
@@ -88,8 +86,6 @@ export const fullTable: Table = {
   rowSelectionMode: "Row",
   rowsPicture: true,
   searchControl: {
-    elementType: FormElementType.FormItemAddition,
-    name: "ТаблицаУправлениеПоиском",
     childItems: [],
     displayImportance: "High",
     enabled: true,
@@ -113,8 +109,6 @@ export const fullTable: Table = {
   searchOnInput: "Auto",
   searchStringLocation: "Auto",
   searchStringRepresentation: {
-    elementType: FormElementType.FormItemAddition,
-    name: "ТаблицаОтображениеСтрокиПоиска",
     childItems: [],
     displayImportance: "High",
     enabled: true,
@@ -160,8 +154,6 @@ export const fullTable: Table = {
   verticalStretch: true,
   viewStatusLocation: "Auto",
   viewStatusRepresentation: {
-    elementType: FormElementType.FormItemAddition,
-    name: "ТаблицаОтображениеСостоянияПросмотра",
     childItems: [],
     displayImportance: "High",
     enabled: true,
@@ -298,7 +290,7 @@ export const fullTableEnterprise: TableEnterprise = {
   РастягиватьПоВертикали: "Истина",
   РастягиватьПоГоризонтали: "Истина",
   РасширеннаяПодсказка: {
-    Имя: "РасширеннаяПодсказка",
+    Заголовок: "Расширенная подсказка",
   },
   РежимВводаСтрок: "ВКонецОкна",
   РежимВыбора: "Истина",

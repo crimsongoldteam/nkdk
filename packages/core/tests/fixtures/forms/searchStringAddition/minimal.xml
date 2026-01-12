@@ -1,4 +1,8 @@
-<SearchStringAddition name="ДополнениеСтрокиПоиска" id="1">
-	<ContextMenu name="ДополнениеСтрокиПоискаКонтекстноеМеню" id="2"/>
-	<ExtendedTooltip name="ДополнениеСтрокиПоискаРасширеннаяПодсказка" id="3"/>
+<SearchStringAddition name="КакойТоЭлементСтрокаПоиска" id="1">
+	<AdditionSource>
+		<Item>КакойТоЭлемент</Item>
+		<Type>SearchStringAddition</Type>
+	</AdditionSource>
+	<ContextMenu name="КакойТоЭлементКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="КакойТоЭлементРасширеннаяПодсказка" id="3"/>
 </SearchStringAddition>

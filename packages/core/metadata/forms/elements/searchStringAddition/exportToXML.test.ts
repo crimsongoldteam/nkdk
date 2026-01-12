@@ -1,20 +1,30 @@
 import { describe, expect, it } from "vitest"
-import { fullSearchStringAddition, minimalSearchStringAddition } from "~/tests/fixtures/forms/searchStringAddition/data"
+import "~/metadata/forms/elements/exportToXML"
+import {
+  fullSearchStringAddition,
+  minimalSearchStringAddition,
+  parentElement,
+} from "~/tests/fixtures/forms/searchStringAddition/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readXMLFileAsString } from "~/tests/readAndParseXMLFile"
 import { xmlExport } from "~/xml/export/exporter"
 import { exportSearchStringAdditionToXML } from "./exportToXML"
 
 describe("exportSearchStringAdditionToXML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportSearchStringAdditionToXML(mockСontext, undefined)
+  it("should return all fields to XML", () => {
+    const expectedResult = readXMLFileAsString("forms/searchStringAddition/full.xml")
 
-    expect(result).toBeUndefined()
+    const xmlData = exportSearchStringAdditionToXML(mockСontext, fullSearchStringAddition, parentElement)
+
+    const result = xmlExport({ SearchStringAddition: xmlData }, false)
+
+    expect(result).toEqual(expectedResult)
   })
 
-  it("should export all fields to XML", () => {
-    const expectedResult = readXMLFileAsString("forms/searchStringAddition/full.xml")
-    const xmlData = exportSearchStringAdditionToXML(mockСontext, fullSearchStringAddition)
+  it("should return default when data is undefined", () => {
+    const expectedResult = readXMLFileAsString("forms/searchStringAddition/minimal.xml")
+
+    const xmlData = exportSearchStringAdditionToXML(mockСontext, undefined, parentElement)
 
     const result = xmlExport({ SearchStringAddition: xmlData }, false)
 
@@ -23,11 +33,10 @@ describe("exportSearchStringAdditionToXML", () => {
 
   it("should export minimal", () => {
     const expectedResult = readXMLFileAsString("forms/searchStringAddition/minimal.xml")
-    const xmlData = exportSearchStringAdditionToXML(mockСontext, minimalSearchStringAddition)
+    const xmlData = exportSearchStringAdditionToXML(mockСontext, minimalSearchStringAddition, parentElement)
 
     const result = xmlExport({ SearchStringAddition: xmlData }, false)
 
     expect(result).toEqual(expectedResult)
   })
 })
-

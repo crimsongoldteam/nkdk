@@ -1,9 +1,7 @@
 import { BaseElement } from "../baseElement/types"
 import { SearchStringAddition } from "./types"
 
-export const getSearchStringAdditionName = (parentElement?: BaseElement): string => {
-  if (!parentElement) return "СтрокаПоиска"
-
+export const getSearchStringAdditionName = (parentElement: BaseElement): string => {
   return `${parentElement.name}СтрокаПоиска`
 }
 

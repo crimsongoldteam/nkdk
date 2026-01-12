@@ -4,7 +4,6 @@ import {
   fullPictureDecorationPartialEnterprise,
   fullPictureDecorationTypedEnterprise,
   minimalPictureDecoration,
-  minimalPictureDecorationPartialEnterprise,
   minimalPictureDecorationTypedEnterprise,
 } from "~/tests/fixtures/forms/pictureDecoration/data"
 import { mockСontext } from "~/tests/mockContext"
