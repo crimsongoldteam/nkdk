@@ -4,7 +4,6 @@ import {
   fullUsualGroupPartialEnterprise,
   fullUsualGroupTypedEnterprise,
   minimalUsualGroup,
-  minimalUsualGroupPartialEnterprise,
   minimalUsualGroupTypedEnterprise,
 } from "~/tests/fixtures/forms/usualGroup/data"
 import { mockСontext } from "~/tests/mockContext"

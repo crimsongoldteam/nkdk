@@ -2,46 +2,60 @@ import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportFormItemAdditionToXML } from "~/metadata/forms/elements/formItemAddition/exportToXML"
+import { exportButtonGroupChildItemsToXML } from "~/metadata/forms/collections/buttonGroupChildItems/exportToXML"
 import { SearchControlAddition, SearchControlAdditionXML } from "~/metadata/forms/elements/searchControlAddition/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportElementPropsToXML } from "../baseElement/exportToXML"
+import { BaseElement } from "../baseElement/types"
+import { getSearchControlAdditionName } from "./helper"
 
 export const exportSearchControlAdditionToXML = (
   context: ConfigurationContext,
-  data: SearchControlAddition | undefined
-): SearchControlAdditionXML | undefined => {
-  if (!data) return undefined
+  data: SearchControlAddition | undefined,
+  parentElement: BaseElement
+): SearchControlAdditionXML => {
+  const element = data ?? {
+    childItems: [],
+  }
 
-  const baseFields = exportFormItemAdditionToXML(context, data)
-  if (!baseFields) return undefined
+  const name = getSearchControlAdditionName(parentElement)
+
+  const baseFields = exportElementPropsToXML(context, { name })
 
   const result: SearchControlAdditionXML = {
+    AdditionSource: {
+      Item: parentElement.name,
+      Type: "SearchControlAddition",
+    },
     ...baseFields,
   }
 
-  if (data.autoMaxWidth !== undefined) result.AutoMaxWidth = data.autoMaxWidth
+  const childItems = exportButtonGroupChildItemsToXML(context, element.childItems)
+  if (childItems !== undefined) result.ChildItems = childItems
 
-  const backColor = exportColorToXML(context, data.backColor)
+  if (element.autoMaxWidth !== undefined) result.AutoMaxWidth = element.autoMaxWidth
+
+  const backColor = exportColorToXML(context, element.backColor)
   if (backColor !== undefined) result.BackColor = backColor
 
-  const borderColor = exportColorToXML(context, data.borderColor)
+  const borderColor = exportColorToXML(context, element.borderColor)
   if (borderColor !== undefined) result.BorderColor = borderColor
 
-  const font = exportFontToXML(context, data.font)
+  const font = exportFontToXML(context, element.font)
   if (font !== undefined) result.Font = font
 
-  if (data.horizontalStretch !== undefined) result.HorizontalStretch = data.horizontalStretch
+  if (element.horizontalStretch !== undefined) result.HorizontalStretch = element.horizontalStretch
 
-  if (data.maxWidth !== undefined) result.MaxWidth = data.maxWidth
+  if (element.maxWidth !== undefined) result.MaxWidth = element.maxWidth
 
-  const textColor = exportColorToXML(context, data.textColor)
+  const textColor = exportColorToXML(context, element.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
+  const userVisible = exportUserVisibleToXML(context, element.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  if (data.width !== undefined) result.Width = data.width
+  if (element.width !== undefined) result.Width = element.width
 
   return sortObject(result)
 }

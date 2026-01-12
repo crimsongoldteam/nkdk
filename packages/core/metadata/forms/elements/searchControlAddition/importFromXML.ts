@@ -1,11 +1,12 @@
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
-import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importButtonGroupChildItemsFromXML } from "~/metadata/forms/collections/buttonGroupChildItems/importFromXML"
 import { importFormItemAdditionFromXML } from "~/metadata/forms/elements/formItemAddition/importFromXML"
 import { SearchControlAddition, SearchControlAdditionXML } from "~/metadata/forms/elements/searchControlAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { isHasContent } from "./helper"
 
 export const importSearchControlAdditionFromXML = (
   context: ConfigurationContext,
@@ -16,12 +17,11 @@ export const importSearchControlAdditionFromXML = (
   const baseFields = importFormItemAdditionFromXML(context, xml)
   if (!baseFields) return undefined
 
-  const { elementType: _, ...restFields } = baseFields
-
-  const result: SearchControlAddition = {
+  const result = {
+    ...(baseFields as any),
     elementType: FormElementType.SearchControlAddition,
-    ...restFields,
-  }
+    childItems: importButtonGroupChildItemsFromXML(context, xml.ChildItems),
+  } as SearchControlAddition & { elementType: FormElementType; name: string }
 
   if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
 
@@ -41,10 +41,9 @@ export const importSearchControlAdditionFromXML = (
   const textColor = importColorFromXML(context, xml.TextColor)
   if (textColor !== undefined) result.textColor = textColor
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
-  if (userVisible !== undefined) result.userVisible = userVisible
-
   if (xml.Width !== undefined) result.width = xml.Width
+
+  if (!isHasContent(result)) return undefined
 
   return result
 }

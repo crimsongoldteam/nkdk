@@ -1,9 +1,8 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
-import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportFormItemAdditionToEnterprise } from "~/metadata/forms/elements/formItemAddition/exportToEnterprise"
+import { exportFormItemAdditionPartialToEnterprise } from "~/metadata/forms/elements/formItemAddition/exportToEnterprise"
 import {
   SearchControlAddition,
   SearchControlAdditionEnterprise,
@@ -16,7 +15,7 @@ export const exportSearchControlAdditionToEnterprise = (
 ): SearchControlAdditionEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportFormItemAdditionToEnterprise(context, data)
+  const baseFields = exportFormItemAdditionPartialToEnterprise(context, data)
 
   const result: SearchControlAdditionEnterprise = {
     ...baseFields,
@@ -26,11 +25,6 @@ export const exportSearchControlAdditionToEnterprise = (
   if (autoMaxWidth !== undefined) result.АвтоМаксимальнаяШирина = autoMaxWidth
 
   if (data.maxWidth !== undefined) result.МаксимальнаяШирина = data.maxWidth
-
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
-  if (userVisible !== undefined) {
-    Object.assign(result, userVisible)
-  }
 
   const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
@@ -48,6 +42,8 @@ export const exportSearchControlAdditionToEnterprise = (
 
   const font = exportFontToEnterprise(context, data.font)
   if (font !== undefined) result.Шрифт = font
+
+  if (Object.keys(result).length === 0) return undefined
 
   return result
 }

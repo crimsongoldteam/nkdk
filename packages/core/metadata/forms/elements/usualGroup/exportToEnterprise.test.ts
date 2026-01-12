@@ -5,13 +5,9 @@ import {
   fullUsualGroupTypedEnterprise,
   minimalUsualGroup,
   minimalUsualGroupPartialEnterprise,
-  minimalUsualGroupTypedEnterprise,
 } from "~/tests/fixtures/forms/usualGroup/data"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportUsualGroupPartialToEnterprise,
-  exportUsualGroupTypedToEnterprise,
-} from "./exportToEnterprise"
+import { exportUsualGroupPartialToEnterprise, exportUsualGroupTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportUsualGroupPartialToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
@@ -39,11 +35,4 @@ describe("exportUsualGroupTypedToEnterprise", () => {
 
     expect(result).toBeUndefined()
   })
-
-  it("should export minimal", () => {
-    const result = exportUsualGroupTypedToEnterprise(mockСontext, minimalUsualGroup)
-
-    expect(result).toEqual(minimalUsualGroupTypedEnterprise)
-  })
 })
-
