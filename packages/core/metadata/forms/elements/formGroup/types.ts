@@ -5,13 +5,12 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormGroup extends BaseElement {
   // childItems?: ChildItems
   enableContentChange?: boolean
   enabled?: boolean
-  extendedTooltip?: ExtendedTooltip
+  // extendedTooltip?: ExtendedTooltip
   height?: number
   horizontalAlignInGroup?: SE.ItemHorizontalLocation
   horizontalStretch?: boolean
@@ -34,7 +33,7 @@ export interface FormGroupXML extends BaseElementXML {
   // ChildItems?: ChildItemsXML
   EnableContentChange?: boolean
   Enabled?: boolean
-  ExtendedTooltip?: ExtendedTooltipXML
+  // ExtendedTooltip?: ExtendedTooltipXML
   Height?: number
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
   HorizontalStretch?: boolean
@@ -68,7 +67,7 @@ export interface FormGroupPropsEnterprise extends BaseElementPropsEnterprise {
   РазрешитьИзменениеСостава?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
+  // РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
   СочетаниеКлавиш?: string
   ТолькоПросмотр?: StringboolEnterprise
   ЦветТекстаЗаголовка?: ColorEnterprise

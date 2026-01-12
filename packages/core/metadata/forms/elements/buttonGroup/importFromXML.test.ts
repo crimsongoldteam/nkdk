@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "~/metadata/forms/elements/importFromXML"
 import { fullButtonGroup, minimalButtonGroup } from "~/tests/fixtures/forms/buttonGroup/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -28,4 +29,3 @@ describe("importButtonGroupFromXML", () => {
     expect(result).toEqual(minimalButtonGroup)
   })
 })
-

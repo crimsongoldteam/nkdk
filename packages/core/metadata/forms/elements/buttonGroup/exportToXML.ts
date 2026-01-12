@@ -2,10 +2,11 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportButtonGroupChildItemsToXML } from "~/metadata/forms/collections/buttonGroupChildItems/exportToXML"
 import { ButtonGroup, ButtonGroupXML } from "~/metadata/forms/elements/buttonGroup/types"
-import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ImportExportReturn } from "../types"
 import { sortObject } from "~/metadata/helpers/compactObject"
+import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { ImportExportReturn } from "../types"
+import { exportFormGroupPropsToXML } from "../formGroup/exportToXML"
 
 export const exportButtonGroupToXML = <T extends ButtonGroup | undefined>(
   context: ConfigurationContext,
@@ -13,14 +14,19 @@ export const exportButtonGroupToXML = <T extends ButtonGroup | undefined>(
 ): ImportExportReturn<T, ButtonGroupXML> => {
   if (!data) return undefined as ImportExportReturn<T, ButtonGroupXML>
 
-  const baseFields = exportFormGroupToXML(context, data)
+  const baseFields = exportFormGroupPropsToXML(context, data)
+
+  const childItems = exportButtonGroupChildItemsToXML(context, data.childItems)
+  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   const result: ButtonGroupXML = {
     ...baseFields,
+    ExtendedTooltip: extendedTooltip,
   }
 
-  const childItems = exportButtonGroupChildItemsToXML(context, data.childItems)
-  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
+  if (childItems !== undefined) result.ChildItems = childItems
+
+  result.ExtendedTooltip = extendedTooltip
 
   if (data.representation !== undefined) result.Representation = data.representation
 

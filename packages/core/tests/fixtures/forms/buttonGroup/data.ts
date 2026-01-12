@@ -42,16 +42,28 @@ export const fullButtonGroupEnterprise: ButtonGroupEnterprise = {
   },
 }
 
-export const fullButtonGroupChildEnterprise: ButtonGroupPropsEnterprise = {
+export const fullButtonGroupChildEnterprise: ButtonGroupEnterprise = {
+  Тип: "ГруппаКнопок",
+  Имя: "ГруппаКнопок",
+  Заголовок: "Группа кнопок",
   ...fullFormGroupEnterprise,
   Отображение: "Компактное",
-  ПодчиненныеЭлементы: [
-    {
-      Кнопка: {
-        Тип: "Кнопка",
-      },
+  ПодчиненныеЭлементы: {
+    Кнопка: {
+      Тип: "Кнопка",
     },
-  ],
+  },
+}
+
+export const fullButtonGroupPropsEnterprise: ButtonGroupPropsEnterprise = {
+  ...fullFormGroupEnterprise,
+  Заголовок: "Группа кнопок",
+  Отображение: "Компактное",
+  ПодчиненныеЭлементы: {
+    Кнопка: {
+      Тип: "Кнопка",
+    },
+  },
 }
 
 export const minimalButtonGroup: ButtonGroup = {

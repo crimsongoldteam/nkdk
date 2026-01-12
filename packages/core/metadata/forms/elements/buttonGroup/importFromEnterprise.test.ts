@@ -1,14 +1,12 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType } from "~/metadata/metadataFactory/types"
 import "~/metadata/forms/elements/button/importFromEnterprise"
+import { FormElementType } from "~/metadata/metadataFactory/types"
 import {
   fullButtonGroup,
   fullButtonGroupChildEnterprise,
-  fullButtonGroupEnterprise,
   fullButtonGroupPropsEnterprise,
   fullButtonGroupSource,
   minimalButtonGroup,
-  minimalButtonGroupEnterprise,
 } from "~/tests/fixtures/forms/buttonGroup/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importButtonGroupChildFromEnterprise, importButtonGroupFromEnterprise } from "./importFromEnterprise"
@@ -22,7 +20,7 @@ describe("importButtonGroupFromEnterprise", () => {
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importButtonGroupFromEnterprise(mockСontext, fullButtonGroupSource, fullButtonGroupEnterprise)
+      const result = importButtonGroupFromEnterprise(mockСontext, fullButtonGroupSource, fullButtonGroupPropsEnterprise)
 
       expect(result).toEqual(fullButtonGroup)
     })
@@ -31,7 +29,7 @@ describe("importButtonGroupFromEnterprise", () => {
       const result = importButtonGroupFromEnterprise(
         mockСontext,
         { elementType: FormElementType.ButtonGroup, name: "ГруппаКнопок", childItems: [] },
-        fullButtonGroupPropsEnterprise
+        {}
       )
 
       expect(result).toEqual(minimalButtonGroup)

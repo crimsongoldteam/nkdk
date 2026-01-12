@@ -6,10 +6,9 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { FormGroup, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { ImportExportReturn } from "../types"
 
-export const exportFormGroupToXML = <T extends FormGroup | undefined>(
+export const exportFormGroupPropsToXML = <T extends FormGroup | undefined>(
   context: ConfigurationContext,
   data: T
 ): ImportExportReturn<T, FormGroupXML> => {
@@ -21,14 +20,9 @@ export const exportFormGroupToXML = <T extends FormGroup | undefined>(
     ...baseFields,
   }
 
-  // const childItems = exportChildItemsToXML(context, data.childItems)
-  // if (childItems !== undefined) result.ChildItems = childItems
-
   if (data.enableContentChange !== undefined) result.EnableContentChange = data.enableContentChange
 
   if (data.enabled !== undefined) result.Enabled = data.enabled
-
-  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   if (data.height !== undefined) result.Height = data.height
 

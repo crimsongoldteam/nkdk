@@ -12,17 +12,14 @@ export const importButtonGroupFromXML = (
 ): ButtonGroup | undefined => {
   if (!xml) return undefined
   const baseFields = importFormGroupFromXML(context, xml)
-  if (!baseFields) return undefined
 
-  const { elementType: _, ...restFields } = baseFields
+  const childItems = importButtonGroupChildItemsFromXML(context, xml.ChildItems)
 
   const result: ButtonGroup = {
+    ...baseFields,
     elementType: FormElementType.ButtonGroup,
-    ...restFields,
+    childItems: childItems,
   }
-
-  const childItems = importButtonGroupChildItemsFromXML(context, xml.ПодчиненныеЭлементы)
-  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
 
   if (xml.Representation !== undefined) result.representation = xml.Representation
 
