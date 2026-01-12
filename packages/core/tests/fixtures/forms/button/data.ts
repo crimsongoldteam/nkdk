@@ -1,4 +1,4 @@
-import { Button, ButtonEnterprise, ButtonPropsEnterprise } from "~/metadata/forms/elements/button/types"
+import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "~/metadata/forms/elements/button/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -52,7 +52,7 @@ export const fullButton: Button = {
   width: 150,
 }
 
-export const fullButtonChildEnterprise: ButtonEnterprise = {
+export const fullButtonTypedEnterprise: ButtonTypedEnterprise = {
   Тип: "Кнопка",
   Заголовок: "Кнопка формы",
   АвтоМаксимальнаяВысота: "Истина",
@@ -98,7 +98,7 @@ export const fullButtonSource: Button = {
   title: { items: { ru: "Кнопка формы" } },
 }
 
-export const fullButtonEnterprise: ButtonPropsEnterprise = {
+export const fullButtonPartialEnterprise: ButtonPartialEnterprise = {
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   АктивизироватьПоУмолчанию: "Истина",
@@ -141,10 +141,10 @@ export const minimalButton: Button = {
   name: "Кнопка",
 }
 
-export const minimalButtonChildEnterprise: ButtonPropsEnterprise = {}
+export const minimalButtonPartialEnterprise: ButtonPartialEnterprise = {}
 
-export const minimalButtonEnterprise: ButtonEnterprise = {
-  ...minimalButtonChildEnterprise,
+export const minimalButtonTypedEnterprise: ButtonTypedEnterprise = {
+  ...minimalButtonPartialEnterprise,
   Тип: "Кнопка",
 }
 

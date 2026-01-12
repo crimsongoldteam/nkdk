@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import {
   fullButton,
-  fullButtonChildEnterprise,
-  fullButtonEnterprise,
+  fullButtonPartialEnterprise,
   fullButtonSource,
+  fullButtonTypedEnterprise,
   minimalButton,
-  minimalButtonChildEnterprise,
+  minimalButtonTypedEnterprise,
 } from "~/tests/fixtures/forms/button/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importButtonChildFromEnterprise, importButtonFromEnterprise } from "./importFromEnterprise"
@@ -20,7 +20,7 @@ describe("importButtonFromEnterprise", () => {
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importButtonFromEnterprise(mockСontext, fullButtonSource, fullButtonEnterprise)
+      const result = importButtonFromEnterprise(mockСontext, fullButtonSource, fullButtonPartialEnterprise)
 
       expect(result).toEqual(fullButton)
     })
@@ -29,7 +29,7 @@ describe("importButtonFromEnterprise", () => {
       const result = importButtonFromEnterprise(
         mockСontext,
         { elementType: FormElementType.Button, name: "Кнопка" },
-        minimalButtonChildEnterprise
+        minimalButtonTypedEnterprise
       )
 
       expect(result).toEqual(minimalButton)
@@ -38,7 +38,7 @@ describe("importButtonFromEnterprise", () => {
 
   describe("importButtonChildFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importButtonChildFromEnterprise(mockСontext, fullButtonChildEnterprise, "Кнопка")
+      const result = importButtonChildFromEnterprise(mockСontext, fullButtonTypedEnterprise, "Кнопка")
 
       expect(result).toEqual(fullButton)
     })
