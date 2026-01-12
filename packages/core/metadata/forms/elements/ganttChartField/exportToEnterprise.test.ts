@@ -5,13 +5,9 @@ import {
   fullGanttChartFieldTypedEnterprise,
   minimalGanttChartField,
   minimalGanttChartFieldPartialEnterprise,
-  minimalGanttChartFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/ganttChartField/data"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportGanttChartFieldPartialToEnterprise,
-  exportGanttChartFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { exportGanttChartFieldPartialToEnterprise, exportGanttChartFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportGanttChartFieldToEnterprise", () => {
   describe("exportGanttChartFieldPartialToEnterprise", () => {

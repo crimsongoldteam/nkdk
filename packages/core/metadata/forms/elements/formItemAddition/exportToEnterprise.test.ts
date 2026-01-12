@@ -1,25 +1,51 @@
 import { describe, expect, it } from "vitest"
-import { fullFormItemAddition, fullFormItemAdditionEnterprise, minimalFormItemAddition, minimalFormItemAdditionEnterprise } from "~/tests/fixtures/forms/formItemAddition/data"
+import {
+  fullFormItemAddition,
+  fullFormItemAdditionPartialEnterprise,
+  fullFormItemAdditionTypedEnterprise,
+  minimalFormItemAddition,
+  minimalFormItemAdditionPartialEnterprise,
+  minimalFormItemAdditionTypedEnterprise,
+} from "~/tests/fixtures/forms/formItemAddition/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportFormItemAdditionToEnterprise } from "./exportToEnterprise"
+import {
+  exportFormItemAdditionPartialToEnterprise,
+  exportFormItemAdditionTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportFormItemAdditionToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportFormItemAdditionToEnterprise(mockСontext, undefined)
+  describe("exportFormItemAdditionPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportFormItemAdditionPartialToEnterprise(mockСontext, fullFormItemAddition)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullFormItemAdditionPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportFormItemAdditionPartialToEnterprise(mockСontext, minimalFormItemAddition)
+
+      expect(result).toEqual(minimalFormItemAdditionPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportFormItemAdditionToEnterprise(mockСontext, fullFormItemAddition)
+  describe("exportFormItemAdditionTypedToEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = exportFormItemAdditionTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(fullFormItemAdditionEnterprise)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should export minimal", () => {
-    const result = exportFormItemAdditionToEnterprise(mockСontext, minimalFormItemAddition)
+    it("should export all fields to Enterprise", () => {
+      const result = exportFormItemAdditionTypedToEnterprise(mockСontext, fullFormItemAddition)
 
-    expect(result).toEqual(minimalFormItemAdditionEnterprise)
+      expect(result).toEqual(fullFormItemAdditionTypedEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportFormItemAdditionTypedToEnterprise(mockСontext, minimalFormItemAddition)
+
+      expect(result).toEqual(minimalFormItemAdditionTypedEnterprise)
+    })
   })
 })
 

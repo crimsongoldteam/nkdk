@@ -5,13 +5,9 @@ import {
   fullDendrogramFieldTypedEnterprise,
   minimalDendrogramField,
   minimalDendrogramFieldPartialEnterprise,
-  minimalDendrogramFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/dendrogramField/data"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportDendrogramFieldPartialToEnterprise,
-  exportDendrogramFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { exportDendrogramFieldPartialToEnterprise, exportDendrogramFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportDendrogramFieldToEnterprise", () => {
   describe("exportDendrogramFieldPartialToEnterprise", () => {

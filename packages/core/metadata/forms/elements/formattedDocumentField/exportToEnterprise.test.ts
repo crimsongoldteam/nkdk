@@ -1,25 +1,44 @@
 import { describe, expect, it } from "vitest"
-import { fullFormattedDocumentField, fullFormattedDocumentFieldEnterprise, minimalFormattedDocumentField, minimalFormattedDocumentFieldEnterprise } from "~/tests/fixtures/forms/formattedDocumentField/data"
+import {
+  fullFormattedDocumentField,
+  fullFormattedDocumentFieldPartialEnterprise,
+  fullFormattedDocumentFieldTypedEnterprise,
+  minimalFormattedDocumentField,
+  minimalFormattedDocumentFieldPartialEnterprise,
+  minimalFormattedDocumentFieldTypedEnterprise,
+} from "~/tests/fixtures/forms/formattedDocumentField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportFormattedDocumentFieldToEnterprise } from "./exportToEnterprise"
+import {
+  exportFormattedDocumentFieldPartialToEnterprise,
+  exportFormattedDocumentFieldTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportFormattedDocumentFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportFormattedDocumentFieldToEnterprise(mockСontext, undefined)
+  describe("exportFormattedDocumentFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportFormattedDocumentFieldPartialToEnterprise(mockСontext, fullFormattedDocumentField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullFormattedDocumentFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportFormattedDocumentFieldPartialToEnterprise(mockСontext, minimalFormattedDocumentField)
+
+      expect(result).toEqual(minimalFormattedDocumentFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportFormattedDocumentFieldToEnterprise(mockСontext, fullFormattedDocumentField)
+  describe("exportFormattedDocumentFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportFormattedDocumentFieldTypedToEnterprise(mockСontext, fullFormattedDocumentField)
 
-    expect(result).toEqual(fullFormattedDocumentFieldEnterprise)
-  })
+      expect(result).toEqual(fullFormattedDocumentFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportFormattedDocumentFieldToEnterprise(mockСontext, minimalFormattedDocumentField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportFormattedDocumentFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalFormattedDocumentFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
-

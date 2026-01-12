@@ -1,6 +1,7 @@
 import {
   FormattedDocumentField,
-  FormattedDocumentFieldEnterprise,
+  FormattedDocumentFieldPartialEnterprise,
+  FormattedDocumentFieldTypedEnterprise,
 } from "~/metadata/forms/elements/formattedDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
@@ -36,7 +37,7 @@ export const fullFormattedDocumentField: FormattedDocumentField = {
   },
 }
 
-export const fullFormattedDocumentFieldEnterprise: FormattedDocumentFieldEnterprise = {
+export const fullFormattedDocumentFieldPartialEnterprise: FormattedDocumentFieldPartialEnterprise = {
   ...fullFormFieldEnterprise,
   Заголовок: "Поле форматированного документа",
   АвтоМаксимальнаяВысота: "Истина",
@@ -59,9 +60,18 @@ export const fullFormattedDocumentFieldEnterprise: FormattedDocumentFieldEnterpr
   },
 }
 
+export const fullFormattedDocumentFieldTypedEnterprise: FormattedDocumentFieldTypedEnterprise = {
+  ...fullFormattedDocumentFieldPartialEnterprise,
+  Тип: "ПолеФорматированногоДокумента",
+}
+
 export const minimalFormattedDocumentField: FormattedDocumentField = {
   elementType: FormElementType.FormattedDocumentField,
   name: "ПолеФорматированногоДокумента",
 }
 
-export const minimalFormattedDocumentFieldEnterprise: FormattedDocumentFieldEnterprise = {}
+export const minimalFormattedDocumentFieldPartialEnterprise: FormattedDocumentFieldPartialEnterprise = {}
+
+export const minimalFormattedDocumentFieldTypedEnterprise: FormattedDocumentFieldTypedEnterprise = {
+  Тип: "ПолеФорматированногоДокумента",
+}

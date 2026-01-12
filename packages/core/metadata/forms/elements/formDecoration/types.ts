@@ -62,7 +62,7 @@ export interface FormDecorationXML extends BaseElementXML {
   Width?: number
 }
 
-export interface FormDecorationPropsEnterprise extends BaseElementPropsEnterprise {
+export interface FormDecorationPartialEnterprise extends BaseElementPropsEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
@@ -89,3 +89,11 @@ export interface FormDecorationPropsEnterprise extends BaseElementPropsEnterpris
   Ширина?: number
   Шрифт?: FontEnterprise
 }
+
+export interface FormDecorationTypedEnterprise extends FormDecorationPartialEnterprise {
+  Тип: "ДекорацияФормы"
+}
+
+// Для обратной совместимости
+export type FormDecorationPropsEnterprise = FormDecorationPartialEnterprise
+export type FormDecorationEnterprise = FormDecorationPartialEnterprise

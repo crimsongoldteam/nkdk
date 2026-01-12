@@ -1,25 +1,72 @@
 import { describe, expect, it } from "vitest"
-import { fullFormattedDocumentField, fullFormattedDocumentFieldEnterprise, minimalFormattedDocumentField, minimalFormattedDocumentFieldEnterprise } from "~/tests/fixtures/forms/formattedDocumentField/data"
+import {
+  fullFormattedDocumentField,
+  fullFormattedDocumentFieldPartialEnterprise,
+  fullFormattedDocumentFieldTypedEnterprise,
+  minimalFormattedDocumentField,
+  minimalFormattedDocumentFieldPartialEnterprise,
+  minimalFormattedDocumentFieldTypedEnterprise,
+} from "~/tests/fixtures/forms/formattedDocumentField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importFormattedDocumentFieldFromEnterprise } from "./importFromEnterprise"
+import {
+  importFormattedDocumentFieldPartialFromEnterprise,
+  importFormattedDocumentFieldTypedFromEnterprise,
+} from "./importFromEnterprise"
 
 describe("importFormattedDocumentFieldFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importFormattedDocumentFieldFromEnterprise(mockСontext, undefined, fullFormattedDocumentField.name)
+  describe("importFormattedDocumentFieldTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importFormattedDocumentFieldTypedFromEnterprise(mockСontext, undefined, "ПолеФорматированногоДокумента")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importFormattedDocumentFieldTypedFromEnterprise(
+        mockСontext,
+        fullFormattedDocumentFieldTypedEnterprise,
+        "ПолеФорматированногоДокумента"
+      )
+
+      expect(result).toEqual(fullFormattedDocumentField)
+    })
+
+    it("should import minimal", () => {
+      const result = importFormattedDocumentFieldTypedFromEnterprise(
+        mockСontext,
+        minimalFormattedDocumentFieldTypedEnterprise,
+        "ПолеФорматированногоДокумента"
+      )
+
+      expect(result).toEqual(minimalFormattedDocumentField)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importFormattedDocumentFieldFromEnterprise(mockСontext, fullFormattedDocumentFieldEnterprise, fullFormattedDocumentField.name)
+  describe("importFormattedDocumentFieldPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importFormattedDocumentFieldPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullFormattedDocumentField)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importFormattedDocumentFieldFromEnterprise(mockСontext, minimalFormattedDocumentFieldEnterprise, minimalFormattedDocumentField.name)
+    it("should import all fields from Enterprise", () => {
+      const result = importFormattedDocumentFieldPartialFromEnterprise(
+        mockСontext,
+        fullFormattedDocumentField,
+        fullFormattedDocumentFieldPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalFormattedDocumentField)
+      expect(result).toEqual(fullFormattedDocumentField)
+    })
+
+    it("should import minimal", () => {
+      const result = importFormattedDocumentFieldPartialFromEnterprise(
+        mockСontext,
+        minimalFormattedDocumentField,
+        minimalFormattedDocumentFieldPartialEnterprise
+      )
+
+      expect(result).toEqual(minimalFormattedDocumentField)
+    })
   })
 })
-

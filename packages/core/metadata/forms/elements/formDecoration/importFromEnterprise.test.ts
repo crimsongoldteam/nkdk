@@ -1,25 +1,72 @@
 import { describe, expect, it } from "vitest"
-import { fullFormDecoration, fullFormDecorationEnterprise, minimalFormDecoration, minimalFormDecorationEnterprise } from "~/tests/fixtures/forms/formDecoration/data"
+import {
+  fullFormDecoration,
+  fullFormDecorationPartialEnterprise,
+  fullFormDecorationTypedEnterprise,
+  minimalFormDecoration,
+  minimalFormDecorationPartialEnterprise,
+  minimalFormDecorationTypedEnterprise,
+} from "~/tests/fixtures/forms/formDecoration/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importFormDecorationFromEnterprise } from "./importFromEnterprise"
+import {
+  importFormDecorationPartialFromEnterprise,
+  importFormDecorationTypedFromEnterprise,
+} from "./importFromEnterprise"
 
 describe("importFormDecorationFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importFormDecorationFromEnterprise(mockСontext, undefined, fullFormDecoration.name)
+  describe("importFormDecorationTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importFormDecorationTypedFromEnterprise(mockСontext, undefined, "КакаяТоДекорацияФормы")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importFormDecorationTypedFromEnterprise(
+        mockСontext,
+        fullFormDecorationTypedEnterprise,
+        "КакаяТоДекорацияФормы"
+      )
+
+      expect(result).toEqual(fullFormDecoration)
+    })
+
+    it("should import minimal", () => {
+      const result = importFormDecorationTypedFromEnterprise(
+        mockСontext,
+        minimalFormDecorationTypedEnterprise,
+        "ОформлениеФормы"
+      )
+
+      expect(result).toEqual(minimalFormDecoration)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importFormDecorationFromEnterprise(mockСontext, fullFormDecorationEnterprise, fullFormDecoration.name)
+  describe("importFormDecorationPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importFormDecorationPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullFormDecoration)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importFormDecorationFromEnterprise(mockСontext, minimalFormDecorationEnterprise, minimalFormDecoration.name)
+    it("should import all fields from Enterprise", () => {
+      const result = importFormDecorationPartialFromEnterprise(
+        mockСontext,
+        fullFormDecoration,
+        fullFormDecorationPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalFormDecoration)
+      expect(result).toEqual(fullFormDecoration)
+    })
+
+    it("should import minimal", () => {
+      const result = importFormDecorationPartialFromEnterprise(
+        mockСontext,
+        minimalFormDecoration,
+        minimalFormDecorationPartialEnterprise
+      )
+
+      expect(result).toEqual(minimalFormDecoration)
+    })
   })
 })
-

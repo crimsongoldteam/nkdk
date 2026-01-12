@@ -1,27 +1,63 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import {
+  exportI8nTextOtherToEnterprise,
+  exportI8nTextToEnterprise,
+} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChildItemsToEnterprise } from "~/metadata/forms/collections/childItems/exportToEnterprise"
-import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
-import { FormItemAddition, FormItemAdditionEnterprise } from "~/metadata/forms/elements/formItemAddition/types"
+import {
+  FormItemAddition,
+  FormItemAdditionPartialEnterprise,
+  FormItemAdditionTypedEnterprise,
+} from "~/metadata/forms/elements/formItemAddition/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
-export const exportFormItemAdditionToEnterprise = (
+export const exportFormItemAdditionTypedToEnterprise = (
   context: ConfigurationContext,
   data: FormItemAddition | undefined
-): FormItemAdditionEnterprise | undefined => {
+): FormItemAdditionTypedEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportBaseElementToEnterprise(context, data)
+  const props = exportFormItemAdditionPropsToEnterprise(context, data)
 
-  const result: FormItemAdditionEnterprise = {
-    ...baseFields,
+  const result: FormItemAdditionTypedEnterprise = {
+    Тип: "ДополнениеЭлементаФормы",
+    ...props,
   }
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+export const exportFormItemAdditionPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: FormItemAddition
+): FormItemAdditionPartialEnterprise => {
+  const props = exportFormItemAdditionPropsToEnterprise(context, data)
+
+  const result: FormItemAdditionPartialEnterprise = {
+    ...props,
+  }
+
+  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+const exportFormItemAdditionPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: FormItemAddition
+): FormItemAdditionPartialEnterprise => {
+  const result: FormItemAdditionPartialEnterprise = {}
 
   const displayImportance = exportSystemEnumerationToEnterprise(
     context,
@@ -53,9 +89,6 @@ export const exportFormItemAdditionToEnterprise = (
   const enabled = exportBooleanToEnterprise(context, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
 
-  const title = exportI8nTextToEnterprise(context, data.title)
-  if (title !== undefined) result.Заголовок = title
-
   const contextMenu = exportContextMenuToEnterprise(context, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
 
@@ -83,4 +116,5 @@ export const exportFormItemAdditionToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "FormItemAddition", exportFormItemAdditionToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "FormItemAddition", exportFormItemAdditionPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "FormItemAddition", exportFormItemAdditionTypedToEnterprise)

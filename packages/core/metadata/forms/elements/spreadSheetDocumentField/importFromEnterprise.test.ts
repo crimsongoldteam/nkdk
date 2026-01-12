@@ -1,38 +1,76 @@
 import { describe, expect, it } from "vitest"
 import {
   fullSpreadSheetDocumentField,
-  fullSpreadSheetDocumentFieldEnterprise,
+  fullSpreadSheetDocumentFieldPartialEnterprise,
+  fullSpreadSheetDocumentFieldTypedEnterprise,
   minimalSpreadSheetDocumentField,
-  minimalSpreadSheetDocumentFieldEnterprise,
+  minimalSpreadSheetDocumentFieldPartialEnterprise,
+  minimalSpreadSheetDocumentFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/spreadSheetDocumentField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importSpreadSheetDocumentFieldFromEnterprise } from "./importFromEnterprise"
+import {
+  importSpreadSheetDocumentFieldPartialFromEnterprise,
+  importSpreadSheetDocumentFieldTypedFromEnterprise,
+} from "./importFromEnterprise"
 
 describe("importSpreadSheetDocumentFieldFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importSpreadSheetDocumentFieldFromEnterprise(mockСontext, undefined, fullSpreadSheetDocumentField.name)
+  describe("importSpreadSheetDocumentFieldTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importSpreadSheetDocumentFieldTypedFromEnterprise(
+        mockСontext,
+        undefined,
+        "ПолеТабличногоДокумента"
+      )
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importSpreadSheetDocumentFieldTypedFromEnterprise(
+        mockСontext,
+        fullSpreadSheetDocumentFieldTypedEnterprise,
+        "ПолеТабличногоДокумента"
+      )
+
+      expect(result).toEqual(fullSpreadSheetDocumentField)
+    })
+
+    it("should import minimal", () => {
+      const result = importSpreadSheetDocumentFieldTypedFromEnterprise(
+        mockСontext,
+        minimalSpreadSheetDocumentFieldTypedEnterprise,
+        "ПолеТабличногоДокумента"
+      )
+
+      expect(result).toEqual(minimalSpreadSheetDocumentField)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importSpreadSheetDocumentFieldFromEnterprise(
-      mockСontext,
-      fullSpreadSheetDocumentFieldEnterprise,
-      fullSpreadSheetDocumentField.name
-    )
+  describe("importSpreadSheetDocumentFieldPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importSpreadSheetDocumentFieldPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullSpreadSheetDocumentField)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importSpreadSheetDocumentFieldFromEnterprise(
-      mockСontext,
-      minimalSpreadSheetDocumentFieldEnterprise,
-      minimalSpreadSheetDocumentField.name
-    )
+    it("should import all fields from Enterprise", () => {
+      const result = importSpreadSheetDocumentFieldPartialFromEnterprise(
+        mockСontext,
+        fullSpreadSheetDocumentField,
+        fullSpreadSheetDocumentFieldPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalSpreadSheetDocumentField)
+      expect(result).toEqual(fullSpreadSheetDocumentField)
+    })
+
+    it("should import minimal", () => {
+      const result = importSpreadSheetDocumentFieldPartialFromEnterprise(
+        mockСontext,
+        minimalSpreadSheetDocumentField,
+        minimalSpreadSheetDocumentFieldPartialEnterprise
+      )
+
+      expect(result).toEqual(minimalSpreadSheetDocumentField)
+    })
   })
 })
-

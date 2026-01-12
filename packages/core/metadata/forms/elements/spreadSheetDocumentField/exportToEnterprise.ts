@@ -5,24 +5,55 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import {
   SpreadSheetDocumentField,
-  SpreadSheetDocumentFieldEnterprise,
+  SpreadSheetDocumentFieldPartialEnterprise,
+  SpreadSheetDocumentFieldTypedEnterprise,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportSpreadSheetDocumentFieldToEnterprise = (
+export const exportSpreadSheetDocumentFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: SpreadSheetDocumentField | undefined
-): SpreadSheetDocumentFieldEnterprise | undefined => {
+): SpreadSheetDocumentFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: SpreadSheetDocumentFieldEnterprise = {
+  const props = exportSpreadSheetDocumentFieldPropsToEnterprise(context, data)
+
+  const result: SpreadSheetDocumentFieldTypedEnterprise = {
+    Тип: "ПолеТабличногоДокумента",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportSpreadSheetDocumentFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: SpreadSheetDocumentField
+): SpreadSheetDocumentFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportSpreadSheetDocumentFieldPropsToEnterprise(context, data)
+
+  const result: SpreadSheetDocumentFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportSpreadSheetDocumentFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: SpreadSheetDocumentField
+): SpreadSheetDocumentFieldPartialEnterprise => {
+  const result: SpreadSheetDocumentFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -142,4 +173,5 @@ export const exportSpreadSheetDocumentFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "SpreadSheetDocumentField", exportSpreadSheetDocumentFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "SpreadSheetDocumentField", exportSpreadSheetDocumentFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "SpreadSheetDocumentField", exportSpreadSheetDocumentFieldTypedToEnterprise)

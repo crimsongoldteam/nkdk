@@ -7,30 +7,66 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import { ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
-import { FormDecoration, FormDecorationPropsEnterprise } from "~/metadata/forms/elements/formDecoration/types"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import {
+  FormDecoration,
+  FormDecorationPartialEnterprise,
+  FormDecorationTypedEnterprise,
+} from "~/metadata/forms/elements/formDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
-export const importFormDecorationFromEnterprise = <
-  T extends FormDecorationPropsEnterprise | undefined,
-  N extends string | undefined,
->(
+export const importFormDecorationTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: T,
-  name: N
-): ImportFromEnterpriseReturn<T, FormDecoration, N> => {
-  if (data === undefined) return undefined as ImportFromEnterpriseReturn<T, FormDecoration, N>
+  data: FormDecorationTypedEnterprise | undefined,
+  name: string
+): FormDecoration | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importBaseElementFromEnterprise(context, data, name)
 
-  const result: ImportFromEnterpriseReturn<T, FormDecoration, N> = {
+  const props = importFormDecorationPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: FormDecoration = {
     ...baseFields,
-    elementType: FormElementType.FormDecoration,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importFormDecorationPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: FormDecoration | undefined,
+  data: FormDecorationPartialEnterprise | undefined
+): FormDecoration | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importBaseElementFromEnterprise(context, data, source.name)
+
+  const props = importFormDecorationPropsFromEnterprise(context, data)
+  const result: FormDecoration = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importFormDecorationPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: FormDecorationTypedEnterprise | FormDecorationPartialEnterprise | undefined
+): Omit<Partial<FormDecoration>, "elementType" | "name"> => {
+  const result: Omit<Partial<FormDecoration>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -133,7 +169,7 @@ export const importFormDecorationFromEnterprise = <
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  return result as ImportFromEnterpriseReturn<T, FormDecoration, N>
+  return result
 }
 
-registerMetadata("ImportFromEnterprise", "FormDecoration", importFormDecorationFromEnterprise)
+registerMetadata("ImportFromEnterprise", "FormDecoration", importFormDecorationPropsFromEnterprise)

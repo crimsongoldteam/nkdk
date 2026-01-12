@@ -1,4 +1,8 @@
-import { FormDecoration, FormDecorationPropsEnterprise } from "~/metadata/forms/elements/formDecoration/types"
+import {
+  FormDecoration,
+  FormDecorationPartialEnterprise,
+  FormDecorationTypedEnterprise,
+} from "~/metadata/forms/elements/formDecoration/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullFormDecoration: FormDecoration = {
@@ -35,7 +39,7 @@ export const fullFormDecoration: FormDecoration = {
   width: 300,
 }
 
-export const fullFormDecorationEnterprise: FormDecorationPropsEnterprise = {
+export const fullFormDecorationPartialEnterprise: FormDecorationPartialEnterprise = {
   Заголовок: "Оформление формы",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -60,9 +64,18 @@ export const fullFormDecorationEnterprise: FormDecorationPropsEnterprise = {
   Шрифт: "ОбычныйШрифтТекста",
 }
 
+export const fullFormDecorationTypedEnterprise: FormDecorationTypedEnterprise = {
+  ...fullFormDecorationPartialEnterprise,
+  Тип: "ДекорацияФормы",
+}
+
 export const minimalFormDecoration: FormDecoration = {
   elementType: FormElementType.FormDecoration,
   name: "ОформлениеФормы",
 }
 
-export const minimalFormDecorationEnterprise: FormDecorationPropsEnterprise = {}
+export const minimalFormDecorationPartialEnterprise: FormDecorationPartialEnterprise = {}
+
+export const minimalFormDecorationTypedEnterprise: FormDecorationTypedEnterprise = {
+  Тип: "ДекорацияФормы",
+}

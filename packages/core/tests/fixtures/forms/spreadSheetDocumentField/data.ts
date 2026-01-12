@@ -1,4 +1,8 @@
-import { SpreadSheetDocumentField, SpreadSheetDocumentFieldEnterprise } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
+import {
+  SpreadSheetDocumentField,
+  SpreadSheetDocumentFieldPartialEnterprise,
+  SpreadSheetDocumentFieldTypedEnterprise,
+} from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
@@ -11,9 +15,14 @@ export const fullSpreadSheetDocumentField: SpreadSheetDocumentField = {
   },
 }
 
-export const fullSpreadSheetDocumentFieldEnterprise: SpreadSheetDocumentFieldEnterprise = {
+export const fullSpreadSheetDocumentFieldPartialEnterprise: SpreadSheetDocumentFieldPartialEnterprise = {
   ...fullFormFieldEnterprise,
   Заголовок: "Поле табличного документа",
+}
+
+export const fullSpreadSheetDocumentFieldTypedEnterprise: SpreadSheetDocumentFieldTypedEnterprise = {
+  ...fullSpreadSheetDocumentFieldPartialEnterprise,
+  Тип: "ПолеТабличногоДокумента",
 }
 
 export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {
@@ -21,5 +30,8 @@ export const minimalSpreadSheetDocumentField: SpreadSheetDocumentField = {
   name: "ПолеТабличногоДокумента",
 }
 
-export const minimalSpreadSheetDocumentFieldEnterprise: SpreadSheetDocumentFieldEnterprise = {}
+export const minimalSpreadSheetDocumentFieldPartialEnterprise: SpreadSheetDocumentFieldPartialEnterprise = {}
 
+export const minimalSpreadSheetDocumentFieldTypedEnterprise: SpreadSheetDocumentFieldTypedEnterprise = {
+  Тип: "ПолеТабличногоДокумента",
+}

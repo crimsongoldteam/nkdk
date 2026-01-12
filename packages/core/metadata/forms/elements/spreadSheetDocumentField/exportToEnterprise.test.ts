@@ -1,30 +1,43 @@
 import { describe, expect, it } from "vitest"
 import {
   fullSpreadSheetDocumentField,
-  fullSpreadSheetDocumentFieldEnterprise,
+  fullSpreadSheetDocumentFieldPartialEnterprise,
+  fullSpreadSheetDocumentFieldTypedEnterprise,
   minimalSpreadSheetDocumentField,
-  minimalSpreadSheetDocumentFieldEnterprise,
+  minimalSpreadSheetDocumentFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/spreadSheetDocumentField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportSpreadSheetDocumentFieldToEnterprise } from "./exportToEnterprise"
+import {
+  exportSpreadSheetDocumentFieldPartialToEnterprise,
+  exportSpreadSheetDocumentFieldTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportSpreadSheetDocumentFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportSpreadSheetDocumentFieldToEnterprise(mockСontext, undefined)
+  describe("exportSpreadSheetDocumentFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportSpreadSheetDocumentFieldPartialToEnterprise(mockСontext, fullSpreadSheetDocumentField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullSpreadSheetDocumentFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportSpreadSheetDocumentFieldPartialToEnterprise(mockСontext, minimalSpreadSheetDocumentField)
+
+      expect(result).toEqual(minimalSpreadSheetDocumentFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportSpreadSheetDocumentFieldToEnterprise(mockСontext, fullSpreadSheetDocumentField)
+  describe("exportSpreadSheetDocumentFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportSpreadSheetDocumentFieldTypedToEnterprise(mockСontext, fullSpreadSheetDocumentField)
 
-    expect(result).toEqual(fullSpreadSheetDocumentFieldEnterprise)
-  })
+      expect(result).toEqual(fullSpreadSheetDocumentFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportSpreadSheetDocumentFieldToEnterprise(mockСontext, minimalSpreadSheetDocumentField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportSpreadSheetDocumentFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalSpreadSheetDocumentFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
-

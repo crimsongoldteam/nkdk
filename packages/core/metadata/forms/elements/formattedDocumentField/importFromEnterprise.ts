@@ -3,60 +3,67 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { FormattedDocumentField, FormattedDocumentFieldEnterprise } from "~/metadata/forms/elements/formattedDocumentField/types"
+import {
+  FormattedDocumentField,
+  FormattedDocumentFieldPartialEnterprise,
+  FormattedDocumentFieldTypedEnterprise,
+} from "~/metadata/forms/elements/formattedDocumentField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const importFormattedDocumentFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-    ПередЗаписью?: string
-    ПередПечатью?: string
-    ПослеЗаписи?: string
-  } | undefined
-): {
-  onChange?: string
-  beforeWrite?: string
-  beforePrint?: string
-  afterWrite?: string
-} | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    beforeWrite?: string
-    beforePrint?: string
-    afterWrite?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.ПередЗаписью !== undefined) result.beforeWrite = data.ПередЗаписью
-  if (data.ПередПечатью !== undefined) result.beforePrint = data.ПередПечатью
-  if (data.ПослеЗаписи !== undefined) result.afterWrite = data.ПослеЗаписи
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importFormattedDocumentFieldFromEnterprise = <
-  From extends FormattedDocumentFieldEnterprise | undefined,
-  Name extends string,
->(
+export const importFormattedDocumentFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, FormattedDocumentField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, FormattedDocumentField, Name>
+  data: FormattedDocumentFieldTypedEnterprise | undefined,
+  name: string
+): FormattedDocumentField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, FormattedDocumentField, Name> = {
+  const props = importFormattedDocumentFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: FormattedDocumentField = {
     ...baseFields,
-    elementType: FormElementType.FormattedDocumentField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importFormattedDocumentFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: FormattedDocumentField | undefined,
+  data: FormattedDocumentFieldPartialEnterprise | undefined
+): FormattedDocumentField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importFormattedDocumentFieldPropsFromEnterprise(context, data)
+  const result: FormattedDocumentField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importFormattedDocumentFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: FormattedDocumentFieldTypedEnterprise | FormattedDocumentFieldPartialEnterprise | undefined
+): Omit<Partial<FormattedDocumentField>, "elementType" | "name"> => {
+  const result: Omit<Partial<FormattedDocumentField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -84,7 +91,11 @@ export const importFormattedDocumentFieldFromEnterprise = <
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -109,11 +120,10 @@ export const importFormattedDocumentFieldFromEnterprise = <
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const events = importFormattedDocumentFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "FormattedDocumentField", importFormattedDocumentFieldFromEnterprise)
-
+registerMetadata("ImportFromEnterprise", "FormattedDocumentField", importFormattedDocumentFieldPropsFromEnterprise)

@@ -6,24 +6,57 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
-import { FormDecoration, FormDecorationPropsEnterprise } from "~/metadata/forms/elements/formDecoration/types"
+import {
+  FormDecoration,
+  FormDecorationPartialEnterprise,
+  FormDecorationTypedEnterprise,
+} from "~/metadata/forms/elements/formDecoration/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
-import { ImportExportReturn } from "../types"
 
-export const exportFormDecorationToEnterprise = <T extends FormDecoration | undefined>(
+export const exportFormDecorationTypedToEnterprise = (
   context: ConfigurationContext,
-  data: T
-): ImportExportReturn<T, FormDecorationPropsEnterprise> => {
-  if (!data) return undefined as ImportExportReturn<T, FormDecorationPropsEnterprise>
+  data: FormDecoration | undefined
+): FormDecorationTypedEnterprise | undefined => {
+  if (!data) return undefined
 
   const baseFields = exportBaseElementToEnterprise(context, data)
 
-  const result: FormDecorationPropsEnterprise = {
+  const props = exportFormDecorationPropsToEnterprise(context, data)
+
+  const result: FormDecorationTypedEnterprise = {
+    Тип: "ДекорацияФормы",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportFormDecorationPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: FormDecoration
+): FormDecorationPartialEnterprise => {
+  const baseFields = exportBaseElementToEnterprise(context, data)
+
+  const props = exportFormDecorationPropsToEnterprise(context, data)
+
+  const result: FormDecorationPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportFormDecorationPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: FormDecoration
+): FormDecorationPartialEnterprise => {
+  const result: FormDecorationPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -110,7 +143,8 @@ export const exportFormDecorationToEnterprise = <T extends FormDecoration | unde
   const font = exportFontToEnterprise(context, data.font)
   if (font !== undefined) result.Шрифт = font
 
-  return result as ImportExportReturn<T, FormDecorationPropsEnterprise>
+  return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "FormDecoration", exportFormDecorationToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "FormDecoration", exportFormDecorationPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "FormDecoration", exportFormDecorationTypedToEnterprise)

@@ -1,4 +1,8 @@
-import { FormItemAddition, FormItemAdditionEnterprise } from "~/metadata/forms/elements/formItemAddition/types"
+import {
+  FormItemAddition,
+  FormItemAdditionPartialEnterprise,
+  FormItemAdditionTypedEnterprise,
+} from "~/metadata/forms/elements/formItemAddition/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullFormItemAddition: FormItemAddition = {
@@ -24,8 +28,7 @@ export const fullFormItemAddition: FormItemAddition = {
   childItems: [],
 }
 
-export const fullFormItemAdditionEnterprise: FormItemAdditionEnterprise = {
-  Заголовок: "Добавление элемента формы",
+export const fullFormItemAdditionPartialEnterprise: FormItemAdditionPartialEnterprise = {
   ВажностьПриОтображении: "Высокая",
   ВертикальноеПоложениеВГруппе: "Верх",
   Вид: "УправлениеПоиском",
@@ -37,10 +40,20 @@ export const fullFormItemAdditionEnterprise: FormItemAdditionEnterprise = {
   РазрешитьИспользование: { Администратор: "Истина" },
 }
 
+export const fullFormItemAdditionTypedEnterprise: FormItemAdditionTypedEnterprise = {
+  ...fullFormItemAdditionPartialEnterprise,
+  Тип: "ДополнениеЭлементаФормы",
+  Заголовок: "Добавление элемента формы",
+}
+
 export const minimalFormItemAddition: FormItemAddition = {
   elementType: FormElementType.FormItemAddition,
   name: "ДобавлениеЭлементаФормы",
   childItems: [],
 }
 
-export const minimalFormItemAdditionEnterprise: FormItemAdditionEnterprise = {}
+export const minimalFormItemAdditionPartialEnterprise: FormItemAdditionPartialEnterprise = {}
+
+export const minimalFormItemAdditionTypedEnterprise: FormItemAdditionTypedEnterprise = {
+  Тип: "ДополнениеЭлементаФормы",
+}

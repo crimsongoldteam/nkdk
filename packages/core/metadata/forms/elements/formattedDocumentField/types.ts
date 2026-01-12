@@ -49,7 +49,7 @@ export interface FormattedDocumentFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface FormattedDocumentFieldEnterprise extends FormFieldEnterprise {
+export interface FormattedDocumentFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Вывод?: SE.UseOutputEnterprise
@@ -73,3 +73,10 @@ export interface FormattedDocumentFieldEnterprise extends FormFieldEnterprise {
     ПослеЗаписи?: string
   }
 }
+
+export interface FormattedDocumentFieldTypedEnterprise extends FormattedDocumentFieldPartialEnterprise {
+  Тип: "ПолеФорматированногоДокумента"
+}
+
+// Для обратной совместимости
+export type FormattedDocumentFieldEnterprise = FormattedDocumentFieldPartialEnterprise

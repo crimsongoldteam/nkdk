@@ -1,35 +1,77 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importChildItemsFromEnterprise } from "~/metadata/forms/collections/childItems/importFromEnterprise"
-import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
-import { FormItemAddition, FormItemAdditionEnterprise } from "~/metadata/forms/elements/formItemAddition/types"
+import {
+  FormItemAddition,
+  FormItemAdditionPartialEnterprise,
+  FormItemAdditionTypedEnterprise,
+} from "~/metadata/forms/elements/formItemAddition/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "../types"
+import { ImportPropsFromEnterpriseReturn } from "../types"
 
-export const importFormItemAdditionFromEnterprise = <
-  T extends FormItemAdditionEnterprise | undefined,
-  N extends string | undefined,
->(
+export const importFormItemAdditionTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: T,
-  name: N
-): ImportFromEnterpriseReturn<T, FormItemAddition, N> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<T, FormItemAddition, N>
+  data: FormItemAdditionTypedEnterprise | undefined,
+  name: string
+): FormItemAddition | undefined => {
+  if (data === undefined) return undefined
 
-  const baseFields = importBaseElementFromEnterprise(context, data, name)
+  const props = importFormItemAdditionPropsFromEnterprise(context, data)
 
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result = {
+    ...props,
+    elementType,
+    name,
+    childItems: props.childItems ?? [],
+  } as FormItemAddition
+
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result as FormItemAddition
+}
+
+export const importFormItemAdditionPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: FormItemAddition | undefined,
+  data: FormItemAdditionPartialEnterprise | undefined
+): FormItemAddition | undefined => {
+  if (source === undefined) return undefined
+
+  const props = importFormItemAdditionPropsFromEnterprise(context, data)
   const result: FormItemAddition = {
-    ...baseFields,
-    elementType: FormElementType.FormItemAddition,
+    ...source,
+    ...props,
+    childItems: props.childItems ?? [],
+  }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
+}
+
+const importFormItemAdditionPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: FormItemAdditionTypedEnterprise | FormItemAdditionPartialEnterprise | undefined
+): Omit<Partial<FormItemAddition>, "elementType" | "name"> => {
+  const result: Omit<Partial<FormItemAddition>, "elementType" | "name"> = {
     childItems: [],
   }
+
+  if (data === undefined) return result
 
   const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
     context,
@@ -65,9 +107,6 @@ export const importFormItemAdditionFromEnterprise = <
   const enabled = importBooleanFromEnterprise(context, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
-  if (title !== undefined) result.title = title
-
   const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
@@ -101,7 +140,7 @@ export const importFormItemAdditionFromEnterprise = <
   const extendedToolTip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
   if (extendedToolTip !== undefined) result.extendedTooltip = extendedToolTip
 
-  return result as ImportFromEnterpriseReturn<T, FormItemAddition, N>
+  return result
 }
 
-registerMetadata("ImportFromEnterprise", "FormItemAddition", importFormItemAdditionFromEnterprise)
+registerMetadata("ImportFromEnterprise", "FormItemAddition", importFormItemAdditionPropsFromEnterprise)

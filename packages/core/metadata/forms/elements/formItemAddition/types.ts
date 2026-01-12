@@ -39,7 +39,7 @@ export interface FormItemAdditionXML extends BaseElementXML {
   Visible?: boolean
 }
 
-export interface FormItemAdditionEnterprise extends BaseElementPropsEnterprise {
+export interface FormItemAdditionPartialEnterprise extends BaseElementPropsEnterprise {
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
   Вид?: SE.FormItemAdditionTypeEnterprise
@@ -55,3 +55,12 @@ export interface FormItemAdditionEnterprise extends BaseElementPropsEnterprise {
   ЗапретитьИспользование?: UserVisibleEnterprise
   РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
 }
+
+export interface FormItemAdditionTypedEnterprise extends FormItemAdditionPartialEnterprise {
+  Тип: "ДополнениеЭлементаФормы"
+}
+
+/**
+ * @deprecated Use FormItemAdditionPartialEnterprise or FormItemAdditionTypedEnterprise instead
+ */
+export type FormItemAdditionEnterprise = FormItemAdditionPartialEnterprise

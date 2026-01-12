@@ -1,25 +1,44 @@
 import { describe, expect, it } from "vitest"
-import { fullFormDecoration, fullFormDecorationEnterprise, minimalFormDecoration, minimalFormDecorationEnterprise } from "~/tests/fixtures/forms/formDecoration/data"
+import {
+  fullFormDecoration,
+  fullFormDecorationPartialEnterprise,
+  fullFormDecorationTypedEnterprise,
+  minimalFormDecoration,
+  minimalFormDecorationPartialEnterprise,
+  minimalFormDecorationTypedEnterprise,
+} from "~/tests/fixtures/forms/formDecoration/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportFormDecorationToEnterprise } from "./exportToEnterprise"
+import {
+  exportFormDecorationPartialToEnterprise,
+  exportFormDecorationTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportFormDecorationToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportFormDecorationToEnterprise(mockСontext, undefined)
+  describe("exportFormDecorationPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportFormDecorationPartialToEnterprise(mockСontext, fullFormDecoration)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullFormDecorationPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportFormDecorationPartialToEnterprise(mockСontext, minimalFormDecoration)
+
+      expect(result).toEqual(minimalFormDecorationPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportFormDecorationToEnterprise(mockСontext, fullFormDecoration)
+  describe("exportFormDecorationTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportFormDecorationTypedToEnterprise(mockСontext, fullFormDecoration)
 
-    expect(result).toEqual(fullFormDecorationEnterprise)
-  })
+      expect(result).toEqual(fullFormDecorationTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportFormDecorationToEnterprise(mockСontext, minimalFormDecoration)
+    it("should return undefined when data is undefined", () => {
+      const result = exportFormDecorationTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalFormDecorationEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
-
