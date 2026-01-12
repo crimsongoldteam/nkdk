@@ -4,7 +4,6 @@ import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/im
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { Page, PageEnterprise } from "~/metadata/forms/elements/page/types"
 import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
@@ -20,19 +19,30 @@ export const importPageFromEnterprise = <From extends PageEnterprise | undefined
 ): ImportFromEnterpriseReturn<From, Page, Name> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, Page, Name>
 
-  const baseElement = importBaseElementFromEnterprise(context, {} as From, name)
-  if (!baseElement) return undefined as ImportFromEnterpriseReturn<From, Page, Name>
-  const props = importFormGroupPropsFromEnterprise(context, data)
+  const baseProps = importFormGroupPropsFromEnterprise(context, data)
+  const props = importPagePropsFromEnterprise(context, data)
 
   const result: Page = {
-    ...baseElement,
+    ...baseProps,
     ...props,
     elementType: FormElementType.Page,
+    name,
     childItems: [],
   }
 
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
+
+  return result as ImportFromEnterpriseReturn<From, Page, Name>
+}
+
+const importPagePropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: PageEnterprise
+): Omit<Partial<Page>, "elementType" | "name"> => {
+  const result: Omit<Partial<Page>, "elementType" | "name"> = {
+    childItems: [],
+  }
 
   const backColor = importColorFromEnterprise(context, data.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
@@ -131,7 +141,7 @@ export const importPageFromEnterprise = <From extends PageEnterprise | undefined
   )
   if (verticalSpacing !== undefined) result.verticalSpacing = verticalSpacing
 
-  return result as ImportFromEnterpriseReturn<From, Page, Name>
+  return result
 }
 
 registerMetadata("ImportFromEnterprise", "Page", importPageFromEnterprise)

@@ -7,7 +7,6 @@ import {
 } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
 import {
   FormGroup,
   FormGroupPartialEnterprise,
@@ -25,13 +24,10 @@ export const exportFormGroupTypedToEnterprise = (
 ): FormGroupTypedEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportBaseElementToEnterprise(context, data)
-
   const props = exportFormGroupPropsToEnterprise(context, data)
 
   const result: FormGroupTypedEnterprise = {
     Тип: "ГруппаФормы",
-    ...baseFields,
     ...props,
   }
 
@@ -45,12 +41,9 @@ export const exportFormGroupPartialToEnterprise = (
   context: ConfigurationContext,
   data: FormGroup
 ): FormGroupPartialEnterprise => {
-  const baseFields = exportBaseElementToEnterprise(context, data)
-
   const props = exportFormGroupPropsToEnterprise(context, data)
 
   const result: FormGroupPartialEnterprise = {
-    ...baseFields,
     ...props,
   }
 

@@ -40,7 +40,6 @@ export const fullFormDecoration: FormDecoration = {
 }
 
 export const fullFormDecorationPartialEnterprise: FormDecorationPartialEnterprise = {
-  Заголовок: "Оформление формы",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   ВажностьПриОтображении: "Высокая",
@@ -67,6 +66,7 @@ export const fullFormDecorationPartialEnterprise: FormDecorationPartialEnterpris
 export const fullFormDecorationTypedEnterprise: FormDecorationTypedEnterprise = {
   ...fullFormDecorationPartialEnterprise,
   Тип: "ДекорацияФормы",
+  Заголовок: "Оформление формы",
 }
 
 export const minimalFormDecoration: FormDecoration = {

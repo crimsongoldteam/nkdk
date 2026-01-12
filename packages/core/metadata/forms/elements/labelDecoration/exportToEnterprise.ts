@@ -3,7 +3,7 @@ import { exportBorderToEnterprise } from "~/metadata/commonObjects/border/export
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
+import { exportFormDecorationPropsToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { LabelDecoration, LabelDecorationEnterprise } from "~/metadata/forms/elements/labelDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
@@ -34,7 +34,7 @@ export const exportLabelDecorationToEnterprise = <T extends LabelDecoration | un
 ): ImportExportReturn<T, LabelDecorationEnterprise> => {
   if (!data) return undefined as ImportExportReturn<T, LabelDecorationEnterprise>
 
-  const baseFields = exportFormDecorationToEnterprise(context, data)
+  const baseFields = exportFormDecorationPropsToEnterprise(context, data)
 
   const result: LabelDecorationEnterprise = {
     ...baseFields,

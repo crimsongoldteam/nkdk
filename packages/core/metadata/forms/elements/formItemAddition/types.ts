@@ -2,12 +2,12 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/metadata/forms/collections/childItems/types"
-import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
-export interface FormItemAddition extends BaseElement {
+export interface FormItemAddition {
   childItems: ChildItems
   contextMenu?: ContextMenu
   displayImportance?: SE.DisplayImportance
@@ -55,12 +55,3 @@ export interface FormItemAdditionPartialEnterprise extends BaseElementPropsEnter
   ЗапретитьИспользование?: UserVisibleEnterprise
   РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
 }
-
-export interface FormItemAdditionTypedEnterprise extends FormItemAdditionPartialEnterprise {
-  Тип: "ДополнениеЭлементаФормы"
-}
-
-/**
- * @deprecated Use FormItemAdditionPartialEnterprise or FormItemAdditionTypedEnterprise instead
- */
-export type FormItemAdditionEnterprise = FormItemAdditionPartialEnterprise

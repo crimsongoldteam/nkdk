@@ -6,10 +6,7 @@ import {
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import {
-  importFormGroupPartialFromEnterprise,
-  importFormGroupTypedFromEnterprise,
-} from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { Popup, PopupPartialEnterprise, PopupTypedEnterprise } from "~/metadata/forms/elements/popup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
@@ -24,19 +21,16 @@ export const importPopupTypedFromEnterprise = (
 ): Popup | undefined => {
   if (data === undefined) return undefined
 
-  // Создаем временный FormGroupTypedEnterprise для импорта базовых полей
-  const formGroupData = { ...data, Тип: "ГруппаФормы" as const }
-  const baseFields = importFormGroupTypedFromEnterprise(context, formGroupData, name)
-  if (baseFields === undefined) return undefined
-
+  const baseProps = importFormGroupPropsFromEnterprise(context, data)
   const props = importPopupPropsFromEnterprise(context, data)
 
   const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
 
   const result: Popup = {
-    ...baseFields,
+    ...baseProps,
     ...props,
     elementType,
+    name,
     childItems: props.childItems ?? [],
   }
 
@@ -53,14 +47,12 @@ export const importPopupPartialFromEnterprise = (
 ): Popup | undefined => {
   if (source === undefined) return undefined
 
-  const baseFields = importFormGroupPartialFromEnterprise(context, source, data)
-  if (baseFields === undefined) return undefined
-
+  const baseProps = importFormGroupPropsFromEnterprise(context, data)
   const props = importPopupPropsFromEnterprise(context, data)
   const result: Popup = {
-    ...baseFields,
+    ...source,
+    ...baseProps,
     ...props,
-    elementType: source.elementType, // Сохраняем elementType из source
     childItems: props.childItems ?? [],
   }
 

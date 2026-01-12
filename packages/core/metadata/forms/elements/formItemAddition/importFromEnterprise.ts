@@ -7,48 +7,15 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importChildItemsFromEnterprise } from "~/metadata/forms/collections/childItems/importFromEnterprise"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
-import {
-  FormItemAddition,
-  FormItemAdditionPartialEnterprise,
-  FormItemAdditionTypedEnterprise,
-} from "~/metadata/forms/elements/formItemAddition/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import { FormItemAddition, FormItemAdditionPartialEnterprise } from "~/metadata/forms/elements/formItemAddition/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
-export const importFormItemAdditionTypedFromEnterprise = (
-  context: ConfigurationContext,
-  data: FormItemAdditionTypedEnterprise | undefined,
-  name: string
-): FormItemAddition | undefined => {
-  if (data === undefined) return undefined
-
-  const props = importFormItemAdditionPropsFromEnterprise(context, data)
-
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
-  const result = {
-    ...props,
-    elementType,
-    name,
-    childItems: props.childItems ?? [],
-  } as FormItemAddition
-
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
-  if (title !== undefined) result.title = title
-
-  return result as FormItemAddition
-}
-
 export const importFormItemAdditionPartialFromEnterprise = (
   context: ConfigurationContext,
-  source: FormItemAddition | undefined,
   data: FormItemAdditionPartialEnterprise | undefined
 ): FormItemAddition | undefined => {
-  if (source === undefined) return undefined
-
   const props = importFormItemAdditionPropsFromEnterprise(context, data)
   const result: FormItemAddition = {
     ...source,
@@ -141,5 +108,3 @@ const importFormItemAdditionPropsFromEnterprise = (
 
   return result
 }
-
-registerMetadata("ImportFromEnterprise", "FormItemAddition", importFormItemAdditionPropsFromEnterprise)

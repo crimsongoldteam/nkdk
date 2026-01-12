@@ -1,6 +1,7 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
+import { importFormFieldPropsFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import {
   TrackBarField,
   TrackBarFieldPartialEnterprise,
@@ -19,17 +20,20 @@ export const importTrackBarFieldTypedFromEnterprise = (
 ): TrackBarField | undefined => {
   if (data === undefined) return undefined
 
-  const baseFields = importFormFieldFromEnterprise(context, data, name)!
-
+  const baseProps = importFormFieldPropsFromEnterprise(context, data, name)
   const props = importTrackBarFieldPropsFromEnterprise(context, data)
 
   const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
 
   const result: TrackBarField = {
-    ...baseFields,
+    ...baseProps,
     ...props,
     elementType,
+    name,
   }
+
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result
 }
@@ -41,12 +45,11 @@ export const importTrackBarFieldPartialFromEnterprise = (
 ): TrackBarField | undefined => {
   if (source === undefined) return undefined
 
-  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
-
+  const baseProps = importFormFieldPropsFromEnterprise(context, data, source.name)
   const props = importTrackBarFieldPropsFromEnterprise(context, data)
   const result: TrackBarField = {
     ...source,
-    ...baseFields,
+    ...baseProps,
     ...props,
   }
 

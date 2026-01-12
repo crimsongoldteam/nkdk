@@ -6,7 +6,7 @@ import {
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportFormGroupPartialToEnterprise, exportFormGroupTypedToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
+import { exportFormGroupPropsToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
 import {
   Popup,
   PopupPartialEnterprise,
@@ -24,13 +24,11 @@ export const exportPopupTypedToEnterprise = (
 ): PopupTypedEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportFormGroupTypedToEnterprise(context, data)
-  if (baseFields === undefined) return undefined
-
+  const baseProps = exportFormGroupPropsToEnterprise(context, data)
   const props = exportPopupPropsToEnterprise(context, data)
 
   const result: PopupTypedEnterprise = {
-    ...baseFields,
+    ...baseProps,
     ...props,
     Тип: "Подменю",
   }
@@ -45,12 +43,11 @@ export const exportPopupPartialToEnterprise = (
   context: ConfigurationContext,
   data: Popup
 ): PopupPartialEnterprise => {
-  const baseFields = exportFormGroupPartialToEnterprise(context, data)
-
+  const baseProps = exportFormGroupPropsToEnterprise(context, data)
   const props = exportPopupPropsToEnterprise(context, data)
 
   const result: PopupPartialEnterprise = {
-    ...baseFields,
+    ...baseProps,
     ...props,
   }
 

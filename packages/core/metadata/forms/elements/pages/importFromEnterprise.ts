@@ -1,7 +1,6 @@
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { Pages, PagesEnterprise } from "~/metadata/forms/elements/pages/types"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
@@ -18,18 +17,31 @@ export const importPagesFromEnterprise = <From extends PagesEnterprise | undefin
 ): ImportFromEnterpriseReturn<From, Pages, Name> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, Pages, Name>
 
-  const baseElement = importBaseElementFromEnterprise(context, data, name)!
-  const props = importFormGroupPropsFromEnterprise(context, data)
+  const baseProps = importFormGroupPropsFromEnterprise(context, data)
+  const props = importPagesPropsFromEnterprise(context, data, name)
 
   const result: Pages = {
-    ...baseElement,
+    ...baseProps,
     ...props,
     elementType: FormElementType.Pages,
+    name,
     childItems: [],
   }
 
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
+
+  return result as ImportFromEnterpriseReturn<From, Pages, Name>
+}
+
+const importPagesPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: PagesEnterprise,
+  name: string
+): Omit<Partial<Pages>, "elementType" | "name"> => {
+  const result: Omit<Partial<Pages>, "elementType" | "name"> = {
+    childItems: [],
+  }
 
   const currentRowUse = importSystemEnumerationFromEnterprise<SE.CurrentRowUse>(
     context,
@@ -72,7 +84,7 @@ export const importPagesFromEnterprise = <From extends PagesEnterprise | undefin
   const events = importPagesEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
-  return result as ImportFromEnterpriseReturn<From, Pages, Name>
+  return result
 }
 
 const importPagesEventsFromEnterprise = (
@@ -97,4 +109,4 @@ const importPagesEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-registerMetadata("ImportFromEnterprise", "Pages", importPagesFromEnterprise)
+registerMetadata("ImportFromEnterprise", "Pages", importPagesPropsFromEnterprise)

@@ -36,7 +36,6 @@ export const fullFormGroup: FormGroup = {
 }
 
 export const fullFormGroupPartialEnterprise: FormGroupPartialEnterprise = {
-  Заголовок: "Группа формы",
   ВертикальноеПоложениеВГруппе: "Верх",
   Вид: "ОбычнаяГруппа",
   Видимость: "Истина",
@@ -59,6 +58,7 @@ export const fullFormGroupPartialEnterprise: FormGroupPartialEnterprise = {
 export const fullFormGroupTypedEnterprise: FormGroupTypedEnterprise = {
   ...fullFormGroupPartialEnterprise,
   Тип: "ГруппаФормы",
+  Заголовок: "Группа формы",
 }
 
 export const minimalFormGroup: FormGroup = {

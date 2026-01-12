@@ -33,7 +33,7 @@ export const exportFormFieldToEnterprise = (
   return result
 }
 
-const exportFormFieldPropsToEnterprise = (
+export const exportFormFieldPropsToEnterprise = (
   context: ConfigurationContext,
   data: FormField
 ): FormFieldEnterprise => {

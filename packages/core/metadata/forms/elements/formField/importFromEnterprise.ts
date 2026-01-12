@@ -6,7 +6,6 @@ import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/im
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import { FormField, FormFieldEnterprise } from "~/metadata/forms/elements/formField/types"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
@@ -27,13 +26,28 @@ export const importFormFieldFromEnterprise = <
   name: Name
 ): ImportFromEnterpriseReturn<From, FormField, Name> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, FormField, Name>
+  if (!name) return undefined as ImportFromEnterpriseReturn<From, FormField, Name>
 
-  const baseElement = importBaseElementFromEnterprise(context, data, name)
+  const props = importFormFieldPropsFromEnterprise(context, data, name)
 
   const result: ImportFromEnterpriseReturn<From, FormField, Name> = {
-    ...baseElement,
+    ...props,
     elementType: FormElementType.FormField,
+    name,
   }
+
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
+}
+
+export const importFormFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: FormFieldEnterprise,
+  name: string
+): Omit<Partial<FormField>, "elementType" | "name"> => {
+  const result: Omit<Partial<FormField>, "elementType" | "name"> = {}
 
   const autoCellHeight = importBooleanFromEnterprise(context, data.АвтоВысотаЯчейки)
   if (autoCellHeight !== undefined) result.autoCellHeight = autoCellHeight
@@ -108,9 +122,6 @@ export const importFormFieldFromEnterprise = <
   const enabled = importBooleanFromEnterprise(context, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
-  if (title !== undefined) result.title = title
-
   const footerPicture = importPictureFromEnterprise(context, data.КартинкаПодвала)
   if (footerPicture !== undefined) result.footerPicture = footerPicture
 
@@ -153,16 +164,19 @@ export const importFormFieldFromEnterprise = <
   )
   if (titleLocation !== undefined) result.titleLocation = titleLocation
 
-  const userVisible = importUserVisibleFromEnterprise(
+  const userVisibleAllow = importUserVisibleFromEnterprise(
     context,
-    data.РазрешитьИспользование || data.ЗапретитьИспользование,
-    data.РазрешитьИспользование
-      ? "РазрешитьИспользование"
-      : data.ЗапретитьИспользование
-        ? "ЗапретитьИспользование"
-        : undefined
+    data.РазрешитьИспользование,
+    "РазрешитьИспользование"
   )
-  if (userVisible !== undefined) result.userVisible = userVisible
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
+  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
+    result.userVisible = userVisibleAllow || userVisibleDeny
+  }
 
   const warningOnEdit = importI8nTextFromEnterprise(context, data.ПредупреждениеПриРедактировании)
   if (warningOnEdit !== undefined) result.warningOnEdit = warningOnEdit
@@ -186,7 +200,7 @@ export const importFormFieldFromEnterprise = <
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const table = importTableFromEnterprise(context, data.Таблица, (name || "") + ".Таблица")
+  const table = importTableFromEnterprise(context, data.Таблица, name + ".Таблица")
   if (table !== undefined) result.table = table
 
   const footerText = importI8nTextFromEnterprise(context, data.ТекстПодвала)
@@ -226,4 +240,4 @@ export const importFormFieldFromEnterprise = <
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "FormField", importFormFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "FormField", importFormFieldPropsFromEnterprise)

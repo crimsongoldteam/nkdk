@@ -3,7 +3,6 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import {
   importFormGroupPropsFromEnterprise,
 } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
@@ -22,13 +21,28 @@ export const importUsualGroupFromEnterprise = <From extends UsualGroupEnterprise
 ): ImportFromEnterpriseReturn<From, UsualGroup, Name> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, UsualGroup, Name>
 
-  const baseElement = importBaseElementFromEnterprise(context, data, name)!
-  const props = importFormGroupPropsFromEnterprise(context, data)
+  const baseProps = importFormGroupPropsFromEnterprise(context, data)
+  const props = importUsualGroupPropsFromEnterprise(context, data)
 
   const result: ImportFromEnterpriseReturn<From, UsualGroup, Name> = {
-    ...baseElement,
+    ...baseProps,
     ...props,
     elementType: FormElementType.UsualGroup,
+    name,
+    childItems: [],
+  }
+
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
+}
+
+const importUsualGroupPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: UsualGroupEnterprise
+): Omit<Partial<UsualGroup>, "elementType" | "name"> => {
+  const result: Omit<Partial<UsualGroup>, "elementType" | "name"> = {
     childItems: [],
   }
 
@@ -188,10 +202,7 @@ export const importUsualGroupFromEnterprise = <From extends UsualGroupEnterprise
   )
   if (slaveItemsWidth !== undefined) result.slaveItemsWidth = slaveItemsWidth
 
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
-  if (title !== undefined) result.title = title
-
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "UsualGroup", importUsualGroupFromEnterprise)
+registerMetadata("ImportFromEnterprise", "UsualGroup", importUsualGroupPropsFromEnterprise)

@@ -4,7 +4,7 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFormDecorationFromEnterprise } from "~/metadata/forms/elements/formDecoration/importFromEnterprise"
+import { importFormDecorationPropsFromEnterprise } from "~/metadata/forms/elements/formDecoration/importFromEnterprise"
 import { PictureDecoration, PictureDecorationEnterprise } from "~/metadata/forms/elements/pictureDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -59,13 +59,26 @@ export const importPictureDecorationFromEnterprise = <
   name: N
 ): ImportFromEnterpriseReturn<T, PictureDecoration, N> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<T, PictureDecoration, N>
+  if (!name) return undefined as ImportFromEnterpriseReturn<T, PictureDecoration, N>
 
-  const baseFields = importFormDecorationFromEnterprise(context, data, name)
+  const baseProps = importFormDecorationPropsFromEnterprise(context, data)
+  const props = importPictureDecorationPropsFromEnterprise(context, data)
 
   const result: ImportFromEnterpriseReturn<T, PictureDecoration, N> = {
-    ...baseFields,
+    ...baseProps,
+    ...props,
     elementType: FormElementType.PictureDecoration,
+    name,
   }
+
+  return result as ImportFromEnterpriseReturn<T, PictureDecoration, N>
+}
+
+const importPictureDecorationPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: PictureDecorationEnterprise
+): Omit<Partial<PictureDecoration>, "elementType" | "name"> => {
+  const result: Omit<Partial<PictureDecoration>, "elementType" | "name"> = {}
 
   const hyperlink = importBooleanFromEnterprise(context, data.Гиперссылка)
   if (hyperlink !== undefined) result.hyperlink = hyperlink
@@ -123,14 +136,7 @@ export const importPictureDecorationFromEnterprise = <
   const events = importPictureDecorationEventsFromEnterprise(data.События)
   if (events !== undefined) result.events = events
 
-  return result as ImportFromEnterpriseReturn<T, PictureDecoration, N>
+  return result
 }
 
-registerMetadata(
-  "ImportFromEnterprise",
-  "PictureDecoration",
-  importPictureDecorationFromEnterprise as (
-    context: ConfigurationContext,
-    data: PictureDecorationEnterprise | undefined
-  ) => PictureDecoration | undefined
-)
+registerMetadata("ImportFromEnterprise", "PictureDecoration", importPictureDecorationPropsFromEnterprise)

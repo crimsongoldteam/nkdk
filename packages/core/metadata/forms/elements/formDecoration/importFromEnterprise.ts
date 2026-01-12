@@ -62,7 +62,7 @@ export const importFormDecorationPartialFromEnterprise = (
   return result
 }
 
-const importFormDecorationPropsFromEnterprise = (
+export const importFormDecorationPropsFromEnterprise = (
   context: ConfigurationContext,
   data: FormDecorationTypedEnterprise | FormDecorationPartialEnterprise | undefined
 ): Omit<Partial<FormDecoration>, "elementType" | "name"> => {

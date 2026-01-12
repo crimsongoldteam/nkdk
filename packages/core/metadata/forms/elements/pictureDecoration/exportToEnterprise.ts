@@ -4,7 +4,7 @@ import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportTo
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportFormDecorationToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
+import { exportFormDecorationPropsToEnterprise } from "~/metadata/forms/elements/formDecoration/exportToEnterprise"
 import { PictureDecoration, PictureDecorationEnterprise } from "~/metadata/forms/elements/pictureDecoration/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -17,7 +17,7 @@ export const exportPictureDecorationToEnterprise = (
 ): PictureDecorationEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportFormDecorationToEnterprise(context, data)
+  const baseFields = exportFormDecorationPropsToEnterprise(context, data)
 
   const result: PictureDecorationEnterprise = {
     ...baseFields,

@@ -9,7 +9,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importFormDecorationFromEnterprise } from "../formDecoration/importFromEnterprise"
+import { importFormDecorationPropsFromEnterprise } from "../formDecoration/importFromEnterprise"
 import { ImportFromEnterpriseReturn } from "../types"
 
 const importLabelDecorationEventsFromEnterprise = (
@@ -40,11 +40,12 @@ export const importLabelDecorationFromEnterprise = <
 ): ImportFromEnterpriseReturn<From, LabelDecoration, Name> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, LabelDecoration, Name>
 
-  const baseFields = importFormDecorationFromEnterprise(context, data, name)!
+  const baseProps = importFormDecorationPropsFromEnterprise(context, data)
 
   const result: ImportFromEnterpriseReturn<From, LabelDecoration, Name> = {
-    ...baseFields,
+    ...baseProps,
     elementType: FormElementType.LabelDecoration,
+    name,
   }
 
   const title = importI8nTextFromEnterprise(context, data.Заголовок)

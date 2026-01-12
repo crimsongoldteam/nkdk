@@ -7,35 +7,12 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportTypedChildItemsToEnterprise } from "~/metadata/forms/collections/childItems/exportToEnterprise"
 import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
-import {
-  FormItemAddition,
-  FormItemAdditionPartialEnterprise,
-  FormItemAdditionTypedEnterprise,
-} from "~/metadata/forms/elements/formItemAddition/types"
+import { FormItemAddition, FormItemAdditionPartialEnterprise } from "~/metadata/forms/elements/formItemAddition/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
-
-export const exportFormItemAdditionTypedToEnterprise = (
-  context: ConfigurationContext,
-  data: FormItemAddition | undefined
-): FormItemAdditionTypedEnterprise | undefined => {
-  if (!data) return undefined
-
-  const props = exportFormItemAdditionPropsToEnterprise(context, data)
-
-  const result: FormItemAdditionTypedEnterprise = {
-    Тип: "ДополнениеЭлементаФормы",
-    ...props,
-  }
-
-  const title = exportI8nTextToEnterprise(context, data.title)
-  if (title !== undefined) result.Заголовок = title
-
-  return sortObject(result)
-}
 
 export const exportFormItemAdditionPartialToEnterprise = (
   context: ConfigurationContext,
@@ -117,4 +94,3 @@ const exportFormItemAdditionPropsToEnterprise = (
 }
 
 registerMetadata("ExportPartialToEnterprise", "FormItemAddition", exportFormItemAdditionPartialToEnterprise)
-registerMetadata("ExportTypedToEnterprise", "FormItemAddition", exportFormItemAdditionTypedToEnterprise)

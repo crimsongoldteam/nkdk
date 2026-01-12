@@ -54,7 +54,7 @@ export const exportFormDecorationPartialToEnterprise = (
   return sortObject(result)
 }
 
-const exportFormDecorationPropsToEnterprise = (
+export const exportFormDecorationPropsToEnterprise = (
   context: ConfigurationContext,
   data: FormDecoration
 ): FormDecorationPartialEnterprise => {

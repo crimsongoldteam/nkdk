@@ -7,7 +7,6 @@ import {
 } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import {
   FormGroup,
   FormGroupPartialEnterprise,
@@ -26,16 +25,14 @@ export const importFormGroupTypedFromEnterprise = (
 ): FormGroup | undefined => {
   if (data === undefined) return undefined
 
-  const baseElement = importBaseElementFromEnterprise(context, data, name)!
-
   const props = importFormGroupPropsFromEnterprise(context, data)
 
   const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
 
   const result: FormGroup = {
-    ...baseElement,
     ...props,
     elementType,
+    name,
   }
 
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
@@ -51,12 +48,9 @@ export const importFormGroupPartialFromEnterprise = (
 ): FormGroup | undefined => {
   if (source === undefined) return undefined
 
-  const baseElement = importBaseElementFromEnterprise(context, data, source.name)!
-
   const props = importFormGroupPropsFromEnterprise(context, data)
   const result: FormGroup = {
     ...source,
-    ...baseElement,
     ...props,
   }
 
@@ -171,14 +165,13 @@ export const importFormGroupFromEnterprise = <
     return importFormGroupTypedFromEnterprise(context, data as FormGroupTypedEnterprise, name)
   }
 
-  const baseElement = importBaseElementFromEnterprise(context, data, name)!
   const props = importFormGroupPropsFromEnterprise(context, data)
   const elementType = importFormElementTypeFromEnterprise(context, "ГруппаФормы")
 
   return {
-    ...baseElement,
     ...props,
     elementType,
+    name,
   }
 }
 

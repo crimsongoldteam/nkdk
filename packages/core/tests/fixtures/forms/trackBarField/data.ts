@@ -37,7 +37,6 @@ export const fullTrackBarField: TrackBarField = {
 
 export const fullTrackBarFieldPartialEnterprise: TrackBarFieldPartialEnterprise = {
   ...fullFormFieldEnterprise,
-  Заголовок: "Поле полосы прокрутки",
   РежимРедактирования: "ВходПриВводе",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -61,6 +60,7 @@ export const fullTrackBarFieldPartialEnterprise: TrackBarFieldPartialEnterprise 
 export const fullTrackBarFieldTypedEnterprise: TrackBarFieldTypedEnterprise = {
   ...fullTrackBarFieldPartialEnterprise,
   Тип: "ПолеПолосыПрокрутки",
+  Заголовок: "Поле полосы прокрутки",
 }
 
 export const minimalTrackBarField: TrackBarField = {

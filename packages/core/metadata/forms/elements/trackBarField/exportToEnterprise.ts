@@ -1,7 +1,7 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
+import { exportFormFieldPropsToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import {
   TrackBarField,
   TrackBarFieldPartialEnterprise,
@@ -19,13 +19,12 @@ export const exportTrackBarFieldTypedToEnterprise = (
 ): TrackBarFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportFormFieldToEnterprise(context, data)
-
+  const baseProps = exportFormFieldPropsToEnterprise(context, data)
   const props = exportTrackBarFieldPropsToEnterprise(context, data)
 
   const result: TrackBarFieldTypedEnterprise = {
     Тип: "ПолеПолосыПрокрутки",
-    ...baseFields,
+    ...baseProps,
     ...props,
   }
 
@@ -36,12 +35,11 @@ export const exportTrackBarFieldPartialToEnterprise = (
   context: ConfigurationContext,
   data: TrackBarField
 ): TrackBarFieldPartialEnterprise => {
-  const baseFields = exportFormFieldToEnterprise(context, data)
-
+  const baseProps = exportFormFieldPropsToEnterprise(context, data)
   const props = exportTrackBarFieldPropsToEnterprise(context, data)
 
   const result: TrackBarFieldPartialEnterprise = {
-    ...baseFields,
+    ...baseProps,
     ...props,
   }
 

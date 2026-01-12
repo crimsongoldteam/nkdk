@@ -17,11 +17,25 @@ export const exportUsualGroupToEnterprise = (
 ): UsualGroupEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportFormGroupPropsToEnterprise(context, data)
+  const baseProps = exportFormGroupPropsToEnterprise(context, data)
+  const props = exportUsualGroupPropsToEnterprise(context, data)
 
   const result: UsualGroupEnterprise = {
-    ...baseFields,
+    ...baseProps,
+    ...props,
   }
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+const exportUsualGroupPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: UsualGroup
+): UsualGroupEnterprise => {
+  const result: UsualGroupEnterprise = {}
 
   const displayImportance = exportSystemEnumerationToEnterprise(
     context,
@@ -151,7 +165,7 @@ export const exportUsualGroupToEnterprise = (
   )
   if (slaveItemsWidth !== undefined) result.ШиринаПодчиненныхЭлементов = slaveItemsWidth
 
-  return sortObject(result)
+  return result
 }
 
 registerMetadata("ExportPartialToEnterprise", "UsualGroup", exportUsualGroupToEnterprise)

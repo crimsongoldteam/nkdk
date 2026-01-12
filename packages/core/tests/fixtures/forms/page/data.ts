@@ -1,4 +1,4 @@
-import { Page, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
+import { Page, PageEnterprise, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormGroup } from "../formGroup/data"
 
@@ -19,7 +19,6 @@ export const fullPage: Page = {
   group: "Vertical",
   horizontalSpacing: "Single",
   itemsAndTitlesAlign: "Auto",
-  picture: undefined,
   scrollOnCompress: true,
   showTitle: true,
   slaveItemsWidth: "Auto",
@@ -48,7 +47,6 @@ export const fullPagePartialEnterprise: PagePartialEnterprise = {
   ЦветТекстаЗаголовка: "Черный",
   Ширина: 300,
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
-  Заголовок: "Страница",
   ВажностьПриОтображении: "Высокая",
   ВертикальнаяПрокруткаПриСжатии: "Истина",
   ВертикальноеПоложение: "Верх",
@@ -79,3 +77,6 @@ export const minimalPage: Page = {
 }
 
 export const minimalPagePartialEnterprise: PagePartialEnterprise = {}
+
+export const fullPageEnterprise: PageEnterprise = fullPageTypedEnterprise
+export const minimalPageEnterprise: PageEnterprise = minimalPagePartialEnterprise

@@ -46,7 +46,7 @@ export const exportPagePartialToEnterprise = (context: ConfigurationContext, dat
   return sortObject(result)
 }
 
-const exportPagePropsToEnterprise = (context: ConfigurationContext, data: Page): PagePartialEnterprise => {
+export const exportPagePropsToEnterprise = (context: ConfigurationContext, data: Page): PagePartialEnterprise => {
   const baseFields = exportFormGroupPropsToEnterprise(context, data)
 
   const result: PagePartialEnterprise = {
