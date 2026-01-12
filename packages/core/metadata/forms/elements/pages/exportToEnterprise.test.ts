@@ -1,24 +1,45 @@
 import { describe, expect, it } from "vitest"
-import { fullPages, fullPagesEnterprise, minimalPages, minimalPagesEnterprise } from "~/tests/fixtures/forms/pages/data"
+import {
+  fullPages,
+  fullPagesPartialEnterprise,
+  fullPagesTypedEnterprise,
+  minimalPages,
+  minimalPagesPartialEnterprise,
+  minimalPagesTypedEnterprise,
+} from "~/tests/fixtures/forms/pages/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportPagesToEnterprise } from "./exportToEnterprise"
+import { exportPagesPartialToEnterprise, exportPagesTypedToEnterprise } from "./exportToEnterprise"
 
-describe("exportPagesToEnterprise", () => {
+describe("exportPagesPartialToEnterprise", () => {
+  it("should export all fields to Enterprise", () => {
+    const result = exportPagesPartialToEnterprise(mockСontext, fullPages)
+
+    expect(result).toEqual(fullPagesPartialEnterprise)
+  })
+
+  it("should export minimal", () => {
+    const result = exportPagesPartialToEnterprise(mockСontext, minimalPages)
+
+    expect(result).toEqual(minimalPagesPartialEnterprise)
+  })
+})
+
+describe("exportPagesTypedToEnterprise", () => {
+  it("should export all fields to Enterprise", () => {
+    const result = exportPagesTypedToEnterprise(mockСontext, fullPages)
+
+    expect(result).toEqual(fullPagesTypedEnterprise)
+  })
+
   it("should return undefined when data is undefined", () => {
-    const result = exportPagesToEnterprise(mockСontext, undefined)
+    const result = exportPagesTypedToEnterprise(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportPagesToEnterprise(mockСontext, fullPages)
-
-    expect(result).toEqual(fullPagesEnterprise)
-  })
-
   it("should export minimal", () => {
-    const result = exportPagesToEnterprise(mockСontext, minimalPages)
+    const result = exportPagesTypedToEnterprise(mockСontext, minimalPages)
 
-    expect(result).toEqual(minimalPagesEnterprise)
+    expect(result).toEqual(minimalPagesTypedEnterprise)
   })
 })

@@ -1,7 +1,15 @@
+import {
+  exportI8nTextOtherToEnterprise,
+  exportI8nTextToEnterprise,
+} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormGroupPropsToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
-import { Pages, PagesEnterprise } from "~/metadata/forms/elements/pages/types"
+import {
+  Pages,
+  PagesPartialEnterprise,
+  PagesTypedEnterprise,
+} from "~/metadata/forms/elements/pages/types"
 import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
@@ -9,15 +17,48 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportPagesToEnterprise = (
+export const exportPagesTypedToEnterprise = (
   context: ConfigurationContext,
   data: Pages | undefined
-): PagesEnterprise | undefined => {
+): PagesTypedEnterprise | undefined => {
   if (!data) return undefined
 
+  const props = exportPagesPropsToEnterprise(context, data)
+
+  const result: PagesTypedEnterprise = {
+    Тип: "Страницы",
+    ...props,
+  }
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+export const exportPagesPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: Pages
+): PagesPartialEnterprise => {
+  const props = exportPagesPropsToEnterprise(context, data)
+
+  const result: PagesPartialEnterprise = {
+    ...props,
+  }
+
+  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+const exportPagesPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: Pages
+): PagesPartialEnterprise => {
   const baseFields = exportFormGroupPropsToEnterprise(context, data)
 
-  const result: PagesEnterprise = {
+  const result: PagesPartialEnterprise = {
     ...baseFields,
   }
 
@@ -49,7 +90,7 @@ export const exportPagesToEnterprise = (
   const events = exportEventsToEnterprise(context, data.events)
   if (events !== undefined) result.События = events
 
-  return sortObject(result)
+  return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "Pages", exportPagesToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "Pages", exportPagesPartialToEnterprise)

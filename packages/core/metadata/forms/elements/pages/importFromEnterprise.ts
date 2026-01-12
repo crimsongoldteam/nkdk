@@ -1,47 +1,79 @@
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
-import { Pages, PagesEnterprise } from "~/metadata/forms/elements/pages/types"
+import {
+  Pages,
+  PagesPartialEnterprise,
+  PagesTypedEnterprise,
+} from "~/metadata/forms/elements/pages/types"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importPagesFromEnterprise = <From extends PagesEnterprise | undefined, Name extends string>(
+export const importPagesTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, Pages, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, Pages, Name>
+  data: PagesTypedEnterprise | undefined,
+  name: string
+): Pages | undefined => {
+  if (data === undefined) return undefined
 
   const baseProps = importFormGroupPropsFromEnterprise(context, data)
   const props = importPagesPropsFromEnterprise(context, data, name)
 
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
   const result: Pages = {
     ...baseProps,
     ...props,
-    elementType: FormElementType.Pages,
+    elementType,
     name,
-    childItems: [],
+    childItems: props.childItems ?? [],
   }
 
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result as ImportFromEnterpriseReturn<From, Pages, Name>
+  return result
+}
+
+export const importPagesPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: Pages | undefined,
+  data: PagesPartialEnterprise | undefined
+): Pages | undefined => {
+  if (source === undefined) return undefined
+
+  const baseProps = importFormGroupPropsFromEnterprise(context, data)
+  const props = importPagesPropsFromEnterprise(context, data, source.name)
+  const result: Pages = {
+    ...source,
+    ...baseProps,
+    ...props,
+    childItems: props.childItems ?? [],
+  }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
 }
 
 const importPagesPropsFromEnterprise = (
   context: ConfigurationContext,
-  data: PagesEnterprise,
+  data: PagesTypedEnterprise | PagesPartialEnterprise | undefined,
   name: string
 ): Omit<Partial<Pages>, "elementType" | "name"> => {
   const result: Omit<Partial<Pages>, "elementType" | "name"> = {
     childItems: [],
   }
+
+  if (data === undefined) return result
 
   const currentRowUse = importSystemEnumerationFromEnterprise<SE.CurrentRowUse>(
     context,

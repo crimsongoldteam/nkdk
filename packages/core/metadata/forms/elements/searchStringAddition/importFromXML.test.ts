@@ -6,12 +6,6 @@ import { importSearchStringAdditionFromXML } from "./importFromXML"
 import { SearchStringAdditionXML } from "./types"
 
 describe("importSearchStringAdditionFromXML", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importSearchStringAdditionFromXML(mockСontext, undefined)
-
-    expect(result).toBeUndefined()
-  })
-
   it("should import all fields from XML", () => {
     const xmlData = readAndParseXMLFile<{ SearchStringAddition: SearchStringAdditionXML }>(
       "forms/searchStringAddition/full.xml"
@@ -32,4 +26,3 @@ describe("importSearchStringAdditionFromXML", () => {
     expect(result).toEqual(minimalSearchStringAddition)
   })
 })
-

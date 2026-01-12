@@ -24,13 +24,11 @@ export const exportPopupTypedToEnterprise = (
 ): PopupTypedEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseProps = exportFormGroupPropsToEnterprise(context, data)
   const props = exportPopupPropsToEnterprise(context, data)
 
   const result: PopupTypedEnterprise = {
-    ...baseProps,
-    ...props,
     Тип: "Подменю",
+    ...props,
   }
 
   const title = exportI8nTextToEnterprise(context, data.title)
@@ -43,11 +41,9 @@ export const exportPopupPartialToEnterprise = (
   context: ConfigurationContext,
   data: Popup
 ): PopupPartialEnterprise => {
-  const baseProps = exportFormGroupPropsToEnterprise(context, data)
   const props = exportPopupPropsToEnterprise(context, data)
 
   const result: PopupPartialEnterprise = {
-    ...baseProps,
     ...props,
   }
 
@@ -61,7 +57,11 @@ const exportPopupPropsToEnterprise = (
   context: ConfigurationContext,
   data: Popup
 ): PopupPartialEnterprise => {
-  const result: PopupPartialEnterprise = {}
+  const baseFields = exportFormGroupPropsToEnterprise(context, data)
+
+  const result: PopupPartialEnterprise = {
+    ...baseFields,
+  }
 
   const picture = exportPictureToEnterprise(context, data.picture)
   if (picture !== undefined) result.Картинка = picture

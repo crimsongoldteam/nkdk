@@ -1,16 +1,23 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importBorderFromEnterprise } from "~/metadata/commonObjects/border/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormDecorationPropsFromEnterprise } from "~/metadata/forms/elements/formDecoration/importFromEnterprise"
-import { PictureDecoration, PictureDecorationEnterprise } from "~/metadata/forms/elements/pictureDecoration/types"
+import {
+  PictureDecoration,
+  PictureDecorationPartialEnterprise,
+  PictureDecorationTypedEnterprise,
+} from "~/metadata/forms/elements/pictureDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ImportFromEnterpriseReturn } from "../types"
 
 const importPictureDecorationEventsFromEnterprise = (
   data:
@@ -50,35 +57,59 @@ const importPictureDecorationEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importPictureDecorationFromEnterprise = <
-  T extends PictureDecorationEnterprise | undefined,
-  N extends string | undefined,
->(
+export const importPictureDecorationTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: T,
-  name: N
-): ImportFromEnterpriseReturn<T, PictureDecoration, N> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<T, PictureDecoration, N>
-  if (!name) return undefined as ImportFromEnterpriseReturn<T, PictureDecoration, N>
+  data: PictureDecorationTypedEnterprise | undefined,
+  name: string
+): PictureDecoration | undefined => {
+  if (data === undefined) return undefined
 
   const baseProps = importFormDecorationPropsFromEnterprise(context, data)
   const props = importPictureDecorationPropsFromEnterprise(context, data)
 
-  const result: ImportFromEnterpriseReturn<T, PictureDecoration, N> = {
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: PictureDecoration = {
     ...baseProps,
     ...props,
-    elementType: FormElementType.PictureDecoration,
+    elementType,
     name,
   }
 
-  return result as ImportFromEnterpriseReturn<T, PictureDecoration, N>
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
+}
+
+export const importPictureDecorationPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: PictureDecoration | undefined,
+  data: PictureDecorationPartialEnterprise | undefined
+): PictureDecoration | undefined => {
+  if (source === undefined) return undefined
+
+  const baseProps = importFormDecorationPropsFromEnterprise(context, data)
+  const props = importPictureDecorationPropsFromEnterprise(context, data)
+  const result: PictureDecoration = {
+    ...source,
+    ...baseProps,
+    ...props,
+  }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
 }
 
 const importPictureDecorationPropsFromEnterprise = (
   context: ConfigurationContext,
-  data: PictureDecorationEnterprise
+  data: PictureDecorationTypedEnterprise | PictureDecorationPartialEnterprise | undefined
 ): Omit<Partial<PictureDecoration>, "elementType" | "name"> => {
   const result: Omit<Partial<PictureDecoration>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const hyperlink = importBooleanFromEnterprise(context, data.Гиперссылка)
   if (hyperlink !== undefined) result.hyperlink = hyperlink

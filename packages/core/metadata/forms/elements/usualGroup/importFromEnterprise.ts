@@ -1,35 +1,41 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import {
-  importFormGroupPropsFromEnterprise,
-} from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
-import { UsualGroup, UsualGroupEnterprise } from "~/metadata/forms/elements/usualGroup/types"
+import {
+  UsualGroup,
+  UsualGroupPartialEnterprise,
+  UsualGroupTypedEnterprise,
+} from "~/metadata/forms/elements/usualGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importUsualGroupFromEnterprise = <From extends UsualGroupEnterprise | undefined, Name extends string>(
+export const importUsualGroupTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, UsualGroup, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, UsualGroup, Name>
+  data: UsualGroupTypedEnterprise | undefined,
+  name: string
+): UsualGroup | undefined => {
+  if (data === undefined) return undefined
 
   const baseProps = importFormGroupPropsFromEnterprise(context, data)
-  const props = importUsualGroupPropsFromEnterprise(context, data)
+  const props = importUsualGroupPropsFromEnterprise(context, data, name)
 
-  const result: ImportFromEnterpriseReturn<From, UsualGroup, Name> = {
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: UsualGroup = {
     ...baseProps,
     ...props,
-    elementType: FormElementType.UsualGroup,
+    elementType,
     name,
-    childItems: [],
+    childItems: props.childItems ?? [],
   }
 
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
@@ -38,13 +44,38 @@ export const importUsualGroupFromEnterprise = <From extends UsualGroupEnterprise
   return result
 }
 
+export const importUsualGroupPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: UsualGroup | undefined,
+  data: UsualGroupPartialEnterprise | undefined
+): UsualGroup | undefined => {
+  if (source === undefined) return undefined
+
+  const baseProps = importFormGroupPropsFromEnterprise(context, data)
+  const props = importUsualGroupPropsFromEnterprise(context, data, source.name)
+  const result: UsualGroup = {
+    ...source,
+    ...baseProps,
+    ...props,
+    childItems: props.childItems ?? [],
+  }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
+}
+
 const importUsualGroupPropsFromEnterprise = (
   context: ConfigurationContext,
-  data: UsualGroupEnterprise
+  data: UsualGroupTypedEnterprise | UsualGroupPartialEnterprise | undefined,
+  name: string
 ): Omit<Partial<UsualGroup>, "elementType" | "name"> => {
   const result: Omit<Partial<UsualGroup>, "elementType" | "name"> = {
     childItems: [],
   }
+
+  if (data === undefined) return result
 
   const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
     context,
@@ -126,7 +157,7 @@ const importUsualGroupPropsFromEnterprise = (
   )
   if (currentRowUse !== undefined) result.currentRowUse = currentRowUse
 
-  const associatedTable = importTableFromEnterprise(context, data.ИспользуемаяТаблица, "")
+  const associatedTable = importTableFromEnterprise(context, data.ИспользуемаяТаблица, name + ".ИспользуемаяТаблица")
   if (associatedTable !== undefined) result.associatedTable = associatedTable
 
   const united = importBooleanFromEnterprise(context, data.Объединенная)

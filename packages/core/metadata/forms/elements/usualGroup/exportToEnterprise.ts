@@ -1,27 +1,33 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import {
+  exportI8nTextOtherToEnterprise,
+  exportI8nTextToEnterprise,
+} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormGroupPropsToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
 import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
-import { UsualGroup, UsualGroupEnterprise } from "~/metadata/forms/elements/usualGroup/types"
+import {
+  UsualGroup,
+  UsualGroupPartialEnterprise,
+  UsualGroupTypedEnterprise,
+} from "~/metadata/forms/elements/usualGroup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportUsualGroupToEnterprise = (
+export const exportUsualGroupTypedToEnterprise = (
   context: ConfigurationContext,
   data: UsualGroup | undefined
-): UsualGroupEnterprise | undefined => {
+): UsualGroupTypedEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseProps = exportFormGroupPropsToEnterprise(context, data)
   const props = exportUsualGroupPropsToEnterprise(context, data)
 
-  const result: UsualGroupEnterprise = {
-    ...baseProps,
+  const result: UsualGroupTypedEnterprise = {
+    Тип: "Группа",
     ...props,
   }
 
@@ -31,11 +37,31 @@ export const exportUsualGroupToEnterprise = (
   return sortObject(result)
 }
 
+export const exportUsualGroupPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: UsualGroup
+): UsualGroupPartialEnterprise => {
+  const props = exportUsualGroupPropsToEnterprise(context, data)
+
+  const result: UsualGroupPartialEnterprise = {
+    ...props,
+  }
+
+  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
 const exportUsualGroupPropsToEnterprise = (
   context: ConfigurationContext,
   data: UsualGroup
-): UsualGroupEnterprise => {
-  const result: UsualGroupEnterprise = {}
+): UsualGroupPartialEnterprise => {
+  const baseFields = exportFormGroupPropsToEnterprise(context, data)
+
+  const result: UsualGroupPartialEnterprise = {
+    ...baseFields,
+  }
 
   const displayImportance = exportSystemEnumerationToEnterprise(
     context,
@@ -168,4 +194,4 @@ const exportUsualGroupPropsToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "UsualGroup", exportUsualGroupToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "UsualGroup", exportUsualGroupPartialToEnterprise)

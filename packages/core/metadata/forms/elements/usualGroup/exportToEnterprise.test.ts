@@ -1,30 +1,49 @@
 import { describe, expect, it } from "vitest"
 import {
   fullUsualGroup,
-  fullUsualGroupEnterprise,
+  fullUsualGroupPartialEnterprise,
+  fullUsualGroupTypedEnterprise,
   minimalUsualGroup,
-  minimalUsualGroupEnterprise,
+  minimalUsualGroupPartialEnterprise,
+  minimalUsualGroupTypedEnterprise,
 } from "~/tests/fixtures/forms/usualGroup/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportUsualGroupToEnterprise } from "./exportToEnterprise"
+import {
+  exportUsualGroupPartialToEnterprise,
+  exportUsualGroupTypedToEnterprise,
+} from "./exportToEnterprise"
 
-describe("exportUsualGroupToEnterprise", () => {
+describe("exportUsualGroupPartialToEnterprise", () => {
+  it("should export all fields to Enterprise", () => {
+    const result = exportUsualGroupPartialToEnterprise(mockСontext, fullUsualGroup)
+
+    expect(result).toEqual(fullUsualGroupPartialEnterprise)
+  })
+
+  it("should export minimal", () => {
+    const result = exportUsualGroupPartialToEnterprise(mockСontext, minimalUsualGroup)
+
+    expect(result).toEqual(minimalUsualGroupPartialEnterprise)
+  })
+})
+
+describe("exportUsualGroupTypedToEnterprise", () => {
+  it("should export all fields to Enterprise", () => {
+    const result = exportUsualGroupTypedToEnterprise(mockСontext, fullUsualGroup)
+
+    expect(result).toEqual(fullUsualGroupTypedEnterprise)
+  })
+
   it("should return undefined when data is undefined", () => {
-    const result = exportUsualGroupToEnterprise(mockСontext, undefined)
+    const result = exportUsualGroupTypedToEnterprise(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportUsualGroupToEnterprise(mockСontext, fullUsualGroup)
-
-    expect(result).toEqual(fullUsualGroupEnterprise)
-  })
-
   it("should export minimal", () => {
-    const result = exportUsualGroupToEnterprise(mockСontext, minimalUsualGroup)
+    const result = exportUsualGroupTypedToEnterprise(mockСontext, minimalUsualGroup)
 
-    expect(result).toEqual(minimalUsualGroupEnterprise)
+    expect(result).toEqual(minimalUsualGroupTypedEnterprise)
   })
 })
 

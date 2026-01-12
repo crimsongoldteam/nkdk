@@ -1,5 +1,9 @@
 import { InputField } from "~/metadata/forms/elements/inputField/types"
-import { UsualGroup, UsualGroupEnterprise } from "~/metadata/forms/elements/usualGroup/types"
+import {
+  UsualGroup,
+  UsualGroupPartialEnterprise,
+  UsualGroupTypedEnterprise,
+} from "~/metadata/forms/elements/usualGroup/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormGroup } from "../formGroup/data"
 
@@ -39,7 +43,14 @@ export const fullUsualGroup: UsualGroup = {
   childItems: [],
 }
 
-export const fullUsualGroupEnterprise: UsualGroupEnterprise = {
+export const fullUsualGroupSource: UsualGroup = {
+  elementType: FormElementType.UsualGroup,
+  name: "ОбычнаяГруппа",
+  title: { items: { ru: "Обычная группа" } },
+  childItems: [],
+}
+
+export const fullUsualGroupPartialEnterprise: UsualGroupPartialEnterprise = {
   ВертикальноеПоложениеВГруппе: "Верх",
   Вид: "ОбычнаяГруппа",
   Видимость: "Истина",
@@ -57,7 +68,6 @@ export const fullUsualGroupEnterprise: UsualGroupEnterprise = {
   ЦветТекстаЗаголовка: "Черный",
   Ширина: 300,
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
-  Заголовок: "Обычная группа",
   ВажностьПриОтображении: "Высокая",
   ВертикальноеВыравниваниеГруппы: "Верх",
   ВертикальноеПоложение: "Верх",
@@ -84,13 +94,23 @@ export const fullUsualGroupEnterprise: UsualGroupEnterprise = {
   ШиринаПодчиненныхЭлементов: "Авто",
 }
 
+export const fullUsualGroupTypedEnterprise: UsualGroupTypedEnterprise = {
+  ...fullUsualGroupPartialEnterprise,
+  Тип: "Группа",
+  Заголовок: "Обычная группа",
+}
+
 export const minimalUsualGroup: UsualGroup = {
   elementType: FormElementType.UsualGroup,
   name: "ОбычнаяГруппа",
   childItems: [],
 }
 
-export const minimalUsualGroupEnterprise: UsualGroupEnterprise = {}
+export const minimalUsualGroupPartialEnterprise: UsualGroupPartialEnterprise = {}
+
+export const minimalUsualGroupTypedEnterprise: UsualGroupTypedEnterprise = {
+  Тип: "Группа",
+}
 
 export interface StructureFixture<T> {
   name: string

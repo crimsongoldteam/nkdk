@@ -1,30 +1,63 @@
 import { describe, expect, it } from "vitest"
 import {
   fullUsualGroup,
-  fullUsualGroupEnterprise,
+  fullUsualGroupPartialEnterprise,
+  fullUsualGroupTypedEnterprise,
   minimalUsualGroup,
-  minimalUsualGroupEnterprise,
+  minimalUsualGroupPartialEnterprise,
+  minimalUsualGroupTypedEnterprise,
 } from "~/tests/fixtures/forms/usualGroup/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importUsualGroupFromEnterprise } from "./importFromEnterprise"
+import {
+  importUsualGroupPartialFromEnterprise,
+  importUsualGroupTypedFromEnterprise,
+} from "./importFromEnterprise"
 
 describe("importUsualGroupFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importUsualGroupFromEnterprise(mockСontext, undefined, fullUsualGroup.name)
+  describe("importUsualGroupTypedFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importUsualGroupTypedFromEnterprise(mockСontext, undefined, "ОбычнаяГруппа")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importUsualGroupTypedFromEnterprise(
+        mockСontext,
+        fullUsualGroupTypedEnterprise,
+        "ОбычнаяГруппа"
+      )
+
+      expect(result).toEqual(fullUsualGroup)
+    })
+
+    it("should import minimal", () => {
+      const result = importUsualGroupTypedFromEnterprise(
+        mockСontext,
+        minimalUsualGroupTypedEnterprise,
+        "ОбычнаяГруппа"
+      )
+
+      expect(result).toEqual(minimalUsualGroup)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importUsualGroupFromEnterprise(mockСontext, fullUsualGroupEnterprise, fullUsualGroup.name)
+  describe("importUsualGroupPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importUsualGroupPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullUsualGroup)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importUsualGroupFromEnterprise(mockСontext, minimalUsualGroupEnterprise, minimalUsualGroup.name)
+    it("should import all fields from Enterprise", () => {
+      const result = importUsualGroupPartialFromEnterprise(
+        mockСontext,
+        fullUsualGroup,
+        fullUsualGroupPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalUsualGroup)
+      expect(result).toEqual(fullUsualGroup)
+    })
   })
 })
 

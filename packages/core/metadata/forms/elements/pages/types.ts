@@ -1,5 +1,5 @@
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupPropsEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import { Table, TableEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -27,7 +27,7 @@ export interface PagesXML extends FormGroupXML {
   ChildItems?: PageXML[]
 }
 
-export interface PagesEnterprise extends FormGroupPropsEnterprise {
+export interface PagesPartialEnterprise extends FormGroupPartialEnterprise {
   ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
   ИспользуемаяТаблица?: TableEnterprise
   ОтображениеСтраниц?: SE.FormPagesRepresentationEnterprise
@@ -38,3 +38,12 @@ export interface PagesEnterprise extends FormGroupPropsEnterprise {
     ПриСменеСтраницы?: string
   }
 }
+
+export interface PagesTypedEnterprise extends PagesPartialEnterprise {
+  Тип: "Страницы"
+}
+
+/**
+ * @deprecated Use PagesPartialEnterprise or PagesTypedEnterprise instead
+ */
+export type PagesEnterprise = PagesPartialEnterprise

@@ -49,7 +49,7 @@ export interface PictureDecorationXML extends FormDecorationXML {
   Events?: EventsXML
 }
 
-export interface PictureDecorationEnterprise extends FormDecorationPropsEnterprise {
+export interface PictureDecorationPartialEnterprise extends FormDecorationPropsEnterprise {
   Гиперссылка?: StringboolEnterprise
   Картинка?: PictureEnterprise
   Масштаб?: number
@@ -71,3 +71,12 @@ export interface PictureDecorationEnterprise extends FormDecorationPropsEnterpri
     ПроверкаПеретаскивания?: string
   }
 }
+
+export interface PictureDecorationTypedEnterprise extends PictureDecorationPartialEnterprise {
+  Тип: "Рисунок"
+}
+
+/**
+ * @deprecated Use PictureDecorationPartialEnterprise or PictureDecorationTypedEnterprise instead
+ */
+export type PictureDecorationEnterprise = PictureDecorationPartialEnterprise

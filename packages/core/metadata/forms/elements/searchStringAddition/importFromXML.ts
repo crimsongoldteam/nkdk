@@ -1,22 +1,45 @@
 import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML"
 import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
+import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFormItemAdditionFromXML } from "~/metadata/forms/elements/formItemAddition/importFromXML"
 import { SearchStringAddition, SearchStringAdditionXML } from "~/metadata/forms/elements/searchStringAddition/types"
-import { BaseElementXML } from "../baseElement/types"
+import { importContextMenuFromXML } from "../contextMenu/importFromXML"
+import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
+import { isHasContent } from "./helper"
 
 export const importSearchStringAdditionFromXML = (
   context: ConfigurationContext,
-  xml: SearchStringAdditionXML | undefined,
-  parentElement: BaseElementXML
-): SearchStringAddition => {
-  const baseFields = importFormItemAdditionFromXML(context, xml)
+  xml: SearchStringAdditionXML
+): SearchStringAddition | undefined => {
+  const result: SearchStringAddition = {}
 
-  const result: SearchStringAddition = {
-    ...baseFields,
-    name: parentElement.name,
-  }
+  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu)
+  if (contextMenu !== undefined) result.contextMenu = contextMenu
+
+  if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
+
+  if (xml.Enabled !== undefined) result.enabled = xml.Enabled
+
+  const extendedToolTip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  if (extendedToolTip !== undefined) result.extendedTooltip = extendedToolTip
+
+  if (xml.HorizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = xml.HorizontalAlignInGroup
+
+  const title = importI8nTextFromXML(context, xml.Title)
+  if (title !== undefined) result.title = title
+
+  const toolTip = importI8nTextFromXML(context, xml.ToolTip)
+  if (toolTip !== undefined) result.toolTip = toolTip
+
+  if (xml.ToolTipRepresentation !== undefined) result.toolTipRepresentation = xml.ToolTipRepresentation
+
+  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
+  if (userVisible !== undefined) result.userVisible = userVisible
+
+  if (xml.VerticalAlignInGroup !== undefined) result.verticalAlignInGroup = xml.VerticalAlignInGroup
+
+  if (xml.Visible !== undefined) result.visible = xml.Visible
 
   const backColor = importColorFromXML(context, xml.BackColor)
   if (backColor !== undefined) result.backColor = backColor
@@ -32,10 +55,9 @@ export const importSearchStringAdditionFromXML = (
   const textColor = importColorFromXML(context, xml.TextColor)
   if (textColor !== undefined) result.textColor = textColor
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
-  if (userVisible !== undefined) result.userVisible = userVisible
-
   if (xml.Width !== undefined) result.width = xml.Width
+
+  if (!isHasContent(result)) return undefined
 
   return result
 }
