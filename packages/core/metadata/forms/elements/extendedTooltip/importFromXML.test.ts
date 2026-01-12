@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { withContentExtendedTooltip } from "~/tests/fixtures/forms/extendedTooltip/data"
+import { fullExtendedTooltip } from "~/tests/fixtures/forms/extendedTooltip/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
 import { importExtendedTooltipFromXML } from "./importFromXML"
@@ -12,13 +12,19 @@ describe("importExtendedTooltipFromXML", () => {
     expect(result).toBeUndefined()
   })
 
-  it("should import with content to object", () => {
-    const xmlData = readAndParseXMLFile<{ ExtendedTooltip: ExtendedTooltipXML }>(
-      "forms/extendedTooltip/withContentExtendedTooltip.xml"
-    )
+  it("should import all fields from XML", () => {
+    const xmlData = readAndParseXMLFile<{ ExtendedTooltip: ExtendedTooltipXML }>("forms/extendedTooltip/full.xml")
 
     const result = importExtendedTooltipFromXML(mockСontext, xmlData.ExtendedTooltip)
 
-    expect(result).toEqual(withContentExtendedTooltip)
+    expect(result).toEqual(fullExtendedTooltip)
+  })
+
+  it("should import minimal to undefined", () => {
+    const xmlData = readAndParseXMLFile<{ ExtendedTooltip: ExtendedTooltipXML }>("forms/extendedTooltip/minimal.xml")
+
+    const result = importExtendedTooltipFromXML(mockСontext, xmlData.ExtendedTooltip)
+
+    expect(result).toBeUndefined()
   })
 })

@@ -11,16 +11,6 @@
 			]
 		},
 		{
-			"path": "packages/core/tempTest/After/Form.nkdk",
-			"bookmarks": [
-				{
-					"line": 16,
-					"column": 4,
-					"label": "nkdk"
-				}
-			]
-		},
-		{
 			"path": "packages/core/metadata/commonObjects/formAttribute/exportToXML.test.ts",
 			"bookmarks": [
 				{
