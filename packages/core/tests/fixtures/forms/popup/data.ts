@@ -1,6 +1,10 @@
-import { Popup, PopupEnterprise } from "~/metadata/forms/elements/popup/types"
+import {
+  Popup,
+  PopupPartialEnterprise,
+  PopupTypedEnterprise,
+} from "~/metadata/forms/elements/popup/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormGroup, fullFormGroupEnterprise } from "../formGroup/data"
+import { fullFormGroup, fullFormGroupPartialEnterprise } from "../formGroup/data"
 
 export const fullPopup: Popup = {
   ...fullFormGroup,
@@ -18,15 +22,20 @@ export const fullPopup: Popup = {
   childItems: [],
 }
 
-export const fullPopupEnterprise: PopupEnterprise = {
-  Тип: "Подменю",
-  ...fullFormGroupEnterprise,
-  Заголовок: "Всплывающее окно",
+export const fullPopupPartialEnterprise: PopupPartialEnterprise = {
+  ...fullFormGroupPartialEnterprise,
   Отображение: "Текст",
   ОтображениеФигуры: "Авто",
   Фигура: "Обычная",
   ЦветРамки: "Серый",
   ЦветФона: "Белый",
+  // Заголовок не включается в partial, так как он в defaultLanguage
+}
+
+export const fullPopupTypedEnterprise: PopupTypedEnterprise = {
+  ...fullPopupPartialEnterprise,
+  Тип: "Подменю",
+  Заголовок: "Всплывающее окно",
 }
 
 export const minimalPopup: Popup = {
@@ -35,6 +44,8 @@ export const minimalPopup: Popup = {
   childItems: [],
 }
 
-export const minimalPopupEnterprise: PopupEnterprise = {
+export const minimalPopupPartialEnterprise: PopupPartialEnterprise = {}
+
+export const minimalPopupTypedEnterprise: PopupTypedEnterprise = {
   Тип: "Подменю",
 }

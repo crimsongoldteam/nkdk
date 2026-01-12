@@ -6,7 +6,10 @@ import {
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFormGroupPartialFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import {
+  importFormGroupPartialFromEnterprise,
+  importFormGroupTypedFromEnterprise,
+} from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import {
   Popup,
   PopupPartialEnterprise,
@@ -26,7 +29,9 @@ export const importPopupTypedFromEnterprise = (
 ): Popup | undefined => {
   if (data === undefined) return undefined
 
-  const baseFields = importFormGroupPartialFromEnterprise(context, undefined, data)
+  // Создаем временный FormGroupTypedEnterprise для импорта базовых полей
+  const formGroupData = { ...data, Тип: "ГруппаФормы" as const }
+  const baseFields = importFormGroupTypedFromEnterprise(context, formGroupData, name)
   if (baseFields === undefined) return undefined
 
   const props = importPopupPropsFromEnterprise(context, data)
