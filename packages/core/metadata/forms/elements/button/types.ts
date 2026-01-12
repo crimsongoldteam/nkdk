@@ -88,49 +88,7 @@ export interface ButtonXML extends BaseElementXML {
   Width?: number
 }
 
-// export interface ButtonEnterprise extends BaseElementPropsEnterprise {
-//   Тип: "Кнопка"
-//   АвтоМаксимальнаяВысота?: StringboolEnterprise
-//   АвтоМаксимальнаяШирина?: StringboolEnterprise
-//   АктивизироватьПоУмолчанию?: StringboolEnterprise
-//   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
-//   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-//   Вид?: SE.FormButtonTypeEnterprise
-//   Видимость?: StringboolEnterprise
-//   Высота?: number
-//   ВысотаЗаголовка?: number
-//   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
-//   Доступность?: StringboolEnterprise
-//   Заголовок?: I8nTextEnterprise
-//   ИмяКоманды?: string
-//   Картинка?: PictureEnterprise
-//   КнопкаПоУмолчанию?: StringboolEnterprise
-//   МаксимальнаяВысота?: number
-//   МаксимальнаяШирина?: number
-//   Отображение?: SE.ButtonRepresentationEnterprise
-//   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
-//   ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
-//   ПоложениеВКоманднойПанели?: SE.ButtonLocationInCommandBarEnterprise
-//   ПоложениеКартинки?: SE.FormButtonPictureLocationEnterprise
-//   РазрешитьИспользование?: UserVisibleEnterprise
-//   ЗапретитьИспользование?: UserVisibleEnterprise
-//   ПропускатьПриВводе?: StringboolEnterprise
-//   ПутьКДанным?: string
-//   РастягиватьПоВертикали?: StringboolEnterprise
-//   РастягиватьПоГоризонтали?: StringboolEnterprise
-//   РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
-//   СочетаниеКлавиш?: string
-//   ТолькоВоВсехДействиях?: StringboolEnterprise
-//   УникальностьКоманды?: StringboolEnterprise
-//   Фигура?: SE.ButtonShapeEnterprise
-//   ЦветРамки?: ColorEnterprise
-//   ЦветТекста?: ColorEnterprise
-//   ЦветФона?: ColorEnterprise
-//   Ширина?: number
-//   Шрифт?: FontEnterprise
-// }
-
-export interface ButtonPropsEnterprise extends BaseElementPropsEnterprise {
+export interface ButtonPartialEnterprise extends BaseElementPropsEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   АктивизироватьПоУмолчанию?: StringboolEnterprise
@@ -171,6 +129,6 @@ export interface ButtonPropsEnterprise extends BaseElementPropsEnterprise {
   Шрифт?: FontEnterprise
 }
 
-export interface ButtonEnterprise extends ButtonPropsEnterprise {
+export interface ButtonTypedEnterprise extends ButtonPartialEnterprise {
   Тип: "Кнопка"
 }
