@@ -8,16 +8,16 @@ import {
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { Button } from "~/metadata/forms/elements/button/types"
+import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "~/metadata/forms/elements/button/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
-export const importButtonChildFromEnterprise = (
+export const importButtonTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: ButtonEnterprise,
+  data: ButtonTypedEnterprise,
   name: string
 ): Button => {
   const props = importButtonPropsFromEnterprise(context, data)
@@ -33,10 +33,10 @@ export const importButtonChildFromEnterprise = (
   return result
 }
 
-export const importButtonFromEnterprise = (
+export const importButtonPartialFromEnterprise = (
   context: ConfigurationContext,
   source: Button | undefined,
-  data: ButtonPropsEnterprise | undefined
+  data: ButtonPartialEnterprise | undefined
 ): Button | undefined => {
   if (source === undefined) return undefined
 
@@ -54,7 +54,7 @@ export const importButtonFromEnterprise = (
 
 const importButtonPropsFromEnterprise = (
   context: ConfigurationContext,
-  data: ButtonPropsEnterprise | undefined
+  data: ButtonPartialEnterprise | undefined
 ): Omit<Partial<Button>, "elementType"> => {
   const result: Omit<Partial<Button>, "elementType"> = {}
 
@@ -217,4 +217,4 @@ const importButtonPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "Button", importButtonChildFromEnterprise)
+registerMetadata("ImportFromEnterprise", "Button", importButtonPartialFromEnterprise)

@@ -2,22 +2,33 @@ import { describe, expect, it } from "vitest"
 import {
   fullButton,
   fullButtonPartialEnterprise,
+  fullButtonTypedEnterprise,
   minimalButton,
-  minimalButtonTypedEnterprise,
+  minimalButtonPartialEnterprise,
 } from "~/tests/fixtures/forms/button/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportButtonPartialToEnterprise } from "./exportToEnterprise"
+import { exportButtonPartialToEnterprise, exportButtonTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportButtonToEnterprise", () => {
-  it("should export all fields to Enterprise", () => {
-    const result = exportButtonPartialToEnterprise(mockСontext, fullButton)
+  describe("exportButtonPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportButtonPartialToEnterprise(mockСontext, fullButton)
 
-    expect(result).toEqual(fullButtonPartialEnterprise)
+      expect(result).toEqual(fullButtonPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportButtonPartialToEnterprise(mockСontext, minimalButton)
+
+      expect(result).toEqual(minimalButtonPartialEnterprise)
+    })
   })
 
-  it("should export minimal", () => {
-    const result = exportButtonPartialToEnterprise(mockСontext, minimalButton)
+  describe("exportButtonTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportButtonTypedToEnterprise(mockСontext, fullButton)
 
-    expect(result).toEqual(minimalButtonTypedEnterprise)
+      expect(result).toEqual(fullButtonTypedEnterprise)
+    })
   })
 })

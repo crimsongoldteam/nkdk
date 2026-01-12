@@ -7,7 +7,6 @@ import {
   ClientApplicationFormEnterprise,
   ClientApplicationFormEvents,
 } from "~/metadata/forms/clientApplicationForm/base/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsPropertiesFromEnterprise } from "../../collections/childItems/importPropertiesFromEnterprise"
@@ -147,7 +146,6 @@ export const importClientApplicationFormFromEnterprise = (
 
   const autoCommandBarProps = importAutoCommandBarFromEnterprise(context, data.КоманднаяПанель)
   const autoCommandBar = mixElementProps(childItemsResult.autoCommandBar, autoCommandBarProps, {
-    elementType: FormElementType.AutoCommandBar,
     autofill: true,
     childItems: [],
   })

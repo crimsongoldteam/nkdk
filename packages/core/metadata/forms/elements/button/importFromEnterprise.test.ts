@@ -1,44 +1,38 @@
 import { describe, expect, it } from "vitest"
-import { FormElementType } from "~/metadata/metadataFactory/types"
 import {
   fullButton,
   fullButtonPartialEnterprise,
-  fullButtonSource,
   fullButtonTypedEnterprise,
   minimalButton,
   minimalButtonTypedEnterprise,
 } from "~/tests/fixtures/forms/button/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importButtonChildFromEnterprise, importButtonFromEnterprise } from "./importFromEnterprise"
+import { importButtonPartialFromEnterprise, importButtonTypedFromEnterprise } from "./importFromEnterprise"
 
-describe("importButtonFromEnterprise", () => {
-  describe("importButtonFromEnterprise", () => {
-    it("should return undefined when data is undefined", () => {
-      const result = importButtonFromEnterprise(mockСontext, undefined, undefined)
-
-      expect(result).toBeUndefined()
-    })
-
+describe("importButtonTypedFromEnterprise", () => {
+  describe("importButtonTypedFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importButtonFromEnterprise(mockСontext, fullButtonSource, fullButtonPartialEnterprise)
+      const result = importButtonTypedFromEnterprise(mockСontext, fullButtonTypedEnterprise, "Кнопка")
 
       expect(result).toEqual(fullButton)
     })
 
     it("should import minimal", () => {
-      const result = importButtonFromEnterprise(
-        mockСontext,
-        { elementType: FormElementType.Button, name: "Кнопка" },
-        minimalButtonTypedEnterprise
-      )
+      const result = importButtonTypedFromEnterprise(mockСontext, minimalButtonTypedEnterprise, "Кнопка")
 
       expect(result).toEqual(minimalButton)
     })
   })
 
-  describe("importButtonChildFromEnterprise", () => {
+  describe("importButtonPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importButtonPartialFromEnterprise(mockСontext, undefined, undefined)
+
+      expect(result).toBeUndefined()
+    })
+
     it("should import all fields from Enterprise", () => {
-      const result = importButtonChildFromEnterprise(mockСontext, fullButtonTypedEnterprise, "Кнопка")
+      const result = importButtonPartialFromEnterprise(mockСontext, fullButton, fullButtonPartialEnterprise)
 
       expect(result).toEqual(fullButton)
     })

@@ -8,22 +8,22 @@ import {
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { Button, ButtonEnterprise, ButtonPropsEnterprise } from "~/metadata/forms/elements/button/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
+import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "./types"
 
-export const exportButtoтTypedToEnterprise = (
+export const exportButtonTypedToEnterprise = (
   context: ConfigurationContext,
   data: Button | undefined
-): ButtonEnterprise | undefined => {
+): ButtonTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const props = exportButtonPropsToEnterprise(context, data)
 
-  const result: ButtonEnterprise = {
+  const result: ButtonTypedEnterprise = {
     Тип: "Кнопка",
     ...props,
   }
@@ -34,7 +34,10 @@ export const exportButtoтTypedToEnterprise = (
   return result
 }
 
-export const exportButtonPartialToEnterprise = (context: ConfigurationContext, data: Button): ButtonPropsEnterprise => {
+export const exportButtonPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: Button
+): ButtonPartialEnterprise => {
   const result = exportButtonPropsToEnterprise(context, data)
 
   const title = exportI8nTextOtherToEnterprise(context, data.title)
@@ -43,8 +46,8 @@ export const exportButtonPartialToEnterprise = (context: ConfigurationContext, d
   return sortObject(result)
 }
 
-const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Button): ButtonPropsEnterprise => {
-  const result: ButtonPropsEnterprise = {}
+const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Button): ButtonPartialEnterprise => {
+  const result: ButtonPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -184,4 +187,4 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
 }
 
 registerMetadata("ExportPartialToEnterprise", "Button", exportButtonPartialToEnterprise)
-registerMetadata("ExportTypedToEnterprise", "Button", exportButtoтTypedToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "Button", exportButtonTypedToEnterprise)
