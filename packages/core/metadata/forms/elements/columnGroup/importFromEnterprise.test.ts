@@ -1,25 +1,55 @@
 import { describe, expect, it } from "vitest"
-import { fullColumnGroup, fullColumnGroupEnterprise, minimalColumnGroup, minimalColumnGroupEnterprise } from "~/tests/fixtures/forms/columnGroup/data"
+import {
+  fullColumnGroup,
+  fullColumnGroupPartialEnterprise,
+  fullColumnGroupTypedEnterprise,
+  minimalColumnGroup,
+  minimalColumnGroupTypedEnterprise,
+} from "~/tests/fixtures/forms/columnGroup/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importColumnGroupFromEnterprise } from "./importFromEnterprise"
+import { importColumnGroupPartialFromEnterprise, importColumnGroupTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importColumnGroupFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importColumnGroupFromEnterprise(mockСontext, undefined, fullColumnGroup.name)
+  describe("importColumnGroupTypedFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importColumnGroupTypedFromEnterprise(mockСontext, undefined, "ГруппаКолонок")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importColumnGroupTypedFromEnterprise(mockСontext, fullColumnGroupTypedEnterprise, "ГруппаКолонок")
+
+      expect(result).toEqual(fullColumnGroup)
+    })
+
+    it("should import minimal", () => {
+      const result = importColumnGroupTypedFromEnterprise(
+        mockСontext,
+        minimalColumnGroupTypedEnterprise,
+        "ГруппаКолонок"
+      )
+
+      expect(result).toEqual(minimalColumnGroup)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importColumnGroupFromEnterprise(mockСontext, fullColumnGroupEnterprise, fullColumnGroup.name)
+  describe("importColumnGroupPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importColumnGroupPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullColumnGroup)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importColumnGroupFromEnterprise(mockСontext, minimalColumnGroupEnterprise, minimalColumnGroup.name)
+    it("should import all fields from Enterprise", () => {
+      const result = importColumnGroupPartialFromEnterprise(
+        mockСontext,
+        fullColumnGroup,
+        fullColumnGroupPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalColumnGroup)
+      expect(result).toEqual(fullColumnGroup)
+    })
   })
 })
 
