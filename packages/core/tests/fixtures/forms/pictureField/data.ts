@@ -1,4 +1,8 @@
-import { PictureField, PictureFieldEnterprise } from "~/metadata/forms/elements/pictureField/types"
+import {
+  PictureField,
+  PictureFieldPartialEnterprise,
+  PictureFieldTypedEnterprise,
+} from "~/metadata/forms/elements/pictureField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
@@ -11,9 +15,14 @@ export const fullPictureField: PictureField = {
   },
 }
 
-export const fullPictureFieldEnterprise: PictureFieldEnterprise = {
+export const fullPictureFieldPartialEnterprise: PictureFieldPartialEnterprise = {
   ...fullFormFieldEnterprise,
   Заголовок: "Поле картинки",
+}
+
+export const fullPictureFieldTypedEnterprise: PictureFieldTypedEnterprise = {
+  ...fullPictureFieldPartialEnterprise,
+  Тип: "ПолеРисунка",
 }
 
 export const minimalPictureField: PictureField = {
@@ -21,4 +30,8 @@ export const minimalPictureField: PictureField = {
   name: "ПолеКартинки",
 }
 
-export const minimalPictureFieldEnterprise: PictureFieldEnterprise = {}
+export const minimalPictureFieldPartialEnterprise: PictureFieldPartialEnterprise = {}
+
+export const minimalPictureFieldTypedEnterprise: PictureFieldTypedEnterprise = {
+  Тип: "ПолеРисунка",
+}

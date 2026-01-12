@@ -5,65 +5,67 @@ import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFr
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PictureField, PictureFieldEnterprise } from "~/metadata/forms/elements/pictureField/types"
+import {
+  PictureField,
+  PictureFieldPartialEnterprise,
+  PictureFieldTypedEnterprise,
+} from "~/metadata/forms/elements/pictureField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const importPictureFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-    Нажатие?: string
-    НачалоПеретаскивания?: string
-    ОкончаниеПеретаскивания?: string
-    Перетаскивание?: string
-    ПроверкаПеретаскивания?: string
-  } | undefined
-): {
-  onChange?: string
-  click?: string
-  dragStart?: string
-  dragEnd?: string
-  drag?: string
-  dragCheck?: string
-} | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    click?: string
-    dragStart?: string
-    dragEnd?: string
-    drag?: string
-    dragCheck?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.Нажатие !== undefined) result.click = data.Нажатие
-  if (data.НачалоПеретаскивания !== undefined) result.dragStart = data.НачалоПеретаскивания
-  if (data.ОкончаниеПеретаскивания !== undefined) result.dragEnd = data.ОкончаниеПеретаскивания
-  if (data.Перетаскивание !== undefined) result.drag = data.Перетаскивание
-  if (data.ПроверкаПеретаскивания !== undefined) result.dragCheck = data.ПроверкаПеретаскивания
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importPictureFieldFromEnterprise = <From extends PictureFieldEnterprise | undefined, Name extends string>(
+export const importPictureFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, PictureField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, PictureField, Name>
+  data: PictureFieldTypedEnterprise | undefined,
+  name: string
+): PictureField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, PictureField, Name> = {
+  const props = importPictureFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: PictureField = {
     ...baseFields,
-    elementType: FormElementType.PictureField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importPictureFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: PictureField | undefined,
+  data: PictureFieldPartialEnterprise | undefined
+): PictureField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importPictureFieldPropsFromEnterprise(context, data)
+  const result: PictureField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importPictureFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: PictureFieldTypedEnterprise | PictureFieldPartialEnterprise | undefined
+): Omit<Partial<PictureField>, "elementType" | "name"> => {
+  const result: Omit<Partial<PictureField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -93,7 +95,11 @@ export const importPictureFieldFromEnterprise = <From extends PictureFieldEnterp
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -140,10 +146,10 @@ export const importPictureFieldFromEnterprise = <From extends PictureFieldEnterp
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const events = importPictureFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "PictureField", importPictureFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "PictureField", importPictureFieldPropsFromEnterprise)

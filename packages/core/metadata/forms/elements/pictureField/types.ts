@@ -67,7 +67,7 @@ export interface PictureFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface PictureFieldEnterprise extends FormFieldEnterprise {
+export interface PictureFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Высота?: number
@@ -100,3 +100,10 @@ export interface PictureFieldEnterprise extends FormFieldEnterprise {
     ПроверкаПеретаскивания?: string
   }
 }
+
+export interface PictureFieldTypedEnterprise extends PictureFieldPartialEnterprise {
+  Тип: "ПолеРисунка"
+}
+
+// Для обратной совместимости
+export type PictureFieldEnterprise = PictureFieldPartialEnterprise

@@ -5,24 +5,58 @@ import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEn
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import {
+  PictureField,
+  PictureFieldPartialEnterprise,
+  PictureFieldTypedEnterprise,
+} from "~/metadata/forms/elements/pictureField/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
-import { PictureField, PictureFieldEnterprise } from "~/metadata/forms/elements/pictureField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportPictureFieldToEnterprise = (
+export const exportPictureFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: PictureField | undefined
-): PictureFieldEnterprise | undefined => {
+): PictureFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: PictureFieldEnterprise = {
+  const props = exportPictureFieldPropsToEnterprise(context, data)
+
+  const result: PictureFieldTypedEnterprise = {
+    Тип: "ПолеРисунка",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportPictureFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: PictureField
+): PictureFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportPictureFieldPropsToEnterprise(context, data)
+
+  const result: PictureFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportPictureFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: PictureField
+): PictureFieldPartialEnterprise => {
+  const result: PictureFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -92,4 +126,5 @@ export const exportPictureFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "PictureField", exportPictureFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "PictureField", exportPictureFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "PictureField", exportPictureFieldTypedToEnterprise)

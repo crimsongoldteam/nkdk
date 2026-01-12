@@ -1,4 +1,8 @@
-import { InputField, InputFieldEnterprise } from "~/metadata/forms/elements/inputField/types"
+import {
+  InputField,
+  InputFieldPartialEnterprise,
+  InputFieldTypedEnterprise,
+} from "~/metadata/forms/elements/inputField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
@@ -142,7 +146,7 @@ export const fullInputField: InputField = {
   },
 }
 
-export const fullInputFieldEnterprise: InputFieldEnterprise = {
+export const fullInputFieldPartialEnterprise: InputFieldPartialEnterprise = {
   ...fullFormFieldEnterprise,
   АвтоВыборНезаполненного: "Истина",
   АвтоИзменениеРегистраПриВводеТекста: "ВсеСимволы",
@@ -243,12 +247,21 @@ export const fullInputFieldEnterprise: InputFieldEnterprise = {
   },
 }
 
+export const fullInputFieldTypedEnterprise: InputFieldTypedEnterprise = {
+  ...fullInputFieldPartialEnterprise,
+  Тип: "ПолеВвода",
+}
+
 export const minimalInputField: InputField = {
   elementType: FormElementType.InputField,
   name: "ПолеВвода",
 }
 
-export const minimalInputFieldEnterprise: InputFieldEnterprise = {}
+export const minimalInputFieldPartialEnterprise: InputFieldPartialEnterprise = {}
+
+export const minimalInputFieldTypedEnterprise: InputFieldTypedEnterprise = {
+  Тип: "ПолеВвода",
+}
 
 export interface InputFieldStructureFixture {
   name: string

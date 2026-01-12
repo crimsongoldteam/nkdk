@@ -206,7 +206,7 @@ export interface InputFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface InputFieldEnterprise extends FormFieldEnterprise {
+export interface InputFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоВыборНезаполненного?: StringboolEnterprise
   АвтоИзменениеРегистраПриВводеТекста?: SE.AutoCapitalizationOnTextInputEnterprise
   АвтоИсправлениеПриВводеТекста?: SE.AutoCorrectionOnTextInputEnterprise
@@ -305,3 +305,10 @@ export interface InputFieldEnterprise extends FormFieldEnterprise {
     УдалениеМножественныхЗначений?: string
   }
 }
+
+export interface InputFieldTypedEnterprise extends InputFieldPartialEnterprise {
+  Тип: "ПолеВвода"
+}
+
+// Для обратной совместимости
+export type InputFieldEnterprise = InputFieldPartialEnterprise

@@ -10,28 +10,67 @@ import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVi
 import { importChoiceParameterLinksFromEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/importFromEnterprise"
 import { importChoiceParametersFromEnterprise } from "~/metadata/commonObjects/сhoiceParameters/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { InputField, InputFieldEnterprise } from "~/metadata/forms/elements/inputField/types"
+import {
+  InputField,
+  InputFieldPartialEnterprise,
+  InputFieldTypedEnterprise,
+} from "~/metadata/forms/elements/inputField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importFormFieldFromEnterprise } from "../formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "../types"
 
-export const importInputFieldFromEnterprise = <From extends InputFieldEnterprise | undefined, Name extends string>(
+export const importInputFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, InputField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, InputField, Name>
+  data: InputFieldTypedEnterprise | undefined,
+  name: string
+): InputField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, InputField, Name> = {
+  const props = importInputFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: InputField = {
     ...baseFields,
-    elementType: FormElementType.InputField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importInputFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: InputField | undefined,
+  data: InputFieldPartialEnterprise | undefined
+): InputField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importInputFieldPropsFromEnterprise(context, data)
+  const result: InputField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importInputFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: InputFieldTypedEnterprise | InputFieldPartialEnterprise | undefined
+): Omit<Partial<InputField>, "elementType" | "name"> => {
+  const result: Omit<Partial<InputField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoChoiceIncomplete = importBooleanFromEnterprise(context, data.АвтоВыборНезаполненного)
   if (autoChoiceIncomplete !== undefined) result.autoChoiceIncomplete = autoChoiceIncomplete
@@ -348,4 +387,4 @@ export const importInputFieldFromEnterprise = <From extends InputFieldEnterprise
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "InputField", importInputFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "InputField", importInputFieldPropsFromEnterprise)

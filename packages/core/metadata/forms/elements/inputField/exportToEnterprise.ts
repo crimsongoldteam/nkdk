@@ -11,23 +11,57 @@ import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects
 import { exportChoiceParametersToEnterprise } from "~/metadata/commonObjects/сhoiceParameters/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
-import { InputField, InputFieldEnterprise } from "~/metadata/forms/elements/inputField/types"
+import {
+  InputField,
+  InputFieldPartialEnterprise,
+  InputFieldTypedEnterprise,
+} from "~/metadata/forms/elements/inputField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportInputFieldToEnterprise = (
+export const exportInputFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: InputField | undefined
-): InputFieldEnterprise | undefined => {
+): InputFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: InputFieldEnterprise = {
+  const props = exportInputFieldPropsToEnterprise(context, data)
+
+  const result: InputFieldTypedEnterprise = {
+    Тип: "ПолеВвода",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportInputFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: InputField
+): InputFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportInputFieldPropsToEnterprise(context, data)
+
+  const result: InputFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportInputFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: InputField
+): InputFieldPartialEnterprise => {
+  const result: InputFieldPartialEnterprise = {}
 
   const autoChoiceIncomplete = exportBooleanToEnterprise(context, data.autoChoiceIncomplete)
   if (autoChoiceIncomplete !== undefined) result.АвтоВыборНезаполненного = autoChoiceIncomplete
@@ -333,4 +367,5 @@ export const exportInputFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "InputField", exportInputFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "InputField", exportInputFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "InputField", exportInputFieldTypedToEnterprise)

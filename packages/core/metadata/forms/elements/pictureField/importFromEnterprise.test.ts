@@ -1,25 +1,72 @@
 import { describe, expect, it } from "vitest"
-import { fullPictureField, fullPictureFieldEnterprise, minimalPictureField, minimalPictureFieldEnterprise } from "~/tests/fixtures/forms/pictureField/data"
+import {
+  fullPictureField,
+  fullPictureFieldPartialEnterprise,
+  fullPictureFieldTypedEnterprise,
+  minimalPictureField,
+  minimalPictureFieldPartialEnterprise,
+  minimalPictureFieldTypedEnterprise,
+} from "~/tests/fixtures/forms/pictureField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importPictureFieldFromEnterprise } from "./importFromEnterprise"
+import {
+  importPictureFieldPartialFromEnterprise,
+  importPictureFieldTypedFromEnterprise,
+} from "./importFromEnterprise"
 
 describe("importPictureFieldFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importPictureFieldFromEnterprise(mockСontext, undefined, fullPictureField.name)
+  describe("importPictureFieldTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importPictureFieldTypedFromEnterprise(mockСontext, undefined, "ПолеКартинки")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importPictureFieldTypedFromEnterprise(
+        mockСontext,
+        fullPictureFieldTypedEnterprise,
+        "ПолеКартинки"
+      )
+
+      expect(result).toEqual(fullPictureField)
+    })
+
+    it("should import minimal", () => {
+      const result = importPictureFieldTypedFromEnterprise(
+        mockСontext,
+        minimalPictureFieldTypedEnterprise,
+        "ПолеКартинки"
+      )
+
+      expect(result).toEqual(minimalPictureField)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importPictureFieldFromEnterprise(mockСontext, fullPictureFieldEnterprise, fullPictureField.name)
+  describe("importPictureFieldPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importPictureFieldPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullPictureField)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importPictureFieldFromEnterprise(mockСontext, minimalPictureFieldEnterprise, minimalPictureField.name)
+    it("should import all fields from Enterprise", () => {
+      const result = importPictureFieldPartialFromEnterprise(
+        mockСontext,
+        fullPictureField,
+        fullPictureFieldPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalPictureField)
+      expect(result).toEqual(fullPictureField)
+    })
+
+    it("should import minimal", () => {
+      const result = importPictureFieldPartialFromEnterprise(
+        mockСontext,
+        minimalPictureField,
+        minimalPictureFieldPartialEnterprise
+      )
+
+      expect(result).toEqual(minimalPictureField)
+    })
   })
 })
-

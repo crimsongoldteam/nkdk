@@ -1,29 +1,44 @@
 import { describe, expect, it } from "vitest"
 import {
   fullInputField,
-  fullInputFieldEnterprise,
+  fullInputFieldPartialEnterprise,
+  fullInputFieldTypedEnterprise,
   minimalInputField,
-  minimalInputFieldEnterprise,
+  minimalInputFieldPartialEnterprise,
+  minimalInputFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/inputField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportInputFieldToEnterprise } from "./exportToEnterprise"
+import {
+  exportInputFieldPartialToEnterprise,
+  exportInputFieldTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportInputFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportInputFieldToEnterprise(mockСontext, undefined)
+  describe("exportInputFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportInputFieldPartialToEnterprise(mockСontext, fullInputField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullInputFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportInputFieldPartialToEnterprise(mockСontext, minimalInputField)
+
+      expect(result).toEqual(minimalInputFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportInputFieldToEnterprise(mockСontext, fullInputField)
+  describe("exportInputFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportInputFieldTypedToEnterprise(mockСontext, fullInputField)
 
-    expect(result).toEqual(fullInputFieldEnterprise)
-  })
+      expect(result).toEqual(fullInputFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportInputFieldToEnterprise(mockСontext, minimalInputField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportInputFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalInputFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })

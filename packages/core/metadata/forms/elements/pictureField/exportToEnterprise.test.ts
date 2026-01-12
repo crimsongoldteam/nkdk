@@ -1,25 +1,44 @@
 import { describe, expect, it } from "vitest"
-import { fullPictureField, fullPictureFieldEnterprise, minimalPictureField, minimalPictureFieldEnterprise } from "~/tests/fixtures/forms/pictureField/data"
+import {
+  fullPictureField,
+  fullPictureFieldPartialEnterprise,
+  fullPictureFieldTypedEnterprise,
+  minimalPictureField,
+  minimalPictureFieldPartialEnterprise,
+  minimalPictureFieldTypedEnterprise,
+} from "~/tests/fixtures/forms/pictureField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportPictureFieldToEnterprise } from "./exportToEnterprise"
+import {
+  exportPictureFieldPartialToEnterprise,
+  exportPictureFieldTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportPictureFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportPictureFieldToEnterprise(mockСontext, undefined)
+  describe("exportPictureFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportPictureFieldPartialToEnterprise(mockСontext, fullPictureField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullPictureFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportPictureFieldPartialToEnterprise(mockСontext, minimalPictureField)
+
+      expect(result).toEqual(minimalPictureFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportPictureFieldToEnterprise(mockСontext, fullPictureField)
+  describe("exportPictureFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportPictureFieldTypedToEnterprise(mockСontext, fullPictureField)
 
-    expect(result).toEqual(fullPictureFieldEnterprise)
-  })
+      expect(result).toEqual(fullPictureFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportPictureFieldToEnterprise(mockСontext, minimalPictureField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportPictureFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalPictureFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
-

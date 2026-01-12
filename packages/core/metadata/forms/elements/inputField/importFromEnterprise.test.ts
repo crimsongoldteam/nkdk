@@ -1,29 +1,72 @@
 import { describe, expect, it } from "vitest"
 import {
   fullInputField,
-  fullInputFieldEnterprise,
+  fullInputFieldPartialEnterprise,
+  fullInputFieldTypedEnterprise,
   minimalInputField,
-  minimalInputFieldEnterprise,
+  minimalInputFieldPartialEnterprise,
+  minimalInputFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/inputField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importInputFieldFromEnterprise } from "./importFromEnterprise"
+import {
+  importInputFieldPartialFromEnterprise,
+  importInputFieldTypedFromEnterprise,
+} from "./importFromEnterprise"
 
 describe("importInputFieldFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importInputFieldFromEnterprise(mockСontext, undefined, fullInputField.name)
+  describe("importInputFieldTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importInputFieldTypedFromEnterprise(mockСontext, undefined, "ПолеВвода")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importInputFieldTypedFromEnterprise(
+        mockСontext,
+        fullInputFieldTypedEnterprise,
+        "ПолеВвода"
+      )
+
+      expect(result).toEqual(fullInputField)
+    })
+
+    it("should import minimal", () => {
+      const result = importInputFieldTypedFromEnterprise(
+        mockСontext,
+        minimalInputFieldTypedEnterprise,
+        "ПолеВвода"
+      )
+
+      expect(result).toEqual(minimalInputField)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importInputFieldFromEnterprise(mockСontext, fullInputFieldEnterprise, fullInputField.name)
+  describe("importInputFieldPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importInputFieldPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullInputField)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importInputFieldFromEnterprise(mockСontext, minimalInputFieldEnterprise, minimalInputField.name)
+    it("should import all fields from Enterprise", () => {
+      const result = importInputFieldPartialFromEnterprise(
+        mockСontext,
+        fullInputField,
+        fullInputFieldPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalInputField)
+      expect(result).toEqual(fullInputField)
+    })
+
+    it("should import minimal", () => {
+      const result = importInputFieldPartialFromEnterprise(
+        mockСontext,
+        minimalInputField,
+        minimalInputFieldPartialEnterprise
+      )
+
+      expect(result).toEqual(minimalInputField)
+    })
   })
 })
