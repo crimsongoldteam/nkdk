@@ -2,7 +2,7 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportButtonGroupChildItemsToXML } from "~/metadata/forms/collections/buttonGroupChildItems/exportToXML"
 import { CommandBar, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
-import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
+import { exportFormGroupPropsToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ImportExportReturn } from "../types"
@@ -13,7 +13,7 @@ export const exportCommandBarToXML = <T extends CommandBar | undefined>(
 ): ImportExportReturn<T, CommandBarXML> => {
   if (!data) return undefined as ImportExportReturn<T, CommandBarXML>
 
-  const baseFields = exportFormGroupToXML(context, data)
+  const baseFields = exportFormGroupPropsToXML(context, data)
 
   const result: ImportExportReturn<T, CommandBarXML> = {
     ...baseFields,

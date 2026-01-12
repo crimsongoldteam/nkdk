@@ -1,25 +1,38 @@
 import { describe, expect, it } from "vitest"
-import { fullColumnGroup, fullColumnGroupEnterprise, minimalColumnGroup, minimalColumnGroupEnterprise } from "~/tests/fixtures/forms/columnGroup/data"
+import {
+  fullColumnGroup,
+  fullColumnGroupPartialEnterprise,
+  fullColumnGroupTypedEnterprise,
+  minimalColumnGroup,
+  minimalColumnGroupPartialEnterprise,
+} from "~/tests/fixtures/forms/columnGroup/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportColumnGroupToEnterprise } from "./exportToEnterprise"
+import { exportColumnGroupPartialToEnterprise, exportColumnGroupTypedToEnterprise } from "./exportToEnterprise"
 
-describe("exportColumnGroupToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportColumnGroupToEnterprise(mockСontext, undefined)
-
-    expect(result).toBeUndefined()
-  })
-
+describe("exportColumnGroupPartialToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportColumnGroupToEnterprise(mockСontext, fullColumnGroup)
+    const result = exportColumnGroupPartialToEnterprise(mockСontext, fullColumnGroup)
 
-    expect(result).toEqual(fullColumnGroupEnterprise)
+    expect(result).toEqual(fullColumnGroupPartialEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportColumnGroupToEnterprise(mockСontext, minimalColumnGroup)
+    const result = exportColumnGroupPartialToEnterprise(mockСontext, minimalColumnGroup)
 
-    expect(result).toEqual(minimalColumnGroupEnterprise)
+    expect(result).toEqual(minimalColumnGroupPartialEnterprise)
   })
 })
 
+describe("exportColumnGroupTypedToEnterprise", () => {
+  it("should export all fields to Enterprise", () => {
+    const result = exportColumnGroupTypedToEnterprise(mockСontext, fullColumnGroup)
+
+    expect(result).toEqual(fullColumnGroupTypedEnterprise)
+  })
+
+  it("should return undefined when data is undefined", () => {
+    const result = exportColumnGroupTypedToEnterprise(mockСontext, undefined)
+
+    expect(result).toBeUndefined()
+  })
+})

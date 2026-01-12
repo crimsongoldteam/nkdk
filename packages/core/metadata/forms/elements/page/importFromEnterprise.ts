@@ -5,9 +5,7 @@ import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/im
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
-import {
-  importFormGroupPropsFromEnterprise,
-} from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { Page, PageEnterprise } from "~/metadata/forms/elements/page/types"
 import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -22,7 +20,8 @@ export const importPageFromEnterprise = <From extends PageEnterprise | undefined
 ): ImportFromEnterpriseReturn<From, Page, Name> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, Page, Name>
 
-  const baseElement = importBaseElementFromEnterprise(context, data, name)!
+  const baseElement = importBaseElementFromEnterprise(context, {} as From, name)
+  if (!baseElement) return undefined as ImportFromEnterpriseReturn<From, Page, Name>
   const props = importFormGroupPropsFromEnterprise(context, data)
 
   const result: Page = {

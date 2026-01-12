@@ -1,20 +1,37 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
-import { ChildItemEnterprise, ChildItems, ChildItemsEnterprise } from "./types"
+import { ChildItems, ChildItemsEnterprise } from "./types"
 
-export const exportChildItemsToEnterprise = (
+export const exportTypedChildItemsToEnterprise = (
   context: ConfigurationContext,
   data: ChildItems | undefined
 ): ChildItemsEnterprise | undefined => {
   if (!data || data.length === 0) return undefined
 
-  const result: Partial<Record<string, ChildItemEnterprise>> = {}
+  const result: ChildItemsEnterprise = {}
   for (const item of data) {
-    const exportFunction = getOperationFunction("ExportToEnterprise", item.elementType)
+    const exportFunction = getOperationFunction("ExportTypedToEnterprise", item.elementType)
     if (!exportFunction) throw new Error(`Export function not found for element type: ${item.elementType}`)
     const value = exportFunction(context, item)
     result[item.name] = value
   }
 
-  return result as ChildItemsEnterprise
+  return result
+}
+
+export const exportPartialChildItemsToEnterprise = (
+  context: ConfigurationContext,
+  data: ChildItems | undefined
+): ChildItemsEnterprise | undefined => {
+  if (!data || data.length === 0) return undefined
+
+  const result: ChildItemsEnterprise = {}
+  for (const item of data) {
+    const exportFunction = getOperationFunction("ExportPartialToEnterprise", item.elementType)
+    if (!exportFunction) throw new Error(`Export function not found for element type: ${item.elementType}`)
+    const value = exportFunction(context, item)
+    result[item.name] = value
+  }
+
+  return result
 }

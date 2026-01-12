@@ -1,5 +1,5 @@
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupPropsEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
   ButtonGroupChildItem,
@@ -22,7 +22,7 @@ export interface ButtonGroupXML extends FormGroupXML {
   ChildItems?: ButtonGroupChildItemsXML
 }
 
-export interface ButtonGroupPartialEnterprise extends FormGroupPropsEnterprise {
+export interface ButtonGroupPartialEnterprise extends FormGroupPartialEnterprise {
   РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
   Отображение?: SE.ButtonGroupRepresentationEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise

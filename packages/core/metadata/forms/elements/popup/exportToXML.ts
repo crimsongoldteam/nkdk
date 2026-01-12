@@ -3,7 +3,7 @@ import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportButtonGroupChildItemsToXML } from "~/metadata/forms/collections/buttonGroupChildItems/exportToXML"
-import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
+import { exportFormGroupPropsToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
 import { Popup, PopupXML } from "~/metadata/forms/elements/popup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -11,7 +11,7 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 export const exportPopupToXML = (context: ConfigurationContext, data: Popup | undefined): PopupXML | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportFormGroupToXML(context, data)
+  const baseFields = exportFormGroupPropsToXML(context, data)
   if (!baseFields) return undefined
 
   const result: PopupXML = {

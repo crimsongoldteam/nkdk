@@ -9,32 +9,30 @@ import {
 import { mockСontext } from "~/tests/mockContext"
 import { exportPictureFieldPartialToEnterprise, exportPictureFieldTypedToEnterprise } from "./exportToEnterprise"
 
-describe("exportPictureFieldToEnterprise", () => {
-  describe("exportPictureFieldPartialToEnterprise", () => {
-    it("should export all fields to Enterprise", () => {
-      const result = exportPictureFieldPartialToEnterprise(mockСontext, fullPictureField)
+describe("exportPictureFieldPartialToEnterprise", () => {
+  it("should export all fields to Enterprise", () => {
+    const result = exportPictureFieldPartialToEnterprise(mockСontext, fullPictureField)
 
-      expect(result).toEqual(fullPictureFieldPartialEnterprise)
-    })
-
-    it("should export minimal", () => {
-      const result = exportPictureFieldPartialToEnterprise(mockСontext, minimalPictureField)
-
-      expect(result).toEqual(minimalPictureFieldPartialEnterprise)
-    })
+    expect(result).toEqual(fullPictureFieldPartialEnterprise)
   })
 
-  describe("exportPictureFieldTypedToEnterprise", () => {
-    it("should export all fields to Enterprise", () => {
-      const result = exportPictureFieldTypedToEnterprise(mockСontext, fullPictureField)
+  it("should export minimal", () => {
+    const result = exportPictureFieldPartialToEnterprise(mockСontext, minimalPictureField)
 
-      expect(result).toEqual(fullPictureFieldTypedEnterprise)
-    })
+    expect(result).toEqual(minimalPictureFieldPartialEnterprise)
+  })
+})
 
-    it("should return undefined when data is undefined", () => {
-      const result = exportPictureFieldTypedToEnterprise(mockСontext, undefined)
+describe("exportPictureFieldTypedToEnterprise", () => {
+  it("should export all fields to Enterprise", () => {
+    const result = exportPictureFieldTypedToEnterprise(mockСontext, fullPictureField)
 
-      expect(result).toBeUndefined()
-    })
+    expect(result).toEqual(fullPictureFieldTypedEnterprise)
+  })
+
+  it("should return undefined when data is undefined", () => {
+    const result = exportPictureFieldTypedToEnterprise(mockСontext, undefined)
+
+    expect(result).toBeUndefined()
   })
 })

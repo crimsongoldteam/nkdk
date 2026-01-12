@@ -6,6 +6,8 @@ export interface ChildItemsFixture {
   element?: ChildItems
   structure?: string[]
   xmlPath?: string
+  typedEnterprise?: ChildItemsEnterprise
+  partialEnterprise?: ChildItemsEnterprise
 }
 
 export const childItemsFixturesTable: ChildItemsFixture[] = [
@@ -18,6 +20,12 @@ export const childItemsFixturesTable: ChildItemsFixture[] = [
     element: [{ name: "Input1", elementType: FormElementType.InputField }],
     structure: ["{Input1}: "],
     xmlPath: "/childItems/single.xml",
+    typedEnterprise: {
+      Input1: {},
+    },
+    partialEnterprise: {
+      Input1: { Тип: "ПолеВвода" },
+    },
   },
 
   // Different types

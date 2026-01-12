@@ -4,6 +4,7 @@ import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/typ
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { ExtendedTooltipPropsEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface FormGroup extends BaseElement {
@@ -67,7 +68,7 @@ export interface FormGroupPartialEnterprise extends BaseElementPropsEnterprise {
   РазрешитьИзменениеСостава?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  // РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
   СочетаниеКлавиш?: string
   ТолькоПросмотр?: StringboolEnterprise
   ЦветТекстаЗаголовка?: ColorEnterprise
@@ -78,6 +79,3 @@ export interface FormGroupPartialEnterprise extends BaseElementPropsEnterprise {
 export interface FormGroupTypedEnterprise extends FormGroupPartialEnterprise {
   Тип: "ГруппаФормы"
 }
-
-// Для обратной совместимости
-export type FormGroupPropsEnterprise = FormGroupPartialEnterprise

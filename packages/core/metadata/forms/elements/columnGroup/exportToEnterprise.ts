@@ -1,26 +1,121 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
+import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
+import {
+  exportI8nTextOtherToEnterprise,
+  exportI8nTextToEnterprise,
+} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ColumnGroup, ColumnGroupPropsEnterprise } from "~/metadata/forms/elements/columnGroup/types"
-import { exportFormGroupPropsToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
+import {
+  ColumnGroup,
+  ColumnGroupPartialEnterprise,
+  ColumnGroupTypedEnterprise,
+} from "~/metadata/forms/elements/columnGroup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { exportPartialChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 
-export const exportColumnGroupToEnterprise = (
+export const exportColumnGroupTypedToEnterprise = (
   context: ConfigurationContext,
   data: ColumnGroup | undefined
-): ColumnGroupPropsEnterprise | undefined => {
+): ColumnGroupTypedEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportFormGroupPropsToEnterprise(context, data)
+  const props = exportColumnGroupPropsToEnterprise(context, data)
 
-  const result: ColumnGroupPropsEnterprise = {
-    ...baseFields,
+  const result: ColumnGroupTypedEnterprise = {
+    Тип: "ГруппаКолонок",
+    ...props,
   }
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+export const exportColumnGroupPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: ColumnGroup
+): ColumnGroupPartialEnterprise => {
+  const props = exportColumnGroupPropsToEnterprise(context, data)
+
+  const result: ColumnGroupPartialEnterprise = {
+    ...props,
+  }
+
+  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+const exportColumnGroupPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: ColumnGroup
+): ColumnGroupPartialEnterprise => {
+  const result: ColumnGroupPartialEnterprise = {}
+
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+    context,
+    data.verticalAlignInGroup,
+    SE.ItemVerticalAlignToEnterprise
+  )
+  if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
+
+  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormGroupTypeToEnterprise)
+  if (type !== undefined) result.Вид = type
+
+  const visible = exportBooleanToEnterprise(context, data.visible)
+  if (visible !== undefined) result.Видимость = visible
+
+  if (data.height !== undefined) result.Высота = data.height
+
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+    context,
+    data.horizontalAlignInGroup,
+    SE.ItemHorizontalLocationToEnterprise
+  )
+  if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
+
+  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  if (enabled !== undefined) result.Доступность = enabled
+
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+    context,
+    data.toolTipRepresentation,
+    SE.ToolTipRepresentationToEnterprise
+  )
+  if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
+
+  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  if (toolTip !== undefined) result.Подсказка = toolTip
+
+  const enableContentChange = exportBooleanToEnterprise(context, data.enableContentChange)
+  if (enableContentChange !== undefined) result.РазрешитьИзменениеСостава = enableContentChange
+
+  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
+
+  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
+
+  if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
+
+  const readOnly = exportBooleanToEnterprise(context, data.readOnly)
+  if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
+
+  const titleTextColor = exportColorToEnterprise(context, data.titleTextColor)
+  if (titleTextColor !== undefined) result.ЦветТекстаЗаголовка = titleTextColor
+
+  if (data.width !== undefined) result.Ширина = data.width
+
+  const titleFont = exportFontToEnterprise(context, data.titleFont)
+  if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
   const headerHorizontalAlign = exportSystemEnumerationToEnterprise(
     context,
@@ -56,7 +151,11 @@ export const exportColumnGroupToEnterprise = (
   const titleBackColor = exportColorToEnterprise(context, data.titleBackColor)
   if (titleBackColor !== undefined) result.ЦветФонаЗаголовка = titleBackColor
 
-  return sortObject(result)
+  const childItems = exportPartialChildItemsToEnterprise(context, data.childItems)
+  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
+
+  return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "ColumnGroup", exportColumnGroupToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "ColumnGroup", exportColumnGroupPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "ColumnGroup", exportColumnGroupTypedToEnterprise)

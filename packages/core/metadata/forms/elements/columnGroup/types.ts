@@ -2,9 +2,9 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupPropsEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ChildItems, ChildItemsXML } from "../../collections/childItems/types"
+import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../../collections/childItems/types"
 
 export interface ColumnGroup extends FormGroup {
   fixingInTable?: SE.FixingInTable
@@ -34,7 +34,7 @@ export interface ColumnGroupXML extends FormGroupXML {
   ChildItems?: ChildItemsXML
 }
 
-export interface ColumnGroupPropsEnterprise extends FormGroupPropsEnterprise {
+export interface ColumnGroupPartialEnterprise extends FormGroupPartialEnterprise {
   ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationEnterprise
   Группировка?: SE.ColumnsGroupEnterprise
   КартинкаШапки?: PictureEnterprise
@@ -46,9 +46,9 @@ export interface ColumnGroupPropsEnterprise extends FormGroupPropsEnterprise {
   ФиксацияВТаблице?: SE.FixingInTableEnterprise
   ФорматШапки?: string
   ЦветФонаЗаголовка?: ColorEnterprise
+  ПодчиненныеЭлементы?: ChildItemsEnterprise
 }
 
-export interface ColumnGroupEnterprise extends ColumnGroupPropsEnterprise {
+export interface ColumnGroupTypedEnterprise extends ColumnGroupPartialEnterprise {
   Тип: "ГруппаКолонок"
-  Имя: string
 }

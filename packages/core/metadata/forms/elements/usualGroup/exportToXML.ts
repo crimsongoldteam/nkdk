@@ -3,7 +3,7 @@ import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChildItemsToXML } from "~/metadata/forms/collections/childItems/exportToXML"
-import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
+import { exportFormGroupPropsToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
 import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { UsualGroup, UsualGroupXML } from "~/metadata/forms/elements/usualGroup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
@@ -15,7 +15,7 @@ export const exportUsualGroupToXML = (
 ): UsualGroupXML | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportFormGroupToXML(context, data)
+  const baseFields = exportFormGroupPropsToXML(context, data)
   if (!baseFields) return undefined
 
   const result: UsualGroupXML = {

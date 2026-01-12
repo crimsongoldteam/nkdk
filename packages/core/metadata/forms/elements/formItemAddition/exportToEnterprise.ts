@@ -5,7 +5,7 @@ import {
 } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportChildItemsToEnterprise } from "~/metadata/forms/collections/childItems/exportToEnterprise"
+import { exportTypedChildItemsToEnterprise } from "~/metadata/forms/collections/childItems/exportToEnterprise"
 import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
 import {
   FormItemAddition,
@@ -102,7 +102,7 @@ const exportFormItemAdditionPropsToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const childItems = exportChildItemsToEnterprise(context, data.childItems)
+  const childItems = exportTypedChildItemsToEnterprise(context, data.childItems)
   if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
   const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
