@@ -4,24 +4,58 @@ import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEn
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CheckBoxField, CheckBoxFieldEnterprise } from "~/metadata/forms/elements/checkBoxField/types"
+import {
+  CheckBoxField,
+  CheckBoxFieldPartialEnterprise,
+  CheckBoxFieldTypedEnterprise,
+} from "~/metadata/forms/elements/checkBoxField/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportCheckBoxFieldToEnterprise = (
+export const exportCheckBoxFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: CheckBoxField | undefined
-): CheckBoxFieldEnterprise | undefined => {
+): CheckBoxFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: CheckBoxFieldEnterprise = {
+  const props = exportCheckBoxFieldPropsToEnterprise(context, data)
+
+  const result: CheckBoxFieldTypedEnterprise = {
+    Тип: "ПолеФлажок",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportCheckBoxFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: CheckBoxField
+): CheckBoxFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportCheckBoxFieldPropsToEnterprise(context, data)
+
+  const result: CheckBoxFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportCheckBoxFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: CheckBoxField
+): CheckBoxFieldPartialEnterprise => {
+  const result: CheckBoxFieldPartialEnterprise = {}
 
   const checkBoxType = exportSystemEnumerationToEnterprise(context, data.checkBoxType, SE.CheckBoxTypeToEnterprise)
   if (checkBoxType !== undefined) result.ВидФлажка = checkBoxType
@@ -64,4 +98,5 @@ export const exportCheckBoxFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "CheckBoxField", exportCheckBoxFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "CheckBoxField", exportCheckBoxFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "CheckBoxField", exportCheckBoxFieldTypedToEnterprise)

@@ -2,23 +2,57 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
-import { TrackBarField, TrackBarFieldEnterprise } from "~/metadata/forms/elements/trackBarField/types"
+import {
+  TrackBarField,
+  TrackBarFieldPartialEnterprise,
+  TrackBarFieldTypedEnterprise,
+} from "~/metadata/forms/elements/trackBarField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportTrackBarFieldToEnterprise = (
+export const exportTrackBarFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: TrackBarField | undefined
-): TrackBarFieldEnterprise | undefined => {
+): TrackBarFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: TrackBarFieldEnterprise = {
+  const props = exportTrackBarFieldPropsToEnterprise(context, data)
+
+  const result: TrackBarFieldTypedEnterprise = {
+    Тип: "ПолеПолосыПрокрутки",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportTrackBarFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: TrackBarField
+): TrackBarFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportTrackBarFieldPropsToEnterprise(context, data)
+
+  const result: TrackBarFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportTrackBarFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: TrackBarField
+): TrackBarFieldPartialEnterprise => {
+  const result: TrackBarFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -71,4 +105,5 @@ export const exportTrackBarFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "TrackBarField", exportTrackBarFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "TrackBarField", exportTrackBarFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "TrackBarField", exportTrackBarFieldTypedToEnterprise)

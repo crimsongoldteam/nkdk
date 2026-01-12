@@ -5,54 +5,65 @@ import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFr
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { LabelField, LabelFieldEnterprise } from "~/metadata/forms/elements/labelField/types"
+import {
+  LabelField,
+  LabelFieldPartialEnterprise,
+  LabelFieldTypedEnterprise,
+} from "~/metadata/forms/elements/labelField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 
-const importLabelFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-    Нажатие?: string
-    ОбработкаНавигационнойСсылки?: string
-  } | undefined
-): {
-  onChange?: string
-  click?: string
-  uRLProcessing?: string
-} | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    click?: string
-    uRLProcessing?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.Нажатие !== undefined) result.click = data.Нажатие
-  if (data.ОбработкаНавигационнойСсылки !== undefined) result.uRLProcessing = data.ОбработкаНавигационнойСсылки
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importLabelFieldFromEnterprise = <
-  From extends LabelFieldEnterprise | undefined,
-  Name extends string,
->(
+export const importLabelFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, LabelField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, LabelField, Name>
+  data: LabelFieldTypedEnterprise | undefined,
+  name: string
+): LabelField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, LabelField, Name> = {
+  const props = importLabelFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: LabelField = {
     ...baseFields,
-    elementType: FormElementType.LabelField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importLabelFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: LabelField | undefined,
+  data: LabelFieldPartialEnterprise | undefined
+): LabelField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importLabelFieldPropsFromEnterprise(context, data)
+  const result: LabelField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importLabelFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: LabelFieldTypedEnterprise | LabelFieldPartialEnterprise | undefined
+): Omit<Partial<LabelField>, "elementType" | "name"> => {
+  const result: Omit<Partial<LabelField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -77,7 +88,11 @@ export const importLabelFieldFromEnterprise = <
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -111,11 +126,10 @@ export const importLabelFieldFromEnterprise = <
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const events = importLabelFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "LabelField", importLabelFieldFromEnterprise)
-
+registerMetadata("ImportFromEnterprise", "LabelField", importLabelFieldPropsFromEnterprise)

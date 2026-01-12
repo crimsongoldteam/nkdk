@@ -1,4 +1,8 @@
-import { TrackBarField, TrackBarFieldEnterprise } from "~/metadata/forms/elements/trackBarField/types"
+import {
+  TrackBarField,
+  TrackBarFieldPartialEnterprise,
+  TrackBarFieldTypedEnterprise,
+} from "~/metadata/forms/elements/trackBarField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
@@ -31,7 +35,7 @@ export const fullTrackBarField: TrackBarField = {
   width: 200,
 }
 
-export const fullTrackBarFieldEnterprise: TrackBarFieldEnterprise = {
+export const fullTrackBarFieldPartialEnterprise: TrackBarFieldPartialEnterprise = {
   ...fullFormFieldEnterprise,
   Заголовок: "Поле полосы прокрутки",
   РежимРедактирования: "ВходПриВводе",
@@ -54,9 +58,18 @@ export const fullTrackBarFieldEnterprise: TrackBarFieldEnterprise = {
   Ширина: 200,
 }
 
+export const fullTrackBarFieldTypedEnterprise: TrackBarFieldTypedEnterprise = {
+  ...fullTrackBarFieldPartialEnterprise,
+  Тип: "ПолеПолосыПрокрутки",
+}
+
 export const minimalTrackBarField: TrackBarField = {
   elementType: FormElementType.TrackBarField,
   name: "ПолеПолосыПрокрутки",
 }
 
-export const minimalTrackBarFieldEnterprise: TrackBarFieldEnterprise = {}
+export const minimalTrackBarFieldPartialEnterprise: TrackBarFieldPartialEnterprise = {}
+
+export const minimalTrackBarFieldTypedEnterprise: TrackBarFieldTypedEnterprise = {
+  Тип: "ПолеПолосыПрокрутки",
+}

@@ -68,7 +68,7 @@ export interface CalendarFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface CalendarFieldEnterprise extends FormFieldEnterprise {
+export interface CalendarFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Высота?: number
@@ -103,3 +103,10 @@ export interface CalendarFieldEnterprise extends FormFieldEnterprise {
     ПроверкаПеретаскивания?: string
   }
 }
+
+export interface CalendarFieldTypedEnterprise extends CalendarFieldPartialEnterprise {
+  Тип: "ПолеКалендаря"
+}
+
+// Для обратной совместимости
+export type CalendarFieldEnterprise = CalendarFieldPartialEnterprise

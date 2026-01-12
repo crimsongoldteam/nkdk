@@ -1,30 +1,44 @@
 import { describe, expect, it } from "vitest"
 import {
   fullRadioButtonField,
-  fullRadioButtonFieldEnterprise,
+  fullRadioButtonFieldPartialEnterprise,
+  fullRadioButtonFieldTypedEnterprise,
   minimalRadioButtonField,
-  minimalRadioButtonFieldEnterprise,
+  minimalRadioButtonFieldPartialEnterprise,
+  minimalRadioButtonFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/radioButtonField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportRadioButtonFieldToEnterprise } from "./exportToEnterprise"
+import {
+  exportRadioButtonFieldPartialToEnterprise,
+  exportRadioButtonFieldTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportRadioButtonFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportRadioButtonFieldToEnterprise(mockСontext, undefined)
+  describe("exportRadioButtonFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportRadioButtonFieldPartialToEnterprise(mockСontext, fullRadioButtonField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullRadioButtonFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportRadioButtonFieldPartialToEnterprise(mockСontext, minimalRadioButtonField)
+
+      expect(result).toEqual(minimalRadioButtonFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportRadioButtonFieldToEnterprise(mockСontext, fullRadioButtonField)
+  describe("exportRadioButtonFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportRadioButtonFieldTypedToEnterprise(mockСontext, fullRadioButtonField)
 
-    expect(result).toEqual(fullRadioButtonFieldEnterprise)
-  })
+      expect(result).toEqual(fullRadioButtonFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportRadioButtonFieldToEnterprise(mockСontext, minimalRadioButtonField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportRadioButtonFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalRadioButtonFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
-

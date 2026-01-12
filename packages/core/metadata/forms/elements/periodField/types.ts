@@ -41,7 +41,7 @@ export interface PeriodFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface PeriodFieldEnterprise extends FormFieldEnterprise {
+export interface PeriodFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Высота?: number
@@ -60,3 +60,10 @@ export interface PeriodFieldEnterprise extends FormFieldEnterprise {
     Выбор?: string
   }
 }
+
+export interface PeriodFieldTypedEnterprise extends PeriodFieldPartialEnterprise {
+  Тип: "ПолеПериода"
+}
+
+// Для обратной совместимости
+export type PeriodFieldEnterprise = PeriodFieldPartialEnterprise

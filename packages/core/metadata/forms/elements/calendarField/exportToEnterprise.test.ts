@@ -1,30 +1,40 @@
 import { describe, expect, it } from "vitest"
 import {
   fullCalendarField,
-  fullCalendarFieldEnterprise,
+  fullCalendarFieldPartialEnterprise,
+  fullCalendarFieldTypedEnterprise,
   minimalCalendarField,
-  minimalCalendarFieldEnterprise,
+  minimalCalendarFieldPartialEnterprise,
 } from "~/tests/fixtures/forms/calendarField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportCalendarFieldToEnterprise } from "./exportToEnterprise"
+import { exportCalendarFieldPartialToEnterprise, exportCalendarFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportCalendarFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportCalendarFieldToEnterprise(mockСontext, undefined)
+  describe("exportCalendarFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportCalendarFieldPartialToEnterprise(mockСontext, fullCalendarField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullCalendarFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportCalendarFieldPartialToEnterprise(mockСontext, minimalCalendarField)
+
+      expect(result).toEqual(minimalCalendarFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportCalendarFieldToEnterprise(mockСontext, fullCalendarField)
+  describe("exportCalendarFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportCalendarFieldTypedToEnterprise(mockСontext, fullCalendarField)
 
-    expect(result).toEqual(fullCalendarFieldEnterprise)
-  })
+      expect(result).toEqual(fullCalendarFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportCalendarFieldToEnterprise(mockСontext, minimalCalendarField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportCalendarFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalCalendarFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
-

@@ -1,25 +1,72 @@
 import { describe, expect, it } from "vitest"
-import { fullFormGroup, fullFormGroupEnterprise, minimalFormGroup, minimalFormGroupEnterprise } from "~/tests/fixtures/forms/formGroup/data"
+import {
+  fullFormGroup,
+  fullFormGroupPartialEnterprise,
+  fullFormGroupTypedEnterprise,
+  minimalFormGroup,
+  minimalFormGroupPartialEnterprise,
+  minimalFormGroupTypedEnterprise,
+} from "~/tests/fixtures/forms/formGroup/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importFormGroupFromEnterprise } from "./importFromEnterprise"
+import {
+  importFormGroupPartialFromEnterprise,
+  importFormGroupTypedFromEnterprise,
+} from "./importFromEnterprise"
 
 describe("importFormGroupFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importFormGroupFromEnterprise(mockСontext, undefined, fullFormGroup.name)
+  describe("importFormGroupTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importFormGroupTypedFromEnterprise(mockСontext, undefined, "ГруппаФормы")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importFormGroupTypedFromEnterprise(
+        mockСontext,
+        fullFormGroupTypedEnterprise,
+        "ГруппаФормы"
+      )
+
+      expect(result).toEqual(fullFormGroup)
+    })
+
+    it("should import minimal", () => {
+      const result = importFormGroupTypedFromEnterprise(
+        mockСontext,
+        minimalFormGroupTypedEnterprise,
+        "ГруппаФормы"
+      )
+
+      expect(result).toEqual(minimalFormGroup)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importFormGroupFromEnterprise(mockСontext, fullFormGroupEnterprise, fullFormGroup.name)
+  describe("importFormGroupPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importFormGroupPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullFormGroup)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importFormGroupFromEnterprise(mockСontext, minimalFormGroupEnterprise, minimalFormGroup.name)
+    it("should import all fields from Enterprise", () => {
+      const result = importFormGroupPartialFromEnterprise(
+        mockСontext,
+        fullFormGroup,
+        fullFormGroupPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalFormGroup)
+      expect(result).toEqual(fullFormGroup)
+    })
+
+    it("should import minimal", () => {
+      const result = importFormGroupPartialFromEnterprise(
+        mockСontext,
+        minimalFormGroup,
+        minimalFormGroupPartialEnterprise
+      )
+
+      expect(result).toEqual(minimalFormGroup)
+    })
   })
 })
-

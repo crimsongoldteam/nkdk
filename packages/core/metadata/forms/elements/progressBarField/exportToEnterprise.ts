@@ -2,24 +2,58 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import {
+  ProgressBarField,
+  ProgressBarFieldPartialEnterprise,
+  ProgressBarFieldTypedEnterprise,
+} from "~/metadata/forms/elements/progressBarField/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
-import { ProgressBarField, ProgressBarFieldEnterprise } from "~/metadata/forms/elements/progressBarField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportProgressBarFieldToEnterprise = (
+export const exportProgressBarFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: ProgressBarField | undefined
-): ProgressBarFieldEnterprise | undefined => {
+): ProgressBarFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: ProgressBarFieldEnterprise = {
+  const props = exportProgressBarFieldPropsToEnterprise(context, data)
+
+  const result: ProgressBarFieldTypedEnterprise = {
+    Тип: "ПолеИндикатора",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportProgressBarFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: ProgressBarField
+): ProgressBarFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportProgressBarFieldPropsToEnterprise(context, data)
+
+  const result: ProgressBarFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportProgressBarFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: ProgressBarField
+): ProgressBarFieldPartialEnterprise => {
+  const result: ProgressBarFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -72,4 +106,5 @@ export const exportProgressBarFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "ProgressBarField", exportProgressBarFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "ProgressBarField", exportProgressBarFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "ProgressBarField", exportProgressBarFieldTypedToEnterprise)

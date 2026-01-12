@@ -1,22 +1,56 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ChartField, ChartFieldEnterprise } from "~/metadata/forms/elements/chartField/types"
+import {
+  ChartField,
+  ChartFieldPartialEnterprise,
+  ChartFieldTypedEnterprise,
+} from "~/metadata/forms/elements/chartField/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
-export const exportChartFieldToEnterprise = (
+export const exportChartFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: ChartField | undefined
-): ChartFieldEnterprise | undefined => {
+): ChartFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: ChartFieldEnterprise = {
+  const props = exportChartFieldPropsToEnterprise(context, data)
+
+  const result: ChartFieldTypedEnterprise = {
+    Тип: "ПолеДиаграммы",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportChartFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: ChartField
+): ChartFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportChartFieldPropsToEnterprise(context, data)
+
+  const result: ChartFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportChartFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: ChartField
+): ChartFieldPartialEnterprise => {
+  const result: ChartFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -49,4 +83,5 @@ export const exportChartFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "ChartField", exportChartFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "ChartField", exportChartFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "ChartField", exportChartFieldTypedToEnterprise)

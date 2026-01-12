@@ -4,52 +4,67 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import {
+  RadioButtonField,
+  RadioButtonFieldPartialEnterprise,
+  RadioButtonFieldTypedEnterprise,
+} from "~/metadata/forms/elements/radioButtonField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { RadioButtonField, RadioButtonFieldEnterprise } from "~/metadata/forms/elements/radioButtonField/types"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const importRadioButtonFieldEventsFromEnterprise = (
-  data:
-    | {
-        ПриИзменении?: string
-      }
-    | undefined
-):
-  | {
-      onChange?: string
-    }
-  | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importRadioButtonFieldFromEnterprise = <
-  From extends RadioButtonFieldEnterprise | undefined,
-  Name extends string,
->(
+export const importRadioButtonFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, RadioButtonField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, RadioButtonField, Name>
+  data: RadioButtonFieldTypedEnterprise | undefined,
+  name: string
+): RadioButtonField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, RadioButtonField, Name> = {
+  const props = importRadioButtonFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: RadioButtonField = {
     ...baseFields,
-    elementType: FormElementType.RadioButtonField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importRadioButtonFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: RadioButtonField | undefined,
+  data: RadioButtonFieldPartialEnterprise | undefined
+): RadioButtonField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importRadioButtonFieldPropsFromEnterprise(context, data)
+  const result: RadioButtonField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importRadioButtonFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: RadioButtonFieldTypedEnterprise | RadioButtonFieldPartialEnterprise | undefined
+): Omit<Partial<RadioButtonField>, "elementType" | "name"> => {
+  const result: Omit<Partial<RadioButtonField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const radioButtonType = importSystemEnumerationFromEnterprise<SE.RadioButtonType>(
     context,
@@ -98,10 +113,10 @@ export const importRadioButtonFieldFromEnterprise = <
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const events = importRadioButtonFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "RadioButtonField", importRadioButtonFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "RadioButtonField", importRadioButtonFieldPropsFromEnterprise)

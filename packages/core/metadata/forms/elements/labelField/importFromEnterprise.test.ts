@@ -1,25 +1,72 @@
 import { describe, expect, it } from "vitest"
-import { fullLabelField, fullLabelFieldEnterprise, minimalLabelField, minimalLabelFieldEnterprise } from "~/tests/fixtures/forms/labelField/data"
+import {
+  fullLabelField,
+  fullLabelFieldPartialEnterprise,
+  fullLabelFieldTypedEnterprise,
+  minimalLabelField,
+  minimalLabelFieldPartialEnterprise,
+  minimalLabelFieldTypedEnterprise,
+} from "~/tests/fixtures/forms/labelField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importLabelFieldFromEnterprise } from "./importFromEnterprise"
+import {
+  importLabelFieldPartialFromEnterprise,
+  importLabelFieldTypedFromEnterprise,
+} from "./importFromEnterprise"
 
 describe("importLabelFieldFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importLabelFieldFromEnterprise(mockСontext, undefined, fullLabelField.name)
+  describe("importLabelFieldTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importLabelFieldTypedFromEnterprise(mockСontext, undefined, "ПолеНадписи")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importLabelFieldTypedFromEnterprise(
+        mockСontext,
+        fullLabelFieldTypedEnterprise,
+        "ПолеНадписи"
+      )
+
+      expect(result).toEqual(fullLabelField)
+    })
+
+    it("should import minimal", () => {
+      const result = importLabelFieldTypedFromEnterprise(
+        mockСontext,
+        minimalLabelFieldTypedEnterprise,
+        "ПолеНадписи"
+      )
+
+      expect(result).toEqual(minimalLabelField)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importLabelFieldFromEnterprise(mockСontext, fullLabelFieldEnterprise, fullLabelField.name)
+  describe("importLabelFieldPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importLabelFieldPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullLabelField)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importLabelFieldFromEnterprise(mockСontext, minimalLabelFieldEnterprise, minimalLabelField.name)
+    it("should import all fields from Enterprise", () => {
+      const result = importLabelFieldPartialFromEnterprise(
+        mockСontext,
+        fullLabelField,
+        fullLabelFieldPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalLabelField)
+      expect(result).toEqual(fullLabelField)
+    })
+
+    it("should import minimal", () => {
+      const result = importLabelFieldPartialFromEnterprise(
+        mockСontext,
+        minimalLabelField,
+        minimalLabelFieldPartialEnterprise
+      )
+
+      expect(result).toEqual(minimalLabelField)
+    })
   })
 })
-

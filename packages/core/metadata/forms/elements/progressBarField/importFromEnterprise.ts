@@ -2,52 +2,67 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import {
+  ProgressBarField,
+  ProgressBarFieldPartialEnterprise,
+  ProgressBarFieldTypedEnterprise,
+} from "~/metadata/forms/elements/progressBarField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ProgressBarField, ProgressBarFieldEnterprise } from "~/metadata/forms/elements/progressBarField/types"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const importProgressBarFieldEventsFromEnterprise = (
-  data:
-    | {
-        ПриИзменении?: string
-      }
-    | undefined
-):
-  | {
-      onChange?: string
-    }
-  | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importProgressBarFieldFromEnterprise = <
-  From extends ProgressBarFieldEnterprise | undefined,
-  Name extends string,
->(
+export const importProgressBarFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, ProgressBarField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, ProgressBarField, Name>
+  data: ProgressBarFieldTypedEnterprise | undefined,
+  name: string
+): ProgressBarField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, ProgressBarField, Name> = {
+  const props = importProgressBarFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: ProgressBarField = {
     ...baseFields,
-    elementType: FormElementType.ProgressBarField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importProgressBarFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: ProgressBarField | undefined,
+  data: ProgressBarFieldPartialEnterprise | undefined
+): ProgressBarField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importProgressBarFieldPropsFromEnterprise(context, data)
+  const result: ProgressBarField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importProgressBarFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: ProgressBarFieldTypedEnterprise | ProgressBarFieldPartialEnterprise | undefined
+): Omit<Partial<ProgressBarField>, "elementType" | "name"> => {
+  const result: Omit<Partial<ProgressBarField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -107,10 +122,10 @@ export const importProgressBarFieldFromEnterprise = <
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const events = importProgressBarFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "ProgressBarField", importProgressBarFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "ProgressBarField", importProgressBarFieldPropsFromEnterprise)

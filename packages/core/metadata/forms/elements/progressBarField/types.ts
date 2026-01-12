@@ -45,7 +45,7 @@ export interface ProgressBarFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface ProgressBarFieldEnterprise extends FormFieldEnterprise {
+export interface ProgressBarFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Высота?: number
@@ -66,3 +66,10 @@ export interface ProgressBarFieldEnterprise extends FormFieldEnterprise {
     ПриИзменении?: string
   }
 }
+
+export interface ProgressBarFieldTypedEnterprise extends ProgressBarFieldPartialEnterprise {
+  Тип: "ПолеИндикатора"
+}
+
+// Для обратной совместимости
+export type ProgressBarFieldEnterprise = ProgressBarFieldPartialEnterprise

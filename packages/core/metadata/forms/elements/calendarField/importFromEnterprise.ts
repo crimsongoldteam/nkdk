@@ -4,30 +4,67 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CalendarField, CalendarFieldEnterprise } from "~/metadata/forms/elements/calendarField/types"
+import {
+  CalendarField,
+  CalendarFieldPartialEnterprise,
+  CalendarFieldTypedEnterprise,
+} from "~/metadata/forms/elements/calendarField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importCalendarFieldFromEnterprise = <
-  T extends CalendarFieldEnterprise | undefined,
-  N extends string | undefined,
->(
+export const importCalendarFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: T,
-  name: N
-): ImportFromEnterpriseReturn<T, CalendarField, N> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<T, CalendarField, N>
+  data: CalendarFieldTypedEnterprise | undefined,
+  name: string
+): CalendarField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<T, CalendarField, N> = {
+  const props = importCalendarFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: CalendarField = {
     ...baseFields,
-    elementType: FormElementType.CalendarField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importCalendarFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: CalendarField | undefined,
+  data: CalendarFieldPartialEnterprise | undefined
+): CalendarField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importCalendarFieldPropsFromEnterprise(context, data)
+  const result: CalendarField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importCalendarFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: CalendarFieldTypedEnterprise | CalendarFieldPartialEnterprise | undefined
+): Omit<Partial<CalendarField>, "elementType" | "name"> => {
+  const result: Omit<Partial<CalendarField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -102,60 +139,10 @@ export const importCalendarFieldFromEnterprise = <
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const events = importCalendarFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-const importCalendarFieldEventsFromEnterprise = (
-  data:
-    | {
-        ПриИзменении?: string
-        Выбор?: string
-        НачалоПеретаскивания?: string
-        ОкончаниеПеретаскивания?: string
-        Перетаскивание?: string
-        ПриАктивизацииДаты?: string
-        ПриВыводеПериода?: string
-        ПроверкаПеретаскивания?: string
-      }
-    | undefined
-):
-  | {
-      onChange?: string
-      selection?: string
-      dragStart?: string
-      dragEnd?: string
-      drag?: string
-      onActivateDate?: string
-      onPeriodOutput?: string
-      dragCheck?: string
-    }
-  | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    selection?: string
-    dragStart?: string
-    dragEnd?: string
-    drag?: string
-    onActivateDate?: string
-    onPeriodOutput?: string
-    dragCheck?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.Выбор !== undefined) result.selection = data.Выбор
-  if (data.НачалоПеретаскивания !== undefined) result.dragStart = data.НачалоПеретаскивания
-  if (data.ОкончаниеПеретаскивания !== undefined) result.dragEnd = data.ОкончаниеПеретаскивания
-  if (data.Перетаскивание !== undefined) result.drag = data.Перетаскивание
-  if (data.ПриАктивизацииДаты !== undefined) result.onActivateDate = data.ПриАктивизацииДаты
-  if (data.ПриВыводеПериода !== undefined) result.onPeriodOutput = data.ПриВыводеПериода
-  if (data.ПроверкаПеретаскивания !== undefined) result.dragCheck = data.ПроверкаПеретаскивания
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-registerMetadata("ImportFromEnterprise", "CalendarField", importCalendarFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "CalendarField", importCalendarFieldPropsFromEnterprise)

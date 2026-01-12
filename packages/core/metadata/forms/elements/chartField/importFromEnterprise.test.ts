@@ -1,25 +1,72 @@
 import { describe, expect, it } from "vitest"
-import { fullChartField, fullChartFieldEnterprise, minimalChartField, minimalChartFieldEnterprise } from "~/tests/fixtures/forms/chartField/data"
+import {
+  fullChartField,
+  fullChartFieldPartialEnterprise,
+  fullChartFieldTypedEnterprise,
+  minimalChartField,
+  minimalChartFieldPartialEnterprise,
+  minimalChartFieldTypedEnterprise,
+} from "~/tests/fixtures/forms/chartField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importChartFieldFromEnterprise } from "./importFromEnterprise"
+import {
+  importChartFieldPartialFromEnterprise,
+  importChartFieldTypedFromEnterprise,
+} from "./importFromEnterprise"
 
 describe("importChartFieldFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importChartFieldFromEnterprise(mockСontext, undefined, fullChartField.name)
+  describe("importChartFieldTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importChartFieldTypedFromEnterprise(mockСontext, undefined, "ПолеДиаграммы")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importChartFieldTypedFromEnterprise(
+        mockСontext,
+        fullChartFieldTypedEnterprise,
+        "ПолеДиаграммы"
+      )
+
+      expect(result).toEqual(fullChartField)
+    })
+
+    it("should import minimal", () => {
+      const result = importChartFieldTypedFromEnterprise(
+        mockСontext,
+        minimalChartFieldTypedEnterprise,
+        "ПолеДиаграммы"
+      )
+
+      expect(result).toEqual(minimalChartField)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importChartFieldFromEnterprise(mockСontext, fullChartFieldEnterprise, fullChartField.name)
+  describe("importChartFieldPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importChartFieldPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullChartField)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importChartFieldFromEnterprise(mockСontext, minimalChartFieldEnterprise, minimalChartField.name)
+    it("should import all fields from Enterprise", () => {
+      const result = importChartFieldPartialFromEnterprise(
+        mockСontext,
+        fullChartField,
+        fullChartFieldPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalChartField)
+      expect(result).toEqual(fullChartField)
+    })
+
+    it("should import minimal", () => {
+      const result = importChartFieldPartialFromEnterprise(
+        mockСontext,
+        minimalChartField,
+        minimalChartFieldPartialEnterprise
+      )
+
+      expect(result).toEqual(minimalChartField)
+    })
   })
 })
-

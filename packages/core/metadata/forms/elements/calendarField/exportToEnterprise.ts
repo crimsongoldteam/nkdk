@@ -2,74 +2,60 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportBorderToEnterprise } from "~/metadata/commonObjects/border/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
+import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CalendarField, CalendarFieldEnterprise } from "~/metadata/forms/elements/calendarField/types"
+import {
+  CalendarField,
+  CalendarFieldPartialEnterprise,
+  CalendarFieldTypedEnterprise,
+} from "~/metadata/forms/elements/calendarField/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
+import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const exportCalendarFieldEventsToEnterprise = (
-  data:
-    | {
-        onChange?: string
-        selection?: string
-        dragStart?: string
-        dragEnd?: string
-        drag?: string
-        onActivateDate?: string
-        onPeriodOutput?: string
-        dragCheck?: string
-      }
-    | undefined
-):
-  | {
-      ПриИзменении?: string
-      Выбор?: string
-      НачалоПеретаскивания?: string
-      ОкончаниеПеретаскивания?: string
-      Перетаскивание?: string
-      ПриАктивизацииДаты?: string
-      ПриВыводеПериода?: string
-      ПроверкаПеретаскивания?: string
-    }
-  | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    ПриИзменении?: string
-    Выбор?: string
-    НачалоПеретаскивания?: string
-    ОкончаниеПеретаскивания?: string
-    Перетаскивание?: string
-    ПриАктивизацииДаты?: string
-    ПриВыводеПериода?: string
-    ПроверкаПеретаскивания?: string
-  } = {}
-
-  if (data.onChange !== undefined) result.ПриИзменении = data.onChange
-  if (data.selection !== undefined) result.Выбор = data.selection
-  if (data.dragStart !== undefined) result.НачалоПеретаскивания = data.dragStart
-  if (data.dragEnd !== undefined) result.ОкончаниеПеретаскивания = data.dragEnd
-  if (data.drag !== undefined) result.Перетаскивание = data.drag
-  if (data.onActivateDate !== undefined) result.ПриАктивизацииДаты = data.onActivateDate
-  if (data.onPeriodOutput !== undefined) result.ПриВыводеПериода = data.onPeriodOutput
-  if (data.dragCheck !== undefined) result.ПроверкаПеретаскивания = data.dragCheck
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const exportCalendarFieldToEnterprise = (
+export const exportCalendarFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: CalendarField | undefined
-): CalendarFieldEnterprise | undefined => {
+): CalendarFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: CalendarFieldEnterprise = {
+  const props = exportCalendarFieldPropsToEnterprise(context, data)
+
+  const result: CalendarFieldTypedEnterprise = {
+    Тип: "ПолеКалендаря",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportCalendarFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: CalendarField
+): CalendarFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportCalendarFieldPropsToEnterprise(context, data)
+
+  const result: CalendarFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportCalendarFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: CalendarField
+): CalendarFieldPartialEnterprise => {
+  const result: CalendarFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -97,6 +83,11 @@ export const exportCalendarFieldToEnterprise = (
 
   const calendarNavigation = exportBooleanToEnterprise(context, data.calendarNavigation)
   if (calendarNavigation !== undefined) result.ПеремещениеПоКалендарю = calendarNavigation
+
+  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
+  if (userVisible !== undefined) {
+    Object.assign(result, userVisible)
+  }
 
   const enableStartDrag = exportBooleanToEnterprise(context, data.enableStartDrag)
   if (enableStartDrag !== undefined) result.РазрешитьНачалоПеретаскивания = enableStartDrag
@@ -130,10 +121,11 @@ export const exportCalendarFieldToEnterprise = (
   const font = exportFontToEnterprise(context, data.font)
   if (font !== undefined) result.Шрифт = font
 
-  const events = exportCalendarFieldEventsToEnterprise(data.events)
+  const events = exportEventsToEnterprise(context, data.events)
   if (events !== undefined) result.События = events
 
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "CalendarField", exportCalendarFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "CalendarField", exportCalendarFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "CalendarField", exportCalendarFieldTypedToEnterprise)

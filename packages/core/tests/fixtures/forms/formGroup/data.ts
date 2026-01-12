@@ -1,4 +1,8 @@
-import { FormGroup, FormGroupPropsEnterprise } from "~/metadata/forms/elements/formGroup/types"
+import {
+  FormGroup,
+  FormGroupPartialEnterprise,
+  FormGroupTypedEnterprise,
+} from "~/metadata/forms/elements/formGroup/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullFormGroup: FormGroup = {
@@ -31,7 +35,7 @@ export const fullFormGroup: FormGroup = {
   width: 300,
 }
 
-export const fullFormGroupEnterprise: FormGroupPropsEnterprise = {
+export const fullFormGroupPartialEnterprise: FormGroupPartialEnterprise = {
   Заголовок: "Группа формы",
   ВертикальноеПоложениеВГруппе: "Верх",
   Вид: "ОбычнаяГруппа",
@@ -52,9 +56,18 @@ export const fullFormGroupEnterprise: FormGroupPropsEnterprise = {
   ШрифтЗаголовка: "ОбычныйШрифтТекста",
 }
 
+export const fullFormGroupTypedEnterprise: FormGroupTypedEnterprise = {
+  ...fullFormGroupPartialEnterprise,
+  Тип: "ГруппаФормы",
+}
+
 export const minimalFormGroup: FormGroup = {
   elementType: FormElementType.FormGroup,
   name: "ГруппаФормы",
 }
 
-export const minimalFormGroupEnterprise: FormGroupPropsEnterprise = {}
+export const minimalFormGroupPartialEnterprise: FormGroupPartialEnterprise = {}
+
+export const minimalFormGroupTypedEnterprise: FormGroupTypedEnterprise = {
+  Тип: "ГруппаФормы",
+}

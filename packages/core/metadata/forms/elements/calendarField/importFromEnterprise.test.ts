@@ -1,33 +1,72 @@
 import { describe, expect, it } from "vitest"
 import {
   fullCalendarField,
-  fullCalendarFieldEnterprise,
+  fullCalendarFieldPartialEnterprise,
+  fullCalendarFieldTypedEnterprise,
   minimalCalendarField,
-  minimalCalendarFieldEnterprise,
+  minimalCalendarFieldPartialEnterprise,
+  minimalCalendarFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/calendarField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importCalendarFieldFromEnterprise } from "./importFromEnterprise"
+import {
+  importCalendarFieldPartialFromEnterprise,
+  importCalendarFieldTypedFromEnterprise,
+} from "./importFromEnterprise"
 
 describe("importCalendarFieldFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importCalendarFieldFromEnterprise(mockСontext, undefined, fullCalendarField.name)
+  describe("importCalendarFieldTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importCalendarFieldTypedFromEnterprise(mockСontext, undefined, "ПолеКалендаря")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importCalendarFieldTypedFromEnterprise(
+        mockСontext,
+        fullCalendarFieldTypedEnterprise,
+        "ПолеКалендаря"
+      )
+
+      expect(result).toEqual(fullCalendarField)
+    })
+
+    it("should import minimal", () => {
+      const result = importCalendarFieldTypedFromEnterprise(
+        mockСontext,
+        minimalCalendarFieldTypedEnterprise,
+        "ПолеКалендаря"
+      )
+
+      expect(result).toEqual(minimalCalendarField)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importCalendarFieldFromEnterprise(mockСontext, fullCalendarFieldEnterprise, fullCalendarField.name)
+  describe("importCalendarFieldPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importCalendarFieldPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullCalendarField)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importCalendarFieldFromEnterprise(
-      mockСontext,
-      minimalCalendarFieldEnterprise,
-      minimalCalendarField.name
-    )
+    it("should import all fields from Enterprise", () => {
+      const result = importCalendarFieldPartialFromEnterprise(
+        mockСontext,
+        fullCalendarField,
+        fullCalendarFieldPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalCalendarField)
+      expect(result).toEqual(fullCalendarField)
+    })
+
+    it("should import minimal", () => {
+      const result = importCalendarFieldPartialFromEnterprise(
+        mockСontext,
+        minimalCalendarField,
+        minimalCalendarFieldPartialEnterprise
+      )
+
+      expect(result).toEqual(minimalCalendarField)
+    })
   })
 })

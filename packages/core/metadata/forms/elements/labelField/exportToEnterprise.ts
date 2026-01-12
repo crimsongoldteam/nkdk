@@ -5,22 +5,56 @@ import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEn
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import {
+  LabelField,
+  LabelFieldPartialEnterprise,
+  LabelFieldTypedEnterprise,
+} from "~/metadata/forms/elements/labelField/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
-import { LabelField, LabelFieldEnterprise } from "~/metadata/forms/elements/labelField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
-export const exportLabelFieldToEnterprise = (
+export const exportLabelFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: LabelField | undefined
-): LabelFieldEnterprise | undefined => {
+): LabelFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: LabelFieldEnterprise = {
+  const props = exportLabelFieldPropsToEnterprise(context, data)
+
+  const result: LabelFieldTypedEnterprise = {
+    Тип: "ПолеНадписи",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportLabelFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: LabelField
+): LabelFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportLabelFieldPropsToEnterprise(context, data)
+
+  const result: LabelFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportLabelFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: LabelField
+): LabelFieldPartialEnterprise => {
+  const result: LabelFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -80,4 +114,5 @@ export const exportLabelFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "LabelField", exportLabelFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "LabelField", exportLabelFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "LabelField", exportLabelFieldTypedToEnterprise)

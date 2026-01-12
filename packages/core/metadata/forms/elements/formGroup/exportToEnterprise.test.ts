@@ -1,25 +1,44 @@
 import { describe, expect, it } from "vitest"
-import { fullFormGroup, fullFormGroupEnterprise, minimalFormGroup, minimalFormGroupEnterprise } from "~/tests/fixtures/forms/formGroup/data"
+import {
+  fullFormGroup,
+  fullFormGroupPartialEnterprise,
+  fullFormGroupTypedEnterprise,
+  minimalFormGroup,
+  minimalFormGroupPartialEnterprise,
+  minimalFormGroupTypedEnterprise,
+} from "~/tests/fixtures/forms/formGroup/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportFormGroupToEnterprise } from "./exportToEnterprise"
+import {
+  exportFormGroupPartialToEnterprise,
+  exportFormGroupTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportFormGroupToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportFormGroupToEnterprise(mockСontext, undefined)
+  describe("exportFormGroupPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportFormGroupPartialToEnterprise(mockСontext, fullFormGroup)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullFormGroupPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportFormGroupPartialToEnterprise(mockСontext, minimalFormGroup)
+
+      expect(result).toEqual(minimalFormGroupPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportFormGroupToEnterprise(mockСontext, fullFormGroup)
+  describe("exportFormGroupTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportFormGroupTypedToEnterprise(mockСontext, fullFormGroup)
 
-    expect(result).toEqual(fullFormGroupEnterprise)
-  })
+      expect(result).toEqual(fullFormGroupTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportFormGroupToEnterprise(mockСontext, minimalFormGroup)
+    it("should return undefined when data is undefined", () => {
+      const result = exportFormGroupTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalFormGroupEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
-

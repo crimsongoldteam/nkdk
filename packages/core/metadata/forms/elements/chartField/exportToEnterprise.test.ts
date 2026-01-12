@@ -1,25 +1,44 @@
 import { describe, expect, it } from "vitest"
-import { fullChartField, fullChartFieldEnterprise, minimalChartField, minimalChartFieldEnterprise } from "~/tests/fixtures/forms/chartField/data"
+import {
+  fullChartField,
+  fullChartFieldPartialEnterprise,
+  fullChartFieldTypedEnterprise,
+  minimalChartField,
+  minimalChartFieldPartialEnterprise,
+  minimalChartFieldTypedEnterprise,
+} from "~/tests/fixtures/forms/chartField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportChartFieldToEnterprise } from "./exportToEnterprise"
+import {
+  exportChartFieldPartialToEnterprise,
+  exportChartFieldTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportChartFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportChartFieldToEnterprise(mockСontext, undefined)
+  describe("exportChartFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportChartFieldPartialToEnterprise(mockСontext, fullChartField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullChartFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportChartFieldPartialToEnterprise(mockСontext, minimalChartField)
+
+      expect(result).toEqual(minimalChartFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportChartFieldToEnterprise(mockСontext, fullChartField)
+  describe("exportChartFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportChartFieldTypedToEnterprise(mockСontext, fullChartField)
 
-    expect(result).toEqual(fullChartFieldEnterprise)
-  })
+      expect(result).toEqual(fullChartFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportChartFieldToEnterprise(mockСontext, minimalChartField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportChartFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalChartFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
-

@@ -1,38 +1,72 @@
 import { describe, expect, it } from "vitest"
 import {
   fullTrackBarField,
-  fullTrackBarFieldEnterprise,
+  fullTrackBarFieldPartialEnterprise,
+  fullTrackBarFieldTypedEnterprise,
   minimalTrackBarField,
-  minimalTrackBarFieldEnterprise,
+  minimalTrackBarFieldPartialEnterprise,
+  minimalTrackBarFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/trackBarField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importTrackBarFieldFromEnterprise } from "./importFromEnterprise"
+import {
+  importTrackBarFieldPartialFromEnterprise,
+  importTrackBarFieldTypedFromEnterprise,
+} from "./importFromEnterprise"
 
 describe("importTrackBarFieldFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importTrackBarFieldFromEnterprise(mockСontext, undefined, fullTrackBarField.name)
+  describe("importTrackBarFieldTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importTrackBarFieldTypedFromEnterprise(mockСontext, undefined, "ПолеПолосыПрокрутки")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importTrackBarFieldTypedFromEnterprise(
+        mockСontext,
+        fullTrackBarFieldTypedEnterprise,
+        "ПолеПолосыПрокрутки"
+      )
+
+      expect(result).toEqual(fullTrackBarField)
+    })
+
+    it("should import minimal", () => {
+      const result = importTrackBarFieldTypedFromEnterprise(
+        mockСontext,
+        minimalTrackBarFieldTypedEnterprise,
+        "ПолеПолосыПрокрутки"
+      )
+
+      expect(result).toEqual(minimalTrackBarField)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importTrackBarFieldFromEnterprise(
-      mockСontext,
-      fullTrackBarFieldEnterprise,
-      fullTrackBarField.name
-    )
+  describe("importTrackBarFieldPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importTrackBarFieldPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullTrackBarField)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importTrackBarFieldFromEnterprise(
-      mockСontext,
-      minimalTrackBarFieldEnterprise,
-      minimalTrackBarField.name
-    )
+    it("should import all fields from Enterprise", () => {
+      const result = importTrackBarFieldPartialFromEnterprise(
+        mockСontext,
+        fullTrackBarField,
+        fullTrackBarFieldPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalTrackBarField)
+      expect(result).toEqual(fullTrackBarField)
+    })
+
+    it("should import minimal", () => {
+      const result = importTrackBarFieldPartialFromEnterprise(
+        mockСontext,
+        minimalTrackBarField,
+        minimalTrackBarFieldPartialEnterprise
+      )
+
+      expect(result).toEqual(minimalTrackBarField)
+    })
   })
 })
-

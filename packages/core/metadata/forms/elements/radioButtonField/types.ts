@@ -41,7 +41,7 @@ export interface RadioButtonFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface RadioButtonFieldEnterprise extends FormFieldEnterprise {
+export interface RadioButtonFieldPartialEnterprise extends FormFieldEnterprise {
   ВидПереключателя?: SE.RadioButtonTypeEnterprise
   ВысотаЗаголовкаЭлемента?: number
   ВысотаЭлемента?: number
@@ -59,3 +59,10 @@ export interface RadioButtonFieldEnterprise extends FormFieldEnterprise {
     ПриИзменении?: string
   }
 }
+
+export interface RadioButtonFieldTypedEnterprise extends RadioButtonFieldPartialEnterprise {
+  Тип: "ПолеПереключателя"
+}
+
+// Для обратной совместимости
+export type RadioButtonFieldEnterprise = RadioButtonFieldPartialEnterprise

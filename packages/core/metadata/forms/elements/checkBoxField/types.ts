@@ -41,7 +41,7 @@ export interface CheckBoxFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface CheckBoxFieldEnterprise extends FormFieldEnterprise {
+export interface CheckBoxFieldPartialEnterprise extends FormFieldEnterprise {
   ВидФлажка?: SE.CheckBoxTypeEnterprise
   ВысотаЗаголовкаЭлемента?: number
   ВысотаЭлемента?: number
@@ -59,3 +59,10 @@ export interface CheckBoxFieldEnterprise extends FormFieldEnterprise {
     ПриИзменении?: string
   }
 }
+
+export interface CheckBoxFieldTypedEnterprise extends CheckBoxFieldPartialEnterprise {
+  Тип: "ПолеФлажок"
+}
+
+// Для обратной совместимости
+export type CheckBoxFieldEnterprise = CheckBoxFieldPartialEnterprise

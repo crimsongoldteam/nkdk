@@ -4,22 +4,56 @@ import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportTo
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import {
+  PeriodField,
+  PeriodFieldPartialEnterprise,
+  PeriodFieldTypedEnterprise,
+} from "~/metadata/forms/elements/periodField/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
-import { PeriodField, PeriodFieldEnterprise } from "~/metadata/forms/elements/periodField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
-export const exportPeriodFieldToEnterprise = (
+export const exportPeriodFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: PeriodField | undefined
-): PeriodFieldEnterprise | undefined => {
+): PeriodFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: PeriodFieldEnterprise = {
+  const props = exportPeriodFieldPropsToEnterprise(context, data)
+
+  const result: PeriodFieldTypedEnterprise = {
+    Тип: "ПолеПериода",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportPeriodFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: PeriodField
+): PeriodFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportPeriodFieldPropsToEnterprise(context, data)
+
+  const result: PeriodFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportPeriodFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: PeriodField
+): PeriodFieldPartialEnterprise => {
+  const result: PeriodFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -61,4 +95,5 @@ export const exportPeriodFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "PeriodField", exportPeriodFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "PeriodField", exportPeriodFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "PeriodField", exportPeriodFieldTypedToEnterprise)

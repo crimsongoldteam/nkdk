@@ -1,25 +1,44 @@
 import { describe, expect, it } from "vitest"
-import { fullLabelField, fullLabelFieldEnterprise, minimalLabelField, minimalLabelFieldEnterprise } from "~/tests/fixtures/forms/labelField/data"
+import {
+  fullLabelField,
+  fullLabelFieldPartialEnterprise,
+  fullLabelFieldTypedEnterprise,
+  minimalLabelField,
+  minimalLabelFieldPartialEnterprise,
+  minimalLabelFieldTypedEnterprise,
+} from "~/tests/fixtures/forms/labelField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportLabelFieldToEnterprise } from "./exportToEnterprise"
+import {
+  exportLabelFieldPartialToEnterprise,
+  exportLabelFieldTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportLabelFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportLabelFieldToEnterprise(mockСontext, undefined)
+  describe("exportLabelFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportLabelFieldPartialToEnterprise(mockСontext, fullLabelField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullLabelFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportLabelFieldPartialToEnterprise(mockСontext, minimalLabelField)
+
+      expect(result).toEqual(minimalLabelFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportLabelFieldToEnterprise(mockСontext, fullLabelField)
+  describe("exportLabelFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportLabelFieldTypedToEnterprise(mockСontext, fullLabelField)
 
-    expect(result).toEqual(fullLabelFieldEnterprise)
-  })
+      expect(result).toEqual(fullLabelFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportLabelFieldToEnterprise(mockСontext, minimalLabelField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportLabelFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalLabelFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
-

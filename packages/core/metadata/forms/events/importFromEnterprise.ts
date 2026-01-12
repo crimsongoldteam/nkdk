@@ -19,6 +19,15 @@ const enterpriseEventNameMapping: Record<string, string> = {
   Создание: "creating",
   УдалениеМножественныхЗначений: "multipleValuesDelete",
   ПриСменеСтраницы: "onCurrentPageChange",
+  Выбор: "selection",
+  НачалоПеретаскивания: "dragStart",
+  ОкончаниеПеретаскивания: "dragEnd",
+  Перетаскивание: "drag",
+  ПриАктивизацииДаты: "onActivateDate",
+  ПриВыводеПериода: "onPeriodOutput",
+  ПроверкаПеретаскивания: "dragCheck",
+  Нажатие: "click",
+  ОбработкаНавигационнойСсылки: "uRLProcessing",
 }
 
 export const importEventsFromEnterprise = (

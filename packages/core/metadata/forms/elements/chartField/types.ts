@@ -34,7 +34,7 @@ export interface ChartFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface ChartFieldEnterprise extends FormFieldEnterprise {
+export interface ChartFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Высота?: number
@@ -52,3 +52,10 @@ export interface ChartFieldEnterprise extends FormFieldEnterprise {
     ПриАктивизации?: string
   }
 }
+
+export interface ChartFieldTypedEnterprise extends ChartFieldPartialEnterprise {
+  Тип: "ПолеДиаграммы"
+}
+
+// Для обратной совместимости
+export type ChartFieldEnterprise = ChartFieldPartialEnterprise

@@ -4,51 +4,65 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import {
+  PeriodField,
+  PeriodFieldPartialEnterprise,
+  PeriodFieldTypedEnterprise,
+} from "~/metadata/forms/elements/periodField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
-import { PeriodField, PeriodFieldEnterprise } from "~/metadata/forms/elements/periodField/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 
-const importPeriodFieldEventsFromEnterprise = (
-  data:
-    | {
-        ПриИзменении?: string
-        Выбор?: string
-      }
-    | undefined
-):
-  | {
-      onChange?: string
-      selection?: string
-    }
-  | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    selection?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.Выбор !== undefined) result.selection = data.Выбор
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importPeriodFieldFromEnterprise = <From extends PeriodFieldEnterprise | undefined, Name extends string>(
+export const importPeriodFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, PeriodField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, PeriodField, Name>
+  data: PeriodFieldTypedEnterprise | undefined,
+  name: string
+): PeriodField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, PeriodField, Name> = {
+  const props = importPeriodFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: PeriodField = {
     ...baseFields,
-    elementType: FormElementType.PeriodField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importPeriodFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: PeriodField | undefined,
+  data: PeriodFieldPartialEnterprise | undefined
+): PeriodField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importPeriodFieldPropsFromEnterprise(context, data)
+  const result: PeriodField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importPeriodFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: PeriodFieldTypedEnterprise | PeriodFieldPartialEnterprise | undefined
+): Omit<Partial<PeriodField>, "elementType" | "name"> => {
+  const result: Omit<Partial<PeriodField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -93,10 +107,10 @@ export const importPeriodFieldFromEnterprise = <From extends PeriodFieldEnterpri
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const events = importPeriodFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "PeriodField", importPeriodFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "PeriodField", importPeriodFieldPropsFromEnterprise)

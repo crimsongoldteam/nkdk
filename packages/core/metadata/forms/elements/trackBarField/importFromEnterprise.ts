@@ -1,51 +1,65 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { TrackBarField, TrackBarFieldEnterprise } from "~/metadata/forms/elements/trackBarField/types"
+import {
+  TrackBarField,
+  TrackBarFieldPartialEnterprise,
+  TrackBarFieldTypedEnterprise,
+} from "~/metadata/forms/elements/trackBarField/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ImportFromEnterpriseReturn } from "../types"
 
-const importTrackBarFieldEventsFromEnterprise = (
-  data:
-    | {
-        ПриИзменении?: string
-      }
-    | undefined
-):
-  | {
-      onChange?: string
-    }
-  | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importTrackBarFieldFromEnterprise = <
-  From extends TrackBarFieldEnterprise | undefined,
-  Name extends string,
->(
+export const importTrackBarFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, TrackBarField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, TrackBarField, Name>
+  data: TrackBarFieldTypedEnterprise | undefined,
+  name: string
+): TrackBarField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, TrackBarField, Name> = {
+  const props = importTrackBarFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: TrackBarField = {
     ...baseFields,
-    elementType: FormElementType.TrackBarField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importTrackBarFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: TrackBarField | undefined,
+  data: TrackBarFieldPartialEnterprise | undefined
+): TrackBarField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importTrackBarFieldPropsFromEnterprise(context, data)
+  const result: TrackBarField = {
+    ...source,
+    ...baseFields,
+    ...props,
+  }
+
+  return result
+}
+
+const importTrackBarFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: TrackBarFieldTypedEnterprise | TrackBarFieldPartialEnterprise | undefined
+): Omit<Partial<TrackBarField>, "elementType" | "name"> => {
+  const result: Omit<Partial<TrackBarField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -91,10 +105,10 @@ export const importTrackBarFieldFromEnterprise = <
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const events = importTrackBarFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "TrackBarField", importTrackBarFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "TrackBarField", importTrackBarFieldPropsFromEnterprise)

@@ -1,29 +1,44 @@
 import { describe, expect, it } from "vitest"
 import {
   fullPeriodField,
-  fullPeriodFieldEnterprise,
+  fullPeriodFieldPartialEnterprise,
+  fullPeriodFieldTypedEnterprise,
   minimalPeriodField,
-  minimalPeriodFieldEnterprise,
+  minimalPeriodFieldPartialEnterprise,
+  minimalPeriodFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/periodField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportPeriodFieldToEnterprise } from "./exportToEnterprise"
+import {
+  exportPeriodFieldPartialToEnterprise,
+  exportPeriodFieldTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportPeriodFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportPeriodFieldToEnterprise(mockСontext, undefined)
+  describe("exportPeriodFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportPeriodFieldPartialToEnterprise(mockСontext, fullPeriodField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullPeriodFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportPeriodFieldPartialToEnterprise(mockСontext, minimalPeriodField)
+
+      expect(result).toEqual(minimalPeriodFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportPeriodFieldToEnterprise(mockСontext, fullPeriodField)
+  describe("exportPeriodFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportPeriodFieldTypedToEnterprise(mockСontext, fullPeriodField)
 
-    expect(result).toEqual(fullPeriodFieldEnterprise)
-  })
+      expect(result).toEqual(fullPeriodFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportPeriodFieldToEnterprise(mockСontext, minimalPeriodField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportPeriodFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalPeriodFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })

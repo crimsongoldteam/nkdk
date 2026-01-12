@@ -1,4 +1,8 @@
-import { ProgressBarField, ProgressBarFieldEnterprise } from "~/metadata/forms/elements/progressBarField/types"
+import {
+  ProgressBarField,
+  ProgressBarFieldPartialEnterprise,
+  ProgressBarFieldTypedEnterprise,
+} from "~/metadata/forms/elements/progressBarField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
@@ -11,9 +15,14 @@ export const fullProgressBarField: ProgressBarField = {
   },
 }
 
-export const fullProgressBarFieldEnterprise: ProgressBarFieldEnterprise = {
+export const fullProgressBarFieldPartialEnterprise: ProgressBarFieldPartialEnterprise = {
   ...fullFormFieldEnterprise,
   Заголовок: "Поле индикатора",
+}
+
+export const fullProgressBarFieldTypedEnterprise: ProgressBarFieldTypedEnterprise = {
+  ...fullProgressBarFieldPartialEnterprise,
+  Тип: "ПолеИндикатора",
 }
 
 export const minimalProgressBarField: ProgressBarField = {
@@ -21,4 +30,8 @@ export const minimalProgressBarField: ProgressBarField = {
   name: "ПолеИндикатора",
 }
 
-export const minimalProgressBarFieldEnterprise: ProgressBarFieldEnterprise = {}
+export const minimalProgressBarFieldPartialEnterprise: ProgressBarFieldPartialEnterprise = {}
+
+export const minimalProgressBarFieldTypedEnterprise: ProgressBarFieldTypedEnterprise = {
+  Тип: "ПолеИндикатора",
+}

@@ -4,44 +4,67 @@ import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFr
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { CheckBoxField, CheckBoxFieldEnterprise } from "~/metadata/forms/elements/checkBoxField/types"
+import {
+  CheckBoxField,
+  CheckBoxFieldPartialEnterprise,
+  CheckBoxFieldTypedEnterprise,
+} from "~/metadata/forms/elements/checkBoxField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const importCheckBoxFieldEventsFromEnterprise = (
-  data: { ПриИзменении?: string } | undefined
-): { onChange?: string } | undefined => {
-  if (!data) return undefined
-
-  const result: { onChange?: string } = {}
-
-  if (data.ПриИзменении !== undefined) {
-    result.onChange = data.ПриИзменении
-  }
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importCheckBoxFieldFromEnterprise = <
-  From extends CheckBoxFieldEnterprise | undefined,
-  Name extends string,
->(
+export const importCheckBoxFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, CheckBoxField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, CheckBoxField, Name>
+  data: CheckBoxFieldTypedEnterprise | undefined,
+  name: string
+): CheckBoxField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, CheckBoxField, Name> = {
+  const props = importCheckBoxFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: CheckBoxField = {
     ...baseFields,
-    elementType: FormElementType.CheckBoxField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importCheckBoxFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: CheckBoxField | undefined,
+  data: CheckBoxFieldPartialEnterprise | undefined
+): CheckBoxField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importCheckBoxFieldPropsFromEnterprise(context, data)
+  const result: CheckBoxField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importCheckBoxFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: CheckBoxFieldTypedEnterprise | CheckBoxFieldPartialEnterprise | undefined
+): Omit<Partial<CheckBoxField>, "elementType" | "name"> => {
+  const result: Omit<Partial<CheckBoxField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const checkBoxType = importSystemEnumerationFromEnterprise<SE.CheckBoxType>(
     context,
@@ -91,10 +114,10 @@ export const importCheckBoxFieldFromEnterprise = <
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const events = importCheckBoxFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "CheckBoxField", importCheckBoxFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "CheckBoxField", importCheckBoxFieldPropsFromEnterprise)

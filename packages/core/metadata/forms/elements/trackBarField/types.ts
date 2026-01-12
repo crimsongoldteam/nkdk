@@ -46,7 +46,7 @@ export interface TrackBarFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface TrackBarFieldEnterprise extends FormFieldEnterprise {
+export interface TrackBarFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   БольшойШаг?: number
@@ -68,3 +68,10 @@ export interface TrackBarFieldEnterprise extends FormFieldEnterprise {
     ПриИзменении?: string
   }
 }
+
+export interface TrackBarFieldTypedEnterprise extends TrackBarFieldPartialEnterprise {
+  Тип: "ПолеПолосыПрокрутки"
+}
+
+// Для обратной совместимости
+export type TrackBarFieldEnterprise = TrackBarFieldPartialEnterprise

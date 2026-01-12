@@ -1,27 +1,70 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import {
+  exportI8nTextOtherToEnterprise,
+  exportI8nTextToEnterprise,
+} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
-import { FormGroup, FormGroupPropsEnterprise } from "~/metadata/forms/elements/formGroup/types"
+import {
+  FormGroup,
+  FormGroupPartialEnterprise,
+  FormGroupTypedEnterprise,
+} from "~/metadata/forms/elements/formGroup/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
-export const exportFormGroupToEnterprise = (
+export const exportFormGroupTypedToEnterprise = (
   context: ConfigurationContext,
   data: FormGroup | undefined
-): FormGroupPropsEnterprise | undefined => {
+): FormGroupTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportBaseElementToEnterprise(context, data)
 
-  const result: FormGroupPropsEnterprise = {
+  const props = exportFormGroupPropsToEnterprise(context, data)
+
+  const result: FormGroupTypedEnterprise = {
+    Тип: "ГруппаФормы",
     ...baseFields,
+    ...props,
   }
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+export const exportFormGroupPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: FormGroup
+): FormGroupPartialEnterprise => {
+  const baseFields = exportBaseElementToEnterprise(context, data)
+
+  const props = exportFormGroupPropsToEnterprise(context, data)
+
+  const result: FormGroupPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+const exportFormGroupPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: FormGroup
+): FormGroupPartialEnterprise => {
+  const result: FormGroupPartialEnterprise = {}
 
   const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
@@ -47,9 +90,6 @@ export const exportFormGroupToEnterprise = (
 
   const enabled = exportBooleanToEnterprise(context, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
-
-  const title = exportI8nTextToEnterprise(context, data.title)
-  if (title !== undefined) result.Заголовок = title
 
   const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
@@ -94,4 +134,5 @@ export const exportFormGroupToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "FormGroup", exportFormGroupToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "FormGroup", exportFormGroupPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "FormGroup", exportFormGroupTypedToEnterprise)

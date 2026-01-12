@@ -1,4 +1,8 @@
-import { CheckBoxField, CheckBoxFieldEnterprise } from "~/metadata/forms/elements/checkBoxField/types"
+import {
+  CheckBoxField,
+  CheckBoxFieldPartialEnterprise,
+  CheckBoxFieldTypedEnterprise,
+} from "~/metadata/forms/elements/checkBoxField/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
@@ -23,7 +27,7 @@ export const fullCheckBoxField: CheckBoxField = {
   threeState: true,
 }
 
-export const fullCheckBoxFieldEnterprise: CheckBoxFieldEnterprise = {
+export const fullCheckBoxFieldPartialEnterprise: CheckBoxFieldPartialEnterprise = {
   ...fullFormFieldEnterprise,
   Заголовок: "Флажок формы",
   ВидФлажка: "Выключатель",
@@ -39,12 +43,21 @@ export const fullCheckBoxFieldEnterprise: CheckBoxFieldEnterprise = {
   Шрифт: "ОбычныйШрифтТекста",
 }
 
+export const fullCheckBoxFieldTypedEnterprise: CheckBoxFieldTypedEnterprise = {
+  ...fullCheckBoxFieldPartialEnterprise,
+  Тип: "ПолеФлажок",
+}
+
 export const minimalCheckBoxField: CheckBoxField = {
   elementType: FormElementType.CheckBoxField,
   name: "Флажок",
 }
 
-export const minimalCheckBoxFieldEnterprise: CheckBoxFieldEnterprise = {}
+export const minimalCheckBoxFieldPartialEnterprise: CheckBoxFieldPartialEnterprise = {}
+
+export const minimalCheckBoxFieldTypedEnterprise: CheckBoxFieldTypedEnterprise = {
+  Тип: "ПолеФлажок",
+}
 
 export interface CheckBoxFieldStructureFixture {
   name: string

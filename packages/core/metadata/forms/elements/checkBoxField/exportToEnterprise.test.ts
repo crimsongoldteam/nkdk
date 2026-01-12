@@ -1,29 +1,44 @@
 import { describe, expect, it } from "vitest"
 import {
   fullCheckBoxField,
-  fullCheckBoxFieldEnterprise,
+  fullCheckBoxFieldPartialEnterprise,
+  fullCheckBoxFieldTypedEnterprise,
   minimalCheckBoxField,
-  minimalCheckBoxFieldEnterprise,
+  minimalCheckBoxFieldPartialEnterprise,
+  minimalCheckBoxFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/checkBoxField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportCheckBoxFieldToEnterprise } from "./exportToEnterprise"
+import {
+  exportCheckBoxFieldPartialToEnterprise,
+  exportCheckBoxFieldTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportCheckBoxFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportCheckBoxFieldToEnterprise(mockСontext, undefined)
+  describe("exportCheckBoxFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportCheckBoxFieldPartialToEnterprise(mockСontext, fullCheckBoxField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullCheckBoxFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportCheckBoxFieldPartialToEnterprise(mockСontext, minimalCheckBoxField)
+
+      expect(result).toEqual(minimalCheckBoxFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportCheckBoxFieldToEnterprise(mockСontext, fullCheckBoxField)
+  describe("exportCheckBoxFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportCheckBoxFieldTypedToEnterprise(mockСontext, fullCheckBoxField)
 
-    expect(result).toEqual(fullCheckBoxFieldEnterprise)
-  })
+      expect(result).toEqual(fullCheckBoxFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportCheckBoxFieldToEnterprise(mockСontext, minimalCheckBoxField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportCheckBoxFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalCheckBoxFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })

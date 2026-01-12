@@ -1,30 +1,44 @@
 import { describe, expect, it } from "vitest"
 import {
   fullTrackBarField,
-  fullTrackBarFieldEnterprise,
+  fullTrackBarFieldPartialEnterprise,
+  fullTrackBarFieldTypedEnterprise,
   minimalTrackBarField,
-  minimalTrackBarFieldEnterprise,
+  minimalTrackBarFieldPartialEnterprise,
+  minimalTrackBarFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/trackBarField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportTrackBarFieldToEnterprise } from "./exportToEnterprise"
+import {
+  exportTrackBarFieldPartialToEnterprise,
+  exportTrackBarFieldTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportTrackBarFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportTrackBarFieldToEnterprise(mockСontext, undefined)
+  describe("exportTrackBarFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportTrackBarFieldPartialToEnterprise(mockСontext, fullTrackBarField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullTrackBarFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportTrackBarFieldPartialToEnterprise(mockСontext, minimalTrackBarField)
+
+      expect(result).toEqual(minimalTrackBarFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportTrackBarFieldToEnterprise(mockСontext, fullTrackBarField)
+  describe("exportTrackBarFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportTrackBarFieldTypedToEnterprise(mockСontext, fullTrackBarField)
 
-    expect(result).toEqual(fullTrackBarFieldEnterprise)
-  })
+      expect(result).toEqual(fullTrackBarFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportTrackBarFieldToEnterprise(mockСontext, minimalTrackBarField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportTrackBarFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalTrackBarFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
-

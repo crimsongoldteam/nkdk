@@ -55,7 +55,7 @@ export interface LabelFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface LabelFieldEnterprise extends FormFieldEnterprise {
+export interface LabelFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   ВыделятьОтрицательные?: StringboolEnterprise
@@ -81,3 +81,10 @@ export interface LabelFieldEnterprise extends FormFieldEnterprise {
     ОбработкаНавигационнойСсылки?: string
   }
 }
+
+export interface LabelFieldTypedEnterprise extends LabelFieldPartialEnterprise {
+  Тип: "ПолеНадписи"
+}
+
+// Для обратной совместимости
+export type LabelFieldEnterprise = LabelFieldPartialEnterprise

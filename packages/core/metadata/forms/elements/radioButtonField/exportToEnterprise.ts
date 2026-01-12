@@ -4,24 +4,58 @@ import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportTo
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import {
+  RadioButtonField,
+  RadioButtonFieldPartialEnterprise,
+  RadioButtonFieldTypedEnterprise,
+} from "~/metadata/forms/elements/radioButtonField/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
-import { RadioButtonField, RadioButtonFieldEnterprise } from "~/metadata/forms/elements/radioButtonField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportRadioButtonFieldToEnterprise = (
+export const exportRadioButtonFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: RadioButtonField | undefined
-): RadioButtonFieldEnterprise | undefined => {
+): RadioButtonFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: RadioButtonFieldEnterprise = {
+  const props = exportRadioButtonFieldPropsToEnterprise(context, data)
+
+  const result: RadioButtonFieldTypedEnterprise = {
+    Тип: "ПолеПереключателя",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportRadioButtonFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: RadioButtonField
+): RadioButtonFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportRadioButtonFieldPropsToEnterprise(context, data)
+
+  const result: RadioButtonFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportRadioButtonFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: RadioButtonField
+): RadioButtonFieldPartialEnterprise => {
+  const result: RadioButtonFieldPartialEnterprise = {}
 
   const radioButtonType = exportSystemEnumerationToEnterprise(
     context,
@@ -67,4 +101,5 @@ export const exportRadioButtonFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "RadioButtonField", exportRadioButtonFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "RadioButtonField", exportRadioButtonFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "RadioButtonField", exportRadioButtonFieldTypedToEnterprise)

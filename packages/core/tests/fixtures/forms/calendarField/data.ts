@@ -1,4 +1,8 @@
-import { CalendarField, CalendarFieldEnterprise } from "~/metadata/forms/elements/calendarField/types"
+import {
+  CalendarField,
+  CalendarFieldPartialEnterprise,
+  CalendarFieldTypedEnterprise,
+} from "~/metadata/forms/elements/calendarField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
@@ -44,7 +48,7 @@ export const fullCalendarField: CalendarField = {
   },
 }
 
-export const fullCalendarFieldEnterprise: CalendarFieldEnterprise = {
+export const fullCalendarFieldPartialEnterprise: CalendarFieldPartialEnterprise = {
   ...fullFormFieldEnterprise,
   Заголовок: "Поле календаря",
   АвтоМаксимальнаяВысота: "Истина",
@@ -78,9 +82,18 @@ export const fullCalendarFieldEnterprise: CalendarFieldEnterprise = {
   },
 }
 
+export const fullCalendarFieldTypedEnterprise: CalendarFieldTypedEnterprise = {
+  ...fullCalendarFieldPartialEnterprise,
+  Тип: "ПолеКалендаря",
+}
+
 export const minimalCalendarField: CalendarField = {
   elementType: FormElementType.CalendarField,
   name: "ПолеКалендаря",
 }
 
-export const minimalCalendarFieldEnterprise: CalendarFieldEnterprise = {}
+export const minimalCalendarFieldPartialEnterprise: CalendarFieldPartialEnterprise = {}
+
+export const minimalCalendarFieldTypedEnterprise: CalendarFieldTypedEnterprise = {
+  Тип: "ПолеКалендаря",
+}

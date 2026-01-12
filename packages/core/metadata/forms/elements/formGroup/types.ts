@@ -52,7 +52,7 @@ export interface FormGroupXML extends BaseElementXML {
   Width?: number
 }
 
-export interface FormGroupPropsEnterprise extends BaseElementPropsEnterprise {
+export interface FormGroupPartialEnterprise extends BaseElementPropsEnterprise {
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
   Вид?: SE.FormGroupTypeEnterprise
   Видимость?: StringboolEnterprise
@@ -74,3 +74,10 @@ export interface FormGroupPropsEnterprise extends BaseElementPropsEnterprise {
   Ширина?: number
   ШрифтЗаголовка?: FontEnterprise
 }
+
+export interface FormGroupTypedEnterprise extends FormGroupPartialEnterprise {
+  Тип: "ГруппаФормы"
+}
+
+// Для обратной совместимости
+export type FormGroupPropsEnterprise = FormGroupPartialEnterprise
