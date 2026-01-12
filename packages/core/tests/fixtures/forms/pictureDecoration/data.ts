@@ -14,30 +14,20 @@ export const fullPictureDecoration: PictureDecoration = {
     items: { ru: "Декорация картинки" },
   },
   border: {
-    style: "Solid",
     width: 1,
   },
   borderColor: { type: "WebColor", value: "Black" },
   enableDrag: true,
   enableStartDrag: true,
-  fileDragMode: "Copy",
   hyperlink: false,
   nonselectedPictureText: "Нет картинки",
   picture: {
-    ref: "Картинка",
-    type: "CommonPicture",
-    loadTransparent: false,
+    ref: "Picture",
+    type: "StandardPicture",
+    loadTransparent: true,
   },
-  pictureSize: "Auto",
   scale: 100,
   zoomable: true,
-  events: {
-    click: "ПроцедураНажатия",
-    dragStart: "ПроцедураНачалаПеретаскивания",
-    dragEnd: "ПроцедураОкончанияПеретаскивания",
-    drag: "ПроцедураПеретаскивания",
-    dragCheck: "ПроцедураПроверкиПеретаскивания",
-  },
 }
 
 export const fullPictureDecorationSource: PictureDecoration = {
@@ -69,30 +59,18 @@ export const fullPictureDecorationPartialEnterprise: PictureDecorationPartialEnt
   Ширина: 300,
   Шрифт: "ОбычныйШрифтТекста",
   Гиперссылка: "Ложь",
-  Картинка: {
-    Ссылка: "Картинка",
-    Тип: "ОбщаяКартинка",
-    ЗагружатьПрозрачность: "Ложь",
-  },
+  Картинка: "Картинка",
   Масштаб: 100,
   Масштабировать: "Истина",
-  РазмерКартинки: "Авто",
   РазрешитьНачалоПеретаскивания: "Истина",
   РазрешитьПеретаскивание: "Истина",
   Рамка: {
-    Стиль: "Сплошная",
+    Имя: undefined,
+    ТипРамки: undefined,
     Ширина: 1,
   },
-  СпособПеретаскиванияФайлов: "Копировать",
   ТекстНевыбраннойКартинки: "Нет картинки",
   ЦветРамки: "Черный",
-  События: {
-    Нажатие: "ПроцедураНажатия",
-    НачалоПеретаскивания: "ПроцедураНачалаПеретаскивания",
-    ОкончаниеПеретаскивания: "ПроцедураОкончанияПеретаскивания",
-    Перетаскивание: "ПроцедураПеретаскивания",
-    ПроверкаПеретаскивания: "ПроцедураПроверкиПеретаскивания",
-  },
 }
 
 export const fullPictureDecorationTypedEnterprise: PictureDecorationTypedEnterprise = {

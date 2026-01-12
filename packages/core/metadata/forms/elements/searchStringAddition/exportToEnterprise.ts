@@ -1,21 +1,17 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
-import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
-import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
   SearchStringAddition,
   SearchStringAdditionEnterprise,
 } from "~/metadata/forms/elements/searchStringAddition/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
+import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importChildItemsFromEnterprise } from "../../collections/childItems/importFromEnterprise"
-import { importContextMenuFromEnterprise } from "../contextMenu/importFromEnterprise"
-import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
+import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
 export const exportSearchStringAdditionToEnterprise = (
   context: ConfigurationContext,
@@ -25,72 +21,48 @@ export const exportSearchStringAdditionToEnterprise = (
 
   const result: SearchStringAdditionEnterprise = {}
 
-  const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
+  const displayImportance = exportSystemEnumerationToEnterprise(
     context,
-    data.ВажностьПриОтображении,
-    SE.DisplayImportanceFromEnterprise
+    data.displayImportance,
+    SE.DisplayImportanceToEnterprise
   )
-  if (displayImportance !== undefined) result.displayImportance = displayImportance
+  if (displayImportance !== undefined) result.ВажностьПриОтображении = displayImportance
 
-  const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
-    data.ВертикальноеПоложениеВГруппе,
-    SE.ItemVerticalAlignFromEnterprise
+    data.verticalAlignInGroup,
+    SE.ItemVerticalAlignToEnterprise
   )
-  if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
+  if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
 
-  const type = importSystemEnumerationFromEnterprise<SE.FormItemAdditionType>(
+  const visible = exportBooleanToEnterprise(context, data.visible)
+  if (visible !== undefined) result.Видимость = visible
+
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
     context,
-    data.Вид,
-    SE.FormItemAdditionTypeFromEnterprise
+    data.horizontalAlignInGroup,
+    SE.ItemHorizontalLocationToEnterprise
   )
-  if (type !== undefined) result.type = type
+  if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
 
-  const visible = importBooleanFromEnterprise(context, data.Видимость)
-  if (visible !== undefined) result.visible = visible
+  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  if (enabled !== undefined) result.Доступность = enabled
 
-  const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
+  const contextMenu = exportContextMenuToEnterprise(context, data.contextMenu)
+  if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu
+
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
     context,
-    data.ГоризонтальноеПоложениеВГруппе,
-    SE.ItemHorizontalLocationFromEnterprise
+    data.toolTipRepresentation,
+    SE.ToolTipRepresentationToEnterprise
   )
-  if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
+  if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
 
-  const enabled = importBooleanFromEnterprise(context, data.Доступность)
-  if (enabled !== undefined) result.enabled = enabled
+  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  if (toolTip !== undefined) result.Подсказка = toolTip
 
-  const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
-  if (contextMenu !== undefined) result.contextMenu = contextMenu
-
-  const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
-    context,
-    data.ОтображениеПодсказки,
-    SE.ToolTipRepresentationFromEnterprise
-  )
-  if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
-
-  const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
-  if (toolTip !== undefined) result.toolTip = toolTip
-
-  const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
-  if (childItems !== undefined) result.childItems = childItems
-
-  const userVisibleAllow = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    "РазрешитьИспользование"
-  )
-  const userVisibleDeny = importUserVisibleFromEnterprise(
-    context,
-    data.ЗапретитьИспользование,
-    "ЗапретитьИспользование"
-  )
-  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
-    result.userVisible = userVisibleAllow || userVisibleDeny
-  }
-
-  const extendedToolTip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
-  if (extendedToolTip !== undefined) result.extendedTooltip = extendedToolTip
+  const extendedToolTip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
+  if (extendedToolTip !== undefined) result.РасширеннаяПодсказка = extendedToolTip
 
   const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
   if (userVisible !== undefined) {
@@ -116,5 +88,3 @@ export const exportSearchStringAdditionToEnterprise = (
 
   return result
 }
-
-registerMetadata("ExportPartialToEnterprise", "SearchStringAddition", exportSearchStringAdditionToEnterprise)

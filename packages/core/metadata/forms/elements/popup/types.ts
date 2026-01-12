@@ -1,9 +1,13 @@
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupPropsEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ButtonGroupChildItem, ButtonGroupChildItemsXML } from "../../collections/buttonGroupChildItems/types"
+import {
+  ButtonGroupChildItem,
+  ButtonGroupChildItemsEnterprise,
+  ButtonGroupChildItemsXML,
+} from "../../collections/buttonGroupChildItems/types"
 
 export interface Popup extends FormGroup {
   backColor?: Color
@@ -27,7 +31,7 @@ export interface PopupXML extends FormGroupXML {
   ПодчиненныеЭлементы?: ButtonGroupChildItemsXML
 }
 
-export interface PopupPartialEnterprise extends FormGroupPropsEnterprise {
+export interface PopupPartialEnterprise extends FormGroupPartialEnterprise {
   Картинка?: PictureEnterprise
   Отображение?: SE.ButtonRepresentationEnterprise
   ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
@@ -36,7 +40,7 @@ export interface PopupPartialEnterprise extends FormGroupPropsEnterprise {
   Фигура?: SE.ButtonShapeEnterprise
   ЦветРамки?: ColorEnterprise
   ЦветФона?: ColorEnterprise
-  ПодчиненныеЭлементы?: ButtonGroupChildItem
+  ПодчиненныеЭлементы?: ButtonGroupChildItemsEnterprise
 }
 
 export interface PopupTypedEnterprise extends PopupPartialEnterprise {
