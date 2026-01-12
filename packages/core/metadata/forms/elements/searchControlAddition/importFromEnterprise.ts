@@ -11,76 +11,68 @@ import {
   SearchControlAddition,
   SearchControlAdditionEnterprise,
 } from "~/metadata/forms/elements/searchControlAddition/types"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "~/metadata/forms/elements/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importSearchControlAdditionFromEnterprise = <
-  From extends SearchControlAdditionEnterprise | undefined,
-  Name extends string,
->(
+export const importSearchControlAdditionFromEnterprise = <From extends SearchControlAdditionEnterprise | undefined>(
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, SearchControlAddition & { elementType: FormElementType; name: string }, Name> => {
-  if (!data)
-    return undefined as ImportFromEnterpriseReturn<
-      From,
-      SearchControlAddition & { elementType: FormElementType; name: string },
-      Name
-    >
+  data: From
+): ImportExportReturn<From, SearchControlAddition> => {
+  if (!data) return undefined as ImportExportReturn<From, SearchControlAddition>
 
-  const baseProps: Omit<Partial<SearchControlAddition>, "elementType" | "name" | "childItems"> = {}
+  const result: SearchControlAddition = {
+    childItems: [],
+  }
 
   const displayImportance = importSystemEnumerationFromEnterprise<SE.DisplayImportance>(
     context,
     data.ВажностьПриОтображении,
     SE.DisplayImportanceFromEnterprise
   )
-  if (displayImportance !== undefined) baseProps.displayImportance = displayImportance
+  if (displayImportance !== undefined) result.displayImportance = displayImportance
 
   const verticalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemVerticalAlign>(
     context,
     data.ВертикальноеПоложениеВГруппе,
     SE.ItemVerticalAlignFromEnterprise
   )
-  if (verticalAlignInGroup !== undefined) baseProps.verticalAlignInGroup = verticalAlignInGroup
+  if (verticalAlignInGroup !== undefined) result.verticalAlignInGroup = verticalAlignInGroup
 
   const visible = importBooleanFromEnterprise(context, data.Видимость)
-  if (visible !== undefined) baseProps.visible = visible
+  if (visible !== undefined) result.visible = visible
 
   const horizontalAlignInGroup = importSystemEnumerationFromEnterprise<SE.ItemHorizontalLocation>(
     context,
     data.ГоризонтальноеПоложениеВГруппе,
     SE.ItemHorizontalLocationFromEnterprise
   )
-  if (horizontalAlignInGroup !== undefined) baseProps.horizontalAlignInGroup = horizontalAlignInGroup
+  if (horizontalAlignInGroup !== undefined) result.horizontalAlignInGroup = horizontalAlignInGroup
 
   const enabled = importBooleanFromEnterprise(context, data.Доступность)
-  if (enabled !== undefined) baseProps.enabled = enabled
+  if (enabled !== undefined) result.enabled = enabled
 
   const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
-  if (contextMenu !== undefined) baseProps.contextMenu = contextMenu
+  if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   const toolTipRepresentation = importSystemEnumerationFromEnterprise<SE.ToolTipRepresentation>(
     context,
     data.ОтображениеПодсказки,
     SE.ToolTipRepresentationFromEnterprise
   )
-  if (toolTipRepresentation !== undefined) baseProps.toolTipRepresentation = toolTipRepresentation
+  if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
-  if (toolTip !== undefined) baseProps.toolTip = toolTip
+  if (toolTip !== undefined) result.toolTip = toolTip
 
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
-  if (title !== undefined) baseProps.title = title
+  if (title !== undefined) result.title = title
 
   const childItems = importButtonGroupChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
+  if (childItems !== undefined) result.childItems = childItems
 
   const extendedToolTip = importExtendedTooltipFromEnterprise(context, data.РасширеннаяПодсказка)
-  if (extendedToolTip !== undefined) baseProps.extendedTooltip = extendedToolTip
+  if (extendedToolTip !== undefined) result.extendedTooltip = extendedToolTip
 
   const userVisibleAllow = importUserVisibleFromEnterprise(
     context,
@@ -93,14 +85,7 @@ export const importSearchControlAdditionFromEnterprise = <
     "ЗапретитьИспользование"
   )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
-    baseProps.userVisible = userVisibleAllow || userVisibleDeny
-  }
-
-  const result: SearchControlAddition & { elementType: FormElementType; name: string } = {
-    ...baseProps,
-    elementType: FormElementType.SearchControlAddition,
-    name,
-    childItems,
+    result.userVisible = userVisibleAllow || userVisibleDeny
   }
 
   const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
@@ -125,11 +110,5 @@ export const importSearchControlAdditionFromEnterprise = <
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  return result as unknown as ImportFromEnterpriseReturn<
-    From,
-    SearchControlAddition & { elementType: FormElementType; name: string },
-    Name
-  >
+  return result as ImportExportReturn<From, SearchControlAddition>
 }
-
-registerMetadata("ImportFromEnterprise", "SearchControlAddition", importSearchControlAdditionFromEnterprise)

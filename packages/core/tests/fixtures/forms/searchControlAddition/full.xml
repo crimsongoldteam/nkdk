@@ -1,8 +1,56 @@
 <SearchControlAddition name="ДополнениеУправленияПоиском" id="1" DisplayImportance="High">
-	<ContextMenu name="ДополнениеУправленияПоискомКонтекстноеМеню" id="2"/>
+	<AdditionSource>
+		<Item>Дополнение</Item>
+		<Type>SearchControlAddition</Type>
+	</AdditionSource>
+	<AutoMaxWidth>true</AutoMaxWidth>
+	<BackColor>web:White</BackColor>
+	<BorderColor>web:Black</BorderColor>
+	<ContextMenu name="ДополнениеКонтекстноеМеню" id="2" DisplayImportance="High">
+		<Autofill>true</Autofill>
+	</ContextMenu>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="ДополнениеУправленияПоискомРасширеннаяПодсказка" id="3"/>
+	<ExtendedTooltip name="ДополнениеРасширеннаяПодсказка" id="3" DisplayImportance="High">
+		<AutoMaxHeight>true</AutoMaxHeight>
+		<AutoMaxWidth>true</AutoMaxWidth>
+		<Enabled>true</Enabled>
+		<Font ref="style:NormalTextFont" kind="StyleItem"/>
+		<Height>200</Height>
+		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+		<HorizontalStretch>true</HorizontalStretch>
+		<MaxHeight>500</MaxHeight>
+		<MaxWidth>400</MaxWidth>
+		<Shortcut>Ctrl+S</Shortcut>
+		<SkipOnInput>false</SkipOnInput>
+		<TextColor>web:Blue</TextColor>
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Оформление формы</v8:content>
+			</v8:item>
+		</Title>
+		<ToolTip>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Подсказка</v8:content>
+			</v8:item>
+		</ToolTip>
+		<ToolTipRepresentation>None</ToolTipRepresentation>
+		<Type>Label</Type>
+		<UserVisible>
+			<xr:Common>true</xr:Common>
+			<xr:Value name="Role.Администратор">true</xr:Value>
+		</UserVisible>
+		<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+		<VerticalStretch>true</VerticalStretch>
+		<Visible>true</Visible>
+		<Width>300</Width>
+	</ExtendedTooltip>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalStretch>true</HorizontalStretch>
+	<MaxWidth>400</MaxWidth>
+	<TextColor>web:Black</TextColor>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -16,11 +64,11 @@
 		</v8:item>
 	</ToolTip>
 	<ToolTipRepresentation>None</ToolTipRepresentation>
-	<Type>SearchControl</Type>
 	<UserVisible>
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
 	<Visible>true</Visible>
+	<Width>300</Width>
 </SearchControlAddition>

@@ -10,29 +10,20 @@ import { importSearchControlAdditionFromEnterprise } from "./importFromEnterpris
 
 describe("importSearchControlAdditionFromEnterprise", () => {
   it("should return undefined when data is undefined", () => {
-    const result = importSearchControlAdditionFromEnterprise(mockСontext, undefined, fullSearchControlAddition.name)
+    const result = importSearchControlAdditionFromEnterprise(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
 
   it("should import all fields from Enterprise", () => {
-    const result = importSearchControlAdditionFromEnterprise(
-      mockСontext,
-      fullSearchControlAdditionEnterprise,
-      fullSearchControlAddition.name
-    )
+    const result = importSearchControlAdditionFromEnterprise(mockСontext, fullSearchControlAdditionEnterprise)
 
     expect(result).toEqual(fullSearchControlAddition)
   })
 
   it("should import minimal", () => {
-    const result = importSearchControlAdditionFromEnterprise(
-      mockСontext,
-      minimalSearchControlAdditionEnterprise,
-      minimalSearchControlAddition.name
-    )
+    const result = importSearchControlAdditionFromEnterprise(mockСontext, minimalSearchControlAdditionEnterprise)
 
     expect(result).toEqual(minimalSearchControlAddition)
   })
 })
-

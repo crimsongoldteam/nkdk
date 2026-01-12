@@ -3,27 +3,17 @@ import { importFontFromXML } from "~/metadata/commonObjects/font/importFromXML"
 import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFromXML"
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importButtonGroupChildItemsFromXML } from "~/metadata/forms/collections/buttonGroupChildItems/importFromXML"
-import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { SearchControlAddition, SearchControlAdditionXML } from "~/metadata/forms/elements/searchControlAddition/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 import { isHasContent } from "./helper"
 
 export const importSearchControlAdditionFromXML = (
   context: ConfigurationContext,
-  xml: SearchControlAdditionXML | undefined
+  xml: SearchControlAdditionXML
 ): SearchControlAddition | undefined => {
-  if (!xml) return undefined
-
-  const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined
-
-  const result: SearchControlAddition & { elementType: FormElementType; name: string } = {
-    ...baseFields,
-    elementType: FormElementType.SearchControlAddition,
-    childItems: importButtonGroupChildItemsFromXML(context, xml.ChildItems) ?? [],
+  const result: SearchControlAddition = {
+    childItems: [],
   }
 
   const contextMenu = importContextMenuFromXML(context, xml.ContextMenu)

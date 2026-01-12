@@ -13,7 +13,9 @@ describe("exportSearchControlAdditionToXML", () => {
   it("should return undefined when data is undefined", () => {
     const expectedResult = readXMLFileAsString("forms/searchControlAddition/minimal.xml")
 
-    const result = exportSearchControlAdditionToXML(mockСontext, undefined, parentElement)
+    const xmlData = exportSearchControlAdditionToXML(mockСontext, undefined, parentElement)
+
+    const result = xmlExport({ SearchControlAddition: xmlData }, false)
 
     expect(result).toEqual(expectedResult)
   })

@@ -2,9 +2,10 @@ import { BaseElement } from "../baseElement/types"
 import { SearchControlAddition } from "./types"
 
 export const getSearchControlAdditionName = (parentElement: BaseElement): string => {
-  return `${parentElement.name}УправлениеПоиском`
+  return `${parentElement.name}УправленияПоиском`
 }
 
 export const isHasContent = (data: SearchControlAddition): boolean => {
-  return Object.keys(data).length > 0
+  if (data.childItems.length > 0) return true
+  return Object.keys(data).filter((key) => key !== "childItems").length > 0
 }

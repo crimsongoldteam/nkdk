@@ -1,10 +1,7 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
-import {
-  exportI8nTextOtherToEnterprise,
-  exportI8nTextToEnterprise,
-} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportButtonGroupChildItemsToEnterprise } from "~/metadata/forms/collections/buttonGroupChildItems/exportToEnterprise"
@@ -78,7 +75,7 @@ export const exportSearchControlAdditionToEnterprise = (
   const extendedToolTip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
   if (extendedToolTip !== undefined) result.РасширеннаяПодсказка = extendedToolTip
 
-  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
   const autoMaxWidth = exportBooleanToEnterprise(context, data.autoMaxWidth)
@@ -102,8 +99,6 @@ export const exportSearchControlAdditionToEnterprise = (
 
   const font = exportFontToEnterprise(context, data.font)
   if (font !== undefined) result.Шрифт = font
-
-  if (Object.keys(result).length === 0) return undefined
 
   return sortObject(result)
 }
