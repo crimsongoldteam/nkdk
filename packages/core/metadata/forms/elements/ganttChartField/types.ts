@@ -49,7 +49,7 @@ export interface GanttChartFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface GanttChartFieldEnterprise extends FormFieldEnterprise {
+export interface GanttChartFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   ВертикальныеЛинии?: StringboolEnterprise
@@ -76,3 +76,10 @@ export interface GanttChartFieldEnterprise extends FormFieldEnterprise {
     ПриОкончанииРедактированияИнтервала?: string
   }
 }
+
+export interface GanttChartFieldTypedEnterprise extends GanttChartFieldPartialEnterprise {
+  Тип: "ПолеДиаграммыГанта"
+}
+
+// Для обратной совместимости
+export type GanttChartFieldEnterprise = GanttChartFieldPartialEnterprise

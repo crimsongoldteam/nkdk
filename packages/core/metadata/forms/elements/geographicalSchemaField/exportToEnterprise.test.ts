@@ -1,25 +1,44 @@
 import { describe, expect, it } from "vitest"
-import { fullGeographicalSchemaField, fullGeographicalSchemaFieldEnterprise, minimalGeographicalSchemaField, minimalGeographicalSchemaFieldEnterprise } from "~/tests/fixtures/forms/geographicalSchemaField/data"
+import {
+  fullGeographicalSchemaField,
+  fullGeographicalSchemaFieldPartialEnterprise,
+  fullGeographicalSchemaFieldTypedEnterprise,
+  minimalGeographicalSchemaField,
+  minimalGeographicalSchemaFieldPartialEnterprise,
+  minimalGeographicalSchemaFieldTypedEnterprise,
+} from "~/tests/fixtures/forms/geographicalSchemaField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportGeographicalSchemaFieldToEnterprise } from "./exportToEnterprise"
+import {
+  exportGeographicalSchemaFieldPartialToEnterprise,
+  exportGeographicalSchemaFieldTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportGeographicalSchemaFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportGeographicalSchemaFieldToEnterprise(mockСontext, undefined)
+  describe("exportGeographicalSchemaFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportGeographicalSchemaFieldPartialToEnterprise(mockСontext, fullGeographicalSchemaField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullGeographicalSchemaFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportGeographicalSchemaFieldPartialToEnterprise(mockСontext, minimalGeographicalSchemaField)
+
+      expect(result).toEqual(minimalGeographicalSchemaFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportGeographicalSchemaFieldToEnterprise(mockСontext, fullGeographicalSchemaField)
+  describe("exportGeographicalSchemaFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportGeographicalSchemaFieldTypedToEnterprise(mockСontext, fullGeographicalSchemaField)
 
-    expect(result).toEqual(fullGeographicalSchemaFieldEnterprise)
-  })
+      expect(result).toEqual(fullGeographicalSchemaFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportGeographicalSchemaFieldToEnterprise(mockСontext, minimalGeographicalSchemaField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportGeographicalSchemaFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalGeographicalSchemaFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
-

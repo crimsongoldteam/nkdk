@@ -5,24 +5,55 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import {
   GeographicalSchemaField,
-  GeographicalSchemaFieldEnterprise,
+  GeographicalSchemaFieldPartialEnterprise,
+  GeographicalSchemaFieldTypedEnterprise,
 } from "~/metadata/forms/elements/geographicalSchemaField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportGeographicalSchemaFieldToEnterprise = (
+export const exportGeographicalSchemaFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: GeographicalSchemaField | undefined
-): GeographicalSchemaFieldEnterprise | undefined => {
+): GeographicalSchemaFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: GeographicalSchemaFieldEnterprise = {
+  const props = exportGeographicalSchemaFieldPropsToEnterprise(context, data)
+
+  const result: GeographicalSchemaFieldTypedEnterprise = {
+    Тип: "ПолеГеографическойСхемы",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportGeographicalSchemaFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: GeographicalSchemaField
+): GeographicalSchemaFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportGeographicalSchemaFieldPropsToEnterprise(context, data)
+
+  const result: GeographicalSchemaFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportGeographicalSchemaFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: GeographicalSchemaField
+): GeographicalSchemaFieldPartialEnterprise => {
+  const result: GeographicalSchemaFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -61,4 +92,5 @@ export const exportGeographicalSchemaFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "GeographicalSchemaField", exportGeographicalSchemaFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "GeographicalSchemaField", exportGeographicalSchemaFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "GeographicalSchemaField", exportGeographicalSchemaFieldTypedToEnterprise)

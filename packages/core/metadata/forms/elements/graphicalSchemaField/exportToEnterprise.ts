@@ -5,24 +5,55 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
 import {
   GraphicalSchemaField,
-  GraphicalSchemaFieldEnterprise,
+  GraphicalSchemaFieldPartialEnterprise,
+  GraphicalSchemaFieldTypedEnterprise,
 } from "~/metadata/forms/elements/graphicalSchemaField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportGraphicalSchemaFieldToEnterprise = (
+export const exportGraphicalSchemaFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: GraphicalSchemaField | undefined
-): GraphicalSchemaFieldEnterprise | undefined => {
+): GraphicalSchemaFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: GraphicalSchemaFieldEnterprise = {
+  const props = exportGraphicalSchemaFieldPropsToEnterprise(context, data)
+
+  const result: GraphicalSchemaFieldTypedEnterprise = {
+    Тип: "ПолеГрафическойСхемы",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportGraphicalSchemaFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: GraphicalSchemaField
+): GraphicalSchemaFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportGraphicalSchemaFieldPropsToEnterprise(context, data)
+
+  const result: GraphicalSchemaFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportGraphicalSchemaFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: GraphicalSchemaField
+): GraphicalSchemaFieldPartialEnterprise => {
+  const result: GraphicalSchemaFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -64,4 +95,5 @@ export const exportGraphicalSchemaFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "GraphicalSchemaField", exportGraphicalSchemaFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "GraphicalSchemaField", exportGraphicalSchemaFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "GraphicalSchemaField", exportGraphicalSchemaFieldTypedToEnterprise)

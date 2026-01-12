@@ -5,13 +5,9 @@ import {
   fullPictureFieldTypedEnterprise,
   minimalPictureField,
   minimalPictureFieldPartialEnterprise,
-  minimalPictureFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/pictureField/data"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportPictureFieldPartialToEnterprise,
-  exportPictureFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { exportPictureFieldPartialToEnterprise, exportPictureFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportPictureFieldToEnterprise", () => {
   describe("exportPictureFieldPartialToEnterprise", () => {

@@ -2,68 +2,67 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { GraphicalSchemaField, GraphicalSchemaFieldEnterprise } from "~/metadata/forms/elements/graphicalSchemaField/types"
+import {
+  GraphicalSchemaField,
+  GraphicalSchemaFieldPartialEnterprise,
+  GraphicalSchemaFieldTypedEnterprise,
+} from "~/metadata/forms/elements/graphicalSchemaField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const importGraphicalSchemaFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-    Выбор?: string
-    ПередЗаписью?: string
-    ПередПечатью?: string
-    ПослеЗаписи?: string
-    ПриАктивизации?: string
-  } | undefined
-): {
-  onChange?: string
-  selection?: string
-  beforeWrite?: string
-  beforePrint?: string
-  afterWrite?: string
-  onActivate?: string
-} | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    selection?: string
-    beforeWrite?: string
-    beforePrint?: string
-    afterWrite?: string
-    onActivate?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.Выбор !== undefined) result.selection = data.Выбор
-  if (data.ПередЗаписью !== undefined) result.beforeWrite = data.ПередЗаписью
-  if (data.ПередПечатью !== undefined) result.beforePrint = data.ПередПечатью
-  if (data.ПослеЗаписи !== undefined) result.afterWrite = data.ПослеЗаписи
-  if (data.ПриАктивизации !== undefined) result.onActivate = data.ПриАктивизации
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importGraphicalSchemaFieldFromEnterprise = <
-  From extends GraphicalSchemaFieldEnterprise | undefined,
-  Name extends string,
->(
+export const importGraphicalSchemaFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, GraphicalSchemaField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, GraphicalSchemaField, Name>
+  data: GraphicalSchemaFieldTypedEnterprise | undefined,
+  name: string
+): GraphicalSchemaField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, GraphicalSchemaField, Name> = {
+  const props = importGraphicalSchemaFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: GraphicalSchemaField = {
     ...baseFields,
-    elementType: FormElementType.GraphicalSchemaField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importGraphicalSchemaFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: GraphicalSchemaField | undefined,
+  data: GraphicalSchemaFieldPartialEnterprise | undefined
+): GraphicalSchemaField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importGraphicalSchemaFieldPropsFromEnterprise(context, data)
+  const result: GraphicalSchemaField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importGraphicalSchemaFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: GraphicalSchemaFieldTypedEnterprise | GraphicalSchemaFieldPartialEnterprise | undefined
+): Omit<Partial<GraphicalSchemaField>, "elementType" | "name"> => {
+  const result: Omit<Partial<GraphicalSchemaField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -89,7 +88,11 @@ export const importGraphicalSchemaFieldFromEnterprise = <
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -108,11 +111,10 @@ export const importGraphicalSchemaFieldFromEnterprise = <
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const events = importGraphicalSchemaFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "GraphicalSchemaField", importGraphicalSchemaFieldFromEnterprise)
-
+registerMetadata("ImportFromEnterprise", "GraphicalSchemaField", importGraphicalSchemaFieldPropsFromEnterprise)

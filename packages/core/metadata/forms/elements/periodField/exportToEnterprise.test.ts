@@ -5,13 +5,9 @@ import {
   fullPeriodFieldTypedEnterprise,
   minimalPeriodField,
   minimalPeriodFieldPartialEnterprise,
-  minimalPeriodFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/periodField/data"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportPeriodFieldPartialToEnterprise,
-  exportPeriodFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { exportPeriodFieldPartialToEnterprise, exportPeriodFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportPeriodFieldToEnterprise", () => {
   describe("exportPeriodFieldPartialToEnterprise", () => {

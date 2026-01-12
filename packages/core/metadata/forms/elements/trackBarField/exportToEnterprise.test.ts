@@ -5,13 +5,9 @@ import {
   fullTrackBarFieldTypedEnterprise,
   minimalTrackBarField,
   minimalTrackBarFieldPartialEnterprise,
-  minimalTrackBarFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/trackBarField/data"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportTrackBarFieldPartialToEnterprise,
-  exportTrackBarFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { exportTrackBarFieldPartialToEnterprise, exportTrackBarFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportTrackBarFieldToEnterprise", () => {
   describe("exportTrackBarFieldPartialToEnterprise", () => {

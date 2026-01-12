@@ -28,6 +28,16 @@ const enterpriseEventNameMapping: Record<string, string> = {
   ПроверкаПеретаскивания: "dragCheck",
   Нажатие: "click",
   ОбработкаНавигационнойСсылки: "uRLProcessing",
+  ОбработкаРасшифровки: "detailProcessing",
+  ПередРазворачиванием: "beforeExpand",
+  ПередСворачиванием: "beforeCollapse",
+  ПриАктивизацииЗначения: "onActivateValue",
+  ПриАктивизацииИнтервала: "onActivateInterval",
+  ПриОкончанииРедактированияИнтервала: "onIntervalEditEnd",
+  ПередЗаписью: "beforeWrite",
+  ПередПечатью: "beforePrint",
+  ПослеЗаписи: "afterWrite",
+  ПриАктивизации: "onActivate",
 }
 
 export const importEventsFromEnterprise = (

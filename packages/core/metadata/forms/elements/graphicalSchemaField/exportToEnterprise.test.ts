@@ -1,25 +1,44 @@
 import { describe, expect, it } from "vitest"
-import { fullGraphicalSchemaField, fullGraphicalSchemaFieldEnterprise, minimalGraphicalSchemaField, minimalGraphicalSchemaFieldEnterprise } from "~/tests/fixtures/forms/graphicalSchemaField/data"
+import {
+  fullGraphicalSchemaField,
+  fullGraphicalSchemaFieldPartialEnterprise,
+  fullGraphicalSchemaFieldTypedEnterprise,
+  minimalGraphicalSchemaField,
+  minimalGraphicalSchemaFieldPartialEnterprise,
+  minimalGraphicalSchemaFieldTypedEnterprise,
+} from "~/tests/fixtures/forms/graphicalSchemaField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportGraphicalSchemaFieldToEnterprise } from "./exportToEnterprise"
+import {
+  exportGraphicalSchemaFieldPartialToEnterprise,
+  exportGraphicalSchemaFieldTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportGraphicalSchemaFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportGraphicalSchemaFieldToEnterprise(mockСontext, undefined)
+  describe("exportGraphicalSchemaFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportGraphicalSchemaFieldPartialToEnterprise(mockСontext, fullGraphicalSchemaField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullGraphicalSchemaFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportGraphicalSchemaFieldPartialToEnterprise(mockСontext, minimalGraphicalSchemaField)
+
+      expect(result).toEqual(minimalGraphicalSchemaFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportGraphicalSchemaFieldToEnterprise(mockСontext, fullGraphicalSchemaField)
+  describe("exportGraphicalSchemaFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportGraphicalSchemaFieldTypedToEnterprise(mockСontext, fullGraphicalSchemaField)
 
-    expect(result).toEqual(fullGraphicalSchemaFieldEnterprise)
-  })
+      expect(result).toEqual(fullGraphicalSchemaFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportGraphicalSchemaFieldToEnterprise(mockСontext, minimalGraphicalSchemaField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportGraphicalSchemaFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalGraphicalSchemaFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
-

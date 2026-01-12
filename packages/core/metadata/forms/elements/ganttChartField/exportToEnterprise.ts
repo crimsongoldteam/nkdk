@@ -2,23 +2,57 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
-import { GanttChartField, GanttChartFieldEnterprise } from "~/metadata/forms/elements/ganttChartField/types"
+import {
+  GanttChartField,
+  GanttChartFieldPartialEnterprise,
+  GanttChartFieldTypedEnterprise,
+} from "~/metadata/forms/elements/ganttChartField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportGanttChartFieldToEnterprise = (
+export const exportGanttChartFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: GanttChartField | undefined
-): GanttChartFieldEnterprise | undefined => {
+): GanttChartFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: GanttChartFieldEnterprise = {
+  const props = exportGanttChartFieldPropsToEnterprise(context, data)
+
+  const result: GanttChartFieldTypedEnterprise = {
+    Тип: "ПолеДиаграммыГанта",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportGanttChartFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: GanttChartField
+): GanttChartFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportGanttChartFieldPropsToEnterprise(context, data)
+
+  const result: GanttChartFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportGanttChartFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: GanttChartField
+): GanttChartFieldPartialEnterprise => {
+  const result: GanttChartFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -78,4 +112,5 @@ export const exportGanttChartFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "GanttChartField", exportGanttChartFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "GanttChartField", exportGanttChartFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "GanttChartField", exportGanttChartFieldTypedToEnterprise)

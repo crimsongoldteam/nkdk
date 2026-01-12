@@ -1,4 +1,8 @@
-import { GanttChartField, GanttChartFieldEnterprise } from "~/metadata/forms/elements/ganttChartField/types"
+import {
+  GanttChartField,
+  GanttChartFieldPartialEnterprise,
+  GanttChartFieldTypedEnterprise,
+} from "~/metadata/forms/elements/ganttChartField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
@@ -28,7 +32,7 @@ export const fullGanttChartField: GanttChartField = {
   width: 300,
 }
 
-export const fullGanttChartFieldEnterprise: GanttChartFieldEnterprise = {
+export const fullGanttChartFieldPartialEnterprise: GanttChartFieldPartialEnterprise = {
   ...fullFormFieldEnterprise,
   Заголовок: "Поле диаграммы Ганта",
   АвтоМаксимальнаяВысота: "Истина",
@@ -46,9 +50,18 @@ export const fullGanttChartFieldEnterprise: GanttChartFieldEnterprise = {
   Ширина: 300,
 }
 
+export const fullGanttChartFieldTypedEnterprise: GanttChartFieldTypedEnterprise = {
+  ...fullGanttChartFieldPartialEnterprise,
+  Тип: "ПолеДиаграммыГанта",
+}
+
 export const minimalGanttChartField: GanttChartField = {
   elementType: FormElementType.GanttChartField,
   name: "ПолеДиаграммыГанта",
 }
 
-export const minimalGanttChartFieldEnterprise: GanttChartFieldEnterprise = {}
+export const minimalGanttChartFieldPartialEnterprise: GanttChartFieldPartialEnterprise = {}
+
+export const minimalGanttChartFieldTypedEnterprise: GanttChartFieldTypedEnterprise = {
+  Тип: "ПолеДиаграммыГанта",
+}

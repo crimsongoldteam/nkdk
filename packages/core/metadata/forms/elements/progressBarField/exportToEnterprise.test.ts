@@ -5,7 +5,6 @@ import {
   fullProgressBarFieldTypedEnterprise,
   minimalProgressBarField,
   minimalProgressBarFieldPartialEnterprise,
-  minimalProgressBarFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/progressBarField/data"
 import { mockСontext } from "~/tests/mockContext"
 import {

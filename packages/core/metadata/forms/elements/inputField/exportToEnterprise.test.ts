@@ -5,13 +5,9 @@ import {
   fullInputFieldTypedEnterprise,
   minimalInputField,
   minimalInputFieldPartialEnterprise,
-  minimalInputFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/inputField/data"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportInputFieldPartialToEnterprise,
-  exportInputFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { exportInputFieldPartialToEnterprise, exportInputFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportInputFieldToEnterprise", () => {
   describe("exportInputFieldPartialToEnterprise", () => {

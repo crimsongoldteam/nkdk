@@ -5,7 +5,6 @@ import {
   fullRadioButtonFieldTypedEnterprise,
   minimalRadioButtonField,
   minimalRadioButtonFieldPartialEnterprise,
-  minimalRadioButtonFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/radioButtonField/data"
 import { mockСontext } from "~/tests/mockContext"
 import {

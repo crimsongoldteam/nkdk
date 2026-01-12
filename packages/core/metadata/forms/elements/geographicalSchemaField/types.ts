@@ -41,7 +41,7 @@ export interface GeographicalSchemaFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface GeographicalSchemaFieldEnterprise extends FormFieldEnterprise {
+export interface GeographicalSchemaFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Вывод?: SE.UseOutputEnterprise
@@ -62,3 +62,10 @@ export interface GeographicalSchemaFieldEnterprise extends FormFieldEnterprise {
     ПослеЗаписи?: string
   }
 }
+
+export interface GeographicalSchemaFieldTypedEnterprise extends GeographicalSchemaFieldPartialEnterprise {
+  Тип: "ПолеГеографическойСхемы"
+}
+
+// Для обратной совместимости
+export type GeographicalSchemaFieldEnterprise = GeographicalSchemaFieldPartialEnterprise

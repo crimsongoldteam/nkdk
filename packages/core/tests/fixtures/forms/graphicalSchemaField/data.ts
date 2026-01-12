@@ -1,6 +1,7 @@
 import {
   GraphicalSchemaField,
-  GraphicalSchemaFieldEnterprise,
+  GraphicalSchemaFieldPartialEnterprise,
+  GraphicalSchemaFieldTypedEnterprise,
 } from "~/metadata/forms/elements/graphicalSchemaField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
@@ -29,7 +30,7 @@ export const fullGraphicalSchemaField: GraphicalSchemaField = {
   width: 300,
 }
 
-export const fullGraphicalSchemaFieldEnterprise: GraphicalSchemaFieldEnterprise = {
+export const fullGraphicalSchemaFieldPartialEnterprise: GraphicalSchemaFieldPartialEnterprise = {
   ...fullFormFieldEnterprise,
   Заголовок: "Поле графической схемы",
   АвтоМаксимальнаяВысота: "Истина",
@@ -45,9 +46,18 @@ export const fullGraphicalSchemaFieldEnterprise: GraphicalSchemaFieldEnterprise 
   Ширина: 300,
 }
 
+export const fullGraphicalSchemaFieldTypedEnterprise: GraphicalSchemaFieldTypedEnterprise = {
+  ...fullGraphicalSchemaFieldPartialEnterprise,
+  Тип: "ПолеГрафическойСхемы",
+}
+
 export const minimalGraphicalSchemaField: GraphicalSchemaField = {
   elementType: FormElementType.GraphicalSchemaField,
   name: "ПолеГрафическойСхемы",
 }
 
-export const minimalGraphicalSchemaFieldEnterprise: GraphicalSchemaFieldEnterprise = {}
+export const minimalGraphicalSchemaFieldPartialEnterprise: GraphicalSchemaFieldPartialEnterprise = {}
+
+export const minimalGraphicalSchemaFieldTypedEnterprise: GraphicalSchemaFieldTypedEnterprise = {
+  Тип: "ПолеГрафическойСхемы",
+}

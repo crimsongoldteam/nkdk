@@ -1,4 +1,8 @@
-import { DendrogramField, DendrogramFieldEnterprise } from "~/metadata/forms/elements/dendrogramField/types"
+import {
+  DendrogramField,
+  DendrogramFieldPartialEnterprise,
+  DendrogramFieldTypedEnterprise,
+} from "~/metadata/forms/elements/dendrogramField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
@@ -27,7 +31,7 @@ export const fullDendrogramField: DendrogramField = {
   },
 }
 
-export const fullDendrogramFieldEnterprise: DendrogramFieldEnterprise = {
+export const fullDendrogramFieldPartialEnterprise: DendrogramFieldPartialEnterprise = {
   ...fullFormFieldEnterprise,
   Заголовок: "Поле дендрограммы",
   АвтоМаксимальнаяВысота: "Истина",
@@ -45,9 +49,18 @@ export const fullDendrogramFieldEnterprise: DendrogramFieldEnterprise = {
   },
 }
 
+export const fullDendrogramFieldTypedEnterprise: DendrogramFieldTypedEnterprise = {
+  ...fullDendrogramFieldPartialEnterprise,
+  Тип: "ПолеДендрограммы",
+}
+
 export const minimalDendrogramField: DendrogramField = {
   elementType: FormElementType.DendrogramField,
   name: "ПолеДендрограммы",
 }
 
-export const minimalDendrogramFieldEnterprise: DendrogramFieldEnterprise = {}
+export const minimalDendrogramFieldPartialEnterprise: DendrogramFieldPartialEnterprise = {}
+
+export const minimalDendrogramFieldTypedEnterprise: DendrogramFieldTypedEnterprise = {
+  Тип: "ПолеДендрограммы",
+}

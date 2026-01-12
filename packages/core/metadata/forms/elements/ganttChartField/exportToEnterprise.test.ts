@@ -1,25 +1,44 @@
 import { describe, expect, it } from "vitest"
-import { fullGanttChartField, fullGanttChartFieldEnterprise, minimalGanttChartField, minimalGanttChartFieldEnterprise } from "~/tests/fixtures/forms/ganttChartField/data"
+import {
+  fullGanttChartField,
+  fullGanttChartFieldPartialEnterprise,
+  fullGanttChartFieldTypedEnterprise,
+  minimalGanttChartField,
+  minimalGanttChartFieldPartialEnterprise,
+  minimalGanttChartFieldTypedEnterprise,
+} from "~/tests/fixtures/forms/ganttChartField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportGanttChartFieldToEnterprise } from "./exportToEnterprise"
+import {
+  exportGanttChartFieldPartialToEnterprise,
+  exportGanttChartFieldTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportGanttChartFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportGanttChartFieldToEnterprise(mockСontext, undefined)
+  describe("exportGanttChartFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportGanttChartFieldPartialToEnterprise(mockСontext, fullGanttChartField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullGanttChartFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportGanttChartFieldPartialToEnterprise(mockСontext, minimalGanttChartField)
+
+      expect(result).toEqual(minimalGanttChartFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportGanttChartFieldToEnterprise(mockСontext, fullGanttChartField)
+  describe("exportGanttChartFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportGanttChartFieldTypedToEnterprise(mockСontext, fullGanttChartField)
 
-    expect(result).toEqual(fullGanttChartFieldEnterprise)
-  })
+      expect(result).toEqual(fullGanttChartFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportGanttChartFieldToEnterprise(mockСontext, minimalGanttChartField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportGanttChartFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalGanttChartFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
-

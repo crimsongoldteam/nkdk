@@ -5,13 +5,9 @@ import {
   fullCheckBoxFieldTypedEnterprise,
   minimalCheckBoxField,
   minimalCheckBoxFieldPartialEnterprise,
-  minimalCheckBoxFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/checkBoxField/data"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportCheckBoxFieldPartialToEnterprise,
-  exportCheckBoxFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { exportCheckBoxFieldPartialToEnterprise, exportCheckBoxFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportCheckBoxFieldToEnterprise", () => {
   describe("exportCheckBoxFieldPartialToEnterprise", () => {

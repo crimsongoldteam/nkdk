@@ -1,76 +1,67 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { GanttChartField, GanttChartFieldEnterprise } from "~/metadata/forms/elements/ganttChartField/types"
+import {
+  GanttChartField,
+  GanttChartFieldPartialEnterprise,
+  GanttChartFieldTypedEnterprise,
+} from "~/metadata/forms/elements/ganttChartField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const importGanttChartFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-    Выбор?: string
-    ОбработкаРасшифровки?: string
-    ПередРазворачиванием?: string
-    ПередСворачиванием?: string
-    ПриАктивизацииЗначения?: string
-    ПриАктивизацииИнтервала?: string
-    ПриОкончанииРедактированияИнтервала?: string
-  } | undefined
-): {
-  onChange?: string
-  selection?: string
-  detailProcessing?: string
-  beforeExpand?: string
-  beforeCollapse?: string
-  onActivateValue?: string
-  onActivateInterval?: string
-  onIntervalEditEnd?: string
-} | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    selection?: string
-    detailProcessing?: string
-    beforeExpand?: string
-    beforeCollapse?: string
-    onActivateValue?: string
-    onActivateInterval?: string
-    onIntervalEditEnd?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.Выбор !== undefined) result.selection = data.Выбор
-  if (data.ОбработкаРасшифровки !== undefined) result.detailProcessing = data.ОбработкаРасшифровки
-  if (data.ПередРазворачиванием !== undefined) result.beforeExpand = data.ПередРазворачиванием
-  if (data.ПередСворачиванием !== undefined) result.beforeCollapse = data.ПередСворачиванием
-  if (data.ПриАктивизацииЗначения !== undefined) result.onActivateValue = data.ПриАктивизацииЗначения
-  if (data.ПриАктивизацииИнтервала !== undefined) result.onActivateInterval = data.ПриАктивизацииИнтервала
-  if (data.ПриОкончанииРедактированияИнтервала !== undefined) result.onIntervalEditEnd = data.ПриОкончанииРедактированияИнтервала
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importGanttChartFieldFromEnterprise = <
-  From extends GanttChartFieldEnterprise | undefined,
-  Name extends string,
->(
+export const importGanttChartFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, GanttChartField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, GanttChartField, Name>
+  data: GanttChartFieldTypedEnterprise | undefined,
+  name: string
+): GanttChartField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, GanttChartField, Name> = {
+  const props = importGanttChartFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: GanttChartField = {
     ...baseFields,
-    elementType: FormElementType.GanttChartField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importGanttChartFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: GanttChartField | undefined,
+  data: GanttChartFieldPartialEnterprise | undefined
+): GanttChartField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importGanttChartFieldPropsFromEnterprise(context, data)
+  const result: GanttChartField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importGanttChartFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: GanttChartFieldTypedEnterprise | GanttChartFieldPartialEnterprise | undefined
+): Omit<Partial<GanttChartField>, "elementType" | "name"> => {
+  const result: Omit<Partial<GanttChartField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -102,7 +93,11 @@ export const importGanttChartFieldFromEnterprise = <
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -129,10 +124,10 @@ export const importGanttChartFieldFromEnterprise = <
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const events = importGanttChartFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "GanttChartField", importGanttChartFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "GanttChartField", importGanttChartFieldPropsFromEnterprise)

@@ -5,13 +5,9 @@ import {
   fullLabelFieldTypedEnterprise,
   minimalLabelField,
   minimalLabelFieldPartialEnterprise,
-  minimalLabelFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/labelField/data"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportLabelFieldPartialToEnterprise,
-  exportLabelFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { exportLabelFieldPartialToEnterprise, exportLabelFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportLabelFieldToEnterprise", () => {
   describe("exportLabelFieldPartialToEnterprise", () => {

@@ -44,7 +44,7 @@ export interface GraphicalSchemaFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface GraphicalSchemaFieldEnterprise extends FormFieldEnterprise {
+export interface GraphicalSchemaFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Вывод?: SE.UseOutputEnterprise
@@ -67,3 +67,10 @@ export interface GraphicalSchemaFieldEnterprise extends FormFieldEnterprise {
     ПриАктивизации?: string
   }
 }
+
+export interface GraphicalSchemaFieldTypedEnterprise extends GraphicalSchemaFieldPartialEnterprise {
+  Тип: "ПолеГрафическойСхемы"
+}
+
+// Для обратной совместимости
+export type GraphicalSchemaFieldEnterprise = GraphicalSchemaFieldPartialEnterprise

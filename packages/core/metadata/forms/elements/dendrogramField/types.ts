@@ -33,7 +33,7 @@ export interface DendrogramFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface DendrogramFieldEnterprise extends FormFieldEnterprise {
+export interface DendrogramFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Высота?: number
@@ -50,3 +50,10 @@ export interface DendrogramFieldEnterprise extends FormFieldEnterprise {
     ОбработкаРасшифровки?: string
   }
 }
+
+export interface DendrogramFieldTypedEnterprise extends DendrogramFieldPartialEnterprise {
+  Тип: "ПолеДендрограммы"
+}
+
+// Для обратной совместимости
+export type DendrogramFieldEnterprise = DendrogramFieldPartialEnterprise

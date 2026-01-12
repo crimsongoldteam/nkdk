@@ -5,13 +5,9 @@ import {
   fullChartFieldTypedEnterprise,
   minimalChartField,
   minimalChartFieldPartialEnterprise,
-  minimalChartFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/chartField/data"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportChartFieldPartialToEnterprise,
-  exportChartFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { exportChartFieldPartialToEnterprise, exportChartFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportChartFieldToEnterprise", () => {
   describe("exportChartFieldPartialToEnterprise", () => {

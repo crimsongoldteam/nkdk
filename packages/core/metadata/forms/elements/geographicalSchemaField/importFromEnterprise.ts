@@ -2,64 +2,67 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { GeographicalSchemaField, GeographicalSchemaFieldEnterprise } from "~/metadata/forms/elements/geographicalSchemaField/types"
+import {
+  GeographicalSchemaField,
+  GeographicalSchemaFieldPartialEnterprise,
+  GeographicalSchemaFieldTypedEnterprise,
+} from "~/metadata/forms/elements/geographicalSchemaField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const importGeographicalSchemaFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-    ОбработкаРасшифровки?: string
-    ПередЗаписью?: string
-    ПередПечатью?: string
-    ПослеЗаписи?: string
-  } | undefined
-): {
-  onChange?: string
-  detailProcessing?: string
-  beforeWrite?: string
-  beforePrint?: string
-  afterWrite?: string
-} | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    detailProcessing?: string
-    beforeWrite?: string
-    beforePrint?: string
-    afterWrite?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.ОбработкаРасшифровки !== undefined) result.detailProcessing = data.ОбработкаРасшифровки
-  if (data.ПередЗаписью !== undefined) result.beforeWrite = data.ПередЗаписью
-  if (data.ПередПечатью !== undefined) result.beforePrint = data.ПередПечатью
-  if (data.ПослеЗаписи !== undefined) result.afterWrite = data.ПослеЗаписи
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importGeographicalSchemaFieldFromEnterprise = <
-  From extends GeographicalSchemaFieldEnterprise | undefined,
-  Name extends string,
->(
+export const importGeographicalSchemaFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, GeographicalSchemaField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, GeographicalSchemaField, Name>
+  data: GeographicalSchemaFieldTypedEnterprise | undefined,
+  name: string
+): GeographicalSchemaField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, GeographicalSchemaField, Name> = {
+  const props = importGeographicalSchemaFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: GeographicalSchemaField = {
     ...baseFields,
-    elementType: FormElementType.GeographicalSchemaField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importGeographicalSchemaFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: GeographicalSchemaField | undefined,
+  data: GeographicalSchemaFieldPartialEnterprise | undefined
+): GeographicalSchemaField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importGeographicalSchemaFieldPropsFromEnterprise(context, data)
+  const result: GeographicalSchemaField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importGeographicalSchemaFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: GeographicalSchemaFieldTypedEnterprise | GeographicalSchemaFieldPartialEnterprise | undefined
+): Omit<Partial<GeographicalSchemaField>, "elementType" | "name"> => {
+  const result: Omit<Partial<GeographicalSchemaField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -85,7 +88,11 @@ export const importGeographicalSchemaFieldFromEnterprise = <
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -101,10 +108,10 @@ export const importGeographicalSchemaFieldFromEnterprise = <
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const events = importGeographicalSchemaFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "GeographicalSchemaField", importGeographicalSchemaFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "GeographicalSchemaField", importGeographicalSchemaFieldPropsFromEnterprise)

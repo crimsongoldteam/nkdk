@@ -5,13 +5,9 @@ import {
   fullFormGroupTypedEnterprise,
   minimalFormGroup,
   minimalFormGroupPartialEnterprise,
-  minimalFormGroupTypedEnterprise,
 } from "~/tests/fixtures/forms/formGroup/data"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportFormGroupPartialToEnterprise,
-  exportFormGroupTypedToEnterprise,
-} from "./exportToEnterprise"
+import { exportFormGroupPartialToEnterprise, exportFormGroupTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportFormGroupToEnterprise", () => {
   describe("exportFormGroupPartialToEnterprise", () => {

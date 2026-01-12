@@ -1,54 +1,65 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { DendrogramField, DendrogramFieldEnterprise } from "~/metadata/forms/elements/dendrogramField/types"
+import {
+  DendrogramField,
+  DendrogramFieldPartialEnterprise,
+  DendrogramFieldTypedEnterprise,
+} from "~/metadata/forms/elements/dendrogramField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 
-const importDendrogramFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-    Выбор?: string
-    ОбработкаРасшифровки?: string
-  } | undefined
-): {
-  onChange?: string
-  selection?: string
-  detailProcessing?: string
-} | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    selection?: string
-    detailProcessing?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.Выбор !== undefined) result.selection = data.Выбор
-  if (data.ОбработкаРасшифровки !== undefined) result.detailProcessing = data.ОбработкаРасшифровки
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importDendrogramFieldFromEnterprise = <
-  From extends DendrogramFieldEnterprise | undefined,
-  Name extends string,
->(
+export const importDendrogramFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, DendrogramField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, DendrogramField, Name>
+  data: DendrogramFieldTypedEnterprise | undefined,
+  name: string
+): DendrogramField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, DendrogramField, Name> = {
+  const props = importDendrogramFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: DendrogramField = {
     ...baseFields,
-    elementType: FormElementType.DendrogramField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importDendrogramFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: DendrogramField | undefined,
+  data: DendrogramFieldPartialEnterprise | undefined
+): DendrogramField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importDendrogramFieldPropsFromEnterprise(context, data)
+  const result: DendrogramField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importDendrogramFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: DendrogramFieldTypedEnterprise | DendrogramFieldPartialEnterprise | undefined
+): Omit<Partial<DendrogramField>, "elementType" | "name"> => {
+  const result: Omit<Partial<DendrogramField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -67,7 +78,11 @@ export const importDendrogramFieldFromEnterprise = <
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -80,11 +95,10 @@ export const importDendrogramFieldFromEnterprise = <
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const events = importDendrogramFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "DendrogramField", importDendrogramFieldFromEnterprise)
-
+registerMetadata("ImportFromEnterprise", "DendrogramField", importDendrogramFieldPropsFromEnterprise)
