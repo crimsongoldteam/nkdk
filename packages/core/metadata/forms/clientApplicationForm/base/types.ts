@@ -3,7 +3,7 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { FormAttribute, FormAttributesEnterprise, FormAttributesXML } from "../../../commonObjects/formAttribute/types"
-import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../../collections/childItems/types"
+import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { CommandBarEnterprise, CommandBarXML } from "../../elements/commandBar/types"
 import { EventsXML } from "../../events/types"
@@ -216,5 +216,5 @@ export interface ClientApplicationFormEnterprise {
     ПриСозданииНаСервере?: string
     ПриСохраненииДанныхВНастройкахНаСервере?: string
   }
-  Элементы?: ChildItemsEnterprise
+  Элементы?: ChildItemsPartialEnterprise
 }

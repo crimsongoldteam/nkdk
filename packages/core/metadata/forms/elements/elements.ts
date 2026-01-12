@@ -1,7 +1,6 @@
 import "./formDecoration/types"
 import "./formField/types"
 import "./formGroup/types"
-import "./formItemAddition/types"
 
 import "./button/types"
 import "./buttonGroup/types"

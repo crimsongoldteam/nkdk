@@ -6,7 +6,7 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ChildItemsEnterprise } from "../../collections/childItems/types"
+import { ChildItemsPartialEnterprise } from "../../collections/childItems/types"
 import { BaseElementXML } from "../baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
@@ -39,6 +39,10 @@ export interface ViewStatusAddition {
 }
 
 export interface ViewStatusAdditionXML extends BaseElementXML {
+  AdditionSource: {
+    Item: string
+    Type: "ViewStatusRepresentation"
+  }
   AutoMaxWidth?: boolean
   BackColor?: ColorXML
   Border?: BorderXML
@@ -89,7 +93,7 @@ export interface ViewStatusAdditionEnterprise {
   КонтекстноеМеню?: ContextMenuEnterprise
   ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
   Подсказка?: I8nTextEnterprise
-  ПодчиненныеЭлементы?: ChildItemsEnterprise
+  ПодчиненныеЭлементы?: ChildItemsPartialEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise
   РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise

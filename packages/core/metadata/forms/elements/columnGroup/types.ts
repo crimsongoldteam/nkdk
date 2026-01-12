@@ -4,7 +4,7 @@ import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../../collections/childItems/types"
+import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
 
 export interface ColumnGroup extends FormGroup {
   fixingInTable?: SE.FixingInTable
@@ -46,7 +46,7 @@ export interface ColumnGroupPartialEnterprise extends FormGroupPartialEnterprise
   ФиксацияВТаблице?: SE.FixingInTableEnterprise
   ФорматШапки?: string
   ЦветФонаЗаголовка?: ColorEnterprise
-  ПодчиненныеЭлементы?: ChildItemsEnterprise
+  ПодчиненныеЭлементы?: ChildItemsPartialEnterprise
 }
 
 export interface ColumnGroupTypedEnterprise extends ColumnGroupPartialEnterprise {

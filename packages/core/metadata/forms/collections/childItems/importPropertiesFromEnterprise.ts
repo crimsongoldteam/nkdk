@@ -1,11 +1,11 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { executeOperation } from "~/metadata/metadataFactory/metadataFactory"
-import { ChildItem, ChildItems, ChildItemsEnterprise } from "./types"
+import { ChildItem, ChildItems, ChildItemsPartialEnterprise } from "./types"
 
 export const importChildItemsPropertiesFromEnterprise = (
   context: ConfigurationContext,
   childItems: ChildItems,
-  childItemsProperties?: ChildItemsEnterprise
+  childItemsProperties?: ChildItemsPartialEnterprise
 ): ChildItems => {
   return childItems.map((item) => {
     const processedItem = importChildItemProperties(context, item, childItemsProperties)
@@ -26,7 +26,7 @@ export const importChildItemsPropertiesFromEnterprise = (
 const importChildItemProperties = (
   context: ConfigurationContext,
   item: ChildItem,
-  childItemsProperties?: ChildItemsEnterprise
+  childItemsProperties?: ChildItemsPartialEnterprise
 ): ChildItem => {
   if (!childItemsProperties) return { ...item }
 

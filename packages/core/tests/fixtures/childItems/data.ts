@@ -1,4 +1,4 @@
-import { ChildItems, ChildItemsEnterprise } from "~/metadata/forms/collections/childItems/types"
+import { ChildItems, ChildItemsPartialEnterprise } from "~/metadata/forms/collections/childItems/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export interface ChildItemsFixture {
@@ -6,8 +6,8 @@ export interface ChildItemsFixture {
   element?: ChildItems
   structure?: string[]
   xmlPath?: string
-  typedEnterprise?: ChildItemsEnterprise
-  partialEnterprise?: ChildItemsEnterprise
+  typedEnterprise?: ChildItemsPartialEnterprise
+  partialEnterprise?: ChildItemsPartialEnterprise
 }
 
 export const childItemsFixturesTable: ChildItemsFixture[] = [
@@ -41,11 +41,11 @@ export const childItemsFixturesTable: ChildItemsFixture[] = [
   },
 ]
 
-export const singleChildItemsEnterprise: ChildItemsEnterprise = {
+export const singleChildItemsEnterprise: ChildItemsPartialEnterprise = {
   Input1: {},
 }
 
-export const differentTypesChildItemsEnterprise: ChildItemsEnterprise = {
+export const differentTypesChildItemsEnterprise: ChildItemsPartialEnterprise = {
   Input1: {},
   Label2: {},
   Input3: {},

@@ -3,7 +3,7 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/metadata/forms/collections/childItems/types"
+import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "~/metadata/forms/collections/childItems/types"
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
@@ -257,7 +257,7 @@ export interface TableEnterprise extends BaseElementPropsEnterprise {
   ПоведениеПриСжатииПоГоризонтали?: SE.TableBehaviorOnHorizontalCompressionEnterprise
   Подвал?: StringboolEnterprise
   Подсказка?: I8nTextEnterprise
-  ПодчиненныеЭлементы?: ChildItemsEnterprise
+  ПодчиненныеЭлементы?: ChildItemsPartialEnterprise
   ПоискПриВводе?: SE.SearchInTableOnInputEnterprise
   ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
   ПоложениеКоманднойПанели?: SE.FormItemCommandBarLabelLocationEnterprise

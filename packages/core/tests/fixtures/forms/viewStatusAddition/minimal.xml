@@ -1,0 +1,6 @@
+<ViewStatusAddition name="КакойТоЭлементСостояниеПросмотра" id="1">
+	<AdditionSource>
+		<Item>КакойТоЭлемент</Item>
+		<Type>ViewStatusRepresentation</Type>
+	</AdditionSource>
+</ViewStatusAddition>

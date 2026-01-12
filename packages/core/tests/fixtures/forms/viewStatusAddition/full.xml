@@ -1,0 +1,42 @@
+<ViewStatusAddition name="КакойТоЭлементСостояниеПросмотра" id="1" DisplayImportance="High">
+	<AdditionSource>
+		<Item>КакойТоЭлемент</Item>
+		<Type>ViewStatusRepresentation</Type>
+	</AdditionSource>
+	<AutoMaxWidth>true</AutoMaxWidth>
+	<BackColor>web:White</BackColor>
+	<Border ref="style:ControlBorder"/>
+	<BorderColor>web:Black</BorderColor>
+	<ButtonsBackColor>web:Gray</ButtonsBackColor>
+	<ContextMenu name="КакойТоЭлементКонтекстноеМеню" id="2"/>
+	<Enabled>true</Enabled>
+	<ExtendedTooltip name="КакойТоЭлементРасширеннаяПодсказка" id="3"/>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
+	<HorizontalAlign>Left</HorizontalAlign>
+	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalStretch>true</HorizontalStretch>
+	<MaxWidth>500</MaxWidth>
+	<TextColor>web:Black</TextColor>
+	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
+	<TitleTextColor>web:Blue</TitleTextColor>
+	<Title>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Добавление элемента формы</v8:content>
+		</v8:item>
+	</Title>
+	<ToolTip>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Подсказка</v8:content>
+		</v8:item>
+	</ToolTip>
+	<ToolTipRepresentation>None</ToolTipRepresentation>
+	<UserVisible>
+		<xr:Common>true</xr:Common>
+		<xr:Value name="Role.Администратор">true</xr:Value>
+	</UserVisible>
+	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<Visible>true</Visible>
+	<Width>300</Width>
+</ViewStatusAddition>

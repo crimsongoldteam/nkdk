@@ -5,7 +5,7 @@ import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/c
 import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import { Table, TableEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "../../collections/childItems/types"
+import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
 
 export interface UsualGroup extends FormGroup {
   associatedTable?: Table
@@ -88,7 +88,7 @@ export interface UsualGroupPartialEnterprise extends FormGroupPartialEnterprise 
   Отображение?: SE.UsualGroupRepresentationEnterprise
   ОтображениеУправления?: SE.UsualGroupControlRepresentationEnterprise
   Поведение?: SE.UsualGroupBehaviorEnterprise
-  ПодчиненныеЭлементы?: ChildItemsEnterprise
+  ПодчиненныеЭлементы?: ChildItemsPartialEnterprise
   ПутьКДаннымЗаголовка?: string
   РазрешитьИспользование?: UserVisibleEnterprise
   СквозноеВыравнивание?: SE.ThroughAlignEnterprise
