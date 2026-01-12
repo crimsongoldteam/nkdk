@@ -7,6 +7,7 @@ import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/impo
 import { Popup, PopupXML } from "~/metadata/forms/elements/popup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
 import { ImportExportReturn } from "../types"
 
 export const importPopupFromXML = <From extends PopupXML | undefined>(
@@ -23,8 +24,10 @@ export const importPopupFromXML = <From extends PopupXML | undefined>(
     childItems: [],
   }
 
-  const childItems = importButtonGroupChildItemsFromXML(context, xml.ПодчиненныеЭлементы)
-  if (childItems !== undefined && childItems.length > 0) result.childItems = childItems
+  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
+  if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
+
+  result.childItems = importButtonGroupChildItemsFromXML(context, xml.ChildItems)
 
   const backColor = importColorFromXML(context, xml.BackColor)
   if (backColor !== undefined) result.backColor = backColor

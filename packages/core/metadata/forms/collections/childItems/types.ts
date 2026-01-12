@@ -119,11 +119,13 @@ import { Popup, PopupPartialEnterprise, PopupXML } from "../../elements/popup/ty
 import {
   ProgressBarField,
   ProgressBarFieldEnterprise,
+  ProgressBarFieldPartialEnterprise,
   ProgressBarFieldXML,
 } from "../../elements/progressBarField/types"
 import {
   RadioButtonField,
   RadioButtonFieldEnterprise,
+  RadioButtonFieldPartialEnterprise,
   RadioButtonFieldXML,
 } from "../../elements/radioButtonField/types"
 import {
@@ -131,14 +133,11 @@ import {
   SearchControlAdditionEnterprise,
   SearchControlAdditionXML,
 } from "../../elements/searchControlAddition/types"
-import {
-  SearchStringAddition,
-  SearchStringAdditionEnterprise,
-  SearchStringAdditionXML,
-} from "../../elements/searchStringAddition/types"
+import { SearchStringAddition, SearchStringAdditionXML } from "../../elements/searchStringAddition/types"
 import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldEnterprise,
+  SpreadSheetDocumentFieldPartialEnterprise,
   SpreadSheetDocumentFieldXML,
 } from "../../elements/spreadSheetDocumentField/types"
 import { Table, TableEnterprise, TableXML } from "../../elements/table/types"
@@ -148,13 +147,7 @@ import {
   TextDocumentFieldXML,
 } from "../../elements/textDocumentField/types"
 import { TrackBarField, TrackBarFieldEnterprise, TrackBarFieldXML } from "../../elements/trackBarField/types"
-import {
-  UsualGroup,
-  UsualGroupEnterprise,
-  UsualGroupPartialEnterprise,
-  UsualGroupXML,
-} from "../../elements/usualGroup/types"
-import { ViewStatusAdditionEnterprise } from "../../elements/viewStatusAddition/types"
+import { UsualGroup, UsualGroupPartialEnterprise, UsualGroupXML } from "../../elements/usualGroup/types"
 
 export type ChildItem =
   | Button
@@ -267,16 +260,16 @@ export type ChildItemPartialEnterprise =
   | PictureFieldPartialEnterprise
   | PlannerFieldPartialEnterprise
   | PopupPartialEnterprise
-  | ProgressBarFieldEnterprise
-  | RadioButtonFieldEnterprise
+  | ProgressBarFieldPartialEnterprise
+  | RadioButtonFieldPartialEnterprise
   | SearchControlAdditionEnterprise
-  | SearchStringAdditionEnterprise
-  | SpreadSheetDocumentFieldEnterprise
-  | TableEnterprise
+  | SearchStringAdditionPartialEnterprise
+  | SpreadSheetDocumentFieldPartialEnterprise
+  | TablePartialEnterprise
   | TextDocumentFieldEnterprise
   | TrackBarFieldEnterprise
-  | UsualGroupEnterprise
-  | ViewStatusAdditionEnterprise
+  | UsualGroupPartialEnterprise
+  | ViewStatusAdditionPartialEnterprise
   | ColumnGroupPropsEnterprise
   | CommandBarEnterprise
   | DendrogramFieldEnterprise

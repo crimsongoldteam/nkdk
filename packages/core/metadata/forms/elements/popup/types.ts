@@ -8,8 +8,10 @@ import {
   ButtonGroupChildItemsEnterprise,
   ButtonGroupChildItemsXML,
 } from "../../collections/buttonGroupChildItems/types"
+import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface Popup extends FormGroup {
+  extendedTooltip?: ExtendedTooltip
   backColor?: Color
   borderColor?: Color
   picture?: Picture
@@ -28,13 +30,15 @@ export interface PopupXML extends FormGroupXML {
   Shape?: SE.ButtonShape
   ShapeRepresentation?: SE.ButtonShapeRepresentation
   UserVisible?: UserVisibleXML
-  ПодчиненныеЭлементы?: ButtonGroupChildItemsXML
+  ExtendedTooltip: ExtendedTooltipXML
+  ChildItems?: ButtonGroupChildItemsXML
 }
 
 export interface PopupPartialEnterprise extends FormGroupPartialEnterprise {
   Картинка?: PictureEnterprise
   Отображение?: SE.ButtonRepresentationEnterprise
   ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise
   Фигура?: SE.ButtonShapeEnterprise
@@ -46,8 +50,3 @@ export interface PopupPartialEnterprise extends FormGroupPartialEnterprise {
 export interface PopupTypedEnterprise extends PopupPartialEnterprise {
   Тип: "Подменю"
 }
-
-/**
- * @deprecated Use PopupPartialEnterprise or PopupTypedEnterprise instead
- */
-export type PopupEnterprise = PopupTypedEnterprise

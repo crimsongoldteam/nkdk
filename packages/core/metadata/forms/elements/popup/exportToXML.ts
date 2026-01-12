@@ -7,19 +7,22 @@ import { exportFormGroupPropsToXML } from "~/metadata/forms/elements/formGroup/e
 import { Popup, PopupXML } from "~/metadata/forms/elements/popup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export const exportPopupToXML = (context: ConfigurationContext, data: Popup | undefined): PopupXML | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormGroupPropsToXML(context, data)
-  if (!baseFields) return undefined
+
+  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   const result: PopupXML = {
+    ExtendedTooltip: extendedTooltip,
     ...baseFields,
   }
 
   const childItems = exportButtonGroupChildItemsToXML(context, data.childItems)
-  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
+  if (childItems !== undefined) result.ChildItems = childItems
 
   const backColor = exportColorToXML(context, data.backColor)
   if (backColor !== undefined) result.BackColor = backColor
