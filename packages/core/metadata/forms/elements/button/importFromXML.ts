@@ -48,7 +48,7 @@ export const importButtonFromXML = <T extends ButtonXML | undefined>(
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip, result)
+  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   const font = importFontFromXML(context, xml.Font)

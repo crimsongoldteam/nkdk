@@ -1,29 +1,60 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import {
+  exportI8nTextOtherToEnterprise,
+  exportI8nTextToEnterprise,
+} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
-import { Button, ButtonEnterprise } from "~/metadata/forms/elements/button/types"
+import { Button, ButtonEnterprise, ButtonPropsEnterprise } from "~/metadata/forms/elements/button/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
-export const exportButtonToEnterprise = (
+export const exportButtonChildToEnterprise = (
   context: ConfigurationContext,
   data: Button | undefined
 ): ButtonEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportBaseElementToEnterprise(context, data)
+  const props = exportButtonPropsToEnterprise(context, data)
 
   const result: ButtonEnterprise = {
     Тип: "Кнопка",
-    ...baseFields,
+    Имя: data.name,
+    ...props,
   }
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+export const exportButtonToEnterprise = (context: ConfigurationContext, data: Button): ButtonPropsEnterprise => {
+  const props = exportButtonPropsToEnterprise(context, data)
+
+  const result: ButtonEnterprise = {
+    Тип: "Кнопка",
+    Имя: data.name,
+    ...props,
+  }
+
+  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+const exportButtonPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: Button
+): ButtonPropsEnterprise | undefined => {
+  const result: ButtonPropsEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight

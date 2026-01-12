@@ -1,4 +1,4 @@
-import { Button, ButtonEnterprise } from "~/metadata/forms/elements/button/types"
+import { Button, ButtonEnterprise, ButtonPropsEnterprise } from "~/metadata/forms/elements/button/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
@@ -52,8 +52,7 @@ export const fullButton: Button = {
   width: 150,
 }
 
-export const fullButtonEnterprise: ButtonEnterprise = {
-  Тип: "Кнопка",
+export const fullButtonPropsEnterprise: ButtonPropsEnterprise = {
   Заголовок: "Кнопка формы",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -92,13 +91,23 @@ export const fullButtonEnterprise: ButtonEnterprise = {
   Шрифт: "ОбычныйШрифтТекста",
 }
 
+export const fullButtonEnterprise: ButtonEnterprise = {
+  ...fullButtonPropsEnterprise,
+  Тип: "Кнопка",
+  Имя: "Кнопка",
+}
+
 export const minimalButton: Button = {
   elementType: FormElementType.Button,
   name: "Кнопка",
 }
 
+export const minimalButtonPropsEnterprise: ButtonPropsEnterprise = {}
+
 export const minimalButtonEnterprise: ButtonEnterprise = {
+  ...minimalButtonPropsEnterprise,
   Тип: "Кнопка",
+  Имя: "Кнопка",
 }
 
 export interface ButtonStructureFixture {

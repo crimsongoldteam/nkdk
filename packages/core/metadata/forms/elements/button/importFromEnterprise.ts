@@ -1,32 +1,61 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
-import { Button, ButtonEnterprise } from "~/metadata/forms/elements/button/types"
+import { Button, ButtonEnterprise, ButtonPropsEnterprise } from "~/metadata/forms/elements/button/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "../types"
 
-export const importButtonFromEnterprise = <T extends ButtonEnterprise | undefined, N extends string | undefined>(
+export const importButtonFromSourceEnterprise = (
   context: ConfigurationContext,
-  data: T,
-  name: N
-): ImportFromEnterpriseReturn<T, Button, N> => {
-  if (data === undefined) return undefined as ImportFromEnterpriseReturn<T, Button, N>
+  source: Button | undefined,
+  data: ButtonPropsEnterprise | undefined
+): Button | undefined => {
+  if (source === undefined) return undefined
 
-  const baseFields = importBaseElementFromEnterprise(context, data, name)
-
-  const result: ImportFromEnterpriseReturn<T, Button, N> = {
-    ...baseFields,
-    elementType: FormElementType.Button,
+  const props = importButtonPropsFromEnterprise(context, data)
+  const result: Button = {
+    ...source,
+    ...props,
   }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
+}
+
+export const importButtonFromEnterprise = (context: ConfigurationContext, data: ButtonEnterprise): Button => {
+  const props = importButtonPropsFromEnterprise(context, data)
+
+  const name = data.Имя
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: Button = {
+    ...props,
+    elementType,
+    name,
+  }
+
+  return result
+}
+
+const importButtonPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: ButtonPropsEnterprise | undefined
+): Omit<Partial<Button>, "elementType"> | undefined => {
+  if (data === undefined) return undefined
+
+  const result: Omit<Partial<Button>, "elementType"> = {}
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -185,4 +214,4 @@ export const importButtonFromEnterprise = <T extends ButtonEnterprise | undefine
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "Button", importButtonFromEnterprise)
+registerMetadata("ImportFromEnterprise", "Button", importButtonPropsFromEnterprise)

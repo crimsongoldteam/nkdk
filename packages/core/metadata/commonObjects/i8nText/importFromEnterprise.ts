@@ -20,4 +20,22 @@ export const importI8nTextFromEnterprise = (
   }
 }
 
-export const parseI8nText = importI8nTextFromEnterprise
+export const importI8nTextCombinedFromEnterprise = (
+  context: ConfigurationContext,
+  defaultLanguage: I8nText | undefined,
+  otherLanguagesEnterprise: I8nTextEnterprise | undefined
+): I8nText | undefined => {
+  if (defaultLanguage === undefined && otherLanguagesEnterprise === undefined) return undefined
+
+  const result: I8nText = {
+    formatted: defaultLanguage?.formatted,
+    items: {},
+  }
+
+  if (otherLanguagesEnterprise !== undefined) {
+    const otherLanguages = importI8nTextFromEnterprise(context, otherLanguagesEnterprise)
+    if (otherLanguages !== undefined) result.items = { ...result.items, ...otherLanguages.items }
+  }
+
+  return result
+}
