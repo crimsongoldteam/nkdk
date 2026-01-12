@@ -74,8 +74,6 @@ import {
   RadioButtonFieldPartialEnterprise,
   RadioButtonFieldXML,
 } from "../../elements/radioButtonField/types"
-import { SearchControlAddition, SearchControlAdditionXML } from "../../elements/searchControlAddition/types"
-import { SearchStringAddition, SearchStringAdditionXML } from "../../elements/searchStringAddition/types"
 import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldPartialEnterprise,
@@ -120,8 +118,6 @@ export type ChildItem =
   | Popup
   | ProgressBarField
   | RadioButtonField
-  | SearchControlAddition
-  | SearchStringAddition
   | SpreadSheetDocumentField
   | Table
   | TextDocumentField
@@ -160,8 +156,6 @@ export type ChildItemXML =
   | PopupXML
   | ProgressBarFieldXML
   | RadioButtonFieldXML
-  | SearchControlAdditionXML
-  | SearchStringAdditionXML
   | SpreadSheetDocumentFieldXML
   | TableXML
   | TextDocumentFieldXML

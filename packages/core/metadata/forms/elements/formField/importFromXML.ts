@@ -32,7 +32,7 @@ export const importFormFieldFromXML = <T extends FormFieldXML | undefined>(
 
   if (xml.CellHyperlink !== undefined) result.cellHyperlink = xml.CellHyperlink
 
-  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu, result)
+  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (xml.DataPath !== undefined) result.dataPath = xml.DataPath
@@ -45,7 +45,7 @@ export const importFormFieldFromXML = <T extends FormFieldXML | undefined>(
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip, result)
+  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml.FixingInTable !== undefined) result.fixingInTable = xml.FixingInTable
