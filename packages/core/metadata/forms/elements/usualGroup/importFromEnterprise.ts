@@ -3,7 +3,10 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
+import {
+  importFormGroupPropsFromEnterprise,
+} from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
 import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { UsualGroup, UsualGroupEnterprise } from "~/metadata/forms/elements/usualGroup/types"
@@ -19,10 +22,12 @@ export const importUsualGroupFromEnterprise = <From extends UsualGroupEnterprise
 ): ImportFromEnterpriseReturn<From, UsualGroup, Name> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, UsualGroup, Name>
 
-  const baseFields = importFormGroupFromEnterprise(context, data, name)
+  const baseElement = importBaseElementFromEnterprise(context, data, name)!
+  const props = importFormGroupPropsFromEnterprise(context, data)
 
   const result: ImportFromEnterpriseReturn<From, UsualGroup, Name> = {
-    ...baseFields,
+    ...baseElement,
+    ...props,
     elementType: FormElementType.UsualGroup,
     childItems: [],
   }
@@ -182,6 +187,9 @@ export const importUsualGroupFromEnterprise = <From extends UsualGroupEnterprise
     SE.ChildFormItemsWidthFromEnterprise
   )
   if (slaveItemsWidth !== undefined) result.slaveItemsWidth = slaveItemsWidth
+
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result
 }

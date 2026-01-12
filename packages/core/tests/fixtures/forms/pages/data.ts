@@ -1,6 +1,6 @@
 import { Pages, PagesEnterprise } from "~/metadata/forms/elements/pages/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormGroup, fullFormGroupEnterprise } from "../formGroup/data"
+import { fullFormGroup } from "../formGroup/data"
 
 export const fullPages: Pages = {
   ...fullFormGroup,
@@ -19,7 +19,23 @@ export const fullPages: Pages = {
 }
 
 export const fullPagesEnterprise: PagesEnterprise = {
-  ...fullFormGroupEnterprise,
+  ВертикальноеПоложениеВГруппе: "Верх",
+  Вид: "ОбычнаяГруппа",
+  Видимость: "Истина",
+  Высота: 200,
+  ГоризонтальноеПоложениеВГруппе: "Лево",
+  Доступность: "Истина",
+  ОтображениеПодсказки: "Нет",
+  Подсказка: "Подсказка",
+  РазрешитьИспользование: { Администратор: "Истина" },
+  РазрешитьИзменениеСостава: "Истина",
+  РастягиватьПоВертикали: "Истина",
+  РастягиватьПоГоризонтали: "Истина",
+  СочетаниеКлавиш: "Ctrl+S",
+  ТолькоПросмотр: "Ложь",
+  ЦветТекстаЗаголовка: "Черный",
+  Ширина: 300,
+  ШрифтЗаголовка: "ОбычныйШрифтТекста",
   Заголовок: "Страницы",
   ИспользованиеТекущейСтроки: "НеИспользует",
   ОтображениеСтраниц: "Авто",

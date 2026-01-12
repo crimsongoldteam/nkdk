@@ -1,7 +1,7 @@
 import { CommandBar, CommandBarEnterprise } from "~/metadata/forms/elements/commandBar/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormGroup, fullFormGroupEnterprise } from "../formGroup/data"
+import { fullFormGroup } from "../formGroup/data"
 
 export const fullCommandBar: CommandBar = {
   ...fullFormGroup,
@@ -17,7 +17,23 @@ export const fullCommandBar: CommandBar = {
 }
 
 export const fullCommandBarEnterprise: CommandBarEnterprise = {
-  ...fullFormGroupEnterprise,
+  ВертикальноеПоложениеВГруппе: "Верх",
+  Вид: "ОбычнаяГруппа",
+  Видимость: "Истина",
+  Высота: 200,
+  ГоризонтальноеПоложениеВГруппе: "Лево",
+  Доступность: "Истина",
+  ОтображениеПодсказки: "Нет",
+  Подсказка: "Подсказка",
+  РазрешитьИспользование: { Администратор: "Истина" },
+  РазрешитьИзменениеСостава: "Истина",
+  РастягиватьПоВертикали: "Истина",
+  РастягиватьПоГоризонтали: "Истина",
+  СочетаниеКлавиш: "Ctrl+S",
+  ТолькоПросмотр: "Ложь",
+  ЦветТекстаЗаголовка: "Черный",
+  Ширина: 300,
+  ШрифтЗаголовка: "ОбычныйШрифтТекста",
   Заголовок: "Командная панель",
   Автозаполнение: "Истина",
   ВажностьПриОтображении: "Высокая",

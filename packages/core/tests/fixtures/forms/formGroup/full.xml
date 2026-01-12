@@ -1,7 +1,6 @@
 <FormGroup name="ГруппаФормы" id="1">
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="ГруппаФормыРасширеннаяПодсказка" id="2"/>
 	<Height>200</Height>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>

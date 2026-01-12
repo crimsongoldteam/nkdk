@@ -1,7 +1,6 @@
 <ColumnGroup name="ГруппаКолонок" id="1">
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="ГруппаКолонокРасширеннаяПодсказка" id="2"/>
 	<FixingInTable>None</FixingInTable>
 	<Group>Horizontal</Group>
 	<HeaderDataPath>Объект.Реквизит</HeaderDataPath>
@@ -15,9 +14,9 @@
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>false</ReadOnly>
+	<Shortcut>Ctrl+S</Shortcut>
 	<ShowInHeader>true</ShowInHeader>
 	<ShowTitle>true</ShowTitle>
-	<Shortcut>Ctrl+S</Shortcut>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>

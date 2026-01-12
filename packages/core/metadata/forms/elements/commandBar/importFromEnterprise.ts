@@ -1,15 +1,18 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
+import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { CommandBar, CommandBarEnterprise } from "~/metadata/forms/elements/commandBar/types"
-import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import {
+  importFormGroupPropsFromEnterprise,
+} from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importButtonGroupChildItemsFromEnterprise } from "../../collections/buttonGroupChildItems/importFromEnterprise"
-import { FormGroup } from "../formGroup/types"
 
 export const importCommandBarFromEnterprise = <From extends CommandBarEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
@@ -18,11 +21,14 @@ export const importCommandBarFromEnterprise = <From extends CommandBarEnterprise
 ): ImportFromEnterpriseReturn<From, CommandBar, Name> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, CommandBar, Name>
 
-  const baseFields = importFormGroupFromEnterprise(context, data, name) as Omit<FormGroup, "childItems">
+  const baseElement = importBaseElementFromEnterprise(context, data, name)!
+  const props = importFormGroupPropsFromEnterprise(context, data)
 
   const result: CommandBar = {
-    ...baseFields,
+    ...baseElement,
+    ...props,
     elementType: FormElementType.CommandBar,
+    childItems: [],
   }
 
   const autofill = importBooleanFromEnterprise(context, data.Автозаполнение)
@@ -59,7 +65,10 @@ export const importCommandBarFromEnterprise = <From extends CommandBarEnterprise
   const childItems = importButtonGroupChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
   if (childItems !== undefined) result.childItems = childItems
 
-  return result as ImportFromEnterpriseReturn<From, CommandBar, Name>
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
 }
 
 registerMetadata("ImportFromEnterprise", "CommandBar", importCommandBarFromEnterprise)

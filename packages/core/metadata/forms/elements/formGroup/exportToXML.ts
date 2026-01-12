@@ -16,7 +16,7 @@ export const exportFormGroupPropsToXML = <T extends FormGroup | undefined>(
 
   const baseFields = exportElementPropsToXML(context, data)
 
-  const result: ImportExportReturn<T, FormGroupXML> = {
+  const result: FormGroupXML = {
     ...baseFields,
   }
 
@@ -62,4 +62,11 @@ export const exportFormGroupPropsToXML = <T extends FormGroup | undefined>(
   if (data.width !== undefined) result.Width = data.width
 
   return sortObject(result) as ImportExportReturn<T, FormGroupXML>
+}
+
+export const exportFormGroupToXML = (
+  context: ConfigurationContext,
+  data: FormGroup | undefined
+): FormGroupXML | undefined => {
+  return exportFormGroupPropsToXML(context, data)
 }

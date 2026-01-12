@@ -66,7 +66,7 @@ export const importFormGroupPartialFromEnterprise = (
   return result
 }
 
-const importFormGroupPropsFromEnterprise = (
+export const importFormGroupPropsFromEnterprise = (
   context: ConfigurationContext,
   data: FormGroupTypedEnterprise | FormGroupPartialEnterprise | undefined
 ): Omit<Partial<FormGroup>, "elementType" | "name"> => {

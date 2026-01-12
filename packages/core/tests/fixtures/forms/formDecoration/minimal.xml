@@ -1,3 +1,4 @@
 <FormDecoration name="ОформлениеФормы" id="1">
-	<ExtendedTooltip name="ОформлениеФормыРасширеннаяПодсказка" id="2"/>
+	<ContextMenu name="ОформлениеФормыКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="ОформлениеФормыРасширеннаяПодсказка" id="3"/>
 </FormDecoration>

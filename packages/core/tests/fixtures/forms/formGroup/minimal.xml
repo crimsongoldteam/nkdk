@@ -1,3 +1,1 @@
-<FormGroup name="ГруппаФормы" id="1">
-	<ExtendedTooltip name="ГруппаФормыРасширеннаяПодсказка" id="2"/>
-</FormGroup>
+<FormGroup name="ГруппаФормы" id="1"/>

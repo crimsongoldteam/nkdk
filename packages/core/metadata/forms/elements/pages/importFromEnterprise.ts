@@ -1,6 +1,8 @@
+import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
+import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { Pages, PagesEnterprise } from "~/metadata/forms/elements/pages/types"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
 import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
@@ -16,13 +18,18 @@ export const importPagesFromEnterprise = <From extends PagesEnterprise | undefin
 ): ImportFromEnterpriseReturn<From, Pages, Name> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, Pages, Name>
 
-  const baseFields = importFormGroupFromEnterprise(context, data, name)
+  const baseElement = importBaseElementFromEnterprise(context, data, name)!
+  const props = importFormGroupPropsFromEnterprise(context, data)
 
   const result: Pages = {
-    ...baseFields,
+    ...baseElement,
+    ...props,
     elementType: FormElementType.Pages,
     childItems: [],
   }
+
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
 
   const currentRowUse = importSystemEnumerationFromEnterprise<SE.CurrentRowUse>(
     context,

@@ -1,6 +1,6 @@
 import { ColumnGroup, ColumnGroupPropsEnterprise } from "~/metadata/forms/elements/columnGroup/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormGroup, fullFormGroupEnterprise } from "../formGroup/data"
+import { fullFormGroup } from "../formGroup/data"
 
 export const fullColumnGroup: ColumnGroup = {
   ...fullFormGroup,
@@ -26,7 +26,23 @@ export const fullColumnGroup: ColumnGroup = {
 }
 
 export const fullColumnGroupEnterprise: ColumnGroupPropsEnterprise = {
-  ...fullFormGroupEnterprise,
+  ВертикальноеПоложениеВГруппе: "Верх",
+  Вид: "ОбычнаяГруппа",
+  Видимость: "Истина",
+  Высота: 200,
+  ГоризонтальноеПоложениеВГруппе: "Лево",
+  Доступность: "Истина",
+  ОтображениеПодсказки: "Нет",
+  Подсказка: "Подсказка",
+  РазрешитьИспользование: { Администратор: "Истина" },
+  РазрешитьИзменениеСостава: "Истина",
+  РастягиватьПоВертикали: "Истина",
+  РастягиватьПоГоризонтали: "Истина",
+  СочетаниеКлавиш: "Ctrl+S",
+  ТолькоПросмотр: "Ложь",
+  ЦветТекстаЗаголовка: "Черный",
+  Ширина: 300,
+  ШрифтЗаголовка: "ОбычныйШрифтТекста",
   Заголовок: "Группа колонок",
   ГоризонтальноеПоложениеВШапке: "Лево",
   Группировка: "Горизонтальная",

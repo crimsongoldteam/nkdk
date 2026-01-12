@@ -1,10 +1,12 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
+import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { ColumnGroup, ColumnGroupPropsEnterprise } from "~/metadata/forms/elements/columnGroup/types"
-import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -21,10 +23,12 @@ export const importColumnGroupFromEnterprise = <
 ): ImportFromEnterpriseReturn<From, ColumnGroup, Name> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, ColumnGroup, Name>
 
-  const baseFields = importFormGroupFromEnterprise(context, data, name)!
+  const baseElement = importBaseElementFromEnterprise(context, data, name)!
+  const props = importFormGroupPropsFromEnterprise(context, data)
 
   const result: ColumnGroup = {
-    ...baseFields,
+    ...baseElement,
+    ...props,
     elementType: FormElementType.ColumnGroup,
     childItems: [],
   }
@@ -79,6 +83,9 @@ export const importColumnGroupFromEnterprise = <
 
   const titleBackColor = importColorFromEnterprise(context, data.ЦветФонаЗаголовка)
   if (titleBackColor !== undefined) result.titleBackColor = titleBackColor
+
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result as ImportFromEnterpriseReturn<From, ColumnGroup, Name>
 }
