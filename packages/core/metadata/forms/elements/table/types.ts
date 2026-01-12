@@ -135,7 +135,7 @@ export interface Table extends BaseElement {
 
 export interface TableXML extends BaseElementXML {
   AutoAddIncomplete?: boolean
-  AutoCommandBar: AutoCommandBarXML
+  AutoCommandBar?: AutoCommandBarXML
   AutoInsertNewRow?: boolean
   AutoMarkIncomplete?: boolean
   AutoMaxHeight?: boolean
@@ -187,11 +187,11 @@ export interface TableXML extends BaseElementXML {
   RowPictureDataPath?: string
   RowSelectionMode?: SE.TableRowSelectionMode
   RowsPicture?: boolean
-  SearchControl: SearchControlAdditionXML
+  SearchControl?: SearchControlAdditionXML
   SearchControlLocation?: SE.SearchControlLocation
   SearchOnInput?: SE.SearchInTableOnInput
   SearchStringLocation?: SE.SearchStringLocation
-  SearchStringRepresentation: SearchStringAdditionXML
+  SearchStringRepresentation?: SearchStringAdditionXML
   SelectionMode?: SE.TableSelectionMode
   Shortcut?: string
   SkipOnInput?: boolean
@@ -210,7 +210,7 @@ export interface TableXML extends BaseElementXML {
   VerticalScrollBar?: SE.ScrollBarUse
   VerticalStretch?: boolean
   ViewStatusLocation?: SE.ViewStatusLocation
-  ViewStatusRepresentation: ViewStatusAdditionXML
+  ViewStatusRepresentation?: ViewStatusAdditionXML
   Visible?: boolean
   Width?: number
   Events?: EventsXML

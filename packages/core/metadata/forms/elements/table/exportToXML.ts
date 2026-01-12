@@ -82,7 +82,12 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
 
   if (data.enableStartDrag !== undefined) result.EnableStartDrag = data.enableStartDrag
 
-  result.ExtendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+  if (data.extendedTooltip !== undefined) {
+    const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+    // Check if extendedTooltip has content (more than just name and id)
+    const hasContent = Object.keys(extendedTooltip).some((key) => !["_name", "_id"].includes(key))
+    if (hasContent) result.ExtendedTooltip = extendedTooltip
+  }
 
   if (data.fileDragMode !== undefined) result.FileDragMode = data.fileDragMode
 
@@ -141,8 +146,14 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
 
   if (data.rowsPicture !== undefined) result.RowsPicture = data.rowsPicture
 
-  const searchControl = exportSearchControlAdditionToXML(context, data.searchControl, data)
-  if (searchControl !== undefined) result.SearchControl = searchControl
+  if (data.searchControl !== undefined) {
+    const searchControl = exportSearchControlAdditionToXML(context, data.searchControl, data)
+    // Check if searchControl has content (more than just name, id, AdditionSource, ContextMenu, ExtendedTooltip)
+    const hasContent = Object.keys(searchControl).some(
+      (key) => !["_name", "_id", "AdditionSource", "ContextMenu", "ExtendedTooltip"].includes(key)
+    )
+    if (hasContent) result.SearchControl = searchControl
+  }
 
   if (data.searchControlLocation !== undefined) result.SearchControlLocation = data.searchControlLocation
 
@@ -150,8 +161,14 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
 
   if (data.searchStringLocation !== undefined) result.SearchStringLocation = data.searchStringLocation
 
-  const searchStringRepresentation = exportSearchStringAdditionToXML(context, data.searchStringRepresentation, data)
-  if (searchStringRepresentation !== undefined) result.SearchStringRepresentation = searchStringRepresentation
+  if (data.searchStringRepresentation !== undefined) {
+    const searchStringRepresentation = exportSearchStringAdditionToXML(context, data.searchStringRepresentation, data)
+    // Check if searchStringRepresentation has content (more than just name, id, AdditionSource, ContextMenu, ExtendedTooltip)
+    const hasContent = Object.keys(searchStringRepresentation).some(
+      (key) => !["_name", "_id", "AdditionSource", "ContextMenu", "ExtendedTooltip"].includes(key)
+    )
+    if (hasContent) result.SearchStringRepresentation = searchStringRepresentation
+  }
 
   if (data.selectionMode !== undefined) result.SelectionMode = data.selectionMode
 
@@ -195,20 +212,16 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
 
   if (data.viewStatusLocation !== undefined) result.ViewStatusLocation = data.viewStatusLocation
 
-  const viewStatusRepresentation = exportViewStatusAdditionToXML(context, data.viewStatusRepresentation, data)
-  if (viewStatusRepresentation !== undefined) result.ViewStatusRepresentation = viewStatusRepresentation
+  result.ViewStatusRepresentation = exportViewStatusAdditionToXML(context, data.viewStatusRepresentation, data)
 
   if (data.visible !== undefined) result.Visible = data.visible
 
   if (data.width !== undefined) result.Width = data.width
 
   const events = exportEventsToXML(context, data.events)
-  
-  // Events should be at the end, so we sort first and then add Events
-  const sortedResult = sortObject(result)
-  if (events !== undefined) sortedResult.Events = events
+  if (events !== undefined) result.Events = events
 
-  return sortedResult
+  return sortObject(result)
 }
 
 registerMetadata("ExportToXML", "Table", exportTableToXML)

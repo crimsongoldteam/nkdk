@@ -4,19 +4,20 @@ import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFr
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importChildItemsFromEnterprise } from "~/metadata/forms/collections/childItems/importFromEnterprise"
 import { importCommandSetFromEnterprise } from "~/metadata/forms/commandSet/importFromEnterprise"
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
-import { importFormItemAdditionFromEnterprise } from "~/metadata/forms/elements/formItemAddition/importFromEnterprise"
 import { Table, TableEnterprise } from "~/metadata/forms/elements/table/types"
 import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 import { importAutoCommandBarFromEnterprise } from "../autoCommandBar/importFromEnterprise"
+import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { importSearchControlAdditionFromEnterprise } from "../searchControlAddition/importFromEnterprise"
+import { importSearchStringAdditionFromEnterprise } from "../searchStringAddition/importFromEnterprise"
+import { importViewStatusAdditionFromEnterprise } from "../viewStatusAddition/importFromEnterprise"
 
 const importTableEventsFromEnterprise = (
   data:
@@ -264,9 +265,6 @@ export const importTableFromEnterprise = <From extends TableEnterprise | undefin
   const commandSet = importCommandSetFromEnterprise(context, data.Команда)
   if (commandSet !== undefined) result.commandSet = commandSet
 
-  const commandBar = importCommandBarFromEnterprise(context, data.КоманднаяПанель, "")
-  if (commandBar !== undefined) result.commandBar = commandBar
-
   const contextMenu = importContextMenuFromEnterprise(context, data.КонтекстноеМеню)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
@@ -311,10 +309,10 @@ export const importTableFromEnterprise = <From extends TableEnterprise | undefin
   )
   if (toolTipRepresentation !== undefined) result.toolTipRepresentation = toolTipRepresentation
 
-  const viewStatusRepresentation = importFormItemAdditionFromEnterprise(context, data.ОтображениеСостоянияПросмотра, "")
+  const viewStatusRepresentation = importViewStatusAdditionFromEnterprise(context, data.ОтображениеСостоянияПросмотра)
   if (viewStatusRepresentation !== undefined) result.viewStatusRepresentation = viewStatusRepresentation
 
-  const searchStringRepresentation = importFormItemAdditionFromEnterprise(context, data.ОтображениеСтрокиПоиска, "")
+  const searchStringRepresentation = importSearchStringAdditionFromEnterprise(context, data.ОтображениеСтрокиПоиска)
   if (searchStringRepresentation !== undefined) result.searchStringRepresentation = searchStringRepresentation
 
   const behaviorOnHorizontalCompression =
@@ -332,8 +330,8 @@ export const importTableFromEnterprise = <From extends TableEnterprise | undefin
   const toolTip = importI8nTextFromEnterprise(context, data.Подсказка)
   if (toolTip !== undefined) result.toolTip = toolTip
 
-  const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
-  if (childItems !== undefined) result.childItems = childItems
+  // const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
+  // if (childItems !== undefined) result.childItems = childItems
 
   const searchOnInput = importSystemEnumerationFromEnterprise<SE.SearchInTableOnInput>(
     context,
@@ -449,7 +447,7 @@ export const importTableFromEnterprise = <From extends TableEnterprise | undefin
   const readOnly = importBooleanFromEnterprise(context, data.ТолькоПросмотр)
   if (readOnly !== undefined) result.readOnly = readOnly
 
-  const searchControl = importFormItemAdditionFromEnterprise(context, data.УправлениеПоиском, "")
+  const searchControl = importSearchControlAdditionFromEnterprise(context, data.УправлениеПоиском)
   if (searchControl !== undefined) result.searchControl = searchControl
 
   const borderColor = importColorFromEnterprise(context, data.ЦветРамки)
