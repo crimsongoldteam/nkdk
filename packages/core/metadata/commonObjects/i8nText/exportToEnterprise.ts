@@ -13,6 +13,8 @@ export const exportI8nTextToEnterprise = (
 
   if (Object.keys(items).length === 1 && items[defaultLanguage]) return items[defaultLanguage]
 
+  if (Object.keys(items).length === 0 && title.formatted === undefined) return undefined
+
   return items
 }
 

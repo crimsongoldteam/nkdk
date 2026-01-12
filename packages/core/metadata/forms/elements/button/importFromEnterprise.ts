@@ -15,6 +15,21 @@ import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerat
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
+export const importButtonChildFromEnterprise = (context: ConfigurationContext, data: ButtonEnterprise): Button => {
+  const props = importButtonPropsFromEnterprise(context, data)
+
+  const name = data.Имя
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: Button = {
+    ...props,
+    elementType,
+    name,
+  }
+
+  return result
+}
+
 export const importButtonFromSourceEnterprise = (
   context: ConfigurationContext,
   source: Button | undefined,
@@ -34,28 +49,13 @@ export const importButtonFromSourceEnterprise = (
   return result
 }
 
-export const importButtonFromEnterprise = (context: ConfigurationContext, data: ButtonEnterprise): Button => {
-  const props = importButtonPropsFromEnterprise(context, data)
-
-  const name = data.Имя
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
-  const result: Button = {
-    ...props,
-    elementType,
-    name,
-  }
-
-  return result
-}
-
 const importButtonPropsFromEnterprise = (
   context: ConfigurationContext,
   data: ButtonPropsEnterprise | undefined
-): Omit<Partial<Button>, "elementType"> | undefined => {
-  if (data === undefined) return undefined
-
+): Omit<Partial<Button>, "elementType"> => {
   const result: Omit<Partial<Button>, "elementType"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
+import { combinedI8nTextFixtures } from "~/tests/fixtures/i8nText/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importI8nTextFromEnterprise } from "./importFromEnterprise"
+import { importI8nTextCombinedFromEnterprise, importI8nTextFromEnterprise } from "./importFromEnterprise"
 import { I8nText } from "./types"
 
 describe("importI8nTextFromEnterprise", () => {
@@ -48,6 +49,20 @@ describe("importI8nTextFromEnterprise", () => {
 
     expect(result).toEqual({
       items: {},
+    })
+  })
+})
+
+describe("importI8nTextCombinedFromEnterprise", () => {
+  combinedI8nTextFixtures.forEach((fixture) => {
+    it(`should import combined I8nText: ${fixture.name}`, () => {
+      const result = importI8nTextCombinedFromEnterprise(
+        mockСontext,
+        fixture.defaultLanguage,
+        fixture.otherLanguagesEnterprise
+      )
+
+      expect(result).toEqual(fixture.expectedResult)
     })
   })
 })

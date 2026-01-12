@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest"
+import { combinedI8nTextFixtures } from "~/tests/fixtures/i8nText/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportI8nTextToEnterprise } from "./exportToEnterprise"
+import {
+  exportI8nTextDefaultToEnterprise,
+  exportI8nTextOtherToEnterprise,
+  exportI8nTextToEnterprise,
+} from "./exportToEnterprise"
 import { I8nText } from "./types"
 
 describe("exportI8nTextToEnterprise", () => {
@@ -35,5 +40,39 @@ describe("exportI8nTextToEnterprise", () => {
     const result = exportI8nTextToEnterprise(mockСontext, mockI8nText)
 
     expect(result).toEqual(expectedResult)
+  })
+})
+
+describe("exportI8nTextDefaultToEnterprise", () => {
+  combinedI8nTextFixtures.forEach((fixture) => {
+    if (fixture.fullI8nText !== undefined) {
+      it(`should export default language: ${fixture.name}`, () => {
+        const result = exportI8nTextDefaultToEnterprise(mockСontext, fixture.fullI8nText)
+
+        expect(result).toEqual(fixture.expectedDefaultExport)
+      })
+    }
+  })
+
+  it("should return undefined for undefined input", () => {
+    const result = exportI8nTextDefaultToEnterprise(mockСontext, undefined)
+
+    expect(result).toBeUndefined()
+  })
+
+  it("should return undefined when default language is missing", () => {
+    const mockI8nText: I8nText = { items: { en: "Field" } }
+    const result = exportI8nTextDefaultToEnterprise(mockСontext, mockI8nText)
+
+    expect(result).toBeUndefined()
+  })
+})
+
+describe("exportI8nTextDefaultToEnterprise", () => {
+  it.each(combinedI8nTextFixtures)("should export  $name", (fixture) => {
+    const defaultExport = exportI8nTextDefaultToEnterprise(mockСontext, fixture.fullI8nText)
+    const otherExport = exportI8nTextOtherToEnterprise(mockСontext, fixture.fullI8nText)
+    expect(defaultExport).toEqual(fixture.expectedDefaultExport)
+    expect(otherExport).toEqual(fixture.expectedOtherExport)
   })
 })

@@ -10,6 +10,12 @@ import { importI8nTextFromXML } from "./importFromXML"
 import { I8nTextXML } from "./types"
 
 describe("importI8nTextFromXML", () => {
+  it("should return undefined when XML is undefined", () => {
+    const result = importI8nTextFromXML(mockСontext, undefined)
+
+    expect(result).toBeUndefined()
+  })
+
   it("should import I8nText from XML with one language", () => {
     const xmlData = readAndParseXMLFile<{ Title: I8nTextXML }>("i8nText/oneLang.xml")
 

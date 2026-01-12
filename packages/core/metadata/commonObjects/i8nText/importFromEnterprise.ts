@@ -32,6 +32,10 @@ export const importI8nTextCombinedFromEnterprise = (
     items: {},
   }
 
+  if (defaultLanguage !== undefined) {
+    result.items = { ...result.items, ...defaultLanguage.items }
+  }
+
   if (otherLanguagesEnterprise !== undefined) {
     const otherLanguages = importI8nTextFromEnterprise(context, otherLanguagesEnterprise)
     if (otherLanguages !== undefined) result.items = { ...result.items, ...otherLanguages.items }

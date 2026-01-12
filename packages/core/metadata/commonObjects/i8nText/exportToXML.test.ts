@@ -10,6 +10,12 @@ import { exportI8nTextToXML } from "./exportToXML"
 import { I8nTextXML } from "./types"
 
 describe("exportI8nTextToXML", () => {
+  it("should return undefined when data is undefined", () => {
+    const result = exportI8nTextToXML(mockСontext, undefined)
+
+    expect(result).toBeUndefined()
+  })
+
   it("should export I8nText to XML", () => {
     const expectedResult = readXMLFileAsString("i8nText/twoLangs.xml")
 
