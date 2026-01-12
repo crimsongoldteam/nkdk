@@ -6,7 +6,6 @@ export const fullTable: Table = {
   name: "Таблица",
   autoAddIncomplete: true,
   autoCommandBar: {
-    elementType: FormElementType.AutoCommandBar,
     autofill: false,
     childItems: [],
   },
