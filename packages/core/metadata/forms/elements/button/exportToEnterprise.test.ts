@@ -3,7 +3,7 @@ import {
   fullButton,
   fullButtonEnterprise,
   minimalButton,
-  minimalButtonPropsEnterprise,
+  minimalButtonChildEnterprise,
 } from "~/tests/fixtures/forms/button/data"
 import { mockСontext } from "~/tests/mockContext"
 import { exportButtonToEnterprise } from "./exportToEnterprise"
@@ -18,6 +18,6 @@ describe("exportButtonToEnterprise", () => {
   it("should export minimal", () => {
     const result = exportButtonToEnterprise(mockСontext, minimalButton)
 
-    expect(result).toEqual(minimalButtonPropsEnterprise)
+    expect(result).toEqual(minimalButtonChildEnterprise)
   })
 })

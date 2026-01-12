@@ -141,12 +141,11 @@ export const minimalButton: Button = {
   name: "Кнопка",
 }
 
-export const minimalButtonPropsEnterprise: ButtonPropsEnterprise = {}
+export const minimalButtonChildEnterprise: ButtonPropsEnterprise = {}
 
 export const minimalButtonEnterprise: ButtonEnterprise = {
-  ...minimalButtonPropsEnterprise,
+  ...minimalButtonChildEnterprise,
   Тип: "Кнопка",
-  Имя: "Кнопка",
 }
 
 export interface ButtonStructureFixture {

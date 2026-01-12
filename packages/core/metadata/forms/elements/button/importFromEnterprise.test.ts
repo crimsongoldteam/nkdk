@@ -6,7 +6,7 @@ import {
   fullButtonEnterprise,
   fullButtonSource,
   minimalButton,
-  minimalButtonPropsEnterprise,
+  minimalButtonChildEnterprise,
 } from "~/tests/fixtures/forms/button/data"
 import { mockСontext } from "~/tests/mockContext"
 import { importButtonChildFromEnterprise, importButtonFromEnterprise } from "./importFromEnterprise"
@@ -29,7 +29,7 @@ describe("importButtonFromEnterprise", () => {
       const result = importButtonFromEnterprise(
         mockСontext,
         { elementType: FormElementType.Button, name: "Кнопка" },
-        minimalButtonPropsEnterprise
+        minimalButtonChildEnterprise
       )
 
       expect(result).toEqual(minimalButton)
