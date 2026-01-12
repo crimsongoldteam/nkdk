@@ -4,8 +4,7 @@ import {
   fullGraphicalSchemaFieldPartialEnterprise,
   fullGraphicalSchemaFieldTypedEnterprise,
   minimalGraphicalSchemaField,
-  minimalGraphicalSchemaFieldPartialEnterprise,
-  minimalGraphicalSchemaFieldTypedEnterprise,
+  minimalGraphicalSchemaFieldPartialEnterprise
 } from "~/tests/fixtures/forms/graphicalSchemaField/data"
 import { mockСontext } from "~/tests/mockContext"
 import {

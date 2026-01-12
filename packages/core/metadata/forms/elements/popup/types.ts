@@ -27,8 +27,7 @@ export interface PopupXML extends FormGroupXML {
   ПодчиненныеЭлементы?: ButtonGroupChildItemsXML
 }
 
-export interface PopupEnterprise extends FormGroupPropsEnterprise {
-  Тип: "Подменю"
+export interface PopupPartialEnterprise extends FormGroupPropsEnterprise {
   Картинка?: PictureEnterprise
   Отображение?: SE.ButtonRepresentationEnterprise
   ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
@@ -39,3 +38,12 @@ export interface PopupEnterprise extends FormGroupPropsEnterprise {
   ЦветФона?: ColorEnterprise
   ПодчиненныеЭлементы?: ButtonGroupChildItem
 }
+
+export interface PopupTypedEnterprise extends PopupPartialEnterprise {
+  Тип: "Подменю"
+}
+
+/**
+ * @deprecated Use PopupPartialEnterprise or PopupTypedEnterprise instead
+ */
+export type PopupEnterprise = PopupTypedEnterprise

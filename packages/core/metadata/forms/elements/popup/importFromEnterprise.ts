@@ -1,29 +1,83 @@
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
-import { Popup, PopupEnterprise } from "~/metadata/forms/elements/popup/types"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importFormGroupPartialFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
+import {
+  Popup,
+  PopupPartialEnterprise,
+  PopupTypedEnterprise,
+} from "~/metadata/forms/elements/popup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importButtonGroupChildItemsFromEnterprise } from "../../collections/buttonGroupChildItems/importFromEnterprise"
+import { ImportPropsFromEnterpriseReturn } from "../types"
 
-export const importPopupFromEnterprise = <From extends PopupEnterprise | undefined, Name extends string>(
+export const importPopupTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, Popup, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, Popup, Name>
+  data: PopupTypedEnterprise | undefined,
+  name: string
+): Popup | undefined => {
+  if (data === undefined) return undefined
 
-  const baseFields = importFormGroupFromEnterprise(context, data, name)
+  const baseFields = importFormGroupPartialFromEnterprise(context, undefined, data)
+  if (baseFields === undefined) return undefined
+
+  const props = importPopupPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
 
   const result: Popup = {
     ...baseFields,
-    elementType: FormElementType.Popup,
+    ...props,
+    elementType,
+    childItems: props.childItems ?? [],
+  }
+
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
+}
+
+export const importPopupPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: Popup | undefined,
+  data: PopupPartialEnterprise | undefined
+): Popup | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormGroupPartialFromEnterprise(context, source, data)
+  if (baseFields === undefined) return undefined
+
+  const props = importPopupPropsFromEnterprise(context, data)
+  const result: Popup = {
+    ...baseFields,
+    ...props,
+    childItems: props.childItems ?? [],
+  }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
+}
+
+const importPopupPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: PopupTypedEnterprise | PopupPartialEnterprise | undefined
+): Omit<Partial<Popup>, "elementType" | "name"> => {
+  const result: Omit<Partial<Popup>, "elementType" | "name"> = {
     childItems: [],
   }
+
+  if (data === undefined) return result
 
   const picture = importPictureFromEnterprise(context, data.Картинка)
   if (picture !== undefined) result.picture = picture
@@ -69,7 +123,10 @@ export const importPopupFromEnterprise = <From extends PopupEnterprise | undefin
   const backColor = importColorFromEnterprise(context, data.ЦветФона)
   if (backColor !== undefined) result.backColor = backColor
 
-  return result as ImportFromEnterpriseReturn<From, Popup, Name>
+  const childItems = importButtonGroupChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
+  if (childItems !== undefined) result.childItems = childItems
+
+  return result
 }
 
-registerMetadata("ImportFromEnterprise", "Popup", importPopupFromEnterprise)
+registerMetadata("ImportFromEnterprise", "Popup", importPopupPropsFromEnterprise)

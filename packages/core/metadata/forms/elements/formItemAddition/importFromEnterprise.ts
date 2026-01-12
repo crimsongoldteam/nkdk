@@ -17,7 +17,6 @@ import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { ImportPropsFromEnterpriseReturn } from "../types"
 
 export const importFormItemAdditionTypedFromEnterprise = (
   context: ConfigurationContext,

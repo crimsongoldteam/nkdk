@@ -1,25 +1,70 @@
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
+import {
+  exportI8nTextOtherToEnterprise,
+  exportI8nTextToEnterprise,
+} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
-import { Popup, PopupEnterprise } from "~/metadata/forms/elements/popup/types"
+import { exportFormGroupPartialToEnterprise, exportFormGroupTypedToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
+import {
+  Popup,
+  PopupPartialEnterprise,
+  PopupTypedEnterprise,
+} from "~/metadata/forms/elements/popup/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { exportButtonGroupChildItemsToEnterprise } from "../../collections/buttonGroupChildItems/exportToEnterprise"
 
-export const exportPopupToEnterprise = (
+export const exportPopupTypedToEnterprise = (
   context: ConfigurationContext,
   data: Popup | undefined
-): PopupEnterprise | undefined => {
+): PopupTypedEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportFormGroupToEnterprise(context, data)
+  const baseFields = exportFormGroupTypedToEnterprise(context, data)
+  if (baseFields === undefined) return undefined
 
-  const result: PopupEnterprise = {
-    Тип: "Подменю",
+  const props = exportPopupPropsToEnterprise(context, data)
+
+  const result: PopupTypedEnterprise = {
     ...baseFields,
+    ...props,
+    Тип: "Подменю",
   }
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+export const exportPopupPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: Popup
+): PopupPartialEnterprise => {
+  const baseFields = exportFormGroupPartialToEnterprise(context, data)
+
+  const props = exportPopupPropsToEnterprise(context, data)
+
+  const result: PopupPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return sortObject(result)
+}
+
+const exportPopupPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: Popup
+): PopupPartialEnterprise => {
+  const result: PopupPartialEnterprise = {}
 
   const picture = exportPictureToEnterprise(context, data.picture)
   if (picture !== undefined) result.Картинка = picture
@@ -52,7 +97,11 @@ export const exportPopupToEnterprise = (
   const backColor = exportColorToEnterprise(context, data.backColor)
   if (backColor !== undefined) result.ЦветФона = backColor
 
+  const childItems = exportButtonGroupChildItemsToEnterprise(context, data.childItems)
+  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
+
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "Popup", exportPopupToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "Popup", exportPopupPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "Popup", exportPopupTypedToEnterprise)

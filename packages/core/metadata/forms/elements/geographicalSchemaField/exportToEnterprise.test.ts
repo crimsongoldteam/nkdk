@@ -5,7 +5,6 @@ import {
   fullGeographicalSchemaFieldTypedEnterprise,
   minimalGeographicalSchemaField,
   minimalGeographicalSchemaFieldPartialEnterprise,
-  minimalGeographicalSchemaFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/geographicalSchemaField/data"
 import { mockСontext } from "~/tests/mockContext"
 import {

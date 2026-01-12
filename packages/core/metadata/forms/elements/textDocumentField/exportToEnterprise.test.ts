@@ -5,7 +5,6 @@ import {
   fullTextDocumentFieldTypedEnterprise,
   minimalTextDocumentField,
   minimalTextDocumentFieldPartialEnterprise,
-  minimalTextDocumentFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/textDocumentField/data"
 import { mockСontext } from "~/tests/mockContext"
 import {

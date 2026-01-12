@@ -5,13 +5,9 @@ import {
   fullFormDecorationTypedEnterprise,
   minimalFormDecoration,
   minimalFormDecorationPartialEnterprise,
-  minimalFormDecorationTypedEnterprise,
 } from "~/tests/fixtures/forms/formDecoration/data"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportFormDecorationPartialToEnterprise,
-  exportFormDecorationTypedToEnterprise,
-} from "./exportToEnterprise"
+import { exportFormDecorationPartialToEnterprise, exportFormDecorationTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportFormDecorationToEnterprise", () => {
   describe("exportFormDecorationPartialToEnterprise", () => {
