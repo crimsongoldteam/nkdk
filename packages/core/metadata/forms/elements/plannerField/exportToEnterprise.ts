@@ -65,4 +65,4 @@ export const exportPlannerFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "PlannerField", exportPlannerFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "PlannerField", exportPlannerFieldToEnterprise)

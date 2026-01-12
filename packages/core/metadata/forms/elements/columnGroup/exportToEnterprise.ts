@@ -58,4 +58,4 @@ export const exportColumnGroupToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "ColumnGroup", exportColumnGroupToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "ColumnGroup", exportColumnGroupToEnterprise)

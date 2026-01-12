@@ -10,7 +10,7 @@ export const exportButtonGroupChildItemsToEnterprise = (
 
   const result: ButtonGroupChildItemsEnterprise = {}
   for (const item of data) {
-    const exportFunction = getOperationFunction("ExportToEnterprise", item.elementType)
+    const exportFunction = getOperationFunction("ExportTypedToEnterprise", item.elementType)
     if (!exportFunction) throw new Error(`Export function not found for element type: ${item.elementType}`)
     const value = exportFunction(context, item)
     result[item.name] = value

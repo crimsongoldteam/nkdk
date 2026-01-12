@@ -1,3 +1,6 @@
+import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
+import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
+import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
 import {
   exportI8nTextOtherToEnterprise,
   exportI8nTextToEnterprise,
@@ -6,27 +9,26 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
   ButtonGroup,
-  ButtonGroupEnterprise,
-  ButtonGroupPropsEnterprise,
+  ButtonGroupPartialEnterprise,
+  ButtonGroupTypedEnterprise,
 } from "~/metadata/forms/elements/buttonGroup/types"
-import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportButtonGroupChildItemsToEnterprise } from "../../collections/buttonGroupChildItems/exportToEnterprise"
+import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
-export const exportButtonGroupChildToEnterprise = (
+export const exportButtonGroupTypedToEnterprise = (
   context: ConfigurationContext,
   data: ButtonGroup | undefined
-): ButtonGroupEnterprise | undefined => {
+): ButtonGroupTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const props = exportButtonGroupPropsToEnterprise(context, data)
 
-  const result: ButtonGroupEnterprise = {
+  const result: ButtonGroupTypedEnterprise = {
     Тип: "ГруппаКнопок",
-    Имя: data.name,
     ...props,
   }
 
@@ -36,15 +38,13 @@ export const exportButtonGroupChildToEnterprise = (
   return sortObject(result)
 }
 
-export const exportButtonGroupToEnterprise = (
+export const exportButtonGroupPartialToEnterprise = (
   context: ConfigurationContext,
   data: ButtonGroup
-): ButtonGroupEnterprise => {
+): ButtonGroupPartialEnterprise => {
   const props = exportButtonGroupPropsToEnterprise(context, data)
 
-  const result: ButtonGroupEnterprise = {
-    Тип: "ГруппаКнопок",
-    Имя: data.name,
+  const result: ButtonGroupPartialEnterprise = {
     ...props,
   }
 
@@ -57,12 +57,68 @@ export const exportButtonGroupToEnterprise = (
 const exportButtonGroupPropsToEnterprise = (
   context: ConfigurationContext,
   data: ButtonGroup
-): ButtonGroupPropsEnterprise => {
-  const baseFields = exportFormGroupToEnterprise(context, data)
+): ButtonGroupPartialEnterprise => {
+  const result: ButtonGroupPartialEnterprise = {}
 
-  const result: ButtonGroupPropsEnterprise = {
-    ...baseFields,
-  }
+  const verticalAlignInGroup = exportSystemEnumerationToEnterprise(
+    context,
+    data.verticalAlignInGroup,
+    SE.ItemVerticalAlignToEnterprise
+  )
+  if (verticalAlignInGroup !== undefined) result.ВертикальноеПоложениеВГруппе = verticalAlignInGroup
+
+  const type = exportSystemEnumerationToEnterprise(context, data.type, SE.FormGroupTypeToEnterprise)
+  if (type !== undefined) result.Вид = type
+
+  const visible = exportBooleanToEnterprise(context, data.visible)
+  if (visible !== undefined) result.Видимость = visible
+
+  if (data.height !== undefined) result.Высота = data.height
+
+  const horizontalAlignInGroup = exportSystemEnumerationToEnterprise(
+    context,
+    data.horizontalAlignInGroup,
+    SE.ItemHorizontalLocationToEnterprise
+  )
+  if (horizontalAlignInGroup !== undefined) result.ГоризонтальноеПоложениеВГруппе = horizontalAlignInGroup
+
+  const enabled = exportBooleanToEnterprise(context, data.enabled)
+  if (enabled !== undefined) result.Доступность = enabled
+
+  const toolTipRepresentation = exportSystemEnumerationToEnterprise(
+    context,
+    data.toolTipRepresentation,
+    SE.ToolTipRepresentationToEnterprise
+  )
+  if (toolTipRepresentation !== undefined) result.ОтображениеПодсказки = toolTipRepresentation
+
+  const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
+  if (toolTip !== undefined) result.Подсказка = toolTip
+
+  const enableContentChange = exportBooleanToEnterprise(context, data.enableContentChange)
+  if (enableContentChange !== undefined) result.РазрешитьИзменениеСостава = enableContentChange
+
+  const verticalStretch = exportBooleanToEnterprise(context, data.verticalStretch)
+  if (verticalStretch !== undefined) result.РастягиватьПоВертикали = verticalStretch
+
+  const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
+  if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
+
+  const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
+  if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
+
+  if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
+
+  const readOnly = exportBooleanToEnterprise(context, data.readOnly)
+  if (readOnly !== undefined) result.ТолькоПросмотр = readOnly
+
+  const titleTextColor = exportColorToEnterprise(context, data.titleTextColor)
+  if (titleTextColor !== undefined) result.ЦветТекстаЗаголовка = titleTextColor
+
+  if (data.width !== undefined) result.Ширина = data.width
+
+  const titleFont = exportFontToEnterprise(context, data.titleFont)
+  if (titleFont !== undefined) result.ШрифтЗаголовка = titleFont
 
   const representation = exportSystemEnumerationToEnterprise(
     context,
@@ -82,4 +138,4 @@ const exportButtonGroupPropsToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "ButtonGroup", exportButtonGroupToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "ButtonGroup", exportButtonGroupPartialToEnterprise)

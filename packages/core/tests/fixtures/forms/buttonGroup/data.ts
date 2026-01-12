@@ -1,10 +1,9 @@
 import {
   ButtonGroup,
-  ButtonGroupEnterprise,
-  ButtonGroupPropsEnterprise,
+  ButtonGroupPartialEnterprise,
+  ButtonGroupTypedEnterprise,
 } from "~/metadata/forms/elements/buttonGroup/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormGroupEnterprise } from "../formGroup/data"
 
 export const fullButtonGroup: ButtonGroup = {
   elementType: FormElementType.ButtonGroup,
@@ -50,39 +49,7 @@ export const fullButtonGroupSource: ButtonGroup = {
   childItems: [],
 }
 
-export const fullButtonGroupEnterprise: ButtonGroupEnterprise = {
-  Тип: "ГруппаКнопок",
-  Имя: "ГруппаКнопок",
-  ВертикальноеПоложениеВГруппе: "Верх",
-  Вид: "ОбычнаяГруппа",
-  Видимость: "Истина",
-  Высота: 200,
-  ГоризонтальноеПоложениеВГруппе: "Лево",
-  Доступность: "Истина",
-  ОтображениеПодсказки: "Нет",
-  Подсказка: "Подсказка",
-  РазрешитьИспользование: { Администратор: "Истина" },
-  РазрешитьИзменениеСостава: "Истина",
-  РастягиватьПоВертикали: "Истина",
-  РастягиватьПоГоризонтали: "Истина",
-  СочетаниеКлавиш: "Ctrl+S",
-  ТолькоПросмотр: "Ложь",
-  ЦветТекстаЗаголовка: "Черный",
-  Ширина: 300,
-  ШрифтЗаголовка: "ОбычныйШрифтТекста",
-  Заголовок: "Группа кнопок",
-  Отображение: "Компактное",
-  ПодчиненныеЭлементы: {
-    Кнопка: {
-      Тип: "Кнопка",
-    },
-  },
-}
-
-export const fullButtonGroupChildEnterprise: ButtonGroupEnterprise = {
-  Тип: "ГруппаКнопок",
-  Имя: "ГруппаКнопок",
-  Заголовок: "Группа кнопок",
+export const fullButtonGroupPartialEnterprise: ButtonGroupPartialEnterprise = {
   ВертикальноеПоложениеВГруппе: "Верх",
   Вид: "ОбычнаяГруппа",
   Видимость: "Истина",
@@ -108,9 +75,26 @@ export const fullButtonGroupChildEnterprise: ButtonGroupEnterprise = {
   },
 }
 
-export const fullButtonGroupPropsEnterprise: ButtonGroupPropsEnterprise = {
-  ...fullFormGroupEnterprise,
+export const fullButtonGroupTypedEnterprise: ButtonGroupTypedEnterprise = {
+  Тип: "ГруппаКнопок",
   Заголовок: "Группа кнопок",
+  ВертикальноеПоложениеВГруппе: "Верх",
+  Вид: "ОбычнаяГруппа",
+  Видимость: "Истина",
+  Высота: 200,
+  ГоризонтальноеПоложениеВГруппе: "Лево",
+  Доступность: "Истина",
+  ОтображениеПодсказки: "Нет",
+  Подсказка: "Подсказка",
+  РазрешитьИспользование: { Администратор: "Истина" },
+  РазрешитьИзменениеСостава: "Истина",
+  РастягиватьПоВертикали: "Истина",
+  РастягиватьПоГоризонтали: "Истина",
+  СочетаниеКлавиш: "Ctrl+S",
+  ТолькоПросмотр: "Ложь",
+  ЦветТекстаЗаголовка: "Черный",
+  Ширина: 300,
+  ШрифтЗаголовка: "ОбычныйШрифтТекста",
   Отображение: "Компактное",
   ПодчиненныеЭлементы: {
     Кнопка: {
@@ -125,7 +109,8 @@ export const minimalButtonGroup: ButtonGroup = {
   childItems: [],
 }
 
-export const minimalButtonGroupEnterprise: ButtonGroupEnterprise = {
+export const minimalButtonGroupPartialEnterprise: ButtonGroupPartialEnterprise = {}
+
+export const minimalButtonGroupTypedEnterprise: ButtonGroupTypedEnterprise = {
   Тип: "ГруппаКнопок",
-  Имя: "ГруппаКнопок",
 }

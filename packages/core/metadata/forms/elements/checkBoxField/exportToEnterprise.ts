@@ -64,4 +64,4 @@ export const exportCheckBoxFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "CheckBoxField", exportCheckBoxFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "CheckBoxField", exportCheckBoxFieldToEnterprise)

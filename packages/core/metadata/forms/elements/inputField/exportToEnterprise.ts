@@ -333,4 +333,4 @@ export const exportInputFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "InputField", exportInputFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "InputField", exportInputFieldToEnterprise)

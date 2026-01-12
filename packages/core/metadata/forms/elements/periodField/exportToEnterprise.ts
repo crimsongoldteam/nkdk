@@ -61,4 +61,4 @@ export const exportPeriodFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "PeriodField", exportPeriodFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "PeriodField", exportPeriodFieldToEnterprise)

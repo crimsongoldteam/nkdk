@@ -72,4 +72,4 @@ export const exportProgressBarFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "ProgressBarField", exportProgressBarFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "ProgressBarField", exportProgressBarFieldToEnterprise)

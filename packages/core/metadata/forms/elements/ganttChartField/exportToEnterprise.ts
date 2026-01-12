@@ -78,4 +78,4 @@ export const exportGanttChartFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "GanttChartField", exportGanttChartFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "GanttChartField", exportGanttChartFieldToEnterprise)

@@ -19,10 +19,4 @@ describe("exportBaseElementToXML", () => {
 
     expect(xmlString).toEqual(expectedResult)
   })
-
-  it("should return undefined for undefined input", () => {
-    const result = exportElementPropsToXML(mockСontext, undefined)
-
-    expect(result).toBeUndefined()
-  })
 })

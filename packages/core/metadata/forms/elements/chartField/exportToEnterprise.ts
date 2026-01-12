@@ -49,4 +49,4 @@ export const exportChartFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "ChartField", exportChartFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "ChartField", exportChartFieldToEnterprise)

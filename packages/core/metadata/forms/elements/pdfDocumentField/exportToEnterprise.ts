@@ -73,4 +73,4 @@ export const exportPdfDocumentFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "PdfDocumentField", exportPdfDocumentFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "PdfDocumentField", exportPdfDocumentFieldToEnterprise)

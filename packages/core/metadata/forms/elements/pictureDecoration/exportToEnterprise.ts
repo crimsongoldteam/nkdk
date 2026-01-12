@@ -65,4 +65,4 @@ export const exportPictureDecorationToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "PictureDecoration", exportPictureDecorationToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "PictureDecoration", exportPictureDecorationToEnterprise)

@@ -202,4 +202,4 @@ export const exportFormFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "FormField", exportFormFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "FormField", exportFormFieldToEnterprise)

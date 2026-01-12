@@ -83,4 +83,4 @@ export const exportFormItemAdditionToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "FormItemAddition", exportFormItemAdditionToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "FormItemAddition", exportFormItemAdditionToEnterprise)

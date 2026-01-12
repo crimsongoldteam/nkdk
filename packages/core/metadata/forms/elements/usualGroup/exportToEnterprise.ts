@@ -153,4 +153,4 @@ export const exportUsualGroupToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "UsualGroup", exportUsualGroupToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "UsualGroup", exportUsualGroupToEnterprise)

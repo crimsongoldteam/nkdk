@@ -245,4 +245,4 @@ export const exportClientApplicationFormToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "ClientApplicationForm", exportClientApplicationFormToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "ClientApplicationForm", exportClientApplicationFormToEnterprise)

@@ -350,4 +350,4 @@ export const exportTableToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "Table", exportTableToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "Table", exportTableToEnterprise)

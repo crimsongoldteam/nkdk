@@ -70,4 +70,4 @@ export const exportTextDocumentFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "TextDocumentField", exportTextDocumentFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "TextDocumentField", exportTextDocumentFieldToEnterprise)

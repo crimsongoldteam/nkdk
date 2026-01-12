@@ -55,4 +55,4 @@ export const exportPopupToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "Popup", exportPopupToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "Popup", exportPopupToEnterprise)

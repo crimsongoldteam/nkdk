@@ -86,4 +86,4 @@ export const exportLabelDecorationToEnterprise = <T extends LabelDecoration | un
   return result as ImportExportReturn<T, LabelDecorationEnterprise>
 }
 
-registerMetadata("ExportToEnterprise", "LabelDecoration", exportLabelDecorationToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "LabelDecoration", exportLabelDecorationToEnterprise)

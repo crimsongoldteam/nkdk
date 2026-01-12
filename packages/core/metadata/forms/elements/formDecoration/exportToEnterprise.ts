@@ -113,4 +113,4 @@ export const exportFormDecorationToEnterprise = <T extends FormDecoration | unde
   return result as ImportExportReturn<T, FormDecorationPropsEnterprise>
 }
 
-registerMetadata("ExportToEnterprise", "FormDecoration", exportFormDecorationToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "FormDecoration", exportFormDecorationToEnterprise)

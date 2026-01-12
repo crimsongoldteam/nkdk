@@ -92,4 +92,4 @@ export const exportPictureFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "PictureField", exportPictureFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "PictureField", exportPictureFieldToEnterprise)

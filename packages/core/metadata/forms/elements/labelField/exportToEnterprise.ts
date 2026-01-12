@@ -80,4 +80,4 @@ export const exportLabelFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "LabelField", exportLabelFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "LabelField", exportLabelFieldToEnterprise)

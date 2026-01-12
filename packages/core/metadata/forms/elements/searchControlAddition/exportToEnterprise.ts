@@ -52,4 +52,4 @@ export const exportSearchControlAdditionToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "SearchControlAddition", exportSearchControlAdditionToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "SearchControlAddition", exportSearchControlAdditionToEnterprise)

@@ -44,4 +44,4 @@ export const exportCommandBarToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "CommandBar", exportCommandBarToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "CommandBar", exportCommandBarToEnterprise)

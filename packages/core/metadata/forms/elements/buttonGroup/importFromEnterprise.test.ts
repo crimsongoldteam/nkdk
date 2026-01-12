@@ -1,44 +1,53 @@
 import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/button/importFromEnterprise"
-import { FormElementType } from "~/metadata/metadataFactory/types"
 import {
   fullButtonGroup,
-  fullButtonGroupChildEnterprise,
-  fullButtonGroupPropsEnterprise,
-  fullButtonGroupSource,
+  fullButtonGroupPartialEnterprise,
+  fullButtonGroupTypedEnterprise,
   minimalButtonGroup,
+  minimalButtonGroupTypedEnterprise,
 } from "~/tests/fixtures/forms/buttonGroup/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importButtonGroupChildFromEnterprise, importButtonGroupFromEnterprise } from "./importFromEnterprise"
+import { importButtonGroupPartialFromEnterprise, importButtonGroupTypedFromEnterprise } from "./importFromEnterprise"
 
 describe("importButtonGroupFromEnterprise", () => {
-  describe("importButtonGroupFromEnterprise", () => {
+  describe("importButtonGroupTypedFromEnterprise", () => {
     it("should return undefined when source is undefined", () => {
-      const result = importButtonGroupFromEnterprise(mockСontext, undefined, undefined)
+      const result = importButtonGroupTypedFromEnterprise(mockСontext, undefined, "ГруппаКнопок")
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importButtonGroupFromEnterprise(mockСontext, fullButtonGroupSource, fullButtonGroupPropsEnterprise)
+      const result = importButtonGroupTypedFromEnterprise(mockСontext, fullButtonGroupTypedEnterprise, "ГруппаКнопок")
 
       expect(result).toEqual(fullButtonGroup)
     })
 
     it("should import minimal", () => {
-      const result = importButtonGroupFromEnterprise(
+      const result = importButtonGroupTypedFromEnterprise(
         mockСontext,
-        { elementType: FormElementType.ButtonGroup, name: "ГруппаКнопок", childItems: [] },
-        {}
+        minimalButtonGroupTypedEnterprise,
+        "ГруппаКнопок"
       )
 
       expect(result).toEqual(minimalButtonGroup)
     })
   })
 
-  describe("importButtonGroupChildFromEnterprise", () => {
+  describe("importButtonGroupPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importButtonGroupPartialFromEnterprise(mockСontext, undefined, undefined)
+
+      expect(result).toBeUndefined()
+    })
+
     it("should import all fields from Enterprise", () => {
-      const result = importButtonGroupChildFromEnterprise(mockСontext, fullButtonGroupChildEnterprise)
+      const result = importButtonGroupPartialFromEnterprise(
+        mockСontext,
+        fullButtonGroup,
+        fullButtonGroupPartialEnterprise
+      )
 
       expect(result).toEqual(fullButtonGroup)
     })

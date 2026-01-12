@@ -142,4 +142,4 @@ export const exportSpreadSheetDocumentFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "SpreadSheetDocumentField", exportSpreadSheetDocumentFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "SpreadSheetDocumentField", exportSpreadSheetDocumentFieldToEnterprise)

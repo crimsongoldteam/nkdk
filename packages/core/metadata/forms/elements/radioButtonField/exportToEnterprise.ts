@@ -67,4 +67,4 @@ export const exportRadioButtonFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "RadioButtonField", exportRadioButtonFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "RadioButtonField", exportRadioButtonFieldToEnterprise)

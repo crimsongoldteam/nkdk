@@ -78,4 +78,4 @@ export const exportDendrogramFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "DendrogramField", exportDendrogramFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "DendrogramField", exportDendrogramFieldToEnterprise)

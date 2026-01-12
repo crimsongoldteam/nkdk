@@ -136,4 +136,4 @@ export const exportCalendarFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "CalendarField", exportCalendarFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "CalendarField", exportCalendarFieldToEnterprise)

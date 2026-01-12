@@ -5,7 +5,8 @@ import { MetadataType } from "./types"
 
 export type ItemOperationType =
   | "ExportToXML"
-  | "ExportToEnterprise"
+  | "ExportPartialToEnterprise"
+  | "ExportTypedToEnterprise"
   | "ImportFromXML"
   | "ImportFromEnterprise"
   | "ExportToStructure"
@@ -29,7 +30,8 @@ type OperationRegistry = Map<
 
 const operationRegistries: Map<ItemOperationType, OperationRegistry> = new Map([
   ["ExportToXML", new Map()],
-  ["ExportToEnterprise", new Map()],
+  ["ExportPartialToEnterprise", new Map()],
+  ["ExportTypedToEnterprise", new Map()],
   ["ImportFromXML", new Map()],
   ["ImportFromEnterprise", new Map()],
   ["ExportToStructureContent", new Map()],

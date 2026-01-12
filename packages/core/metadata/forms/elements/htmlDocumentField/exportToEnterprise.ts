@@ -60,4 +60,4 @@ export const exportHTMLDocumentFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "HTMLDocumentField", exportHTMLDocumentFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "HTMLDocumentField", exportHTMLDocumentFieldToEnterprise)

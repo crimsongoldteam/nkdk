@@ -61,4 +61,4 @@ export const exportGeographicalSchemaFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "GeographicalSchemaField", exportGeographicalSchemaFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "GeographicalSchemaField", exportGeographicalSchemaFieldToEnterprise)

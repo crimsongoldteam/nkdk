@@ -47,4 +47,4 @@ export const exportSearchStringAdditionToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "SearchStringAddition", exportSearchStringAdditionToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "SearchStringAddition", exportSearchStringAdditionToEnterprise)

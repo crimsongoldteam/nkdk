@@ -71,4 +71,4 @@ export const exportTrackBarFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "TrackBarField", exportTrackBarFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "TrackBarField", exportTrackBarFieldToEnterprise)

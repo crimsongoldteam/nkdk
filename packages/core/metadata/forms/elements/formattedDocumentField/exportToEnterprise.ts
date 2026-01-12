@@ -73,4 +73,4 @@ export const exportFormattedDocumentFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "FormattedDocumentField", exportFormattedDocumentFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "FormattedDocumentField", exportFormattedDocumentFieldToEnterprise)

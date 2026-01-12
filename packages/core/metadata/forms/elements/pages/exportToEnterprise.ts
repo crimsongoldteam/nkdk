@@ -51,4 +51,4 @@ export const exportPagesToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "Pages", exportPagesToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "Pages", exportPagesToEnterprise)

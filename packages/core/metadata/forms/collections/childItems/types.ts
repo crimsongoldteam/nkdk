@@ -1,7 +1,7 @@
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button, ButtonEnterprise, ButtonXML } from "../../elements/button/types"
-import { ButtonGroup, ButtonGroupPropsEnterprise, ButtonGroupXML } from "../../elements/buttonGroup/types"
+import { ButtonGroup, ButtonGroupPartialEnterprise, ButtonGroupXML } from "../../elements/buttonGroup/types"
 import { CalendarField, CalendarFieldEnterprise, CalendarFieldXML } from "../../elements/calendarField/types"
 import { ChartField, ChartFieldEnterprise, ChartFieldXML } from "../../elements/chartField/types"
 import { CheckBoxField, CheckBoxFieldEnterprise, CheckBoxFieldXML } from "../../elements/checkBoxField/types"
@@ -183,7 +183,7 @@ export type ChildItemsXML = ChildItemRecordXML | ChildItemRecordXML[]
 
 export type ChildItemEnterprise =
   | ButtonEnterprise
-  | ButtonGroupPropsEnterprise
+  | ButtonGroupPartialEnterprise
   | CalendarFieldEnterprise
   | ChartFieldEnterprise
   | CheckBoxFieldEnterprise

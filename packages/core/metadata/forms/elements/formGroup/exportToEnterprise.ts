@@ -61,9 +61,6 @@ export const exportFormGroupToEnterprise = (
   const toolTip = exportI8nTextToEnterprise(context, data.toolTip)
   if (toolTip !== undefined) result.Подсказка = toolTip
 
-  // const childItems = exportChildItemsToEnterprise(context, data.childItems)
-  // if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
-
   const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
   if (userVisible !== undefined) {
     Object.assign(result, userVisible)
@@ -97,4 +94,4 @@ export const exportFormGroupToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "FormGroup", exportFormGroupToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "FormGroup", exportFormGroupToEnterprise)

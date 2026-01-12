@@ -64,4 +64,4 @@ export const exportGraphicalSchemaFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "GraphicalSchemaField", exportGraphicalSchemaFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "GraphicalSchemaField", exportGraphicalSchemaFieldToEnterprise)

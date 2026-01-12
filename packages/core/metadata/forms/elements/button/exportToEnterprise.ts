@@ -15,7 +15,7 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
-export const exportButtonChildToEnterprise = (
+export const exportButtoтTypedToEnterprise = (
   context: ConfigurationContext,
   data: Button | undefined
 ): ButtonEnterprise | undefined => {
@@ -34,7 +34,7 @@ export const exportButtonChildToEnterprise = (
   return result
 }
 
-export const exportButtonToEnterprise = (context: ConfigurationContext, data: Button): ButtonPropsEnterprise => {
+export const exportButtonPartialToEnterprise = (context: ConfigurationContext, data: Button): ButtonPropsEnterprise => {
   const result = exportButtonPropsToEnterprise(context, data)
 
   const title = exportI8nTextOtherToEnterprise(context, data.title)
@@ -183,4 +183,5 @@ const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Butt
   return result
 }
 
-registerMetadata("ExportToEnterprise", "Button", exportButtonToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "Button", exportButtonPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "Button", exportButtoтTypedToEnterprise)

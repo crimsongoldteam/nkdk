@@ -71,4 +71,4 @@ export const exportViewStatusAdditionToEnterprise = (
   return result
 }
 
-registerMetadata("ExportToEnterprise", "ViewStatusAddition", exportViewStatusAdditionToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "ViewStatusAddition", exportViewStatusAdditionToEnterprise)

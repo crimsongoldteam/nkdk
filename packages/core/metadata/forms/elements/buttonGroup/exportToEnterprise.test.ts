@@ -2,37 +2,37 @@ import { describe, expect, it } from "vitest"
 import "~/metadata/forms/elements/button/exportToEnterprise"
 import {
   fullButtonGroup,
-  fullButtonGroupChildEnterprise,
-  fullButtonGroupEnterprise,
+  fullButtonGroupPartialEnterprise,
+  fullButtonGroupTypedEnterprise,
   minimalButtonGroup,
-  minimalButtonGroupEnterprise,
+  minimalButtonGroupPartialEnterprise,
 } from "~/tests/fixtures/forms/buttonGroup/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportButtonGroupChildToEnterprise, exportButtonGroupToEnterprise } from "./exportToEnterprise"
+import { exportButtonGroupPartialToEnterprise, exportButtonGroupTypedToEnterprise } from "./exportToEnterprise"
 
-describe("exportButtonGroupToEnterprise", () => {
+describe("exportButtonGroupPartialToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportButtonGroupToEnterprise(mockСontext, fullButtonGroup)
+    const result = exportButtonGroupPartialToEnterprise(mockСontext, fullButtonGroup)
 
-    expect(result).toEqual(fullButtonGroupEnterprise)
+    expect(result).toEqual(fullButtonGroupPartialEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportButtonGroupToEnterprise(mockСontext, minimalButtonGroup)
+    const result = exportButtonGroupPartialToEnterprise(mockСontext, minimalButtonGroup)
 
-    expect(result).toEqual(minimalButtonGroupEnterprise)
+    expect(result).toEqual(minimalButtonGroupPartialEnterprise)
   })
 })
 
-describe("exportButtonGroupChildToEnterprise", () => {
+describe("exportButtonGroupTypedToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportButtonGroupChildToEnterprise(mockСontext, fullButtonGroup)
+    const result = exportButtonGroupTypedToEnterprise(mockСontext, fullButtonGroup)
 
-    expect(result).toEqual(fullButtonGroupChildEnterprise)
+    expect(result).toEqual(fullButtonGroupTypedEnterprise)
   })
 
   it("should return undefined when data is undefined", () => {
-    const result = exportButtonGroupChildToEnterprise(mockСontext, undefined)
+    const result = exportButtonGroupTypedToEnterprise(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
