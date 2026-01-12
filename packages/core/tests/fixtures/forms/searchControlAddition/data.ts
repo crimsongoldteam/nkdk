@@ -1,23 +1,48 @@
-import { SearchControlAddition, SearchControlAdditionEnterprise } from "~/metadata/forms/elements/searchControlAddition/types"
+import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
+import {
+  SearchControlAddition,
+  SearchControlAdditionEnterprise,
+} from "~/metadata/forms/elements/searchControlAddition/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormItemAddition, fullFormItemAdditionEnterprise } from "../formItemAddition/data"
+
+export const parentElement: BaseElement = {
+  elementType: FormElementType.Form,
+  name: "КакойТоЭлемент",
+}
 
 export const fullSearchControlAddition: SearchControlAddition = {
-  ...fullFormItemAddition,
-  elementType: FormElementType.SearchControlAddition,
-  name: "ДополнениеУправленияПоиском",
+  displayImportance: "High",
+  enabled: true,
+  horizontalAlignInGroup: "Left",
+  title: {
+    items: { ru: "Добавление элемента формы" },
+  },
+  toolTip: {
+    items: { ru: "Подсказка" },
+  },
+  toolTipRepresentation: "None",
+  userVisible: {
+    common: true,
+    values: [{ name: "Администратор", value: true }],
+  },
+  verticalAlignInGroup: "Top",
+  visible: true,
   childItems: [],
 }
 
 export const fullSearchControlAdditionEnterprise: SearchControlAdditionEnterprise = {
-  ...fullFormItemAdditionEnterprise,
+  ВажностьПриОтображении: "Высокая",
+  ВертикальноеПоложениеВГруппе: "Верх",
+  Видимость: "Истина",
+  ГоризонтальноеПоложениеВГруппе: "Лево",
+  Доступность: "Истина",
+  ОтображениеПодсказки: "Нет",
+  Подсказка: "Подсказка",
+  РазрешитьИспользование: { Администратор: "Истина" },
 }
 
 export const minimalSearchControlAddition: SearchControlAddition = {
-  elementType: FormElementType.SearchControlAddition,
-  name: "ДополнениеУправленияПоиском",
   childItems: [],
 }
 
 export const minimalSearchControlAdditionEnterprise: SearchControlAdditionEnterprise = {}
-

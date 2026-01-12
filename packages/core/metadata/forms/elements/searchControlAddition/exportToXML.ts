@@ -1,13 +1,15 @@
 import { exportColorToXML } from "~/metadata/commonObjects/color/exportToXML"
 import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
+import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportButtonGroupChildItemsToXML } from "~/metadata/forms/collections/buttonGroupChildItems/exportToXML"
+import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { SearchControlAddition, SearchControlAdditionXML } from "~/metadata/forms/elements/searchControlAddition/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { BaseElement } from "../baseElement/types"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { getSearchControlAdditionName } from "./helper"
 
 export const exportSearchControlAdditionToXML = (
@@ -29,10 +31,33 @@ export const exportSearchControlAdditionToXML = (
       Type: "SearchControlAddition",
     },
     ...baseFields,
+    ContextMenu: exportContextMenuToXML(context, element.contextMenu, parentElement),
+    ExtendedTooltip: exportExtendedTooltipToXML(context, element.extendedTooltip, parentElement),
   }
 
   const childItems = exportButtonGroupChildItemsToXML(context, element.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
+
+  if (element.displayImportance !== undefined) result._DisplayImportance = element.displayImportance
+
+  if (element.enabled !== undefined) result.Enabled = element.enabled
+
+  if (element.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = element.horizontalAlignInGroup
+
+  const title = exportI8nTextToXML(context, element.title)
+  if (title !== undefined) result.Title = title
+
+  const toolTip = exportI8nTextToXML(context, element.toolTip)
+  if (toolTip !== undefined) result.ToolTip = toolTip
+
+  if (element.toolTipRepresentation !== undefined) result.ToolTipRepresentation = element.toolTipRepresentation
+
+  const userVisible = exportUserVisibleToXML(context, element.userVisible)
+  if (userVisible !== undefined) result.UserVisible = userVisible
+
+  if (element.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = element.verticalAlignInGroup
+
+  if (element.visible !== undefined) result.Visible = element.visible
 
   if (element.autoMaxWidth !== undefined) result.AutoMaxWidth = element.autoMaxWidth
 
@@ -52,12 +77,7 @@ export const exportSearchControlAdditionToXML = (
   const textColor = exportColorToXML(context, element.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
-  const userVisible = exportUserVisibleToXML(context, element.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
   if (element.width !== undefined) result.Width = element.width
 
   return sortObject(result)
 }
-
-registerMetadata("ExportToXML", "SearchControlAddition", exportSearchControlAdditionToXML)
