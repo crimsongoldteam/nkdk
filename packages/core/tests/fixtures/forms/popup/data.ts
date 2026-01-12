@@ -22,8 +22,9 @@ export const fullPopup: Popup = {
   childItems: [],
 }
 
+const { Заголовок, ...formGroupPartialWithoutTitle } = fullFormGroupPartialEnterprise
 export const fullPopupPartialEnterprise: PopupPartialEnterprise = {
-  ...fullFormGroupPartialEnterprise,
+  ...formGroupPartialWithoutTitle,
   Отображение: "Текст",
   ОтображениеФигуры: "Авто",
   Фигура: "Обычная",

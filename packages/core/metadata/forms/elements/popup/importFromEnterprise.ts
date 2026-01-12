@@ -65,6 +65,7 @@ export const importPopupPartialFromEnterprise = (
   const result: Popup = {
     ...baseFields,
     ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
     childItems: props.childItems ?? [],
   }
 

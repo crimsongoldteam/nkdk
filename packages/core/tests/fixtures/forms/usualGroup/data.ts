@@ -1,7 +1,7 @@
 import { InputField } from "~/metadata/forms/elements/inputField/types"
 import { UsualGroup, UsualGroupEnterprise } from "~/metadata/forms/elements/usualGroup/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormGroup, fullFormGroupEnterprise } from "../formGroup/data"
+import { fullFormGroup } from "../formGroup/data"
 
 export const fullUsualGroup: UsualGroup = {
   ...fullFormGroup,
