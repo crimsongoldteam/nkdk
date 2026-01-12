@@ -7,7 +7,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importCommandSetFromEnterprise } from "~/metadata/forms/commandSet/importFromEnterprise"
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
-import { Table, TableEnterprise } from "~/metadata/forms/elements/table/types"
+import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
 import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -129,7 +129,7 @@ const importTableEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importTableFromEnterprise = <From extends TableEnterprise | undefined, Name extends string>(
+export const importTableFromEnterprise = <From extends TablePartialEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
   data: From,
   name: Name

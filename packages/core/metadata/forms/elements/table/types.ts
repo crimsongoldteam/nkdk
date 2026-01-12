@@ -216,7 +216,7 @@ export interface TableXML extends BaseElementXML {
   Events?: EventsXML
 }
 
-export interface TableEnterprise extends BaseElementPropsEnterprise {
+export interface TablePartialEnterprise extends BaseElementPropsEnterprise {
   АвтоВводНезаполненного?: StringboolEnterprise
   АвтоВводНовойСтроки?: StringboolEnterprise
   АвтоКоманднаяПанель?: CommandBarEnterprise

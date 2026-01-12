@@ -1,6 +1,6 @@
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
-import { Table, TableEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
+import { Table, TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { Page, PageXML } from "../page/types"
@@ -29,7 +29,7 @@ export interface PagesXML extends FormGroupXML {
 
 export interface PagesPartialEnterprise extends FormGroupPartialEnterprise {
   ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
-  ИспользуемаяТаблица?: TableEnterprise
+  ИспользуемаяТаблица?: TablePartialEnterprise
   ОтображениеСтраниц?: SE.FormPagesRepresentationEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise

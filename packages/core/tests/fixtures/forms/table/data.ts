@@ -1,4 +1,4 @@
-import { Table, TableEnterprise } from "~/metadata/forms/elements/table/types"
+import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullTable: Table = {
@@ -193,7 +193,7 @@ export const fullTable: Table = {
   },
 }
 
-export const fullTableEnterprise: TableEnterprise = {
+export const fullTableEnterprise: TablePartialEnterprise = {
   АвтоВводНезаполненного: "Истина",
   АвтоВводНовойСтроки: "Истина",
   АвтоМаксимальнаяВысота: "Истина",
@@ -324,4 +324,4 @@ export const minimalTable: Table = {
   childItems: [],
 }
 
-export const minimalTableEnterprise: TableEnterprise = {}
+export const minimalTableEnterprise: TablePartialEnterprise = {}

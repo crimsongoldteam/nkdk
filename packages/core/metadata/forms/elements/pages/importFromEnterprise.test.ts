@@ -4,7 +4,6 @@ import {
   fullPagesPartialEnterprise,
   fullPagesTypedEnterprise,
   minimalPages,
-  minimalPagesPartialEnterprise,
   minimalPagesTypedEnterprise,
 } from "~/tests/fixtures/forms/pages/data"
 import { mockСontext } from "~/tests/mockContext"
@@ -39,14 +38,9 @@ describe("importPagesFromEnterprise", () => {
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importPagesPartialFromEnterprise(
-        mockСontext,
-        fullPages,
-        fullPagesPartialEnterprise
-      )
+      const result = importPagesPartialFromEnterprise(mockСontext, fullPages, fullPagesPartialEnterprise)
 
       expect(result).toEqual(fullPages)
     })
   })
 })
-

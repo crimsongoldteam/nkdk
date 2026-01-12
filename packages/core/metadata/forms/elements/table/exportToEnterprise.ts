@@ -8,7 +8,7 @@ import { exportTypedChildItemsToEnterprise } from "~/metadata/forms/collections/
 import { exportCommandSetToEnterprise } from "~/metadata/forms/commandSet/exportToEnterprise"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
-import { Table, TableEnterprise } from "~/metadata/forms/elements/table/types"
+import { Table, TablePartialEnterprise } from "~/metadata/forms/elements/table/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
@@ -22,12 +22,12 @@ import { exportViewStatusAdditionToEnterprise } from "../viewStatusAddition/expo
 export const exportTableToEnterprise = (
   context: ConfigurationContext,
   data: Table | undefined
-): TableEnterprise | undefined => {
+): TablePartialEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportBaseElementToEnterprise(context, data)
 
-  const result: TableEnterprise = {
+  const result: TablePartialEnterprise = {
     ...baseFields,
   }
 

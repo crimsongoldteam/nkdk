@@ -77,6 +77,3 @@ export interface TextDocumentFieldPartialEnterprise extends FormFieldEnterprise 
 export interface TextDocumentFieldTypedEnterprise extends TextDocumentFieldPartialEnterprise {
   Тип: "ПолеТекстовогоДокумента"
 }
-
-// Для обратной совместимости
-export type TextDocumentFieldEnterprise = TextDocumentFieldPartialEnterprise

@@ -3,7 +3,7 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
-import { Table, TableEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
+import { Table, TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
 
@@ -81,7 +81,7 @@ export interface UsualGroupPartialEnterprise extends FormGroupPartialEnterprise 
   ЗаголовокСвернутогоОтображения?: string
   ЗапретитьИспользование?: UserVisibleEnterprise
   ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
-  ИспользуемаяТаблица?: TableEnterprise
+  ИспользуемаяТаблица?: TablePartialEnterprise
   Объединенная?: StringboolEnterprise
   ОтображатьЗаголовок?: StringboolEnterprise
   ОтображатьОтступСлева?: StringboolEnterprise

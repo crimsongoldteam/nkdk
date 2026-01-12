@@ -4,7 +4,6 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
-import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { FormGroup, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -26,8 +25,8 @@ export const importFormGroupFromXML = <From extends FormGroupXML | undefined>(
 
   if (xml.Enabled !== undefined) result.enabled = xml.Enabled
 
-  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip, result)
-  result.extendedTooltip = extendedTooltip
+  // const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip, result)
+  // result.extendedTooltip = extendedTooltip
 
   if (xml.Height !== undefined) result.height = xml.Height
 

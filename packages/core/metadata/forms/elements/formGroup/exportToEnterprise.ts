@@ -16,7 +16,6 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
 export const exportFormGroupTypedToEnterprise = (
   context: ConfigurationContext,
@@ -108,8 +107,8 @@ export const exportFormGroupPropsToEnterprise = (
   const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
 
-  const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
-  if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
+  // const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
+  // if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 
