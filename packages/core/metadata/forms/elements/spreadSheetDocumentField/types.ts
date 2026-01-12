@@ -86,7 +86,7 @@ export interface SpreadSheetDocumentFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface SpreadSheetDocumentFieldEnterprise extends FormFieldEnterprise {
+export interface SpreadSheetDocumentFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   ВертикальнаяПолосаПрокрутки?: SE.ScrollBarUseEnterprise
@@ -134,3 +134,10 @@ export interface SpreadSheetDocumentFieldEnterprise extends FormFieldEnterprise 
     ПроверкаПеретаскивания?: string
   }
 }
+
+export interface SpreadSheetDocumentFieldTypedEnterprise extends SpreadSheetDocumentFieldPartialEnterprise {
+  Тип: "ПолеТабличногоДокумента"
+}
+
+// Для обратной совместимости
+export type SpreadSheetDocumentFieldEnterprise = SpreadSheetDocumentFieldPartialEnterprise

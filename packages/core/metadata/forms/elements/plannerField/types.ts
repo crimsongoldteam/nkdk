@@ -63,7 +63,7 @@ export interface PlannerFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface PlannerFieldEnterprise extends FormFieldEnterprise {
+export interface PlannerFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Высота?: number
@@ -105,3 +105,10 @@ export interface PlannerFieldEnterprise extends FormFieldEnterprise {
     ПроверкаПеретаскиванияВнутри?: string
   }
 }
+
+export interface PlannerFieldTypedEnterprise extends PlannerFieldPartialEnterprise {
+  Тип: "ПолеПланировщика"
+}
+
+// Для обратной совместимости
+export type PlannerFieldEnterprise = PlannerFieldPartialEnterprise

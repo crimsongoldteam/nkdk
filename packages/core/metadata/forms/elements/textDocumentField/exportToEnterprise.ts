@@ -4,23 +4,57 @@ import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEn
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
-import { TextDocumentField, TextDocumentFieldEnterprise } from "~/metadata/forms/elements/textDocumentField/types"
+import {
+  TextDocumentField,
+  TextDocumentFieldPartialEnterprise,
+  TextDocumentFieldTypedEnterprise,
+} from "~/metadata/forms/elements/textDocumentField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportTextDocumentFieldToEnterprise = (
+export const exportTextDocumentFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: TextDocumentField | undefined
-): TextDocumentFieldEnterprise | undefined => {
+): TextDocumentFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: TextDocumentFieldEnterprise = {
+  const props = exportTextDocumentFieldPropsToEnterprise(context, data)
+
+  const result: TextDocumentFieldTypedEnterprise = {
+    Тип: "ПолеТекстовогоДокумента",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportTextDocumentFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: TextDocumentField
+): TextDocumentFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportTextDocumentFieldPropsToEnterprise(context, data)
+
+  const result: TextDocumentFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportTextDocumentFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: TextDocumentField
+): TextDocumentFieldPartialEnterprise => {
+  const result: TextDocumentFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -70,4 +104,5 @@ export const exportTextDocumentFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "TextDocumentField", exportTextDocumentFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "TextDocumentField", exportTextDocumentFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "TextDocumentField", exportTextDocumentFieldTypedToEnterprise)

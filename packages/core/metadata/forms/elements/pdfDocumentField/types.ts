@@ -48,7 +48,7 @@ export interface PdfDocumentFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface PdfDocumentFieldEnterprise extends FormFieldEnterprise {
+export interface PdfDocumentFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Вывод?: SE.UseOutputEnterprise
@@ -71,5 +71,12 @@ export interface PdfDocumentFieldEnterprise extends FormFieldEnterprise {
     НажатиеНаНавигационнойСсылке?: string
   }
 }
+
+export interface PdfDocumentFieldTypedEnterprise extends PdfDocumentFieldPartialEnterprise {
+  Тип: "ПолеPDFДокумента"
+}
+
+// Для обратной совместимости
+export type PdfDocumentFieldEnterprise = PdfDocumentFieldPartialEnterprise
 
 export type PdfDocumentFieldTypes = PdfDocumentField | PdfDocumentFieldEnterprise | PdfDocumentFieldXML

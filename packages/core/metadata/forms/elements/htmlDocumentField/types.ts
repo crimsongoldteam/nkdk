@@ -44,7 +44,7 @@ export interface HTMLDocumentFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface HTMLDocumentFieldEnterprise extends FormFieldEnterprise {
+export interface HTMLDocumentFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Вывод?: SE.UseOutputEnterprise
@@ -67,3 +67,10 @@ export interface HTMLDocumentFieldEnterprise extends FormFieldEnterprise {
     ПриНажатии?: string
   }
 }
+
+export interface HTMLDocumentFieldTypedEnterprise extends HTMLDocumentFieldPartialEnterprise {
+  Тип: "ПолеHTMLДокумента"
+}
+
+// Для обратной совместимости
+export type HTMLDocumentFieldEnterprise = HTMLDocumentFieldPartialEnterprise

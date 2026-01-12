@@ -23,6 +23,7 @@ const eventNameMapping: Record<string, string> = {
   afterWrite: "ПослеЗаписи",
   onCurrentPageChange: "ПриСменеСтраницы",
   selection: "Выбор",
+  uRLClick: "НажатиеНаНавигационнойСсылке",
 }
 
 export const exportEventsToEnterprise = (

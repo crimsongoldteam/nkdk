@@ -1,25 +1,44 @@
 import { describe, expect, it } from "vitest"
-import { fullPdfDocumentField, fullPdfDocumentFieldEnterprise, minimalPdfDocumentField, minimalPdfDocumentFieldEnterprise } from "~/tests/fixtures/forms/pdfDocumentField/data"
+import {
+  fullPdfDocumentField,
+  fullPdfDocumentFieldPartialEnterprise,
+  fullPdfDocumentFieldTypedEnterprise,
+  minimalPdfDocumentField,
+  minimalPdfDocumentFieldPartialEnterprise,
+  minimalPdfDocumentFieldTypedEnterprise,
+} from "~/tests/fixtures/forms/pdfDocumentField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportPdfDocumentFieldToEnterprise } from "./exportToEnterprise"
+import {
+  exportPdfDocumentFieldPartialToEnterprise,
+  exportPdfDocumentFieldTypedToEnterprise,
+} from "./exportToEnterprise"
 
 describe("exportPdfDocumentFieldToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportPdfDocumentFieldToEnterprise(mockСontext, undefined)
+  describe("exportPdfDocumentFieldPartialToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportPdfDocumentFieldPartialToEnterprise(mockСontext, fullPdfDocumentField)
 
-    expect(result).toBeUndefined()
+      expect(result).toEqual(fullPdfDocumentFieldPartialEnterprise)
+    })
+
+    it("should export minimal", () => {
+      const result = exportPdfDocumentFieldPartialToEnterprise(mockСontext, minimalPdfDocumentField)
+
+      expect(result).toEqual(minimalPdfDocumentFieldPartialEnterprise)
+    })
   })
 
-  it("should export all fields to Enterprise", () => {
-    const result = exportPdfDocumentFieldToEnterprise(mockСontext, fullPdfDocumentField)
+  describe("exportPdfDocumentFieldTypedToEnterprise", () => {
+    it("should export all fields to Enterprise", () => {
+      const result = exportPdfDocumentFieldTypedToEnterprise(mockСontext, fullPdfDocumentField)
 
-    expect(result).toEqual(fullPdfDocumentFieldEnterprise)
-  })
+      expect(result).toEqual(fullPdfDocumentFieldTypedEnterprise)
+    })
 
-  it("should export minimal", () => {
-    const result = exportPdfDocumentFieldToEnterprise(mockСontext, minimalPdfDocumentField)
+    it("should return undefined when data is undefined", () => {
+      const result = exportPdfDocumentFieldTypedToEnterprise(mockСontext, undefined)
 
-    expect(result).toEqual(minimalPdfDocumentFieldEnterprise)
+      expect(result).toBeUndefined()
+    })
   })
 })
-

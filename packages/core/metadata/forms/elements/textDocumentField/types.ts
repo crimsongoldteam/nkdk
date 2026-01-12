@@ -49,7 +49,7 @@ export interface TextDocumentFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface TextDocumentFieldEnterprise extends FormFieldEnterprise {
+export interface TextDocumentFieldPartialEnterprise extends FormFieldEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   Вывод?: SE.UseOutputEnterprise
@@ -73,3 +73,10 @@ export interface TextDocumentFieldEnterprise extends FormFieldEnterprise {
     ПослеЗаписи?: string
   }
 }
+
+export interface TextDocumentFieldTypedEnterprise extends TextDocumentFieldPartialEnterprise {
+  Тип: "ПолеТекстовогоДокумента"
+}
+
+// Для обратной совместимости
+export type TextDocumentFieldEnterprise = TextDocumentFieldPartialEnterprise

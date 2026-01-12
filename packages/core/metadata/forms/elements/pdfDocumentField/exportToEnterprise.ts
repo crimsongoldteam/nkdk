@@ -3,23 +3,57 @@ import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportTo
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
-import { PdfDocumentField, PdfDocumentFieldEnterprise } from "~/metadata/forms/elements/pdfDocumentField/types"
+import {
+  PdfDocumentField,
+  PdfDocumentFieldPartialEnterprise,
+  PdfDocumentFieldTypedEnterprise,
+} from "~/metadata/forms/elements/pdfDocumentField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportPdfDocumentFieldToEnterprise = (
+export const exportPdfDocumentFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: PdfDocumentField | undefined
-): PdfDocumentFieldEnterprise | undefined => {
+): PdfDocumentFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: PdfDocumentFieldEnterprise = {
+  const props = exportPdfDocumentFieldPropsToEnterprise(context, data)
+
+  const result: PdfDocumentFieldTypedEnterprise = {
+    Тип: "ПолеPDFДокумента",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportPdfDocumentFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: PdfDocumentField
+): PdfDocumentFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportPdfDocumentFieldPropsToEnterprise(context, data)
+
+  const result: PdfDocumentFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportPdfDocumentFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: PdfDocumentField
+): PdfDocumentFieldPartialEnterprise => {
+  const result: PdfDocumentFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -73,4 +107,5 @@ export const exportPdfDocumentFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "PdfDocumentField", exportPdfDocumentFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "PdfDocumentField", exportPdfDocumentFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "PdfDocumentField", exportPdfDocumentFieldTypedToEnterprise)

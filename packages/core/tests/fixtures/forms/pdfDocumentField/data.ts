@@ -1,5 +1,8 @@
-import { ExtendedTooltip } from "~/metadata/forms/elements/extendedTooltip/types"
-import { PdfDocumentField, PdfDocumentFieldEnterprise } from "~/metadata/forms/elements/pdfDocumentField/types"
+import {
+  PdfDocumentField,
+  PdfDocumentFieldPartialEnterprise,
+  PdfDocumentFieldTypedEnterprise,
+} from "~/metadata/forms/elements/pdfDocumentField/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormField, fullFormFieldEnterprise } from "../formField/data"
 
@@ -14,10 +17,6 @@ export const fullPdfDocumentField: PdfDocumentField = {
   autoMaxWidth: true,
   borderColor: { type: "WebColor", value: "Green" },
   currentPageNumber: 1,
-  extendedTooltip: {
-    elementType: FormElementType.FormDecoration,
-    name: "ПолеPDFДокументаРасширеннаяПодсказка",
-  } as ExtendedTooltip,
   height: 200,
   horizontalStretch: true,
   maxHeight: 500,
@@ -39,7 +38,7 @@ export const fullPdfDocumentField: PdfDocumentField = {
   },
 }
 
-export const fullPdfDocumentFieldEnterprise: PdfDocumentFieldEnterprise = {
+export const fullPdfDocumentFieldPartialEnterprise: PdfDocumentFieldPartialEnterprise = {
   ...fullFormFieldEnterprise,
   Заголовок: "Поле PDF документа",
   АвтоМаксимальнаяВысота: "Истина",
@@ -64,9 +63,18 @@ export const fullPdfDocumentFieldEnterprise: PdfDocumentFieldEnterprise = {
   },
 }
 
+export const fullPdfDocumentFieldTypedEnterprise: PdfDocumentFieldTypedEnterprise = {
+  ...fullPdfDocumentFieldPartialEnterprise,
+  Тип: "ПолеPDFДокумента",
+}
+
 export const minimalPdfDocumentField: PdfDocumentField = {
   elementType: FormElementType.PdfDocumentField,
   name: "ПолеPDFДокумента",
 }
 
-export const minimalPdfDocumentFieldEnterprise: PdfDocumentFieldEnterprise = {}
+export const minimalPdfDocumentFieldPartialEnterprise: PdfDocumentFieldPartialEnterprise = {}
+
+export const minimalPdfDocumentFieldTypedEnterprise: PdfDocumentFieldTypedEnterprise = {
+  Тип: "ПолеPDFДокумента",
+}

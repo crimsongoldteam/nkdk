@@ -2,68 +2,67 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { HTMLDocumentField, HTMLDocumentFieldEnterprise } from "~/metadata/forms/elements/htmlDocumentField/types"
+import {
+  HTMLDocumentField,
+  HTMLDocumentFieldPartialEnterprise,
+  HTMLDocumentFieldTypedEnterprise,
+} from "~/metadata/forms/elements/htmlDocumentField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const importHTMLDocumentFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-    ДокументСформирован?: string
-    ПередЗаписью?: string
-    ПередПечатью?: string
-    ПослеЗаписи?: string
-    ПриНажатии?: string
-  } | undefined
-): {
-  onChange?: string
-  documentComplete?: string
-  beforeWrite?: string
-  beforePrint?: string
-  afterWrite?: string
-  onClick?: string
-} | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    documentComplete?: string
-    beforeWrite?: string
-    beforePrint?: string
-    afterWrite?: string
-    onClick?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.ДокументСформирован !== undefined) result.documentComplete = data.ДокументСформирован
-  if (data.ПередЗаписью !== undefined) result.beforeWrite = data.ПередЗаписью
-  if (data.ПередПечатью !== undefined) result.beforePrint = data.ПередПечатью
-  if (data.ПослеЗаписи !== undefined) result.afterWrite = data.ПослеЗаписи
-  if (data.ПриНажатии !== undefined) result.onClick = data.ПриНажатии
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importHTMLDocumentFieldFromEnterprise = <
-  From extends HTMLDocumentFieldEnterprise | undefined,
-  Name extends string,
->(
+export const importHTMLDocumentFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, HTMLDocumentField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, HTMLDocumentField, Name>
+  data: HTMLDocumentFieldTypedEnterprise | undefined,
+  name: string
+): HTMLDocumentField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, HTMLDocumentField, Name> = {
+  const props = importHTMLDocumentFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: HTMLDocumentField = {
     ...baseFields,
-    elementType: FormElementType.HTMLDocumentField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importHTMLDocumentFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: HTMLDocumentField | undefined,
+  data: HTMLDocumentFieldPartialEnterprise | undefined
+): HTMLDocumentField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importHTMLDocumentFieldPropsFromEnterprise(context, data)
+  const result: HTMLDocumentField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importHTMLDocumentFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: HTMLDocumentFieldTypedEnterprise | HTMLDocumentFieldPartialEnterprise | undefined
+): Omit<Partial<HTMLDocumentField>, "elementType" | "name"> => {
+  const result: Omit<Partial<HTMLDocumentField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -91,7 +90,11 @@ export const importHTMLDocumentFieldFromEnterprise = <
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -107,10 +110,10 @@ export const importHTMLDocumentFieldFromEnterprise = <
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const events = importHTMLDocumentFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "HTMLDocumentField", importHTMLDocumentFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "HTMLDocumentField", importHTMLDocumentFieldPropsFromEnterprise)

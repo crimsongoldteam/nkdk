@@ -1,26 +1,72 @@
 import { describe, expect, it } from "vitest"
-import { fullPlannerField, fullPlannerFieldEnterprise, minimalPlannerField, minimalPlannerFieldEnterprise } from "~/tests/fixtures/forms/plannerField/data"
+import {
+  fullPlannerField,
+  fullPlannerFieldPartialEnterprise,
+  fullPlannerFieldTypedEnterprise,
+  minimalPlannerField,
+  minimalPlannerFieldPartialEnterprise,
+  minimalPlannerFieldTypedEnterprise,
+} from "~/tests/fixtures/forms/plannerField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importPlannerFieldFromEnterprise } from "./importFromEnterprise"
+import {
+  importPlannerFieldPartialFromEnterprise,
+  importPlannerFieldTypedFromEnterprise,
+} from "./importFromEnterprise"
 
 describe("importPlannerFieldFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importPlannerFieldFromEnterprise(mockСontext, undefined, fullPlannerField.name)
+  describe("importPlannerFieldTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importPlannerFieldTypedFromEnterprise(mockСontext, undefined, "ПолеПланера")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importPlannerFieldTypedFromEnterprise(
+        mockСontext,
+        fullPlannerFieldTypedEnterprise,
+        "ПолеПланера"
+      )
+
+      expect(result).toEqual(fullPlannerField)
+    })
+
+    it("should import minimal", () => {
+      const result = importPlannerFieldTypedFromEnterprise(
+        mockСontext,
+        minimalPlannerFieldTypedEnterprise,
+        "ПолеПланера"
+      )
+
+      expect(result).toEqual(minimalPlannerField)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importPlannerFieldFromEnterprise(mockСontext, fullPlannerFieldEnterprise, fullPlannerField.name)
+  describe("importPlannerFieldPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importPlannerFieldPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullPlannerField)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importPlannerFieldFromEnterprise(mockСontext, minimalPlannerFieldEnterprise, minimalPlannerField.name)
+    it("should import all fields from Enterprise", () => {
+      const result = importPlannerFieldPartialFromEnterprise(
+        mockСontext,
+        fullPlannerField,
+        fullPlannerFieldPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalPlannerField)
+      expect(result).toEqual(fullPlannerField)
+    })
+
+    it("should import minimal", () => {
+      const result = importPlannerFieldPartialFromEnterprise(
+        mockСontext,
+        minimalPlannerField,
+        minimalPlannerFieldPartialEnterprise
+      )
+
+      expect(result).toEqual(minimalPlannerField)
+    })
   })
 })
-
-

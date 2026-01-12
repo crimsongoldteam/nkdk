@@ -2,52 +2,67 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PdfDocumentField, PdfDocumentFieldEnterprise } from "~/metadata/forms/elements/pdfDocumentField/types"
+import {
+  PdfDocumentField,
+  PdfDocumentFieldPartialEnterprise,
+  PdfDocumentFieldTypedEnterprise,
+} from "~/metadata/forms/elements/pdfDocumentField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const importPdfDocumentFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-    НажатиеНаНавигационнойСсылке?: string
-  } | undefined
-): {
-  onChange?: string
-  uRLClick?: string
-} | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    uRLClick?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.НажатиеНаНавигационнойСсылке !== undefined) result.uRLClick = data.НажатиеНаНавигационнойСсылке
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importPdfDocumentFieldFromEnterprise = <
-  From extends PdfDocumentFieldEnterprise | undefined,
-  Name extends string,
->(
+export const importPdfDocumentFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, PdfDocumentField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, PdfDocumentField, Name>
+  data: PdfDocumentFieldTypedEnterprise | undefined,
+  name: string
+): PdfDocumentField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, PdfDocumentField, Name> = {
+  const props = importPdfDocumentFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: PdfDocumentField = {
     ...baseFields,
-    elementType: FormElementType.PdfDocumentField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importPdfDocumentFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: PdfDocumentField | undefined,
+  data: PdfDocumentFieldPartialEnterprise | undefined
+): PdfDocumentField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importPdfDocumentFieldPropsFromEnterprise(context, data)
+  const result: PdfDocumentField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importPdfDocumentFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: PdfDocumentFieldTypedEnterprise | PdfDocumentFieldPartialEnterprise | undefined
+): Omit<Partial<PdfDocumentField>, "elementType" | "name"> => {
+  const result: Omit<Partial<PdfDocumentField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -88,7 +103,11 @@ export const importPdfDocumentFieldFromEnterprise = <
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -104,10 +123,10 @@ export const importPdfDocumentFieldFromEnterprise = <
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const events = importPdfDocumentFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "PdfDocumentField", importPdfDocumentFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "PdfDocumentField", importPdfDocumentFieldPropsFromEnterprise)

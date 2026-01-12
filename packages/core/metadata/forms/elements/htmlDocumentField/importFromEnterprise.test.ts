@@ -1,37 +1,72 @@
 import { describe, expect, it } from "vitest"
 import {
   fullHtmlDocumentField,
-  fullHtmlDocumentFieldEnterprise,
+  fullHtmlDocumentFieldPartialEnterprise,
+  fullHtmlDocumentFieldTypedEnterprise,
   minimalHtmlDocumentField,
-  minimalHtmlDocumentFieldEnterprise,
+  minimalHtmlDocumentFieldPartialEnterprise,
+  minimalHtmlDocumentFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/htmlDocumentField/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importHTMLDocumentFieldFromEnterprise } from "./importFromEnterprise"
+import {
+  importHTMLDocumentFieldPartialFromEnterprise,
+  importHTMLDocumentFieldTypedFromEnterprise,
+} from "./importFromEnterprise"
 
 describe("importHTMLDocumentFieldFromEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = importHTMLDocumentFieldFromEnterprise(mockСontext, undefined, fullHtmlDocumentField.name)
+  describe("importHTMLDocumentFieldTypedFromEnterprise", () => {
+    it("should return undefined when data is undefined", () => {
+      const result = importHTMLDocumentFieldTypedFromEnterprise(mockСontext, undefined, "ПолеHTMLДокумента")
 
-    expect(result).toBeUndefined()
+      expect(result).toBeUndefined()
+    })
+
+    it("should import all fields from Enterprise", () => {
+      const result = importHTMLDocumentFieldTypedFromEnterprise(
+        mockСontext,
+        fullHtmlDocumentFieldTypedEnterprise,
+        "ПолеHTMLДокумента"
+      )
+
+      expect(result).toEqual(fullHtmlDocumentField)
+    })
+
+    it("should import minimal", () => {
+      const result = importHTMLDocumentFieldTypedFromEnterprise(
+        mockСontext,
+        minimalHtmlDocumentFieldTypedEnterprise,
+        "ПолеHTMLДокумента"
+      )
+
+      expect(result).toEqual(minimalHtmlDocumentField)
+    })
   })
 
-  it("should import all fields from Enterprise", () => {
-    const result = importHTMLDocumentFieldFromEnterprise(
-      mockСontext,
-      fullHtmlDocumentFieldEnterprise,
-      fullHtmlDocumentField.name
-    )
+  describe("importHTMLDocumentFieldPartialFromEnterprise", () => {
+    it("should return undefined when source is undefined", () => {
+      const result = importHTMLDocumentFieldPartialFromEnterprise(mockСontext, undefined, undefined)
 
-    expect(result).toEqual(fullHtmlDocumentField)
-  })
+      expect(result).toBeUndefined()
+    })
 
-  it("should import minimal", () => {
-    const result = importHTMLDocumentFieldFromEnterprise(
-      mockСontext,
-      minimalHtmlDocumentFieldEnterprise,
-      minimalHtmlDocumentField.name
-    )
+    it("should import all fields from Enterprise", () => {
+      const result = importHTMLDocumentFieldPartialFromEnterprise(
+        mockСontext,
+        fullHtmlDocumentField,
+        fullHtmlDocumentFieldPartialEnterprise
+      )
 
-    expect(result).toEqual(minimalHtmlDocumentField)
+      expect(result).toEqual(fullHtmlDocumentField)
+    })
+
+    it("should import minimal", () => {
+      const result = importHTMLDocumentFieldPartialFromEnterprise(
+        mockСontext,
+        minimalHtmlDocumentField,
+        minimalHtmlDocumentFieldPartialEnterprise
+      )
+
+      expect(result).toEqual(minimalHtmlDocumentField)
+    })
   })
 })

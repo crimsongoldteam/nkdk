@@ -3,60 +3,67 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { TextDocumentField, TextDocumentFieldEnterprise } from "~/metadata/forms/elements/textDocumentField/types"
+import {
+  TextDocumentField,
+  TextDocumentFieldPartialEnterprise,
+  TextDocumentFieldTypedEnterprise,
+} from "~/metadata/forms/elements/textDocumentField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const importTextDocumentFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-    ПередЗаписью?: string
-    ПередПечатью?: string
-    ПослеЗаписи?: string
-  } | undefined
-): {
-  onChange?: string
-  beforeWrite?: string
-  beforePrint?: string
-  afterWrite?: string
-} | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    beforeWrite?: string
-    beforePrint?: string
-    afterWrite?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.ПередЗаписью !== undefined) result.beforeWrite = data.ПередЗаписью
-  if (data.ПередПечатью !== undefined) result.beforePrint = data.ПередПечатью
-  if (data.ПослеЗаписи !== undefined) result.afterWrite = data.ПослеЗаписи
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importTextDocumentFieldFromEnterprise = <
-  From extends TextDocumentFieldEnterprise | undefined,
-  Name extends string,
->(
+export const importTextDocumentFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, TextDocumentField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, TextDocumentField, Name>
+  data: TextDocumentFieldTypedEnterprise | undefined,
+  name: string
+): TextDocumentField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, TextDocumentField, Name> = {
+  const props = importTextDocumentFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: TextDocumentField = {
     ...baseFields,
-    elementType: FormElementType.TextDocumentField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importTextDocumentFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: TextDocumentField | undefined,
+  data: TextDocumentFieldPartialEnterprise | undefined
+): TextDocumentField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importTextDocumentFieldPropsFromEnterprise(context, data)
+  const result: TextDocumentField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importTextDocumentFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: TextDocumentFieldTypedEnterprise | TextDocumentFieldPartialEnterprise | undefined
+): Omit<Partial<TextDocumentField>, "elementType" | "name"> => {
+  const result: Omit<Partial<TextDocumentField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -84,7 +91,11 @@ export const importTextDocumentFieldFromEnterprise = <
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -109,11 +120,10 @@ export const importTextDocumentFieldFromEnterprise = <
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const events = importTextDocumentFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "TextDocumentField", importTextDocumentFieldFromEnterprise)
-
+registerMetadata("ImportFromEnterprise", "TextDocumentField", importTextDocumentFieldPropsFromEnterprise)

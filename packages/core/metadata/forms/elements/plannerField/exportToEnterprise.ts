@@ -2,21 +2,55 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
-import { PlannerField, PlannerFieldEnterprise } from "~/metadata/forms/elements/plannerField/types"
+import {
+  PlannerField,
+  PlannerFieldPartialEnterprise,
+  PlannerFieldTypedEnterprise,
+} from "~/metadata/forms/elements/plannerField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 
-export const exportPlannerFieldToEnterprise = (
+export const exportPlannerFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: PlannerField | undefined
-): PlannerFieldEnterprise | undefined => {
+): PlannerFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: PlannerFieldEnterprise = {
+  const props = exportPlannerFieldPropsToEnterprise(context, data)
+
+  const result: PlannerFieldTypedEnterprise = {
+    Тип: "ПолеПланировщика",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportPlannerFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: PlannerField
+): PlannerFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportPlannerFieldPropsToEnterprise(context, data)
+
+  const result: PlannerFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportPlannerFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: PlannerField
+): PlannerFieldPartialEnterprise => {
+  const result: PlannerFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -65,4 +99,5 @@ export const exportPlannerFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "PlannerField", exportPlannerFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "PlannerField", exportPlannerFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "PlannerField", exportPlannerFieldTypedToEnterprise)

@@ -1,136 +1,65 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { PlannerField, PlannerFieldEnterprise } from "~/metadata/forms/elements/plannerField/types"
+import {
+  PlannerField,
+  PlannerFieldPartialEnterprise,
+  PlannerFieldTypedEnterprise,
+} from "~/metadata/forms/elements/plannerField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 
-const importPlannerFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-    Выбор?: string
-    НажатиеНаДействиеПланировщика?: string
-    НажатиеНаНавигационнойСсылке?: string
-    НажатиеНаПеренесенномЗаголовкеШкалыВремени?: string
-    НажатиеНаЭлементеИзмерения?: string
-    НажатиеНаЭлементеШкалыВремени?: string
-    НачалоПеретаскивания?: string
-    ОбработкаФормированияКоманд?: string
-    ОкончаниеПеретаскивания?: string
-    ПередНачаломБыстрогоРедактирования?: string
-    ПередНачаломРедактирования?: string
-    ПередПечатью?: string
-    ПередРазворачиваниемЭлементаИзмерения?: string
-    ПередСворачиваниемЭлементаИзмерения?: string
-    ПередСозданием?: string
-    ПередУдалением?: string
-    Перетаскивание?: string
-    ПриАктивизации?: string
-    ПриОкончанииРедактирования?: string
-    ПриСменеТекущегоПериодаОтображения?: string
-    ПроверкаПеретаскивания?: string
-    ПроверкаПеретаскиванияВнутри?: string
-  } | undefined
-): {
-  onChange?: string
-  selection?: string
-  plannerActionClick?: string
-  uRLClick?: string
-  wrappedTimeScaleHeaderClick?: string
-  dimensionItemClick?: string
-  timeScaleItemClick?: string
-  dragStart?: string
-  commandGenerateProcessing?: string
-  dragEnd?: string
-  beforeStartQuickEdit?: string
-  beforeStartEdit?: string
-  beforePrint?: string
-  beforeExpandDimensionItem?: string
-  beforeCollapseDimensionItem?: string
-  beforeCreate?: string
-  beforeDelete?: string
-  drag?: string
-  onActivate?: string
-  onEditEnd?: string
-  onCurrentRepresentationPeriodChange?: string
-  dragCheck?: string
-  insideDragCheck?: string
-} | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    selection?: string
-    plannerActionClick?: string
-    uRLClick?: string
-    wrappedTimeScaleHeaderClick?: string
-    dimensionItemClick?: string
-    timeScaleItemClick?: string
-    dragStart?: string
-    commandGenerateProcessing?: string
-    dragEnd?: string
-    beforeStartQuickEdit?: string
-    beforeStartEdit?: string
-    beforePrint?: string
-    beforeExpandDimensionItem?: string
-    beforeCollapseDimensionItem?: string
-    beforeCreate?: string
-    beforeDelete?: string
-    drag?: string
-    onActivate?: string
-    onEditEnd?: string
-    onCurrentRepresentationPeriodChange?: string
-    dragCheck?: string
-    insideDragCheck?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.Выбор !== undefined) result.selection = data.Выбор
-  if (data.НажатиеНаДействиеПланировщика !== undefined) result.plannerActionClick = data.НажатиеНаДействиеПланировщика
-  if (data.НажатиеНаНавигационнойСсылке !== undefined) result.uRLClick = data.НажатиеНаНавигационнойСсылке
-  if (data.НажатиеНаПеренесенномЗаголовкеШкалыВремени !== undefined)
-    result.wrappedTimeScaleHeaderClick = data.НажатиеНаПеренесенномЗаголовкеШкалыВремени
-  if (data.НажатиеНаЭлементеИзмерения !== undefined) result.dimensionItemClick = data.НажатиеНаЭлементеИзмерения
-  if (data.НажатиеНаЭлементеШкалыВремени !== undefined) result.timeScaleItemClick = data.НажатиеНаЭлементеШкалыВремени
-  if (data.НачалоПеретаскивания !== undefined) result.dragStart = data.НачалоПеретаскивания
-  if (data.ОбработкаФормированияКоманд !== undefined) result.commandGenerateProcessing = data.ОбработкаФормированияКоманд
-  if (data.ОкончаниеПеретаскивания !== undefined) result.dragEnd = data.ОкончаниеПеретаскивания
-  if (data.ПередНачаломБыстрогоРедактирования !== undefined)
-    result.beforeStartQuickEdit = data.ПередНачаломБыстрогоРедактирования
-  if (data.ПередНачаломРедактирования !== undefined) result.beforeStartEdit = data.ПередНачаломРедактирования
-  if (data.ПередПечатью !== undefined) result.beforePrint = data.ПередПечатью
-  if (data.ПередРазворачиваниемЭлементаИзмерения !== undefined)
-    result.beforeExpandDimensionItem = data.ПередРазворачиваниемЭлементаИзмерения
-  if (data.ПередСворачиваниемЭлементаИзмерения !== undefined)
-    result.beforeCollapseDimensionItem = data.ПередСворачиваниемЭлементаИзмерения
-  if (data.ПередСозданием !== undefined) result.beforeCreate = data.ПередСозданием
-  if (data.ПередУдалением !== undefined) result.beforeDelete = data.ПередУдалением
-  if (data.Перетаскивание !== undefined) result.drag = data.Перетаскивание
-  if (data.ПриАктивизации !== undefined) result.onActivate = data.ПриАктивизации
-  if (data.ПриОкончанииРедактирования !== undefined) result.onEditEnd = data.ПриОкончанииРедактирования
-  if (data.ПриСменеТекущегоПериодаОтображения !== undefined)
-    result.onCurrentRepresentationPeriodChange = data.ПриСменеТекущегоПериодаОтображения
-  if (data.ПроверкаПеретаскивания !== undefined) result.dragCheck = data.ПроверкаПеретаскивания
-  if (data.ПроверкаПеретаскиванияВнутри !== undefined) result.insideDragCheck = data.ПроверкаПеретаскиванияВнутри
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importPlannerFieldFromEnterprise = <From extends PlannerFieldEnterprise | undefined, Name extends string>(
+export const importPlannerFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, PlannerField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, PlannerField, Name>
+  data: PlannerFieldTypedEnterprise | undefined,
+  name: string
+): PlannerField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, PlannerField, Name> = {
+  const props = importPlannerFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: PlannerField = {
     ...baseFields,
-    elementType: FormElementType.PlannerField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importPlannerFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: PlannerField | undefined,
+  data: PlannerFieldPartialEnterprise | undefined
+): PlannerField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importPlannerFieldPropsFromEnterprise(context, data)
+  const result: PlannerField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importPlannerFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: PlannerFieldTypedEnterprise | PlannerFieldPartialEnterprise | undefined
+): Omit<Partial<PlannerField>, "elementType" | "name"> => {
+  const result: Omit<Partial<PlannerField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -161,7 +90,11 @@ export const importPlannerFieldFromEnterprise = <From extends PlannerFieldEnterp
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -180,10 +113,10 @@ export const importPlannerFieldFromEnterprise = <From extends PlannerFieldEnterp
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const events = importPlannerFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "PlannerField", importPlannerFieldFromEnterprise)
+registerMetadata("ImportFromEnterprise", "PlannerField", importPlannerFieldPropsFromEnterprise)

@@ -3,23 +3,57 @@ import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportTo
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
-import { HTMLDocumentField, HTMLDocumentFieldEnterprise } from "~/metadata/forms/elements/htmlDocumentField/types"
+import {
+  HTMLDocumentField,
+  HTMLDocumentFieldPartialEnterprise,
+  HTMLDocumentFieldTypedEnterprise,
+} from "~/metadata/forms/elements/htmlDocumentField/types"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const exportHTMLDocumentFieldToEnterprise = (
+export const exportHTMLDocumentFieldTypedToEnterprise = (
   context: ConfigurationContext,
   data: HTMLDocumentField | undefined
-): HTMLDocumentFieldEnterprise | undefined => {
+): HTMLDocumentFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
-  const result: HTMLDocumentFieldEnterprise = {
+  const props = exportHTMLDocumentFieldPropsToEnterprise(context, data)
+
+  const result: HTMLDocumentFieldTypedEnterprise = {
+    Тип: "ПолеHTMLДокумента",
     ...baseFields,
+    ...props,
   }
+
+  return sortObject(result)
+}
+
+export const exportHTMLDocumentFieldPartialToEnterprise = (
+  context: ConfigurationContext,
+  data: HTMLDocumentField
+): HTMLDocumentFieldPartialEnterprise => {
+  const baseFields = exportFormFieldToEnterprise(context, data)
+
+  const props = exportHTMLDocumentFieldPropsToEnterprise(context, data)
+
+  const result: HTMLDocumentFieldPartialEnterprise = {
+    ...baseFields,
+    ...props,
+  }
+
+  return sortObject(result)
+}
+
+const exportHTMLDocumentFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: HTMLDocumentField
+): HTMLDocumentFieldPartialEnterprise => {
+  const result: HTMLDocumentFieldPartialEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -60,4 +94,5 @@ export const exportHTMLDocumentFieldToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "HTMLDocumentField", exportHTMLDocumentFieldToEnterprise)
+registerMetadata("ExportPartialToEnterprise", "HTMLDocumentField", exportHTMLDocumentFieldPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "HTMLDocumentField", exportHTMLDocumentFieldTypedToEnterprise)

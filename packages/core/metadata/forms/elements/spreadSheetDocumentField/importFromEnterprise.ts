@@ -2,102 +2,67 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { SpreadSheetDocumentField, SpreadSheetDocumentFieldEnterprise } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
+import {
+  SpreadSheetDocumentField,
+  SpreadSheetDocumentFieldPartialEnterprise,
+  SpreadSheetDocumentFieldTypedEnterprise,
+} from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const importSpreadSheetDocumentFieldEventsFromEnterprise = (
-  data: {
-    ПриИзменении?: string
-    Выбор?: string
-    НачалоПеретаскивания?: string
-    ОбработкаДополнительнойРасшифровки?: string
-    ОбработкаНавигационнойСсылки?: string
-    ОбработкаРасшифровки?: string
-    ОкончаниеПеретаскивания?: string
-    ПередЗаписью?: string
-    ПередПечатью?: string
-    Перетаскивание?: string
-    ПослеЗаписи?: string
-    ПриАктивизации?: string
-    ПриИзмененииСодержимогоОбласти?: string
-    ПроверкаПеретаскивания?: string
-  } | undefined
-): {
-  onChange?: string
-  selection?: string
-  dragStart?: string
-  additionalDetailProcessing?: string
-  uRLProcessing?: string
-  detailProcessing?: string
-  dragEnd?: string
-  beforeWrite?: string
-  beforePrint?: string
-  drag?: string
-  afterWrite?: string
-  onActivate?: string
-  onChangeAreaContentEvent?: string
-  dragCheck?: string
-} | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onChange?: string
-    selection?: string
-    dragStart?: string
-    additionalDetailProcessing?: string
-    uRLProcessing?: string
-    detailProcessing?: string
-    dragEnd?: string
-    beforeWrite?: string
-    beforePrint?: string
-    drag?: string
-    afterWrite?: string
-    onActivate?: string
-    onChangeAreaContentEvent?: string
-    dragCheck?: string
-  } = {}
-
-  if (data.ПриИзменении !== undefined) result.onChange = data.ПриИзменении
-  if (data.Выбор !== undefined) result.selection = data.Выбор
-  if (data.НачалоПеретаскивания !== undefined) result.dragStart = data.НачалоПеретаскивания
-  if (data.ОбработкаДополнительнойРасшифровки !== undefined)
-    result.additionalDetailProcessing = data.ОбработкаДополнительнойРасшифровки
-  if (data.ОбработкаНавигационнойСсылки !== undefined) result.uRLProcessing = data.ОбработкаНавигационнойСсылки
-  if (data.ОбработкаРасшифровки !== undefined) result.detailProcessing = data.ОбработкаРасшифровки
-  if (data.ОкончаниеПеретаскивания !== undefined) result.dragEnd = data.ОкончаниеПеретаскивания
-  if (data.ПередЗаписью !== undefined) result.beforeWrite = data.ПередЗаписью
-  if (data.ПередПечатью !== undefined) result.beforePrint = data.ПередПечатью
-  if (data.Перетаскивание !== undefined) result.drag = data.Перетаскивание
-  if (data.ПослеЗаписи !== undefined) result.afterWrite = data.ПослеЗаписи
-  if (data.ПриАктивизации !== undefined) result.onActivate = data.ПриАктивизации
-  if (data.ПриИзмененииСодержимогоОбласти !== undefined)
-    result.onChangeAreaContentEvent = data.ПриИзмененииСодержимогоОбласти
-  if (data.ПроверкаПеретаскивания !== undefined) result.dragCheck = data.ПроверкаПеретаскивания
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
-export const importSpreadSheetDocumentFieldFromEnterprise = <
-  From extends SpreadSheetDocumentFieldEnterprise | undefined,
-  Name extends string,
->(
+export const importSpreadSheetDocumentFieldTypedFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, SpreadSheetDocumentField, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, SpreadSheetDocumentField, Name>
+  data: SpreadSheetDocumentFieldTypedEnterprise | undefined,
+  name: string
+): SpreadSheetDocumentField | undefined => {
+  if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
 
-  const result: ImportFromEnterpriseReturn<From, SpreadSheetDocumentField, Name> = {
+  const props = importSpreadSheetDocumentFieldPropsFromEnterprise(context, data)
+
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
+
+  const result: SpreadSheetDocumentField = {
     ...baseFields,
-    elementType: FormElementType.SpreadSheetDocumentField,
+    ...props,
+    elementType,
   }
+
+  return result
+}
+
+export const importSpreadSheetDocumentFieldPartialFromEnterprise = (
+  context: ConfigurationContext,
+  source: SpreadSheetDocumentField | undefined,
+  data: SpreadSheetDocumentFieldPartialEnterprise | undefined
+): SpreadSheetDocumentField | undefined => {
+  if (source === undefined) return undefined
+
+  const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
+
+  const props = importSpreadSheetDocumentFieldPropsFromEnterprise(context, data)
+  const result: SpreadSheetDocumentField = {
+    ...source,
+    ...baseFields,
+    ...props,
+    elementType: source.elementType, // Сохраняем elementType из source
+  }
+
+  return result
+}
+
+const importSpreadSheetDocumentFieldPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: SpreadSheetDocumentFieldTypedEnterprise | SpreadSheetDocumentFieldPartialEnterprise | undefined
+): Omit<Partial<SpreadSheetDocumentField>, "elementType" | "name"> => {
+  const result: Omit<Partial<SpreadSheetDocumentField>, "elementType" | "name"> = {}
+
+  if (data === undefined) return result
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -164,7 +129,11 @@ export const importSpreadSheetDocumentFieldFromEnterprise = <
     data.РазрешитьИспользование,
     "РазрешитьИспользование"
   )
-  const userVisibleDeny = importUserVisibleFromEnterprise(context, data.ЗапретитьИспользование, "ЗапретитьИспользование")
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
   if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
@@ -220,11 +189,10 @@ export const importSpreadSheetDocumentFieldFromEnterprise = <
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  const events = importSpreadSheetDocumentFieldEventsFromEnterprise(data.События)
+  const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "SpreadSheetDocumentField", importSpreadSheetDocumentFieldFromEnterprise)
-
+registerMetadata("ImportFromEnterprise", "SpreadSheetDocumentField", importSpreadSheetDocumentFieldPropsFromEnterprise)
