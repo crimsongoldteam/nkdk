@@ -1,5 +1,5 @@
 import { FormElementType, FormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
-import { Button, ButtonXML } from "../../elements/button/types"
+import { Button, ButtonTypedEnterprise, ButtonXML } from "../../elements/button/types"
 import { ButtonGroup, ButtonGroupTypedEnterprise, ButtonGroupXML } from "../../elements/buttonGroup/types"
 import { Popup, PopupTypedEnterprise, PopupXML } from "../../elements/popup/types"
 
