@@ -1,10 +1,12 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import { ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
 import {
@@ -25,17 +27,18 @@ export const importFormDecorationTypedFromEnterprise = (
 ): FormDecoration | undefined => {
   if (data === undefined) return undefined
 
-  const baseFields = importBaseElementFromEnterprise(context, data, name)
-
   const props = importFormDecorationPropsFromEnterprise(context, data)
 
   const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
 
   const result: FormDecoration = {
-    ...baseFields,
     ...props,
     elementType,
+    name,
   }
+
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result
 }
@@ -47,15 +50,14 @@ export const importFormDecorationPartialFromEnterprise = (
 ): FormDecoration | undefined => {
   if (source === undefined) return undefined
 
-  const baseFields = importBaseElementFromEnterprise(context, data, source.name)
-
   const props = importFormDecorationPropsFromEnterprise(context, data)
   const result: FormDecoration = {
     ...source,
-    ...baseFields,
     ...props,
-    elementType: source.elementType, // Сохраняем elementType из source
   }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result
 }
@@ -109,9 +111,6 @@ const importFormDecorationPropsFromEnterprise = (
 
   const enabled = importBooleanFromEnterprise(context, data.Доступность)
   if (enabled !== undefined) result.enabled = enabled
-
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
-  if (title !== undefined) result.title = title
 
   const contextMenu = importContextMenuFromEnterprise(
     context,

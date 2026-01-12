@@ -1,10 +1,12 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import {
+  exportI8nTextOtherToEnterprise,
+  exportI8nTextToEnterprise,
+} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
 import {
   FormDecoration,
@@ -23,15 +25,15 @@ export const exportFormDecorationTypedToEnterprise = (
 ): FormDecorationTypedEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportBaseElementToEnterprise(context, data)
-
   const props = exportFormDecorationPropsToEnterprise(context, data)
 
   const result: FormDecorationTypedEnterprise = {
     Тип: "ДекорацияФормы",
-    ...baseFields,
     ...props,
   }
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
 
   return sortObject(result)
 }
@@ -40,14 +42,14 @@ export const exportFormDecorationPartialToEnterprise = (
   context: ConfigurationContext,
   data: FormDecoration
 ): FormDecorationPartialEnterprise => {
-  const baseFields = exportBaseElementToEnterprise(context, data)
-
   const props = exportFormDecorationPropsToEnterprise(context, data)
 
   const result: FormDecorationPartialEnterprise = {
-    ...baseFields,
     ...props,
   }
+
+  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
 
   return sortObject(result)
 }
@@ -95,9 +97,6 @@ const exportFormDecorationPropsToEnterprise = (
 
   const enabled = exportBooleanToEnterprise(context, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
-
-  const title = exportI8nTextToEnterprise(context, data.title)
-  if (title !== undefined) result.Заголовок = title
 
   const contextMenu = exportContextMenuToEnterprise(context, data.contextMenu)
   if (contextMenu !== undefined) result.КонтекстноеМеню = contextMenu

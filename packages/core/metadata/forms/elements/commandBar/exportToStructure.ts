@@ -34,7 +34,7 @@ export const exportCommandBarContentToStructure = (
     return result.strings
   })
 
-  return wrapButtonContent(buttonStrings.join("|"))
+  return wrapButtonContent(buttonStrings.join(" | "))
 }
 
 registerMetadata("ExportToStructure", "CommandBar", exportCommandBarToStructure)

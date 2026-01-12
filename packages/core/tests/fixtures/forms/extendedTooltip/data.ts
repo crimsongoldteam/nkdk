@@ -1,7 +1,6 @@
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipPropsEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { minimalFormDecorationEnterprise } from "../formDecoration/data"
 
 export const defaultExtendedTooltip: ExtendedTooltip = {}
 
@@ -74,4 +73,4 @@ export const fullExtendedTooltipEnterprise: ExtendedTooltipPropsEnterprise = {
 
 export const minimalExtendedTooltip: ExtendedTooltip = {}
 
-export const minimalExtendedTooltipEnterprise: ExtendedTooltipPropsEnterprise = { ...minimalFormDecorationEnterprise }
+export const minimalExtendedTooltipEnterprise: ExtendedTooltipPropsEnterprise = {}
