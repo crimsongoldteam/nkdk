@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import "~/metadata/forms/elements/importFromXML"
 import { fullTable, minimalTable } from "~/tests/fixtures/forms/table/data"
 import { mockСontext } from "~/tests/mockContext"
 import { readAndParseXMLFile } from "~/tests/readAndParseXMLFile"
@@ -28,4 +29,3 @@ describe("importTableFromXML", () => {
     expect(result).toEqual(minimalTable)
   })
 })
-

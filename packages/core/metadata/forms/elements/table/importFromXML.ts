@@ -8,29 +8,28 @@ import { importCommandSetFromXML } from "~/metadata/forms/commandSet/importFromX
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import { importFormItemAdditionFromXML } from "~/metadata/forms/elements/formItemAddition/importFromXML"
 import { Table, TableXML } from "~/metadata/forms/elements/table/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { importCommandBarFromXML } from "../commandBar/importFromXML"
+import { importAutoCommandBarFromXML } from "../autoCommandBar/importFromXML"
+import { importSearchControlAdditionFromXML } from "../searchControlAddition/importFromXML"
+import { importSearchStringAdditionFromXML } from "../searchStringAddition/importFromXML"
+import { importViewStatusAdditionFromXML } from "../viewStatusAddition/importFromXML"
 
 export const importTableFromXML = (context: ConfigurationContext, xml: TableXML | undefined): Table | undefined => {
   if (!xml) return undefined
   const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined
-
-  const { elementType: _, ...restFields } = baseFields
 
   const result: Table = {
+    ...baseFields,
     elementType: FormElementType.Table,
-    ...restFields,
     childItems: [],
   }
 
   if (xml.AutoAddIncomplete !== undefined) result.autoAddIncomplete = xml.AutoAddIncomplete
 
-  const autoCommandBar = importCommandBarFromXML(context, xml.AutoCommandBar)
+  const autoCommandBar = importAutoCommandBarFromXML(context, xml.AutoCommandBar)
   if (autoCommandBar !== undefined) result.autoCommandBar = autoCommandBar
 
   if (xml.AutoInsertNewRow !== undefined) result.autoInsertNewRow = xml.AutoInsertNewRow
@@ -61,9 +60,6 @@ export const importTableFromXML = (context: ConfigurationContext, xml: TableXML 
 
   if (xml.ChoiceMode !== undefined) result.choiceMode = xml.ChoiceMode
 
-  const commandBar = importCommandBarFromXML(context, xml.CommandBar)
-  if (commandBar !== undefined) result.commandBar = commandBar
-
   if (xml.CommandBarLocation !== undefined) result.commandBarLocation = xml.CommandBarLocation
 
   const commandSet = importCommandSetFromXML(context, xml.CommandSet)
@@ -86,7 +82,7 @@ export const importTableFromXML = (context: ConfigurationContext, xml: TableXML 
 
   if (xml.EnableStartDrag !== undefined) result.enableStartDrag = xml.EnableStartDrag
 
-  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip, result)
+  const extendedTooltip = importExtendedTooltipFromXML(context, xml.ExtendedTooltip)
   if (extendedTooltip !== undefined) result.extendedTooltip = extendedTooltip
 
   if (xml.FileDragMode !== undefined) result.fileDragMode = xml.FileDragMode
@@ -146,7 +142,7 @@ export const importTableFromXML = (context: ConfigurationContext, xml: TableXML 
 
   if (xml.RowsPicture !== undefined) result.rowsPicture = xml.RowsPicture
 
-  const searchControl = importFormItemAdditionFromXML(context, xml.SearchControl)
+  const searchControl = importSearchControlAdditionFromXML(context, xml.SearchControl)
   if (searchControl !== undefined) result.searchControl = searchControl
 
   if (xml.SearchControlLocation !== undefined) result.searchControlLocation = xml.SearchControlLocation
@@ -155,7 +151,7 @@ export const importTableFromXML = (context: ConfigurationContext, xml: TableXML 
 
   if (xml.SearchStringLocation !== undefined) result.searchStringLocation = xml.SearchStringLocation
 
-  const searchStringRepresentation = importFormItemAdditionFromXML(context, xml.SearchStringRepresentation)
+  const searchStringRepresentation = importSearchStringAdditionFromXML(context, xml.SearchStringRepresentation)
   if (searchStringRepresentation !== undefined) result.searchStringRepresentation = searchStringRepresentation
 
   if (xml.SelectionMode !== undefined) result.selectionMode = xml.SelectionMode
@@ -200,7 +196,7 @@ export const importTableFromXML = (context: ConfigurationContext, xml: TableXML 
 
   if (xml.ViewStatusLocation !== undefined) result.viewStatusLocation = xml.ViewStatusLocation
 
-  const viewStatusRepresentation = importFormItemAdditionFromXML(context, xml.ViewStatusRepresentation)
+  const viewStatusRepresentation = importViewStatusAdditionFromXML(context, xml.ViewStatusRepresentation)
   if (viewStatusRepresentation !== undefined) result.viewStatusRepresentation = viewStatusRepresentation
 
   if (xml.Visible !== undefined) result.visible = xml.Visible

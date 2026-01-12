@@ -203,9 +203,12 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
   if (data.width !== undefined) result.Width = data.width
 
   const events = exportEventsToXML(context, data.events)
-  if (events !== undefined) result.Events = events
+  
+  // Events should be at the end, so we sort first and then add Events
+  const sortedResult = sortObject(result)
+  if (events !== undefined) sortedResult.Events = events
 
-  return sortObject(result)
+  return sortedResult
 }
 
 registerMetadata("ExportToXML", "Table", exportTableToXML)

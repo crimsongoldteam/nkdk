@@ -9,10 +9,12 @@ function toPascalCase(str: string): string {
 export const exportEventsToXML = (_context: ConfigurationContext, data: Events | undefined): EventsXML | undefined => {
   if (!data || Object.keys(data).length === 0) return undefined
 
-  const events: EventXML[] = Object.entries(data).map(([eventName, eventValue]) => ({
-    _name: toPascalCase(eventName),
-    "#text": eventValue,
-  }))
+  const events: EventXML[] = Object.entries(data)
+    .map(([eventName, eventValue]) => ({
+      _name: toPascalCase(eventName),
+      "#text": eventValue,
+    }))
+    .sort((a, b) => a._name.localeCompare(b._name))
 
   return {
     Event: events.length === 1 ? events[0] : events,
