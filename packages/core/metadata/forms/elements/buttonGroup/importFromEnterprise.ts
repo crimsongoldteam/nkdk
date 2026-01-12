@@ -29,7 +29,7 @@ export const importButtonGroupChildFromEnterprise = (
     ...props,
     elementType,
     name,
-    childItems: [],
+    childItems: props.childItems ?? [],
   }
 
   const title = importI8nTextFromEnterprise(context, data.Заголовок)

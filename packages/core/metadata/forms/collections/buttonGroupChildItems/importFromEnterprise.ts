@@ -6,8 +6,8 @@ import { ButtonGroupChildItems, ButtonGroupChildItemsEnterprise } from "./types"
 export const importButtonGroupChildItemsFromEnterprise = (
   context: ConfigurationContext,
   data: ButtonGroupChildItemsEnterprise | undefined
-): ButtonGroupChildItems | undefined => {
-  if (!data) return undefined
+): ButtonGroupChildItems => {
+  if (!data) return []
 
   const result: ButtonGroupChildItems = []
   for (const [name, itemData] of Object.entries(data)) {
@@ -20,5 +20,5 @@ export const importButtonGroupChildItemsFromEnterprise = (
     result.push(item)
   }
 
-  return result.length > 0 ? result : undefined
+  return result
 }

@@ -11,6 +11,7 @@
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>
 	<ReadOnly>false</ReadOnly>
+	<Representation>Compact</Representation>
 	<Shortcut>Ctrl+S</Shortcut>
 	<Title>
 		<v8:item>
@@ -36,5 +37,4 @@
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>
-	<Representation>Compact</Representation>
 </ButtonGroup>
