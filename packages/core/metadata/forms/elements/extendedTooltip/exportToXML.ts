@@ -4,9 +4,8 @@ import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipXML } from "~/metadata/forms/elements/extendedTooltip/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
-import { exportBaseElementToXML } from "../baseElement/exportToXML"
+import { exportElementPropsToXML } from "../baseElement/exportToXML"
 import { BaseElement } from "../baseElement/types"
 import { getExtendedTooltipName } from "./helper"
 
@@ -15,9 +14,11 @@ export const exportExtendedTooltipToXML = (
   data: ExtendedTooltip | undefined,
   parentElement: BaseElement
 ): ExtendedTooltipXML => {
-  const extendendTooltip = data ?? getDefaultExtendedTooltip(parentElement)
+  const extendendTooltip = data ?? {}
 
-  const baseFields = exportBaseElementToXML(context, extendendTooltip)
+  const baseFields = exportElementPropsToXML(context, {
+    name: getExtendedTooltipName(parentElement),
+  })
 
   const result: ExtendedTooltipXML = {
     ...baseFields,
@@ -76,7 +77,4 @@ export const exportExtendedTooltipToXML = (
   if (extendendTooltip.width !== undefined) result.Width = extendendTooltip.width
 
   return sortObject(result)
-}
-const getDefaultExtendedTooltip = (parentElement: BaseElement): ExtendedTooltip => {
-  return { name: getExtendedTooltipName(parentElement), elementType: FormElementType.FormDecoration }
 }

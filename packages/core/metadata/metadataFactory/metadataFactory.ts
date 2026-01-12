@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../context/types"
-import { BaseElement, BaseElementEnterprise } from "../forms/elements/baseElement/types"
+import { BaseElement, BaseElementPropsEnterprise } from "../forms/elements/baseElement/types"
 import { ImportExportReturn, ImportFromEnterpriseReturn } from "../forms/elements/types"
 import { MetadataType } from "./types"
 
@@ -17,7 +17,7 @@ type OperationFunction<F extends object | undefined, T extends object | undefine
 ) => ImportExportReturn<F, T>
 
 type OperationImportFromEnterpriseFunction<
-  T extends BaseElementEnterprise | undefined,
+  T extends BaseElementPropsEnterprise | undefined,
   R extends BaseElement | undefined,
   N extends string | undefined,
 > = (context: ConfigurationContext, data: T, name: N) => ImportFromEnterpriseReturn<T, R, N>
@@ -78,7 +78,7 @@ export const getOperationFunction = <T extends ItemOperationType>(
 }
 
 export function executeOperation<
-  F extends BaseElementEnterprise | undefined,
+  F extends BaseElementPropsEnterprise | undefined,
   T extends BaseElement | undefined,
   N extends string | undefined,
 >(

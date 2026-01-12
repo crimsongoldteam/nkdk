@@ -7,7 +7,7 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
 import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import { ContextMenuEnterprise } from "~/metadata/forms/elements/contextMenu/types"
-import { FormDecoration, FormDecorationEnterprise } from "~/metadata/forms/elements/formDecoration/types"
+import { FormDecoration, FormDecorationPropsEnterprise } from "~/metadata/forms/elements/formDecoration/types"
 import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -16,7 +16,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
 export const importFormDecorationFromEnterprise = <
-  T extends FormDecorationEnterprise | undefined,
+  T extends FormDecorationPropsEnterprise | undefined,
   N extends string | undefined,
 >(
   context: ConfigurationContext,

@@ -10,4 +10,4 @@ export interface BaseElementXML {
   _id: string
 }
 
-export interface BaseElementEnterprise {}
+export interface BaseElementPropsEnterprise {}

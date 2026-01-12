@@ -5,7 +5,7 @@ import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import {
   FormDecoration,
-  FormDecorationEnterprise,
+  FormDecorationPropsEnterprise,
   FormDecorationXML,
 } from "~/metadata/forms/elements/formDecoration/types"
 import { EventsXML } from "~/metadata/forms/events/types"
@@ -49,7 +49,7 @@ export interface PictureDecorationXML extends FormDecorationXML {
   Events?: EventsXML
 }
 
-export interface PictureDecorationEnterprise extends FormDecorationEnterprise {
+export interface PictureDecorationEnterprise extends FormDecorationPropsEnterprise {
   Гиперссылка?: StringboolEnterprise
   Картинка?: PictureEnterprise
   Масштаб?: number

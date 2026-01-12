@@ -1,10 +1,10 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { FormElementType } from "../../../metadataFactory/types"
 import { ImportFromEnterpriseReturn } from "../types"
-import { BaseElement, BaseElementEnterprise } from "./types"
+import { BaseElement, BaseElementPropsEnterprise } from "./types"
 
 export const importBaseElementFromEnterprise = <
-  T extends BaseElementEnterprise | undefined,
+  T extends BaseElementPropsEnterprise | undefined,
   N extends string | undefined,
 >(
   _context: ConfigurationContext,

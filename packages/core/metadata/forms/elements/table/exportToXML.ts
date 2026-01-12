@@ -5,7 +5,7 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChildItemsToXML } from "~/metadata/forms/collections/childItems/exportToXML"
 import { exportCommandSetToXML } from "~/metadata/forms/commandSet/exportToXML"
-import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
+import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { exportFormItemAdditionToXML } from "~/metadata/forms/elements/formItemAddition/exportToXML"
 import { Table, TableXML } from "~/metadata/forms/elements/table/types"
@@ -18,7 +18,7 @@ import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 export const exportTableToXML = (context: ConfigurationContext, data: Table | undefined): TableXML | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportBaseElementToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, data)
   if (!baseFields) return undefined
 
   const result: TableXML = {

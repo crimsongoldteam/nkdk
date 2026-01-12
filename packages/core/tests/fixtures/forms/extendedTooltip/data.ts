@@ -1,5 +1,5 @@
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipPropsEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import {
   fullFormDecoration,
@@ -9,17 +9,12 @@ import {
 } from "../formDecoration/data"
 
 export const withContentExtendedTooltip: ExtendedTooltip = {
-  elementType: FormElementType.FormDecoration,
-  name: "КакойТоЭлементРасширеннаяПодсказка",
   title: {
     items: { ru: "С заголовком" },
   },
 }
 
-export const defaultExtendedTooltip: ExtendedTooltip = {
-  elementType: FormElementType.FormDecoration,
-  name: "КакойТоЭлементРасширеннаяПодсказка",
-}
+export const defaultExtendedTooltip: ExtendedTooltip = {}
 
 export const parentElement: BaseElement = {
   elementType: FormElementType.InputField,
@@ -31,22 +26,12 @@ export const otherParentElement: BaseElement = {
   name: "ДругойЭлемент",
 }
 
-export const fullExtendedTooltip: ExtendedTooltip = {
-  ...fullFormDecoration,
-  name: "КакойТоЭлементРасширеннаяПодсказка",
-}
+export const fullExtendedTooltip: ExtendedTooltip = { ...fullFormDecoration }
 
-export const fullExtendedTooltipEnterprise: ExtendedTooltipEnterprise = {
-  ...fullFormDecorationEnterprise,
-  Имя: "КакойТоЭлементРасширеннаяПодсказка",
-}
+export const fullExtendedTooltipEnterprise: ExtendedTooltipPropsEnterprise = { ...fullFormDecorationEnterprise }
 
 export const minimalExtendedTooltip: ExtendedTooltip = {
   ...minimalFormDecoration,
-  name: "КакойТоЭлементРасширеннаяПодсказка",
 }
 
-export const minimalExtendedTooltipEnterprise: ExtendedTooltipEnterprise = {
-  ...minimalFormDecorationEnterprise,
-  Имя: "КакойТоЭлементРасширеннаяПодсказка",
-}
+export const minimalExtendedTooltipEnterprise: ExtendedTooltipPropsEnterprise = { ...minimalFormDecorationEnterprise }

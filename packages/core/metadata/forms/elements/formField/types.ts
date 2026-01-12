@@ -9,12 +9,12 @@ import {
   TypeDescriptionXML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import { Table, TableEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormField extends BaseElement {
   autoCellHeight?: boolean
@@ -112,7 +112,7 @@ export interface FormFieldXML extends BaseElementXML {
   Events?: EventsXML
 }
 
-export interface FormFieldEnterprise extends BaseElementEnterprise {
+export interface FormFieldEnterprise extends BaseElementPropsEnterprise {
   АвтоВысотаЯчейки?: StringboolEnterprise
   АктивизироватьПоУмолчанию?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
@@ -144,7 +144,7 @@ export interface FormFieldEnterprise extends BaseElementEnterprise {
   ПропускатьПриВводе?: StringboolEnterprise
   ПутьКДанным?: string
   ПутьКДаннымПодвала?: string
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
   РежимРедактирования?: SE.ColumnEditModeEnterprise
   СочетаниеКлавиш?: string
   Таблица?: TableEnterprise

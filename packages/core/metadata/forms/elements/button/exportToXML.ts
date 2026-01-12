@@ -4,12 +4,12 @@ import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML
 import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
+import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { Button, ButtonXML } from "~/metadata/forms/elements/button/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { ImportExportReturn } from "../types"
-import { sortObject } from "~/metadata/helpers/compactObject"
 
 export const exportButtonToXML = <T extends Button | undefined>(
   context: ConfigurationContext,
@@ -17,7 +17,7 @@ export const exportButtonToXML = <T extends Button | undefined>(
 ): ImportExportReturn<T, ButtonXML> => {
   if (!data) return undefined as ImportExportReturn<T, ButtonXML>
 
-  const baseFields = exportBaseElementToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, data)
 
   const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 

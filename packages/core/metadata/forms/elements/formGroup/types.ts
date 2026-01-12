@@ -3,9 +3,9 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormGroup extends BaseElement {
   // childItems?: ChildItems
@@ -53,7 +53,7 @@ export interface FormGroupXML extends BaseElementXML {
   Width?: number
 }
 
-export interface FormGroupPropsEnterprise extends BaseElementEnterprise {
+export interface FormGroupPropsEnterprise extends BaseElementPropsEnterprise {
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
   Вид?: SE.FormGroupTypeEnterprise
   Видимость?: StringboolEnterprise
@@ -68,7 +68,7 @@ export interface FormGroupPropsEnterprise extends BaseElementEnterprise {
   РазрешитьИзменениеСостава?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
   СочетаниеКлавиш?: string
   ТолькоПросмотр?: StringboolEnterprise
   ЦветТекстаЗаголовка?: ColorEnterprise

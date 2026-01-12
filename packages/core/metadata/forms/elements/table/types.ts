@@ -5,7 +5,7 @@ import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/metadata/forms/collections/childItems/types"
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
-import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "~/metadata/forms/elements/commandBar/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import {
@@ -15,7 +15,7 @@ import {
 } from "~/metadata/forms/elements/formItemAddition/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface Table extends BaseElement {
   autoAddIncomplete?: boolean
@@ -209,7 +209,7 @@ export interface TableXML extends BaseElementXML {
   Events?: EventsXML
 }
 
-export interface TableEnterprise extends BaseElementEnterprise {
+export interface TableEnterprise extends BaseElementPropsEnterprise {
   АвтоВводНезаполненного?: StringboolEnterprise
   АвтоВводНовойСтроки?: StringboolEnterprise
   АвтоКоманднаяПанель?: CommandBarEnterprise
@@ -273,7 +273,7 @@ export interface TableEnterprise extends BaseElementEnterprise {
   РазрешитьПеретаскивание?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
   РежимВводаСтрок?: SE.TableRowInputModeEnterprise
   РежимВыбора?: StringboolEnterprise
   РежимВыделения?: SE.TableSelectionModeEnterprise

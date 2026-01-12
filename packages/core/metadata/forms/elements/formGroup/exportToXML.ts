@@ -3,7 +3,7 @@ import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
+import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { FormGroup, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
@@ -15,7 +15,7 @@ export const exportFormGroupToXML = <T extends FormGroup | undefined>(
 ): ImportExportReturn<T, FormGroupXML> => {
   if (!data) return undefined as ImportExportReturn<T, FormGroupXML>
 
-  const baseFields = exportBaseElementToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, data)
 
   const result: ImportExportReturn<T, FormGroupXML> = {
     ...baseFields,

@@ -1,7 +1,7 @@
-import { BaseElement, BaseElementEnterprise } from "./baseElement/types"
+import { BaseElement, BaseElementPropsEnterprise } from "./baseElement/types"
 
 export type ImportFromEnterpriseReturn<
-  From extends BaseElementEnterprise | undefined,
+  From extends BaseElementPropsEnterprise | undefined,
   To extends BaseElement | undefined,
   Name extends string | undefined,
 > = From extends undefined ? undefined : Name extends undefined ? Partial<To> : To

@@ -5,7 +5,7 @@ import { exportPictureToXML } from "~/metadata/commonObjects/picture/exportToXML
 import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescription/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
+import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { FormField, FormFieldXML } from "~/metadata/forms/elements/formField/types"
 import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
@@ -21,7 +21,7 @@ export const exportFormFieldToXML = <T extends FormField | undefined>(
 ): ImportExportReturn<T, FormFieldXML> => {
   if (!data) return undefined as ImportExportReturn<T, FormFieldXML>
 
-  const baseFields = exportBaseElementToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, data)
 
   const result: FormFieldXML = {
     ...baseFields,

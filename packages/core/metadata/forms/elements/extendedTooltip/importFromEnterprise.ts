@@ -4,25 +4,18 @@ import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFr
 import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { ExtendedTooltip, ExtendedTooltipPropsEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
+import { ImportExportReturn } from "~/metadata/forms/elements/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importBaseElementFromEnterprise } from "../baseElement/importFromEnterprise"
 
-export const importExtendedTooltipFromEnterprise = <T extends ExtendedTooltipEnterprise | undefined>(
+export const importExtendedTooltipFromEnterprise = <T extends ExtendedTooltipPropsEnterprise | undefined>(
   context: ConfigurationContext,
   data: T
-): ImportFromEnterpriseReturn<T, ExtendedTooltip, string> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<T, ExtendedTooltip, string>
+): ImportExportReturn<T, ExtendedTooltip> => {
+  if (!data) return undefined as ImportExportReturn<T, ExtendedTooltip>
 
-  const baseFields = importBaseElementFromEnterprise(context, data, data.Имя)
-
-  const result: ExtendedTooltip = {
-    ...baseFields,
-    elementType: FormElementType.FormDecoration,
-  }
+  const result: ExtendedTooltip = {}
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
@@ -116,5 +109,5 @@ export const importExtendedTooltipFromEnterprise = <T extends ExtendedTooltipEnt
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  return result as ImportFromEnterpriseReturn<T, ExtendedTooltip, string>
+  return result as ImportExportReturn<T, ExtendedTooltip>
 }

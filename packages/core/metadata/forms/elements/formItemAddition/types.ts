@@ -2,10 +2,10 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { ChildItems, ChildItemsEnterprise, ChildItemsXML } from "~/metadata/forms/collections/childItems/types"
-import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormItemAddition extends BaseElement {
   childItems: ChildItems
@@ -39,7 +39,7 @@ export interface FormItemAdditionXML extends BaseElementXML {
   Visible?: boolean
 }
 
-export interface FormItemAdditionEnterprise extends BaseElementEnterprise {
+export interface FormItemAdditionEnterprise extends BaseElementPropsEnterprise {
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
   Вид?: SE.FormItemAdditionTypeEnterprise
@@ -53,5 +53,5 @@ export interface FormItemAdditionEnterprise extends BaseElementEnterprise {
   ПодчиненныеЭлементы?: ChildItemsEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
 }

@@ -2,7 +2,7 @@ import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChildItemsToXML } from "~/metadata/forms/collections/childItems/exportToXML"
-import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
+import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { FormItemAddition, FormItemAdditionXML } from "~/metadata/forms/elements/formItemAddition/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
@@ -15,7 +15,7 @@ export const exportFormItemAdditionToXML = (
 ): FormItemAdditionXML | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportBaseElementToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, data)
   if (!baseFields) return undefined
 
   const result: FormItemAdditionXML = {

@@ -3,10 +3,10 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormDecoration extends BaseElement {
   autoMaxHeight?: boolean
@@ -62,7 +62,7 @@ export interface FormDecorationXML extends BaseElementXML {
   Width?: number
 }
 
-export interface FormDecorationEnterprise extends BaseElementEnterprise {
+export interface FormDecorationPropsEnterprise extends BaseElementPropsEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
@@ -83,7 +83,7 @@ export interface FormDecorationEnterprise extends BaseElementEnterprise {
   ПропускатьПриВводе?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
   СочетаниеКлавиш?: string
   ЦветТекста?: ColorEnterprise
   Ширина?: number

@@ -4,7 +4,7 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import {
   FormDecoration,
-  FormDecorationEnterprise,
+  FormDecorationPropsEnterprise,
   FormDecorationXML,
 } from "~/metadata/forms/elements/formDecoration/types"
 import { EventsXML } from "~/metadata/forms/events/types"
@@ -39,7 +39,7 @@ export interface LabelDecorationXML extends FormDecorationXML {
   Events?: EventsXML
 }
 
-export interface LabelDecorationEnterprise extends FormDecorationEnterprise {
+export interface LabelDecorationEnterprise extends FormDecorationPropsEnterprise {
   ВертикальноеВыравниваниеГруппы?: SE.ItemVerticalAlignEnterprise
   ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
   ВысотаЗаголовка?: number

@@ -4,24 +4,18 @@ import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEn
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipPropsEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportBaseElementToEnterprise } from "../baseElement/exportToEnterprise"
 import { ImportExportReturn } from "../types"
 
 export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | undefined>(
   context: ConfigurationContext,
   data: T
-): ImportExportReturn<T, ExtendedTooltipEnterprise> {
-  if (!data) return undefined as ImportExportReturn<T, ExtendedTooltipEnterprise>
+): ImportExportReturn<T, ExtendedTooltipPropsEnterprise> {
+  if (!data) return undefined as ImportExportReturn<T, ExtendedTooltipPropsEnterprise>
 
-  const baseFields = exportBaseElementToEnterprise(context, data)
-
-  const result: ExtendedTooltipEnterprise = {
-    Имя: data.name,
-    ...baseFields,
-  }
+  const result: ExtendedTooltipPropsEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -102,5 +96,5 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
   const font = exportFontToEnterprise(context, data.font)
   if (font !== undefined) result.Шрифт = font
 
-  return result as ImportExportReturn<T, ExtendedTooltipEnterprise>
+  return result as ImportExportReturn<T, ExtendedTooltipPropsEnterprise>
 }

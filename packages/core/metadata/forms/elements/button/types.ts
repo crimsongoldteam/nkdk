@@ -4,9 +4,9 @@ import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/typ
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { BaseElement, BaseElementEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface Button extends BaseElement {
   autoMaxHeight?: boolean
@@ -88,7 +88,7 @@ export interface ButtonXML extends BaseElementXML {
   Width?: number
 }
 
-export interface ButtonEnterprise extends BaseElementEnterprise {
+export interface ButtonEnterprise extends BaseElementPropsEnterprise {
   Тип: "Кнопка"
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
@@ -118,7 +118,7 @@ export interface ButtonEnterprise extends BaseElementEnterprise {
   ПутьКДанным?: string
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
   СочетаниеКлавиш?: string
   ТолькоВоВсехДействиях?: StringboolEnterprise
   УникальностьКоманды?: StringboolEnterprise
@@ -130,7 +130,7 @@ export interface ButtonEnterprise extends BaseElementEnterprise {
   Шрифт?: FontEnterprise
 }
 
-export interface ButtonPropsEnterprise extends BaseElementEnterprise {
+export interface ButtonPropsEnterprise extends BaseElementPropsEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   АктивизироватьПоУмолчанию?: StringboolEnterprise
@@ -159,7 +159,7 @@ export interface ButtonPropsEnterprise extends BaseElementEnterprise {
   ПутьКДанным?: string
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
   СочетаниеКлавиш?: string
   ТолькоВоВсехДействиях?: StringboolEnterprise
   УникальностьКоманды?: StringboolEnterprise

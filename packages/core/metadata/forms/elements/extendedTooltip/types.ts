@@ -4,10 +4,10 @@ import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/typ
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { BaseElement, BaseElementXML } from "../baseElement/types"
-import { FormDecorationEnterprise } from "../formDecoration/types"
+import { BaseElementXML } from "../baseElement/types"
+import { FormDecorationPropsEnterprise } from "../formDecoration/types"
 
-export interface ExtendedTooltip extends BaseElement {
+export interface ExtendedTooltip {
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   displayImportance?: SE.DisplayImportance
@@ -57,8 +57,7 @@ export interface ExtendedTooltipXML extends BaseElementXML {
   Width?: number
 }
 
-export interface ExtendedTooltipEnterprise extends FormDecorationEnterprise {
-  Имя: string
+export interface ExtendedTooltipPropsEnterprise extends FormDecorationPropsEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise

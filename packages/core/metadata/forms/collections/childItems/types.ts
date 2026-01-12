@@ -13,7 +13,7 @@ import {
   FormattedDocumentFieldEnterprise,
   FormattedDocumentFieldXML,
 } from "../../elements/formattedDocumentField/types"
-import { FormDecoration, FormDecorationEnterprise, FormDecorationXML } from "../../elements/formDecoration/types"
+import { FormDecoration, FormDecorationPropsEnterprise, FormDecorationXML } from "../../elements/formDecoration/types"
 import { FormField, FormFieldEnterprise, FormFieldXML } from "../../elements/formField/types"
 import { FormGroup, FormGroupPropsEnterprise, FormGroupXML } from "../../elements/formGroup/types"
 import {
@@ -191,7 +191,7 @@ export type ChildItemEnterprise =
   | CommandBarEnterprise
   | DendrogramFieldEnterprise
   | FormattedDocumentFieldEnterprise
-  | FormDecorationEnterprise
+  | FormDecorationPropsEnterprise
   | FormFieldEnterprise
   | FormGroupPropsEnterprise
   | FormItemAdditionEnterprise
@@ -224,7 +224,7 @@ export type ChildItemEnterprise =
   | CommandBarEnterprise
   | DendrogramFieldEnterprise
   | FormattedDocumentFieldEnterprise
-  | FormDecorationEnterprise
+  | FormDecorationPropsEnterprise
   | FormFieldEnterprise
   | FormGroupPropsEnterprise
   | FormItemAdditionEnterprise

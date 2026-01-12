@@ -3,7 +3,7 @@ import { exportFontToXML } from "~/metadata/commonObjects/font/exportToXML"
 import { exportI8nTextToXML } from "~/metadata/commonObjects/i8nText/exportToXML"
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportBaseElementToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
+import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { FormDecoration, FormDecorationXML } from "~/metadata/forms/elements/formDecoration/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
@@ -17,7 +17,7 @@ export const exportFormDecorationToXML = <T extends FormDecoration | undefined>(
 ): ImportExportReturn<T, FormDecorationXML> => {
   if (!data) return undefined as ImportExportReturn<T, FormDecorationXML>
 
-  const baseFields = exportBaseElementToXML(context, data)
+  const baseFields = exportElementPropsToXML(context, data)
 
   const result: ImportExportReturn<T, FormDecorationXML> = {
     ...baseFields,

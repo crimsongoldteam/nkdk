@@ -6,7 +6,7 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
-import { FormDecoration, FormDecorationEnterprise } from "~/metadata/forms/elements/formDecoration/types"
+import { FormDecoration, FormDecorationPropsEnterprise } from "~/metadata/forms/elements/formDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -16,12 +16,12 @@ import { ImportExportReturn } from "../types"
 export const exportFormDecorationToEnterprise = <T extends FormDecoration | undefined>(
   context: ConfigurationContext,
   data: T
-): ImportExportReturn<T, FormDecorationEnterprise> => {
-  if (!data) return undefined as ImportExportReturn<T, FormDecorationEnterprise>
+): ImportExportReturn<T, FormDecorationPropsEnterprise> => {
+  if (!data) return undefined as ImportExportReturn<T, FormDecorationPropsEnterprise>
 
   const baseFields = exportBaseElementToEnterprise(context, data)
 
-  const result: FormDecorationEnterprise = {
+  const result: FormDecorationPropsEnterprise = {
     ...baseFields,
   }
 
@@ -110,7 +110,7 @@ export const exportFormDecorationToEnterprise = <T extends FormDecoration | unde
   const font = exportFontToEnterprise(context, data.font)
   if (font !== undefined) result.Шрифт = font
 
-  return result as ImportExportReturn<T, FormDecorationEnterprise>
+  return result as ImportExportReturn<T, FormDecorationPropsEnterprise>
 }
 
 registerMetadata("ExportToEnterprise", "FormDecoration", exportFormDecorationToEnterprise)

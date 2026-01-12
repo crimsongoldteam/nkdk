@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { mockСontext } from "~/tests/mockContext"
 import { xmlExport } from "~/xml/export/exporter"
 import { FormElementType } from "../../../metadataFactory/types"
-import { exportBaseElementToXML } from "./exportToXML"
+import { exportElementPropsToXML } from "./exportToXML"
 import { BaseElement } from "./types"
 
 describe("exportBaseElementToXML", () => {
@@ -14,14 +14,14 @@ describe("exportBaseElementToXML", () => {
 
     const expectedResult = `<BaseElement name="ИмяПоля" id="1"/>`
 
-    const result = { BaseElement: exportBaseElementToXML(mockСontext, mockElement) }
+    const result = { BaseElement: exportElementPropsToXML(mockСontext, mockElement) }
     const xmlString = xmlExport(result, false)
 
     expect(xmlString).toEqual(expectedResult)
   })
 
   it("should return undefined for undefined input", () => {
-    const result = exportBaseElementToXML(mockСontext, undefined)
+    const result = exportElementPropsToXML(mockСontext, undefined)
 
     expect(result).toBeUndefined()
   })
