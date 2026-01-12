@@ -4,7 +4,8 @@ import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/expo
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ColumnGroup, ColumnGroupPropsEnterprise } from "~/metadata/forms/elements/columnGroup/types"
-import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
+import { exportFormGroupPropsToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -15,7 +16,7 @@ export const exportColumnGroupToEnterprise = (
 ): ColumnGroupPropsEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportFormGroupToEnterprise(context, data)
+  const baseFields = exportFormGroupPropsToEnterprise(context, data)
 
   const result: ColumnGroupPropsEnterprise = {
     ...baseFields,
@@ -55,7 +56,7 @@ export const exportColumnGroupToEnterprise = (
   const titleBackColor = exportColorToEnterprise(context, data.titleBackColor)
   if (titleBackColor !== undefined) result.ЦветФонаЗаголовка = titleBackColor
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportPartialToEnterprise", "ColumnGroup", exportColumnGroupToEnterprise)

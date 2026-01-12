@@ -3,7 +3,7 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupPropsEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsXML } from "../../collections/childItems/types"
 
@@ -49,7 +49,7 @@ export interface PageXML extends FormGroupXML {
   ChildItems?: ChildItemsXML
 }
 
-export interface PageEnterprise extends FormGroupPropsEnterprise {
+export interface PagePartialEnterprise extends FormGroupPartialEnterprise {
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
   ВертикальнаяПрокруткаПриСжатии?: StringboolEnterprise
   ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
@@ -69,3 +69,10 @@ export interface PageEnterprise extends FormGroupPropsEnterprise {
   ЦветФона?: ColorEnterprise
   ШиринаПодчиненныхЭлементов?: SE.ChildFormItemsWidthEnterprise
 }
+
+export interface PageTypedEnterprise extends PagePartialEnterprise {
+  Тип: "Страница"
+}
+
+// Для обратной совместимости
+export type PageEnterprise = PagePartialEnterprise

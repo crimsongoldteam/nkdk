@@ -5,7 +5,6 @@ import {
   fullHtmlDocumentFieldTypedEnterprise,
   minimalHtmlDocumentField,
   minimalHtmlDocumentFieldPartialEnterprise,
-  minimalHtmlDocumentFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/htmlDocumentField/data"
 import { mockСontext } from "~/tests/mockContext"
 import {

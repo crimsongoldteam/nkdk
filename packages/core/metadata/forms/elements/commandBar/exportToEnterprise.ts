@@ -2,7 +2,8 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { CommandBar, CommandBarEnterprise } from "~/metadata/forms/elements/commandBar/types"
-import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
+import { exportFormGroupPropsToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -13,7 +14,7 @@ export const exportCommandBarToEnterprise = (
 ): CommandBarEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportFormGroupToEnterprise(context, data)
+  const baseFields = exportFormGroupPropsToEnterprise(context, data)
 
   const result: CommandBarEnterprise = {
     ...baseFields,
@@ -41,7 +42,7 @@ export const exportCommandBarToEnterprise = (
     Object.assign(result, userVisible)
   }
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportPartialToEnterprise", "CommandBar", exportCommandBarToEnterprise)

@@ -5,13 +5,9 @@ import {
   fullPlannerFieldTypedEnterprise,
   minimalPlannerField,
   minimalPlannerFieldPartialEnterprise,
-  minimalPlannerFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/plannerField/data"
 import { mockСontext } from "~/tests/mockContext"
-import {
-  exportPlannerFieldPartialToEnterprise,
-  exportPlannerFieldTypedToEnterprise,
-} from "./exportToEnterprise"
+import { exportPlannerFieldPartialToEnterprise, exportPlannerFieldTypedToEnterprise } from "./exportToEnterprise"
 
 describe("exportPlannerFieldToEnterprise", () => {
   describe("exportPlannerFieldPartialToEnterprise", () => {

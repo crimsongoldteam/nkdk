@@ -3,9 +3,10 @@ import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportTo
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
+import { exportFormGroupPropsToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
 import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
 import { UsualGroup, UsualGroupEnterprise } from "~/metadata/forms/elements/usualGroup/types"
+import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -16,7 +17,7 @@ export const exportUsualGroupToEnterprise = (
 ): UsualGroupEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportFormGroupToEnterprise(context, data)
+  const baseFields = exportFormGroupPropsToEnterprise(context, data)
 
   const result: UsualGroupEnterprise = {
     ...baseFields,
@@ -150,7 +151,7 @@ export const exportUsualGroupToEnterprise = (
   )
   if (slaveItemsWidth !== undefined) result.ШиринаПодчиненныхЭлементов = slaveItemsWidth
 
-  return result
+  return sortObject(result)
 }
 
 registerMetadata("ExportPartialToEnterprise", "UsualGroup", exportUsualGroupToEnterprise)

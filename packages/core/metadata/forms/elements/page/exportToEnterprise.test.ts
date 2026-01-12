@@ -1,25 +1,38 @@
 import { describe, expect, it } from "vitest"
-import { fullPage, fullPageEnterprise, minimalPage, minimalPageEnterprise } from "~/tests/fixtures/forms/page/data"
+import {
+  fullPage,
+  fullPagePartialEnterprise,
+  fullPageTypedEnterprise,
+  minimalPage,
+  minimalPagePartialEnterprise,
+} from "~/tests/fixtures/forms/page/data"
 import { mockСontext } from "~/tests/mockContext"
-import { exportPageToEnterprise } from "./exportToEnterprise"
+import { exportPagePartialToEnterprise, exportPageTypedToEnterprise } from "./exportToEnterprise"
 
-describe("exportPageToEnterprise", () => {
-  it("should return undefined when data is undefined", () => {
-    const result = exportPageToEnterprise(mockСontext, undefined)
-
-    expect(result).toBeUndefined()
-  })
-
+describe("exportPagePartialToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
-    const result = exportPageToEnterprise(mockСontext, fullPage)
+    const result = exportPagePartialToEnterprise(mockСontext, fullPage)
 
-    expect(result).toEqual(fullPageEnterprise)
+    expect(result).toEqual(fullPagePartialEnterprise)
   })
 
   it("should export minimal", () => {
-    const result = exportPageToEnterprise(mockСontext, minimalPage)
+    const result = exportPagePartialToEnterprise(mockСontext, minimalPage)
 
-    expect(result).toEqual(minimalPageEnterprise)
+    expect(result).toEqual(minimalPagePartialEnterprise)
   })
 })
 
+describe("exportPageTypedToEnterprise", () => {
+  it("should export all fields to Enterprise", () => {
+    const result = exportPageTypedToEnterprise(mockСontext, fullPage)
+
+    expect(result).toEqual(fullPageTypedEnterprise)
+  })
+
+  it("should return undefined when data is undefined", () => {
+    const result = exportPageTypedToEnterprise(mockСontext, undefined)
+
+    expect(result).toBeUndefined()
+  })
+})

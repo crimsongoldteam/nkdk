@@ -1,16 +1,27 @@
 <CheckBoxField name="Флажок" id="1" DisplayImportance="High">
 	<AutoCellHeight>true</AutoCellHeight>
+	<BackColor>web:Blue</BackColor>
+	<BorderColor>web:Green</BorderColor>
 	<CellHyperlink>true</CellHyperlink>
+	<CheckBoxType>Switch</CheckBoxType>
 	<ContextMenu name="ФлажокКонтекстноеМеню" id="2"/>
 	<DataPath>Объект.Реквизит</DataPath>
 	<DefaultItem>true</DefaultItem>
+	<EditFormat>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Формат редактирования</v8:content>
+		</v8:item>
+	</EditFormat>
 	<EditMode>EnterOnInput</EditMode>
 	<Enabled>true</Enabled>
+	<EqualItemsWidth>true</EqualItemsWidth>
 	<Events>
 		<Event name="OnChange">ПроцедураПриИзменении</Event>
 	</Events>
 	<ExtendedTooltip name="ФлажокРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>
+	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<FooterBackColor>web:White</FooterBackColor>
 	<FooterDataPath>Объект.РеквизитПодвала</FooterDataPath>
 	<FooterFont ref="style:NormalTextFont" kind="StyleItem"/>
@@ -33,11 +44,16 @@
 	</HeaderPicture>
 	<HorizontalAlign>Left</HorizontalAlign>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<ItemHeight>20</ItemHeight>
+	<ItemTitleHeight>15</ItemTitleHeight>
+	<ItemWidth>100</ItemWidth>
 	<ReadOnly>false</ReadOnly>
 	<Shortcut>Ctrl+S</Shortcut>
 	<ShowInFooter>true</ShowInFooter>
 	<ShowInHeader>true</ShowInHeader>
 	<SkipOnInput>false</SkipOnInput>
+	<TextColor>web:Yellow</TextColor>
+	<ThreeState>true</ThreeState>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
@@ -64,22 +80,6 @@
 	<VerticalAlign>Top</VerticalAlign>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
 	<Visible>true</Visible>
-	<BackColor>web:Blue</BackColor>
-	<BorderColor>web:Green</BorderColor>
-	<CheckBoxType>Switch</CheckBoxType>
-	<EditFormat>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Формат редактирования</v8:content>
-		</v8:item>
-	</EditFormat>
-	<EqualItemsWidth>true</EqualItemsWidth>
-	<Font ref="style:NormalTextFont" kind="StyleItem"/>
-	<ItemHeight>20</ItemHeight>
-	<ItemTitleHeight>15</ItemTitleHeight>
-	<ItemWidth>100</ItemWidth>
-	<TextColor>web:Yellow</TextColor>
-	<ThreeState>true</ThreeState>
 	<WarningOnEdit>
 		<v8:item>
 			<v8:lang>ru</v8:lang>

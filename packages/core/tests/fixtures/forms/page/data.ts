@@ -1,6 +1,6 @@
-import { Page, PageEnterprise } from "~/metadata/forms/elements/page/types"
+import { Page, PagePartialEnterprise, PageTypedEnterprise } from "~/metadata/forms/elements/page/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
-import { fullFormGroup, fullFormGroupEnterprise } from "../formGroup/data"
+import { fullFormGroup } from "../formGroup/data"
 
 export const fullPage: Page = {
   ...fullFormGroup,
@@ -30,9 +30,24 @@ export const fullPage: Page = {
   childItems: [],
 }
 
-export const fullPageEnterprise: PageEnterprise = {
-  ...fullFormGroupEnterprise,
-  Заголовок: "Страница",
+export const fullPagePartialEnterprise: PagePartialEnterprise = {
+  ВертикальноеПоложениеВГруппе: "Верх",
+  Вид: "ОбычнаяГруппа",
+  Видимость: "Истина",
+  Высота: 200,
+  ГоризонтальноеПоложениеВГруппе: "Лево",
+  Доступность: "Истина",
+  ОтображениеПодсказки: "Нет",
+  Подсказка: "Подсказка",
+  РазрешитьИспользование: { Администратор: "Истина" },
+  РазрешитьИзменениеСостава: "Истина",
+  РастягиватьПоВертикали: "Истина",
+  РастягиватьПоГоризонтали: "Истина",
+  СочетаниеКлавиш: "Ctrl+S",
+  ТолькоПросмотр: "Ложь",
+  ЦветТекстаЗаголовка: "Черный",
+  Ширина: 300,
+  ШрифтЗаголовка: "ОбычныйШрифтТекста",
   ВажностьПриОтображении: "Высокая",
   ВертикальнаяПрокруткаПриСжатии: "Истина",
   ВертикальноеПоложение: "Верх",
@@ -50,10 +65,16 @@ export const fullPageEnterprise: PageEnterprise = {
   ШиринаПодчиненныхЭлементов: "Авто",
 }
 
+export const fullPageTypedEnterprise: PageTypedEnterprise = {
+  ...fullPagePartialEnterprise,
+  Тип: "Страница",
+  Заголовок: "Страница",
+}
+
 export const minimalPage: Page = {
   elementType: FormElementType.Page,
   name: "Страница",
   childItems: [],
 }
 
-export const minimalPageEnterprise: PageEnterprise = {}
+export const minimalPagePartialEnterprise: PagePartialEnterprise = {}

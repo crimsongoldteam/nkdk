@@ -60,7 +60,7 @@ export const exportFormGroupPartialToEnterprise = (
   return sortObject(result)
 }
 
-const exportFormGroupPropsToEnterprise = (
+export const exportFormGroupPropsToEnterprise = (
   context: ConfigurationContext,
   data: FormGroup
 ): FormGroupPartialEnterprise => {

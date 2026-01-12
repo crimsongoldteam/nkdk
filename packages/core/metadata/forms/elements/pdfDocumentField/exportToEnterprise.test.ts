@@ -5,7 +5,6 @@ import {
   fullPdfDocumentFieldTypedEnterprise,
   minimalPdfDocumentField,
   minimalPdfDocumentFieldPartialEnterprise,
-  minimalPdfDocumentFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/pdfDocumentField/data"
 import { mockСontext } from "~/tests/mockContext"
 import {

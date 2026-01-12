@@ -10,17 +10,12 @@ import {
   importFormGroupPartialFromEnterprise,
   importFormGroupTypedFromEnterprise,
 } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
-import {
-  Popup,
-  PopupPartialEnterprise,
-  PopupTypedEnterprise,
-} from "~/metadata/forms/elements/popup/types"
+import { Popup, PopupPartialEnterprise, PopupTypedEnterprise } from "~/metadata/forms/elements/popup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importButtonGroupChildItemsFromEnterprise } from "../../collections/buttonGroupChildItems/importFromEnterprise"
-import { ImportPropsFromEnterpriseReturn } from "../types"
 
 export const importPopupTypedFromEnterprise = (
   context: ConfigurationContext,
