@@ -21,7 +21,7 @@ describe("importExtendedTooltipFromXML", () => {
   })
 
   it("should import minimal to undefined", () => {
-    const xmlData = readAndParseXMLFile<{ ExtendedTooltip: ExtendedTooltipXML }>("forms/extendedTooltip/minimal.xml")
+    const xmlData = readAndParseXMLFile<{ ExtendedTooltip: ExtendedTooltipXML }>("forms/extendedTooltip/defaults.xml")
 
     const result = importExtendedTooltipFromXML(mockСontext, xmlData.ExtendedTooltip)
 

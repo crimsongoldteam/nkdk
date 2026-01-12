@@ -7,7 +7,7 @@ import { exportExtendedTooltipToXML } from "./exportToXML"
 
 describe("exportExtendedTooltipToXML", () => {
   it("should return default when data is undefined", () => {
-    const expectedResult = readXMLFileAsString("forms/extendedTooltip/minimal.xml")
+    const expectedResult = readXMLFileAsString("forms/extendedTooltip/defaults.xml")
 
     const xmlData = exportExtendedTooltipToXML(mockСontext, undefined, parentElement)
 
