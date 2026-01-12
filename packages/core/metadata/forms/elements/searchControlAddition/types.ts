@@ -3,21 +3,18 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import {
-  FormItemAddition,
-  FormItemAdditionEnterprise,
-  FormItemAdditionXML,
-} from "~/metadata/forms/elements/formItemAddition/types"
+
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
   ButtonGroupChildItems,
   ButtonGroupChildItemsEnterprise,
   ButtonGroupChildItemsXML,
 } from "../../collections/buttonGroupChildItems/types"
+import { BaseElementXML } from "../baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
-export interface SearchControlAddition extends FormItemAddition {
+export interface SearchControlAddition {
   autoMaxWidth?: boolean
   backColor?: Color
   borderColor?: Color
@@ -34,14 +31,13 @@ export interface SearchControlAddition extends FormItemAddition {
   title?: I8nText
   toolTip?: I8nText
   toolTipRepresentation?: SE.ToolTipRepresentation
-  type?: SE.FormItemAdditionType
   userVisible?: UserVisible
   verticalAlignInGroup?: SE.ItemVerticalAlign
   visible?: boolean
   childItems: ButtonGroupChildItems
 }
 
-export interface SearchControlAdditionXML extends FormItemAdditionXML {
+export interface SearchControlAdditionXML extends BaseElementXML {
   AutoMaxWidth?: boolean
   BackColor?: ColorXML
   BorderColor?: ColorXML
@@ -59,13 +55,12 @@ export interface SearchControlAdditionXML extends FormItemAdditionXML {
   Title?: I8nTextXML
   ToolTip?: I8nTextXML
   ToolTipRepresentation?: SE.ToolTipRepresentation
-  Type?: SE.FormItemAdditionType
   UserVisible?: UserVisibleXML
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   Visible?: boolean
 }
 
-export interface SearchControlAdditionEnterprise extends FormItemAdditionEnterprise {
+export interface SearchControlAdditionEnterprise {
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   МаксимальнаяШирина?: number
   РастягиватьПоГоризонтали?: StringboolEnterprise
@@ -76,7 +71,6 @@ export interface SearchControlAdditionEnterprise extends FormItemAdditionEnterpr
   Шрифт?: FontEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
-  Вид?: SE.FormItemAdditionTypeEnterprise
   Видимость?: StringboolEnterprise
   ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
   Доступность?: StringboolEnterprise
