@@ -1,4 +1,8 @@
-import { ButtonGroup, ButtonGroupPropsEnterprise } from "~/metadata/forms/elements/buttonGroup/types"
+import {
+  ButtonGroup,
+  ButtonGroupEnterprise,
+  ButtonGroupPropsEnterprise,
+} from "~/metadata/forms/elements/buttonGroup/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormGroup, fullFormGroupEnterprise } from "../formGroup/data"
 
@@ -18,11 +22,36 @@ export const fullButtonGroup: ButtonGroup = {
   representation: "Compact",
 }
 
-export const fullButtonGroupEnterprise: ButtonGroupPropsEnterprise = {
+export const fullButtonGroupSource: ButtonGroup = {
+  elementType: FormElementType.ButtonGroup,
+  name: "ГруппаКнопок",
+  title: { items: { ru: "Группа кнопок" } },
+  childItems: [],
+}
+
+export const fullButtonGroupEnterprise: ButtonGroupEnterprise = {
   Тип: "ГруппаКнопок",
+  Имя: "ГруппаКнопок",
   ...fullFormGroupEnterprise,
   Заголовок: "Группа кнопок",
   Отображение: "Компактное",
+  ПодчиненныеЭлементы: {
+    Кнопка: {
+      Тип: "Кнопка",
+    },
+  },
+}
+
+export const fullButtonGroupChildEnterprise: ButtonGroupPropsEnterprise = {
+  ...fullFormGroupEnterprise,
+  Отображение: "Компактное",
+  ПодчиненныеЭлементы: [
+    {
+      Кнопка: {
+        Тип: "Кнопка",
+      },
+    },
+  ],
 }
 
 export const minimalButtonGroup: ButtonGroup = {
@@ -31,6 +60,7 @@ export const minimalButtonGroup: ButtonGroup = {
   childItems: [],
 }
 
-export const minimalButtonGroupEnterprise: ButtonGroupPropsEnterprise = {
+export const minimalButtonGroupEnterprise: ButtonGroupEnterprise = {
   Тип: "ГруппаКнопок",
+  Имя: "ГруппаКнопок",
 }

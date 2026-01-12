@@ -1,29 +1,77 @@
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ButtonGroup, ButtonGroupPropsEnterprise } from "~/metadata/forms/elements/buttonGroup/types"
+import {
+  ButtonGroup,
+  ButtonGroupEnterprise,
+  ButtonGroupPropsEnterprise,
+} from "~/metadata/forms/elements/buttonGroup/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { importButtonGroupChildItemsFromEnterprise } from "../../collections/buttonGroupChildItems/importFromEnterprise"
 
-export const importButtonGroupFromEnterprise = <
-  From extends ButtonGroupPropsEnterprise | undefined,
-  Name extends string,
->(
+export const importButtonGroupChildFromEnterprise = (
   context: ConfigurationContext,
-  data: From,
-  name: Name
-): ImportFromEnterpriseReturn<From, ButtonGroup, Name> => {
-  if (!data) return undefined as ImportFromEnterpriseReturn<From, ButtonGroup, Name>
+  data: ButtonGroupEnterprise
+): ButtonGroup => {
+  const props = importButtonGroupPropsFromEnterprise(context, data)
 
-  const baseFields = importFormGroupFromEnterprise(context, data, name)!
+  const name = data.Имя
+  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
 
   const result: ButtonGroup = {
-    ...baseFields,
-    elementType: FormElementType.ButtonGroup,
+    ...props,
+    elementType,
+    name,
     childItems: [],
+  }
+
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
+}
+
+export const importButtonGroupFromEnterprise = (
+  context: ConfigurationContext,
+  source: ButtonGroup | undefined,
+  data: ButtonGroupPropsEnterprise | undefined
+): ButtonGroup | undefined => {
+  if (source === undefined) return undefined
+
+  const props = importButtonGroupPropsFromEnterprise(context, data)
+  const result: ButtonGroup = {
+    ...source,
+    ...props,
+  }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
+
+  return result
+}
+
+const importButtonGroupPropsFromEnterprise = (
+  context: ConfigurationContext,
+  data: ButtonGroupEnterprise | ButtonGroupPropsEnterprise | undefined
+): Omit<Partial<ButtonGroup>, "elementType" | "name"> => {
+  const result: Omit<Partial<ButtonGroup>, "elementType" | "name"> = {
+    childItems: [],
+  }
+
+  if (data === undefined) return result
+
+  const baseFields = importFormGroupFromEnterprise(context, data, "Имя" in data ? data.Имя : "ButtonGroup")!
+
+  if (baseFields) {
+    const { elementType, name, ...formGroupProps } = baseFields
+    Object.assign(result, formGroupProps)
   }
 
   const representation = importSystemEnumerationFromEnterprise<SE.ButtonGroupRepresentation>(
@@ -47,7 +95,10 @@ export const importButtonGroupFromEnterprise = <
     result.userVisible = userVisibleAllow || userVisibleDeny
   }
 
+  const childItems = importButtonGroupChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
+  if (childItems !== undefined) result.childItems = childItems
+
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "ButtonGroup", importButtonGroupFromEnterprise)
+registerMetadata("ImportFromEnterprise", "ButtonGroup", importButtonGroupPropsFromEnterprise)

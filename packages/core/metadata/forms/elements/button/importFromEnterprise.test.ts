@@ -38,7 +38,7 @@ describe("importButtonFromEnterprise", () => {
 
   describe("importButtonChildFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importButtonChildFromEnterprise(mockСontext, fullButtonChildEnterprise)
+      const result = importButtonChildFromEnterprise(mockСontext, fullButtonChildEnterprise, "Кнопка")
 
       expect(result).toEqual(fullButton)
     })

@@ -173,5 +173,4 @@ export interface ButtonPropsEnterprise extends BaseElementPropsEnterprise {
 
 export interface ButtonEnterprise extends ButtonPropsEnterprise {
   Тип: "Кнопка"
-  Имя: string
 }

@@ -54,7 +54,6 @@ export const fullButton: Button = {
 
 export const fullButtonChildEnterprise: ButtonEnterprise = {
   Тип: "Кнопка",
-  Имя: "Кнопка",
   Заголовок: "Кнопка формы",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",

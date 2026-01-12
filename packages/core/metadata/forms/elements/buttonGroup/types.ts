@@ -24,10 +24,10 @@ export interface ButtonGroupPropsEnterprise extends FormGroupPropsEnterprise {
   Отображение?: SE.ButtonGroupRepresentationEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise
+  ПодчиненныеЭлементы?: ButtonGroupChildItemsEnterprise
 }
 
 export interface ButtonGroupEnterprise extends ButtonGroupPropsEnterprise {
   Тип: "ГруппаКнопок"
   Имя: MetadataNameEnterprise
-  ПодчиненныеЭлементы?: ButtonGroupChildItemsEnterprise
 }

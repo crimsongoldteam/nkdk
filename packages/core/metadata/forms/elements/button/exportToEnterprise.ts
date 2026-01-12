@@ -25,24 +25,17 @@ export const exportButtonChildToEnterprise = (
 
   const result: ButtonEnterprise = {
     Тип: "Кнопка",
-    Имя: data.name,
     ...props,
   }
 
   const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result)
+  return result
 }
 
 export const exportButtonToEnterprise = (context: ConfigurationContext, data: Button): ButtonPropsEnterprise => {
-  const props = exportButtonPropsToEnterprise(context, data)
-
-  const result: ButtonEnterprise = {
-    Тип: "Кнопка",
-    Имя: data.name,
-    ...props,
-  }
+  const result = exportButtonPropsToEnterprise(context, data)
 
   const title = exportI8nTextOtherToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
@@ -50,10 +43,7 @@ export const exportButtonToEnterprise = (context: ConfigurationContext, data: Bu
   return sortObject(result)
 }
 
-const exportButtonPropsToEnterprise = (
-  context: ConfigurationContext,
-  data: Button
-): ButtonPropsEnterprise | undefined => {
+const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Button): ButtonPropsEnterprise => {
   const result: ButtonPropsEnterprise = {}
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
@@ -98,9 +88,6 @@ const exportButtonPropsToEnterprise = (
 
   const enabled = exportBooleanToEnterprise(context, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
-
-  const title = exportI8nTextToEnterprise(context, data.title)
-  if (title !== undefined) result.Заголовок = title
 
   if (data.commandName !== undefined) result.ИмяКоманды = data.commandName
 
