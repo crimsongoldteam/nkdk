@@ -252,3 +252,4 @@ const exportUsualGroupPropsToEnterprise = (
 }
 
 registerMetadata("ExportPartialToEnterprise", "UsualGroup", exportUsualGroupPartialToEnterprise)
+registerMetadata("ExportTypedToEnterprise", "UsualGroup", exportUsualGroupTypedToEnterprise)

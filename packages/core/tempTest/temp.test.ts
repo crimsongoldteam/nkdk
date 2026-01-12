@@ -1,9 +1,25 @@
-import { describe, vi } from "vitest"
+import { readFileSync, writeFileSync } from "fs"
+import { join } from "path"
+import { describe, it, vi } from "vitest"
+import { exportClientApplicationFormToEnterprise } from "~/metadata/forms/clientApplicationForm/base/exportToEnterprise"
+import { exportClientApplicationFormToStructure } from "~/metadata/forms/clientApplicationForm/base/exportToStructure"
+import { exportClientApplicationFormToXML } from "~/metadata/forms/clientApplicationForm/base/exportToXML"
+import { importClientApplicationFormFromEnterprise } from "~/metadata/forms/clientApplicationForm/base/importFromEnterprise"
+import { importClientApplicationFormFromXML } from "~/metadata/forms/clientApplicationForm/base/importFromXML"
+import {
+  ClientApplicationFormXML,
+  ClientApplicationFormEnterprise,
+} from "~/metadata/forms/clientApplicationForm/base/types"
+import { importChildItemsFromStructure } from "~/metadata/forms/collections/childItems/importFromStructure"
 import "~/metadata/forms/elements/exportToEnterprise"
 import "~/metadata/forms/elements/exportToStructure"
 import "~/metadata/forms/elements/exportToXML"
 import "~/metadata/forms/elements/importFromEnterprise"
 import "~/metadata/forms/elements/importFromXML"
+import { xmlExport } from "~/xml/export/exporter"
+import importContentFromXML from "~/xml/import/importer"
+import { exportToYAML } from "~/yaml/export"
+import { importFromYAML } from "~/yaml/import"
 
 vi.mock("uuid", () => ({
   v4: vi.fn(() => "11111111-1111-4111-8111-111111111111"),
@@ -44,24 +60,24 @@ const configurationContext = {
 // const originalFormXml = readAndParseXMLFile<ClientApplicationFormXML>("forms/clientApplicationForm/full.xml")
 
 describe("DO test", () => {
-  // it("should import-export form", () => {
-  //   const fullPath = join(__dirname, "Before/Form.xml")
-  //   const xml = readFileSync(fullPath, "utf-8")
-  //   const originalFormXml = importContentFromXML<{ Form: ClientApplicationFormXML }>(xml)
-  //   const form = importClientApplicationFormFromXML(configurationContext, originalFormXml.Form)
-  //   const yamlObject = exportClientApplicationFormToEnterprise(configurationContext, form)
-  //   const yaml = exportToYAML(yamlObject)
-  //   const structuredObject = exportClientApplicationFormToStructure(configurationContext, form)
-  //   const strings = structuredObject.strings.join("\n")
-  //   writeFileSync(join(__dirname, "After/Form.yml"), yaml, "utf-8")
-  //   writeFileSync(join(__dirname, "After/Form.nkdk"), strings, "utf-8")
-  //   const childItems = importChildItemsFromStructure(configurationContext, strings)
-  //   const importedYaml = importFromYAML<ClientApplicationFormEnterprise>(yaml)
-  //   const newForm = importClientApplicationFormFromEnterprise(configurationContext, importedYaml, childItems)
-  //   const newXMLData = exportClientApplicationFormToXML(configurationContext, newForm)
-  //   const newXML = xmlExport({ Form: newXMLData })
-  //   writeFileSync(join(__dirname, "After/Form.xml"), newXML, "utf-8")
-  // })
+  it("should import-export form", () => {
+    const fullPath = join(__dirname, "Before/Form.xml")
+    const xml = readFileSync(fullPath, "utf-8")
+    const originalFormXml = importContentFromXML<{ Form: ClientApplicationFormXML }>(xml)
+    const form = importClientApplicationFormFromXML(configurationContext, originalFormXml.Form)
+    const yamlObject = exportClientApplicationFormToEnterprise(configurationContext, form)
+    const yaml = exportToYAML(yamlObject)
+    const structuredObject = exportClientApplicationFormToStructure(configurationContext, form)
+    const strings = structuredObject.strings.join("\n")
+    writeFileSync(join(__dirname, "After/Form.yml"), yaml, "utf-8")
+    writeFileSync(join(__dirname, "After/Form.nkdk"), strings, "utf-8")
+    const childItems = importChildItemsFromStructure(configurationContext, strings)
+    const importedYaml = importFromYAML<ClientApplicationFormEnterprise>(yaml)
+    const newForm = importClientApplicationFormFromEnterprise(configurationContext, importedYaml, childItems)
+    const newXMLData = exportClientApplicationFormToXML(configurationContext, newForm)
+    const newXML = xmlExport({ Form: newXMLData })
+    writeFileSync(join(__dirname, "After/Form.xml"), newXML, "utf-8")
+  })
   // it("should import metadata catalog from XML", () => {
   //   const importedXml = importContentFromXML<{ MetaDataObject: MetadataCatalogXML }>(metadataCatalogContent)
   //   const xmlData = importMetadataCatalogFromXML(mockСontext, importedXml.MetaDataObject)
