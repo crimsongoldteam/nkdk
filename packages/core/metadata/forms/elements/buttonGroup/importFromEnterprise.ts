@@ -1,6 +1,6 @@
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ButtonGroup, ButtonGroupEnterprise } from "~/metadata/forms/elements/buttonGroup/types"
+import { ButtonGroup, ButtonGroupPropsEnterprise } from "~/metadata/forms/elements/buttonGroup/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -8,7 +8,10 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importButtonGroupFromEnterprise = <From extends ButtonGroupEnterprise | undefined, Name extends string>(
+export const importButtonGroupFromEnterprise = <
+  From extends ButtonGroupPropsEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
   data: From,
   name: Name

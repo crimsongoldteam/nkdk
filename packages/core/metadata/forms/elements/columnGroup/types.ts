@@ -2,7 +2,7 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup, FormGroupPropsEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsXML } from "../../collections/childItems/types"
 
@@ -34,7 +34,7 @@ export interface ColumnGroupXML extends FormGroupXML {
   ChildItems?: ChildItemsXML
 }
 
-export interface ColumnGroupEnterprise extends FormGroupEnterprise {
+export interface ColumnGroupPropsEnterprise extends FormGroupPropsEnterprise {
   ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationEnterprise
   Группировка?: SE.ColumnsGroupEnterprise
   КартинкаШапки?: PictureEnterprise
@@ -46,4 +46,9 @@ export interface ColumnGroupEnterprise extends FormGroupEnterprise {
   ФиксацияВТаблице?: SE.FixingInTableEnterprise
   ФорматШапки?: string
   ЦветФонаЗаголовка?: ColorEnterprise
+}
+
+export interface ColumnGroupEnterprise extends ColumnGroupPropsEnterprise {
+  Тип: "ГруппаКолонок"
+  Имя: string
 }

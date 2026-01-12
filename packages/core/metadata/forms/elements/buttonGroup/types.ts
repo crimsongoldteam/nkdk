@@ -1,5 +1,6 @@
+import { MetadataNameEnterprise } from "~/metadata/commonObjects/metadataName/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup, FormGroupPropsEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
   ButtonGroupChildItem,
@@ -19,10 +20,14 @@ export interface ButtonGroupXML extends FormGroupXML {
   ПодчиненныеЭлементы?: ButtonGroupChildItemsXML
 }
 
-export interface ButtonGroupEnterprise extends FormGroupEnterprise {
-  Тип: "ГруппаКнопок"
+export interface ButtonGroupPropsEnterprise extends FormGroupPropsEnterprise {
   Отображение?: SE.ButtonGroupRepresentationEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise
+}
+
+export interface ButtonGroupEnterprise extends ButtonGroupPropsEnterprise {
+  Тип: "ГруппаКнопок"
+  Имя: MetadataNameEnterprise
   ПодчиненныеЭлементы?: ButtonGroupChildItemsEnterprise
 }

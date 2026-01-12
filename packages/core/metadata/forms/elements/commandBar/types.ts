@@ -1,6 +1,6 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup, FormGroupPropsEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
   ButtonGroupChildItem,
@@ -24,7 +24,7 @@ export interface CommandBarXML extends FormGroupXML {
   ПодчиненныеЭлементы?: ButtonGroupChildItemsXML
 }
 
-export interface CommandBarEnterprise extends FormGroupEnterprise {
+export interface CommandBarEnterprise extends FormGroupPropsEnterprise {
   Автозаполнение?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
   ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise

@@ -1,6 +1,6 @@
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ButtonGroup, ButtonGroupEnterprise } from "~/metadata/forms/elements/buttonGroup/types"
+import { ButtonGroup, ButtonGroupPropsEnterprise } from "~/metadata/forms/elements/buttonGroup/types"
 import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
@@ -9,12 +9,12 @@ import * as SE from "~/metadata/systemEnumerations/types"
 export const exportButtonGroupToEnterprise = (
   context: ConfigurationContext,
   data: ButtonGroup | undefined
-): ButtonGroupEnterprise | undefined => {
+): ButtonGroupPropsEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormGroupToEnterprise(context, data)
 
-  const result: ButtonGroupEnterprise = {
+  const result: ButtonGroupPropsEnterprise = {
     Тип: "ГруппаКнопок",
     ...baseFields,
   }

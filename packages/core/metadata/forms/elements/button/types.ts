@@ -129,3 +129,49 @@ export interface ButtonEnterprise extends BaseElementEnterprise {
   Ширина?: number
   Шрифт?: FontEnterprise
 }
+
+export interface ButtonPropsEnterprise extends BaseElementEnterprise {
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
+  АктивизироватьПоУмолчанию?: StringboolEnterprise
+  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
+  Вид?: SE.FormButtonTypeEnterprise
+  Видимость?: StringboolEnterprise
+  Высота?: number
+  ВысотаЗаголовка?: number
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
+  Доступность?: StringboolEnterprise
+  Заголовок?: I8nTextEnterprise
+  ИмяКоманды?: string
+  Картинка?: PictureEnterprise
+  КнопкаПоУмолчанию?: StringboolEnterprise
+  МаксимальнаяВысота?: number
+  МаксимальнаяШирина?: number
+  Отображение?: SE.ButtonRepresentationEnterprise
+  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
+  ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
+  ПоложениеВКоманднойПанели?: SE.ButtonLocationInCommandBarEnterprise
+  ПоложениеКартинки?: SE.FormButtonPictureLocationEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
+  ПропускатьПриВводе?: StringboolEnterprise
+  ПутьКДанным?: string
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  СочетаниеКлавиш?: string
+  ТолькоВоВсехДействиях?: StringboolEnterprise
+  УникальностьКоманды?: StringboolEnterprise
+  Фигура?: SE.ButtonShapeEnterprise
+  ЦветРамки?: ColorEnterprise
+  ЦветТекста?: ColorEnterprise
+  ЦветФона?: ColorEnterprise
+  Ширина?: number
+  Шрифт?: FontEnterprise
+}
+
+// export interface ButtonEnterprise extends ButtonPropsEnterprise {
+//   Тип: "Кнопка"
+//   Имя: string
+// }

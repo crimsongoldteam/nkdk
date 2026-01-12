@@ -5,7 +5,7 @@ import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/im
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromEnterprise } from "~/metadata/forms/elements/baseElement/importFromEnterprise"
-import { FormGroup, FormGroupEnterprise } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup, FormGroupPropsEnterprise } from "~/metadata/forms/elements/formGroup/types"
 import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
@@ -13,7 +13,7 @@ import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerat
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
-export const importFormGroupFromEnterprise = <From extends FormGroupEnterprise | undefined, Name extends string>(
+export const importFormGroupFromEnterprise = <From extends FormGroupPropsEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
   data: From,
   name: Name

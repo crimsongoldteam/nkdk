@@ -5,7 +5,7 @@ import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/expo
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
-import { FormGroup, FormGroupEnterprise } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup, FormGroupPropsEnterprise } from "~/metadata/forms/elements/formGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -14,12 +14,12 @@ import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEn
 export const exportFormGroupToEnterprise = (
   context: ConfigurationContext,
   data: FormGroup | undefined
-): FormGroupEnterprise | undefined => {
+): FormGroupPropsEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportBaseElementToEnterprise(context, data)
 
-  const result: FormGroupEnterprise = {
+  const result: FormGroupPropsEnterprise = {
     ...baseFields,
   }
 

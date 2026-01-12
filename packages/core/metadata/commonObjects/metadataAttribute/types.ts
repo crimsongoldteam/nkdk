@@ -19,8 +19,8 @@ import {
   ChoiceParameterLinksXML,
 } from "~/metadata/commonObjects/сhoiceParameterLinks/types"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { MetadataNameEnterprise } from "../metadataName/types"
 import { ChoiceParameters, ChoiceParametersEnterprise, ChoiceParametersXML } from "../сhoiceParameters/types"
-import { MetadataEnterpriseName } from "../metadataName/types"
 
 export interface MetadataAttribute {
   binaryDataStorageLocationUse?: SE.BinaryDataStorageLocationUse
@@ -136,4 +136,4 @@ export type MetadataAttributes = MetadataAttribute[]
 
 export type MetadataAttributesXML = MetadataAttributeXML | MetadataAttributeXML[]
 
-export type MetadataAttributesEnterprise = Record<MetadataEnterpriseName, MetadataAttributeEnterprise>
+export type MetadataAttributesEnterprise = Record<MetadataNameEnterprise, MetadataAttributeEnterprise>

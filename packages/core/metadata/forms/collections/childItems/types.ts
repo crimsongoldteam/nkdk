@@ -1,10 +1,11 @@
 import { FormElementType } from "~/metadata/metadataFactory/types"
+import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 import { Button, ButtonEnterprise, ButtonXML } from "../../elements/button/types"
-import { ButtonGroup, ButtonGroupEnterprise, ButtonGroupXML } from "../../elements/buttonGroup/types"
+import { ButtonGroup, ButtonGroupPropsEnterprise, ButtonGroupXML } from "../../elements/buttonGroup/types"
 import { CalendarField, CalendarFieldEnterprise, CalendarFieldXML } from "../../elements/calendarField/types"
 import { ChartField, ChartFieldEnterprise, ChartFieldXML } from "../../elements/chartField/types"
 import { CheckBoxField, CheckBoxFieldEnterprise, CheckBoxFieldXML } from "../../elements/checkBoxField/types"
-import { ColumnGroup, ColumnGroupEnterprise, ColumnGroupXML } from "../../elements/columnGroup/types"
+import { ColumnGroup, ColumnGroupPropsEnterprise, ColumnGroupXML } from "../../elements/columnGroup/types"
 import { CommandBar, CommandBarEnterprise, CommandBarXML } from "../../elements/commandBar/types"
 import { DendrogramField, DendrogramFieldEnterprise, DendrogramFieldXML } from "../../elements/dendrogramField/types"
 import {
@@ -14,7 +15,7 @@ import {
 } from "../../elements/formattedDocumentField/types"
 import { FormDecoration, FormDecorationEnterprise, FormDecorationXML } from "../../elements/formDecoration/types"
 import { FormField, FormFieldEnterprise, FormFieldXML } from "../../elements/formField/types"
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "../../elements/formGroup/types"
+import { FormGroup, FormGroupPropsEnterprise, FormGroupXML } from "../../elements/formGroup/types"
 import {
   FormItemAddition,
   FormItemAdditionEnterprise,
@@ -93,7 +94,6 @@ import {
   ViewStatusAdditionEnterprise,
   ViewStatusAdditionXML,
 } from "../../elements/viewStatusAddition/types"
-import { AutoCommandBar } from "../../elements/autoCommandBar/types"
 
 export type ChildItem =
   | Button
@@ -183,17 +183,17 @@ export type ChildItemsXML = ChildItemRecordXML | ChildItemRecordXML[]
 
 export type ChildItemEnterprise =
   | ButtonEnterprise
-  | ButtonGroupEnterprise
+  | ButtonGroupPropsEnterprise
   | CalendarFieldEnterprise
   | ChartFieldEnterprise
   | CheckBoxFieldEnterprise
-  | ColumnGroupEnterprise
+  | ColumnGroupPropsEnterprise
   | CommandBarEnterprise
   | DendrogramFieldEnterprise
   | FormattedDocumentFieldEnterprise
   | FormDecorationEnterprise
   | FormFieldEnterprise
-  | FormGroupEnterprise
+  | FormGroupPropsEnterprise
   | FormItemAdditionEnterprise
   | GanttChartFieldEnterprise
   | GeographicalSchemaFieldEnterprise
@@ -220,13 +220,13 @@ export type ChildItemEnterprise =
   | TrackBarFieldEnterprise
   | UsualGroupEnterprise
   | ViewStatusAdditionEnterprise
-  | ColumnGroupEnterprise
+  | ColumnGroupPropsEnterprise
   | CommandBarEnterprise
   | DendrogramFieldEnterprise
   | FormattedDocumentFieldEnterprise
   | FormDecorationEnterprise
   | FormFieldEnterprise
-  | FormGroupEnterprise
+  | FormGroupPropsEnterprise
   | FormItemAdditionEnterprise
   | GanttChartFieldEnterprise
   | GeographicalSchemaFieldEnterprise

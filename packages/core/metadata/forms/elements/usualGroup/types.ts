@@ -2,7 +2,7 @@ import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup, FormGroupPropsEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import { Table, TableEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsXML } from "../../collections/childItems/types"
@@ -67,7 +67,7 @@ export interface UsualGroupXML extends FormGroupXML {
   ChildItems?: ChildItemsXML
 }
 
-export interface UsualGroupEnterprise extends FormGroupEnterprise {
+export interface UsualGroupEnterprise extends FormGroupPropsEnterprise {
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
   ВертикальноеВыравниваниеГруппы?: SE.ItemVerticalAlignEnterprise
   ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise

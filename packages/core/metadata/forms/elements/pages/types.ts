@@ -1,5 +1,5 @@
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup, FormGroupPropsEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import { Table, TableEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
@@ -27,7 +27,7 @@ export interface PagesXML extends FormGroupXML {
   ChildItems?: PageXML[]
 }
 
-export interface PagesEnterprise extends FormGroupEnterprise {
+export interface PagesEnterprise extends FormGroupPropsEnterprise {
   ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
   ИспользуемаяТаблица?: TableEnterprise
   ОтображениеСтраниц?: SE.FormPagesRepresentationEnterprise

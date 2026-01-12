@@ -3,38 +3,17 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { Pages, PagesEnterprise } from "~/metadata/forms/elements/pages/types"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
-import { ImportExportReturn, ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
+import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-const importPagesEventsFromEnterprise = (
-  data:
-    | {
-        ПриСменеСтраницы?: string
-      }
-    | undefined
-):
-  | {
-      onCurrentPageChange?: string
-    }
-  | undefined => {
-  if (!data) return undefined
-
-  const result: {
-    onCurrentPageChange?: string
-  } = {}
-
-  if (data.ПриСменеСтраницы !== undefined) result.onCurrentPageChange = data.ПриСменеСтраницы
-
-  return Object.keys(result).length > 0 ? result : undefined
-}
-
 export const importPagesFromEnterprise = <From extends PagesEnterprise | undefined, Name extends string>(
   context: ConfigurationContext,
-  data: From
-): ImportExportReturn<From, Pages> => {
+  data: From,
+  name: Name
+): ImportFromEnterpriseReturn<From, Pages, Name> => {
   if (!data) return undefined as ImportFromEnterpriseReturn<From, Pages, Name>
 
   const baseFields = importFormGroupFromEnterprise(context, data, name)
@@ -87,6 +66,28 @@ export const importPagesFromEnterprise = <From extends PagesEnterprise | undefin
   if (events !== undefined) result.events = events
 
   return result as ImportFromEnterpriseReturn<From, Pages, Name>
+}
+
+const importPagesEventsFromEnterprise = (
+  data:
+    | {
+        ПриСменеСтраницы?: string
+      }
+    | undefined
+):
+  | {
+      onCurrentPageChange?: string
+    }
+  | undefined => {
+  if (!data) return undefined
+
+  const result: {
+    onCurrentPageChange?: string
+  } = {}
+
+  if (data.ПриСменеСтраницы !== undefined) result.onCurrentPageChange = data.ПриСменеСтраницы
+
+  return Object.keys(result).length > 0 ? result : undefined
 }
 
 registerMetadata("ImportFromEnterprise", "Pages", importPagesFromEnterprise)

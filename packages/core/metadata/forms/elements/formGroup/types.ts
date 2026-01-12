@@ -53,7 +53,7 @@ export interface FormGroupXML extends BaseElementXML {
   Width?: number
 }
 
-export interface FormGroupEnterprise extends BaseElementEnterprise {
+export interface FormGroupPropsEnterprise extends BaseElementEnterprise {
   ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
   Вид?: SE.FormGroupTypeEnterprise
   Видимость?: StringboolEnterprise

@@ -1,4 +1,4 @@
-import { ColumnGroup, ColumnGroupEnterprise } from "~/metadata/forms/elements/columnGroup/types"
+import { ColumnGroup, ColumnGroupPropsEnterprise } from "~/metadata/forms/elements/columnGroup/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormGroup, fullFormGroupEnterprise } from "../formGroup/data"
 
@@ -25,7 +25,7 @@ export const fullColumnGroup: ColumnGroup = {
   childItems: [],
 }
 
-export const fullColumnGroupEnterprise: ColumnGroupEnterprise = {
+export const fullColumnGroupEnterprise: ColumnGroupPropsEnterprise = {
   ...fullFormGroupEnterprise,
   Заголовок: "Группа колонок",
   ГоризонтальноеПоложениеВШапке: "Лево",
@@ -45,4 +45,4 @@ export const minimalColumnGroup: ColumnGroup = {
   childItems: [],
 }
 
-export const minimalColumnGroupEnterprise: ColumnGroupEnterprise = {}
+export const minimalColumnGroupEnterprise: ColumnGroupPropsEnterprise = {}

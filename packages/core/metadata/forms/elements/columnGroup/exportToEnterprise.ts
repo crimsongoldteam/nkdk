@@ -3,7 +3,7 @@ import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportTo
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ColumnGroup, ColumnGroupEnterprise } from "~/metadata/forms/elements/columnGroup/types"
+import { ColumnGroup, ColumnGroupPropsEnterprise } from "~/metadata/forms/elements/columnGroup/types"
 import { exportFormGroupToEnterprise } from "~/metadata/forms/elements/formGroup/exportToEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
@@ -12,12 +12,12 @@ import * as SE from "~/metadata/systemEnumerations/types"
 export const exportColumnGroupToEnterprise = (
   context: ConfigurationContext,
   data: ColumnGroup | undefined
-): ColumnGroupEnterprise | undefined => {
+): ColumnGroupPropsEnterprise | undefined => {
   if (!data) return undefined
 
   const baseFields = exportFormGroupToEnterprise(context, data)
 
-  const result: ColumnGroupEnterprise = {
+  const result: ColumnGroupPropsEnterprise = {
     ...baseFields,
   }
 

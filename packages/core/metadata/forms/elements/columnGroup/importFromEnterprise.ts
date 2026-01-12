@@ -3,7 +3,7 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { ColumnGroup, ColumnGroupEnterprise } from "~/metadata/forms/elements/columnGroup/types"
+import { ColumnGroup, ColumnGroupPropsEnterprise } from "~/metadata/forms/elements/columnGroup/types"
 import { importFormGroupFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { ImportFromEnterpriseReturn } from "~/metadata/forms/elements/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -11,7 +11,10 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importColumnGroupFromEnterprise = <From extends ColumnGroupEnterprise | undefined, Name extends string>(
+export const importColumnGroupFromEnterprise = <
+  From extends ColumnGroupPropsEnterprise | undefined,
+  Name extends string,
+>(
   context: ConfigurationContext,
   data: From,
   name: Name
