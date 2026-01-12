@@ -15,8 +15,8 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importCommandBarFromEnterprise } from "../commandBar/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { importAutoCommandBarFromEnterprise } from "../autoCommandBar/importFromEnterprise"
 
 const importTableEventsFromEnterprise = (
   data:
@@ -150,7 +150,7 @@ export const importTableFromEnterprise = <From extends TableEnterprise | undefin
   const autoInsertNewRow = importBooleanFromEnterprise(context, data.АвтоВводНовойСтроки)
   if (autoInsertNewRow !== undefined) result.autoInsertNewRow = autoInsertNewRow
 
-  const autoCommandBar = importCommandBarFromEnterprise(context, data.АвтоКоманднаяПанель, "")
+  const autoCommandBar = importAutoCommandBarFromEnterprise(context, data.АвтоКоманднаяПанель)
   if (autoCommandBar !== undefined) result.autoCommandBar = autoCommandBar
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)

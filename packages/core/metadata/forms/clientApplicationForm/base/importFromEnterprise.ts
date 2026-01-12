@@ -13,7 +13,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsPropertiesFromEnterprise } from "../../collections/childItems/importPropertiesFromEnterprise"
 import { ChildItemsStructureResult } from "../../collections/childItems/types"
 import { importCommandSetFromEnterprise } from "../../commandSet/importFromEnterprise"
-import { importAutoCommandBarPropsFromEnterprise } from "../../elements/autoCommandBar/importFromEnterprise"
+import { importAutoCommandBarFromEnterprise } from "../../elements/autoCommandBar/importFromEnterprise"
 
 const clientApplicationFormEnterpriseEventNameMapping: Record<string, keyof ClientApplicationFormEvents> = {
   АвтоПодборПользователейСистемыВзаимодействия: "collaborationSystemUsersAutoComplete",
@@ -145,7 +145,7 @@ export const importClientApplicationFormFromEnterprise = (
 
   if (data.КлючСохраненияПоложенияОкна !== undefined) result.windowOptionsKey = data.КлючСохраненияПоложенияОкна
 
-  const autoCommandBarProps = importAutoCommandBarPropsFromEnterprise(context, data.КоманднаяПанель)
+  const autoCommandBarProps = importAutoCommandBarFromEnterprise(context, data.КоманднаяПанель)
   const autoCommandBar = mixElementProps(childItemsResult.autoCommandBar, autoCommandBarProps, {
     elementType: FormElementType.AutoCommandBar,
     autofill: true,

@@ -5,7 +5,6 @@ import { getElementId } from "~/metadata/helpers/getElementId"
 import { exportButtonGroupChildItemsToXML } from "../../collections/buttonGroupChildItems/exportToXML"
 import { BaseElement } from "../baseElement/types"
 import { getAutoCommandBarName, isHasContent } from "./helper"
-import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const exportAutoCommandBarToXML = (
   context: ConfigurationContext,
@@ -34,6 +33,5 @@ const getDefaultAutoCommandBar = (): AutoCommandBar => {
   return {
     childItems: [],
     autofill: true,
-    elementType: FormElementType.AutoCommandBar,
   }
 }

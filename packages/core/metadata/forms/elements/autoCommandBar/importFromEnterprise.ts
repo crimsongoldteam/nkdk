@@ -4,13 +4,16 @@ import { AutoCommandBar, AutoCommandBarEnterprise } from "~/metadata/forms/eleme
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importAutoCommandBarPropsFromEnterprise = (
+export const importAutoCommandBarFromEnterprise = (
   context: ConfigurationContext,
   data: AutoCommandBarEnterprise | undefined
-): Partial<AutoCommandBar> | undefined => {
+): AutoCommandBar | undefined => {
   if (!data) return undefined
 
-  const result: Partial<AutoCommandBar> = {}
+  const result: AutoCommandBar = {
+    childItems: [],
+    autofill: true,
+  }
 
   const autofill = importBooleanFromEnterprise(context, data.Автозаполнение)
   if (autofill !== undefined) result.autofill = autofill

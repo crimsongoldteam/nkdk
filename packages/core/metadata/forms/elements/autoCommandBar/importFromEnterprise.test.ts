@@ -1,18 +1,22 @@
 import { describe, expect, it } from "vitest"
-import { fullPropsAutoCommandBar, fullPropsAutoCommandBarEnterprise } from "~/tests/fixtures/forms/autoCommandBar/data"
+import {
+  fullPropsAutoCommandBar,
+  fullPropsAutoCommandBarEnterprise,
+  minimalAutoCommandBar,
+} from "~/tests/fixtures/forms/autoCommandBar/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importAutoCommandBarPropsFromEnterprise } from "./importFromEnterprise"
+import { importAutoCommandBarFromEnterprise } from "./importFromEnterprise"
 
 describe("importAutoCommandBarFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
-    const result = importAutoCommandBarPropsFromEnterprise(mockСontext, fullPropsAutoCommandBarEnterprise)
+    const result = importAutoCommandBarFromEnterprise(mockСontext, fullPropsAutoCommandBarEnterprise)
 
     expect(result).toEqual(fullPropsAutoCommandBar)
   })
 
   it("should import minimal", () => {
-    const result = importAutoCommandBarPropsFromEnterprise(mockСontext, {})
+    const result = importAutoCommandBarFromEnterprise(mockСontext, {})
 
-    expect(result).toEqual({})
+    expect(result).toEqual(minimalAutoCommandBar)
   })
 })
