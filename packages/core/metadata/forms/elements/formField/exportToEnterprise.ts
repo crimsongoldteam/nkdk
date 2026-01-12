@@ -6,7 +6,6 @@ import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/expo
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportBaseElementToEnterprise } from "~/metadata/forms/elements/baseElement/exportToEnterprise"
 import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
 import { FormField, FormFieldEnterprise } from "~/metadata/forms/elements/formField/types"
 import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
@@ -22,11 +21,23 @@ export const exportFormFieldToEnterprise = (
 ): FormFieldEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseFields = exportBaseElementToEnterprise(context, data)
+  const props = exportFormFieldPropsToEnterprise(context, data)
 
   const result: FormFieldEnterprise = {
-    ...baseFields,
+    ...props,
   }
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
+  return result
+}
+
+const exportFormFieldPropsToEnterprise = (
+  context: ConfigurationContext,
+  data: FormField
+): FormFieldEnterprise => {
+  const result: FormFieldEnterprise = {}
 
   const autoCellHeight = exportBooleanToEnterprise(context, data.autoCellHeight)
   if (autoCellHeight !== undefined) result.АвтоВысотаЯчейки = autoCellHeight
@@ -96,9 +107,6 @@ export const exportFormFieldToEnterprise = (
 
   const enabled = exportBooleanToEnterprise(context, data.enabled)
   if (enabled !== undefined) result.Доступность = enabled
-
-  const title = exportI8nTextToEnterprise(context, data.title)
-  if (title !== undefined) result.Заголовок = title
 
   const footerPicture = exportPictureToEnterprise(context, data.footerPicture)
   if (footerPicture !== undefined) result.КартинкаПодвала = footerPicture

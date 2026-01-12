@@ -19,7 +19,7 @@ export const exportFormDecorationToXML = <T extends FormDecoration | undefined>(
 
   const baseFields = exportElementPropsToXML(context, data)
 
-  const result: ImportExportReturn<T, FormDecorationXML> = {
+  const result: FormDecorationXML = {
     ...baseFields,
   }
 
@@ -77,7 +77,7 @@ export const exportFormDecorationToXML = <T extends FormDecoration | undefined>(
 
   if (data.width !== undefined) result.Width = data.width
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<T, FormDecorationXML>
 }
 
 registerMetadata<FormDecoration>("ExportToXML", "FormDecoration", exportFormDecorationToXML)

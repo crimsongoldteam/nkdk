@@ -26,7 +26,7 @@ export const importFormDecorationFromXML = <T extends FormDecorationXML | undefi
 
   if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
 
-  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu, result)
+  const contextMenu = importContextMenuFromXML(context, xml.ContextMenu)
   if (contextMenu !== undefined) result.contextMenu = contextMenu
 
   if (xml._DisplayImportance !== undefined) result.displayImportance = xml._DisplayImportance
