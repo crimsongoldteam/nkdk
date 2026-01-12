@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   fullButton,
-  fullButtonEnterprise,
+  fullButtonChildEnterprise,
   minimalButton,
   minimalButtonEnterprise,
 } from "~/tests/fixtures/forms/button/data"
@@ -12,7 +12,7 @@ describe("exportButtonToEnterprise", () => {
   it("should export all fields to Enterprise", () => {
     const result = exportButtonToEnterprise(mockСontext, fullButton)
 
-    expect(result).toEqual(fullButtonEnterprise)
+    expect(result).toEqual(fullButtonChildEnterprise)
   })
 
   it("should export minimal", () => {

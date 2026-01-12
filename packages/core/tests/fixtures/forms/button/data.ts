@@ -52,7 +52,9 @@ export const fullButton: Button = {
   width: 150,
 }
 
-export const fullButtonPropsEnterprise: ButtonPropsEnterprise = {
+export const fullButtonChildEnterprise: ButtonEnterprise = {
+  Тип: "Кнопка",
+  Имя: "Кнопка",
   Заголовок: "Кнопка формы",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -91,9 +93,13 @@ export const fullButtonPropsEnterprise: ButtonPropsEnterprise = {
   Шрифт: "ОбычныйШрифтТекста",
 }
 
-export const fullButtonEnterprise: ButtonEnterprise = {
-  Тип: "Кнопка",
-  Имя: "Кнопка",
+export const fullButtonSource: Button = {
+  elementType: FormElementType.Button,
+  name: "Кнопка",
+  title: { items: { ru: "Кнопка формы" } },
+}
+
+export const fullButtonEnterprise: ButtonPropsEnterprise = {
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
   АктивизироватьПоУмолчанию: "Истина",

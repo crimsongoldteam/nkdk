@@ -2,34 +2,31 @@ import { describe, expect, it } from "vitest"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import {
   fullButton,
+  fullButtonChildEnterprise,
   fullButtonEnterprise,
-  fullButtonPropsEnterprise,
+  fullButtonSource,
   minimalButton,
   minimalButtonPropsEnterprise,
 } from "~/tests/fixtures/forms/button/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importButtonChildFromEnterprise, importButtonFromSourceEnterprise } from "./importFromEnterprise"
+import { importButtonChildFromEnterprise, importButtonFromEnterprise } from "./importFromEnterprise"
 
 describe("importButtonFromEnterprise", () => {
-  describe("importButtonFromSourceEnterprise", () => {
+  describe("importButtonFromEnterprise", () => {
     it("should return undefined when data is undefined", () => {
-      const result = importButtonFromSourceEnterprise(mockСontext, undefined, undefined)
+      const result = importButtonFromEnterprise(mockСontext, undefined, undefined)
 
       expect(result).toBeUndefined()
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importButtonFromSourceEnterprise(
-        mockСontext,
-        { elementType: FormElementType.Button, name: "Кнопка" },
-        fullButtonPropsEnterprise
-      )
+      const result = importButtonFromEnterprise(mockСontext, fullButtonSource, fullButtonEnterprise)
 
       expect(result).toEqual(fullButton)
     })
 
     it("should import minimal", () => {
-      const result = importButtonFromSourceEnterprise(
+      const result = importButtonFromEnterprise(
         mockСontext,
         { elementType: FormElementType.Button, name: "Кнопка" },
         minimalButtonPropsEnterprise
@@ -41,7 +38,7 @@ describe("importButtonFromEnterprise", () => {
 
   describe("importButtonChildFromEnterprise", () => {
     it("should import all fields from Enterprise", () => {
-      const result = importButtonChildFromEnterprise(mockСontext, fullButtonEnterprise)
+      const result = importButtonChildFromEnterprise(mockСontext, fullButtonChildEnterprise)
 
       expect(result).toEqual(fullButton)
     })

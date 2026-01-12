@@ -30,7 +30,7 @@ export const importButtonChildFromEnterprise = (context: ConfigurationContext, d
   return result
 }
 
-export const importButtonFromSourceEnterprise = (
+export const importButtonFromEnterprise = (
   context: ConfigurationContext,
   source: Button | undefined,
   data: ButtonPropsEnterprise | undefined
