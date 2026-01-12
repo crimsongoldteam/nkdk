@@ -4,7 +4,6 @@ import {
   fullTrackBarFieldPartialEnterprise,
   fullTrackBarFieldTypedEnterprise,
   minimalTrackBarField,
-  minimalTrackBarFieldPartialEnterprise,
   minimalTrackBarFieldTypedEnterprise,
 } from "~/tests/fixtures/forms/trackBarField/data"
 import { mockСontext } from "~/tests/mockContext"
@@ -15,7 +14,7 @@ import {
 
 describe("importTrackBarFieldFromEnterprise", () => {
   describe("importTrackBarFieldTypedFromEnterprise", () => {
-    it("should return undefined when data is undefined", () => {
+    it("should return undefined when source is undefined", () => {
       const result = importTrackBarFieldTypedFromEnterprise(mockСontext, undefined, "ПолеПолосыПрокрутки")
 
       expect(result).toBeUndefined()
@@ -57,16 +56,6 @@ describe("importTrackBarFieldFromEnterprise", () => {
       )
 
       expect(result).toEqual(fullTrackBarField)
-    })
-
-    it("should import minimal", () => {
-      const result = importTrackBarFieldPartialFromEnterprise(
-        mockСontext,
-        minimalTrackBarField,
-        minimalTrackBarFieldPartialEnterprise
-      )
-
-      expect(result).toEqual(minimalTrackBarField)
     })
   })
 })

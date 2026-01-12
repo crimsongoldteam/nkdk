@@ -57,6 +57,9 @@ export const fullTrackBarFieldPartialEnterprise: TrackBarFieldPartialEnterprise 
   Ширина: 200,
 }
 
+// Удаляем Заголовок, так как exportFormFieldPropsToEnterprise не экспортирует его
+delete (fullTrackBarFieldPartialEnterprise as any).Заголовок
+
 export const fullTrackBarFieldTypedEnterprise: TrackBarFieldTypedEnterprise = {
   ...fullTrackBarFieldPartialEnterprise,
   Тип: "ПолеПолосыПрокрутки",

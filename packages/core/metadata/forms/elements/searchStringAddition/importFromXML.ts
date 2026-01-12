@@ -4,23 +4,18 @@ import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/i
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormItemAdditionFromXML } from "~/metadata/forms/elements/formItemAddition/importFromXML"
 import { SearchStringAddition, SearchStringAdditionXML } from "~/metadata/forms/elements/searchStringAddition/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { BaseElementXML } from "../baseElement/types"
 
 export const importSearchStringAdditionFromXML = (
   context: ConfigurationContext,
-  xml: SearchStringAdditionXML | undefined
-): SearchStringAddition | undefined => {
-  if (!xml) return undefined
-
+  xml: SearchStringAdditionXML | undefined,
+  parentElement: BaseElementXML
+): SearchStringAddition => {
   const baseFields = importFormItemAdditionFromXML(context, xml)
-  if (!baseFields) return undefined
-
-  const { elementType: _, ...restFields } = baseFields
 
   const result: SearchStringAddition = {
-    elementType: FormElementType.SearchStringAddition,
-    ...restFields,
+    ...baseFields,
+    name: parentElement.name,
   }
 
   const backColor = importColorFromXML(context, xml.BackColor)
@@ -44,5 +39,3 @@ export const importSearchStringAdditionFromXML = (
 
   return result
 }
-
-registerMetadata("ImportFromXML", "SearchStringAddition", importSearchStringAdditionFromXML)

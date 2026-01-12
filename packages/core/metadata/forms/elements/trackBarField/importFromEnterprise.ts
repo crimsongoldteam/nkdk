@@ -1,6 +1,11 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { FormFieldEnterprise } from "~/metadata/forms/elements/formField/types"
 import { importFormFieldPropsFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import {
   TrackBarField,
@@ -20,13 +25,11 @@ export const importTrackBarFieldTypedFromEnterprise = (
 ): TrackBarField | undefined => {
   if (data === undefined) return undefined
 
-  const baseProps = importFormFieldPropsFromEnterprise(context, data, name)
-  const props = importTrackBarFieldPropsFromEnterprise(context, data)
+  const props = importTrackBarFieldPropsFromEnterprise(context, data, name)
 
   const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
 
   const result: TrackBarField = {
-    ...baseProps,
     ...props,
     elementType,
     name,
@@ -45,22 +48,35 @@ export const importTrackBarFieldPartialFromEnterprise = (
 ): TrackBarField | undefined => {
   if (source === undefined) return undefined
 
-  const baseProps = importFormFieldPropsFromEnterprise(context, data, source.name)
-  const props = importTrackBarFieldPropsFromEnterprise(context, data)
+  const props = importTrackBarFieldPropsFromEnterprise(
+    context,
+    data as TrackBarFieldPartialEnterprise | undefined,
+    source.name
+  )
   const result: TrackBarField = {
     ...source,
-    ...baseProps,
     ...props,
   }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result
 }
 
 const importTrackBarFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  data: TrackBarFieldTypedEnterprise | TrackBarFieldPartialEnterprise | undefined
+  data: TrackBarFieldTypedEnterprise | TrackBarFieldPartialEnterprise | undefined,
+  name: string
 ): Omit<Partial<TrackBarField>, "elementType" | "name"> => {
   const result: Omit<Partial<TrackBarField>, "elementType" | "name"> = {}
+
+  const baseProps = importFormFieldPropsFromEnterprise(
+    context,
+    (data ?? {}) as FormFieldEnterprise,
+    name
+  )
+  Object.assign(result, baseProps)
 
   if (data === undefined) return result
 
@@ -95,6 +111,20 @@ const importTrackBarFieldPropsFromEnterprise = (
     SE.TrackBarMarkingAppearanceFromEnterprise
   )
   if (markingAppearance !== undefined) result.markingAppearance = markingAppearance
+
+  const userVisibleAllow = importUserVisibleFromEnterprise(
+    context,
+    data.РазрешитьИспользование,
+    "РазрешитьИспользование"
+  )
+  const userVisibleDeny = importUserVisibleFromEnterprise(
+    context,
+    data.ЗапретитьИспользование,
+    "ЗапретитьИспользование"
+  )
+  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
+    result.userVisible = userVisibleAllow || userVisibleDeny
+  }
 
   const verticalStretch = importBooleanFromEnterprise(context, data.РастягиватьПоВертикали)
   if (verticalStretch !== undefined) result.verticalStretch = verticalStretch

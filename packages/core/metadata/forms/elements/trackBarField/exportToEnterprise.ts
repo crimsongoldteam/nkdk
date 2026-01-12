@@ -1,4 +1,8 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
+import {
+  exportI8nTextOtherToEnterprise,
+  exportI8nTextToEnterprise,
+} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportFormFieldPropsToEnterprise } from "~/metadata/forms/elements/formField/exportToEnterprise"
@@ -19,14 +23,15 @@ export const exportTrackBarFieldTypedToEnterprise = (
 ): TrackBarFieldTypedEnterprise | undefined => {
   if (!data) return undefined
 
-  const baseProps = exportFormFieldPropsToEnterprise(context, data)
   const props = exportTrackBarFieldPropsToEnterprise(context, data)
 
   const result: TrackBarFieldTypedEnterprise = {
     Тип: "ПолеПолосыПрокрутки",
-    ...baseProps,
     ...props,
   }
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
 
   return sortObject(result)
 }
@@ -35,13 +40,14 @@ export const exportTrackBarFieldPartialToEnterprise = (
   context: ConfigurationContext,
   data: TrackBarField
 ): TrackBarFieldPartialEnterprise => {
-  const baseProps = exportFormFieldPropsToEnterprise(context, data)
   const props = exportTrackBarFieldPropsToEnterprise(context, data)
 
   const result: TrackBarFieldPartialEnterprise = {
-    ...baseProps,
     ...props,
   }
+
+  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
 
   return sortObject(result)
 }
@@ -50,7 +56,10 @@ const exportTrackBarFieldPropsToEnterprise = (
   context: ConfigurationContext,
   data: TrackBarField
 ): TrackBarFieldPartialEnterprise => {
-  const result: TrackBarFieldPartialEnterprise = {}
+  const baseProps = exportFormFieldPropsToEnterprise(context, data)
+  const result: TrackBarFieldPartialEnterprise = {
+    ...baseProps,
+  }
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -104,4 +113,3 @@ const exportTrackBarFieldPropsToEnterprise = (
 }
 
 registerMetadata("ExportPartialToEnterprise", "TrackBarField", exportTrackBarFieldPartialToEnterprise)
-registerMetadata("ExportTypedToEnterprise", "TrackBarField", exportTrackBarFieldTypedToEnterprise)
