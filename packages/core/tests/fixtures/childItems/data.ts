@@ -24,7 +24,7 @@ export const childItemsFixturesTable: ChildItemsFixture[] = [
       Input1: {},
     },
     partialEnterprise: {
-      Input1: { Тип: "ПолеВвода" },
+      Input1: {},
     },
   },
 

@@ -151,7 +151,7 @@ export const importTableFromEnterprise = <From extends TablePartialEnterprise | 
   const autoInsertNewRow = importBooleanFromEnterprise(context, data.АвтоВводНовойСтроки)
   if (autoInsertNewRow !== undefined) result.autoInsertNewRow = autoInsertNewRow
 
-  const autoCommandBar = importAutoCommandBarFromEnterprise(context, data.АвтоКоманднаяПанель)
+  const autoCommandBar = importAutoCommandBarFromEnterprise(context, data.КоманднаяПанель)
   if (autoCommandBar !== undefined) result.autoCommandBar = autoCommandBar
 
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
