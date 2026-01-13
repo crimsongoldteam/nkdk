@@ -1,7 +1,6 @@
-import { BaseElement } from "../baseElement/types"
 import { ViewStatusAddition } from "./types"
 
-export const getViewStatusAdditionName = (parentElement: BaseElement): string => {
+export const getViewStatusAdditionName = (parentElement: { name: string }): string => {
   return `${parentElement.name}СостояниеПросмотра`
 }
 

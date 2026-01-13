@@ -6,7 +6,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { SearchStringAddition, SearchStringAdditionXML } from "~/metadata/forms/elements/searchStringAddition/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
-import { BaseElement } from "../baseElement/types"
 import { exportContextMenuToXML } from "../contextMenu/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { getSearchStringAdditionName } from "./helper"
@@ -14,7 +13,7 @@ import { getSearchStringAdditionName } from "./helper"
 export const exportSearchStringAdditionToXML = (
   context: ConfigurationContext,
   data: SearchStringAddition | undefined,
-  parentElement: BaseElement
+  parentElement: { name: string }
 ): SearchStringAdditionXML => {
   const element = data ?? {}
 
@@ -46,13 +45,13 @@ export const exportSearchStringAdditionToXML = (
 
   if (element.width !== undefined) result.Width = element.width
 
-  result.ContextMenu = exportContextMenuToXML(context, element.contextMenu, parentElement)
+  result.ContextMenu = exportContextMenuToXML(context, element.contextMenu, { name })
 
   if (element.displayImportance !== undefined) result._DisplayImportance = element.displayImportance
 
   if (element.enabled !== undefined) result.Enabled = element.enabled
 
-  result.ExtendedTooltip = exportExtendedTooltipToXML(context, element.extendedTooltip, parentElement)
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, element.extendedTooltip, { name })
 
   if (element.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = element.horizontalAlignInGroup
 

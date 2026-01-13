@@ -1,7 +1,6 @@
-import { BaseElement } from "../baseElement/types"
 import { SearchStringAddition } from "./types"
 
-export const getSearchStringAdditionName = (parentElement: BaseElement): string => {
+export const getSearchStringAdditionName = (parentElement: { name: string }): string => {
   return `${parentElement.name}СтрокаПоиска`
 }
 

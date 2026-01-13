@@ -1,15 +1,14 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
-import { getElementId } from "~/metadata/helpers/getElementId"
 import { sortObject } from "~/metadata/helpers/compactObject"
+import { getElementId } from "~/metadata/helpers/getElementId"
 import { exportButtonGroupChildItemsToXML } from "../../collections/buttonGroupChildItems/exportToXML"
-import { BaseElement } from "../baseElement/types"
 import { getContextMenuName } from "./helper"
 
 export const exportContextMenuToXML = <T extends ContextMenu | undefined>(
   context: ConfigurationContext,
   data: T,
-  parentElement: BaseElement
+  parentElement: { name: string }
 ): ContextMenuXML => {
   const result: ContextMenuXML = {
     _name: getContextMenuName(parentElement),

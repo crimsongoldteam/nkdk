@@ -30,7 +30,7 @@ export const importFormFieldFromEnterprise = <
 
   const props = importFormFieldPropsFromEnterprise(context, data, name)
 
-  const result: ImportFromEnterpriseReturn<From, FormField, Name> = {
+  const result: FormField = {
     ...props,
     elementType: FormElementType.FormField,
     name,
@@ -39,7 +39,7 @@ export const importFormFieldFromEnterprise = <
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result
+  return result as ImportFromEnterpriseReturn<From, FormField, Name>
 }
 
 export const importFormFieldPropsFromEnterprise = (

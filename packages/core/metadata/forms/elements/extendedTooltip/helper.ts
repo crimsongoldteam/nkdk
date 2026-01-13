@@ -1,5 +1,3 @@
-import { BaseElement } from "../baseElement/types"
-
-export const getExtendedTooltipName = (parentElement: BaseElement): string => {
+export const getExtendedTooltipName = (parentElement: { name: string }): string => {
   return `${parentElement.name}РасширеннаяПодсказка`
 }

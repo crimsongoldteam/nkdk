@@ -8,22 +8,23 @@ import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/ex
 import { SearchControlAddition, SearchControlAdditionXML } from "~/metadata/forms/elements/searchControlAddition/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
-import { BaseElement } from "../baseElement/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { getSearchControlAdditionName } from "./helper"
 
 export const exportSearchControlAdditionToXML = (
   context: ConfigurationContext,
   data: SearchControlAddition | undefined,
-  parentElement: BaseElement
+  parentElement: { name: string }
 ): SearchControlAdditionXML => {
-  const element = data ?? {
-    childItems: [],
-  }
-
   const name = getSearchControlAdditionName(parentElement)
 
+  const element: SearchControlAddition = data ?? {
+    childItems: [],
+  }
   const baseFields = exportElementPropsToXML(context, { name })
+
+  const contextMenu = exportContextMenuToXML(context, element.contextMenu, { name })
+  const extendedTooltip = exportExtendedTooltipToXML(context, element.extendedTooltip, { name })
 
   const result: SearchControlAdditionXML = {
     AdditionSource: {
@@ -31,8 +32,8 @@ export const exportSearchControlAdditionToXML = (
       Type: "SearchControlAddition",
     },
     ...baseFields,
-    ContextMenu: exportContextMenuToXML(context, element.contextMenu, parentElement),
-    ExtendedTooltip: exportExtendedTooltipToXML(context, element.extendedTooltip, parentElement),
+    ContextMenu: contextMenu,
+    ExtendedTooltip: extendedTooltip,
   }
 
   const childItems = exportButtonGroupChildItemsToXML(context, element.childItems)

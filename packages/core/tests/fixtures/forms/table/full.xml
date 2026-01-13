@@ -14,7 +14,10 @@
 	<ChangeRowOrder>true</ChangeRowOrder>
 	<ChangeRowSet>true</ChangeRowSet>
 	<ChildItems>
-		<InputField name="ПолеВвода1" id="3"/>
+		<InputField name="ПолеВвода1" id="3">
+			<ContextMenu name="ПолеВвода1КонтекстноеМеню" id="4"/>
+			<ExtendedTooltip name="ПолеВвода1РасширеннаяПодсказка" id="5"/>
+		</InputField>
 	</ChildItems>
 	<ChoiceMode>true</ChoiceMode>
 	<CommandBarLocation>Top</CommandBarLocation>
@@ -23,23 +26,40 @@
 		<ExcludedCommand>Copy</ExcludedCommand>
 		<ExcludedCommand>Delete</ExcludedCommand>
 	</CommandSet>
-	<ContextMenu name="ТаблицаКонтекстноеМеню" id="5" _DisplayImportance="High">
+	<ContextMenu name="ТаблицаКонтекстноеМеню" id="6">
 		<Autofill>true</Autofill>
 	</ContextMenu>
 	<CurrentRowUse>Auto</CurrentRowUse>
 	<DataPath>Объект.ТабличнаяЧасть</DataPath>
 	<DefaultItem>true</DefaultItem>
-	<Enabled>true</Enabled>
 	<EnableDrag>true</EnableDrag>
 	<EnableStartDrag>true</EnableStartDrag>
-	<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="6">
-		<Title>
-			<v8:item>
-				<v8:lang>ru</v8:lang>
-				<v8:content>Расширенная подсказка</v8:content>
-			</v8:item>
-		</Title>
-	</ExtendedTooltip>
+	<Enabled>true</Enabled>
+	<Events>
+		<Event name="AfterDeleteRow">ПроцедураПослеУдаления</Event>
+		<Event name="BeforeAddRow">ПроцедураПередНачаломДобавления</Event>
+		<Event name="BeforeCollapse">ПроцедураПередСворачиванием</Event>
+		<Event name="BeforeDeleteRow">ПроцедураПередУдалением</Event>
+		<Event name="BeforeEditEnd">ПроцедураПередОкончаниемРедактирования</Event>
+		<Event name="BeforeExpand">ПроцедураПередРазворачиванием</Event>
+		<Event name="BeforeRowChange">ПроцедураПередНачаломИзменения</Event>
+		<Event name="ChoiceProcessing">ПроцедураОбработкиВыбора</Event>
+		<Event name="Drag">ПроцедураПеретаскивания</Event>
+		<Event name="DragCheck">ПроцедураПроверкиПеретаскивания</Event>
+		<Event name="DragEnd">ПроцедураОкончанияПеретаскивания</Event>
+		<Event name="DragStart">ПроцедураНачалаПеретаскивания</Event>
+		<Event name="NewWriteProcessing">ПроцедураОбработкиЗаписиНового</Event>
+		<Event name="OnActivateCell">ПроцедураПриАктивизацииЯчейки</Event>
+		<Event name="OnActivateField">ПроцедураПриАктивизацииПоля</Event>
+		<Event name="OnActivateRow">ПроцедураПриАктивизацииСтроки</Event>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="OnCurrentParentChange">ПроцедураПриСменеТекущегоРодителя</Event>
+		<Event name="OnEditEnd">ПроцедураПриОкончанииРедактирования</Event>
+		<Event name="OnStartEdit">ПроцедураПриНачалеРедактирования</Event>
+		<Event name="RefreshRequestProcessing">ПроцедураОбработкиЗапросаОбновления</Event>
+		<Event name="Selection">ПроцедураВыбора</Event>
+		<Event name="ValueChoice">ПроцедураВыбораЗначения</Event>
+	</Events>
 	<FileDragMode>AsFile</FileDragMode>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<Footer>true</Footer>
@@ -68,8 +88,14 @@
 	<RowPictureDataPath>Объект.Картинка</RowPictureDataPath>
 	<RowSelectionMode>Row</RowSelectionMode>
 	<RowsPicture>true</RowsPicture>
-	<SearchControl name="ТаблицаУправлениеПоиском" id="7" DisplayImportance="High">
+	<SearchControl name="ТаблицаУправленияПоиском" id="7" DisplayImportance="High">
+		<AdditionSource>
+			<Item>Таблица</Item>
+			<Type>SearchControlAddition</Type>
+		</AdditionSource>
+		<ContextMenu name="ТаблицаУправленияПоискомКонтекстноеМеню" id="8"/>
 		<Enabled>true</Enabled>
+		<ExtendedTooltip name="ТаблицаУправленияПоискомРасширеннаяПодсказка" id="9"/>
 		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 		<Title>
 			<v8:item>
@@ -84,7 +110,6 @@
 			</v8:item>
 		</ToolTip>
 		<ToolTipRepresentation>None</ToolTipRepresentation>
-		<Type>SearchControl</Type>
 		<UserVisible>
 			<xr:Common>true</xr:Common>
 			<xr:Value name="Role.Администратор">true</xr:Value>
@@ -95,8 +120,14 @@
 	<SearchControlLocation>Auto</SearchControlLocation>
 	<SearchOnInput>Auto</SearchOnInput>
 	<SearchStringLocation>Auto</SearchStringLocation>
-	<SearchStringRepresentation name="ТаблицаОтображениеСтрокиПоиска" id="8" DisplayImportance="High">
+	<SearchStringRepresentation name="ТаблицаСтрокаПоиска" id="10" DisplayImportance="High">
+		<AdditionSource>
+			<Item>Таблица</Item>
+			<Type>SearchStringAddition</Type>
+		</AdditionSource>
+		<ContextMenu name="ТаблицаСтрокаПоискаКонтекстноеМеню" id="11"/>
 		<Enabled>true</Enabled>
+		<ExtendedTooltip name="ТаблицаСтрокаПоискаРасширеннаяПодсказка" id="12"/>
 		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 		<Title>
 			<v8:item>
@@ -111,7 +142,6 @@
 			</v8:item>
 		</ToolTip>
 		<ToolTipRepresentation>None</ToolTipRepresentation>
-		<Type>SearchControl</Type>
 		<UserVisible>
 			<xr:Common>true</xr:Common>
 			<xr:Value name="Role.Администратор">true</xr:Value>
@@ -150,8 +180,14 @@
 	<VerticalScrollBar>AutoUse</VerticalScrollBar>
 	<VerticalStretch>true</VerticalStretch>
 	<ViewStatusLocation>Auto</ViewStatusLocation>
-	<ViewStatusRepresentation name="ТаблицаОтображениеСостоянияПросмотра" id="9" DisplayImportance="High">
+	<ViewStatusRepresentation name="ТаблицаСостояниеПросмотра" id="13" DisplayImportance="High">
+		<AdditionSource>
+			<Item>Таблица</Item>
+			<Type>ViewStatusRepresentation</Type>
+		</AdditionSource>
+		<ContextMenu name="ТаблицаСостояниеПросмотраКонтекстноеМеню" id="14"/>
 		<Enabled>true</Enabled>
+		<ExtendedTooltip name="ТаблицаСостояниеПросмотраРасширеннаяПодсказка" id="15"/>
 		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 		<Title>
 			<v8:item>
@@ -166,7 +202,6 @@
 			</v8:item>
 		</ToolTip>
 		<ToolTipRepresentation>None</ToolTipRepresentation>
-		<Type>SearchControl</Type>
 		<UserVisible>
 			<xr:Common>true</xr:Common>
 			<xr:Value name="Role.Администратор">true</xr:Value>
@@ -176,29 +211,4 @@
 	</ViewStatusRepresentation>
 	<Visible>true</Visible>
 	<Width>600</Width>
-	<Events>
-		<Event name="AfterDeleteRow">ПроцедураПослеУдаления</Event>
-		<Event name="BeforeAddRow">ПроцедураПередНачаломДобавления</Event>
-		<Event name="BeforeCollapse">ПроцедураПередСворачиванием</Event>
-		<Event name="BeforeDeleteRow">ПроцедураПередУдалением</Event>
-		<Event name="BeforeEditEnd">ПроцедураПередОкончаниемРедактирования</Event>
-		<Event name="BeforeExpand">ПроцедураПередРазворачиванием</Event>
-		<Event name="BeforeRowChange">ПроцедураПередНачаломИзменения</Event>
-		<Event name="ChoiceProcessing">ПроцедураОбработкиВыбора</Event>
-		<Event name="Drag">ПроцедураПеретаскивания</Event>
-		<Event name="DragCheck">ПроцедураПроверкиПеретаскивания</Event>
-		<Event name="DragEnd">ПроцедураОкончанияПеретаскивания</Event>
-		<Event name="DragStart">ПроцедураНачалаПеретаскивания</Event>
-		<Event name="NewWriteProcessing">ПроцедураОбработкиЗаписиНового</Event>
-		<Event name="OnActivateCell">ПроцедураПриАктивизацииЯчейки</Event>
-		<Event name="OnActivateField">ПроцедураПриАктивизацииПоля</Event>
-		<Event name="OnActivateRow">ПроцедураПриАктивизацииСтроки</Event>
-		<Event name="OnChange">ПроцедураПриИзменении</Event>
-		<Event name="OnCurrentParentChange">ПроцедураПриСменеТекущегоРодителя</Event>
-		<Event name="OnEditEnd">ПроцедураПриОкончанииРедактирования</Event>
-		<Event name="OnStartEdit">ПроцедураПриНачалеРедактирования</Event>
-		<Event name="RefreshRequestProcessing">ПроцедураОбработкиЗапросаОбновления</Event>
-		<Event name="Selection">ПроцедураВыбора</Event>
-		<Event name="ValueChoice">ПроцедураВыбораЗначения</Event>
-	</Events>
 </Table>

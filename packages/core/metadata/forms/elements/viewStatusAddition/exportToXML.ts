@@ -7,7 +7,6 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { ViewStatusAddition, ViewStatusAdditionXML } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
-import { BaseElement } from "../baseElement/types"
 import { exportContextMenuToXML } from "../contextMenu/exportToXML"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { getViewStatusAdditionName } from "./helper"
@@ -15,7 +14,7 @@ import { getViewStatusAdditionName } from "./helper"
 export const exportViewStatusAdditionToXML = (
   context: ConfigurationContext,
   data: ViewStatusAddition | undefined,
-  parentElement: BaseElement
+  parentElement: { name: string }
 ): ViewStatusAdditionXML => {
   const element = data ?? {}
 
@@ -65,13 +64,13 @@ export const exportViewStatusAdditionToXML = (
 
   if (element.width !== undefined) result.Width = element.width
 
-  result.ContextMenu = exportContextMenuToXML(context, element.contextMenu, parentElement)
+  result.ContextMenu = exportContextMenuToXML(context, element.contextMenu, { name })
 
   if (element.displayImportance !== undefined) result._DisplayImportance = element.displayImportance
 
   if (element.enabled !== undefined) result.Enabled = element.enabled
 
-  result.ExtendedTooltip = exportExtendedTooltipToXML(context, element.extendedTooltip, parentElement)
+  result.ExtendedTooltip = exportExtendedTooltipToXML(context, element.extendedTooltip, { name })
 
   if (element.horizontalAlignInGroup !== undefined) result.HorizontalAlignInGroup = element.horizontalAlignInGroup
 

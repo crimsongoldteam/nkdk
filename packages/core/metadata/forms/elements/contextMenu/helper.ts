@@ -1,7 +1,6 @@
-import { BaseElement } from "../baseElement/types"
 import { ContextMenu } from "./types"
 
-export const getContextMenuName = (parentElement: BaseElement): string => {
+export const getContextMenuName = (parentElement: { name: string }): string => {
   return `${parentElement.name}КонтекстноеМеню`
 }
 

@@ -6,13 +6,12 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipXML } from "~/metadata/forms/elements/extendedTooltip/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { exportElementPropsToXML } from "../baseElement/exportToXML"
-import { BaseElement } from "../baseElement/types"
 import { getExtendedTooltipName } from "./helper"
 
 export const exportExtendedTooltipToXML = (
   context: ConfigurationContext,
   data: ExtendedTooltip | undefined,
-  parentElement: BaseElement
+  parentElement: { name: string }
 ): ExtendedTooltipXML => {
   const extendendTooltip = data ?? {}
 

@@ -1,28 +1,28 @@
 <Table name="Таблица" id="1">
 	<AutoCommandBar name="ТаблицаКоманднаяПанель" id="-1"/>
-	<ContextMenu name="ТаблицаКонтекстноеМеню" id="11"/>
-	<SearchControl name="ТаблицаУправленияПоиском" id="2">
+	<ContextMenu name="ТаблицаКонтекстноеМеню" id="2"/>
+	<SearchControl name="ТаблицаУправленияПоиском" id="3">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>SearchControlAddition</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаКонтекстноеМеню" id="3"/>
-		<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="4"/>
+		<ContextMenu name="ТаблицаУправленияПоискомКонтекстноеМеню" id="4"/>
+		<ExtendedTooltip name="ТаблицаУправленияПоискомРасширеннаяПодсказка" id="5"/>
 	</SearchControl>
-	<SearchStringRepresentation name="ТаблицаСтрокаПоиска" id="5">
+	<SearchStringRepresentation name="ТаблицаСтрокаПоиска" id="6">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>SearchStringAddition</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаКонтекстноеМеню" id="6"/>
-		<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="7"/>
+		<ContextMenu name="ТаблицаСтрокаПоискаКонтекстноеМеню" id="7"/>
+		<ExtendedTooltip name="ТаблицаСтрокаПоискаРасширеннаяПодсказка" id="8"/>
 	</SearchStringRepresentation>
-	<ViewStatusRepresentation name="ТаблицаСостояниеПросмотра" id="8">
+	<ViewStatusRepresentation name="ТаблицаСостояниеПросмотра" id="9">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>ViewStatusRepresentation</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаКонтекстноеМеню" id="9"/>
-		<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="10"/>
+		<ContextMenu name="ТаблицаСостояниеПросмотраКонтекстноеМеню" id="10"/>
+		<ExtendedTooltip name="ТаблицаСостояниеПросмотраРасширеннаяПодсказка" id="11"/>
 	</ViewStatusRepresentation>
 </Table>

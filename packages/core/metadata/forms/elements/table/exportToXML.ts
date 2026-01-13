@@ -25,6 +25,8 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
 
   const childItems = exportChildItemsToXML(context, data.childItems)
 
+  const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
+
   const searchControl = exportSearchControlAdditionToXML(context, data.searchControl, data)
 
   const searchStringRepresentation = exportSearchStringAdditionToXML(context, data.searchStringRepresentation, data)
@@ -73,7 +75,6 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
   const commandSet = exportCommandSetToXML(context, data.commandSet)
   if (commandSet !== undefined) result.CommandSet = commandSet
 
-  const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
   if (contextMenu !== undefined) result.ContextMenu = contextMenu
 
   if (data.currentRowUse !== undefined) result.CurrentRowUse = data.currentRowUse
