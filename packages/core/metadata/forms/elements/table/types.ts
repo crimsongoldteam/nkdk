@@ -6,12 +6,11 @@ import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/c
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "~/metadata/forms/collections/childItems/types"
 import { CommandSet, CommandSetEnterprise, CommandSetXML } from "~/metadata/forms/commandSet/types"
 import { BaseElement, BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
-import { CommandBar, CommandBarEnterprise } from "~/metadata/forms/elements/commandBar/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { AutoCommandBar, AutoCommandBarXML } from "../autoCommandBar/types"
+import { AutoCommandBar, AutoCommandBarEnterprise, AutoCommandBarXML } from "../autoCommandBar/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 import {
   SearchControlAddition,
@@ -40,7 +39,6 @@ export interface Table extends BaseElement {
   changeRowSet?: boolean
   childItems: ChildItems
   choiceMode?: boolean
-  commandBar?: CommandBar
   commandBarLocation?: SE.FormItemCommandBarLabelLocation
   commandSet?: CommandSet
   contextMenu?: ContextMenu
@@ -219,7 +217,6 @@ export interface TableXML extends BaseElementXML {
 export interface TablePartialEnterprise extends BaseElementPropsEnterprise {
   АвтоВводНезаполненного?: StringboolEnterprise
   АвтоВводНовойСтроки?: StringboolEnterprise
-  АвтоКоманднаяПанель?: CommandBarEnterprise
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяВысотаВСтрокахТаблицы?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
@@ -248,7 +245,7 @@ export interface TablePartialEnterprise extends BaseElementPropsEnterprise {
   ИспользованиеТекущейСтроки?: SE.TableCurrentRowUseEnterprise
   КартинкаСтрок?: StringboolEnterprise
   Команда?: CommandSetEnterprise
-  КоманднаяПанель?: CommandBarEnterprise
+  КоманднаяПанель?: AutoCommandBarEnterprise
   КонтекстноеМеню?: ContextMenuEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяВысотаВСтрокахТаблицы?: number

@@ -23,6 +23,8 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
 
   const autoCommandBar = exportAutoCommandBarToXML(context, data.autoCommandBar, data)
 
+  const childItems = exportChildItemsToXML(context, data.childItems)
+
   const searchControl = exportSearchControlAdditionToXML(context, data.searchControl, data)
 
   const searchStringRepresentation = exportSearchStringAdditionToXML(context, data.searchStringRepresentation, data)
@@ -62,7 +64,6 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
 
   if (data.changeRowSet !== undefined) result.ChangeRowSet = data.changeRowSet
 
-  const childItems = exportChildItemsToXML(context, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
   if (data.choiceMode !== undefined) result.ChoiceMode = data.choiceMode

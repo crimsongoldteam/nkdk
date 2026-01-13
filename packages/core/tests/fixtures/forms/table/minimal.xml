@@ -1,1 +1,28 @@
-<Table name="Таблица" id="1"/>
+<Table name="Таблица" id="1">
+	<AutoCommandBar name="ТаблицаКоманднаяПанель" id="-1"/>
+	<ContextMenu name="ТаблицаКонтекстноеМеню" id="11"/>
+	<SearchControl name="ТаблицаУправленияПоиском" id="2">
+		<AdditionSource>
+			<Item>Таблица</Item>
+			<Type>SearchControlAddition</Type>
+		</AdditionSource>
+		<ContextMenu name="ТаблицаКонтекстноеМеню" id="3"/>
+		<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="4"/>
+	</SearchControl>
+	<SearchStringRepresentation name="ТаблицаСтрокаПоиска" id="5">
+		<AdditionSource>
+			<Item>Таблица</Item>
+			<Type>SearchStringAddition</Type>
+		</AdditionSource>
+		<ContextMenu name="ТаблицаКонтекстноеМеню" id="6"/>
+		<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="7"/>
+	</SearchStringRepresentation>
+	<ViewStatusRepresentation name="ТаблицаСостояниеПросмотра" id="8">
+		<AdditionSource>
+			<Item>Таблица</Item>
+			<Type>ViewStatusRepresentation</Type>
+		</AdditionSource>
+		<ContextMenu name="ТаблицаКонтекстноеМеню" id="9"/>
+		<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="10"/>
+	</ViewStatusRepresentation>
+</Table>
