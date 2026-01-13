@@ -35,6 +35,9 @@ export const exportUsualGroupTypedToEnterprise = (
   const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
+  const childItems = exportPartialChildItemsToEnterprise(context, data.childItems)
+  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
+
   return sortObject(result)
 }
 
@@ -244,10 +247,6 @@ const exportUsualGroupPropsToEnterprise = (
     SE.ChildFormItemsWidthToEnterprise
   )
   if (slaveItemsWidth !== undefined) result.ШиринаПодчиненныхЭлементов = slaveItemsWidth
-
-  const childItems = exportPartialChildItemsToEnterprise(context, data.childItems)
-  if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
-
   return result
 }
 

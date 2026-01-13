@@ -10,7 +10,7 @@ import {
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { exportTypedChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
+import { exportPartialChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
 import { exportCommandSetToEnterprise } from "../../commandSet/exportToEnterprise"
 import { exportAutoCommandBarToEnterprise } from "../../elements/autoCommandBar/exportToEnterprise"
 import { getAllElements } from "./getAllElements"
@@ -239,7 +239,7 @@ export const exportClientApplicationFormToEnterprise = (
   if (events !== undefined) result.События = events
 
   const allElements = getAllElements(data)
-  const childItems = exportTypedChildItemsToEnterprise(context, allElements)
+  const childItems = exportPartialChildItemsToEnterprise(context, allElements)
   if (childItems !== undefined) result.Элементы = childItems
 
   return result

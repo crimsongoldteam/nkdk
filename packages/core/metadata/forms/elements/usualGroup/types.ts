@@ -91,7 +91,6 @@ export interface UsualGroupPartialEnterprise extends FormGroupPartialEnterprise 
   Отображение?: SE.UsualGroupRepresentationEnterprise
   ОтображениеУправления?: SE.UsualGroupControlRepresentationEnterprise
   Поведение?: SE.UsualGroupBehaviorEnterprise
-  ПодчиненныеЭлементы?: ChildItemsPartialEnterprise
   ПутьКДаннымЗаголовка?: string
   РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
@@ -104,9 +103,5 @@ export interface UsualGroupPartialEnterprise extends FormGroupPartialEnterprise 
 
 export interface UsualGroupTypedEnterprise extends UsualGroupPartialEnterprise {
   Тип: "Группа"
+  ПодчиненныеЭлементы?: ChildItemsPartialEnterprise
 }
-
-/**
- * @deprecated Use UsualGroupPartialEnterprise or UsualGroupTypedEnterprise instead
- */
-export type UsualGroupEnterprise = UsualGroupPartialEnterprise
