@@ -6,11 +6,11 @@
 	<AutoMaxWidth>true</AutoMaxWidth>
 	<BackColor>web:White</BackColor>
 	<BorderColor>web:Black</BorderColor>
-	<ContextMenu name="ДополнениеКонтекстноеМеню" id="2" DisplayImportance="High">
+	<ContextMenu name="ДополнениеУправленияПоискомКонтекстноеМеню" id="2" DisplayImportance="High">
 		<Autofill>true</Autofill>
 	</ContextMenu>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="ДополнениеРасширеннаяПодсказка" id="3" DisplayImportance="High">
+	<ExtendedTooltip name="ДополнениеУправленияПоискомРасширеннаяПодсказка" id="3" DisplayImportance="High">
 		<AutoMaxHeight>true</AutoMaxHeight>
 		<AutoMaxWidth>true</AutoMaxWidth>
 		<Enabled>true</Enabled>

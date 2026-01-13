@@ -5,9 +5,9 @@
 	</AdditionSource>
 	<BackColor>web:White</BackColor>
 	<BorderColor>web:Black</BorderColor>
-	<ContextMenu name="КакойТоЭлементКонтекстноеМеню" id="2"/>
+	<ContextMenu name="КакойТоЭлементСтрокаПоискаКонтекстноеМеню" id="2"/>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="КакойТоЭлементРасширеннаяПодсказка" id="3"/>
+	<ExtendedTooltip name="КакойТоЭлементСтрокаПоискаРасширеннаяПодсказка" id="3"/>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>

@@ -3,6 +3,6 @@
 		<Item>Дополнение</Item>
 		<Type>SearchControlAddition</Type>
 	</AdditionSource>
-	<ContextMenu name="ДополнениеКонтекстноеМеню" id="2"/>
-	<ExtendedTooltip name="ДополнениеРасширеннаяПодсказка" id="3"/>
+	<ContextMenu name="ДополнениеУправленияПоискомКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="ДополнениеУправленияПоискомРасширеннаяПодсказка" id="3"/>
 </SearchControlAddition>

@@ -3,6 +3,6 @@
 		<Item>КакойТоЭлемент</Item>
 		<Type>ViewStatusRepresentation</Type>
 	</AdditionSource>
-	<ContextMenu name="КакойТоЭлементКонтекстноеМеню" id="2"/>
-	<ExtendedTooltip name="КакойТоЭлементРасширеннаяПодсказка" id="3"/>
+	<ContextMenu name="КакойТоЭлементСостояниеПросмотраКонтекстноеМеню" id="2"/>
+	<ExtendedTooltip name="КакойТоЭлементСостояниеПросмотраРасширеннаяПодсказка" id="3"/>
 </ViewStatusAddition>
