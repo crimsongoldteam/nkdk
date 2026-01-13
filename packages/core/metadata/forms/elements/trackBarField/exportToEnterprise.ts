@@ -14,16 +14,16 @@ import {
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ImportExportReturn } from "../types"
 
-export const exportTrackBarFieldTypedToEnterprise = (
+export function exportTrackBarFieldTypedToEnterprise<From extends TrackBarField>(
   context: ConfigurationContext,
-  data: TrackBarField | undefined
-): TrackBarFieldTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
+  if (data === undefined) return undefined
 
   const props = exportTrackBarFieldPropsToEnterprise(context, data)
 
@@ -35,7 +35,7 @@ export const exportTrackBarFieldTypedToEnterprise = (
   const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
 }
 
 export function exportTrackBarFieldPartialToEnterprise<From extends TrackBarField | undefined>(
