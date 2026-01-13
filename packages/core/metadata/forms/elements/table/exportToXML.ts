@@ -42,6 +42,9 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
     ...baseFields,
   }
 
+  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+  if (data.extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
+
   if (data.autoAddIncomplete !== undefined) result.AutoAddIncomplete = data.autoAddIncomplete
 
   if (data.autoInsertNewRow !== undefined) result.AutoInsertNewRow = data.autoInsertNewRow
@@ -91,9 +94,6 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
   if (data.enableDrag !== undefined) result.EnableDrag = data.enableDrag
 
   if (data.enableStartDrag !== undefined) result.EnableStartDrag = data.enableStartDrag
-
-  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
-  if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
 
   if (data.fileDragMode !== undefined) result.FileDragMode = data.fileDragMode
 
