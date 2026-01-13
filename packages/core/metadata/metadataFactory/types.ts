@@ -1,11 +1,12 @@
 import { ConfigurationContext } from "../context/types"
 import { BaseElement, BaseElementXML } from "../forms/elements/baseElement/types"
+import { ImportExportReturn } from "../forms/elements/types"
 import { IFormatElementResult } from "../forms/format/types"
 import { TypeRules } from "./rules"
 
 // #region type associations
 
-export type FromXMLType<T extends BaseElementXML> = Extract<
+export type FromXMLType<T> = Extract<
   TypeRules,
   { XML: T; Element: any; PartialEnterprise: any; TypedEnterprise: any; EnterpriseName: any }
 >["Element"]
@@ -25,7 +26,7 @@ export type FromTypedEnterpriseType<T extends Object> = Extract<
   { XML: any; Element: any; PartialEnterprise: any; TypedEnterprise: T; EnterpriseName: any }
 >["Element"]
 
-export type ToPartialEnterpriseType<T extends Object> = Extract<
+export type ToPartialEnterpriseType<T> = Extract<
   TypeRules,
   { XML: any; Element: T; PartialEnterprise: any; TypedEnterprise: any; EnterpriseName: any }
 >["PartialEnterprise"]
@@ -63,7 +64,7 @@ export type ImportPartialFromEnterpriseFn = <From extends Object | undefined>(
 export type ExportPartialToEnterpriseFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,
   data: From
-) => From extends BaseElement ? ToPartialEnterpriseType<From> : undefined
+) => ImportExportReturn<From, ToPartialEnterpriseType<From>>
 
 export type ExportTypedToEnterpriseFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,

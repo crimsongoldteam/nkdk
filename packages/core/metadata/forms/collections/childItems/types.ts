@@ -19,7 +19,7 @@ import {
 } from "../../elements/formattedDocumentField/types"
 import { FormDecoration, FormDecorationPartialEnterprise, FormDecorationXML } from "../../elements/formDecoration/types"
 import { FormField, FormFieldXML } from "../../elements/formField/types"
-import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "../../elements/formGroup/types"
+import { FormGroup, FormGroupPartialEnterprise } from "../../elements/formGroup/types"
 
 import {
   GanttChartField,
@@ -138,7 +138,6 @@ export type ChildItemXML =
   | FormattedDocumentFieldXML
   | FormDecorationXML
   | FormFieldXML
-  | FormGroupXML
   | GanttChartFieldXML
   | GeographicalSchemaFieldXML
   | GraphicalSchemaFieldXML

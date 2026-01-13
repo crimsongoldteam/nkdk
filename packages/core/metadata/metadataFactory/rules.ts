@@ -48,12 +48,6 @@ import {
   FormattedDocumentFieldXML,
 } from "../forms/elements/formattedDocumentField/types"
 import {
-  FormDecoration,
-  FormDecorationPartialEnterprise,
-  FormDecorationTypedEnterprise,
-  FormDecorationXML,
-} from "../forms/elements/formDecoration/types"
-import {
   GanttChartField,
   GanttChartFieldPartialEnterprise,
   GanttChartFieldTypedEnterprise,
@@ -224,14 +218,14 @@ export type TypeRules =
       name: "DendrogramField"
       EnterpriseName: "ПолеДендрограммы"
     }
-  | {
-      XML: FormDecorationXML
-      Element: FormDecoration
-      PartialEnterprise: FormDecorationPartialEnterprise
-      TypedEnterprise: FormDecorationTypedEnterprise
-      name: "FormDecoration"
-      EnterpriseName: "ДекорацияФормы"
-    }
+  //   | {
+  //       XML: FormDecorationXML
+  //       Element: FormDecoration
+  //       PartialEnterprise: FormDecorationPartialEnterprise
+  //       TypedEnterprise: FormDecorationTypedEnterprise
+  //       name: "FormDecoration"
+  //       EnterpriseName: "ДекорацияФормы"
+  //     }
   | {
       XML: FormattedDocumentFieldXML
       Element: FormattedDocumentField

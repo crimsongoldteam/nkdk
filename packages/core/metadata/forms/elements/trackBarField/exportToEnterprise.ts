@@ -14,10 +14,10 @@ import {
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ExportPartialToEnterpriseFn } from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { mockСontext } from "~/tests/mockContext"
+import { ImportExportReturn } from "../types"
 
 export const exportTrackBarFieldTypedToEnterprise = (
   context: ConfigurationContext,
@@ -38,15 +38,11 @@ export const exportTrackBarFieldTypedToEnterprise = (
   return sortObject(result)
 }
 
-export const exportTrackBarFieldPartialToEnterprise: ExportPartialToEnterpriseFn = <
-  From extends TrackBarField | undefined,
->(
+export function exportTrackBarFieldPartialToEnterprise<From extends TrackBarField | undefined>(
   context: ConfigurationContext,
   data: From
-) => {
-  type Return = From extends TrackBarField ? TrackBarFieldPartialEnterprise : undefined
-
-  if (data === undefined) return undefined as Return
+): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
+  if (data === undefined) return undefined
 
   const props = exportTrackBarFieldPropsToEnterprise(context, data)
 
@@ -57,13 +53,13 @@ export const exportTrackBarFieldPartialToEnterprise: ExportPartialToEnterpriseFn
   const title = exportI8nTextOtherToEnterprise(context, (data as TrackBarField).title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result) as Return
+  return result as ImportExportReturn<From, ToPartialEnterpriseType<From>>
 }
 
-const exportTrackBarFieldPropsToEnterprise = (
+function exportTrackBarFieldPropsToEnterprise(
   context: ConfigurationContext,
   data: TrackBarField
-): TrackBarFieldPartialEnterprise => {
+): TrackBarFieldPartialEnterprise {
   const baseProps = exportFormFieldPropsToEnterprise(context, data)
   const result: TrackBarFieldPartialEnterprise = {
     ...baseProps,
@@ -121,8 +117,3 @@ const exportTrackBarFieldPropsToEnterprise = (
 }
 
 registerMetadata("ExportPartialToEnterprise", "TrackBarField", exportTrackBarFieldPartialToEnterprise)
-
-let a = exportTrackBarFieldPartialToEnterprise(mockСontext, {
-  name: "test",
-  elementType: "TrackBarField",
-} as TrackBarField)
