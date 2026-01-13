@@ -165,6 +165,7 @@ export type TypeRules =
       Element: Button
       PartialEnterprise: ButtonPartialEnterprise
       TypedEnterprise: ButtonTypedEnterprise
+      name: "Button"
       EnterpriseName: "Кнопка"
     }
   | {
@@ -172,6 +173,7 @@ export type TypeRules =
       Element: ButtonGroup
       PartialEnterprise: ButtonGroupPartialEnterprise
       TypedEnterprise: ButtonGroupTypedEnterprise
+      name: "ButtonGroup"
       EnterpriseName: "ГруппаКнопок"
     }
   | {
@@ -179,6 +181,7 @@ export type TypeRules =
       Element: CalendarField
       PartialEnterprise: CalendarFieldPartialEnterprise
       TypedEnterprise: CalendarFieldTypedEnterprise
+      name: "CalendarField"
       EnterpriseName: "ПолеКалендаря"
     }
   | {
@@ -186,6 +189,7 @@ export type TypeRules =
       Element: ChartField
       PartialEnterprise: ChartFieldPartialEnterprise
       TypedEnterprise: ChartFieldTypedEnterprise
+      name: "ChartField"
       EnterpriseName: "ПолеДиаграммы"
     }
   | {
@@ -193,6 +197,7 @@ export type TypeRules =
       Element: CheckBoxField
       PartialEnterprise: CheckBoxFieldPartialEnterprise
       TypedEnterprise: CheckBoxFieldTypedEnterprise
+      name: "CheckBoxField"
       EnterpriseName: "ПолеФлажок"
     }
   | {
@@ -200,6 +205,7 @@ export type TypeRules =
       Element: ColumnGroup
       PartialEnterprise: ColumnGroupPartialEnterprise
       TypedEnterprise: ColumnGroupTypedEnterprise
+      name: "ColumnGroup"
       EnterpriseName: "ГруппаКолонок"
     }
   | {
@@ -207,6 +213,7 @@ export type TypeRules =
       Element: CommandBar
       PartialEnterprise: CommandBarPartialEnterprise
       TypedEnterprise: CommandBarTypedEnterprise
+      name: "CommandBar"
       EnterpriseName: "КоманднаяПанель"
     }
   | {
@@ -214,6 +221,7 @@ export type TypeRules =
       Element: DendrogramField
       PartialEnterprise: DendrogramFieldPartialEnterprise
       TypedEnterprise: DendrogramFieldTypedEnterprise
+      name: "DendrogramField"
       EnterpriseName: "ПолеДендрограммы"
     }
   | {
@@ -221,6 +229,7 @@ export type TypeRules =
       Element: FormDecoration
       PartialEnterprise: FormDecorationPartialEnterprise
       TypedEnterprise: FormDecorationTypedEnterprise
+      name: "FormDecoration"
       EnterpriseName: "ДекорацияФормы"
     }
   | {
@@ -228,6 +237,7 @@ export type TypeRules =
       Element: FormattedDocumentField
       PartialEnterprise: FormattedDocumentFieldPartialEnterprise
       TypedEnterprise: FormattedDocumentFieldTypedEnterprise
+      name: "FormattedDocumentField"
       EnterpriseName: "ПолеФорматированногоДокумента"
     }
   | {
@@ -235,6 +245,7 @@ export type TypeRules =
       Element: GanttChartField
       PartialEnterprise: GanttChartFieldPartialEnterprise
       TypedEnterprise: GanttChartFieldTypedEnterprise
+      name: "GanttChartField"
       EnterpriseName: "ПолеДиаграммыГанта"
     }
   | {
@@ -242,6 +253,7 @@ export type TypeRules =
       Element: GeographicalSchemaField
       PartialEnterprise: GeographicalSchemaFieldPartialEnterprise
       TypedEnterprise: GeographicalSchemaFieldTypedEnterprise
+      name: "GeographicalSchemaField"
       EnterpriseName: "ПолеГеографическойСхемы"
     }
   | {
@@ -249,6 +261,7 @@ export type TypeRules =
       Element: GraphicalSchemaField
       PartialEnterprise: GraphicalSchemaFieldPartialEnterprise
       TypedEnterprise: GraphicalSchemaFieldTypedEnterprise
+      name: "GraphicalSchemaField"
       EnterpriseName: "ПолеГрафическойСхемы"
     }
   | {
@@ -256,6 +269,7 @@ export type TypeRules =
       Element: HTMLDocumentField
       PartialEnterprise: HTMLDocumentFieldPartialEnterprise
       TypedEnterprise: HTMLDocumentFieldTypedEnterprise
+      name: "HTMLDocumentField"
       EnterpriseName: "ПолеHTMLДокумента"
     }
   | {
@@ -263,6 +277,7 @@ export type TypeRules =
       Element: InputField
       PartialEnterprise: InputFieldPartialEnterprise
       TypedEnterprise: InputFieldTypedEnterprise
+      name: "InputField"
       EnterpriseName: "ПолеВвода"
     }
   | {
@@ -270,6 +285,7 @@ export type TypeRules =
       Element: LabelDecoration
       PartialEnterprise: LabelDecorationPartialEnterprise
       TypedEnterprise: LabelDecorationTypedEnterprise
+      name: "LabelDecoration"
       EnterpriseName: "Надпись"
     }
   | {
@@ -277,6 +293,7 @@ export type TypeRules =
       Element: LabelField
       PartialEnterprise: LabelFieldPartialEnterprise
       TypedEnterprise: LabelFieldTypedEnterprise
+      name: "LabelField"
       EnterpriseName: "ПолеНадписи"
     }
   | {
@@ -284,6 +301,7 @@ export type TypeRules =
       Element: Page
       PartialEnterprise: PagePartialEnterprise
       TypedEnterprise: PageTypedEnterprise
+      name: "Page"
       EnterpriseName: "Страница"
     }
   | {
@@ -291,6 +309,7 @@ export type TypeRules =
       Element: Pages
       PartialEnterprise: PagesPartialEnterprise
       TypedEnterprise: PagesTypedEnterprise
+      name: "Pages"
       EnterpriseName: "Страницы"
     }
   | {
@@ -298,6 +317,7 @@ export type TypeRules =
       Element: PdfDocumentField
       PartialEnterprise: PdfDocumentFieldPartialEnterprise
       TypedEnterprise: PdfDocumentFieldTypedEnterprise
+      name: "PdfDocumentField"
       EnterpriseName: "ПолеPDFДокумента"
     }
   | {
@@ -305,6 +325,7 @@ export type TypeRules =
       Element: PeriodField
       PartialEnterprise: PeriodFieldPartialEnterprise
       TypedEnterprise: PeriodFieldTypedEnterprise
+      name: "PeriodField"
       EnterpriseName: "ПолеПериода"
     }
   | {
@@ -312,6 +333,7 @@ export type TypeRules =
       Element: PictureDecoration
       PartialEnterprise: PictureDecorationPartialEnterprise
       TypedEnterprise: PictureDecorationTypedEnterprise
+      name: "PictureDecoration"
       EnterpriseName: "Рисунок"
     }
   | {
@@ -319,6 +341,7 @@ export type TypeRules =
       Element: PictureField
       PartialEnterprise: PictureFieldPartialEnterprise
       TypedEnterprise: PictureFieldTypedEnterprise
+      name: "PictureField"
       EnterpriseName: "ПолеРисунка"
     }
   | {
@@ -326,6 +349,7 @@ export type TypeRules =
       Element: PlannerField
       PartialEnterprise: PlannerFieldPartialEnterprise
       TypedEnterprise: PlannerFieldTypedEnterprise
+      name: "PlannerField"
       EnterpriseName: "ПолеПланировщика"
     }
   | {
@@ -333,6 +357,7 @@ export type TypeRules =
       Element: Popup
       PartialEnterprise: PopupPartialEnterprise
       TypedEnterprise: PopupTypedEnterprise
+      name: "Popup"
       EnterpriseName: "Подменю"
     }
   | {
@@ -340,6 +365,7 @@ export type TypeRules =
       Element: ProgressBarField
       PartialEnterprise: ProgressBarFieldPartialEnterprise
       TypedEnterprise: ProgressBarFieldTypedEnterprise
+      name: "ProgressBarField"
       EnterpriseName: "ПолеИндикатора"
     }
   | {
@@ -347,6 +373,7 @@ export type TypeRules =
       Element: RadioButtonField
       PartialEnterprise: RadioButtonFieldPartialEnterprise
       TypedEnterprise: RadioButtonFieldTypedEnterprise
+      name: "RadioButtonField"
       EnterpriseName: "ПолеПереключателя"
     }
   | {
@@ -354,6 +381,7 @@ export type TypeRules =
       Element: SpreadSheetDocumentField
       PartialEnterprise: SpreadSheetDocumentFieldPartialEnterprise
       TypedEnterprise: SpreadSheetDocumentFieldTypedEnterprise
+      name: "SpreadSheetDocumentField"
       EnterpriseName: "ПолеТабличногоДокумента"
     }
   | {
@@ -361,6 +389,7 @@ export type TypeRules =
       Element: Table
       PartialEnterprise: TablePartialEnterprise
       TypedEnterprise: TablePartialEnterprise
+      name: "Table"
       EnterpriseName: "ТаблицаФормы"
     }
   | {
@@ -368,6 +397,7 @@ export type TypeRules =
       Element: TextDocumentField
       PartialEnterprise: TextDocumentFieldPartialEnterprise
       TypedEnterprise: TextDocumentFieldTypedEnterprise
+      name: "TextDocumentField"
       EnterpriseName: "ПолеТекстовогоДокумента"
     }
   | {
@@ -375,5 +405,6 @@ export type TypeRules =
       Element: TrackBarField
       PartialEnterprise: TrackBarFieldPartialEnterprise
       TypedEnterprise: TrackBarFieldTypedEnterprise
+      name: "TrackBarField"
       EnterpriseName: "ПолеПолосыПрокрутки"
     }

@@ -7,7 +7,9 @@ export type ImportFromEnterpriseReturn<
   Name extends string | undefined,
 > = From extends undefined ? undefined : Name extends undefined ? Partial<To> : To
 
-export type ImportExportReturn<From, To> = From extends undefined ? undefined : To
+export type ImportExportReturn<From extends Object | undefined, To extends Object | undefined> = From extends Object
+  ? undefined
+  : To
 
 export type ImportPropsFromEnterpriseReturn<
   From extends BaseElementPropsEnterprise | undefined,

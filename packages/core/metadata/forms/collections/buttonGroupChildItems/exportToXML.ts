@@ -1,6 +1,12 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
-import { ButtonGroupChildItemRecordXML, ButtonGroupChildItems, ButtonGroupChildItemsXML } from "./types"
+import { FormElementType } from "~/metadata/metadataFactory/types"
+import {
+  ButtonGroupChildItemRecordXML,
+  ButtonGroupChildItems,
+  ButtonGroupChildItemsXML,
+  ButtonGroupChildItemXML,
+} from "./types"
 
 export const exportButtonGroupChildItemsToXML = (
   context: ConfigurationContext,
@@ -10,10 +16,10 @@ export const exportButtonGroupChildItemsToXML = (
 
   const result: ButtonGroupChildItemRecordXML[] = []
   for (const item of data) {
-    const exportFunction = getOperationFunction("ExportToXML", item.elementType)
-    if (!exportFunction) throw new Error(`Export function not found for element type: ${item.elementType}`)
-    const value = exportFunction(context, item)
-    result.push({ [item.elementType]: value } as ButtonGroupChildItemRecordXML)
+    const fn = getOperationFunction("ExportToXML", item.elementType)
+    if (fn == undefined) throw new Error(`Export function not found for element type: ${item.elementType}`)
+    const resultItem = fn(context, item)
+    result.push({ [item.elementType]: resultItem } as Record<FormElementType, ButtonGroupChildItemXML>)
   }
 
   return result.length === 1 ? result[0] : result
