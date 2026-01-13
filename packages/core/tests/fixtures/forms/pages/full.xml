@@ -1,10 +1,15 @@
 <Pages name="Страницы" id="1">
+	<CurrentPagesState>Titles</CurrentPagesState>
+	<CurrentRowUse>DontUse</CurrentRowUse>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="СтраницыРасширеннаяПодсказка" id="2"/>
+	<Events>
+		<Event name="OnCurrentPageChange">ПроцедураПриСменеСтраницы</Event>
+	</Events>
 	<Height>200</Height>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>
+	<PagesRepresentation>Auto</PagesRepresentation>
 	<ReadOnly>false</ReadOnly>
 	<Shortcut>Ctrl+S</Shortcut>
 	<Title>
@@ -31,10 +36,4 @@
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>
-	<CurrentPagesState>Titles</CurrentPagesState>
-	<CurrentRowUse>DontUse</CurrentRowUse>
-	<PagesRepresentation>Auto</PagesRepresentation>
-	<Events>
-		<Event name="OnCurrentPageChange">ПроцедураПриСменеСтраницы</Event>
-	</Events>
 </Pages>
