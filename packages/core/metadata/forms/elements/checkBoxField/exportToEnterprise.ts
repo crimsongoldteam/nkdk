@@ -13,14 +13,16 @@ import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportExportReturn } from "../types"
 
-export const exportCheckBoxFieldTypedToEnterprise = (
+export function exportCheckBoxFieldTypedToEnterprise<From extends CheckBoxField | undefined>(
   context: ConfigurationContext,
-  data: CheckBoxField | undefined
-): CheckBoxFieldTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -32,13 +34,15 @@ export const exportCheckBoxFieldTypedToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
 }
 
-export const exportCheckBoxFieldPartialToEnterprise = (
+export function exportCheckBoxFieldPartialToEnterprise<From extends CheckBoxField | undefined>(
   context: ConfigurationContext,
-  data: CheckBoxField
-): CheckBoxFieldPartialEnterprise => {
+  data: From
+): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
+  if (data === undefined) return undefined
+
   const baseFields = exportFormFieldToEnterprise(context, data)
 
   const props = exportCheckBoxFieldPropsToEnterprise(context, data)
@@ -48,7 +52,7 @@ export const exportCheckBoxFieldPartialToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
 }
 
 const exportCheckBoxFieldPropsToEnterprise = (

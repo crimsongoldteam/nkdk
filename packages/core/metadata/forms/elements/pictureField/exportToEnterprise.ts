@@ -14,14 +14,16 @@ import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportExportReturn } from "../types"
 
-export const exportPictureFieldTypedToEnterprise = (
+export function exportPictureFieldTypedToEnterprise<From extends PictureField | undefined>(
   context: ConfigurationContext,
-  data: PictureField | undefined
-): PictureFieldTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -33,13 +35,15 @@ export const exportPictureFieldTypedToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
 }
 
-export const exportPictureFieldPartialToEnterprise = (
+export function exportPictureFieldPartialToEnterprise<From extends PictureField | undefined>(
   context: ConfigurationContext,
-  data: PictureField
-): PictureFieldPartialEnterprise => {
+  data: From
+): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
+  if (data === undefined) return undefined
+
   const baseFields = exportFormFieldToEnterprise(context, data)
 
   const props = exportPictureFieldPropsToEnterprise(context, data)
@@ -49,7 +53,7 @@ export const exportPictureFieldPartialToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
 }
 
 const exportPictureFieldPropsToEnterprise = (

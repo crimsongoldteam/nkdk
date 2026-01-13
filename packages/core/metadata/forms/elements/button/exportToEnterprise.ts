@@ -10,16 +10,18 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { ConfigurationContext } from "~/metadata/context/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
+import { ImportExportReturn } from "../types"
 import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "./types"
 
-export const exportButtonTypedToEnterprise = (
+export function exportButtonTypedToEnterprise<From extends Button | undefined>(
   context: ConfigurationContext,
-  data: Button | undefined
-): ButtonTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
+  if (data === undefined) return undefined
 
   const props = exportButtonPropsToEnterprise(context, data)
 
@@ -31,19 +33,21 @@ export const exportButtonTypedToEnterprise = (
   const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return result
+  return result as ImportExportReturn<From, ToTypedEnterpriseType<From>>
 }
 
-export const exportButtonPartialToEnterprise = (
+export function exportButtonPartialToEnterprise<From extends Button | undefined>(
   context: ConfigurationContext,
-  data: Button
-): ButtonPartialEnterprise => {
+  data: From
+): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
+  if (data === undefined) return undefined
+
   const result = exportButtonPropsToEnterprise(context, data)
 
   const title = exportI8nTextOtherToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
 }
 
 const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Button): ButtonPartialEnterprise => {

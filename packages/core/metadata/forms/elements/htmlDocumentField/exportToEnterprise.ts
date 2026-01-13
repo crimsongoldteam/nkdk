@@ -11,14 +11,16 @@ import {
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportExportReturn } from "../types"
 
-export const exportHTMLDocumentFieldTypedToEnterprise = (
+export function exportHTMLDocumentFieldTypedToEnterprise<From extends HTMLDocumentField | undefined>(
   context: ConfigurationContext,
-  data: HTMLDocumentField | undefined
-): HTMLDocumentFieldTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -30,13 +32,15 @@ export const exportHTMLDocumentFieldTypedToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
 }
 
-export const exportHTMLDocumentFieldPartialToEnterprise = (
+export function exportHTMLDocumentFieldPartialToEnterprise<From extends HTMLDocumentField | undefined>(
   context: ConfigurationContext,
-  data: HTMLDocumentField
-): HTMLDocumentFieldPartialEnterprise => {
+  data: From
+): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
+  if (data === undefined) return undefined
+
   const baseFields = exportFormFieldToEnterprise(context, data)
 
   const props = exportHTMLDocumentFieldPropsToEnterprise(context, data)
@@ -46,7 +50,7 @@ export const exportHTMLDocumentFieldPartialToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
 }
 
 const exportHTMLDocumentFieldPropsToEnterprise = (

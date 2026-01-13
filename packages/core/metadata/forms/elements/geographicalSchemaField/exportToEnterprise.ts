@@ -11,14 +11,16 @@ import {
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportExportReturn } from "../types"
 
-export const exportGeographicalSchemaFieldTypedToEnterprise = (
+export function exportGeographicalSchemaFieldTypedToEnterprise<From extends GeographicalSchemaField | undefined>(
   context: ConfigurationContext,
-  data: GeographicalSchemaField | undefined
-): GeographicalSchemaFieldTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -30,13 +32,15 @@ export const exportGeographicalSchemaFieldTypedToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
 }
 
-export const exportGeographicalSchemaFieldPartialToEnterprise = (
+export function exportGeographicalSchemaFieldPartialToEnterprise<From extends GeographicalSchemaField | undefined>(
   context: ConfigurationContext,
-  data: GeographicalSchemaField
-): GeographicalSchemaFieldPartialEnterprise => {
+  data: From
+): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
+  if (data === undefined) return undefined
+
   const baseFields = exportFormFieldToEnterprise(context, data)
 
   const props = exportGeographicalSchemaFieldPropsToEnterprise(context, data)
@@ -46,7 +50,7 @@ export const exportGeographicalSchemaFieldPartialToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
 }
 
 const exportGeographicalSchemaFieldPropsToEnterprise = (

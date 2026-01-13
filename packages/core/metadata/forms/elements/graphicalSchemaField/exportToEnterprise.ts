@@ -11,14 +11,16 @@ import {
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportExportReturn } from "../types"
 
-export const exportGraphicalSchemaFieldTypedToEnterprise = (
+export function exportGraphicalSchemaFieldTypedToEnterprise<From extends GraphicalSchemaField | undefined>(
   context: ConfigurationContext,
-  data: GraphicalSchemaField | undefined
-): GraphicalSchemaFieldTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -30,13 +32,15 @@ export const exportGraphicalSchemaFieldTypedToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
 }
 
-export const exportGraphicalSchemaFieldPartialToEnterprise = (
+export function exportGraphicalSchemaFieldPartialToEnterprise<From extends GraphicalSchemaField | undefined>(
   context: ConfigurationContext,
-  data: GraphicalSchemaField
-): GraphicalSchemaFieldPartialEnterprise => {
+  data: From
+): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
+  if (data === undefined) return undefined
+
   const baseFields = exportFormFieldToEnterprise(context, data)
 
   const props = exportGraphicalSchemaFieldPropsToEnterprise(context, data)
@@ -46,7 +50,7 @@ export const exportGraphicalSchemaFieldPartialToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
 }
 
 const exportGraphicalSchemaFieldPropsToEnterprise = (

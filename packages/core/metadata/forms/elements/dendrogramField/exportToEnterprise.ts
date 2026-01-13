@@ -10,12 +10,14 @@ import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportDendrogramFieldTypedToEnterprise = (
+export function exportDendrogramFieldTypedToEnterprise<From extends DendrogramField | undefined>(
   context: ConfigurationContext,
-  data: DendrogramField | undefined
-): DendrogramFieldTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -27,13 +29,15 @@ export const exportDendrogramFieldTypedToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
 }
 
-export const exportDendrogramFieldPartialToEnterprise = (
+export function exportDendrogramFieldPartialToEnterprise<From extends DendrogramField | undefined>(
   context: ConfigurationContext,
-  data: DendrogramField
-): DendrogramFieldPartialEnterprise => {
+  data: From
+): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
+  if (data === undefined) return undefined
+
   const baseFields = exportFormFieldToEnterprise(context, data)
 
   const props = exportDendrogramFieldPropsToEnterprise(context, data)
@@ -43,7 +47,7 @@ export const exportDendrogramFieldPartialToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
 }
 
 const exportDendrogramFieldPropsToEnterprise = (

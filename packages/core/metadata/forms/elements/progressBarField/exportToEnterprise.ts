@@ -11,14 +11,16 @@ import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportExportReturn } from "../types"
 
-export const exportProgressBarFieldTypedToEnterprise = (
+export function exportProgressBarFieldTypedToEnterprise<From extends ProgressBarField | undefined>(
   context: ConfigurationContext,
-  data: ProgressBarField | undefined
-): ProgressBarFieldTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -30,13 +32,15 @@ export const exportProgressBarFieldTypedToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
 }
 
-export const exportProgressBarFieldPartialToEnterprise = (
+export function exportProgressBarFieldPartialToEnterprise<From extends ProgressBarField | undefined>(
   context: ConfigurationContext,
-  data: ProgressBarField
-): ProgressBarFieldPartialEnterprise => {
+  data: From
+): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
+  if (data === undefined) return undefined
+
   const baseFields = exportFormFieldToEnterprise(context, data)
 
   const props = exportProgressBarFieldPropsToEnterprise(context, data)
@@ -46,7 +50,7 @@ export const exportProgressBarFieldPartialToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
 }
 
 const exportProgressBarFieldPropsToEnterprise = (

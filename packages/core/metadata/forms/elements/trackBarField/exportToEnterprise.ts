@@ -19,7 +19,7 @@ import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumeratio
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ImportExportReturn } from "../types"
 
-export function exportTrackBarFieldTypedToEnterprise<From extends TrackBarField>(
+export function exportTrackBarFieldTypedToEnterprise<From extends TrackBarField | undefined>(
   context: ConfigurationContext,
   data: From
 ): ImportExportReturn<From, ToTypedEnterpriseType<From>> {

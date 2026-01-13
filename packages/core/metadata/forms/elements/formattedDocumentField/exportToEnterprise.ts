@@ -12,14 +12,16 @@ import {
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportExportReturn } from "../types"
 
-export const exportFormattedDocumentFieldTypedToEnterprise = (
+export function exportFormattedDocumentFieldTypedToEnterprise<From extends FormattedDocumentField | undefined>(
   context: ConfigurationContext,
-  data: FormattedDocumentField | undefined
-): FormattedDocumentFieldTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -31,13 +33,15 @@ export const exportFormattedDocumentFieldTypedToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
 }
 
-export const exportFormattedDocumentFieldPartialToEnterprise = (
+export function exportFormattedDocumentFieldPartialToEnterprise<From extends FormattedDocumentField | undefined>(
   context: ConfigurationContext,
-  data: FormattedDocumentField
-): FormattedDocumentFieldPartialEnterprise => {
+  data: From
+): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
+  if (data === undefined) return undefined
+
   const baseFields = exportFormFieldToEnterprise(context, data)
 
   const props = exportFormattedDocumentFieldPropsToEnterprise(context, data)
@@ -47,7 +51,7 @@ export const exportFormattedDocumentFieldPartialToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
 }
 
 const exportFormattedDocumentFieldPropsToEnterprise = (

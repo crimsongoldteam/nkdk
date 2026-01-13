@@ -10,14 +10,16 @@ import {
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportExportReturn } from "../types"
 
-export const exportGanttChartFieldTypedToEnterprise = (
+export function exportGanttChartFieldTypedToEnterprise<From extends GanttChartField | undefined>(
   context: ConfigurationContext,
-  data: GanttChartField | undefined
-): GanttChartFieldTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -29,13 +31,15 @@ export const exportGanttChartFieldTypedToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
 }
 
-export const exportGanttChartFieldPartialToEnterprise = (
+export function exportGanttChartFieldPartialToEnterprise<From extends GanttChartField | undefined>(
   context: ConfigurationContext,
-  data: GanttChartField
-): GanttChartFieldPartialEnterprise => {
+  data: From
+): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
+  if (data === undefined) return undefined
+
   const baseFields = exportFormFieldToEnterprise(context, data)
 
   const props = exportGanttChartFieldPropsToEnterprise(context, data)
@@ -45,7 +49,7 @@ export const exportGanttChartFieldPartialToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
 }
 
 const exportGanttChartFieldPropsToEnterprise = (

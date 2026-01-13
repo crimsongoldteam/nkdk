@@ -13,14 +13,16 @@ import { exportFormFieldToEnterprise } from "~/metadata/forms/elements/formField
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportExportReturn } from "../types"
 
-export const exportRadioButtonFieldTypedToEnterprise = (
+export function exportRadioButtonFieldTypedToEnterprise<From extends RadioButtonField | undefined>(
   context: ConfigurationContext,
-  data: RadioButtonField | undefined
-): RadioButtonFieldTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -32,13 +34,15 @@ export const exportRadioButtonFieldTypedToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
 }
 
-export const exportRadioButtonFieldPartialToEnterprise = (
+export function exportRadioButtonFieldPartialToEnterprise<From extends RadioButtonField | undefined>(
   context: ConfigurationContext,
-  data: RadioButtonField
-): RadioButtonFieldPartialEnterprise => {
+  data: From
+): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
+  if (data === undefined) return undefined
+
   const baseFields = exportFormFieldToEnterprise(context, data)
 
   const props = exportRadioButtonFieldPropsToEnterprise(context, data)
@@ -48,7 +52,7 @@ export const exportRadioButtonFieldPartialToEnterprise = (
     ...props,
   }
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
 }
 
 const exportRadioButtonFieldPropsToEnterprise = (
