@@ -2,12 +2,12 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import {
   SpreadSheetDocumentField,
   SpreadSheetDocumentFieldPartialEnterprise,
   SpreadSheetDocumentFieldTypedEnterprise,
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
-import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
@@ -77,11 +77,7 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
   )
   if (verticalScrollBar !== undefined) result.verticalScrollBar = verticalScrollBar
 
-  const output = importSystemEnumerationFromEnterprise<SE.UseOutput>(
-    context,
-    data.Вывод,
-    SE.UseOutputFromEnterprise
-  )
+  const output = importSystemEnumerationFromEnterprise<SE.UseOutput>(context, data.Вывод, SE.UseOutputFromEnterprise)
   if (output !== undefined) result.output = output
 
   if (data.Высота !== undefined) result.height = data.Высота
@@ -195,4 +191,8 @@ const importSpreadSheetDocumentFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "SpreadSheetDocumentField", importSpreadSheetDocumentFieldPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "SpreadSheetDocumentField",
+  importSpreadSheetDocumentFieldPropsFromEnterprise
+)

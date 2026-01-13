@@ -170,4 +170,4 @@ const importPictureDecorationPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "PictureDecoration", importPictureDecorationPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "PictureDecoration", importPictureDecorationPropsFromEnterprise)

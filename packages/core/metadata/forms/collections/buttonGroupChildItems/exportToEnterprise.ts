@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
+import { executeImportExportOperation } from "~/metadata/metadataFactory/metadataFactory"
 import { ButtonGroupChildItems, ButtonGroupChildItemsEnterprise } from "./types"
 
 export const exportButtonGroupChildItemsToEnterprise = (
@@ -10,10 +10,9 @@ export const exportButtonGroupChildItemsToEnterprise = (
 
   const result: ButtonGroupChildItemsEnterprise = {}
   for (const item of data) {
-    const exportFunction = getOperationFunction("ExportTypedToEnterprise", item.elementType)
-    if (!exportFunction) throw new Error(`Export function not found for element type: ${item.elementType}`)
-    const value = exportFunction(context, item)
-    result[item.name] = value
+    const resultItem = executeImportExportOperation("ExportTypedToEnterprise", item.elementType, context, item)
+    if (resultItem == undefined) throw new Error(`Export function not found for element type: ${item.elementType}`)
+    result[item.name] = resultItem
   }
 
   return result

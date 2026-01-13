@@ -71,11 +71,7 @@ const importFormattedDocumentFieldPropsFromEnterprise = (
   const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
-  const output = importSystemEnumerationFromEnterprise<SE.UseOutput>(
-    context,
-    data.Вывод,
-    SE.UseOutputFromEnterprise
-  )
+  const output = importSystemEnumerationFromEnterprise<SE.UseOutput>(context, data.Вывод, SE.UseOutputFromEnterprise)
   if (output !== undefined) result.output = output
 
   if (data.ВыделенныйТекст !== undefined) result.selectedText = data.ВыделенныйТекст
@@ -126,4 +122,8 @@ const importFormattedDocumentFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "FormattedDocumentField", importFormattedDocumentFieldPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "FormattedDocumentField",
+  importFormattedDocumentFieldPropsFromEnterprise
+)

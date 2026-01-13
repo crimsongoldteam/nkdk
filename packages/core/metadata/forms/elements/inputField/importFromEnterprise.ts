@@ -387,4 +387,4 @@ const importInputFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "InputField", importInputFieldPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "InputField", importInputFieldPropsFromEnterprise)

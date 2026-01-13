@@ -3,12 +3,12 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import {
   TextDocumentField,
   TextDocumentFieldPartialEnterprise,
   TextDocumentFieldTypedEnterprise,
 } from "~/metadata/forms/elements/textDocumentField/types"
-import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
@@ -71,11 +71,7 @@ const importTextDocumentFieldPropsFromEnterprise = (
   const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
-  const output = importSystemEnumerationFromEnterprise<SE.UseOutput>(
-    context,
-    data.Вывод,
-    SE.UseOutputFromEnterprise
-  )
+  const output = importSystemEnumerationFromEnterprise<SE.UseOutput>(context, data.Вывод, SE.UseOutputFromEnterprise)
   if (output !== undefined) result.output = output
 
   if (data.ВыделенныйТекст !== undefined) result.selectedText = data.ВыделенныйТекст
@@ -126,4 +122,4 @@ const importTextDocumentFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "TextDocumentField", importTextDocumentFieldPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "TextDocumentField", importTextDocumentFieldPropsFromEnterprise)

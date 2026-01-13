@@ -1,12 +1,12 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import {
   GanttChartField,
   GanttChartFieldPartialEnterprise,
   GanttChartFieldTypedEnterprise,
 } from "~/metadata/forms/elements/ganttChartField/types"
-import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
@@ -130,4 +130,4 @@ const importGanttChartFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "GanttChartField", importGanttChartFieldPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "GanttChartField", importGanttChartFieldPropsFromEnterprise)

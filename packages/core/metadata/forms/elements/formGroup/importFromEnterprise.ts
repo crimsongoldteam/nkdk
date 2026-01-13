@@ -174,4 +174,4 @@ export const importFormGroupFromEnterprise = <
   }
 }
 
-registerMetadata("ImportFromEnterprise", "FormGroup", importFormGroupPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "FormGroup", importFormGroupPropsFromEnterprise)

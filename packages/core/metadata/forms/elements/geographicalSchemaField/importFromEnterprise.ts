@@ -2,12 +2,12 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import {
   GeographicalSchemaField,
   GeographicalSchemaFieldPartialEnterprise,
   GeographicalSchemaFieldTypedEnterprise,
 } from "~/metadata/forms/elements/geographicalSchemaField/types"
-import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
@@ -70,11 +70,7 @@ const importGeographicalSchemaFieldPropsFromEnterprise = (
   const autoMaxWidth = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяШирина)
   if (autoMaxWidth !== undefined) result.autoMaxWidth = autoMaxWidth
 
-  const output = importSystemEnumerationFromEnterprise<SE.UseOutput>(
-    context,
-    data.Вывод,
-    SE.UseOutputFromEnterprise
-  )
+  const output = importSystemEnumerationFromEnterprise<SE.UseOutput>(context, data.Вывод, SE.UseOutputFromEnterprise)
   if (output !== undefined) result.output = output
 
   if (data.Высота !== undefined) result.height = data.Высота
@@ -114,4 +110,8 @@ const importGeographicalSchemaFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "GeographicalSchemaField", importGeographicalSchemaFieldPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "GeographicalSchemaField",
+  importGeographicalSchemaFieldPropsFromEnterprise
+)

@@ -482,4 +482,4 @@ export const importTableFromEnterprise = <From extends TablePartialEnterprise | 
   return result as ImportFromEnterpriseReturn<From, Table, Name>
 }
 
-registerMetadata("ImportFromEnterprise", "Table", importTableFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "Table", importTableFromEnterprise)

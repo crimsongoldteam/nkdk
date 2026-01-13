@@ -5,11 +5,7 @@ import {
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
-import {
-  Pages,
-  PagesPartialEnterprise,
-  PagesTypedEnterprise,
-} from "~/metadata/forms/elements/pages/types"
+import { Pages, PagesPartialEnterprise, PagesTypedEnterprise } from "~/metadata/forms/elements/pages/types"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
@@ -141,4 +137,4 @@ const importPagesEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-registerMetadata("ImportFromEnterprise", "Pages", importPagesPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "Pages", importPagesPropsFromEnterprise)

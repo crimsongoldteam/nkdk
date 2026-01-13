@@ -5,12 +5,12 @@ import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFr
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import {
   PictureField,
   PictureFieldPartialEnterprise,
   PictureFieldTypedEnterprise,
 } from "~/metadata/forms/elements/pictureField/types"
-import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
@@ -152,4 +152,4 @@ const importPictureFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "PictureField", importPictureFieldPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "PictureField", importPictureFieldPropsFromEnterprise)

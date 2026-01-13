@@ -145,4 +145,4 @@ const importCalendarFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "CalendarField", importCalendarFieldPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "CalendarField", importCalendarFieldPropsFromEnterprise)

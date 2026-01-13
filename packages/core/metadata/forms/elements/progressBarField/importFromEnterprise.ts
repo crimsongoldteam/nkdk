@@ -2,12 +2,12 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import {
   ProgressBarField,
   ProgressBarFieldPartialEnterprise,
   ProgressBarFieldTypedEnterprise,
 } from "~/metadata/forms/elements/progressBarField/types"
-import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
@@ -128,4 +128,4 @@ const importProgressBarFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "ProgressBarField", importProgressBarFieldPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "ProgressBarField", importProgressBarFieldPropsFromEnterprise)

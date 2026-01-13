@@ -122,4 +122,4 @@ const importPopupPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "Popup", importPopupPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "Popup", importPopupPropsFromEnterprise)

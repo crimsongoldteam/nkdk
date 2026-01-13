@@ -68,4 +68,4 @@ export const importFormGroupFromXML = <From extends FormGroupXML | undefined>(
   return result
 }
 
-registerMetadata<FormGroupXML>("ImportFromXML", "FormGroup", importFormGroupFromXML)
+registerMetadata("ImportFromXML", "FormGroup", importFormGroupFromXML)

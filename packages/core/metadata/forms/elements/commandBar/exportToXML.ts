@@ -34,4 +34,4 @@ export const exportCommandBarToXML = <T extends CommandBar | undefined>(
   return sortObject(result) as ImportExportReturn<T, CommandBarXML>
 }
 
-registerMetadata<CommandBar>("ExportToXML", "CommandBar", exportCommandBarToXML)
+registerMetadata("ExportToXML", "CommandBar", exportCommandBarToXML)

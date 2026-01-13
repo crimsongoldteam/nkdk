@@ -144,4 +144,4 @@ const importPagePropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "Page", importPageFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "Page", importPageFromEnterprise)

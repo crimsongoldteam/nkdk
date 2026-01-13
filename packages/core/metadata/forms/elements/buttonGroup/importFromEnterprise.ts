@@ -164,4 +164,4 @@ const importButtonGroupPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "ButtonGroup", importButtonGroupPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "ButtonGroup", importButtonGroupPropsFromEnterprise)

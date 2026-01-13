@@ -297,4 +297,4 @@ const importUsualGroupPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "UsualGroup", importUsualGroupPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "UsualGroup", importUsualGroupPropsFromEnterprise)

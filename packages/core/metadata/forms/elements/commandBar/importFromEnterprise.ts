@@ -111,4 +111,4 @@ const importCommandBarPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "CommandBar", importCommandBarPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "CommandBar", importCommandBarPropsFromEnterprise)

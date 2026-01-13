@@ -1,12 +1,12 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import {
   PlannerField,
   PlannerFieldPartialEnterprise,
   PlannerFieldTypedEnterprise,
 } from "~/metadata/forms/elements/plannerField/types"
-import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
@@ -73,7 +73,8 @@ const importPlannerFieldPropsFromEnterprise = (
     context,
     data.ГиперссылкаПеренесенногоЗаголовкаШкалыВремени
   )
-  if (wrappedTimeScaleHeaderHyperlink !== undefined) result.wrappedTimeScaleHeaderHyperlink = wrappedTimeScaleHeaderHyperlink
+  if (wrappedTimeScaleHeaderHyperlink !== undefined)
+    result.wrappedTimeScaleHeaderHyperlink = wrappedTimeScaleHeaderHyperlink
 
   const dimensionItemHyperlink = importBooleanFromEnterprise(context, data.ГиперссылкаЭлементаИзмерения)
   if (dimensionItemHyperlink !== undefined) result.dimensionItemHyperlink = dimensionItemHyperlink
@@ -119,4 +120,4 @@ const importPlannerFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "PlannerField", importPlannerFieldPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "PlannerField", importPlannerFieldPropsFromEnterprise)

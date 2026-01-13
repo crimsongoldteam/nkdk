@@ -4,12 +4,12 @@ import { importColorFromEnterprise } from "~/metadata/commonObjects/color/import
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
+import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import {
   RadioButtonField,
   RadioButtonFieldPartialEnterprise,
   RadioButtonFieldTypedEnterprise,
 } from "~/metadata/forms/elements/radioButtonField/types"
-import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
@@ -119,4 +119,4 @@ const importRadioButtonFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "RadioButtonField", importRadioButtonFieldPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "RadioButtonField", importRadioButtonFieldPropsFromEnterprise)

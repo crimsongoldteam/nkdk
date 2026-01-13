@@ -240,4 +240,4 @@ export const importFormFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "FormField", importFormFieldPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "FormField", importFormFieldPropsFromEnterprise)

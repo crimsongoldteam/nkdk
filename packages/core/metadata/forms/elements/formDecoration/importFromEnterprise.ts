@@ -171,4 +171,4 @@ export const importFormDecorationPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "FormDecoration", importFormDecorationPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "FormDecoration", importFormDecorationPropsFromEnterprise)

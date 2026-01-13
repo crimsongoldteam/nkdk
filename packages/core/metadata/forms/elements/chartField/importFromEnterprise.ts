@@ -101,4 +101,4 @@ const importChartFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "ChartField", importChartFieldPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "ChartField", importChartFieldPropsFromEnterprise)

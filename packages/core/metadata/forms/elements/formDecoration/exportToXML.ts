@@ -80,4 +80,4 @@ export const exportFormDecorationToXML = <T extends FormDecoration | undefined>(
   return sortObject(result) as ImportExportReturn<T, FormDecorationXML>
 }
 
-registerMetadata<FormDecoration>("ExportToXML", "FormDecoration", exportFormDecorationToXML)
+registerMetadata("ExportToXML", "FormDecoration", exportFormDecorationToXML)

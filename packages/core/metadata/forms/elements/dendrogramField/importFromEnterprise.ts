@@ -101,4 +101,4 @@ const importDendrogramFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "DendrogramField", importDendrogramFieldPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "DendrogramField", importDendrogramFieldPropsFromEnterprise)

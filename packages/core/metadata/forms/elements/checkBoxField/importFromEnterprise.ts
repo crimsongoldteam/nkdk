@@ -120,4 +120,4 @@ const importCheckBoxFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "CheckBoxField", importCheckBoxFieldPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "CheckBoxField", importCheckBoxFieldPropsFromEnterprise)

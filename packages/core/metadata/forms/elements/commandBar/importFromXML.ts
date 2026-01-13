@@ -36,4 +36,4 @@ export const importCommandBarFromXML = <From extends CommandBarXML | undefined>(
   return result as ImportExportReturn<From, CommandBar>
 }
 
-registerMetadata<CommandBarXML>("ImportFromXML", "CommandBar", importCommandBarFromXML)
+registerMetadata("ImportFromXML", "CommandBar", importCommandBarFromXML)

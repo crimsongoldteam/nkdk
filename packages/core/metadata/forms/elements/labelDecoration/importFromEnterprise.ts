@@ -144,4 +144,4 @@ const importLabelDecorationPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "LabelDecoration", importLabelDecorationPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "LabelDecoration", importLabelDecorationPropsFromEnterprise)

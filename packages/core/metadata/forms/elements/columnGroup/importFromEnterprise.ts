@@ -191,4 +191,4 @@ const importColumnGroupPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "ColumnGroup", importColumnGroupPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "ColumnGroup", importColumnGroupPropsFromEnterprise)

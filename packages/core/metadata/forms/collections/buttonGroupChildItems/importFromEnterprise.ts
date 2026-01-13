@@ -1,7 +1,7 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
+import { executeImportTypedFromEnterpriseOperation } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
-import { ButtonGroupChildItems, ButtonGroupChildItemsEnterprise } from "./types"
+import { ButtonGroupChildItem, ButtonGroupChildItems, ButtonGroupChildItemsEnterprise } from "./types"
 
 export const importButtonGroupChildItemsFromEnterprise = (
   context: ConfigurationContext,
@@ -13,11 +13,10 @@ export const importButtonGroupChildItemsFromEnterprise = (
   for (const [name, itemData] of Object.entries(data)) {
     const elementType = importFormElementTypeFromEnterprise(context, itemData.Тип)
 
-    const importFunction = getOperationFunction("ImportFromEnterprise", elementType)
-    if (!importFunction) throw new Error(`Import function not found for element type: ${elementType}`)
-
-    const item = importFunction(context, itemData, name)
-    result.push(item)
+    const item = executeImportTypedFromEnterpriseOperation(elementType, context, itemData, name)
+    if (item !== undefined) {
+      result.push(item as ButtonGroupChildItem)
+    }
   }
 
   return result

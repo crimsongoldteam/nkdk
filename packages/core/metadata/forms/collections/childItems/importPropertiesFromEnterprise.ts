@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "~/metadata/context/types"
-import { executeOperation } from "~/metadata/metadataFactory/metadataFactory"
+import { executeImportPartialFromEnterpriseOperation } from "~/metadata/metadataFactory/metadataFactory"
 import { ChildItem, ChildItems, ChildItemsPartialEnterprise } from "./types"
 
 export const importChildItemsPropertiesFromEnterprise = (
@@ -32,14 +32,13 @@ const importChildItemProperties = (
 
   const propertiesEnterprise = childItemsProperties[item.name]
 
-  const properties = executeOperation(
-    "ImportFromEnterprise",
+  const result = executeImportPartialFromEnterpriseOperation(
+    "ImportPartialFromEnterprise",
     item.elementType,
     context,
-    propertiesEnterprise,
-    item.name
+    item,
+    propertiesEnterprise
   )
 
-  if (!properties) return { ...item }
-  return { ...item, ...properties }
+  return result
 }

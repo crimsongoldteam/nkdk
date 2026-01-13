@@ -217,4 +217,5 @@ const importButtonPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportFromEnterprise", "Button", importButtonPartialFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "Button", importButtonPartialFromEnterprise)
+registerMetadata("ImportTypedFromEnterprise", "Button", importButtonTypedFromEnterprise)

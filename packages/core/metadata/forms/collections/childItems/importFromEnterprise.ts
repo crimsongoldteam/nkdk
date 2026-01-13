@@ -11,7 +11,7 @@ export const importChildItemsFromEnterprise = (
 
   const result: ChildItems = []
   for (const [elementType, itemData] of Object.entries(data)) {
-    const importFunction = getOperationFunction("ImportFromEnterprise", elementType as FormElementType)
+    const importFunction = getOperationFunction("ImportPartialFromEnterprise", elementType as FormElementType)
     if (!importFunction) throw new Error(`Import function not found for element type: ${elementType}`)
     const item = importFunction(context, itemData, "")
     if (item !== undefined) {
