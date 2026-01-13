@@ -1,18 +1,33 @@
 <Page name="Страница" id="1" DisplayImportance="High">
+	<BackColor>web:White</BackColor>
+	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>
+	<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>
 	<EnableContentChange>true</EnableContentChange>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip name="СтраницаРасширеннаяПодсказка" id="2"/>
+	<Format>
+		<v8:item>
+			<v8:lang>ru</v8:lang>
+			<v8:content>Формат</v8:content>
+		</v8:item>
+	</Format>
+	<Group>Vertical</Group>
 	<Height>200</Height>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
+	<HorizontalSpacing>Single</HorizontalSpacing>
 	<HorizontalStretch>true</HorizontalStretch>
+	<ItemsAndTitlesAlign>Auto</ItemsAndTitlesAlign>
 	<ReadOnly>false</ReadOnly>
+	<ScrollOnCompress>true</ScrollOnCompress>
 	<Shortcut>Ctrl+S</Shortcut>
+	<ShowTitle>true</ShowTitle>
+	<SlaveItemsWidth>Auto</SlaveItemsWidth>
 	<Title>
 		<v8:item>
 			<v8:lang>ru</v8:lang>
 			<v8:content>Страница</v8:content>
 		</v8:item>
 	</Title>
+	<TitleDataPath>Объект.Заголовок</TitleDataPath>
 	<TitleFont ref="style:NormalTextFont" kind="StyleItem"/>
 	<TitleTextColor>web:Black</TitleTextColor>
 	<ToolTip>
@@ -27,27 +42,11 @@
 		<xr:Common>true</xr:Common>
 		<xr:Value name="Role.Администратор">true</xr:Value>
 	</UserVisible>
+	<VerticalAlign>Top</VerticalAlign>
 	<VerticalAlignInGroup>Top</VerticalAlignInGroup>
+	<VerticalScrollOnReduceSize>true</VerticalScrollOnReduceSize>
+	<VerticalSpacing>Single</VerticalSpacing>
 	<VerticalStretch>true</VerticalStretch>
 	<Visible>true</Visible>
 	<Width>300</Width>
-	<BackColor>web:White</BackColor>
-	<ChildItemsHorizontalAlign>Left</ChildItemsHorizontalAlign>
-	<ChildItemsVerticalAlign>Top</ChildItemsVerticalAlign>
-	<Format>
-		<v8:item>
-			<v8:lang>ru</v8:lang>
-			<v8:content>Формат</v8:content>
-		</v8:item>
-	</Format>
-	<Group>Vertical</Group>
-	<HorizontalSpacing>Single</HorizontalSpacing>
-	<ItemsAndTitlesAlign>Auto</ItemsAndTitlesAlign>
-	<ScrollOnCompress>true</ScrollOnCompress>
-	<ShowTitle>true</ShowTitle>
-	<SlaveItemsWidth>Auto</SlaveItemsWidth>
-	<TitleDataPath>Объект.Заголовок</TitleDataPath>
-	<VerticalAlign>Top</VerticalAlign>
-	<VerticalScrollOnReduceSize>true</VerticalScrollOnReduceSize>
-	<VerticalSpacing>Single</VerticalSpacing>
 </Page>
