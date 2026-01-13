@@ -17,10 +17,6 @@
 		<InputField name="ПолеВвода1" id="3"/>
 	</ChildItems>
 	<ChoiceMode>true</ChoiceMode>
-	<CommandBar name="ТаблицаКоманднаяПанель" id="4" DisplayImportance="High">
-		<Autofill>true</Autofill>
-		<HorizontalAlign>Left</HorizontalAlign>
-	</CommandBar>
 	<CommandBarLocation>Top</CommandBarLocation>
 	<CommandSet>
 		<ExcludedCommand>WriteAndClose</ExcludedCommand>

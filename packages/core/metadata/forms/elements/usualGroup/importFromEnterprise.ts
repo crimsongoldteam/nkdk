@@ -63,9 +63,6 @@ export const importUsualGroupPartialFromEnterprise = (
   const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
   if (title !== undefined) result.title = title
 
-  const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
-  if (childItems !== undefined) result.childItems = childItems
-
   return result
 }
 

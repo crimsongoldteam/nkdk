@@ -8,10 +8,7 @@ describe("importContextMenuFromEnterprise", () => {
   it("should import all fields from Enterprise", () => {
     const result = importContextMenuFromEnterprise(mockСontext, fullContextMenuEnterprise)
 
-    expect(result).toBeDefined()
-    expect(result?.displayImportance).toBe(fullContextMenu.displayImportance)
-    expect(result?.autofill).toBe(fullContextMenu.autofill)
-    expect(result?.childItems).toEqual(fullContextMenu.childItems)
+    expect(result).toEqual(fullContextMenu)
   })
 
   it("should import minimal", () => {
