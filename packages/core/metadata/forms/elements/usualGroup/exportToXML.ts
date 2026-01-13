@@ -8,6 +8,7 @@ import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { UsualGroup, UsualGroupXML } from "~/metadata/forms/elements/usualGroup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export const exportUsualGroupToXML = (
   context: ConfigurationContext,
@@ -16,9 +17,11 @@ export const exportUsualGroupToXML = (
   if (!data) return undefined
 
   const baseFields = exportFormGroupPropsToXML(context, data)
-  if (!baseFields) return undefined
+
+  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
 
   const result: UsualGroupXML = {
+    ExtendedTooltip: extendedTooltip,
     ...baseFields,
   }
 

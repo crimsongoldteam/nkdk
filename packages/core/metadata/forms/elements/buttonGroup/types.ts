@@ -6,7 +6,7 @@ import {
   ButtonGroupChildItemsEnterprise,
   ButtonGroupChildItemsXML,
 } from "../../collections/buttonGroupChildItems/types"
-import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface ButtonGroup extends FormGroup {
   extendedTooltip?: ExtendedTooltip
@@ -23,7 +23,7 @@ export interface ButtonGroupXML extends FormGroupXML {
 }
 
 export interface ButtonGroupPartialEnterprise extends FormGroupPartialEnterprise {
-  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   Отображение?: SE.ButtonGroupRepresentationEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise

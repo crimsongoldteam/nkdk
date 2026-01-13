@@ -57,7 +57,7 @@ export interface ExtendedTooltipXML extends BaseElementXML {
   Width?: number
 }
 
-export interface ExtendedTooltipPropsEnterprise extends FormDecorationPropsEnterprise {
+export interface ExtendedTooltipEnterprise extends FormDecorationPropsEnterprise {
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise

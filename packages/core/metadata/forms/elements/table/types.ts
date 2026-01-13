@@ -12,7 +12,7 @@ import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/f
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { AutoCommandBar, AutoCommandBarXML } from "../autoCommandBar/types"
-import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 import {
   SearchControlAddition,
   SearchControlAdditionEnterprise,
@@ -280,7 +280,7 @@ export interface TablePartialEnterprise extends BaseElementPropsEnterprise {
   РазрешитьПеретаскивание?: StringboolEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   РежимВводаСтрок?: SE.TableRowInputModeEnterprise
   РежимВыбора?: StringboolEnterprise
   РежимВыделения?: SE.TableSelectionModeEnterprise

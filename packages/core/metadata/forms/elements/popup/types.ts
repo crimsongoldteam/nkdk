@@ -8,7 +8,7 @@ import {
   ButtonGroupChildItemsEnterprise,
   ButtonGroupChildItemsXML,
 } from "../../collections/buttonGroupChildItems/types"
-import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface Popup extends FormGroup {
   extendedTooltip?: ExtendedTooltip
@@ -38,7 +38,7 @@ export interface PopupPartialEnterprise extends FormGroupPartialEnterprise {
   Картинка?: PictureEnterprise
   Отображение?: SE.ButtonRepresentationEnterprise
   ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise
   Фигура?: SE.ButtonShapeEnterprise

@@ -9,7 +9,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItemsPartialEnterprise } from "../../collections/childItems/types"
 import { BaseElementXML } from "../baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
-import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface ViewStatusAddition {
   autoMaxWidth?: boolean
@@ -96,5 +96,5 @@ export interface ViewStatusAdditionEnterprise {
   ПодчиненныеЭлементы?: ChildItemsPartialEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   ЗапретитьИспользование?: UserVisibleEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
 }

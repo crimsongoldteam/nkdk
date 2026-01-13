@@ -6,6 +6,7 @@ import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/
 import { Table, TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface UsualGroup extends FormGroup {
   associatedTable?: Table
@@ -17,6 +18,7 @@ export interface UsualGroup extends FormGroup {
   controlRepresentation?: SE.UsualGroupControlRepresentation
   currentRowUse?: SE.CurrentRowUse
   displayImportance?: SE.DisplayImportance
+  extendedTooltip?: ExtendedTooltip
   format?: I8nText
   group?: SE.ChildFormItemsGroup
   groupHorizontalAlign?: SE.ItemHorizontalLocation
@@ -47,6 +49,7 @@ export interface UsualGroupXML extends FormGroupXML {
   ControlRepresentation?: SE.UsualGroupControlRepresentation
   CurrentRowUse?: SE.CurrentRowUse
   _DisplayImportance?: SE.DisplayImportance
+  ExtendedTooltip: ExtendedTooltipXML
   Format?: I8nTextXML
   Group?: SE.ChildFormItemsGroup
   GroupHorizontalAlign?: SE.ItemHorizontalLocation
@@ -90,6 +93,7 @@ export interface UsualGroupPartialEnterprise extends FormGroupPartialEnterprise 
   Поведение?: SE.UsualGroupBehaviorEnterprise
   ПодчиненныеЭлементы?: ChildItemsPartialEnterprise
   ПутьКДаннымЗаголовка?: string
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   РазрешитьИспользование?: UserVisibleEnterprise
   СквозноеВыравнивание?: SE.ThroughAlignEnterprise
   Формат?: I8nTextEnterprise

@@ -1,5 +1,5 @@
 import { BaseElement } from "~/metadata/forms/elements/baseElement/types"
-import { ExtendedTooltip, ExtendedTooltipPropsEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const defaultExtendedTooltip: ExtendedTooltip = {}
@@ -46,7 +46,7 @@ export const fullExtendedTooltip: ExtendedTooltip = {
   width: 300,
 }
 
-export const fullExtendedTooltipEnterprise: ExtendedTooltipPropsEnterprise = {
+export const fullExtendedTooltipEnterprise: ExtendedTooltipEnterprise = {
   Заголовок: "Оформление формы",
   АвтоМаксимальнаяВысота: "Истина",
   АвтоМаксимальнаяШирина: "Истина",
@@ -73,4 +73,4 @@ export const fullExtendedTooltipEnterprise: ExtendedTooltipPropsEnterprise = {
 
 export const minimalExtendedTooltip: ExtendedTooltip = {}
 
-export const minimalExtendedTooltipEnterprise: ExtendedTooltipPropsEnterprise = {}
+export const minimalExtendedTooltipEnterprise: ExtendedTooltipEnterprise = {}

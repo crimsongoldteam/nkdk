@@ -14,7 +14,7 @@ import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/f
 import { Table, TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ExtendedTooltip, ExtendedTooltipPropsEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormField extends BaseElement {
   autoCellHeight?: boolean
@@ -144,7 +144,7 @@ export interface FormFieldEnterprise extends BaseElementPropsEnterprise {
   ПропускатьПриВводе?: StringboolEnterprise
   ПутьКДанным?: string
   ПутьКДаннымПодвала?: string
-  РасширеннаяПодсказка?: ExtendedTooltipPropsEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
   РежимРедактирования?: SE.ColumnEditModeEnterprise
   СочетаниеКлавиш?: string
   Таблица?: TablePartialEnterprise
