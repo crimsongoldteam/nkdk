@@ -7,7 +7,10 @@ import {
   minimalLabelDecorationTypedEnterprise,
 } from "~/tests/fixtures/forms/labelDecoration/data"
 import { mockСontext } from "~/tests/mockContext"
-import { importLabelDecorationPartialFromEnterprise, importLabelDecorationTypedFromEnterprise } from "./importFromEnterprise"
+import {
+  importLabelDecorationPartialFromEnterprise,
+  importLabelDecorationTypedFromEnterprise,
+} from "./importFromEnterprise"
 
 describe("importLabelDecorationFromEnterprise", () => {
   describe("importLabelDecorationTypedFromEnterprise", () => {
@@ -18,7 +21,11 @@ describe("importLabelDecorationFromEnterprise", () => {
     })
 
     it("should import all fields from Enterprise", () => {
-      const result = importLabelDecorationTypedFromEnterprise(mockСontext, fullLabelDecorationTypedEnterprise, "Надпись")
+      const result = importLabelDecorationTypedFromEnterprise(
+        mockСontext,
+        fullLabelDecorationTypedEnterprise,
+        "Заголовок"
+      )
 
       expect(result).toEqual(fullLabelDecoration)
     })
@@ -27,7 +34,7 @@ describe("importLabelDecorationFromEnterprise", () => {
       const result = importLabelDecorationTypedFromEnterprise(
         mockСontext,
         minimalLabelDecorationTypedEnterprise,
-        "Надпись"
+        "Заголовок"
       )
 
       expect(result).toEqual(minimalLabelDecoration)
@@ -52,4 +59,3 @@ describe("importLabelDecorationFromEnterprise", () => {
     })
   })
 })
-

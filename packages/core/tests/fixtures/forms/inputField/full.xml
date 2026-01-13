@@ -74,22 +74,22 @@
 	<EditTextUpdate>OnValueChange</EditTextUpdate>
 	<Enabled>true</Enabled>
 	<Events>
-		<Event name="OnChange">ПроцедураПриИзменении</Event>
 		<Event name="AutoComplete">ПроцедураАвтоПодбора</Event>
-		<Event name="MultipleValuesAdd">ПроцедураДобавленияМножественныхЗначений</Event>
+		<Event name="ChoiceProcessing">ПроцедураОбработкиВыбора</Event>
+		<Event name="Clearing">ПроцедураОчистки</Event>
+		<Event name="CommandGenerateProcessing">ПроцедураОбработкиФормированияКоманд</Event>
+		<Event name="Creating">ПроцедураСоздания</Event>
 		<Event name="EditTextChange">ПроцедураИзмененияТекстаРедактирования</Event>
+		<Event name="MultipleValueOpening">ПроцедураОткрытияМножественногоЗначения</Event>
+		<Event name="MultipleValuesAdd">ПроцедураДобавленияМножественныхЗначений</Event>
+		<Event name="MultipleValuesDelete">ПроцедураУдаленияМножественныхЗначений</Event>
+		<Event name="MultipleValueURLProcessing">ПроцедураОбработкиНавигационнойСсылкиМножественногоЗначения</Event>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
+		<Event name="Opening">ПроцедураОткрытия</Event>
 		<Event name="StartChoice">ПроцедураНачалаВыбора</Event>
 		<Event name="StartListChoice">ПроцедураНачалаВыбораИзСписка</Event>
-		<Event name="ChoiceProcessing">ПроцедураОбработкиВыбора</Event>
-		<Event name="MultipleValueURLProcessing">ПроцедураОбработкиНавигационнойСсылкиМножественногоЗначения</Event>
-		<Event name="CommandGenerateProcessing">ПроцедураОбработкиФормированияКоманд</Event>
 		<Event name="TextEditEnd">ПроцедураОкончанияВводаТекста</Event>
-		<Event name="Opening">ПроцедураОткрытия</Event>
-		<Event name="MultipleValueOpening">ПроцедураОткрытияМножественногоЗначения</Event>
-		<Event name="Clearing">ПроцедураОчистки</Event>
 		<Event name="Tuning">ПроцедураРегулирования</Event>
-		<Event name="Creating">ПроцедураСоздания</Event>
-		<Event name="MultipleValuesDelete">ПроцедураУдаленияМножественныхЗначений</Event>
 	</Events>
 	<ExtendedEdit>true</ExtendedEdit>
 	<ExtendedTooltip name="ПолеВводаРасширеннаяПодсказка" id="3"/>
