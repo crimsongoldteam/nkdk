@@ -11,8 +11,8 @@
 	<EditMode>EnterOnInput</EditMode>
 	<Enabled>true</Enabled>
 	<Events>
-		<Event name="OnChange">ПроцедураПриИзменении</Event>
 		<Event name="BeforeWrite">ПроцедураПередЗаписью</Event>
+		<Event name="OnChange">ПроцедураПриИзменении</Event>
 	</Events>
 	<ExtendedTooltip name="ПолеФорматированногоДокументаРасширеннаяПодсказка" id="3"/>
 	<FixingInTable>None</FixingInTable>
