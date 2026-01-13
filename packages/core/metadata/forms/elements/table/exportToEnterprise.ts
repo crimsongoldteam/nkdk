@@ -38,7 +38,7 @@ export const exportTableToEnterprise = (
   if (autoInsertNewRow !== undefined) result.АвтоВводНовойСтроки = autoInsertNewRow
 
   const autoCommandBar = exportAutoCommandBarToEnterprise(context, data.autoCommandBar)
-  if (autoCommandBar !== undefined) result.АвтоКоманднаяПанель = autoCommandBar
+  if (autoCommandBar !== undefined) result.КоманднаяПанель = autoCommandBar
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -260,8 +260,11 @@ export const exportTableToEnterprise = (
   if (searchControlLocation !== undefined) result.ПоложениеУправленияПоиском = searchControlLocation
 
   const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
-  if (userVisible !== undefined) {
-    Object.assign(result, userVisible)
+  if (userVisible?.РазрешитьИспользование !== undefined) {
+    result.РазрешитьИспользование = userVisible.РазрешитьИспользование
+  }
+  if (userVisible?.ЗапретитьИспользование !== undefined) {
+    result.ЗапретитьИспользование = userVisible.ЗапретитьИспользование
   }
 
   const skipOnInput = exportBooleanToEnterprise(context, data.skipOnInput)

@@ -22,4 +22,3 @@ describe("importTableFromEnterprise", () => {
     expect(result).toEqual(minimalTable)
   })
 })
-

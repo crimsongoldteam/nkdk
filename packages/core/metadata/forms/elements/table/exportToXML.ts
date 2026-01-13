@@ -12,6 +12,7 @@ import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportAutoCommandBarToXML } from "../autoCommandBar/exportToXML"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { exportSearchControlAdditionToXML } from "../searchControlAddition/exportToXML"
 import { exportSearchStringAdditionToXML } from "../searchStringAddition/exportToXML"
 import { exportViewStatusAdditionToXML } from "../viewStatusAddition/exportToXML"
@@ -90,6 +91,9 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
   if (data.enableDrag !== undefined) result.EnableDrag = data.enableDrag
 
   if (data.enableStartDrag !== undefined) result.EnableStartDrag = data.enableStartDrag
+
+  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+  if (extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
 
   if (data.fileDragMode !== undefined) result.FileDragMode = data.fileDragMode
 

@@ -13,12 +13,6 @@
 	<BorderColor>web:Black</BorderColor>
 	<ChangeRowOrder>true</ChangeRowOrder>
 	<ChangeRowSet>true</ChangeRowSet>
-	<ChildItems>
-		<InputField name="ПолеВвода1" id="3">
-			<ContextMenu name="ПолеВвода1КонтекстноеМеню" id="4"/>
-			<ExtendedTooltip name="ПолеВвода1РасширеннаяПодсказка" id="5"/>
-		</InputField>
-	</ChildItems>
 	<ChoiceMode>true</ChoiceMode>
 	<CommandBarLocation>Top</CommandBarLocation>
 	<CommandSet>
@@ -27,7 +21,7 @@
 		<ExcludedCommand>Delete</ExcludedCommand>
 	</CommandSet>
 	<ContextMenu name="ТаблицаКонтекстноеМеню" id="6">
-		<Autofill>true</Autofill>
+		<Autofill>false</Autofill>
 	</ContextMenu>
 	<CurrentRowUse>Auto</CurrentRowUse>
 	<DataPath>Объект.ТабличнаяЧасть</DataPath>
@@ -35,6 +29,14 @@
 	<EnableDrag>true</EnableDrag>
 	<EnableStartDrag>true</EnableStartDrag>
 	<Enabled>true</Enabled>
+	<ExtendedTooltip>
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 	<Events>
 		<Event name="AfterDeleteRow">ПроцедураПослеУдаления</Event>
 		<Event name="BeforeAddRow">ПроцедураПередНачаломДобавления</Event>
