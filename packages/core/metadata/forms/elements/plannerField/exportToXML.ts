@@ -5,12 +5,14 @@ import { PlannerField, PlannerFieldXML } from "~/metadata/forms/elements/planner
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportPlannerFieldToXML = (
+export function exportPlannerFieldToXML<From extends PlannerField | undefined>(
   context: ConfigurationContext,
-  data: PlannerField | undefined
-): PlannerFieldXML | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
@@ -52,7 +54,7 @@ export const exportPlannerFieldToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "PlannerField", exportPlannerFieldToXML)

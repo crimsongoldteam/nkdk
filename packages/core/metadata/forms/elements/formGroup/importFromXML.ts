@@ -6,17 +6,17 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
 import { FormGroup, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
 import { ImportExportReturn } from "../types"
 
-export const importFormGroupFromXML = <From extends FormGroupXML | undefined>(
+export function importFormGroupFromXML<From extends FormGroupXML | undefined>(
   context: ConfigurationContext,
   xml: From
-): ImportExportReturn<From, FormGroup> => {
-  if (!xml) return undefined as ImportExportReturn<From, FormGroup>
+): ImportExportReturn<From, FromXMLType<From>> {
+  if (xml === undefined) return undefined
   const baseFields = importBaseElementFromXML(context, xml)
 
-  const result: ImportExportReturn<From, FormGroup> = {
+  const result: FormGroup = {
     ...baseFields,
     elementType: FormElementType.FormGroup,
   }
@@ -65,7 +65,7 @@ export const importFormGroupFromXML = <From extends FormGroupXML | undefined>(
 
   if (xml.Width !== undefined) result.width = xml.Width
 
-  return result
+  return result as ImportExportReturn<From, FromXMLType<From>>
 }
 
 registerMetadata("ImportFromXML", "FormGroup", importFormGroupFromXML)

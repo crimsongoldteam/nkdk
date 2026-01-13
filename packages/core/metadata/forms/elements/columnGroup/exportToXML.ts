@@ -6,12 +6,14 @@ import { ColumnGroup, ColumnGroupXML } from "~/metadata/forms/elements/columnGro
 import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportColumnGroupToXML = (
+export function exportColumnGroupToXML<From extends ColumnGroup | undefined>(
   context: ConfigurationContext,
-  data: ColumnGroup | undefined
-): ColumnGroupXML | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
@@ -43,7 +45,7 @@ export const exportColumnGroupToXML = (
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "ColumnGroup", exportColumnGroupToXML)

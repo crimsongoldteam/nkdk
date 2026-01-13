@@ -16,9 +16,14 @@ import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { exportSearchControlAdditionToXML } from "../searchControlAddition/exportToXML"
 import { exportSearchStringAdditionToXML } from "../searchStringAddition/exportToXML"
 import { exportViewStatusAdditionToXML } from "../viewStatusAddition/exportToXML"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportTableToXML = (context: ConfigurationContext, data: Table | undefined): TableXML | undefined => {
-  if (!data) return undefined
+export function exportTableToXML<From extends Table | undefined>(
+  context: ConfigurationContext,
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportElementPropsToXML(context, data)
 
@@ -207,7 +212,7 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "Table", exportTableToXML)

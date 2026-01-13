@@ -6,12 +6,14 @@ import { HTMLDocumentField, HTMLDocumentFieldXML } from "~/metadata/forms/elemen
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportHTMLDocumentFieldToXML = (
+export function exportHTMLDocumentFieldToXML<From extends HTMLDocumentField | undefined>(
   context: ConfigurationContext,
-  data: HTMLDocumentField | undefined
-): HTMLDocumentFieldXML | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
@@ -49,7 +51,7 @@ export const exportHTMLDocumentFieldToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "HTMLDocumentField", exportHTMLDocumentFieldToXML)

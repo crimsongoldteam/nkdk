@@ -1,4 +1,4 @@
-import { FormElementType, FormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import { FormElementType, importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { Button, ButtonTypedEnterprise, ButtonXML } from "../../elements/button/types"
 import { ButtonGroup, ButtonGroupTypedEnterprise, ButtonGroupXML } from "../../elements/buttonGroup/types"
 import { Popup, PopupTypedEnterprise, PopupXML } from "../../elements/popup/types"
@@ -15,6 +15,6 @@ export type ButtonGroupChildItemEnterprise = (
   | ButtonGroupTypedEnterprise
   | PopupTypedEnterprise
 ) & {
-  Тип: keyof Pick<typeof FormElementTypeFromEnterprise, "Кнопка" | "ГруппаКнопок" | "Подменю">
+  Тип: keyof Pick<typeof importFormElementTypeFromEnterprise, "Кнопка" | "ГруппаКнопок" | "Подменю">
 }
 export type ButtonGroupChildItemsEnterprise = Record<string, ButtonGroupChildItemEnterprise>

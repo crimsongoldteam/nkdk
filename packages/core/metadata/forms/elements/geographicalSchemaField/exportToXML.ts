@@ -9,12 +9,14 @@ import {
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportGeographicalSchemaFieldToXML = (
+export function exportGeographicalSchemaFieldToXML<From extends GeographicalSchemaField | undefined>(
   context: ConfigurationContext,
-  data: GeographicalSchemaField | undefined
-): GeographicalSchemaFieldXML | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
@@ -50,7 +52,7 @@ export const exportGeographicalSchemaFieldToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "GeographicalSchemaField", exportGeographicalSchemaFieldToXML)

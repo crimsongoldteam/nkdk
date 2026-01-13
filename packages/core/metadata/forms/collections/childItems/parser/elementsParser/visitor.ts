@@ -16,7 +16,7 @@ import type { PictureDecoration } from "~/metadata/forms/elements/pictureDecorat
 import type { RadioButtonField } from "~/metadata/forms/elements/radioButtonField/types"
 import { Table } from "~/metadata/forms/elements/table/types"
 import { UsualGroup } from "~/metadata/forms/elements/usualGroup/types"
-import { FormElementType, FormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import { FormElementType, importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { BaseElement } from "../../../../elements/baseElement/types"
 import { joinTokens, visitAll } from "../visitorUtils"
 import { Parser } from "./parser"
@@ -575,9 +575,11 @@ export class Visitor extends BaseVisitor {
   // #region otherField
   otherField(ctx: CstChildrenDictionary, _context: ConfigurationContext): BaseElement {
     const name = this.visit(ctx.properties as CstNode[], context)
-    const otherFieldType = joinTokens(ctx.OtherFieldType as IToken[]) as keyof typeof FormElementTypeFromEnterprise
+    const otherFieldType = joinTokens(
+      ctx.OtherFieldType as IToken[]
+    ) as keyof typeof importFormElementTypeFromEnterprise
 
-    const elementType = FormElementTypeFromEnterprise[otherFieldType]
+    const elementType = importFormElementTypeFromEnterprise[otherFieldType]
     return {
       elementType: elementType,
       name: name,

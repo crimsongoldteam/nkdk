@@ -8,9 +8,14 @@ import { exportFormGroupToXML } from "~/metadata/forms/elements/formGroup/export
 import { Page, PageXML } from "~/metadata/forms/elements/page/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportPageToXML = (context: ConfigurationContext, data: Page | undefined): PageXML | undefined => {
-  if (!data) return undefined
+export function exportPageToXML<From extends Page | undefined>(
+  context: ConfigurationContext,
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
@@ -60,7 +65,7 @@ export const exportPageToXML = (context: ConfigurationContext, data: Page | unde
 
   if (data.verticalSpacing !== undefined) result.VerticalSpacing = data.verticalSpacing
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "Page", exportPageToXML)

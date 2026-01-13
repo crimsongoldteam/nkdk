@@ -12,18 +12,18 @@ import { FormField, FormFieldXML } from "~/metadata/forms/elements/formField/typ
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
 import { ImportExportReturn } from "../types"
 
-export const importFormFieldFromXML = <T extends FormFieldXML | undefined>(
+export function importFormFieldFromXML<From extends FormFieldXML | undefined>(
   context: ConfigurationContext,
-  xml: T
-): ImportExportReturn<T, FormField> => {
-  if (!xml) return undefined as ImportExportReturn<T, FormField>
+  xml: From
+): ImportExportReturn<From, FromXMLType<From>> {
+  if (xml === undefined) return undefined
   const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined as ImportExportReturn<T, FormField>
+  if (!baseFields) return undefined
 
-  const result: ImportExportReturn<T, FormField> = {
+  const result: FormField = {
     ...baseFields,
     elementType: FormElementType.FormField,
   }
@@ -135,7 +135,7 @@ export const importFormFieldFromXML = <T extends FormFieldXML | undefined>(
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result
+  return result as ImportExportReturn<From, FromXMLType<From>>
 }
 
 registerMetadata("ImportFromXML", "FormField", importFormFieldFromXML)

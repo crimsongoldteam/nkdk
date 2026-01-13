@@ -5,12 +5,14 @@ import { TrackBarField, TrackBarFieldXML } from "~/metadata/forms/elements/track
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportTrackBarFieldToXML = (
+export function exportTrackBarFieldToXML<From extends TrackBarField | undefined>(
   context: ConfigurationContext,
-  data: TrackBarField | undefined
-): TrackBarFieldXML | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
@@ -55,7 +57,7 @@ export const exportTrackBarFieldToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "TrackBarField", exportTrackBarFieldToXML)

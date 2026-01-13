@@ -58,7 +58,7 @@ export const importTrackBarFieldFromXML = (
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result
+  return result as ImportExportReturn<From, FromXMLType<From>>
 }
 
 registerMetadata("ImportFromXML", "TrackBarField", importTrackBarFieldFromXML)

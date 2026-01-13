@@ -3,12 +3,14 @@ import { DendrogramField, DendrogramFieldXML } from "~/metadata/forms/elements/d
 import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportDendrogramFieldToXML = (
+export function exportDendrogramFieldToXML<From extends DendrogramField | undefined>(
   context: ConfigurationContext,
-  data: DendrogramField | undefined
-): DendrogramFieldXML | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
@@ -33,7 +35,7 @@ export const exportDendrogramFieldToXML = (
 
   if (data.width !== undefined) result.Width = data.width
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "DendrogramField", exportDendrogramFieldToXML)

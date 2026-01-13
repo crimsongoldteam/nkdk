@@ -6,14 +6,14 @@ import { importChildItemsFromXML } from "~/metadata/forms/collections/childItems
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
 import { UsualGroup, UsualGroupXML } from "~/metadata/forms/elements/usualGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
 import { ImportExportReturn } from "../types"
 
-export const importUsualGroupFromXML = <From extends UsualGroupXML | undefined>(
+export function importUsualGroupFromXML<From extends UsualGroupXML | undefined>(
   context: ConfigurationContext,
   xml: From
-): ImportExportReturn<From, UsualGroup> => {
-  if (!xml) return undefined as ImportExportReturn<From, UsualGroup>
+): ImportExportReturn<From, FromXMLType<From>> {
+  if (xml === undefined) return undefined
 
   const baseFields = importFormGroupFromXML(context, xml)
 
@@ -85,7 +85,7 @@ export const importUsualGroupFromXML = <From extends UsualGroupXML | undefined>(
 
   if (xml.VerticalSpacing !== undefined) result.verticalSpacing = xml.VerticalSpacing
 
-  return result as ImportExportReturn<From, UsualGroup>
+  return result as ImportExportReturn<From, FromXMLType<From>>
 }
 
 registerMetadata("ImportFromXML", "UsualGroup", importUsualGroupFromXML)

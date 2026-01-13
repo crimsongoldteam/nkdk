@@ -8,9 +8,14 @@ import { Popup, PopupXML } from "~/metadata/forms/elements/popup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportPopupToXML = (context: ConfigurationContext, data: Popup | undefined): PopupXML | undefined => {
-  if (!data) return undefined
+export function exportPopupToXML<From extends Popup | undefined>(
+  context: ConfigurationContext,
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormGroupPropsToXML(context, data)
 
@@ -42,7 +47,7 @@ export const exportPopupToXML = (context: ConfigurationContext, data: Popup | un
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "Popup", exportPopupToXML)

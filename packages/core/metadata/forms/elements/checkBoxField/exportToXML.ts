@@ -8,12 +8,14 @@ import { exportFormFieldToXML } from "~/metadata/forms/elements/formField/export
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportCheckBoxFieldToXML = (
+export function exportCheckBoxFieldToXML<From extends CheckBoxField | undefined>(
   context: ConfigurationContext,
-  data: CheckBoxField | undefined
-): CheckBoxFieldXML | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
@@ -55,7 +57,7 @@ export const exportCheckBoxFieldToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "CheckBoxField", exportCheckBoxFieldToXML)

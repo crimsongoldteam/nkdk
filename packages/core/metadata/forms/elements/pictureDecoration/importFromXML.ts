@@ -7,13 +7,14 @@ import { importFormDecorationFromXML } from "~/metadata/forms/elements/formDecor
 import { PictureDecoration, PictureDecorationXML } from "~/metadata/forms/elements/pictureDecoration/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importPictureDecorationFromXML = (
+export function importPictureDecorationFromXML<From extends PictureDecorationXML | undefined>(
   context: ConfigurationContext,
-  xml: PictureDecorationXML | undefined
-): PictureDecoration | undefined => {
-  if (!xml) return undefined
+  xml: From
+): ImportExportReturn<From, FromXMLType<From>> {
+  if (xml === undefined) return undefined
 
   const baseFields = importFormDecorationFromXML(context, xml)
   if (!baseFields) return undefined
@@ -56,7 +57,7 @@ export const importPictureDecorationFromXML = (
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result
+  return result as ImportExportReturn<From, FromXMLType<From>>
 }
 
 registerMetadata("ImportFromXML", "PictureDecoration", importPictureDecorationFromXML)

@@ -5,14 +5,14 @@ import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/impo
 import { PdfDocumentField, PdfDocumentFieldXML } from "~/metadata/forms/elements/pdfDocumentField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
 import { ImportExportReturn } from "../types"
 
-export const importPdfDocumentFieldFromXML = <T extends PdfDocumentFieldXML | undefined>(
+export function importPdfDocumentFieldFromXML<From extends PdfDocumentFieldXML | undefined>(
   context: ConfigurationContext,
-  xml: T
-): ImportExportReturn<T, PdfDocumentField> => {
-  if (!xml) return undefined as ImportExportReturn<T, PdfDocumentField>
+  xml: From
+): ImportExportReturn<From, FromXMLType<From>> {
+  if (xml === undefined) return undefined
 
   const baseFields = importFormFieldFromXML(context, xml)
 
@@ -58,7 +58,7 @@ export const importPdfDocumentFieldFromXML = <T extends PdfDocumentFieldXML | un
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result as ImportExportReturn<T, PdfDocumentField>
+  return result as ImportExportReturn<From, FromXMLType<From>>
 }
 
 registerMetadata("ImportFromXML", "PdfDocumentField", importPdfDocumentFieldFromXML)

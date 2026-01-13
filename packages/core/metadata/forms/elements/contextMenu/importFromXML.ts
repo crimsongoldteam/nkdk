@@ -1,12 +1,14 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ContextMenu, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
 import { importButtonGroupChildItemsFromXML } from "../../collections/buttonGroupChildItems/importFromXML"
+import { FromXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importContextMenuFromXML = <T extends ContextMenu | undefined>(
+export function importContextMenuFromXML<From extends ContextMenuXML | undefined>(
   context: ConfigurationContext,
-  xml: ContextMenuXML | undefined
-): T | undefined => {
-  if (!xml) return undefined as T
+  xml: From
+): ImportExportReturn<From, FromXMLType<From>> {
+  if (xml === undefined) return undefined
 
   const result: ContextMenu = {
     childItems: [],
@@ -19,9 +21,9 @@ export const importContextMenuFromXML = <T extends ContextMenu | undefined>(
   const childItems = importButtonGroupChildItemsFromXML(context, xml.ChildItems)
   if (childItems !== undefined) result.childItems = childItems
 
-  if (!isHasContent(result)) return undefined as T
+  if (!isHasContent(result)) return undefined
 
-  return result as T
+  return result as ImportExportReturn<From, FromXMLType<From>>
 }
 
 const EXCLUDED_FIELDS = ["name", "elementType", "childItems"]

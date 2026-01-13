@@ -4,13 +4,14 @@ import { importButtonGroupChildItemsFromXML } from "~/metadata/forms/collections
 import { ButtonGroup, ButtonGroupXML } from "~/metadata/forms/elements/buttonGroup/types"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importButtonGroupFromXML = (
+export function importButtonGroupFromXML<From extends ButtonGroupXML | undefined>(
   context: ConfigurationContext,
-  xml: ButtonGroupXML | undefined
-): ButtonGroup | undefined => {
-  if (!xml) return undefined
+  xml: From
+): ImportExportReturn<From, FromXMLType<From>> {
+  if (xml === undefined) return undefined
   const baseFields = importFormGroupFromXML(context, xml)
 
   const childItems = importButtonGroupChildItemsFromXML(context, xml.ChildItems)
@@ -26,7 +27,7 @@ export const importButtonGroupFromXML = (
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
-  return result
+  return result as ImportExportReturn<From, FromXMLType<From>>
 }
 
 registerMetadata("ImportFromXML", "ButtonGroup", importButtonGroupFromXML)

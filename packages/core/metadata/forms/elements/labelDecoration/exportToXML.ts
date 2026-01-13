@@ -7,12 +7,14 @@ import { LabelDecoration, LabelDecorationXML } from "~/metadata/forms/elements/l
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportLabelDecorationToXML = (
+export function exportLabelDecorationToXML<From extends LabelDecoration | undefined>(
   context: ConfigurationContext,
-  data: LabelDecoration | undefined
-): LabelDecorationXML | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormDecorationToXML(context, data)
   if (!baseFields) return undefined
@@ -46,7 +48,7 @@ export const exportLabelDecorationToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "LabelDecoration", exportLabelDecorationToXML)

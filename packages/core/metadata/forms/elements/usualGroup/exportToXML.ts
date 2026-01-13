@@ -8,13 +8,15 @@ import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { UsualGroup, UsualGroupXML } from "~/metadata/forms/elements/usualGroup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { ImportExportReturn } from "../types"
 
-export const exportUsualGroupToXML = (
+export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
   context: ConfigurationContext,
-  data: UsualGroup | undefined
-): UsualGroupXML | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormGroupPropsToXML(context, data)
 
@@ -87,7 +89,7 @@ export const exportUsualGroupToXML = (
 
   if (data.verticalSpacing !== undefined) result.VerticalSpacing = data.verticalSpacing
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "UsualGroup", exportUsualGroupToXML)

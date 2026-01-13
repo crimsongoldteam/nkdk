@@ -7,13 +7,14 @@ import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/impo
 import { PeriodField, PeriodFieldXML } from "~/metadata/forms/elements/periodField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importPeriodFieldFromXML = (
+export function importPeriodFieldFromXML<From extends PeriodFieldXML | undefined>(
   context: ConfigurationContext,
-  xml: PeriodFieldXML | undefined
-): PeriodField | undefined => {
-  if (!xml) return undefined
+  xml: From
+): ImportExportReturn<From, FromXMLType<From>> {
+  if (xml === undefined) return undefined
 
   const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
@@ -56,7 +57,7 @@ export const importPeriodFieldFromXML = (
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result
+  return result as ImportExportReturn<From, FromXMLType<From>>
 }
 
 registerMetadata("ImportFromXML", "PeriodField", importPeriodFieldFromXML)

@@ -8,12 +8,14 @@ import { PictureDecoration, PictureDecorationXML } from "~/metadata/forms/elemen
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportPictureDecorationToXML = (
+export function exportPictureDecorationToXML<From extends PictureDecoration | undefined>(
   context: ConfigurationContext,
-  data: PictureDecoration | undefined
-): PictureDecorationXML | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormDecorationToXML(context, data)
   if (!baseFields) return undefined
@@ -53,7 +55,7 @@ export const exportPictureDecorationToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "PictureDecoration", exportPictureDecorationToXML)

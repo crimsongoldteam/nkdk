@@ -7,6 +7,8 @@ import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
 const exportPagesChildItemsToXML = (
   context: ConfigurationContext,
@@ -18,8 +20,11 @@ const exportPagesChildItemsToXML = (
     .filter((page): page is NonNullable<typeof page> => page !== undefined)
 }
 
-export const exportPagesToXML = (context: ConfigurationContext, data: Pages | undefined): PagesXML | undefined => {
-  if (!data) return undefined
+export function exportPagesToXML<From extends Pages | undefined>(
+  context: ConfigurationContext,
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormGroupPropsToXML(context, data)
   if (!baseFields) return undefined
@@ -46,7 +51,7 @@ export const exportPagesToXML = (context: ConfigurationContext, data: Pages | un
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "Pages", exportPagesToXML)

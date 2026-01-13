@@ -9,13 +9,14 @@ import { FormDecoration, FormDecorationXML } from "~/metadata/forms/elements/for
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
 import { ImportExportReturn } from "../types"
 
-export const exportFormDecorationToXML = <T extends FormDecoration | undefined>(
+export function exportFormDecorationToXML<From extends FormDecoration | undefined>(
   context: ConfigurationContext,
-  data: T
-): ImportExportReturn<T, FormDecorationXML> => {
-  if (!data) return undefined as ImportExportReturn<T, FormDecorationXML>
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportElementPropsToXML(context, data)
 
@@ -77,7 +78,7 @@ export const exportFormDecorationToXML = <T extends FormDecoration | undefined>(
 
   if (data.width !== undefined) result.Width = data.width
 
-  return sortObject(result) as ImportExportReturn<T, FormDecorationXML>
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "FormDecoration", exportFormDecorationToXML)

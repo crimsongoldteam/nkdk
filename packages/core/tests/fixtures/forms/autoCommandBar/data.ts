@@ -4,7 +4,6 @@ import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const parentElement: BaseElement = {
-  elementType: FormElementType.Form,
   name: "КакойТоЭлемент",
 }
 

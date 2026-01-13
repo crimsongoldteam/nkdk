@@ -9,12 +9,14 @@ import { LabelField, LabelFieldXML } from "~/metadata/forms/elements/labelField/
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportLabelFieldToXML = (
+export function exportLabelFieldToXML<From extends LabelField | undefined>(
   context: ConfigurationContext,
-  data: LabelField | undefined
-): LabelFieldXML | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
@@ -69,7 +71,7 @@ export const exportLabelFieldToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "LabelField", exportLabelFieldToXML)

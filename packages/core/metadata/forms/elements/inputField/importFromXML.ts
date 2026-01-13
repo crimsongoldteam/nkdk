@@ -13,14 +13,15 @@ import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/impo
 import { InputField, InputFieldXML } from "~/metadata/forms/elements/inputField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
+import { ImportExportReturn } from "../types"
 
-export const importInputFieldFromXML = (
+export function importInputFieldFromXML<From extends InputFieldXML | undefined>(
   context: ConfigurationContext,
-  xml: InputFieldXML | undefined
-): InputField | undefined => {
-  if (!xml) return undefined
+  xml: From
+): ImportExportReturn<From, FromXMLType<From>> {
+  if (xml === undefined) return undefined
 
   const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
@@ -219,7 +220,7 @@ export const importInputFieldFromXML = (
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result
+  return result as ImportExportReturn<From, FromXMLType<From>>
 }
 
 registerMetadata("ImportFromXML", "InputField", importInputFieldFromXML)

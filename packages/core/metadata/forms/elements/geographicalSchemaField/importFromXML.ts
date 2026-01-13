@@ -8,13 +8,14 @@ import {
 } from "~/metadata/forms/elements/geographicalSchemaField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importGeographicalSchemaFieldFromXML = (
+export function importGeographicalSchemaFieldFromXML<From extends GeographicalSchemaFieldXML | undefined>(
   context: ConfigurationContext,
-  xml: GeographicalSchemaFieldXML | undefined
-): GeographicalSchemaField | undefined => {
-  if (!xml) return undefined
+  xml: From
+): ImportExportReturn<From, FromXMLType<From>> {
+  if (xml === undefined) return undefined
   const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
 
@@ -52,7 +53,7 @@ export const importGeographicalSchemaFieldFromXML = (
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result
+  return result as ImportExportReturn<From, FromXMLType<From>>
 }
 
 registerMetadata("ImportFromXML", "GeographicalSchemaField", importGeographicalSchemaFieldFromXML)

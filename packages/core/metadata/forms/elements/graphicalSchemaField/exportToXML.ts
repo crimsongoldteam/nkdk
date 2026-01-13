@@ -6,12 +6,14 @@ import { GraphicalSchemaField, GraphicalSchemaFieldXML } from "~/metadata/forms/
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const exportGraphicalSchemaFieldToXML = (
+export function exportGraphicalSchemaFieldToXML<From extends GraphicalSchemaField | undefined>(
   context: ConfigurationContext,
-  data: GraphicalSchemaField | undefined
-): GraphicalSchemaFieldXML | undefined => {
-  if (!data) return undefined
+  data: From
+): ImportExportReturn<From, ToXMLType<From>> {
+  if (data === undefined) return undefined
 
   const baseFields = exportFormFieldToXML(context, data)
   if (!baseFields) return undefined
@@ -49,7 +51,7 @@ export const exportGraphicalSchemaFieldToXML = (
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return sortObject(result)
+  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
 }
 
 registerMetadata("ExportToXML", "GraphicalSchemaField", exportGraphicalSchemaFieldToXML)

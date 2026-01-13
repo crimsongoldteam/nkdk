@@ -4,12 +4,14 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipXML } from "~/metadata/forms/elements/extendedTooltip/types"
+import { FromXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importExtendedTooltipFromXML = <T extends ExtendedTooltipXML | undefined>(
+export function importExtendedTooltipFromXML<From extends ExtendedTooltipXML | undefined>(
   context: ConfigurationContext,
-  xml: T
-): ExtendedTooltip | undefined => {
-  if (!xml) return undefined
+  xml: From
+): ImportExportReturn<From, FromXMLType<From>> {
+  if (xml === undefined) return undefined
 
   const result: ExtendedTooltip = {}
 
@@ -62,7 +64,7 @@ export const importExtendedTooltipFromXML = <T extends ExtendedTooltipXML | unde
 
   if (xml.Width !== undefined) result.width = xml.Width
 
-  if (isHasContent(result)) return result
+  if (isHasContent(result)) return result as ImportExportReturn<From, FromXMLType<From>>
 
   return undefined
 }

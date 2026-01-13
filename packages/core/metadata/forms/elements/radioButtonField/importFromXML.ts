@@ -7,13 +7,14 @@ import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/impo
 import { RadioButtonField, RadioButtonFieldXML } from "~/metadata/forms/elements/radioButtonField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importRadioButtonFieldFromXML = (
+export function importRadioButtonFieldFromXML<From extends RadioButtonFieldXML | undefined>(
   context: ConfigurationContext,
-  xml: RadioButtonFieldXML | undefined
-): RadioButtonField | undefined => {
-  if (!xml) return undefined
+  xml: From
+): ImportExportReturn<From, FromXMLType<From>> {
+  if (xml === undefined) return undefined
 
   const baseFields = importFormFieldFromXML(context, xml)
   if (!baseFields) return undefined
@@ -58,7 +59,7 @@ export const importRadioButtonFieldFromXML = (
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result
+  return result as ImportExportReturn<From, FromXMLType<From>>
 }
 
 registerMetadata("ImportFromXML", "RadioButtonField", importRadioButtonFieldFromXML)

@@ -10,7 +10,6 @@ import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/context
 import { FormField, FormFieldEnterprise } from "~/metadata/forms/elements/formField/types"
 import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
@@ -209,5 +208,3 @@ export const exportFormFieldPropsToEnterprise = (
 
   return result
 }
-
-registerMetadata("ExportPartialToEnterprise", "FormField", exportFormFieldToEnterprise)
