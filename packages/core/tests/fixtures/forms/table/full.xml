@@ -20,7 +20,7 @@
 		<ExcludedCommand>Copy</ExcludedCommand>
 		<ExcludedCommand>Delete</ExcludedCommand>
 	</CommandSet>
-	<ContextMenu name="ТаблицаКонтекстноеМеню" id="6">
+	<ContextMenu name="ТаблицаКонтекстноеМеню" id="3">
 		<Autofill>false</Autofill>
 	</ContextMenu>
 	<CurrentRowUse>Auto</CurrentRowUse>
@@ -29,14 +29,6 @@
 	<EnableDrag>true</EnableDrag>
 	<EnableStartDrag>true</EnableStartDrag>
 	<Enabled>true</Enabled>
-	<ExtendedTooltip>
-		<Title>
-			<v8:item>
-				<v8:lang>ru</v8:lang>
-				<v8:content>Расширенная подсказка</v8:content>
-			</v8:item>
-		</Title>
-	</ExtendedTooltip>
 	<Events>
 		<Event name="AfterDeleteRow">ПроцедураПослеУдаления</Event>
 		<Event name="BeforeAddRow">ПроцедураПередНачаломДобавления</Event>
@@ -62,6 +54,14 @@
 		<Event name="Selection">ПроцедураВыбора</Event>
 		<Event name="ValueChoice">ПроцедураВыбораЗначения</Event>
 	</Events>
+	<ExtendedTooltip name="ТаблицаРасширеннаяПодсказка" id="4">
+		<Title>
+			<v8:item>
+				<v8:lang>ru</v8:lang>
+				<v8:content>Расширенная подсказка</v8:content>
+			</v8:item>
+		</Title>
+	</ExtendedTooltip>
 	<FileDragMode>AsFile</FileDragMode>
 	<Font ref="style:NormalTextFont" kind="StyleItem"/>
 	<Footer>true</Footer>
@@ -90,14 +90,14 @@
 	<RowPictureDataPath>Объект.Картинка</RowPictureDataPath>
 	<RowSelectionMode>Row</RowSelectionMode>
 	<RowsPicture>true</RowsPicture>
-	<SearchControl name="ТаблицаУправленияПоиском" id="7" DisplayImportance="High">
+	<SearchControl name="ТаблицаУправленияПоиском" id="5" DisplayImportance="High">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>SearchControlAddition</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаУправленияПоискомКонтекстноеМеню" id="8"/>
+		<ContextMenu name="ТаблицаУправленияПоискомКонтекстноеМеню" id="6"/>
 		<Enabled>true</Enabled>
-		<ExtendedTooltip name="ТаблицаУправленияПоискомРасширеннаяПодсказка" id="9"/>
+		<ExtendedTooltip name="ТаблицаУправленияПоискомРасширеннаяПодсказка" id="7"/>
 		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 		<Title>
 			<v8:item>
@@ -122,14 +122,14 @@
 	<SearchControlLocation>Auto</SearchControlLocation>
 	<SearchOnInput>Auto</SearchOnInput>
 	<SearchStringLocation>Auto</SearchStringLocation>
-	<SearchStringRepresentation name="ТаблицаСтрокаПоиска" id="10" DisplayImportance="High">
+	<SearchStringRepresentation name="ТаблицаСтрокаПоиска" id="8" DisplayImportance="High">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>SearchStringAddition</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаСтрокаПоискаКонтекстноеМеню" id="11"/>
+		<ContextMenu name="ТаблицаСтрокаПоискаКонтекстноеМеню" id="9"/>
 		<Enabled>true</Enabled>
-		<ExtendedTooltip name="ТаблицаСтрокаПоискаРасширеннаяПодсказка" id="12"/>
+		<ExtendedTooltip name="ТаблицаСтрокаПоискаРасширеннаяПодсказка" id="10"/>
 		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 		<Title>
 			<v8:item>
@@ -182,14 +182,14 @@
 	<VerticalScrollBar>AutoUse</VerticalScrollBar>
 	<VerticalStretch>true</VerticalStretch>
 	<ViewStatusLocation>Auto</ViewStatusLocation>
-	<ViewStatusRepresentation name="ТаблицаСостояниеПросмотра" id="13" DisplayImportance="High">
+	<ViewStatusRepresentation name="ТаблицаСостояниеПросмотра" id="11" DisplayImportance="High">
 		<AdditionSource>
 			<Item>Таблица</Item>
 			<Type>ViewStatusRepresentation</Type>
 		</AdditionSource>
-		<ContextMenu name="ТаблицаСостояниеПросмотраКонтекстноеМеню" id="14"/>
+		<ContextMenu name="ТаблицаСостояниеПросмотраКонтекстноеМеню" id="12"/>
 		<Enabled>true</Enabled>
-		<ExtendedTooltip name="ТаблицаСостояниеПросмотраРасширеннаяПодсказка" id="15"/>
+		<ExtendedTooltip name="ТаблицаСостояниеПросмотраРасширеннаяПодсказка" id="13"/>
 		<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 		<Title>
 			<v8:item>

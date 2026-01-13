@@ -28,6 +28,8 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
 
   const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
 
+  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+
   const searchControl = exportSearchControlAdditionToXML(context, data.searchControl, data)
 
   const searchStringRepresentation = exportSearchStringAdditionToXML(context, data.searchStringRepresentation, data)
@@ -39,11 +41,9 @@ export const exportTableToXML = (context: ConfigurationContext, data: Table | un
     SearchControl: searchControl,
     SearchStringRepresentation: searchStringRepresentation,
     ViewStatusRepresentation: viewStatusRepresentation,
+    ExtendedTooltip: extendedTooltip,
     ...baseFields,
   }
-
-  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
-  if (data.extendedTooltip !== undefined) result.ExtendedTooltip = extendedTooltip
 
   if (data.autoAddIncomplete !== undefined) result.AutoAddIncomplete = data.autoAddIncomplete
 
