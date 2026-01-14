@@ -16,7 +16,6 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { importChildItemsFromEnterprise } from "../../collections/childItems/importFromEnterprise"
 import { importTableFromEnterprise } from "../table/importFromEnterprise"
 
 export const importUsualGroupTypedFromEnterprise = (
@@ -39,9 +38,6 @@ export const importUsualGroupTypedFromEnterprise = (
 
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
-
-  const childItems = importChildItemsFromEnterprise(context, data.ПодчиненныеЭлементы)
-  if (childItems !== undefined) result.childItems = childItems
 
   return result
 }

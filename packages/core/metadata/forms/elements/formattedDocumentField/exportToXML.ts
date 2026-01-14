@@ -20,7 +20,6 @@ export function exportFormattedDocumentFieldToXML<From extends FormattedDocument
   if (data === undefined) return undefined as ImportExportReturn<From, ToXMLType<From>>
 
   const baseFields = exportFormFieldToXML(context, data)
-  if (!baseFields) return undefined
 
   const result: FormattedDocumentFieldXML = {
     ...baseFields,

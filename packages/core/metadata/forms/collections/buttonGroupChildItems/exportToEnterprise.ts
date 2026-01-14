@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import { getOperationFunction } from "~/metadata/metadataFactory/metadataFactory"
-import { ButtonGroupChildItems, ButtonGroupChildItemsEnterprise } from "./types"
+import { ButtonGroupChildItemEnterprise, ButtonGroupChildItems, ButtonGroupChildItemsEnterprise } from "./types"
 
 export const exportButtonGroupChildItemsToEnterprise = (
   context: ConfigurationContext,
@@ -13,7 +13,7 @@ export const exportButtonGroupChildItemsToEnterprise = (
     const fn = getOperationFunction("ExportTypedToEnterprise", item.elementType)
     if (fn == undefined) throw new Error(`Export function not found for element type: ${item.elementType}`)
     const resultItem = fn(context, item)
-    result[item.name] = resultItem
+    result[item.name] = resultItem as ButtonGroupChildItemEnterprise
   }
 
   return result

@@ -6,7 +6,7 @@ import {
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const parentElement: BaseElement = {
-  elementType: FormElementType.Form,
+  elementType: FormElementType.CheckBoxField,
   name: "Дополнение",
 }
 

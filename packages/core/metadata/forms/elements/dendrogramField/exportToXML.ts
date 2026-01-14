@@ -13,7 +13,6 @@ export function exportDendrogramFieldToXML<From extends DendrogramField | undefi
   if (data === undefined) return undefined as ImportExportReturn<From, ToXMLType<From>>
 
   const baseFields = exportFormFieldToXML(context, data)
-  if (!baseFields) return undefined
 
   const result: DendrogramFieldXML = {
     ...baseFields,

@@ -7,7 +7,6 @@ import {
   ClientApplicationFormEnterprise,
   ClientApplicationFormEvents,
 } from "~/metadata/forms/clientApplicationForm/base/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportPartialChildItemsToEnterprise } from "../../collections/childItems/exportToEnterprise"
@@ -244,5 +243,3 @@ export const exportClientApplicationFormToEnterprise = (
 
   return result
 }
-
-registerMetadata("ExportPartialToEnterprise", "ClientApplicationForm", exportClientApplicationFormToEnterprise)
