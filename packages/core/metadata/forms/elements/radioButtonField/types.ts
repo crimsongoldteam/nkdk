@@ -10,10 +10,9 @@ import {
   TypeDescriptionXML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { NamedElement } from "../baseElement/types"
+import { BaseElementXML, NamedElement } from "../baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 import { Table, TablePartialEnterprise, TableXML } from "../table/types"
@@ -79,7 +78,7 @@ export interface RadioButtonField extends NamedElement {
   }
 }
 
-export interface RadioButtonFieldXML extends FormFieldXML {
+export interface RadioButtonFieldXML extends BaseElementXML {
   BackColor?: ColorXML
   BorderColor?: ColorXML
   ChoiceList?: ChoiceListXML
@@ -137,7 +136,7 @@ export interface RadioButtonFieldXML extends FormFieldXML {
   Events?: EventsXML
 }
 
-export interface RadioButtonFieldPartialEnterprise extends FormFieldEnterprise {
+export interface RadioButtonFieldPartialEnterprise {
   ВидПереключателя?: SE.RadioButtonTypeEnterprise
   ВысотаЗаголовкаЭлемента?: number
   ВысотаЭлемента?: number

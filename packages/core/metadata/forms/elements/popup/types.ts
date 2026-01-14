@@ -1,10 +1,9 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
   ButtonGroupChildItem,
@@ -14,8 +13,27 @@ import {
 import { BaseElementXML } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
-export interface Popup extends Omit<FormGroup, "elementType"> {
+export interface Popup {
   elementType: "Popup"
+  name: string
+  enableContentChange?: boolean
+  enabled?: boolean
+  height?: number
+  horizontalAlignInGroup?: SE.ItemHorizontalLocation
+  horizontalStretch?: boolean
+  readOnly?: boolean
+  shortcut?: string
+  title?: I8nText
+  titleFont?: Font
+  titleTextColor?: Color
+  toolTip?: I8nText
+  toolTipRepresentation?: SE.ToolTipRepresentation
+  type?: SE.FormGroupType
+  userVisible?: UserVisible
+  verticalAlignInGroup?: SE.ItemVerticalAlign
+  verticalStretch?: boolean
+  visible?: boolean
+  width?: number
   extendedTooltip?: ExtendedTooltip
   backColor?: Color
   borderColor?: Color
@@ -23,7 +41,6 @@ export interface Popup extends Omit<FormGroup, "elementType"> {
   representation?: SE.ButtonRepresentation
   shape?: SE.ButtonShape
   shapeRepresentation?: SE.ButtonShapeRepresentation
-  userVisible?: UserVisible
   childItems: ButtonGroupChildItem[]
 }
 

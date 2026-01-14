@@ -14,8 +14,6 @@ import {
   GeographicalSchemaFieldPartialEnterprise,
   GeographicalSchemaFieldTypedEnterprise,
 } from "~/metadata/forms/elements/geographicalSchemaField/types"
-import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
-import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
@@ -28,7 +26,8 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-
+import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
+import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
 export function exportGeographicalSchemaFieldTypedToEnterprise<From extends GeographicalSchemaField | undefined>(
   context: ConfigurationContext,
@@ -273,10 +272,10 @@ const exportGeographicalSchemaFieldPropsToEnterprise = (
 registerMetadata(
   "ExportPartialToEnterprise",
   "GeographicalSchemaField",
-  exportGeographicalSchemaFieldPartialToEnterprise as any as ExportPartialToEnterpriseFn
+  exportGeographicalSchemaFieldPartialToEnterprise as ExportPartialToEnterpriseFn
 )
 registerMetadata(
   "ExportTypedToEnterprise",
   "GeographicalSchemaField",
-  exportGeographicalSchemaFieldTypedToEnterprise as any as ExportTypedToEnterpriseFn
+  exportGeographicalSchemaFieldTypedToEnterprise as ExportTypedToEnterpriseFn
 )

@@ -1,18 +1,18 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsXML } from "../../collections/childItems/types"
-import { BaseElementXML } from "../baseElement/types"
-import { ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { BaseElementXML, NamedElement } from "../baseElement/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
-export interface Page extends Omit<FormGroup, "elementType"> {
+export interface Page extends NamedElement {
   elementType: "Page"
   backColor?: Color
+  extendedTooltip?: ExtendedTooltip
   childItemsHorizontalAlign?: SE.ItemHorizontalLocation
   childItemsVerticalAlign?: SE.ItemVerticalAlign
   displayImportance?: SE.DisplayImportance
@@ -25,10 +25,27 @@ export interface Page extends Omit<FormGroup, "elementType"> {
   showTitle?: boolean
   slaveItemsWidth?: SE.ChildFormItemsWidth
   titleDataPath?: string
-  userVisible?: UserVisible
   verticalAlign?: SE.ItemVerticalAlign
   verticalScrollOnReduceSize?: boolean
   verticalSpacing?: SE.FormItemSpacing
+  enableContentChange?: boolean
+  enabled?: boolean
+  height?: number
+  horizontalAlignInGroup?: SE.ItemHorizontalLocation
+  horizontalStretch?: boolean
+  readOnly?: boolean
+  shortcut?: string
+  title?: I8nText
+  titleFont?: Font
+  titleTextColor?: Color
+  toolTip?: I8nText
+  toolTipRepresentation?: SE.ToolTipRepresentation
+  type?: SE.FormGroupType
+  userVisible?: UserVisible
+  verticalAlignInGroup?: SE.ItemVerticalAlign
+  verticalStretch?: boolean
+  visible?: boolean
+  width?: number
   childItems: ChildItems
 }
 
@@ -40,6 +57,7 @@ export interface PageXML extends BaseElementXML {
   HorizontalStretch?: boolean
   ReadOnly?: boolean
   Shortcut?: string
+  ExtendedTooltip?: ExtendedTooltipXML
   Title?: I8nTextXML
   TitleFont?: FontXML
   TitleTextColor?: ColorXML
@@ -112,6 +130,3 @@ export interface PagePartialEnterprise {
 export interface PageTypedEnterprise extends PagePartialEnterprise {
   Тип: "Страница"
 }
-
-// Для обратной совместимости
-export type PageEnterprise = PagePartialEnterprise

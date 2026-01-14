@@ -3,15 +3,33 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup } from "~/metadata/forms/elements/formGroup/types"
 import { Table, TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
 import { BaseElementXML } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
-export interface UsualGroup extends Omit<FormGroup, "elementType"> {
+export interface UsualGroup {
   elementType: "UsualGroup"
+  name: string
+  enableContentChange?: boolean
+  enabled?: boolean
+  height?: number
+  horizontalAlignInGroup?: SE.ItemHorizontalLocation
+  horizontalStretch?: boolean
+  readOnly?: boolean
+  shortcut?: string
+  title?: I8nText
+  titleFont?: Font
+  titleTextColor?: Color
+  toolTip?: I8nText
+  toolTipRepresentation?: SE.ToolTipRepresentation
+  type?: SE.FormGroupType
+  userVisible?: UserVisible
+  verticalAlignInGroup?: SE.ItemVerticalAlign
+  verticalStretch?: boolean
+  visible?: boolean
+  width?: number
   associatedTable?: Table
   backColor?: Color
   behavior?: SE.UsualGroupBehavior
@@ -36,26 +54,8 @@ export interface UsualGroup extends Omit<FormGroup, "elementType"> {
   throughAlign?: SE.ThroughAlign
   titleDataPath?: string
   united?: boolean
-  userVisible?: UserVisible
   verticalAlign?: SE.ItemVerticalAlign
   verticalSpacing?: SE.FormItemSpacing
-  enableContentChange?: boolean
-  enabled?: boolean
-  height?: number
-  horizontalAlignInGroup?: SE.ItemHorizontalLocation
-  horizontalStretch?: boolean
-  readOnly?: boolean
-  shortcut?: string
-  title?: I8nText
-  titleFont?: Font
-  titleTextColor?: Color
-  toolTip?: I8nText
-  toolTipRepresentation?: SE.ToolTipRepresentation
-  type?: SE.FormGroupType
-  verticalAlignInGroup?: SE.ItemVerticalAlign
-  verticalStretch?: boolean
-  visible?: boolean
-  width?: number
   childItems: ChildItems
 }
 

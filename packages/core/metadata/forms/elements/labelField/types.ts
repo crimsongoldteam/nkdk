@@ -209,6 +209,8 @@ export interface LabelFieldPartialEnterprise {
   РежимПароля?: StringboolEnterprise
   Формат?: I8nTextEnterprise
   ЦветРамки?: ColorEnterprise
+  ЦветТекста?: ColorEnterprise
+  ЦветФона?: ColorEnterprise
   Ширина?: number
   Шрифт?: FontEnterprise
   События?: {
