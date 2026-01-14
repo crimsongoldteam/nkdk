@@ -6,6 +6,7 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface ProgressBarField extends FormField {
+  elementType: "ProgressBarField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   borderColor?: Color

@@ -9,6 +9,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface FormDecoration extends BaseElement {
+  elementType: "FormDecoration"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   contextMenu?: ContextMenu

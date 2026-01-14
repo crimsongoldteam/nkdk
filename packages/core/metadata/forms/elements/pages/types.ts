@@ -6,6 +6,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { Page, PageXML } from "../page/types"
 
 export interface Pages extends FormGroup {
+  elementType: "Pages"
   associatedTable?: Table
   currentPagesState?: SE.FormPagesState
   currentRowUse?: SE.CurrentRowUse

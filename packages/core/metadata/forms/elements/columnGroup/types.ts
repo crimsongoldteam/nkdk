@@ -7,6 +7,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
 
 export interface ColumnGroup extends FormGroup {
+  elementType: "ColumnGroup"
   fixingInTable?: SE.FixingInTable
   group?: SE.ColumnsGroup
   headerDataPath?: string

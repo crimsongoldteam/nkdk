@@ -11,6 +11,7 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface LabelDecoration extends FormDecoration {
+  elementType: "LabelDecoration"
   backColor?: Color
   border?: Border
   borderColor?: Color

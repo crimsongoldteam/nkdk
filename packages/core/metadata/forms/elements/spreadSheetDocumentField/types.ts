@@ -6,6 +6,7 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface SpreadSheetDocumentField extends FormField {
+  elementType: "SpreadSheetDocumentField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   blackAndWhiteView?: boolean

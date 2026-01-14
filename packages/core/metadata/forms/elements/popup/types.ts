@@ -11,6 +11,7 @@ import {
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface Popup extends FormGroup {
+  elementType: "Popup"
   extendedTooltip?: ExtendedTooltip
   backColor?: Color
   borderColor?: Color

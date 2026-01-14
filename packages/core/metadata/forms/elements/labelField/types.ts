@@ -8,6 +8,7 @@ import { FormField, FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/e
 import { EventsXML } from "~/metadata/forms/events/types"
 
 export interface LabelField extends FormField {
+  elementType: "LabelField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   backColor?: Color

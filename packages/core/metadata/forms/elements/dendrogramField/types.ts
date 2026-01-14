@@ -4,6 +4,7 @@ import { FormField, FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/e
 import { EventsXML } from "~/metadata/forms/events/types"
 
 export interface DendrogramField extends FormField {
+  elementType: "DendrogramField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   height?: number

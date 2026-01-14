@@ -8,6 +8,7 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface RadioButtonField extends FormField {
+  elementType: "RadioButtonField"
   backColor?: Color
   borderColor?: Color
   choiceList?: ChoiceList

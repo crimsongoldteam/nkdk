@@ -1,10 +1,6 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import {
-  FormGroup,
-  FormGroupPartialEnterprise,
-  FormGroupXML,
-} from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
   ButtonGroupChildItem,
@@ -13,6 +9,7 @@ import {
 } from "../../collections/buttonGroupChildItems/types"
 
 export interface CommandBar extends FormGroup {
+  elementType: "CommandBar"
   autofill?: boolean
   displayImportance?: SE.DisplayImportance
   horizontalAlign?: SE.ItemHorizontalLocation

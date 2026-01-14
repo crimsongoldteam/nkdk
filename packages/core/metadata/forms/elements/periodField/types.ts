@@ -7,6 +7,7 @@ import { FormField, FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/e
 import { EventsXML } from "~/metadata/forms/events/types"
 
 export interface PeriodField extends FormField {
+  elementType: "PeriodField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   border?: Border

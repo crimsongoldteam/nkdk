@@ -8,6 +8,7 @@ import { ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedToo
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface FormGroup extends BaseElement {
+  elementType: "FormGroup"
   // childItems?: ChildItems
   enableContentChange?: boolean
   enabled?: boolean

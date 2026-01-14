@@ -4,6 +4,7 @@ import { FormField, FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/e
 import { EventsXML } from "~/metadata/forms/events/types"
 
 export interface PlannerField extends FormField {
+  elementType: "PlannerField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   dimensionItemHyperlink?: boolean

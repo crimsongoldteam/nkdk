@@ -6,6 +6,7 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface HTMLDocumentField extends FormField {
+  elementType: "HTMLDocumentField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   borderColor?: Color

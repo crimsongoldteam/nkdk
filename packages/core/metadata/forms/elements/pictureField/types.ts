@@ -9,6 +9,7 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface PictureField extends FormField {
+  elementType: "PictureField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   border?: Border

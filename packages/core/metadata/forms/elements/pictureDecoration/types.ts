@@ -12,6 +12,7 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface PictureDecoration extends FormDecoration {
+  elementType: "PictureDecoration"
   border?: Border
   borderColor?: Color
   enableDrag?: boolean

@@ -26,6 +26,7 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface InputField extends FormField {
+  elementType: "InputField"
   allowInputEmptyMultipleValues?: boolean
   allowMultipleValuesDuplicates?: boolean
   autoCapitalizationOnTextInput?: SE.AutoCapitalizationOnTextInput

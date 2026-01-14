@@ -9,6 +9,7 @@ import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../co
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface UsualGroup extends FormGroup {
+  elementType: "UsualGroup"
   associatedTable?: Table
   backColor?: Color
   behavior?: SE.UsualGroupBehavior

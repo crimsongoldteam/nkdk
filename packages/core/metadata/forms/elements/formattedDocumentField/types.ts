@@ -7,6 +7,7 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface FormattedDocumentField extends FormField {
+  elementType: "FormattedDocumentField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   backColor?: Color

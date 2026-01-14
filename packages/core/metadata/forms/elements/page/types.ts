@@ -8,6 +8,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsXML } from "../../collections/childItems/types"
 
 export interface Page extends FormGroup {
+  elementType: "Page"
   backColor?: Color
   childItemsHorizontalAlign?: SE.ItemHorizontalLocation
   childItemsVerticalAlign?: SE.ItemVerticalAlign

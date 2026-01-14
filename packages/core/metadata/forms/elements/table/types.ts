@@ -25,6 +25,7 @@ import {
 import { ViewStatusAddition, ViewStatusAdditionEnterprise, ViewStatusAdditionXML } from "../viewStatusAddition/types"
 
 export interface Table extends BaseElement {
+  elementType: "Table"
   autoAddIncomplete?: boolean
   autoCommandBar?: AutoCommandBar
   autoInsertNewRow?: boolean
