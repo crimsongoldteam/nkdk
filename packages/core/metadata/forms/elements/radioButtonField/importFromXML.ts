@@ -162,12 +162,6 @@ export function importRadioButtonFieldFromXML<To extends RadioButtonField | unde
   const textColor = importColorFromXML(context, xml.TextColor)
   if (textColor !== undefined) result.textColor = textColor
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
-  if (userVisible !== undefined) result.userVisible = userVisible
-
-  const events = importEventsFromXML(context, xml.Events)
-  if (events !== undefined) result.events = events
-
   return result as To
 }
 

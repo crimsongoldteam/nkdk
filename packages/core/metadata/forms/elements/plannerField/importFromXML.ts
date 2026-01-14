@@ -154,18 +154,12 @@ export function importPlannerFieldFromXML<To extends PlannerField | undefined>(
 
   if (xml.TimeScaleItemHyperlink !== undefined) result.timeScaleItemHyperlink = xml.TimeScaleItemHyperlink
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
-  if (userVisible !== undefined) result.userVisible = userVisible
-
   if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
 
   if (xml.Width !== undefined) result.width = xml.Width
 
   if (xml.WrappedTimeScaleHeaderHyperlink !== undefined)
     result.wrappedTimeScaleHeaderHyperlink = xml.WrappedTimeScaleHeaderHyperlink
-
-  const events = importEventsFromXML(context, xml.Events)
-  if (events !== undefined) result.events = events
 
   return result as To
 }

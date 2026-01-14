@@ -14,7 +14,7 @@ import {
 } from "~/metadata/forms/elements/buttonGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
-  importFormElementTypeFromEnterprise,
+  ImportTypedFromEnterpriseFn,
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
@@ -32,11 +32,9 @@ export function importButtonGroupTypedFromEnterprise<To extends ButtonGroup | un
 
   const props = importButtonGroupPropsFromEnterprise(context, data)
 
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
   const result: ButtonGroup = {
     ...props,
-    elementType,
+    elementType: "ButtonGroup",
     name,
     childItems: props.childItems ?? [],
   }
@@ -167,3 +165,9 @@ const importButtonGroupPropsFromEnterprise = (
 }
 
 registerMetadata("ImportPartialFromEnterprise", "ButtonGroup", importButtonGroupPropsFromEnterprise)
+
+registerMetadata(
+  "ImportTypedFromEnterprise",
+  "ButtonGroup",
+  importButtonGroupTypedFromEnterprise as ImportTypedFromEnterpriseFn
+)

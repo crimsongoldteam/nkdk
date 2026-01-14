@@ -6,7 +6,7 @@ import {
 import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const fullButtonGroup: ButtonGroup = {
-  elementType: FormElementType.ButtonGroup,
+  elementType: "ButtonGroup",
   enableContentChange: true,
   enabled: true,
   height: 200,

@@ -1,6 +1,5 @@
-import { Color } from "vscode"
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
@@ -11,8 +10,8 @@ import {
   ButtonGroupChildItemsEnterprise,
   ButtonGroupChildItemsXML,
 } from "../../collections/buttonGroupChildItems/types"
-import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 import { NamedElement } from "../baseElement/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface ButtonGroup extends NamedElement {
   elementType: "ButtonGroup"

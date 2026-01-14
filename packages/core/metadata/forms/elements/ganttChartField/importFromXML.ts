@@ -152,9 +152,6 @@ export function importGanttChartFieldFromXML<To extends GanttChartField | undefi
 
   if (xml.TableLocation !== undefined) result.tableLocation = xml.TableLocation
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
-  if (userVisible !== undefined) result.userVisible = userVisible
-
   if (xml.ValuesSelectionMode !== undefined) result.valuesSelectionMode = xml.ValuesSelectionMode
 
   if (xml.VerticalLines !== undefined) result.verticalLines = xml.VerticalLines
@@ -162,9 +159,6 @@ export function importGanttChartFieldFromXML<To extends GanttChartField | undefi
   if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
 
   if (xml.Width !== undefined) result.width = xml.Width
-
-  const events = importEventsFromXML(context, xml.Events)
-  if (events !== undefined) result.events = events
 
   return result as To
 }

@@ -14,16 +14,22 @@ import {
 } from "~/metadata/forms/elements/buttonGroup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import {
+  ExportPartialToEnterpriseFn,
+  ExportTypedToEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportButtonGroupChildItemsToEnterprise } from "../../collections/buttonGroupChildItems/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
-export const exportButtonGroupTypedToEnterprise = (
+export const exportButtonGroupTypedToEnterprise = <From extends ButtonGroup | undefined>(
   context: ConfigurationContext,
-  data: ButtonGroup | undefined
-): ButtonGroupTypedEnterprise | undefined => {
-  if (!data) return undefined
+  data: From
+): ToTypedEnterpriseType<From> => {
+  if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
   const props = exportButtonGroupPropsToEnterprise(context, data)
 
@@ -35,13 +41,15 @@ export const exportButtonGroupTypedToEnterprise = (
   const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result)
+  return sortObject(result) as ToTypedEnterpriseType<From>
 }
 
-export const exportButtonGroupPartialToEnterprise = (
+export const exportButtonGroupPartialToEnterprise = <From extends ButtonGroup | undefined>(
   context: ConfigurationContext,
-  data: ButtonGroup
-): ButtonGroupPartialEnterprise => {
+  data: From
+): ToPartialEnterpriseType<From> => {
+  if (data === undefined) return undefined as ToPartialEnterpriseType<From>
+
   const props = exportButtonGroupPropsToEnterprise(context, data)
 
   const result: ButtonGroupPartialEnterprise = {
@@ -51,7 +59,7 @@ export const exportButtonGroupPartialToEnterprise = (
   const title = exportI8nTextOtherToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result)
+  return sortObject(result) as ToPartialEnterpriseType<From>
 }
 
 const exportButtonGroupPropsToEnterprise = (
@@ -138,4 +146,13 @@ const exportButtonGroupPropsToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "ButtonGroup", exportButtonGroupPartialToEnterprise)
+registerMetadata(
+  "ExportPartialToEnterprise",
+  "ButtonGroup",
+  exportButtonGroupPartialToEnterprise as ExportPartialToEnterpriseFn
+)
+registerMetadata(
+  "ExportTypedToEnterprise",
+  "ButtonGroup",
+  exportButtonGroupTypedToEnterprise as ExportTypedToEnterpriseFn
+)

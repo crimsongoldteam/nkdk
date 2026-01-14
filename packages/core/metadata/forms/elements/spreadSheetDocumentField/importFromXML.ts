@@ -186,9 +186,6 @@ export function importSpreadSheetDocumentFieldFromXML<To extends SpreadSheetDocu
 
   if (xml.UsedFileName !== undefined) result.usedFileName = xml.UsedFileName
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
-  if (userVisible !== undefined) result.userVisible = userVisible
-
   if (xml.VerticalScrollBar !== undefined) result.verticalScrollBar = xml.VerticalScrollBar
 
   if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
@@ -196,9 +193,6 @@ export function importSpreadSheetDocumentFieldFromXML<To extends SpreadSheetDocu
   if (xml.ViewScalingMode !== undefined) result.viewScalingMode = xml.ViewScalingMode
 
   if (xml.Width !== undefined) result.width = xml.Width
-
-  const events = importEventsFromXML(context, xml.Events)
-  if (events !== undefined) result.events = events
 
   return result as To
 }

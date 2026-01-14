@@ -159,17 +159,11 @@ export function importPdfDocumentFieldFromXML<To extends PdfDocumentField | unde
 
   if (xml.UsedFileName !== undefined) result.usedFileName = xml.UsedFileName
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
-  if (userVisible !== undefined) result.userVisible = userVisible
-
   if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
 
   if (xml.ViewStatusLocation !== undefined) result.viewStatusLocation = xml.ViewStatusLocation
 
   if (xml.Width !== undefined) result.width = xml.Width
-
-  const events = importEventsFromXML(context, xml.Events)
-  if (events !== undefined) result.events = events
 
   return result as To
 }

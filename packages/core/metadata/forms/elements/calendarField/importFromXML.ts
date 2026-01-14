@@ -7,9 +7,9 @@ import { importTypeDescriptionFromXML } from "~/metadata/commonObjects/typeDescr
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
+import { CalendarField } from "~/metadata/forms/elements/calendarField/types"
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import { CalendarField, CalendarFieldXML } from "~/metadata/forms/elements/calendarField/types"
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -139,7 +139,8 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
 
   if (xml.AutoMaxWidth !== undefined) result.autoMaxWidth = xml.AutoMaxWidth
 
-  if (xml.BeginOfRepresentationPeriod !== undefined) result.beginOfRepresentationPeriod = xml.BeginOfRepresentationPeriod
+  if (xml.BeginOfRepresentationPeriod !== undefined)
+    result.beginOfRepresentationPeriod = xml.BeginOfRepresentationPeriod
 
   const border = importBorderFromXML(context, xml.Border)
   if (border !== undefined) result.border = border
@@ -174,17 +175,11 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
 
   if (xml.ShowMonthsPanel !== undefined) result.showMonthsPanel = xml.ShowMonthsPanel
 
-  const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
-  if (userVisible !== undefined) result.userVisible = userVisible
-
   if (xml.VerticalStretch !== undefined) result.verticalStretch = xml.VerticalStretch
 
   if (xml.Width !== undefined) result.width = xml.Width
 
   if (xml.WidthInMonths !== undefined) result.widthInMonths = xml.WidthInMonths
-
-  const events = importEventsFromXML(context, xml.Events)
-  if (events !== undefined) result.events = events
 
   return result as To
 }
