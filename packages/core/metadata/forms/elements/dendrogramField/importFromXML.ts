@@ -9,10 +9,9 @@ import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/
 import { importContextMenuFromXML } from "~/metadata/forms/elements/contextMenu/importFromXML"
 import { DendrogramField } from "~/metadata/forms/elements/dendrogramField/types"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
-import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importDendrogramFieldFromXML<To extends DendrogramField | undefined>(
   context: ConfigurationContext,
@@ -87,9 +86,6 @@ export function importDendrogramFieldFromXML<To extends DendrogramField | undefi
 
   if (xml.SkipOnInput !== undefined) result.skipOnInput = xml.SkipOnInput
 
-  const table = importTableFromXML(context, xml.Table)
-  if (table !== undefined) result.table = table
-
   const title = importI8nTextFromXML(context, xml.Title)
   if (title !== undefined) result.title = title
 
@@ -153,4 +149,4 @@ export function importDendrogramFieldFromXML<To extends DendrogramField | undefi
   return result as To
 }
 
-registerMetadata("ImportFromXML", "DendrogramField", importDendrogramFieldFromXML)
+registerMetadata("ImportFromXML", "DendrogramField", importDendrogramFieldFromXML as ImportFromXMLFn)
