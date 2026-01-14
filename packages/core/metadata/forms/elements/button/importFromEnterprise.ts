@@ -8,18 +8,25 @@ import {
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "~/metadata/forms/elements/button/types"
+import { Button, ButtonPartialEnterprise } from "~/metadata/forms/elements/button/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { ImportExportReturn } from "../types"
 
-export function importButtonTypedFromEnterprise(
+export function importButtonTypedFromEnterprise<To extends Button | undefined>(
   context: ConfigurationContext,
-  data: ButtonTypedEnterprise,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): Button {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
+  if (data === undefined) return undefined
+
   const props = importButtonPropsFromEnterprise(context, data)
 
   const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
@@ -30,18 +37,16 @@ export function importButtonTypedFromEnterprise(
     name,
   }
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export function importButtonPartialFromEnterprise(
+export function importButtonPartialFromEnterprise<To extends Button>(
   context: ConfigurationContext,
-  source: Button | undefined,
-  data: ButtonPartialEnterprise | undefined
-): Button | undefined {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const props = importButtonPropsFromEnterprise(context, data)
-  const result: Button = {
+  const result: To = {
     ...source,
     ...props,
   }
@@ -55,7 +60,7 @@ export function importButtonPartialFromEnterprise(
 const importButtonPropsFromEnterprise = (
   context: ConfigurationContext,
   data: ButtonPartialEnterprise | undefined
-): Omit<Partial<Button>, "elementType"> => {
+): Partial<Button> | undefined => {
   const result: Omit<Partial<Button>, "elementType"> = {}
 
   if (data === undefined) return result
@@ -214,7 +219,7 @@ const importButtonPropsFromEnterprise = (
 
   if (data.Ширина !== undefined) result.width = data.Ширина
 
-  return result
+  return result as Partial<Button> | undefined
 }
 
 registerMetadata("ImportPartialFromEnterprise", "Button", importButtonPartialFromEnterprise)

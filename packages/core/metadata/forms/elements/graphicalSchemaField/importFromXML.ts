@@ -14,13 +14,10 @@ export function importGraphicalSchemaFieldFromXML<From extends GraphicalSchemaFi
 ): ImportExportReturn<From, FromXMLType<From>> {
   if (xml === undefined) return undefined
   const baseFields = importFormFieldFromXML(context, xml)
-  if (!baseFields) return undefined
-
-  const { elementType: _, ...restFields } = baseFields
 
   const result: GraphicalSchemaField = {
+    ...baseFields,
     elementType: FormElementType.GraphicalSchemaField,
-    ...restFields,
   }
 
   if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight

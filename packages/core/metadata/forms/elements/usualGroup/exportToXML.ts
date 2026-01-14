@@ -4,7 +4,6 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportChildItemsToXML } from "~/metadata/forms/collections/childItems/exportToXML"
 import { exportFormGroupPropsToXML } from "~/metadata/forms/elements/formGroup/exportToXML"
-import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { UsualGroup, UsualGroupXML } from "~/metadata/forms/elements/usualGroup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -30,8 +29,8 @@ export function exportUsualGroupToXML<From extends UsualGroup | undefined>(
   const childItems = exportChildItemsToXML(context, data.childItems)
   if (childItems !== undefined) result.ChildItems = childItems
 
-  const associatedTable = exportTableToXML(context, data.associatedTable)
-  if (associatedTable !== undefined) result.AssociatedTable = associatedTable
+  // const associatedTable = exportTableToXML(context, data.associatedTable)
+  // if (associatedTable !== undefined) result.AssociatedTable = associatedTable
 
   const backColor = exportColorToXML(context, data.backColor)
   if (backColor !== undefined) result.BackColor = backColor

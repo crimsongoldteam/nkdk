@@ -33,10 +33,12 @@ export type ToPartialEnterpriseType<T> = Extract<
   { XML: any; Element: T; PartialEnterprise: any; TypedEnterprise: any; EnterpriseName: any }
 >["PartialEnterprise"]
 
-export type ToTypedEnterpriseType<T> = Extract<
-  TypeRules,
-  { XML: any; Element: T; PartialEnterprise: any; TypedEnterprise: any; EnterpriseName: any }
->["TypedEnterprise"]
+export type ToTypedEnterpriseType<T> = T extends undefined
+  ? undefined
+  : Extract<
+      TypeRules,
+      { XML: any; Element: T; PartialEnterprise: any; TypedEnterprise: any; EnterpriseName: any }
+    >["TypedEnterprise"]
 
 // #endregion
 
@@ -49,14 +51,15 @@ export type ImportFromXMLFn = <To extends BaseElement | undefined>(
 
 export type ImportTypedFromEnterpriseFn = <To extends BaseElement | undefined>(
   context: ConfigurationContext,
-  data: FromTypedEnterpriseType<To>,
+  data: ToTypedEnterpriseType<To>,
   name: string
-) => ImportExportReturn<FromTypedEnterpriseType<To>, To>
+) => ImportExportReturn<ToTypedEnterpriseType<To>, To>
 
-export type ImportPartialFromEnterpriseFn = <To extends BaseElement | undefined>(
+export type ImportPartialFromEnterpriseFn = <To extends BaseElement>(
   context: ConfigurationContext,
-  data: FromPartialEnterpriseType<To>
-) => ImportExportReturn<FromPartialEnterpriseType<To>, To>
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+) => To
 
 export type ExportToXMLFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,
