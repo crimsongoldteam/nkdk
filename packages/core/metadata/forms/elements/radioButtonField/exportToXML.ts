@@ -10,11 +10,11 @@ import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/e
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { RadioButtonField, RadioButtonFieldXML } from "~/metadata/forms/elements/radioButtonField/types"
 import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportRadioButtonFieldToXML<From extends RadioButtonField | undefined>(
   context: ConfigurationContext,
@@ -24,10 +24,13 @@ export function exportRadioButtonFieldToXML<From extends RadioButtonField | unde
 
   const baseFields = exportElementPropsToXML(context, data)
 
+  const contextMenu = exportContextMenuToXML(context, data.contextMenu, data)
+  const extendedTooltip = exportExtendedTooltipToXML(context, data.extendedTooltip, data)
+
   const result: RadioButtonFieldXML = {
     ...baseFields,
-    ContextMenu: exportContextMenuToXML(context, data.contextMenu, data),
-    ExtendedTooltip: exportExtendedTooltipToXML(context, data.extendedTooltip, data),
+    ContextMenu: contextMenu,
+    ExtendedTooltip: extendedTooltip,
   }
 
   if (data.autoCellHeight !== undefined) result.AutoCellHeight = data.autoCellHeight
