@@ -8,7 +8,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
-export interface UsualGroup extends FormGroup {
+export interface UsualGroup extends Omit<FormGroup, "elementType"> {
   elementType: "UsualGroup"
   associatedTable?: Table
   backColor?: Color

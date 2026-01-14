@@ -4,9 +4,9 @@ import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/i
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importChildItemsFromXML } from "~/metadata/forms/collections/childItems/importFromXML"
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
-import { UsualGroup, UsualGroupXML } from "~/metadata/forms/elements/usualGroup/types"
+import { UsualGroup } from "~/metadata/forms/elements/usualGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
   context: ConfigurationContext,
@@ -18,7 +18,7 @@ export function importUsualGroupFromXML<To extends UsualGroup | undefined>(
 
   const result: UsualGroup = {
     ...baseFields,
-    elementType: FormElementType.UsualGroup,
+    elementType: "UsualGroup",
     childItems: [],
   }
 

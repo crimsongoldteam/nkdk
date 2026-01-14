@@ -26,7 +26,6 @@ export function exportPagesToXML<From extends Pages | undefined>(
   if (data === undefined) return undefined as ToXMLType<From>
 
   const baseFields = exportFormGroupPropsToXML(context, data)
-  if (!baseFields) return undefined
 
   const result: PagesXML = {
     ...baseFields,

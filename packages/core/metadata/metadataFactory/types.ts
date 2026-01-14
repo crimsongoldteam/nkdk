@@ -1,6 +1,5 @@
 import { ConfigurationContext } from "../context/types"
 import { BaseElement } from "../forms/elements/baseElement/types"
-import { GeographicalSchemaField } from "../forms/elements/geographicalSchemaField/types"
 import { IFormatElementResult } from "../forms/format/types"
 import { TypeRules } from "./rules"
 
@@ -10,15 +9,17 @@ export type ToXMLType<T extends BaseElement | undefined> = T extends undefined
   ? undefined
   : TypeRules<NonNullable<T>>["XML"]
 
-type l = ToXMLType<GeographicalSchemaField>
-
 export type ToPartialEnterpriseType<T extends BaseElement | undefined> = T extends undefined
   ? undefined
-  : TypeRules<NonNullable<T>>["PartialEnterprise"]
+  : "PartialEnterprise" extends keyof TypeRules<NonNullable<T>>
+    ? TypeRules<NonNullable<T>>["PartialEnterprise"]
+    : never
 
 export type ToTypedEnterpriseType<T extends BaseElement | undefined> = T extends undefined
   ? undefined
-  : TypeRules<NonNullable<T>>["TypedEnterprise"]
+  : "TypedEnterprise" extends keyof TypeRules<NonNullable<T>>
+    ? TypeRules<NonNullable<T>>["TypedEnterprise"]
+    : never
 
 // #endregion
 

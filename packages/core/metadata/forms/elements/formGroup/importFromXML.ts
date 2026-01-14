@@ -4,9 +4,9 @@ import { importI8nTextFromXML } from "~/metadata/commonObjects/i8nText/importFro
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
-import { FormGroup, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup } from "~/metadata/forms/elements/formGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importFormGroupFromXML<To extends FormGroup | undefined>(
   context: ConfigurationContext,
@@ -17,7 +17,7 @@ export function importFormGroupFromXML<To extends FormGroup | undefined>(
 
   const result: FormGroup = {
     ...baseFields,
-    elementType: FormElementType.FormGroup,
+    elementType: "FormGroup",
   }
 
   if (xml.EnableContentChange !== undefined) result.enableContentChange = xml.EnableContentChange

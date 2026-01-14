@@ -15,7 +15,6 @@ import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metad
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-
 export function exportGraphicalSchemaFieldTypedToEnterprise<From extends GraphicalSchemaField | undefined>(
   context: ConfigurationContext,
   data: From

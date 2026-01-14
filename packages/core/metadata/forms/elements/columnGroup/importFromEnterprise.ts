@@ -14,11 +14,7 @@ import {
   ColumnGroupTypedEnterprise,
 } from "~/metadata/forms/elements/columnGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import {
-  importFormElementTypeFromEnterprise,
-  ToPartialEnterpriseType,
-  ToTypedEnterpriseType,
-} from "~/metadata/metadataFactory/types"
+import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsFromEnterprise } from "../../collections/childItems/importFromEnterprise"
@@ -31,11 +27,9 @@ export function importColumnGroupTypedFromEnterprise<To extends ColumnGroup | un
 
   const props = importColumnGroupPropsFromEnterprise(context, data)
 
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
   const result: ColumnGroup = {
     ...props,
-    elementType,
+    elementType: "ColumnGroup",
     name,
     childItems: props.childItems ?? [],
   }

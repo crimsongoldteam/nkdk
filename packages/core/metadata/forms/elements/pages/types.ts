@@ -5,7 +5,7 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { Page, PageXML } from "../page/types"
 
-export interface Pages extends FormGroup {
+export interface Pages extends Omit<FormGroup, "elementType"> {
   elementType: "Pages"
   associatedTable?: Table
   currentPagesState?: SE.FormPagesState

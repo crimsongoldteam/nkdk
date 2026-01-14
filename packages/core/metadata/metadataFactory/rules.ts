@@ -58,6 +58,12 @@ import {
 } from "../forms/elements/formDecoration/types"
 import { FormField, FormFieldXML } from "../forms/elements/formField/types"
 import {
+  FormGroup,
+  FormGroupXML,
+  FormGroupPartialEnterprise,
+  FormGroupTypedEnterprise,
+} from "../forms/elements/formGroup/types"
+import {
   GanttChartField,
   GanttChartFieldPartialEnterprise,
   GanttChartFieldTypedEnterprise,
@@ -163,6 +169,12 @@ import {
   TrackBarFieldTypedEnterprise,
   TrackBarFieldXML,
 } from "../forms/elements/trackBarField/types"
+import {
+  UsualGroup,
+  UsualGroupPartialEnterprise,
+  UsualGroupTypedEnterprise,
+  UsualGroupXML,
+} from "../forms/elements/usualGroup/types"
 
 export type TypeRules<T extends BaseElement> = T extends Button
   ? {
@@ -374,26 +386,40 @@ export type TypeRules<T extends BaseElement> = T extends Button
                                                                 PartialEnterprise: TrackBarFieldPartialEnterprise
                                                                 TypedEnterprise: TrackBarFieldTypedEnterprise
                                                               }
-                                                            : T extends FormDecoration
+                                                            : T extends UsualGroup
                                                               ? {
-                                                                  XML: FormDecorationXML
-                                                                  Element: FormDecoration
-                                                                  PartialEnterprise: FormDecorationPartialEnterprise
-                                                                  TypedEnterprise: FormDecorationTypedEnterprise
+                                                                  XML: UsualGroupXML
+                                                                  Element: UsualGroup
+                                                                  PartialEnterprise: UsualGroupPartialEnterprise
+                                                                  TypedEnterprise: UsualGroupTypedEnterprise
                                                                 }
-                                                              : T extends FormField
+                                                              : T extends FormDecoration
                                                                 ? {
-                                                                    XML: FormFieldXML
-                                                                    Element: FormField
+                                                                    XML: FormDecorationXML
+                                                                    Element: FormDecoration
+                                                                    PartialEnterprise: FormDecorationPartialEnterprise
+                                                                    TypedEnterprise: FormDecorationTypedEnterprise
                                                                   }
-                                                                : T extends ContextMenu
+                                                                : T extends FormField
                                                                   ? {
-                                                                      XML: ContextMenuXML
+                                                                      XML: FormFieldXML
+                                                                      Element: FormField
                                                                     }
-                                                                  : T extends ExtendedTooltip
+                                                                  : T extends FormGroup
                                                                     ? {
-                                                                        XML: ExtendedTooltipXML
-                                                                        Element: ExtendedTooltip
-                                                                        PartialEnterprise: ExtendedTooltipEnterprise
+                                                                        XML: FormGroupXML
+                                                                        Element: FormGroup
+                                                                        PartialEnterprise: FormGroupPartialEnterprise
+                                                                        TypedEnterprise: FormGroupTypedEnterprise
                                                                       }
-                                                                    : never
+                                                                    : T extends ContextMenu
+                                                                      ? {
+                                                                          XML: ContextMenuXML
+                                                                        }
+                                                                      : T extends ExtendedTooltip
+                                                                        ? {
+                                                                            XML: ExtendedTooltipXML
+                                                                            Element: ExtendedTooltip
+                                                                            PartialEnterprise: ExtendedTooltipEnterprise
+                                                                          }
+                                                                        : never

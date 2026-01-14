@@ -9,7 +9,6 @@ import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface FormGroup extends NamedElement {
   elementType: "FormGroup"
-  // childItems?: ChildItems
   enableContentChange?: boolean
   enabled?: boolean
   // extendedTooltip?: ExtendedTooltip
