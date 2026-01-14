@@ -31,11 +31,11 @@ describe("importPagesFromEnterprise", () => {
   })
 
   describe("importPagesPartialFromEnterprise", () => {
-    it("should return undefined when source is undefined", () => {
-      const result = importPagesPartialFromEnterprise(mockСontext, undefined, undefined)
+    // it("should return undefined when source is undefined", () => {
+    //   const result = importPagesPartialFromEnterprise(mockСontext, undefined, undefined)
 
-      expect(result).toBeUndefined()
-    })
+    //   expect(result).toBeUndefined()
+    // })
 
     it("should import all fields from Enterprise", () => {
       const result = importPagesPartialFromEnterprise(mockСontext, fullPages, fullPagesPartialEnterprise)

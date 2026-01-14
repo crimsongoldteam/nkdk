@@ -11,12 +11,13 @@ import {
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { BaseElementXML, NamedElement } from "../baseElement/types"
+import { BaseElementXML } from "../baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
+import { FormField } from "../formField/types"
 import { Table, TablePartialEnterprise, TableXML } from "../table/types"
 
-export interface FormattedDocumentField extends NamedElement {
+export interface FormattedDocumentField extends Omit<FormField, "elementType"> {
   elementType: "FormattedDocumentField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean

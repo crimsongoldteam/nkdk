@@ -6,6 +6,7 @@
 	<Events>
 		<Event name="OnCurrentPageChange">ПроцедураПриСменеСтраницы</Event>
 	</Events>
+	<ExtendedTooltip name="СтраницыРасширеннаяПодсказка" id="2"/>
 	<Height>200</Height>
 	<HorizontalAlignInGroup>Left</HorizontalAlignInGroup>
 	<HorizontalStretch>true</HorizontalStretch>

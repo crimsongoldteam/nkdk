@@ -1,23 +1,39 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
-import { ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
-import { FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
-import { I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup } from "~/metadata/forms/elements/formGroup/types"
-import { Table, TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
+import { TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { BaseElementXML } from "../baseElement/types"
-import { ExtendedTooltipEnterprise } from "../extendedTooltip/types"
+import { BaseElementXML, NamedElement } from "../baseElement/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 import { Page, PageXML } from "../page/types"
 
-export interface Pages extends Omit<FormGroup, "elementType"> {
+export interface Pages extends NamedElement {
   elementType: "Pages"
-  associatedTable?: Table
   currentPagesState?: SE.FormPagesState
   currentRowUse?: SE.CurrentRowUse
   pagesRepresentation?: SE.FormPagesRepresentation
+  enableContentChange?: boolean
+  enabled?: boolean
+  extendedTooltip?: ExtendedTooltip
+  height?: number
+  horizontalAlignInGroup?: SE.ItemHorizontalLocation
+  horizontalStretch?: boolean
+  readOnly?: boolean
+  shortcut?: string
+  title?: I8nText
+  titleFont?: Font
+  titleTextColor?: Color
+  toolTip?: I8nText
+  toolTipRepresentation?: SE.ToolTipRepresentation
+  type?: SE.FormGroupType
   userVisible?: UserVisible
+  verticalAlignInGroup?: SE.ItemVerticalAlign
+  verticalStretch?: boolean
+  visible?: boolean
+  width?: number
   events?: {
     onCurrentPageChange?: string
   }
@@ -27,6 +43,7 @@ export interface Pages extends Omit<FormGroup, "elementType"> {
 export interface PagesXML extends BaseElementXML {
   EnableContentChange?: boolean
   Enabled?: boolean
+  ExtendedTooltip?: ExtendedTooltipXML
   Height?: number
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
   HorizontalStretch?: boolean

@@ -9,15 +9,15 @@ import {
   TypeDescriptionXML,
 } from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/elements/formField/types"
+import { BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { FormField } from "~/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { NamedElement } from "../baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 import { TablePartialEnterprise, TableXML } from "../table/types"
 
-export interface DendrogramField extends NamedElement {
+export interface DendrogramField extends Omit<FormField, "elementType"> {
   elementType: "DendrogramField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
@@ -76,16 +76,7 @@ export interface DendrogramField extends NamedElement {
   }
 }
 
-export interface DendrogramFieldXML extends FormFieldXML {
-  AutoMaxHeight?: boolean
-  AutoMaxWidth?: boolean
-  Height?: number
-  HorizontalStretch?: boolean
-  MaxHeight?: number
-  MaxWidth?: number
-  UserVisible?: UserVisibleXML
-  VerticalStretch?: boolean
-  Width?: number
+export interface DendrogramFieldXML extends BaseElementXML {
   AutoCellHeight?: boolean
   CellHyperlink?: boolean
   ContextMenu: ContextMenuXML
@@ -123,23 +114,24 @@ export interface DendrogramFieldXML extends FormFieldXML {
   ToolTipRepresentation?: SE.ToolTipRepresentation
   Type?: SE.FormFieldType
   TypeRestriction?: TypeDescriptionXML
+  UserVisible?: UserVisibleXML
   VerticalAlign?: SE.ItemVerticalAlign
   VerticalAlignInGroup?: SE.ItemVerticalAlign
   Visible?: boolean
   WarningOnEdit?: I8nTextXML
   WarningOnEditRepresentation?: SE.WarningOnEditRepresentation
   Events?: EventsXML
+  AutoMaxHeight?: boolean
+  AutoMaxWidth?: boolean
+  Height?: number
+  HorizontalStretch?: boolean
+  MaxHeight?: number
+  MaxWidth?: number
+  VerticalStretch?: boolean
+  Width?: number
 }
 
-export interface DendrogramFieldPartialEnterprise extends FormFieldEnterprise {
-  АвтоМаксимальнаяВысота?: StringboolEnterprise
-  АвтоМаксимальнаяШирина?: StringboolEnterprise
-  Высота?: number
-  МаксимальнаяВысота?: number
-  МаксимальнаяШирина?: number
-  РастягиватьПоВертикали?: StringboolEnterprise
-  РастягиватьПоГоризонтали?: StringboolEnterprise
-  Ширина?: number
+export interface DendrogramFieldPartialEnterprise {
   АвтоВысотаЯчейки?: StringboolEnterprise
   АктивизироватьПоУмолчанию?: StringboolEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
@@ -184,6 +176,14 @@ export interface DendrogramFieldPartialEnterprise extends FormFieldEnterprise {
   ЦветФонаПодвала?: ColorEnterprise
   ШрифтЗаголовка?: FontEnterprise
   ШрифтПодвала?: FontEnterprise
+  АвтоМаксимальнаяВысота?: StringboolEnterprise
+  АвтоМаксимальнаяШирина?: StringboolEnterprise
+  Высота?: number
+  МаксимальнаяВысота?: number
+  МаксимальнаяШирина?: number
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  Ширина?: number
   События?: {
     ПриИзменении?: string
     Выбор?: string

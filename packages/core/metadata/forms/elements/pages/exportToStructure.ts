@@ -1,21 +1,17 @@
 import { ConfigurationContext } from "~/metadata/context/types"
 import * as t from "~/metadata/forms/collections/childItems/parser/tokenizer/lexer"
 import { formatElementName } from "~/metadata/forms/format/helpers"
-import { FormatElementFunction, IFormatElementResult } from "~/metadata/forms/format/types"
+import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "../../../metadataFactory/types"
+import { ExportToStructureFn, FormElementType } from "../../../metadataFactory/types"
 import { exportChildItemsToStructure } from "../../collections/childItems/exportToStructure"
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { addSimpleIndent } from "../../format/wrap/addIndents"
-import { NamedElement } from "../baseElement/types"
 import { Pages } from "./types"
 
 const SLASH = (t.Slash.LABEL as string).repeat(2)
 
-export const exportPagesToStructure: FormatElementFunction = (
-  context: ConfigurationContext,
-  element: NamedElement
-): IFormatElementResult => {
+export const exportPagesToStructure = (context: ConfigurationContext, element: Pages): IFormatElementResult => {
   const pagesElement = element as Pages
   const childItems = pagesElement.childItems ?? []
   const result: IFormatElementResult = {
@@ -46,4 +42,4 @@ const getHeader = (element: Pages): string => {
 }
 
 registerIsOneLineElementCheck(FormElementType.Pages, () => false)
-registerMetadata("ExportToStructure", "Pages", exportPagesToStructure)
+registerMetadata("ExportToStructure", "Pages", exportPagesToStructure as ExportToStructureFn)

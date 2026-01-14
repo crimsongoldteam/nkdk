@@ -3,11 +3,22 @@ import { Border, BorderEnterprise, BorderXML } from "~/metadata/commonObjects/bo
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
+import { PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
+import {
+  TypeDescription,
+  TypeDescriptionEnterprise,
+  TypeDescriptionXML,
+} from "~/metadata/commonObjects/typeDescription/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormField, FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/elements/formField/types"
+import { BaseElementPropsEnterprise, BaseElementXML } from "~/metadata/forms/elements/baseElement/types"
+import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "~/metadata/forms/elements/contextMenu/types"
+import { FormField } from "~/metadata/forms/elements/formField/types"
+import { Table, TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import { EventsXML } from "~/metadata/forms/events/types"
+import * as SE from "~/metadata/systemEnumerations/types"
+import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
-export interface LabelField extends FormField {
+export interface LabelField extends Omit<FormField, "elementType"> {
   elementType: "LabelField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
@@ -34,7 +45,51 @@ export interface LabelField extends FormField {
   }
 }
 
-export interface LabelFieldXML extends FormFieldXML {
+export interface LabelFieldXML extends BaseElementXML {
+  AutoCellHeight?: boolean
+  CellHyperlink?: boolean
+  ContextMenu: ContextMenuXML
+  DataPath?: string
+  DefaultItem?: boolean
+  _DisplayImportance?: SE.DisplayImportance
+  EditMode?: SE.ColumnEditMode
+  Enabled?: boolean
+  ExtendedTooltip: ExtendedTooltipXML
+  FixingInTable?: SE.FixingInTable
+  FooterBackColor?: ColorXML
+  FooterDataPath?: string
+  FooterFont?: FontXML
+  FooterHorizontalAlign?: SE.ItemHorizontalLocation
+  FooterPicture?: PictureXML
+  FooterText?: I8nTextXML
+  FooterTextColor?: ColorXML
+  HeaderHorizontalAlign?: SE.ItemHorizontalLocation
+  HeaderPicture?: PictureXML
+  HorizontalAlign?: SE.ItemHorizontalLocation
+  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  ReadOnly?: boolean
+  Shortcut?: string
+  ShowInFooter?: boolean
+  ShowInHeader?: boolean
+  SkipOnInput?: boolean
+  Table?: TableXML
+  Title?: I8nTextXML
+  TitleBackColor?: ColorXML
+  TitleFont?: FontXML
+  TitleHeight?: number
+  TitleLocation?: SE.FormItemTitleLocation
+  TitleTextColor?: ColorXML
+  ToolTip?: I8nTextXML
+  ToolTipRepresentation?: SE.ToolTipRepresentation
+  Type?: SE.FormFieldType
+  TypeRestriction?: TypeDescriptionXML
+  UserVisible?: UserVisibleXML
+  VerticalAlign?: SE.ItemVerticalAlign
+  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  Visible?: boolean
+  WarningOnEdit?: I8nTextXML
+  WarningOnEditRepresentation?: SE.WarningOnEditRepresentation
+  Events?: EventsXML
   AutoMaxHeight?: boolean
   AutoMaxWidth?: boolean
   BackColor?: ColorXML
@@ -50,13 +105,55 @@ export interface LabelFieldXML extends FormFieldXML {
   MaxWidth?: number
   PasswordMode?: boolean
   TextColor?: ColorXML
-  UserVisible?: UserVisibleXML
   VerticalStretch?: boolean
   Width?: number
-  Events?: EventsXML
 }
 
-export interface LabelFieldPartialEnterprise extends FormFieldEnterprise {
+export interface LabelFieldPartialEnterprise {
+  АвтоВысотаЯчейки?: StringboolEnterprise
+  АктивизироватьПоУмолчанию?: StringboolEnterprise
+  ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
+  ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
+  Вид?: SE.FormFieldTypeEnterprise
+  Видимость?: StringboolEnterprise
+  ВысотаЗаголовка?: number
+  ГиперссылкаЯчейки?: StringboolEnterprise
+  ГоризонтальноеПоложение?: SE.ItemHorizontalLocationEnterprise
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
+  ГоризонтальноеПоложениеВПодвале?: SE.ItemHorizontalLocationEnterprise
+  ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationEnterprise
+  Доступность?: StringboolEnterprise
+  Заголовок?: I8nTextEnterprise
+  КартинкаПодвала?: PictureEnterprise
+  КартинкаШапки?: PictureEnterprise
+  КонтекстноеМеню?: ContextMenuEnterprise
+  ОграничениеТипа?: TypeDescriptionEnterprise
+  ОтображатьВПодвале?: StringboolEnterprise
+  ОтображатьВШапке?: StringboolEnterprise
+  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
+  ОтображениеПредупрежденияПриРедактировании?: SE.WarningOnEditRepresentationEnterprise
+  Подсказка?: I8nTextEnterprise
+  ПоложениеЗаголовка?: SE.FormItemTitleLocationEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
+  ПредупреждениеПриРедактировании?: I8nTextEnterprise
+  ПропускатьПриВводе?: StringboolEnterprise
+  ПутьКДанным?: string
+  ПутьКДаннымПодвала?: string
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  РежимРедактирования?: SE.ColumnEditModeEnterprise
+  СочетаниеКлавиш?: string
+  Таблица?: TablePartialEnterprise
+  ТекстПодвала?: I8nTextEnterprise
+  ТолькоПросмотр?: StringboolEnterprise
+  ФиксацияВТаблице?: SE.FixingInTableEnterprise
+  ЦветТекстаЗаголовка?: ColorEnterprise
+  ЦветТекстаПодвала?: ColorEnterprise
+  ЦветФонаЗаголовка?: ColorEnterprise
+  ЦветФонаПодвала?: ColorEnterprise
+  ШрифтЗаголовка?: FontEnterprise
+  ШрифтПодвала?: FontEnterprise
   АвтоМаксимальнаяВысота?: StringboolEnterprise
   АвтоМаксимальнаяШирина?: StringboolEnterprise
   ВыделятьОтрицательные?: StringboolEnterprise
@@ -64,16 +161,12 @@ export interface LabelFieldPartialEnterprise extends FormFieldEnterprise {
   Гиперссылка?: StringboolEnterprise
   МаксимальнаяВысота?: number
   МаксимальнаяШирина?: number
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
   Рамка?: BorderEnterprise
   РастягиватьПоВертикали?: StringboolEnterprise
   РастягиватьПоГоризонтали?: StringboolEnterprise
   РежимПароля?: StringboolEnterprise
   Формат?: I8nTextEnterprise
   ЦветРамки?: ColorEnterprise
-  ЦветТекста?: ColorEnterprise
-  ЦветФона?: ColorEnterprise
   Ширина?: number
   Шрифт?: FontEnterprise
   События?: {
