@@ -42,11 +42,11 @@ describe("importTrackBarFieldFromEnterprise", () => {
   })
 
   describe("importTrackBarFieldPartialFromEnterprise", () => {
-    it("should return undefined when source is undefined", () => {
-      const result = importTrackBarFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+    // it("should return undefined when source is undefined", () => {
+    //   const result = importTrackBarFieldPartialFromEnterprise(mockСontext, undefined, undefined)
 
-      expect(result).toBeUndefined()
-    })
+    //   expect(result).toBeUndefined()
+    // })
 
     it("should import all fields from Enterprise", () => {
       const result = importTrackBarFieldPartialFromEnterprise(

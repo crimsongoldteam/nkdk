@@ -12,7 +12,7 @@ import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXM
 import { TrackBarField } from "~/metadata/forms/elements/trackBarField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importTrackBarFieldFromXML<To extends TrackBarField | undefined>(
   context: ConfigurationContext,
@@ -167,4 +167,4 @@ export function importTrackBarFieldFromXML<To extends TrackBarField | undefined>
   return result as To
 }
 
-registerMetadata("ImportFromXML", "TrackBarField", importTrackBarFieldFromXML)
+registerMetadata("ImportFromXML", "TrackBarField", importTrackBarFieldFromXML as ImportFromXMLFn)

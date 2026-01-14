@@ -7,13 +7,13 @@ import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exp
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
-import { TrackBarField, TrackBarFieldXML } from "~/metadata/forms/elements/trackBarField/types"
 import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
+import { TrackBarField, TrackBarFieldXML } from "~/metadata/forms/elements/trackBarField/types"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportTrackBarFieldToXML<From extends TrackBarField | undefined>(
   context: ConfigurationContext,
@@ -163,4 +163,4 @@ export function exportTrackBarFieldToXML<From extends TrackBarField | undefined>
   return sortObject(result) as ToXMLType<From>
 }
 
-registerMetadata("ExportToXML", "TrackBarField", exportTrackBarFieldToXML)
+registerMetadata("ExportToXML", "TrackBarField", exportTrackBarFieldToXML as ExportToXMLFn)

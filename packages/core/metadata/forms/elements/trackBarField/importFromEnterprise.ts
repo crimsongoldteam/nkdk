@@ -15,7 +15,7 @@ import {
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
-  importFormElementTypeFromEnterprise,
+  ImportPartialFromEnterpriseFn,
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
@@ -30,11 +30,9 @@ export function importTrackBarFieldTypedFromEnterprise<To extends TrackBarField 
 
   const props = importTrackBarFieldPropsFromEnterprise(context, data, name)
 
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
   const result: TrackBarField = {
     ...props,
-    elementType,
+    elementType: "TrackBarField",
     name,
   }
 
@@ -141,4 +139,8 @@ const importTrackBarFieldPropsFromEnterprise = (
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "TrackBarField", importTrackBarFieldPropsFromEnterprise)
+registerMetadata(
+  "ImportPartialFromEnterprise",
+  "TrackBarField",
+  importTrackBarFieldPropsFromEnterprise as ImportPartialFromEnterpriseFn
+)
