@@ -8,15 +8,20 @@ import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/fo
 import { Pages, PagesPartialEnterprise, PagesTypedEnterprise } from "~/metadata/forms/elements/pages/types"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importPagesTypedFromEnterprise = (
+export function importPagesTypedFromEnterprise<To extends Pages | undefined>(
   context: ConfigurationContext,
-  data: PagesTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): Pages | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const baseProps = importFormGroupPropsFromEnterprise(context, data)
@@ -35,19 +40,17 @@ export const importPagesTypedFromEnterprise = (
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importPagesPartialFromEnterprise = (
+export function importPagesPartialFromEnterprise<To extends Pages>(
   context: ConfigurationContext,
-  source: Pages | undefined,
-  data: PagesPartialEnterprise | undefined
-): Pages | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const baseProps = importFormGroupPropsFromEnterprise(context, data)
   const props = importPagesPropsFromEnterprise(context, data, source.name)
-  const result: Pages = {
+  const result: To = {
     ...source,
     ...baseProps,
     ...props,

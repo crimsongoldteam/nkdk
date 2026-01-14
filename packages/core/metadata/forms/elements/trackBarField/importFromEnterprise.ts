@@ -14,15 +14,20 @@ import {
 } from "~/metadata/forms/elements/trackBarField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportExportReturn } from "../types"
 
-export const importTrackBarFieldTypedFromEnterprise = (
+export function importTrackBarFieldTypedFromEnterprise<To extends TrackBarField | undefined>(
   context: ConfigurationContext,
-  data: TrackBarFieldTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): TrackBarField | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const props = importTrackBarFieldPropsFromEnterprise(context, data, name)
@@ -38,22 +43,20 @@ export const importTrackBarFieldTypedFromEnterprise = (
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importTrackBarFieldPartialFromEnterprise = (
+export function importTrackBarFieldPartialFromEnterprise<To extends TrackBarField>(
   context: ConfigurationContext,
-  source: TrackBarField | undefined,
-  data: TrackBarFieldPartialEnterprise | undefined
-): TrackBarField | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const props = importTrackBarFieldPropsFromEnterprise(
     context,
-    data as TrackBarFieldPartialEnterprise | undefined,
+    data as ToPartialEnterpriseType<To> | undefined,
     source.name
   )
-  const result: TrackBarField = {
+  const result: To = {
     ...source,
     ...props,
   }

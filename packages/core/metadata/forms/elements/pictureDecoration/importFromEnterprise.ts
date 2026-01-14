@@ -15,7 +15,12 @@ import {
   PictureDecorationTypedEnterprise,
 } from "~/metadata/forms/elements/pictureDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
@@ -57,11 +62,11 @@ const importPictureDecorationEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importPictureDecorationTypedFromEnterprise = (
+export function importPictureDecorationTypedFromEnterprise<To extends PictureDecoration | undefined>(
   context: ConfigurationContext,
-  data: PictureDecorationTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): PictureDecoration | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const baseProps = importFormDecorationPropsFromEnterprise(context, data)
@@ -79,19 +84,17 @@ export const importPictureDecorationTypedFromEnterprise = (
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importPictureDecorationPartialFromEnterprise = (
+export function importPictureDecorationPartialFromEnterprise<To extends PictureDecoration>(
   context: ConfigurationContext,
-  source: PictureDecoration | undefined,
-  data: PictureDecorationPartialEnterprise | undefined
-): PictureDecoration | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const baseProps = importFormDecorationPropsFromEnterprise(context, data)
   const props = importPictureDecorationPropsFromEnterprise(context, data)
-  const result: PictureDecoration = {
+  const result: To = {
     ...source,
     ...baseProps,
     ...props,

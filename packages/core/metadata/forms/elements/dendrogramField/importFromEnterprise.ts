@@ -9,13 +9,18 @@ import {
 import { importFormFieldFromEnterprise } from "~/metadata/forms/elements/formField/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importDendrogramFieldTypedFromEnterprise = (
+export function importDendrogramFieldTypedFromEnterprise<To extends DendrogramField | undefined>(
   context: ConfigurationContext,
-  data: DendrogramFieldTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): DendrogramField | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
@@ -30,20 +35,18 @@ export const importDendrogramFieldTypedFromEnterprise = (
     elementType,
   }
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importDendrogramFieldPartialFromEnterprise = (
+export function importDendrogramFieldPartialFromEnterprise<To extends DendrogramField>(
   context: ConfigurationContext,
-  source: DendrogramField | undefined,
-  data: DendrogramFieldPartialEnterprise | undefined
-): DendrogramField | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
 
   const props = importDendrogramFieldPropsFromEnterprise(context, data)
-  const result: DendrogramField = {
+  const result: To = {
     ...source,
     ...baseFields,
     ...props,

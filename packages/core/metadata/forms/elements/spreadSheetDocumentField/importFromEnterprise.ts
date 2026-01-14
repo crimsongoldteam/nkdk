@@ -10,15 +10,20 @@ import {
 } from "~/metadata/forms/elements/spreadSheetDocumentField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importSpreadSheetDocumentFieldTypedFromEnterprise = (
+export function importSpreadSheetDocumentFieldTypedFromEnterprise<To extends SpreadSheetDocumentField | undefined>(
   context: ConfigurationContext,
-  data: SpreadSheetDocumentFieldTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): SpreadSheetDocumentField | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
@@ -33,20 +38,18 @@ export const importSpreadSheetDocumentFieldTypedFromEnterprise = (
     elementType,
   }
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importSpreadSheetDocumentFieldPartialFromEnterprise = (
+export function importSpreadSheetDocumentFieldPartialFromEnterprise<To extends SpreadSheetDocumentField>(
   context: ConfigurationContext,
-  source: SpreadSheetDocumentField | undefined,
-  data: SpreadSheetDocumentFieldPartialEnterprise | undefined
-): SpreadSheetDocumentField | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
 
   const props = importSpreadSheetDocumentFieldPropsFromEnterprise(context, data)
-  const result: SpreadSheetDocumentField = {
+  const result: To = {
     ...source,
     ...baseFields,
     ...props,

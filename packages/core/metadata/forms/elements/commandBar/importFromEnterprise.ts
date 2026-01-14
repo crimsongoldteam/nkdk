@@ -12,16 +12,21 @@ import {
 } from "~/metadata/forms/elements/commandBar/types"
 import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importButtonGroupChildItemsFromEnterprise } from "../../collections/buttonGroupChildItems/importFromEnterprise"
+import { ImportExportReturn } from "../types"
 
-export const importCommandBarTypedFromEnterprise = (
+export function importCommandBarTypedFromEnterprise<To extends CommandBar | undefined>(
   context: ConfigurationContext,
-  data: CommandBarTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): CommandBar | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const props = importCommandBarPropsFromEnterprise(context, data)
@@ -38,18 +43,16 @@ export const importCommandBarTypedFromEnterprise = (
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importCommandBarPartialFromEnterprise = (
+export function importCommandBarPartialFromEnterprise<To extends CommandBar>(
   context: ConfigurationContext,
-  source: CommandBar | undefined,
-  data: CommandBarPartialEnterprise | undefined
-): CommandBar | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const props = importCommandBarPropsFromEnterprise(context, data)
-  const result: CommandBar = {
+  const result: To = {
     ...source,
     ...props,
     childItems: props.childItems ?? [],

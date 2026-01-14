@@ -12,15 +12,20 @@ import {
 } from "~/metadata/forms/elements/radioButtonField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importRadioButtonFieldTypedFromEnterprise = (
+export function importRadioButtonFieldTypedFromEnterprise<To extends RadioButtonField | undefined>(
   context: ConfigurationContext,
-  data: RadioButtonFieldTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): RadioButtonField | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
@@ -35,20 +40,18 @@ export const importRadioButtonFieldTypedFromEnterprise = (
     elementType,
   }
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importRadioButtonFieldPartialFromEnterprise = (
+export function importRadioButtonFieldPartialFromEnterprise<To extends RadioButtonField>(
   context: ConfigurationContext,
-  source: RadioButtonField | undefined,
-  data: RadioButtonFieldPartialEnterprise | undefined
-): RadioButtonField | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
 
   const props = importRadioButtonFieldPropsFromEnterprise(context, data)
-  const result: RadioButtonField = {
+  const result: To = {
     ...source,
     ...baseFields,
     ...props,

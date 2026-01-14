@@ -14,16 +14,21 @@ import {
   ColumnGroupTypedEnterprise,
 } from "~/metadata/forms/elements/columnGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importChildItemsFromEnterprise } from "../../collections/childItems/importFromEnterprise"
+import { ImportExportReturn } from "../types"
 
-export const importColumnGroupTypedFromEnterprise = (
+export function importColumnGroupTypedFromEnterprise<To extends ColumnGroup | undefined>(
   context: ConfigurationContext,
-  data: ColumnGroupTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): ColumnGroup | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const props = importColumnGroupPropsFromEnterprise(context, data)
@@ -40,18 +45,16 @@ export const importColumnGroupTypedFromEnterprise = (
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importColumnGroupPartialFromEnterprise = (
+export function importColumnGroupPartialFromEnterprise<To extends ColumnGroup>(
   context: ConfigurationContext,
-  source: ColumnGroup | undefined,
-  data: ColumnGroupPartialEnterprise | undefined
-): ColumnGroup | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const props = importColumnGroupPropsFromEnterprise(context, data)
-  const result: ColumnGroup = {
+  const result: To = {
     ...source,
     ...props,
     childItems: props.childItems ?? [],

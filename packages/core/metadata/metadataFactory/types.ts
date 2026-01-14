@@ -6,27 +6,12 @@ import { TypeRules } from "./rules"
 
 // #region type associations
 
-export type FromXMLType<T> = Extract<
-  TypeRules,
-  { XML: T; Element: any; PartialEnterprise: any; TypedEnterprise: any; EnterpriseName: any }
->["Element"]
-
 export type ToXMLType<T> = T extends undefined
   ? undefined
   : Extract<
       TypeRules,
       { XML: any; Element: T; PartialEnterprise: any; TypedEnterprise: any; EnterpriseName: any }
     >["XML"]
-
-export type FromPartialEnterpriseType<T> = Extract<
-  TypeRules,
-  { XML: any; Element: any; PartialEnterprise: T; TypedEnterprise: any; EnterpriseName: any }
->["Element"]
-
-export type FromTypedEnterpriseType<T> = Extract<
-  TypeRules,
-  { XML: any; Element: any; PartialEnterprise: any; TypedEnterprise: T; EnterpriseName: any }
->["Element"]
 
 export type ToPartialEnterpriseType<T> = Extract<
   TypeRules,

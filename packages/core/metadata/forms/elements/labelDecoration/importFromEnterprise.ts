@@ -13,7 +13,12 @@ import {
   LabelDecorationTypedEnterprise,
 } from "~/metadata/forms/elements/labelDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importFormDecorationPropsFromEnterprise } from "../formDecoration/importFromEnterprise"
@@ -36,11 +41,11 @@ const importLabelDecorationEventsFromEnterprise = (
   return Object.keys(result).length > 0 ? result : undefined
 }
 
-export const importLabelDecorationTypedFromEnterprise = (
+export function importLabelDecorationTypedFromEnterprise<To extends LabelDecoration | undefined>(
   context: ConfigurationContext,
-  data: LabelDecorationTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): LabelDecoration | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const props = importLabelDecorationPropsFromEnterprise(context, data)
@@ -56,18 +61,16 @@ export const importLabelDecorationTypedFromEnterprise = (
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importLabelDecorationPartialFromEnterprise = (
+export function importLabelDecorationPartialFromEnterprise<To extends LabelDecoration>(
   context: ConfigurationContext,
-  source: LabelDecoration | undefined,
-  data: LabelDecorationPartialEnterprise | undefined
-): LabelDecoration | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const props = importLabelDecorationPropsFromEnterprise(context, data)
-  const result: LabelDecoration = {
+  const result: To = {
     ...source,
     ...props,
   }

@@ -10,15 +10,20 @@ import {
 } from "~/metadata/forms/elements/pdfDocumentField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importPdfDocumentFieldTypedFromEnterprise = (
+export function importPdfDocumentFieldTypedFromEnterprise<To extends PdfDocumentField | undefined>(
   context: ConfigurationContext,
-  data: PdfDocumentFieldTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): PdfDocumentField | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
@@ -33,20 +38,18 @@ export const importPdfDocumentFieldTypedFromEnterprise = (
     elementType,
   }
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importPdfDocumentFieldPartialFromEnterprise = (
+export function importPdfDocumentFieldPartialFromEnterprise<To extends PdfDocumentField>(
   context: ConfigurationContext,
-  source: PdfDocumentField | undefined,
-  data: PdfDocumentFieldPartialEnterprise | undefined
-): PdfDocumentField | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
 
   const props = importPdfDocumentFieldPropsFromEnterprise(context, data)
-  const result: PdfDocumentField = {
+  const result: To = {
     ...source,
     ...baseFields,
     ...props,

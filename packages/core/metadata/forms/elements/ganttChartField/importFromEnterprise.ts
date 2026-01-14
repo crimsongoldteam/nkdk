@@ -9,15 +9,20 @@ import {
 } from "~/metadata/forms/elements/ganttChartField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importGanttChartFieldTypedFromEnterprise = (
+export function importGanttChartFieldTypedFromEnterprise<To extends GanttChartField | undefined>(
   context: ConfigurationContext,
-  data: GanttChartFieldTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): GanttChartField | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
@@ -32,20 +37,18 @@ export const importGanttChartFieldTypedFromEnterprise = (
     elementType,
   }
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importGanttChartFieldPartialFromEnterprise = (
+export function importGanttChartFieldPartialFromEnterprise<To extends GanttChartField>(
   context: ConfigurationContext,
-  source: GanttChartField | undefined,
-  data: GanttChartFieldPartialEnterprise | undefined
-): GanttChartField | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
 
   const props = importGanttChartFieldPropsFromEnterprise(context, data)
-  const result: GanttChartField = {
+  const result: To = {
     ...source,
     ...baseFields,
     ...props,

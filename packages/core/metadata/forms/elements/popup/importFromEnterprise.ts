@@ -9,16 +9,21 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormGroupPropsFromEnterprise } from "~/metadata/forms/elements/formGroup/importFromEnterprise"
 import { Popup, PopupPartialEnterprise, PopupTypedEnterprise } from "~/metadata/forms/elements/popup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importButtonGroupChildItemsFromEnterprise } from "../../collections/buttonGroupChildItems/importFromEnterprise"
 
-export const importPopupTypedFromEnterprise = (
+export function importPopupTypedFromEnterprise<To extends Popup | undefined>(
   context: ConfigurationContext,
-  data: PopupTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): Popup | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const baseProps = importFormGroupPropsFromEnterprise(context, data)
@@ -37,19 +42,17 @@ export const importPopupTypedFromEnterprise = (
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importPopupPartialFromEnterprise = (
+export function importPopupPartialFromEnterprise<To extends Popup>(
   context: ConfigurationContext,
-  source: Popup | undefined,
-  data: PopupPartialEnterprise | undefined
-): Popup | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const baseProps = importFormGroupPropsFromEnterprise(context, data)
   const props = importPopupPropsFromEnterprise(context, data)
-  const result: Popup = {
+  const result: To = {
     ...source,
     ...baseProps,
     ...props,

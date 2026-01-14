@@ -13,17 +13,22 @@ import {
   ButtonGroupTypedEnterprise,
 } from "~/metadata/forms/elements/buttonGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importButtonGroupChildItemsFromEnterprise } from "../../collections/buttonGroupChildItems/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { ImportExportReturn } from "../types"
 
-export const importButtonGroupTypedFromEnterprise = (
+export function importButtonGroupTypedFromEnterprise<To extends ButtonGroup | undefined>(
   context: ConfigurationContext,
-  data: ButtonGroupTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): ButtonGroup | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const props = importButtonGroupPropsFromEnterprise(context, data)
@@ -40,18 +45,16 @@ export const importButtonGroupTypedFromEnterprise = (
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importButtonGroupPartialFromEnterprise = (
+export function importButtonGroupPartialFromEnterprise<To extends ButtonGroup>(
   context: ConfigurationContext,
-  source: ButtonGroup | undefined,
-  data: ButtonGroupPartialEnterprise | undefined
-): ButtonGroup | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const props = importButtonGroupPropsFromEnterprise(context, data)
-  const result: ButtonGroup = {
+  const result: To = {
     ...source,
     ...props,
     childItems: props.childItems ?? [],

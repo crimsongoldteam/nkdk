@@ -10,15 +10,20 @@ import {
 } from "~/metadata/forms/elements/progressBarField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 
-export const importProgressBarFieldTypedFromEnterprise = (
+export function importProgressBarFieldTypedFromEnterprise<To extends ProgressBarField | undefined>(
   context: ConfigurationContext,
-  data: ProgressBarFieldTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): ProgressBarField | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
@@ -33,20 +38,18 @@ export const importProgressBarFieldTypedFromEnterprise = (
     elementType,
   }
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importProgressBarFieldPartialFromEnterprise = (
+export function importProgressBarFieldPartialFromEnterprise<To extends ProgressBarField>(
   context: ConfigurationContext,
-  source: ProgressBarField | undefined,
-  data: ProgressBarFieldPartialEnterprise | undefined
-): ProgressBarField | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
 
   const props = importProgressBarFieldPropsFromEnterprise(context, data)
-  const result: ProgressBarField = {
+  const result: To = {
     ...source,
     ...baseFields,
     ...props,

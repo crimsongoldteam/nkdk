@@ -15,16 +15,21 @@ import {
   FormDecorationTypedEnterprise,
 } from "~/metadata/forms/elements/formDecoration/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
+import { ImportExportReturn } from "../types"
 
-export const importFormDecorationTypedFromEnterprise = (
+export function importFormDecorationTypedFromEnterprise<To extends FormDecoration | undefined>(
   context: ConfigurationContext,
-  data: FormDecorationTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): FormDecoration | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const props = importFormDecorationPropsFromEnterprise(context, data)
@@ -40,18 +45,16 @@ export const importFormDecorationTypedFromEnterprise = (
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importFormDecorationPartialFromEnterprise = (
+export function importFormDecorationPartialFromEnterprise<To extends FormDecoration>(
   context: ConfigurationContext,
-  source: FormDecoration | undefined,
-  data: FormDecorationPartialEnterprise | undefined
-): FormDecoration | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const props = importFormDecorationPropsFromEnterprise(context, data)
-  const result: FormDecoration = {
+  const result: To = {
     ...source,
     ...props,
   }

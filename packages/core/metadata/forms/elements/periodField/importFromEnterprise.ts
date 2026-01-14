@@ -12,13 +12,18 @@ import {
 } from "~/metadata/forms/elements/periodField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importPeriodFieldTypedFromEnterprise = (
+export function importPeriodFieldTypedFromEnterprise<To extends PeriodField | undefined>(
   context: ConfigurationContext,
-  data: PeriodFieldTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): PeriodField | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
@@ -33,20 +38,18 @@ export const importPeriodFieldTypedFromEnterprise = (
     elementType,
   }
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importPeriodFieldPartialFromEnterprise = (
+export function importPeriodFieldPartialFromEnterprise<To extends PeriodField>(
   context: ConfigurationContext,
-  source: PeriodField | undefined,
-  data: PeriodFieldPartialEnterprise | undefined
-): PeriodField | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
 
   const props = importPeriodFieldPropsFromEnterprise(context, data)
-  const result: PeriodField = {
+  const result: To = {
     ...source,
     ...baseFields,
     ...props,

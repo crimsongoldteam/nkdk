@@ -13,16 +13,21 @@ import {
   UsualGroupTypedEnterprise,
 } from "~/metadata/forms/elements/usualGroup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importTableFromEnterprise } from "../table/importFromEnterprise"
+import { ImportExportReturn } from "../types"
 
-export const importUsualGroupTypedFromEnterprise = (
+export function importUsualGroupTypedFromEnterprise<To extends UsualGroup | undefined>(
   context: ConfigurationContext,
-  data: UsualGroupTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): UsualGroup | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const props = importUsualGroupPropsFromEnterprise(context, data, name)
@@ -39,18 +44,16 @@ export const importUsualGroupTypedFromEnterprise = (
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importUsualGroupPartialFromEnterprise = (
+export function importUsualGroupPartialFromEnterprise<To extends UsualGroup>(
   context: ConfigurationContext,
-  source: UsualGroup | undefined,
-  data: UsualGroupPartialEnterprise | undefined
-): UsualGroup | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const props = importUsualGroupPropsFromEnterprise(context, data, source.name)
-  const result: UsualGroup = {
+  const result: To = {
     ...source,
     ...props,
     childItems: props.childItems ?? [],

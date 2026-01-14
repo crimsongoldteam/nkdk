@@ -12,16 +12,20 @@ import {
   FormGroupPartialEnterprise,
   FormGroupTypedEnterprise,
 } from "~/metadata/forms/elements/formGroup/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { ImportExportReturn } from "../types"
 
-export const importFormGroupTypedFromEnterprise = (
+export function importFormGroupTypedFromEnterprise<To extends FormGroup | undefined>(
   context: ConfigurationContext,
-  data: FormGroupTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): FormGroup | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const props = importFormGroupPropsFromEnterprise(context, data)
@@ -37,18 +41,16 @@ export const importFormGroupTypedFromEnterprise = (
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importFormGroupPartialFromEnterprise = (
+export function importFormGroupPartialFromEnterprise<To extends FormGroup>(
   context: ConfigurationContext,
-  source: FormGroup | undefined,
-  data: FormGroupPartialEnterprise | undefined
-): FormGroup | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const props = importFormGroupPropsFromEnterprise(context, data)
-  const result: FormGroup = {
+  const result: To = {
     ...source,
     ...props,
   }
@@ -173,5 +175,3 @@ export const importFormGroupFromEnterprise = <
     name,
   }
 }
-
-registerMetadata("ImportPartialFromEnterprise", "FormGroup", importFormGroupPropsFromEnterprise)

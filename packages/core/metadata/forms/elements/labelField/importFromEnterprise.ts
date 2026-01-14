@@ -13,13 +13,18 @@ import {
 } from "~/metadata/forms/elements/labelField/types"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { importFormElementTypeFromEnterprise } from "~/metadata/metadataFactory/types"
+import {
+  importFormElementTypeFromEnterprise,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
+import { ImportExportReturn } from "../types"
 
-export const importLabelFieldTypedFromEnterprise = (
+export function importLabelFieldTypedFromEnterprise<To extends LabelField | undefined>(
   context: ConfigurationContext,
-  data: LabelFieldTypedEnterprise | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-): LabelField | undefined => {
+): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
   if (data === undefined) return undefined
 
   const baseFields = importFormFieldFromEnterprise(context, data, name)!
@@ -34,20 +39,18 @@ export const importLabelFieldTypedFromEnterprise = (
     elementType,
   }
 
-  return result
+  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
 }
 
-export const importLabelFieldPartialFromEnterprise = (
+export function importLabelFieldPartialFromEnterprise<To extends LabelField>(
   context: ConfigurationContext,
-  source: LabelField | undefined,
-  data: LabelFieldPartialEnterprise | undefined
-): LabelField | undefined => {
-  if (source === undefined) return undefined
-
+  source: To,
+  data: ToPartialEnterpriseType<To> | undefined
+): To {
   const baseFields = importFormFieldFromEnterprise(context, data, source.name)!
 
   const props = importLabelFieldPropsFromEnterprise(context, data)
-  const result: LabelField = {
+  const result: To = {
     ...source,
     ...baseFields,
     ...props,
