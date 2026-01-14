@@ -1,7 +1,10 @@
 import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import {
+  exportI8nTextOtherToEnterprise,
+  exportI8nTextToEnterprise,
+} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
@@ -16,9 +19,15 @@ import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportT
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ExportPartialToEnterpriseFn,
+  ExportTypedToEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { exportBaseElementToEnterprise } from "../baseElement/exportToEnterprise"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
 export function exportChartFieldTypedToEnterprise<From extends ChartField | undefined>(
@@ -27,13 +36,17 @@ export function exportChartFieldTypedToEnterprise<From extends ChartField | unde
 ): ToTypedEnterpriseType<From> {
   if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
+  const baseFields = exportBaseElementToEnterprise(context, data)
+
   const props = exportChartFieldPropsToEnterprise(context, data)
 
-  const title = exportI8nTextToEnterprise(context, data.title)
   const result: ChartFieldTypedEnterprise = {
     Тип: "ПолеДиаграммы",
+    ...baseFields,
     ...props,
   }
+
+  const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToTypedEnterpriseType<From>
@@ -45,11 +58,17 @@ export function exportChartFieldPartialToEnterprise<From extends ChartField | un
 ): ToPartialEnterpriseType<From> {
   if (data === undefined) return undefined as ToPartialEnterpriseType<From>
 
+  const baseFields = exportBaseElementToEnterprise(context, data)
+
   const props = exportChartFieldPropsToEnterprise(context, data)
 
   const result: ChartFieldPartialEnterprise = {
+    ...baseFields,
     ...props,
   }
+
+  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToPartialEnterpriseType<From>
 }
@@ -259,5 +278,13 @@ const exportChartFieldPropsToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "ChartField", exportChartFieldPartialToEnterprise)
-registerMetadata("ExportTypedToEnterprise", "ChartField", exportChartFieldTypedToEnterprise)
+registerMetadata(
+  "ExportPartialToEnterprise",
+  "ChartField",
+  exportChartFieldPartialToEnterprise as ExportPartialToEnterpriseFn
+)
+registerMetadata(
+  "ExportTypedToEnterprise",
+  "ChartField",
+  exportChartFieldTypedToEnterprise as ExportTypedToEnterpriseFn
+)

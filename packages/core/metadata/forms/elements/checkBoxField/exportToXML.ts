@@ -6,13 +6,13 @@ import { exportTypeDescriptionToXML } from "~/metadata/commonObjects/typeDescrip
 import { exportUserVisibleToXML } from "~/metadata/commonObjects/userVisible/exportToXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
-import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { CheckBoxField, CheckBoxFieldXML } from "~/metadata/forms/elements/checkBoxField/types"
+import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportCheckBoxFieldToXML<From extends CheckBoxField | undefined>(
@@ -112,9 +112,6 @@ export function exportCheckBoxFieldToXML<From extends CheckBoxField | undefined>
   const typeRestriction = exportTypeDescriptionToXML(context, data.typeRestriction)
   if (typeRestriction !== undefined) result.TypeRestriction = typeRestriction
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
   if (data.verticalAlign !== undefined) result.VerticalAlign = data.verticalAlign
 
   if (data.verticalAlignInGroup !== undefined) result.VerticalAlignInGroup = data.verticalAlignInGroup
@@ -126,9 +123,6 @@ export function exportCheckBoxFieldToXML<From extends CheckBoxField | undefined>
 
   if (data.warningOnEditRepresentation !== undefined)
     result.WarningOnEditRepresentation = data.warningOnEditRepresentation
-
-  const events = exportEventsToXML(context, data.events)
-  if (events !== undefined) result.Events = events
 
   const backColor = exportColorToXML(context, data.backColor)
   if (backColor !== undefined) result.BackColor = backColor
@@ -166,4 +160,4 @@ export function exportCheckBoxFieldToXML<From extends CheckBoxField | undefined>
   return sortObject(result) as ToXMLType<From>
 }
 
-registerMetadata("ExportToXML", "CheckBoxField", exportCheckBoxFieldToXML)
+registerMetadata("ExportToXML", "CheckBoxField", exportCheckBoxFieldToXML as ExportToXMLFn)

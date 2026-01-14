@@ -1,7 +1,10 @@
 import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
 import {
@@ -19,6 +22,7 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+
 export function importCheckBoxFieldTypedFromEnterprise<To extends CheckBoxField | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
@@ -38,6 +42,9 @@ export function importCheckBoxFieldTypedFromEnterprise<To extends CheckBoxField 
     elementType,
   }
 
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
+  if (title !== undefined) result.title = title
+
   return result as To
 }
 
@@ -53,8 +60,11 @@ export function importCheckBoxFieldPartialFromEnterprise<To extends CheckBoxFiel
     ...source,
     ...baseFields,
     ...props,
-    elementType: source.elementType, // Сохраняем elementType из source
+    elementType: "CheckBoxField",
   }
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result
 }

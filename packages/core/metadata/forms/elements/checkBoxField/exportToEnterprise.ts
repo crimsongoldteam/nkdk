@@ -6,17 +6,22 @@ import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/expo
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
 import {
   CheckBoxField,
   CheckBoxFieldPartialEnterprise,
   CheckBoxFieldTypedEnterprise,
 } from "~/metadata/forms/elements/checkBoxField/types"
+import { exportContextMenuToEnterprise } from "~/metadata/forms/elements/contextMenu/exportToEnterprise"
 import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ExportPartialToEnterpriseFn,
+  ExportTypedToEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
@@ -34,6 +39,7 @@ export function exportCheckBoxFieldTypedToEnterprise<From extends CheckBoxField 
     Тип: "ПолеФлажок",
     ...props,
   }
+
   if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToTypedEnterpriseType<From>
@@ -50,6 +56,9 @@ export function exportCheckBoxFieldPartialToEnterprise<From extends CheckBoxFiel
   const result: CheckBoxFieldPartialEnterprise = {
     ...props,
   }
+
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToPartialEnterpriseType<From>
 }
@@ -172,11 +181,6 @@ const exportCheckBoxFieldPropsToEnterprise = (
   )
   if (titleLocation !== undefined) result.ПоложениеЗаголовка = titleLocation
 
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
-  if (userVisible !== undefined) {
-    Object.assign(result, userVisible)
-  }
-
   const warningOnEdit = exportI8nTextToEnterprise(context, data.warningOnEdit)
   if (warningOnEdit !== undefined) result.ПредупреждениеПриРедактировании = warningOnEdit
 
@@ -225,9 +229,6 @@ const exportCheckBoxFieldPropsToEnterprise = (
   const footerFont = exportFontToEnterprise(context, data.footerFont)
   if (footerFont !== undefined) result.ШрифтПодвала = footerFont
 
-  const events = exportEventsToEnterprise(context, data.events)
-  if (events !== undefined) result.События = events
-
   const checkBoxType = exportSystemEnumerationToEnterprise(context, data.checkBoxType, SE.CheckBoxTypeToEnterprise)
   if (checkBoxType !== undefined) result.ВидФлажка = checkBoxType
 
@@ -269,5 +270,13 @@ const exportCheckBoxFieldPropsToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "CheckBoxField", exportCheckBoxFieldPartialToEnterprise)
-registerMetadata("ExportTypedToEnterprise", "CheckBoxField", exportCheckBoxFieldTypedToEnterprise)
+registerMetadata(
+  "ExportPartialToEnterprise",
+  "CheckBoxField",
+  exportCheckBoxFieldPartialToEnterprise as ExportPartialToEnterpriseFn
+)
+registerMetadata(
+  "ExportTypedToEnterprise",
+  "CheckBoxField",
+  exportCheckBoxFieldTypedToEnterprise as ExportTypedToEnterpriseFn
+)

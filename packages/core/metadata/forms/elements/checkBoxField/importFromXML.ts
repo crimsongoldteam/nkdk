@@ -12,16 +12,15 @@ import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extended
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importCheckBoxFieldFromXML<To extends CheckBoxField | undefined>(
   context: ConfigurationContext,
   xml: ToXMLType<To> | undefined
 ): To {
   if (xml === undefined) return undefined as To
-  const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined as To
 
+  const baseFields = importBaseElementFromXML(context, xml)
   const result: CheckBoxField = {
     ...baseFields,
     elementType: FormElementType.CheckBoxField,
@@ -164,4 +163,4 @@ export function importCheckBoxFieldFromXML<To extends CheckBoxField | undefined>
   return result as To
 }
 
-registerMetadata("ImportFromXML", "CheckBoxField", importCheckBoxFieldFromXML)
+registerMetadata("ImportFromXML", "CheckBoxField", importCheckBoxFieldFromXML as ImportFromXMLFn)
