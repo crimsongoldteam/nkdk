@@ -8,11 +8,10 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/exportToXML"
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { DendrogramField, DendrogramFieldXML } from "~/metadata/forms/elements/dendrogramField/types"
-import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportDendrogramFieldToXML<From extends DendrogramField | undefined>(
@@ -83,9 +82,6 @@ export function exportDendrogramFieldToXML<From extends DendrogramField | undefi
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const table = exportTableToXML(context, data.table)
-  if (table !== undefined) result.Table = table
-
   const title = exportI8nTextToXML(context, data.title)
   if (title !== undefined) result.Title = title
 
@@ -149,4 +145,4 @@ export function exportDendrogramFieldToXML<From extends DendrogramField | undefi
   return sortObject(result) as ToXMLType<From>
 }
 
-registerMetadata("ExportToXML", "DendrogramField", exportDendrogramFieldToXML)
+registerMetadata("ExportToXML", "DendrogramField", exportDendrogramFieldToXML as ExportToXMLFn)
