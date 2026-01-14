@@ -15,7 +15,7 @@ export const importButtonGroupChildItemsFromEnterprise = (
 
     const fn = getOperationFunction("ImportTypedFromEnterprise", elementType)
     if (fn == undefined) throw new Error(`Import function not found for element type: ${elementType}`)
-    const item = fn<ButtonGroupChildItem>(context, itemData, name)
+    const item = fn(context, itemData, name) as ButtonGroupChildItem
 
     if (item !== undefined) result.push(item)
   }

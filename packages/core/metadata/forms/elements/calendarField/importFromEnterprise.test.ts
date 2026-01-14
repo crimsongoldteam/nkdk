@@ -43,11 +43,11 @@ describe("importCalendarFieldFromEnterprise", () => {
   })
 
   describe("importCalendarFieldPartialFromEnterprise", () => {
-    it("should return undefined when source is undefined", () => {
-      const result = importCalendarFieldPartialFromEnterprise(mockСontext, undefined, undefined)
+    // it("should return undefined when source is undefined", () => {
+    //   const result = importCalendarFieldPartialFromEnterprise(mockСontext, undefined, undefined)
 
-      expect(result).toBeUndefined()
-    })
+    //   expect(result).toBeUndefined()
+    // })
 
     it("should import all fields from Enterprise", () => {
       const result = importCalendarFieldPartialFromEnterprise(

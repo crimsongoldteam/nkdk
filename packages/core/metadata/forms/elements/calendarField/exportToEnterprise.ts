@@ -2,7 +2,10 @@ import { exportBooleanToEnterprise } from "~/metadata/commonObjects/boolean/expo
 import { exportBorderToEnterprise } from "~/metadata/commonObjects/border/exportToEnterprise"
 import { exportColorToEnterprise } from "~/metadata/commonObjects/color/exportToEnterprise"
 import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEnterprise"
-import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
+import {
+  exportI8nTextOtherToEnterprise,
+  exportI8nTextToEnterprise,
+} from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/exportToEnterprise"
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
@@ -17,7 +20,12 @@ import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportT
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
+import {
+  ExportPartialToEnterpriseFn,
+  ExportTypedToEnterpriseFn,
+  ToPartialEnterpriseType,
+  ToTypedEnterpriseType,
+} from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportBaseElementToEnterprise } from "../baseElement/exportToEnterprise"
@@ -39,6 +47,9 @@ export function exportCalendarFieldTypedToEnterprise<From extends CalendarField 
     ...props,
   }
 
+  const title = exportI8nTextToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
+
   return sortObject(result) as ToTypedEnterpriseType<From>
 }
 
@@ -56,6 +67,9 @@ export function exportCalendarFieldPartialToEnterprise<From extends CalendarFiel
     ...baseFields,
     ...props,
   }
+
+  const title = exportI8nTextOtherToEnterprise(context, data.title)
+  if (title !== undefined) result.Заголовок = title
 
   return sortObject(result) as ToPartialEnterpriseType<From>
 }
@@ -178,11 +192,6 @@ const exportCalendarFieldPropsToEnterprise = (
   )
   if (titleLocation !== undefined) result.ПоложениеЗаголовка = titleLocation
 
-  const userVisible = exportUserVisibleToEnterprise(context, data.userVisible)
-  if (userVisible !== undefined) {
-    Object.assign(result, userVisible)
-  }
-
   const warningOnEdit = exportI8nTextToEnterprise(context, data.warningOnEdit)
   if (warningOnEdit !== undefined) result.ПредупреждениеПриРедактировании = warningOnEdit
 
@@ -230,9 +239,6 @@ const exportCalendarFieldPropsToEnterprise = (
 
   const footerFont = exportFontToEnterprise(context, data.footerFont)
   if (footerFont !== undefined) result.ШрифтПодвала = footerFont
-
-  const events = exportEventsToEnterprise(context, data.events)
-  if (events !== undefined) result.События = events
 
   const autoMaxHeight = exportBooleanToEnterprise(context, data.autoMaxHeight)
   if (autoMaxHeight !== undefined) result.АвтоМаксимальнаяВысота = autoMaxHeight
@@ -304,5 +310,13 @@ const exportCalendarFieldPropsToEnterprise = (
   return result
 }
 
-registerMetadata("ExportPartialToEnterprise", "CalendarField", exportCalendarFieldPartialToEnterprise)
-registerMetadata("ExportTypedToEnterprise", "CalendarField", exportCalendarFieldTypedToEnterprise)
+registerMetadata(
+  "ExportPartialToEnterprise",
+  "CalendarField",
+  exportCalendarFieldPartialToEnterprise as ExportPartialToEnterpriseFn
+)
+registerMetadata(
+  "ExportTypedToEnterprise",
+  "CalendarField",
+  exportCalendarFieldTypedToEnterprise as ExportTypedToEnterpriseFn
+)

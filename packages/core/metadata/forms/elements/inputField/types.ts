@@ -24,12 +24,12 @@ import {
 import { FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/elements/formField/types"
 import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { BaseElement } from "../baseElement/types"
+import { NamedElement } from "../baseElement/types"
 import { ContextMenu, ContextMenuEnterprise, ContextMenuXML } from "../contextMenu/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 import { Table, TableXML } from "../table/types"
 
-export interface InputField extends BaseElement {
+export interface InputField extends NamedElement {
   elementType: "InputField"
   allowInputEmptyMultipleValues?: boolean
   allowMultipleValuesDuplicates?: boolean

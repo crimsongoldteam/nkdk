@@ -31,11 +31,11 @@ export type ImportFromXMLFn = <To extends ChildItem | undefined>(
   data: ToXMLType<To>
 ) => To
 
-export type ImportTypedFromEnterpriseFn = (
+export type ImportTypedFromEnterpriseFn = <To extends ChildItem | undefined>(
   context: ConfigurationContext,
-  data: Object | undefined,
+  data: ToTypedEnterpriseType<To>,
   name: string
-) => Object | undefined
+) => To
 
 export type ImportPartialFromEnterpriseFn = (
   context: ConfigurationContext,

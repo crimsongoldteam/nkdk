@@ -13,7 +13,7 @@ import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extended
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
+import { ImportFromXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function importCalendarFieldFromXML<To extends CalendarField | undefined>(
   context: ConfigurationContext,
@@ -21,11 +21,10 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
 ): To {
   if (xml === undefined) return undefined as To
   const baseFields = importBaseElementFromXML(context, xml)
-  if (!baseFields) return undefined as To
 
   const result: CalendarField = {
     ...baseFields,
-    elementType: FormElementType.CalendarField,
+    elementType: "CalendarField",
   }
 
   if (xml.AutoCellHeight !== undefined) result.autoCellHeight = xml.AutoCellHeight
@@ -184,4 +183,4 @@ export function importCalendarFieldFromXML<To extends CalendarField | undefined>
   return result as To
 }
 
-registerMetadata("ImportFromXML", "CalendarField", importCalendarFieldFromXML)
+registerMetadata("ImportFromXML", "CalendarField", importCalendarFieldFromXML as ImportFromXMLFn)

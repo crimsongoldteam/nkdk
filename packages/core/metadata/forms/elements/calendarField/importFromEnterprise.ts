@@ -2,29 +2,31 @@ import { importBooleanFromEnterprise } from "~/metadata/commonObjects/boolean/im
 import { importBorderFromEnterprise } from "~/metadata/commonObjects/border/importFromEnterprise"
 import { importColorFromEnterprise } from "~/metadata/commonObjects/color/importFromEnterprise"
 import { importFontFromEnterprise } from "~/metadata/commonObjects/font/importFromEnterprise"
-import { importI8nTextFromEnterprise } from "~/metadata/commonObjects/i8nText/importFromEnterprise"
+import {
+  importI8nTextCombinedFromEnterprise,
+  importI8nTextFromEnterprise,
+} from "~/metadata/commonObjects/i8nText/importFromEnterprise"
 import { importPictureFromEnterprise } from "~/metadata/commonObjects/picture/importFromEnterprise"
 import { importTypeDescriptionFromEnterprise } from "~/metadata/commonObjects/typeDescription/importFromEnterprise"
 import { importUserVisibleFromEnterprise } from "~/metadata/commonObjects/userVisible/importFromEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import {
   CalendarField,
   CalendarFieldPartialEnterprise,
   CalendarFieldTypedEnterprise,
 } from "~/metadata/forms/elements/calendarField/types"
+import { importContextMenuFromEnterprise } from "~/metadata/forms/elements/contextMenu/importFromEnterprise"
 import { importTableFromEnterprise } from "~/metadata/forms/elements/table/importFromEnterprise"
 import { importEventsFromEnterprise } from "~/metadata/forms/events/importFromEnterprise"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import {
-  importFormElementTypeFromEnterprise,
+  ImportTypedFromEnterpriseFn,
   ToPartialEnterpriseType,
   ToTypedEnterpriseType,
 } from "~/metadata/metadataFactory/types"
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { ImportFromEnterpriseReturn } from "../types"
 
 export function importCalendarFieldTypedFromEnterprise<To extends CalendarField | undefined>(
   context: ConfigurationContext,
@@ -32,21 +34,19 @@ export function importCalendarFieldTypedFromEnterprise<To extends CalendarField 
   name: string
 ): To {
   if (data === undefined) return undefined as To
-  if (!name) return undefined as To
 
-  const baseFields = importCalendarFieldPropsFromEnterprise(context, data, name)!
+  const props = importCalendarFieldPropsFromEnterprise(context, data)
 
-  const props = importCalendarFieldSpecificPropsFromEnterprise(context, data)
-
-  const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
-
-  const title = importI8nTextFromEnterprise(context, data.Заголовок)
   const result: CalendarField = {
-    ...baseFields,
     ...props,
-    elementType,
+    elementType: "CalendarField",
     name,
   }
+
+  const table = importTableFromEnterprise(context, data.Таблица, name + ".Таблица")
+  if (table !== undefined) result.table = table
+
+  const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
   return result as To
@@ -57,23 +57,24 @@ export function importCalendarFieldPartialFromEnterprise<To extends CalendarFiel
   source: To,
   data: ToPartialEnterpriseType<To> | undefined
 ): To {
-  const baseFields = importCalendarFieldPropsFromEnterprise(context, data, source.name)!
-
-  const props = importCalendarFieldSpecificPropsFromEnterprise(context, data)
+  const props = importCalendarFieldPropsFromEnterprise(context, data)
   const result: To = {
     ...source,
-    ...baseFields,
     ...props,
-    elementType: source.elementType, // Сохраняем elementType из source
   }
+
+  const table = importTableFromEnterprise(context, data?.Таблица, source.name + ".Таблица")
+  if (table !== undefined) result.table = table
+
+  const title = importI8nTextCombinedFromEnterprise(context, source.title, data?.Заголовок)
+  if (title !== undefined) result.title = title
 
   return result
 }
 
 const importCalendarFieldPropsFromEnterprise = (
   context: ConfigurationContext,
-  data: CalendarFieldTypedEnterprise | CalendarFieldPartialEnterprise | undefined,
-  name: string
+  data: CalendarFieldTypedEnterprise | CalendarFieldPartialEnterprise | undefined
 ): Omit<Partial<CalendarField>, "elementType" | "name"> => {
   const result: Omit<Partial<CalendarField>, "elementType" | "name"> = {}
 
@@ -230,9 +231,6 @@ const importCalendarFieldPropsFromEnterprise = (
 
   if (data.СочетаниеКлавиш !== undefined) result.shortcut = data.СочетаниеКлавиш
 
-  const table = importTableFromEnterprise(context, data.Таблица, name + ".Таблица")
-  if (table !== undefined) result.table = table
-
   const footerText = importI8nTextFromEnterprise(context, data.ТекстПодвала)
   if (footerText !== undefined) result.footerText = footerText
 
@@ -267,17 +265,6 @@ const importCalendarFieldPropsFromEnterprise = (
   const events = importEventsFromEnterprise(context, data.События)
   if (events !== undefined) result.events = events
 
-  return result
-}
-
-const importCalendarFieldSpecificPropsFromEnterprise = (
-  context: ConfigurationContext,
-  data: CalendarFieldTypedEnterprise | CalendarFieldPartialEnterprise | undefined
-): Omit<Partial<CalendarField>, "elementType" | "name"> => {
-  const result: Omit<Partial<CalendarField>, "elementType" | "name"> = {}
-
-  if (data === undefined) return result
-
   const autoMaxHeight = importBooleanFromEnterprise(context, data.АвтоМаксимальнаяВысота)
   if (autoMaxHeight !== undefined) result.autoMaxHeight = autoMaxHeight
 
@@ -304,20 +291,6 @@ const importCalendarFieldSpecificPropsFromEnterprise = (
 
   const calendarNavigation = importBooleanFromEnterprise(context, data.ПеремещениеПоКалендарю)
   if (calendarNavigation !== undefined) result.calendarNavigation = calendarNavigation
-
-  const userVisibleAllow = importUserVisibleFromEnterprise(
-    context,
-    data.РазрешитьИспользование,
-    "РазрешитьИспользование"
-  )
-  const userVisibleDeny = importUserVisibleFromEnterprise(
-    context,
-    data.ЗапретитьИспользование,
-    "ЗапретитьИспользование"
-  )
-  if (userVisibleAllow !== undefined || userVisibleDeny !== undefined) {
-    result.userVisible = userVisibleAllow || userVisibleDeny
-  }
 
   const enableStartDrag = importBooleanFromEnterprise(context, data.РазрешитьНачалоПеретаскивания)
   if (enableStartDrag !== undefined) result.enableStartDrag = enableStartDrag
@@ -351,10 +324,13 @@ const importCalendarFieldSpecificPropsFromEnterprise = (
   const font = importFontFromEnterprise(context, data.Шрифт)
   if (font !== undefined) result.font = font
 
-  const events = importEventsFromEnterprise(context, data.События)
-  if (events !== undefined) result.events = events
-
   return result
 }
 
-registerMetadata("ImportPartialFromEnterprise", "CalendarField", importCalendarFieldSpecificPropsFromEnterprise)
+registerMetadata("ImportPartialFromEnterprise", "CalendarField", importCalendarFieldPropsFromEnterprise)
+
+registerMetadata(
+  "ImportTypedFromEnterprise",
+  "CalendarField",
+  importCalendarFieldTypedFromEnterprise as ImportTypedFromEnterpriseFn
+)
