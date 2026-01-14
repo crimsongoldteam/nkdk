@@ -10,9 +10,10 @@ export const exportButtonGroupChildItemsToEnterprise = (
 
   const result: ButtonGroupChildItemsEnterprise = {}
   for (const item of data) {
-    const fn = getOperationFunction("ExportPartialToEnterprise", item.elementType)(context, item)
+    const fn = getOperationFunction("ExportTypedToEnterprise", item.elementType)
     if (fn == undefined) throw new Error(`Export function not found for element type: ${item.elementType}`)
-    result[item.name] = fn(context, item)
+    const resultItem = fn(context, item)
+    result[item.name] = resultItem
   }
 
   return result

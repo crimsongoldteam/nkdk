@@ -6,7 +6,7 @@ import { formatElementTitleAndName, wrapButtonContent } from "../../format/helpe
 import { registerIsOneLineElementCheck } from "../../format/isOneLineElementCheckFactory"
 import { Button } from "./types"
 
-export const exportButtonToStructure = (context: ConfigurationContext, element: Button): IFormatElementResult => {
+export function exportButtonToStructure(context: ConfigurationContext, element: Button): IFormatElementResult {
   const resultString = wrapButtonContent(formatContent(context, element))
   return {
     strings: [resultString],
@@ -14,10 +14,7 @@ export const exportButtonToStructure = (context: ConfigurationContext, element: 
   }
 }
 
-export const exportButtonContentToStructure = (
-  context: ConfigurationContext,
-  element: Button
-): IFormatElementResult => {
+export function exportButtonContentToStructure(context: ConfigurationContext, element: Button): IFormatElementResult {
   const resultString = formatContent(context, element)
   return {
     strings: [resultString],

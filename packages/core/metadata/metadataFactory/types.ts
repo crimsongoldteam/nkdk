@@ -1,5 +1,5 @@
 import { ConfigurationContext } from "../context/types"
-import { BaseElement, BaseElementXML } from "../forms/elements/baseElement/types"
+import { BaseElement } from "../forms/elements/baseElement/types"
 import { ImportExportReturn } from "../forms/elements/types"
 import { IFormatElementResult } from "../forms/format/types"
 import { TypeRules } from "./rules"
@@ -11,10 +11,12 @@ export type FromXMLType<T> = Extract<
   { XML: T; Element: any; PartialEnterprise: any; TypedEnterprise: any; EnterpriseName: any }
 >["Element"]
 
-export type ToXMLType<T> = Extract<
-  TypeRules,
-  { XML: any; Element: T; PartialEnterprise: any; TypedEnterprise: any; EnterpriseName: any }
->["XML"]
+export type ToXMLType<T> = T extends undefined
+  ? undefined
+  : Extract<
+      TypeRules,
+      { XML: any; Element: T; PartialEnterprise: any; TypedEnterprise: any; EnterpriseName: any }
+    >["XML"]
 
 export type FromPartialEnterpriseType<T> = Extract<
   TypeRules,
@@ -40,26 +42,26 @@ export type ToTypedEnterpriseType<T> = Extract<
 
 // #region functions
 
-export type ImportFromXMLFn = <From extends BaseElementXML | undefined>(
+export type ImportFromXMLFn = <To extends BaseElement | undefined>(
   context: ConfigurationContext,
-  data: From
-) => ImportExportReturn<From, FromXMLType<From>>
+  data: ToXMLType<To>
+) => ImportExportReturn<ToXMLType<To>, To>
+
+export type ImportTypedFromEnterpriseFn = <To extends BaseElement | undefined>(
+  context: ConfigurationContext,
+  data: FromTypedEnterpriseType<To>,
+  name: string
+) => ImportExportReturn<FromTypedEnterpriseType<To>, To>
+
+export type ImportPartialFromEnterpriseFn = <To extends BaseElement | undefined>(
+  context: ConfigurationContext,
+  data: FromPartialEnterpriseType<To>
+) => ImportExportReturn<FromPartialEnterpriseType<To>, To>
 
 export type ExportToXMLFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,
   data: From
 ) => ImportExportReturn<From, ToXMLType<From>>
-
-export type ImportTypedFromEnterpriseFn = <From extends BaseElement | undefined>(
-  context: ConfigurationContext,
-  data: From,
-  name: string
-) => ImportExportReturn<From, ToTypedEnterpriseType<From>>
-
-export type ImportPartialFromEnterpriseFn = <From extends BaseElement | undefined>(
-  context: ConfigurationContext,
-  data: From
-) => ImportExportReturn<From, ToPartialEnterpriseType<From>>
 
 export type ExportPartialToEnterpriseFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,
@@ -68,16 +70,16 @@ export type ExportPartialToEnterpriseFn = <From extends BaseElement | undefined>
 
 export type ExportTypedToEnterpriseFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,
-  data: From,
-  name: string
+  data: From
+  // name: string
 ) => ImportExportReturn<From, ToTypedEnterpriseType<From>>
 
-export type ExportToStructureFn = <From extends BaseElement | undefined>(
+export type ExportToStructureFn = <From extends BaseElement>(
   context: ConfigurationContext,
   data: From
 ) => IFormatElementResult
 
-export type ExportToStructureContentFn = <From extends BaseElement | undefined>(
+export type ExportToStructureContentFn = <From extends BaseElement>(
   context: ConfigurationContext,
   data: From
 ) => IFormatElementResult

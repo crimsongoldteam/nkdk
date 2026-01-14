@@ -5,16 +5,16 @@ import { importPictureFromXML } from "~/metadata/commonObjects/picture/importFro
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importBaseElementFromXML } from "~/metadata/forms/elements/baseElement/importFromXML"
-import { Button, ButtonXML } from "~/metadata/forms/elements/button/types"
+import { Button } from "~/metadata/forms/elements/button/types"
 import { importExtendedTooltipFromXML } from "~/metadata/forms/elements/extendedTooltip/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 import { ImportExportReturn } from "../types"
 
-export function importButtonFromXML<From extends ButtonXML | undefined>(
+export function importButtonFromXML<To extends Button | undefined>(
   context: ConfigurationContext,
-  xml: From
-): ImportExportReturn<From, FromXMLType<From>> {
+  xml: ToXMLType<To> | undefined
+): ImportExportReturn<ToXMLType<To>, To> {
   if (xml === undefined) return undefined
 
   const baseFields = importBaseElementFromXML(context, xml)
@@ -106,7 +106,7 @@ export function importButtonFromXML<From extends ButtonXML | undefined>(
 
   if (xml.Width !== undefined) result.width = xml.Width
 
-  return result as ImportExportReturn<From, FromXMLType<From>>
+  return result as ImportExportReturn<ToXMLType<To>, To>
 }
 
 registerMetadata("ImportFromXML", "Button", importButtonFromXML)

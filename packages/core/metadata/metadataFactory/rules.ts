@@ -1,3 +1,8 @@
+import {
+  ButtonGroupChildItem,
+  ButtonGroupChildItemEnterprise,
+  ButtonGroupChildItemXML,
+} from "../forms/collections/buttonGroupChildItems/types"
 import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise, ButtonXML } from "../forms/elements/button/types"
 import {
   ButtonGroup,
@@ -154,6 +159,11 @@ import {
   TrackBarFieldXML,
 } from "../forms/elements/trackBarField/types"
 export type TypeRules =
+  | {
+      XML: ButtonGroupChildItemXML
+      Element: ButtonGroupChildItem
+      TypedEnterprise: ButtonGroupChildItemEnterprise
+    }
   | {
       XML: ButtonXML
       Element: Button

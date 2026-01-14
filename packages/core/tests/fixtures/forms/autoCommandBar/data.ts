@@ -5,6 +5,7 @@ import { FormElementType } from "~/metadata/metadataFactory/types"
 
 export const parentElement: BaseElement = {
   name: "КакойТоЭлемент",
+  elementType: FormElementType.BaseElement,
 }
 
 export const fullAutoCommandBar: AutoCommandBar = {

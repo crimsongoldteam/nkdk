@@ -15,11 +15,11 @@ import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerat
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
 
-export const importButtonTypedFromEnterprise = (
+export function importButtonTypedFromEnterprise(
   context: ConfigurationContext,
   data: ButtonTypedEnterprise,
   name: string
-): Button => {
+): Button {
   const props = importButtonPropsFromEnterprise(context, data)
 
   const elementType = importFormElementTypeFromEnterprise(context, data.Тип)
@@ -33,11 +33,11 @@ export const importButtonTypedFromEnterprise = (
   return result
 }
 
-export const importButtonPartialFromEnterprise = (
+export function importButtonPartialFromEnterprise(
   context: ConfigurationContext,
   source: Button | undefined,
   data: ButtonPartialEnterprise | undefined
-): Button | undefined => {
+): Button | undefined {
   if (source === undefined) return undefined
 
   const props = importButtonPropsFromEnterprise(context, data)

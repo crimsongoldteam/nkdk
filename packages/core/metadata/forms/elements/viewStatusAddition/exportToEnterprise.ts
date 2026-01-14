@@ -5,11 +5,7 @@ import { exportFontToEnterprise } from "~/metadata/commonObjects/font/exportToEn
 import { exportI8nTextToEnterprise } from "~/metadata/commonObjects/i8nText/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import {
-  ViewStatusAddition,
-  ViewStatusAdditionEnterprise,
-} from "~/metadata/forms/elements/viewStatusAddition/types"
-import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
+import { ViewStatusAddition, ViewStatusAdditionEnterprise } from "~/metadata/forms/elements/viewStatusAddition/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
@@ -119,5 +115,3 @@ export const exportViewStatusAdditionToEnterprise = (
 
   return result
 }
-
-registerMetadata("ExportPartialToEnterprise", "ViewStatusAddition", exportViewStatusAdditionToEnterprise)
