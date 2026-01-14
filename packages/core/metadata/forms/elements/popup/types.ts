@@ -1,16 +1,20 @@
+import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
   ButtonGroupChildItem,
   ButtonGroupChildItemsEnterprise,
   ButtonGroupChildItemsXML,
 } from "../../collections/buttonGroupChildItems/types"
+import { BaseElementXML } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
-export interface Popup extends FormGroup {
+export interface Popup extends Omit<FormGroup, "elementType"> {
   elementType: "Popup"
   extendedTooltip?: ExtendedTooltip
   backColor?: Color
@@ -23,25 +27,59 @@ export interface Popup extends FormGroup {
   childItems: ButtonGroupChildItem[]
 }
 
-export interface PopupXML extends FormGroupXML {
+export interface PopupXML extends BaseElementXML {
+  EnableContentChange?: boolean
+  Enabled?: boolean
+  Height?: number
+  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  HorizontalStretch?: boolean
+  ReadOnly?: boolean
+  Shortcut?: string
+  Title?: I8nTextXML
+  TitleFont?: FontXML
+  TitleTextColor?: ColorXML
+  ToolTip?: I8nTextXML
+  ToolTipRepresentation?: SE.ToolTipRepresentation
+  Type?: SE.FormGroupType
+  UserVisible?: UserVisibleXML
+  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  VerticalStretch?: boolean
+  Visible?: boolean
+  Width?: number
   BackColor?: ColorXML
   BorderColor?: ColorXML
   Picture?: PictureXML
   Representation?: SE.ButtonRepresentation
   Shape?: SE.ButtonShape
   ShapeRepresentation?: SE.ButtonShapeRepresentation
-  UserVisible?: UserVisibleXML
   ExtendedTooltip: ExtendedTooltipXML
   ChildItems?: ButtonGroupChildItemsXML
 }
 
-export interface PopupPartialEnterprise extends FormGroupPartialEnterprise {
+export interface PopupPartialEnterprise {
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
+  Вид?: SE.FormGroupTypeEnterprise
+  Видимость?: StringboolEnterprise
+  Высота?: number
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
+  Доступность?: StringboolEnterprise
+  Заголовок?: I8nTextEnterprise
+  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
+  Подсказка?: I8nTextEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
+  РазрешитьИзменениеСостава?: StringboolEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  СочетаниеКлавиш?: string
+  ТолькоПросмотр?: StringboolEnterprise
+  ЦветТекстаЗаголовка?: ColorEnterprise
+  Ширина?: number
+  ШрифтЗаголовка?: FontEnterprise
   Картинка?: PictureEnterprise
   Отображение?: SE.ButtonRepresentationEnterprise
   ОтображениеФигуры?: SE.ButtonShapeRepresentationEnterprise
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
   Фигура?: SE.ButtonShapeEnterprise
   ЦветРамки?: ColorEnterprise
   ЦветФона?: ColorEnterprise

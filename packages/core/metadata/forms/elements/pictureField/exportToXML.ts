@@ -169,9 +169,6 @@ export function exportPictureFieldToXML<From extends PictureField | undefined>(
   const textColor = exportColorToXML(context, data.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
   const valuesPicture = exportPictureToXML(context, data.valuesPicture)
   if (valuesPicture !== undefined) result.ValuesPicture = valuesPicture
 
@@ -180,9 +177,6 @@ export function exportPictureFieldToXML<From extends PictureField | undefined>(
   if (data.width !== undefined) result.Width = data.width
 
   if (data.zoomable !== undefined) result.Zoomable = data.zoomable
-
-  const events = exportEventsToXML(context, data.events)
-  if (events !== undefined) result.Events = events
 
   return sortObject(result) as ToXMLType<From>
 }

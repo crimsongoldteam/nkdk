@@ -1,12 +1,17 @@
+import { NamedElement } from "~/metadata/forms/elements/baseElement/types"
 import {
   CommandBar,
-  CommandBarEnterprise,
   CommandBarPartialEnterprise,
   CommandBarTypedEnterprise,
 } from "~/metadata/forms/elements/commandBar/types"
 import { IFormatElementResult } from "~/metadata/forms/format/types"
 import { FormElementType } from "~/metadata/metadataFactory/types"
 import { fullFormGroup } from "../formGroup/data"
+
+export const parentElement: NamedElement = {
+  name: "КоманднаяПанель",
+  elementType: FormElementType.BaseElement,
+}
 
 export const fullCommandBar: CommandBar = {
   ...fullFormGroup,

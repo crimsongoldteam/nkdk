@@ -11,7 +11,6 @@ export interface FormGroup extends NamedElement {
   elementType: "FormGroup"
   enableContentChange?: boolean
   enabled?: boolean
-  // extendedTooltip?: ExtendedTooltip
   height?: number
   horizontalAlignInGroup?: SE.ItemHorizontalLocation
   horizontalStretch?: boolean
@@ -31,10 +30,8 @@ export interface FormGroup extends NamedElement {
 }
 
 export interface FormGroupXML extends BaseElementXML {
-  // ChildItems?: ChildItemsXML
   EnableContentChange?: boolean
   Enabled?: boolean
-  // ExtendedTooltip?: ExtendedTooltipXML
   Height?: number
   HorizontalAlignInGroup?: SE.ItemHorizontalLocation
   HorizontalStretch?: boolean

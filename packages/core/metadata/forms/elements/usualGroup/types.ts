@@ -1,11 +1,13 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup } from "~/metadata/forms/elements/formGroup/types"
 import { Table, TablePartialEnterprise, TableXML } from "~/metadata/forms/elements/table/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
+import { BaseElementXML } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface UsualGroup extends Omit<FormGroup, "elementType"> {
@@ -40,7 +42,25 @@ export interface UsualGroup extends Omit<FormGroup, "elementType"> {
   childItems: ChildItems
 }
 
-export interface UsualGroupXML extends FormGroupXML {
+export interface UsualGroupXML extends BaseElementXML {
+  EnableContentChange?: boolean
+  Enabled?: boolean
+  Height?: number
+  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  HorizontalStretch?: boolean
+  ReadOnly?: boolean
+  Shortcut?: string
+  Title?: I8nTextXML
+  TitleFont?: FontXML
+  TitleTextColor?: ColorXML
+  ToolTip?: I8nTextXML
+  ToolTipRepresentation?: SE.ToolTipRepresentation
+  Type?: SE.FormGroupType
+  UserVisible?: UserVisibleXML
+  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  VerticalStretch?: boolean
+  Visible?: boolean
+  Width?: number
   AssociatedTable?: TableXML
   BackColor?: ColorXML
   Behavior?: SE.UsualGroupBehavior
@@ -65,13 +85,32 @@ export interface UsualGroupXML extends FormGroupXML {
   ThroughAlign?: SE.ThroughAlign
   TitleDataPath?: string
   United?: boolean
-  UserVisible?: UserVisibleXML
   VerticalAlign?: SE.ItemVerticalAlign
   VerticalSpacing?: SE.FormItemSpacing
   ChildItems?: ChildItemsXML
 }
 
-export interface UsualGroupPartialEnterprise extends FormGroupPartialEnterprise {
+export interface UsualGroupPartialEnterprise {
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
+  Вид?: SE.FormGroupTypeEnterprise
+  Видимость?: StringboolEnterprise
+  Высота?: number
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
+  Доступность?: StringboolEnterprise
+  Заголовок?: I8nTextEnterprise
+  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
+  Подсказка?: I8nTextEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
+  РазрешитьИзменениеСостава?: StringboolEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  СочетаниеКлавиш?: string
+  ТолькоПросмотр?: StringboolEnterprise
+  ЦветТекстаЗаголовка?: ColorEnterprise
+  Ширина?: number
+  ШрифтЗаголовка?: FontEnterprise
   ВажностьПриОтображении?: SE.DisplayImportanceEnterprise
   ВертикальноеВыравниваниеГруппы?: SE.ItemVerticalAlignEnterprise
   ВертикальноеПоложение?: SE.ItemVerticalAlignEnterprise
@@ -83,7 +122,6 @@ export interface UsualGroupPartialEnterprise extends FormGroupPartialEnterprise 
   ГоризонтальныйИнтервал?: SE.FormItemSpacingEnterprise
   Группировка?: SE.ChildFormItemsGroupEnterprise
   ЗаголовокСвернутогоОтображения?: string
-  ЗапретитьИспользование?: UserVisibleEnterprise
   ИспользованиеТекущейСтроки?: SE.CurrentRowUseEnterprise
   ИспользуемаяТаблица?: TablePartialEnterprise
   Объединенная?: StringboolEnterprise
@@ -93,8 +131,6 @@ export interface UsualGroupPartialEnterprise extends FormGroupPartialEnterprise 
   ОтображениеУправления?: SE.UsualGroupControlRepresentationEnterprise
   Поведение?: SE.UsualGroupBehaviorEnterprise
   ПутьКДаннымЗаголовка?: string
-  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
   СквозноеВыравнивание?: SE.ThroughAlignEnterprise
   Формат?: I8nTextEnterprise
   ЦветФона?: ColorEnterprise

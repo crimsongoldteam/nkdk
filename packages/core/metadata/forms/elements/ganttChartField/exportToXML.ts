@@ -148,9 +148,6 @@ export function exportGanttChartFieldToXML<From extends GanttChartField | undefi
 
   if (data.tableLocation !== undefined) result.TableLocation = data.tableLocation
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
   if (data.valuesSelectionMode !== undefined) result.ValuesSelectionMode = data.valuesSelectionMode
 
   if (data.verticalLines !== undefined) result.VerticalLines = data.verticalLines
@@ -158,9 +155,6 @@ export function exportGanttChartFieldToXML<From extends GanttChartField | undefi
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
 
   if (data.width !== undefined) result.Width = data.width
-
-  const events = exportEventsToXML(context, data.events)
-  if (events !== undefined) result.Events = events
 
   return sortObject(result) as ToXMLType<From>
 }

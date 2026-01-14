@@ -150,18 +150,12 @@ export function exportPlannerFieldToXML<From extends PlannerField | undefined>(
 
   if (data.timeScaleItemHyperlink !== undefined) result.TimeScaleItemHyperlink = data.timeScaleItemHyperlink
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
 
   if (data.width !== undefined) result.Width = data.width
 
   if (data.wrappedTimeScaleHeaderHyperlink !== undefined)
     result.WrappedTimeScaleHeaderHyperlink = data.wrappedTimeScaleHeaderHyperlink
-
-  const events = exportEventsToXML(context, data.events)
-  if (events !== undefined) result.Events = events
 
   return sortObject(result) as ToXMLType<From>
 }

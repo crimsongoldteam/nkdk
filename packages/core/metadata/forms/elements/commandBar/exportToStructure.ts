@@ -4,6 +4,7 @@ import { getOperationFunction, registerMetadata } from "~/metadata/metadataFacto
 import { ButtonGroupChildItem } from "../../collections/buttonGroupChildItems/types"
 import { formatElementName, wrapButtonContent } from "../../format/helpers"
 import { CommandBar } from "./types"
+import { ExportToStructureFn } from "~/metadata/metadataFactory/types"
 
 export const exportCommandBarToStructure = (
   context: ConfigurationContext,
@@ -37,5 +38,5 @@ export const exportCommandBarContentToStructure = (
   return wrapButtonContent(buttonStrings.join(" | "))
 }
 
-registerMetadata("ExportToStructure", "CommandBar", exportCommandBarToStructure)
+registerMetadata("ExportToStructure", "CommandBar", exportCommandBarToStructure as ExportToStructureFn)
 // registerIsOneLineElementCheck<CommandBar>(FormElementType.CommandBar, () => true)

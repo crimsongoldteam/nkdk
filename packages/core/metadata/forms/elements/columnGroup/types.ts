@@ -1,10 +1,14 @@
 import { StringboolEnterprise } from "~/metadata/commonObjects/boolean/types"
 import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color/types"
+import { FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
+import { I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { Picture, PictureEnterprise, PictureXML } from "~/metadata/commonObjects/picture/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroup, FormGroupPartialEnterprise, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
+import { FormGroup } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { ChildItems, ChildItemsPartialEnterprise, ChildItemsXML } from "../../collections/childItems/types"
+import { BaseElementXML } from "../baseElement/types"
+import { ExtendedTooltipEnterprise } from "../extendedTooltip/types"
 
 export interface ColumnGroup extends Omit<FormGroup, "elementType"> {
   elementType: "ColumnGroup"
@@ -21,7 +25,25 @@ export interface ColumnGroup extends Omit<FormGroup, "elementType"> {
   childItems: ChildItems
 }
 
-export interface ColumnGroupXML extends FormGroupXML {
+export interface ColumnGroupXML extends BaseElementXML {
+  EnableContentChange?: boolean
+  Enabled?: boolean
+  Height?: number
+  HorizontalAlignInGroup?: SE.ItemHorizontalLocation
+  HorizontalStretch?: boolean
+  ReadOnly?: boolean
+  Shortcut?: string
+  Title?: I8nTextXML
+  TitleFont?: FontXML
+  TitleTextColor?: ColorXML
+  ToolTip?: I8nTextXML
+  ToolTipRepresentation?: SE.ToolTipRepresentation
+  Type?: SE.FormGroupType
+  UserVisible?: UserVisibleXML
+  VerticalAlignInGroup?: SE.ItemVerticalAlign
+  VerticalStretch?: boolean
+  Visible?: boolean
+  Width?: number
   FixingInTable?: SE.FixingInTable
   Group?: SE.ColumnsGroup
   HeaderDataPath?: string
@@ -31,18 +53,35 @@ export interface ColumnGroupXML extends FormGroupXML {
   ShowInHeader?: boolean
   ShowTitle?: boolean
   TitleBackColor?: ColorXML
-  UserVisible?: UserVisibleXML
   ChildItems?: ChildItemsXML
 }
 
-export interface ColumnGroupPartialEnterprise extends FormGroupPartialEnterprise {
+export interface ColumnGroupPartialEnterprise {
+  ВертикальноеПоложениеВГруппе?: SE.ItemVerticalAlignEnterprise
+  Вид?: SE.FormGroupTypeEnterprise
+  Видимость?: StringboolEnterprise
+  Высота?: number
+  ГоризонтальноеПоложениеВГруппе?: SE.ItemHorizontalLocationEnterprise
+  Доступность?: StringboolEnterprise
+  Заголовок?: I8nTextEnterprise
+  ОтображениеПодсказки?: SE.ToolTipRepresentationEnterprise
+  Подсказка?: I8nTextEnterprise
+  РазрешитьИспользование?: UserVisibleEnterprise
+  ЗапретитьИспользование?: UserVisibleEnterprise
+  РазрешитьИзменениеСостава?: StringboolEnterprise
+  РастягиватьПоВертикали?: StringboolEnterprise
+  РастягиватьПоГоризонтали?: StringboolEnterprise
+  РасширеннаяПодсказка?: ExtendedTooltipEnterprise
+  СочетаниеКлавиш?: string
+  ТолькоПросмотр?: StringboolEnterprise
+  ЦветТекстаЗаголовка?: ColorEnterprise
+  Ширина?: number
+  ШрифтЗаголовка?: FontEnterprise
   ГоризонтальноеПоложениеВШапке?: SE.ItemHorizontalLocationEnterprise
   Группировка?: SE.ColumnsGroupEnterprise
   КартинкаШапки?: PictureEnterprise
   ОтображатьВШапке?: StringboolEnterprise
   ОтображатьЗаголовок?: StringboolEnterprise
-  РазрешитьИспользование?: UserVisibleEnterprise
-  ЗапретитьИспользование?: UserVisibleEnterprise
   ПутьКДаннымШапки?: string
   ФиксацияВТаблице?: SE.FixingInTableEnterprise
   ФорматШапки?: string

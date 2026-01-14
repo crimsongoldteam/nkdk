@@ -182,9 +182,6 @@ export function exportSpreadSheetDocumentFieldToXML<From extends SpreadSheetDocu
 
   if (data.usedFileName !== undefined) result.UsedFileName = data.usedFileName
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
   if (data.verticalScrollBar !== undefined) result.VerticalScrollBar = data.verticalScrollBar
 
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
@@ -192,9 +189,6 @@ export function exportSpreadSheetDocumentFieldToXML<From extends SpreadSheetDocu
   if (data.viewScalingMode !== undefined) result.ViewScalingMode = data.viewScalingMode
 
   if (data.width !== undefined) result.Width = data.width
-
-  const events = exportEventsToXML(context, data.events)
-  if (events !== undefined) result.Events = events
 
   return sortObject(result) as ToXMLType<From>
 }

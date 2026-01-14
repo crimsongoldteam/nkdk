@@ -107,8 +107,8 @@ export const exportFormGroupPropsToEnterprise = (
   const horizontalStretch = exportBooleanToEnterprise(context, data.horizontalStretch)
   if (horizontalStretch !== undefined) result.РастягиватьПоГоризонтали = horizontalStretch
 
-  // const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
-  // if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
+  const extendedTooltip = exportExtendedTooltipToEnterprise(context, data.extendedTooltip)
+  if (extendedTooltip !== undefined) result.РасширеннаяПодсказка = extendedTooltip
 
   if (data.shortcut !== undefined) result.СочетаниеКлавиш = data.shortcut
 

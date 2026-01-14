@@ -158,15 +158,9 @@ export function exportTextDocumentFieldToXML<From extends TextDocumentField | un
   const textColor = exportColorToXML(context, data.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
   if (data.verticalStretch !== undefined) result.VerticalStretch = data.verticalStretch
 
   if (data.width !== undefined) result.Width = data.width
-
-  const events = exportEventsToXML(context, data.events)
-  if (events !== undefined) result.Events = events
 
   return sortObject(result) as ToXMLType<From>
 }

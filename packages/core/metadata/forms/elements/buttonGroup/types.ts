@@ -3,14 +3,13 @@ import { Color, ColorEnterprise, ColorXML } from "~/metadata/commonObjects/color
 import { Font, FontEnterprise, FontXML } from "~/metadata/commonObjects/font/types"
 import { I8nText, I8nTextEnterprise, I8nTextXML } from "~/metadata/commonObjects/i8nText/types"
 import { UserVisible, UserVisibleEnterprise, UserVisibleXML } from "~/metadata/commonObjects/userVisible/types"
-import { FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 import {
   ButtonGroupChildItem,
   ButtonGroupChildItemsEnterprise,
   ButtonGroupChildItemsXML,
 } from "../../collections/buttonGroupChildItems/types"
-import { NamedElement } from "../baseElement/types"
+import { BaseElementXML, NamedElement } from "../baseElement/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface ButtonGroup extends NamedElement {
@@ -38,9 +37,7 @@ export interface ButtonGroup extends NamedElement {
   childItems: ButtonGroupChildItem[]
 }
 
-export interface ButtonGroupXML extends FormGroupXML {
-  ExtendedTooltip: ExtendedTooltipXML
-  Representation?: SE.ButtonGroupRepresentation
+export interface ButtonGroupXML extends BaseElementXML {
   EnableContentChange?: boolean
   Enabled?: boolean
   Height?: number
@@ -59,6 +56,8 @@ export interface ButtonGroupXML extends FormGroupXML {
   VerticalStretch?: boolean
   Visible?: boolean
   Width?: number
+  ExtendedTooltip: ExtendedTooltipXML
+  Representation?: SE.ButtonGroupRepresentation
   ChildItems?: ButtonGroupChildItemsXML
 }
 

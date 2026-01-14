@@ -161,12 +161,6 @@ export function exportRadioButtonFieldToXML<From extends RadioButtonField | unde
   const textColor = exportColorToXML(context, data.textColor)
   if (textColor !== undefined) result.TextColor = textColor
 
-  const userVisible = exportUserVisibleToXML(context, data.userVisible)
-  if (userVisible !== undefined) result.UserVisible = userVisible
-
-  const events = exportEventsToXML(context, data.events)
-  if (events !== undefined) result.Events = events
-
   return sortObject(result) as ToXMLType<From>
 }
 
