@@ -18,14 +18,13 @@ import {
 import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerations/importFromEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { ImportExportReturn } from "../types"
 
 export function importButtonTypedFromEnterprise<To extends Button | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
   name: string
-): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
-  if (data === undefined) return undefined
+): To {
+  if (data === undefined) return undefined as To
 
   const props = importButtonPropsFromEnterprise(context, data)
 
@@ -37,7 +36,7 @@ export function importButtonTypedFromEnterprise<To extends Button | undefined>(
     name,
   }
 
-  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
+  return result as To
 }
 
 export function importButtonPartialFromEnterprise<To extends Button>(

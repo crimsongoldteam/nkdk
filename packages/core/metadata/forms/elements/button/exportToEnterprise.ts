@@ -14,14 +14,13 @@ import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metad
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
-import { ImportExportReturn } from "../types"
 import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise } from "./types"
 
 export function exportButtonTypedToEnterprise<From extends Button | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
-  if (data === undefined) return undefined
+): ToTypedEnterpriseType<From> {
+  if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
   const props = exportButtonPropsToEnterprise(context, data)
 
@@ -33,21 +32,21 @@ export function exportButtonTypedToEnterprise<From extends Button | undefined>(
   const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return result as ImportExportReturn<From, ToTypedEnterpriseType<From>>
+  return result as ToTypedEnterpriseType<From>
 }
 
 export function exportButtonPartialToEnterprise<From extends Button | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
-  if (data === undefined) return undefined
+): ToPartialEnterpriseType<From> {
+  if (data === undefined) return undefined as ToPartialEnterpriseType<From>
 
   const result = exportButtonPropsToEnterprise(context, data)
 
   const title = exportI8nTextOtherToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
+  return sortObject(result) as ToPartialEnterpriseType<From>
 }
 
 const exportButtonPropsToEnterprise = (context: ConfigurationContext, data: Button): ButtonPartialEnterprise => {

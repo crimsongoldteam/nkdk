@@ -1,8 +1,4 @@
-import {
-  ButtonGroupChildItem,
-  ButtonGroupChildItemEnterprise,
-  ButtonGroupChildItemXML,
-} from "../forms/collections/buttonGroupChildItems/types"
+import { BaseElement } from "../forms/elements/baseElement/types"
 import { Button, ButtonPartialEnterprise, ButtonTypedEnterprise, ButtonXML } from "../forms/elements/button/types"
 import {
   ButtonGroup,
@@ -158,257 +154,215 @@ import {
   TrackBarFieldTypedEnterprise,
   TrackBarFieldXML,
 } from "../forms/elements/trackBarField/types"
-export type TypeRules =
-  | {
-      XML: ButtonGroupChildItemXML
-      Element: ButtonGroupChildItem
-      TypedEnterprise: ButtonGroupChildItemEnterprise
-    }
-  | {
+
+export type TypeRules<T extends BaseElement> = T extends Button
+  ? {
       XML: ButtonXML
       Element: Button
       PartialEnterprise: ButtonPartialEnterprise
       TypedEnterprise: ButtonTypedEnterprise
-      name: "Button"
-      EnterpriseName: "Кнопка"
     }
-  | {
-      XML: ButtonGroupXML
-      Element: ButtonGroup
-      PartialEnterprise: ButtonGroupPartialEnterprise
-      TypedEnterprise: ButtonGroupTypedEnterprise
-      name: "ButtonGroup"
-      EnterpriseName: "ГруппаКнопок"
-    }
-  | {
-      XML: CalendarFieldXML
-      Element: CalendarField
-      PartialEnterprise: CalendarFieldPartialEnterprise
-      TypedEnterprise: CalendarFieldTypedEnterprise
-      name: "CalendarField"
-      EnterpriseName: "ПолеКалендаря"
-    }
-  | {
-      XML: ChartFieldXML
-      Element: ChartField
-      PartialEnterprise: ChartFieldPartialEnterprise
-      TypedEnterprise: ChartFieldTypedEnterprise
-      name: "ChartField"
-      EnterpriseName: "ПолеДиаграммы"
-    }
-  | {
-      XML: CheckBoxFieldXML
-      Element: CheckBoxField
-      PartialEnterprise: CheckBoxFieldPartialEnterprise
-      TypedEnterprise: CheckBoxFieldTypedEnterprise
-      name: "CheckBoxField"
-      EnterpriseName: "ПолеФлажок"
-    }
-  | {
-      XML: ColumnGroupXML
-      Element: ColumnGroup
-      PartialEnterprise: ColumnGroupPartialEnterprise
-      TypedEnterprise: ColumnGroupTypedEnterprise
-      name: "ColumnGroup"
-      EnterpriseName: "ГруппаКолонок"
-    }
-  | {
-      XML: CommandBarXML
-      Element: CommandBar
-      PartialEnterprise: CommandBarPartialEnterprise
-      TypedEnterprise: CommandBarTypedEnterprise
-      name: "CommandBar"
-      EnterpriseName: "КоманднаяПанель"
-    }
-  | {
-      XML: DendrogramFieldXML
-      Element: DendrogramField
-      PartialEnterprise: DendrogramFieldPartialEnterprise
-      TypedEnterprise: DendrogramFieldTypedEnterprise
-      name: "DendrogramField"
-      EnterpriseName: "ПолеДендрограммы"
-    }
-  //   | {
-  //       XML: FormDecorationXML
-  //       Element: FormDecoration
-  //       PartialEnterprise: FormDecorationPartialEnterprise
-  //       TypedEnterprise: FormDecorationTypedEnterprise
-  //       name: "FormDecoration"
-  //       EnterpriseName: "ДекорацияФормы"
-  //     }
-  | {
-      XML: FormattedDocumentFieldXML
-      Element: FormattedDocumentField
-      PartialEnterprise: FormattedDocumentFieldPartialEnterprise
-      TypedEnterprise: FormattedDocumentFieldTypedEnterprise
-      name: "FormattedDocumentField"
-      EnterpriseName: "ПолеФорматированногоДокумента"
-    }
-  | {
-      XML: GanttChartFieldXML
-      Element: GanttChartField
-      PartialEnterprise: GanttChartFieldPartialEnterprise
-      TypedEnterprise: GanttChartFieldTypedEnterprise
-      name: "GanttChartField"
-      EnterpriseName: "ПолеДиаграммыГанта"
-    }
-  | {
-      XML: GeographicalSchemaFieldXML
-      Element: GeographicalSchemaField
-      PartialEnterprise: GeographicalSchemaFieldPartialEnterprise
-      TypedEnterprise: GeographicalSchemaFieldTypedEnterprise
-      name: "GeographicalSchemaField"
-      EnterpriseName: "ПолеГеографическойСхемы"
-    }
-  | {
-      XML: GraphicalSchemaFieldXML
-      Element: GraphicalSchemaField
-      PartialEnterprise: GraphicalSchemaFieldPartialEnterprise
-      TypedEnterprise: GraphicalSchemaFieldTypedEnterprise
-      name: "GraphicalSchemaField"
-      EnterpriseName: "ПолеГрафическойСхемы"
-    }
-  | {
-      XML: HTMLDocumentFieldXML
-      Element: HTMLDocumentField
-      PartialEnterprise: HTMLDocumentFieldPartialEnterprise
-      TypedEnterprise: HTMLDocumentFieldTypedEnterprise
-      name: "HTMLDocumentField"
-      EnterpriseName: "ПолеHTMLДокумента"
-    }
-  | {
-      XML: InputFieldXML
-      Element: InputField
-      PartialEnterprise: InputFieldPartialEnterprise
-      TypedEnterprise: InputFieldTypedEnterprise
-      name: "InputField"
-      EnterpriseName: "ПолеВвода"
-    }
-  | {
-      XML: LabelDecorationXML
-      Element: LabelDecoration
-      PartialEnterprise: LabelDecorationPartialEnterprise
-      TypedEnterprise: LabelDecorationTypedEnterprise
-      name: "LabelDecoration"
-      EnterpriseName: "Надпись"
-    }
-  | {
-      XML: LabelFieldXML
-      Element: LabelField
-      PartialEnterprise: LabelFieldPartialEnterprise
-      TypedEnterprise: LabelFieldTypedEnterprise
-      name: "LabelField"
-      EnterpriseName: "ПолеНадписи"
-    }
-  | {
-      XML: PageXML
-      Element: Page
-      PartialEnterprise: PagePartialEnterprise
-      TypedEnterprise: PageTypedEnterprise
-      name: "Page"
-      EnterpriseName: "Страница"
-    }
-  | {
-      XML: PagesXML
-      Element: Pages
-      PartialEnterprise: PagesPartialEnterprise
-      TypedEnterprise: PagesTypedEnterprise
-      name: "Pages"
-      EnterpriseName: "Страницы"
-    }
-  | {
-      XML: PdfDocumentFieldXML
-      Element: PdfDocumentField
-      PartialEnterprise: PdfDocumentFieldPartialEnterprise
-      TypedEnterprise: PdfDocumentFieldTypedEnterprise
-      name: "PdfDocumentField"
-      EnterpriseName: "ПолеPDFДокумента"
-    }
-  | {
-      XML: PeriodFieldXML
-      Element: PeriodField
-      PartialEnterprise: PeriodFieldPartialEnterprise
-      TypedEnterprise: PeriodFieldTypedEnterprise
-      name: "PeriodField"
-      EnterpriseName: "ПолеПериода"
-    }
-  | {
-      XML: PictureDecorationXML
-      Element: PictureDecoration
-      PartialEnterprise: PictureDecorationPartialEnterprise
-      TypedEnterprise: PictureDecorationTypedEnterprise
-      name: "PictureDecoration"
-      EnterpriseName: "Рисунок"
-    }
-  | {
-      XML: PictureFieldXML
-      Element: PictureField
-      PartialEnterprise: PictureFieldPartialEnterprise
-      TypedEnterprise: PictureFieldTypedEnterprise
-      name: "PictureField"
-      EnterpriseName: "ПолеРисунка"
-    }
-  | {
-      XML: PlannerFieldXML
-      Element: PlannerField
-      PartialEnterprise: PlannerFieldPartialEnterprise
-      TypedEnterprise: PlannerFieldTypedEnterprise
-      name: "PlannerField"
-      EnterpriseName: "ПолеПланировщика"
-    }
-  | {
-      XML: PopupXML
-      Element: Popup
-      PartialEnterprise: PopupPartialEnterprise
-      TypedEnterprise: PopupTypedEnterprise
-      name: "Popup"
-      EnterpriseName: "Подменю"
-    }
-  | {
-      XML: ProgressBarFieldXML
-      Element: ProgressBarField
-      PartialEnterprise: ProgressBarFieldPartialEnterprise
-      TypedEnterprise: ProgressBarFieldTypedEnterprise
-      name: "ProgressBarField"
-      EnterpriseName: "ПолеИндикатора"
-    }
-  | {
-      XML: RadioButtonFieldXML
-      Element: RadioButtonField
-      PartialEnterprise: RadioButtonFieldPartialEnterprise
-      TypedEnterprise: RadioButtonFieldTypedEnterprise
-      name: "RadioButtonField"
-      EnterpriseName: "ПолеПереключателя"
-    }
-  | {
-      XML: SpreadSheetDocumentFieldXML
-      Element: SpreadSheetDocumentField
-      PartialEnterprise: SpreadSheetDocumentFieldPartialEnterprise
-      TypedEnterprise: SpreadSheetDocumentFieldTypedEnterprise
-      name: "SpreadSheetDocumentField"
-      EnterpriseName: "ПолеТабличногоДокумента"
-    }
-  | {
-      XML: TableXML
-      Element: Table
-      PartialEnterprise: TablePartialEnterprise
-      TypedEnterprise: TablePartialEnterprise
-      name: "Table"
-      EnterpriseName: "ТаблицаФормы"
-    }
-  | {
-      XML: TextDocumentFieldXML
-      Element: TextDocumentField
-      PartialEnterprise: TextDocumentFieldPartialEnterprise
-      TypedEnterprise: TextDocumentFieldTypedEnterprise
-      name: "TextDocumentField"
-      EnterpriseName: "ПолеТекстовогоДокумента"
-    }
-  | {
-      XML: TrackBarFieldXML
-      Element: TrackBarField
-      PartialEnterprise: TrackBarFieldPartialEnterprise
-      TypedEnterprise: TrackBarFieldTypedEnterprise
-      name: "TrackBarField"
-      EnterpriseName: "ПолеПолосыПрокрутки"
-    }
+  : T extends ButtonGroup
+    ? {
+        XML: ButtonGroupXML
+        Element: ButtonGroup
+        PartialEnterprise: ButtonGroupPartialEnterprise
+        TypedEnterprise: ButtonGroupTypedEnterprise
+      }
+    : T extends CalendarField
+      ? {
+          XML: CalendarFieldXML
+          Element: CalendarField
+          PartialEnterprise: CalendarFieldPartialEnterprise
+          TypedEnterprise: CalendarFieldTypedEnterprise
+        }
+      : T extends ChartField
+        ? {
+            XML: ChartFieldXML
+            Element: ChartField
+            PartialEnterprise: ChartFieldPartialEnterprise
+            TypedEnterprise: ChartFieldTypedEnterprise
+          }
+        : T extends CheckBoxField
+          ? {
+              XML: CheckBoxFieldXML
+              Element: CheckBoxField
+              PartialEnterprise: CheckBoxFieldPartialEnterprise
+              TypedEnterprise: CheckBoxFieldTypedEnterprise
+            }
+          : T extends ColumnGroup
+            ? {
+                XML: ColumnGroupXML
+                Element: ColumnGroup
+                PartialEnterprise: ColumnGroupPartialEnterprise
+                TypedEnterprise: ColumnGroupTypedEnterprise
+              }
+            : T extends CommandBar
+              ? {
+                  XML: CommandBarXML
+                  Element: CommandBar
+                  PartialEnterprise: CommandBarPartialEnterprise
+                  TypedEnterprise: CommandBarTypedEnterprise
+                }
+              : T extends DendrogramField
+                ? {
+                    XML: DendrogramFieldXML
+                    Element: DendrogramField
+                    PartialEnterprise: DendrogramFieldPartialEnterprise
+                    TypedEnterprise: DendrogramFieldTypedEnterprise
+                  }
+                : T extends FormattedDocumentField
+                  ? {
+                      XML: FormattedDocumentFieldXML
+                      Element: FormattedDocumentField
+                      PartialEnterprise: FormattedDocumentFieldPartialEnterprise
+                      TypedEnterprise: FormattedDocumentFieldTypedEnterprise
+                    }
+                  : T extends GanttChartField
+                    ? {
+                        XML: GanttChartFieldXML
+                        Element: GanttChartField
+                        PartialEnterprise: GanttChartFieldPartialEnterprise
+                        TypedEnterprise: GanttChartFieldTypedEnterprise
+                      }
+                    : T extends GeographicalSchemaField
+                      ? {
+                          XML: GeographicalSchemaFieldXML
+                          Element: GeographicalSchemaField
+                          PartialEnterprise: GeographicalSchemaFieldPartialEnterprise
+                          TypedEnterprise: GeographicalSchemaFieldTypedEnterprise
+                        }
+                      : T extends GraphicalSchemaField
+                        ? {
+                            XML: GraphicalSchemaFieldXML
+                            Element: GraphicalSchemaField
+                            PartialEnterprise: GraphicalSchemaFieldPartialEnterprise
+                            TypedEnterprise: GraphicalSchemaFieldTypedEnterprise
+                          }
+                        : T extends HTMLDocumentField
+                          ? {
+                              XML: HTMLDocumentFieldXML
+                              Element: HTMLDocumentField
+                              PartialEnterprise: HTMLDocumentFieldPartialEnterprise
+                              TypedEnterprise: HTMLDocumentFieldTypedEnterprise
+                            }
+                          : T extends InputField
+                            ? {
+                                XML: InputFieldXML
+                                Element: InputField
+                                PartialEnterprise: InputFieldPartialEnterprise
+                                TypedEnterprise: InputFieldTypedEnterprise
+                              }
+                            : T extends LabelDecoration
+                              ? {
+                                  XML: LabelDecorationXML
+                                  Element: LabelDecoration
+                                  PartialEnterprise: LabelDecorationPartialEnterprise
+                                  TypedEnterprise: LabelDecorationTypedEnterprise
+                                }
+                              : T extends LabelField
+                                ? {
+                                    XML: LabelFieldXML
+                                    Element: LabelField
+                                    PartialEnterprise: LabelFieldPartialEnterprise
+                                    TypedEnterprise: LabelFieldTypedEnterprise
+                                  }
+                                : T extends Page
+                                  ? {
+                                      XML: PageXML
+                                      Element: Page
+                                      PartialEnterprise: PagePartialEnterprise
+                                      TypedEnterprise: PageTypedEnterprise
+                                    }
+                                  : T extends Pages
+                                    ? {
+                                        XML: PagesXML
+                                        Element: Pages
+                                        PartialEnterprise: PagesPartialEnterprise
+                                        TypedEnterprise: PagesTypedEnterprise
+                                      }
+                                    : T extends PdfDocumentField
+                                      ? {
+                                          XML: PdfDocumentFieldXML
+                                          Element: PdfDocumentField
+                                          PartialEnterprise: PdfDocumentFieldPartialEnterprise
+                                          TypedEnterprise: PdfDocumentFieldTypedEnterprise
+                                        }
+                                      : T extends PeriodField
+                                        ? {
+                                            XML: PeriodFieldXML
+                                            Element: PeriodField
+                                            PartialEnterprise: PeriodFieldPartialEnterprise
+                                            TypedEnterprise: PeriodFieldTypedEnterprise
+                                          }
+                                        : T extends PictureDecoration
+                                          ? {
+                                              XML: PictureDecorationXML
+                                              Element: PictureDecoration
+                                              PartialEnterprise: PictureDecorationPartialEnterprise
+                                              TypedEnterprise: PictureDecorationTypedEnterprise
+                                            }
+                                          : T extends PictureField
+                                            ? {
+                                                XML: PictureFieldXML
+                                                Element: PictureField
+                                                PartialEnterprise: PictureFieldPartialEnterprise
+                                                TypedEnterprise: PictureFieldTypedEnterprise
+                                              }
+                                            : T extends PlannerField
+                                              ? {
+                                                  XML: PlannerFieldXML
+                                                  Element: PlannerField
+                                                  PartialEnterprise: PlannerFieldPartialEnterprise
+                                                  TypedEnterprise: PlannerFieldTypedEnterprise
+                                                }
+                                              : T extends Popup
+                                                ? {
+                                                    XML: PopupXML
+                                                    Element: Popup
+                                                    PartialEnterprise: PopupPartialEnterprise
+                                                    TypedEnterprise: PopupTypedEnterprise
+                                                  }
+                                                : T extends ProgressBarField
+                                                  ? {
+                                                      XML: ProgressBarFieldXML
+                                                      Element: ProgressBarField
+                                                      PartialEnterprise: ProgressBarFieldPartialEnterprise
+                                                      TypedEnterprise: ProgressBarFieldTypedEnterprise
+                                                    }
+                                                  : T extends RadioButtonField
+                                                    ? {
+                                                        XML: RadioButtonFieldXML
+                                                        Element: RadioButtonField
+                                                        PartialEnterprise: RadioButtonFieldPartialEnterprise
+                                                        TypedEnterprise: RadioButtonFieldTypedEnterprise
+                                                      }
+                                                    : T extends SpreadSheetDocumentField
+                                                      ? {
+                                                          XML: SpreadSheetDocumentFieldXML
+                                                          Element: SpreadSheetDocumentField
+                                                          PartialEnterprise: SpreadSheetDocumentFieldPartialEnterprise
+                                                          TypedEnterprise: SpreadSheetDocumentFieldTypedEnterprise
+                                                        }
+                                                      : T extends Table
+                                                        ? {
+                                                            XML: TableXML
+                                                            Element: Table
+                                                            PartialEnterprise: TablePartialEnterprise
+                                                            TypedEnterprise: TablePartialEnterprise
+                                                          }
+                                                        : T extends TextDocumentField
+                                                          ? {
+                                                              XML: TextDocumentFieldXML
+                                                              Element: TextDocumentField
+                                                              PartialEnterprise: TextDocumentFieldPartialEnterprise
+                                                              TypedEnterprise: TextDocumentFieldTypedEnterprise
+                                                            }
+                                                          : T extends TrackBarField
+                                                            ? {
+                                                                XML: TrackBarFieldXML
+                                                                Element: TrackBarField
+                                                                PartialEnterprise: TrackBarFieldPartialEnterprise
+                                                                TypedEnterprise: TrackBarFieldTypedEnterprise
+                                                              }
+                                                            : never

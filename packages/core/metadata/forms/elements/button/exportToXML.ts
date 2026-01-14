@@ -10,13 +10,12 @@ import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { ImportExportReturn } from "../types"
 
 export function exportButtonToXML<From extends Button | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToXMLType<From>> {
-  if (data === undefined) return undefined as ImportExportReturn<From, ToXMLType<From>>
+): ToXMLType<From> {
+  if (data === undefined) return undefined as ToXMLType<From>
 
   const baseFields = exportElementPropsToXML(context, data)
 
@@ -106,7 +105,7 @@ export function exportButtonToXML<From extends Button | undefined>(
 
   if (data.width !== undefined) result.Width = data.width
 
-  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
+  return sortObject(result) as ToXMLType<From>
 }
 
 registerMetadata("ExportToXML", "Button", exportButtonToXML)

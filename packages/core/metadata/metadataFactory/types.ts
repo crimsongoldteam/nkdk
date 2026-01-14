@@ -6,24 +6,17 @@ import { TypeRules } from "./rules"
 
 // #region type associations
 
-export type ToXMLType<T> = T extends undefined
+export type ToXMLType<T extends BaseElement | undefined> = T extends undefined
   ? undefined
-  : Extract<
-      TypeRules,
-      { XML: any; Element: T; PartialEnterprise: any; TypedEnterprise: any; EnterpriseName: any }
-    >["XML"]
+  : TypeRules<NonNullable<T>>["XML"]
 
-export type ToPartialEnterpriseType<T> = Extract<
-  TypeRules,
-  { XML: any; Element: T; PartialEnterprise: any; TypedEnterprise: any; EnterpriseName: any }
->["PartialEnterprise"]
-
-export type ToTypedEnterpriseType<T> = T extends undefined
+export type ToPartialEnterpriseType<T extends BaseElement | undefined> = T extends undefined
   ? undefined
-  : Extract<
-      TypeRules,
-      { XML: any; Element: T; PartialEnterprise: any; TypedEnterprise: any; EnterpriseName: any }
-    >["TypedEnterprise"]
+  : TypeRules<NonNullable<T>>["PartialEnterprise"]
+
+export type ToTypedEnterpriseType<T extends BaseElement | undefined> = T extends undefined
+  ? undefined
+  : TypeRules<NonNullable<T>>["TypedEnterprise"]
 
 // #endregion
 
@@ -38,7 +31,7 @@ export type ImportTypedFromEnterpriseFn = <To extends BaseElement | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
   name: string
-) => ImportExportReturn<ToTypedEnterpriseType<To>, To>
+) => To
 
 export type ImportPartialFromEnterpriseFn = <To extends BaseElement>(
   context: ConfigurationContext,
@@ -49,18 +42,17 @@ export type ImportPartialFromEnterpriseFn = <To extends BaseElement>(
 export type ExportToXMLFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,
   data: From
-) => ImportExportReturn<From, ToXMLType<From>>
+) => ToXMLType<From>
 
 export type ExportPartialToEnterpriseFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,
   data: From
-) => ImportExportReturn<From, ToPartialEnterpriseType<From>>
+) => ToPartialEnterpriseType<From>
 
 export type ExportTypedToEnterpriseFn = <From extends BaseElement | undefined>(
   context: ConfigurationContext,
   data: From
-  // name: string
-) => ImportExportReturn<From, ToTypedEnterpriseType<From>>
+) => ToTypedEnterpriseType<From>
 
 export type ExportToStructureFn = <From extends BaseElement>(
   context: ConfigurationContext,

@@ -25,12 +25,6 @@ describe("importButtonTypedFromEnterprise", () => {
   })
 
   describe("importButtonPartialFromEnterprise", () => {
-    it("should return undefined when source is undefined", () => {
-      const result = importButtonPartialFromEnterprise(mockСontext, undefined, undefined)
-
-      expect(result).toBeUndefined()
-    })
-
     it("should import all fields from Enterprise", () => {
       const result = importButtonPartialFromEnterprise(mockСontext, fullButton, fullButtonPartialEnterprise)
 
