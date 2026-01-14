@@ -13,14 +13,12 @@ import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisi
 import { exportChoiceParameterLinksToEnterprise } from "~/metadata/commonObjects/сhoiceParameterLinks/exportToEnterprise"
 import { exportChoiceParametersToEnterprise } from "~/metadata/commonObjects/сhoiceParameters/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
-import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
-import { exportTableToEnterprise } from "../table/exportToEnterprise"
 import {
   InputField,
   InputFieldPartialEnterprise,
   InputFieldTypedEnterprise,
 } from "~/metadata/forms/elements/inputField/types"
+import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -32,6 +30,8 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
+import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
 
 export function exportInputFieldTypedToEnterprise<From extends InputField | undefined>(

@@ -9,14 +9,12 @@ import { exportPictureToEnterprise } from "~/metadata/commonObjects/picture/expo
 import { exportTypeDescriptionToEnterprise } from "~/metadata/commonObjects/typeDescription/exportToEnterprise"
 import { exportUserVisibleToEnterprise } from "~/metadata/commonObjects/userVisible/exportToEnterprise"
 import { ConfigurationContext } from "~/metadata/context/types"
-import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
-import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
-import { exportTableToEnterprise } from "../table/exportToEnterprise"
 import {
   HTMLDocumentField,
   HTMLDocumentFieldPartialEnterprise,
   HTMLDocumentFieldTypedEnterprise,
 } from "~/metadata/forms/elements/htmlDocumentField/types"
+import { exportTableToEnterprise } from "~/metadata/forms/elements/table/exportToEnterprise"
 import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterprise"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
@@ -28,6 +26,8 @@ import {
 } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
+import { exportContextMenuToEnterprise } from "../contextMenu/exportToEnterprise"
+import { exportExtendedTooltipToEnterprise } from "../extendedTooltip/exportToEnterprise"
 
 
 export function exportHTMLDocumentFieldTypedToEnterprise<From extends HTMLDocumentField | undefined>(
