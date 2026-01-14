@@ -13,7 +13,7 @@ import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function exportTextDocumentFieldToXML<From extends TextDocumentField | undefined>(
   context: ConfigurationContext,
@@ -83,9 +83,6 @@ export function exportTextDocumentFieldToXML<From extends TextDocumentField | un
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const table = exportTableToXML(context, data.table)
-  if (table !== undefined) result.Table = table
-
   const title = exportI8nTextToXML(context, data.title)
   if (title !== undefined) result.Title = title
 
@@ -101,6 +98,9 @@ export function exportTextDocumentFieldToXML<From extends TextDocumentField | un
 
   const titleTextColor = exportColorToXML(context, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
+
+  const table = exportTableToXML(context, data.table)
+  if (table !== undefined) result.Table = table
 
   const toolTip = exportI8nTextToXML(context, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
@@ -165,4 +165,4 @@ export function exportTextDocumentFieldToXML<From extends TextDocumentField | un
   return sortObject(result) as ToXMLType<From>
 }
 
-registerMetadata("ExportToXML", "TextDocumentField", exportTextDocumentFieldToXML)
+registerMetadata("ExportToXML", "TextDocumentField", exportTextDocumentFieldToXML as ExportToXMLFn)

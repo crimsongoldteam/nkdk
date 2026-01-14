@@ -14,7 +14,7 @@ import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 
 export function exportPictureFieldToXML<From extends PictureField | undefined>(
   context: ConfigurationContext,
@@ -84,9 +84,6 @@ export function exportPictureFieldToXML<From extends PictureField | undefined>(
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const table = exportTableToXML(context, data.table)
-  if (table !== undefined) result.Table = table
-
   const title = exportI8nTextToXML(context, data.title)
   if (title !== undefined) result.Title = title
 
@@ -102,6 +99,9 @@ export function exportPictureFieldToXML<From extends PictureField | undefined>(
 
   const titleTextColor = exportColorToXML(context, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
+
+  const table = exportTableToXML(context, data.table)
+  if (table !== undefined) result.Table = table
 
   const toolTip = exportI8nTextToXML(context, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
@@ -181,4 +181,4 @@ export function exportPictureFieldToXML<From extends PictureField | undefined>(
   return sortObject(result) as ToXMLType<From>
 }
 
-registerMetadata("ExportToXML", "PictureField", exportPictureFieldToXML)
+registerMetadata("ExportToXML", "PictureField", exportPictureFieldToXML as ExportToXMLFn)

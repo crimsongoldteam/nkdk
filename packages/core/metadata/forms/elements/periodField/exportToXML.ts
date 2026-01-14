@@ -10,11 +10,11 @@ import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/e
 import { exportContextMenuToXML } from "~/metadata/forms/elements/contextMenu/exportToXML"
 import { PeriodField, PeriodFieldXML } from "~/metadata/forms/elements/periodField/types"
 import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
-import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
+import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportPeriodFieldToXML<From extends PeriodField | undefined>(
   context: ConfigurationContext,
@@ -84,9 +84,6 @@ export function exportPeriodFieldToXML<From extends PeriodField | undefined>(
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const table = exportTableToXML(context, data.table)
-  if (table !== undefined) result.Table = table
-
   const title = exportI8nTextToXML(context, data.title)
   if (title !== undefined) result.Title = title
 
@@ -102,6 +99,9 @@ export function exportPeriodFieldToXML<From extends PeriodField | undefined>(
 
   const titleTextColor = exportColorToXML(context, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
+
+  const table = exportTableToXML(context, data.table)
+  if (table !== undefined) result.Table = table
 
   const toolTip = exportI8nTextToXML(context, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
@@ -159,4 +159,4 @@ export function exportPeriodFieldToXML<From extends PeriodField | undefined>(
   return sortObject(result) as ToXMLType<From>
 }
 
-registerMetadata("ExportToXML", "PeriodField", exportPeriodFieldToXML)
+registerMetadata("ExportToXML", "PeriodField", exportPeriodFieldToXML as ExportToXMLFn)

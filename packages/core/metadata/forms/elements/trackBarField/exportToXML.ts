@@ -83,9 +83,6 @@ export function exportTrackBarFieldToXML<From extends TrackBarField | undefined>
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const table = exportTableToXML(context, data.table)
-  if (table !== undefined) result.Table = table
-
   const title = exportI8nTextToXML(context, data.title)
   if (title !== undefined) result.Title = title
 
@@ -101,6 +98,9 @@ export function exportTrackBarFieldToXML<From extends TrackBarField | undefined>
 
   const titleTextColor = exportColorToXML(context, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
+
+  const table = exportTableToXML(context, data.table)
+  if (table !== undefined) result.Table = table
 
   const toolTip = exportI8nTextToXML(context, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip

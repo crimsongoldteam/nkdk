@@ -12,7 +12,7 @@ import { exportTableToXML } from "~/metadata/forms/elements/table/exportToXML"
 import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { ToXMLType } from "~/metadata/metadataFactory/types"
+import { ExportToXMLFn, ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
 
 export function exportHTMLDocumentFieldToXML<From extends HTMLDocumentField | undefined>(
@@ -83,9 +83,6 @@ export function exportHTMLDocumentFieldToXML<From extends HTMLDocumentField | un
 
   if (data.skipOnInput !== undefined) result.SkipOnInput = data.skipOnInput
 
-  const table = exportTableToXML(context, data.table)
-  if (table !== undefined) result.Table = table
-
   const title = exportI8nTextToXML(context, data.title)
   if (title !== undefined) result.Title = title
 
@@ -101,6 +98,9 @@ export function exportHTMLDocumentFieldToXML<From extends HTMLDocumentField | un
 
   const titleTextColor = exportColorToXML(context, data.titleTextColor)
   if (titleTextColor !== undefined) result.TitleTextColor = titleTextColor
+
+  const table = exportTableToXML(context, data.table)
+  if (table !== undefined) result.Table = table
 
   const toolTip = exportI8nTextToXML(context, data.toolTip)
   if (toolTip !== undefined) result.ToolTip = toolTip
@@ -156,4 +156,4 @@ export function exportHTMLDocumentFieldToXML<From extends HTMLDocumentField | un
   return sortObject(result) as ToXMLType<From>
 }
 
-registerMetadata("ExportToXML", "HTMLDocumentField", exportHTMLDocumentFieldToXML)
+registerMetadata("ExportToXML", "HTMLDocumentField", exportHTMLDocumentFieldToXML as ExportToXMLFn)
