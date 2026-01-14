@@ -6,7 +6,7 @@ import { Pages, PagesXML } from "~/metadata/forms/elements/pages/types"
 import { importTableFromXML } from "~/metadata/forms/elements/table/importFromXML"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 
 const importPagesChildItemsFromXML = (
   context: ConfigurationContext,
@@ -16,11 +16,14 @@ const importPagesChildItemsFromXML = (
   return xml.map((pageXML) => importPageFromXML(context, pageXML))
 }
 
-export const importPagesFromXML = (context: ConfigurationContext, xml: PagesXML | undefined): Pages | undefined => {
-  if (!xml) return undefined
+export function importPagesFromXML<To extends Pages | undefined>(
+  context: ConfigurationContext,
+  xml: ToXMLType<To> | undefined
+): To {
+  if (xml === undefined) return undefined as To
 
   const baseFields = importFormGroupFromXML(context, xml)
-  if (!baseFields) return undefined
+  if (!baseFields) return undefined as To
 
   const { elementType: _, ...restFields } = baseFields
 
@@ -48,7 +51,7 @@ export const importPagesFromXML = (context: ConfigurationContext, xml: PagesXML 
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result as ImportExportReturn<From, FromXMLType<From>>
+  return result as To
 }
 
 registerMetadata("ImportFromXML", "Pages", importPagesFromXML)

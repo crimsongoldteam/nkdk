@@ -2,28 +2,22 @@ import { importColorFromXML } from "~/metadata/commonObjects/color/importFromXML
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/importFromXML"
-import {
-  GeographicalSchemaField,
-  GeographicalSchemaFieldXML,
-} from "~/metadata/forms/elements/geographicalSchemaField/types"
+import { GeographicalSchemaField } from "~/metadata/forms/elements/geographicalSchemaField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
+import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 
-export function importGeographicalSchemaFieldFromXML<From extends GeographicalSchemaFieldXML | undefined>(
+export function importGeographicalSchemaFieldFromXML<To extends GeographicalSchemaField | undefined>(
   context: ConfigurationContext,
-  xml: From
-): ImportExportReturn<From, FromXMLType<From>> {
-  if (xml === undefined) return undefined
+  xml: ToXMLType<To> | undefined
+): To {
+  if (xml === undefined) return undefined as To
   const baseFields = importFormFieldFromXML(context, xml)
-  if (!baseFields) return undefined
-
-  const { elementType: _, ...restFields } = baseFields
+  if (!baseFields) return undefined as To
 
   const result: GeographicalSchemaField = {
+    ...baseFields,
     elementType: FormElementType.GeographicalSchemaField,
-    ...restFields,
   }
 
   if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
@@ -53,7 +47,7 @@ export function importGeographicalSchemaFieldFromXML<From extends GeographicalSc
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result as ImportExportReturn<From, FromXMLType<From>>
+  return result as To
 }
 
 registerMetadata("ImportFromXML", "GeographicalSchemaField", importGeographicalSchemaFieldFromXML)

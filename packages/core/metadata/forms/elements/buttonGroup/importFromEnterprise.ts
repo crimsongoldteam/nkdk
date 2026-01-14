@@ -22,14 +22,13 @@ import { importSystemEnumerationFromEnterprise } from "~/metadata/systemEnumerat
 import * as SE from "~/metadata/systemEnumerations/types"
 import { importButtonGroupChildItemsFromEnterprise } from "../../collections/buttonGroupChildItems/importFromEnterprise"
 import { importExtendedTooltipFromEnterprise } from "../extendedTooltip/importFromEnterprise"
-import { ImportExportReturn } from "../types"
 
 export function importButtonGroupTypedFromEnterprise<To extends ButtonGroup | undefined>(
   context: ConfigurationContext,
   data: ToTypedEnterpriseType<To>,
   name: string
-): ImportExportReturn<ToTypedEnterpriseType<To>, To> {
-  if (data === undefined) return undefined
+): To {
+  if (data === undefined) return undefined as To
 
   const props = importButtonGroupPropsFromEnterprise(context, data)
 
@@ -45,7 +44,7 @@ export function importButtonGroupTypedFromEnterprise<To extends ButtonGroup | un
   const title = importI8nTextFromEnterprise(context, data.Заголовок)
   if (title !== undefined) result.title = title
 
-  return result as ImportExportReturn<ToTypedEnterpriseType<To>, To>
+  return result as To
 }
 
 export function importButtonGroupPartialFromEnterprise<To extends ButtonGroup>(

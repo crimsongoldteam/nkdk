@@ -7,13 +7,12 @@ import { ConfigurationContext } from "~/metadata/context/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise } from "~/metadata/forms/elements/extendedTooltip/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ImportExportReturn } from "../types"
 
 export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | undefined>(
   context: ConfigurationContext,
   data: T
-): ImportExportReturn<T, ExtendedTooltipEnterprise> {
-  if (!data) return undefined as ImportExportReturn<T, ExtendedTooltipEnterprise>
+): ExtendedTooltipEnterprise | undefined {
+  if (!data) return undefined
 
   const result: ExtendedTooltipEnterprise = {}
 
@@ -96,5 +95,5 @@ export function exportExtendedTooltipToEnterprise<T extends ExtendedTooltip | un
   const font = exportFontToEnterprise(context, data.font)
   if (font !== undefined) result.Шрифт = font
 
-  return result as ImportExportReturn<T, ExtendedTooltipEnterprise>
+  return result
 }

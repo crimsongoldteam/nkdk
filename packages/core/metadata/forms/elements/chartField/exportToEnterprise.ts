@@ -11,13 +11,12 @@ import { exportEventsToEnterprise } from "~/metadata/forms/events/exportToEnterp
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
 
 export function exportChartFieldTypedToEnterprise<From extends ChartField | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
-  if (data === undefined) return undefined
+): ToTypedEnterpriseType<From> {
+  if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -29,14 +28,14 @@ export function exportChartFieldTypedToEnterprise<From extends ChartField | unde
     ...props,
   }
 
-  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
+  return sortObject(result) as ToTypedEnterpriseType<From>
 }
 
 export function exportChartFieldPartialToEnterprise<From extends ChartField | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
-  if (data === undefined) return undefined
+): ToPartialEnterpriseType<From> {
+  if (data === undefined) return undefined as ToPartialEnterpriseType<From>
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -47,7 +46,7 @@ export function exportChartFieldPartialToEnterprise<From extends ChartField | un
     ...props,
   }
 
-  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
+  return sortObject(result) as ToPartialEnterpriseType<From>
 }
 
 const exportChartFieldPropsToEnterprise = (

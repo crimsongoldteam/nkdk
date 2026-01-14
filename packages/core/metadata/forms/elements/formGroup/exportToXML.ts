@@ -7,13 +7,12 @@ import { exportElementPropsToXML } from "~/metadata/forms/elements/baseElement/e
 import { FormGroup, FormGroupXML } from "~/metadata/forms/elements/formGroup/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { ToXMLType } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
 
 export function exportFormGroupPropsToXML<From extends FormGroup | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToXMLType<From>> {
-  if (data === undefined) return undefined as ImportExportReturn<From, ToXMLType<From>>
+): ToXMLType<From> {
+  if (data === undefined) return undefined as ToXMLType<From>
 
   const baseFields = exportElementPropsToXML(context, data)
 
@@ -62,12 +61,12 @@ export function exportFormGroupPropsToXML<From extends FormGroup | undefined>(
 
   if (data.width !== undefined) result.Width = data.width
 
-  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
+  return sortObject(result) as ToXMLType<From>
 }
 
 export function exportFormGroupToXML<From extends FormGroup | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToXMLType<From>> {
+): ToXMLType<From> {
   return exportFormGroupPropsToXML(context, data)
 }

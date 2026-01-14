@@ -8,6 +8,7 @@ import { EventsXML } from "~/metadata/forms/events/types"
 import * as SE from "~/metadata/systemEnumerations/types"
 
 export interface CalendarField extends FormField {
+  elementType: "CalendarField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   beginOfRepresentationPeriod?: string

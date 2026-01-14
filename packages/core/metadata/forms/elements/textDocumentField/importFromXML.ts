@@ -6,17 +6,16 @@ import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/impo
 import { TextDocumentField, TextDocumentFieldXML } from "~/metadata/forms/elements/textDocumentField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
+import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 
-export function importTextDocumentFieldFromXML<From extends TextDocumentFieldXML | undefined>(
+export function importTextDocumentFieldFromXML<To extends TextDocumentField | undefined>(
   context: ConfigurationContext,
-  xml: From
-): ImportExportReturn<From, FromXMLType<From>> {
-  if (xml === undefined) return undefined
+  xml: ToXMLType<To> | undefined
+): To {
+  if (xml === undefined) return undefined as To
 
   const baseFields = importFormFieldFromXML(context, xml)
-  if (!baseFields) return undefined
+  if (!baseFields) return undefined as To
 
   const { elementType: _, ...restFields } = baseFields
 
@@ -63,7 +62,7 @@ export function importTextDocumentFieldFromXML<From extends TextDocumentFieldXML
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result as ImportExportReturn<From, FromXMLType<From>>
+  return result as To
 }
 
 registerMetadata("ImportFromXML", "TextDocumentField", importTextDocumentFieldFromXML)

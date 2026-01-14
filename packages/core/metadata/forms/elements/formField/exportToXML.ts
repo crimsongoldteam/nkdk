@@ -13,13 +13,12 @@ import { exportEventsToXML } from "~/metadata/forms/events/exportToXML"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { ToXMLType } from "~/metadata/metadataFactory/types"
 import { exportExtendedTooltipToXML } from "../extendedTooltip/exportToXML"
-import { ImportExportReturn } from "../types"
 
 export function exportFormFieldToXML<From extends FormField | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToXMLType<From>> {
-  if (data === undefined) return undefined as ImportExportReturn<From, ToXMLType<From>>
+): ToXMLType<From> {
+  if (data === undefined) return undefined as ToXMLType<From>
 
   const baseFields = exportElementPropsToXML(context, data)
 
@@ -130,5 +129,5 @@ export function exportFormFieldToXML<From extends FormField | undefined>(
   const events = exportEventsToXML(context, data.events)
   if (events !== undefined) result.Events = events
 
-  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
+  return sortObject(result) as ToXMLType<From>
 }

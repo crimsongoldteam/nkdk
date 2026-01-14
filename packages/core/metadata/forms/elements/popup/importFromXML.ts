@@ -6,15 +6,14 @@ import { importButtonGroupChildItemsFromXML } from "~/metadata/forms/collections
 import { importFormGroupFromXML } from "~/metadata/forms/elements/formGroup/importFromXML"
 import { Popup, PopupXML } from "~/metadata/forms/elements/popup/types"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 import { importExtendedTooltipFromXML } from "../extendedTooltip/importFromXML"
-import { ImportExportReturn } from "../types"
 
-export function importPopupFromXML<From extends PopupXML | undefined>(
+export function importPopupFromXML<To extends Popup | undefined>(
   context: ConfigurationContext,
-  xml: From
-): ImportExportReturn<From, FromXMLType<From>> {
-  if (xml === undefined) return undefined
+  xml: ToXMLType<To> | undefined
+): To {
+  if (xml === undefined) return undefined as To
 
   const baseFields = importFormGroupFromXML(context, xml)
 
@@ -47,7 +46,7 @@ export function importPopupFromXML<From extends PopupXML | undefined>(
   const userVisible = importUserVisibleFromXML(context, xml.UserVisible)
   if (userVisible !== undefined) result.userVisible = userVisible
 
-  return result as ImportExportReturn<From, FromXMLType<From>>
+  return result as To
 }
 
 registerMetadata("ImportFromXML", "Popup", importPopupFromXML)

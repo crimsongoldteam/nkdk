@@ -16,13 +16,13 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ImportExportReturn } from "../types"
+
 
 export function exportRadioButtonFieldTypedToEnterprise<From extends RadioButtonField | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
-  if (data === undefined) return undefined
+): ToTypedEnterpriseType<From> {
+  if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -34,14 +34,14 @@ export function exportRadioButtonFieldTypedToEnterprise<From extends RadioButton
     ...props,
   }
 
-  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
+  return sortObject(result) as ToTypedEnterpriseType<From>
 }
 
 export function exportRadioButtonFieldPartialToEnterprise<From extends RadioButtonField | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
-  if (data === undefined) return undefined
+): ToPartialEnterpriseType<From> {
+  if (data === undefined) return undefined as ToPartialEnterpriseType<From>
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -52,7 +52,7 @@ export function exportRadioButtonFieldPartialToEnterprise<From extends RadioButt
     ...props,
   }
 
-  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
+  return sortObject(result) as ToPartialEnterpriseType<From>
 }
 
 const exportRadioButtonFieldPropsToEnterprise = (

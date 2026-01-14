@@ -9,13 +9,12 @@ import { Page, PageXML } from "~/metadata/forms/elements/page/types"
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ToXMLType } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
 
 export function exportPageToXML<From extends Page | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToXMLType<From>> {
-  if (data === undefined) return undefined as ImportExportReturn<From, ToXMLType<From>>
+): ToXMLType<From> {
+  if (data === undefined) return undefined as ToXMLType<From>
 
   const baseFields = exportFormGroupToXML(context, data)
   if (!baseFields) return undefined
@@ -65,7 +64,7 @@ export function exportPageToXML<From extends Page | undefined>(
 
   if (data.verticalSpacing !== undefined) result.VerticalSpacing = data.verticalSpacing
 
-  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
+  return sortObject(result) as ToXMLType<From>
 }
 
 registerMetadata("ExportToXML", "Page", exportPageToXML)

@@ -1,25 +1,22 @@
 import { importUserVisibleFromXML } from "~/metadata/commonObjects/userVisible/importFromXML"
 import { ConfigurationContext } from "~/metadata/context/types"
 import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/importFromXML"
-import { TrackBarField, TrackBarFieldXML } from "~/metadata/forms/elements/trackBarField/types"
+import { TrackBarField } from "~/metadata/forms/elements/trackBarField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType } from "~/metadata/metadataFactory/types"
+import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 
-export const importTrackBarFieldFromXML = (
+export function importTrackBarFieldFromXML<To extends TrackBarField | undefined>(
   context: ConfigurationContext,
-  xml: TrackBarFieldXML | undefined
-): TrackBarField | undefined => {
-  if (!xml) return undefined
+  xml: ToXMLType<To> | undefined
+): To {
+  if (xml === undefined) return undefined as To
 
   const baseFields = importFormFieldFromXML(context, xml)
-  if (!baseFields) return undefined
-
-  const { elementType: _, ...restFields } = baseFields
 
   const result: TrackBarField = {
+    ...baseFields,
     elementType: FormElementType.TrackBarField,
-    ...restFields,
   }
 
   if (xml.AutoMaxHeight !== undefined) result.autoMaxHeight = xml.AutoMaxHeight
@@ -58,7 +55,7 @@ export const importTrackBarFieldFromXML = (
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result as ImportExportReturn<From, FromXMLType<From>>
+  return result as To
 }
 
 registerMetadata("ImportFromXML", "TrackBarField", importTrackBarFieldFromXML)

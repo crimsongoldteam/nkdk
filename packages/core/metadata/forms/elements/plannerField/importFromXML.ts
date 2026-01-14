@@ -4,17 +4,16 @@ import { importFormFieldFromXML } from "~/metadata/forms/elements/formField/impo
 import { PlannerField, PlannerFieldXML } from "~/metadata/forms/elements/plannerField/types"
 import { importEventsFromXML } from "~/metadata/forms/events/importFromXML"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
-import { FormElementType, FromXMLType } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
+import { FormElementType, ToXMLType } from "~/metadata/metadataFactory/types"
 
-export function importPlannerFieldFromXML<From extends PlannerFieldXML | undefined>(
+export function importPlannerFieldFromXML<To extends PlannerField | undefined>(
   context: ConfigurationContext,
-  xml: From
-): ImportExportReturn<From, FromXMLType<From>> {
-  if (xml === undefined) return undefined
+  xml: ToXMLType<To> | undefined
+): To {
+  if (xml === undefined) return undefined as To
 
   const baseFields = importFormFieldFromXML(context, xml)
-  if (!baseFields) return undefined
+  if (!baseFields) return undefined as To
 
   const { elementType: _, ...restFields } = baseFields
 
@@ -56,7 +55,7 @@ export function importPlannerFieldFromXML<From extends PlannerFieldXML | undefin
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result as ImportExportReturn<From, FromXMLType<From>>
+  return result as To
 }
 
 registerMetadata("ImportFromXML", "PlannerField", importPlannerFieldFromXML)

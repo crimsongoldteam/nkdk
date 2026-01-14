@@ -6,13 +6,12 @@ import { exportFormGroupPropsToXML } from "~/metadata/forms/elements/formGroup/e
 import { sortObject } from "~/metadata/helpers/compactObject"
 import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ToXMLType } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
 
 export function exportCommandBarToXML<From extends CommandBar | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToXMLType<From>> {
-  if (data === undefined) return undefined as ImportExportReturn<From, ToXMLType<From>>
+): ToXMLType<From> {
+  if (data === undefined) return undefined as ToXMLType<From>
 
   const baseFields = exportFormGroupPropsToXML(context, data)
 
@@ -32,7 +31,7 @@ export function exportCommandBarToXML<From extends CommandBar | undefined>(
   const userVisible = exportUserVisibleToXML(context, data.userVisible)
   if (userVisible !== undefined) result.UserVisible = userVisible
 
-  return sortObject(result) as ImportExportReturn<From, ToXMLType<From>>
+  return sortObject(result) as ToXMLType<From>
 }
 
 registerMetadata("ExportToXML", "CommandBar", exportCommandBarToXML)

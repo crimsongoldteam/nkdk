@@ -1,6 +1,6 @@
 import { ConfigurationContext } from "../context/types"
 import { BaseElement } from "../forms/elements/baseElement/types"
-import { ImportExportReturn } from "../forms/elements/types"
+import { GeographicalSchemaField } from "../forms/elements/geographicalSchemaField/types"
 import { IFormatElementResult } from "../forms/format/types"
 import { TypeRules } from "./rules"
 
@@ -9,6 +9,8 @@ import { TypeRules } from "./rules"
 export type ToXMLType<T extends BaseElement | undefined> = T extends undefined
   ? undefined
   : TypeRules<NonNullable<T>>["XML"]
+
+type l = ToXMLType<GeographicalSchemaField>
 
 export type ToPartialEnterpriseType<T extends BaseElement | undefined> = T extends undefined
   ? undefined

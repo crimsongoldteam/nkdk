@@ -16,14 +16,13 @@ import { importAutoCommandBarFromXML } from "../autoCommandBar/importFromXML"
 import { importSearchControlAdditionFromXML } from "../searchControlAddition/importFromXML"
 import { importSearchStringAdditionFromXML } from "../searchStringAddition/importFromXML"
 import { importViewStatusAdditionFromXML } from "../viewStatusAddition/importFromXML"
-import { FromXMLType } from "~/metadata/metadataFactory/types"
-import { ImportExportReturn } from "../types"
+import { ToXMLType } from "~/metadata/metadataFactory/types"
 
-export function importTableFromXML<From extends TableXML | undefined>(
+export function importTableFromXML<To extends Table | undefined>(
   context: ConfigurationContext,
-  xml: From
-): ImportExportReturn<From, FromXMLType<From>> {
-  if (xml === undefined) return undefined
+  xml: ToXMLType<To> | undefined
+): To {
+  if (xml === undefined) return undefined as To
   const baseFields = importBaseElementFromXML(context, xml)
 
   const result: Table = {
@@ -211,7 +210,7 @@ export function importTableFromXML<From extends TableXML | undefined>(
   const events = importEventsFromXML(context, xml.Events)
   if (events !== undefined) result.events = events
 
-  return result as ImportExportReturn<From, FromXMLType<From>>
+  return result as To
 }
 
 registerMetadata("ImportFromXML", "Table", importTableFromXML)

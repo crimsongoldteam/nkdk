@@ -9,6 +9,7 @@ import {
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface ButtonGroup extends FormGroup {
+  elementType: "ButtonGroup"
   extendedTooltip?: ExtendedTooltip
   representation?: SE.ButtonGroupRepresentation
   userVisible?: UserVisible

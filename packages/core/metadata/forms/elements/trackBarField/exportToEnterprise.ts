@@ -17,13 +17,13 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ImportExportReturn } from "../types"
+
 
 export function exportTrackBarFieldTypedToEnterprise<From extends TrackBarField | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
-  if (data === undefined) return undefined
+): ToTypedEnterpriseType<From> {
+  if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
   const props = exportTrackBarFieldPropsToEnterprise(context, data)
 
@@ -35,14 +35,14 @@ export function exportTrackBarFieldTypedToEnterprise<From extends TrackBarField 
   const title = exportI8nTextToEnterprise(context, data.title)
   if (title !== undefined) result.Заголовок = title
 
-  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
+  return sortObject(result) as ToTypedEnterpriseType<From>
 }
 
 export function exportTrackBarFieldPartialToEnterprise<From extends TrackBarField | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
-  if (data === undefined) return undefined
+): ToPartialEnterpriseType<From> {
+  if (data === undefined) return undefined as ToPartialEnterpriseType<From>
 
   const props = exportTrackBarFieldPropsToEnterprise(context, data)
 
@@ -53,7 +53,7 @@ export function exportTrackBarFieldPartialToEnterprise<From extends TrackBarFiel
   const title = exportI8nTextOtherToEnterprise(context, (data as TrackBarField).title)
   if (title !== undefined) result.Заголовок = title
 
-  return result as ImportExportReturn<From, ToPartialEnterpriseType<From>>
+  return result as ToPartialEnterpriseType<From>
 }
 
 function exportTrackBarFieldPropsToEnterprise(

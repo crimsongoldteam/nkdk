@@ -15,13 +15,13 @@ import { registerMetadata } from "~/metadata/metadataFactory/metadataFactory"
 import { ToPartialEnterpriseType, ToTypedEnterpriseType } from "~/metadata/metadataFactory/types"
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
-import { ImportExportReturn } from "../types"
+
 
 export function exportFormattedDocumentFieldTypedToEnterprise<From extends FormattedDocumentField | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToTypedEnterpriseType<From>> {
-  if (data === undefined) return undefined
+): ToTypedEnterpriseType<From> {
+  if (data === undefined) return undefined as ToTypedEnterpriseType<From>
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -33,14 +33,14 @@ export function exportFormattedDocumentFieldTypedToEnterprise<From extends Forma
     ...props,
   }
 
-  return sortObject(result) as ImportExportReturn<From, ToTypedEnterpriseType<From>>
+  return sortObject(result) as ToTypedEnterpriseType<From>
 }
 
 export function exportFormattedDocumentFieldPartialToEnterprise<From extends FormattedDocumentField | undefined>(
   context: ConfigurationContext,
   data: From
-): ImportExportReturn<From, ToPartialEnterpriseType<From>> {
-  if (data === undefined) return undefined
+): ToPartialEnterpriseType<From> {
+  if (data === undefined) return undefined as ToPartialEnterpriseType<From>
 
   const baseFields = exportFormFieldToEnterprise(context, data)
 
@@ -51,7 +51,7 @@ export function exportFormattedDocumentFieldPartialToEnterprise<From extends For
     ...props,
   }
 
-  return sortObject(result) as ImportExportReturn<From, ToPartialEnterpriseType<From>>
+  return sortObject(result) as ToPartialEnterpriseType<From>
 }
 
 const exportFormattedDocumentFieldPropsToEnterprise = (

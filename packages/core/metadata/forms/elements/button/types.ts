@@ -9,6 +9,7 @@ import * as SE from "~/metadata/systemEnumerations/types"
 import { ExtendedTooltip, ExtendedTooltipEnterprise, ExtendedTooltipXML } from "../extendedTooltip/types"
 
 export interface Button extends BaseElement {
+  elementType: "Button"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   backColor?: Color

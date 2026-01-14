@@ -4,16 +4,15 @@ import { ContextMenu, ContextMenuEnterprise } from "~/metadata/forms/elements/co
 import { exportSystemEnumerationToEnterprise } from "~/metadata/systemEnumerations/exportToEnterprise"
 import * as SE from "~/metadata/systemEnumerations/types"
 import { exportButtonGroupChildItemsToEnterprise } from "../../collections/buttonGroupChildItems/exportToEnterprise"
-import { ImportExportReturn } from "../types"
 import { isHasContent } from "./helper"
 
 export function exportContextMenuToEnterprise<T extends ContextMenu | undefined>(
   context: ConfigurationContext,
   data: T
-): ImportExportReturn<T, ContextMenuEnterprise> {
-  if (data === undefined) return undefined as ImportExportReturn<T, ContextMenuEnterprise>
+): ContextMenuEnterprise | undefined {
+  if (data === undefined) return undefined
 
-  if (!isHasContent(data)) return undefined as ImportExportReturn<T, ContextMenuEnterprise>
+  if (!isHasContent(data)) return undefined
 
   const result: ContextMenuEnterprise = {}
 
@@ -30,5 +29,5 @@ export function exportContextMenuToEnterprise<T extends ContextMenu | undefined>
   const childItems = exportButtonGroupChildItemsToEnterprise(context, data.childItems)
   if (childItems !== undefined) result.ПодчиненныеЭлементы = childItems
 
-  return result as ImportExportReturn<T, ContextMenuEnterprise>
+  return result
 }

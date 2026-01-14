@@ -4,6 +4,7 @@ import { FormField, FormFieldEnterprise, FormFieldXML } from "~/metadata/forms/e
 import { EventsXML } from "~/metadata/forms/events/types"
 
 export interface ChartField extends FormField {
+  elementType: "ChartField"
   autoMaxHeight?: boolean
   autoMaxWidth?: boolean
   height?: number
